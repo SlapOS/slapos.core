@@ -30,8 +30,9 @@ __all__ = ["slap", "ComputerPartition", "Computer", "SoftwareRelease",
            "ResourceNotReady"]
 
 from interface import slap as interface
-from xml_marshaller import xml_marshaller
+
 import httplib
+import simplejson as json
 import socket
 import ssl
 import urllib
@@ -62,6 +63,18 @@ class HTTPSConnectionCA(httplib.HTTPSConnection):
     self.sock = ssl.wrap_socket(sock, self.key_file, self.cert_file,
         ca_certs=self.ca_file, cert_reqs=ssl.CERT_REQUIRED)
 
+
+def partitiondict2partition(partition_dict):
+  slap_partition = ComputerPartition(partition_dict['computer_id'],
+      partition_dict['partition_reference'])
+  slap_partition._requested_state = partition_dict['requested_state']
+  slap_partition._need_modification = partition_dict['need_modification']
+  slap_partition._parameter_dict = partition_dict['parameter_dict']
+  slap_partition._connection_dict = partition_dict['connection_dict']
+  slap_partition._software_release_document = SoftwareRelease(
+      software_release=partition_dict['software_release'],
+      computer_guid=partition_dict['computer_id'])
+  return slap_partition
 
 class SlapDocument:
   pass
@@ -108,19 +121,6 @@ class SoftwareRelease(SlapDocument):
       'url': self._software_release, 
       'computer_id': self._computer_guid})
 
-# XXX What is this SoftwareInstance class?
-class SoftwareInstance(SlapDocument):
-  """
-  Contains Software Instance information
-  """
-
-  def __init__(self, **kwargs):
-    """
-    Makes easy initialisation of class parameters
-    """
-    for k, v in kwargs.iteritems():
-      setattr(self, k, v)
-
 """Exposed exceptions"""
 # XXX Why do we need to expose exceptions?
 class ResourceNotReady(Exception):
@@ -140,31 +140,31 @@ class Supply(SlapDocument):
   zope.interface.implements(interface.ISupply)
 
   def supply(self, software_release, computer_guid=None):
-    self._connection_helper.POST('/supplySupply', {
-      'url': software_release, 
-      'computer_id': computer_guid})
+    self._connection_helper.POST('/%s/software' % computer_guid, json.dumps({
+      'url': software_release}), "application/json")
 
 class OpenOrder(SlapDocument):
 
   zope.interface.implements(interface.IOpenOrder)
 
   def request(self, software_release, partition_reference,
-      partition_parameter_kw=None, software_type=None):
-    if partition_parameter_kw is None:
-      partition_parameter_kw = {}
+      parameter_dict_kw=None, software_type=None):
+    if parameter_dict_kw is None:
+      parameter_dict_kw = {}
     request_dict = {
         'software_release': software_release,
         'partition_reference': partition_reference,
-        'partition_parameter_xml': xml_marshaller.dumps(partition_parameter_kw),
+        'parameter_dict': parameter_dict_kw,
       }
     if software_type is not None:
       request_dict['software_type'] = software_type
-    self._connection_helper.POST('/requestComputerPartition', request_dict)
-    xml = self._connection_helper.response.read()
-    software_instance = xml_marshaller.loads(xml)
+    self._connection_helper.POST('/partition', json.dumps(request_dict),
+        content_type="application/json")
+    json_document = self._connection_helper.response.read()
+    software_instance = json.loads(json_document)
     computer_partition = ComputerPartition(
-      software_instance.slap_computer_id.encode('UTF-8'),
-      software_instance.slap_computer_partition_id.encode('UTF-8'))
+      software_instance['slap_computer_id'].encode('UTF-8'),
+      software_instance['slap_computer_partition_id'].encode('UTF-8'))
     return computer_partition
 
 def _syncComputerInformation(func):
@@ -209,16 +209,17 @@ class Computer(SlapDocument):
   def reportUsage(self, computer_partition_list):
     if computer_partition_list == []:
       return
+    # xxx-Cedric : do not send computer, but only a dict json-compliant.
     computer = Computer(self._computer_id)
     computer.computer_partition_usage_list = computer_partition_list
-    marshalled_slap_usage = xml_marshaller.dumps(computer)
+    marshalled_slap_usage = json.dumps(computer)
     self._connection_helper.POST('/useComputer', {
       'computer_id': self._computer_id,
       'use_string': marshalled_slap_usage})
 
-  def updateConfiguration(self, xml):
+  def updateConfiguration(self, xml_document):
     self._connection_helper.POST(
-        '/loadComputerConfigurationFromXML', { 'xml' : xml })
+        '/loadComputerConfigurationFromXML', { 'xml' : xml_document })
     return self._connection_helper.response.read()
 
 def _syncComputerPartitionInformation(func):
@@ -279,12 +280,12 @@ class ComputerPartition(SlapDocument):
   #      Computer Partition data are fetch from server shall be delayed
   @_syncComputerPartitionInformation
   def request(self, software_release, software_type, partition_reference,
-              shared=False, partition_parameter_kw=None, filter_kw=None):
-    if partition_parameter_kw is None:
-      partition_parameter_kw = {}
-    elif not isinstance(partition_parameter_kw, dict):
-      raise ValueError("Unexpected type of partition_parameter_kw '%s'" % \
-                       partition_parameter_kw)
+              shared=False, parameter_dict_kw=None, filter_kw=None):
+    if parameter_dict_kw is None:
+      parameter_dict_kw = {}
+    elif not isinstance(parameter_dict_kw, dict):
+      raise ValueError("Unexpected type of parameter_dict_kw '%s'" % \
+                       parameter_dict_kw)
 
     if filter_kw is None:
       filter_kw = {}
@@ -292,22 +293,22 @@ class ComputerPartition(SlapDocument):
       raise ValueError("Unexpected type of filter_kw '%s'" % \
                        filter_kw)
 
-    self._connection_helper.POST('/requestComputerPartition',
-      { 'computer_id': self._computer_id,
+    json_parameter = json.dumps({ 'computer_id': self._computer_id,
         'computer_partition_id': self._partition_id,
         'software_release': software_release,
         'software_type': software_type,
         'partition_reference': partition_reference,
-        'shared_xml': xml_marshaller.dumps(shared),
-        'partition_parameter_xml': xml_marshaller.dumps(
-                                        partition_parameter_kw),
-        'filter_xml': xml_marshaller.dumps(filter_kw),
-      })
-    xml = self._connection_helper.response.read()
-    software_instance = xml_marshaller.loads(xml)
+        'shared': json.dumps(shared),
+        'parameter_dict': json.dumps(parameter_dict_kw),
+        'filter_json': json.dumps(filter_kw),
+    })
+    self._connection_helper.POST('/partition', json_parameter,
+        content_type = "application/json")
+    json_document = self._connection_helper.response.read()
+    software_instance = json.loads(json_document)
     computer_partition = ComputerPartition(
-      software_instance.slap_computer_id.encode('UTF-8'),
-      software_instance.slap_computer_partition_id.encode('UTF-8'))
+      software_instance['slap_computer_id'].encode('UTF-8'),
+      software_instance['slap_computer_partition_id'].encode('UTF-8'))
     return computer_partition
 
   def building(self):
@@ -367,10 +368,9 @@ class ComputerPartition(SlapDocument):
       return self._software_release_document
 
   def setConnectionDict(self, connection_dict):
-    self._connection_helper.POST('/setComputerPartitionConnectionXml', {
-      'computer_id': self._computer_id,
-      'computer_partition_id': self._partition_id,
-      'connection_xml': xml_marshaller.dumps(connection_dict)})
+    self._connection_helper.POST('/%s/partition/%s' % (
+        self._computer_id, self._partition_id), json.dumps(connection_dict), 
+        'application/json')
 
   @_syncComputerPartitionInformation
   def getConnectionParameter(self, key):
@@ -388,7 +388,7 @@ class ComputerPartition(SlapDocument):
     self._connection_helper.GET(
         '/getComputerPartitionCertificate?computer_id=%s&'
         'computer_partition_id=%s' % (self._computer_id, self._partition_id))
-    return xml_marshaller.loads(self._connection_helper.response.read())
+    return json.loads(self._connection_helper.response.read())
 
 # def lazyMethod(func):
 #   """
@@ -419,8 +419,21 @@ your machine and that the server is available. The original error was:"
     self.master_ca_file = master_ca_file
 
   def getComputerInformation(self, computer_id):
-    self.GET('/getComputerInformation?computer_id=%s' % computer_id)
-    return xml_marshaller.loads(self.response.read())
+    self.GET('/%s' % computer_id)
+    dict_computer = json.loads(self.response.read())
+    # Build the computer object from our dict
+    # XXX-Cedric : would it be better to use dict_computer.get('couscous')?
+    computer = Computer(dict_computer['computer_id'])
+    computer._software_release_list = []
+    for sr in dict_computer['software_release_list']:
+      computer._software_release_list.append(SoftwareRelease(
+          software_release=sr['software_release'],
+          computer_guid=dict_computer['computer_id']))
+    computer._computer_partition_list = []
+    for partition in dict_computer['computer_partition_list']:
+        computer._computer_partition_list.append(partitiondict2partition(
+        partition))
+    return computer
 
   def connect(self):
     connection_dict = dict(
@@ -455,11 +468,14 @@ your machine and that the server is available. The original error was:"
 
   def POST(self, path, parameter_dict,
       content_type="application/x-www-form-urlencoded"):
+    # XXX-Cedric : we should change content_type to be json by default
     try:
       self.connect()
       header_dict = {'Content-type': content_type}
+      if content_type != 'application/json':
+        parameter_dict = urllib.urlencode(parameter_dict)
       self.connection.request("POST", self.path + path,
-          urllib.urlencode(parameter_dict), header_dict)
+          parameter_dict, header_dict)
     except socket.error, e:
       raise socket.error(self.error_message_connect_fail + str(e))
     self.response = self.connection.getresponse()
@@ -537,11 +553,12 @@ class slap:
     Registers connected representation of computer partition and
     returns Computer Partition class object
     """
-    self._connection_helper.GET('/registerComputerPartition?' \
-        'computer_reference=%s&computer_partition_reference=%s' % (
+    # XXX-Cedric : we have a problem when computer_guid or partition_id have 
+    # space. Should we forbid spaces? What about special chars?
+    self._connection_helper.GET('/%s/partition/%s' % (
           computer_guid, partition_id))
-    xml = self._connection_helper.response.read()
-    return xml_marshaller.loads(xml)
+    json_document = self._connection_helper.response.read()
+    return partitiondict2partition(json.loads(json_document))
 
   def registerOpenOrder(self):
     return OpenOrder()

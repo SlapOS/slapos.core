@@ -39,6 +39,7 @@ setup(name=name,
       'supervisor', # slapgrid uses supervisor to manage processes
       'xml_marshaller>=0.9.3', # to unmarshall/marshall python objects to/from
                                # XML
+      'simplejson', # for rest manipulation
       'zc.buildout>=1.5.0', # slapgrid uses buildout as its backend to do the
                             # job
       'zope.interface', # slap library implementes interfaces

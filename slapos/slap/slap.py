@@ -317,32 +317,29 @@ class ComputerPartition(SlapDocument):
       'computer_partition_id': self._partition_id})
 
   def available(self):
-    self._connection_helper.POST('/availableComputerPartition', {
-      'computer_id': self._computer_id,
-      'computer_partition_id': self._partition_id})
+    url = "/%s/partition/%s/available" % (self._computer_id, 
+                                          self._partition_id)
+    self._connection_helper.POST(url)
 
   def destroyed(self):
-    self._connection_helper.POST('/destroyedComputerPartition', {
-      'computer_id': self._computer_id,
-      'computer_partition_id': self._partition_id,
-      })
+    url = "/%s/partition/%s/destroyed" % (self._computer_id, 
+                                          self._partition_id)
+    self._connection_helper.POST(url)
 
   def started(self):
-    self._connection_helper.POST('/startedComputerPartition', {
-      'computer_id': self._computer_id,
-      'computer_partition_id': self._partition_id,
-      })
+    url = "/%s/partition/%s/started" % (self._computer_id,
+                                          self._partition_id)
+    self._connection_helper.POST(url)
 
   def stopped(self):
-    self._connection_helper.POST('/stoppedComputerPartition', {
-      'computer_id': self._computer_id,
-      'computer_partition_id': self._partition_id,
-      })
+    url = "/%s/partition/%s/stopped" % (self._computer_id,
+                                          self._partition_id)
+    self._connection_helper.POST(url)
 
   def error(self, error_log):
-    self._connection_helper.POST('/softwareInstanceError', {
-      'computer_id': self._computer_id,
-      'computer_partition_id': self._partition_id,
+    url = "/%s/partition/%s/error" % (self._computer_id,
+                                          self._partition_id)
+    self._connection_helper.POST(url, {
       'error_log': error_log})
 
   def getId(self):

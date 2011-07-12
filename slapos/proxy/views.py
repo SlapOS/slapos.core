@@ -111,41 +111,29 @@ def availableSoftwareRelease():
 def softwareReleaseError():
   return 'Ignored'
 
-@app.route('/buildingComputerPartition', methods=['POST'])
-def buildingComputerPartition():
-  computer_id = request.form['computer_id']
-  computer_partition_id = request.form['computer_partition_id']
+@app.route('/<computer_id>/partition/<computer_partition_id>/building', methods=['POST'])
+def buildingComputerPartition(computer_id, computer_partition_id):
   return 'Ignored'
 
-@app.route('/availableComputerPartition', methods=['POST'])
-def availableComputerPartition():
-  computer_id = request.form['computer_id']
-  computer_partition_id = request.form['computer_partition_id']
+@app.route('/<computer_id>/partition/<computer_partition_id>/available', methods=['POST'])
+def availableComputerPartition(computer_id, computer_partition_id):
   return 'Ignored'
 
-@app.route('/softwareInstanceError', methods=['POST'])
-def softwareInstanceError():
-  computer_id = request.form['computer_id']
-  computer_partition_id = request.form['computer_partition_id']
+@app.route('/<computer_id>/partition/<computer_partition_id>/error', methods=['POST'])
+def softwareInstanceError(computer_id, computer_partition_id):
   error_log = request.form['error_log']
   return 'Ignored'
 
-@app.route('/startedComputerPartition', methods=['POST'])
-def startedComputerPartition():
-  computer_id = request.form['computer_id']
-  computer_partition_id = request.form['computer_partition_id']
+@app.route('/<computer_id>/partition/<computer_partition_id>/started', methods=['POST'])
+def startedComputerPartition(computer_id, computer_partition_id):
   return 'Ignored'
 
-@app.route('/stoppedComputerPartition', methods=['POST'])
-def stoppedComputerPartition():
-  computer_id = request.form['computer_id']
-  computer_partition_id = request.form['computer_partition_id']
+@app.route('/<computer_id>/partition/<computer_partition_id>/stopped', methods=['POST'])
+def stoppedComputerPartition(computer_id, computer_partition_id):
   return 'Ignored'
 
-@app.route('/destroyedComputerPartition', methods=['POST'])
-def destroyedComputerPartition():
-  computer_id = request.form['computer_id']
-  computer_partition_id = request.form['computer_partition_id']
+@app.route('/<computer_id>/partition/<computer_partition_id>/destroyed', methods=['POST'])
+def destroyedComputerPartition(computer_id, computer_partition_id):
   return 'Ignored'
 
 #@app.route('/partition/<partition_reference>', methods=['PUT'])
@@ -241,9 +229,8 @@ def requestComputerPartition(partition_reference = ''):
   filter_json = request.form.get('filter_json')
   raise NotImplementedError
 
-@app.route('/useComputer', methods=['POST'])
-def useComputer():
-  computer_id = request.form['computer_id']
+@app.route('/<computer_id>/usage', methods=['POST'])
+def useComputer(computer_id):
   use_string = request.form['use_string']
   return 'Ignored'
 

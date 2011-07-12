@@ -13,7 +13,7 @@ class UnauthorizedError(Exception):
   pass
 
 def partitiondict2partition(partition):
-  # XXX-Cedric : change function name, as it does no longer create a 
+  # XXX-Cedric : change function name, as it does no longer create a
   # Partition instance, but rather create a dict ready to be sent in json
   slap_partition = dict(computer_id = app.config['computer_id'],
                         computer_partition_id = partition['reference'],
@@ -70,7 +70,7 @@ def after_request(response):
   g.db.commit()
   g.db.close()
   return response
-  
+
 @app.route('/<computer_id>', methods=['GET'])
 def getComputerInformation(computer_id):
   """Returns information about computer"""
@@ -88,7 +88,7 @@ def getComputerInformation(computer_id):
   else:
     raise UnauthorizedError, "Only accept request for: %s" % \
                              app.config['computer_id']
-  
+
 @app.route('/<computer_id>/partition/<computer_partition_id>', methods=['POST'])
 def setComputerPartitionConnectionJson(computer_id, computer_partition_id):
   # XXX-Cedric : change connection_xml to connection_json in sql
@@ -96,7 +96,7 @@ def setComputerPartitionConnectionJson(computer_id, computer_partition_id):
   argument_list = [request.json, computer_partition_id.encode()]
   execute_db('partition', query, argument_list)
   return 'done'
-  
+
 @app.route('/buildingSoftwareRelease', methods=['POST'])
 def buildingSoftwareRelease():
   return 'Ignored'
@@ -206,7 +206,7 @@ def requestComputerPartition(partition_reference = ''):
     a(partition_id)
   if instance_json:
     # XXX-Cedric : change xml to sjon in sql
-    q+= ' ,xml=?'
+    q += ' ,xml=?'
     a(instance_json)
   q += ' WHERE reference=?'
   a(partition['reference'].encode())
@@ -252,19 +252,17 @@ def loadComputerConfigurationFromXML():
   xml = request.form['xml']
   computer_dict = xml_marshaller.xml_marshaller.loads(str(xml))
   if app.config['computer_id'] == computer_dict['reference']:
-    args = []
-    a = args.append
     execute_db('computer', 'INSERT OR REPLACE INTO %s values(:address, :netmask)',
         computer_dict)
     for partition in computer_dict['partition_list']:
-    
+
       execute_db('partition', 'INSERT OR IGNORE INTO %s (reference) values(:reference)', partition)
       execute_db('partition_network', 'DELETE FROM %s WHERE partition_reference = ?', [partition['reference']])
       for address in partition['address_list']:
         address['reference'] = partition['tap']['name']
         address['partition_reference'] = partition['reference']
         execute_db('partition_network', 'INSERT OR REPLACE INTO %s (reference, partition_reference, address, netmask) values(:reference, :partition_reference, :addr, :netmask)', address)
-        
+
     return 'done'
   else:
     raise UnauthorizedError, "Only accept request for: %s" % \

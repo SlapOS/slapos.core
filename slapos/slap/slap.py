@@ -32,7 +32,11 @@ __all__ = ["slap", "ComputerPartition", "Computer", "SoftwareRelease",
 from interface import slap as interface
 
 import httplib
-import simplejson as json
+try:
+  import json
+except ImportError:
+  import simplejson as json
+
 import socket
 import ssl
 import urllib

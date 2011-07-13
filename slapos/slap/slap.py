@@ -316,9 +316,9 @@ class ComputerPartition(SlapDocument):
     return computer_partition
 
   def building(self):
-    self._connection_helper.POST('/buildingComputerPartition', {
-      'computer_id': self._computer_id,
-      'computer_partition_id': self._partition_id})
+    url = "/%s/partition/%s/building" % (self._computer_id,
+                                          self._partition_id)
+    self._connection_helper.POST(url)
 
   def available(self):
     url = "/%s/partition/%s/available" % (self._computer_id, 
@@ -344,7 +344,7 @@ class ComputerPartition(SlapDocument):
     url = "/%s/partition/%s/error" % (self._computer_id,
                                           self._partition_id)
     self._connection_helper.POST(url, {
-      'error_log': error_log})
+      'error_log': error_log, })
 
   def getId(self):
     return self._partition_id

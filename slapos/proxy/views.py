@@ -97,19 +97,14 @@ def setComputerPartitionConnectionJson(computer_id, computer_partition_id):
   execute_db('partition', query, argument_list)
   return 'done'
 
-@app.route('/buildingSoftwareRelease', methods=['POST'])
-def buildingSoftwareRelease():
-  return 'Ignored'
-
-@app.route('/availableSoftwareRelease', methods=['POST'])
-def availableSoftwareRelease():
-  computer_id = request.form['computer_id']
+@app.route('/<computer_id>/software/building', methods=['POST'])
+@app.route('/<computer_id>/software/available', methods=['POST'])
+def software_release_ignored_api(computer_id):
   url = request.form['url']
   return 'Ignored'
 
-@app.route('/softwareReleaseError', methods=['POST'])
-def softwareReleaseError():
-  return 'Ignored'
+@app.route('/<computer_id>/software/error', methods=['POST'])
+def softwareReleaseError(computer_id):
 
 @app.route('/<computer_id>/partition/<computer_partition_id>/building', methods=['POST'])
 def buildingComputerPartition(computer_id, computer_partition_id):

@@ -107,23 +107,23 @@ class SoftwareRelease(SlapDocument):
 
   def error(self, error_log):
     # Does not follow interface
-    self._connection_helper.POST('/softwareReleaseError', {
+    url = '%s/software/error' % self._computer_guid,
+    self._connection_helper.POST(url, {
       'url': self._software_release,
-      'computer_id' : self._computer_guid,
       'error_log': error_log})
 
   def getURI(self):
     return self._software_release
 
   def available(self):
-    self._connection_helper.POST('/availableSoftwareRelease', {
-      'url': self._software_release, 
-      'computer_id': self._computer_guid})
+    url = '%s/software/available' % self._computer_guid
+    self._connection_helper.POST(url, {
+      'url': self._software_release})
 
   def building(self):
-    self._connection_helper.POST('/buildingSoftwareRelease', {
-      'url': self._software_release, 
-      'computer_id': self._computer_guid})
+    url = '%s/software/building' % self._computer_guid
+    self._connection_helper.POST(url, {
+      'url': self._software_release})
 
 """Exposed exceptions"""
 # XXX Why do we need to expose exceptions?

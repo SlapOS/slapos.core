@@ -30,10 +30,10 @@ def xml2dict(xml):
 def partitiondict2partition(partition):
   # XXX-Cedric : change function name, as it does no longer create a
   # Partition instance, but rather create a dict ready to be sent in json
-  slap_partition = dict(computer_id = app.config['computer_id'],
-                        computer_partition_id = partition['reference'],
-                        requested_state = 'started',
-                        partition_reference = partition['partition_reference'])
+  slap_partition = dict(computer_id=app.config['computer_id'],
+                        computer_partition_id=partition['reference'],
+                        requested_state='started',
+                        partition_reference=partition['partition_reference'])
   if partition['software_release']:
     slap_partition['need_modification'] = 1
   else:
@@ -146,7 +146,7 @@ def requestComputerPartition(partition_reference = ''):
   if (software_type is None):
     software_type = 'RootSoftwareInstance'
   software_type = software_type.encode()
-  if partition_reference is '' :
+  if partition_reference is '':
     partition_reference = request_dict.get('partition_reference', '').encode()
   partition_id = request_dict.get('computer_partition_id', '')
   if (partition_id is None):
@@ -253,8 +253,8 @@ def loadComputerConfigurationFromXML():
   else:
     raise UnauthorizedError, "Only accept request for: %s" % \
                              app.config['computer_id']
-                             
-#XXX-Cedric : We still use XML for formatting for now.                            
+
+#XXX-Cedric : We still use XML for formatting for now. 
 #@app.route('/loadComputerConfiguration', methods=['POST'])
 #def loadComputerConfigurationFromJson():
 #  json_document = request.form['json']

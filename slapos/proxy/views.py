@@ -105,13 +105,6 @@ def software_release_ignored_api(computer_id):
 
 @app.route('/<computer_id>/software/error', methods=['POST'])
 def softwareReleaseError(computer_id):
-
-@app.route('/<computer_id>/partition/<computer_partition_id>/building', methods=['POST'])
-def buildingComputerPartition(computer_id, computer_partition_id):
-  return 'Ignored'
-
-@app.route('/<computer_id>/partition/<computer_partition_id>/available', methods=['POST'])
-def availableComputerPartition(computer_id, computer_partition_id):
   return 'Ignored'
 
 @app.route('/<computer_id>/partition/<computer_partition_id>/error', methods=['POST'])
@@ -119,16 +112,12 @@ def softwareInstanceError(computer_id, computer_partition_id):
   error_log = request.form['error_log']
   return 'Ignored'
 
+@app.route('/<computer_id>/partition/<computer_partition_id>/building', methods=['POST'])
+@app.route('/<computer_id>/partition/<computer_partition_id>/available', methods=['POST'])
 @app.route('/<computer_id>/partition/<computer_partition_id>/started', methods=['POST'])
-def startedComputerPartition(computer_id, computer_partition_id):
-  return 'Ignored'
-
 @app.route('/<computer_id>/partition/<computer_partition_id>/stopped', methods=['POST'])
-def stoppedComputerPartition(computer_id, computer_partition_id):
-  return 'Ignored'
-
 @app.route('/<computer_id>/partition/<computer_partition_id>/destroyed', methods=['POST'])
-def destroyedComputerPartition(computer_id, computer_partition_id):
+def computer_partition_ignored_api(computer_id, computer_partition_id):
   return 'Ignored'
 
 #@app.route('/partition/<partition_reference>', methods=['PUT'])

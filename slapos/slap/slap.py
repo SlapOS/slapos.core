@@ -70,7 +70,7 @@ class HTTPSConnectionCA(httplib.HTTPSConnection):
 
 def partitiondict2partition(partition_dict):
   slap_partition = ComputerPartition(partition_dict['computer_id'],
-      partition_dict['partition_reference'])
+      partition_dict['computer_partition_id'])
   slap_partition._requested_state = partition_dict['requested_state']
   slap_partition._need_modification = partition_dict['need_modification']
   slap_partition._parameter_dict = partition_dict['parameter_dict']

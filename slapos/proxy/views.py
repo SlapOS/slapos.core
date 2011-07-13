@@ -39,7 +39,11 @@ def partitiondict2partition(partition):
   # XXX-Cedric : change from partition['xml'] to partition['json']
   parameter_dict = dict()
   if partition['xml']:
-    parameter_dict = json.loads(partition['xml'])
+    try:
+      parameter_dict = json.loads(partition['xml'])
+    except ValueError:
+      # Backward compatility to old storage data.
+      parameter_dict = xml2dict(partition['xml'])
   slap_partition['parameter_dict'] = parameter_dict
   address_list = []
   #XXX-Cedric : I do not understand the query. It is unclear what is partition['reference'], is it computer_partition_id or partition_reference?

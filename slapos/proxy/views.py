@@ -1,10 +1,7 @@
 from flask import g, Flask, request, abort, json
 import xml_marshaller.xml_marshaller
-from slapos.slap.slap import Computer, ComputerPartition, SoftwareRelease
 from lxml import etree
-from lxml.etree import XMLSyntaxError
 import sqlite3
-from simplejson.decoder import JSONDecodeError
 
 app = Flask(__name__)
 DB_VERSION = app.open_resource('schema.sql').readline().strip().split(':')[1]

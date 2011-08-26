@@ -47,7 +47,7 @@ class Software(object):
   """This class is responsible of installing a software release"""
   def __init__(self, url, software_root, console, buildout,
       signature_private_key_file=None, upload_cache_url=None,
-      upload_dir_url=None):
+      upload_dir_url=None, software_environment=None):
     """Initialisation of class parameters
     """
     self.url = url
@@ -60,6 +60,7 @@ class Software(object):
     self.signature_private_key_file = signature_private_key_file
     self.upload_cache_url = upload_cache_url
     self.upload_dir_url = upload_dir_url
+    self.software_environment = software_environment
 
   def install(self):
     """ Fetches buildout configuration from the server, run buildout with
@@ -98,11 +99,12 @@ class Software(object):
       buildout_parameter_list.extend(['-c', self.url])
       utils.bootstrapBuildout(self.software_path, self.buildout,
           additional_buildout_parametr_list=buildout_parameter_list,
-          console=self.console)
+          console=self.console, environment=self.software_environment)
       utils.launchBuildout(self.software_path,
                      os.path.join(self.software_path, 'bin', 'buildout'),
                      additional_buildout_parametr_list=buildout_parameter_list,
-                     console=self.console)
+                     console=self.console,
+                     environment=self.software_environment)
     finally:
       shutil.rmtree(extends_cache)
 

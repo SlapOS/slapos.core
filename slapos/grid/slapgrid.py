@@ -110,6 +110,8 @@ def parseArgumentTupleAndReturnSlapgridObject(*argument_tuple):
   parser.add_argument("--promise-timeout",
                       type=int, default=3,
                       help="Promise timeout in seconds.")
+  parser.add_argument("--software-environment-file", type=argparse.FileType(),
+      help="File containing environment overrides for software runs.")
   parser.add_argument("configuration_file", nargs=1, type=argparse.FileType(),
       help="SlapOS configuration file.")
 
@@ -178,11 +180,19 @@ def parseArgumentTupleAndReturnSlapgridObject(*argument_tuple):
   # slapgrid scripts without this parameter.
   if signature_private_key_file:
     mandatory_file_list.append(signature_private_key_file)
-
   for f in mandatory_file_list:
     if f is not None:
       if not os.path.exists(f):
         parser.error('File %r does not exists.' % f)
+
+  # process software environment overrides
+  software_environment = None
+  software_environment_file = option_dict.get('software_environment_file')
+  if software_environment_file is not None:
+    software_env_config = ConfigParser.SafeConfigParser()
+    software_env_config.optionxform = str
+    software_env_config.readfp(software_environment_file)
+    software_environment = dict(software_env_config.items('environment'))
 
   certificate_repository_path = option_dict.get('certificate_repository_path')
   if certificate_repository_path is not None:
@@ -216,7 +226,8 @@ def parseArgumentTupleAndReturnSlapgridObject(*argument_tuple):
             upload_dir_url=option_dict.get('upload-dir-url', None),
             console=option_dict['console'],
             buildout=option_dict.get('buildout'),
-            promise_timeout=option_dict['promise_timeout']),
+            promise_timeout=option_dict['promise_timeout'],
+            software_environment=software_environment),
           option_dict])
 
 
@@ -289,7 +300,8 @@ class Slapgrid(object):
                master_ca_file=None,
                certificate_repository_path=None,
                console=False,
-               promise_timeout=3):
+               promise_timeout=3,
+               software_environment=None):
     """Makes easy initialisation of class parameters"""
     # Parses arguments
     self.software_root = os.path.abspath(software_root)
@@ -320,6 +332,7 @@ class Slapgrid(object):
     self.console = console
     self.buildout = buildout
     self.promise_timeout = promise_timeout
+    self.software_environment = software_environment
 
   def checkEnvironmentAndCreateStructure(self):
     """Checks for software_root and instance_root existence, then creates
@@ -381,7 +394,8 @@ class Slapgrid(object):
             console=self.console, buildout=self.buildout,
             signature_private_key_file=self.signature_private_key_file,
             upload_cache_url=self.upload_cache_url,
-            upload_dir_url=self.upload_dir_url).install()
+            upload_dir_url=self.upload_dir_url,
+            software_environment=self.software_environment).install()
       except (SystemExit, KeyboardInterrupt):
         exception = traceback.format_exc()
         software_release.error(exception)

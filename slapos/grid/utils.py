@@ -100,7 +100,7 @@ def getSoftwareUrlHash(url):
   return md5(url).hexdigest()
 
 
-def getCleanEnvironment(home_path='/tmp'):
+def getCleanEnvironment(home_path='/tmp', replace_environment=None):
   logger = logging.getLogger('CleanEnvironment')
   changed_env = {}
   removed_env = []
@@ -112,6 +112,10 @@ def getCleanEnvironment(home_path='/tmp'):
     if old is not None:
       removed_env.append(k)
   changed_env['HOME'] = env['HOME'] = home_path
+  if replace_environment is not None:
+    for k, v in replace_environment.iteritems():
+      # Note: os.path.expandvars is used in order to simulate shell expansion
+      changed_env[k] = env[k] = os.path.expandvars(v)
   for k in sorted(changed_env.iterkeys()):
     logger.debug('Overriden %s = %r' % (k,changed_env[k]))
   logger.debug('Removed from environement: %s' % ', '.join(sorted(removed_env)))
@@ -218,7 +222,7 @@ def dropPrivileges(uid, gid):
 
 
 def bootstrapBuildout(path, buildout=None,
-    additional_buildout_parametr_list=None, console=False):
+    additional_buildout_parametr_list=None, console=False, environment=None):
   if additional_buildout_parametr_list is None:
     additional_buildout_parametr_list = []
   logger = logging.getLogger('BuildoutManager')
@@ -259,7 +263,8 @@ def bootstrapBuildout(path, buildout=None,
       kw.update(stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     process_handler = SlapPopen(invocation_list,
             preexec_fn=lambda: dropPrivileges(uid, gid),
-            cwd=path, env=getCleanEnvironment(pwd.getpwuid(uid).pw_dir),
+            cwd=path, env=getCleanEnvironment(pwd.getpwuid(uid).pw_dir,
+            environment),
             **kw
             )
     result = process_handler.communicate()[0]
@@ -279,7 +284,8 @@ def bootstrapBuildout(path, buildout=None,
 
 
 def launchBuildout(path, buildout_binary,
-                   additional_buildout_parametr_list=None, console=False):
+                   additional_buildout_parametr_list=None, console=False,
+                   environment=None):
   """ Launches buildout."""
   logger = logging.getLogger('BuildoutManager')
   if additional_buildout_parametr_list is None:
@@ -310,7 +316,8 @@ def launchBuildout(path, buildout_binary,
       kw.update(stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     process_handler = SlapPopen(invocation_list,
             preexec_fn=lambda: dropPrivileges(uid, gid), cwd=path,
-            env=getCleanEnvironment(pwd.getpwuid(uid).pw_dir), **kw)
+            env=getCleanEnvironment(pwd.getpwuid(uid).pw_dir, environment),
+            **kw)
     result = process_handler.communicate()[0]
     if console:
       result = 'Please consult messages above'

@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21368104.84</string> </value>
+            <value> <string>ts21368325.7</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -36,6 +36,7 @@ function drawSoftwareProductList(data) {\n
         \'width\': \'100\',\n
         \'height\': \'40\'})\n
       img.appendTo(a);\n
+      a.html(a.html() + item.title);\n
       a.appendTo(li);\n
     });\n
   $("#software_product_container").append(ul);\n
@@ -162,7 +163,7 @@ function mainController() {\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>3592</int> </value>
+            <value> <int>3629</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

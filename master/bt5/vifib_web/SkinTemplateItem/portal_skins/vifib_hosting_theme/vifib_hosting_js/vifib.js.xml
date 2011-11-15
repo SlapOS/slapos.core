@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21366313.13</string> </value>
+            <value> <string>ts21368104.84</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -47,7 +47,9 @@ function drawSoftwareReleaseList(data) {\n
     $.each(data, function(i,item){\n
       li = $(\'<li>\').appendTo(ul);\n
       var a = $(\'<a>\');\n
-      a.attr({\'href\': \'#!software_release/\' + item.uid})\n
+      a.attr({\n
+        \'href\': \'#!software_release/\' + item.uid });\n
+      a.html(item.title + \' (\' + item.version + \')\');\n
       a.appendTo(li);\n
     });\n
   $("#software_release_container").append(ul);\n
@@ -81,16 +83,16 @@ function softwareReleaseController() {\n
   js_container.empty();\n
   var input = $(\'<input type="text">\');\n
   input.attr(\'id\', "software_release_query");\n
-  js_container.appendTo(input);\n
+  js_container.append(input);\n
 \n
-  var newElem = $(\'<input type="button">\');\n
-  newElem.attr(\'value\', \'Refresh...\');\n
-  newElem.addClass(\'bt-med dialog_submit_button\');\n
-  input.after(newElem);\n
+  var refresh = $(\'<input type="button">\');\n
+  refresh.attr(\'value\', \'Refresh...\');\n
+  refresh.addClass(\'bt-med dialog_submit_button\');\n
+  input.after(refresh);\n
   software_release_container = $(\'<div>\');\n
   software_release_container.attr(\'id\', \'software_release_container\');\n
-  newElem.after(software_release_container);\n
-  newElem.click(updateSoftwareReleaseList);\n
+  refresh.after(software_release_container);\n
+  refresh.click(updateSoftwareReleaseList);\n
 }\n
 \n
 function softwareProductController () {\n
@@ -101,14 +103,14 @@ function softwareProductController () {\n
   input.attr(\'id\', "software_product_query");\n
   js_container.append(input);\n
 \n
-  var newElem = $(\'<input type="button">\');\n
-  newElem.attr(\'value\', \'Refresh...\');\n
-  newElem.addClass(\'bt-med dialog_submit_button\');\n
-  input.after(newElem);\n
+  var refresh = $(\'<input type="button">\');\n
+  refresh.attr(\'value\', \'Refresh...\');\n
+  refresh.addClass(\'bt-med dialog_submit_button\');\n
+  input.after(refresh);\n
   software_product_container = $(\'<div>\');\n
   software_product_container.attr(\'id\', \'software_product_container\');\n
-  newElem.after(software_product_container);\n
-  newElem.click(updateSoftwareProductList);\n
+  refresh.after(software_product_container);\n
+  refresh.click(updateSoftwareProductList);\n
 \n
 }\n
 \n
@@ -160,7 +162,7 @@ function mainController() {\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>3529</int> </value>
+            <value> <int>3592</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

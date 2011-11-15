@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21353467.93</string> </value>
+            <value> <string>ts21353978.79</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -49,6 +49,16 @@ function updateSoftwareProductList() {\n
 }\n
 \n
 function softwareReleaseController() {\n
+  $.ajaxSetup ({  \n
+          cache: false  \n
+  });\n
+  js_container = $("#js_container");\n
+  js_container.empty();\n
+  back = $(\'<input type="button">\');\n
+  back.attr(\'value\', \'<- Back to Software Product\');\n
+  back.addClass(\'bt-med dialog_submit_button\');\n
+  back.click(mainController);\n
+  $("#js_container").append(back);\n
   alert(\'Clicked on \' + $(this)[0][\'alt\'] + $(this)[0][\'id\']);\n
 }\n
 \n
@@ -56,10 +66,12 @@ function mainController() {\n
   $.ajaxSetup ({  \n
           cache: false  \n
   });\n
+  js_container = $("#js_container");\n
+  js_container.empty();\n
 \n
   var input = $(\'<input type="text">\');\n
   input.attr(\'id\', "software_product_query");\n
-  $("#js_container").append(input);\n
+  js_container.append(input);\n
 \n
   var newElem = $(\'<input type="button">\');\n
   newElem.attr(\'value\', \'Refresh...\');\n
@@ -80,7 +92,7 @@ function mainController() {\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>1411</int> </value>
+            <value> <int>1780</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

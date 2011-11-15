@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21370506.58</string> </value>
+            <value> <string>ts21374348.43</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -113,11 +113,19 @@ function softwareProductController () {\n
 \n
 }\n
 \n
+function processRequest() {\n
+  computer = $(\'#computer\').val();\n
+  url = $(\'#url\').val();\n
+  title = $(\'#software_instance_title\').val();\n
+  xml = $(\'#software_instance_xml\').val();\n
+  alert(computer + url + title + xml);\n
+}\n
+\n
 function drawRequest(data) {\n
   js_container = $("#js_container");\n
   js_container.empty();\n
   url_a = $(\'<input type="hidden">\');\n
-  url_a.attr({\'value\': data.url, \'name\': \'url\'});\n
+  url_a.attr({\'value\': data.url, \'name\': \'url\', \'id\': \'url\'});\n
   js_container.append(url_a);\n
   title_q = $(\'<div>\');\n
   title_q.html(\'Software Instance Title:\');\n
@@ -136,9 +144,28 @@ function drawRequest(data) {\n
   computer_q = $(\'<div>\');\n
   computer_q.html(\'Computer:\');\n
   js_container.append(computer_q);\n
+  computer_a = $(\'<select>\');\n
+  computer_a.attr({\'name\': \'computer\', \'id\': \'computer\'});\n
+  js_container.append(computer_a)\n
+  $.getJSON(vifib[\'site_url\'] + "/ERP5Site_getComputerListAsJSON", function(data) {\n
+    option = $(\'<option>\');\n
+    option.attr(\'value\', \'\');\n
+    option.appendTo(computer_a);\n
+    $.each(data, function(i, item){\n
+      computer_a = $(\'#computer\');\n
+      option = $(\'<option>\');\n
+      option.attr(\'value\', item.id);\n
+      option.html(item.title + \' (\' + item.id +\')\');\n
+      option.appendTo(computer_a);\n
+    });\n
+  });\n
   summary = $(\'<div>\');\n
   summary.html(\'Software Release: \' + data.title + \' (\' + data.version + \'), url: \' + data.url);\n
   js_container.append(summary);\n
+  request = $(\'<input type="button">\');\n
+  request.attr(\'value\', \'Request\');\n
+  request.click(processRequest);\n
+  js_container.append(request);\n
 }\n
 \n
 function requestController() {\n
@@ -178,6 +205,8 @@ function hashController ()\n
     hash = window.location.hash;\n
   }\n
 \n
+  console.log(\'In hashController with \' + hash);\n
+\n
   var list_len = hash_list.length; \n
   var i = 0;\n
   var found = 0;\n
@@ -192,6 +221,7 @@ function hashController ()\n
 }\n
 \n
 function mainController() {\n
+  console.log(\'In mainController with \' + window.location.hash);\n
   $.ajaxSetup ({cache: false});\n
   $(window).hashchange( hashController() );\n
   $(window).hashchange();\n
@@ -206,7 +236,7 @@ function mainController() {\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>4842</int> </value>
+            <value> <int>5869</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

@@ -26,8 +26,12 @@
 ##############################################################################
 
 import subprocess
+import json
 
 def formatXml(self, xml):
   """Simple way to have nicely formatted XML"""
   popen = subprocess.Popen(['xmllint', '--format', '--recover', '-'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
   return popen.communicate(xml)[0]
+
+def asJSON(self, o):
+  return json.dumps(o, indent=2)

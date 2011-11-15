@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21368325.7</string> </value>
+            <value> <string>ts21370506.58</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -78,8 +78,6 @@ function softwareReleaseController() {\n
   $.ajaxSetup ({  \n
           cache: false  \n
   });\n
-  software_product_id = /#!software_product\\/([0-9]+)?/.exec(window.location.hash)[1];\n
-  software_product_id = parseInt(software_product_id);\n
   js_container = $("#js_container");\n
   js_container.empty();\n
   var input = $(\'<input type="text">\');\n
@@ -115,6 +113,47 @@ function softwareProductController () {\n
 \n
 }\n
 \n
+function drawRequest(data) {\n
+  js_container = $("#js_container");\n
+  js_container.empty();\n
+  url_a = $(\'<input type="hidden">\');\n
+  url_a.attr({\'value\': data.url, \'name\': \'url\'});\n
+  js_container.append(url_a);\n
+  title_q = $(\'<div>\');\n
+  title_q.html(\'Software Instance Title:\');\n
+  js_container.append(title_q);\n
+  title_a = $(\'<input type="text">\');\n
+  title_a.attr(\'id\', \'software_instance_title\');\n
+  js_container.append(title_a);\n
+  js_container.append($(\'<br>\'));\n
+\n
+  xml_q = $(\'<div>\');\n
+  xml_q.html(\'Parameter XML:\');\n
+  js_container.append(xml_q);\n
+  xml_a = $(\'<textarea>\');\n
+  xml_a.attr(\'id\', \'software_instance_xml\');\n
+  js_container.append(xml_a)\n
+  computer_q = $(\'<div>\');\n
+  computer_q.html(\'Computer:\');\n
+  js_container.append(computer_q);\n
+  summary = $(\'<div>\');\n
+  summary.html(\'Software Release: \' + data.title + \' (\' + data.version + \'), url: \' + data.url);\n
+  js_container.append(summary);\n
+}\n
+\n
+function requestController() {\n
+  $.ajaxSetup ({  \n
+          cache: false  \n
+  });\n
+  software_release_id = /#!software_release\\/([0-9]+)?/.exec(window.location.hash)[1];\n
+  software_release_id = parseInt(software_release_id);\n
+  $.getJSON(\n
+  vifib[\'site_url\'] + "/ERP5Site_getSoftwareReleaseAsJSON",\n
+  {"software_release_uid":software_release_id},\n
+  drawRequest);\n
+}\n
+\n
+\n
 var hash_list = [\n
    {\n
      \'regexp\': /^$/, \n
@@ -123,6 +162,10 @@ var hash_list = [\n
    {\n
      \'regexp\': /^#!software_product\\/([0-9]+)?$/, \n
      \'func\': softwareReleaseController,\n
+   },\n
+   {\n
+     \'regexp\': /^#!software_release\\/([0-9]+)?$/, \n
+     \'func\': requestController,\n
    },\n
  ];\n
 \n
@@ -163,7 +206,7 @@ function mainController() {\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>3629</int> </value>
+            <value> <int>4842</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

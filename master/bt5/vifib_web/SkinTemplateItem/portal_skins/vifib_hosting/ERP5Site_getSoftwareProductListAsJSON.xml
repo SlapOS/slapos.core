@@ -50,22 +50,29 @@
         </item>
         <item>
             <key> <string>_body</string> </key>
-            <value> <string># This script returns an iterable of the paths to standard JavaScript objects.\n
+            <value> <string>response = []\n
 \n
-return (\'jquery/core/jquery.js\',\n
-        \'vifib_hosting_js/vifib_hosting.js\',\n
-        \'vifib_hosting_js/slap.js\',\n
-        \'vifib_hosting_js/vifib.js\',\n
-         )\n
+kw = {}\n
+kw.update(\n
+  portal_type=\'Software Product\',\n
+  validation_state=\'published\',\n
+  limit=10,\n
+  title=title,\n
+)\n
+if title:\n
+  for software_product in context.getPortalObject().portal_catalog(**kw\n
+  ):\n
+    response.append({\'title\': software_product.getTitle(), \'image\': software_product.getDefaultImageAbsoluteUrl() + \'/Base_download\', \'uid\': str(software_product.getUid())})\n
+return context.asJSON(response)\n
 </string> </value>
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string></string> </value>
+            <value> <string>title</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ERP5Site_getJavaScriptRelativeUrlList</string> </value>
+            <value> <string>ERP5Site_getSoftwareProductListAsJSON</string> </value>
         </item>
       </dictionary>
     </pickle>

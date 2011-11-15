@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<ZopeData>
+  <record id="1" aka="AAAAAAAAAAE=">
+    <pickle>
+      <global name="File" module="OFS.Image"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>_EtagSupport__etag</string> </key>
+            <value> <string>ts21351032.04</string> </value>
+        </item>
+        <item>
+            <key> <string>__name__</string> </key>
+            <value> <string>vifib.js</string> </value>
+        </item>
+        <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>application/javascript</string> </value>
+        </item>
+        <item>
+            <key> <string>data</string> </key>
+            <value> <string encoding="cdata"><![CDATA[
+
+function drawSoftwareProductList(data) {\n
+  $(\'#software_product_list\').remove()\n
+  var ul = $(\'<ul>\');\n
+  ul.attr(\'id\', \'software_product_list\')\n
+    $.each(data, function(i,item){\n
+      sp_id = \'software_product_\' + \'\'+item.uid;\n
+      li = $(\'<li>\').appendTo(ul);\n
+      var newElem = $(\'<img>\');\n
+      newElem.attr(\'alt\', item.title);\n
+      newElem.attr(\'src\', item.image);\n
+      newElem.attr(\'id\', sp_id);\n
+      newElem.appendTo(li)\n
+      $(\'#\' + sp_id).click(function() {\n
+        alert(\'Clicked on \' + $(this)[0][\'alt\']);\n
+      });\n
+    });\n
+  $("#js_entry").before(ul);\n
+}\n
+\n
+function updateSoftwareProductList() {\n
+  q = $(\'#software_product_query\')[0][\'value\']\n
+  $.getJSON(\n
+  "http://t228:18080/erp5/web_site_module/hosting/myspace/software/ERP5Site_getSoftwareProductListAsJSON",\n
+  {"title":q},\n
+  drawSoftwareProductList);\n
+}\n
+\n
+function mainController() {\n
+  $.ajaxSetup ({  \n
+          cache: false  \n
+  });\n
+\n
+  var newElem = $(\'<input type="text">\');\n
+  newElem.attr(\'id\', "software_product_query");\n
+  $("#js_entry").before(newElem);\n
+\n
+  var newElem = $(\'<input type="button">\')\n
+  newElem.attr(\'value\', \'Refresh...\')\n
+  $("#js_entry").before(newElem);\n
+\n
+  newElem.click(updateSoftwareProductList)\n
+\n
+}
+
+]]></string> </value>
+        </item>
+        <item>
+            <key> <string>precondition</string> </key>
+            <value> <string></string> </value>
+        </item>
+        <item>
+            <key> <string>size</string> </key>
+            <value> <int>1189</int> </value>
+        </item>
+        <item>
+            <key> <string>title</string> </key>
+            <value> <string></string> </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+</ZopeData>

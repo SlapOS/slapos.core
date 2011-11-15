@@ -36,40 +36,24 @@
             <key> <string>_text</string> </key>
             <value> <unicode encoding="cdata"><![CDATA[
 
-<tal:block i18n:domain="ui"\n
-           tal:define="website_url python: request.get(\'current_web_site_url\',here.getAbsoluteUrl());\n
-                       base_url python: \'%s/vifib_hosting_image/\' % website_url">\n
-<div class="available_menu_option">\n
-  <a tal:attributes="href string:${website_url}/myspace/my_services">\n
-    <img tal:attributes="src string:${base_url}my_services_active.png" alt="My Services" />\n
-    <br /><span i18n:translate="">My Services</span>\n
-   </a>\n
-</div>\n
-\n
-<div class="available_menu_option">\n
-  <a tal:attributes="href string:${website_url}/myspace/software">\n
-    <img tal:attributes="src string:${base_url}software_active.png" alt="Software" />\n
-    <br /><span i18n:translate="">Software</span>\n
-  </a>\n
-</div>\n
-\n
-<div class="clear"></div>\n
-\n
-<div class="available_menu_option_center">\n
-  <a tal:attributes="href string:${website_url}/myspace/my_account">\n
-    <img tal:attributes="src string:${base_url}my_account_active.png" alt="My Account" />\n
-    <br /><span i18n:translate="">My Account</span>\n
-  </a>\n
-  <div class="clear"></div>\n
-</div>\n
-\n
-<div class="available_menu_option">\n
-  <a tal:attributes="href string:${website_url}/myspace/my_servers">\n
-    <img tal:attributes="src string:${base_url}my_servers_active.png" alt="My Servers" />\n
-    <br /><span i18n:translate="">My Servers</span>\n
-  </a>\n
-</div>\n
-\n
+<tal:block xmlns:tal="http://xml.zope.org/namespaces/tal"\n
+           xmlns:metal="http://xml.zope.org/namespaces/metal"\n
+           xmlns:i18n="http://xml.zope.org/namespaces/i18n">\n
+  <tal:block tal:define="form_action string:logged_in;\n
+             global form_id string:login_form;\n
+             js_list python: [\'%s/login_form.js\' % (here.portal_url(), ), \'%s/erp5.js\' % (here.portal_url(), )]">\n
+    <tal:block metal:use-macro="here/main_template/macros/master">\n
+      <tal:block metal:fill-slot="main">\n
+        <div class="content">\n
+          <h1 i18n:translate="" i18n:domain="ui">Request a Software Instance</h1>\n
+<input type="hidden" name="js_entry" id="js_entry">\n
+<script type="text/javascript">\n
+$(document).ready(mainController());\n
+</script>\n
+        </div>\n
+      </tal:block>\n
+    </tal:block>\n
+  </tal:block>\n
 </tal:block>
 
 ]]></unicode> </value>
@@ -84,7 +68,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>WebSection_viewMySpaceWidget</string> </value>
+            <value> <string>WebSection_viewSoftwareRender</string> </value>
         </item>
         <item>
             <key> <string>output_encoding</string> </key>

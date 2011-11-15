@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21351764.59</string> </value>
+            <value> <string>ts21353467.93</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -23,24 +23,21 @@
             <value> <string encoding="cdata"><![CDATA[
 
 function drawSoftwareProductList(data) {\n
-  $(\'#software_product_list\').remove()\n
+  $(\'#software_product_container\').empty()\n
   var ul = $(\'<ul>\');\n
-  ul.attr(\'id\', \'software_product_list\')\n
     $.each(data, function(i,item){\n
-      sp_id = \'software_product_\' + \'\'+item.uid;\n
       li = $(\'<li>\').appendTo(ul);\n
       var newElem = $(\'<img>\');\n
-      newElem.attr(\'alt\', item.title);\n
-      newElem.attr(\'src\', item.image);\n
-      newElem.attr(\'id\', sp_id);\n
-      newElem.attr(\'width\', \'100\')\n
-      newElem.attr(\'height\', \'40\')\n
+      newElem.attr({\n
+        \'alt\': item.title,\n
+        \'src\': item.image,\n
+        \'id\': item.uid,\n
+        \'width\': \'100\',\n
+        \'height\': \'40\'})\n
       newElem.appendTo(li)\n
-      newElem.click(function() {\n
-        alert(\'Clicked on \' + $(this)[0][\'alt\'] + $(this)[0][\'id\']);\n
-      });\n
+      newElem.click(softwareReleaseController);\n
     });\n
-  $("#js_entry").before(ul);\n
+  $("#software_product_container").append(ul);\n
 }\n
 \n
 function updateSoftwareProductList() {\n
@@ -51,22 +48,29 @@ function updateSoftwareProductList() {\n
   drawSoftwareProductList);\n
 }\n
 \n
+function softwareReleaseController() {\n
+  alert(\'Clicked on \' + $(this)[0][\'alt\'] + $(this)[0][\'id\']);\n
+}\n
+\n
 function mainController() {\n
   $.ajaxSetup ({  \n
           cache: false  \n
   });\n
 \n
-  var newElem = $(\'<input type="text">\');\n
-  newElem.attr(\'id\', "software_product_query");\n
-  $("#js_entry").before(newElem);\n
+  var input = $(\'<input type="text">\');\n
+  input.attr(\'id\', "software_product_query");\n
+  $("#js_container").append(input);\n
 \n
-  var newElem = $(\'<input type="button">\')\n
-  newElem.attr(\'value\', \'Refresh...\')\n
-  $("#js_entry").before(newElem);\n
-\n
-  newElem.click(updateSoftwareProductList)\n
-\n
-}
+  var newElem = $(\'<input type="button">\');\n
+  newElem.attr(\'value\', \'Refresh...\');\n
+  newElem.addClass(\'bt-med dialog_submit_button\');\n
+  input.after(newElem);\n
+  software_product_container = $(\'<div>\');\n
+  software_product_container.attr(\'id\', \'software_product_container\');\n
+  newElem.after(software_product_container);\n
+  newElem.click(updateSoftwareProductList);\n
+}\n
+
 
 ]]></string> </value>
         </item>
@@ -76,7 +80,7 @@ function mainController() {\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>1271</int> </value>
+            <value> <int>1411</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

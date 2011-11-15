@@ -46,7 +46,7 @@
       <tal:block metal:fill-slot="main">\n
         <div class="content">\n
           <h1 i18n:translate="" i18n:domain="ui">Request a Software Instance</h1>\n
-<input type="hidden" name="js_entry" id="js_entry">\n
+<div id="js_container"></div>\n
 <script type="text/javascript">\n
 $(document).ready(mainController());\n
 </script>\n

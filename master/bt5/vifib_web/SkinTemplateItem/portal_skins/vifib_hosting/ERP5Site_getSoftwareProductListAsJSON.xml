@@ -56,9 +56,11 @@ kw = {}\n
 kw.update(\n
   portal_type=\'Software Product\',\n
   validation_state=\'published\',\n
-  limit=10,\n
-  title=title,\n
+  limit=(offset, limit),\n
+  offset=offset,\n
+  title=title\n
 )\n
+script.log(context.getPortalObject().portal_catalog(src__=1, **kw))\n
 if title:\n
   for software_product in context.getPortalObject().portal_catalog(**kw\n
   ):\n
@@ -68,7 +70,7 @@ return context.asJSON(response)\n
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>title</string> </value>
+            <value> <string>title, offset=0, limit=10</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

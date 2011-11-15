@@ -52,27 +52,29 @@
             <key> <string>_body</string> </key>
             <value> <string>response = []\n
 \n
+portal_catalog = context.getPortalObject().portal_catalog\n
 kw = {}\n
 kw.update(\n
-  portal_type=\'Software Product\',\n
+  portal_type=\'Software Release\',\n
   validation_state=\'published\',\n
   limit=(offset, limit),\n
-  title=title\n
+  title=title,\n
+  aggregate_relative_url=portal_catalog.getResultValue(uid=software_product_uid).getRelativeUrl()\n
 )\n
 if title:\n
-  for software_product in context.getPortalObject().portal_catalog(**kw\n
+  for software_release in portal_catalog(**kw\n
   ):\n
-    response.append({\'title\': software_product.getTitle(), \'image\': software_product.getDefaultImageAbsoluteUrl() + \'/Base_download\', \'uid\': software_product.getUid()})\n
+    response.append({\'title\': software_release.getTitle(), \'uid\': software_release.getUid(), \'version\': software_release.getVersion()})\n
 return context.asJSON(response)\n
 </string> </value>
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>title, offset=0, limit=10</string> </value>
+            <value> <string>software_product_uid, title, offset=0, limit=10</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ERP5Site_getSoftwareProductListAsJSON</string> </value>
+            <value> <string>ERP5Site_getSoftwareReleaseListAsJSON</string> </value>
         </item>
       </dictionary>
     </pickle>

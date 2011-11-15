@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21353978.79</string> </value>
+            <value> <string>ts21366313.13</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -27,45 +27,73 @@ function drawSoftwareProductList(data) {\n
   var ul = $(\'<ul>\');\n
     $.each(data, function(i,item){\n
       li = $(\'<li>\').appendTo(ul);\n
-      var newElem = $(\'<img>\');\n
-      newElem.attr({\n
+      var a = $(\'<a>\');\n
+      a.attr({\'href\': \'#!software_product/\' + item.uid})\n
+      var img = $(\'<img>\');\n
+      img.attr({\n
         \'alt\': item.title,\n
         \'src\': item.image,\n
-        \'id\': item.uid,\n
         \'width\': \'100\',\n
         \'height\': \'40\'})\n
-      newElem.appendTo(li)\n
-      newElem.click(softwareReleaseController);\n
+      img.appendTo(a);\n
+      a.appendTo(li);\n
     });\n
   $("#software_product_container").append(ul);\n
+}\n
+\n
+function drawSoftwareReleaseList(data) {\n
+  $(\'#software_release_container\').empty()\n
+  var ul = $(\'<ul>\');\n
+    $.each(data, function(i,item){\n
+      li = $(\'<li>\').appendTo(ul);\n
+      var a = $(\'<a>\');\n
+      a.attr({\'href\': \'#!software_release/\' + item.uid})\n
+      a.appendTo(li);\n
+    });\n
+  $("#software_release_container").append(ul);\n
 }\n
 \n
 function updateSoftwareProductList() {\n
   q = $(\'#software_product_query\')[0][\'value\']\n
   $.getJSON(\n
-  "http://t228:18080/erp5/web_site_module/hosting/myspace/software/ERP5Site_getSoftwareProductListAsJSON",\n
+  vifib[\'site_url\'] + "/ERP5Site_getSoftwareProductListAsJSON",\n
   {"title":q},\n
   drawSoftwareProductList);\n
+}\n
+\n
+function updateSoftwareReleaseList() {\n
+  software_product_id = /#!software_product\\/([0-9]+)?/.exec(window.location.hash)[1];\n
+  software_product_id = parseInt(software_product_id);\n
+  q = $(\'#software_release_query\')[0][\'value\']\n
+  $.getJSON(\n
+  vifib[\'site_url\'] + "/ERP5Site_getSoftwareReleaseListAsJSON",\n
+  {"title":q, "software_product_uid": software_product_id},\n
+  drawSoftwareReleaseList);\n
 }\n
 \n
 function softwareReleaseController() {\n
   $.ajaxSetup ({  \n
           cache: false  \n
   });\n
+  software_product_id = /#!software_product\\/([0-9]+)?/.exec(window.location.hash)[1];\n
+  software_product_id = parseInt(software_product_id);\n
   js_container = $("#js_container");\n
   js_container.empty();\n
-  back = $(\'<input type="button">\');\n
-  back.attr(\'value\', \'<- Back to Software Product\');\n
-  back.addClass(\'bt-med dialog_submit_button\');\n
-  back.click(mainController);\n
-  $("#js_container").append(back);\n
-  alert(\'Clicked on \' + $(this)[0][\'alt\'] + $(this)[0][\'id\']);\n
+  var input = $(\'<input type="text">\');\n
+  input.attr(\'id\', "software_release_query");\n
+  js_container.appendTo(input);\n
+\n
+  var newElem = $(\'<input type="button">\');\n
+  newElem.attr(\'value\', \'Refresh...\');\n
+  newElem.addClass(\'bt-med dialog_submit_button\');\n
+  input.after(newElem);\n
+  software_release_container = $(\'<div>\');\n
+  software_release_container.attr(\'id\', \'software_release_container\');\n
+  newElem.after(software_release_container);\n
+  newElem.click(updateSoftwareReleaseList);\n
 }\n
 \n
-function mainController() {\n
-  $.ajaxSetup ({  \n
-          cache: false  \n
-  });\n
+function softwareProductController () {\n
   js_container = $("#js_container");\n
   js_container.empty();\n
 \n
@@ -81,6 +109,46 @@ function mainController() {\n
   software_product_container.attr(\'id\', \'software_product_container\');\n
   newElem.after(software_product_container);\n
   newElem.click(updateSoftwareProductList);\n
+\n
+}\n
+\n
+var hash_list = [\n
+   {\n
+     \'regexp\': /^$/, \n
+     \'func\': softwareProductController,\n
+   },\n
+   {\n
+     \'regexp\': /^#!software_product\\/([0-9]+)?$/, \n
+     \'func\': softwareReleaseController,\n
+   },\n
+ ];\n
+\n
+function hashController ()\n
+{\n
+  // If regexp doesn\'t match, keep the page unmodified\n
+  var hash = \'\';\n
+  if (window.location.hash.length)\n
+  {\n
+    hash = window.location.hash;\n
+  }\n
+\n
+  var list_len = hash_list.length; \n
+  var i = 0;\n
+  var found = 0;\n
+  for(i; i < list_len; i++) \n
+  { \n
+    if (hash_list[i].regexp.test(hash)) {\n
+      found = 1;\n
+      hash_list[i].func();\n
+      break;\n
+    }\n
+  }\n
+}\n
+\n
+function mainController() {\n
+  $.ajaxSetup ({cache: false});\n
+  $(window).hashchange( hashController() );\n
+  $(window).hashchange();\n
 }\n
 
 
@@ -92,7 +160,7 @@ function mainController() {\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>1780</int> </value>
+            <value> <int>3529</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

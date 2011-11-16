@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21437496.66</string> </value>
+            <value> <string>ts21438314.37</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -127,7 +127,8 @@ function processRequest() {\n
     },\n
     function () {\n
       alert(\'Your Software Instance has been requested\');\n
-      });\n
+      window.location.hash = \'\';\n
+    });\n
 }\n
 \n
 function drawRequest(data) {\n
@@ -225,7 +226,8 @@ function hashController ()\n
       break;\n
     }\n
   }\n
-}
+}\n
+
 
 ]]></string> </value>
         </item>
@@ -235,7 +237,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>5853</int> </value>
+            <value> <int>5885</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

@@ -52,23 +52,25 @@
             <key> <string>_body</string> </key>
             <value> <string encoding="cdata"><![CDATA[
 
+portal = context.getPortalObject()\n
+\n
+person = portal.ERP5Site_getAuthenticatedMemberPersonValue()\n
+request_kw = {}\n
+request_kw.update(\n
+  software_release=software_release_url,\n
+  software_title=title,\n
+  instance_xml=instance_xml\n
+)\n
+\n
 if computer:\n
-  filter_xml = """<?xml version=\'1.0\' encoding=\'utf-8\'?>\n
+  request_kw[\'sla_xml\'] = """<?xml version=\'1.0\' encoding=\'utf-8\'?>\n
 <instance>\n
 <parameter id="computer_guid">%s</parameter>\n
 </instance>""" % computer\n
-else:\n
-  filter_xml = None\n
 \n
-if not instance_xml:\n
-  instance_xml = None\n
-return context.getPortalObject().portal_slap.requestComputerPartition(\n
-  software_release=software_release_url,\n
-  software_type=\'RootSoftwareInstance\',\n
-  partition_reference=title,\n
-  partition_parameter_xml=instance_xml,\n
-  filter_xml=filter_xml\n
-)\n
+person.requestSoftwareInstance(**request_kw)\n
+\n
+return True\n
 
 
 ]]></string> </value>

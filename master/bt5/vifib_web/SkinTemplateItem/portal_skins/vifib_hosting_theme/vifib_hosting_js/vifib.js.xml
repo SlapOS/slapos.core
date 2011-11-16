@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21375380.89</string> </value>
+            <value> <string>ts21437496.66</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -214,8 +214,6 @@ function hashController ()\n
     hash = window.location.hash;\n
   }\n
 \n
-  console.log(\'In hashController with \' + hash);\n
-\n
   var list_len = hash_list.length; \n
   var i = 0;\n
   var found = 0;\n
@@ -227,15 +225,7 @@ function hashController ()\n
       break;\n
     }\n
   }\n
-}\n
-\n
-function mainController() {\n
-  console.log(\'In mainController with \' + window.location.hash);\n
-  $.ajaxSetup ({cache: false});\n
-  $(window).hashchange( hashController() );\n
-  $(window).hashchange();\n
-}\n
-
+}
 
 ]]></string> </value>
         </item>
@@ -245,7 +235,7 @@ function mainController() {\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>6102</int> </value>
+            <value> <int>5853</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

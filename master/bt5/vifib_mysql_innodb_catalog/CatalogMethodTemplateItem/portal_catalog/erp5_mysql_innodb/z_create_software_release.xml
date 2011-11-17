@@ -61,13 +61,13 @@
             <value> <string>CREATE TABLE `software_release` (\n
   `uid` BIGINT UNSIGNED NOT NULL,\n
   `computer_uid` BIGINT UNSIGNED NOT NULL,\n
-  `software_release_uid` BIGINT UNSIGNED NOT NULL,\n
+  `delivery_line_uid` BIGINT UNSIGNED NOT NULL,\n
   `software_release_title` varchar(255),\n
   `software_release_version` varchar(255),\n
   `software_release_url` varchar(255),\n
   `image_relative_url` varchar(255),\n
   `state` varchar(255),\n
-  PRIMARY KEY (`uid`, `software_release_uid`)\n
+  PRIMARY KEY (`uid`, `delivery_line_uid`)\n
 ) TYPE=InnoDB;\n
 </string> </value>
         </item>

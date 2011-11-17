@@ -65,7 +65,7 @@ DELETE FROM\n
   software_release\n
 WHERE\n
 <dtml-in uid>\n
-  uid=<dtml-sqlvar sequence-item type="int"><dtml-if sequence-end><dtml-else> OR </dtml-if>\n
+  delivery_line_uid=<dtml-sqlvar sequence-item type="int"><dtml-if sequence-end><dtml-else> OR </dtml-if>\n
 </dtml-in>\n
 ;\n
 \n
@@ -80,7 +80,7 @@ WHERE\n
 \n
   <dtml-if "row_list">\n
 INSERT INTO\n
-  software_release (uid, computer_uid, software_release_uid, software_release_title, software_release_version, software_release_url, image_relative_url, state)\n
+  software_release (delivery_line_uid, computer_uid, uid, software_release_title, software_release_version, software_release_url, image_relative_url, state)\n
 VALUES\n
     <dtml-in prefix="row" expr="row_list">\n
 (\n

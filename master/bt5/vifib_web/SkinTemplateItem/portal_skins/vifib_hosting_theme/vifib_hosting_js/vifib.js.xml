@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21438314.37</string> </value>
+            <value> <string>ts21542815.59</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -22,55 +22,34 @@
             <key> <string>data</string> </key>
             <value> <string encoding="cdata"><![CDATA[
 
-function drawSoftwareProductList(data) {\n
-  $(\'#software_product_container\').empty()\n
-  var ul = $(\'<ul>\');\n
-    $.each(data, function(i,item){\n
-      li = $(\'<li>\').appendTo(ul);\n
-      var a = $(\'<a>\');\n
-      a.attr({\'href\': \'#!software_product/\' + item.uid})\n
-      var img = $(\'<img>\');\n
-      img.attr({\n
-        \'alt\': item.title,\n
-        \'src\': item.image,\n
-        \'width\': \'100\',\n
-        \'height\': \'40\'})\n
-      img.appendTo(a);\n
-      a.html(a.html() + item.title);\n
-      a.appendTo(li);\n
-    });\n
-  $("#software_product_container").append(ul);\n
-}\n
-\n
 function drawSoftwareReleaseList(data) {\n
   $(\'#software_release_container\').empty()\n
   var ul = $(\'<ul>\');\n
-    $.each(data, function(i,item){\n
+    $.each(data[\'software_release_list\'], function(i,item){\n
       li = $(\'<li>\').appendTo(ul);\n
       var a = $(\'<a>\');\n
       a.attr({\n
         \'href\': \'#!software_release/\' + item.uid });\n
-      a.html(item.title + \' (\' + item.version + \')\');\n
+      var img = $(\'<img>\');\n
+      img.attr({\n
+        \'src\': item.image,\n
+        \'alt\': item.title,\n
+        \'title\': item.title,\n
+        \'height\': 40,\n
+        \'width\': 100\n
+      });\n
+      a.append(img);\n
+      a.html(a.html() + item.title + \' (\' + item.description + \')\');\n
       a.appendTo(li);\n
     });\n
   $("#software_release_container").append(ul);\n
 }\n
 \n
-function updateSoftwareProductList() {\n
-  q = $(\'#software_product_query\')[0][\'value\']\n
-  $.getJSON(\n
-  vifib[\'site_url\'] + "/ERP5Site_getSoftwareProductListAsJSON",\n
-  {"title":q},\n
-  drawSoftwareProductList);\n
-}\n
-\n
 function updateSoftwareReleaseList() {\n
-  software_product_id = /#!software_product\\/([0-9]+)?/.exec(window.location.hash)[1];\n
-  software_product_id = parseInt(software_product_id);\n
   q = $(\'#software_release_query\')[0][\'value\']\n
   $.getJSON(\n
   vifib[\'site_url\'] + "/ERP5Site_getSoftwareReleaseListAsJSON",\n
-  {"title":q, "software_product_uid": software_product_id},\n
+  {"title":q},\n
   drawSoftwareReleaseList);\n
 }\n
 \n
@@ -92,25 +71,9 @@ function softwareReleaseController() {\n
   software_release_container.attr(\'id\', \'software_release_container\');\n
   refresh.after(software_release_container);\n
   refresh.click(updateSoftwareReleaseList);\n
-}\n
-\n
-function softwareProductController () {\n
-  js_container = $("#js_container");\n
-  js_container.empty();\n
-\n
-  var input = $(\'<input type="text">\');\n
-  input.attr(\'id\', "software_product_query");\n
-  js_container.append(input);\n
-\n
-  var refresh = $(\'<input type="button">\');\n
-  refresh.attr(\'value\', \'Refresh...\');\n
-  refresh.addClass(\'bt-med dialog_submit_button\');\n
-  input.after(refresh);\n
-  software_product_container = $(\'<div>\');\n
-  software_product_container.attr(\'id\', \'software_product_container\');\n
-  refresh.after(software_product_container);\n
-  refresh.click(updateSoftwareProductList);\n
-\n
+  $.getJSON(\n
+  vifib[\'site_url\'] + "/ERP5Site_getSoftwareReleaseListAsJSON",\n
+  drawSoftwareReleaseList);\n
 }\n
 \n
 function processRequest() {\n
@@ -132,6 +95,7 @@ function processRequest() {\n
 }\n
 \n
 function drawRequest(data) {\n
+  data = data[\'software_release_list\'][0];\n
   js_container = $("#js_container");\n
   js_container.empty();\n
   url_a = $(\'<input type="hidden">\');\n
@@ -161,7 +125,7 @@ function drawRequest(data) {\n
     option = $(\'<option>\');\n
     option.attr(\'value\', \'\');\n
     option.appendTo(computer_a);\n
-    $.each(data, function(i, item){\n
+    $.each(data[\'computer_list\'], function(i, item){\n
       computer_a = $(\'#computer\');\n
       option = $(\'<option>\');\n
       option.attr(\'value\', item.id);\n
@@ -170,7 +134,7 @@ function drawRequest(data) {\n
     });\n
   });\n
   summary = $(\'<div>\');\n
-  summary.html(\'Software Release: \' + data.title + \' (\' + data.version + \'), url: \' + data.url);\n
+  summary.html(\'Software Release: \' + data.title + \' (\' + data.description + \'), url: \' + data.url);\n
   js_container.append(summary);\n
   request = $(\'<input type="button">\');\n
   request.attr(\'value\', \'Request\');\n
@@ -185,8 +149,8 @@ function requestController() {\n
   software_release_id = /#!software_release\\/([0-9]+)?/.exec(window.location.hash)[1];\n
   software_release_id = parseInt(software_release_id);\n
   $.getJSON(\n
-  vifib[\'site_url\'] + "/ERP5Site_getSoftwareReleaseAsJSON",\n
-  {"software_release_uid":software_release_id},\n
+  vifib[\'site_url\'] + "/ERP5Site_getSoftwareReleaseListAsJSON",\n
+  {"uid":software_release_id},\n
   drawRequest);\n
 }\n
 \n
@@ -194,10 +158,6 @@ function requestController() {\n
 var hash_list = [\n
    {\n
      \'regexp\': /^$/, \n
-     \'func\': softwareProductController,\n
-   },\n
-   {\n
-     \'regexp\': /^#!software_product\\/([0-9]+)?$/, \n
      \'func\': softwareReleaseController,\n
    },\n
    {\n
@@ -237,7 +197,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>5885</int> </value>
+            <value> <int>4656</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

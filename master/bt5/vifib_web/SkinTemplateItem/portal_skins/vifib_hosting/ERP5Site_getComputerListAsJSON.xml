@@ -53,7 +53,7 @@
             <value> <string>result = []\n
 for computer in context.getPortalObject().portal_catalog(portal_type=\'Computer\', validation_state=\'validated\'):\n
   result.append({\'id\': computer.getReference(), \'title\': computer.getTitle()})\n
-return context.asJSON(result)\n
+return context.asJSON({"computer_list": result})\n
 </string> </value>
         </item>
         <item>

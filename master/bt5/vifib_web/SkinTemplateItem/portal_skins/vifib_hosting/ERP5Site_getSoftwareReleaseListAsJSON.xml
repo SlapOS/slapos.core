@@ -50,27 +50,44 @@
         </item>
         <item>
             <key> <string>_body</string> </key>
-            <value> <string>response = []\n
-\n
-portal_catalog = context.getPortalObject().portal_catalog\n
+            <value> <string>portal_catalog = context.getPortalObject().portal_catalog\n
 kw = {}\n
+\n
+if title is not None:\n
+  kw[\'title\'] = title\n
+if uid is not None:\n
+  kw[\'uid\'] = uid\n
+\n
 kw.update(\n
   portal_type=\'Software Release\',\n
   validation_state=\'published\',\n
+  select_dict={\n
+    \'title\': None,\n
+    \'description\': None,\n
+    \'software_release_url\': \'software_release.url\',\n
+    \'image_url\': \'software_release.image_relative_url\'\n
+  },\n
   limit=(offset, limit),\n
-  title=title,\n
-  aggregate_relative_url=portal_catalog.getResultValue(uid=software_product_uid).getRelativeUrl()\n
+  **{\'software_release.state\': \'stopped\'}\n
 )\n
-if title:\n
-  for software_release in portal_catalog(**kw\n
-  ):\n
-    response.append({\'title\': software_release.getTitle(), \'uid\': software_release.getUid(), \'version\': software_release.getVersion()})\n
-return context.asJSON(response)\n
+\n
+response = []\n
+\n
+prefix_url = context.absolute_url()\n
+for q in portal_catalog(**kw):\n
+    response.append({\n
+      \'uid\': q.UID,\n
+      \'title\': q.TITLE,\n
+      \'description\': q.DESCRIPTION,\n
+      \'image\': \'/\'.join([prefix_url, q.IMAGE_URL, \'Base_download\']),\n
+      \'url\': q.SOFTWARE_RELEASE_URL,\n
+    })\n
+return context.asJSON({\'software_release_list\':response})\n
 </string> </value>
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>software_product_uid, title, offset=0, limit=10</string> </value>
+            <value> <string>title=None, uid=None, offset=0, limit=10</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

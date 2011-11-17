@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21542815.59</string> </value>
+            <value> <string>ts21543793.16</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -34,10 +34,9 @@ function drawSoftwareReleaseList(data) {\n
       img.attr({\n
         \'src\': item.image,\n
         \'alt\': item.title,\n
-        \'title\': item.title,\n
-        \'height\': 40,\n
-        \'width\': 100\n
+        \'title\': item.title\n
       });\n
+      img.addClass(\'software_release_icon\')\n
       a.append(img);\n
       a.html(a.html() + item.title + \' (\' + item.description + \')\');\n
       a.appendTo(li);\n

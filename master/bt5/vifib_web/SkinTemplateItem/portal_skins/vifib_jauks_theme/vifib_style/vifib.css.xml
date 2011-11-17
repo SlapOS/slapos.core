@@ -196,6 +196,11 @@ background:url(<tal:block tal:replace="images_path"/>user.png) no-repeat scroll 
 \tcolor:#e1fbff;font-size:15px;background:url(<tal:block tal:replace="images_path"/>foot.png) repeat-x center center}\n
 #footer a{text-decoration:none;color:#e1fbff}\n
 \n
+/**********************/\n
+/* Additional Styles  */\n
+/**********************/\n
+\n
+.software_release_icon {height: 50px}\n
 </tal:block>
 
 ]]></unicode> </value>

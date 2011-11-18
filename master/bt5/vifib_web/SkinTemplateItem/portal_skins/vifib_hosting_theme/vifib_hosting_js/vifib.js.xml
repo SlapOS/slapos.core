@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21543793.16</string> </value>
+            <value> <string>ts21634272.59</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -26,25 +26,37 @@ function drawSoftwareReleaseList(data) {\n
   $(\'#software_release_container\').empty()\n
   var ul = $(\'<ul>\');\n
     $.each(data[\'software_release_list\'], function(i,item){\n
-      li = $(\'<li>\').appendTo(ul);\n
-      var a = $(\'<a>\');\n
-      a.attr({\n
-        \'href\': \'#!software_release/\' + item.uid });\n
+      var li = $(\'<li>\').appendTo(ul);\n
+      li.addClass(\'software_release_entry\');\n
+      li.click(function() {window.location.hash=\'#!software_release/\' + item.uid});\n
       var img = $(\'<img>\');\n
       img.attr({\n
         \'src\': item.image,\n
         \'alt\': item.title,\n
         \'title\': item.title\n
       });\n
-      img.addClass(\'software_release_icon\')\n
-      a.append(img);\n
-      a.html(a.html() + item.title + \' (\' + item.description + \')\');\n
-      a.appendTo(li);\n
+      img.addClass(\'software_release_icon\');\n
+      img_div = $(\'<div>\');\n
+      img_div.addClass(\'software_release_icon\');\n
+      img_div.append(img);\n
+      var title = $(\'<div>\');\n
+      title.addClass(\'software_release_title\');\n
+      title.html(item.title);\n
+      var description = $(\'<div>\');\n
+      description.addClass(\'software_release_description\');\n
+      description.html(item.description)\n
+      var entry_div = $(\'<div>\');\n
+      entry_div.addClass(\'software_release_entry\');\n
+      entry_div.append(img_div);\n
+      entry_div.append(title);\n
+      entry_div.append(description);\n
+      li.append(entry_div);\n
     });\n
   $("#software_release_container").append(ul);\n
 }\n
 \n
-function updateSoftwareReleaseList() {\n
+function updateSoftwareReleaseList(event) {\n
+  event.preventDefault();\n
   q = $(\'#software_release_query\')[0][\'value\']\n
   $.getJSON(\n
   vifib[\'site_url\'] + "/ERP5Site_getSoftwareReleaseListAsJSON",\n
@@ -60,16 +72,17 @@ function softwareReleaseController() {\n
   js_container.empty();\n
   var input = $(\'<input type="text">\');\n
   input.attr(\'id\', "software_release_query");\n
+  input.addClass("software_release_search");\n
   js_container.append(input);\n
 \n
-  var refresh = $(\'<input type="button">\');\n
-  refresh.attr(\'value\', \'Refresh...\');\n
-  refresh.addClass(\'bt-med dialog_submit_button\');\n
-  input.after(refresh);\n
+  var search = $(\'<button>\');\n
+  search.addClass(\'software_release_search\');\n
+  search.append($(\'<span>\').html(\'Search...\'));\n
+  input.after(search);\n
   software_release_container = $(\'<div>\');\n
   software_release_container.attr(\'id\', \'software_release_container\');\n
-  refresh.after(software_release_container);\n
-  refresh.click(updateSoftwareReleaseList);\n
+  search.after(software_release_container);\n
+  search.click(updateSoftwareReleaseList);\n
   $.getJSON(\n
   vifib[\'site_url\'] + "/ERP5Site_getSoftwareReleaseListAsJSON",\n
   drawSoftwareReleaseList);\n
@@ -105,21 +118,20 @@ function drawRequest(data) {\n
   js_container.append(title_q);\n
   title_a = $(\'<input type="text">\');\n
   title_a.attr(\'id\', \'software_instance_title\');\n
-  js_container.append(title_a);\n
-  js_container.append($(\'<br>\'));\n
+  title_q.append(title_a);\n
 \n
   xml_q = $(\'<div>\');\n
   xml_q.html(\'Parameter XML:\');\n
   js_container.append(xml_q);\n
   xml_a = $(\'<textarea>\');\n
   xml_a.attr(\'id\', \'software_instance_xml\');\n
-  js_container.append(xml_a)\n
+  xml_q.append(xml_a)\n
   computer_q = $(\'<div>\');\n
   computer_q.html(\'Computer:\');\n
   js_container.append(computer_q);\n
   computer_a = $(\'<select>\');\n
   computer_a.attr({\'name\': \'computer\', \'id\': \'computer\'});\n
-  js_container.append(computer_a)\n
+  computer_q.append(computer_a)\n
   $.getJSON(vifib[\'site_url\'] + "/ERP5Site_getComputerListAsJSON", function(data) {\n
     option = $(\'<option>\');\n
     option.attr(\'value\', \'\');\n
@@ -133,7 +145,12 @@ function drawRequest(data) {\n
     });\n
   });\n
   summary = $(\'<div>\');\n
-  summary.html(\'Software Release: \' + data.title + \' (\' + data.description + \'), url: \' + data.url);\n
+  html = \'Software Release: \' + data.title;\n
+  if (data.description.length>0) {\n
+      html += \' (\' + data.description + \')\';\n
+  }\n
+  html += \' url: \' + data.url;\n
+  summary.html(html)\n
   js_container.append(summary);\n
   request = $(\'<input type="button">\');\n
   request.attr(\'value\', \'Request\');\n
@@ -196,7 +213,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>4656</int> </value>
+            <value> <int>5244</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

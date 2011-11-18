@@ -197,10 +197,31 @@ background:url(<tal:block tal:replace="images_path"/>user.png) no-repeat scroll 
 #footer a{text-decoration:none;color:#e1fbff}\n
 \n
 /**********************/\n
-/* Additional Styles  */\n
+/* Shop Styles  */\n
 /**********************/\n
 \n
-.software_release_icon {height: 50px}\n
+\n
+.software_release_entry {text-decoration: none; list-style: none; cursor: default}\n
+div.software_release_entry {position:relative, width:100%;cursor: pointer}\n
+li.software_release_entry:hover {background-color: #D2E7F4;}\n
+\n
+.software_release_title {font-size:20px; color: #FF9522}\n
+div.software_release_title {float:right;}\n
+.software_release_icon {height: 70px}\n
+div.software_release_icon {float: left}\n
+.software_release_description {font-size:16px}\n
+div.software_release_description {clear:both}\n
+input.software_release_search {height: 30px}\n
+.software_release_search {\n
+    color: #BAE2E9;\n
+    background-color: #2d909c;\n
+    border: medium none;\n
+    border-radius: 10px 10px 10px 10px;\n
+    font-size: 11px;\n
+    font-weight: bold;\n
+    height: 30px;\n
+    padding: 0 0 0 0;}\n
+button.software_release_search {cursor: pointer;}\n
 </tal:block>
 
 ]]></unicode> </value>

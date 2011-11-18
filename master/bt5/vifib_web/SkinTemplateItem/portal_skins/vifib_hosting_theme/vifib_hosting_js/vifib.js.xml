@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21634831.8</string> </value>
+            <value> <string>ts21635113.33</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -119,6 +119,7 @@ function drawRequest(data) {\n
   js_container.append(title_q);\n
   title_a = $(\'<input type="text">\');\n
   title_a.attr(\'id\', \'software_instance_title\');\n
+  title_a.addClass(\'software_release_input\');\n
   title_q.append(title_a);\n
 \n
   xml_q = $(\'<div>\');\n
@@ -126,12 +127,14 @@ function drawRequest(data) {\n
   js_container.append(xml_q);\n
   xml_a = $(\'<textarea>\');\n
   xml_a.attr(\'id\', \'software_instance_xml\');\n
+  xml_a.addClass(\'software_release_input\');\n
   xml_q.append(xml_a)\n
   computer_q = $(\'<div>\');\n
   computer_q.html(\'Computer:\');\n
   js_container.append(computer_q);\n
   computer_a = $(\'<select>\');\n
   computer_a.attr({\'name\': \'computer\', \'id\': \'computer\'});\n
+  computer_a.addClass(\'software_release_input\');\n
   computer_q.append(computer_a)\n
   $.getJSON(vifib[\'site_url\'] + "/ERP5Site_getComputerListAsJSON", function(data) {\n
     option = $(\'<option>\');\n
@@ -215,7 +218,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>5317</int> </value>
+            <value> <int>5456</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

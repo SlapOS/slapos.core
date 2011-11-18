@@ -216,13 +216,14 @@ input.software_release_search {height: 30px}\n
 .software_release_input {\n
     color: #BAE2E9;\n
     background-color: #2d909c;\n
-    border: medium none;\n
+    border: medium solid;\n
     border-radius: 10px 10px 10px 10px;\n
     font-size: 11px;\n
     font-weight: bold;\n
     height: 30px;\n
     padding: 0 0 0 0;}\n
-button.software_release_input {cursor: pointer;}\n
+button.software_release_input {cursor: pointer; border: medium none;}\n
+textarea.software_release_input {height: 100px; padding: 15px 15px 15px 15px;}\n
 </tal:block>
 
 ]]></unicode> </value>

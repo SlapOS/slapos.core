@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21634709.02</string> </value>
+            <value> <string>ts21634831.8</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -72,11 +72,11 @@ function softwareReleaseController() {\n
   js_container.empty();\n
   var input = $(\'<input type="text">\');\n
   input.attr(\'id\', "software_release_query");\n
-  input.addClass("software_release_search");\n
+  input.addClass("software_release_input");\n
   js_container.append(input);\n
 \n
   var search = $(\'<button>\');\n
-  search.addClass(\'software_release_search\');\n
+  search.addClass(\'software_release_input\');\n
   search.append($(\'<span>\').html(\'Search...\'));\n
   input.after(search);\n
   software_release_container = $(\'<div>\');\n
@@ -155,7 +155,7 @@ function drawRequest(data) {\n
   js_container.append(summary);\n
   request = $(\'<button>\');\n
   request.append($(\'<span>\').html(\'Request\'));\n
-  request.addClass(\'software_release_search\');\n
+  request.addClass(\'software_release_input\');\n
   request.click(processRequest);\n
   js_container.append(request);\n
 }\n
@@ -215,7 +215,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>5320</int> </value>
+            <value> <int>5317</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

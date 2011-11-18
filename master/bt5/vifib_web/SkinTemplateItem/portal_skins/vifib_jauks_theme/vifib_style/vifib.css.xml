@@ -212,7 +212,8 @@ div.software_release_icon {float: left}\n
 .software_release_description {font-size:16px}\n
 div.software_release_description {clear:both}\n
 input.software_release_search {height: 30px}\n
-.software_release_search {\n
+\n
+.software_release_input {\n
     color: #BAE2E9;\n
     background-color: #2d909c;\n
     border: medium none;\n
@@ -221,7 +222,7 @@ input.software_release_search {height: 30px}\n
     font-weight: bold;\n
     height: 30px;\n
     padding: 0 0 0 0;}\n
-button.software_release_search {cursor: pointer;}\n
+button.software_release_input {cursor: pointer;}\n
 </tal:block>
 
 ]]></unicode> </value>

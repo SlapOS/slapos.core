@@ -68,6 +68,9 @@ if computer:\n
 <parameter id="computer_guid">%s</parameter>\n
 </instance>""" % computer\n
 \n
+\n
+request_kw[\'software_type\'] = software_type or \'RootSoftwareInstance\'\n
+\n
 person.requestSoftwareInstance(**request_kw)\n
 \n
 return True\n
@@ -77,7 +80,7 @@ return True\n
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>software_release_url, title, instance_xml, computer</string> </value>
+            <value> <string>software_release_url, title, instance_xml, computer, software_type</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

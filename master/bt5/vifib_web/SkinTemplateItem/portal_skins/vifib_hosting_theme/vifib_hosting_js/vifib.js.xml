@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21871310.83</string> </value>
+            <value> <string>ts21872454.19</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -137,6 +137,7 @@ function drawRequest(data) {\n
   js_container.append(xml_q);\n
   xml_a = $(\'<textarea>\');\n
   xml_a.attr(\'id\', \'software_instance_xml\');\n
+  xml_a.html(\'<?xml version="1.0" encoding="utf-8"?>\\n<instance>\\n<parameter id="nbd_ip">2a01:e35:2e27:460:e2cb:4eff:fed9:48dc</parameter>\\n<parameter id="nbd_port">1024</parameter>\\n</instance>"\')\n
   xml_a.addClass(\'software_release_input\');\n
   xml_q.append(xml_a)\n
 \n
@@ -229,7 +230,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>5771</int> </value>
+            <value> <int>5969</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

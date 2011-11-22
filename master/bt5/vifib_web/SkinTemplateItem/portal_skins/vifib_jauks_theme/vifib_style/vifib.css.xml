@@ -202,7 +202,7 @@ background:url(<tal:block tal:replace="images_path"/>user.png) no-repeat scroll 
 \n
 \n
 .software_release_entry {text-decoration: none; list-style: none; cursor: default}\n
-div.software_release_entry {position:relative, width:100%;cursor: pointer}\n
+div.software_release_entry {position:relative, width:100%;cursor: pointer; border: 1px solid #666d6c; padding: 7px 7px 7px 7px; margin-top: 12px; margin-bottom: 12px}\n
 li.software_release_entry:hover {background-color: #D2E7F4;}\n
 \n
 \n
@@ -211,7 +211,7 @@ div.software_release_more {position:relative, width:100%;cursor: pointer; font-s
 li.software_release_more:hover {background-color: #D2E7F4;}\n
 \n
 \n
-.software_release_title {font-size:20px; color: #FF9522}\n
+.software_release_title {font-size:22px; color: #1a8d8d}\n
 div.software_release_title {float:right;}\n
 .software_release_icon {height: 70px}\n
 div.software_release_icon {float: left}\n

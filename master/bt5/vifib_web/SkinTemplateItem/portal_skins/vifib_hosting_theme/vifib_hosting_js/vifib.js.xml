@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21954341.36</string> </value>
+            <value> <string>ts21955898.25</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -22,36 +22,67 @@
             <key> <string>data</string> </key>
             <value> <string encoding="cdata"><![CDATA[
 
+function extendSoftwareReleaseList() {\n
+  ul = $("#software_release_list")[0];\n
+  current = ul.children.length - 1;\n
+  q = $(\'#software_release_query\')[0][\'value\']\n
+  $.getJSON(\n
+  vifib[\'site_url\'] + "/ERP5Site_getSoftwareReleaseListAsJSON",\n
+  {"title":q, "offset": current},\n
+  drawExtendSoftwareReleaseList);\n
+}\n
+\n
+function drawExtendSoftwareReleaseList(data) {\n
+  hook = $(\'#more_end\');\n
+  $.each(data[\'software_release_list\'], function(i,item){\n
+    getSoftwareReleaseEntry(item).insertBefore(hook);\n
+  });\n
+}\n
+\n
+function getSoftwareReleaseEntry(item) {\n
+  var li = $(\'<li>\');\n
+  li.addClass(\'software_release_entry\');\n
+  li.click(function() {window.location.hash=\'#!software_release/\' + item.uid});\n
+  var img = $(\'<img>\');\n
+  img.attr({\n
+    \'src\': item.image,\n
+    \'alt\': item.title,\n
+    \'title\': item.title\n
+  });\n
+  img.addClass(\'software_release_icon\');\n
+  img_div = $(\'<div>\');\n
+  img_div.addClass(\'software_release_icon\');\n
+  img_div.append(img);\n
+  var title = $(\'<div>\');\n
+  title.addClass(\'software_release_title\');\n
+  title.html(item.title);\n
+  var description = $(\'<div>\');\n
+  description.addClass(\'software_release_description\');\n
+  description.html(item.description)\n
+  var entry_div = $(\'<div>\');\n
+  entry_div.addClass(\'software_release_entry\');\n
+  entry_div.append(img_div);\n
+  entry_div.append(title);\n
+  entry_div.append(description);\n
+  li.append(entry_div);\n
+  return li;\n
+}\n
+\n
 function drawSoftwareReleaseList(data) {\n
   $(\'#software_release_container\').empty()\n
   var ul = $(\'<ul>\');\n
-    $.each(data[\'software_release_list\'], function(i,item){\n
-      var li = $(\'<li>\').appendTo(ul);\n
-      li.addClass(\'software_release_entry\');\n
-      li.click(function() {window.location.hash=\'#!software_release/\' + item.uid});\n
-      var img = $(\'<img>\');\n
-      img.attr({\n
-        \'src\': item.image,\n
-        \'alt\': item.title,\n
-        \'title\': item.title\n
-      });\n
-      img.addClass(\'software_release_icon\');\n
-      img_div = $(\'<div>\');\n
-      img_div.addClass(\'software_release_icon\');\n
-      img_div.append(img);\n
-      var title = $(\'<div>\');\n
-      title.addClass(\'software_release_title\');\n
-      title.html(item.title);\n
-      var description = $(\'<div>\');\n
-      description.addClass(\'software_release_description\');\n
-      description.html(item.description)\n
-      var entry_div = $(\'<div>\');\n
-      entry_div.addClass(\'software_release_entry\');\n
-      entry_div.append(img_div);\n
-      entry_div.append(title);\n
-      entry_div.append(description);\n
-      li.append(entry_div);\n
-    });\n
+  ul.attr(\'id\', \'software_release_list\');\n
+  $.each(data[\'software_release_list\'], function(i,item){\n
+    getSoftwareReleaseEntry(item).appendTo(ul)\n
+  });\n
+  var li = $(\'<li>\').appendTo(ul);\n
+  li.addClass(\'software_release_more\');\n
+  li.attr(\'id\', \'more_end\');\n
+  var more_div = $(\'<div>\');\n
+  more_div.addClass(\'software_release_more\');\n
+  more_div.html(\'More...\');\n
+  li.append(more_div);\n
+  li.click(extendSoftwareReleaseList);\n
   $("#software_release_container").append(ul);\n
 }\n
 \n
@@ -231,7 +262,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>6016</int> </value>
+            <value> <int>6816</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

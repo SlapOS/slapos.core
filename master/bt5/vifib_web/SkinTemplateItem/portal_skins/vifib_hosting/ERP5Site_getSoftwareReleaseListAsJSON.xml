@@ -87,7 +87,7 @@ return context.asJSON({\'software_release_list\':response})\n
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>title=None, uid=None, offset=0, limit=10</string> </value>
+            <value> <string>title=None, uid=None, offset=0, limit=5</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

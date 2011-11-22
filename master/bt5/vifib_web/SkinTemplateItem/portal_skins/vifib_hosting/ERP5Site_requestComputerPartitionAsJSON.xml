@@ -80,7 +80,7 @@ return True\n
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>software_release_url, title, instance_xml, computer, software_type</string> </value>
+            <value> <string>software_release_url, title, instance_xml, computer, software_type=\'RootSoftwareInstance\'</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

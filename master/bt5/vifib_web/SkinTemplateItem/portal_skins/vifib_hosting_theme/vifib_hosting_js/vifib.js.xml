@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21969328.27</string> </value>
+            <value> <string>ts21969517.73</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -142,14 +142,12 @@ function processRequest(event) {\n
   url = $(\'#url\').val();\n
   title = $(\'#software_instance_title\').val();\n
   xml = $(\'#software_instance_xml\').val();\n
-  software_type = $(\'#software_type\').val();\n
 \n
   $.post(vifib[\'site_url\'] + "/ERP5Site_requestComputerPartitionAsJSON", {\n
     \'software_release_url\': url,\n
     \'title\': title,\n
     \'instance_xml\': xml,\n
     \'computer\': computer,\n
-    \'software_type\': software_type\n
     },\n
     function () {\n
       alert(\'Your Software Instance has been requested\');\n
@@ -171,14 +169,6 @@ function drawRequest(data) {\n
   title_a.attr(\'id\', \'software_instance_title\');\n
   title_a.addClass(\'software_release_input\');\n
   title_q.append(title_a);\n
-\n
-  type_q = $(\'<div>\');\n
-  type_q.html(\'Software Type:\');\n
-  js_container.append(type_q);\n
-  type_a = $(\'<input type="text">\');\n
-  type_a.attr(\'id\', \'software_type\');\n
-  type_a.addClass(\'software_release_input\');\n
-  type_q.append(type_a);\n
 \n
   xml_q = $(\'<div>\');\n
   xml_q.html(\'Parameter XML:\');\n
@@ -249,7 +239,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>6869</int> </value>
+            <value> <int>6556</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

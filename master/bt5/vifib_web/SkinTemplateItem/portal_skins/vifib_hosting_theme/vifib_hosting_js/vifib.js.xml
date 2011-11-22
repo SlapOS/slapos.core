@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21957901.38</string> </value>
+            <value> <string>ts21958776.1</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -229,12 +229,12 @@ function requestController() {\n
 \n
 var hash_list = [\n
    {\n
-     \'regexp\': /^$/, \n
-     \'func\': softwareReleaseController,\n
-   },\n
-   {\n
      \'regexp\': /^#!software_release\\/([0-9]+)?$/, \n
      \'func\': requestController,\n
+   },\n
+   {\n
+     \'regexp\': /.*/, \n
+     \'func\': softwareReleaseController,\n
    },\n
  ];\n
 \n

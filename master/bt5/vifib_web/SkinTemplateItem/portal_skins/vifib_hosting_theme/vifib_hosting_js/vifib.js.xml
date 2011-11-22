@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21959401.3</string> </value>
+            <value> <string>ts21967421.72</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -48,7 +48,7 @@ function drawExtendSoftwareReleaseList(data) {\n
 function getSoftwareReleaseEntry(item) {\n
   var li = $(\'<li>\');\n
   li.addClass(\'software_release_entry\');\n
-  li.click(function() {window.location.hash=\'#!software_release/\' + item.uid});\n
+  li.click(function() {window.location.hash=\'#software_release=\' + item.uid});\n
   var img = $(\'<img>\');\n
   img.attr({\n
     \'src\': item.image,\n
@@ -222,8 +222,7 @@ function drawRequest(data) {\n
   js_container.append(request);\n
 }\n
 \n
-function requestController() {\n
-  software_release_id = /#!software_release\\/([0-9]+)?/.exec(window.location.hash)[1];\n
+function requestController(software_release_id) {\n
   software_release_id = parseInt(software_release_id);\n
   $.getJSON(\n
   vifib[\'site_url\'] + "/ERP5Site_getSoftwareReleaseListAsJSON",\n
@@ -231,38 +230,18 @@ function requestController() {\n
   drawRequest);\n
 }\n
 \n
-\n
-var hash_list = [\n
-   {\n
-     \'regexp\': /^#!software_release\\/([0-9]+)?$/, \n
-     \'func\': requestController,\n
-   },\n
-   {\n
-     \'regexp\': /.*/, \n
-     \'func\': softwareReleaseController,\n
-   },\n
- ];\n
-\n
 function hashController ()\n
 {\n
-  // If regexp doesn\'t match, keep the page unmodified\n
   var hash = \'\';\n
   if (window.location.hash.length)\n
   {\n
-    hash = window.location.hash;\n
+    hash = window.location.hash.split(\'#\')[1];\n
   }\n
-\n
-  var list_len = hash_list.length; \n
-  var i = 0;\n
-  var found = 0;\n
-  for(i; i < list_len; i++) \n
-  { \n
-    if (hash_list[i].regexp.test(hash)) {\n
-      found = 1;\n
-      hash_list[i].func();\n
-      break;\n
-    }\n
-  }\n
+  query_kw = $.deparam(hash);\n
+  software_release = query_kw[\'software_release\'];\n
+  query = query_kw[\'query\'];\n
+  if (software_release) { requestController(software_release);}\n
+  else {softwareReleaseController(query);}\n
 }\n
 
 
@@ -274,7 +253,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>7190</int> </value>
+            <value> <int>6896</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

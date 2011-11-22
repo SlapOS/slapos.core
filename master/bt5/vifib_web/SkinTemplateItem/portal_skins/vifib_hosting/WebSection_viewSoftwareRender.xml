@@ -48,9 +48,11 @@
           <h1 i18n:translate="" i18n:domain="ui">Request a Software Instance</h1>\n
 <div id="js_container"></div>\n
 <script type="text/javascript">\n
-$.ajaxSetup ({cache: false});\n
-$(window).hashchange(hashController);\n
-$(window).hashchange();\n
+$(document).ready(function() {\n
+  $.ajaxSetup ({cache: false});\n
+  $(window).hashchange(hashController);\n
+  $(window).hashchange();\n
+});\n
 </script>\n
         </div>\n
       </tal:block>\n

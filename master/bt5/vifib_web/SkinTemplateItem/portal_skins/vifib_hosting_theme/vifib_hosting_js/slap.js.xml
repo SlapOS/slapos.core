@@ -41,8 +41,7 @@ slap = {\n
 }\n
 \n
 vifib = {\n
-  site_url: \'<span tal:replace="context/absolute_url"/>\',\n
-  slap_url: \'https://slap.vifib.com/\'\n
+  site_url: \'<span tal:replace="context/absolute_url"/>\'\n
 }
 
 ]]></unicode> </value>

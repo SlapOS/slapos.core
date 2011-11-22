@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21969517.73</string> </value>
+            <value> <string>ts21976195.41</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -59,17 +59,22 @@ function getSoftwareReleaseEntry(item) {\n
   img_div = $(\'<div>\');\n
   img_div.addClass(\'software_release_icon\');\n
   img_div.append(img);\n
-  var title = $(\'<div>\');\n
+  var title_div = $(\'<div>\');\n
+  title_div.addClass(\'software_release_title\');\n
+  var title = $(\'<span>\');\n
   title.addClass(\'software_release_title\');\n
   title.html(item.title);\n
-  var description = $(\'<div>\');\n
+  var description = $(\'<span>\');\n
   description.addClass(\'software_release_description\');\n
-  description.html(item.description)\n
+  description.html(item.description);\n
+  title_div.append(title);\n
+  title_div.append($(\'<br/>\'));\n
+  title_div.append(description);\n
   var entry_div = $(\'<div>\');\n
   entry_div.addClass(\'software_release_entry\');\n
   entry_div.append(img_div);\n
-  entry_div.append(title);\n
-  entry_div.append(description);\n
+  entry_div.append(title_div);\n
+  entry_div.append($(\'<div>\').addClass(\'reset\'));\n
   li.append(entry_div);\n
   return li;\n
 }\n
@@ -239,7 +244,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>6556</int> </value>
+            <value> <int>6750</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

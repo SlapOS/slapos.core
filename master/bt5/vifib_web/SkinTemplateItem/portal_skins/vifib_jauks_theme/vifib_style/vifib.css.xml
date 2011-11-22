@@ -202,7 +202,7 @@ background:url(<tal:block tal:replace="images_path"/>user.png) no-repeat scroll 
 \n
 \n
 .software_release_entry {text-decoration: none; list-style: none; cursor: default}\n
-div.software_release_entry {position:relative, width:100%;cursor: pointer; border: 1px solid #666d6c; padding: 7px 7px 7px 7px; margin-top: 12px; margin-bottom: 12px}\n
+div.software_release_entry {position:relative, width:550px;cursor: pointer; border: 1px solid #666d6c; padding: 7px 7px 7px 7px; margin-top: 12px; margin-bottom: 12px}\n
 li.software_release_entry:hover {background-color: #D2E7F4;}\n
 \n
 \n
@@ -212,11 +212,12 @@ li.software_release_more:hover {background-color: #D2E7F4;}\n
 \n
 \n
 .software_release_title {font-size:22px; color: #1a8d8d}\n
-div.software_release_title {float:right;}\n
-.software_release_icon {height: 70px}\n
-div.software_release_icon {float: left}\n
-.software_release_description {font-size:16px}\n
-div.software_release_description {clear:both}\n
+div.software_release_title {float:left; padding: 2px 2px 2px 2px; width: 340px; height: 120px;}\n
+.software_release_icon {height: 100px; max-width: 175px;}\n
+div.software_release_icon {float: left; padding: 4px 4px 4px 4px; border: 1px solid #8bc8c7; text-align: center; width:180px}\n
+.software_release_description {font-size:16px; color: black}\n
+div.software_release_description {float:left;}\n
+div.reset {position:relative;clear:both;}\n
 input.software_release_search {height: 30px}\n
 \n
 .software_release_input {\n

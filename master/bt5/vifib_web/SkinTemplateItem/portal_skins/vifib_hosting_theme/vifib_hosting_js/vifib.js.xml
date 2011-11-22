@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21955898.25</string> </value>
+            <value> <string>ts21957901.38</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -34,9 +34,15 @@ function extendSoftwareReleaseList() {\n
 \n
 function drawExtendSoftwareReleaseList(data) {\n
   hook = $(\'#more_end\');\n
-  $.each(data[\'software_release_list\'], function(i,item){\n
-    getSoftwareReleaseEntry(item).insertBefore(hook);\n
-  });\n
+  if (data[\'software_release_list\'].length > 0) {\n
+    $.each(data[\'software_release_list\'], function(i,item){\n
+      getSoftwareReleaseEntry(item).insertBefore(hook);\n
+    });\n
+  }\n
+  else\n
+  {\n
+    $(\'#more_div\').html(\'All results shown.\');\n
+  }\n
 }\n
 \n
 function getSoftwareReleaseEntry(item) {\n
@@ -79,6 +85,7 @@ function drawSoftwareReleaseList(data) {\n
   li.addClass(\'software_release_more\');\n
   li.attr(\'id\', \'more_end\');\n
   var more_div = $(\'<div>\');\n
+  more_div.attr(\'id\', \'more_div\');\n
   more_div.addClass(\'software_release_more\');\n
   more_div.html(\'More...\');\n
   li.append(more_div);\n
@@ -262,7 +269,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>6816</int> </value>
+            <value> <int>6973</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

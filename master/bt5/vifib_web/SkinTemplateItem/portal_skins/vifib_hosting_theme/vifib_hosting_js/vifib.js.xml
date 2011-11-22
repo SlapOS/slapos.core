@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21958862.41</string> </value>
+            <value> <string>ts21959401.3</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -78,18 +78,29 @@ function drawSoftwareReleaseList(data) {\n
   $(\'#software_release_container\').empty()\n
   var ul = $(\'<ul>\');\n
   ul.attr(\'id\', \'software_release_list\');\n
-  $.each(data[\'software_release_list\'], function(i,item){\n
-    getSoftwareReleaseEntry(item).appendTo(ul)\n
-  });\n
-  var li = $(\'<li>\').appendTo(ul);\n
-  li.addClass(\'software_release_more\');\n
-  li.attr(\'id\', \'more_end\');\n
-  var more_div = $(\'<div>\');\n
-  more_div.attr(\'id\', \'more_div\');\n
-  more_div.addClass(\'software_release_more\');\n
-  more_div.html(\'More...\');\n
-  li.append(more_div);\n
-  li.click(extendSoftwareReleaseList);\n
+  if (data[\'software_release_list\'].length > 0) {\n
+    $.each(data[\'software_release_list\'], function(i,item){\n
+      getSoftwareReleaseEntry(item).appendTo(ul)\n
+    });\n
+    var li = $(\'<li>\').appendTo(ul);\n
+    li.addClass(\'software_release_more\');\n
+    li.attr(\'id\', \'more_end\');\n
+    var more_div = $(\'<div>\');\n
+    more_div.attr(\'id\', \'more_div\');\n
+    more_div.addClass(\'software_release_more\');\n
+    more_div.html(\'More...\');\n
+    li.append(more_div);\n
+    li.click(extendSoftwareReleaseList);\n
+  }\n
+  else\n
+  {\n
+    var li = $(\'<li>\').appendTo(ul);\n
+    li.addClass(\'software_release_more\');\n
+    var more_div = $(\'<div>\');\n
+    more_div.addClass(\'software_release_more\');\n
+    more_div.html(\'Sorry, no results.\');\n
+    li.append(more_div);\n
+  }\n
   $("#software_release_container").append(ul);\n
 }\n
 \n
@@ -263,7 +274,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>6873</int> </value>
+            <value> <int>7190</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21958776.1</string> </value>
+            <value> <string>ts21958862.41</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -103,9 +103,6 @@ function updateSoftwareReleaseList(event) {\n
 }\n
 \n
 function softwareReleaseController() {\n
-  $.ajaxSetup ({  \n
-          cache: false  \n
-  });\n
   js_container = $("#js_container");\n
   js_container.empty();\n
   var input = $(\'<input type="text">\');\n
@@ -215,9 +212,6 @@ function drawRequest(data) {\n
 }\n
 \n
 function requestController() {\n
-  $.ajaxSetup ({  \n
-          cache: false  \n
-  });\n
   software_release_id = /#!software_release\\/([0-9]+)?/.exec(window.location.hash)[1];\n
   software_release_id = parseInt(software_release_id);\n
   $.getJSON(\n
@@ -269,7 +263,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>6973</int> </value>
+            <value> <int>6873</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

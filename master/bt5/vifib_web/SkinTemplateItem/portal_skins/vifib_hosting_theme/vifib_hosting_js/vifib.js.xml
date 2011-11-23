@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts21976195.41</string> </value>
+            <value> <string>ts22051111.09</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -61,15 +61,20 @@ function getSoftwareReleaseEntry(item) {\n
   img_div.append(img);\n
   var title_div = $(\'<div>\');\n
   title_div.addClass(\'software_release_title\');\n
+  var wrapper_div = $(\'<div>\');\n
+  wrapper_div.attr(\'id\', \'lukeluke\');\n
+  var title_p = $(\'<p>\');\n
   var title = $(\'<span>\');\n
   title.addClass(\'software_release_title\');\n
   title.html(item.title);\n
   var description = $(\'<span>\');\n
   description.addClass(\'software_release_description\');\n
   description.html(item.description);\n
-  title_div.append(title);\n
-  title_div.append($(\'<br/>\'));\n
-  title_div.append(description);\n
+  title_p.append(title);\n
+  title_p.append($(\'<br/>\'));\n
+  title_p.append(description);\n
+  wrapper_div.append(title_p);\n
+  title_div.append(wrapper_div);\n
   var entry_div = $(\'<div>\');\n
   entry_div.addClass(\'software_release_entry\');\n
   entry_div.append(img_div);\n
@@ -136,7 +141,6 @@ function softwareReleaseController(query) {\n
   search.click(updateSoftwareReleaseList);\n
   if (query) { q = {\'title\': query}; }\n
   else {q = {};}\n
-  console.log(q);\n
   $.getJSON(vifib[\'site_url\'] + "/ERP5Site_getSoftwareReleaseListAsJSON", q,\n
   drawSoftwareReleaseList);\n
 }\n
@@ -233,6 +237,7 @@ function hashController ()\n
   query = query_kw[\'query\'];\n
   if (software_release) { requestController(software_release);}\n
   else {softwareReleaseController(query);}\n
+  $(window).load(function() {$(\'div.software_release_title\').dotdotdot();});\n
 }\n
 
 
@@ -244,7 +249,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>6750</int> </value>
+            <value> <int>6963</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

@@ -55,7 +55,6 @@
 return (\'jquery/core/jquery.js\',\n
         \'vifib_hosting_js/jquery.ba-hashchange.min.js\',\n
         \'vifib_hosting_js/jquery.ba-bbq.min.js\',\n
-        \'vifib_hosting_js/jquery.dotdotdot.min.js\',\n
         \'vifib_hosting_js/vifib_hosting.js\',\n
         \'vifib_hosting_js/slap.js\',\n
         \'vifib_hosting_js/vifib.js\',\n

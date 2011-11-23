@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22054505.11</string> </value>
+            <value> <string>ts22060359.91</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -61,23 +61,25 @@ function getSoftwareReleaseEntry(item) {\n
   img_div.append(img);\n
   var title_div = $(\'<div>\');\n
   title_div.addClass(\'software_release_title\');\n
-  var wrapper_div = $(\'<div>\');\n
-  var title_p = $(\'<p>\');\n
-  var title = $(\'<span>\');\n
-  title.addClass(\'software_release_title\');\n
-  title.html(item.title);\n
+  title_div.html(item.title)\n
+  var description_div = $(\'<div>\');\n
+  description_div.addClass(\'software_release_description\');\n
   var description = $(\'<span>\');\n
   description.addClass(\'software_release_description\');\n
-  description.html(item.description);\n
-  title_p.append(title);\n
-  title_p.append($(\'<br/>\'));\n
-  title_p.append(description);\n
-  wrapper_div.append(title_p);\n
-  title_div.append(wrapper_div);\n
+  description_div.append(description);\n
+  maxh = description_div.height();\n
+  description.text(item.description);\n
+  while(description.height() > maxh) {\n
+    description.text(description.text().slice(0, description.text().length -1));\n
+  }\n
+  t = description.text().slice(0, description.text().length-3);\n
+  t += \'...\';\n
+  description.text(t);\n
   var entry_div = $(\'<div>\');\n
   entry_div.addClass(\'software_release_entry\');\n
   entry_div.append(img_div);\n
   entry_div.append(title_div);\n
+  entry_div.append(description_div);\n
   entry_div.append($(\'<div>\').addClass(\'reset\'));\n
   li.append(entry_div);\n
   return li;\n
@@ -236,7 +238,8 @@ function hashController ()\n
   query = query_kw[\'query\'];\n
   if (software_release) { requestController(software_release);}\n
   else {softwareReleaseController(query);}\n
-  $(window).load(function() {$(\'div.software_release_title\').dotdotdot();});\n
+//  $(window).load(function() {$(\'div.software_release_title\').dotdotdot();});\n
+//  $(window).ajaxComplete(function() {$(\'div.software_release_title\').dotdotdot();});\n
 }\n
 
 
@@ -248,7 +251,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>6925</int> </value>
+            <value> <int>7170</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

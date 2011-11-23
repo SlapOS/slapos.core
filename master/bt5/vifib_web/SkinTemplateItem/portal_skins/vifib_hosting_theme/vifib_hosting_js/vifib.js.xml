@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22063037.83</string> </value>
+            <value> <string>ts22064749.78</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -78,9 +78,12 @@ function setSoftwareReleaseEntry(item, append_to, insert_before) {\n
   maxh = description_div.height();\n
   description.text(item.description);\n
   var truncated = false;\n
+  var original_text = description.text()\n
+  var length = original_text.length;\n
   while(description.height() > maxh) {\n
+    length--;\n
     truncated = true;\n
-    description.text(description.text().slice(0, description.text().length -1));\n
+    description.text(original_text.slice(0, length));\n
   }\n
   if (truncated) {\n
     t = description.text().slice(0, description.text().length-3);\n
@@ -256,7 +259,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>7353</int> </value>
+            <value> <int>7418</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

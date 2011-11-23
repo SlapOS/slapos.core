@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22061536.59</string> </value>
+            <value> <string>ts22063037.83</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -36,7 +36,7 @@ function drawExtendSoftwareReleaseList(data) {\n
   hook = $(\'#more_end\');\n
   if (data[\'software_release_list\'].length > 0) {\n
     $.each(data[\'software_release_list\'], function(i,item){\n
-      getSoftwareReleaseEntry(item).insertBefore(hook);\n
+      setSoftwareReleaseEntry(item, false, hook);\n
     });\n
   }\n
   else\n
@@ -45,28 +45,36 @@ function drawExtendSoftwareReleaseList(data) {\n
   }\n
 }\n
 \n
-function getSoftwareReleaseEntry(item) {\n
+function setSoftwareReleaseEntry(item, append_to, insert_before) {\n
   var li = $(\'<li>\');\n
+  var img = $(\'<img>\');\n
+  var img_div = $(\'<div>\');\n
+  var title_div = $(\'<div>\');\n
+  var description_div = $(\'<div>\');\n
+  var description = $(\'<span>\');\n
+  var entry_div = $(\'<div>\');\n
+  img_div.append(img);\n
+  entry_div.append(img_div);\n
+  entry_div.append(title_div);\n
+  entry_div.append(description_div);\n
+  entry_div.append($(\'<div>\').addClass(\'reset\'));\n
+  li.append(entry_div);\n
+  description_div.append(description);\n
+  if (append_to) {li.appendTo(append_to);}\n
+  if (insert_before) {li.insertBefore(insert_before);}\n
   li.addClass(\'software_release_entry\');\n
   li.click(function() {window.location.hash=\'#software_release=\' + item.uid});\n
-  var img = $(\'<img>\');\n
   img.attr({\n
     \'src\': item.image,\n
     \'alt\': item.title,\n
     \'title\': item.title\n
   });\n
   img.addClass(\'software_release_icon\');\n
-  img_div = $(\'<div>\');\n
   img_div.addClass(\'software_release_icon\');\n
-  img_div.append(img);\n
-  var title_div = $(\'<div>\');\n
   title_div.addClass(\'software_release_title\');\n
   title_div.html(item.title)\n
-  var description_div = $(\'<div>\');\n
   description_div.addClass(\'software_release_description\');\n
-  var description = $(\'<span>\');\n
   description.addClass(\'software_release_description\');\n
-  description_div.append(description);\n
   maxh = description_div.height();\n
   description.text(item.description);\n
   var truncated = false;\n
@@ -79,23 +87,17 @@ function getSoftwareReleaseEntry(item) {\n
     t += \'...\';\n
     description.text(t);\n
   }\n
-  var entry_div = $(\'<div>\');\n
   entry_div.addClass(\'software_release_entry\');\n
-  entry_div.append(img_div);\n
-  entry_div.append(title_div);\n
-  entry_div.append(description_div);\n
-  entry_div.append($(\'<div>\').addClass(\'reset\'));\n
-  li.append(entry_div);\n
-  return li;\n
 }\n
 \n
 function drawSoftwareReleaseList(data) {\n
   $(\'#software_release_container\').empty()\n
   var ul = $(\'<ul>\');\n
+  $("#software_release_container").append(ul);\n
   ul.attr(\'id\', \'software_release_list\');\n
   if (data[\'software_release_list\'].length > 0) {\n
     $.each(data[\'software_release_list\'], function(i,item){\n
-      getSoftwareReleaseEntry(item).appendTo(ul)\n
+      setSoftwareReleaseEntry(item, ul, false)\n
     });\n
     var li = $(\'<li>\').appendTo(ul);\n
     li.addClass(\'software_release_more\');\n
@@ -116,7 +118,6 @@ function drawSoftwareReleaseList(data) {\n
     more_div.html(\'Sorry, no results.\');\n
     li.append(more_div);\n
   }\n
-  $("#software_release_container").append(ul);\n
 }\n
 \n
 function updateSoftwareReleaseList(event) {\n
@@ -255,7 +256,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>7246</int> </value>
+            <value> <int>7353</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

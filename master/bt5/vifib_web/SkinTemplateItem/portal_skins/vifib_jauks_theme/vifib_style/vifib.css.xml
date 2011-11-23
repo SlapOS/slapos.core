@@ -214,7 +214,7 @@ li.software_release_more:hover {background-color: #D2E7F4;}\n
 div.software_release_title {float:left; padding: 2px 2px 2px 2px; width: 340px; height: 25px; font-size:22px; color: #1a8d8d; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;}\n
 .software_release_icon {height: 100px; max-width: 175px;}\n
 div.software_release_icon {float: left; padding: 4px 4px 4px 4px; border: 1px solid #8bc8c7; text-align: center; width:180px}\n
-div.software_release_description {float:left;padding: 2px 2px 2px 2px;border: 1px solid green; width: 340px; height: 77px;}\n
+div.software_release_description {float:left;padding: 2px 2px 2px 2px; width: 340px; height: 77px;}\n
 span.software_release_description {font-size:14px; color: black;}\n
 div.reset {position:relative;clear:both;}\n
 input.software_release_search {height: 30px}\n

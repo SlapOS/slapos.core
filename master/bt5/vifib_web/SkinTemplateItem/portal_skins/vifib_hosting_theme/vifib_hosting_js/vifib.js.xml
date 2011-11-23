@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22051111.09</string> </value>
+            <value> <string>ts22054505.11</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -62,7 +62,6 @@ function getSoftwareReleaseEntry(item) {\n
   var title_div = $(\'<div>\');\n
   title_div.addClass(\'software_release_title\');\n
   var wrapper_div = $(\'<div>\');\n
-  wrapper_div.attr(\'id\', \'lukeluke\');\n
   var title_p = $(\'<p>\');\n
   var title = $(\'<span>\');\n
   title.addClass(\'software_release_title\');\n
@@ -249,7 +248,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>6963</int> </value>
+            <value> <int>6925</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

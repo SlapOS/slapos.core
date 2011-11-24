@@ -50,7 +50,9 @@
         </item>
         <item>
             <key> <string>_body</string> </key>
-            <value> <string>portal_catalog = context.getPortalObject().portal_catalog\n
+            <value> <string encoding="cdata"><![CDATA[
+
+portal_catalog = context.getPortalObject().portal_catalog\n
 kw = {}\n
 \n
 if title is not None:\n
@@ -58,6 +60,10 @@ if title is not None:\n
 if uid is not None:\n
   kw[\'uid\'] = uid\n
 \n
+page = int(page)\n
+step = 5\n
+offset = 5 * page\n
+limit = 5 * page + 5 + 1\n
 kw.update(\n
   portal_type=\'Software Release\',\n
   validation_state=\'published\',\n
@@ -70,8 +76,13 @@ kw.update(\n
   **{\'software_release.state\': \'stopped\'}\n
 )\n
 \n
+result = [q for q in portal_catalog(**kw)]\n
+if len(result) > 5:\n
+  after = True\n
+else:\n
+  after = False\n
 response = []\n
-for q in portal_catalog(**kw):\n
+for q in result[:5]:\n
     o = q.getObject()\n
     response.append({\n
       \'uid\': q.UID,\n
@@ -81,12 +92,21 @@ for q in portal_catalog(**kw):\n
       \'document_url\': context.getPermanentURL(o),\n
       \'url\': q.SOFTWARE_RELEASE_URL,\n
     })\n
-return context.asJSON({\'software_release_list\':response})\n
-</string> </value>
+\n
+return context.asJSON({\n
+  \'software_release_list\':response,\n
+  \'before\': page > 0 and True or False,\n
+  \'after\': after,\n
+  \'page\': page,\n
+  \'title\': title\n
+  })\n
+
+
+]]></string> </value>
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>title=None, uid=None, offset=0, limit=5</string> </value>
+            <value> <string>title=None, uid=None, page=0</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

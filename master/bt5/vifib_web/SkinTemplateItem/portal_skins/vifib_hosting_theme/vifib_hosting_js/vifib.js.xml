@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22149520.4</string> </value>
+            <value> <string>ts22154140.33</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -22,29 +22,6 @@
             <key> <string>data</string> </key>
             <value> <string encoding="cdata"><![CDATA[
 
-function extendSoftwareReleaseList() {\n
-  ul = $("#software_release_list")[0];\n
-  current = ul.children.length - 1;\n
-  q = $(\'#software_release_query\')[0][\'value\']\n
-  $.getJSON(\n
-  vifib[\'site_url\'] + "/ERP5Site_getSoftwareReleaseListAsJSON",\n
-  {"title":q, "offset": current},\n
-  drawExtendSoftwareReleaseList);\n
-}\n
-\n
-function drawExtendSoftwareReleaseList(data) {\n
-  hook = $(\'#more_end\');\n
-  if (data[\'software_release_list\'].length > 0) {\n
-    $.each(data[\'software_release_list\'], function(i,item){\n
-      setSoftwareReleaseEntry(item, false, hook);\n
-    });\n
-  }\n
-  else\n
-  {\n
-    $(\'#more_div\').html(\'All results shown.\');\n
-  }\n
-}\n
-\n
 function setSoftwareReleaseEntry(item, append_to, insert_before) {\n
   var li = $(\'<li>\');\n
   var img = $(\'<img>\');\n
@@ -124,13 +101,27 @@ function drawSoftwareReleaseList(data) {\n
     });\n
     var li = $(\'<li>\').appendTo(ul);\n
     li.addClass(\'software_release_more\');\n
-    li.attr(\'id\', \'more_end\');\n
+    li.attr(\'id\', \'end\');\n
     var navigation_div = $(\'<div>\');\n
     navigation_div.attr(\'id\', \'navigation_div\');\n
     navigation_div.addClass(\'software_release_more\');\n
-    navigation_div.html(\'More...\');\n
+    var param = {};\n
+    if (data.title) { param[\'query\'] = data.title; }\n
+    if (data.before) {\n
+      a = $(\'<a>\');\n
+      param[\'page\'] = data.page-1;\n
+      a.attr(\'href\', \'#\'+$.param(param));\n
+      a.text(\'previous\');\n
+      navigation_div.append(a);\n
+    }\n
+    if (data.after) {\n
+      a = $(\'<a>\');\n
+      param[\'page\'] = data.page+1;\n
+      a.attr(\'href\', \'#\'+$.param(param));\n
+      a.text(\'next\');\n
+      navigation_div.append(a);\n
+    }\n
     li.append(navigation_div);\n
-    li.click(extendSoftwareReleaseList);\n
   }\n
   else\n
   {\n
@@ -143,14 +134,13 @@ function drawSoftwareReleaseList(data) {\n
   }\n
 }\n
 \n
-function updateSoftwareReleaseList(event) {\n
+function searchSoftwareReleaseList(event) {\n
   event.preventDefault();\n
-  query_kw = $.deparam.fragment();\n
-  query_kw[\'query\'] = $(\'#software_release_query\')[0][\'value\'];\n
+  query_kw = {query: $(\'#software_release_query\')[0][\'value\']};\n
   window.location.hash = $.param(query_kw);\n
 }\n
 \n
-function softwareReleaseController(query) {\n
+function softwareReleaseController(query, page) {\n
   js_container = $("#js_container");\n
   js_container.empty();\n
   var search_div = $(\'<div>\');\n
@@ -160,7 +150,7 @@ function softwareReleaseController(query) {\n
   input.attr(\'id\', "software_release_query");\n
   input.addClass("software_release_input");\n
   input.val(query);\n
-  $(\'form\').submit(updateSoftwareReleaseList);\n
+  $(\'form\').submit(searchSoftwareReleaseList);\n
   search_div.append(input)\n
 \n
   var search = $(\'<button>\');\n
@@ -170,9 +160,11 @@ function softwareReleaseController(query) {\n
   software_release_container = $(\'<div>\');\n
   software_release_container.attr(\'id\', \'software_release_container\');\n
   js_container.append(software_release_container);\n
-  search.click(updateSoftwareReleaseList);\n
-  if (query) { q = {\'title\': query}; }\n
-  else {q = {};}\n
+  search.click(searchSoftwareReleaseList);\n
+  var q = {}\n
+  if (query) { q[\'title\'] = query }\n
+  if (page) {q[\'page\'] = page}\n
+  else {q[\'page\'] = 0}\n
   $.getJSON(vifib[\'site_url\'] + "/ERP5Site_getSoftwareReleaseListAsJSON", q,\n
   drawSoftwareReleaseList);\n
 }\n
@@ -267,10 +259,9 @@ function hashController ()\n
   query_kw = $.deparam.fragment();\n
   software_release = query_kw[\'software_release\'];\n
   query = query_kw[\'query\'];\n
+  page = query_kw[\'page\']\n
   if (software_release) { requestController(software_release);}\n
-  else {softwareReleaseController(query);}\n
-//  $(window).load(function() {$(\'div.software_release_title\').dotdotdot();});\n
-//  $(window).ajaxComplete(function() {$(\'div.software_release_title\').dotdotdot();});\n
+  else {softwareReleaseController(query, page);}\n
 }\n
 
 
@@ -282,7 +273,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>8364</int> </value>
+            <value> <int>7984</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

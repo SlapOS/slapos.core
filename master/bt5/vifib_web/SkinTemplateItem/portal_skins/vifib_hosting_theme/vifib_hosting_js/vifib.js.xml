@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22124862.69</string> </value>
+            <value> <string>ts22130726.57</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -65,7 +65,7 @@ function setSoftwareReleaseEntry(item, append_to, insert_before) {\n
   li.addClass(\'software_release_entry\');\n
   li.click(function() {window.location.hash=\'#software_release=\' + item.uid});\n
   img.attr({\n
-    \'src\': item.image,\n
+    \'src\': item.image_url,\n
     \'alt\': item.title,\n
     \'title\': item.title\n
   });\n
@@ -258,7 +258,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>7427</int> </value>
+            <value> <int>7431</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

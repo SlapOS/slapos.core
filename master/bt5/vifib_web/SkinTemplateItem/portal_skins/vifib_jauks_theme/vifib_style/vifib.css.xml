@@ -201,8 +201,8 @@ background:url(<tal:block tal:replace="images_path"/>user.png) no-repeat scroll 
 /**********************/\n
 \n
 \n
-.software_release_entry {text-decoration: none; list-style: none; cursor: default}\n
-div.software_release_entry {position:relative, width:550px;cursor: pointer; border: 1px solid #666d6c; padding: 7px 7px 7px 7px; margin-top: 12px; margin-bottom: 12px}\n
+.software_release_entry {text-decoration: none; list-style: none;}\n
+div.software_release_entry {position:relative, width:550px;border: 1px solid #666d6c; padding: 7px 7px 7px 7px; margin-top: 12px; margin-bottom: 12px}\n
 li.software_release_entry:hover {background-color: #D2E7F4;}\n
 \n
 \n
@@ -213,12 +213,12 @@ li.software_release_more:hover {background-color: #D2E7F4;}\n
 \n
 div.software_release_title {float:left; padding: 2px 2px 2px 2px; width: 340px; height: 25px; font-size:22px; color: #1a8d8d; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;}\n
 .software_release_icon {height: 100px; max-width: 175px;}\n
-div.software_release_icon {float: left; padding: 4px 4px 4px 4px; border: 1px solid #8bc8c7; text-align: center; width:180px}\n
+div.software_release_icon {float: left; padding: 4px 4px 4px 4px; border: 1px solid #8bc8c7; text-align: center; width:180px; height: 120px;}\n
 div.software_release_description {float:left;padding: 2px 2px 2px 2px; width: 340px; height: 77px;}\n
 span.software_release_description {font-size:14px; color: black;}\n
+\n
 div.reset {position:relative;clear:both;}\n
 input.software_release_search {height: 30px}\n
-\n
 .software_release_input {\n
     color: #BAE2E9;\n
     background-color: #2d909c;\n
@@ -230,6 +230,12 @@ input.software_release_search {height: 30px}\n
     padding: 0 0 0 0;}\n
 button.software_release_input {cursor: pointer; border: medium none;}\n
 textarea.software_release_input {height: 100px; padding: 15px 15px 15px 15px;}\n
+\n
+div.software_release_navigation {float:left; width: 340px; height: 15px; color: #1a8d8d; white-space:nowrap;}\n
+ul.software_release_navigation {}\n
+li.software_release_navigation {}\n
+a.software_release_navigation {text-decoration: none; color: #fc7c25; white-space:nowrap;}\n
+\n
 </tal:block>
 
 ]]></unicode> </value>

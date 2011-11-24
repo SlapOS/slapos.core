@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22130726.57</string> </value>
+            <value> <string>ts22139549.51</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -53,17 +53,28 @@ function setSoftwareReleaseEntry(item, append_to, insert_before) {\n
   var description_div = $(\'<div>\');\n
   var description = $(\'<span>\');\n
   var entry_div = $(\'<div>\');\n
+  var navigation_div = $(\'<div>\');\n
+  var list = $(\'<ul>\');\n
+  var entry_more = $(\'<li>\');\n
+  var more = $(\'<a>\');\n
+  var entry_install = $(\'<li>\');\n
+  var install = $(\'<a>\');\n
   img_div.append(img);\n
+  entry_more.append(more);\n
+  list.append(entry_more);\n
+  navigation_div.append(list);\n
+  entry_install.append(install);\n
+  list.append(entry_install);\n
   entry_div.append(img_div);\n
   entry_div.append(title_div);\n
   entry_div.append(description_div);\n
+  entry_div.append(navigation_div);\n
   entry_div.append($(\'<div>\').addClass(\'reset\'));\n
   li.append(entry_div);\n
   description_div.append(description);\n
   if (append_to) {li.appendTo(append_to);}\n
   if (insert_before) {li.insertBefore(insert_before);}\n
   li.addClass(\'software_release_entry\');\n
-  li.click(function() {window.location.hash=\'#software_release=\' + item.uid});\n
   img.attr({\n
     \'src\': item.image_url,\n
     \'alt\': item.title,\n
@@ -74,6 +85,16 @@ function setSoftwareReleaseEntry(item, append_to, insert_before) {\n
   title_div.addClass(\'software_release_title\');\n
   title_div.html(item.title)\n
   description_div.addClass(\'software_release_description\');\n
+  navigation_div.addClass(\'software_release_navigation\');\n
+  list.addClass(\'software_release_navigation\');\n
+  entry_more.addClass(\'software_release_navigation\');\n
+  more.attr(\'href\', item.document_url);\n
+  more.text(\'Read more\');\n
+  more.addClass(\'software_release_navigation\');\n
+  entry_install.addClass(\'software_release_navigation\');\n
+  install.attr(\'href\', \'#software_release=\' + item.uid);\n
+  install.addClass(\'software_release_navigation\');\n
+  install.text(\'Install software\');\n
   description.addClass(\'software_release_description\');\n
   maxh = description_div.height();\n
   var truncated = false;\n
@@ -104,21 +125,21 @@ function drawSoftwareReleaseList(data) {\n
     var li = $(\'<li>\').appendTo(ul);\n
     li.addClass(\'software_release_more\');\n
     li.attr(\'id\', \'more_end\');\n
-    var more_div = $(\'<div>\');\n
-    more_div.attr(\'id\', \'more_div\');\n
-    more_div.addClass(\'software_release_more\');\n
-    more_div.html(\'More...\');\n
-    li.append(more_div);\n
+    var navigation_div = $(\'<div>\');\n
+    navigation_div.attr(\'id\', \'navigation_div\');\n
+    navigation_div.addClass(\'software_release_more\');\n
+    navigation_div.html(\'More...\');\n
+    li.append(navigation_div);\n
     li.click(extendSoftwareReleaseList);\n
   }\n
   else\n
   {\n
     var li = $(\'<li>\').appendTo(ul);\n
     li.addClass(\'software_release_more\');\n
-    var more_div = $(\'<div>\');\n
-    more_div.addClass(\'software_release_more\');\n
-    more_div.html(\'Sorry, no results.\');\n
-    li.append(more_div);\n
+    var navigation_div = $(\'<div>\');\n
+    navigation_div.addClass(\'software_release_more\');\n
+    navigation_div.html(\'Sorry, no results.\');\n
+    li.append(navigation_div);\n
   }\n
 }\n
 \n
@@ -258,7 +279,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>7431</int> </value>
+            <value> <int>8242</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

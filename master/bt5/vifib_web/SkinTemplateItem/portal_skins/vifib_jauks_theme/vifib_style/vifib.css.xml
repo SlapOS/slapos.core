@@ -211,10 +211,10 @@ div.software_release_more {position:relative, width:100%;cursor: pointer; font-s
 li.software_release_more:hover {background-color: #D2E7F4;}\n
 \n
 \n
-div.software_release_title {float:left; padding: 2px 2px 2px 2px; width: 340px; height: 25px; font-size:22px; color: #1a8d8d; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;}\n
+div.software_release_title {font-style:normal; float:left; padding: 2px 2px 2px 2px; width: 340px; height: 25px; font-size:24px; color: #1a8d8d; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;}\n
 .software_release_icon {height: 100px; max-width: 175px;}\n
 div.software_release_icon {float: left; padding: 4px 4px 4px 4px; border: 1px solid #8bc8c7; text-align: center; width:180px; height: 120px;}\n
-div.software_release_description {float:left;padding: 2px 2px 2px 2px; width: 340px; height: 77px;}\n
+div.software_release_description {float:left;padding: 2px 2px 2px 2px; font-style:normal; width: 340px; height: 77px;}\n
 span.software_release_description {font-size:14px; color: black;}\n
 \n
 div.reset {position:relative;clear:both;}\n
@@ -232,8 +232,8 @@ button.software_release_input {cursor: pointer; border: medium none;}\n
 textarea.software_release_input {height: 100px; padding: 15px 15px 15px 15px;}\n
 \n
 div.software_release_navigation {float:left; width: 340px; height: 15px; color: #1a8d8d; white-space:nowrap;}\n
-ul.software_release_navigation {}\n
-li.software_release_navigation {}\n
+ul.software_release_navigation, li.software_release_navigation {display: inline; padding: 5px;}\n
+li.software_release_navigation:before {content: "\\0020 \\0020 \\0020 \\00BB \\0020";}\n
 a.software_release_navigation {text-decoration: none; color: #fc7c25; white-space:nowrap;}\n
 \n
 </tal:block>

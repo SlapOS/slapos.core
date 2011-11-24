@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22154140.33</string> </value>
+            <value> <string>ts22156440.07</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -100,27 +100,29 @@ function drawSoftwareReleaseList(data) {\n
       setSoftwareReleaseEntry(item, ul, false)\n
     });\n
     var li = $(\'<li>\').appendTo(ul);\n
-    li.addClass(\'software_release_more\');\n
+    li.addClass(\'software_release_entry\');\n
     li.attr(\'id\', \'end\');\n
     var navigation_div = $(\'<div>\');\n
     navigation_div.attr(\'id\', \'navigation_div\');\n
     navigation_div.addClass(\'software_release_more\');\n
     var param = {};\n
     if (data.title) { param[\'query\'] = data.title; }\n
-    if (data.before) {\n
-      a = $(\'<a>\');\n
-      param[\'page\'] = data.page-1;\n
-      a.attr(\'href\', \'#\'+$.param(param));\n
-      a.text(\'previous\');\n
-      navigation_div.append(a);\n
-    }\n
+    var a = $(\'<div>\');\n
     if (data.after) {\n
-      a = $(\'<a>\');\n
+      a.addClass(\'sr_right_active\');\n
       param[\'page\'] = data.page+1;\n
-      a.attr(\'href\', \'#\'+$.param(param));\n
-      a.text(\'next\');\n
-      navigation_div.append(a);\n
+      a.click(function() {window.location.hash = \'#\'+$.param(param);});\n
     }\n
+    else { a.addClass(\'sr_right_inactive\'); }\n
+    navigation_div.append(a);\n
+    var a = $(\'<div>\');\n
+    if (data.before) {\n
+      param[\'page\'] = data.page-1;\n
+      a.addClass(\'sr_left_active\');\n
+      a.click(function() {window.location.hash = \'#\'+$.param(param);});\n
+    }\n
+    else { a.addClass(\'sr_left_inactive\'); }\n
+    navigation_div.append(a);\n
     li.append(navigation_div);\n
   }\n
   else\n
@@ -273,7 +275,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>7984</int> </value>
+            <value> <int>8165</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

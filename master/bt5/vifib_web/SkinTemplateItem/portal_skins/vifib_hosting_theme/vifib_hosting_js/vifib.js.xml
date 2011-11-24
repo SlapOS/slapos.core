@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22139549.51</string> </value>
+            <value> <string>ts22149520.4</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -153,20 +153,23 @@ function updateSoftwareReleaseList(event) {\n
 function softwareReleaseController(query) {\n
   js_container = $("#js_container");\n
   js_container.empty();\n
+  var search_div = $(\'<div>\');\n
+  js_container.append(search_div);\n
+  search_div.addClass(\'software_release_search\');\n
   var input = $(\'<input type="text">\');\n
   input.attr(\'id\', "software_release_query");\n
   input.addClass("software_release_input");\n
   input.val(query);\n
   $(\'form\').submit(updateSoftwareReleaseList);\n
-  js_container.append(input);\n
+  search_div.append(input)\n
 \n
   var search = $(\'<button>\');\n
   search.addClass(\'software_release_input\');\n
-  search.append($(\'<span>\').html(\'Search...\'));\n
-  input.after(search);\n
+  search.append($(\'<span>\').html(\'Search\'));\n
+  search_div.append(search)\n
   software_release_container = $(\'<div>\');\n
   software_release_container.attr(\'id\', \'software_release_container\');\n
-  search.after(software_release_container);\n
+  js_container.append(software_release_container);\n
   search.click(updateSoftwareReleaseList);\n
   if (query) { q = {\'title\': query}; }\n
   else {q = {};}\n
@@ -279,7 +282,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>8242</int> </value>
+            <value> <int>8364</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

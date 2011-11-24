@@ -218,23 +218,41 @@ div.software_release_description {float:left;padding: 2px 2px 2px 2px; font-styl
 span.software_release_description {font-size:14px; color: black;}\n
 \n
 div.reset {position:relative;clear:both;}\n
-input.software_release_search {height: 30px}\n
-.software_release_input {\n
-    color: #BAE2E9;\n
-    background-color: #2d909c;\n
-    border: medium solid;\n
-    border-radius: 10px 10px 10px 10px;\n
-    font-size: 11px;\n
-    font-weight: bold;\n
-    height: 30px;\n
-    padding: 0 0 0 0;}\n
-button.software_release_input {cursor: pointer; border: medium none;}\n
-textarea.software_release_input {height: 100px; padding: 15px 15px 15px 15px;}\n
 \n
 div.software_release_navigation {float:left; width: 340px; height: 15px; color: #1a8d8d; white-space:nowrap;}\n
 ul.software_release_navigation, li.software_release_navigation {display: inline; padding: 5px;}\n
 li.software_release_navigation:before {content: "\\0020 \\0020 \\0020 \\00BB \\0020";}\n
 a.software_release_navigation {text-decoration: none; color: #fc7c25; white-space:nowrap;}\n
+\n
+input.software_release_input {\n
+    height: 18px;\n
+    border: 1px solid #21494a;\n
+    margin-right: 4px;\n
+}\n
+button.software_release_input {\n
+    border: 0px;\n
+    height: 20px;\n
+    color: #ffffff;\n
+    font-size: 14px;\n
+    font-weight: normal;\n
+    cursor: pointer;\n
+    background-image: linear-gradient(top, #008080 30%, #1CB6B6 100%);\n
+    background-image: -o-linear-gradient(top, #008080 30%, #1CB6B6 100%);\n
+    background-image: -moz-linear-gradient(top, #008080 30%, #1CB6B6 100%);\n
+    background-image: -webkit-linear-gradient(top, #008080 30%, #1CB6B6 100%);\n
+    background-image: -ms-linear-gradient(top, #008080 30%, #1CB6B6 100%);\n
+\n
+    background-image: -webkit-gradient(\n
+\tlinear,\n
+\tleft top,\n
+\tleft bottom,\n
+\tcolor-stop(0.3, #008080),\n
+\tcolor-stop(1, #1CB6B6)\n
+    );\n
+    margin-left: 4px;\n
+}\n
+\n
+div.software_release_search {text-align: right;}\n
 \n
 </tal:block>
 

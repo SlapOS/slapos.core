@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22065644.78</string> </value>
+            <value> <string>ts22124862.69</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -77,16 +77,17 @@ function setSoftwareReleaseEntry(item, append_to, insert_before) {\n
   description.addClass(\'software_release_description\');\n
   maxh = description_div.height();\n
   var truncated = false;\n
-  var length = item.description.length;\n
-  var previous = \'\';\n
+  var added = \'\';\n
+  var word_list = item.description.split(\' \');\n
+  var length = word_list.length;\n
   for(i=0; i<length; i++) {\n
-    added = item.description.slice(0, i);\n
-    description.text(added);\n
+    added = word_list[i];\n
+    description.text(description.text() + \' \' + added);\n
     if (description.height() > maxh) {\n
-      description.text(previous+\'...\');\n
+      var text = description.text();\n
+      description.text(text.slice(0, text.length - (1 + added.length)) + \'...\');\n
       break;\n
     }\n
-    previous = added;\n
   }\n
   entry_div.addClass(\'software_release_entry\');\n
 }\n
@@ -257,7 +258,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>7323</int> </value>
+            <value> <int>7427</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

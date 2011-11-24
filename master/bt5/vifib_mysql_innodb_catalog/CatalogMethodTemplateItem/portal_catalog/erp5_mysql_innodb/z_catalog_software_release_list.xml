@@ -17,7 +17,6 @@
             <value> <string>uid\r\n
 PurchasePackingListLine_getPublicComputerUid\r\n
 PurchasePackingListLine_getSoftwareReleaseUrlString\r\n
-PurchasePackingListLine_getSoftwareReleaseImageUrl\r\n
 PurchasePackingListLine_getSoftwareReleaseUid\r\n
 getSimulationState</string> </value>
         </item>
@@ -78,7 +77,7 @@ WHERE\n
 \n
   <dtml-if "row_list">\n
 INSERT INTO\n
-  software_release (delivery_line_uid, computer_uid, uid, url, image_relative_url, state)\n
+  software_release (delivery_line_uid, computer_uid, uid, url, state)\n
 VALUES\n
     <dtml-in prefix="row" expr="row_list">\n
 (\n
@@ -86,7 +85,6 @@ VALUES\n
   <dtml-sqlvar expr="PurchasePackingListLine_getPublicComputerUid[row_item]" type="int">,\n
   <dtml-sqlvar expr="PurchasePackingListLine_getSoftwareReleaseUid[row_item]" type="int">,\n
   <dtml-sqlvar expr="PurchasePackingListLine_getSoftwareReleaseUrlString[row_item]" type="string">,\n
-  <dtml-sqlvar expr="PurchasePackingListLine_getSoftwareReleaseImageUrl[row_item]" type="string" optional>,\n
   <dtml-sqlvar expr="getSimulationState[row_item]" type="string">\n
 )\n
 <dtml-if sequence-end><dtml-else>,</dtml-if>\n

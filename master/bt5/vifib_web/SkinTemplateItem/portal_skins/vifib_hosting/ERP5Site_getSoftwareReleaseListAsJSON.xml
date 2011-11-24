@@ -65,21 +65,21 @@ kw.update(\n
     \'title\': None,\n
     \'description\': None,\n
     \'software_release_url\': \'software_release.url\',\n
-    \'image_url\': \'software_release.image_relative_url\'\n
   },\n
   limit=(offset, limit),\n
   **{\'software_release.state\': \'stopped\'}\n
 )\n
 \n
 response = []\n
-\n
-prefix_url = context.absolute_url()\n
+prefix_url = context.getWebSiteValue() and context.getWebSiteValue().absolute_url() or context.getPortalObject().absolute_url()\n
 for q in portal_catalog(**kw):\n
+    o = q.getObject()\n
     response.append({\n
       \'uid\': q.UID,\n
       \'title\': q.TITLE,\n
       \'description\': q.DESCRIPTION,\n
-      \'image\': \'/\'.join([prefix_url, q.IMAGE_URL, \'Base_download\']),\n
+      \'image\': context.getPermanentURL(o.getAggregateValue(portal_type=\'Software Product\').getDefaultImageValue()) + \'/Base_download\',\n
+      \'document_url\': context.getPermanentURL(o),\n
       \'url\': q.SOFTWARE_RELEASE_URL,\n
     })\n
 return context.asJSON({\'software_release_list\':response})\n

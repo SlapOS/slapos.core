@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22217690.16</string> </value>
+            <value> <string>ts22218301.94</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -161,13 +161,12 @@ function softwareReleaseController(query, page) {\n
   search_div.addClass(\'software_release_search\');\n
   var input = $(\'<input type="text">\');\n
   input.attr(\'id\', "software_release_query");\n
-  input.addClass("software_release_input");\n
   input.val(query);\n
   $(\'form\').submit(searchSoftwareReleaseList);\n
   search_div.append(input)\n
 \n
   var search = $(\'<button>\');\n
-  search.addClass(\'software_release_input\');\n
+  search.addClass(\'nolabel validate\');\n
   search.append($(\'<span>\').html(\'Search\'));\n
   search_div.append(search)\n
   software_release_container = $(\'<div>\');\n
@@ -213,7 +212,6 @@ function drawRequest(data) {\n
   js_container.append(title_q);\n
   title_a = $(\'<input type="text">\');\n
   title_a.attr(\'id\', \'software_instance_title\');\n
-  title_a.addClass(\'software_release_input\');\n
   title_q.append(title_a);\n
 \n
   xml_q = $(\'<div>\');\n
@@ -222,7 +220,6 @@ function drawRequest(data) {\n
   xml_a = $(\'<textarea>\');\n
   xml_a.attr(\'id\', \'software_instance_xml\');\n
   xml_a.html(\'<?xml version="1.0" encoding="utf-8"?>\\n<instance>\\n<parameter id="nbd_ip">2a01:e35:2e27:460:e2cb:4eff:fed9:48dc</parameter>\\n<parameter id="nbd_port">1024</parameter>\\n</instance>"\')\n
-  xml_a.addClass(\'software_release_input\');\n
   xml_q.append(xml_a)\n
 \n
   computer_q = $(\'<div>\');\n
@@ -230,7 +227,6 @@ function drawRequest(data) {\n
   js_container.append(computer_q);\n
   computer_a = $(\'<select>\');\n
   computer_a.attr({\'name\': \'computer\', \'id\': \'computer\'});\n
-  computer_a.addClass(\'software_release_input\');\n
   computer_q.append(computer_a)\n
   $.getJSON(vifib[\'site_url\'] + "/ERP5Site_getComputerListAsJSON", function(data) {\n
     option = $(\'<option>\');\n
@@ -254,7 +250,7 @@ function drawRequest(data) {\n
   js_container.append(summary);\n
   request = $(\'<button>\');\n
   request.append($(\'<span>\').html(\'Request\'));\n
-  request.addClass(\'software_release_input\');\n
+\n
   request.click(processRequest);\n
   js_container.append(request);\n
 }\n
@@ -286,7 +282,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>8394</int> </value>
+            <value> <int>8160</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

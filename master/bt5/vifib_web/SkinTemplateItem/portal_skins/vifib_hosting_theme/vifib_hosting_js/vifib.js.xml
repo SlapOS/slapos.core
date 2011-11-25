@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22156440.07</string> </value>
+            <value> <string>ts22211438.16</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -90,6 +90,10 @@ function setSoftwareReleaseEntry(item, append_to, insert_before) {\n
   entry_div.addClass(\'software_release_entry\');\n
 }\n
 \n
+function hashTo(event) {\n
+  window.location.hash = \'#\'+$.param(event.data);\n
+}\n
+\n
 function drawSoftwareReleaseList(data) {\n
   $(\'#software_release_container\').empty()\n
   var ul = $(\'<ul>\');\n
@@ -108,18 +112,21 @@ function drawSoftwareReleaseList(data) {\n
     var param = {};\n
     if (data.title) { param[\'query\'] = data.title; }\n
     var a = $(\'<div>\');\n
+    page = parseInt(data.page, 10);\n
     if (data.after) {\n
       a.addClass(\'sr_right_active\');\n
-      param[\'page\'] = data.page+1;\n
-      a.click(function() {window.location.hash = \'#\'+$.param(param);});\n
+      param[\'page\'] = page+1;\n
+      a.click(param, hashTo);\n
     }\n
     else { a.addClass(\'sr_right_inactive\'); }\n
     navigation_div.append(a);\n
     var a = $(\'<div>\');\n
+    var param = {};\n
+    if (data.title) { param[\'query\'] = data.title; }\n
     if (data.before) {\n
-      param[\'page\'] = data.page-1;\n
+      param[\'page\'] = page-1;\n
       a.addClass(\'sr_left_active\');\n
-      a.click(function() {window.location.hash = \'#\'+$.param(param);});\n
+      a.click(param, hashTo);\n
     }\n
     else { a.addClass(\'sr_left_inactive\'); }\n
     navigation_div.append(a);\n
@@ -275,7 +282,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>8165</int> </value>
+            <value> <int>8258</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22211438.16</string> </value>
+            <value> <string>ts22217690.16</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -120,6 +120,10 @@ function drawSoftwareReleaseList(data) {\n
     }\n
     else { a.addClass(\'sr_right_inactive\'); }\n
     navigation_div.append(a);\n
+    var p = $(\'<div>\');\n
+    p.addClass(\'software_release_page\');\n
+    p.text(\'Page: \' + String(page + 1));\n
+    navigation_div.append(p);\n
     var a = $(\'<div>\');\n
     var param = {};\n
     if (data.title) { param[\'query\'] = data.title; }\n
@@ -282,7 +286,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>8258</int> </value>
+            <value> <int>8394</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22218301.94</string> </value>
+            <value> <string>ts22218499.86</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -71,7 +71,7 @@ function setSoftwareReleaseEntry(item, append_to, insert_before) {\n
   entry_install.addClass(\'software_release_navigation\');\n
   install.attr(\'href\', \'#software_release=\' + item.uid);\n
   install.addClass(\'software_release_navigation\');\n
-  install.text(\'Install software\');\n
+  install.text(\'Request instance\');\n
   description.addClass(\'software_release_description\');\n
   maxh = description_div.height();\n
   var truncated = false;\n

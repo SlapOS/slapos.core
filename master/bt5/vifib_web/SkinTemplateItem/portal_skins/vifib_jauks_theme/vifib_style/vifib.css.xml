@@ -206,9 +206,9 @@ div.software_release_entry {position:relative, width:550px;border: 1px solid #66
 li.software_release_entry:hover {background-color: #D2E7F4;}\n
 \n
 div.software_release_title {font-style:normal; float:left; padding: 2px 2px 2px 2px; width: 340px; height: 25px; font-size:24px; color: #1a8d8d; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;}\n
-.software_release_icon {height: 100px; max-width: 175px;}\n
-div.software_release_icon {float: left; padding: 4px 4px 4px 4px; border: 1px solid #8bc8c7; text-align: center; width:180px; height: 120px;}\n
-div.software_release_description {float:left;padding: 2px 2px 2px 2px; font-style:normal; width: 340px; height: 77px;}\n
+.software_release_icon {height: 100px; max-width: 135px;}\n
+div.software_release_icon {float: left; padding: 4px 4px 4px 4px; border: 1px solid #8bc8c7; text-align: center; width:140px; height: 120px;}\n
+div.software_release_description {float:left;padding: 2px 2px 2px 2px; font-weight:normal; width: 340px; height: 77px;}\n
 span.software_release_description {font-size:14px; color: black;}\n
 \n
 div.reset {position:relative;clear:both;}\n
@@ -248,12 +248,12 @@ button.software_release_input {\n
 \n
 div.software_release_search {text-align: right;}\n
 \n
-div.software_release_more {position:relative; width:100%; height: 20px;background-color: #008080;}\n
+div.software_release_more {position:relative; width:100%; height: 26px;background-color: #008080;}\n
 \n
-.sr_right_active {float:right; height:20px; width:20px; background:url(<tal:block tal:replace="images_path"/>sr_right_active.png);cursor: pointer;}\n
-.sr_right_inactive {float:right; height:20px; width:20px; background:url(<tal:block tal:replace="images_path"/>sr_right_inactive.png);}\n
-.sr_left_active {float:right; height:20px; width:20px; background:url(<tal:block tal:replace="images_path"/>sr_left_active.png);cursor: pointer;}\n
-.sr_left_inactive {float:right; height:20px; width:20px; background:url(<tal:block tal:replace="images_path"/>sr_left_inactive.png);}\n
+.sr_right_active {float:right; margin: 2px; height:22px; width:24px; background:url(<tal:block tal:replace="images_path"/>sr_right_active.png);cursor: pointer;}\n
+.sr_right_inactive {float:right; margin: 2px; height:22px; width:24px; background:url(<tal:block tal:replace="images_path"/>sr_right_inactive.png);}\n
+.sr_left_active {float:right; margin: 2px; height:22px; width:24px; background:url(<tal:block tal:replace="images_path"/>sr_left_active.png);cursor: pointer;}\n
+.sr_left_inactive {float:right; margin: 2px; height:22px; width:24px; background:url(<tal:block tal:replace="images_path"/>sr_left_inactive.png);}\n
 </tal:block>
 
 ]]></unicode> </value>

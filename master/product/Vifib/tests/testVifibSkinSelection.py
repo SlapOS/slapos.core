@@ -105,7 +105,6 @@ vifib_base
 vifib_cash
 vifib_core
 vifib_crm
-vifib_forge_release
 vifib_invoicing
 vifib_jauks_theme
 vifib_jauks_widget_library
@@ -194,7 +193,6 @@ vifib_base
 vifib_core
 vifib_crm
 vifib_fiber_theme
-vifib_forge_release
 vifib_invoicing
 vifib_jauks_theme
 vifib_jauks_widget_library
@@ -283,7 +281,6 @@ vifib_upgrader
 vifib_base
 vifib_core
 vifib_crm
-vifib_forge_release
 vifib_hosting
 vifib_hosting_theme
 vifib_invoicing
@@ -373,7 +370,6 @@ vifib_upgrader
 vifib_base
 vifib_core
 vifib_crm
-vifib_forge_release
 vifib_invoicing
 vifib_open_trade
 vifib_payzen
@@ -456,7 +452,6 @@ vifib_upgrader
 vifib_base
 vifib_core
 vifib_crm
-vifib_forge_release
 vifib_invoicing
 vifib_open_trade
 vifib_payzen
@@ -539,7 +534,6 @@ vifib_upgrader
 vifib_base
 vifib_core
 vifib_crm
-vifib_forge_release
 vifib_invoicing
 vifib_open_trade
 vifib_payzen
@@ -626,7 +620,6 @@ vifib_upgrader
 vifib_base
 vifib_core
 vifib_crm
-vifib_forge_release
 vifib_invoicing
 vifib_open_trade
 vifib_payzen
@@ -713,7 +706,6 @@ vifib_upgrader
 vifib_base
 vifib_core
 vifib_crm
-vifib_forge_release
 vifib_invoicing
 vifib_open_trade
 vifib_payzen
@@ -796,7 +788,6 @@ vifib_upgrader
 vifib_base
 vifib_core
 vifib_crm
-vifib_forge_release
 vifib_invoicing
 vifib_open_trade
 vifib_payzen

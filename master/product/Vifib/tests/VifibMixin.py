@@ -107,7 +107,6 @@ class testVifibMixin(ERP5TypeTestCase):
       'vifib_base',
       'vifib_slap',
       'vifib_crm',
-      'vifib_forge_release',
       'vifib_software_pdm',
       'vifib_web',
       'vifib_open_trade',

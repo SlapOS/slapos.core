@@ -55,8 +55,8 @@
 portal_catalog = context.getPortalObject().portal_catalog\n
 kw = {}\n
 \n
-if title is not None:\n
-  kw[\'title\'] = title\n
+if query is not None:\n
+  kw[\'full_text\'] = query\n
 if uid is not None:\n
   kw[\'uid\'] = uid\n
 \n
@@ -88,7 +88,7 @@ for q in result[:5]:\n
       \'uid\': q.UID,\n
       \'title\': q.TITLE,\n
       \'description\': q.DESCRIPTION,\n
-      \'image_url\': context.getPermanentURL(o.getAggregateValue(portal_type=\'Software Product\').getDefaultImageValue()) + \'/Base_download\',\n
+      \'image_url\': context.getPermanentURL(o.getFollowUpValue(portal_type=\'Software Product\').getDefaultImageValue()) + \'/Base_download\',\n
       \'document_url\': context.getPermanentURL(o),\n
       \'url\': q.SOFTWARE_RELEASE_URL,\n
     })\n
@@ -98,7 +98,7 @@ return context.asJSON({\n
   \'before\': page > 0 and True or False,\n
   \'after\': after,\n
   \'page\': page,\n
-  \'title\': title\n
+  \'query\': query\n
   })\n
 
 
@@ -106,7 +106,7 @@ return context.asJSON({\n
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>title=None, uid=None, page=0</string> </value>
+            <value> <string>query=None, uid=None, page=0</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

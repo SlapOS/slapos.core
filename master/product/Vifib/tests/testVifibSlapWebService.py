@@ -1504,7 +1504,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
     software_product = self.portal.portal_catalog.getResultValue(
         uid=software_product_uid)
     software_release.edit(
-        aggregate_value=software_product,
+        follow_up_value=software_product,
         )
 
   def stepSubmitSoftwareRelease(self, sequence, **kw):

@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22663064.44</string> </value>
+            <value> <string>ts22663569.56</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -211,11 +211,15 @@ function drawSoftwareReleaseList(data) {\n
 \n
 function searchSoftwareReleaseList(event) {\n
   event.preventDefault();\n
-  query_kw = {query: $(\'#software_release_query\')[0][\'value\']};\n
-  window.location.hash = $.param(query_kw);\n
+  query_kw = $.deparam.fragment();\n
+  new_query_kw = {\n
+    query: $(\'#software_release_query\')[0][\'value\'],\n
+    software_category: query_kw[\'software_category\']\n
+  }\n
+  window.location.hash = $.param(new_query_kw);\n
 }\n
 \n
-function softwareReleaseController(query, page) {\n
+function softwareReleaseController(query, software_category, page) {\n
   js_container = $("#js_container");\n
   js_container.empty();\n
   var search_div = $(\'<div>\');\n
@@ -237,6 +241,7 @@ function softwareReleaseController(query, page) {\n
   search.click(searchSoftwareReleaseList);\n
   var q = {}\n
   if (query) { q[\'query\'] = query }\n
+  if (software_category) { q[\'query\'] =  q[\'query\'] ? q[\'query\'] :\'\' + \' p:"\' + software_category + \'"\'; }\n
   if (page) {q[\'page\'] = page}\n
   else {q[\'page\'] = 0}\n
   $.getJSON(vifib[\'site_url\'] + "/ERP5Site_getSoftwareReleaseListAsJSON", q,\n
@@ -332,7 +337,7 @@ function hashController ()\n
   query = query_kw[\'query\'];\n
   page = query_kw[\'page\']\n
   if (software_release) { requestController(software_release);}\n
-  else {softwareReleaseController(query, page);}\n
+  else {softwareReleaseController(query, query_kw[\'software_category\'], page);}\n
 }\n
 
 
@@ -344,7 +349,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>9841</int> </value>
+            <value> <int>10102</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

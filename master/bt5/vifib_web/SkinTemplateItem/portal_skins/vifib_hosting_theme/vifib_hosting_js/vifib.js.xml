@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22663834.44</string> </value>
+            <value> <string>ts22668107.6</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -101,7 +101,10 @@ function toggle() {\n
 }\n
 \n
 function hasher() {\n
-  t = $(this)[0].id.replace(\'_\', \' \', \'g\');\n
+  var t = $(this)[0].id.replace(\'_\', \' \', \'g\');\n
+  var l = t.split(\' \')\n
+  l[0] = \'+\' + l[0]\n
+  t = l.join(\' +\')\n
   query_kw = $.deparam.fragment();\n
   query_kw[\'software_category\'] = t;\n
   window.location.hash = \'#\'+$.param(query_kw);\n
@@ -211,7 +214,7 @@ function drawSoftwareReleaseList(data) {\n
 \n
 function searchSoftwareReleaseList(event) {\n
   event.preventDefault();\n
-  query_kw = $.deparam.fragment();\n
+  var query_kw = $.deparam.fragment();\n
   new_query_kw = {\n
     query: $(\'#software_release_query\')[0][\'value\'],\n
     software_category: query_kw[\'software_category\'] ? query_kw[\'software_category\'] : \'\'\n
@@ -241,7 +244,7 @@ function softwareReleaseController(query, software_category, page) {\n
   search.click(searchSoftwareReleaseList);\n
   var q = {}\n
   if (query) { q[\'query\'] = query }\n
-  if (software_category) { q[\'query\'] =  q[\'query\'] ? q[\'query\'] :\'\' + \' p:"\' + software_category + \'"\'; }\n
+  if (software_category) { q[\'query\'] =  q[\'query\'] ? q[\'query\'] : \' \' + software_category; }\n
   if (page) {q[\'page\'] = page}\n
   else {q[\'page\'] = 0}\n
   $.getJSON(vifib[\'site_url\'] + "/ERP5Site_getSoftwareReleaseListAsJSON", q,\n
@@ -349,7 +352,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>10139</int> </value>
+            <value> <int>10196</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

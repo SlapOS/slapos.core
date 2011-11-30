@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22660122.87</string> </value>
+            <value> <string>ts22663064.44</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -102,24 +102,28 @@ function toggle() {\n
 \n
 function hasher() {\n
   t = $(this)[0].id.replace(\'_\', \' \', \'g\');\n
-  console.log(\'Would set \' + t)\n
-//  window.location.hash = \'oink=\' + t;\n
-  $(\'.selected\').removeClass(\'selected\');\n
-  $(this).addClass(\'selected\');\n
+  query_kw = $.deparam.fragment();\n
+  query_kw[\'software_category\'] = t;\n
+  window.location.hash = \'#\'+$.param(query_kw);\n
+  $(\'.software_category_selected\').removeClass(\'software_category_selected\');\n
+  $(this).addClass(\'software_category_selected\');\n
 }\n
 \n
 function resetCategoryHash() {\n
-  console.log(\'Reseted\');\n
+  $(\'.software_category_selected\').removeClass(\'software_category_selected\');\n
+  query_kw = $.deparam.fragment();\n
+  query_kw[\'software_category\'] = \'\';\n
+  window.location.hash = \'#\'+$.param(query_kw);\n
 }\n
 \n
 function appendSoftwareCategoryTree(data, id) {\n
-  console.log(id);\n
-  console.log(data);\n
   var ul = $(\'<ul>\');\n
+  ul.addClass(\'software_category\');\n
   if (id !== undefined) {ul.attr(\'id\', id.replace(\' \', \'_\', \'g\'));}\n
   else {\n
     ul.attr(\'id\', \'master\');\n
     var reset = $(\'<li>\');\n
+    reset.addClass(\'software_category\');\n
     reset.text(\'Reset...\')\n
     reset.click(resetCategoryHash);\n
     ul.append(reset);\n
@@ -127,6 +131,7 @@ function appendSoftwareCategoryTree(data, id) {\n
   var i = 0;\n
   for (var q in data) {\n
     var li = $(\'<li>\');\n
+    li.addClass(\'software_category\');\n
     li.attr({\'id\': q.replace(\' \', \'_\', \'g\'), \'t\': q});\n
     ul.append(li);\n
     var s = q;\n
@@ -339,7 +344,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>9491</int> </value>
+            <value> <int>9841</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

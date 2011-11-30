@@ -227,6 +227,12 @@ div.software_release_more {position:relative; width:100%; height: 26px;backgroun
 .sr_left_active {float:right; margin: 2px; height:22px; width:24px; background:url(<tal:block tal:replace="images_path"/>sr_left_active.png);cursor: pointer;}\n
 .sr_left_inactive {float:right; margin: 2px; height:22px; width:24px; background:url(<tal:block tal:replace="images_path"/>sr_left_inactive.png);}\n
 div.software_release_page {float:right; margin: 4px; height:22px; color: white; font-site: 18px;}\n
+\n
+ul.software_category {}\n
+li.software_category {}\n
+li.software_category:hover {background-color: #f7f6f0;}\n
+li.software_category_selected {background-color: yellow;}\n
+\n
 </tal:block>
 
 ]]></unicode> </value>

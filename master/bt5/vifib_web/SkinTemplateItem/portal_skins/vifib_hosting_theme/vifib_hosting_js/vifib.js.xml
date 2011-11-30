@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22232696.03</string> </value>
+            <value> <string>ts22660122.87</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -92,6 +92,63 @@ function setSoftwareReleaseEntry(item, append_to, insert_before) {\n
 \n
 function hashTo(event) {\n
   window.location.hash = \'#\'+$.param(event.data);\n
+}\n
+\n
+function toggle() {\n
+  var el = $(\'ul#\' + $(this)[0].id).filter(\':visible\');\n
+  if (el.length > 0) { el.hide(); }\n
+  else { $(\'ul#\' + $(this)[0].id).show(); }\n
+}\n
+\n
+function hasher() {\n
+  t = $(this)[0].id.replace(\'_\', \' \', \'g\');\n
+  console.log(\'Would set \' + t)\n
+//  window.location.hash = \'oink=\' + t;\n
+  $(\'.selected\').removeClass(\'selected\');\n
+  $(this).addClass(\'selected\');\n
+}\n
+\n
+function resetCategoryHash() {\n
+  console.log(\'Reseted\');\n
+}\n
+\n
+function appendSoftwareCategoryTree(data, id) {\n
+  console.log(id);\n
+  console.log(data);\n
+  var ul = $(\'<ul>\');\n
+  if (id !== undefined) {ul.attr(\'id\', id.replace(\' \', \'_\', \'g\'));}\n
+  else {\n
+    ul.attr(\'id\', \'master\');\n
+    var reset = $(\'<li>\');\n
+    reset.text(\'Reset...\')\n
+    reset.click(resetCategoryHash);\n
+    ul.append(reset);\n
+  }\n
+  var i = 0;\n
+  for (var q in data) {\n
+    var li = $(\'<li>\');\n
+    li.attr({\'id\': q.replace(\' \', \'_\', \'g\'), \'t\': q});\n
+    ul.append(li);\n
+    var s = q;\n
+    r = appendSoftwareCategoryTree(data[q], q);\n
+    if (r) {\n
+      ul.append(r);\n
+      s += \' + \';\n
+      li.click(toggle);\n
+    }\n
+    li.click(hasher);\n
+    li.html(s);\n
+    ++i;\n
+  }\n
+  if (id !== undefined) {ul.hide();}\n
+  if (i>0) {return ul; }\n
+  else {return false; }\n
+}\n
+\n
+function drawSoftwareCategoryTree(data) {\n
+  category = $(\'#left_menu\');\n
+  category.empty();\n
+  category.append(appendSoftwareCategoryTree(data));\n
 }\n
 \n
 function drawSoftwareReleaseList(data) {\n
@@ -282,7 +339,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>8160</int> </value>
+            <value> <int>9491</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

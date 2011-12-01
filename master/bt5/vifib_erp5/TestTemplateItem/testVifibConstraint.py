@@ -480,7 +480,7 @@ class TestVifibPurchasePackingListLineConstraint(testVifibMixin):
     self.assertFalse(consistency_message in getMessageList(line))
 
 class TestVifibSoftwareReleaseConstraint(testVifibMixin):
-  def test_aggregate(self):
+  def test_follow_up(self):
     consistency_message_existence = 'One Software Product must be defined'
     consistency_message_state = 'Software Product must be validated'
 
@@ -494,7 +494,7 @@ class TestVifibSoftwareReleaseConstraint(testVifibMixin):
     software_product = self.portal.software_product_module.newContent(
       portal_type='Software Product')
 
-    software_release.setAggregate(software_product.getRelativeUrl())
+    software_release.setFollowUp(software_product.getRelativeUrl())
 
     self.assertFalse(consistency_message_existence in getMessageList(
       software_release))
@@ -502,13 +502,13 @@ class TestVifibSoftwareReleaseConstraint(testVifibMixin):
     software_product_2 = self.portal.software_product_module.newContent(
       portal_type='Software Product')
 
-    software_release.setAggregateList([software_product.getRelativeUrl(),
+    software_release.setFollowUpList([software_product.getRelativeUrl(),
       software_product_2.getRelativeUrl()])
 
     self.assertTrue(consistency_message_existence in getMessageList(
       software_release))
 
-    software_release.setAggregate(software_product.getRelativeUrl())
+    software_release.setFollowUp(software_product.getRelativeUrl())
 
     self.assertTrue(consistency_message_state in getMessageList(
       software_release))

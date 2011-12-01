@@ -80,7 +80,7 @@ class TestVifibUserDeveloper(testVifibMixin):
     software_product.portal_workflow.doActionFor(software_product, 'publish_action')
     # Edit software release
     software_release.edit(
-      aggregate_value=software_product,
+      follow_up_value=software_product,
     )
     # Accept software release
     software_release.portal_workflow.doActionFor(software_release, 'publish_action')

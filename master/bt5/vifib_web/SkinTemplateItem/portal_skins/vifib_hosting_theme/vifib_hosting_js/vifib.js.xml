@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22748215.91</string> </value>
+            <value> <string>ts22754028.93</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -135,7 +135,7 @@ function appendSoftwareCategoryTree(data, id) {\n
   for (var q in data) {\n
     var li = $(\'<li>\');\n
     li.addClass(\'software_category\');\n
-    li.attr({\'id\': q.replace(\' \', \'_\', \'g\'), \'t\': q});\n
+    li.attr({\'id\': q.replace(\' \', \'_\', \'g\')});\n
     ul.append(li);\n
     var s = q;\n
     r = appendSoftwareCategoryTree(data[q], q);\n
@@ -353,7 +353,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>10279</int> </value>
+            <value> <int>10271</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

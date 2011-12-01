@@ -228,10 +228,20 @@ div.software_release_more {position:relative; width:100%; height: 26px;backgroun
 .sr_left_inactive {float:right; margin: 2px; height:22px; width:24px; background:url(<tal:block tal:replace="images_path"/>sr_left_inactive.png);}\n
 div.software_release_page {float:right; margin: 4px; height:22px; color: white; font-site: 18px;}\n
 \n
-ul.software_category {}\n
-li.software_category {}\n
-li.software_category:hover {background-color: #f7f6f0;}\n
-li.software_category_selected {background-color: yellow;}\n
+div#software_category{display:inline;float:left;width:20%;background:url(<tal:block tal:replace="images_path"/>separation_contenu.png) no-repeat center right}\n
+ul.software_category {list-style: none none inside; padding-left: 4px; padding-top: 8px; padding-bottom: 8px;}\n
+li.software_category {cursor : pointer; padding-top: 2px; padding-bottom: 2px;}\n
+li.software_category_children {padding-top: 4px; padding-bottom: 4px;}\n
+li.software_category_children:hover {text-decoration: underline;}\n
+li.software_category:hover {\n
+  color: #2E707C;\n
+}\n
+li.software_category_selected:hover {\n
+ // background-color: blue;\n
+}\n
+li.software_category_selected {\n
+// background-color: yellow;\n
+}\n
 \n
 </tal:block>
 

@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22754028.93</string> </value>
+            <value> <string>ts22836301.29</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -97,7 +97,16 @@ function hashTo(event) {\n
 function toggle() {\n
   var el = $(\'ul#\' + $(this)[0].id).filter(\':visible\');\n
   if (el.length > 0) { el.hide(); }\n
-  else { $(\'ul#\' + $(this)[0].id).show(); }\n
+  else {\n
+    $(\'ul#master\').find(\'ul\').hide();\n
+    var me = $(\'ul#\' + $(this)[0].id);\n
+    do\n
+    {\n
+      me.show();\n
+      me = me.parent();\n
+    } while (me[0].id != \'master\');\n
+\n
+  }\n
 }\n
 \n
 function hasher() {\n
@@ -353,7 +362,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>10271</int> </value>
+            <value> <int>10408</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

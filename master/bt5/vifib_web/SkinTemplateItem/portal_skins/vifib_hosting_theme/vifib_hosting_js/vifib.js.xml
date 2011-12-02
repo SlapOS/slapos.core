@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22838306.96</string> </value>
+            <value> <string>ts22842994.84</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -196,8 +196,7 @@ function drawSoftwareReleaseList(data) {\n
     var navigation_div = $(\'<div>\');\n
     navigation_div.attr(\'id\', \'navigation_div\');\n
     navigation_div.addClass(\'software_release_more\');\n
-    var param = {};\n
-    if (data.query) { param[\'query\'] = data.query; }\n
+    var param = $.deparam.fragment();\n
     var a = $(\'<div>\');\n
     page = parseInt(data.page, 10);\n
     if (data.after) {\n
@@ -213,7 +212,6 @@ function drawSoftwareReleaseList(data) {\n
     navigation_div.append(p);\n
     var a = $(\'<div>\');\n
     var param = {};\n
-    if (data.query) { param[\'query\'] = data.query; }\n
     if (data.before) {\n
       param[\'page\'] = page-1;\n
       a.addClass(\'sr_left_active\');\n
@@ -374,7 +372,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>11299</int> </value>
+            <value> <int>11211</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

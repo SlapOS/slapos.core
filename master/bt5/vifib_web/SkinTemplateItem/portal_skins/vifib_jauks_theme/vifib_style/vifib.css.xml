@@ -220,7 +220,7 @@ a.software_release_navigation {text-decoration: none; color: #fc7c25; white-spac
 \n
 div.software_release_search {text-align: right;}\n
 \n
-div.software_release_more {position:relative; width:100%; height: 26px;background-color: #008080;}\n
+li.software_release_more {text-decoration: none; list-style: none;}\n
 \n
 .sr_right_active {float:right; margin: 2px; height:22px; width:24px; background:url(<tal:block tal:replace="images_path"/>sr_right_active.png);cursor: pointer;}\n
 .sr_right_inactive {float:right; margin: 2px; height:22px; width:24px; background:url(<tal:block tal:replace="images_path"/>sr_right_inactive.png);}\n

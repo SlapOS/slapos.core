@@ -98,7 +98,6 @@ return context.asJSON({\n
   \'before\': page > 0 and True or False,\n
   \'after\': after,\n
   \'page\': page,\n
-  \'query\': query\n
   })\n
 
 

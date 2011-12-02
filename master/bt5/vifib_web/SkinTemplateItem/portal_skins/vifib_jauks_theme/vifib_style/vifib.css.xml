@@ -232,6 +232,8 @@ div#software_category{display:inline;float:left;width:20%;background:url(<tal:bl
 ul.software_category {list-style: none none inside; padding-left: 4px; padding-top: 8px; padding-bottom: 8px;}\n
 li.software_category {cursor : pointer; padding-top: 2px; padding-bottom: 2px;}\n
 li.software_category_children {padding-top: 4px; padding-bottom: 4px;}\n
+li.software_category_children_collapsed:before {content: \'+ \';}\n
+li.software_category_children_expanded:before {content: \'- \';}\n
 li.software_category_children:hover {text-decoration: underline;}\n
 li.software_category:hover {\n
   color: #2E707C;\n

@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22836301.29</string> </value>
+            <value> <string>ts22837545.4</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -96,13 +96,21 @@ function hashTo(event) {\n
 \n
 function toggle() {\n
   var el = $(\'ul#\' + $(this)[0].id).filter(\':visible\');\n
-  if (el.length > 0) { el.hide(); }\n
+  if (el.length > 0) {\n
+    $(\'li#\' + el[0].id).addClass(\'software_category_children_collapsed\');\n
+    $(\'li#\' + el[0].id).removeClass(\'software_category_children_expanded\');\n
+    el.hide();\n
+  }\n
   else {\n
     $(\'ul#master\').find(\'ul\').hide();\n
+    $(\'ul#master\').find(\'li.software_category_children\').removeClass(\'software_category_children_expanded\');\n
+    $(\'ul#master\').find(\'li.software_category_children\').addClass(\'software_category_children_collapsed\');\n
     var me = $(\'ul#\' + $(this)[0].id);\n
     do\n
     {\n
       me.show();\n
+      $(\'li#\' + me[0].id).removeClass(\'software_category_children_collapsed\');\n
+      $(\'li#\' + me[0].id).addClass(\'software_category_children_expanded\');\n
       me = me.parent();\n
     } while (me[0].id != \'master\');\n
 \n
@@ -122,6 +130,9 @@ function hasher() {\n
 }\n
 \n
 function resetCategoryHash() {\n
+  $(\'ul#master\').find(\'ul\').hide();\n
+  $(\'ul#master\').find(\'li.software_category_children\').removeClass(\'software_category_children_expanded\');\n
+  $(\'ul#master\').find(\'li.software_category_children\').addClass(\'software_category_children_collapsed\');\n
   $(\'.software_category_selected\').removeClass(\'software_category_selected\');\n
   var query_kw = $.deparam.fragment();\n
   delete(query_kw.software_category);\n
@@ -150,7 +161,7 @@ function appendSoftwareCategoryTree(data, id) {\n
     r = appendSoftwareCategoryTree(data[q], q);\n
     if (r) {\n
       ul.append(r);\n
-      li.addClass(\'software_category_children\');\n
+      li.addClass(\'software_category_children software_category_children_collapsed\');\n
       li.click(toggle);\n
     }\n
     li.click(hasher);\n
@@ -362,7 +373,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>10408</int> </value>
+            <value> <int>11219</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

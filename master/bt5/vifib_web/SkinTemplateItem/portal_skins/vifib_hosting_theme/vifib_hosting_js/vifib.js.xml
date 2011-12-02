@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts22837545.4</string> </value>
+            <value> <string>ts22838306.96</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -177,6 +177,7 @@ function drawSoftwareCategoryTree(data) {\n
   var category = $(\'#left_menu\');\n
   category.empty();\n
   category.attr(\'id\', \'software_category\');\n
+  category.text(\'Using the tree below you can filter software by categories.\');\n
   category.append(appendSoftwareCategoryTree(data));\n
 }\n
 \n
@@ -373,7 +374,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>11219</int> </value>
+            <value> <int>11299</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

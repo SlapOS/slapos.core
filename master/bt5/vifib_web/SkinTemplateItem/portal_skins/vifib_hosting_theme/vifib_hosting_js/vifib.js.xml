@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts23076691.59</string> </value>
+            <value> <string>ts23106818.21</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -297,42 +297,61 @@ function drawRequest(data) {\n
   data = data[\'software_release_list\'][0];\n
   js_container = $("#js_container");\n
   js_container.empty();\n
-  url_a = $(\'<input type="hidden">\');\n
-  url_a.attr({\'value\': data.url, \'name\': \'url\', \'id\': \'url\'});\n
-  js_container.append(url_a);\n
-  title_q = $(\'<div>\');\n
-  title_q.html(\'Software Instance Title:\');\n
-  js_container.append(title_q);\n
-  title_a = $(\'<input type="text">\');\n
-  title_a.attr(\'id\', \'software_instance_title\');\n
-  title_q.append(title_a);\n
+  var fieldset = $(\'<fieldset>\');\n
+  js_container.append(fieldset);\n
+  fieldset.addClass(\'normal\');\n
+  \n
+  var url_a = $(\'<input>\');\n
+  url_a.attr({\'value\': data.url, \'name\': \'url\', \'id\': \'url\', \'type\': \'hidden\'});\n
+  fieldset.append(url_a);\n
+  \n
+  var title_label = $(\'<div>\');\n
+  fieldset.append(title_label);\n
+  title_label.addClass(\'field required\');\n
+  title_label.append($(\'<label>\').text(\'Software Instance Title:\'));\n
+  var title_div = $(\'<div>\');\n
+  fieldset.append(title_div);\n
+  title_div.addClass(\'input\');\n
+  title_input = $(\'<input type="text">\');\n
+  title_input.attr(\'id\', \'software_instance_title\');\n
+  fieldset.append(title_input);\n
 \n
-  xml_q = $(\'<div>\');\n
-  xml_q.html(\'Parameter XML:\');\n
-  js_container.append(xml_q);\n
-  xml_a = $(\'<textarea>\');\n
-  xml_a.attr(\'id\', \'software_instance_xml\');\n
-  xml_a.html(\'<?xml version="1.0" encoding="utf-8"?>\\n<instance>\\n<parameter id="nbd_ip">2a01:e35:2e27:460:e2cb:4eff:fed9:48dc</parameter>\\n<parameter id="nbd_port">1024</parameter>\\n</instance>"\')\n
-  xml_q.append(xml_a)\n
+  var xml_label = $(\'<div>\');\n
+  fieldset.append(xml_label);\n
+  xml_label.addClass(\'field required\');\n
+  xml_label.append($(\'<label>\').text(\'Parameter XML:\'));\n
+  var xml_div = $(\'<div>\');\n
+  fieldset.append(xml_div);\n
+  xml_div.addClass(\'input\');\n
+  var xml_input = $(\'<textarea>\'); \n
+  xml_input.attr({\'id\': \'software_instance_xml\', \'cols\': \'80\', \'rows\': \'10\'});\n
+  xml_input.html(\'<?xml version="1.0" encoding="utf-8"?>\\n<instance>\\n<parameter id="nbd_ip">2a01:e35:2e27:460:e2cb:4eff:fed9:48dc</parameter>\\n<parameter id="nbd_port">1024</parameter>\\n</instance>"\')\n
+  xml_div.append(xml_input)\n
 \n
-  computer_q = $(\'<div>\');\n
-  computer_q.html(\'Computer:\');\n
-  js_container.append(computer_q);\n
-  computer_a = $(\'<select>\');\n
-  computer_a.attr({\'name\': \'computer\', \'id\': \'computer\'});\n
-  computer_q.append(computer_a)\n
+\n
+  var computer_label = $(\'<div>\');\n
+  fieldset.append(computer_label);\n
+  computer_label.addClass(\'field\');\n
+  computer_label.append($(\'<label>\').text(\'Computer:\'));\n
+\n
+  var computer_input = $(\'<select>\');\n
+  fieldset.append(computer_input);\n
+  computer_input.attr({\'name\': \'computer\', \'id\': \'computer\', \'size\': \'1\'});\n
+  fieldset.append(computer_input);\n
+ \n
   $.getJSON(vifib[\'site_url\'] + "/ERP5Site_getComputerListAsJSON", function(data) {\n
-    option = $(\'<option>\');\n
+    var computer_input = $(\'#computer\');\n
+    var option = $(\'<option>\');\n
     option.attr(\'value\', \'\');\n
-    option.appendTo(computer_a);\n
+    option.appendTo(computer_input);\n
     $.each(data[\'computer_list\'], function(i, item){\n
-      computer_a = $(\'#computer\');\n
-      option = $(\'<option>\');\n
+      var option = $(\'<option>\');\n
       option.attr(\'value\', item.id);\n
       option.html(item.title + \' (\' + item.id +\')\');\n
-      option.appendTo(computer_a);\n
+      option.appendTo(computer_input);\n
     });\n
   });\n
+\n
   summary = $(\'<div>\');\n
   html = \'Software Release: \' + data.title;\n
   if (data.description.length>0) {\n
@@ -375,7 +394,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>11503</int> </value>
+            <value> <int>12160</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

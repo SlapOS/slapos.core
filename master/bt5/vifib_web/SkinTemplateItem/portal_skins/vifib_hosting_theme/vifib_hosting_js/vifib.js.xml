@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts23075738.6</string> </value>
+            <value> <string>ts23076691.59</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -251,8 +251,8 @@ function softwareReleaseController(query, software_category, page) {\n
   var search_div = $(\'<div>\');\n
   js_container.append(search_div);\n
   search_div.addClass(\'software_release_search\');\n
-  var input = $(\'<input type="text">\');\n
-  input.attr(\'id\', "software_release_query");\n
+  var input = $(\'<input>\');\n
+  input.attr({\'id\': "software_release_query", \'placeholder\': \'Click here for search...\', \'type\': \'search\'});\n
   input.val(query);\n
   $(\'form\').submit(searchSoftwareReleaseList);\n
   search_div.append(input)\n
@@ -375,7 +375,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>11452</int> </value>
+            <value> <int>11503</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

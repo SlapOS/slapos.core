@@ -46,8 +46,6 @@
       <tal:block metal:fill-slot="main">\n
         <div class="content">\n
           <h1 i18n:translate="" i18n:domain="ui">Software Management</h1>\n
-<p>Use search and categories on left in order to filter Software Releases.\n
-<p>It is possible to install Software Release on your computers or request new instance of selected software.\n
 <div id="js_container"></div>\n
 <script type="text/javascript">\n
 $(document).ready(function() {\n

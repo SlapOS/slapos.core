@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts23106818.21</string> </value>
+            <value> <string>ts23107470.29</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -297,6 +297,10 @@ function drawRequest(data) {\n
   data = data[\'software_release_list\'][0];\n
   js_container = $("#js_container");\n
   js_container.empty();\n
+  var explanation = $(\'<p>\');\n
+  js_container.append(explanation);\n
+  explanation.text(\'Please fill software instance title and XML, both are required fields. It will allow you to request instance. Optionally select desired computer.\');\n
+\n
   var fieldset = $(\'<fieldset>\');\n
   js_container.append(fieldset);\n
   fieldset.addClass(\'normal\');\n
@@ -394,7 +398,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>12160</int> </value>
+            <value> <int>12396</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

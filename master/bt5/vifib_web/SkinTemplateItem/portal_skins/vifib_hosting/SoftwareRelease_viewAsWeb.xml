@@ -35,7 +35,7 @@
         </item>
         <item>
             <key> <string>action</string> </key>
-            <value> <string>WebSection_addSelectedItemsToShoppingCart</string> </value>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -76,6 +76,7 @@
                       <list>
                         <string>my_description</string>
                         <string>related_description</string>
+                        <string>order_button</string>
                       </list>
                     </value>
                 </item>
@@ -116,11 +117,11 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>SoftwareRelease_viewAsShop</string> </value>
+            <value> <string>SoftwareRelease_viewAsWeb</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>
-            <value> <string>form_dialog</string> </value>
+            <value> <string>form_view</string> </value>
         </item>
         <item>
             <key> <string>row_length</string> </key>
@@ -132,7 +133,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Order</string> </value>
+            <value> <string>Software release</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

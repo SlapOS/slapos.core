@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts23165929.32</string> </value>
+            <value> <string>ts23178834.93</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -290,11 +290,19 @@ function drawRequest(data) {\n
   data = data.software_release_list[0];\n
   var js_container = $("#js_container");\n
   js_container.empty();\n
+  var release_div = $(\'<div>\');\n
+  var img = $(\'<img>\');\n
+  img.attr({\n
+    \'src\': data.image_url,\n
+    \'alt\': data.title,\n
+    \'title\': data.title\n
+  });\n
+  img.addClass(\'software_release_icon\');\n
+  js_container.append(img);\n
   var explanation = $(\'<p>\');\n
   js_container.append(explanation);\n
   explanation.text(\'Please fill software instance title and XML, both are required fields. It will allow you to request instance. Optionally select desired computer.\');\n
 \n
-  var release_div = $(\'<div>\');\n
   js_container.append(release_div);\n
   release_div.append($(\'<p>\').html(\'You are requesting instance of: \').append($(\'<span>\').addClass(\'required\').text(data.title)));\n
   release_div.append($(\'<p>\').html(\'Url of release: \').append($(\'<span>\').addClass(\'required\').text(data.url)));\n
@@ -388,7 +396,7 @@ function hashController() {\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>12397</int> </value>
+            <value> <int>12583</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

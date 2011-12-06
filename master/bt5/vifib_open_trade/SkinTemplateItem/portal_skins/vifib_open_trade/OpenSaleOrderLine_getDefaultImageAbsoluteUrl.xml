@@ -71,7 +71,7 @@ for delivery_line in line_list:\n
     if software_instance.getPredecessorRelatedValue() is None:\n
       software_release = delivery_line.getAggregateValue(portal_type=\'Software Release\')\n
       if software_release is not None:\n
-        software_product = software_release.getAggregateValue()\n
+        software_product = software_release.getFollowUpValue()\n
         return \'%s/index_html\' % software_product.getDefaultImageAbsoluteUrl()\n
 </string> </value>
         </item>

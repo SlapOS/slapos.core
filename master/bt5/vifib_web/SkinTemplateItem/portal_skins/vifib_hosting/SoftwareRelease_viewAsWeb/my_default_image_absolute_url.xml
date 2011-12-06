@@ -11,6 +11,7 @@
             <value>
               <list>
                 <string>css_class</string>
+                <string>default</string>
                 <string>enabled</string>
               </list>
             </value>
@@ -58,9 +59,15 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
-                    <key> <string>enabled</string> </key>
+                    <key> <string>default</string> </key>
                     <value>
                       <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
+                    </value>
+                </item>
+                <item>
+                    <key> <string>enabled</string> </key>
+                    <value>
+                      <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
                     </value>
                 </item>
                 <item>
@@ -85,6 +92,10 @@
                 <item>
                     <key> <string>css_class</string> </key>
                     <value> <string>resource_image nolabel</string> </value>
+                </item>
+                <item>
+                    <key> <string>default</string> </key>
+                    <value> <string></string> </value>
                 </item>
                 <item>
                     <key> <string>enabled</string> </key>
@@ -116,7 +127,20 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: here.getDefaultImageValue() not in (None, \'\') and here.getDefaultImageValue().getData() not in (None, \'\')</string> </value>
+            <value> <string>python: here.getFollowUpValue().getDefaultImageAbsoluteUrl()</string> </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="3" aka="AAAAAAAAAAM=">
+    <pickle>
+      <global name="TALESMethod" module="Products.Formulator.TALESField"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>_text</string> </key>
+            <value> <string>python: here.getFollowUpValue().getDefaultImage()</string> </value>
         </item>
       </dictionary>
     </pickle>

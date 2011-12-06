@@ -62,19 +62,14 @@ computer = portal.portal_catalog.getResultValue(\n
   portal_type="Computer",\n
 )\n
 \n
-software_release = portal.portal_catalog.getResultValue(\n
-  uid=software_release_uid,\n
-  portal_type="Software Release",\n
-)\n
-\n
-computer.requestSoftwareReleaseInstallation(software_release_url=software_release.getUrlString())\n
+computer.requestSoftwareReleaseInstallation(software_release_url=software_release_url)\n
 \n
 return True\n
 </string> </value>
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>software_release_uid, computer_reference</string> </value>
+            <value> <string>software_release_url, computer_reference</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

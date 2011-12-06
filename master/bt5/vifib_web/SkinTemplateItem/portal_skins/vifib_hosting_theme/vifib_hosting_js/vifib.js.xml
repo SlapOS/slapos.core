@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts23107470.29</string> </value>
+            <value> <string>ts23163224.67</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -22,7 +22,7 @@
             <key> <string>data</string> </key>
             <value> <string encoding="cdata"><![CDATA[
 
-function setSoftwareReleaseEntry(item, append_to, insert_before) {\n
+function setSoftwareReleaseEntry(item, append_to) {\n
   var li = $(\'<li>\');\n
   var img = $(\'<img>\');\n
   var img_div = $(\'<div>\');\n
@@ -49,8 +49,7 @@ function setSoftwareReleaseEntry(item, append_to, insert_before) {\n
   entry_div.append($(\'<div>\').addClass(\'reset\'));\n
   li.append(entry_div);\n
   description_div.append(description);\n
-  if (append_to) {li.appendTo(append_to);}\n
-  if (insert_before) {li.insertBefore(insert_before);}\n
+  if (append_to) {li.appendTo(append_to); }\n
   li.addClass(\'software_release_entry\');\n
   img.attr({\n
     \'src\': item.image_url,\n
@@ -60,7 +59,7 @@ function setSoftwareReleaseEntry(item, append_to, insert_before) {\n
   img.addClass(\'software_release_icon\');\n
   img_div.addClass(\'software_release_icon\');\n
   title_div.addClass(\'software_release_title\');\n
-  title_div.html(item.title)\n
+  title_div.html(item.title);\n
   description_div.addClass(\'software_release_description\');\n
   navigation_div.addClass(\'software_release_navigation\');\n
   list.addClass(\'software_release_navigation\');\n
@@ -73,12 +72,12 @@ function setSoftwareReleaseEntry(item, append_to, insert_before) {\n
   install.addClass(\'software_release_navigation\');\n
   install.text(\'Request instance\');\n
   description.addClass(\'software_release_description\');\n
-  maxh = description_div.height();\n
+  var maxh = description_div.height();\n
   var truncated = false;\n
   var added = \'\';\n
   var word_list = item.description.split(\' \');\n
   var length = word_list.length;\n
-  for(i=0; i<length; i++) {\n
+  for (var i = 0; i<length; i++) {\n
     added = word_list[i];\n
     description.text(description.text() + \' \' + added);\n
     if (description.height() > maxh) {\n
@@ -308,7 +307,7 @@ function drawRequest(data) {\n
   var url_a = $(\'<input>\');\n
   url_a.attr({\'value\': data.url, \'name\': \'url\', \'id\': \'url\', \'type\': \'hidden\'});\n
   fieldset.append(url_a);\n
-  \n
+\n
   var title_label = $(\'<div>\');\n
   fieldset.append(title_label);\n
   title_label.addClass(\'field required\');\n
@@ -316,7 +315,7 @@ function drawRequest(data) {\n
   var title_div = $(\'<div>\');\n
   fieldset.append(title_div);\n
   title_div.addClass(\'input\');\n
-  title_input = $(\'<input type="text">\');\n
+  var title_input = $(\'<input type="text">\');\n
   title_input.attr(\'id\', \'software_instance_title\');\n
   fieldset.append(title_input);\n
 \n
@@ -398,7 +397,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>12396</int> </value>
+            <value> <int>12341</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

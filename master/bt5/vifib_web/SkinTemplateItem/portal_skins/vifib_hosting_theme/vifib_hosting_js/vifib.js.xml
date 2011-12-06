@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts23163224.67</string> </value>
+            <value> <string>ts23164440.42</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -300,6 +300,10 @@ function drawRequest(data) {\n
   js_container.append(explanation);\n
   explanation.text(\'Please fill software instance title and XML, both are required fields. It will allow you to request instance. Optionally select desired computer.\');\n
 \n
+  var release_div = $(\'<div>\');\n
+  js_container.append(release_div);\n
+  release_div.append($(\'<p>\').html(\'You are requesting instance of: \').append($(\'<span>\').addClass(\'required\').text(data.title)));\n
+  release_div.append($(\'<p>\').html(\'Url of release: \').append($(\'<span>\').addClass(\'required\').text(data.url)));\n
   var fieldset = $(\'<fieldset>\');\n
   js_container.append(fieldset);\n
   fieldset.addClass(\'normal\');\n
@@ -355,13 +359,6 @@ function drawRequest(data) {\n
     });\n
   });\n
 \n
-  summary = $(\'<div>\');\n
-  html = \'Software Release: \' + data.title;\n
-  if (data.description.length>0) {\n
-      html += \' (\' + data.description + \')\';\n
-  }\n
-  html += \' url: \' + data.url;\n
-  summary.html(html)\n
   js_container.append(summary);\n
   request = $(\'<button>\');\n
   request.append($(\'<span>\').html(\'Request\'));\n
@@ -397,7 +394,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>12341</int> </value>
+            <value> <int>12449</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

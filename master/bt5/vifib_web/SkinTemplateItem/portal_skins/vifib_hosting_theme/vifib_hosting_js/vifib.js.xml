@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts23164440.42</string> </value>
+            <value> <string>ts23165929.32</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -73,11 +73,11 @@ function setSoftwareReleaseEntry(item, append_to) {\n
   install.text(\'Request instance\');\n
   description.addClass(\'software_release_description\');\n
   var maxh = description_div.height();\n
-  var truncated = false;\n
   var added = \'\';\n
   var word_list = item.description.split(\' \');\n
   var length = word_list.length;\n
-  for (var i = 0; i<length; i++) {\n
+  var i;\n
+  for (i = 0; i < length; i++) {\n
     added = word_list[i];\n
     description.text(description.text() + \' \' + added);\n
     if (description.height() > maxh) {\n
@@ -90,7 +90,7 @@ function setSoftwareReleaseEntry(item, append_to) {\n
 }\n
 \n
 function hashTo(event) {\n
-  window.location.hash = \'#\'+$.param(event.data);\n
+  window.location.hash = \'#\' + $.param(event.data);\n
 }\n
 \n
 function toggle() {\n
@@ -99,32 +99,30 @@ function toggle() {\n
     $(\'li#\' + el[0].id).addClass(\'software_category_children_collapsed\');\n
     $(\'li#\' + el[0].id).removeClass(\'software_category_children_expanded\');\n
     el.hide();\n
-  }\n
-  else {\n
+  } else {\n
     $(\'ul#master\').find(\'ul\').hide();\n
     $(\'ul#master\').find(\'li.software_category_children\').removeClass(\'software_category_children_expanded\');\n
     $(\'ul#master\').find(\'li.software_category_children\').addClass(\'software_category_children_collapsed\');\n
     var me = $(\'ul#\' + $(this)[0].id);\n
-    do\n
-    {\n
+    do {\n
       me.show();\n
       $(\'li#\' + me[0].id).removeClass(\'software_category_children_collapsed\');\n
       $(\'li#\' + me[0].id).addClass(\'software_category_children_expanded\');\n
       me = me.parent();\n
-    } while (me[0].id != \'master\');\n
+    } while (me[0].id !== \'master\');\n
 \n
   }\n
 }\n
 \n
 function hasher() {\n
   var t = $(this)[0].id.replace(\'_\', \' \', \'g\');\n
-  var l = t.split(\' \')\n
-  l[0] = \'+\' + l[0]\n
-  t = l.join(\' +\')\n
-  query_kw = $.deparam.fragment();\n
-  query_kw[\'software_category\'] = t;\n
-  delete query_kw[\'page\'];\n
-  window.location.hash = \'#\'+$.param(query_kw);\n
+  var l = t.split(\' \');\n
+  l[0] = \'+\' + l[0];\n
+  t = l.join(\' +\');\n
+  var query_kw = $.deparam.fragment();\n
+  query_kw.software_category = t;\n
+  delete query_kw.page;\n
+  window.location.hash = \'#\' + $.param(query_kw);\n
   $(\'.software_category_selected\').removeClass(\'software_category_selected\');\n
   $(this).addClass(\'software_category_selected\');\n
 }\n
@@ -135,30 +133,30 @@ function resetCategoryHash() {\n
   $(\'ul#master\').find(\'li.software_category_children\').addClass(\'software_category_children_collapsed\');\n
   $(\'.software_category_selected\').removeClass(\'software_category_selected\');\n
   var query_kw = $.deparam.fragment();\n
-  delete(query_kw.software_category);\n
-  window.location.hash = \'#\'+$.param(query_kw);\n
+  delete (query_kw.software_category);\n
+  window.location.hash = \'#\' + $.param(query_kw);\n
 }\n
 \n
 function appendSoftwareCategoryTree(data, id) {\n
   var ul = $(\'<ul>\');\n
   ul.addClass(\'software_category\');\n
-  if (id !== undefined) {ul.attr(\'id\', id.replace(\' \', \'_\', \'g\'));}\n
-  else {\n
+  if (id !== undefined) {ul.attr(\'id\', id.replace(\' \', \'_\', \'g\')); } else {\n
     ul.attr(\'id\', \'master\');\n
     var reset = $(\'<li>\');\n
     reset.addClass(\'software_category\');\n
-    reset.text(\'Reset...\')\n
+    reset.text(\'Reset...\');\n
     reset.click(resetCategoryHash);\n
     ul.append(reset);\n
   }\n
   var i = 0;\n
-  for (var q in data) {\n
+  var q;\n
+  for (q in data) {\n
     var li = $(\'<li>\');\n
     li.addClass(\'software_category\');\n
     li.attr({\'id\': q.replace(\' \', \'_\', \'g\')});\n
     ul.append(li);\n
     var s = q;\n
-    r = appendSoftwareCategoryTree(data[q], q);\n
+    var r = appendSoftwareCategoryTree(data[q], q);\n
     if (r) {\n
       ul.append(r);\n
       li.addClass(\'software_category_children software_category_children_collapsed\');\n
@@ -168,9 +166,8 @@ function appendSoftwareCategoryTree(data, id) {\n
     li.html(s);\n
     ++i;\n
   }\n
-  if (id !== undefined) {ul.hide();}\n
-  if (i>0) {return ul; }\n
-  else {return false; }\n
+  if (id !== undefined) {ul.hide(); }\n
+  if (i > 0) {return ul; } else {return false; }\n
 }\n
 \n
 function drawSoftwareCategoryTree(data) {\n
@@ -182,50 +179,48 @@ function drawSoftwareCategoryTree(data) {\n
 }\n
 \n
 function drawSoftwareReleaseList(data) {\n
-  $(\'#software_release_container\').empty()\n
+  $(\'#software_release_container\').empty();\n
   var ul = $(\'<ul>\');\n
   $("#software_release_container").append(ul);\n
   ul.attr(\'id\', \'software_release_list\');\n
-  if (data[\'software_release_list\'].length > 0) {\n
-    $.each(data[\'software_release_list\'], function(i,item){\n
-      setSoftwareReleaseEntry(item, ul, false)\n
+  var li;\n
+  var navigation_div;\n
+  if (data.software_release_list.length > 0) {\n
+    $.each(data.software_release_list, function (i, item) {\n
+      setSoftwareReleaseEntry(item, ul, false);\n
     });\n
-    var li = $(\'<li>\').appendTo(ul);\n
+    li = $(\'<li>\').appendTo(ul);\n
     li.addClass(\'software_release_entry\');\n
     li.attr(\'id\', \'end\');\n
-    var navigation_div = $(\'<div>\');\n
+    navigation_div = $(\'<div>\');\n
     navigation_div.attr(\'id\', \'navigation_div\');\n
     navigation_div.addClass(\'software_release_more\');\n
     var param = $.deparam.fragment();\n
     var a = $(\'<div>\');\n
-    page = parseInt(data.page, 10);\n
+    var page = parseInt(data.page, 10);\n
     if (data.after) {\n
       a.addClass(\'sr_right_active\');\n
-      param[\'page\'] = page+1;\n
+      param.page = page + 1;\n
       a.click(param, hashTo);\n
-    }\n
-    else { a.addClass(\'sr_right_inactive\'); }\n
+    } else { a.addClass(\'sr_right_inactive\'); }\n
     navigation_div.append(a);\n
     var p = $(\'<div>\');\n
     p.addClass(\'software_release_page\');\n
     p.text(\'Page: \' + String(page + 1));\n
     navigation_div.append(p);\n
-    var a = $(\'<div>\');\n
-    var param = {};\n
+    a = $(\'<div>\');\n
+    param = {};\n
     if (data.before) {\n
-      param[\'page\'] = page-1;\n
+      param.page = page - 1;\n
       a.addClass(\'sr_left_active\');\n
       a.click(param, hashTo);\n
-    }\n
-    else { a.addClass(\'sr_left_inactive\'); }\n
+    } else { a.addClass(\'sr_left_inactive\'); }\n
     navigation_div.append(a);\n
     li.append(navigation_div);\n
-  }\n
-  else\n
-  {\n
-    var li = $(\'<li>\').appendTo(ul);\n
+  } else {\n
+    li = $(\'<li>\').appendTo(ul);\n
     li.addClass(\'software_release_more\');\n
-    var navigation_div = $(\'<div>\');\n
+    navigation_div = $(\'<div>\');\n
     navigation_div.html(\'Sorry, no results.\');\n
     li.append(navigation_div);\n
   }\n
@@ -234,15 +229,15 @@ function drawSoftwareReleaseList(data) {\n
 function searchSoftwareReleaseList(event) {\n
   event.preventDefault();\n
   var query_kw = $.deparam.fragment();\n
-  new_query_kw = {\n
-    query: $(\'#software_release_query\')[0][\'value\'],\n
-    software_category: query_kw[\'software_category\'] ? query_kw[\'software_category\'] : \'\'\n
-  }\n
+  var new_query_kw = {\n
+    query: $(\'#software_release_query\')[0].value,\n
+    software_category: query_kw.software_category || \'\'\n
+  };\n
   window.location.hash = $.param(new_query_kw);\n
 }\n
 \n
 function softwareReleaseController(query, software_category, page) {\n
-  js_container = $("#js_container");\n
+  var js_container = $("#js_container");\n
   js_container.empty();\n
   var explanation = $(\'<p>\');\n
   explanation.text(\'Use search and categories on left in order to filter Software Releases. It is possible to install Software Release on your computers or request new instance of selected software.\');\n
@@ -254,38 +249,37 @@ function softwareReleaseController(query, software_category, page) {\n
   input.attr({\'id\': "software_release_query", \'placeholder\': \'Click here for search...\', \'type\': \'search\'});\n
   input.val(query);\n
   $(\'form\').submit(searchSoftwareReleaseList);\n
-  search_div.append(input)\n
+  search_div.append(input);\n
 \n
   var search = $(\'<button>\');\n
   search.addClass(\'nolabel validate\');\n
   search.append($(\'<span>\').html(\'Search\'));\n
-  search_div.append(search)\n
-  software_release_container = $(\'<div>\');\n
+  search_div.append(search);\n
+  var software_release_container = $(\'<div>\');\n
   software_release_container.attr(\'id\', \'software_release_container\');\n
   js_container.append(software_release_container);\n
   search.click(searchSoftwareReleaseList);\n
-  var q = {}\n
-  if (query) { q[\'query\'] = query }\n
-  if (software_category) { q[\'query\'] =  q[\'query\'] ? q[\'query\'] : \' \' + software_category; }\n
-  if (page) {q[\'page\'] = page}\n
-  else {q[\'page\'] = 0}\n
-  $.getJSON(vifib[\'site_url\'] + "/ERP5Site_getSoftwareReleaseListAsJSON", q,\n
-  drawSoftwareReleaseList);\n
+  var q = {};\n
+  if (query) { q.query = query; }\n
+  if (software_category) { q.query = (q.query || \' \') + software_category; }\n
+  if (page) {q.page = page; } else {q.page = 0; }\n
+  $.getJSON(vifib.site_url + "/ERP5Site_getSoftwareReleaseListAsJSON", q,\n
+    drawSoftwareReleaseList);\n
 }\n
 \n
 function processRequest(event) {\n
   event.preventDefault();\n
-  computer = $(\'#computer\').val();\n
-  url = $(\'#url\').val();\n
-  title = $(\'#software_instance_title\').val();\n
-  xml = $(\'#software_instance_xml\').val();\n
+  var computer = $(\'#computer\').val();\n
+  var url = $(\'#url\').val();\n
+  var title = $(\'#software_instance_title\').val();\n
+  var xml = $(\'#software_instance_xml\').val();\n
 \n
-  $.post(vifib[\'site_url\'] + "/ERP5Site_requestComputerPartitionAsJSON", {\n
+  $.post(vifib.site_url + "/ERP5Site_requestComputerPartitionAsJSON", {\n
     \'software_release_url\': url,\n
     \'title\': title,\n
     \'instance_xml\': xml,\n
-    \'computer\': computer,\n
-    },\n
+    \'computer\': computer\n
+  },\n
     function () {\n
       alert(\'Your Software Instance has been requested\');\n
       window.location.hash = \'\';\n
@@ -293,8 +287,8 @@ function processRequest(event) {\n
 }\n
 \n
 function drawRequest(data) {\n
-  data = data[\'software_release_list\'][0];\n
-  js_container = $("#js_container");\n
+  data = data.software_release_list[0];\n
+  var js_container = $("#js_container");\n
   js_container.empty();\n
   var explanation = $(\'<p>\');\n
   js_container.append(explanation);\n
@@ -307,7 +301,7 @@ function drawRequest(data) {\n
   var fieldset = $(\'<fieldset>\');\n
   js_container.append(fieldset);\n
   fieldset.addClass(\'normal\');\n
-  \n
+\n
   var url_a = $(\'<input>\');\n
   url_a.attr({\'value\': data.url, \'name\': \'url\', \'id\': \'url\', \'type\': \'hidden\'});\n
   fieldset.append(url_a);\n
@@ -330,10 +324,10 @@ function drawRequest(data) {\n
   var xml_div = $(\'<div>\');\n
   fieldset.append(xml_div);\n
   xml_div.addClass(\'input\');\n
-  var xml_input = $(\'<textarea>\'); \n
+  var xml_input = $(\'<textarea>\');\n
   xml_input.attr({\'id\': \'software_instance_xml\', \'cols\': \'80\', \'rows\': \'10\'});\n
-  xml_input.html(\'<?xml version="1.0" encoding="utf-8"?>\\n<instance>\\n<parameter id="nbd_ip">2a01:e35:2e27:460:e2cb:4eff:fed9:48dc</parameter>\\n<parameter id="nbd_port">1024</parameter>\\n</instance>"\')\n
-  xml_div.append(xml_input)\n
+  xml_input.html(\'<?xml version="1.0" encoding="utf-8"?>\\n<instance>\\n<parameter id="nbd_ip">2a01:e35:2e27:460:e2cb:4eff:fed9:48dc</parameter>\\n<parameter id="nbd_port">1024</parameter>\\n</instance>"\');\n
+  xml_div.append(xml_input);\n
 \n
 \n
   var computer_label = $(\'<div>\');\n
@@ -345,22 +339,21 @@ function drawRequest(data) {\n
   fieldset.append(computer_input);\n
   computer_input.attr({\'name\': \'computer\', \'id\': \'computer\', \'size\': \'1\'});\n
   fieldset.append(computer_input);\n
- \n
-  $.getJSON(vifib[\'site_url\'] + "/ERP5Site_getComputerListAsJSON", function(data) {\n
+\n
+  $.getJSON(vifib.site_url + "/ERP5Site_getComputerListAsJSON", function (data) {\n
     var computer_input = $(\'#computer\');\n
     var option = $(\'<option>\');\n
     option.attr(\'value\', \'\');\n
     option.appendTo(computer_input);\n
-    $.each(data[\'computer_list\'], function(i, item){\n
+    $.each(data.computer_list, function (i, item) {\n
       var option = $(\'<option>\');\n
       option.attr(\'value\', item.id);\n
-      option.html(item.title + \' (\' + item.id +\')\');\n
+      option.html(item.title + \' (\' + item.id + \')\');\n
       option.appendTo(computer_input);\n
     });\n
   });\n
 \n
-  js_container.append(summary);\n
-  request = $(\'<button>\');\n
+  var request = $(\'<button>\');\n
   request.append($(\'<span>\').html(\'Request\'));\n
 \n
   request.click(processRequest);\n
@@ -368,21 +361,22 @@ function drawRequest(data) {\n
 }\n
 \n
 function requestController(software_release_id) {\n
-  software_release_id = parseInt(software_release_id);\n
+  software_release_id = parseInt(software_release_id, 10);\n
   $.getJSON(\n
-  vifib[\'site_url\'] + "/ERP5Site_getSoftwareReleaseListAsJSON",\n
-  {"uid":software_release_id},\n
-  drawRequest);\n
+    vifib.site_url + "/ERP5Site_getSoftwareReleaseListAsJSON",\n
+    {"uid": software_release_id},\n
+    drawRequest\n
+  );\n
 }\n
 \n
-function hashController ()\n
-{\n
-  query_kw = $.deparam.fragment();\n
-  software_release = query_kw[\'software_release\'];\n
-  query = query_kw[\'query\'];\n
-  page = query_kw[\'page\']\n
-  if (software_release) { requestController(software_release);}\n
-  else {softwareReleaseController(query, query_kw[\'software_category\'], page);}\n
+function hashController() {\n
+  var query_kw = $.deparam.fragment();\n
+  var software_release = query_kw.software_release;\n
+  var query = query_kw.query;\n
+  var page = query_kw.page;\n
+  if (software_release) { requestController(software_release); } else {\n
+    softwareReleaseController(query, query_kw.software_category, page);\n
+  }\n
 }\n
 
 
@@ -394,7 +388,7 @@ function hashController ()\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>12449</int> </value>
+            <value> <int>12397</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

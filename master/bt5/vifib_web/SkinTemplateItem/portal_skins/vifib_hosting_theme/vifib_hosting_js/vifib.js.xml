@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts23178834.93</string> </value>
+            <value> <string>ts23180386.9</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -34,12 +34,16 @@ function setSoftwareReleaseEntry(item, append_to) {\n
   var list = $(\'<ul>\');\n
   var entry_more = $(\'<li>\');\n
   var more = $(\'<a>\');\n
+  var entry_request = $(\'<li>\');\n
+  var request = $(\'<a>\');\n
   var entry_install = $(\'<li>\');\n
   var install = $(\'<a>\');\n
   img_div.append(img);\n
   entry_more.append(more);\n
   list.append(entry_more);\n
   navigation_div.append(list);\n
+  entry_request.append(request);\n
+  list.append(entry_request);\n
   entry_install.append(install);\n
   list.append(entry_install);\n
   entry_div.append(img_div);\n
@@ -67,10 +71,14 @@ function setSoftwareReleaseEntry(item, append_to) {\n
   more.attr(\'href\', item.document_url);\n
   more.text(\'Read more\');\n
   more.addClass(\'software_release_navigation\');\n
+  entry_request.addClass(\'software_release_navigation\');\n
+  request.attr(\'href\', \'#\' + $.param({\'action\': \'request_instance\', \'software_release\': item.uid}));\n
+  request.addClass(\'software_release_navigation\');\n
+  request.text(\'Request instance\');\n
   entry_install.addClass(\'software_release_navigation\');\n
-  install.attr(\'href\', \'#software_release=\' + item.uid);\n
+  install.attr(\'href\', \'#\' + $.param({\'action\': \'install_software\', \'software_release\': item.uid}));\n
   install.addClass(\'software_release_navigation\');\n
-  install.text(\'Request instance\');\n
+  install.text(\'Install software\');\n
   description.addClass(\'software_release_description\');\n
   var maxh = description_div.height();\n
   var added = \'\';\n
@@ -368,6 +376,10 @@ function drawRequest(data) {\n
   js_container.append(request);\n
 }\n
 \n
+function installController(software_release_id) {\n
+  alert(software_release_id);\n
+}\n
+\n
 function requestController(software_release_id) {\n
   software_release_id = parseInt(software_release_id, 10);\n
   $.getJSON(\n
@@ -379,11 +391,19 @@ function requestController(software_release_id) {\n
 \n
 function hashController() {\n
   var query_kw = $.deparam.fragment();\n
+  var action = query_kw.action || \'software_release_list\';\n
   var software_release = query_kw.software_release;\n
   var query = query_kw.query;\n
   var page = query_kw.page;\n
-  if (software_release) { requestController(software_release); } else {\n
-    softwareReleaseController(query, query_kw.software_category, page);\n
+  switch (action) {\n
+    case "request_instance":\n
+      requestController(software_release);\n
+      break;\n
+    case "install_software":\n
+      installController(software_release);\n
+      break;\n
+    default:\n
+      softwareReleaseController(query, query_kw.software_category, page)\n
   }\n
 }\n
 
@@ -396,7 +416,7 @@ function hashController() {\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>12583</int> </value>
+            <value> <int>13268</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

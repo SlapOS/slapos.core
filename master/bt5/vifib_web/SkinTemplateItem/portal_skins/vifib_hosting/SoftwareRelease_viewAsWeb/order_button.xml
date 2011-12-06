@@ -143,7 +143,11 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: here.getWebSiteValue().absolute_url() + \'/myspace/software/#software_release=\' + str(here.getUid())</string> </value>
+            <value> <string encoding="cdata"><![CDATA[
+
+python: here.getWebSiteValue().absolute_url() + \'/myspace/software/#action=request_instance&software_release=\' + str(here.getUid())
+
+]]></string> </value>
         </item>
       </dictionary>
     </pickle>

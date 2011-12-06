@@ -62,7 +62,7 @@ if uid is None:\n
 else:\n
   return context.portal_catalog(\n
     portal_type="Software Release",\n
-    default_aggregate_uid=uid,\n
+    default_follow_up_uid=uid,\n
     validation_state=["shared", "shared_alive", "released", "released_alive", "published", "published_alive"]\n
     )\n
 </string> </value>

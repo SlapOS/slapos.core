@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts23256173.14</string> </value>
+            <value> <string>ts23259169.04</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -269,7 +269,7 @@ function softwareReleaseController(query, software_category, page) {\n
   search.click(searchSoftwareReleaseList);\n
   var q = {};\n
   if (query) { q.query = query; }\n
-  if (software_category) { q.query = (q.query || \' \') + software_category; }\n
+  if (software_category) { q.query = (q.query || \'\') + \' \' + software_category; }\n
   if (page) {q.page = page; } else {q.page = 0; }\n
   $.getJSON(vifib.site_url + "/ERP5Site_getSoftwareReleaseListAsJSON", q,\n
     drawSoftwareReleaseList);\n
@@ -511,7 +511,7 @@ function processAjaxError(jqXHR, textStatus, errorThrown) {\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>16369</int> </value>
+            <value> <int>16374</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

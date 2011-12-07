@@ -234,7 +234,7 @@ li.software_category {cursor : pointer; padding-top: 2px; padding-bottom: 2px;}\
 li.software_category_children {padding-top: 4px; padding-bottom: 4px;}\n
 li.software_category_children_collapsed:before {content: \'+ \';}\n
 li.software_category_children_expanded:before {content: \'- \';}\n
-li.software_category_children:hover {text-decoration: underline;}\n
+span.software_category_children:hover {text-decoration: underline;}\n
 li.software_category:hover {\n
   color: #2E707C;\n
 }\n

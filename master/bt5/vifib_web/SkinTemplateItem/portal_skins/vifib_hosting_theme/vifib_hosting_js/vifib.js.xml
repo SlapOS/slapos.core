@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts23259624.11</string> </value>
+            <value> <string>ts23259892.99</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -282,6 +282,16 @@ function processRequest(event) {\n
   var title = $(\'#software_instance_title\').val();\n
   var xml = $(\'#software_instance_xml\').val();\n
 \n
+  if (title.length == 0) {\n
+    alert(\'Title is required\');\n
+    return;\n
+  }\n
+\n
+  if (xml.length == 0) {\n
+    alert(\'XML is required\');\n
+    return;\n
+  }\n
+\n
   $.post(vifib.site_url + "/ERP5Site_requestComputerPartitionAsJSON", {\n
     \'software_release_url\': url,\n
     \'title\': title,\n
@@ -299,6 +309,10 @@ function processInstall(event) {\n
   var computer = $(\'#computer\').val();\n
   var url = $(\'#url\').val();\n
 \n
+  if (computer.length == 0) {\n
+    alert(\'Computer have to be selected\');\n
+    return;\n
+  }\n
   $.post(vifib.site_url + "/ERP5Site_triggerSoftwareInstallationAsJSON", {\n
     \'software_release_url\': url,\n
     \'computer_reference\': computer\n
@@ -511,7 +525,7 @@ function processAjaxError(jqXHR, textStatus, errorThrown) {\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>16373</int> </value>
+            <value> <int>16610</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

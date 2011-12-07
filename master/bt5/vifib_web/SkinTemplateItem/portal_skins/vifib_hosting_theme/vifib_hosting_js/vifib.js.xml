@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts23259169.04</string> </value>
+            <value> <string>ts23259624.11</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -415,7 +415,7 @@ function drawRequest(data) {\n
   xml_div.addClass(\'input\');\n
   var xml_input = $(\'<textarea>\');\n
   xml_input.attr({\'id\': \'software_instance_xml\', \'cols\': \'80\', \'rows\': \'10\'});\n
-  xml_input.html(\'<?xml version="1.0" encoding="utf-8"?>\\n<instance>\\n<parameter id="nbd_ip">2a01:e35:2e27:460:e2cb:4eff:fed9:48dc</parameter>\\n<parameter id="nbd_port">1024</parameter>\\n</instance>"\');\n
+  xml_input.html(\'<?xml version="1.0" encoding="utf-8"?>\\n<instance>\\n<parameter id="nbd_ip">2a01:e35:2e27:460:e2cb:4eff:fed9:48dc</parameter>\\n<parameter id="nbd_port">1024</parameter>\\n</instance>\');\n
   xml_div.append(xml_input);\n
 \n
 \n
@@ -511,7 +511,7 @@ function processAjaxError(jqXHR, textStatus, errorThrown) {\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>16374</int> </value>
+            <value> <int>16373</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

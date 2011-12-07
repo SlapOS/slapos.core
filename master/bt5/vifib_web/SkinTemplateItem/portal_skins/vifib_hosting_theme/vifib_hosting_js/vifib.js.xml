@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>_EtagSupport__etag</string> </key>
-            <value> <string>ts23190925.51</string> </value>
+            <value> <string>ts23256173.14</string> </value>
         </item>
         <item>
             <key> <string>__name__</string> </key>
@@ -484,7 +484,24 @@ function hashController() {\n
       softwareReleaseController(query, query_kw.software_category, page)\n
   }\n
 }\n
-
+\n
+function cleanAjaxError(data, textStatus, jqXHR) {\n
+  ajax_error = $(\'#ajax_error\');\n
+  if (ajax_error.length > 0) {\n
+    ajax_error.empty();\n
+  }\n
+}\n
+\n
+function processAjaxError(jqXHR, textStatus, errorThrown) {\n
+  ajax_error = $(\'#ajax_error\');\n
+  if (ajax_error.length == 0) {\n
+    container = $(\'#js_container\');\n
+    ajax_error = $(\'<div>\').addClass(\'error\').attr(\'id\', \'ajax_error\');\n
+    container.before(ajax_error);\n
+  }\n
+  ajax_error.empty()\n
+  ajax_error.html(\'There was issue with server communication. Please try to reload the page.\');\n
+}
 
 ]]></string> </value>
         </item>
@@ -494,7 +511,7 @@ function hashController() {\n
         </item>
         <item>
             <key> <string>size</string> </key>
-            <value> <int>15833</int> </value>
+            <value> <int>16369</int> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

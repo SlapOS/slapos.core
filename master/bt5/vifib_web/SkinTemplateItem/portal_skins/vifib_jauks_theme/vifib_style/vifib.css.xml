@@ -229,9 +229,9 @@ li.software_release_more {text-decoration: none; list-style: none;}\n
 div.software_release_page {float:right; margin: 4px; height:22px; color: white; font-site: 18px;}\n
 \n
 div#software_category{display:inline;float:left;width:20%;background:url(<tal:block tal:replace="images_path"/>separation_contenu.png) no-repeat center right; font-weight: normal;}\n
-ul.software_category {list-style: none none inside; padding-left: 4px; padding-top: 8px; padding-bottom: 8px;}\n
-li.software_category {cursor : pointer; padding-top: 2px; padding-bottom: 2px;}\n
-li.software_category_children {padding-top: 4px; padding-bottom: 4px;}\n
+ul.software_category {list-style: none none inside; padding-left: 4px;}\n
+li.software_category {cursor : pointer; padding-bottom: 2px;}\n
+li.software_category_children {padding-top: 2px; padding-bottom: 2px;}\n
 li.software_category_children_collapsed:before {content: \'+ \';}\n
 li.software_category_children_expanded:before {content: \'- \';}\n
 span.software_category_children:hover {text-decoration: underline;}\n
@@ -239,6 +239,7 @@ li.software_category:hover {\n
   color: #2E707C;\n
 }\n
 li.software_category_selected {font-weight: bold; }\n
+li.software_category:last-child {padding-bottom: 8px;}\n
 \n
 </tal:block>
 

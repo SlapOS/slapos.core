@@ -1103,7 +1103,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
       LoginDefaultUser
       SetChildrenBComputerPartition
       Logout
-      """ 
+      """
 
   computer_with_software_release = """
       CustomerRegisterNewComputer
@@ -1412,7 +1412,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
       if uri != software_release_uri:
         sequence.edit(software_release_uri=uri)
         break
-    self.assertNotEquals(sequence["software_release_uri"], 
+    self.assertNotEquals(sequence["software_release_uri"],
         old_software_release_uri)
 
   def stepStoreSoftwareReleaseUri(self, sequence, **kw):
@@ -1705,14 +1705,14 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
         sequence['computer_reference'],
         sequence['computer_partition_reference'])
 
-    self.assertRaises(slap.NotFoundError, 
+    self.assertRaises(slap.NotFoundError,
       slap_computer_partition.request,
       software_release=software_release_uri,
       software_type=sequence.get('requested_software_type',
                                  'requested_software_type'),
       partition_reference=requested_reference,
       partition_parameter_kw=requested_parameter_dict,
-      shared=True, 
+      shared=True,
       filter_kw=sequence.get('requested_filter_dict', {}),
       state=sequence.get('instance_state'))
 
@@ -1776,13 +1776,13 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
       filter_kw=sequence.get('requested_filter_dict', {}),
       state=sequence.get('instance_state'))
 
-  def stepSetSoftwareInstanceChildrenA(self, sequence, **kw):
+  def _stepSetSoftwareInstanceChildren(self, sequence, source_reference):
     software_instance_uid = sequence['root_software_instance_uid']
     software_instance = self.portal.portal_catalog.getResultValue(
         uid=software_instance_uid)
     children_software_instance = \
       software_instance.portal_catalog.getResultValue(
-          portal_type="Software Instance", source_reference='children_a',
+          portal_type="Software Instance", source_reference=source_reference,
           root_uid=software_instance_uid)
     self.assertNotEqual(None, children_software_instance)
     self.assertNotEqual(software_instance.getRelativeUrl(),
@@ -1794,30 +1794,16 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
             _softwareInstance_getComputerPartition(children_software_instance
               ).getReference()
         )
+  def stepSetSoftwareInstanceChildrenA(self, sequence, **kw):
+    self._stepSetSoftwareInstanceChildren(sequence, 'children_a')
+
+  def stepSetSoftwareInstanceChildrenB(self, sequence, **kw):
+    self._stepSetSoftwareInstanceChildren(sequence, 'children_b')
 
   def stepSetRootSoftwareInstanceCurrentInstance(self, sequence, **kw):
     software_instance_uid = sequence['software_instance_uid']
     self.assertNotEqual(None, software_instance_uid)
     sequence.edit(root_software_instance_uid=software_instance_uid)
-
-  def stepSetSoftwareInstanceChildrenB(self, sequence, **kw):
-    software_instance_uid = sequence['root_software_instance_uid']
-    software_instance = self.portal.portal_catalog.getResultValue(
-        uid=software_instance_uid)
-    children_software_instance = \
-      software_instance.portal_catalog.getResultValue(
-          portal_type="Software Instance", source_reference='children_b',
-          root_uid=software_instance_uid)
-    self.assertNotEqual(None, children_software_instance)
-    self.assertNotEqual(software_instance.getRelativeUrl(),
-        children_software_instance.getRelativeUrl())
-    sequence.edit(
-        software_instance_uid=children_software_instance.getUid(),
-        software_instance_refernece=children_software_instance.getReference(),
-        computer_partition_reference=self.\
-            _softwareInstance_getComputerPartition(children_software_instance
-              ).getReference()
-        )
 
   def stepRequestComputerPartitionDifferentReferenceSameTransaction(self,
       sequence, **kw):
@@ -3094,7 +3080,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
         'slap_computer_id': computer_guid,
         'slap_computer_partition_id': partition_id,
         'slap_software_release_url': software_release_uri,
-        'slap_software_type': 
+        'slap_software_type':
           sequence.get('requested_software_type',
                        'requested_software_type'),
         'slave_instance_list': [],
@@ -3194,7 +3180,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
         'slap_computer_id': computer_guid,
         'slap_computer_partition_id': partition_id,
         'slap_software_release_url': software_release_uri,
-        'slap_software_type': 
+        'slap_software_type':
           sequence.get('requested_software_type',
                        'requested_software_type'),
         'test_parameter': 'lala',
@@ -3695,7 +3681,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
           slave_instance["slap_software_type"])
 
   def stepCheckTwoSlaveInstanceListFromOneComputerPartition(self, sequence):
-    self.stepCheckSlaveInstanceListFromOneComputerPartition(sequence, 
+    self.stepCheckSlaveInstanceListFromOneComputerPartition(sequence,
         expected_amount=2)
 
   def stepCheckSlaveInstanceAccessUsingCurrentSoftwareInstanceUser(self, sequence):

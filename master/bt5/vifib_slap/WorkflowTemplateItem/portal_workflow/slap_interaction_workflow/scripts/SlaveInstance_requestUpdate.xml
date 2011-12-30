@@ -50,19 +50,22 @@
         </item>
         <item>
             <key> <string>_body</string> </key>
-            <value> <string>portal_type = context.getDeliveryPortalType()\n
-# make sure that the result of the simulation state is update to date, so check getSimulationState manually\n
-return [x.getObject() for x in context.portal_catalog(portal_type=portal_type,simulation_state=\'planned\') \n
-            if x.getObject().getSimulationState()==\'planned\']\n
+            <value> <string>portal = context.getPortalObject()\n
+count_result_kw = dict(portal_type="Sale Packing List Line",\n
+                       aggregate_uid=state_change["object"].getUid(),\n
+                       limit=1)\n
+\n
+if len(portal.portal_catalog(**count_result_kw)) == 1:\n
+  state_change[\'object\'].requestUpdateComputerPartition()\n
 </string> </value>
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>**kw</string> </value>
+            <value> <string>state_change</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>VifibDeliveryBuilder_selectPlannedDeliveryList</string> </value>
+            <value> <string>SlaveInstance_requestUpdate</string> </value>
         </item>
       </dictionary>
     </pickle>

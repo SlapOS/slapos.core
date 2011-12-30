@@ -52,31 +52,33 @@
             <key> <string>_body</string> </key>
             <value> <string encoding="cdata"><![CDATA[
 
-software_instance = state_change[\'object\']\n
-tag = "%s_destroyInProgress" % software_instance.getUid()\n
-portal = context.getPortalObject()\n
-if (portal.portal_activities.countMessageWithTag(tag) > 0):\n
-  raise ValueError("Software Instance is currently being destroyed.")\n
-# lock software instance in transaction\n
-software_instance.serialize()\n
-service_relative_url = software_instance.portal_preferences.\\\n
-                            getPreferredInstanceCleanupResource()\n
-sale_packing_list = context.SoftwareInstance_createSalePackingList(state_change, service_relative_url, tag=tag)\n
-sale_packing_list.confirm(activate_kw={\'tag\':tag})\n
+from DateTime import DateTime\n
+from Products.ERP5Type.DateUtils import getClosestDate\n
 \n
-if software_instance.getPortalType() == "Software Instance":\n
-  software_instance.SoftwareInstance_requestDestroySlaveInstanceRelated()\n
+portal = context.getPortalObject()\n
+this_month = getClosestDate(target_date=DateTime())\n
+for sale_invoice_transaction in portal.portal_catalog(\n
+  portal_type=\'Sale Invoice Transaction\',\n
+  simulation_state=\'planned\',\n
+  limit=10,\n
+  **{"delivery.start_date": \'< %s\' % this_month}\n
+):\n
+  if sale_invoice_transaction.getSimulationState() == \'planned\' and sale_invoice_transaction.getStartDate() < this_month:\n
+    # do not trust catalog\n
+    sale_invoice_transaction.confirm()\n
+    sale_invoice_transaction.start()\n
+    sale_invoice_transaction.stop()\n
 
 
 ]]></string> </value>
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>state_change</string> </value>
+            <value> <string>**kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SoftwareInstance_requestDestroy</string> </value>
+            <value> <string>Alarm_stopPlannedSaleInvoiceTransaction</string> </value>
         </item>
       </dictionary>
     </pickle>

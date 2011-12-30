@@ -220,17 +220,6 @@ class testVifibMixin(ERP5TypeTestCase):
         start_date=start_date, stop_date=stop_date)
       accounting_period.start()
 
-  def prepareTestServices(self):
-    isTransitionPossible = self.portal.portal_workflow.isTransitionPossible
-    for service in self.portal.portal_catalog(
-                                  portal_type="Service",
-                                  id="vifib_%",
-                                  ):
-
-      service = service.getObject()
-      if isTransitionPossible(service, 'validate'):
-        service.validate()
-
   def setupVifibMachineAuthenticationPlugin(self):
     """Sets up Vifib Authentication plugin"""
     pas = self.getPortal().acl_users
@@ -293,7 +282,6 @@ class testVifibMixin(ERP5TypeTestCase):
     self.setPreference()
     self.prepareTestUsers()
     self.prepareVifibAccountingPeriod()
-    self.prepareTestServices()
     transaction.commit()
     self.tic()
     self.logout()

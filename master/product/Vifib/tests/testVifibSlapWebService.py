@@ -31,7 +31,6 @@ from DateTime import DateTime
 from AccessControl.SecurityManagement import newSecurityManager
 from Products.ERP5Type.Errors import UnsupportedWorkflowMethod
 from Products.ERP5Type.tests.Sequence import SequenceList
-from Products.ERP5Type.tests.backportUnittest import expectedFailure
 from Products.ERP5Type.tests.backportUnittest import skip
 from Products.ERP5Type.tests.SecurityTestCase import AssertNoPermissionMethod, \
     AssertPermissionMethod
@@ -330,6 +329,12 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
       sequence, **kw):
     self._checkComputerPartitionSalePackingListDoesNotExists(
         self.portal.portal_preferences.getPreferredInstanceCleanupResource(),
+        sequence)
+
+  def stepCheckComputerPartitionInstanceUpdateSalePackingListConfirmed(self,
+      sequence, **kw):
+    self._checkComputerPartitionSalePackingListState('confirmed',
+        self.portal.portal_preferences.getPreferredInstanceUpdateResource(),
         sequence)
 
   def stepCheckComputerPartitionInstanceCleanupSalePackingListCancelled(self,
@@ -1080,7 +1085,10 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
       RequestComputerPartition
       Tic
       CheckRaisesNotFoundComputerPartitionParameterDict \
-      Tic \
+      LoginDefaultUser
+      ConfirmOrderedSaleOrderActiveSense
+      Tic
+      Logout
       RequestComputerPartition \
       Tic \
       SlapLogout
@@ -1095,7 +1103,10 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
       RequestComputerPartition
       Tic
       CheckRaisesNotFoundComputerPartitionParameterDict
+      LoginDefaultUser
+      ConfirmOrderedSaleOrderActiveSense
       Tic
+      Logout
       RequestComputerPartition
       Tic
       SlapLogout
@@ -1728,8 +1739,13 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
         software_type, software_type + str(1))
     second = slap_computer_partition.request(software_release,
         software_type, software_type + str(2))
+    self.stepLoginDefaultUser()
     transaction.commit()
     self.tic()
+    self.stepConfirmOrderedSaleOrderActiveSense()
+    transaction.commit()
+    self.tic()
+    self.stepLogout()
     first = slap_computer_partition.request(software_release,
         software_type, software_type + str(1))
     second = slap_computer_partition.request(software_release,
@@ -1760,21 +1776,6 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
         requested_slap_computer_partition=requested_slap_computer_partition,
         requested_computer_partition_reference=\
             requested_slap_computer_partition.getId())
-
-  def stepRequestComputerPartitionNotFoundResponse(self, sequence, **kw):
-    self.slap = slap.slap()
-    self.slap.initializeConnection(self.server_url, timeout=None)
-    slap_computer_partition = self.slap.registerComputerPartition(
-        sequence['computer_reference'],
-        sequence['computer_partition_reference'])
-    self.assertRaises(slap.NotFoundError, slap_computer_partition.request,
-      software_release=sequence['software_release_uri'],
-      software_type=sequence.get('requested_reference', 'requested_reference'),
-      partition_reference=sequence.get('requested_reference',
-        'requested_reference'),
-      partition_parameter_kw=sequence.get('requested_parameter_dict', {}),
-      filter_kw=sequence.get('requested_filter_dict', {}),
-      state=sequence.get('instance_state'))
 
   def _stepSetSoftwareInstanceChildren(self, sequence, source_reference):
     software_instance_uid = sequence['root_software_instance_uid']
@@ -1931,15 +1932,8 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
     finally:
       Base.serialize = Base.serialize_call
 
-  def stepRequestComputerComputerPartitionCheckSerializeCalledOnSelected(
+  def stepConfirmSaleOrderOrderedToCheckSerializeCalledOnSelected(
       self, sequence, **kw):
-    software_release_uri = sequence['software_release_uri']
-    requested_reference = sequence['requested_reference']
-    software_instance_uid = sequence['software_instance_uid']
-
-    # slap cannot be used to this test, as ERP5 itself shall raise
-    requester = self.portal.portal_catalog.getResultValue(
-        uid=software_instance_uid)
 
     # check that on being_requested serialise is being called
     # code stolen from testERP5Security:test_MultiplePersonReferenceConcurrentTransaction
@@ -1959,15 +1953,9 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
     Base.serialize = verify_serialize_call
 
     try:
-      self.assertRaises(DummyTestException, requester.requestSoftwareInstance,
-                        software_release=software_release_uri,
-                        partition_reference=requested_reference,
-                        software_type=requested_reference,
-                        shared=False,
-                        filter_kw={},
-                        instance_xml=self.minimal_correct_xml,
-                        sla_xml=self.minimal_correct_xml,
-                        state=None)
+      sale_order_ordered = self.portal.portal_catalog.getResultValue(
+          portal_type="Sale Order", simulation_state="ordered")
+      self.assertRaises(DummyTestException, sale_order_ordered.confirm)
     finally:
       Base.serialize = Base.serialize_call
 
@@ -3819,16 +3807,6 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
         uid=sequence["software_instance_uid"])
     slave_instance.startComputerPartition()
 
-  def stepRequestSlaveInstanceStart(self, sequence):
-    slave_instance = self.portal.portal_catalog.getResultValue(
-        uid=sequence["software_instance_uid"])
-    slave_instance.requestStartComputerPartition()
-
-  def stepRequestSlaveInstanceStop(self, sequence):
-    slave_instance = self.portal.portal_catalog.getResultValue(
-        uid=sequence["software_instance_uid"])
-    slave_instance.requestStopComputerPartition()
-
   def stepSlaveInstanceStopped(self, sequence):
     slave_instance = self.portal.portal_catalog.getResultValue(
         uid=sequence["software_instance_uid"])
@@ -4144,7 +4122,7 @@ class TestVifibSlapWebService(TestVifibSlapWebServiceMixin):
 
   def stepPersonRequestCredentialUpdate(self, sequence, **kw):
     sequence['updated_last_name'] = 'Another'
-    result = self.portal.ERP5Site_newPersonCredentialUpdate(
+    self.portal.ERP5Site_newPersonCredentialUpdate(
         first_name='Homer',
         last_name=sequence['updated_last_name'],
         reference=sequence['web_user'],

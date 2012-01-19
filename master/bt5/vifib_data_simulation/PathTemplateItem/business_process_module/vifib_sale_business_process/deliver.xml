@@ -216,7 +216,7 @@
         </item>
         <item>
             <key> <string>test_tales_expression</string> </key>
-            <value> <string>python: context.BusinessLink_testDeliveryLink(\'Delivery Root Simulation Rule\', \'Delivery Simulation Rule\')</string> </value>
+            <value> <string>python: context.BusinessLink_testDeliveryLink(\'Delivery Root Simulation Rule\', \'Delivery Simulation Rule\', \'Subscription Item Root Simulation Rule\')</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

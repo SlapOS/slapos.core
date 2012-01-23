@@ -55,8 +55,18 @@ class TestVifibSkinSelection(testVifibMixin):
     portal = self.getPortal()
     self.assertSameSet(
         [x[0] for x in portal.portal_skins.getSkinPaths()],
-        ['Cash', 'Download', 'Fiber', 'Hosting', 'KM', 'Multiflex', 'ODS', 'ODT',
-          'View']
+        [
+          'Cash',
+          'Download',
+          'Fiber',
+          'Hosting',
+          'KM',
+          'Multiflex',
+          'ODS',
+          'ODT',
+          'RSS',
+          'View',
+        ]
     )
 
   def assertSameSkinSelection(self, skin_name, selection_string_list):
@@ -159,6 +169,7 @@ erp5_payzen_secure_payment
 erp5_pdm
 erp5_project
 erp5_project_trade
+erp5_rss_core
 erp5_secure_payment
 erp5_simplified_invoicing
 erp5_software_pdm
@@ -252,6 +263,7 @@ erp5_payzen_secure_payment
 erp5_pdm
 erp5_project
 erp5_project_trade
+erp5_rss_core
 erp5_secure_payment
 erp5_simplified_invoicing
 erp5_software_pdm
@@ -345,6 +357,7 @@ erp5_payzen_secure_payment
 erp5_pdm
 erp5_project
 erp5_project_trade
+erp5_rss_core
 erp5_secure_payment
 erp5_simplified_invoicing
 erp5_software_pdm
@@ -432,6 +445,7 @@ erp5_payzen_secure_payment
 erp5_pdm
 erp5_project
 erp5_project_trade
+erp5_rss_core
 erp5_secure_payment
 erp5_simplified_invoicing
 erp5_software_pdm
@@ -518,6 +532,7 @@ erp5_payzen_secure_payment
 erp5_pdm
 erp5_project
 erp5_project_trade
+erp5_rss_core
 erp5_secure_payment
 erp5_simplified_invoicing
 erp5_software_pdm
@@ -607,6 +622,7 @@ erp5_payzen_secure_payment
 erp5_pdm
 erp5_project
 erp5_project_trade
+erp5_rss_core
 erp5_secure_payment
 erp5_simplified_invoicing
 erp5_software_pdm
@@ -697,6 +713,7 @@ erp5_payzen_secure_payment
 erp5_pdm
 erp5_project
 erp5_project_trade
+erp5_rss_core
 erp5_secure_payment
 erp5_simplified_invoicing
 erp5_software_pdm
@@ -784,6 +801,7 @@ erp5_payzen_secure_payment
 erp5_pdm
 erp5_project
 erp5_project_trade
+erp5_rss_core
 erp5_secure_payment
 erp5_simplified_invoicing
 erp5_software_pdm
@@ -870,6 +888,7 @@ erp5_payzen_secure_payment
 erp5_pdm
 erp5_project
 erp5_project_trade
+erp5_rss_core
 erp5_secure_payment
 erp5_simplified_invoicing
 erp5_software_pdm

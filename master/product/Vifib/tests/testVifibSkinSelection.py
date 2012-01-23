@@ -125,6 +125,7 @@ vifib_slap
 vifib_software_pdm
 vifib_test
 vifib_web
+vifib_web_ui_test
 erp5_km_theme
 erp5_knowledge_pad
 erp5_simulation
@@ -218,6 +219,7 @@ vifib_slap
 vifib_software_pdm
 vifib_test
 vifib_web
+vifib_web_ui_test
 erp5_free_fiber_request
 erp5_km_theme
 erp5_knowledge_pad
@@ -313,6 +315,7 @@ vifib_slap
 vifib_software_pdm
 vifib_test
 vifib_web
+vifib_web_ui_test
 erp5_km_theme
 erp5_knowledge_pad
 erp5_simulation
@@ -577,6 +580,7 @@ vifib_slap
 vifib_software_pdm
 vifib_test
 vifib_web
+vifib_web_ui_test
 erp5_free_fiber_request
 erp5_knowledge_pad
 erp5_simulation

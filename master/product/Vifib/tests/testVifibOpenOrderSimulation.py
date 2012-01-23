@@ -143,10 +143,15 @@ class TestVifibOpenOrderSimulation(TestVifibSlapWebServiceMixin):
       self.assertEqual(expected_start_date, simulation_movement.getStartDate())
       self.assertEqual(expected_stop_date, simulation_movement.getStopDate())
 
-      # not delivered yet
-      self.assertEqual(None, simulation_movement.getDelivery())
-      # packing list shall be buildable
-      self.assertTrue(simulation_movement.isBuildable())
+      # delivered already
+      self.assertNotEqual(None, simulation_movement.getDeliveryValue())
+      business_process = simulation_movement.getCausalityValue(
+        portal_type='Trade Model Path').getParentValue()
+      self.assertEqual('Sale Packing List Line', simulation_movement\
+        .getDeliveryValue().getPortalType())
+      self.assertFalse(simulation_movement.isBuildable(
+        business_link=business_process.getBusinessLinkValueList(
+          context=simulation_movement)[0]))
 
       # fetch invoice level simulation
       applied_rule_invoice_list = \
@@ -165,7 +170,9 @@ class TestVifibOpenOrderSimulation(TestVifibSlapWebServiceMixin):
       # not delivered yet
       self.assertEqual(None, simulation_movement_invoice.getDelivery())
       # invoice shall be not yet buildable
-      self.assertFalse(False, simulation_movement_invoice.isBuildable())
+      self.assertFalse(False, simulation_movement_invoice.isBuildable(
+        business_link=business_process.getBusinessLinkValueList(
+          context=simulation_movement_invoice)[0]))
 
       # check property of invoice simulation
       self.assertEquals(1.0,
@@ -226,7 +233,9 @@ class TestVifibOpenOrderSimulation(TestVifibSlapWebServiceMixin):
         # not delivered nor buildable
         self.assertEqual(None, simulation_movement_invoice_transaction\
           .getDelivery())
-        self.assertFalse(simulation_movement_invoice_transaction.isBuildable())
+        self.assertFalse(simulation_movement_invoice_transaction.isBuildable(
+          business_link=business_process.getBusinessLinkValueList(
+            context=simulation_movement_invoice_transaction)[0]))
         if "business_process_module/vifib_sale_business_process/account_credit_path" \
           in simulation_movement_invoice_transaction.getCausalityList():
             simulation_movement_invoice_transaction_credit = \
@@ -240,13 +249,15 @@ class TestVifibOpenOrderSimulation(TestVifibSlapWebServiceMixin):
       self.assertEqual(None, simulation_movement_invoice_transaction_credit\
         .getDelivery())
       self.assertFalse(simulation_movement_invoice_transaction_credit\
-        .isBuildable())
+        .isBuildable(business_link=business_process.getBusinessLinkValueList(
+          context=simulation_movement_invoice_transaction_credit)[0]))
       self.assertNotEquals(None, simulation_movement_invoice_transaction_debit)
       # not delivered nor buildable
       self.assertEqual(None, simulation_movement_invoice_transaction_debit\
         .getDelivery())
       self.assertFalse(simulation_movement_invoice_transaction_debit\
-        .isBuildable())
+        .isBuildable(business_link=business_process.getBusinessLinkValueList(
+          context=simulation_movement_invoice_transaction_debit)[0]))
 
       # check property of invoice transaction simulation
       self.assertEquals(-1.0,
@@ -337,13 +348,15 @@ class TestVifibOpenOrderSimulation(TestVifibSlapWebServiceMixin):
       self.assertEqual(None, simulation_movement_credit_payment_credit\
         .getDelivery())
       self.assertFalse(simulation_movement_credit_payment_credit\
-        .isBuildable())
+        .isBuildable(business_link=business_process.getBusinessLinkValueList(
+          context=simulation_movement_credit_payment_credit)[0]))
       self.assertNotEquals(None, simulation_movement_credit_payment_debit)
       # not delivered nor buildable
       self.assertEqual(None, simulation_movement_credit_payment_debit\
         .getDelivery())
       self.assertFalse(simulation_movement_credit_payment_debit\
-        .isBuildable())
+        .isBuildable(business_link=business_process.getBusinessLinkValueList(
+          context=simulation_movement_credit_payment_debit)[0]))
 
       # check payment level of simulation
       self.assertEquals(-1.0,

@@ -81,7 +81,7 @@ else:\n
 if context.getStartDate() is None:\n
   context.setStartDate(now)\n
 if context.getSimulationState() != \'confirmed\':\n
-  context.activate().PaymentTransaction_confirm()\n
+  context.PaymentTransaction_confirm()\n
 \n
 payzen_dict = {}\n
 payzen_dict.update(\n

@@ -69,14 +69,15 @@ transaction_id = str(portal.portal_ids.generateNewId(\n
     id_generator=\'uid\')).zfill(6)\n
 \n
 mapping_id = \'%s_%s\' % (today, transaction_id)\n
-try:\n
-  integration_site.getCategoryFromMapping(\'Causality/%s\' % mapping_id, create_mapping_line=True, create_mapping=True)\n
-except ValueError:\n
-  mapping = integration_site.Causality[mapping_id]\n
-  mapping.setDestinationReference(\'causality/%s\' % context.getRelativeUrl())\n
-else:\n
-  system_event.confirm(comment=\'Key %s already found!\' % mapping_id)\n
-  return \'There was system issue\'\n
+if integration_site.getMappingFromCategory(\'causality/%s\' % context.getRelativeUrl()) == \'Causality/%s\' % context.getRelativeUrl():\n
+  try:\n
+    integration_site.getCategoryFromMapping(\'Causality/%s\' % mapping_id, create_mapping_line=True, create_mapping=True)\n
+  except ValueError:\n
+    mapping = integration_site.Causality[mapping_id]\n
+    mapping.setDestinationReference(\'causality/%s\' % context.getRelativeUrl())\n
+  else:\n
+    system_event.confirm(comment=\'Key %s already found!\' % mapping_id)\n
+    return \'There was system issue\'\n
 \n
 if context.getStartDate() is None:\n
   context.setStartDate(now)\n

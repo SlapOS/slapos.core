@@ -64,12 +64,12 @@ system_event = portal.system_event_module.newContent(title=\'User navigation scr
 \n
 now = DateTime()\n
 today = now.toZone(\'UTC\').asdatetime().strftime(\'%Y%m%d\')\n
-transaction_id = str(portal.portal_ids.generateNewId(\n
+if integration_site.getMappingFromCategory(\'causality/%s\' % context.getRelativeUrl()) == \'Causality/%s\' % context.getRelativeUrl():\n
+  transaction_id = str(portal.portal_ids.generateNewId(\n
     id_group=\'%s_%s\' % (service.getRelativeUrl(), today),\n
     id_generator=\'uid\')).zfill(6)\n
 \n
-mapping_id = \'%s_%s\' % (today, transaction_id)\n
-if integration_site.getMappingFromCategory(\'causality/%s\' % context.getRelativeUrl()) == \'Causality/%s\' % context.getRelativeUrl():\n
+  mapping_id = \'%s_%s\' % (today, transaction_id)\n
   try:\n
     integration_site.getCategoryFromMapping(\'Causality/%s\' % mapping_id, create_mapping_line=True, create_mapping=True)\n
   except ValueError:\n
@@ -78,7 +78,9 @@ if integration_site.getMappingFromCategory(\'causality/%s\' % context.getRelativ
   else:\n
     system_event.confirm(comment=\'Key %s already found!\' % mapping_id)\n
     return \'There was system issue\'\n
-\n
+else:\n
+  mapping_id = integration_site.getMappingFromCategory(\'causality/%s\' % context.getRelativeUrl())\n
+  previous_today, transaction_id = mapping_id.split(\'_\')\n
 if context.getStartDate() is None:\n
   context.setStartDate(now)\n
 if context.getSimulationState() != \'confirmed\':\n

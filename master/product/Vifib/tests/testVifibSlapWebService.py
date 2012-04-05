@@ -177,6 +177,24 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
   ########################################
   # Steps -- scenarios
   ########################################
+  def stepCheckSoftwareInstanceNoDeliveryRelated(self, sequence, **kw):
+    self.assertEqual(None, self.portal.portal_catalog.getResultValue(
+      default_aggregate_uid=sequence['software_instance_uid'],
+      portal_type=self.sale_packing_list_line_portal_type
+    ))
+
+  def stepCheckSoftwareInstanceCancelledSaleOrderLine(self, sequence, **kw):
+    self.assertEqual('cancelled', self.portal.portal_catalog.getResultValue(
+      default_aggregate_uid=sequence['software_instance_uid'],
+      portal_type=self.sale_order_line_portal_type
+    ).getSimulationState())
+
+  def stepCheckSoftwareInstanceOrderedSaleOrderLine(self, sequence, **kw):
+    self.assertEqual('ordered', self.portal.portal_catalog.getResultValue(
+      default_aggregate_uid=sequence['software_instance_uid'],
+      portal_type=self.sale_order_line_portal_type
+    ).getSimulationState())
+
   def stepCheckOpenOrderLineRemoved(self, sequence, **kw):
     software_instance = self.portal.portal_catalog.getResultValue(
       uid=sequence['software_instance_uid'])
@@ -354,9 +372,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
         portal_type=self.software_instance_portal_type,
         title=sequence['requested_reference']):
       # only not yet destroyed ones
-      try:
-        software_instance.Item_getInstancePackingListLine(cleanup_resource)
-      except ValueError:
+      if software_instance.SoftwareInstance_getStatus() != 'Destroyed':
         software_instance_list.append(software_instance)
 
     self.assertEqual(1, len(software_instance_list))

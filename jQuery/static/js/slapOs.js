@@ -42,12 +42,15 @@
         
         request: function(type, url, callback, data){
             data = data || '';
-            $.ajax({
-                url: this.config.host+url,
+            return $.ajax({
+                url: this.store('host')+url,
                 dataType: 'json',
                 data: data,
                 context: this.$elem,
                 type: type,
+                statusCode: {
+                    0: function(){ console.log('status code 0') }
+                }
             }).done(callback).fail(this.failCallback);
         },
         
@@ -56,7 +59,7 @@
         },
         
         newInstance: function(data, callback){
-            this.request('POST', '/request', callback, data);
+            return this.request('POST', '/request', callback, data);
         },
         
         deleteInstance: function(id, callback){

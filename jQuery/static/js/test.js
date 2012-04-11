@@ -2,8 +2,32 @@ $(function(){
 
     var h = getParameterByName("login");
     var slap = new SlapOs(document, {host: h}).init();
+    
+    module("Cross-domain Tests");
+    test("200 response", function(){
+        expect(1);
+        stop(1);
+        $.ajax({
+            url: 'http://192.168.242.92:5000/200',
+            complete: function() { start(); },
+            statusCode: {
+                200: function(){ ok(true, "should get 200 status");},
+            }});
+    });
+    
+    test("404 response", function(){
+        expect(1);
+        stop(1);
+        $.ajax({
+            url: 'http://sheldy.com:5000/request',
+            complete: function() { start(); },
+            statusCode: {
+                404: function(xhr){ ok(true, "should get 404 error status status="+xhr.status); },
+                0: function(){ ok(false, "should get 404 not but receive 0"); }
+            }});
+    });
 
-    module("Ajax Tests", {
+    module("Local Ajax Tests", {
         setup: function(){
             this.server = sinon.sandbox.useFakeServer();
             this.header = {"Content-Type":"application/json; charset=utf-8"};
@@ -15,60 +39,68 @@ $(function(){
     });
 
     test("Requesting a new instance", function(){
-        expect(2);
         callback = this.spy();
-    
+        this.spy(jQuery, 'ajax');
+        
+        url = "/request";
         responseBody = [{instance_id: "anId",status: "started",connection: {}}];
         response = [201, this.header, JSON.stringify(responseBody)];
-        this.server.respondWith("POST", "/request", response);
+        this.server.respondWith("POST", url, response);
         
         slap.newInstance('', callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+url);
         ok(callback.calledOnce, "callback should be called");
         ok(callback.calledWith(responseBody), 'should return mainly id and status of an instance');
     });
     
     test("Requesting a new instance - Fail", function(){
-        expect(1);
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
-        this.server.respondWith("POST", "/request", this.error);
+        url = "/request";
+        this.server.respondWith("POST", url, this.error);
         
         slap.newInstance('', callback);
         this.server.respond();
 
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+url);
         ok(!callback.calledOnce, "callback should not be called");
     });
     
     test("Deleting an instance", function(){
-        expect(1);
         callback = this.spy();
-        
+        this.spy(jQuery, 'ajax');
+
         response = [202, this.header, ''];
         this.server.respondWith("DELETE", /\/instance\/(\w+)/, response);
         
         slap.deleteInstance('id', callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/instance/id');
         ok(callback.calledOnce, "callback should be called");
     });
 
     test("Deleting an instance - Fail", function(){
-        expect(1);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         this.server.respondWith("DELETE", /\/instance\/(\w+)/, this.error);
         
         slap.deleteInstance('id', callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/instance/id');
         ok(!callback.calledOnce, "callback should not be called");
     });
     
     test("Get instance information", function(){
-        expect(2);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         responseBody = [{instance_id: "anId", status: "start", software_release: "http://example.com/example.cfg",
                         software_type: "type_provided_by_the_software", slave: "False", connection: {
@@ -86,25 +118,29 @@ $(function(){
         slap.getInstance('id', callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/instance/id');
         ok(callback.calledOnce, "callback should be call");
         ok(callback.calledWith(responseBody), "should return informations of an instance");
     });
 
     test("Get instance information - Fail", function(){
-        expect(1);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         this.server.respondWith("GET", /\/instance\/(\w+)/, this.error);
         
         slap.getInstance('id', callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/instance/id');
         ok(!callback.calledOnce, "callback should not be called");
     });
 
     test("Get instance authentication certificates", function(){
-        expect(2);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         responseBody = [{ ssl_key: "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADAN...h2VSZRlSN\n-----END PRIVATE KEY-----",
                           ssl_certificate: "-----BEGIN CERTIFICATE-----\nMIIEAzCCAuugAwIBAgICHQI...ulYdXJabLOeCOA=\n-----END CERTIFICATE-----",}];
@@ -114,25 +150,29 @@ $(function(){
         slap.getInstanceCert('id', callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/instance/id/certificate');
         ok(callback.calledOnce, "callback call");
         ok(callback.calledWith(responseBody));
     });
 
     test("Get instance authentication certificates - Fail", function(){
-        expect(1);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         this.server.respondWith("GET", /\/instance\/(\w+)\/certificate/, this.error);
         
         slap.getInstanceCert('id', callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/instance/id/certificate');
         ok(!callback.calledOnce, "callback should not be called");
     });
     
     test("Bang instance", function(){
-        expect(1);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         response = [200, this.header, ''];
         this.server.respondWith("POST", /\/instance\/(\w+)\/bang/, response);
@@ -141,24 +181,28 @@ $(function(){
         slap.bangInstance('id', data, callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/instance/id/bang');
         ok(callback.calledOnce, "callback should be called");
     });
 
     test("Bang instance - Fail", function(){
-        expect(1);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         this.server.respondWith("POST", /\/instance\/(\w+)\/bang/, this.error);
         
         slap.bangInstance('id', data, callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/instance/id/bang');
         ok(!callback.calledOnce, "callback should not be called");
     });
     
     test("Modifying instance", function(){
-        expect(1);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         response = [200, this.header, ''];
         this.server.respondWith("PUT", /\/instance\/(\w+)/, response);
@@ -167,24 +211,28 @@ $(function(){
         slap.editInstance('id', data, callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/instance/id');
         ok(callback.calledOnce, "callback should be called");
     });
 
     test("Modifying instance - Fail", function(){
-        expect(1);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         this.server.respondWith("PUT", /\/instance\/(\w+)/, this.error);
         
         slap.editInstance('id', '', callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/instance/id');
         ok(!callback.calledOnce, "callback should not be called");
     });
     
     test("Register a new computer", function(){
-        expect(2);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         responseBody = [{computer_id: "COMP-0",
                         ssl_key: "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADAN...h2VSZRlSN\n-----END PRIVATE KEY-----",
@@ -195,25 +243,29 @@ $(function(){
         slap.newComputer('', callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/computer');
         ok(callback.calledOnce, "callback should be called");
         ok(callback.calledWith(responseBody), "should return a computerID, ssl key and ssl certificates");
     });
 
     test("Register a new computer - Fail", function(){
-        expect(1);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         this.server.respondWith("POST", "/computer", this.error);
         
         slap.newComputer('', callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/computer');
         ok(!callback.calledOnce, "callback should not be called");
     });
     
     test("Getting computer information", function(){
-        expect(2);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         responseBody = [{computer_id: "COMP-0",
                         software: [{software_release: "http://example.com/example.cfg",
@@ -228,77 +280,88 @@ $(function(){
         slap.getComputer('id', callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/computer/id');
         ok(callback.calledOnce, "callback should be called");
         ok(callback.calledWith(responseBody), "should return informations of a computer");
     });
 
     test("Getting computer information - Fail", function(){
-        expect(1);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         this.server.respondWith("GET", /\/computer\/(\w+)/, this.error);
         
         slap.getComputer('id', callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/computer/id');
         ok(!callback.calledOnce, "callback should not be called");
     });
     
     test("Modifying computer", function(){
-        expect(1);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         response = [200, this.header, ''];
         this.server.respondWith("PUT", /\/computer\/(\w+)/, response);
         
-        data = '';
-        slap.editComputer('id', data, callback);
+        slap.editComputer('id', '', callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/computer/id');
         ok(callback.calledOnce, "callback should be called");
     });
     
     test("Modifying computer - Fail", function(){
-        expect(1);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         this.server.respondWith("PUT", /\/computer\/(\w+)/, this.error);
         
         slap.editComputer('id', '', callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/computer/id');
         ok(!callback.calledOnce, "callback should not be called");
     });
 
     test("Supplying new software", function(){
-        expect(1);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         response = [200, this.header, ''];
         this.server.respondWith("POST", /\/computer\/(\w+)\/supply/, response);
         
         data = '';
-        slap.newSoftware('computerId', data, callback);
+        slap.newSoftware('id', data, callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/computer/id/supply');
         ok(callback.calledOnce, "callback should be called");
     });
 
     test("Supplying new software - Fail", function(){
-        expect(1);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         this.server.respondWith("POST", /\/computer\/(\w+)\/supply/, this.error);
         
-        slap.newSoftware('computerId', '', callback);
+        slap.newSoftware('id', '', callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/computer/id/supply');
         ok(!callback.calledOnce, "callback should not be called");
     });
     
     test("Bang computer", function(){
-        expect(1);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         response = [200, this.header, ''];
         this.server.respondWith("POST", /\/computer\/(\w+)\/bang/, response);
@@ -307,24 +370,28 @@ $(function(){
         slap.bangComputer('id', data, callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/computer/id/bang');
         ok(callback.calledOnce, "callback should be called");
     });
 
     test("Bang computer - Fail", function(){
-        expect(1);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         this.server.respondWith("POST", /\/computer\/(\w+)\/bang/, this.error);
         
         slap.bangComputer('id', '', callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/computer/id/bang');
         ok(!callback.calledOnce, "callback should not be called");
     });
     
     test("Report computer usage", function(){
-        expect(1);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         response = [200, this.header, ''];
         this.server.respondWith("POST", /\/computer\/(\w+)\/report/, response);
@@ -333,18 +400,21 @@ $(function(){
         slap.computerReport('id', data, callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/computer/id/report');
         ok(callback.calledOnce, "callback call");
     });
     
     test("Report computer usage - Fail", function(){
-        expect(1);
+        
         callback = this.spy();
+        this.spy(jQuery, 'ajax');
         
         this.server.respondWith("POST", /\/computer\/(\w+)\/report/, this.error);
         
         slap.computerReport('id', '', callback);
         this.server.respond();
         
+        equal(jQuery.ajax.getCall(0).args[0].url, slap.store('host')+'/computer/id/report');
         ok(!callback.calledOnce, "callback should not be called");
     });
     

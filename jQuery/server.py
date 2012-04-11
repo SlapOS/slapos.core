@@ -4,15 +4,11 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return "index"
-    
-@app.route('/test-mobile')
-def test():
-    return render_template('test-mobile.html')
+    return render_template("slapos.html")
 
 @app.route('/request', methods=["POST", "GET"]) 
 def request():
-    response = make_response("HELLO", 409)
+    response = make_response("HELLO", 408)
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = '*'
     return response

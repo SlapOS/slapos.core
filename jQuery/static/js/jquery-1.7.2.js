@@ -7420,6 +7420,7 @@ jQuery.extend({
 					if ( state === 2 ) {
 						if ( !responseHeaders ) {
 							responseHeaders = {};
+							console.log(responseHeadersString);
 							while( ( match = rheaders.exec( responseHeadersString ) ) ) {
 								responseHeaders[ match[1].toLowerCase() ] = match[ 2 ];
 							}
@@ -7483,7 +7484,6 @@ jQuery.extend({
 				response = responses ? ajaxHandleResponses( s, jqXHR, responses ) : undefined,
 				lastModified,
 				etag;
-
 			// If successful, handle type chaining
 			if ( status >= 200 && status < 300 || status === 304 ) {
 

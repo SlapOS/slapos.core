@@ -1,4 +1,4 @@
-(function(window, $) {
+;(function($, window, document, undefined) {
     var SlapOs = function(elem, options){
         this.elem = elem;
         this.$elem = $(elem);
@@ -7,25 +7,52 @@
     };
     
     SlapOs.prototype = {
-        host: '',
+        defaults: {
+            host: ''
+        },
         
         init: function(){
-            this.config = $.extends({}, this.defaults, this.options, this.metadata);
+            this.config = $.extend({}, this.defaults, this.options, this.metadata);
+            this.store = Modernizr.localstorage ? this.lStore : this.cStore;
+            this.store('host', this.config.host);
             return this;
+        },
+        
+        /* Local storage method */
+        lStore: function(name, value){
+            if(Modernizr.localstorage)
+                return value == undefined ? window.localStorage[name] : window.localStorage[name] = value;
+            return false;
+        },
+        
+        /* Cookie storage method */
+        cStore: function(name, value){
+            if(value != undefined){
+                document.cookie = name+"="+value+";domain="+window.location.hostname+";path="+window.location.pathname;
+            }else{
+                var i,x,y, cookies = document.cookie.split(';');
+                for(i=0; i<cookies.length; i++){
+                    x = cookies[i].substr(0, cookies[i].indexOf('='));
+                    y = cookies[i].substr(cookies[i].indexOf('=')+1);
+                    x=x.replace(/^\s+|\s+$/g,"");
+                    if(x == name) return unescape(y);
+                }
+            }
         },
         
         request: function(type, url, callback, data){
             data = data || '';
-            return $.ajax({
-                url: this.host+url,
+            $.ajax({
+                url: this.config.host+url,
                 dataType: 'json',
                 data: data,
+                context: this.$elem,
                 type: type,
-                statusCode: {
-                    409: function(){console.log('Status Code : 409')},
-                },
-                success: function(data){ callback(data); }
-            });
+            }).done(callback).fail(this.failCallback);
+        },
+        
+        failCallback: function(jqXHR, textStatus){
+            //console.log(jqXHR);
         },
         
         newInstance: function(data, callback){
@@ -84,4 +111,5 @@
     };
     
     window.SlapOs = SlapOs;
-})(window, jQuery);
+
+})(jQuery, window , document);

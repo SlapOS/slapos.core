@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_body</string> </key>
-            <value> <string>context.getPortalObject().portal_workflow.doActionFor(context, \'start_action\', comment=\'Started automatically on Payzen Update\')\n
+            <value> <string>context.getPortalObject().portal_workflow.doActionFor(context, \'start_action\', comment=\'Transaction confirmed to exists on PayZen side\')\n
 </string> </value>
         </item>
         <item>

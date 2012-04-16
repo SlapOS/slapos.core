@@ -50,16 +50,24 @@
         </item>
         <item>
             <key> <string>_body</string> </key>
-            <value> <string>context.getPortalObject().portal_workflow.doActionFor(context, \'confirm_action\', comment=\'Transaction waiting for update from PayZen\')\n
+            <value> <string>portal = context.getPortalObject()\n
+portal.portal_catalog.searchAndActivate(\n
+      portal_type="Payment Transaction", \n
+      simulation_state=["confirmed", "started"],\n
+      method_id=\'PaymentTransaction_updateStatus\',\n
+      packet_size=1, # just one to minimise errors\n
+      activate_kw={\'tag\': tag}\n
+      )\n
+context.activate(after_tag=tag).getId()\n
 </string> </value>
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string></string> </value>
+            <value> <string>tag, fixit, params</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>PaymentTransaction_confirm</string> </value>
+            <value> <string>Alarm_updatePayzenConfirmedStartedPaymentTransaction</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -97,7 +97,9 @@ if transaction_status in mark_transaction_id_list:\n
   payzen_event.confirm()\n
   payzen_event.acknowledge(comment=\'Automatic acknowledge as result of correct communication\')\n
   if transaction.getSimulationState() == \'planned\':\n
-    transaction.PaymentTransaction_confirm()\n
+    transaction.confirm()\n
+  if transaction.getSimulationState() == \'confirmed\':\n
+    transaction.PaymentTransaction_start()\n
 \n
 elif transaction_status in continue_transaction_id_list:\n
   # Check authAmount and authDevise and if match, start transaction\n
@@ -111,7 +113,9 @@ elif transaction_status in continue_transaction_id_list:\n
   if transaction_devise != auth_devise:\n
     payzen_event.confirm(comment=\'Received devise (%r) does not match stored on transaction (%r)\'% (auth_devise, transaction_devise))\n
     return\n
-  transaction.PaymentTransaction_start()\n
+  if transaction.getSimulationState() == \'planned\':\n
+    transaction.confirm()\n
+  transaction.PaymentTransaction_stop()\n
   payzen_event.confirm()\n
   payzen_event.acknowledge(comment=\'Automatic acknowledge as result of correct communication\')\n
 else:\n

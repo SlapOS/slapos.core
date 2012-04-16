@@ -50,20 +50,16 @@
         </item>
         <item>
             <key> <string>_body</string> </key>
-            <value> <string>person = context.ERP5Site_getAuthenticatedMemberPersonValue()\n
-\n
-payment_amount = context.portal_catalog.countResults(\n
-  portal_type=\'Payment Transaction\',\n
-  default_destination_section_uid=person.getUid()\n
-)[0][0]\n
+            <value> <string>person = context\n
 \n
 payment_transaction = context.portal_catalog.getResultValue(\n
   portal_type=\'Payment Transaction\',\n
   simulation_state=[\'planned\', \'confirmed\'],\n
-  default_destination_section_uid=person.getUid()\n
+  default_destination_section_uid=person.getUid(),\n
+  sort_on=((\'creation_date\', \'ASC\'), )\n
 )\n
 \n
-if payment_amount == 1 and payment_transaction is not None and payment_transaction.getSimulationState() in [\'planned\', \'confirmed\']:\n
+if payment_transaction is not None and payment_transaction.getSimulationState() in [\'planned\', \'confirmed\']:\n
   return payment_transaction\n
 return None\n
 </string> </value>
@@ -74,7 +70,7 @@ return None\n
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ERP5Site_getInitialPlannedPaymentTransaction</string> </value>
+            <value> <string>Person_getOutstandingPayment</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -99,7 +99,6 @@ class testVifibMixin(ERP5TypeTestCase):
       'vifib_base',
       'vifib_open_trade',
       'vifib_slap',
-      'vifib_crm',
       'vifib_forge_release',
       'vifib_software_pdm',
       'vifib_web',
@@ -202,16 +201,6 @@ class testVifibMixin(ERP5TypeTestCase):
       self.portal._p_changed = 1
       transaction.commit()
 
-  def setPreference(self):
-    # Enable default preference
-    preference = self.portal.portal_preferences.default_site_preference
-    # XXX-Luke: checking for preference state is no op (in such early state
-    # this preference is disabled anyway), but in my environment enable does
-    # not work, UNTIL getPreferenceState is called. Possibly cache/
-    # /configuration issue, to be checked later
-    if preference.getPreferenceState() == 'disabled':
-      preference.enable()
-
   def getDefaultSitePreferenceId(self):
     """Default id, usefull method to override
     """
@@ -312,7 +301,6 @@ class testVifibMixin(ERP5TypeTestCase):
     self.login()
     self.setupVifibMachineAuthenticationPlugin()
     self.setupVifibShadowAuthenticationPlugin()
-    self.setPreference()
     self.prepareTestUsers()
     self.prepareVifibAccountingPeriod()
     transaction.commit()

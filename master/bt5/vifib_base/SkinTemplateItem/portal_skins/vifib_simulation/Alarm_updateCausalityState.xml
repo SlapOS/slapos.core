@@ -50,36 +50,27 @@
         </item>
         <item>
             <key> <string>_body</string> </key>
-            <value> <string>if related_simulation_movement_path_list is None:\n
-  raise RuntimeError, \'related_simulation_movement_path_list is missing. Update ERP5 Product.\'\n
-\n
-from Products.ERP5Type.Message import translateString\n
-\n
-packing_list = context\n
-\n
-try:\n
-  packing_list.PackingList_copyOrderProperties()\n
-except AttributeError:\n
-  # does not come from Order\n
-  pass\n
-\n
-# Then, modify state\n
-confirm_tag = \'%s_confirm\' % packing_list.getPath()\n
-packing_list.activate(after_path_and_method_id=(related_simulation_movement_path_list,\n
-  (\'immediateReindexObject\',\'recursiveImmediateReindexObject\')),\n
-  tag=confirm_tag).Delivery_confirm()\n
-\n
-# First set the packing_list in the building state\n
-packing_list.startBuilding()\n
+            <value> <string>portal = context.getPortalObject()\n
+activate_kw = {\n
+  \'tag\': tag\n
+}\n
+portal.portal_catalog.searchAndActivate(\n
+  portal_type=portal.getPortalDeliveryTypeList(),\n
+  causality_state=(\'building\', \'calculating\'),\n
+  activate_kw=activate_kw,\n
+  packet_size=1, # Separate calls to many transactions\n
+  method_id=\'Delivery_updateCausalityState\'\n
+)\n
+context.activate(after_tag=tag).getId()\n
 </string> </value>
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>related_simulation_movement_path_list=None</string> </value>
+            <value> <string>tag, fixit, params</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>VifibSalePackingList_postGeneration</string> </value>
+            <value> <string>Alarm_updateCausalityState</string> </value>
         </item>
       </dictionary>
     </pickle>

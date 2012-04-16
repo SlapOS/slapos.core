@@ -50,36 +50,60 @@
         </item>
         <item>
             <key> <string>_body</string> </key>
-            <value> <string>if related_simulation_movement_path_list is None:\n
-  raise RuntimeError, \'related_simulation_movement_path_list is missing. Update ERP5 Product.\'\n
+            <value> <string encoding="cdata"><![CDATA[
+
+portal = context.getPortalObject()\n
 \n
-from Products.ERP5Type.Message import translateString\n
+activate_kw = {\n
+  \'tag\': tag\n
+}\n
+simulation_state_list = portal.getPortalCurrentInventoryStateList() + \\\n
+  portal.getPortalTransitInventoryStateList() + portal.getPortalPlannedOrderStateList() + \\\n
+  portal.getPortalReservedInventoryStateList() + portal.getPortalFutureInventoryStateList()\n
+kw = dict(\n
+  portal_type_list=[\'Sale Packing List Line\', \'Invoice Line\', \'Accounting Transaction Line\', \'Sale Invoice Transaction Line\'],\n
+  simulation_state_list=simulation_state_list,\n
+  base_category_uid=portal.portal_categories.delivery.getUid()\n
+)\n
+path_list = set()\n
 \n
-packing_list = context\n
+for q in portal.Base_getNotCategoryRelatedList(**kw):\n
+  path_list.add(q.getPath())\n
 \n
-try:\n
-  packing_list.PackingList_copyOrderProperties()\n
-except AttributeError:\n
-  # does not come from Order\n
-  pass\n
+for q in portal.Base_getNotSynchronisedSimulationStateCategoryRelatedList(**kw):\n
+  path_list.add(q.getPath())\n
 \n
-# Then, modify state\n
-confirm_tag = \'%s_confirm\' % packing_list.getPath()\n
-packing_list.activate(after_path_and_method_id=(related_simulation_movement_path_list,\n
-  (\'immediateReindexObject\',\'recursiveImmediateReindexObject\')),\n
-  tag=confirm_tag).Delivery_confirm()\n
+# and all invoice lines and and transcation lines in confirmed state\n
+# XXX: We do simple version, and in Vifib confirmed ones can be often expanded, as it is short living state\n
 \n
-# First set the packing_list in the building state\n
-packing_list.startBuilding()\n
-</string> </value>
+for q in portal.portal_catalog(portal_type=\'Invoice Line\', simulation_state=\'confirmed\'):\n
+  if q.getSimulationState() == \'confirmed\':\n
+    path_list.add(q.getPath())\n
+path_list = list(path_list)\n
+\n
+if len(path_list) > 0:\n
+  portal.portal_catalog.searchAndActivate(\n
+    path=path_list,\n
+    packet_size=1, # Separate calls to many transactions\n
+    activate_kw=activate_kw,\n
+    method_id=\'DeliveryLine_updateAppliedRule\',\n
+    method_kw={\'activate_kw\': activate_kw, \'kw\': {\'activate_kw\': activate_kw}},\n
+  )\n
+\n
+  # register activity on alarm object waiting for own tag in order to have only one alarm\n
+  # running in same time\n
+  context.activate(after_tag=tag).getId()\n
+
+
+]]></string> </value>
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>related_simulation_movement_path_list=None</string> </value>
+            <value> <string>tag, fixit, params</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>VifibSalePackingList_postGeneration</string> </value>
+            <value> <string>Alarm_expandDeliveryLine</string> </value>
         </item>
       </dictionary>
     </pickle>

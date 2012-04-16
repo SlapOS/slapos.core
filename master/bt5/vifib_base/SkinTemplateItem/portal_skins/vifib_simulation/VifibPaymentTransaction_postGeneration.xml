@@ -61,10 +61,6 @@ if payment_transaction.getSimulationState() == "draft":\n
 # First set the payment transaction in the building state on the causality workflow\n
 payment_transaction.startBuilding()\n
 \n
-# Then an activity should put the causality state in diverged or solved\n
-payment_transaction.activate(after_path_and_method_id=(related_simulation_movement_path_list,\n
-  (\'immediateReindexObject\',\'recursiveImmediateReindexObject\'))).updateCausalityState()\n
-\n
 # update casuality from movements\n
 causality_list = payment_transaction.getCausalityList()\n
 causality_list.sort()\n

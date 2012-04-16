@@ -50,53 +50,28 @@
         </item>
         <item>
             <key> <string>_body</string> </key>
-            <value> <string># TODO: Return configured web page in case of system issues.\n
-from DateTime import DateTime\n
-portal = context.getPortalObject()\n
-service = portal.portal_secure_payments.find()\n
+            <value> <string>from DateTime import DateTime\n
+transaction = context\n
+portal = transaction.getPortalObject()\n
 integration_site = portal.restrictedTraverse(portal.portal_preferences.getPreferredPayzenIntegrationSite())\n
-system_event_kw = {\n
-  \'portal_type\': \'Payzen Event\',\n
-  \'source_value\': service,\n
-  \'destination_value\': context,\n
-}\n
-system_event = portal.system_event_module.newContent(title=\'User navigation script\', **system_event_kw)\n
-\n
-now = DateTime()\n
-today = now.toZone(\'UTC\').asdatetime().strftime(\'%Y%m%d\')\n
-if integration_site.getMappingFromCategory(\'causality/%s\' % context.getRelativeUrl()) == \'Causality/%s\' % context.getRelativeUrl():\n
-  transaction_id = str(portal.portal_ids.generateNewId(\n
-    id_group=\'%s_%s\' % (service.getRelativeUrl(), today),\n
-    id_generator=\'uid\')).zfill(6)\n
-\n
-  mapping_id = \'%s_%s\' % (today, transaction_id)\n
-  try:\n
-    integration_site.getCategoryFromMapping(\'Causality/%s\' % mapping_id, create_mapping_line=True, create_mapping=True)\n
-  except ValueError:\n
-    mapping = integration_site.Causality[mapping_id]\n
-    mapping.setDestinationReference(\'causality/%s\' % context.getRelativeUrl())\n
-  else:\n
-    system_event.confirm(comment=\'Key %s already found!\' % mapping_id)\n
-    return \'There was system issue\'\n
-else:\n
-  mapping_id = integration_site.getMappingFromCategory(\'causality/%s\' % context.getRelativeUrl())\n
-  previous_today, transaction_id = mapping_id.split(\'_\')\n
-if context.getStartDate() is None:\n
-  context.setStartDate(now)\n
-if context.getSimulationState() != \'confirmed\':\n
-  context.PaymentTransaction_confirm()\n
-\n
-payzen_dict = {}\n
-payzen_dict.update(\n
-  vads_currency=integration_site.getMappingFromCategory(\'resource/currency_module/%s\' % context.getResourceReference()).split(\'/\')[-1],\n
-  vads_amount=str(int(round((context.PaymentTransaction_getTotalPayablePrice() * -100), 0))),\n
-  vads_trans_date=now.toZone(\'UTC\').asdatetime().strftime(\'%Y%m%d%H%M%S\'),\n
-  vads_trans_id=transaction_id,\n
-  vads_language=\'en\',\n
+state_list = portal.getPortalCurrentInventoryStateList() + portal.getPortalTransitInventoryStateList()\n
+previous_transaction = portal.portal_catalog.getResultValue(\n
+  destination_section_uid = transaction.getDestinationSectionUid(),\n
+  portal_type=transaction.getPortalType(),\n
+  simulation_state=state_list,\n
+  sort_on=((\'delivery.start_date\', \'DESC\'),),\n
+  limit=1,\n
 )\n
-system_event.confirm()\n
-system_event.acknowledge(comment=\'Automatic acknowledge as result of correct communication\')\n
-return service.navigate(page_template=\'payzen_payment\', pay=\'Click to pay\', payzen_dict=payzen_dict)\n
+\n
+if previous_transaction is None:\n
+  return None\n
+\n
+previous_id = None\n
+possible_previous_id =  integration_site.getMappingFromCategory(\'causality/%s\' % previous_transaction.getRelativeUrl())\n
+if possible_previous_id != \'Causality/%s\' % transaction.getRelativeUrl():\n
+  previous_id = possible_previous_id.split(\'/\')[1]\n
+\n
+return previous_id\n
 </string> </value>
         </item>
         <item>
@@ -105,7 +80,7 @@ return service.navigate(page_template=\'payzen_payment\', pay=\'Click to pay\', 
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>AccountingTransaction_startPayment</string> </value>
+            <value> <string>PaymentTransaction_getPreviousPayzenId</string> </value>
         </item>
       </dictionary>
     </pickle>

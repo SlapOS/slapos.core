@@ -50,16 +50,24 @@
         </item>
         <item>
             <key> <string>_body</string> </key>
-            <value> <string>context.getPortalObject().portal_workflow.doActionFor(context, \'start_action\', comment=\'Transaction confirmed to exists on PayZen side\')\n
+            <value> <string>if simulation_state_list is None:\n
+  simulation_state_list = [\'planned\', \'confirmed\', \'started\', \'stopped\', \'delivered\']\n
+person = context\n
+\n
+return context.portal_catalog.countResults(\n
+  portal_type=\'Payment Transaction\',\n
+  simulation_state=simulation_state_list,\n
+  default_destination_section_uid=person.getUid(),\n
+)[0][0]\n
 </string> </value>
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string></string> </value>
+            <value> <string>simulation_state_list=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>PaymentTransaction_start</string> </value>
+            <value> <string>Person_countPayment</string> </value>
         </item>
       </dictionary>
     </pickle>

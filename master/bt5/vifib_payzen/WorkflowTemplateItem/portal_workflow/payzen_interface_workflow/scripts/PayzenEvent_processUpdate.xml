@@ -98,11 +98,9 @@ if transaction_status in mark_transaction_id_list:\n
   payzen_event.acknowledge(comment=\'Automatic acknowledge as result of correct communication\')\n
   if transaction.getSimulationState() == \'planned\':\n
     transaction.confirm()\n
-  if transaction.getSimulationState() == \'confirmed\':\n
-    transaction.PaymentTransaction_start()\n
 \n
 elif transaction_status in continue_transaction_id_list:\n
-  # Check authAmount and authDevise and if match, start transaction\n
+  # Check authAmount and authDevise and if match, stop transaction\n
   auth_amount = int(data_kw[\'authAmount\'])\n
   auth_devise = data_kw[\'authDevise\']\n
   transaction_amount = int(round((transaction.PaymentTransaction_getTotalPayablePrice() * -100), 2))\n

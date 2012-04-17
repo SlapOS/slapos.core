@@ -89,7 +89,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Register planned Payment Transaction in payzen</string> </value>
+            <value> <string>Register planned Payment Transaction in PayZen</string> </value>
         </item>
       </dictionary>
     </pickle>

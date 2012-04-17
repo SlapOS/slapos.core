@@ -53,24 +53,34 @@
             <value> <string># TODO: Return configured web page in case of system issues.\n
 from DateTime import DateTime\n
 portal = context.getPortalObject()\n
+service = portal.portal_secure_payments.find()\n
+integration_site = portal.restrictedTraverse(portal.portal_preferences.getPreferredPayzenIntegrationSite())\n
+\n
+if context.getSimulationState() != \'planned\':\n
+  message = context.Base_translateString("Payment already registered.")\n
+  return context.getWebSiteValue().Base_redirect(keep_items={\'portal_status_message\': message})\n
 \n
 previous_id = context.PaymentTransaction_getPreviousPayzenId()\n
 \n
-if context.getSimulationState() == \'planned\' and previous_id is not None:\n
-  # och, it was possible to register this transaction\n
+now = DateTime()\n
+today = now.toZone(\'UTC\').asdatetime().strftime(\'%Y%m%d\')\n
+current_today = today\n
+transaction_id = None\n
+current_id = None\n
+if integration_site.getMappingFromCategory(\'causality/%s\' % context.getRelativeUrl()) != \'Causality/%s\' % context.getRelativeUrl():\n
+  current_id = integration_site.getMappingFromCategory(\'causality/%s\' % context.getRelativeUrl())\n
+  current_today, transaction_id = current_id.split(\'_\')\n
+\n
+\n
+if transaction_id is not None:\n
+  context.PaymentTransaction_updateStatus()\n
+elif previous_id is not None:\n
   context.PaymentTransaction_registerPayzen()\n
-  message = context.Base_translateString("Payment was automatically registered to PayZen system.")\n
-  return context.getWebSiteValue().Base_redirect(keep_items={\'portal_status_message\': message})\n
 \n
 if context.getSimulationState() == \'confirmed\':\n
-  # let\'s try to update state\n
-  context.PaymentTransaction_updateStatus()\n
-  if context.getSimulationState() == \'started\':\n
-    message = context.Base_translateString("Payment was automatically registered to PayZen system.")\n
-    return context.getWebSiteValue().Base_redirect(keep_items={\'portal_status_message\': message})\n
-\n
-service = portal.portal_secure_payments.find()\n
-integration_site = portal.restrictedTraverse(portal.portal_preferences.getPreferredPayzenIntegrationSite())\n
+  message = context.Base_translateString("Payment was automatically registered to PayZen system.")\n
+  return context.getWebSiteValue().Base_redirect(keep_items={\'portal_status_message\': message})\n
+  \n
 system_event_kw = {\n
   \'portal_type\': \'Payzen Event\',\n
   \'source_value\': service,\n
@@ -78,15 +88,8 @@ system_event_kw = {\n
 }\n
 system_event = portal.system_event_module.newContent(title=\'User navigation script\', **system_event_kw)\n
 \n
-now = DateTime()\n
-today = now.toZone(\'UTC\').asdatetime().strftime(\'%Y%m%d\')\n
-previous_today = today\n
-if integration_site.getMappingFromCategory(\'causality/%s\' % context.getRelativeUrl()) != \'Causality/%s\' % context.getRelativeUrl():\n
-  mapping_id = integration_site.getMappingFromCategory(\'causality/%s\' % context.getRelativeUrl())\n
-  previous_today, transaction_id = mapping_id.split(\'_\')\n
-\n
-\n
-if today != previous_today or integration_site.getMappingFromCategory(\'causality/%s\' % context.getRelativeUrl()) == \'Causality/%s\' % context.getRelativeUrl():\n
+if today != current_today or integration_site.getMappingFromCategory(\'causality/%s\' % context.getRelativeUrl()) == \'Causality/%s\' % context.getRelativeUrl():\n
+  # new or too old transaction\n
   transaction_id = str(portal.portal_ids.generateNewId(\n
     id_group=\'%s_%s\' % (service.getRelativeUrl(), today),\n
     id_generator=\'uid\')).zfill(6)\n
@@ -97,14 +100,15 @@ if today != previous_today or integration_site.getMappingFromCategory(\'causalit
   except ValueError:\n
     mapping = integration_site.Causality[mapping_id]\n
     mapping.setDestinationReference(\'causality/%s\' % context.getRelativeUrl())\n
+    if current_today != today:\n
+      # Cleanup as integration site does not support multiple mappings to with external site\n
+      integration_site.Causality.deleteContent(current_id.split(\'/\')[1])\n
   else:\n
     system_event.confirm(comment=\'Key %s already found!\' % mapping_id)\n
     return \'There was system issue\'\n
 \n
 context.setStartDate(now)\n
-if context.getSimulationState() != \'confirmed\':\n
-  context.PaymentTransaction_confirm()\n
-\n
+context.updateCausalityState()\n
 payzen_dict = {}\n
 payzen_dict.update(\n
   vads_currency=integration_site.getMappingFromCategory(\'resource/currency_module/%s\' % context.getResourceReference()).split(\'/\')[-1],\n

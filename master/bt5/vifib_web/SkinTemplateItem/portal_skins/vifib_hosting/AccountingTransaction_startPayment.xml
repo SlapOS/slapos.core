@@ -55,13 +55,19 @@ from DateTime import DateTime\n
 portal = context.getPortalObject()\n
 \n
 previous_id = context.PaymentTransaction_getPreviousPayzenId()\n
+\n
 if context.getSimulationState() == \'planned\' and previous_id is not None:\n
   # och, it was possible to register this transaction\n
   context.PaymentTransaction_registerPayzen()\n
   message = context.Base_translateString("Payment was automatically registered to PayZen system.")\n
   return context.getWebSiteValue().Base_redirect(keep_items={\'portal_status_message\': message})\n
 \n
-# XXX: Support confirmed state similary\n
+if context.getSimulationState() == \'confirmed\':\n
+  # let\'s try to update state\n
+  context.PaymentTransaction_updateStatus()\n
+  if context.getSimulationState() == \'started\':\n
+    message = context.Base_translateString("Payment was automatically registered to PayZen system.")\n
+    return context.getWebSiteValue().Base_redirect(keep_items={\'portal_status_message\': message})\n
 \n
 service = portal.portal_secure_payments.find()\n
 integration_site = portal.restrictedTraverse(portal.portal_preferences.getPreferredPayzenIntegrationSite())\n

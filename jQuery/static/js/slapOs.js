@@ -39,71 +39,73 @@
                 }
             }
         },
+
+        statusDefault: function(){
+            return {
+                0: function(){ console.error("status error code: 0"); },
+                404: function(){ console.error("status error code: Not Found !"); }
+            }
+        },
         
-        request: function(type, url, callback, data){
+        request: function(type, url, callback, statusEvent, data){
             data = data || '';
+            statusEvent = statusEvent || this.statusDefault;
             return $.ajax({
                 url: this.store('host')+url,
                 dataType: 'json',
                 data: data,
                 context: this.$elem,
                 type: type,
-                statusCode: {
-                    0: function(){ console.log('status code 0') }
-                }
-            }).done(callback).fail(this.failCallback);
+                statusCode: statusEvent
+            }).done(callback);
         },
         
-        failCallback: function(jqXHR, textStatus){
-            //console.log(jqXHR);
+        newInstance: function(data, callback, statusEvent){
+            return this.request('POST', '/request', callback, statusEvent, data);
         },
         
-        newInstance: function(data, callback){
-            return this.request('POST', '/request', callback, data);
+        deleteInstance: function(id, callback, statusEvent){
+            return this.request('DELETE', '/instance/'+id, callback, statusEvent);
         },
         
-        deleteInstance: function(id, callback){
-            this.request('DELETE', '/instance/'+id, callback);
+        getInstance: function(id, callback, statusEvent){
+            return this.request('GET', '/instance/'+id, callback, statusEvent);
         },
         
-        getInstance: function(id, callback){
-            this.request('GET', '/instance/'+id, callback);
+        getInstanceCert: function(id, callback, statusEvent){
+            return this.request('GET', '/instance/'+id+'/certificate', callback, statusEvent);
         },
         
-        getInstanceCert: function(id, callback){
-            this.request('GET', '/instance/'+id+'/certificate', callback);
+        bangInstance: function(id, log, callback, statusEvent){
+            return this.request('POST', '/instance/'+id+'/bang', callback, statusEvent, log);
         },
         
-        bangInstance: function(id, log, callback){
-            this.request('POST', '/instance/'+id+'/bang', callback, log);
+        editInstance: function(id, data, callback, statusEvent){
+            return this.request('PUT', '/instance/'+id, callback, statusEvent, data);
         },
         
-        editInstance: function(id, data, callback){
-            this.request('PUT', '/instance/'+id, callback, data);
+        newComputer: function(data, callback, statusEvent){
+            return this.request('POST', '/computer', callback, statusEvent, data);
         },
         
-        newComputer: function(data, callback){
-            this.request('POST', '/computer', callback, data);
+        getComputer: function(id, callback, statusEvent){
+            return this.request('GET', '/computer/'+id, callback, statusEvent);
         },
         
-        getComputer: function(id, callback){
-            this.request('GET', '/computer/'+id, callback, data);
+        editComputer: function(id, data, callback, statusEvent){
+            return this.request('PUT', '/computer/'+id, callback, statusEvent, data);
         },
         
-        editComputer: function(id, data, callback){
-            this.request('PUT', '/computer/'+id, callback, data);
+        newSoftware: function(computerId, data, callback, statusEvent){
+            return this.request('POST', '/computer/'+computerId+'/supply', callback, statusEvent, data);
         },
         
-        newSoftware: function(computerId, data, callback){
-            this.request('POST', '/computer/'+computerId+'/supply', callback, data);
+        bangComputer: function(id, log, callback, statusEvent){
+            return this.request('POST', '/computer/'+id+'/bang', callback, statusEvent, log);
         },
         
-        bangComputer: function(id, log, callback){
-            this.request('POST', '/computer/'+id+'/bang', callback, log);
-        },
-        
-        computerReport: function(id, data, callback){
-            this.request('POST', '/computer/'+id+'/report', callback, data);
+        computerReport: function(id, data, callback, statusEvent){
+            return this.request('POST', '/computer/'+id+'/report', callback, statusEvent, data);
         }
     };
     

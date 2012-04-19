@@ -1,21 +1,15 @@
-;(function($, window, document, undefined) {
-    var SlapOs = function(elem, options){
-        this.elem = elem;
-        this.$elem = $(elem);
-        this.options = options;
-        this.metadata = this.$elem.data('plugin-options');
-    };
-    
-    SlapOs.prototype = {
+(function($) {
+    var methods = {
         defaults: {
             host: ''
         },
         
-        init: function(){
-            this.config = $.extend({}, this.defaults, this.options, this.metadata);
-            this.store = Modernizr.localstorage ? this.lStore : this.cStore;
-            this.store('host', this.config.host);
-            return this;
+        init: function( options ){
+            return this.each(function(){
+                methods.config = $.extend({}, methods.defaults, methods.options, methods.metadata);
+                methods['store'] = Modernizr.localstorage ? methods.lStore : methods.cStore;
+                methods.store('host', methods.config.host);
+            });
         },
         
         /* Local storage method */
@@ -47,14 +41,14 @@
             }
         },
         
-        request: function(type, url, callback, statusEvent, data){
+        request: function(context, type, url, callback, statusEvent, data){
             data = data || '';
             statusEvent = statusEvent || this.statusDefault;
-            return $.ajax({
-                url: this.store('host')+url,
+            $.ajax({
+                url: methods.store('host')+url,
                 dataType: 'json',
                 data: data,
-                context: this.$elem,
+                context: context,
                 type: type,
                 statusCode: statusEvent
             }).done(callback);
@@ -69,7 +63,9 @@
         },
         
         getInstance: function(id, callback, statusEvent){
-            return this.request('GET', '/instance/'+id, callback, statusEvent);
+            return this.each(function(){
+                methods.request(this, 'GET', '/instance/'+id, callback, statusEvent);
+            });
         },
         
         getInstanceCert: function(id, callback, statusEvent){
@@ -109,12 +105,14 @@
         }
     };
     
-    $.fn.slapos = function(options){
-        return this.each(function(){
-            new SlapOs(this, options).init();
-        });
+    $.fn.slapos = function(method){
+        if ( methods[method] ) {
+            return methods[method].apply( this, Array.prototype.slice.call( arguments, 1 ));
+        } else if ( typeof method === 'object' || ! method ) {
+            return methods.init.apply( this, arguments );
+        } else {
+            $.error( 'Method ' +  method + ' does not exist on jQuery.slapos' );
+        }
     };
     
-    window.SlapOs = SlapOs;
-
-})(jQuery, window , document);
+})(jQuery);

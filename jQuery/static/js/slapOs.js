@@ -1,14 +1,17 @@
-(function($) {
+;(function($) {
     var methods = {
         defaults: {
             host: ''
         },
         
         init: function( options ){
+            var settings = $.extend({
+                'host': ''
+            }, options);
+
             return this.each(function(){
-                methods.config = $.extend({}, methods.defaults, methods.options, methods.metadata);
                 methods['store'] = Modernizr.localstorage ? methods.lStore : methods.cStore;
-                methods.store('host', methods.config.host);
+                $(this).slapos('store', 'host', settings.host);
             });
         },
         
@@ -41,67 +44,68 @@
             }
         },
         
-        request: function(context, type, url, callback, statusEvent, data){
+        request: function(type, url, callback, statusEvent, data){
             data = data || '';
             statusEvent = statusEvent || this.statusDefault;
-            $.ajax({
-                url: methods.store('host')+url,
-                dataType: 'json',
-                data: data,
-                context: context,
-                type: type,
-                statusCode: statusEvent
-            }).done(callback);
-        },
-        
-        newInstance: function(data, callback, statusEvent){
-            return this.request('POST', '/request', callback, statusEvent, data);
-        },
-        
-        deleteInstance: function(id, callback, statusEvent){
-            return this.request('DELETE', '/instance/'+id, callback, statusEvent);
-        },
-        
-        getInstance: function(id, callback, statusEvent){
             return this.each(function(){
-                methods.request(this, 'GET', '/instance/'+id, callback, statusEvent);
+                $.ajax({
+                    url: methods.store('host')+url,
+                    dataType: 'json',
+                    data: data,
+                    context: $(this),
+                    type: type,
+                    statusCode: statusEvent,
+                    success: callback
+                });
             });
         },
         
+        newInstance: function(data, callback, statusEvent){
+            return $(this).slapos('request', 'POST', '/request', callback, statusEvent, data);
+        },
+        
+        deleteInstance: function(id, callback, statusEvent){
+            return $(this).slapos('request', 'DELETE', '/instance/'+id, callback, statusEvent);
+        },
+        
+        getInstance: function(id, callback, statusEvent){
+            return $(this).slapos('request', 'GET', '/instance/'+id, callback, statusEvent);
+        },
+        
         getInstanceCert: function(id, callback, statusEvent){
-            return this.request('GET', '/instance/'+id+'/certificate', callback, statusEvent);
+            return $(this).slapos('request', 'GET', '/instance/'+id+'/certificate', callback, statusEvent);
         },
         
         bangInstance: function(id, log, callback, statusEvent){
-            return this.request('POST', '/instance/'+id+'/bang', callback, statusEvent, log);
+            return $(this).slapos('request', 'POST', '/instance/'+id+'/bang', callback, statusEvent, log);
         },
         
         editInstance: function(id, data, callback, statusEvent){
-            return this.request('PUT', '/instance/'+id, callback, statusEvent, data);
+            return $(this).slapos('request', 'PUT', '/instance/'+id, callback, statusEvent, data);
         },
         
         newComputer: function(data, callback, statusEvent){
-            return this.request('POST', '/computer', callback, statusEvent, data);
+            return $(this).slapos('request', 'POST', '/computer', callback, statusEvent, data);
         },
         
         getComputer: function(id, callback, statusEvent){
-            return this.request('GET', '/computer/'+id, callback, statusEvent);
+            return $(this).slapos('request', 'GET', '/computer/'+id, callback, statusEvent);
         },
         
         editComputer: function(id, data, callback, statusEvent){
-            return this.request('PUT', '/computer/'+id, callback, statusEvent, data);
+            return $(this).slapos('request', 'PUT', '/computer/'+id, callback, statusEvent, data);
         },
         
         newSoftware: function(computerId, data, callback, statusEvent){
-            return this.request('POST', '/computer/'+computerId+'/supply', callback, statusEvent, data);
+            return $(this).slapos('request', 'POST', '/computer/'+computerId+'/supply', callback, statusEvent, data);
         },
         
         bangComputer: function(id, log, callback, statusEvent){
-            return this.request('POST', '/computer/'+id+'/bang', callback, statusEvent, log);
+            return $(this).slapos('request', 'POST', '/computer/'+id+'/bang', callback, statusEvent, log);
         },
         
         computerReport: function(id, data, callback, statusEvent){
-            return this.request('POST', '/computer/'+id+'/report', callback, statusEvent, data);
+            return $(this).slapos('request', 'POST', '/computer/'+id+'/report', callback, statusEvent, data);
         }
     };
     
@@ -114,5 +118,4 @@
             $.error( 'Method ' +  method + ' does not exist on jQuery.slapos' );
         }
     };
-    
 })(jQuery);

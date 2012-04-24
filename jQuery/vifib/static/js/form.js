@@ -14,30 +14,29 @@
                 var self = $(this);
                 $.subscribe("urlChange", function(e, d){
                     if(d.route == "form") { self.form('displayForm'); }
-                    else if(d.route == "disp") { self.form('displayData'); }
+                    else if(d.route == "service" && d.id) { self.form('displayData', d.id); }
                 });
             });
         },
 
-        displayData: function(){
-            $(this).html("<p>Ajax loading ...</p>")
-                .slapos('getInstance', '200', function(data){
-                    $(this).html(JSON.stringify(data));
-                });
+        displayData: function(id){
+            $(this).html("<p>Ajax loading...</p>")
+                .slapos('getInstance', id, function(data){
+                    $(this).form('render', 'service', data);
+                }, {408: function(){ $(this).form('render', 'service-error', {id:id})}});
         },
 
         displayForm: function() {
-            var form = '' +
-                '<form>' +
-                '<input type="text"/>' +
-                '<input type="submit" value="Add"/>' +
-                '</form>';
-            $(this).html(form);
+            $(this).form('render', 'simple-form');
 
             $(this).find("form").submit(function(){
-                $.redirect({route:'disp'});
+                $.redirect({route:'disp', id:$(this).find("input:text").val()});
                 return false;
             });
+        },
+
+        render: function(template, data){
+            $(this).html(ich[template](data, true));
         }
     };
 
@@ -52,4 +51,4 @@
     };
 })(jQuery);
 
-$("section").form();
+$("#main").form();

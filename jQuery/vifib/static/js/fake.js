@@ -32,9 +32,9 @@ var inst0 =
         software_release: "http://example.com/example.cfg",
         software_type: "type_provided_by_the_software",
         slave: "False",
-        connection: {
+        connection: [{
             custom_connection_parameter_1: "foo",
-            custom_connection_parameter_2: "bar"},
+            custom_connection_parameter_2: "bar"}],
         parameter: {
             Custom1: "one string",
             Custom2: "one float",
@@ -53,9 +53,9 @@ var inst1 =
         software_release: "http://example.com/example.cfg",
         software_type: "type_provided_by_the_software",
         slave: "False",
-        connection: {
-            custom_connection_parameter_1: "foo",
-            custom_connection_parameter_2: "bar"},
+        connection: [{
+            key: "foo",
+            key: "bar"}],
         parameter: {
             Custom1: "one string",
             Custom2: "one float",
@@ -71,7 +71,8 @@ var inst1 =
 var fakeserver = sinon.fakeServer.create();
 
 // Get instance
-fakeserver.respondWith("GET", "/instance/200",[200, {"Content-Type":"application/json; charset=utf-8"}, JSON.stringify(inst1)]);
+fakeserver.respondWith("GET", "/instance/200",[200, {"Content-Type":"application/json; charset=utf-8"}, JSON.stringify(inst0)]);
+fakeserver.respondWith("GET", "/instance/201",[200, {"Content-Type":"application/json; charset=utf-8"}, JSON.stringify(inst1)]);
 // Get instance FAIL
 fakeserver.respondWith("GET", "/instance/408",[408, {"Content-Type":"application/json; charset=utf-8"}, "NOT FOUND"]);
 

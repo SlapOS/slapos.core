@@ -60,7 +60,7 @@
 			statusEvent = statusEvent || this.statusDefault;
 			return this.each(function(){
 				$.ajax({
-					url: "http://"+$(this).slapos('host')+url,
+					url: $(this).slapos('host')+url,
 					type: type,
 					contentType: 'application/octet-stream',
 					data: JSON.stringify(data),

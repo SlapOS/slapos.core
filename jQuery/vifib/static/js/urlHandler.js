@@ -7,12 +7,32 @@
 ;
 // Hash parser utility
 $.parseHash = function(hashTag){
+	var tokenized = $.extractAuth(hashTag);
+	if( tokenized ){
+		console.log(tokenized);
+		$.publish('auth', tokenized);
+	}
     var splitted = hashTag.substr(1).split('/');
     return {
         route : splitted[0],
         id : splitted[1],
         method : splitted[2]
     }
+};
+
+$.extractAuth = function(hashTag){
+	var del = hashTag.indexOf('&');
+	if( del != -1){
+		var splitted = hashTag.substring(del+1).split('&');
+		var result = {};
+		for( p in splitted ){
+			var s = splitted[p].split('=');
+
+			result[s[0]] = s[1];
+		}
+		return result;
+	}
+	return false;
 };
 
 $.genHash = function(url){

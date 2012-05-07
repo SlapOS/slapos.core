@@ -3,18 +3,34 @@
  * Author: Thomas Lechauve
  * Date: 4/17/12
  */
-;(function($) {
+(function($) {
+	var routes = {
+		"/service" : "displayForm",
+		"/service/:id" : "displayData"
+	}
+
+	var router = function(e, d){
+		var $this = $(this);
+		$.each(routes, function(pattern, callback){
+			pattern = pattern.replace(/:\w+/g, '([^\/]+)');
+			var regex = new RegExp('^' + pattern + '$');
+			var result = regex.exec(d);
+			if (result) {
+				result.shift();
+				methods[callback].apply($this, result);
+			}
+		});
+	}
+
 	var methods = {
 		init: function() {
 			// Initialize slapos in this context
 			$(this).slapos({host: '10.0.1.139:12002/erp5/portal_vifib_rest_api_v1'});
-
+			var $this = $(this);
 			// Bind to urlChange event
 			return this.each(function(){
-				var self = $(this);
 				$.subscribe("urlChange", function(e, d){
-					if(d.route == "service" && d.id) { self.form('displayData', d.id); }
-					else if(d.route == "service") { self.form('displayForm'); }
+					router.call($this, e, d);
 				});
 				$.subscribe("auth", function(e, d){
 					$(this).form("authenticate", d);
@@ -22,23 +38,29 @@
 			});
 		},
 
-		authenticate: function(data){
-			for(var d in data){
-				$(this).slapos('store', d, data[d]);
+		authenticate: function(data) {
+			for (var d in data) {
+				if (data.hasOwnProperty(d)) {
+					$(this).slapos('store', d, data[d]);
+				}
 			}
 		},
 
 		displayData: function(id){
+			var redirect = function(){
+				$(this).form('render', 'auth', {
+					'host':'t139:12002/erp5/web_site_module/hosting/request-access-token',
+					'client_id': 'client',
+					'redirect':escape(window.location.href)
+				})
+			};
+			var statusCode = {
+				401: redirect
+			};
 			$(this).html("<p>Ajax loading...</p>")
 				.slapos('getInstance', id, function(data){
 					$(this).form('render', 'service', data);
-				}, {401: function(){
-						$(this).form('render', 'auth', {
-							'host':'t139:12002/erp5/web_site_module/hosting/request-access-token',
-							'client_id': 'client',
-							'redirect':escape(window.location.href)
-						})
-				}});
+				}, statusCode);
 		},
 
 		displayForm: function() {
@@ -67,17 +89,22 @@
 				computer_id: "COMP-0",
 				}
 			};
+			var redirect = function(){
+				$(this).form('render', 'auth', {
+					'host':'t139:12002/erp5/web_site_module/hosting/request-access-token',
+					'client_id': 'client',
+					'redirect':escape(window.location.href)
+				})
+			};
+			var statusCode = {
+				401: redirect
+			};
 			$.extend(request, data);
 			$(this).html("<p>Requesting a new instance "+request["title"]+" ...</p>")
 				.slapos('newInstance', request, function(data){
-					$(this).html(data);}, {401: function(){
-						$(this).form('render', 'auth', {
-							'host':'t139:12002/erp5/web_site_module/hosting/request-access-token',
-							'client_id': 'client',
-							'redirect':escape(window.location.href)
-						})
-					}
-			});
+					$(this).html(data);},
+					statusCode
+				);
 		},
 
 		render: function(template, data){

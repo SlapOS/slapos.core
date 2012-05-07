@@ -68,17 +68,17 @@ var inst1 =
             tap_interface: "tap2"}
     };
 
-/*var fakeserver = sinon.fakeServer.create();
+var fakeserver = sinon.fakeServer.create();
 
 // Get instance
-fakeserver.respondWith("GET", "/instance/200",[200, {"Content-Type":"application/json; charset=utf-8"}, JSON.stringify(inst0)]);
+/*fakeserver.respondWith("GET", "/instance/200",[200, {"Content-Type":"application/json; charset=utf-8"}, JSON.stringify(inst0)]);
 fakeserver.respondWith("GET", "/instance/201",[200, {"Content-Type":"application/json; charset=utf-8"}, JSON.stringify(inst1)]);
 // Get instance FAIL
 fakeserver.respondWith("GET", "/instance/408",[408, {"Content-Type":"application/json; charset=utf-8"}, "NOT FOUND"]);
-fakeserver.respondWith("GET", "/instance/401",[401, {"Content-Type":"application/json; charset=utf-8"}, "NEED AUTH"]);
+fakeserver.respondWith("POST", "/instance",[401, {"Content-Type":"application/json; charset=utf-8"}, "NEED AUTH"]);
 
 var tmp = $.ajax;
-/*$.ajax = function(url, options){
+$.ajax = function(url, options){
     var result = tmp(url, options);
     fakeserver.respond();
     return result;

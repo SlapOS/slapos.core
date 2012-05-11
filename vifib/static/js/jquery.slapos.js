@@ -1,0 +1,1 @@
+../../../jquery.slapos/src/jquery.slapos.js

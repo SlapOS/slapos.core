@@ -10,7 +10,8 @@ $.parseHash = function(hashTag) {
 	var tokenized = $.extractAuth(hashTag);
 	if (tokenized) {
 		$.publish('auth', tokenized);
-		return hashTag.split("&")[0]
+		location.hash = hashTag.split("&")[0]
+		return location.hash
 	}
 	return hashTag
 };

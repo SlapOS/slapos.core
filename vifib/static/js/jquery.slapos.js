@@ -3,9 +3,6 @@
 	var methods = {
 		init: function (options) {
 			var settings = $.extend({
-				'host': '',
-				'access_token': '',
-				'clientID': ''
 			}, options);
 
 			return this.each(function () {
@@ -58,23 +55,22 @@
 		statusDefault: function () {
 			return {
 				0: function () { console.error("status error code: 0"); },
-				404: function () { console.error("status error code: Not Found !"); }
+				404: function () { console.error("status error code: Not Found !"); },
+				500: function () { console.error("Server error !"); }
 			};
 		},
 
-		request: function (type, url, callback, statusCode, data) {
-			data = data || '';
-			statusCode = statusCode || this.statusDefault;
+		request: function (type, url, authentication, callback, statusCode, data) {
 			return this.each(function () {
 				$.ajax({
-					url: "http://" + $(this).slapos('host') + url,
+					url: url,
 					type: type,
-					contentType: 'application/octet-stream',
+					contentType: 'application/json',
 					data: JSON.stringify(data),
 					dataType: 'json',
 					context: $(this),
 					beforeSend: function (xhr) {
-						if ($(this).slapos("access_token")) {
+						if ($(this).slapos("access_token") && authentication) {
 							xhr.setRequestHeader("Authorization", $(this).slapos("store", "token_type") + " " + $(this).slapos("access_token"));
 							xhr.setRequestHeader("Accept", "application/json");
 						}
@@ -85,53 +81,48 @@
 			});
 		},
 
-		newInstance: function (data, callback, statusEvent) {
-			return $(this).slapos('request', 'POST', '/request', callback, statusEvent, data);
+		prepareRequest: function (methodName, callback, statusCode, url, data) {
+			data = data || undefined;
+			statusCode = statusCode || methods.statusDefault();
+			var $this = $(this);
+			return this.each(function(){
+				$(this).slapos('discovery', function(access){
+					if (access.hasOwnProperty(methodName)) {
+						url = url || access[methodName].url;
+						$this.slapos('request',
+							access[methodName].method,
+							url,
+							access[methodName].authentication,
+							callback,
+							statusCode,
+							data);
+					}
+				});
+			})
 		},
 
-		deleteInstance: function (id, callback, statusEvent) {
-			return $(this).slapos('request', 'DELETE', '/instance/' + id, callback, statusEvent);
+		discovery: function (callback) {
+			return this.each(function(){
+				$.ajax({
+					url: "http://192.168.242.64:12002/erp5/portal_vifib_rest_api_v1",
+					dataType: "json",
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader("Accept", "application/json");
+					},
+					success: callback
+				});
+			});
 		},
 
-		getInstance: function (id, callback, statusEvent) {
-			return $(this).slapos('request', 'GET', '/instance/' + id, callback, statusEvent);
+		instanceList: function (callback, statusCode) {
+			return $(this).slapos('prepareRequest', 'instance_list', callback, statusCode);
 		},
 
-		getInstanceCert: function (id, callback, statusEvent) {
-			return $(this).slapos('request', 'GET', '/instance/' + id + '/certificate', callback, statusEvent);
-		},
-
-		bangInstance: function (id, log, callback, statusEvent) {
-			return $(this).slapos('request', 'POST', '/instance/' + id + '/bang', callback, statusEvent, log);
-		},
-
-		editInstance: function (id, data, callback, statusEvent) {
-			return $(this).slapos('request', 'PUT', '/instance/' + id, callback, statusEvent, data);
-		},
-
-		newComputer: function (data, callback, statusEvent) {
-			return $(this).slapos('request', 'POST', '/computer', callback, statusEvent, data);
-		},
-
-		getComputer: function (id, callback, statusEvent) {
-			return $(this).slapos('request', 'GET', '/computer/' + id, callback, statusEvent);
-		},
-
-		editComputer: function (id, data, callback, statusEvent) {
-			return $(this).slapos('request', 'PUT', '/computer/' + id, callback, statusEvent, data);
-		},
-
-		newSoftware: function (computerId, data, callback, statusEvent) {
-			return $(this).slapos('request', 'POST', '/computer/' + computerId + '/supply', callback, statusEvent, data);
-		},
-
-		bangComputer: function (id, log, callback, statusEvent) {
-			return $(this).slapos('request', 'POST', '/computer/' + id + '/bang', callback, statusEvent, log);
-		},
-
-		computerReport: function (id, data, callback, statusEvent) {
-			return $(this).slapos('request', 'POST', '/computer/' + id + '/report', callback, statusEvent, data);
+		instanceInfo: function (url, callback, statusCode) {
+			url = decodeURIComponent(url);
+			return $(this).slapos('prepareRequest', 'instance_info', callback, statusCode, url);
 		}
+
 	};
 
 	$.fn.slapos = function (method) {

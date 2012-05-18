@@ -16,17 +16,14 @@
 		</article>
 	</script>
 	
-	<script id="service.list" type="text/html">
-		<article>
-			<table class="table table-condensed" id="service.table">
+	<script id="instance.list" type="text/html">
+			<table class="table table-condensed" id="instance-table">
 			<caption><h2>Instances list</h2></caption>
-			<tr><th>Title</th><th>Status</th></tr>
 			</table>
-		</article>
 	</script>
 
-	<script id="service.list.elem" type="text/html">
-		<tr><td><a href="{{ url }}">{{ title }}</a></td><td>{{ status }}</td></tr>
+	<script id="instance.list.elem" type="text/html">
+		<td><a href="{{ url }}">{{ title }}</a></td><td>{{ status }}</td>
 	</script>
 	
 	<script id="invoice.list" type="text/html">
@@ -90,7 +87,7 @@
 				<div class="control-group">
 					<label class="control-label">Reference</label>
 					<div class="controls">
-						<span class="uneditable-input">{{  }}</span>
+						<span class="uneditable-input">{{ title }}</span>
 					</div>
 				</div>
 				<div class="control-group">
@@ -109,8 +106,8 @@
 					<label class="control-label">Status</label>
 					<div class="controls">
 						<div class="btn-group">
-							<button class="btn">Stop</button>
-							<button class="btn btn-success disabled">Started</button>
+							<button class="btn" id="stopInstance">Stop</button>
+							<button class="btn btn-success disabled" id="startInstance">Started</button>
 						</div>
 					</div>
 				</div>
@@ -159,7 +156,7 @@
 	<script id="error" type="text/html">
 		<div class="alert alert-{{ state }}">
 			<a class="close" data-dismiss="alert" href="#">×</a>
-			<h4 class="alert-heading">{{ state }}</h4>
+			<h4 class="alert-heading">{{ state }} - {{ date }}</h4>
 			{{ message }}
 		</div>
 	</script>
@@ -196,8 +193,8 @@
 						<li autofocus="autofocus"><a href="#/computers"><i class="icon-list"></i>List all servers</a></li>
 						<li><a href="#/computer"><i class="icon-plus-sign"></i>Add new server</a></li>
 						<li class="nav-header">Services</li>
-						<li><a href="#/instances"><i class="icon-list"></i>List all services</a></li>
-						<li><a href="#/instance"><i class="icon-plus-sign"></i>Add new service</a></li>
+						<li><a href="#/instances"><i class="icon-list"></i>List all instances</a></li>
+						<li><a href="#/instance"><i class="icon-plus-sign"></i>Add new instance</a></li>
 						<li class="nav-header">Account</li>
 						<li><a href="#/invoices"><i class="icon-inbox"></i>Invoices</a></li>
 						<li><a href="#/settings"><i class="icon-cog"></i>Settings</a></li>

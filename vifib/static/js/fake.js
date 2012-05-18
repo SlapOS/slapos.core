@@ -71,7 +71,7 @@ var inst1 =
 var fakeserver = sinon.fakeServer.create();
 
 // Get instance
-/*fakeserver.respondWith("GET", "/instance/200",[200, {"Content-Type":"application/json; charset=utf-8"}, JSON.stringify(inst0)]);
+fakeserver.respondWith("GET", "/instance/200",[200, {"Content-Type":"application/json; charset=utf-8"}, JSON.stringify(inst0)]);
 fakeserver.respondWith("GET", "/instance/201",[200, {"Content-Type":"application/json; charset=utf-8"}, JSON.stringify(inst1)]);
 // Get instance FAIL
 fakeserver.respondWith("GET", "/instance/408",[408, {"Content-Type":"application/json; charset=utf-8"}, "NOT FOUND"]);
@@ -82,4 +82,4 @@ $.ajax = function(url, options){
     var result = tmp(url, options);
     fakeserver.respond();
     return result;
-}*/
+};

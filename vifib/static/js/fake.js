@@ -28,7 +28,7 @@ var comp1 = {computer_id: "COMP-1",
 
 var inst0 =
     {instance_id: "INST-0",
-        status: "start",
+        status: "start_requested",
         software_release: "http://example.com/example.cfg",
         software_type: "type_provided_by_the_software",
         slave: "False",
@@ -49,7 +49,7 @@ var inst0 =
 
 var inst1 =
     {instance_id: "INST-1",
-        status: "start",
+    status: "stop_requested",
         software_release: "http://example.com/example.cfg",
         software_type: "type_provided_by_the_software",
         slave: "False",
@@ -71,11 +71,11 @@ var inst1 =
 var fakeserver = sinon.fakeServer.create();
 
 // Get instance
-fakeserver.respondWith("GET", "/instance/200",[200, {"Content-Type":"application/json; charset=utf-8"}, JSON.stringify(inst0)]);
-fakeserver.respondWith("GET", "/instance/201",[200, {"Content-Type":"application/json; charset=utf-8"}, JSON.stringify(inst1)]);
+fakeserver.respondWith("GET", "/instance/stop",[200, {"Content-Type":"application/json; charset=utf-8"}, JSON.stringify(inst0)]);
+fakeserver.respondWith("GET", "/instance/start",[200, {"Content-Type":"application/json; charset=utf-8"}, JSON.stringify(inst1)]);
 // Get instance FAIL
-fakeserver.respondWith("GET", "/instance/408",[408, {"Content-Type":"application/json; charset=utf-8"}, "NOT FOUND"]);
-fakeserver.respondWith("POST", "/instance",[401, {"Content-Type":"application/json; charset=utf-8"}, "NEED AUTH"]);
+fakeserver.respondWith("GET", "/instance/start",[200, {"Content-Type":"application/json; charset=utf-8"}, "NOT FOUND"]);
+fakeserver.respondWith("GET", "/instance/stop",[200, {"Content-Type":"application/json; charset=utf-8"}, "NEED AUTH"]);
 
 var tmp = $.ajax;
 $.ajax = function(url, options){

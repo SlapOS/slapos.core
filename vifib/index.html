@@ -57,7 +57,7 @@
 					</div>
 				</div>
 				<div class="form-actions">
-				    <button type="submit" class="btn btn-primary" name="submit">Request</button>
+					<button type="submit" class="btn btn-primary" name="submit">Request</button>
 				</div>
 			</fieldset>
 		</form>
@@ -67,69 +67,64 @@
 	<script id="auth" type="text/html">
 	<article>
 		<p>Authentification needed. Are you agree to be redirect to login ?</p>
-		<a href="{{ host }}?response_type=token&client_id={{ client_id  }}&redirect_uri={{ redirect }}">Redirect</a>
+		<a href="{{ host }}?response_type=token&client_id={{ client_id	}}&redirect_uri={{ redirect }}">Redirect</a>
 	</article>
 	</script>
 
 	<script id="instance" type="text/html">
 		{{! Service page template }}
 		<article>
-		<form class="form-horizontal">
-		<fieldset>
-				<legend>
-					{{ title }}
-					<div class="pull-right">
-						<div class="btn">Bang</div>
-						<div class="btn">Destroy</div>
-						<div class="btn">Certificates</div>
-					</div>
-				</legend>
-				<div class="control-group">
-					<label class="control-label">Reference</label>
-					<div class="controls">
-						<span class="uneditable-input">{{ title }}</span>
-					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">Software release</label>
-					<div class="controls">
-						<span class="uneditable-input">{{ software_release }}</span>
-					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">Software type</label>
-					<div class="controls">
-						<span class="uneditable-input">{{ software_type }}</span>
-					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label">Status</label>
-					<div class="controls">
-						<div class="btn-group">
-							<button class="btn" id="stopInstance">Stop</button>
-							<button class="btn btn-success disabled" id="startInstance">Started</button>
-						</div>
-					</div>
-				</div>
-			</fieldset>
-		</form>
+		<form class="form-horizontal" id="instance-form">
+        <fieldset>
+            <legend>
+                {{ title }}
+                <div class="pull-right">
+                    <div class="btn">Bang</div>
+                    <div class="btn">Destroy</div>
+                    <div class="btn">Certificates</div>
+                </div>
+            </legend>
+            <div class="control-group">
+                <label class="control-label">Reference</label>
+                <div class="controls">
+                    <input name="title" type="text" value="{{ title }}" readOnly></input>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Software release</label>
+                <div class="controls">
+                    <input type="text" name="software_release" value="{{ software_release }}" readOnly></input>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Software type</label>
+                <div class="controls">
+                    <input type="text" name="software_type" value="{{ software_type }}"></input>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Status</label>
+                <div class="controls" id="instanceStatus">
+                    {{{ status }}}
+                </div>
+            </div>
+        </fieldset>
 
 		<table class="table">
 			<caption>Connection parameters</caption>
 			{{# connection}}
-			<tr><td>key</td><td>{{ key }}</td></tr>
+			<tr><td>{{.}}</td><td>{{ key }}</td></tr>
 			{{/ connection}}
 		</table>
 
-		<form>
-			<fieldset>
-				<legend>
+            <fieldset>
+                <legend>
 					Parameter XML
 					<div class="pull-right">
 						<button type="submit" class="btn btn-primary">Save changes</button>
 						<button class="btn">Cancel</button>
 					</div>
-				</legend>
+                </legend>
 						<textarea name="xml" style="width: 98%; height: 110px;">
 <?xml version="1.0" encoding="utf-8"?>
 <instance>
@@ -137,10 +132,31 @@
 	<parameter id="nbd_port">1024</parameter>
 </instance>
 						</textarea>
-			</fieldset>
+            </fieldset>
 		</form>
 		</article>
 	</script>
+
+    <script id="instance.stop_requested" type="text/html">
+        <div class="btn-group">
+            <button class="btn btn-danger disabled" disabled="disabled" id="stopInstance">Stopped</button>
+            <button class="btn" id="startInstance">Start</button>
+        </div>
+    </script>
+    
+    <script id="instance.draft" type="text/html">
+        <div class="btn-group">
+            <button class="btn disabled" disabled="disabled">Stop</button>
+            <button class="btn disabled" disabled="disabled">Start</button>
+        </div>
+    </script>
+
+    <script id="instance.start_requested" type="text/html">
+        <div class="btn-group">
+            <button class="btn" id="stopInstance">Stop</button>
+            <button class="btn btn-success disabled" disabled="disabled" id="startInstance">Started</button>
+        </div>
+    </script>
 	
 	<script id="simple-form" type="text/html">
 		<form class="form-inline">
@@ -157,7 +173,7 @@
 		<div class="alert alert-{{ state }}">
 			<a class="close" data-dismiss="alert" href="#">×</a>
 			<h4 class="alert-heading">{{ state }} - {{ date }}</h4>
-			{{ message }}
+            {{ message }}
 		</div>
 	</script>
 </head>
@@ -222,6 +238,6 @@
 	<script type="text/javascript" src="static/js/jquery.slapos.js"></script>
 	<!--<script type="text/javascript" src="static/js/fake.js"></script>-->
 	<script type="text/javascript" src="static/js/urlHandler.js"></script>
-	<script type="text/javascript" src="static/js/form.js"></script>
+	<script type="text/javascript" src="static/js/core.js"></script>
 </body>
 </html>

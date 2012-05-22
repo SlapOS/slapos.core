@@ -82,11 +82,10 @@
                     datatype: 'json',
                     context: $(this),
                     beforeSend: function (xhr) {
-                        xhr.setRequestHeader('REMOTE_USER', 'test_vifib_customer');
+                        //xhr.setRequestHeader('REMOTE_USER', 'test_vifib_customer');
                         xhr.setRequestHeader('Accept', 'application/json');
                         if ($(this).slapos('access_token') && authentication) {
-                            //xhr.setRequestHeader('Authorization', $(this).slapos('store', 'token_type') + ' ' + $(this).slapos('access_token'));
-                            //xhr.setRequestHeader('Accept', 'application/json');
+                            xhr.setRequestHeader('Authorization', $(this).slapos('store', 'token_type') + ' ' + $(this).slapos('access_token'));
                         }
                     }
                 };
@@ -120,7 +119,7 @@
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader('Accept', 'application/json');
                     },
-                    success: callback
+                    success: callback,
                 });
             });
         },

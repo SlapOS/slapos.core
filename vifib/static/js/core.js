@@ -223,7 +223,7 @@
                     });
                 });
             },
-            
+
             refreshListInstance: function () {
                 var currentList = $(this).vifib('getCurrentList');
                 $(this).slapos('instanceList', {

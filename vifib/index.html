@@ -81,7 +81,6 @@
                 <div class="pull-right">
                     <div class="btn">Bang</div>
                     <div class="btn">Destroy</div>
-                    <div class="btn">Certificates</div>
                 </div>
             </legend>
             <div class="control-group">
@@ -112,9 +111,9 @@
 
 		<table class="table">
 			<caption>Connection parameters</caption>
-			{{# connection}}
-			<tr><td>{{.}}</td><td>{{ key }}</td></tr>
-			{{/ connection}}
+			{{# parameter}}
+			<tr><td>{{parameter.0}}</td><td></td></tr>
+			{{/ parameter}}
 		</table>
 
             <fieldset>

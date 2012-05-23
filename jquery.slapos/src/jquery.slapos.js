@@ -100,7 +100,9 @@
             return this.each(function () {
                 $(this).slapos('discovery', function (access) {
                     if (access.hasOwnProperty(methodName)) {
-                        var url = args.url || access[methodName].url;
+                        var url = access[methodName].url.replace(/{(\w+)}/, function (matchedText, $1) {
+                            return "" + args[$1]
+                        });
                         $.extend(args, {'url': url});
                         $this.slapos('request',
                             access[methodName].method,
@@ -129,13 +131,22 @@
         },
 
         instanceInfo: function (url, args) {
-            url = decodeURIComponent(url);
-            $.extend(args, {'url': url});
+            $.extend(args, {'instance_url': decodeURIComponent(url)});
             return $(this).slapos('prepareRequest', 'instance_info', args);
         },
 
         instanceRequest: function (args) {
             return $(this).slapos('prepareRequest', 'request_instance', args);
+        },
+        
+        instanceBang: function (url, args) {
+            $.extend(args, {'instance_url': decodeURIComponent(url)});
+            return $(this).slapos('prepareRequest', 'instance_bang', args);
+        },
+
+        instanceCertificate: function (url, args) {
+            $.extend(args, {'instance_url': decodeURIComponent(url)});
+            return $(this).slapos('prepareRequest', 'instance_certificate', args);
         }
 
     };

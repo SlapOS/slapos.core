@@ -8,6 +8,7 @@
     var routes = {
         '/instance' : 'requestInstance',
         '/instance/:url' : 'showInstance',
+        '/instance/:url/bang' : 'showBangInstance',
         '/computers' : 'listComputers',
         '/instances' : 'listInstances',
         '/invoices' : 'listInvoices'
@@ -23,6 +24,21 @@
                     methods[callback].apply($this, result);
                 }
             });
+        },
+
+        /* Based on ben alman code
+         * https://raw.github.com/cowboy/jquery-misc/master/jquery.ba-serializeobject.js
+         */
+        serializeObject = function () {
+            var obj = {};
+            $.each($(this).serializeArray(), function (i, o) {
+                var k = o.name,
+                    v = o.value;
+                obj[k] = obj[k] === undefined ? v
+                    : $.isArray(obj[k]) ? obj[k].concat(v)
+                    : [obj[k], v];
+            });
+            return obj;
         },
 
         getDate = function () {
@@ -100,7 +116,7 @@
             },
 
             genInstanceUrl: function (uri) {
-                return location.href.split('#')[0] + '#/instance/' + encodeURIComponent(uri);
+                return $.genHash(['instance', encodeURIComponent(uri)]);
             },
 
             extractInstanceURIFromHref: function () {
@@ -108,7 +124,13 @@
             },
             
             extractInstanceURIFromHashtag: function () {
-                return decodeURIComponent(window.location.hash.split('/').pop());
+                var loc = window.location.hash.split('/'),
+                    i = $.inArray("instance", loc);
+                return (i !== -1 && loc.length > i) ? decodeURIComponent(loc[i + 1]) : "";
+            },
+
+            genBangUrl: function (uri) {
+                return $.genHash(["instance", encodeURIComponent(uri), "bang"]);
             },
 
             authenticate: function (data) {
@@ -143,6 +165,9 @@
                 $(this).slapos('instanceInfo', uri, {
                     success: function (infos) {
                         infos.status = $(this).vifib('getRender', 'instance.' + infos.status);
+                        infos.actions = [
+                            {name: "Bang", url: methods.genBangUrl(decodeURIComponent(uri))}
+                        ];
                         $(this).vifib('render', 'instance', infos);
                         var form = $(this).find("#instance-form");
                         form.vifib('prepareForm');
@@ -158,6 +183,7 @@
 
             prepareForm: function () {
                 $(this).vifib('bindStopStartButtons');
+                $("#bangInstance").click();
                 $(this).vifib('refresh', methods.refreshInstanceForm, 30); 
             },
 
@@ -183,6 +209,31 @@
             startInstance: function() {
                 $(this).vifib('changeStatusInstance', 'started');
                 return false;
+            },
+
+            showBangInstance: function () {
+                var statusCode = {
+                    400: bad_request,
+                    401: redirect,
+                    402: payment,
+                    404: notFound,
+                    500: serverError,
+                };
+                return this.each(function () {
+                    $(this).vifib("render", 'form.bang.instance');
+                    $(this).find("#form-bang").submit(function () {
+                        var data = $(this).serializeObject(),
+                            uri = methods.extractInstanceURIFromHashtag();
+                        $(this).slapos('instanceBang', uri, {
+                            data: data,
+                            statusCode: statusCode,
+                            success: function () {
+                                $.redirect(['instance', encodeURIComponent(uri)]);
+                            }
+                        });
+                        return false;
+                    });
+                });
             },
 
             changeStatusInstance: function (status) {
@@ -325,7 +376,6 @@
 
             popup: function (message, state) {
                 state = state || 'error';
-                    console.log($(this));
                 return this.each(function () {
                     $(this).prepend(ich.error({
                         'message': message,
@@ -363,6 +413,21 @@
             $.error( 'Method ' +  method + ' does not exist on jQuery.vifib' );
         }
     };
+
+    /* Thanks to Ben Alman
+     * https://raw.github.com/cowboy/jquery-misc/master/jquery.ba-serializeobject.js
+     */
+    $.fn.serializeObject = function(){
+        var obj = {};
+            $.each( this.serializeArray(), function(i,o){
+                var n = o.name,
+                    v = o.value;
+                obj[n] = obj[n] === undefined ? v
+                  : $.isArray( obj[n] ) ? obj[n].concat( v )
+                  : [ obj[n], v ];
+            });
+        return obj;
+    }; 
 })(jQuery);
 
 $('#main').vifib();

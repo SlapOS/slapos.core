@@ -138,6 +138,11 @@
         instanceRequest: function (args) {
             return $(this).slapos('prepareRequest', 'request_instance', args);
         },
+        
+        instanceBang: function (url, args) {
+            $.extend(args, {'instance_url': decodeURIComponent(url)});
+            return $(this).slapos('prepareRequest', 'instance_bang', args);
+        },
 
         instanceCertificate: function (url, args) {
             $.extend(args, {'instance_url': decodeURIComponent(url)});

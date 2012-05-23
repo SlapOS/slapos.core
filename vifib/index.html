@@ -39,6 +39,15 @@
 		</article>
 	</script>
 
+    <script id="form.bang.instance" type="text/html">
+        <form class="form-horizontal" id="form-bang">
+            <label>Why do you want to bang this instance ?</label>
+            <input class="input-large" name="log" type="text">
+            <button class="btn btn-primary" type="submit" name="submit">Bang</button>
+            <button class="btn">Cancel</button>
+        </form>
+    </script>
+
 	<script id="form.new.instance" type="text/html">
 	<article>
 		<form class="form-horizontal">
@@ -51,7 +60,7 @@
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label">Software release</label>
+                    ><label class="control-label">Software release</label>
 					<div class="controls">
 						<input type="text" class="input-xlarge" required name="software_release"/>
 					</div>
@@ -73,15 +82,17 @@
 
 	<script id="instance" type="text/html">
 		{{! Service page template }}
-		<article>
+        <div class="subnav">
+            <ul class="nav nav-pills">
+                {{# actions }}
+                <li><a href="{{ url }}">{{ name }}</a></li>
+                {{/ actions}}
+            </ul>
+        </div>
 		<form class="form-horizontal" id="instance-form">
         <fieldset>
             <legend>
                 {{ title }}
-                <div class="pull-right">
-                    <div class="btn">Bang</div>
-                    <div class="btn">Destroy</div>
-                </div>
             </legend>
             <div class="control-group">
                 <label class="control-label">Reference</label>
@@ -133,7 +144,6 @@
 						</textarea>
             </fieldset>
 		</form>
-		</article>
 	</script>
 
     <script id="instance.stop_requested" type="text/html">
@@ -229,6 +239,7 @@
 
 	<script type="text/javascript" src="static/js/jquery-1.7.2.js"></script>
 	<script type="text/javascript" src="static/js/bootstrap-alert.js"></script>
+	<script type="text/javascript" src="static/js/bootstrap-modal.js"></script>
 	<script type="text/javascript" src="static/js/spin.js"></script>
 	<script type="text/javascript" src="static/js/jquery-spin.js"></script>
 	<script type="text/javascript" src="static/js/ICanHaz.min.js"></script>

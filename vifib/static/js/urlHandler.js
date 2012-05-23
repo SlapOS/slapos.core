@@ -34,7 +34,7 @@ $.extractAuth = function (hashTag) {
 };
 
 $.genHash = function(url) {
-    return '/' + url.join('/');
+    return '#/' + url.join('/');
 };
 
 /* Pub / Sub Pattern
@@ -55,10 +55,10 @@ $.publish = function() {
 
 // Event Handlers
 $.hashHandler = function(){ $.publish('urlChange', $.parseHash(window.location.hash.substr(1))); };
-$.redirectHandler = function(e, url){ window.location.hash = $.genHash([url]); };
+$.redirectHandler = function(e, url){ window.location.hash = $.genHash(url); };
 
 // redirections manager
-$.redirect = function(url){ $.publish('redirect', url); };
+$.redirect = function(url){ $.publish('redirect', [url]); };
 $.subscribe('redirect', $.redirectHandler)
 
 $(window).bind('hashchange', $.hashHandler);

@@ -54,7 +54,7 @@ $.publish = function() {
 };
 
 // Event Handlers
-$.hashHandler = function(){ $.publish('urlChange', $.parseHash(window.location.hash.substr(1))); };
+$.hashHandler = function(){ $.publish('urlChange', $.parseHash(window.location.href.split("#")[1])); };
 $.redirectHandler = function(e, url){ window.location.hash = $.genHash(url); };
 
 // redirections manager

@@ -19,7 +19,6 @@
                 pattern = pattern.replace(/:\w+/g, '([^\/]+)');
                 var regex = new RegExp('^' + pattern + '$'),
                     result = regex.exec(d);
-                console.log(d);
                 if (result) {
                     result.shift();
                     methods[callback].apply($this, result);
@@ -77,12 +76,12 @@
             $(this).vifib('popup', message);
         },
         
-        spinOptions = {color:  '#FFF', lines: 9, length: 3, width: 2, radius: 6, rotate: 0, trail: 36, speed: 1.0},
+        spinOptions = {color: "#FFFFFF", lines:30, length:0, width:5, radius:7, rotate:0, trail:60, speed:1.6},
         
         methods = {
             init: function () {
                 // Initialize slapos in this context
-                $(this).slapos();
+                $(this).slapos({'host': 'http://10.8.2.34:12006/erp5/portal_vifib_rest_api_v1'});
                 var $this = $(this);
                 // Bind Loading content
                 $('#loading').ajaxStart(function () {
@@ -110,8 +109,9 @@
             },
             
             extractInstanceURIFromHashtag: function () {
-                var loc = window.location.hash.split('/'),
+                var loc = window.location.href.split('#')[1].split('/'),
                     i = $.inArray("instance", loc);
+                console.log(loc)
                 return (i !== -1 && loc.length > i) ? decodeURIComponent(loc[i + 1]) : "";
             },
 
@@ -180,12 +180,12 @@
                 return this.each(function () {
                     var uri = $(this).vifib("extractInstanceURIFromHashtag");
                     $(this).slapos('instanceInfo', uri, {
-                        success: function (data) {
-                            if (typeof(data) !== "object") {
-                                data = $.parseJSON(data);
+                        success: function (response) {
+                            if (typeof(response) !== "object") {
+                                response = $.parseJSON(response);
                             }
-                            var status = $(this).vifib('getRender', 'instance.' + data.status)
-                            $("[name=software_type]").val(data.software_type);
+                            var status = $(this).vifib('getRender', 'instance.' + response.status)
+                            $("[name=software_type]").val(response.software_type);
                             $("#instanceStatus").html(status);
                             $(this).vifib('bindStopStartButtons');
                         }
@@ -299,7 +299,7 @@
                         503: serverError
                     },
                     table = $(this).vifib('render', 'instance.list').find('#instance-table');
-                //table.vifib('refresh', methods.refreshListInstance, 30);
+                table.vifib('refresh', methods.refreshListInstance, 30);
                 $(this).slapos('instanceList', {
                     success: function (data) {
                         if (typeof(data) !== "object") {
@@ -308,7 +308,7 @@
                         $.each(data.list, function () {
                             var url = this.toString(),
                                 row = $('<tr></tr>').vifib('fillRowInstance', url);
-                            //row.vifib('refresh', methods.refreshRowInstance, 30);
+                            row.vifib('refresh', methods.refreshRowInstance, 30);
                             table.append(row);
                         });
                     },

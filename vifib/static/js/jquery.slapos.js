@@ -27,6 +27,10 @@
             return $(this).slapos('store', 'clientID', value);
         },
 
+        deleteStore: function (name) {
+            delete window.localStorage[name];
+        },
+
         /* Local storage method */
         lStore: function (name, value) {
             if (Modernizr.localstorage) {
@@ -82,10 +86,10 @@
                     datatype: 'json',
                     context: $(this),
                     beforeSend: function (xhr) {
-                        //xhr.setRequestHeader('REMOTE_USER', 'test_vifib_customer');
+                        xhr.setRequestHeader('REMOTE_USER', 'test_vifib_customer');
                         xhr.setRequestHeader('Accept', 'application/json');
                         if ($(this).slapos('access_token') && authentication) {
-                            xhr.setRequestHeader('Authorization', $(this).slapos('store', 'token_type') + ' ' + $(this).slapos('access_token'));
+                            //xhr.setRequestHeader('Authorization', $(this).slapos('store', 'token_type') + ' ' + $(this).slapos('access_token'));
                         }
                     }
                 };
@@ -116,7 +120,8 @@
         discovery: function (callback) {
             return this.each(function () {
                 $.ajax({
-                    url: 'http://10.8.2.34:12006/erp5/portal_vifib_rest_api_v1',
+                    url: $(this).slapos("host"),
+                    context: $(this),
                     dataType: 'json',
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader('Accept', 'application/json');

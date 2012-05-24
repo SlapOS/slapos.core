@@ -2,7 +2,6 @@ jQuery(function(){
 
         var response, responseBody, url, data;
 
-        jQuery(document).slapos();
 
         module("Cross-domain Tests");
         test("200 response", function(){
@@ -33,6 +32,34 @@ jQuery(function(){
                 }});
         });
 
+        module("Storage Test", {
+            setup: function() {
+                this.myhost = 'http://www.example.com/api';
+                jQuery(document).slapos({'host': this.myhost});
+            }
+        });
+
+        test("", function() {
+            expect(5);
+            var test = "testValue",
+                newToken = "newToken",
+                nnToken = "";
+            
+            equal(this.myhost, jQuery(document).slapos('host'), "should contain the same host when initialized");
+            
+            jQuery(document).slapos('store', 'test', test);
+            equal(test, window.localStorage.test, 'should add new key "test" in local storage');
+
+            jQuery(document).slapos('access_token', newToken);
+            equal(newToken, window.localStorage.access_token, 'should add new key "access_token" by using its shortcut method');
+
+            nnToken = jQuery(document).slapos('access_token');
+            equal(nnToken, newToken, 'should put "newToken" value in nnToken')
+
+            jQuery(document).slapos('deleteStore', 'access_token');
+            ok(window.localStorage.getItem('access_token') === null, 'should delete "access_token" from localStorage');
+        });
+
         module("Callback Tests", {
             setup: function(){
                 this.server = sinon.sandbox.useFakeServer();
@@ -57,7 +84,7 @@ jQuery(function(){
                     }
                 };
                 var discoResponse = [200, this.header, JSON.stringify(discoBody)];
-                this.server.respondWith("GET", 'http://10.8.2.34:12006/erp5/portal_vifib_rest_api_v1', discoResponse);
+                this.server.respondWith("GET", '/api', discoResponse);
                
                 // Error responses 
                 this.bad_request = [400, this.header, 'Bad Request'];
@@ -65,6 +92,8 @@ jQuery(function(){
                 this.payment = [402, this.header, 'Payment required'];
                 this.not_found = [404, this.header, 'Not found'];
                 this.server_error = [500, this.header, 'Internal server error'];
+                
+                jQuery(document).slapos({'host': '/api'});
             },
             teardown: function(){
                 this.server.restore();
@@ -81,9 +110,10 @@ jQuery(function(){
             statusCode = {
                 400: callback
             };
-            jQuery(document).slapos('instanceRequest', {
+            var i = jQuery(document).slapos('instanceRequest', {
                 url: "/request_instance",
                 statusCode: statusCode,
+                complete: function () { start() }
             });
             this.server.respond();
         });
@@ -101,6 +131,7 @@ jQuery(function(){
             jQuery(document).slapos('instanceRequest', {
                 url: "/request_instance",
                 statusCode: statusCode,
+                complete: function () { start() }
             });
             this.server.respond();
         });
@@ -118,6 +149,7 @@ jQuery(function(){
             jQuery(document).slapos('instanceRequest', {
                 url: "/request_instance",
                 statusCode: statusCode,
+                complete: function () { start() }
             });
             this.server.respond();
         });
@@ -135,6 +167,7 @@ jQuery(function(){
             jQuery(document).slapos('instanceRequest', {
                 url: "/request_instance",
                 statusCode: statusCode,
+                complete: function () { start() }
             });
             this.server.respond();
         });
@@ -152,6 +185,7 @@ jQuery(function(){
             jQuery(document).slapos('instanceRequest', {
                 url: "/request_instance",
                 statusCode: statusCode,
+                complete: function () { start() }
             });
             this.server.respond();
         });

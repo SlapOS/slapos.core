@@ -82,6 +82,7 @@
                 var ajaxOptions = {
                     type: type,
                     contentType: 'application/json',
+                    cache: false,
                     data: JSON.stringify(data),
                     datatype: 'json',
                     context: $(this),

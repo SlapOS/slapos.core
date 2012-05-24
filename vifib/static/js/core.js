@@ -19,26 +19,12 @@
                 pattern = pattern.replace(/:\w+/g, '([^\/]+)');
                 var regex = new RegExp('^' + pattern + '$'),
                     result = regex.exec(d);
+                console.log(d);
                 if (result) {
                     result.shift();
                     methods[callback].apply($this, result);
                 }
             });
-        },
-
-        /* Based on ben alman code
-         * https://raw.github.com/cowboy/jquery-misc/master/jquery.ba-serializeobject.js
-         */
-        serializeObject = function () {
-            var obj = {};
-            $.each($(this).serializeArray(), function (i, o) {
-                var k = o.name,
-                    v = o.value;
-                obj[k] = obj[k] === undefined ? v
-                    : $.isArray(obj[k]) ? obj[k].concat(v)
-                    : [obj[k], v];
-            });
-            return obj;
         },
 
         getDate = function () {
@@ -164,6 +150,9 @@
                 };
                 $(this).slapos('instanceInfo', uri, {
                     success: function (infos) {
+                        if (typeof(infos) !== "object") {
+                            infos = $.parseJSON(infos);
+                        }
                         infos.status = $(this).vifib('getRender', 'instance.' + infos.status);
                         infos.actions = [
                             {name: "Bang", url: methods.genBangUrl(decodeURIComponent(uri))}
@@ -192,6 +181,9 @@
                     var uri = $(this).vifib("extractInstanceURIFromHashtag");
                     $(this).slapos('instanceInfo', uri, {
                         success: function (data) {
+                            if (typeof(data) !== "object") {
+                                data = $.parseJSON(data);
+                            }
                             var status = $(this).vifib('getRender', 'instance.' + data.status)
                             $("[name=software_type]").val(data.software_type);
                             $("#instanceStatus").html(status);
@@ -268,6 +260,9 @@
                 return this.each(function () {
                     $(this).slapos('instanceInfo', url, {
                         success: function (instance) {
+                            if (typeof(instance) !== "object") {
+                                instance = $.parseJSON(instance);
+                            }
                             $.extend(instance, {'url': methods.genInstanceUrl(url)});
                             $(this).vifib('render', 'instance.list.elem', instance);
                         }
@@ -279,6 +274,9 @@
                 var currentList = $(this).vifib('getCurrentList');
                 $(this).slapos('instanceList', {
                     success: function (data) {
+                        if (typeof(data) !== "object") {
+                            data = $.parseJSON(data);
+                        }
                         var $this = $(this),
                             newList = substractLists(currentList, data.list),
                             oldList = substractLists(data.list, currentList);
@@ -301,13 +299,16 @@
                         503: serverError
                     },
                     table = $(this).vifib('render', 'instance.list').find('#instance-table');
-                table.vifib('refresh', methods.refreshListInstance, 30);
+                //table.vifib('refresh', methods.refreshListInstance, 30);
                 $(this).slapos('instanceList', {
                     success: function (data) {
+                        if (typeof(data) !== "object") {
+                            data = $.parseJSON(data);
+                        }
                         $.each(data.list, function () {
                             var url = this.toString(),
                                 row = $('<tr></tr>').vifib('fillRowInstance', url);
-                            row.vifib('refresh', methods.refreshRowInstance, 30);
+                            //row.vifib('refresh', methods.refreshRowInstance, 30);
                             table.append(row);
                         });
                     },

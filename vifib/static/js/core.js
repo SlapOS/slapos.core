@@ -11,7 +11,8 @@
         '/instance/:url/bang' : 'showBangInstance',
         '/computers' : 'listComputers',
         '/instances' : 'listInstances',
-        '/invoices' : 'listInvoices'
+        '/invoices' : 'listInvoices',
+		'/dashboard' : 'showDashboard'
     },
         router = function (e, d) {
             var $this = $(this);
@@ -62,7 +63,7 @@
 
         serverError = function (jqxhr) {
             var message = jqxhr.responseText;
-            if (typeof message == 'object') {
+            if (typeof message === 'object') {
                 message = $.parseJSON(jqxhr.responseText).error;
             }
             $(this).vifib('popup', message);
@@ -70,13 +71,13 @@
 
         bad_request = function (jqxhr) {
             var message = jqxhr.responseText;
-            if (typeof message == 'object') {
+            if (typeof message === 'object') {
                 message = $.parseJSON(jqxhr.responseText).error;
             }
             $(this).vifib('popup', message);
         },
         
-        spinOptions = {color: "#FFFFFF", lines:30, length:0, width:5, radius:7, rotate:0, trail:60, speed:1.6},
+        spinOptions = {color: "#FFFFFF", lines: 30, length: 0, width: 5, radius: 7, rotate: 0, trail: 60, speed: 1.6},
         
         methods = {
             init: function () {
@@ -111,7 +112,6 @@
             extractInstanceURIFromHashtag: function () {
                 var loc = window.location.href.split('#')[1].split('/'),
                     i = $.inArray("instance", loc);
-                console.log(loc)
                 return (i !== -1 && loc.length > i) ? decodeURIComponent(loc[i + 1]) : "";
             },
 
@@ -141,6 +141,13 @@
                 });
             },
 
+			showDashboard: function () {
+				return this.each(function () {
+					$(this).vifib('render', 'dashboard');
+					$(this).find("#carousel").carousel();
+				});
+			},
+
             showInstance: function (uri) {
                 var statusCode = {
                     401: redirect,
@@ -150,7 +157,7 @@
                 };
                 $(this).slapos('instanceInfo', uri, {
                     success: function (infos) {
-                        if (typeof(infos) !== "object") {
+                        if (typeof (infos) !== "object") {
                             infos = $.parseJSON(infos);
                         }
                         infos.status = $(this).vifib('getRender', 'instance.' + infos.status);
@@ -165,7 +172,7 @@
                 });
             },
 
-            bindStopStartButtons: function() {
+            bindStopStartButtons: function () {
                 $("#startInstance").click($.proxy(methods.startInstance, $(this)));
                 $("#stopInstance").click($.proxy(methods.stopInstance, $(this)));
             },
@@ -173,7 +180,7 @@
             prepareForm: function () {
                 $(this).vifib('bindStopStartButtons');
                 $("#bangInstance").click();
-                $(this).vifib('refresh', methods.refreshInstanceForm, 30); 
+                $(this).vifib('refresh', methods.refreshInstanceForm, 30);
             },
 
             refreshInstanceForm: function () {
@@ -181,10 +188,10 @@
                     var uri = $(this).vifib("extractInstanceURIFromHashtag");
                     $(this).slapos('instanceInfo', uri, {
                         success: function (response) {
-                            if (typeof(response) !== "object") {
+                            if (typeof (response) !== "object") {
                                 response = $.parseJSON(response);
                             }
-                            var status = $(this).vifib('getRender', 'instance.' + response.status)
+                            var status = $(this).vifib('getRender', 'instance.' + response.status);
                             $("[name=software_type]").val(response.software_type);
                             $("#instanceStatus").html(status);
                             $(this).vifib('bindStopStartButtons');
@@ -193,12 +200,12 @@
                 });
             },
 
-            stopInstance: function() {
+            stopInstance: function () {
                 $(this).vifib('changeStatusInstance', 'stopped');
                 return false;
             },
 
-            startInstance: function() {
+            startInstance: function () {
                 $(this).vifib('changeStatusInstance', 'started');
                 return false;
             },
@@ -209,7 +216,7 @@
                     401: redirect,
                     402: payment,
                     404: notFound,
-                    500: serverError,
+                    500: serverError
                 };
                 return this.each(function () {
                     $(this).vifib("render", 'form.bang.instance');
@@ -232,7 +239,7 @@
                 var uri = methods.extractInstanceURIFromHashtag(),
                     data = $(this).vifib('extractInstanceInfo');
                 data.status = status;
-                $(this).vifib('requestAsking', data, function (){
+                $(this).vifib('requestAsking', data, function () {
                     $(this).vifib('refreshInstanceForm');
                 });
             },
@@ -260,7 +267,7 @@
                 return this.each(function () {
                     $(this).slapos('instanceInfo', url, {
                         success: function (instance) {
-                            if (typeof(instance) !== "object") {
+                            if (typeof (instance) !== "object") {
                                 instance = $.parseJSON(instance);
                             }
                             $.extend(instance, {'url': methods.genInstanceUrl(url)});
@@ -274,7 +281,7 @@
                 var currentList = $(this).vifib('getCurrentList');
                 $(this).slapos('instanceList', {
                     success: function (data) {
-                        if (typeof(data) !== "object") {
+                        if (typeof (data) !== "object") {
                             data = $.parseJSON(data);
                         }
                         var $this = $(this),
@@ -302,7 +309,7 @@
                 table.vifib('refresh', methods.refreshListInstance, 30);
                 $(this).slapos('instanceList', {
                     success: function (data) {
-                        if (typeof(data) !== "object") {
+                        if (typeof (data) !== "object") {
                             data = $.parseJSON(data);
                         }
                         $.each(data.list, function () {
@@ -418,17 +425,17 @@
     /* Thanks to Ben Alman
      * https://raw.github.com/cowboy/jquery-misc/master/jquery.ba-serializeobject.js
      */
-    $.fn.serializeObject = function(){
+    $.fn.serializeObject = function () {
         var obj = {};
-            $.each( this.serializeArray(), function(i,o){
-                var n = o.name,
-                    v = o.value;
-                obj[n] = obj[n] === undefined ? v
-                  : $.isArray( obj[n] ) ? obj[n].concat( v )
-                  : [ obj[n], v ];
-            });
+		$.each(this.serializeArray(), function (i, o) {
+			var n = o.name,
+				v = o.value;
+			obj[n] = obj[n] === undefined ? v
+					: $.isArray(obj[n]) ? obj[n].concat(v)
+					: [ obj[n], v ];
+		});
         return obj;
-    }; 
-})(jQuery);
+    };
+}(jQuery));
 
 $('#main').vifib();

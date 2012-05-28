@@ -6,13 +6,15 @@
 (function ($) {
     'use strict';
     var routes = {
+        '/catalog' : 'showCatalog',
+        '/catalog/all' : 'showCatalogAll',
         '/instance' : 'requestInstance',
         '/instance/:url' : 'showInstance',
         '/instance/:url/bang' : 'showBangInstance',
         '/computers' : 'listComputers',
         '/instances' : 'listInstances',
         '/invoices' : 'listInvoices',
-		'/dashboard' : 'showDashboard'
+        '/dashboard' : 'showDashboard'
     },
         router = function (e, d) {
             var $this = $(this);
@@ -141,12 +143,43 @@
                 });
             },
 
-			showDashboard: function () {
-				return this.each(function () {
-					$(this).vifib('render', 'dashboard');
-					$(this).find("#carousel").carousel();
-				});
-			},
+            showDashboard: function () {
+                return this.each(function () {
+                    $(this).vifib('render', 'dashboard');
+                    $(this).find("#carousel").carousel();
+                });
+            },
+
+            showCatalogAll: function () {
+                return this.each(function () {
+                    var i, item;
+                    $(this).vifib('render', 'catalog.all');
+                    for (i=0; i<14; i++) {
+                        item = $(this).vifib('getRender', 'catalog.item');
+                        console.log(item)
+                        $("#catalog-all").append(item);
+                    }
+                });
+            },
+            
+            showCatalog: function () {
+                return this.each(function () {
+                    var i, item;
+                    $(this).vifib('render', 'catalog.preview');
+                    for (i=0; i<2; i++) {
+                        item = $(this).vifib('getRender', 'catalog.item');
+                        $("#catalog-new").append(item);
+                    }
+                    for (i=0; i<4; i++) {
+                        item = $(this).vifib('getRender', 'catalog.item');
+                        $("#catalog-most").append(item);
+                    }
+                    for (i=0; i<6; i++) {
+                        item = $(this).vifib('getRender', 'catalog.categorie');
+                        $("#catalog-categories").append(item);
+                    }
+                });
+            },
 
             showInstance: function (uri) {
                 var statusCode = {
@@ -427,13 +460,13 @@
      */
     $.fn.serializeObject = function () {
         var obj = {};
-		$.each(this.serializeArray(), function (i, o) {
-			var n = o.name,
-				v = o.value;
-			obj[n] = obj[n] === undefined ? v
-					: $.isArray(obj[n]) ? obj[n].concat(v)
-					: [ obj[n], v ];
-		});
+        $.each(this.serializeArray(), function (i, o) {
+            var n = o.name,
+                v = o.value;
+            obj[n] = obj[n] === undefined ? v
+                    : $.isArray(obj[n]) ? obj[n].concat(v)
+                    : [ obj[n], v ];
+        });
         return obj;
     };
 }(jQuery));

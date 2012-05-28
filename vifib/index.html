@@ -6,6 +6,34 @@
 	<style type="text/css" media="screen">
 		[class*="span"] h3 { text-align: center; }
 		.dashboard{ text-align: center; }
+        .catalog-item{
+            display: inline-block;
+            padding: 20px 30px 20px 30px;
+        }
+        .catalog-item img{
+            max-width: 150px;
+        }
+        .buy-btn{
+            display: inline-block;
+            padding: 2px 0px 2px 0px;
+            text-align: center;
+            width: 100%;
+            opacity: 0.6;
+            background-color: rgba(0, 175, 219, 1);
+            color: white;
+            -webkit-transition:opacity .2s ease-in-out;
+            -moz-transition:opacity .2s ease-in-out;
+            -ms-transition:opacity .2s ease-in-out;
+            -o-transition:opacity .2s ease-in-out;
+            transition:opacity .2s ease-in-out;
+            box-shadow:0px 0px 7px 1px rgba(0,0,0,0.2);
+            border-radius:2px;
+        }
+        .buy-btn:hover{
+            text-decoration: none;
+            color: white;
+            opacity: 1;
+        }
 	</style>
 
 	<script id="dashboard" type="text/html">
@@ -41,6 +69,37 @@
 		</div>
 	</script>
 
+    <script id="catalog.preview" type="text/html">
+        <h2>Brand new softwares</h2>
+        <ul id="catalog-new"></ul>
+        <h2>Most downloads</h2>
+        <ul id="catalog-most"></ul>
+        <h2>Categories</h2>
+        <ul id="catalog-categories"></ul>
+    </script>
+
+    <script id="catalog.all" type="text/html">
+        <h2>All available softwares</h2>
+        <ul id="catalog-all"></ul>
+    </script>
+
+    <script id="catalog.item" type="text/html">
+        <li class="catalog-item">
+            <div>
+                <img src="http://www.afpy.org/Members/nexedi/Dev%20ERP5/logo_medium">
+                <h4>Name</h4>
+                <h6>Categories</h6>
+                <a href="#/buy" class="buy-btn">1€ Buy</a>
+            </div>
+        </li>
+    </script>
+
+    <script id="catalog.categorie" type="text/html">
+        <li class="catalog-item">
+            <a href="#"><h4>Categorie</h4></a>
+        </li>
+    </script>
+ 
 	<script id="server.list" type="text/html">
 		<article>
 			<table class="table table-condensed">
@@ -249,10 +308,13 @@
 	<div class="container-fluid">
 		<div class="row-fluid">
 			<div class="span3">
-				<div class="well">
+				<div class="well" style="padding:0">
 					<ul class="nav nav-list">
+                        <li class="nav-header">Softwares</li>
+						<li><a href="#/catalog"><i class="icon-"></i>Browse catalog</a></li>
+						<li><a href="#/catalog/all"><i class="icon-"></i>Softwares availables</a></li>
 						<li class="nav-header">Servers</li>
-						<li autofocus="autofocus"><a href="#/computers"><i class="icon-list"></i>List all servers</a></li>
+						<li><a href="#/computers"><i class="icon-list"></i>List all servers</a></li>
 						<li><a href="#/computer"><i class="icon-plus-sign"></i>Add new server</a></li>
 						<li class="nav-header">Services</li>
 						<li><a href="#/instances"><i class="icon-list"></i>List all instances</a></li>
@@ -260,11 +322,6 @@
 						<li class="nav-header">Account</li>
 						<li><a href="#/invoices"><i class="icon-inbox"></i>Invoices</a></li>
 						<li><a href="#/settings"><i class="icon-cog"></i>Settings</a></li>
-						<!--<li class="nav-header">Quick search</li>-->
-						<!--<li><form class="form-search">
-							<i class="icon-search"></i>
-							<input type="text" class="input-mini search-query">
-						</form></li>-->
 					</ul>
 				</div>
 			</div>

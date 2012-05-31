@@ -5,12 +5,12 @@
             routes: {
                 list: [],
                 current: null,
+
                 add: function (route, level, callback, context) {
                     var r, keys, i;
                     if (typeof this.list[level] === 'undefined') {
                         this.list[level] = [];
                     }
-                    route = route.replace(/:\w+/g, '([^\/]+)');
                     r = {
                         'route': route,
                         'level': level,
@@ -27,28 +27,35 @@
                         i = this.list[level].length;
                     this.list[level][i] = r;
                 },
+
                 clean: function (level) {
                     this.list = this.list.slice(0, level);
                 },
+
                 cleanAll: function () {
                     this.list = this.list.slice(0, 0);
                 },
+
                 search: function (hash) {
                     var stop = false,
-                        i = 0,
-                        j = 0,
+                        i = 0, j = 0,
                         regex,
-                        result;
-                    console.log(hash)
+                        result,
+                        extracted;
                     while ((stop  === false) && (i < this.list.length)) {
+                        j = 0;
                         while ((stop === false) && (j < this.list[i].length)) {
-                            regex = new RegExp('^' + this.list[i][j].route + '$');
+                            extracted = $.router.extractKeys(this.list[i][j].route);
+                            regex = new RegExp('^' + extracted.regex + '$');
                             if (regex.test(hash.route)) {
                                 result = regex.exec(hash.route);
                                 stop = true;
-                                console.log(result)
                                 result.shift();
-                                //delete hash.route;
+                                for (var k = 0; k < result.length; k += 1) {
+                                    hash[extracted.keys[k]] = result[k];
+                                }
+                                this.current = this.list[i][j];
+                                this.clean(i + 1);
                                 this.list[i][j].callback(hash);
                             }
                             j += 1;
@@ -56,6 +63,18 @@
                         i += 1;
                     }
                 }
+            },
+
+            extractKeys: function (regex) {
+                var re_key = new RegExp(/:(\w+)/),
+                    keys = [],
+                    result;
+                while (re_key.test(regex)) {
+                    result = re_key.exec(regex);
+                    keys.push(result[1]);
+                    regex = regex.replace(result[0], '([^\/]+)');
+                }
+                return {'regex': regex, 'keys': keys}
             },
 
             deserialize: function (params) {

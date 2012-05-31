@@ -45,21 +45,25 @@ $(function () {
     test('search test', function () {
         var url1 = {'route': '#/new/path', 'param1': 'foo1', 'param2': 'foo2', 'filter': true},
             url2 = {'route': '#/new/path/1', 'param1': 'foo1'},
-            spy1 = sinon.spy(),
-            spy2 = sinon.spy();
-        console.log(url1);
-        $.router.routes.add(url1.route, 0, spy1);
-        $.router.routes.add('#/new/path/:id', 1, spy2);
+            url3 = {'route': '#/new/path/1/foo', 'param1': 'foo1'},
+            spy = sinon.spy();
+        $.router.routes.add('#/new/path', 0, spy);
+        $.router.routes.add('#/new/path/:id', 1, spy);
+        $.router.routes.add('#/new/path/:id/:other', 2, spy);
 
         $.router.routes.search(url1);
-        //delete url1.route;
-        //ok(spy1.calledOnce);
-        //ok(spy1.calledWith(url1));
+        delete url1.route;
+        ok(spy.calledWith(url1));
 
-        //$.router.routes.search(url2);
-        //delete url2.route;
-        //ok(spy2.calledOnce);
-        //ok(spy2.calledWith(url2));
+        $.router.routes.search(url2);
+        delete url2.route;
+        ok(spy.calledWith(url2));
+
+        $.router.routes.search(url3);
+        delete url3.route;
+        ok(spy.calledWith(url3));
+
+        ok(spy.calledThrice);
     });
 
     module('router methods tests', {

@@ -61,5 +61,7 @@ $.redirectHandler = function(e, url){ window.location.hash = $.genHash(url); };
 $.redirect = function(url){ $.publish('redirect', [url]); };
 $.subscribe('redirect', $.redirectHandler)
 
+console.log("plop")
+
 $(window).bind('hashchange', $.hashHandler);
 $(window).bind('load', $.hashHandler);

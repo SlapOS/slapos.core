@@ -5,31 +5,7 @@
  */
 (function ($) {
     'use strict';
-    var routes = {
-        '/catalog' : 'showCatalog',
-        '/catalog/all' : 'showCatalogAll',
-        '/instance' : 'requestInstance',
-        '/instance/:url' : 'showInstance',
-        '/instance/:url/bang' : 'showBangInstance',
-        '/computers' : 'listComputers',
-        '/instances' : 'listInstances',
-        '/invoices' : 'listInvoices',
-        '/dashboard' : 'showDashboard'
-    },
-        router = function (e, d) {
-            var $this = $(this);
-            $.each(routes, function (pattern, callback) {
-                pattern = pattern.replace(/:\w+/g, '([^\/]+)');
-                var regex = new RegExp('^' + pattern + '$'),
-                    result = regex.exec(d);
-                if (result) {
-                    result.shift();
-                    methods[callback].apply($this, result);
-                }
-            });
-        },
-
-        getDate = function () {
+    var getDate = function () {
             var today = new Date();
             return [today.getFullYear(), today.getMonth(), today.getDay()].join('/') +
                 ' ' + [today.getHours(), today.getMinutes(), today.getSeconds()].join(':');
@@ -83,23 +59,33 @@
         
         methods = {
             init: function () {
-                // Initialize slapos in this context
-                $(this).slapos({'host': 'http://10.8.2.34:12006/erp5/portal_vifib_rest_api_v1'});
-                var $this = $(this);
-                // Bind Loading content
-                $('#loading').ajaxStart(function () {
-                    $(this).spin(spinOptions);
-                }).ajaxStop(function () {
-                    $(this).spin(false);
-                });
-                // Bind to urlChange event
+                var routes = [];
+                routes[0] = [
+                    ['/catalog', methods['showCatalog']],
+                    ['/catalog/all', methods['showCatalogAll']],
+                    ['/instance', methods['requestInstance']],
+                    ['/instance/:url', methods['showInstance']],
+                    ['/instance/:url/bang', methods['showBangInstance']],
+                    ['/computers', methods['listComputers']],
+                    ['/instances', methods['listInstances']],
+                    ['/invoices', methods['listInvoices']],
+                    ['/dashboard', methods['showDashboard']]
+                ];
                 return this.each(function () {
-                    $.subscribe('urlChange', function (e, d) {
-                        router.call($this, e, d);
+                    // Initialize slapos in this context
+                    $(this).slapos({'host': 'http://10.8.2.34:12006/erp5/portal_vifib_rest_api_v1'});
+                    // Bind Loading content
+                    $('#loading').ajaxStart(function () {
+                        $(this).spin(spinOptions);
+                    }).ajaxStop(function () {
+                        $(this).spin(false);
                     });
-                    $.subscribe('auth', function (e, d) {
-                        $(this).vifib('authenticate', d);
-                    });
+                    for (var level = 0; level < routes.length; level += 1) {
+                        for (var i = 0; i < routes[level].length; i += 1) {
+                            var r = routes[level][i];
+                            $.router.routes.add(r[0], level, r[1], $(this));
+                        }
+                    }
                 });
             },
 

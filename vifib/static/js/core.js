@@ -59,18 +59,18 @@
         
         methods = {
             init: function () {
-                var routes = [];
-                routes[0] = [
-                    ['/catalog', methods['showCatalog']],
-                    ['/catalog/all', methods['showCatalogAll']],
-                    ['/instance', methods['requestInstance']],
-                    ['/instance/:url', methods['showInstance']],
-                    ['/instance/:url/bang', methods['showBangInstance']],
-                    ['/computers', methods['listComputers']],
-                    ['/instances', methods['listInstances']],
-                    ['/invoices', methods['listInvoices']],
-                    ['/dashboard', methods['showDashboard']]
-                ];
+                var routes = [[['/', methods['showRoot']]]];
+                //routes[0] = [
+                    //['/catalog', methods['showCatalog']],
+                    //['/catalog/all', methods['showCatalogAll']],
+                    //['/instance', methods['requestInstance']],
+                    //['/instance/:url', methods['showInstance']],
+                    //['/instance/:url/bang', methods['showBangInstance']],
+                    //['/computers', methods['listComputers']],
+                    //['/instances', methods['listInstances']],
+                    //['/invoices', methods['listInvoices']],
+                    //['/dashboard', methods['showDashboard']]
+                //];
                 return this.each(function () {
                     // Initialize slapos in this context
                     $(this).slapos({'host': 'http://10.8.2.34:12006/erp5/portal_vifib_rest_api_v1'});
@@ -87,6 +87,13 @@
                         }
                     }
                 });
+            },
+
+            showRoot: function (params) {
+                var route = $.router.routes.current,
+                    nextLevel = route.level + 1;
+                $(this).vifib('render', 'root');
+                $.router.routes.add('/catalog', nextLevel, methods.showCatalog, $("#main"));
             },
 
             genInstanceUrl: function (uri) {
@@ -457,4 +464,4 @@
     };
 }(jQuery));
 
-$('#main').vifib();
+$('body').vifib();

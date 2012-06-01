@@ -281,56 +281,56 @@
             {{ message }}
         </div>
     </script>
-</head>
-<body>
 
-    <div id="loading" style="position: absolute; right: 20px; top: 20px;"></div>
-    <div class="navbar">
-        <div class="navbar-inner">
-            <div class="container-fluid">
-                <div class="row-fluid">
-                    <div class="span2">
-                        <!--<a href="#" class="brand">Vifib</a>-->
-                        <img src="static/img/vifib_logo.gray.png" style="max-height: 40px" />
+    <script id="root" type="text/html">
+        <div id="loading" style="position: absolute; right: 20px; top: 20px;"></div>
+        <div class="navbar">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <div class="row-fluid">
+                        <div class="span2">
+                            <!--<a href="#" class="brand">Vifib</a>-->
+                            <img src="static/img/vifib_logo.gray.png" style="max-height: 40px" />
+                        </div>
+                        <div class="span10">
+                            <ul class="nav">
+                                <li><a href="#/dashboard">Dashboard</a></li>
+                                <li><a href="#/about">About</a></li>
+                                <li><a href="#/contact">Contact</a></li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="span10">
-                        <ul class="nav">
-                            <li><a href="#/dashboard">Dashboard</a></li>
-                            <li><a href="#/about">About</a></li>
-                            <li><a href="#/contact">Contact</a></li>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span3">
+                    <div class="well" style="padding:0">
+                        <ul class="nav nav-list">
+                            <li class="nav-header">Softwares</li>
+                            <li><a href="#/catalog"><i class="icon-"></i>Browse catalog</a></li>
+                            <li><a href="#/catalog/all"><i class="icon-"></i>Softwares availables</a></li>
+                            <li class="nav-header">Servers</li>
+                            <li><a href="#/computers"><i class="icon-list"></i>List all servers</a></li>
+                            <li><a href="#/computer"><i class="icon-plus-sign"></i>Add new server</a></li>
+                            <li class="nav-header">Services</li>
+                            <li><a href="#/instances"><i class="icon-list"></i>List all instances</a></li>
+                            <li><a href="#/instance"><i class="icon-plus-sign"></i>Add new instance</a></li>
+                            <li class="nav-header">Account</li>
+                            <li><a href="#/invoices"><i class="icon-inbox"></i>Invoices</a></li>
+                            <li><a href="#/settings"><i class="icon-cog"></i>Settings</a></li>
                         </ul>
                     </div>
                 </div>
+                <section class="span9" id="main" style="min-height: 200px">
+                    <!--Body content-->
+                </section>
             </div>
         </div>
-    </div>
-
-    <div class="container-fluid">
-        <div class="row-fluid">
-            <div class="span3">
-                <div class="well" style="padding:0">
-                    <ul class="nav nav-list">
-                        <li class="nav-header">Softwares</li>
-                        <li><a href="#/catalog"><i class="icon-"></i>Browse catalog</a></li>
-                        <li><a href="#/catalog/all"><i class="icon-"></i>Softwares availables</a></li>
-                        <li class="nav-header">Servers</li>
-                        <li><a href="#/computers"><i class="icon-list"></i>List all servers</a></li>
-                        <li><a href="#/computer"><i class="icon-plus-sign"></i>Add new server</a></li>
-                        <li class="nav-header">Services</li>
-                        <li><a href="#/instances"><i class="icon-list"></i>List all instances</a></li>
-                        <li><a href="#/instance"><i class="icon-plus-sign"></i>Add new instance</a></li>
-                        <li class="nav-header">Account</li>
-                        <li><a href="#/invoices"><i class="icon-inbox"></i>Invoices</a></li>
-                        <li><a href="#/settings"><i class="icon-cog"></i>Settings</a></li>
-                    </ul>
-                </div>
-            </div>
-            <section class="span9" id="main" style="min-height: 200px">
-                <!--Body content-->
-            </section>
-        </div>
-    </div>
-
+    </script>
+</head>
+<body>
     <script type="text/javascript" src="static/js/jquery-1.7.2.js"></script>
     <script type="text/javascript" src="static/js/bootstrap-transition.js"></script>
     <script type="text/javascript" src="static/js/bootstrap-alert.js"></script>

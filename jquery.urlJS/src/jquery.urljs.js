@@ -36,15 +36,16 @@ $.extend({
 
             search: function (hash) {
                 var stop = false,
-                    i = 0, j = 0,
+                    i, j,
                     regex,
                     result,
                     extracted;
-                while ((stop  === false) && (i < this.list.length)) {
+                i = this.list.length - 1;
+                while ((stop  === false) && (i >= 0)) {
                     j = 0;
                     while ((stop === false) && (j < this.list[i].length)) {
                         extracted = $.router.extractKeys(this.list[i][j].route);
-                        regex = new RegExp('^' + extracted.regex + '$');
+                        regex = new RegExp(extracted.regex);
                         if (regex.test(hash.route)) {
                             result = regex.exec(hash.route);
                             stop = true;
@@ -57,7 +58,7 @@ $.extend({
                         }
                         j += 1;
                     }
-                    i += 1;
+                    i -= 1;
                 }
             }
         },

@@ -47,6 +47,7 @@ $(function () {
             url2 = {'route': '#/new/path/1', 'param1': 'foo1'},
             url3 = {'route': '#/new/path/1/foo', 'param1': 'foo1'},
             spy = sinon.spy();
+
         $.router.routes.add('#/new/path', 0, spy);
         $.router.routes.add('#/new/path/:id', 1, spy);
         $.router.routes.add('#/new/path/:id/:other', 2, spy);
@@ -57,10 +58,12 @@ $(function () {
 
         $.router.routes.search(url2);
         delete url2.route;
+        $.extend(url2, {'id': '1'});
         ok(spy.calledWith(url2));
 
         $.router.routes.search(url3);
         delete url3.route;
+        $.extend(url3, {'id': '1', 'other': 'foo'});
         ok(spy.calledWith(url3));
 
         ok(spy.calledThrice);

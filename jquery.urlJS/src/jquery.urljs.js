@@ -55,7 +55,6 @@
                                     hash[extracted.keys[k]] = result[k];
                                 }
                                 this.current = this.list[i][j];
-                                this.clean(i + 1);
                                 this.list[i][j].callback(hash);
                             }
                             j += 1;

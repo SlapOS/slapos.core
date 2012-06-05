@@ -23,7 +23,20 @@ $.extend({
                     },
                 },
                     i = this.list[level].length;
-                this.list[level][i] = r;
+                if (this.exist(r) === false) {
+                    this.list[level][i] = r;
+                }
+            },
+
+            exist: function (r) {
+                var found = false, i = 0;
+                while (i < this.list[r.level].length && found === false) {
+                    if (this.list[r.level][i].route === r.route) {
+                        found = true;
+                    }
+                    i += 1;
+                }
+                return found;
             },
 
             clean: function (level) {
@@ -34,14 +47,16 @@ $.extend({
                 this.list = this.list.slice(0, 0);
             },
 
-            search: function (hash) {
+            search: function (hash, level) {
                 var stop = false,
                     i, j,
                     regex,
                     result,
                     extracted;
+                level = level || 0;
                 i = this.list.length - 1;
-                while ((stop  === false) && (i >= 0)) {
+                hash.route = hash.route === "undefined" ? "/" : hash.route;
+                while ((stop  === false) && (i >= level)) {
                     j = 0;
                     while ((stop === false) && (j < this.list[i].length)) {
                         extracted = $.router.extractKeys(this.list[i][j].route);
@@ -54,12 +69,25 @@ $.extend({
                                 hash[extracted.keys[k]] = result[k];
                             }
                             this.current = this.list[i][j];
+                            this.clean(this.list[i][j].level + 1);
+                            console.log(this.list[i][j].route)
                             this.list[i][j].callback(hash);
                         }
                         j += 1;
                     }
                     i -= 1;
                 }
+            },
+
+            isLastLevel: function () {
+                return this.current.level === (this.list.length - 1);
+            }
+        },
+
+        start: function (hash, level) {
+            var hashInfo = this.parseHash(hash);
+            if ($.router.routes.current.route !== hashInfo.route) {
+                this.routes.search(hashInfo, level);
             }
         },
 

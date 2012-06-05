@@ -54,9 +54,9 @@
             }
             $(this).vifib('popup', message);
         },
-        
+
         spinOptions = {color: "#FFFFFF", lines: 30, length: 0, width: 5, radius: 7, rotate: 0, trail: 60, speed: 1.6},
-        
+
         methods = {
             init: function () {
                 var routes = [[['/', methods['showRoot']]]];
@@ -94,6 +94,9 @@
                     nextLevel = route.level + 1;
                 $(this).vifib('render', 'root');
                 $.router.routes.add('/catalog', nextLevel, methods.showCatalog, $("#main"));
+                $.router.routes.add('/dashboard', nextLevel, methods.showDashboard, $("#main"));
+                // default page
+                $.router.start(params.route, nextLevel);
             },
 
             genInstanceUrl: function (uri) {
@@ -103,7 +106,7 @@
             extractInstanceURIFromHref: function () {
                 return decodeURIComponent($(this).attr('href').split('/').pop());
             },
-            
+
             extractInstanceURIFromHashtag: function () {
                 var loc = window.location.href.split('#')[1].split('/'),
                     i = $.inArray("instance", loc);
@@ -149,15 +152,14 @@
                     $(this).vifib('render', 'catalog.all');
                     for (i=0; i<14; i++) {
                         item = $(this).vifib('getRender', 'catalog.item');
-                        console.log(item)
                         $("#catalog-all").append(item);
                     }
                 });
             },
-            
-            showCatalog: function () {
+
+            showCatalog: function (params) {
                 return this.each(function () {
-                    var i, item;
+                    var i, item, nextLevel;
                     $(this).vifib('render', 'catalog.preview');
                     for (i=0; i<2; i++) {
                         item = $(this).vifib('getRender', 'catalog.item');
@@ -171,6 +173,9 @@
                         item = $(this).vifib('getRender', 'catalog.categorie');
                         $("#catalog-categories").append(item);
                     }
+                    nextLevel = $.router.routes.current.level + 1;
+                    $.router.routes.add('/catalog/all', nextLevel, methods.showCatalogAll, $(this));
+                    $.router.start(params.route, nextLevel);
                 });
             },
 
@@ -281,7 +286,7 @@
             listComputers: function () {
                 $(this).vifib('render', 'server.list');
             },
-            
+
             refreshRowInstance: function () {
                 return this.each(function () {
                     var url = $(this).find('a').vifib('extractInstanceURIFromHref');
@@ -348,7 +353,7 @@
                     statusCode: statusCode
                 });
             },
-            
+
             listInvoices: function () {
                 $(this).vifib('render', 'invoice.list');
             },
@@ -424,7 +429,7 @@
                     $(this).html(ich[template](data, true));
                 });
             },
-            
+
             getRender: function (template, data) {
                 return ich[template](data, true);
             },

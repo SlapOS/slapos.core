@@ -96,6 +96,9 @@
                 $.router.routes.add('/catalog', nextLevel, methods.showCatalog, $("#main"));
                 $.router.routes.add('/dashboard', nextLevel, methods.showDashboard, $("#main"));
                 // default page
+                if (params.route === '/') {
+                    $.router.redirect('/dashboard');
+                }
                 $.router.start(params.route, nextLevel);
             },
 

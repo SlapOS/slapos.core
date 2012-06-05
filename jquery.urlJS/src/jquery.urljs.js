@@ -91,6 +91,11 @@ $.extend({
             }
         },
 
+        redirect: function (hash) {
+            var hashInfo = this.parseHash(hash);
+            this.routes.search(hashInfo);
+        },
+
         extractKeys: function (regex) {
             var re_key = new RegExp(/:(\w+)/),
                 keys = [],

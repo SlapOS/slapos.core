@@ -60,19 +60,10 @@
         methods = {
             init: function () {
                 var routes = [[['/', methods['showRoot']]]];
-                //routes[0] = [
-                    //['/catalog', methods['showCatalog']],
-                    //['/catalog/all', methods['showCatalogAll']],
-                    //['/instance', methods['requestInstance']],
-                    //['/instance/:url', methods['showInstance']],
-                    //['/instance/:url/bang', methods['showBangInstance']],
-                    //['/computers', methods['listComputers']],
-                    //['/instances', methods['listInstances']],
-                    //['/invoices', methods['listInvoices']],
-                    //['/dashboard', methods['showDashboard']]
-                //];
                 return this.each(function () {
+                    // JQM configuration
                     // Initialize slapos in this context
+                    //$(this).slapos({'host': 'http://10.8.2.34:12006/erp5/portal_vifib_rest_api_v1'});
                     $(this).slapos({'host': 'http://10.8.2.34:12006/erp5/portal_vifib_rest_api_v1'});
                     // Bind Loading content
                     $('#loading').ajaxStart(function () {
@@ -89,21 +80,12 @@
                 });
             },
 
-            showRoot: function (params) {
-                var route = $.router.routes.current,
-                    nextLevel = route.level + 1;
-                $(this).vifib('render', 'root');
-                $.router.routes.add('/catalog', nextLevel, methods.showCatalog, $("#main"));
-                $.router.routes.add('/dashboard', nextLevel, methods.showDashboard, $("#main"));
-                // default page
-                if (params.route === '/') {
-                    $.router.redirect('/dashboard');
-                }
-                $.router.start(params.route, nextLevel);
-            },
-
             genInstanceUrl: function (uri) {
-                return $.genHash(['instance', encodeURIComponent(uri)]);
+                return $.router.genHash(['instance', encodeURIComponent(uri)]);
+            },
+            
+            genSoftwareUrl: function (uri) {
+                return $.router.genHash(['library', 'software', encodeURIComponent(uri)]);
             },
 
             extractInstanceURIFromHref: function () {
@@ -117,7 +99,7 @@
             },
 
             genBangUrl: function (uri) {
-                return $.genHash(["instance", encodeURIComponent(uri), "bang"]);
+                return $.router.genHash(["instance", encodeURIComponent(uri), "bang"]);
             },
 
             authenticate: function (data) {
@@ -127,6 +109,11 @@
                         $(this).slapos('store', d, data[d]);
                     }
                 }
+            },
+
+            isAuthenticated: function () {
+                // TODO
+                return true;
             },
 
             refresh: function (method, interval, eventName) {
@@ -141,44 +128,177 @@
                     });
                 });
             },
-
-            showDashboard: function () {
-                return this.each(function () {
-                    $(this).vifib('render', 'dashboard');
-                    $(this).find("#carousel").carousel();
-                });
+            // ROOT
+            showRoot: function (params) {
+                var route = $.router.routes.current,
+                    nextLevel = route.level + 1;
+                $.router.routes.add('/homepage', nextLevel, methods.showHomepage, $(":jqmData(role=page)"));
+                $.router.routes.add('/library', nextLevel, methods.showLibrary, $(":jqmData(role=page)"));
+                $.router.routes.add('/documentation', nextLevel, methods.showDocumentation, $(":jqmData(role=page)"));
+                $.router.routes.add('/dashboard', nextLevel, methods.showDashboard, $(":jqmData(role=page)"));
+                $.router.routes.add('/login', nextLevel, methods.showLogin, $(":jqmData(role=page)"));
+                // default page
+                if (params.route === '/') {
+                    $.router.redirect('/homepage');
+                }
+                $.router.start(params.route, nextLevel);
             },
 
-            showCatalogAll: function () {
+            //HOMEPAGE
+            showHomepage: function (params) {
                 return this.each(function () {
-                    var i, item;
-                    $(this).vifib('render', 'catalog.all');
-                    for (i=0; i<14; i++) {
-                        item = $(this).vifib('getRender', 'catalog.item');
-                        $("#catalog-all").append(item);
-                    }
+                    var mainPanel = $(this).vifib('getRender', 'homepagePanel'),
+                        options = {
+                            'title': 'Vifib',
+                            'mainPanel': mainPanel,
+                            'headmenu': true,
+                            'headlinks': [
+                                {'name': 'Software library', 'link': '#/library'},
+                                {'name': 'Documentation', 'link': '#/documentation'}
+                            ]
+                        },
+                        nextLevel = $.router.routes.current.level + 1;
+                    $(this).vifib('render', 'homepage', options);
                 });
             },
-
-            showCatalog: function (params) {
+            //LOGIN
+            showLogin: function (params) {
                 return this.each(function () {
-                    var i, item, nextLevel;
-                    $(this).vifib('render', 'catalog.preview');
-                    for (i=0; i<2; i++) {
-                        item = $(this).vifib('getRender', 'catalog.item');
-                        $("#catalog-new").append(item);
-                    }
-                    for (i=0; i<4; i++) {
-                        item = $(this).vifib('getRender', 'catalog.item');
-                        $("#catalog-most").append(item);
-                    }
-                    for (i=0; i<6; i++) {
-                        item = $(this).vifib('getRender', 'catalog.categorie');
-                        $("#catalog-categories").append(item);
-                    }
+                    var mainPanel = $(this).vifib('getRender', 'loginPanel'),
+                        options = {
+                            'title': 'Vifib',
+                            'mainPanel': mainPanel,
+                            'leftbutton': {
+                                'link': '#/homepage',
+                                'icon': 'home',
+                                'title': 'Homepage'
+                            }
+                        },
+                        nextLevel = $.router.routes.current.level + 1;
+                    $(this).vifib('render', 'login', options);
+                });
+            },
+            // DASHBOARD
+            showDashboard: function (params) {
+                return this.each(function () {
+                    var mainPanel = $(this).vifib('getRender', 'dashboardPanel'),
+                        options = {
+                            'title': 'Dashboard',
+                            'mainPanel': mainPanel
+                        };
+                    $(this).vifib('render', 'dashboard', options);
+                });
+            },
+            // LIBRARY
+            showLibrary: function (params) {
+                return this.each(function () {
+                    var i, item, nextLevel,
+                        /* FAKE ************/
+                        data = {
+                            'most': [
+                                {'link': '#/library/software/kvm', 'name': 'Kvm'},
+                                {'link': '#/library/software/kvm', 'name': 'Kvm'},
+                            ],
+                            'new': [
+                                {'link': '#/library', 'name': 'Another Kvm'}
+                            ],
+                            'newCount': '1'
+                        },
+                        /*******************/
+                        options = {
+                            'title': 'Library',
+                            'mainPanel': $(this).vifib('getRender', 'libraryPanel', data),
+                            'leftbutton': {
+                                'link': $(this).vifib('isAuthenticated') ? '#/dashboard' : '#/homepage',
+                                'icon': 'home',
+                                'title': 'Homepage'
+                            },
+                            'menu': true,
+                            'menulinks': [
+                                {'link': '#/library/all', 'name': 'All softwares'}
+                            ],
+                            'footlinks': [
+                                {'link': '#/library', 'name': 'Library'},
+                                {'link': '#/documentation', 'name': 'Documentation'}
+                            ],
+                        };
+                    $(this).vifib('render', 'library', options);
                     nextLevel = $.router.routes.current.level + 1;
-                    $.router.routes.add('/catalog/all', nextLevel, methods.showCatalogAll, $(this));
+                    $.router.routes.add('/library/all', nextLevel, methods.showLibraryAll, $(this));
+                    $.router.routes.add('/library/categories', nextLevel, methods.showCatalogAll, $(this));
+                    /* FAKE *********/
+                    $.router.routes.add('/library/software/:software_url', nextLevel, methods.showSoftware, $(this));
+                    /****************/
                     $.router.start(params.route, nextLevel);
+                });
+            },
+
+            fillRowSoftware: function (uri) {
+                return this.each(function () {
+                    $(this).slapos('softwareInfo', uri, {
+                        success: function (response) {
+                            if (typeof (response) !== "object") {
+                                response = $.parseJSON(response);
+                            }
+                            $.extend(response, {'software_url': methods.genSoftwareUrl(uri)});
+                            $(this).vifib('render', 'software.listitem', response);
+                        }
+                    })
+                });
+            },
+
+            showLibraryAll: function () {
+                return this.each(function () {
+                    var options = {
+                        'title': 'All softwares',
+                        'mainPanel': $(this).vifib('getRender', 'library.allPanel'),
+                        'leftbutton': {
+                            'link': $(this).vifib('isAuthenticated') ? '#/dashboard' : '#/homepage',
+                            'icon': 'home',
+                            'title': 'Homepage'
+                        }
+                    },
+                        listview = $(this).vifib('render', 'library.all', options).find('#software-list');
+                    $(this).slapos('softwareList', {
+                        success: function (response) {
+                            if (typeof (response) !== "object") {
+                                response = $.parseJSON(response);
+                            }
+                            $.each(response.list, function () {
+                                var url = this.toString(),
+                                    row = $('<li></li>').vifib('fillRowSoftware', url);
+                                listview.append(row).listview('refresh');
+                            })
+                        }
+                    })
+                });
+            },
+
+            showSoftware: function (params) {
+                return this.each(function () {
+                    $(this).slapos('softwareInfo', params.software_url, {
+                        success: function (response) {
+                            var options = {
+                                'title': response.name,
+                                'mainPanel': $(this).vifib('getRender', 'softwarePanel', response),
+                                'leftbutton': {
+                                    'link': $(this).vifib('isAuthenticated') ? '#/dashboard' : '#/homepage',
+                                    'icon': 'home',
+                                    'title': 'Homepage'
+                                },
+                                'menu': true,
+                                'menulinks': [
+                                    {'link': '#/library/all', 'name': 'All softwares'}
+                                ],
+                                'menu-extension': 'From the same category',
+                                'menuextlinks': [
+                                    {'link': '#/library/software/html5', 'name': 'Html5 AS'}
+                                ]
+                            }
+                            $.extend(options, response)
+                            $(this).vifib('render', 'software', options);
+                        }
+                    })
                 });
             },
 
@@ -427,22 +547,34 @@
                 });
             },
 
-            render: function (template, data) {
+            render: function (template, data, raw) {
+                raw = raw || true;
                 return this.each(function () {
-                    $(this).html(ich[template](data, true));
+                    $(this).html(ich[template](data, raw));
+                    $(this).trigger('pagecreate');
                 });
             },
 
-            getRender: function (template, data) {
-                return ich[template](data, true);
+            getRender: function (template, data, raw) {
+                raw = raw || true;
+                return ich[template](data, raw);
             },
 
-            renderAppend: function (template, data) {
-                $(this).append(ich[template](data, true));
+            renderAppend: function (template, data, raw) {
+                raw = raw || true;
+                return this.each(function () {
+                    $(this).append(ich[template](data, raw));
+                    $(this).trigger('pagecreate');
+                });
+
             },
 
-            renderPrepend: function (template, data) {
-                $(this).prepend(ich[template](data, true));
+            renderPrepend: function (template, data, raw) {
+                raw = raw || true;
+                return this.each(function () {
+                    $(this).prepend(ich[template](data, raw));
+                    $(this).trigger('pagecreate');
+                });
             }
         };
 
@@ -472,4 +604,17 @@
     };
 }(jQuery));
 
-$('body').vifib();
+$(document).bind("mobileinit", function(){
+    // let's handle ourself the hashchange event
+    $.mobile.hashListeningEnabled = false;
+    $.mobile.pushStateEnabled = false;
+    $.mobile.ajaxEnabled = false;
+    $.mobile.linkBindingEnabled = false;
+    $.mobile.defaultPageTransition = 'none';
+});
+$(document).bind('pagecreate', function () {
+    $(':jqmData(role=page)').vifib();
+});
+$(document).bind('pagebeforecreate', function (e, data) {
+    //e.preventDefault();
+});

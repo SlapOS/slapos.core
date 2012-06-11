@@ -70,7 +70,7 @@ $.extend({
                             }
                             this.current = this.list[i][j];
                             this.clean(this.list[i][j].level + 1);
-                            console.log(this.list[i][j].route)
+                            console.log(this.list[i][j].route);
                             this.list[i][j].callback(hash);
                         }
                         j += 1;
@@ -127,6 +127,10 @@ $.extend({
 
         serialize: function (obj) {
             return $.param(obj);
+        },
+
+        genHash: function (components) {
+            return '#/' + components.join('/');
         },
 
         parseHash: function (hashTag) {

@@ -153,6 +153,15 @@
         instanceCertificate: function (url, args) {
             $.extend(args, {'instance_url': decodeURIComponent(url)});
             return $(this).slapos('prepareRequest', 'instance_certificate', args);
+        },
+
+        softwareList: function (args) {
+            return $(this).slapos('prepareRequest', 'software_list', args);
+        },
+
+        softwareInfo: function (url, args) {
+            $.extend(args, {'software_url': decodeURIComponent(url)});
+            return $(this).slapos('prepareRequest', 'software_info', args);
         }
 
     };

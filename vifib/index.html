@@ -1,352 +1,237 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
-    <link href="static/css/bootstrap.min.css" rel="stylesheet"/>
-    <style type="text/css" media="screen">
-        [class*="span"] h3 { text-align: center; }
-        .dashboard{ text-align: center; }
-        .catalog-item{
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .content-primary img{
             display: inline-block;
-            padding: 20px 30px 20px 30px;
+            max-width: 100%;
         }
-        .catalog-item img{
-            max-width: 150px;
+        @media all and (min-width: 650px){
+            .content-secondary {
+                float: left;
+                width: 30%;
+            }
+            .content-primary {
+                float: right;
+                width: 65%;
+            }
+            [data-role=footer] {
+                width: 30%;
+            }
         }
-        .buy-btn{
-            display: inline-block;
-            padding: 2px 0px 2px 0px;
-            text-align: center;
-            width: 100%;
-            opacity: 0.6;
-            background-color: rgba(0, 175, 219, 1);
-            color: white;
-            -webkit-transition:opacity .2s ease-in-out;
-            -moz-transition:opacity .2s ease-in-out;
-            -ms-transition:opacity .2s ease-in-out;
-            -o-transition:opacity .2s ease-in-out;
-            transition:opacity .2s ease-in-out;
-            box-shadow:0px 0px 7px 1px rgba(0,0,0,0.2);
-            border-radius:2px;
-        }
-        .buy-btn:hover{
-            text-decoration: none;
-            color: white;
-            opacity: 1;
+        .ui-content .ui-listview {
+            margin-top: 0px;
+            margin-bottom: 0px;
         }
     </style>
+<!--
+   -COMPONENTS
+-->
+    <script id="headbar" type="text/html">
+        <div data-role="header">
+            <h1>{{ title }}</h1>
+            {{# leftbutton }}
+            <a href="{{ link }}" data-direction="reverse" data-role="button" data-icon="{{ icon }}" data-iconpos="notext" title="{{ title }}"></a>
+            {{/ leftbutton }}
+            {{# rightbutton }}
+            <a href="{{ link }}" data-inline="true" data-mini="true" data-role="button" title="{{ title }}"></a>
+            {{/ rightbutton }}
+            {{# headmenu }}
+            <div data-role="navbar">
+                <ul>
+                    {{# headlinks }}
+                    <li><a href="{{ link }}">{{ name }}</a></li>
+                    {{/ headlinks}}
+                </ul>
+            </div>
+            {{/ headmenu }}
+        </div>
+    </script>
 
+    <script id="menu" type="text/html">
+        <ul data-role="listview" data-divider-theme="a">
+            {{^ menu-extension }}
+                <li data-role="list-divider" role="header">Menu</li>
+            {{/ menu-extension }}
+            {{# menu-extension }}
+                <li data-role="list-divider">{{ menu-extension }}</li>
+                {{# menuextlinks }}
+                    <li><a href="{{ link }}">{{ name }}</a></li>
+                {{/ menuextlinks }}
+                <li data-role="list-divider" role="header">General</li>
+            {{/ menu-extension }}
+            {{# menulinks }}
+            <li><a href="{{ link }}">{{ name }}</a></li>
+            {{/ menulinks }}
+        </ul>
+    </script>
+    
+    <script id="content" type="text/html">
+        <div data-role="content">
+            {{#menu}}
+            <div class="content-primary">
+            {{/ menu}}
+                {{{ mainPanel }}}
+            {{#menu}}
+            </div>
+            <div class="content-secondary">
+                {{> menu}}
+            </div>
+            {{/ menu}}
+        </div>
+    </script>
+
+    <script id="footbar" type="text/html">
+        <div data-role="footer">
+            <div data-role="navbar">
+                <ul>
+                    {{# footlinks }}
+                    <li><a href="{{ link }}">{{ name }}</a></li>
+                    {{/ footlinks}}
+                </ul>
+            </div>
+        </div>
+    </script>
+    
+    <script id="service-inlist" type="text/html">
+        <li><a href="{{ link }}"><h4>{{ name }}</h4></a></li>
+    </script>
+<!--
+   -HOMEPAGE
+-->
+    <script id="homepage" type="text/html">
+        {{> headbar}}
+        {{> content}}
+    </script>
+    <script id="homepagePanel" type="text/html">
+        <h2>Carousel</h2>
+        <a href="#/login" data-role="button">Try it now !</a>
+    </script>
+<!--
+   -LIBRARY
+-->
+    <script id="library" type="text/html">
+        {{> headbar}}
+        {{> content}}
+        <!--{{> footbar}}-->
+    </script>
+    <script id="libraryPanel" type="text/html">
+        <form id="search-form">
+            <div data-role="fieldcontain" class="ui-hide-label">
+                <label for="search"></label>
+                <input type="search" name="search" placeholder="Search"/>
+            </div>
+        </form>
+        <ul data-role="listview">
+            <li data-role="list-divider" role="heading">
+                Most downloaded
+            </li>
+            {{# most }}
+                {{> service-inlist }}
+            {{/ most }}
+            <li data-role="list-divider" role="heading">Brand new<span class="ui-li-count">{{ newCount }}</span></li>
+            {{# new }}
+                {{> service-inlist }}
+            {{/ new }}
+        </ul>
+    </script>
+    <script id="library.all" type="text/html">
+        {{> headbar }}
+        {{> content }}
+    </script>
+    <script id="library.allPanel" type="text/html">
+        {{> software.list }}
+    </script>
+<!--
+-SOFTWARE>
+-->
+    <script id="software" type="text/html">
+        {{> headbar }}
+        {{> content }}
+    </script>
+    <script id="softwarePanel" type="text/html">
+        <img src="{{ image_url }}">
+        <p><b>{{ description }}</b></p>
+        <a data-role="button" href="#/login">Buy it for {{ price }}&euro;</a>
+    </script>
+    <script id="software.list" type="text/html">
+        <ul data-role="listview" id="software-list"></ul>
+    </script>
+    <script id="software.listitem" type="text/html">
+        <a href="{{ software_url }}">
+            {{# thumb_url }}
+            <img src="{{ thumb_url }}" />
+            {{/ thumb_url }}
+            <h3>{{ name }}</h3>
+        </a>
+    </script>
+<!--
+   -LOGIN
+-->
+    <script id="login" type="text/html">
+        {{> headbar }}
+        {{> content }}
+    </script>
+    <script id="loginPanel" type="text/html">
+        <form>
+            <div data-role="fieldcontain" class="ui-hide-label">
+                <label for="username"></label>
+                <input type="text" name="username" placeholder="Username"/>
+            </div>
+            <div data-role="fieldcontain" class="ui-hide-label">
+                <label for="password"></label>
+                <input type="password" name="password" placeholder="Password"/>
+            </div>
+            <div class="ui-body ui-body-b">
+                <fieldset class="ui-grid-a">
+                    <button type="submit" data-theme="a">Connexion</button>
+                </fieldset>
+            </div>
+        </form>
+    </script>
+<!--
+   -DASHBOARD
+-->
     <script id="dashboard" type="text/html">
-        <div class="row-fluid">
-            <div class="span12">
-                <div id="carousel" class="carousel slide">
-                    <div class="carousel-inner">
-                        <div class="item active" style="min-height: 200px; background-color: red">
-                            image 1
-                            <div class="carousel-caption">
-                                <h4>Order online applications that are hosted in Vifib's distributed cloud.</h4>
-                            </div>
-                        </div>
-                        <div class="item" style="min-height: 200px; background-color: green">
-                            image 2
-                            <div class="carousel-caption">
-                                <h4>Bring your own servers to the clouds and extend Vifib's distributed cloud with your own machines.</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        {{> headbar }}
+        {{> content }}
+    </script>
+    <script id="dashboardPanel" type="text/html">
+        <div class="ui-grid-a">
+            <div class="ui-block-a">
+                <a data-iconpos="top" data-icon="star" data-role="button" href="#/library">Library</a>
             </div>
-        </div>
-        <div class="row-fluid">
-            <div class="span6 dashboard">
-                <h3>Get a Virtual Machine from Vifib for 1€/month</h3>
-                <a class="btn btn-info" href="#/">Order a KVM now</a>
+            <div class="ui-block-b">
+                <a data-iconpos="top" data-icon="star" data-role="button" href="#/network">Networks</a>
             </div>
-            <div class="span6 dashboard">
-                <h3>Explore the world of Vifib provided software</h3>
-                <a class="btn btn-info" href="#/">Browse the Catalog</a>
+            <div class="ui-block-a">
+                <a data-iconpos="top" data-icon="star" data-role="button" href="#/service">Services</a>
+            </div>
+            <div class="ui-block-b">
+                <a data-iconpos="top" data-icon="star" data-role="button" href="#/computer">Computers</a>
+            </div>
+            <div class="ui-block-a">
+                <a data-iconpos="top" data-icon="star" data-role="button" href="#/billing">Billing</a>
+            </div>
+            <div class="ui-block-b">
+                <a data-iconpos="top" data-icon="star" data-role="button" href="#/support">Support</a>
             </div>
         </div>
     </script>
 
-    <script id="catalog.preview" type="text/html">
-        <h2>Brand new softwares</h2>
-        <ul id="catalog-new"></ul>
-        <h2>Most downloads</h2>
-        <ul id="catalog-most"></ul>
-        <h2>Categories</h2>
-        <ul id="catalog-categories"></ul>
-    </script>
-
-    <script id="catalog.all" type="text/html">
-        <h2>All available softwares</h2>
-        <ul id="catalog-all"></ul>
-    </script>
-
-    <script id="catalog.item" type="text/html">
-        <li class="catalog-item">
-            <div>
-                <img src="http://www.afpy.org/Members/nexedi/Dev%20ERP5/logo_medium">
-                <h4>Name</h4>
-                <h6>Categories</h6>
-                <a href="#/buy" class="buy-btn">1€ Buy</a>
-            </div>
-        </li>
-    </script>
-
-    <script id="catalog.categorie" type="text/html">
-        <li class="catalog-item">
-            <a href="#"><h4>Categorie</h4></a>
-        </li>
-    </script>
- 
-    <script id="server.list" type="text/html">
-        <article>
-            <table class="table table-condensed">
-            <caption><h2>Computers list</h2></caption>
-            <tr><th>Name</th><th>Reference</th><th>State</th></tr>
-            <tr><td>Couscous</td><td>Comp-1</td><td><span class="label label-success">Started</span></td></tr>
-            <tr><td>Merguez</td><td>Comp-3</td><td><span class="label label-success">Started</span></td></tr>
-            <tr><td>Plop</td><td>Comp-5</td><td><span class="label label-important">Stopped</span></td></tr>
-            </table>
-        </article>
-    </script>
-    
-    <script id="instance.list" type="text/html">
-            <table class="table table-condensed" id="instance-table">
-            <caption><h2>Instances list</h2></caption>
-            </table>
-    </script>
-
-    <script id="instance.list.elem" type="text/html">
-        <td><a href="{{ url }}">{{ title }}</a></td><td>{{ status }}</td>
-    </script>
-    
-    <script id="invoice.list" type="text/html">
-        <article>
-            <table class="table table-condensed">
-            <caption><h2>Invoices</h2></caption>
-            <tr><th>Number</th><th>Total price</th><th>Currency</th><th>Payment</th></tr>
-            <tr><td>43</td><td>1.0</td><td>Euro</td><td><span class="label label-warning">Waiting</span></td></th>
-            <tr><td>44</td><td>0.0</td><td>Euro</td><td><span class="label label-success">Payed</span></td></th>
-            <tr><td>45</td><td>1.0</td><td>Euro</td><td><span class="label label-success">Payed</span></td></th>
-            <tr><td>01</td><td></td><td>Euro</td><td><span class="label label-important">Ongoing</span></td></th>
-            </table>
-        </article>
-    </script>
-
-    <script id="form.bang.instance" type="text/html">
-        <form class="form-horizontal" id="form-bang">
-            <label>Why do you want to bang this instance ?</label>
-            <input class="input-large" name="log" type="text">
-            <button class="btn btn-primary" type="submit" name="submit">Bang</button>
-            <button class="btn">Cancel</button>
-        </form>
-    </script>
-
-    <script id="form.new.instance" type="text/html">
-    <article>
-        <form class="form-horizontal">
-            <fieldset>
-                <legend>Request a new instance</legend>
-                <div class="control-group">
-                    <label class="control-label">Name</label>
-                    <div class="controls">
-                        <input type="text" class="input-large" required name="title"/>
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label">Software release</label>
-                    <div class="controls">
-                        <input type="text" class="input-xlarge" required name="software_release"/>
-                    </div>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary" name="submit">Request</button>
-                </div>
-            </fieldset>
-        </form>
-    </article>
-    </script>
-
-    <script id="auth" type="text/html">
-    <article>
-        <p>Authentification needed. Are you agree to be redirect to login ?</p>
-        <a href="{{ host }}?response_type=token&client_id={{ client_id  }}&redirect_uri={{ redirect }}">Redirect</a>
-    </article>
-    </script>
-
-    <script id="instance" type="text/html">
-        {{! Service page template }}
-        <div class="subnav">
-            <ul class="nav nav-pills">
-                {{# actions }}
-                <li><a href="{{ url }}">{{ name }}</a></li>
-                {{/ actions}}
-            </ul>
-        </div>
-        <form class="form-horizontal" id="instance-form">
-        <fieldset>
-            <legend>
-                {{ title }}
-            </legend>
-            <div class="control-group">
-                <label class="control-label">Reference</label>
-                <div class="controls">
-                    <input name="title" type="text" value="{{ title }}" readOnly></input>
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label">Software release</label>
-                <div class="controls">
-                    <input type="text" name="software_release" value="{{ software_release }}" readOnly></input>
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label">Software type</label>
-                <div class="controls">
-                    <input type="text" name="software_type" value="{{ software_type }}"></input>
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label">Status</label>
-                <div class="controls" id="instanceStatus">
-                    {{{ status }}}
-                </div>
-            </div>
-        </fieldset>
-
-        <table class="table">
-            <caption>Connection parameters</caption>
-            {{# parameter}}
-            <tr><td>{{parameter.0}}</td><td></td></tr>
-            {{/ parameter}}
-        </table>
-
-            <fieldset>
-                <legend>
-                    Parameter XML
-                    <div class="pull-right">
-                        <button type="submit" class="btn btn-primary">Save changes</button>
-                        <button class="btn">Cancel</button>
-                    </div>
-                </legend>
-                        <textarea name="xml" style="width: 98%; height: 110px;">
-<?xml version="1.0" encoding="utf-8"?>
-<instance>
-    <parameter id="nbd_ip">2a01:e35:2e27:460:e2cb:4eff:fed9:48dc</parameter>
-    <parameter id="nbd_port">1024</parameter>
-</instance>
-                        </textarea>
-            </fieldset>
-        </form>
-    </script>
-
-    <script id="instance.stop_requested" type="text/html">
-        <div class="btn-group">
-            <button class="btn btn-danger disabled" disabled="disabled" id="stopInstance">Stopped</button>
-            <button class="btn" id="startInstance">Start</button>
-        </div>
-    </script>
-    
-    <script id="instance.draft" type="text/html">
-        <div class="btn-group">
-            <button class="btn disabled" disabled="disabled">Stop</button>
-            <button class="btn disabled" disabled="disabled">Start</button>
-        </div>
-    </script>
-
-    <script id="instance.start_requested" type="text/html">
-        <div class="btn-group">
-            <button class="btn" id="stopInstance">Stop</button>
-            <button class="btn btn-success disabled" disabled="disabled" id="startInstance">Started</button>
-        </div>
-    </script>
-    
-    <script id="simple-form" type="text/html">
-        <form class="form-inline">
-            <fieldset>
-                <div class="input-append">
-                    <input required class="span2" size="16" type="text"/>
-                    <button class="btn" type="submit">Go !</button>
-                </div>
-            </fieldset>
-        </form>
-    </script>
-
-    <script id="error" type="text/html">
-        <div class="alert alert-{{ state }}">
-            <a class="close" data-dismiss="alert" href="#">×</a>
-            <h4 class="alert-heading">{{ state }} - {{ date }}</h4>
-            {{ message }}
-        </div>
-    </script>
-
-    <script id="topbar" type="text/html">
-
-    </script>
-
-    <script id="root" type="text/html">
-        <div id="loading" style="position: absolute; right: 20px; top: 20px;"></div>
-        <div class="navbar">
-            <div class="navbar-inner">
-                <div class="container-fluid">
-                    <div class="row-fluid">
-                        <div class="span2">
-                            <!--<a href="#" class="brand">Vifib</a>-->
-                            <img src="static/img/vifib_logo.gray.png" style="max-height: 40px" />
-                        </div>
-                        <div class="span10">
-                            <ul class="nav">
-                                <li><a href="#/dashboard">Dashboard</a></li>
-                                <li><a href="#/about">About</a></li>
-                                <li><a href="#/contact">Contact</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="container-fluid">
-            <div class="row-fluid">
-                <div class="span3">
-                    <div class="well" style="padding:0">
-                        <ul class="nav nav-list">
-                            <li class="nav-header">Softwares</li>
-                            <li><a href="#/catalog"><i class="icon-"></i>Browse catalog</a></li>
-                            <li><a href="#/catalog/all"><i class="icon-"></i>Softwares availables</a></li>
-                            <li class="nav-header">Servers</li>
-                            <li><a href="#/computers"><i class="icon-list"></i>List all servers</a></li>
-                            <li><a href="#/computer"><i class="icon-plus-sign"></i>Add new server</a></li>
-                            <li class="nav-header">Services</li>
-                            <li><a href="#/instances"><i class="icon-list"></i>List all instances</a></li>
-                            <li><a href="#/instance"><i class="icon-plus-sign"></i>Add new instance</a></li>
-                            <li class="nav-header">Account</li>
-                            <li><a href="#/invoices"><i class="icon-inbox"></i>Invoices</a></li>
-                            <li><a href="#/settings"><i class="icon-cog"></i>Settings</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <section class="span9" id="main" style="min-height: 200px">
-                    <!--Body content-->
-                </section>
-            </div>
-        </div>
-    </script>
-</head>
-<body>
-    <script type="text/javascript" src="static/js/jquery-1.7.2.js"></script>
-    <script type="text/javascript" src="static/js/bootstrap-transition.js"></script>
-    <script type="text/javascript" src="static/js/bootstrap-alert.js"></script>
-    <script type="text/javascript" src="static/js/bootstrap-carousel.js"></script>
-    <script type="text/javascript" src="static/js/spin.js"></script>
-    <script type="text/javascript" src="static/js/jquery-spin.js"></script>
+    <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="static/js/ICanHaz.min.js"></script>
     <script type="text/javascript" src="static/js/modernizr-2.5.3.js"></script>
     <script type="text/javascript" src="static/js/sinon-1.3.2.js"></script>
     <script type="text/javascript" src="static/js/jquery.slapos.js"></script>
     <script type="text/javascript" src="static/js/jquery.urljs.js"></script>
-    <!--<script type="text/javascript" src="static/js/fake.js"></script>-->
+    <script type="text/javascript" src="static/js/fake.js"></script>
     <script type="text/javascript" src="static/js/core.js"></script>
+    <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"></script>
+</head>
+<body>
+    <div data-role="page" data-theme="c"></div>
 </body>
 </html>

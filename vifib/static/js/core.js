@@ -59,7 +59,7 @@
 
         methods = {
             init: function () {
-                var routes = [[['/', methods['showRoot']]]];
+                var routes = [[['/', methods.showRoot]]];
                 return this.each(function () {
                     // JQM configuration
                     // Initialize slapos in this context
@@ -81,11 +81,15 @@
             },
 
             genInstanceUrl: function (uri) {
-                return $.router.genHash(['instance', encodeURIComponent(uri)]);
+                return $.router.genHash(['instance', 'id', encodeURIComponent(uri)]);
             },
             
             genSoftwareUrl: function (uri) {
                 return $.router.genHash(['library', 'software', encodeURIComponent(uri)]);
+            },
+
+            genBangUrl: function (uri) {
+                return methods.genInstanceUrl(uri) + "/bang";
             },
 
             extractInstanceURIFromHref: function () {
@@ -96,10 +100,6 @@
                 var loc = window.location.href.split('#')[1].split('/'),
                     i = $.inArray("instance", loc);
                 return (i !== -1 && loc.length > i) ? decodeURIComponent(loc[i + 1]) : "";
-            },
-
-            genBangUrl: function (uri) {
-                return $.router.genHash(["instance", encodeURIComponent(uri), "bang"]);
             },
 
             authenticate: function (data) {
@@ -132,25 +132,27 @@
             showRoot: function (params) {
                 var route = $.router.routes.current,
                     nextLevel = route.level + 1;
+                $(this).vifib('render', 'root');
                 $.router.routes.add('/homepage', nextLevel, methods.showHomepage, $(":jqmData(role=page)"));
                 $.router.routes.add('/library', nextLevel, methods.showLibrary, $(":jqmData(role=page)"));
                 $.router.routes.add('/documentation', nextLevel, methods.showDocumentation, $(":jqmData(role=page)"));
                 $.router.routes.add('/dashboard', nextLevel, methods.showDashboard, $(":jqmData(role=page)"));
+                $.router.routes.add('/instance', nextLevel, methods.showInstanceList, $(":jqmData(role=page)"));
                 $.router.routes.add('/login', nextLevel, methods.showLogin, $(":jqmData(role=page)"));
                 // default page
-                if (params.route === '/') {
+                if ($.router.routes.isCurrent(params.route)) {
                     $.router.redirect('/homepage');
+                } else {
+                    $.router.start(params.route, nextLevel);
                 }
-                $.router.start(params.route, nextLevel);
             },
 
             //HOMEPAGE
             showHomepage: function (params) {
                 return this.each(function () {
-                    var mainPanel = $(this).vifib('getRender', 'homepagePanel'),
-                        options = {
+                    var options = {
                             'title': 'Vifib',
-                            'mainPanel': mainPanel,
+                            'mainPanel': $(this).vifib('getRender', 'homepagePanel'),
                             'headmenu': true,
                             'headlinks': [
                                 {'name': 'Software library', 'link': '#/library'},
@@ -301,28 +303,161 @@
                     })
                 });
             },
+            // SERVICES // INSTANCES
+            showInstanceList: function (params) {
+                return this.each(function () {
+                    var nextLevel = $.router.routes.current.level + 1,
+                        statusCode = {
+                            401: redirect,
+                            402: payment,
+                            404: notFound,
+                            500: serverError,
+                            503: serverError
+                        },
+                        options = {
+                            'title': 'My Services',
+                            'mainPanel': $(this).vifib('getRender', 'instance.list'),
+                            'leftbutton': {
+                                'link': $(this).vifib('isAuthenticated') ? '#/dashboard' : '#/homepage',
+                                'icon': 'home',
+                                'title': 'Homepage'
+                            },
+                            'rightbutton': {
+                                'link': '/instance/new',
+                                'icon': 'plus',
+                                'title': 'add service'
+                            }
+                        },
+                        listview = $(this).vifib('render', 'instance', options).find('#instance-list');
+                    // Routing
+                    $.router.routes.add('/instance/id/:id', nextLevel, methods.showInstance, $(this));
+                    if (params.route !== '/instance') {
+                        $.router.start(params.route, nextLevel);
+                    } else {
+                        //table.vifib('refresh', methods.refreshListInstance, 30);
+                        $(this).slapos('instanceList', {
+                            success: function (data) {
+                                if (typeof (data) !== "object") {
+                                    data = $.parseJSON(data);
+                                }
+                                $.each(data.list, function () {
+                                    var url = this.toString(),
+                                        row = $('<li></li>').vifib('fillRowInstance', url);
+                                    //row.vifib('refresh', methods.refreshRowInstance, 30);
+                                    listview.append(row).listview('refresh');
+                                });
+                            },
+                            statusCode: statusCode
+                        });
+                    }
+                });
+            },
 
-            showInstance: function (uri) {
+            fillRowInstance: function (url) {
+                return this.each(function () {
+                    $(this).slapos('instanceInfo', url, {
+                        success: function (instance) {
+                            if (typeof (instance) !== "object") {
+                                instance = $.parseJSON(instance);
+                            }
+                            $.extend(instance, {'instance_url': methods.genInstanceUrl(url)});
+                            $(this).vifib('render', 'instance.listitem', instance);
+                        }
+                    });
+                });
+            },
+            
+            showInstance: function (params) {
+                return this.each(function () {
+                    var statusCode = {
+                        401: redirect,
+                        402: payment,
+                        404: notFound,
+                        500: serverError
+                    },
+                        nextLevel = $.router.routes.current.level + 1;
+                    $.router.routes.add('/instance/id/:id/bang', nextLevel, methods.showBangInstance, $(this).find('.content-primary'));
+                    if ($.router.routes.isCurrent(params.route) === false) {
+                        $.router.start(params.route);
+                    }
+                    $(this).slapos('instanceInfo', params.id, {
+                        success: function (response) {
+                            if (typeof (response) !== "object") {
+                                response = $.parseJSON(response);
+                            }
+                            var content = {
+                                'information': [
+                                    {'name': 'Reference', 'value': response.instance_id},
+                                    {'name': 'Status', 'value': response.status},
+                                    {'name': 'Software release', 'value': response.software_release},
+                                    {'name': 'Software type', 'value': response.software_type}
+                                ],
+                                'actions': [
+                                    {'name': 'Bang', 'link': methods.genBangUrl(params.id)},
+                                    {'name': 'Rename', 'link': '#/instance/rename'}
+                                ]
+                            },
+                                options = {
+                                    'title': response.instance_id,
+                                    'mainPanel': $(this).vifib('getRender', 'instancePanel', content),
+                                    'leftbutton': {
+                                        'link': $(this).vifib('isAuthenticated') ? '#/dashboard' : '#/homepage',
+                                        'icon': 'home',
+                                        'title': 'Homepage'
+                                    },
+                                    'menu': true,
+                                    'menulinks': [
+                                        {'link': '#/instance', 'name': 'All services'}
+                                    ],
+                                    'menu-extension': 'instances bound',
+                                    'menuextlinks': [
+                                        {'link': '#/instance/id/kvm', 'name': 'INST-2'}
+                                    ]
+                                };
+                            //response.status = $(this).vifib('getRender', 'instance.' + response.status);
+                            response.actions = [
+                                {'name': "Bang", 'url': methods.genBangUrl(decodeURIComponent(params.id))}
+                            ];
+                            $(this).vifib('render', 'instance', options);
+                            //var form = $(this).find("#instance-form");
+                            //form.vifib('prepareForm');
+                        },
+                        statusCode: statusCode
+                    });
+                })
+            },
+
+            showBangInstance: function (params) {
                 var statusCode = {
+                    400: bad_request,
                     401: redirect,
                     402: payment,
                     404: notFound,
                     500: serverError
                 };
-                $(this).slapos('instanceInfo', uri, {
-                    success: function (infos) {
-                        if (typeof (infos) !== "object") {
-                            infos = $.parseJSON(infos);
-                        }
-                        infos.status = $(this).vifib('getRender', 'instance.' + infos.status);
-                        infos.actions = [
-                            {name: "Bang", url: methods.genBangUrl(decodeURIComponent(uri))}
-                        ];
-                        $(this).vifib('render', 'instance', infos);
-                        var form = $(this).find("#instance-form");
-                        form.vifib('prepareForm');
-                    },
-                    statusCode: statusCode
+                return this.each(function () {
+                    $(this).vifib('render', 'instance.bangPanel');
+                    $(this).find('#form-bang').submit(function () {
+                        var data = $(this).serializeObject(),
+                            uri = methods.extractInstanceURIFromHashtag();
+                        $(this).slapos('instanceBang', uri, {
+                            data: data,
+                            statusCode: statusCode,
+                            success: function () {
+                                $.redirect(['instance', encodeURIComponent(uri)]);
+                            }
+                        });
+                        return false;
+                    });
+                });
+            },
+
+            changeStatusInstance: function (status) {
+                var uri = methods.extractInstanceURIFromHashtag(),
+                    data = $(this).vifib('extractInstanceInfo');
+                data.status = status;
+                $(this).vifib('requestAsking', data, function () {
+                    $(this).vifib('refreshInstanceForm');
                 });
             },
 
@@ -364,40 +499,6 @@
                 return false;
             },
 
-            showBangInstance: function () {
-                var statusCode = {
-                    400: bad_request,
-                    401: redirect,
-                    402: payment,
-                    404: notFound,
-                    500: serverError
-                };
-                return this.each(function () {
-                    $(this).vifib("render", 'form.bang.instance');
-                    $(this).find("#form-bang").submit(function () {
-                        var data = $(this).serializeObject(),
-                            uri = methods.extractInstanceURIFromHashtag();
-                        $(this).slapos('instanceBang', uri, {
-                            data: data,
-                            statusCode: statusCode,
-                            success: function () {
-                                $.redirect(['instance', encodeURIComponent(uri)]);
-                            }
-                        });
-                        return false;
-                    });
-                });
-            },
-
-            changeStatusInstance: function (status) {
-                var uri = methods.extractInstanceURIFromHashtag(),
-                    data = $(this).vifib('extractInstanceInfo');
-                data.status = status;
-                $(this).vifib('requestAsking', data, function () {
-                    $(this).vifib('refreshInstanceForm');
-                });
-            },
-
             getCurrentList: function () {
                 var list = [];
                 $.each($(this).find('a'), function () {
@@ -417,19 +518,6 @@
                 });
             },
 
-            fillRowInstance: function (url) {
-                return this.each(function () {
-                    $(this).slapos('instanceInfo', url, {
-                        success: function (instance) {
-                            if (typeof (instance) !== "object") {
-                                instance = $.parseJSON(instance);
-                            }
-                            $.extend(instance, {'url': methods.genInstanceUrl(url)});
-                            $(this).vifib('render', 'instance.list.elem', instance);
-                        }
-                    });
-                });
-            },
 
             refreshListInstance: function () {
                 var currentList = $(this).vifib('getCurrentList');
@@ -447,33 +535,6 @@
                             $this.prepend(row);
                         });
                     }
-                });
-            },
-
-            listInstances: function () {
-                var $this = $(this),
-                    statusCode = {
-                        401: redirect,
-                        402: payment,
-                        404: notFound,
-                        500: serverError,
-                        503: serverError
-                    },
-                    table = $(this).vifib('render', 'instance.list').find('#instance-table');
-                table.vifib('refresh', methods.refreshListInstance, 30);
-                $(this).slapos('instanceList', {
-                    success: function (data) {
-                        if (typeof (data) !== "object") {
-                            data = $.parseJSON(data);
-                        }
-                        $.each(data.list, function () {
-                            var url = this.toString(),
-                                row = $('<tr></tr>').vifib('fillRowInstance', url);
-                            row.vifib('refresh', methods.refreshRowInstance, 30);
-                            table.append(row);
-                        });
-                    },
-                    statusCode: statusCode
                 });
             },
 
@@ -551,6 +612,7 @@
                 raw = raw || true;
                 return this.each(function () {
                     $(this).html(ich[template](data, raw));
+                    $(this).page();
                     $(this).trigger('pagecreate');
                 });
             },
@@ -613,7 +675,7 @@ $(document).bind("mobileinit", function(){
     $.mobile.defaultPageTransition = 'none';
 });
 $(document).bind('pagecreate', function () {
-    $(':jqmData(role=page)').vifib();
+    $('body').vifib();
 });
 $(document).bind('pagebeforecreate', function (e, data) {
     //e.preventDefault();

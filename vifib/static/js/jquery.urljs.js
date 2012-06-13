@@ -70,7 +70,6 @@ $.extend({
                             }
                             this.current = this.list[i][j];
                             this.clean(this.list[i][j].level + 1);
-                            console.log(this.list[i][j].route);
                             this.list[i][j].callback(hash);
                         }
                         j += 1;
@@ -81,6 +80,12 @@ $.extend({
 
             isLastLevel: function () {
                 return this.current.level === (this.list.length - 1);
+            },
+
+            isCurrent: function (hash) {
+                var extracted = $.router.extractKeys(this.current.route),
+                    regex = new RegExp('^' + extracted.regex + '$');
+                return regex.test(hash);
             }
         },
 

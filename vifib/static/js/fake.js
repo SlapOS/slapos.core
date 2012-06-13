@@ -113,7 +113,6 @@ var tmp = $.ajax;
 $.ajax = function(url, options){
     // it will not work with cache set to false
     if (url.hasOwnProperty('cache')) { url.cache = true; }
-    console.log(url)
     var result = tmp(url, options);
     fakeserver.respond();
     return result;

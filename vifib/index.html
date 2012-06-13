@@ -15,13 +15,13 @@
             }
             .content-primary {
                 float: right;
-                width: 65%;
+                width: 67%;
             }
             [data-role=footer] {
                 width: 30%;
             }
         }
-        .ui-content .ui-listview {
+        .content-primary .ui-listview {
             margin-top: 0px;
             margin-bottom: 0px;
         }
@@ -36,7 +36,7 @@
             <a href="{{ link }}" data-direction="reverse" data-role="button" data-icon="{{ icon }}" data-iconpos="notext" title="{{ title }}"></a>
             {{/ leftbutton }}
             {{# rightbutton }}
-            <a href="{{ link }}" data-inline="true" data-mini="true" data-role="button" title="{{ title }}"></a>
+            <a href="{{ link }}" data-role="button" data-icon="{{ icon }}" data-iconpos="notext" title="{{ title }}"></a>
             {{/ rightbutton }}
             {{# headmenu }}
             <div data-role="navbar">
@@ -94,7 +94,15 @@
             </div>
         </div>
     </script>
-    
+
+    <script id="actions" type="text/html">
+        <!--<div data-role="controlgroup" data-type="horizontal">-->
+        {{# actions }}
+        <a href="{{ link }}" data-role="button" data-inline="true" data-mini="true">{{ name }}</a>
+        {{/ actions }}
+        <!--</div>-->
+    </script>
+
     <script id="service-inlist" type="text/html">
         <li><a href="{{ link }}"><h4>{{ name }}</h4></a></li>
     </script>
@@ -168,6 +176,53 @@
         </a>
     </script>
 <!--
+   -INSTANCE // SERVICE
+-->
+    <script id="instance" type="text/html">
+        {{> headbar }}
+        {{> content }}
+    </script>
+    <script id="instancePanel" type="text/html">
+        {{> actions }}
+        <ul data-role="listview">
+            {{# information }}
+            <li>
+                {{ name }}
+                <h4>{{ value }}</h4>
+            </li>
+            {{/ information }}
+        </ul>
+    </script>
+    <script id="instance.list" type="text/html">
+        <form id="search-form">
+            <div data-role="fieldcontain" class="ui-hide-label">
+                <label for="search"></label>
+                <input type="search" name="search" placeholder="Search"/>
+            </div>
+        </form>
+        <ul data-role="listview" id="instance-list"></ul>
+    </script>
+    <script id="instance.listitem" type="text/html">
+        <a href="{{ instance_url }}">
+            {{# thumb_url }}
+            <img src="{{ thumb_url }}" />
+            {{/ thumb_url }}
+            <h3>{{ instance_id }}</h3>
+        </a>
+    </script>
+    <script id="instance.bangPanel" type="text/html">
+        <form id="form-bang">
+            <label for="reasons">Why bang this instance ?</label>
+            <textarea name="reasons"></textarea>
+            <div class="ui-body ui-body-b">
+                <fieldset class="ui-grid-a">
+                    <button type="submit" data-theme="a">Connexion</button>
+                    <button type="submit" data-theme="a">Cancel</button>
+                </fieldset>
+            </div>
+        </form>
+    </script>
+<!--
    -LOGIN
 -->
     <script id="login" type="text/html">
@@ -207,7 +262,7 @@
                 <a data-iconpos="top" data-icon="star" data-role="button" href="#/network">Networks</a>
             </div>
             <div class="ui-block-a">
-                <a data-iconpos="top" data-icon="star" data-role="button" href="#/service">Services</a>
+                <a data-iconpos="top" data-icon="star" data-role="button" href="#/instance">Services</a>
             </div>
             <div class="ui-block-b">
                 <a data-iconpos="top" data-icon="star" data-role="button" href="#/computer">Computers</a>
@@ -221,6 +276,10 @@
         </div>
     </script>
 
+    <script id="root" type="text/html">
+        <div data-role="page" data-theme="c"></div>
+    </script>
+
     <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="static/js/ICanHaz.min.js"></script>
     <script type="text/javascript" src="static/js/modernizr-2.5.3.js"></script>
@@ -232,6 +291,5 @@
     <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"></script>
 </head>
 <body>
-    <div data-role="page" data-theme="c"></div>
 </body>
 </html>

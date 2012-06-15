@@ -66,11 +66,11 @@
                     //$(this).slapos({'host': 'http://10.8.2.34:12006/erp5/portal_vifib_rest_api_v1'});
                     $(this).slapos({'host': 'http://10.8.2.34:12006/erp5/portal_vifib_rest_api_v1'});
                     // Bind Loading content
-                    $('#loading').ajaxStart(function () {
-                        $(this).spin(spinOptions);
-                    }).ajaxStop(function () {
-                        $(this).spin(false);
-                    });
+                    //$('#loading').ajaxStart(function () {
+                        //$(this).spin(spinOptions);
+                    //}).ajaxStop(function () {
+                        //$(this).spin(false);
+                    //});
                     for (var level = 0; level < routes.length; level += 1) {
                         for (var i = 0; i < routes[level].length; i += 1) {
                             var r = routes[level][i];
@@ -132,7 +132,7 @@
             showRoot: function (params) {
                 var route = $.router.routes.current,
                     nextLevel = route.level + 1;
-                $(this).vifib('render', 'root');
+                //$(this).vifib('render', 'root');
                 $.router.routes.add('/homepage', nextLevel, methods.showHomepage, $(":jqmData(role=page)"));
                 $.router.routes.add('/library', nextLevel, methods.showLibrary, $(":jqmData(role=page)"));
                 $.router.routes.add('/documentation', nextLevel, methods.showDocumentation, $(":jqmData(role=page)"));
@@ -158,9 +158,14 @@
                                 {'name': 'Software library', 'link': '#/library'},
                                 {'name': 'Documentation', 'link': '#/documentation'}
                             ]
-                        },
-                        nextLevel = $.router.routes.current.level + 1;
+                        };
                     $(this).vifib('render', 'homepage', options);
+                    if ( Modernizr.csstransforms ) {
+                        window.mySwipe = new Swipe(document.getElementById('slider'), {
+                            speed: 800,
+                            auto: 5000
+                        });
+                    }
                 });
             },
             //LOGIN
@@ -612,7 +617,6 @@
                 raw = raw || true;
                 return this.each(function () {
                     $(this).html(ich[template](data, raw));
-                    $(this).page();
                     $(this).trigger('pagecreate');
                 });
             },

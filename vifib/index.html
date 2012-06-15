@@ -17,13 +17,17 @@
                 float: right;
                 width: 67%;
             }
-            [data-role=footer] {
-                width: 30%;
-            }
         }
         .content-primary .ui-listview {
             margin-top: 0px;
             margin-bottom: 0px;
+        }
+        #slider{
+            height: 200px;
+            repeat: no-repeat;
+            margin-left: -15px;
+            margin-top: -19px;
+            margin-right: -119px;
         }
     </style>
 <!--
@@ -114,8 +118,51 @@
         {{> content}}
     </script>
     <script id="homepagePanel" type="text/html">
-        <h2>Carousel</h2>
+        {{> carousel }}
         <a href="#/login" data-role="button">Try it now !</a>
+    </script>
+    <script id="carousel" type="text/html">
+        <div id="slider">
+            <ul>
+                <li style="display: block">
+                    <h2>Paas Without limit</h2>
+                    <p>c c++ java javascript perl php python kumofs mysql mariadb memcached apache nodejs flask tomcat zope</p>
+                </li>
+                <li style="display: none">
+                    <h2>Iaas broker</h2>
+                    <p>xen kvm hyperv vmware openstack opennebula amazon eucalyptus niftyname gandi rackspace</p>
+                </li>
+                <li style="display: none">
+                    <h2>Resilient Cloud Computing</h2>
+                    <fieldset class="ui-grid-a">
+                        <div class="ui-block-a">
+                            <ul>
+                                <li>decentralized</li>
+                                <li>open-source</li>
+                            </ul>
+                        </div>
+                        <div class="ui-block-b">
+                            <ul>
+                                <li>10x cost efficient</li>
+                                <li>tremendously simpler</li>
+                            </ul>
+                        </div>
+                    </fieldset>
+                </li>
+                <li style="display: none">
+                    <h2>Mobile Edge Computing</h2>
+                    <p>bsd linux macos windows android tizen</p>
+                </li>
+                <li style="display: none">
+                    <h2>Billing</h2>
+                    <p>accoutning billing charging crm portal market</p>
+                </li>
+                <li style="display: none">
+                    <h2>Saas for free</h2>
+                    <p>wordpress drupal erp5 prestashop joomla xwiki mediawiki oscommerce sugarcrm phpbb facturalux zabbix</p>
+                </li>
+        </ul>
+        </div>
     </script>
 <!--
    -LIBRARY
@@ -282,6 +329,7 @@
 
     <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="static/js/ICanHaz.min.js"></script>
+    <script type="text/javascript" src="static/js/swipe.min.js"></script>
     <script type="text/javascript" src="static/js/modernizr-2.5.3.js"></script>
     <script type="text/javascript" src="static/js/sinon-1.3.2.js"></script>
     <script type="text/javascript" src="static/js/jquery.slapos.js"></script>
@@ -291,5 +339,6 @@
     <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"></script>
 </head>
 <body>
+        <div data-role="page" data-theme="c"></div>
 </body>
 </html>

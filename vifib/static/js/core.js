@@ -137,7 +137,7 @@
                 $.router.routes.add('/library', nextLevel, methods.showLibrary, $(":jqmData(role=page)"));
                 $.router.routes.add('/documentation', nextLevel, methods.showDocumentation, $(":jqmData(role=page)"));
                 $.router.routes.add('/dashboard', nextLevel, methods.showDashboard, $(":jqmData(role=page)"));
-                $.router.routes.add('/instance', nextLevel, methods.showInstanceList, $(":jqmData(role=page)"));
+                $.router.routes.add('/instance', nextLevel, methods.showInstanceRoot, $(":jqmData(role=page)"));
                 $.router.routes.add('/login', nextLevel, methods.showLogin, $(":jqmData(role=page)"));
                 // default page
                 if ($.router.routes.isCurrent(params.route)) {
@@ -372,6 +372,31 @@
                 });
             },
             
+            showInstanceRoot: function (params) {
+                return this.each(function () {
+                    var nextLevel = $.router.routes.current.level + 1,
+                        options = {
+                            'title': 'Service',
+                            'menu': 'true',
+                            'leftbutton': {
+                                'link': $(this).vifib('isAuthenticated') ? '#/dashboard' : '#/homepage',
+                                'icon': 'home',
+                                'title': 'Homepage'
+                            },
+                            'menulinks': [
+                                {'link': '#/instance', 'name': 'All services'}
+                            ],
+                        };
+                    $(this).vifib('render', 'instance', options);
+                    $.router.routes.add('/instance/list', nextLevel, methods.showInstanceList, $(this).find('.content-primary'));
+                    $.router.routes.add('/instance/id/:id', nextLevel, methods.showInstance, $(this).find('.content-primary'));
+                    $.router.routes.add('/instance/id/:id/bang', nextLevel, methods.showBangInstance, $(this).find('.content-primary'));
+                    if ($.router.routes.isCurrent(params) === false) {
+                        $.router.start(params.route);
+                    }
+                });
+            },
+
             showInstance: function (params) {
                 return this.each(function () {
                     var statusCode = {
@@ -381,10 +406,6 @@
                         500: serverError
                     },
                         nextLevel = $.router.routes.current.level + 1;
-                    $.router.routes.add('/instance/id/:id/bang', nextLevel, methods.showBangInstance, $(this).find('.content-primary'));
-                    if ($.router.routes.isCurrent(params.route) === false) {
-                        $.router.start(params.route);
-                    }
                     $(this).slapos('instanceInfo', params.id, {
                         success: function (response) {
                             if (typeof (response) !== "object") {
@@ -401,29 +422,13 @@
                                     {'name': 'Bang', 'link': methods.genBangUrl(params.id)},
                                     {'name': 'Rename', 'link': '#/instance/rename'}
                                 ]
-                            },
-                                options = {
-                                    'title': response.instance_id,
-                                    'mainPanel': $(this).vifib('getRender', 'instancePanel', content),
-                                    'leftbutton': {
-                                        'link': $(this).vifib('isAuthenticated') ? '#/dashboard' : '#/homepage',
-                                        'icon': 'home',
-                                        'title': 'Homepage'
-                                    },
-                                    'menu': true,
-                                    'menulinks': [
-                                        {'link': '#/instance', 'name': 'All services'}
-                                    ],
-                                    'menu-extension': 'instances bound',
-                                    'menuextlinks': [
-                                        {'link': '#/instance/id/kvm', 'name': 'INST-2'}
-                                    ]
-                                };
+                            };
                             //response.status = $(this).vifib('getRender', 'instance.' + response.status);
                             response.actions = [
                                 {'name': "Bang", 'url': methods.genBangUrl(decodeURIComponent(params.id))}
                             ];
-                            $(this).vifib('render', 'instance', options);
+                            $.extend(response, content);
+                            $(this).vifib('render', 'instancePanel', response);
                             //var form = $(this).find("#instance-form");
                             //form.vifib('prepareForm');
                         },
@@ -441,6 +446,7 @@
                     500: serverError
                 };
                 return this.each(function () {
+                    console.log("plop")
                     $(this).vifib('render', 'instance.bangPanel');
                     $(this).find('#form-bang').submit(function () {
                         var data = $(this).serializeObject(),

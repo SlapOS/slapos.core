@@ -76,8 +76,12 @@ $.extend({
                     }
                     i -= 1;
                 }
-                if (stop === false) {
-                    failcallback.call(context);
+                if (stop === false && failcallback !== undefined) {
+                    if (context === undefined) {
+                        failcallback();
+                    } else {
+                        failcallback.call(context);
+                    }
                 }
             },
 

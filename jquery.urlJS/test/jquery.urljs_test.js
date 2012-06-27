@@ -73,13 +73,19 @@ $(function () {
         var spy = sinon.spy(),
             i = 0,
             callback = function (params) {
-                console.log(params)
                 $.router.routes.add('/first', 1, spy)
                 $.router.start(params.route); 
             }
         $.router.routes.add('/', 0, callback);
         $.router.routes.search({'route': '/first'});
         ok(spy.calledOnce);
+    });
+
+    test('no routes found', function () {
+        var callback = function () {
+            ok(true, "should be call");
+        };
+        $.router.routes.search({'route': '/nonexist'}, 0, callback, $(this));
     });
 
     module('router methods tests', {

@@ -47,7 +47,7 @@ $.extend({
                 this.list = this.list.slice(0, 0);
             },
 
-            search: function (hash, level) {
+            search: function (hash, level, failcallback, context) {
                 var stop = false,
                     i, j,
                     regex,
@@ -70,17 +70,29 @@ $.extend({
                             }
                             this.current = this.list[i][j];
                             this.clean(this.list[i][j].level + 1);
-                            console.log(this.list[i][j].route);
                             this.list[i][j].callback(hash);
                         }
                         j += 1;
                     }
                     i -= 1;
                 }
+                if (stop === false && failcallback !== undefined) {
+                    if (context === undefined) {
+                        failcallback();
+                    } else {
+                        failcallback.call(context);
+                    }
+                }
             },
 
             isLastLevel: function () {
                 return this.current.level === (this.list.length - 1);
+            },
+
+            isCurrent: function (hash) {
+                var extracted = $.router.extractKeys(this.current.route),
+                    regex = new RegExp('^' + extracted.regex + '$');
+                return regex.test(hash);
             }
         },
 

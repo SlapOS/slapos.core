@@ -47,7 +47,7 @@ $.extend({
                 this.list = this.list.slice(0, 0);
             },
 
-            search: function (hash, level) {
+            search: function (hash, level, failcallback, context) {
                 var stop = false,
                     i, j,
                     regex,
@@ -75,6 +75,9 @@ $.extend({
                         j += 1;
                     }
                     i -= 1;
+                }
+                if (stop === false) {
+                    failcallback.call(context);
                 }
             },
 

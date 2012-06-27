@@ -676,14 +676,6 @@
     };
 }(jQuery));
 
-$(document).bind("mobileinit", function(){
-    // let's handle ourself the hashchange event
-    $.mobile.hashListeningEnabled = false;
-    $.mobile.pushStateEnabled = false;
-    $.mobile.ajaxEnabled = false;
-    $.mobile.linkBindingEnabled = false;
-    $.mobile.defaultPageTransition = 'none';
-});
 $(document).bind('pagecreate', function () {
     $('body').vifib();
 });

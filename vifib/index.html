@@ -29,6 +29,22 @@
             margin-right: -119px;
         }
     </style>
+    <script id="page1" type="text/html">
+        <header data-role="header">
+        <h2>Page1</h2>
+        </header>
+        <section data-role="content">
+        <a href="#/page2">Vers page2</a>
+        </section>
+    </script>
+    <script id="page2" type="text/html">
+        <header data-role="header">
+        <h2>Page2</h2>
+        </header>
+        <section data-role="content">
+        <a href="#/page1">Vers page1</a>
+        </section>
+    </script>
 <!--
    -COMPONENTS
 -->
@@ -108,6 +124,17 @@
 
     <script id="service-inlist" type="text/html">
         <li><a href="{{ link }}"><h4>{{ name }}</h4></a></li>
+    </script>
+<!--
+   -ERRORPAGE
+-->
+    <script id="error" type="text/html">
+        {{> headbar}}
+        {{> content}}
+    </script>
+
+    <script id="notfoundPanel" type="text/html">
+        <h3>NOT FOUND</h3>
     </script>
 <!--
    -HOMEPAGE

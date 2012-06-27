@@ -59,18 +59,33 @@
 
         methods = {
             init: function () {
-                var routes = [[['/', methods.showRoot]]];
                 return this.each(function () {
                     // JQM configuration
                     // Initialize slapos in this context
                     $(this).slapos({'host': 'http://10.8.2.34:12006/erp5/portal_vifib_rest_api_v1'});
-                    for (var level = 0; level < routes.length; level += 1) {
-                        for (var i = 0; i < routes[level].length; i += 1) {
-                            var r = routes[level][i];
-                            $.router.routes.add(r[0], level, r[1], $(this));
-                        }
-                    }
+                    $.router.routes.add('/page1', 0, methods.showPage1, $(this));
+                    $.router.routes.add('/page2', 0, methods.showPage2, $(this));
+                    $.router.routes.add('/', 0, methods.showRoot, $(this));
                 });
+            },
+
+            showPage1: function (params) {
+                return this.each(function () {
+                    var page = methods.getRender('page1');
+                    methods.changePage(page);
+                });
+            },
+            
+            showPage2: function (params) {
+                return this.each(function () {
+                    var page = methods.getRender('page2');
+                    methods.changePage(page);
+                });
+            },
+
+            changePage: function (page) {
+                $('body').append(page);
+                $.mobile.changePage(page, {changeHash: false, transition: 'slide'});
             },
 
             genInstanceUrl: function (uri) {
@@ -121,6 +136,22 @@
                     });
                 });
             },
+            // DEFAULT ERROR PAGE
+            noRoute: function (params) {
+                $.router.routes.add('/notfound', 1, methods.showNotFound, $(":jqmData(role=page)"));
+                $.router.redirect('/notfound');
+            },
+
+            showNotFound: function (params) {
+                return this.each(function () {
+                    var options = {
+                        'title': 'Error',
+                        'mainPanel': $(this).vifib('getRender', 'notfoundPanel')
+                    };
+                    $(this).vifib('render', 'error', options);
+                });
+            },
+
             // ROOT
             showRoot: function (params) {
                 var route = $.router.routes.current,
@@ -136,7 +167,7 @@
                 if ($.router.routes.isCurrent(params.route)) {
                     $.router.redirect('/homepage');
                 } else {
-                    $.router.start(params.route, nextLevel);
+                    $.router.start(params.route, nextLevel, methods.noRoute);
                 }
             },
 
@@ -229,7 +260,7 @@
                     /* FAKE *********/
                     $.router.routes.add('/library/software/:software_url', nextLevel, methods.showSoftware, $(this));
                     /****************/
-                    $.router.start(params.route, nextLevel);
+                    $.router.start(params.route, nextLevel, methods.noRoute);
                 });
             },
 
@@ -247,7 +278,7 @@
                 });
             },
 
-            showLibraryAll: function () {
+            showLibraryAll: function (params) {
                 return this.each(function () {
                     var options = {
                         'title': 'All softwares',
@@ -330,7 +361,7 @@
                     // Routing
                     $.router.routes.add('/instance/id/:id', nextLevel, methods.showInstance, $(this));
                     if (params.route !== '/instance') {
-                        $.router.start(params.route, nextLevel);
+                        $.router.start(params.route, nextLevel, methods.noRoute);
                     } else {
                         //table.vifib('refresh', methods.refreshListInstance, 30);
                         $(this).slapos('instanceList', {
@@ -385,7 +416,7 @@
                     $.router.routes.add('/instance/id/:id', nextLevel, methods.showInstance, $(this).find('.content-primary'));
                     $.router.routes.add('/instance/id/:id/bang', nextLevel, methods.showBangInstance, $(this).find('.content-primary'));
                     if ($.router.routes.isCurrent(params) === false) {
-                        $.router.start(params.route);
+                        $.router.start(params.route, nextLevel, methods.noRoute);
                     }
                 });
             },
@@ -622,7 +653,7 @@
 
             getRender: function (template, data, raw) {
                 raw = raw || true;
-                return ich[template](data, raw);
+                return $('<div></div>').html(ich[template](data, raw)).attr('data-role', 'page');
             },
 
             renderAppend: function (template, data, raw) {
@@ -672,3 +703,5 @@
 $(document).ready(function () {
     $('body').vifib();
 });
+
+

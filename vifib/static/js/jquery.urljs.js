@@ -47,7 +47,7 @@ $.extend({
                 this.list = this.list.slice(0, 0);
             },
 
-            search: function (hash, level, failcallback, context) {
+            search: function (hash, level, failcallback) {
                 var stop = false,
                     i, j,
                     regex,
@@ -56,6 +56,7 @@ $.extend({
                 level = level || 0;
                 i = this.list.length - 1;
                 hash.route = hash.route === "undefined" ? "/" : hash.route;
+                    console.log(hash)
                 while ((stop  === false) && (i >= level)) {
                     j = 0;
                     while ((stop === false) && (j < this.list[i].length)) {
@@ -77,11 +78,7 @@ $.extend({
                     i -= 1;
                 }
                 if (stop === false && failcallback !== undefined) {
-                    if (context === undefined) {
-                        failcallback();
-                    } else {
-                        failcallback.call(context);
-                    }
+                    failcallback();
                 }
             },
 
@@ -96,10 +93,10 @@ $.extend({
             }
         },
 
-        start: function (hash, level) {
+        start: function (hash, level, failcallback) {
             var hashInfo = this.parseHash(hash);
             if ($.router.routes.current.route !== hashInfo.route) {
-                this.routes.search(hashInfo, level);
+                this.routes.search(hashInfo, level, failcallback);
             }
         },
 

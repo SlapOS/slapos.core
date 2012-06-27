@@ -2,19 +2,54 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <title>Vifib</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <!--<link rel="stylesheet" href="libs/jquery-mobile/jquery.mobile.structure-1.1.0.css" />-->
-    <link rel="stylesheet" href="libs/jquery-mobile/jquery.mobile-1.1.0.css" />
-    <script type="text/javascript" charset="utf-8" src="libs/jquery/jquery.js"></script>
-    <script type="text/javascript" charset="utf-8" src="libs/jquery-mobile/jquery.mobile-1.1.0.js"></script>
+    <!--<link rel="stylesheet" href="libs/jquery-mobile/jquery.mobile-1.1.0.css" />-->
+    <link rel="stylesheet" href="libs/splitview/jquery.mobile.css" />
+    <link rel="stylesheet" href="libs/splitview/jquery.mobile.splitview.css" />
+    <link rel="stylesheet" href="libs/splitview/jquery.mobile.grids.collapsible.css" />
+    <!--<script type="text/javascript" src="libs/jquery/jquery.js"></script>-->
+    <script type="text/javascript" src="libs/splitview/jquery-1.7.1.js"></script>
+    <script type="text/javascript" src="libs/splitview/jquery.mobile.splitview.js"></script>
+    <!--<script type="text/javascript" src="libs/jquery-mobile/jquery.mobile-1.1.0.js"></script>-->
+    <script type="text/javascript" src="libs/splitview/jquery.mobile.js"></script>
+    <script type="text/javascript" src="libs/splitview/iscroll-wrapper.js"></script>
+    <script type="text/javascript" src="libs/splitview/iscroll.js"></script>
+
 </head>
 <body>
-    <div data-role="page" id="homepage">
-        <header data-role="header">
-        <a href="#plop" data-icon="home" title="notext"></a>
-        </header>
-        <section data-role="content">
-        </section>
-        <footer data-role="footer">
-        </footer>
+    <div data-role="panel" data-id="menu">
+        <!-- Start of first page -->
+        <div data-role="page" id="foo">
+            <div data-role="header">
+                <h1>Foo</h1>
+            </div><!-- /header -->
+            <div data-role="content">   
+                <p>I'm first in the source order so I'm shown as the page.</p>      
+                <p>View internal page called <a href="#bar">bar</a></p> 
+            </div><!-- /content -->
+            <div data-role="footer">
+                <h4>Page Footer</h4>
+            </div><!-- /footer -->
+        </div><!-- /page -->
+        <!-- other side panel pages here -->
+    </div>
+    <div data-role="panel" data-id="main">
+        <!-- Start of second page -->
+        <div data-role="page" id="bar">
+            <div data-role="header">
+                <h1>Bar</h1>
+            </div><!-- /header -->
+
+            <div data-role="content">   
+                <p>I'm first in the source order so I'm shown as the page.</p>      
+                <p><a href="#foo">Back to foo</a></p>   
+            </div><!-- /content -->
+
+            <div data-role="footer">
+                <h4>Page Footer</h4>
+            </div><!-- /footer -->
+        </div><!-- /page -->
+        <!-- other main panel pages here -->
     </div>
 </body>

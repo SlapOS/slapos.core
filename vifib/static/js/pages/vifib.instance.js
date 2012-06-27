@@ -2,14 +2,7 @@
 $.extend(methods, {
     showInstanceList: function (params) {
         return this.each(function () {
-            var nextLevel = $.router.routes.current.level + 1,
-                statusCode = {
-                    401: redirect,
-                    402: payment,
-                    404: notFound,
-                    500: serverError,
-                    503: serverError
-                },
+            var nextLevel = $.router.routes.current.level + 1;
                 options = {
                     'title': 'My Services',
                     'mainPanel': $(this).vifib('getRender', 'instance.list'),
@@ -24,7 +17,8 @@ $.extend(methods, {
                         'title': 'add service'
                     }
                 },
-                listview = $(this).vifib('render', 'instance', options).find('#instance-list');
+                page = $(this).vifib('render', 'instance', options);
+                listview = $(page).find('#instance-list');
             // Routing
             $.router.routes.add('/instance/id/:id', nextLevel, methods.showInstance, $(this));
             if (params.route !== '/instance') {
@@ -42,8 +36,7 @@ $.extend(methods, {
                             //row.vifib('refresh', methods.refreshRowInstance, 30);
                             listview.append(row).listview('refresh');
                         });
-                    },
-                    statusCode: statusCode
+                    }
                 });
             }
         });
@@ -75,10 +68,10 @@ $.extend(methods, {
                         'title': 'Homepage'
                     },
                     'menulinks': [
-                        {'link': '#/instance', 'name': 'All services'}
+                        {'link': '#/instance/list', 'name': 'All services'}
                     ],
                 };
-            $(this).vifib('render', 'instance', options);
+            methods.changePage($(this).vifib('getPageRender', 'instance', options));
             $.router.routes.add('/instance/list', nextLevel, methods.showInstanceList, $(this).find('.content-primary'));
             $.router.routes.add('/instance/id/:id', nextLevel, methods.showInstance, $(this).find('.content-primary'));
             $.router.routes.add('/instance/id/:id/bang', nextLevel, methods.showBangInstance, $(this).find('.content-primary'));
@@ -90,13 +83,7 @@ $.extend(methods, {
 
     showInstance: function (params) {
         return this.each(function () {
-            var statusCode = {
-                401: redirect,
-                402: payment,
-                404: notFound,
-                500: serverError
-            },
-                nextLevel = $.router.routes.current.level + 1;
+            var nextLevel = $.router.routes.current.level + 1;
             $(this).slapos('instanceInfo', params.id, {
                 success: function (response) {
                     if (typeof (response) !== "object") {
@@ -119,32 +106,22 @@ $.extend(methods, {
                         {'name': "Bang", 'url': methods.genBangUrl(decodeURIComponent(params.id))}
                     ];
                     $.extend(response, content);
-                    $(this).vifib('render', 'instancePanel', response);
+                    var page = $(this).vifib('render', 'instancePanel', response);
                     //var form = $(this).find("#instance-form");
                     //form.vifib('prepareForm');
-                },
-                statusCode: statusCode
+                }
             });
         })
     },
 
     showBangInstance: function (params) {
-        var statusCode = {
-            400: bad_request,
-            401: redirect,
-            402: payment,
-            404: notFound,
-            500: serverError
-        };
         return this.each(function () {
-            console.log("plop")
             $(this).vifib('render', 'instance.bangPanel');
             $(this).find('#form-bang').submit(function () {
                 var data = $(this).serializeObject(),
                     uri = methods.extractInstanceURIFromHashtag();
                 $(this).slapos('instanceBang', uri, {
                     data: data,
-                    statusCode: statusCode,
                     success: function () {
                         $.redirect(['instance', encodeURIComponent(uri)]);
                     }

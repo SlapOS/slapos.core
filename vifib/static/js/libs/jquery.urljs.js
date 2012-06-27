@@ -56,7 +56,6 @@ $.extend({
                 level = level || 0;
                 i = this.list.length - 1;
                 hash.route = hash.route === "undefined" ? "/" : hash.route;
-                    console.log(hash)
                 while ((stop  === false) && (i >= level)) {
                     j = 0;
                     while ((stop === false) && (j < this.list[i].length)) {

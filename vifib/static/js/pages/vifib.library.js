@@ -33,8 +33,10 @@ $.extend(methods, {
                         {'link': '#/library', 'name': 'Library'},
                         {'link': '#/documentation', 'name': 'Documentation'}
                     ],
-                };
-            $(this).vifib('render', 'library', options);
+                }
+            ;
+            page = $(this).vifib('getPageRender', 'library', options);
+            methods.changePage(page);
             nextLevel = $.router.routes.current.level + 1;
             $.router.routes.add('/library/all', nextLevel, methods.showLibraryAll, $(this));
             /* FAKE *********/
@@ -55,7 +57,9 @@ $.extend(methods, {
                     'title': 'Homepage'
                 }
             },
-                listview = $(this).vifib('render', 'library.all', options).find('#software-list');
+                page = $(this).vifib('getPageRender', 'library.all', options),
+                listview = $(page).find('#software-list');
+            methods.changePage(page);
             $(this).slapos('softwareList', {
                 success: function (response) {
                     if (typeof (response) !== "object") {
@@ -104,9 +108,9 @@ $.extend(methods, {
                         'menuextlinks': [
                             {'link': '#/library/software/html5', 'name': 'Html5 AS'}
                         ]
-                    }
-                    $.extend(options, response)
-                    $(this).vifib('render', 'software', options);
+                    };
+                    $.extend(options, response);
+                    methods.changePage($(this).vifib('getPageRender', 'software', options));
                 }
             })
         });

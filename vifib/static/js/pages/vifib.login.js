@@ -13,7 +13,7 @@ $.extend(methods, {
                     }
                 },
                 nextLevel = $.router.routes.current.level + 1;
-            $(this).vifib('render', 'login', options);
+            methods.changePage($(this).vifib('getPageRender', 'login', options));
         });
     },
 });

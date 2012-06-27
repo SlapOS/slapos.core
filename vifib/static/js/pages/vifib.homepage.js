@@ -13,7 +13,7 @@ $.extend(methods, {
                         {'name': 'Documentation', 'link': '#/documentation'}
                     ]
                 };
-            $(this).vifib('render', 'homepage', options);
+            methods.changePage($(this).vifib('getPageRender', 'homepage', options));
             if ( Modernizr.csstransforms ) {
                 window.mySwipe = new Swipe(document.getElementById('slider'), {
                     speed: 800,

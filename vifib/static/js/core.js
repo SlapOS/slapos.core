@@ -63,14 +63,7 @@
                 return this.each(function () {
                     // JQM configuration
                     // Initialize slapos in this context
-                    //$(this).slapos({'host': 'http://10.8.2.34:12006/erp5/portal_vifib_rest_api_v1'});
                     $(this).slapos({'host': 'http://10.8.2.34:12006/erp5/portal_vifib_rest_api_v1'});
-                    // Bind Loading content
-                    //$('#loading').ajaxStart(function () {
-                        //$(this).spin(spinOptions);
-                    //}).ajaxStop(function () {
-                        //$(this).spin(false);
-                    //});
                     for (var level = 0; level < routes.length; level += 1) {
                         for (var i = 0; i < routes[level].length; i += 1) {
                             var r = routes[level][i];

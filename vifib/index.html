@@ -1,55 +1,343 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
+<html>
 <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <title>Vifib</title>
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!--<link rel="stylesheet" href="libs/jquery-mobile/jquery.mobile.structure-1.1.0.css" />-->
-    <!--<link rel="stylesheet" href="libs/jquery-mobile/jquery.mobile-1.1.0.css" />-->
-    <link rel="stylesheet" href="libs/splitview/jquery.mobile.css" />
-    <link rel="stylesheet" href="libs/splitview/jquery.mobile.splitview.css" />
-    <link rel="stylesheet" href="libs/splitview/jquery.mobile.grids.collapsible.css" />
-    <!--<script type="text/javascript" src="libs/jquery/jquery.js"></script>-->
-    <script type="text/javascript" src="libs/splitview/jquery-1.7.1.js"></script>
-    <script type="text/javascript" src="libs/splitview/jquery.mobile.splitview.js"></script>
-    <!--<script type="text/javascript" src="libs/jquery-mobile/jquery.mobile-1.1.0.js"></script>-->
-    <script type="text/javascript" src="libs/splitview/jquery.mobile.js"></script>
-    <script type="text/javascript" src="libs/splitview/iscroll-wrapper.js"></script>
-    <script type="text/javascript" src="libs/splitview/iscroll.js"></script>
+    <style>
+        .content-primary img{
+            display: inline-block;
+            max-width: 100%;
+        }
+        @media all and (min-width: 650px){
+            .content-secondary {
+                float: left;
+                width: 30%;
+            }
+            .content-primary {
+                float: right;
+                width: 67%;
+            }
+        }
+        .content-primary .ui-listview {
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+        #slider{
+            height: 200px;
+            margin-left: -15px;
+            margin-top: -19px;
+            margin-right: -119px;
+        }
+    </style>
+<!--
+   -COMPONENTS
+-->
+    <script id="headbar" type="text/html">
+        <div data-role="header">
+            <h1>{{ title }}</h1>
+            {{# leftbutton }}
+            <a href="{{ link }}" data-direction="reverse" data-role="button" data-icon="{{ icon }}" data-iconpos="notext" title="{{ title }}"></a>
+            {{/ leftbutton }}
+            {{# rightbutton }}
+            <a href="{{ link }}" data-role="button" data-icon="{{ icon }}" data-iconpos="notext" title="{{ title }}"></a>
+            {{/ rightbutton }}
+            {{# headmenu }}
+            <div data-role="navbar">
+                <ul>
+                    {{# headlinks }}
+                    <li><a href="{{ link }}">{{ name }}</a></li>
+                    {{/ headlinks}}
+                </ul>
+            </div>
+            {{/ headmenu }}
+        </div>
+    </script>
 
+    <script id="menu" type="text/html">
+        <ul data-role="listview" data-divider-theme="a">
+            {{^ menu-extension }}
+                <li data-role="list-divider" role="header">Menu</li>
+            {{/ menu-extension }}
+            {{# menu-extension }}
+                <li data-role="list-divider">{{ menu-extension }}</li>
+                {{# menuextlinks }}
+                    <li><a href="{{ link }}">{{ name }}</a></li>
+                {{/ menuextlinks }}
+                <li data-role="list-divider" role="header">General</li>
+            {{/ menu-extension }}
+            {{# menulinks }}
+            <li><a href="{{ link }}">{{ name }}</a></li>
+            {{/ menulinks }}
+        </ul>
+    </script>
+    
+    <script id="content" type="text/html">
+        <div data-role="content">
+            {{#menu}}
+            <div class="content-primary">
+            {{/ menu}}
+                {{{ mainPanel }}}
+            {{#menu}}
+            </div>
+            <div class="content-secondary">
+                {{> menu}}
+            </div>
+            {{/ menu}}
+        </div>
+    </script>
+
+    <script id="footbar" type="text/html">
+        <div data-role="footer">
+            <div data-role="navbar">
+                <ul>
+                    {{# footlinks }}
+                    <li><a href="{{ link }}">{{ name }}</a></li>
+                    {{/ footlinks}}
+                </ul>
+            </div>
+        </div>
+    </script>
+
+    <script id="actions" type="text/html">
+        <!--<div data-role="controlgroup" data-type="horizontal">-->
+        {{# actions }}
+        <a href="{{ link }}" data-role="button" data-inline="true" data-mini="true">{{ name }}</a>
+        {{/ actions }}
+        <!--</div>-->
+    </script>
+
+    <script id="service-inlist" type="text/html">
+        <li><a href="{{ link }}"><h4>{{ name }}</h4></a></li>
+    </script>
+<!--
+   -HOMEPAGE
+-->
+    <script id="homepage" type="text/html">
+        {{> headbar}}
+        {{> content}}
+    </script>
+    <script id="homepagePanel" type="text/html">
+        {{> carousel }}
+        <a href="#/login" data-role="button">Try it now !</a>
+    </script>
+    <script id="carousel" type="text/html">
+        <div id="slider">
+            <ul>
+                <li style="display: block">
+                    <h2>Paas Without limit</h2>
+                    <p>c c++ java javascript perl php python kumofs mysql mariadb memcached apache nodejs flask tomcat zope</p>
+                </li>
+                <li style="display: none">
+                    <h2>Iaas broker</h2>
+                    <p>xen kvm hyperv vmware openstack opennebula amazon eucalyptus niftyname gandi rackspace</p>
+                </li>
+                <li style="display: none">
+                    <h2>Resilient Cloud Computing</h2>
+                    <fieldset class="ui-grid-a">
+                        <div class="ui-block-a">
+                            <ul>
+                                <li>decentralized</li>
+                                <li>open-source</li>
+                            </ul>
+                        </div>
+                        <div class="ui-block-b">
+                            <ul>
+                                <li>10x cost efficient</li>
+                                <li>tremendously simpler</li>
+                            </ul>
+                        </div>
+                    </fieldset>
+                </li>
+                <li style="display: none">
+                    <h2>Mobile Edge Computing</h2>
+                    <p>bsd linux macos windows android tizen</p>
+                </li>
+                <li style="display: none">
+                    <h2>Billing</h2>
+                    <p>accoutning billing charging crm portal market</p>
+                </li>
+                <li style="display: none">
+                    <h2>Saas for free</h2>
+                    <p>wordpress drupal erp5 prestashop joomla xwiki mediawiki oscommerce sugarcrm phpbb facturalux zabbix</p>
+                </li>
+        </ul>
+        </div>
+    </script>
+<!--
+   -LIBRARY
+-->
+    <script id="library" type="text/html">
+        {{> headbar}}
+        {{> content}}
+        <!--{{> footbar}}-->
+    </script>
+    <script id="libraryPanel" type="text/html">
+        <form id="search-form">
+            <div data-role="fieldcontain" class="ui-hide-label">
+                <label for="search"></label>
+                <input type="search" name="search" placeholder="Search"/>
+            </div>
+        </form>
+        <ul data-role="listview">
+            <li data-role="list-divider" role="heading">
+                Most downloaded
+            </li>
+            {{# most }}
+                {{> service-inlist }}
+            {{/ most }}
+            <li data-role="list-divider" role="heading">Brand new<span class="ui-li-count">{{ newCount }}</span></li>
+            {{# new }}
+                {{> service-inlist }}
+            {{/ new }}
+        </ul>
+    </script>
+    <script id="library.all" type="text/html">
+        {{> headbar }}
+        {{> content }}
+    </script>
+    <script id="library.allPanel" type="text/html">
+        {{> software.list }}
+    </script>
+<!--
+-SOFTWARE>
+-->
+    <script id="software" type="text/html">
+        {{> headbar }}
+        {{> content }}
+    </script>
+    <script id="softwarePanel" type="text/html">
+        <img src="{{ image_url }}">
+        <p><b>{{ description }}</b></p>
+        <a data-role="button" href="#/login">Buy it for {{ price }}&euro;</a>
+    </script>
+    <script id="software.list" type="text/html">
+        <ul data-role="listview" id="software-list"></ul>
+    </script>
+    <script id="software.listitem" type="text/html">
+        <a href="{{ software_url }}">
+            {{# thumb_url }}
+            <img src="{{ thumb_url }}" />
+            {{/ thumb_url }}
+            <h3>{{ name }}</h3>
+        </a>
+    </script>
+<!--
+   -INSTANCE // SERVICE
+-->
+    <script id="instance" type="text/html">
+        {{> headbar }}
+        {{> content }}
+    </script>
+    <script id="instancePanel" type="text/html">
+        {{> actions }}
+        <ul data-role="listview">
+            {{# information }}
+            <li>
+                {{ name }}
+                <h4>{{ value }}</h4>
+            </li>
+            {{/ information }}
+        </ul>
+    </script>
+    <script id="instance.list" type="text/html">
+        <form id="search-form">
+            <div data-role="fieldcontain" class="ui-hide-label">
+                <label for="search"></label>
+                <input type="search" name="search" placeholder="Search"/>
+            </div>
+        </form>
+        <ul data-role="listview" id="instance-list"></ul>
+    </script>
+    <script id="instance.listitem" type="text/html">
+        <a href="{{ instance_url }}">
+            {{# thumb_url }}
+            <img src="{{ thumb_url }}" />
+            {{/ thumb_url }}
+            <h3>{{ instance_id }}</h3>
+        </a>
+    </script>
+    <script id="instance.bangPanel" type="text/html">
+        <form id="form-bang">
+            <label for="reasons">Why bang this instance ?</label>
+            <textarea name="reasons"></textarea>
+            <div class="ui-body ui-body-b">
+                <fieldset class="ui-grid-a">
+                    <button type="submit" data-theme="a">Connexion</button>
+                    <button type="submit" data-theme="a">Cancel</button>
+                </fieldset>
+            </div>
+        </form>
+    </script>
+<!--
+   -LOGIN
+-->
+    <script id="login" type="text/html">
+        {{> headbar }}
+        {{> content }}
+    </script>
+    <script id="loginPanel" type="text/html">
+        <form>
+            <div data-role="fieldcontain" class="ui-hide-label">
+                <label for="username"></label>
+                <input type="text" name="username" placeholder="Username"/>
+            </div>
+            <div data-role="fieldcontain" class="ui-hide-label">
+                <label for="password"></label>
+                <input type="password" name="password" placeholder="Password"/>
+            </div>
+            <div class="ui-body ui-body-b">
+                <fieldset class="ui-grid-a">
+                    <button type="submit" data-theme="a">Connexion</button>
+                </fieldset>
+            </div>
+        </form>
+    </script>
+<!--
+   -DASHBOARD
+-->
+    <script id="dashboard" type="text/html">
+        {{> headbar }}
+        {{> content }}
+    </script>
+    <script id="dashboardPanel" type="text/html">
+        <div class="ui-grid-a">
+            <div class="ui-block-a">
+                <a data-iconpos="top" data-icon="star" data-role="button" href="#/library">Library</a>
+            </div>
+            <div class="ui-block-b">
+                <a data-iconpos="top" data-icon="star" data-role="button" href="#/network">Networks</a>
+            </div>
+            <div class="ui-block-a">
+                <a data-iconpos="top" data-icon="star" data-role="button" href="#/instance">Services</a>
+            </div>
+            <div class="ui-block-b">
+                <a data-iconpos="top" data-icon="star" data-role="button" href="#/computer">Computers</a>
+            </div>
+            <div class="ui-block-a">
+                <a data-iconpos="top" data-icon="star" data-role="button" href="#/billing">Billing</a>
+            </div>
+            <div class="ui-block-b">
+                <a data-iconpos="top" data-icon="star" data-role="button" href="#/support">Support</a>
+            </div>
+        </div>
+    </script>
+
+    <script id="root" type="text/html">
+        <div data-role="page" data-theme="c"></div>
+    </script>
+
+    <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="static/js/ICanHaz.min.js"></script>
+    <script type="text/javascript" src="static/js/swipe.min.js"></script>
+    <script type="text/javascript" src="static/js/modernizr-2.5.3.js"></script>
+    <script type="text/javascript" src="static/js/sinon-1.3.2.js"></script>
+    <script type="text/javascript" src="static/js/jquery.slapos.js"></script>
+    <script type="text/javascript" src="static/js/jquery.urljs.js"></script>
+    <script type="text/javascript" src="static/js/fake.js"></script>
+    <script type="text/javascript" src="static/js/core.js"></script>
+    <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"></script>
 </head>
 <body>
-    <div data-role="panel" data-id="menu">
-        <!-- Start of first page -->
-        <div data-role="page" id="foo">
-            <div data-role="header">
-                <h1>Foo</h1>
-            </div><!-- /header -->
-            <div data-role="content">   
-                <p>I'm first in the source order so I'm shown as the page.</p>      
-                <p>View internal page called <a href="#bar">bar</a></p> 
-            </div><!-- /content -->
-            <div data-role="footer">
-                <h4>Page Footer</h4>
-            </div><!-- /footer -->
-        </div><!-- /page -->
-        <!-- other side panel pages here -->
-    </div>
-    <div data-role="panel" data-id="main">
-        <!-- Start of second page -->
-        <div data-role="page" id="bar">
-            <div data-role="header">
-                <h1>Bar</h1>
-            </div><!-- /header -->
-
-            <div data-role="content">   
-                <p>I'm first in the source order so I'm shown as the page.</p>      
-                <p><a href="#foo">Back to foo</a></p>   
-            </div><!-- /content -->
-
-            <div data-role="footer">
-                <h4>Page Footer</h4>
-            </div><!-- /footer -->
-        </div><!-- /page -->
-        <!-- other main panel pages here -->
-    </div>
+        <div data-role="page" data-theme="c"></div>
 </body>
+</html>

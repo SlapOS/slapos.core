@@ -679,7 +679,3 @@
 $(document).ready(function () {
     $('body').vifib();
 });
-
-$(document).bind('pagebeforecreate', function (e, data) {
-    //e.preventDefault();
-});

@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>jQuery Slapos Test Suite</title>
+        <!-- Load local jQuery, removing access to $ (use jQuery, not $). -->
+        <script src="../lib/jquery.js"></script>
+        <script>jQuery.noConflict()</script>
+        <!-- Load local Modernizr -->
+        <script type="text/javascript" src="../lib/modernizr.js"></script>
+        <!-- Load local QUnit (grunt requires v1.0.0 or newer). -->
+        <link rel="stylesheet" href="../lib/qunit.css" media="screen">
+        <script src="../lib/qunit.js"></script>
+        <!-- Load local SinonJs -->
+        <script type="text/javascript" src="../lib/sinon.js"></script>
+        <!--<script type="text/javascript" src="../lib/sinon-qunit-1.0.0.js"></script>-->
+        <!-- Load local lib and tests. -->
+        <script src="../js/jquery.slapos.js"></script>
+        <script src="../tests/jquery.slapos_test.js"></script>
+    </head>
+    <body>
+        <h1 id="qunit-header">jQuery Slapos Test Suite</h1>
+        <h2 id="qunit-banner"></h2>
+        <div id="qunit-testrunner-toolbar"></div>
+        <h2 id="qunit-userAgent"></h2>
+        <ol id="qunit-tests"></ol>
+        <div id="qunit-fixture">
+            <span>lame test markup</span>
+            <span>normal test markup</span>
+            <span>awesome test markup</span>
+        </div>
+    </body>
+</html>

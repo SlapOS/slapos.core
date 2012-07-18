@@ -78,27 +78,24 @@
             }
             delete args.data;
             $.extend(args, {statusCode: statusCode});
-            return this.each(function () {
-                var ajaxOptions = {
-                    type: type,
-                    url: $(this).slapos('host') + method,
-                    contentType: 'application/json',
-                    //cache: false,
-                    data: JSON.stringify(data),
-                    datatype: 'json',
-                    context: $(this),
-                    headers: {
-                        'Accept': 'application/json',
-                    },
-                    beforeSend: function (xhr) {
-                        if ($(this).slapos('access_token')) {
-                            xhr.setRequestHeader('Authorization', $(this).slapos('store', 'token_type') + ' ' + $(this).slapos('access_token'));
-                        }
-                    }
-                };
-                $.extend(ajaxOptions, args);
-                $.ajax(ajaxOptions);
-            });
+              var ajaxOptions = {
+                  type: type,
+                  url: $(this).slapos('host') + method,
+                  contentType: 'application/json',
+                  data: JSON.stringify(data),
+                  datatype: 'json',
+                  context: $(this),
+                  headers: {
+                      'Accept': 'application/json',
+                  },
+                  beforeSend: function (xhr) {
+                      if ($(this).slapos('access_token')) {
+                          xhr.setRequestHeader('Authorization', $(this).slapos('store', 'token_type') + ' ' + $(this).slapos('access_token'));
+                      }
+                  }
+              };
+              $.extend(ajaxOptions, args);
+              return $.ajax(ajaxOptions);
         },
 
         instanceList: function (args) {

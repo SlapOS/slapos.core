@@ -31,6 +31,7 @@ import logging
 import os
 import shutil
 import subprocess
+import ConfigParser
 import pkg_resources
 import stat
 import tempfile
@@ -144,9 +145,22 @@ class Software(object):
             os.chown(path, root_stat_info.st_uid,
                 root_stat_info.st_gid)
     try:
+      # XXX: Here's a Quick & Dirty hack, this was
+      # design to work as quick as possible with the most minimalist
+      # impact.
+      environment = ConfigParser.ConfigParser()
+      environment.read(os.path.join(self.software_path,
+                                    # XXX: hardcoded path
+                                    '../environment.cfg'))
       buildout_parameter_list = [
         'buildout:extends-cache=%s' % extends_cache,
-        'buildout:directory=%s' % self.software_path,]
+        'buildout:directory=%s' % self.software_path,
+        # XXX: This doesn't comes out of nowhere.
+        # actually, this is specified in component/slapos/buildout.cfg
+        # in slapos.cookbook repository.
+        'libcap:location=%s' % environment.get('data', 'libcap-location'),
+        'attr:location=%s' % environment.get('data', 'attr-location'),
+      ]
 
       if self.signature_private_key_file or \
           self.upload_cache_url or \

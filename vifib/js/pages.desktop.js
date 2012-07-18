@@ -32,7 +32,7 @@ $.vifib.desktop = {
     },
     overview: function (route) {
         $.vifib.replacepanel($(this), $.vifib.panel.carousel);
-        if ( Modernizr.csstransforms ) {
+        if (Modernizr.csstransforms) {
             window.mySwipe = new Swipe(document.getElementById('slider'), {
                 speed: 800,
                 auto: 4000,
@@ -40,7 +40,6 @@ $.vifib.desktop = {
             });
         }
         $.vifib.replacepanel($('#panel-2'), $.vifib.panel.login);
-        window.mySwipe.begin();
     },
     library: {
         dispatch: function (route) {
@@ -58,7 +57,7 @@ $.vifib.desktop = {
                 .route('add', '/library/', 2)
                 .done($.vifib.desktop.library.overview);
             $('#panel-2')
-                .route('add', '/library/software/<softid>', 2)
+                .route('add', '/library/software/id<path:softid>', 2)
                 .done($.vifib.desktop.library.software);
             $('#panel-2')
                 .route('add', '/library/all', 2)
@@ -70,10 +69,10 @@ $.vifib.desktop = {
         overview: function (route) {
             $.vifib.replacepanel($(this), $.vifib.panel.library, {
                 most: [
-                    {url: '#/library/software/kvm', name: 'Kvm'},
+                    {url: '#/library/software/id/fake/software_info/kvm', name: 'Kvm'},
                 ],
                 newest: [
-                    {url: '#/library/software/html5', name: 'html5 AS'}
+                    {url: '#/library/software/id/fake/software_info/html5', name: 'html5 AS'}
                 ]
             });
         },

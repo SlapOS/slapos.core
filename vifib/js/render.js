@@ -19,7 +19,8 @@ $.vifib.threepanel = function (panels, data) {
 }
 
 $.vifib.replacepanel = function (context, panel, data) {
-    context.html(Mustache.render(panel, data)).trigger('pagecreate');
+    context.html(Mustache.render(panel, data));
+    $(':jqmData(role=page)').trigger('pagecreate');
 }
 
 $.vifib.makecontent = function (panels, data) {

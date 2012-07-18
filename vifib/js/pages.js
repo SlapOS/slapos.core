@@ -17,7 +17,6 @@ $.vifib.login = {
                 '&redirect_uri=' + encodeURIComponent(redirect) +
                 '&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email++https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile' +
                 '&response_type=token';
-        console.log(ggurl);
         $(document).slapos('store', 'token_type', 'Google');
         window.location.href = ggurl;
     }
@@ -54,19 +53,37 @@ $.vifib.softwareList = function (context) {
         });
     });
 }
+
 $.vifib.instanceList = function (context) {
     var list;
     return context.each(function () {
         list = $(this).find('ul');
         $(this).slapos('instanceList', {
             success: function (response) {
-                $.each(response.list, function (index, inst) {
-                    var row = $.vifib.fillRowInstance($('<li></li>'), inst);
-                    list.append(row);
+                $.when(
+                    $.vifib.fillRowInstance(list, $('<li></li>'), response.list[0])
+                ).then(function () {
+                    list.listview('refresh');
                 });
-                list.listview('refresh');
-            }
+                //$.when.apply($(this), $.map(response.list, function (inst) {
+                    //$.vifib.fillRowInstance(list, $('<li></li>'), inst);
+                //})).done(function (a, b, c) {
+                    //console.log(arguments);
+                    //list.listview('refresh');
+                //});
+            },
         });
+    });
+}
+$.vifib.fillRowInstance = function (list, row, instid) {
+    return row.slapos('instanceInfo', instid, {
+        success: function (response) {
+            $.extend(response, {insturl: '#/dashboard/instance/id' + instid});
+            $(this).html(Mustache.render($.vifib.panel.rowinstance, response));
+        },
+        complete: function (jqxhr, textstatus) {
+            list.append($(this));
+        }
     });
 }
 $.vifib.computerList = function (context) {
@@ -88,18 +105,8 @@ $.vifib.fillRowSoftware = function (context, softid) {
     return context.each(function () {
         $(this).slapos('softwareInfo', softid, {
             success: function (response) {
-                $.extend(response, {softurl: '#/library/software/' + softid});
+                $.extend(response, {softurl: '#/library/software/id' + softid});
                 $(this).html(Mustache.render($.vifib.panel.rowsoftware, response));
-            }
-        });
-    })
-}
-$.vifib.fillRowInstance = function (context, instid) {
-    return context.each(function () {
-        $(this).slapos('instanceInfo', instid, {
-            success: function (response) {
-                $.extend(response, {insturl: '#/dashboard/instance/id' + instid});
-                $(this).html(Mustache.render($.vifib.panel.rowinstance, response));
             }
         });
     })

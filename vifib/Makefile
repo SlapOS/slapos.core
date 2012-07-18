@@ -10,11 +10,19 @@ JSDIR = js
 FINALJS = vifib.js
 FINALCSS = vifib.css
 
-all: test release
+all: dev release
 
 #########################################
 # Dev environment
 #########################################
+
+# Emulate server responses with sinonjs
+fake: dev ${DEVDIR}/js/fake.js
+	cat $(CATJSFILES) ${DEVDIR}/js/fake.js > ${DEVDIR}/$(FINALJS)
+
+${DEVDIR}/js/fake.js: js/utils/fake.js
+	@mkdir -p $(@D)
+	cp $< $@
 
 # Sort files for concatenation
 CATJSFILES = ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/sinon.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/swipe.js ${DEVDIR}/js/jquery.slapos.js ${DEVDIR}/js/init.js ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/js/url.js ${DEVDIR}/js/route.js ${DEVDIR}/js/main.js ${DEVDIR}/js/render.js ${DEVDIR}/js/panels.js ${DEVDIR}/js/pages.js ${DEVDIR}/js/pages.mobile.js ${DEVDIR}/js/pages.tablet.js ${DEVDIR}/js/pages.desktop.js

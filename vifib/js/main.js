@@ -1,10 +1,9 @@
 'use strict';
 var getDevice = function (w) {
-    return 'mobile';
-    if (w < 600) {
+    if (w < 500) {
         return 'mobile';
     }
-    if (w < 1281) {
+    if (w < 900) {
         return 'tablet';
     }
     return 'desktop';
@@ -15,9 +14,15 @@ var body = $("body");
 
 $.vifib.devices = {
     "mobile": function (url) {
-        $('body')
-            .route('add', '')
-            .done($.vifib.mobile.overview);
+        if ($.vifib.isauthenticated()) {
+            $('body')
+                .route('add', '')
+                .done($.vifib.mobile.dashboard);
+        } else {
+            $('body')
+                .route('add', '')
+                .done($.vifib.mobile.overview);
+        }
         $('body')
             .route('add', '/login/facebook')
             .done($.vifib.login.facebook);
@@ -59,7 +64,16 @@ $.vifib.devices = {
 }
 
 $.vifib.isauthenticated = function () {
-    return true;
+    var token_type = $(document).slapos('store', 'token_type');
+    if ($(document).slapos('access_token') === undefined || token_type === undefined) {
+        return false;
+    }
+    if (token_type === 'Google') {
+    
+    } else if (token_type === 'Facebook') {
+    
+    }
+    return false;
 }
 
 $.vifib.startrouter = function () {

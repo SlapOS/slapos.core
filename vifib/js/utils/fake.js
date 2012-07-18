@@ -14,24 +14,24 @@ var comp = {
 };
 
 var inst ={
-    instance_id: "INST-1",
+    title: "INST-1",
     status: "stop_requested",
-        software_release: "http://example.com/example.cfg",
-        software_type: "type_provided_by_the_software",
-        slave: "False",
-        connection: [{
-            key: "foo",
-            key: "bar"}],
-        parameter: {
-            Custom1: "one string",
-            Custom2: "one float",
-            Custom3: ["abc", "def"]},
-        sla: {computer_id: "COMP-0"},
-        children_id_list: ["subinstance1", "subinstance2"],
-        partition: {
-            public_ip: ["::1", "91.121.63.94"],
-            private_ip: ["127.0.0.1"],
-            tap_interface: "tap2"}
+    software_release: "http://example.com/example.cfg",
+    software_type: "type_provided_by_the_software",
+    slave: "False",
+    connection: [{
+        key: "foo",
+        key: "bar"}],
+    parameter: {
+        Custom1: "one string",
+        Custom2: "one float",
+        Custom3: ["abc", "def"]},
+    sla: {computer_id: "COMP-0"},
+    children_id_list: ["subinstance1", "subinstance2"],
+    partition: {
+        public_ip: ["::1", "91.121.63.94"],
+        private_ip: ["127.0.0.1"],
+        tap_interface: "tap2"}
 };
 
 var soft = {
@@ -59,7 +59,8 @@ var software_list = {
 
 var instance_list = {
     list: [
-        '/fake/instance_info/kvm'
+        '/fake/instance_info/kvm',
+        '/fake/instance_info/kvm',
     ]
 };
 
@@ -110,3 +111,5 @@ $.ajax = function(url, options){
     fakeserver.respond();
     return result;
 };
+
+$(document).slapos('store', 'host', '/fake');

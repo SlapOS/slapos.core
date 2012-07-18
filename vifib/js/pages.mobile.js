@@ -21,7 +21,7 @@ $.vifib.mobile = {
                 .route('add', '/library/', 1)
                 .done($.vifib.mobile.library.overview);
             $('body')
-                .route('add', '/library/software/<softid>', 1)
+                .route('add', '/library/software/id<path:softid>', 1)
                 .done($.vifib.mobile.library.software);
             $('body')
                 .route('add', '/library/all', 1)
@@ -33,10 +33,10 @@ $.vifib.mobile = {
         overview: function () {
             page = $.vifib.onepanel($.vifib.panel.library, {
                 most: [
-                    {url: '#/library/software/kvm', name: 'Kvm'},
+                    {url: '#/library/software/id/fake/software_info/kvm', name: 'Kvm'},
                 ],
                 newest: [
-                    {url: '#/library/software/html5', name: 'html5 AS'}
+                    {url: '#/library/software/id/fake/software_info/html5', name: 'html5 AS'}
                 ]
             });
             // header

@@ -36,7 +36,7 @@ $.vifib.tablet = {
                 .route('add', '/library/', 1)
                 .done($.vifib.tablet.library.overview);
             $('#panel-1')
-                .route('add', '/library/software/<softid>', 1)
+                .route('add', '/library/software/id<path:softid>', 1)
                 .done($.vifib.tablet.library.software);
             $('#panel-1')
                 .route('add', '/library/all', 1)
@@ -47,8 +47,8 @@ $.vifib.tablet = {
         },
         overview: function () {
             $.vifib.replacepanel($(this), $.vifib.panel.library, {
-                most: [{url: '#/library/software/kvm', name: 'Kvm'},],
-                newest: [{url: '#/library/software/html5', name: 'html5 AS'}]
+                most: [{url: '#/library/software/id/fake/software_info/kvm', name: 'Kvm'},],
+                newest: [{url: '#/library/software/id/fake/software_info/html5', name: 'html5 AS'}]
             });
         },
         software: function (softid) {

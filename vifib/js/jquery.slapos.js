@@ -121,17 +121,18 @@
             return $(this).slapos('request', 'GET', '', args);
         },
 
-        //softwareList: function (args) {
-            //return $(this).slapos('request', '', args);
-        //},
+        softwareList: function (args) {
+            return $(this).slapos('request', 'GET', '/software', args);
+        },
 
-        //softwareInfo: function (url, args) {
-            //return $(this).slapos('request', '', args);
-        //},
+        softwareInfo: function (url, args) {
+            $.extend(args, {url: url});
+            return $(this).slapos('request', 'GET', '', args);
+        },
         
-        //computerList: function (args) {
-            //return $(this).slapos('request', '', args);
-        //},
+        computerList: function (args) {
+            return $(this).slapos('request', '', args);
+        },
 
         computerInfo: function (url, args) {
             $.extend(args, {url: url});

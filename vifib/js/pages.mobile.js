@@ -129,28 +129,17 @@ $.vifib.mobile = {
             $.vifib.changepage($(page));
             $("#instancerequest").submit(function () {
                 var data = {
-                        "status": "started",
+                        "status": "start_requested",
                         "slave": false,
-                        "software_release": "http://example.com/example.cfg",
                         "software_type": "type_provided_by_the_software",
-                        "parameter": {
-                            "Custom1": "one string",
-                            "Custom2": "one float",
-                            "Custom3": [
-                                "abc",
-                                "def"
-                            ]
-                        },
-                        "sla": {
-                            "computer_id": "COMP-0"
-                        }
-                    };
+                };
                 $.extend(data, $(this).serializeObject());
                 $(this).slapos('instanceRequest', {
                     data: data,
                     success: function (response) {
                         $.url.redirect('/dashboard/instance/list');
-                    }
+                    },
+                    statusCode: $.extend(false, $.vifib.statuscode, {})
                 });
                 return false;
             });

@@ -162,7 +162,7 @@ $.vifib.panel = {
         '</ul>' +
         '</article>',
     rowinstance:
-        '<a href="{{ insturl }}">{{ instance_id }}</a>',
+        '<a href="{{ insturl }}">{{ title }}</a>',
     computer:
         '<article>' +
         '<h2>{{ computer_id }}</h2>' +

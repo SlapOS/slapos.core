@@ -1,107 +1,132 @@
-var comp = {
-    computer_id: "COMP-0",
-    software: [{software_release: "http://example.com/example.cfg",status: "install"}],
-    partition: [
-        {title: "slapart1",
-            instance_id: "foo",
-            status: "start",
-            software_release: "http://example.com/example.cfg"},
-        {title: "slapart2",
-            instance_id: "bar",
-            status: "stop",
-            software_release: "http://example.com/example.cfg"}
-    ]
-};
+/* Tools to store js object in sessionStorage */
+var storejs = {
+  add: function (key, js) {
+    window.sessionStorage.setItem(key, JSON.stringify(js));
+  },
+  get: function (key) {
+    return JSON.parse(window.sessionStorage.getItem(key));
+  },
+  extend: function (key, object) {
+    var data = storejs.get(key);
+    $.extend(data, object);
+    storejs.add(key, data);
+  }
+}
 
-var inst ={
-    title: "INST-1",
-    status: "stop_requested",
-    software_release: "http://example.com/example.cfg",
-    software_type: "type_provided_by_the_software",
-    slave: "False",
-    connection: [{
-        key: "foo",
-        key: "bar"}],
-    parameter: {
-        Custom1: "one string",
-        Custom2: "one float",
-        Custom3: ["abc", "def"]},
-    sla: {computer_id: "COMP-0"},
-    children_id_list: ["subinstance1", "subinstance2"],
+/*************
+ * RESOURCES
+ *************/
+// INSTANCE
+storejs.add('instances', {
+  Kvm: {
+    status: "start_requested", 
+    connection: {}, 
     partition: {
-        public_ip: ["::1", "91.121.63.94"],
-        private_ip: ["127.0.0.1"],
-        tap_interface: "tap2"}
-};
-
-var soft = {
+      public_ip: [], 
+      tap_interface: "", 
+      private_ip: []
+    }, 
+    slave: false, 
+    children_list: [], 
+    title: "Kvm", 
+    software_type: "Virtual machine", 
+    parameter: {
+      Custom1: "one string", 
+      Custom2: "one float", 
+      Custom3: "[u'abc', u'def']"
+    }, 
+    software_release: "http://example.com/example.cfg", 
+    sla: {
+      computer_id: "COMP-0"
+    }
+  }
+});
+// SOFTWARE
+storejs.add('softwares', {
+  Kvm: {
     name: 'Kvm',
     image_url: 'http://www.linux-kvm.org/wiki/skins/kvm/kvmbanner-logo2.png',
     thumb_url: 'http://www.system-linux.eu/public/images/kvm-logo.png',
     description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae metus a est convallis pretium. Pellentesque habitant morbi tristique senectus.',
     price: '1',
-};
-
-var html5 = {
-    name: 'Html5 AS',
+  },
+  Html5as : {
+    name: 'Html5as',
     image_url: 'http://7.mshcdn.com/wp-content/uploads/2011/01/html5-logo-1.jpg',
     thumb_url: 'http://www.w3.org/html/logo/downloads/HTML5_Badge_512.png',
     description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae metus a est convallis pretium. Pellentesque habitant morbi tristique senectus.',
-    price: '1337',
-};
-
-var software_list = {
+    price: '1337'
+  }
+});
+// Resources lists
+storejs.add('software_list', {
     list: [
-        '/fake/software_info/kvm',
-        '/fake/software_info/html5',
+        '/fake/software_info/Kvm',
+        '/fake/software_info/Html5as',
     ]
-};
-
-var instance_list = {
-    list: [
-        '/fake/instance_info/kvm',
-        '/fake/instance_info/kvm',
-    ]
-};
-
-var computer_list = {
-    list: [
-        '/fake/computer_info/comp'
-    ]
-};
+});
 
 var fakeserver = sinon.fakeServer.create();
 
-// Get instances list
-fakeserver.respondWith('GET', '/fake/instance', [
-    200, {'Content-Type': 'application/json'}, JSON.stringify(instance_list)
-]);
+/*********************
+ *  RESPONSE
+ *********************/
+
+// ******* INSTANCE
+var instance_list = function () {
+  var response = {list: []};
+  $.each(storejs.get('instances'), function (i, e) {
+    response.list.push('/fake/instance_info/' + e.title)
+  });
+  return response;
+};
+// list
+fakeserver.respondWith('GET', '/fake/instance', function (xhr) {
+  var response = {list: []};
+  $.each(storejs.get('instances'), function (i, e) {
+    response.list.push('/fake/instance_info/' + e.title)
+  });
+  xhr.respond(200, {'Content-Type': 'application/json'}, JSON.stringify(response))
+});
 // Get instance info
-fakeserver.respondWith("GET", '/fake/instance_info/kvm', [
-    200, {"Content-Type":"application/json; charset=utf-8"}, JSON.stringify(inst)
-]);
+fakeserver.respondWith("GET", /\/fake\/instance_info\/(.*)/, function (xhr, instid) {
+    var instances = storejs.get('instances');
+    if (instances.hasOwnProperty(instid)) {
+        xhr.respond(200, {'Content-Type': 'application/json'}, JSON.stringify(instances[instid]));
+    } else {
+        xhr.respond(404, { 'Content-Type': 'application/json'}, 'Not found');
+    }
+});
+// Request instance
+fakeserver.respondWith("POST", '/fake/instance', function (xhr) {
+    var instances = storejs.get('instances'),
+        inst = JSON.parse(xhr.requestBody),
+        iadd = {},
+        ilist = instance_list();
+    if (instances.hasOwnProperty(inst.title) === false) {
+        iadd[inst.title] = inst;
+        storejs.extend('instances', iadd);
+    }
+    xhr.respond(201, {'Content-Type': 'application/json'}, JSON.stringify({
+        title: inst.title,
+        status: inst.status
+    }));
+});
+
+//********** SOFTWARE
 // Get softwares list
 fakeserver.respondWith('GET', '/fake/software', [
-    200, {'Content-Type': 'application/json'}, JSON.stringify(software_list)
+    200, {'Content-Type': 'application/json'}, JSON.stringify(storejs.get('software_list'))
 ]);
 // Get software info
-fakeserver.respondWith('GET', '/fake/software_info/kvm', [
-    200, {'Content-Type': 'application/json'}, JSON.stringify(soft)
-]);
-fakeserver.respondWith('GET', '/fake/software_info/html5', [
-    200, {'Content-Type': 'application/json'}, JSON.stringify(html5)
-]);
-fakeserver.respondWith('GET', '/fake/software_info/nas', [
-    404, {'Content-Type': 'application/json'}, ''
-]);
-// Get computers list
-fakeserver.respondWith('GET', '/fake/computer', [
-    200, {'Content-Type': 'application/json'}, JSON.stringify(computer_list)
-]);
-// Get computer info
-fakeserver.respondWith('GET', '/fake/computer_info/comp', [
-    200, {'Content-Type': 'application/json'}, JSON.stringify(comp)
-]);
+fakeserver.respondWith("GET", /\/fake\/software_info\/(.*)/, function (xhr, softid) {
+    var softwares = storejs.get('softwares');
+    if (softwares.hasOwnProperty(softid)) {
+        xhr.respond(200, {'Content-Type': 'application/json'}, JSON.stringify(softwares[softid]));
+    } else {
+        xhr.respond(404, { 'Content-Type': 'application/json'}, 'Not found');
+    }
+});
 
 var tmp = $.ajax;
 $.ajax = function(url, options){

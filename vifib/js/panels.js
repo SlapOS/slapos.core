@@ -130,10 +130,30 @@ $.vifib.panel = {
         '</article>',
     instance:
         '<article>' +
-        '{{# image_url }}' +
-        '<img src="{{ image_url }}">' +
-        '{{/ image_url }}' +
-        '<h2>{{ instance_id }}</h2>' +
+        '<center><h3>{{ title }}</h3></center>' +
+        '<ul data-role="listview">' +
+        '<li class="ui-li-static">' +
+        '<p class="ui-li-desc"><i>Software release</i></p>' +
+        '<h3 class="ui-li-heading"><a href="{{ software_release }}">{{ software_release }}</a></h3>' +
+        '</li>' +
+        '<li class="ui-li-static">' +
+        '<p class="ui-li-desc"><i>Software type</i></p>' +
+        '<h3 class="ui-li-heading">{{ software_type }}</h3>' +
+        '</li>' +
+        '<li class="ui-li-static">' +
+        '<p class="ui-li-desc"><i>Status</i></p>' +
+        '<h3 class="ui-li-heading">{{ status }}</h3>' +
+        '</li>' +
+        '</ul>' +
+        '{{# start_requested }}' +
+        '<a data-role="button" href="{{ stop_url }}">Stop</a>' +
+        '<a data-role="button" href="{{ destroy_url }}">Destroy</a>' +
+        '{{/ start_requested }}' +
+        '{{# stop_requested }}' +
+        '<a data-role="button" href="{{ start_url }}">Start</a>' +
+        '<a data-role="button" href="{{ destroy_url }}">Destroy</a>' +
+        '{{/ stop_requested }}' +
+        '' +
         '</article>',
     instancelist:
         '<article>' +
@@ -142,7 +162,7 @@ $.vifib.panel = {
         '</ul>' +
         '</article>',
     rowinstance:
-        '<a href="{{ insturl }}">{{ title }}</a>',
+        '<a href="{{ insturl }}">{{ instance_id }}</a>',
     computer:
         '<article>' +
         '<h2>{{ computer_id }}</h2>' +

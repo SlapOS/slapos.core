@@ -59,28 +59,22 @@ $.vifib.softwareList = function (context) {
                     list.append(row);
                 });
                 list.listview('refresh');
-            }
+            },
+            statusCode: $.extend(false, $.vifib.statuscode, {})
         });
     });
 }
 $.vifib.instanceList = function (context) {
-    var list,
-        countRequest = 0;
+    var list;
     return context.each(function () {
         list = $(this).find('ul');
         $(this).slapos('instanceList', {
             success: function (response) {
-                $(this).ajaxSend(function () { ++countRequest; });
-                $(this).ajaxComplete(function () {
-                    if (countRequest-- == 0) {
-                        console.log("the end")
-                        list.listview('refresh');
-                    } else {
-                        console.log(countRequest)
-                    }
+                $.each(response.list, function (i, e) {
+                    $.vifib.fillRowInstance(list, $('<li></li>'), e);
                 });
-                $.vifib.fillRowInstance(list, $('<li></li>'), '');
             },
+            statusCode: $.extend(false, $.vifib.statuscode, {})
         });
     });
 }
@@ -91,9 +85,9 @@ $.vifib.fillRowInstance = function (list, row, instid) {
             $(this).html(Mustache.render($.vifib.panel.rowinstance, response));
         },
         complete: function (jqxhr, textstatus) {
-          console.log("complete")
-            list.append($(this));
-        }
+            list.append($(this)).listview('refresh');
+        },
+        statusCode: $.extend(false, $.vifib.statuscode, {})
     });
 }
 $.vifib.computerList = function (context) {
@@ -107,7 +101,8 @@ $.vifib.computerList = function (context) {
                     list.append(row);
                 });
                 list.listview('refresh');
-            }
+            },
+            statusCode: $.extend(false, $.vifib.statuscode, {})
         });
     });
 }
@@ -117,7 +112,8 @@ $.vifib.fillRowSoftware = function (context, softid) {
             success: function (response) {
                 $.extend(response, {softurl: '#/library/software/id' + softid});
                 $(this).html(Mustache.render($.vifib.panel.rowsoftware, response));
-            }
+            },
+            statusCode: $.extend(false, $.vifib.statuscode, {})
         });
     })
 }
@@ -127,7 +123,8 @@ $.vifib.fillRowComputer = function (context, compid) {
             success: function (response) {
                 $.extend(response, {compurl: '#/dashboard/computer/id/' + compid});
                 $(this).html(Mustache.render($.vifib.panel.rowcomputer, response));
-            }
+            },
+            statusCode: $.extend(false, $.vifib.statuscode, {})
         });
     })
 }

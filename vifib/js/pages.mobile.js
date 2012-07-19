@@ -89,6 +89,15 @@ $.vifib.mobile = {
                 .route('add', '/dashboard/instance/id<path:instid>', 1)
                 .done($.vifib.mobile.dashboard.instance);
             $('body')
+                .route('add', '/dashboard/instance/start<path:instid>', 1)
+                .done($.vifib.mobile.dashboard.instancestart);
+            $('body')
+                .route('add', '/dashboard/instance/stop<path:instid>', 1)
+                .done($.vifib.mobile.dashboard.instancestop);
+            $('body')
+                .route('add', '/dashboard/instance/destroy<path:instid>', 1)
+                .done($.vifib.mobile.dashboard.instancedestroy);
+            $('body')
                 .route('add', '/dashboard/computer/list', 1)
                 .done($.vifib.mobile.dashboard.computerlist);
             $('body')
@@ -150,11 +159,57 @@ $.vifib.mobile = {
             var page;
             $(this).slapos('instanceInfo', instid, {
                 success: function (response) {
+                    response[response.status] = true;
+                    response.stop_url = '#/dashboard/instance/stop' + instid;
+                    response.start_url = '#/dashboard/instance/start' + instid;
+                    response.destroy_url = '#/dashboard/instance/destroy' + instid;
                     page = $.vifib.onepanel($.vifib.panel.instance, response);
                     page.prepend(Mustache.render($.vifib.header.default, {title: 'Instance'}));
                     $.vifib.changepage($(page));
                 }
             });
+        },
+        instancestart: function (instid) {
+            $(this).slapos('instanceInfo', instid, {
+                success: function (response) {
+                    if (response.status === 'stop_requested') {
+                        response.status = 'started';
+                        $(this).slapos('instanceRequest', {
+                            data: response,
+                            success: function (response) {
+                                $.url.redirect('/dashboard/instance/id' + instid);
+                            },
+                            statusCode: $.extend(false, $.vifib.statuscode, {})
+                        })
+                    }
+                },
+                statusCode: $.extend(false, $.vifib.statuscode, {})
+            });
+        },
+        instancestop: function (instid) {
+            $(this).slapos('instanceInfo', instid, {
+                success: function (response) {
+                    if (response.status === 'start_requested') {
+                        response.status = 'stopped';
+                        $(this).slapos('instanceRequest', {
+                            data: response,
+                            success: function (response) {
+                                $.url.redirect('/dashboard/instance/id' + instid);
+                            },
+                            statusCode: $.extend(false, $.vifib.statuscode, {})
+                        })
+                    }
+                },
+                statusCode: $.extend(false, $.vifib.statuscode, {})
+            });
+        },
+        instancedestroy: function (instid) {
+            $(this).slapos('instanceDelete', instid, {
+                success: function (response) {
+                    $.url.redirect('/dashboard/instance/id' + instid);
+                },
+                statusCode: $.extend(false, $.vifib.statuscode, {})
+            })
         },
         computerlist: function (route) {
             var page = $.vifib.onepanel($.vifib.panel.allcomputer);

@@ -3,10 +3,14 @@
 
 NAME = build
 
+TARBALL = vifib.tar.gz
+
 DEVDIR = ${NAME}_dev
 RELDIR = ${NAME}
 
 JSDIR = js
+DEVJS = vifib.js
+DEVCSS = vifib.css
 FINALJS = vifib.js
 FINALCSS = vifib.css
 
@@ -32,7 +36,7 @@ CATCSSFILES = ${DEVDIR}/lib/qunit.css
 # List all javascript files except tests files
 JSFILES = $(find $(JSDIR) -name 'tests' -prune -o -name "*.js" -print)
 
-dev: ${DEVDIR}/lib/sinon.js ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/qunit.js ${DEVDIR}/lib/qunit.css ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/swipe.js $(patsubst %.js, ${DEVDIR}/js/%.js, $(JSFILES)) ${DEVDIR}/index.html ${DEVDIR}/$(FINALJS) ${DEVDIR}/$(FINALCSS)
+dev: ${DEVDIR}/lib/sinon.js ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/qunit.js ${DEVDIR}/lib/qunit.css ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/swipe.js $(patsubst %.js, ${DEVDIR}/js/%.js, $(JSFILES)) ${DEVDIR}/index.html ${DEVDIR}/$(DEVJS) ${DEVDIR}/$(DEVCSS)
 
 ${DEVDIR}/index.html: index.html
 	@mkdir -p $(@D)
@@ -78,11 +82,11 @@ ${DEVDIR}/lib/modernizr.js:
 	curl -s -o $@ http://modernizr.com/downloads/modernizr-2.5.3.js
 
 # Concatenation #
-${DEVDIR}/$(FINALJS): $(CATJSFILES)
+${DEVDIR}/$(DEVJS): $(CATJSFILES)
 	@mkdir -p $(@D)
 	cat $^ > $@
 
-${DEVDIR}/$(FINALCSS): $(CATCSSFILES)
+${DEVDIR}/$(DEVCSS): $(CATCSSFILES)
 	@mkdir -p $(@D)
 	cat $^ > $@
 
@@ -107,11 +111,28 @@ ${DEVDIR}/tests/%_test.html.ok: ${DEVDIR}/tests/%_test.html ${DEVDIR}/tests/%_te
 #########################################
 # Release
 #########################################
-release: 
+
+# Sort files for concatenation
+CATFINALJSFILES = ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/swipe.js ${DEVDIR}/js/jquery.slapos.js ${DEVDIR}/js/init.js ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/js/url.js ${DEVDIR}/js/route.js ${DEVDIR}/js/main.js ${DEVDIR}/js/render.js ${DEVDIR}/js/panels.js ${DEVDIR}/js/pages.js ${DEVDIR}/js/pages.mobile.js ${DEVDIR}/js/pages.tablet.js ${DEVDIR}/js/pages.desktop.js
+
+release: ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/swipe.js $(patsubst %.js, ${DEVDIR}/js/%.js, $(JSFILES)) ${DEVDIR}/index.html ${DEVDIR}/$(FINALJS)
+
+# Concatenation, minification #
+${DEVDIR}/$(FINALJS): $(CATFINALJSFILES)
+	@mkdir -p $(@D)
+	cat $^ | uglifyjs > $@
+
+tarball: ${DEVDIR}/$(FINALJS) ${DEVDIR}/index.html
+	tar -czf $(TARBALL) $^
+
+export: tarball
 
 #########################################
 # Cleaning
 #########################################
-clean: 
+clean:
+	@echo soft cleaning
+	rm -rf ${DEVDIR}/index.html ${DEVDIR}/vifib.* ${DEVDIR}/js
+cleanall: 
 	@echo cleaning
-	rm -rf ${DEVDIR} ${RELDIR}
+	rm -rf ${DEVDIR} ${RELDIR} $(TARBALL)

@@ -19,6 +19,16 @@ $.vifib.login = {
                 '&response_type=token';
         $(document).slapos('store', 'token_type', 'Google');
         window.location.href = ggurl;
+    },
+    googleRedirect: function (response) {
+        var options = {},
+            option;
+        response = 'access_token=' + response;
+        $.each(response.split('&'), function (i, e) {
+            option = e.split('=');
+            options[option[0]] = option[1];
+        });
+        $.url.redirect('/dashboard/', options);
     }
 }
 $.vifib.statuscode = {
@@ -53,24 +63,23 @@ $.vifib.softwareList = function (context) {
         });
     });
 }
-
 $.vifib.instanceList = function (context) {
-    var list;
+    var list,
+        countRequest = 0;
     return context.each(function () {
         list = $(this).find('ul');
         $(this).slapos('instanceList', {
             success: function (response) {
-                $.when(
-                    $.vifib.fillRowInstance(list, $('<li></li>'), response.list[0])
-                ).then(function () {
-                    list.listview('refresh');
+                $(this).ajaxSend(function () { ++countRequest; });
+                $(this).ajaxComplete(function () {
+                    if (countRequest-- == 0) {
+                        console.log("the end")
+                        list.listview('refresh');
+                    } else {
+                        console.log(countRequest)
+                    }
                 });
-                //$.when.apply($(this), $.map(response.list, function (inst) {
-                    //$.vifib.fillRowInstance(list, $('<li></li>'), inst);
-                //})).done(function (a, b, c) {
-                    //console.log(arguments);
-                    //list.listview('refresh');
-                //});
+                $.vifib.fillRowInstance(list, $('<li></li>'), '');
             },
         });
     });
@@ -82,6 +91,7 @@ $.vifib.fillRowInstance = function (list, row, instid) {
             $(this).html(Mustache.render($.vifib.panel.rowinstance, response));
         },
         complete: function (jqxhr, textstatus) {
+          console.log("complete")
             list.append($(this));
         }
     });

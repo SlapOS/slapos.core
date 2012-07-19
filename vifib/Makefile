@@ -22,7 +22,7 @@ all: dev release
 
 # Emulate server responses with sinonjs
 fake: dev ${DEVDIR}/js/fake.js
-	cat $(CATJSFILES) ${DEVDIR}/js/fake.js > ${DEVDIR}/$(FINALJS)
+	cat $(CATJSFILES) ${DEVDIR}/js/fake.js > ${DEVDIR}/$(DEVJS)
 
 ${DEVDIR}/js/fake.js: js/utils/fake.js
 	@mkdir -p $(@D)
@@ -113,19 +113,19 @@ ${DEVDIR}/tests/%_test.html.ok: ${DEVDIR}/tests/%_test.html ${DEVDIR}/tests/%_te
 #########################################
 
 # Sort files for concatenation
-CATFINALJSFILES = ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/swipe.js ${DEVDIR}/js/jquery.slapos.js ${DEVDIR}/js/init.js ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/js/url.js ${DEVDIR}/js/route.js ${DEVDIR}/js/main.js ${DEVDIR}/js/render.js ${DEVDIR}/js/panels.js ${DEVDIR}/js/pages.js ${DEVDIR}/js/pages.mobile.js ${DEVDIR}/js/pages.tablet.js ${DEVDIR}/js/pages.desktop.js
+#CATFINALJSFILES = ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/swipe.js ${DEVDIR}/js/jquery.slapos.js ${DEVDIR}/js/init.js ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/js/url.js ${DEVDIR}/js/route.js ${DEVDIR}/js/main.js ${DEVDIR}/js/render.js ${DEVDIR}/js/panels.js ${DEVDIR}/js/pages.js ${DEVDIR}/js/pages.mobile.js ${DEVDIR}/js/pages.tablet.js ${DEVDIR}/js/pages.desktop.js
 
-release: ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/swipe.js $(patsubst %.js, ${DEVDIR}/js/%.js, $(JSFILES)) ${DEVDIR}/index.html ${DEVDIR}/$(FINALJS)
+#release: ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/swipe.js $(patsubst %.js, ${DEVDIR}/js/%.js, $(JSFILES)) ${DEVDIR}/index.html ${DEVDIR}/$(FINALJS)
 
-# Concatenation, minification #
-${DEVDIR}/$(FINALJS): $(CATFINALJSFILES)
-	@mkdir -p $(@D)
-	cat $^ | uglifyjs > $@
+ #Concatenation, minification #
+#${DEVDIR}/$(FINALJS): $(CATFINALJSFILES)
+	#@mkdir -p $(@D)
+	#cat $^ | uglifyjs > $@
 
-tarball: ${DEVDIR}/$(FINALJS) ${DEVDIR}/index.html
-	tar -czf $(TARBALL) $^
+#tarball: ${DEVDIR}/$(FINALJS) ${DEVDIR}/index.html
+	#tar -czf $(TARBALL) $^
 
-export: tarball
+#export: tarball
 
 #########################################
 # Cleaning

@@ -2,7 +2,7 @@
     'use strict';
     $.vifib.login = {
         facebook: function (params) {
-            var redirect = location.protocol + '//' + location.host + location.pathname + '#/dashboard/' + '?',
+            var redirect = window.location.protocol + '//' + window.location.host + window.location.pathname + '#/dashboard/' + '?',
                 fburl = 'https://www.facebook.com/dialog/oauth?' +
                     'client_id=' + $(document).slapos('store', 'fbappid') +
                     '&redirect_uri=' + encodeURIComponent(redirect) +
@@ -13,7 +13,7 @@
             window.location.href = fburl;
         },
         google: function (params) {
-            var redirect = location.protocol + '//' + location.host + location.pathname,
+            var redirect = window.location.protocol + '//' + window.location.host + window.location.pathname,
                 ggurl = 'https://accounts.google.com/o/oauth2/auth?' +
                     'client_id=' + $(document).slapos('store', 'ggappid') +
                     '&redirect_uri=' + encodeURIComponent(redirect) +

@@ -1,2 +1,2 @@
-/*jslint browser: true*/
+/* jslint */
 /*global jQuery, Modernizr, $, window, document, unescape, Spinner, Mustache, Swipe, sinon */

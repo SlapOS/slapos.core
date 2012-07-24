@@ -9,7 +9,7 @@ $.vifib.mobile = {
         // rendering
         page = $.vifib.onepanel($.vifib.panel.login);
         // header
-        page.prepend(Mustache.render($.vifib.header.default, {title: 'Vifib'}));
+        page.prepend(Mustache.render($.vifib.header.default, {title: 'SlapOs'}));
         // footer navbar
         page.append($.vifib.footer.overview);
         // rendering
@@ -33,10 +33,10 @@ $.vifib.mobile = {
         overview: function () {
             page = $.vifib.onepanel($.vifib.panel.library, {
                 most: [
-                    {url: '#/library/software/id/fake/software_info/kvm', name: 'Kvm'},
+                    {url: '#/library/software/id/fake/software_info/Kvm', name: 'Kvm'},
                 ],
                 newest: [
-                    {url: '#/library/software/id/fake/software_info/html5', name: 'html5 AS'}
+                    {url: '#/library/software/id/fake/software_info/Html5', name: 'Html5as'}
                 ]
             });
             // header
@@ -63,7 +63,8 @@ $.vifib.mobile = {
                     page.append($.vifib.footer.overview);
                     // rendering
                     $.vifib.changepage($(page));
-                }
+                },
+                statusCode: $.extend(false, $.vifib.statuscode, {})
             });
         },
         all: function () {
@@ -97,12 +98,6 @@ $.vifib.mobile = {
             $('body')
                 .route('add', '/dashboard/instance/destroy<path:instid>', 1)
                 .done($.vifib.mobile.dashboard.instancedestroy);
-            $('body')
-                .route('add', '/dashboard/computer/list', 1)
-                .done($.vifib.mobile.dashboard.computerlist);
-            $('body')
-                .route('add', '/dashboard/computer/id/<compid>', 1)
-                .done($.vifib.mobile.dashboard.computer);
             $('body')
                 .route('go', $.url.getPath(), 1)
                 .fail($.vifib.mobile.nopage);
@@ -162,7 +157,7 @@ $.vifib.mobile = {
             $(this).slapos('instanceInfo', instid, {
                 success: function (response) {
                     if (response.status === 'stop_requested') {
-                        response.status = 'started';
+                        response.status = 'start_requested';
                         $(this).slapos('instanceRequest', {
                             data: response,
                             success: function (response) {
@@ -179,7 +174,7 @@ $.vifib.mobile = {
             $(this).slapos('instanceInfo', instid, {
                 success: function (response) {
                     if (response.status === 'start_requested') {
-                        response.status = 'stopped';
+                        response.status = 'stop_requested';
                         $(this).slapos('instanceRequest', {
                             data: response,
                             success: function (response) {

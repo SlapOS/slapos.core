@@ -12,6 +12,13 @@ $(document).bind("mobileinit", function () {
         // Google application id
         'ggappid': '380290002359.apps.googleusercontent.com'
     });
+    
+    // show loading during ajax request
+    $(document).ajaxStart(function () {
+        $("#loading").spin(spinOptions);
+    }).ajaxStop(function () {
+        $("#loading").spin(false);
+    });
 
     //$(document).slapos('store', 'host', '/fake');
 

@@ -1,6 +1,5 @@
 'use strict';
 var getDevice = function (w) {
-    return 'mobile';
     if (w < 500) {
         return 'mobile';
     }
@@ -24,7 +23,7 @@ $.vifib.devices = {
         $('body')
             .route('add', '/login/google')
             .done($.vifib.login.google);
-        // when oogle send back the token, it reset hashtag from url
+        // when Google send back the token, it reset hashtag from url
         $('body')
             .route('add', 'access_token=<path:path>')
             .done($.vifib.login.googleRedirect);
@@ -42,6 +41,16 @@ $.vifib.devices = {
         $('body')
             .route('add', '')
             .done($.vifib.tablet.overview);
+        $('body')
+            .route('add', '/login/facebook')
+            .done($.vifib.login.facebook);
+        $('body')
+            .route('add', '/login/google')
+            .done($.vifib.login.google);
+        // when Google send back the token, it reset hashtag from url
+        $('body')
+            .route('add', 'access_token=<path:path>')
+            .done($.vifib.login.googleRedirect);
         $('body')
             .route('add', '/overview')
             .done($.vifib.tablet.overview);

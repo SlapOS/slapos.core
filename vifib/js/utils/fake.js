@@ -103,10 +103,8 @@ fakeserver.respondWith("POST", '/fake/instance', function (xhr) {
         inst = JSON.parse(xhr.requestBody),
         iadd = {},
         ilist = instance_list();
-    if (instances.hasOwnProperty(inst.title) === false) {
-        iadd[inst.title] = inst;
-        storejs.extend('instances', iadd);
-    }
+      iadd[inst.title] = inst;
+      storejs.extend('instances', iadd);
     xhr.respond(201, {'Content-Type': 'application/json'}, JSON.stringify({
         title: inst.title,
         status: inst.status

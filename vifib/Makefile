@@ -3,16 +3,16 @@
 
 NAME = build
 
-TARBALL = vifib.tar.gz
+TARBALL = slapos.tar.gz
 
 DEVDIR = ${NAME}_dev
 RELDIR = ${NAME}
 
 JSDIR = js
-DEVJS = vifib.js
-DEVCSS = vifib.css
-FINALJS = vifib.js
-FINALCSS = vifib.css
+DEVJS = slapos.js
+DEVCSS = slapos.css
+FINALJS = slapos.js
+FINALCSS = slapos.css
 
 all: dev release
 
@@ -132,7 +132,7 @@ ${DEVDIR}/tests/%_test.html.ok: ${DEVDIR}/tests/%_test.html ${DEVDIR}/tests/%_te
 #########################################
 clean:
 	@echo soft cleaning
-	rm -rf ${DEVDIR}/index.html ${DEVDIR}/vifib.* ${DEVDIR}/js
+	rm -rf ${DEVDIR}/index.html ${DEVDIR}/slapos.* ${DEVDIR}/js
 cleanall: 
 	@echo cleaning
 	rm -rf ${DEVDIR} ${RELDIR} $(TARBALL)

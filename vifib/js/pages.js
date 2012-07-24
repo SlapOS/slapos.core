@@ -33,19 +33,51 @@ $.vifib.login = {
 }
 $.vifib.statuscode = {
     400: function (jqxhr, textstatus) {
-        $.vifib.replacepanel($(this), $.vifib.panel.badrequest);
+        var page;
+        if(device === 'mobile') {
+          page = $.vifib.onepanel($.vifib.panel.badrequest);
+          page.prepend(Mustache.render($.vifib.header.default, {title: 'An error as occured'}));
+          page.append($.vifib.footer.overview);
+          $.vifib.changepage($(page));
+        } else {
+          $.vifib.replacepanel($(this), $.vifib.panel.badrequest);
+        }
     },
     401: function (jqxhr, textstatus) {
-        $.url.redirect('/login');
+          $.url.redirect('/overview');
     },
     402: function (jqxhr, textstatus) {
-        $.vifib.replacepanel($(this), $.vifib.panel.payment);
+        var page;
+        if(device === 'mobile') {
+          page = $.vifib.onepanel($.vifib.panel.payment);
+          page.prepend(Mustache.render($.vifib.header.default, {title: 'An error as occured'}));
+          page.append($.vifib.footer.overview);
+          $.vifib.changepage($(page));
+        } else {
+          $.vifib.replacepanel($(this), $.vifib.panel.payment);
+        }
     },
     404: function (jqxhr, textstatus) {
-        $.vifib.replacepanel($(this), $.vifib.panel.notfound);
+        var page;
+        if(device === 'mobile') {
+          page = $.vifib.onepanel($.vifib.panel.notfound);
+          page.prepend(Mustache.render($.vifib.header.default, {title: 'An error as occured'}));
+          page.append($.vifib.footer.overview);
+          $.vifib.changepage($(page));
+        } else {
+          $.vifib.replacepanel($(this), $.vifib.panel.notfound);
+        }
     },
     500: function (jqxhr, textstatus) {
-        $.vifib.replacepanel($(this), $.vifib.panel.internalerror);
+        var page;
+        if(device === 'mobile') {
+          page = $.vifib.onepanel($.vifib.panel.internalerror);
+          page.prepend(Mustache.render($.vifib.header.default, {title: 'An error as occured'}));
+          page.append($.vifib.footer.overview);
+          $.vifib.changepage($(page));
+        } else {
+          $.vifib.replacepanel($(this), $.vifib.panel.internalerror);
+        }
     },
 }
 $.vifib.softwareList = function (context) {

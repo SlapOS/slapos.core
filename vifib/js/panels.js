@@ -207,7 +207,7 @@ $.vifib.panel = {
 }
 
 $.vifib.header = {
-    default: '<header data-role="header"><a href="#" data-icon="home" data-iconpos="notext"></a><h2>{{ title }}</h2><div id="loading" style="h"></div></header>'
+  default: '<header data-role="header"><a href="#" data-icon="home" data-iconpos="notext"></a><h2>{{ title }}</h2></div></header><div id="loading" style="position: absolute; top: 20px; right: 20px;"></div>'
 }
 
 $.vifib.footer = {

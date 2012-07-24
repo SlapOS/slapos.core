@@ -5,6 +5,9 @@ NAME = build
 
 TARBALL = slapos.tar.gz
 
+JSLINT = jslint
+JSLINTOPTIONS = --maxerr=5
+
 DEVDIR = ${NAME}_dev
 RELDIR = ${NAME}
 
@@ -14,7 +17,7 @@ DEVCSS = slapos.css
 FINALJS = slapos.js
 FINALCSS = slapos.css
 
-all: dev release
+all: dev
 
 #########################################
 # Dev environment
@@ -22,21 +25,21 @@ all: dev release
 
 # Emulate server responses with sinonjs
 fake: dev ${DEVDIR}/js/fake.js
-	cat $(CATJSFILES) ${DEVDIR}/js/fake.js > ${DEVDIR}/$(DEVJS)
+	more ${DEVDIR}/js/fake.js >> ${DEVDIR}/$(DEVJS)
 
 ${DEVDIR}/js/fake.js: js/utils/fake.js
 	@mkdir -p $(@D)
 	cp $< $@
 
 # Sort files for concatenation
-CATJSFILES = ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/sinon.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/swipe.js ${DEVDIR}/js/jquery.slapos.js ${DEVDIR}/js/init.js ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/js/url.js ${DEVDIR}/js/route.js ${DEVDIR}/js/main.js ${DEVDIR}/js/render.js ${DEVDIR}/js/panels.js ${DEVDIR}/js/pages.js ${DEVDIR}/js/pages.mobile.js ${DEVDIR}/js/pages.tablet.js ${DEVDIR}/js/pages.desktop.js
+CATJSFILES = ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/sinon.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/swipe.js ${DEVDIR}/js/jquery.slapos.js ${DEVDIR}/js/init.js ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/lib/url.js ${DEVDIR}/lib/route.js ${DEVDIR}/js/main.js ${DEVDIR}/js/render.js ${DEVDIR}/js/panels.js ${DEVDIR}/js/pages.js ${DEVDIR}/js/pages.mobile.js ${DEVDIR}/js/pages.tablet.js ${DEVDIR}/js/pages.desktop.js
 
 CATCSSFILES = ${DEVDIR}/lib/qunit.css
 
 # List all javascript files except tests files
-JSFILES = $(find $(JSDIR) -name 'tests' -prune -o -name "*.js" -print)
+JSFILES = $(find $(JSDIR) -name 'tests' -prune -o -name 'lib' -prune -o -name "*.js" -print)
 
-dev: ${DEVDIR}/lib/sinon.js ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/qunit.js ${DEVDIR}/lib/qunit.css ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/swipe.js $(patsubst %.js, ${DEVDIR}/js/%.js, $(JSFILES)) ${DEVDIR}/index.html ${DEVDIR}/$(DEVJS) ${DEVDIR}/$(DEVCSS)
+dev: ${DEVDIR}/lib/sinon.js ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/qunit.js ${DEVDIR}/lib/qunit.css ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/swipe.js ${DEVDIR}/lib/route.js ${DEVDIR}/lib/url.js $(patsubst %.js, ${DEVDIR}/js/%.js, $(JSFILES)) ${DEVDIR}/index.html ${DEVDIR}/$(DEVJS) ${DEVDIR}/$(DEVCSS)
 
 ${DEVDIR}/index.html: index.html
 	@mkdir -p $(@D)
@@ -45,10 +48,18 @@ ${DEVDIR}/index.html: index.html
 # Lint javascript files #
 ${DEVDIR}/js/%.js: js/%.js
 	@mkdir -p $(@D)
-	#${JSLINT} --indent 2 --maxerr 3 $<
+	@# Prepend jslintrc to defined global variables #
+	@more jslintrc | cat - $< > /tmp/$(notdir $<)
+	${JSLINT} ${JSLINTOPTIONS} /tmp/$(notdir $<)
 	cp $< $@
 
 # Dependencies #
+${DEVDIR}/lib/route.js:
+	cp js/lib/route.js $@
+
+${DEVDIR}/lib/url.js:
+	cp js/lib/url.js $@
+
 ${DEVDIR}/lib/qunit.%:
 	@mkdir -p $(@D)
 	curl -s -o $@ http://code.jquery.com/qunit/qunit-1.5.0$(suffix $@)

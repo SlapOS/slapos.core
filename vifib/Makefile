@@ -39,7 +39,7 @@ CATCSSFILES = ${DEVDIR}/lib/qunit.css
 # List all javascript files except tests files
 JSFILES = $(find $(JSDIR) -name 'tests' -prune -o -name 'lib' -prune -o -name "*.js" -print)
 
-dev: ${DEVDIR}/lib/sinon.js ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/qunit.js ${DEVDIR}/lib/qunit.css ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/swipe.js ${DEVDIR}/lib/route.js ${DEVDIR}/lib/url.js $(patsubst %.js, ${DEVDIR}/js/%.js, $(JSFILES)) ${DEVDIR}/index.html ${DEVDIR}/$(DEVJS) ${DEVDIR}/$(DEVCSS)
+dev: ${DEVDIR}/lib/sinon.js ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/qunit.js ${DEVDIR}/lib/qunit.css ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/swipe.js ${DEVDIR}/lib/route.js ${DEVDIR}/lib/url.js $(patsubst %.js, ${DEVDIR}/js/%.js, $(JSFILES)) ${DEVDIR}/index.html ${DEVDIR}/$(DEVJS) ${DEVDIR}/$(DEVCSS) manifest
 
 ${DEVDIR}/index.html: index.html
 	@mkdir -p $(@D)

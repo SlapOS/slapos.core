@@ -1,7 +1,10 @@
-$(document).bind("mobileinit", function () {
-    var spinOptions = {color: "#FFFFFF", lines:30, length:0, width:5, radius:7, rotate:0, trail:60, speed:1.6};
+$(document).bind('mobileinit', function () {
+    'use strict';
+    var spinOptions = {color: '#FFFFFF', lines: 30, length: 0, width: 5, radius: 7, rotate: 0, trail: 60, speed: 1.6};
 
-    $.vifib = {} || $.vifib;
+    if (!$.vifib) {
+        $.vifib = {};
+    }
 
     //SlapOs configuration
     $(document).slapos({
@@ -12,12 +15,12 @@ $(document).bind("mobileinit", function () {
         // Google application id
         'ggappid': '380290002359.apps.googleusercontent.com'
     });
-    
+
     // show loading during ajax request
     $(document).ajaxStart(function () {
-        $("#loading").spin(spinOptions);
+        $('#loading').spin(spinOptions);
     }).ajaxStop(function () {
-        $("#loading").spin(false);
+        $('#loading').spin(false);
     });
 
     //$(document).slapos('store', 'host', '/fake');

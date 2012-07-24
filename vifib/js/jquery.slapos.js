@@ -65,7 +65,7 @@
         },
 
         request: function (type, method, args) {
-            var statusCode, data;
+            var statusCode, data, ajaxOptions;
             if (args.hasOwnProperty('statusCode')) {
                 statusCode = args.statusCode || methods.statusDefault();
             } else {
@@ -78,24 +78,24 @@
             }
             delete args.data;
             $.extend(args, {statusCode: statusCode});
-              var ajaxOptions = {
-                  type: type,
-                  url: $(this).slapos('host') + method,
-                  contentType: 'application/json',
-                  data: JSON.stringify(data),
-                  datatype: 'json',
-                  context: $(this),
-                  headers: {
-                      'Accept': 'application/json',
-                  },
-                  beforeSend: function (xhr) {
-                      if ($(this).slapos('access_token')) {
-                          xhr.setRequestHeader('Authorization', $(this).slapos('store', 'token_type') + ' ' + $(this).slapos('access_token'));
-                      }
-                  }
-              };
-              $.extend(ajaxOptions, args);
-              return $.ajax(ajaxOptions);
+            ajaxOptions = {
+                type: type,
+                url: $(this).slapos('host') + method,
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                datatype: 'json',
+                context: $(this),
+                headers: {
+                    'Accept': 'application/json',
+                },
+                beforeSend: function (xhr) {
+                    if ($(this).slapos('access_token')) {
+                        xhr.setRequestHeader('Authorization', $(this).slapos('store', 'token_type') + ' ' + $(this).slapos('access_token'));
+                    }
+                }
+            };
+            $.extend(ajaxOptions, args);
+            return $.ajax(ajaxOptions);
         },
 
         instanceList: function (args) {
@@ -110,7 +110,7 @@
         instanceRequest: function (args) {
             return $(this).slapos('request', 'POST', '/instance', args);
         },
-        
+
         instanceBang: function (url, args) {
             $.extend(args, {url: url + '/bang'});
             return $(this).slapos('request', 'POST', '', args);
@@ -129,7 +129,7 @@
             $.extend(args, {url: url});
             return $(this).slapos('request', 'GET', '', args);
         },
-        
+
         computerList: function (args) {
             return $(this).slapos('request', '', args);
         },
@@ -138,16 +138,17 @@
             $.extend(args, {url: url});
             return $(this).slapos('request', 'GET', '', args);
         }
-
     };
 
     $.fn.slapos = function (method) {
+        var r;
         if (methods[method]) {
-            return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+            r = methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
         } else if (typeof method === 'object' || !method) {
-            return methods.init.apply(this, arguments);
+            r = methods.init.apply(this, arguments);
         } else {
             $.error('Method ' +  method + ' does not exist on jQuery.slapos');
         }
+        return r;
     };
 }(jQuery));

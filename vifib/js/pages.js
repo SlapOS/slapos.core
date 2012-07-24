@@ -1,6 +1,6 @@
 $.vifib.login = {
     facebook: function (params) {
-        var redirect = window.location.origin + window.location.pathname + '#/dashboard/' + '?',
+        var redirect = location.protocol + '//' + location.host + location.pathname + '#/dashboard/' + '?',
         fburl = 'https://www.facebook.com/dialog/oauth?' +
             'client_id=' + $(document).slapos('store', 'fbappid') +
             '&redirect_uri=' + encodeURIComponent(redirect) +
@@ -11,7 +11,7 @@ $.vifib.login = {
         window.location.href = fburl;
     },
     google: function (params) {
-        var redirect = window.location.origin + window.location.pathname + '?',
+        var redirect = location.protocol + '//' + location.host + location.pathname,
             ggurl = 'https://accounts.google.com/o/oauth2/auth?' +
                 'client_id=' + $(document).slapos('store', 'ggappid') +
                 '&redirect_uri=' + encodeURIComponent(redirect) +

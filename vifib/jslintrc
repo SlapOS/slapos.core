@@ -1,0 +1,4 @@
+/*jslint browser: true, regexp: true, bitwise: true */
+/*global jQuery, Modernizr, $, window, document, unescape, Spinner, Mustache, Swipe, sinon */
+
+/* vim: set ft=javascript: */

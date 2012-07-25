@@ -17,6 +17,8 @@ DEVCSS = slapos.css
 FINALJS = slapos.js
 FINALCSS = slapos.css
 
+MANIFESTNAME = $(DEVDIR)/slapos.manifest
+
 all: dev
 
 #########################################
@@ -26,6 +28,9 @@ all: dev
 # Emulate server responses with sinonjs
 fake: dev ${DEVDIR}/js/fake.js
 	more ${DEVDIR}/js/fake.js >> ${DEVDIR}/$(DEVJS)
+	echo "http://www.system-linux.eu/public/images/kvm-logo.png" >> $(MANIFESTNAME)
+	echo "http://www.w3.org/html/logo/downloads/HTML5_Badge_512.png" >> $(MANIFESTNAME)
+	echo "http://7.mshcdn.com/wp-content/uploads/2011/01/html5-logo-1.jpg" >> $(MANIFESTNAME)
 
 ${DEVDIR}/js/fake.js: js/utils/fake.js
 	@mkdir -p $(@D)
@@ -40,6 +45,19 @@ CATCSSFILES = ${DEVDIR}/lib/qunit.css
 JSFILES = $(find $(JSDIR) -name 'tests' -prune -o -name 'lib' -prune -o -name "*.js" -print)
 
 dev: ${DEVDIR}/lib/sinon.js ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/qunit.js ${DEVDIR}/lib/qunit.css ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/swipe.js ${DEVDIR}/lib/route.js ${DEVDIR}/lib/url.js $(patsubst %.js, ${DEVDIR}/js/%.js, $(JSFILES)) ${DEVDIR}/index.html ${DEVDIR}/$(DEVJS) ${DEVDIR}/$(DEVCSS) manifest
+
+manifest: $(DEVDIR)/index.html $(DEVDIR)/$(DEVJS) $(DEVDIR)/$(DEVCSS)
+	@if test -f $(MANIFESTNAME); then \
+		./inc_manifest_release.sh $(MANIFESTNAME); \
+	else \
+		echo "CACHE MANIFEST" > $(MANIFESTNAME); \
+		echo "#rel 1" >> $(MANIFESTNAME); \
+		echo "index.html" >> $(MANIFESTNAME); \
+		echo $(DEVJS) >> $(MANIFESTNAME); \
+		echo $(DEVCSS) >> $(MANIFESTNAME); \
+		echo "NETWORK:" >> $(MANIFESTNAME); \
+		echo "http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" >> $(MANIFESTNAME); \
+	fi
 
 ${DEVDIR}/index.html: index.html
 	@mkdir -p $(@D)

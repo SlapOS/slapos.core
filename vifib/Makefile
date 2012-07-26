@@ -9,6 +9,7 @@ JSLINT = jslint
 JSLINTOPTIONS = --maxerr=5
 
 DEVDIR = ${NAME}_dev
+APPDIR = $(DEVDIR)/app
 RELDIR = ${NAME}
 
 JSDIR = js
@@ -17,54 +18,51 @@ DEVCSS = slapos.css
 FINALJS = slapos.js
 FINALCSS = slapos.css
 
-MANIFESTNAME = $(DEVDIR)/slapos.manifest
+MANIFESTNAME = $(APPDIR)/slapos.manifest
 
-all: dev
+all: test
 
 #########################################
 # Dev environment
 #########################################
 
 # Emulate server responses with sinonjs
-fake: dev ${DEVDIR}/js/fake.js
-	more ${DEVDIR}/js/fake.js >> ${DEVDIR}/$(DEVJS)
+fake: dev $(DEVDIR)/js/fake.js
+	more $(DEVDIR)/js/fake.js >> $(APPDIR)/$(DEVJS)
 	echo "http://www.system-linux.eu/public/images/kvm-logo.png" >> $(MANIFESTNAME)
+	echo "http://www.linux-kvm.org/wiki/skins/kvm/kvmbanner-logo2.png" >> $(MANIFESTNAME)
 	echo "http://www.w3.org/html/logo/downloads/HTML5_Badge_512.png" >> $(MANIFESTNAME)
 	echo "http://7.mshcdn.com/wp-content/uploads/2011/01/html5-logo-1.jpg" >> $(MANIFESTNAME)
 
-${DEVDIR}/js/fake.js: js/utils/fake.js
+$(DEVDIR)/js/fake.js: js/utils/fake.js
 	@mkdir -p $(@D)
 	cp $< $@
 
 # Sort files for concatenation
-CATJSFILES = ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/sinon.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/swipe.js ${DEVDIR}/js/jquery.slapos.js ${DEVDIR}/js/init.js ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/lib/url.js ${DEVDIR}/lib/route.js ${DEVDIR}/js/main.js ${DEVDIR}/js/render.js ${DEVDIR}/js/panels.js ${DEVDIR}/js/pages.js ${DEVDIR}/js/pages.mobile.js ${DEVDIR}/js/pages.tablet.js ${DEVDIR}/js/pages.desktop.js
+CATJSFILES = $(DEVDIR)/lib/jquery.js $(DEVDIR)/lib/sinon.js $(DEVDIR)/lib/mustache.js $(DEVDIR)/lib/spin.js $(DEVDIR)/lib/modernizr.js $(DEVDIR)/lib/swipe.js $(DEVDIR)/js/jquery.slapos.js $(DEVDIR)/js/init.js $(DEVDIR)/lib/jquery.mobile.js $(DEVDIR)/lib/url.js $(DEVDIR)/lib/route.js $(DEVDIR)/js/main.js $(DEVDIR)/js/render.js $(DEVDIR)/js/panels.js $(DEVDIR)/js/pages.js $(DEVDIR)/js/pages.mobile.js $(DEVDIR)/js/pages.tablet.js $(DEVDIR)/js/pages.desktop.js
 
-CATCSSFILES = ${DEVDIR}/lib/qunit.css
+CATCSSFILES = $(DEVDIR)/lib/qunit.css $(DEVDIR)/lib/jquery.mobile.css
 
-# List all javascript files except tests files
+# List all javascript files except tests files and lib files
 JSFILES = $(find $(JSDIR) -name 'tests' -prune -o -name 'lib' -prune -o -name "*.js" -print)
 
-dev: ${DEVDIR}/lib/sinon.js ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/qunit.js ${DEVDIR}/lib/qunit.css ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/swipe.js ${DEVDIR}/lib/route.js ${DEVDIR}/lib/url.js $(patsubst %.js, ${DEVDIR}/js/%.js, $(JSFILES)) ${DEVDIR}/index.html ${DEVDIR}/$(DEVJS) ${DEVDIR}/$(DEVCSS) manifest
+dev: $(DEVDIR)/lib/sinon.js $(DEVDIR)/lib/jquery.js $(DEVDIR)/lib/qunit.js $(DEVDIR)/lib/qunit.css $(DEVDIR)/lib/jquery.mobile.js $(DEVDIR)/lib/jquery.mobile.css $(DEVDIR)/lib/jquery.mobile.zip $(DEVDIR)/lib/modernizr.js $(DEVDIR)/lib/mustache.js $(DEVDIR)/lib/spin.js $(DEVDIR)/lib/swipe.js $(DEVDIR)/lib/route.js $(DEVDIR)/lib/url.js $(patsubst %.js, $(DEVDIR)/js/%.js, $(JSFILES)) $(APPDIR)/index.html $(APPDIR)/$(DEVJS) $(APPDIR)/$(DEVCSS) manifest
 
-manifest: $(DEVDIR)/index.html $(DEVDIR)/$(DEVJS) $(DEVDIR)/$(DEVCSS)
+manifest: $(APPDIR)/index.html $(APPDIR)/$(DEVJS) $(APPDIR)/$(DEVCSS)
 	@if test -f $(MANIFESTNAME); then \
 		./inc_manifest_release.sh $(MANIFESTNAME); \
 	else \
 		echo "CACHE MANIFEST" > $(MANIFESTNAME); \
 		echo "#rel 1" >> $(MANIFESTNAME); \
-		echo "index.html" >> $(MANIFESTNAME); \
-		echo $(DEVJS) >> $(MANIFESTNAME); \
-		echo $(DEVCSS) >> $(MANIFESTNAME); \
-		echo "NETWORK:" >> $(MANIFESTNAME); \
-		echo "http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" >> $(MANIFESTNAME); \
+		find $(APPDIR) -type f -not -name $(MANIFESTNAME) | sed -e 's#$(APPDIR)/##g' >> $(MANIFESTNAME); \
 	fi
 
-${DEVDIR}/index.html: index.html
+$(APPDIR)/index.html: index.html
 	@mkdir -p $(@D)
 	cp $< $@
 
 # Lint javascript files #
-${DEVDIR}/js/%.js: js/%.js
+$(DEVDIR)/js/%.js: js/%.js
 	@mkdir -p $(@D)
 	@# Prepend jslintrc to defined global variables #
 	@more jslintrc | cat - $< > /tmp/$(notdir $<)
@@ -72,67 +70,79 @@ ${DEVDIR}/js/%.js: js/%.js
 	cp $< $@
 
 # Dependencies #
-${DEVDIR}/lib/route.js:
+$(DEVDIR)/lib/route.js:
 	cp js/lib/route.js $@
 
-${DEVDIR}/lib/url.js:
+$(DEVDIR)/lib/url.js:
 	cp js/lib/url.js $@
 
-${DEVDIR}/lib/qunit.%:
+$(DEVDIR)/lib/qunit.%:
 	@mkdir -p $(@D)
 	curl -s -o $@ http://code.jquery.com/qunit/qunit-1.5.0$(suffix $@)
 
-${DEVDIR}/lib/jquery.js:
+$(DEVDIR)/lib/jquery.js:
 	@mkdir -p $(@D)
 	curl -s -o $@ http://code.jquery.com/jquery-1.7.2.js
 
-${DEVDIR}/lib/sinon.js:
+$(DEVDIR)/lib/sinon.js:
 	@mkdir -p $(@D)
 	curl -s -o $@ http://sinonjs.org/releases/sinon-1.3.4.js
 
-${DEVDIR}/lib/jquery-mobile.js:
+$(DEVDIR)/lib/jquery.mobile.js:
 	@mkdir -p $(@D)
 	curl -s -o $@ http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.js
 
-${DEVDIR}/lib/mustache.js:
+$(DEVDIR)/lib/jquery.mobile.css:
+	@mkdir -p $(@D)
+	curl -s -o $@ http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.css
+
+$(DEVDIR)/lib/jquery.mobile.zip:
+	@mkdir -p $(@D)
+	@mkdir -p $(APPDIR)
+	curl -s -o $@ http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.zip
+	unzip $@ -d $(DEVDIR) 'jquery.mobile-?.?.?/images/*'
+	cp -r $(DEVDIR)/jquery.mobile-1.1.0/images $(APPDIR)
+	rm -rf $(DEVDIR)/jquery.mobile-1.1.0
+
+$(DEVDIR)/lib/mustache.js:
 	@mkdir -p $(@D)
 	curl -s -o $@ https://raw.github.com/janl/mustache.js/master/mustache.js
 
-${DEVDIR}/lib/spin.js:
+$(DEVDIR)/lib/spin.js:
 	@mkdir -p $(@D)
 	curl -s -o $@ http://fgnass.github.com/spin.js/dist/spin.js
 
-${DEVDIR}/lib/swipe.js:
+$(DEVDIR)/lib/swipe.js:
 	@mkdir -p $(@D)
 	curl -s -o $@ https://raw.github.com/bradbirdsall/Swipe/master/swipe.js
 
-${DEVDIR}/lib/modernizr.js:
+$(DEVDIR)/lib/modernizr.js:
 	@mkdir -p $(@D)
 	curl -s -o $@ http://modernizr.com/downloads/modernizr-2.5.3.js
 
 # Concatenation #
-${DEVDIR}/$(DEVJS): $(CATJSFILES)
+$(APPDIR)/$(DEVJS): $(CATJSFILES)
 	@mkdir -p $(@D)
 	cat $^ > $@
 
-${DEVDIR}/$(DEVCSS): $(CATCSSFILES)
+$(APPDIR)/$(DEVCSS): $(CATCSSFILES)
 	@mkdir -p $(@D)
 	cat $^ > $@
 
 #########################################
 # Automated test
 #########################################
-test: dev $(patsubst js/tests/%_test.html, ${DEVDIR}/tests/%_test.html.ok, $(wildcard js/tests/*_test.html))
+test: dev $(patsubst js/tests/%_test.html, $(DEVDIR)/tests/%_test.html.ok, $(wildcard js/tests/*_test.html))
 
-${DEVDIR}/tests/%_test.html: js/tests/%_test.html
+$(DEVDIR)/tests/%_test.html: js/tests/%_test.html
 	@mkdir -p $(@D)
 	cp $< $@
 
-${DEVDIR}/tests/%_test.js: js/tests/%_test.js
+$(DEVDIR)/tests/%_test.js: js/tests/%_test.js
 	@mkdir -p $(@D)
 	cp $< $@
 
-${DEVDIR}/tests/%_test.html.ok: ${DEVDIR}/tests/%_test.html ${DEVDIR}/tests/%_test.js ${DEVDIR}/js/%.js
+$(DEVDIR)/tests/%_test.html.ok: $(DEVDIR)/tests/%_test.html $(DEVDIR)/tests/%_test.js $(DEVDIR)/js/%.js
 	xvfb-run phantomjs js/tests/run-qunit.js $<
 	@sleep 1
 	touch $@
@@ -142,16 +152,16 @@ ${DEVDIR}/tests/%_test.html.ok: ${DEVDIR}/tests/%_test.html ${DEVDIR}/tests/%_te
 #########################################
 
 # Sort files for concatenation
-#CATFINALJSFILES = ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/swipe.js ${DEVDIR}/js/jquery.slapos.js ${DEVDIR}/js/init.js ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/js/url.js ${DEVDIR}/js/route.js ${DEVDIR}/js/main.js ${DEVDIR}/js/render.js ${DEVDIR}/js/panels.js ${DEVDIR}/js/pages.js ${DEVDIR}/js/pages.mobile.js ${DEVDIR}/js/pages.tablet.js ${DEVDIR}/js/pages.desktop.js
+#CATFINALJSFILES = $(DEVDIR)/lib/jquery.js $(DEVDIR)/lib/mustache.js $(DEVDIR)/lib/spin.js $(DEVDIR)/lib/modernizr.js $(DEVDIR)/lib/swipe.js $(DEVDIR)/js/jquery.slapos.js $(DEVDIR)/js/init.js $(DEVDIR)/lib/jquery-mobile.js $(DEVDIR)/js/url.js $(DEVDIR)/js/route.js $(DEVDIR)/js/main.js $(DEVDIR)/js/render.js $(DEVDIR)/js/panels.js $(DEVDIR)/js/pages.js $(DEVDIR)/js/pages.mobile.js $(DEVDIR)/js/pages.tablet.js $(DEVDIR)/js/pages.desktop.js
 
-#release: ${DEVDIR}/lib/jquery.js ${DEVDIR}/lib/jquery-mobile.js ${DEVDIR}/lib/modernizr.js ${DEVDIR}/lib/mustache.js ${DEVDIR}/lib/spin.js ${DEVDIR}/lib/swipe.js $(patsubst %.js, ${DEVDIR}/js/%.js, $(JSFILES)) ${DEVDIR}/index.html ${DEVDIR}/$(FINALJS)
+#release: $(DEVDIR)/lib/jquery.js $(DEVDIR)/lib/jquery-mobile.js $(DEVDIR)/lib/modernizr.js $(DEVDIR)/lib/mustache.js $(DEVDIR)/lib/spin.js $(DEVDIR)/lib/swipe.js $(patsubst %.js, $(DEVDIR)/js/%.js, $(JSFILES)) $(DEVDIR)/index.html $(DEVDIR)/$(FINALJS)
 
  #Concatenation, minification #
-#${DEVDIR}/$(FINALJS): $(CATFINALJSFILES)
+#$(DEVDIR)/$(FINALJS): $(CATFINALJSFILES)
 	#@mkdir -p $(@D)
 	#cat $^ | uglifyjs > $@
 
-#tarball: ${DEVDIR}/$(FINALJS) ${DEVDIR}/index.html
+#tarball: $(DEVDIR)/$(FINALJS) $(DEVDIR)/index.html
 	#tar -czf $(TARBALL) $^
 
 #export: tarball
@@ -161,7 +171,7 @@ ${DEVDIR}/tests/%_test.html.ok: ${DEVDIR}/tests/%_test.html ${DEVDIR}/tests/%_te
 #########################################
 clean:
 	@echo soft cleaning
-	rm -rf ${DEVDIR}/index.html ${DEVDIR}/slapos.* ${DEVDIR}/js
+	rm -rf $(APPDIR)
 cleanall: 
 	@echo cleaning
-	rm -rf ${DEVDIR} ${RELDIR} $(TARBALL)
+	rm -rf $(DEVDIR) ${RELDIR} $(TARBALL)

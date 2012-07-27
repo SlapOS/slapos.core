@@ -148,18 +148,14 @@ class Software(object):
       # XXX: Here's a Quick & Dirty hack, this was
       # design to work as quick as possible with the most minimalist
       # impact.
-      environment = ConfigParser.ConfigParser()
-      environment.read(os.path.join(self.software_path,
-                                    # XXX: hardcoded path
-                                    '../environment.cfg'))
       buildout_parameter_list = [
         'buildout:extends-cache=%s' % extends_cache,
         'buildout:directory=%s' % self.software_path,
         # XXX: This doesn't comes out of nowhere.
         # actually, this is specified in component/slapos/buildout.cfg
         # in slapos.cookbook repository.
-        'libcap:location=%s' % environment.get('data', 'libcap-location'),
-        'attr:location=%s' % environment.get('data', 'attr-location'),
+        'libcap:location=%s' % os.environ.get('LIBCAP_LOCATION',''),
+        'attr:location=%s' % os.environ.get('ATTR_LOCATION',''),
       ]
 
       if self.signature_private_key_file or \

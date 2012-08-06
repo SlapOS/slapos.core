@@ -139,6 +139,11 @@ def parseArgumentTupleAndReturnSlapgridObject(*argument_tuple):
   slapgrid_configuration.readfp(configuration_file)
   # Merges the two dictionnaries
   option_dict = dict(slapgrid_configuration.items("slapos"))
+
+  # XXX : Remove the lines below as soon as possible                           # XXX
+  option_dict.update(bridge_name=slapgrid_configuration.get('slapformat',      # XXX
+                                                            'interface_name')) # XXX
+
   if slapgrid_configuration.has_section("networkcache"):
     option_dict.update(dict(slapgrid_configuration.items("networkcache")))
   for argument_key, argument_value in vars(argument_option_instance
@@ -266,7 +271,9 @@ def parseArgumentTupleAndReturnSlapgridObject(*argument_tuple):
             shacache_key_file=option_dict.get('shacache-key-file', None),
             shadir_cert_file=option_dict.get('shadir-cert-file', None),
             shadir_key_file=option_dict.get('shadir-key-file', None),
-            develop=option_dict.get('develop', False)
+            develop=option_dict.get('develop', False),
+            # XXX: Remove the line below as soon as possible  # XXX
+            bridge_name=option_dict.get('bridge_name', None), # XXX
             ),
           option_dict])
 
@@ -354,7 +361,8 @@ class Slapgrid(object):
                shacache_key_file=None,
                shadir_cert_file=None,
                shadir_key_file=None,
-               develop=False):
+               develop=False,
+               bridge_name=None):
     """Makes easy initialisation of class parameters"""
     # Parses arguments
     self.software_root = os.path.abspath(software_root)
@@ -395,6 +403,8 @@ class Slapgrid(object):
     self.buildout = buildout
     self.promise_timeout = promise_timeout
     self.develop = develop
+    # XXX: Remove the line below as soon as possible # XXX
+    self.bridge_name = bridge_name                   # XXX
 
   def checkEnvironmentAndCreateStructure(self):
     """Checks for software_root and instance_root existence, then creates
@@ -616,13 +626,19 @@ class Slapgrid(object):
       try:
         computer_partition_state = computer_partition.getState()
         if computer_partition_state == "started":
-          local_partition.install()
+          # XXX : Before
+          # local_partition.install()
+          # XXX : Rollback the line bellow asap
+          local_partition.install(bridge_name=self.bridge_name)
           computer_partition.available()
           local_partition.start()
           self._checkPromises(computer_partition)
           computer_partition.started()
         elif computer_partition_state == "stopped":
-          local_partition.install()
+          # XXX : Before
+          # local_partition.install()
+          # XXX : Rollback the line bellow asap
+          local_partition.install(bridge_name=self.bridge_name)
           computer_partition.available()
           local_partition.stop()
           computer_partition.stopped()

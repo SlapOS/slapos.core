@@ -269,7 +269,8 @@ class Partition(object):
     gid = stat_info.st_gid
     return (uid, gid)
 
-  def install(self):
+  # XXX : Remove bridge_name argument as soon as possible :
+  def install(self, bridge_name=None):
     """ Creates configuration file from template in software_path, then
     installs the software partition with the help of buildout
     """
@@ -309,7 +310,9 @@ class Partition(object):
       server_url=self.server_url,
       software_release_url=self.software_release_url,
       key_file=self.key_file,
-      cert_file=self.cert_file
+      cert_file=self.cert_file,
+      # XXX : Remove the line below as soon as possible # XXX
+      bridge_name=bridge_name,                          # XXX
     )
     open(config_location, 'w').write(buildout_text)
     os.chmod(config_location, 0640)

@@ -43,6 +43,28 @@
             }
         }
     });
+    // COMPUTER
+    storejs.add('computers', {
+        COMP0: {
+            computer_id: "COMP0",
+            software: [
+                {software_release: "http://example.com/example.cfg", status: "install"},
+            ],
+            partition: [
+                {
+                    title: "slapart1",
+                    instance_id: "foo",
+                    status: "start",
+                    software_release: "http://example.com/example.cfg"
+                }, {
+                    title: "slapart2",
+                    instance_id: "bar",
+                    status: "stop",
+                    software_release: "http://example.com/example.cfg"
+                }
+            ]
+        }        
+    });
     // SOFTWARE
     storejs.add('softwares', {
         Kvm: {
@@ -74,15 +96,22 @@
     /*********************
      *  RESPONSE
      *********************/
-
-    // ******* INSTANCE
         instance_list = function () {
             var response = {list: []};
             $.each(storejs.get('instances'), function (i, e) {
                 response.list.push('/fake/instance_info/' + e.title);
             });
             return response;
+        },
+        computer_list = function () {
+            var response = {list: []};
+            $.each(storejs.get('computers'), function (i, e) {
+                response.list.push('/fake/computer_info/' + e.computer_id);
+            });
+            return response;
         };
+
+    // ******* INSTANCE
     // list
     fakeserver.respondWith('GET', '/fake/instance', function (xhr) {
         var response = {list: []};
@@ -113,7 +142,24 @@
             status: inst.status
         }));
     });
-
+    // ********* COMPUTER
+    // list
+    fakeserver.respondWith('GET', '/fake/computer', function (xhr) {
+        var response = {list: []};
+        $.each(storejs.get('computers'), function (i, e) {
+            response.list.push('/fake/computer_info/' + e.computer_id);
+        });
+        xhr.respond(200, {'Content-Type': 'application/json'}, JSON.stringify(response));
+    });
+    // Get computer info
+    fakeserver.respondWith("GET", /\/fake\/computer_info\/(.*)/, function (xhr, compid) {
+        var computers = storejs.get('computers');
+        if (computers.hasOwnProperty(compid)) {
+            xhr.respond(200, {'Content-Type': 'application/json'}, JSON.stringify(computers[compid]));
+        } else {
+            xhr.respond(404, { 'Content-Type': 'application/json'}, 'Not found');
+        }
+    });
     //********** SOFTWARE
     // Get softwares list
     fakeserver.respondWith('GET', '/fake/software', [
@@ -129,6 +175,7 @@
         }
     });
 
+    // Overwrite ajax method to filter all request from the application
     $.ajax = function (url, options) {
         // it will not work with cache set to false
         if (url.hasOwnProperty('cache')) { url.cache = true; }
@@ -137,5 +184,6 @@
         return result;
     };
 
+    // Overwrite host
     $(document).slapos('store', 'host', '/fake');
 }(window, jQuery));

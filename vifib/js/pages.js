@@ -1,38 +1,5 @@
 (function (window, $) {
     'use strict';
-    $.vifib.login = {
-        facebook: function (params) {
-            var redirect = window.location.protocol + '//' + window.location.host + window.location.pathname + '#/dashboard/' + '?',
-                fburl = 'https://www.facebook.com/dialog/oauth?' +
-                    'client_id=' + $(document).slapos('store', 'fbappid') +
-                    '&redirect_uri=' + encodeURIComponent(redirect) +
-                    '&scope=email' +
-                    '&response_type=token';
-            // set token type to Facebook for js library
-            $(document).slapos('store', 'token_type', 'Facebook');
-            window.location.href = fburl;
-        },
-        google: function (params) {
-            var redirect = window.location.protocol + '//' + window.location.host + window.location.pathname,
-                ggurl = 'https://accounts.google.com/o/oauth2/auth?' +
-                    'client_id=' + $(document).slapos('store', 'ggappid') +
-                    '&redirect_uri=' + encodeURIComponent(redirect) +
-                    '&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email++https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile' +
-                    '&response_type=token';
-            $(document).slapos('store', 'token_type', 'Google');
-            window.location.href = ggurl;
-        },
-        googleRedirect: function (response) {
-            var options = {},
-                option;
-            response = 'access_token=' + response;
-            $.each(response.split('&'), function (i, e) {
-                option = e.split('=');
-                options[option[0]] = option[1];
-            });
-            $.url.redirect('/dashboard/', options);
-        }
-    };
     $.vifib.statuscode = {
         400: function (jqxhr, textstatus) {
             var page;
@@ -115,7 +82,7 @@
     $.vifib.fillRowInstance = function (list, row, instid) {
         return row.slapos('instanceInfo', instid, {
             success: function (response) {
-                $.extend(response, {insturl: '#/dashboard/instance/id' + instid});
+                $.extend(response, {insturl: '#/instance/show' + instid});
                 $(this).html(Mustache.render($.vifib.panel.rowinstance, response));
             },
             complete: function (jqxhr, textstatus) {
@@ -144,7 +111,7 @@
         return context.each(function () {
             $(this).slapos('softwareInfo', softid, {
                 success: function (response) {
-                    $.extend(response, {softurl: '#/library/software/id' + softid});
+                    $.extend(response, {softurl: '#/software/show' + softid});
                     $(this).html(Mustache.render($.vifib.panel.rowsoftware, response));
                 },
                 statusCode: $.extend(false, $.vifib.statuscode, {})
@@ -155,11 +122,14 @@
         return context.each(function () {
             $(this).slapos('computerInfo', compid, {
                 success: function (response) {
-                    $.extend(response, {compurl: '#/dashboard/computer/id/' + compid});
+                    $.extend(response, {compurl: '#/computer/show' + compid});
                     $(this).html(Mustache.render($.vifib.panel.rowcomputer, response));
                 },
                 statusCode: $.extend(false, $.vifib.statuscode, {})
             });
         });
+    };
+    $.vifib.buildurl = function (panel) {
+        return '#' + panel.url;
     };
 }(window, jQuery));

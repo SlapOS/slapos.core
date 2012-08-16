@@ -4,8 +4,53 @@ $(document).bind('mobileinit', function () {
 
     if (!$.vifib) {
         $.vifib = {};
+        $.vifib.pages = {};
     }
-
+    // Initialize routes
+    $.vifib.initroutes = function () {
+        // Google redirection
+        $('body')
+            .route('add', $.vifib.pages.login.googleRedirect.url)
+            .done($.vifib.pages.login.googleRedirect.action);
+        // Authentication
+        $('body')
+            .route('add', $.vifib.pages.login.dispatch.url)
+            .done($.vifib.pages.login.dispatch.action);
+        // Default
+        $('body')
+            .route('add', '')
+            .done($.vifib.pages.overview.action);
+        // Overview
+        $('body')
+            .route('add', $.vifib.pages.overview.url)
+            .done($.vifib.pages.overview.action);
+        // Library
+        $('body')
+            .route('add', $.vifib.pages.library.dispatch.url)
+            .done($.vifib.pages.library.dispatch.action);
+        $('body')
+            .route('add', $.vifib.pages.library.menu.url)
+            .done($.vifib.pages.library.menu.action);
+        // Dashboard
+        $('body')
+            .route('add', $.vifib.pages.dashboard.dispatch.url)
+            .done($.vifib.pages.dashboard.dispatch.action);
+        $('body')
+            .route('add', $.vifib.pages.dashboard.menu.url)
+            .done($.vifib.pages.dashboard.menu.action);
+        // Software
+        $('body')
+            .route('add', $.vifib.pages.software.dispatch.url)
+            .done($.vifib.pages.software.dispatch.action);
+        // Instance
+        $('body')
+            .route('add', $.vifib.pages.instance.dispatch.url)
+            .done($.vifib.pages.instance.dispatch.action);
+        // Computer
+        $('body')
+            .route('add', $.vifib.pages.computer.dispatch.url)
+            .done($.vifib.pages.computer.dispatch.action);
+    };
     //SlapOs configuration
     $(document).slapos({
         // REST API url

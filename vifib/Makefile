@@ -39,14 +39,14 @@ $(DEVDIR)/js/fake.js: js/utils/fake.js
 	cp $< $@
 
 # Sort files for concatenation
-CATJSFILES = $(DEVDIR)/lib/jquery.js $(DEVDIR)/lib/sinon.js $(DEVDIR)/lib/mustache.js $(DEVDIR)/lib/spin.js $(DEVDIR)/lib/modernizr.js $(DEVDIR)/lib/swipe.js $(DEVDIR)/js/jquery.slapos.js $(DEVDIR)/js/init.js $(DEVDIR)/lib/jquery.mobile.js $(DEVDIR)/lib/url.js $(DEVDIR)/lib/route.js $(DEVDIR)/js/main.js $(DEVDIR)/js/render.js $(DEVDIR)/js/panels.js $(DEVDIR)/js/pages.js $(DEVDIR)/js/pages.mobile.js $(DEVDIR)/js/pages.tablet.js $(DEVDIR)/js/pages.desktop.js
+CATJSFILES = $(DEVDIR)/lib/jquery.js $(DEVDIR)/lib/sinon.js $(DEVDIR)/lib/mustache.js $(DEVDIR)/lib/spin.js $(DEVDIR)/lib/modernizr.js $(DEVDIR)/lib/swipe.js $(DEVDIR)/js/jquery.slapos.js $(DEVDIR)/js/init.js $(DEVDIR)/lib/jquery.mobile.js $(DEVDIR)/lib/url.js $(DEVDIR)/lib/route.js $(DEVDIR)/js/main.js $(DEVDIR)/js/render.js $(DEVDIR)/js/panels.js $(DEVDIR)/js/pages.js $(DEVDIR)/js/pages/library.js $(DEVDIR)/js/pages/overview.js $(DEVDIR)/js/pages/dashboard.js $(DEVDIR)/js/pages/login.js
 
 CATCSSFILES = $(DEVDIR)/lib/qunit.css $(DEVDIR)/lib/jquery.mobile.css
 
 # List all javascript files except tests files and lib files
-JSFILES = $(find $(JSDIR) -name 'tests' -prune -o -name 'lib' -prune -o -name "*.js" -print)
+JSFILES = $(find $(JSDIR) -name 'tests' -prune -o -name 'lib' -prune -o -name '*.js' -printf '%p ')
 
-dev: $(DEVDIR)/lib/sinon.js $(DEVDIR)/lib/jquery.js $(DEVDIR)/lib/qunit.js $(DEVDIR)/lib/qunit.css $(DEVDIR)/lib/jquery.mobile.js $(DEVDIR)/lib/jquery.mobile.css $(DEVDIR)/lib/jquery.mobile.zip $(DEVDIR)/lib/modernizr.js $(DEVDIR)/lib/mustache.js $(DEVDIR)/lib/spin.js $(DEVDIR)/lib/swipe.js $(DEVDIR)/lib/route.js $(DEVDIR)/lib/url.js $(patsubst %.js, $(DEVDIR)/js/%.js, $(JSFILES)) $(APPDIR)/index.html $(APPDIR)/$(DEVJS) $(APPDIR)/$(DEVCSS) manifest
+dev: $(DEVDIR)/lib/sinon.js $(DEVDIR)/lib/jquery.js $(DEVDIR)/lib/qunit.js $(DEVDIR)/lib/qunit.css $(DEVDIR)/lib/jquery.mobile.js $(DEVDIR)/lib/jquery.mobile.css $(DEVDIR)/lib/jquery.mobile.zip $(DEVDIR)/lib/modernizr.js $(DEVDIR)/lib/mustache.js $(DEVDIR)/lib/spin.js $(DEVDIR)/lib/swipe.js $(DEVDIR)/lib/route.js $(DEVDIR)/lib/url.js $(subst $(JSDIR)/, $(DEVDIR)/, $(JSFILES)) $(APPDIR)/index.html $(APPDIR)/$(DEVJS) $(APPDIR)/$(DEVCSS) manifest
 
 manifest: $(APPDIR)/index.html $(APPDIR)/$(DEVJS) $(APPDIR)/$(DEVCSS)
 	@if test -f $(MANIFESTNAME); then \
@@ -54,14 +54,13 @@ manifest: $(APPDIR)/index.html $(APPDIR)/$(DEVJS) $(APPDIR)/$(DEVCSS)
 	else \
 		echo "CACHE MANIFEST" > $(MANIFESTNAME); \
 		echo "#rel 1" >> $(MANIFESTNAME); \
-		find $(APPDIR) -type f -not -name $(MANIFESTNAME) | sed -e 's#$(APPDIR)/##g' >> $(MANIFESTNAME); \
+		find $(APPDIR) -type f -not -wholename $(MANIFESTNAME) | sed -e 's#$(APPDIR)/##g' >> $(MANIFESTNAME); \
 	fi
 
 $(APPDIR)/index.html: index.html
 	@mkdir -p $(@D)
 	cp $< $@
 
-# Lint javascript files #
 $(DEVDIR)/js/%.js: js/%.js
 	@mkdir -p $(@D)
 	@# Prepend jslintrc to defined global variables #
@@ -101,7 +100,7 @@ $(DEVDIR)/lib/jquery.mobile.zip:
 	@mkdir -p $(APPDIR)
 	curl -s -o $@ http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.zip
 	unzip $@ -d $(DEVDIR) 'jquery.mobile-?.?.?/images/*'
-	cp -r $(DEVDIR)/jquery.mobile-1.1.0/images $(APPDIR)
+	cp -r $(DEVDIR)/jquery.mobile-1.1.0/images $(APPDIR)/
 	rm -rf $(DEVDIR)/jquery.mobile-1.1.0
 
 $(DEVDIR)/lib/mustache.js:
@@ -171,7 +170,7 @@ $(DEVDIR)/tests/%_test.html.ok: $(DEVDIR)/tests/%_test.html $(DEVDIR)/tests/%_te
 #########################################
 clean:
 	@echo soft cleaning
-	rm -rf $(APPDIR)
+	rm -rf $(APPDIR)/*.*
 cleanall: 
 	@echo cleaning
 	rm -rf $(DEVDIR) ${RELDIR} $(TARBALL)

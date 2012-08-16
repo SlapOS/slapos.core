@@ -63,7 +63,7 @@
             '<a data-role="button" href="#/login/facebook">Facebook</a><br/>' +
             '<a data-role="button" href="#/login/google">Google</a>' +
             '</article>',
-        sidemenu: {
+        menu: {
             main: '<aside><nav><ul data-role="listview">{{# links }}<li><a href="{{ url }}">{{ name }}</a></li>{{/ links }}</ul></nav></aside>',
             library:
                 '<aside><nav>' +
@@ -103,7 +103,7 @@
             '<p><b>{{ description }}</b></p>' +
             '<a data-role="button" href="#/login">Buy it for {{ price }}&euro;</a>' +
             '</article>',
-        allsoftware:
+        softwarelist:
             '<article>' +
             '<ul data-role="listview">' +
             '</ul>' +
@@ -157,12 +157,17 @@
             '</article>',
         instancelist:
             '<article>' +
-            '<a href="#/dashboard/instance/request" data-role="button">Create a new instance</a>' +
+            '<a href="{{ requesturl }}" data-role="button">Create a new instance</a>' +
             '<ul data-role="listview">' +
             '</ul>' +
             '</article>',
         rowinstance:
             '<a href="{{ insturl }}">{{ title }}</a>',
+        computerlist:
+            '<article>' +
+            '<ul data-role="listview">' +
+            '</ul>' +
+            '</article>',
         computer:
             '<article>' +
             '<h2>{{ computer_id }}</h2>' +

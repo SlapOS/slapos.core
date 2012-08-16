@@ -131,7 +131,7 @@
         },
 
         computerList: function (args) {
-            return $(this).slapos('request', '', args);
+            return $(this).slapos('request', 'GET', '/computer', args);
         },
 
         computerInfo: function (url, args) {

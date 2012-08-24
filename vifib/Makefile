@@ -3,7 +3,7 @@
 
 NAME = build
 
-TARBALL = slapos.tar.gz
+TARBALL = slapos
 
 JSLINT = jslint
 JSLINTOPTIONS = --maxerr=5
@@ -139,7 +139,7 @@ $(DEVDIR)/tests/%_test.html: js/tests/%_test.html
 
 $(DEVDIR)/tests/%_test.js: js/tests/%_test.js
 	@mkdir -p $(@D)
-	cp $< $@
+	cp $< $@)
 
 $(DEVDIR)/tests/%_test.html.ok: $(DEVDIR)/tests/%_test.html $(DEVDIR)/tests/%_test.js $(DEVDIR)/js/%.js
 	xvfb-run phantomjs js/tests/run-qunit.js $<
@@ -160,8 +160,10 @@ $(DEVDIR)/tests/%_test.html.ok: $(DEVDIR)/tests/%_test.html $(DEVDIR)/tests/%_te
 	#@mkdir -p $(@D)
 	#cat $^ | uglifyjs > $@
 
-#tarball: $(DEVDIR)/$(FINALJS) $(DEVDIR)/index.html
-	#tar -czf $(TARBALL) $^
+$(TARBALL).tar.gz: $(wildcard $(APPDIR)/*)
+	cd $(APPDIR); tar -czvf $@ *
+
+tarball: $(TARBALL).tar.gz
 
 #export: tarball
 

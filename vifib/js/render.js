@@ -1,9 +1,22 @@
 (function (window, $) {
     'use strict';
     var callbacks = [];
+    /* * * * *
+     * function render:
+     *  this function is the core of rendering process.
+     *  
+     *  param:
+     *      context = the context in which it will show panels
+     *      panels = list of panels (object) to display 
+     *      header = topbar of the page
+     *      
+     * * * * */
     $.vifib.render = function (context, panels, header) {
         var page, i, c;
+        // If the context is body element, it means that we want to show a entire new page
         if ($('body')[0] === $(context)[0]) {
+            // First this function check the window mode (mobile, tablet, desktop)
+            // then define how many panels could be displayed.
             if ($.vifib.device === 'desktop' && panels.length > 1) {
                 page = $.vifib.multipanel(panels, 3);
             } else if ($.vifib.device === 'tablet' && panels.length > 1) {
@@ -11,6 +24,7 @@
             } else { // Mobile
                 page = $.vifib.onepanel(context, panels[0]);
             }
+            // create and add header to the page
             if (header !== undefined) {
                 if (header.hasOwnProperty('template')) {
                     header.data = header.data === undefined ? undefined : header.data;
@@ -19,12 +33,14 @@
                     page.prepend(Mustache.render($.vifib.header.main, header));
                 }
             }
+            // in case of mobile view or if there is only one panel to show, change page with transition
             if (panels[0].template !== $.vifib.panel.blank || (panels[0].template === $.vifib.panel.blank && $.vifib.device !== 'mobile')) {
                 $.vifib.changepage($(page));
             }
-        } else {
+        } else { // if the context is a panel just refresh it
             $.vifib.replacepanel($(context), panels[0]);
         }
+        // Finally after show page call functions for each panel (callbacks)
         // reverse to call functions from left panel to right panel
         callbacks.reverse();
         while ((c = callbacks.pop()) !== undefined) {
@@ -32,6 +48,7 @@
         }
     };
 
+    // create one panel (no jqm grid)
     $.vifib.onepanel = function (context, panel) {
         var page = $('<div data-role="page"></div>'),
             content = $('<div data-role="content"></div>'),
@@ -46,12 +63,14 @@
         return $(page);
     };
 
+    // create number of panels contain in the list [panels], but with a maximum of [max]
     $.vifib.multipanel = function (panels, max) {
         var page = $('<div data-role="page"></div>')
             .append($.vifib.makecontent(panels, max));
         return $(page);
     };
 
+    // replace a panel with another [panel], without refresh the page
     $.vifib.replacepanel = function (context, panel) {
         var data = panel.hasOwnProperty('data') ? panel.data : {};
         if (context.data('type') !== 'panel') {
@@ -64,6 +83,7 @@
         }
     };
 
+    // return a panel wrap in a grid block
     $.vifib.makepanel = function (panel, data, index, name) {
         var blockname = [
             'ui-block-a',
@@ -77,6 +97,7 @@
         return divpane;
     };
 
+    // create and return grid of panels
     $.vifib.makecontent = function (panels, max) {
         var i, j,
             pancontext,
@@ -102,6 +123,7 @@
         return divcontent;
     };
 
+    // remove all id element in the page and call changepage of jqm
     $.vifib.changepage = function (page) {
         $('[id^=panel]').remove();
         $('#slider').remove();
@@ -113,6 +135,7 @@
         });
     };
 
+    // return the nextpanel (orientation: from left to right)
     $.vifib.nextpanel = function (context) {
         var panelname = [['center'], ['left', 'right'], ['left', 'center', 'right']],
             nbpanel = $(':jqmData(role=content)').data('nbpanel') === undefined ? 1 : $(':jqmData(role=content)').data('nbpanel'),

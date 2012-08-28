@@ -24,12 +24,6 @@
             }
         } else {
             $.vifib.replacepanel($(context), panels[0]);
-            //if ($.vifib.device === 'mobile') {
-                //page = $.vifib.onepanel(context, panels[0]);
-                //$.vifib.changepage($(page));
-            //} else {
-                //$.vifib.replacepanel($(context), panels[0]);
-            //}
         }
         // reverse to call functions from left panel to right panel
         callbacks.reverse();
@@ -103,7 +97,6 @@
             divcontent.append(pancontext);
             if (panels[i].hasOwnProperty('callback')) {
                 callbacks.push({callback: panels[i].callback, context: pancontext});
-                //panels[i].callback.call(pancontext);
             }
         }
         return divcontent;

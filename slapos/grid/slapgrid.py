@@ -44,6 +44,7 @@ import tempfile
 import time
 import traceback
 import warnings
+import xmlrpclib
 if sys.version_info < (2, 6):
   warnings.warn('Used python version (%s) is old and have problems with'
       ' IPv6 connections' % sys.version.split('\n')[0])
@@ -919,7 +920,7 @@ class Slapgrid(object):
             exception)
 
       # Buildout failed: send log but don't print it to output (already done)
-      except BuildoutFailedError, exception:
+      except (BuildoutFailedError, xmlrpclib.Fault) as exception:
         clean_run = False
         try:
           computer_partition.error(exception)

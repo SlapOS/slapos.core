@@ -365,8 +365,6 @@ def request_not_shared():
   # XXX it should be ComputerPartition, not a SoftwareInstance.
   # XXX To much magic here. we should just dumps the ComputerPartition object.
   instance = SoftwareInstance(
-                            xml=partition['xml'],
-                            connection_xml=partition['connection_xml'],
                             slap_computer_id=app.config['computer_id'],
                             slap_computer_partition_id=partition['reference'],
                             slap_software_release_url=partition['software_release'],

@@ -193,7 +193,7 @@ class MasterMixin(BasicMixin):
               shared=False, partition_parameter_kw=None, filter_kw=None,
               state=None):
     """
-    Simulate a request with above parameters
+    Simulate a request through slaplib with above parameters
     Return response by server (a computer partition or an error)
     """
     if partition_parameter_kw is None:
@@ -226,7 +226,10 @@ class MasterMixin(BasicMixin):
 
     computer_partition = slapos.slap.ComputerPartition(
         software_instance.slap_computer_id,
-        software_instance.slap_computer_partition_id)
+        software_instance.slap_computer_partition_id
+    )
+    computer_partition.__dict__ = dict(computer_partition.__dict__.items() +
+                                       software_instance.__dict__.items())
     if shared:
       computer_partition._synced = True
       computer_partition._connection_dict = getattr(software_instance,

@@ -157,13 +157,19 @@ def getFullComputerInformation():
 
 @app.route('/setComputerPartitionConnectionXml', methods=['POST'])
 def setComputerPartitionConnectionXml():
-  slave_reference = request.form['slave_reference'].encode()
+  slave_reference = request.form.get('slave_reference', None)
+  # WARNING: When slave_reference is None, slaplib sets its value as 'None'.
+  #          So we receive a value being the string 'None'.
+  if slave_reference == 'None':
+    slave_reference = None
+  elif slave_reference is not None:
+    slave_reference = slave_reference.encode()
   computer_partition_id = request.form['computer_partition_id']
   connection_xml = request.form['connection_xml']
   connection_dict = xml_marshaller.xml_marshaller.loads(
                                             connection_xml.encode())
   connection_xml = dict2xml(connection_dict)
-  if slave_reference == 'None':
+  if slave_reference is None:
     query = 'UPDATE %s SET connection_xml=? WHERE reference=?'
     argument_list = [connection_xml, computer_partition_id.encode()]
     execute_db('partition', query, argument_list)

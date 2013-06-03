@@ -261,6 +261,30 @@ class TestRequest(MasterMixin, unittest.TestCase):
   """
   Set of tests for requests
   """
+
+  def test_request_get_connection_parameter(self):
+    """
+    Test that it is possible to fetch the correct parameters of an instance.
+    """
+    self.add_free_partition(1)
+    # XXX-Cedric : this is crazy. I don't want to define any requested_by_stupid_thing.
+    requested_by_partition_id = '0'
+    partition_reference = 'myinstance'
+    connection_dict = {'parameter': 'value'}
+
+    # Request empty instance
+    partition = self.request('http://sr//', None, partition_reference, requested_by_partition_id)
+
+    # Simulate instance being deployed, set connection parameters
+    self.setConnectionDict(partition._partition_id, connection_dict)
+
+    # Fetch parameters, compare with sent parameters
+    partition = self.request('http://sr//', None, partition_reference, requested_by_partition_id)
+    self.assertEqual(
+        partition.getConnectionParameterDict(),
+        connection_dict
+    )
+
   def test_two_request_one_partition_free(self):
     """
     Since slapproxy does not implement scope, providing two partition_id

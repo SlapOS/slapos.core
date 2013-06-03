@@ -375,6 +375,9 @@ def request_not_shared():
                             ip_list=address_list)
   instance._parameter_dict = xml2dict(partition['xml'])
   instance._connection_dict = xml2dict(partition['connection_xml'])
+  if partition['slave_instance_list'] is not None:
+    instance._parameter_dict['slave_instance_list'] = \
+    xml_marshaller.xml_marshaller.loads(partition['slave_instance_list'])
   instance._requested_state = requested_state
   return xml_marshaller.xml_marshaller.dumps(instance)
 

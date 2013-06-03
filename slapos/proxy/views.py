@@ -362,19 +362,23 @@ def request_not_shared():
   for address in execute_db('partition_network', 'SELECT * FROM %s WHERE partition_reference=?', [partition['reference']]):
     address_list.append((address['reference'], address['address']))
 
-  # XXX it should be ComputerPartition, not a SoftwareInstance
-  software_instance = SoftwareInstance(xml=partition['xml'],
-                                       connection_xml=partition['connection_xml'],
-                                       slap_computer_id=app.config['computer_id'],
-                                       slap_computer_partition_id=partition['reference'],
-                                       slap_software_release_url=partition['software_release'],
-                                       slap_server_url='slap_server_url',
-                                       slap_software_type=partition['software_type'],
-                                       slave_instance_list=partition['slave_instance_list'],
-                                       instance_guid=partition['reference'],
-                                       ip_list=address_list)
-
-  return xml_marshaller.xml_marshaller.dumps(software_instance)
+  # XXX it should be ComputerPartition, not a SoftwareInstance.
+  # XXX To much magic here. we should just dumps the ComputerPartition object.
+  instance = SoftwareInstance(
+                            xml=partition['xml'],
+                            connection_xml=partition['connection_xml'],
+                            slap_computer_id=app.config['computer_id'],
+                            slap_computer_partition_id=partition['reference'],
+                            slap_software_release_url=partition['software_release'],
+                            slap_server_url='slap_server_url',
+                            slap_software_type=partition['software_type'],
+                            slave_instance_list=partition['slave_instance_list'],
+                            instance_guid=partition['reference'],
+                            ip_list=address_list)
+  instance._parameter_dict = xml2dict(partition['xml'])
+  instance._connection_dict = xml2dict(partition['connection_xml'])
+  instance._requested_state = requested_state
+  return xml_marshaller.xml_marshaller.dumps(instance)
 
 
 def request_slave():

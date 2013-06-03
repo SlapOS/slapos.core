@@ -400,7 +400,10 @@ class ComputerPartition(SlapRequester):
       software_type = DEFAULT_SOFTWARE_TYPE
 
     request_dict = {
+        # XXX: This should be clearer that it is the id of the computer
+        # requesting the instance.
         'computer_id': self._computer_id,
+        # XXX: Same here.
         'computer_partition_id': self._partition_id,
         'software_release': software_release,
         'software_type': software_type,
@@ -634,6 +637,8 @@ class ConnectionHelper:
       try:
         self.connect()
         header_dict = {'Content-type': content_type}
+        # All None values or parameter_dict are converted to the String 'None'
+        # XXX: This is incoherent behavior to be fixed.
         self.connection.request("POST", self.path + path,
             urllib.urlencode(parameter_dict), header_dict)
       # If ssl error : must come from bad configuration

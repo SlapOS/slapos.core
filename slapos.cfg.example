@@ -29,7 +29,6 @@ ipv6_interface = tapVPN
 [networkcache]
 # Define options for binary cache, used to download already compiled software.
 download-binary-cache-url = http://www.shacache.org/shacache
-download-cache-url = https://www.shacache.org/shacache
 download-binary-dir-url = http://www.shacache.org/shadir
 
 # Configuration to Upload Configuration for Binary cache

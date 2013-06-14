@@ -200,6 +200,16 @@ class IComputerPartition(IBuildoutController, IRequester):
     The result can be: started, stopped, destroyed
     """
 
+  def getStatus():
+    """
+    Returns a dictionnary containing the latest status of the
+    computer partition. Not to be confused with getState().
+    The dictionnary keys are:
+      user -- user who reported the latest status
+      created_at -- date of the status
+      text -- message log of the status
+    """
+
   def getSoftwareRelease():
     """
     Returns the software release associate to the computer partition.
@@ -287,16 +297,6 @@ class IComputerPartition(IBuildoutController, IRequester):
                            to identify the instances.
 
     slave_reference -- current reference of the slave instance to modify
-    """
-
-  def getStatus():
-    """
-    Returns a dictionnary containing the latest status of the 
-    computer partition.
-    The dictionnary keys are:
-      user -- user who reported the latest status
-      created_at -- date of the status
-      text -- message log of the status
     """
 
 class IComputer(Interface):

@@ -114,7 +114,8 @@ class SlapRequester(SlapDocument):
     if xml_marshaller.loads(request_dict['shared_xml']):
       computer_partition._synced = True
       computer_partition._connection_dict = software_instance._connection_dict
-      computer_partition._parameter_dict = software_instance._parameter_dict
+      # XXX quick fix because _parameter_dict is not passed to SoftwareInstance in request_slave
+      computer_partition._parameter_dict = getattr(software_instance, '_parameter_dict', None) or {}
     return computer_partition
 
 

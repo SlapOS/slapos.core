@@ -251,28 +251,138 @@ class TestRequest(MasterMixin, unittest.TestCase):
   Set of tests for requests
   """
 
-  def test_request_get_connection_parameter(self):
+  def test_request_empty_connection_parameter(self):
     """
-    Test that it is possible to fetch the correct parameters of an instance.
+    Test that we get empty connection parameter dict if it is not yet defined.
     """
     self.add_free_partition(1)
     # XXX-Cedric : this is crazy. I don't want to define any requested_by_stupid_thing.
     requested_by_partition_id = '0'
     partition_reference = 'myinstance'
-    connection_dict = {'parameter': 'value'}
+    software_release_url = 'http://sr//'
 
     # Request empty instance
-    partition = self.request('http://sr//', None, partition_reference, requested_by_partition_id)
+    partition = self.request(
+        software_release_url,
+        None,
+        partition_reference,
+        requested_by_partition_id
+    )
+
+    self.assertEquals(partition.getConnectionParameterDict(), {})
+
+  def test_request_empty_instance_parameter(self):
+    """
+    Test that we get empty instance parameter dict if it is not defined.
+    """
+    self.add_free_partition(1)
+    # XXX-Cedric : this is crazy. I don't want to define any requested_by_stupid_thing.
+    requested_by_partition_id = '0'
+    partition_reference = 'myinstance'
+    software_release_url = 'http://sr//'
+
+    # Request empty instance
+    partition = self.request(
+        software_release_url,
+        None,
+        partition_reference,
+        requested_by_partition_id
+    )
+
+    self.assertEquals(partition.getInstanceParameterDict(), {})
+
+  def test_request_get_parameter(self):
+    """
+    Test that it is possible to fetch the correct parameters (connection
+    parameters, instance parameters) of an instance.
+    """
+    self.add_free_partition(1)
+    # XXX-Cedric : this is crazy. I don't want to define any requested_by_stupid_thing.
+    requested_by_partition_id = '0'
+    partition_reference = 'myinstance'
+    software_release_url = 'http://sr//'
+    partition_parameter_kw = {'some_instance_parameter': 'some_instance_value'}
+    connection_dict = {'some_connection_parameter': 'some_connection_value'}
+
+    # Request empty instance
+    partition = self.request(
+        software_release_url,
+        None,
+        partition_reference,
+        requested_by_partition_id,
+        partition_parameter_kw=partition_parameter_kw
+    )
 
     # Simulate instance being deployed, set connection parameters
     self.setConnectionDict(partition._partition_id, connection_dict)
 
     # Fetch parameters, compare with sent parameters
-    partition = self.request('http://sr//', None, partition_reference, requested_by_partition_id)
+    partition = self.request(
+        software_release_url,
+        None,
+        partition_reference,
+        requested_by_partition_id,
+        partition_parameter_kw=partition_parameter_kw
+    )
+
     self.assertEqual(
         partition.getConnectionParameterDict(),
         connection_dict
     )
+    self.assertEqual(
+        partition.getInstanceParameterDict(),
+        partition_parameter_kw
+    )
+
+  def test_request_get_state(self):
+    """
+    Test that it is possible to fetch the state from a partition got from
+    request().
+    """
+    self.add_free_partition(1)
+    # XXX-Cedric: this is crazy. I don't want to define any requested_by_stupid_thing.
+    requested_by_partition_id = '0'
+    partition_reference = 'myinstance'
+    software_release_url = 'http://sr//'
+    requested_state = 'started'
+
+    # Request empty instance
+    partition = self.request(
+        software_release_url,
+        None,
+        partition_reference,
+        requested_by_partition_id,
+        state=requested_state
+    )
+
+    # Check that partition has all needed parameters
+    self.assertEqual(partition.getState(), requested_state)
+
+  def test_request_get_instance_guid(self):
+    """
+    Test that it is possible to fetch the instance_guid from a partition got from
+    request().
+    Note: in the slapproxy, the instance_guid should be equal to the
+    partition_id.
+    """
+    self.add_free_partition(1)
+    # XXX-Cedric: this is crazy. I don't want to define any requested_by_stupid_thing.
+    requested_by_partition_id = '0'
+    partition_reference = 'myinstance'
+    software_release_url = 'http://sr//'
+
+    # Request empty instance
+    partition = self.request(
+        software_release_url,
+        None,
+        partition_reference,
+        requested_by_partition_id
+    )
+
+    # Check that partition has all needed parameters
+    self.assertIsNotNone(partition.getInstanceGuid())
+    self.assertEqual(partition.getInstanceGuid(), partition.getId())
+
 
   def test_two_request_one_partition_free(self):
     """

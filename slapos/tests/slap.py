@@ -541,10 +541,26 @@ class TestComputerPartition(SlapMixin):
     self.assertRaises(slapos.slap.ResourceNotReady,
                       requested_partition.getId)
 
-  def test_request_fullfilled_work(self):
+  # XXX: This whole test suite is bugged. We need to factor the mockup then
+  #      fix all those tests.
+  def test_request_allocated_instance(self):
+    """
+    Assert that, if the master sends correct information while calling
+    request(), we have a correct partition object with all needed members.
+    Warning: it implies obviously a working SlapOS Master.
+    """
     partition_id = 'PARTITION_01'
     requested_partition_id = 'PARTITION_02'
+    requested_state = 'started'
     computer_guid = self._getTestComputerId()
+    software_release_url = 'http://server/new/' + computer_guid
+    parameter_dict = {'some_instance_parameter': 'some instance value'}
+    connection_dict = {'some_connection_parameter': 'some connection value'}
+    instance_guid = 12345
+    slave_instance_list = [{'some_slave_parameter': 'some_slave_value'}]
+    timestamp = 'some_timestamp'
+    ip_list = ['123.123.123.123']
+    software_type = 'some_software_type'
 
     def server_response(self, path, method, body, header):
       parsed_url = urlparse.urlparse(path.lstrip('/'))
@@ -556,19 +572,22 @@ class TestComputerPartition(SlapMixin):
             parsed_qs['computer_reference'][0],
             parsed_qs['computer_partition_reference'][0])
         return (200, {}, xml_marshaller.xml_marshaller.dumps(slap_partition))
-      elif (parsed_url.path == 'getComputerInformation' and 'computer_id' in parsed_qs):
-        slap_computer = slapos.slap.Computer(parsed_qs['computer_id'][0])
-        slap_computer._software_release_list = []
-        slap_partition = slapos.slap.ComputerPartition(
-            parsed_qs['computer_id'][0],
-            partition_id)
-        slap_computer._computer_partition_list = [slap_partition]
-        return (200, {}, xml_marshaller.xml_marshaller.dumps(slap_computer))
       elif parsed_url.path == 'requestComputerPartition':
+        # Inspired from commit ebeb22c
         from slapos.slap.slap import SoftwareInstance
         slap_partition = SoftwareInstance(
             slap_computer_id=computer_guid,
             slap_computer_partition_id=requested_partition_id)
+        slap_partition._connection_dict = connection_dict
+        slap_partition._parameter_dict = parameter_dict
+        slap_partition._instance_guid = instance_guid
+        slap_partition._requested_state = requested_state
+        slap_partition.ip_list = ip_list
+        slap_partition.slap_software_release_url = software_release_url
+        slap_partition.slap_software_type = software_type
+        slap_partition.slave_instance_list = slave_instance_list
+        slap_partition.timestamp = timestamp
+
         return (200, {}, xml_marshaller.xml_marshaller.dumps(slap_partition))
       else:
         return (404, {}, '')
@@ -579,13 +598,206 @@ class TestComputerPartition(SlapMixin):
     computer_partition = self.slap.registerComputerPartition(
         computer_guid, partition_id)
     requested_partition = computer_partition.request(
-        'http://server/new/' + self._getTestComputerId(),
-        'software_type',
+        software_release_url,
+        software_type,
         'myref')
     self.assertIsInstance(requested_partition, slapos.slap.ComputerPartition)
-    # as request method does not raise, accessing data in case when
-    # request was done works correctly
+
+    # Asserts that returned partition has all needed parameters
     self.assertEqual(requested_partition_id, requested_partition.getId())
+    self.assertEqual(computer_guid, requested_partition._computer_id)
+    self.assertEqual(
+        requested_partition.getConnectionParameterDict(),
+        connection_dict
+    )
+    self.assertEqual(
+        requested_partition.getInstanceParameterDict(),
+        parameter_dict
+    )
+    self.assertEqual(requested_partition.getInstanceGuid(), instance_guid)
+    self.assertEqual(requested_partition.getState(), requested_state)
+    self.assertListEqual(requested_partition.ip_list, ip_list)
+    self.assertEqual(
+        requested_partition.slap_software_release_url,
+        software_release_url
+    )
+    self.assertEqual(requested_partition.slap_software_type, software_type)
+    self.assertListEqual(requested_partition.slave_instance_list,slave_instance_list)
+    self.assertEqual(requested_partition.timestamp, timestamp)
+
+  def test_register_allocated_instance(self):
+    """
+    Assert that, if the master sends correct information while calling
+    registerComputerPartition(), we have a correct partition object with all needed members.
+    Warning: it implies obviously a working SlapOS Master.
+    Inspired from test_registerComputerPartition() in testSlapOSSlapTool
+    (master).
+    """
+    partition_id = 'partition1'
+    requested_state = 'started'
+    computer_guid = self._getTestComputerId()
+    software_release_url = 'http://server/new/' + computer_guid
+    parameter_dict = {'param': 'some instance value'}
+    connection_dict = {'some_connection_parameter': 'some connection value'}
+    instance_guid = '12345'
+    # XXX: To be better defined
+    slave_instance_list = [{
+        'param': 'dummy',
+        'slap_software_type': 'dummy',
+        'slave_reference': 'dummy',
+        'slave_title': 'dummy'
+    }]
+
+    timestamp = 'some_timestamp'
+    ip_list = [('', 'ip_address_1')]
+    software_type = 'some_software_type'
+
+    def server_response(self, path, method, body, header):
+      parsed_url = urlparse.urlparse(path.lstrip('/'))
+      parsed_qs = urlparse.parse_qs(parsed_url.query)
+      if (parsed_url.path == 'registerComputerPartition' and
+              'computer_reference' in parsed_qs and
+              'computer_partition_reference' in parsed_qs):
+        # Inspired from commit ebeb22c
+        xml_answer = """\
+<?xml version='1.0' encoding='UTF-8'?>
+<marshal>
+  <object id='i2' module='slapos.slap.slap' class='ComputerPartition'>
+    <tuple>
+      <string>%(computer_id)s</string>
+      <string>partition1</string>
+    </tuple>
+    <dictionary id='i3'>
+      <string>_computer_id</string>
+      <string>%(computer_id)s</string>
+       <string>_connection_dict</string>
+       <dictionary id='i5bis'>
+        <string>%(connection_parameter_key)s</string>
+        <string>%(connection_parameter_value)s</string>
+       </dictionary>
+      <string>_instance_guid</string>
+      <string>%(instance_guid)s</string>
+      <string>_need_modification</string>
+      <int>1</int>
+      <string>_parameter_dict</string>
+      <dictionary id='i5'>
+        <string>ip_list</string>
+        <list id='i6'>
+          <tuple>
+            <string/>
+            <string>ip_address_1</string>
+          </tuple>
+        </list>
+        <string>param</string>
+        <string>%(param)s</string>
+        <string>slap_computer_id</string>
+        <string>%(computer_id)s</string>
+        <string>slap_computer_partition_id</string>
+        <string>partition1</string>
+        <string>slap_software_release_url</string>
+        <string>%(software_release_url)s</string>
+        <string>slap_software_type</string>
+        <string>%(software_type)s</string>
+        <string>slave_instance_list</string>
+        <list id='i7'>
+          <dictionary id='i8'>
+            <string>param</string>
+            <string>%(slave_1_param)s</string>
+            <string>slap_software_type</string>
+            <string>%(slave_1_software_type)s</string>
+            <string>slave_reference</string>
+            <string>%(slave_1_instance_guid)s</string>
+            <string>slave_title</string>
+            <string>%(slave_1_title)s</string>
+          </dictionary>
+        </list>
+        <string>timestamp</string>
+        <string>%(timestamp)s</string>
+      </dictionary>
+      <string>_partition_id</string>
+      <string>partition1</string>
+      <string>_request_dict</string>
+      <none/>
+      <string>_requested_state</string>
+      <string>started</string>
+      <string>_software_release_document</string>
+      <object id='i9' module='slapos.slap.slap' class='SoftwareRelease'>
+        <tuple>
+          <string>%(software_release_url)s</string>
+          <string>%(computer_id)s</string>
+        </tuple>
+        <dictionary id='i10'>
+          <string>_computer_guid</string>
+          <string>%(computer_id)s</string>
+          <string>_software_instance_list</string>
+          <list id='i11'/>
+          <string>_software_release</string>
+          <string>%(software_release_url)s</string>
+        </dictionary>
+      </object>
+      <string>_synced</string>
+      <bool>1</bool>
+    </dictionary>
+  </object>
+</marshal>
+""" % dict(
+  computer_id=computer_guid,
+  param=parameter_dict['param'],
+  connection_parameter_key='some_connection_parameter',
+  connection_parameter_value=connection_dict['some_connection_parameter'],
+  software_release_url=software_release_url,
+  timestamp=timestamp,
+  instance_guid=instance_guid,
+  software_type=software_type,
+  # XXX: Better define parameters
+  slave_1_param='dummy',
+  slave_1_software_type='dummy',
+  slave_1_instance_guid='dummy',
+  slave_1_title='dummy',
+)
+        return (200, {}, xml_answer)
+      else:
+        return (404, {}, '')
+
+    httplib.HTTPConnection._callback = server_response
+    self.slap = slapos.slap.slap()
+    self.slap.initializeConnection(self.server_url)
+    computer_partition = self.slap.registerComputerPartition(
+        computer_guid, partition_id)
+
+    self.assertIsInstance(computer_partition, slapos.slap.ComputerPartition)
+
+    # Asserts that returned partition has all needed parameters
+    self.assertEqual(partition_id, computer_partition.getId())
+    self.assertEqual(computer_guid, computer_partition._computer_id)
+    self.assertEqual(
+        computer_partition.getConnectionParameterDict(),
+        connection_dict
+    )
+    self.assertEqual(
+        computer_partition.getInstanceParameter('param'),
+        parameter_dict['param']
+    )
+    self.assertEqual(computer_partition.getInstanceGuid(), instance_guid)
+    self.assertEqual(computer_partition.getState(), requested_state)
+    self.assertListEqual(computer_partition.getInstanceParameter('ip_list'), ip_list)
+    self.assertEqual(
+        computer_partition.getInstanceParameter('slap_software_release_url'),
+        software_release_url
+    )
+    self.assertEqual(
+        computer_partition.getInstanceParameter('slap_software_type'),
+        software_type
+    )
+    self.assertListEqual(
+        computer_partition.getInstanceParameter('slave_instance_list'),
+        slave_instance_list
+    )
+    self.assertEqual(
+        computer_partition.getInstanceParameter('timestamp'),
+        timestamp
+    )
+
 
   def _test_new_computer_partition_state(self, state):
     """

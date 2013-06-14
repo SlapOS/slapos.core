@@ -246,6 +246,7 @@ class MasterMixin(BasicMixin):
         'connection_xml': xml_marshaller.xml_marshaller.dumps(connection_dict),
         'slave_reference': slave_reference})
 
+# XXX: do the same tests with TestRegisterComputerPartition
 class TestRequest(MasterMixin, unittest.TestCase):
   """
   Set of tests for requests

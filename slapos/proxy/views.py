@@ -364,6 +364,8 @@ def request_not_shared():
 
   # XXX it should be ComputerPartition, not a SoftwareInstance.
   # XXX To much magic here. we should just dumps the ComputerPartition object.
+  # XXX We should also factor registerComputerPartition() and request() when
+  #     SlapTool does it as well.
   instance = SoftwareInstance(
                             slap_computer_id=app.config['computer_id'],
                             slap_computer_partition_id=partition['reference'],
@@ -375,6 +377,7 @@ def request_not_shared():
                             ip_list=address_list)
   instance._parameter_dict = xml2dict(partition['xml'])
   instance._connection_dict = xml2dict(partition['connection_xml'])
+  instance._instance_guid = partition['reference']
   if partition['slave_instance_list'] is not None:
     instance._parameter_dict['slave_instance_list'] = \
     xml_marshaller.xml_marshaller.loads(partition['slave_instance_list'])

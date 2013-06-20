@@ -578,7 +578,7 @@ class ConnectionHelper:
       xml = self.GET(method)
     except NotFoundError:
       # XXX: This is a ugly way to keep backward compatibility,
-      # We should stablise slap library soon.
+      # We should stabilise slap library soon.
       xml = self.GET('/getComputerInformation?computer_id=%s' % computer_id)
 
     return xml_marshaller.loads(xml)
@@ -612,7 +612,7 @@ class ConnectionHelper:
           raise socket.error(str(exc) + self.error_message_timeout)
         raise socket.error(self.error_message_connect_fail + str(exc))
 
-      # check self.response.status and raise exception early
+      # check response.status and raise exception early
       if response.status == httplib.REQUEST_TIMEOUT:
         # resource is not ready
         raise ResourceNotReady(path)
@@ -649,7 +649,7 @@ class ConnectionHelper:
         raise socket.error(self.error_message_connect_fail + str(exc))
 
       response = self.connection.getresponse()
-      # check self.response.status and raise exception early
+      # check response.status and raise exception early
       if response.status == httplib.REQUEST_TIMEOUT:
         # resource is not ready
         raise ResourceNotReady("%s - %s" % (path, parameter_dict))

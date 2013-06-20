@@ -1,3 +1,4 @@
+# vim: set et sts=2:
 ##############################################################################
 #
 # Copyright (c) 2010 Vifib SARL and Contributors. All Rights Reserved.
@@ -130,7 +131,7 @@ class TestSlap(SlapMixin):
     self.assertIsInstance(computer2, slapos.slap.Computer)
 
   # XXX: There is naming conflict in slap library.
-  # SoftwareRelease is currently used as suboject of Slap transmission object
+  # SoftwareRelease is currently used as subobject of Slap transmission object
   def test_registerSoftwareRelease_with_new_uri(self):
     """
     Asserts that calling slap.registerSoftwareRelease with new guid

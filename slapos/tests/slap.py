@@ -43,12 +43,10 @@ class SlapMixin(unittest.TestCase):
   Usefull methods for slap tests
   """
   def setUp(self):
-    self._server_url = os.environ.get('TEST_SLAP_SERVER_URL', None)
-    if self._server_url is None:
+    self.server_url = os.environ.get('TEST_SLAP_SERVER_URL')
+    if not self.server_url:
       self._patchHttplib()
       self.server_url = 'http://localhost/'
-    else:
-      self.server_url = self._server_url
     print 'Testing against SLAP server %r' % self.server_url
     self.slap = slapos.slap.slap()
     self.partition_id = 'PARTITION_01'

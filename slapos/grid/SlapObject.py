@@ -343,11 +343,11 @@ class Partition(object):
         os.chown(path, uid, gid)
 
   def getUserGroupId(self):
-    """Returns tuple of (uid, gid) of partition"""
+    """Returns (uid, gid) tuple of partition owner"""
     stat_info = os.stat(self.instance_path)
     uid = stat_info.st_uid
     gid = stat_info.st_gid
-    return (uid, gid)
+    return uid, gid
 
   def addServiceToGroup(self, partition_id,
                         runner_list, path, extension=''):
@@ -551,7 +551,7 @@ class Partition(object):
     """Asks supervisord to start the instance. If this instance is not
     installed, we install it.
     """
-    supervisor = self.getSupervisorRPC()
+    supervisor = getSupervisorRPC(self.supervisord_socket)
     partition_id = self.computer_partition.getId()
     try:
       supervisor.startProcessGroup(partition_id, False)
@@ -566,7 +566,7 @@ class Partition(object):
     """Asks supervisord to stop the instance."""
     partition_id = self.computer_partition.getId()
     try:
-      supervisor = self.getSupervisorRPC()
+      supervisor = getSupervisorRPC(self.supervisord_socket)
       supervisor.stopProcessGroup(partition_id, False)
     except xmlrpclib.Fault as exc:
       if exc.faultString.startswith('BAD_NAME:'):
@@ -628,16 +628,13 @@ class Partition(object):
     """
     raise NotImplementedError
 
-  def getSupervisorRPC(self):
-    return getSupervisorRPC(self.supervisord_socket)
-
   def updateSupervisor(self):
     """Forces supervisord to reload its configuration"""
     # Note: This method shall wait for results from supervisord
     #       In future it will not be needed, as update command
     #       is going to be implemented on server side.
     self.logger.debug('Updating supervisord')
-    supervisor = self.getSupervisorRPC()
+    supervisor = getSupervisorRPC(self.supervisord_socket)
     # took from supervisord.supervisorctl.do_update
     result = supervisor.reloadConfig()
     added, changed, removed = result[0]

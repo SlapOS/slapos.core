@@ -131,12 +131,8 @@ class Software(object):
       # Check if we can download from cache
       if (not os.path.exists(self.software_path)
             and self.download_binary_cache(tarpath)):
-        tar = tarfile.open(tarpath)
-        try:
-          self.logger.info("Extracting archive of cached software release...")
-          tar.extractall(path=self.software_root)
-        finally:
-          tar.close()
+        self.logger.info("Extracting archive of cached software release...")
+        tarfile.open(tarpath).extractall(self.software_root)
       else:
         self._install_from_buildout()
         self.update_binary_cache(tarpath)
@@ -241,10 +237,8 @@ class Software(object):
     """
     self.logger.info("Creating archive of software release...")
     tar = tarfile.open(tarpath, "w:gz")
-    try:
-      tar.add(self.software_path, arcname=self.software_url_hash)
-    finally:
-      tar.close()
+    tar.add(self.software_path, arcname=self.software_url_hash)
+    tar.close()
     self.logger.info("Trying to upload archive of software release...")
     upload_network_cached(
         self.software_root,

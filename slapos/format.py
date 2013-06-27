@@ -81,7 +81,7 @@ class OS(object):
       arg_list = [repr(x) for x in args] + [
           '%s=%r' % (x, y) for x, y in kw.iteritems()
       ]
-      self._logger.debug('%s(%s)' % (name, ', '.join(arg_list)))
+      self._logger.debug('%s(%s)', name, ', '.join(arg_list))
       if not self._dry_run:
         getattr(self._os, name)(*args, **kw)
     setattr(self, name, wrapper)
@@ -855,7 +855,7 @@ class Interface(object):
         return dict(addr=addr, netmask=netmask)
       else:
         self.logger.warning('Impossible to add old local IPv4 %s. Generating '
-            'new IPv4 address.' % addr)
+                            'new IPv4 address.', addr)
         return self._generateRandomIPv4Address(netmask)
     else:
       # confirmed to be configured
@@ -913,7 +913,7 @@ class Interface(object):
             return dict(addr=addr, netmask=netmask)
           else:
             self.logger.warning('Impossible to add old public IPv6 %s. '
-                'Generating new IPv6 address.' % addr)
+                                'Generating new IPv6 address.', addr)
 
     # Try 10 times to add address, raise in case if not possible
     try_num = 10
@@ -933,7 +933,7 @@ class Interface(object):
 
 
 def parse_computer_definition(conf, definition_path):
-  conf.logger.info('Using definition file %r' % definition_path)
+  conf.logger.info('Using definition file %r', definition_path)
   computer_definition = ConfigParser.RawConfigParser({
     'software_user': 'slapsoft',
   })
@@ -984,7 +984,7 @@ def parse_computer_xml(conf, xml_path):
                         ipv6_interface=conf.ipv6_interface)
 
   if os.path.exists(xml_path):
-    conf.logger.debug('Loading previous computer data from %r' % xml_path)
+    conf.logger.debug('Loading previous computer data from %r', xml_path)
     computer = Computer.load(xml_path,
                              reference=conf.computer_id,
                              ipv6_interface=conf.ipv6_interface)
@@ -1046,7 +1046,7 @@ def write_computer_definition(conf, computer):
     computer_definition.set(section, 'network_interface', partition.tap.name)
     computer_definition.set(section, 'pathname', partition.reference)
   computer_definition.write(open(conf.output_definition_file, 'w'))
-  conf.logger.info('Stored computer definition in %r' % conf.output_definition_file)
+  conf.logger.info('Stored computer definition in %r', conf.output_definition_file)
 
 
 def random_delay(conf):
@@ -1056,7 +1056,7 @@ def random_delay(conf):
   if not conf.now:
     duration = float(60 * 60) * random.random()
     conf.logger.info('Sleeping for %s seconds. To disable this feature, '
-                     'use with --now parameter in manual.' % duration)
+                     'use with --now parameter in manual.', duration)
     time.sleep(duration)
 
 
@@ -1071,7 +1071,7 @@ def do_format(conf):
 
   computer.instance_root = conf.instance_root
   computer.software_root = conf.software_root
-  conf.logger.info('Updating computer')
+  conf.logger.info('Updating node %s', conf.computer_id)
   address = computer.getAddress(conf.create_tap)
   computer.address = address['addr']
   computer.netmask = address['netmask']
@@ -1091,7 +1091,7 @@ def do_format(conf):
     computer.dump(path_to_xml=conf.computer_xml,
                   path_to_json=conf.computer_json,
                   logger=conf.logger)
-  conf.logger.info('Posting information to %r' % conf.master_url)
+  conf.logger.info('Posting information to %r', conf.master_url)
   computer.send(conf)
   conf.logger.info('slapos successfully prepared the computer.')
 
@@ -1160,12 +1160,12 @@ class FormatConfig(object):
           and getattr(self, "bridge_name", None):
       setattr(self, "interface_name", self.bridge_name)
       self.logger.warning('bridge_name option is deprecated and should be '
-          'replaced by interface_name.')
+                          'replaced by interface_name.')
     if not getattr(self, "create_tap", None) \
           and getattr(self, "no_bridge", None):
       setattr(self, "create_tap", not self.no_bridge)
       self.logger.warning('no_bridge option is deprecated and should be '
-          'replaced by create_tap.')
+                          'replaced by create_tap.')
 
     # Set defaults lately
     if self.alter_network is None:
@@ -1216,7 +1216,7 @@ class FormatConfig(object):
       message = "Root rights are needed"
       self.logger.error(message)
       sys.stderr.write(message + '\n')
-      sys.exit()
+      sys.exit(1)
 
     # Check mandatory options
     for parameter in ('computer_id', 'instance_root', 'master_url',
@@ -1229,8 +1229,8 @@ class FormatConfig(object):
       file_location = getattr(self, attribute, None)
       if file_location is not None:
         if not os.path.exists(file_location):
-          self.logger.fatal('File %r does not exist or is not readable.' %
-              file_location)
+          self.logger.critical('File %r does not exist or is not readable.',
+                               file_location)
           sys.exit(1)
 
     self.logger.debug('Started.')

@@ -124,7 +124,7 @@ class Software(object):
     """ Fetches binary cache if possible.
     Installs from buildout otherwise.
     """
-    self.logger.info("Installing software release %s..." % self.url)
+    self.logger.info('Installing software release %s...', self.url)
     cache_dir = tempfile.mkdtemp()
     try:
       tarpath = os.path.join(cache_dir, self.software_url_hash)
@@ -263,11 +263,11 @@ class Software(object):
         func(path)
     try:
       if os.path.exists(self.software_path):
-        self.logger.info('Removing path %r' % self.software_path)
+        self.logger.info('Removing path %r', self.software_path)
         shutil.rmtree(self.software_path, onerror=retry)
       else:
-        self.logger.info('Path %r does not exists, no need to remove.' %
-            self.software_path)
+        self.logger.info('Path %r does not exist, no need to remove.',
+                         self.software_path)
     except IOError as exc:
       raise IOError("I/O error while removing software (%s): %s" % (self.url, exc))
 
@@ -334,9 +334,9 @@ class Partition(object):
 
       if old_content != new_content:
         if old_content is None:
-          self.logger.info('Missing %s file. Creating %r' % (name, path))
+          self.logger.info('Missing %s file. Creating %r', name, path)
         else:
-          self.logger.info('Changed %s content. Updating %r' % (name, path))
+          self.logger.info('Changed %s content. Updating %r', name, path)
 
         with os.fdopen(os.open(path, os.O_CREAT | os.O_WRONLY | os.O_TRUNC, 0o400), 'wb') as fout:
           fout.write(new_content)
@@ -391,8 +391,8 @@ class Partition(object):
     """ Creates configuration file from template in software_path, then
     installs the software partition with the help of buildout
     """
-    self.logger.info("Installing Computer Partition %s..."
-        % self.computer_partition.getId())
+    self.logger.info('Installing Computer Partition %s...',
+                     self.computer_partition.getId())
     # Checks existence and permissions of Partition directory
     # Note : Partitions have to be created and configured before running slapgrid
     if not os.path.isdir(self.instance_path):
@@ -430,7 +430,7 @@ class Partition(object):
             self.software_release_url, instance_cfg))
 
     buildout_cfg = os.path.join(self.instance_path, 'buildout.cfg')
-    self.logger.debug("Copying %r to %r" % (instance_cfg, buildout_cfg))
+    self.logger.debug('Copying %r to %r', instance_cfg, buildout_cfg)
 
     with open(buildout_cfg, 'w') as fout:
         fout.write(open(instance_cfg).read())
@@ -462,8 +462,7 @@ class Partition(object):
     os.chown(buildout_cfg, -1, int(gid))
     if len(bootstrap_candidate_list) == 0:
       buildout_binary = os.path.join(self.software_path, 'bin', 'buildout')
-      self.logger.warning("Falling back to default buildout %r" %
-        buildout_binary)
+      self.logger.warning('Falling back to default buildout %r', buildout_binary)
     else:
       if len(bootstrap_candidate_list) != 1:
         raise ValueError('More than one bootstrap candidate found.')
@@ -477,8 +476,8 @@ class Partition(object):
         invocation_list = first_line[2:].split()
       invocation_list.append(bootstrap_file)
 
-      self.logger.debug('Invoking %r in %r' % (' '.join(invocation_list),
-        self.instance_path))
+      self.logger.debug('Invoking %r in %r', ' '.join(invocation_list),
+                        self.instance_path)
       process_handler = SlapPopen(invocation_list,
                                   preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),
                                   cwd=self.instance_path,
@@ -526,8 +525,8 @@ class Partition(object):
       if os.path.isdir(self.service_path):
         service_list = os.listdir(self.service_path)
     if len(runner_list) == 0 and len(service_list) == 0:
-      self.logger.warning('No runners nor services found for partition %r' %
-          self.partition_id)
+      self.logger.warning('No runners nor services found for partition %r',
+                          self.partition_id)
       if os.path.exists(self.supervisord_partition_configuration_path):
         os.unlink(self.supervisord_partition_configuration_path)
     else:
@@ -557,10 +556,9 @@ class Partition(object):
       supervisor.startProcessGroup(partition_id, False)
     except xmlrpclib.Fault as exc:
       if exc.faultString.startswith('BAD_NAME:'):
-        self.logger.info("Nothing to start on %s..." %
-                         self.computer_partition.getId())
+        self.logger.info('Nothing to start on %s...', self.computer_partition.getId())
     else:
-      self.logger.info("Requested start of %s..." % self.computer_partition.getId())
+      self.logger.info('Requested start of %s...', self.computer_partition.getId())
 
   def stop(self):
     """Asks supervisord to stop the instance."""
@@ -570,9 +568,9 @@ class Partition(object):
       supervisor.stopProcessGroup(partition_id, False)
     except xmlrpclib.Fault as exc:
       if exc.faultString.startswith('BAD_NAME:'):
-        self.logger.info('Partition %s not known in supervisord, ignoring' % partition_id)
+        self.logger.info('Partition %s not known in supervisord, ignoring', partition_id)
     else:
-      self.logger.info("Requested stop of %s..." % self.computer_partition.getId())
+      self.logger.info('Requested stop of %s...', self.computer_partition.getId())
 
   def _pre_destroy(self, destroy_binary):
     uid, gid = self.getUserGroupId()
@@ -593,8 +591,8 @@ class Partition(object):
   def destroy(self):
     """Destroys the partition and makes it available for subsequent use."
     """
-    self.logger.info("Destroying Computer Partition %s..."
-        % self.computer_partition.getId())
+    self.logger.info('Destroying Computer Partition %s...',
+                     self.computer_partition.getId())
 
     # Launches "destroy" binary if exists
     destroy_binary = os.path.join(self.instance_path, 'sbin', 'destroy')
@@ -644,21 +642,21 @@ class Partition(object):
       fails = [res for res in results
                if res['status'] == xmlrpc.Faults.FAILED]
       if fails:
-        self.logger.warning('Problem while stopping process %r, will try later' % gname)
+        self.logger.warning('Problem while stopping process %r, will try later', gname)
       else:
-        self.logger.info('Stopped %r' % gname)
+        self.logger.info('Stopped %r', gname)
       supervisor.removeProcessGroup(gname)
-      self.logger.info('Removed %r' % gname)
+      self.logger.info('Removed %r', gname)
 
     for gname in changed:
       results = supervisor.stopProcessGroup(gname)
-      self.logger.info('Stopped %r' % gname)
+      self.logger.info('Stopped %r', gname)
 
       supervisor.removeProcessGroup(gname)
       supervisor.addProcessGroup(gname)
-      self.logger.info('Updated %r' % gname)
+      self.logger.info('Updated %r', gname)
 
     for gname in added:
       supervisor.addProcessGroup(gname)
-      self.logger.info('Updated %r' % gname)
+      self.logger.info('Updated %r', gname)
     self.logger.debug('Supervisord updated')

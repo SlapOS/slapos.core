@@ -92,7 +92,7 @@ def launchSupervisord(socket, configuration_file, logger):
 
   result = supervisord_popen.communicate()[0]
   if supervisord_popen.returncode:
-    logger.warning('Supervisord unknown problem: %s' % result)
+    logger.warning('Supervisord unknown problem: %s', result)
     return
 
   try:
@@ -107,13 +107,13 @@ def launchSupervisord(socket, configuration_file, logger):
         if status['statename'] == 'RUNNING' and status['statecode'] == 1:
           return
         logger.warning('Wrong status name %(statename)r and code '
-          '%(statecode)r, trying again' % status)
+                       '%(statecode)r, trying again', status)
         trynum += 1
       except Exception:
         current_timeout = 5 * trynum
         trynum += 1
       else:
-        logger.info('Supervisord started correctly in try %s.' % trynum)
+        logger.info('Supervisord started correctly in try %s.', trynum)
         return
     logger.warning('Issue while checking supervisord.')
   finally:

@@ -130,8 +130,8 @@ def getCleanEnvironment(logger, home_path='/tmp'):
       removed_env.append(k)
   changed_env['HOME'] = env['HOME'] = home_path
   for k in sorted(changed_env.iterkeys()):
-    logger.debug('Overridden %s = %r' % (k, changed_env[k]))
-  logger.debug('Removed from environment: %s' % ', '.join(sorted(removed_env)))
+    logger.debug('Overridden %s = %r', k, changed_env[k])
+  logger.debug('Removed from environment: %s', ', '.join(sorted(removed_env)))
   return env
 
 
@@ -146,9 +146,9 @@ def setRunning(logger, pidfile):
     # XXX This could use psutil library.
     if pid and os.path.exists("/proc/%s" % pid):
       logger.info('New slapos process started, but another slapos '
-                  'process is aleady running with pid %s, exiting.' % pid)
+                  'process is aleady running with pid %s, exiting.', pid)
       sys.exit(10)
-    logger.info('Existing pid file %r was stale, overwritten' % pidfile)
+    logger.info('Existing pid file %r was stale, overwritten', pidfile)
   # Start new process
   write_pid(logger, pidfile)
 
@@ -165,7 +165,7 @@ def write_pid(logger, pidfile):
     with open(pidfile, 'w') as fout:
       fout.write('%s' % os.getpid())
   except (IOError, OSError):
-    logger.critical('slapgrid could not write pidfile %s' % pidfile)
+    logger.critical('slapgrid could not write pidfile %s', pidfile)
     raise
 
 
@@ -185,7 +185,7 @@ def dropPrivileges(uid, gid, logger):
                   'gid = %r is too dangerous' % (uid, gid))
   if current_uid or current_gid:
     logger.debug('Running as uid = %r, gid = %r, dropping '
-                 'not needed and not possible' % (current_uid, current_gid))
+                 'not needed and not possible', current_uid, current_gid)
     return
   # drop privileges
   user_name = pwd.getpwuid(uid)[0]
@@ -224,7 +224,7 @@ def dropPrivileges(uid, gid, logger):
   else:
     raise ValueError('%s it was possible to go back to uid = %r and gid = '
                      '%r which is fatal.' % (message_pre, current_uid, current_gid))
-  logger.debug('Succesfully dropped privileges to uid=%r gid=%r' % (uid, gid))
+  logger.debug('Succesfully dropped privileges to uid=%r gid=%r', uid, gid)
 
 
 def bootstrapBuildout(path, logger, buildout=None,
@@ -245,7 +245,7 @@ def bootstrapBuildout(path, logger, buildout=None,
       __import__('zc.buildout')
     except ImportError:
       logger.warning('Using old style bootstrap of included bootstrap file. '
-        'Consider having zc.buildout available in search path.')
+                     'Consider having zc.buildout available in search path.')
       invocation_list.append(pkg_resources.resource_filename(__name__,
         'zc.buildout-bootstap.py'))
       invocation_list.extend(additional_buildout_parameter_list)
@@ -260,9 +260,8 @@ def bootstrapBuildout(path, logger, buildout=None,
     invocation_list.append('bootstrap')
   try:
     umask = os.umask(SAFE_UMASK)
-    logger.debug('Set umask from %03o to %03o' % (umask, SAFE_UMASK))
-    logger.debug('Invoking: %r in directory %r' % (' '.join(invocation_list),
-      path))
+    logger.debug('Set umask from %03o to %03o', umask, SAFE_UMASK)
+    logger.debug('Invoking: %r in directory %r', ' '.join(invocation_list), path)
     process_handler = SlapPopen(invocation_list,
                                 preexec_fn=lambda: dropPrivileges(uid, gid, logger=logger),
                                 cwd=path,
@@ -274,11 +273,11 @@ def bootstrapBuildout(path, logger, buildout=None,
       logger.error(message)
       raise BuildoutFailedError('%s:\n%s\n' % (message, process_handler.output))
   except OSError as exc:
-    logger.exception(exc)
+    logger.exception('')
     raise BuildoutFailedError(exc)
   finally:
     old_umask = os.umask(umask)
-    logger.debug('Restore umask from %03o to %03o' % (old_umask, umask))
+    logger.debug('Restore umask from %03o to %03o', old_umask, umask)
 
 
 def launchBuildout(path, buildout_binary, logger,
@@ -302,9 +301,8 @@ def launchBuildout(path, buildout_binary, logger,
   invocation_list.extend(additional_buildout_parameter_list)
   try:
     umask = os.umask(SAFE_UMASK)
-    logger.debug('Set umask from %03o to %03o' % (umask, SAFE_UMASK))
-    logger.debug('Invoking: %r in directory %r' % (' '.join(invocation_list),
-      path))
+    logger.debug('Set umask from %03o to %03o', umask, SAFE_UMASK)
+    logger.debug('Invoking: %r in directory %r', ' '.join(invocation_list), path)
     process_handler = SlapPopen(invocation_list,
                                 preexec_fn=lambda: dropPrivileges(uid, gid, logger=logger),
                                 cwd=path,
@@ -318,11 +316,11 @@ def launchBuildout(path, buildout_binary, logger,
       logger.error(message)
       raise BuildoutFailedError('%s:\n%s\n' % (message, process_handler.output))
   except OSError as exc:
-    logger.exception(exc)
+    logger.exception('')
     raise BuildoutFailedError(exc)
   finally:
     old_umask = os.umask(umask)
-    logger.debug('Restore umask from %03o to %03o' % (old_umask, umask))
+    logger.debug('Restore umask from %03o to %03o', old_umask, umask)
 
 
 def updateFile(file_path, content, mode=0o600):

@@ -367,14 +367,25 @@ class Partition(object):
               'USER': pwd.getpwuid(uid).pw_name,
           }
 
-  def updateSymlink(self, sr_symlink, software_path):
-    if os.path.lexists(sr_symlink):
-      if not os.path.islink(sr_symlink):
-        self.logger.debug('Not a symlink: %s, has been ignored' % sr_symlink)
+  @property
+  def software_release_link(self):
+    return os.path.join(self.instance_path, 'software_release')
+
+  def update_link_to_sr(self):
+    link = self.software_release_link
+    if os.path.lexists(link):
+      if not os.path.islink(link):
+        self.logger.debug('Not a symlink: %s, has been ignored', link)
         return
-      os.unlink(sr_symlink)
-    os.symlink(software_path, sr_symlink)
-    os.lchown(sr_symlink, *self.getUserGroupId())
+      os.unlink(link)
+    os.symlink(self.software_path, link)
+    uid, gid = self.getUserGroupId()
+    os.lchown(link, uid, gid)
+
+  def remove_link_to_sr(self):
+    link = self.software_release_link
+    if os.path.islink(link):
+      os.unlink(link)
 
   def install(self):
     """ Creates configuration file from template in software_path, then
@@ -388,8 +399,7 @@ class Partition(object):
       raise PathDoesNotExistError('Please create partition directory %s'
                                            % self.instance_path)
 
-    sr_symlink = os.path.join(self.instance_path, 'software_release')
-    self.updateSymlink(sr_symlink, self.software_path)
+    self.update_link_to_sr()
 
     instance_stat_info = os.stat(self.instance_path)
     permission = stat.S_IMODE(instance_stat_info.st_mode)
@@ -599,9 +609,7 @@ class Partition(object):
             os.unlink(f)
 
       # better to manually remove symlinks because rmtree might choke on them
-      sr_symlink = os.path.join(self.instance_path, 'software_release')
-      if os.path.islink(sr_symlink):
-        os.unlink(sr_symlink)
+      self.remove_link_to_sr()
 
       for root, dirs, file_list in os.walk(self.instance_path):
         for directory in dirs:

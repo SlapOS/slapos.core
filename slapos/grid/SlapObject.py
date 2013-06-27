@@ -104,6 +104,22 @@ class Software(object):
     self.upload_to_binary_cache_url_blacklist = \
         upload_to_binary_cache_url_blacklist
 
+  def download_binary_cache(self, tarpath):
+    """
+    returns True after a successful download
+    """
+    return download_network_cached(
+        self.download_binary_cache_url,
+        self.download_binary_dir_url,
+        self.url,
+        self.software_root,
+        self.software_url_hash,
+        tarpath,
+        self.logger,
+        self.signature_certificate_list,
+        self.download_from_binary_cache_url_blacklist
+    )
+
   def install(self):
     """ Fetches binary cache if possible.
     Installs from buildout otherwise.
@@ -113,15 +129,8 @@ class Software(object):
     try:
       tarpath = os.path.join(cache_dir, self.software_url_hash)
       # Check if we can download from cache
-      if (not os.path.exists(self.software_path)) \
-          and download_network_cached(
-              self.download_binary_cache_url,
-              self.download_binary_dir_url,
-              self.url, self.software_root,
-              self.software_url_hash,
-              tarpath, self.logger,
-              self.signature_certificate_list,
-              self.download_from_binary_cache_url_blacklist):
+      if (not os.path.exists(self.software_path)
+            and self.download_binary_cache(tarpath)):
         tar = tarfile.open(tarpath)
         try:
           self.logger.info("Extracting archive of cached software release...")
@@ -130,18 +139,7 @@ class Software(object):
           tar.close()
       else:
         self._install_from_buildout()
-        # Upload to binary cache if possible and allowed
-        if all([self.software_root, self.url, self.software_url_hash,
-                self.upload_binary_cache_url, self.upload_binary_dir_url]):
-          blacklisted = False
-          for url in self.upload_to_binary_cache_url_blacklist:
-            if self.url.startswith(url):
-              blacklisted = True
-              self.logger.info("Can't upload to binary cache: "
-                               "Software Release URL is blacklisted.")
-              break
-          if not blacklisted:
-            self.uploadSoftwareRelease(tarpath)
+        self.update_binary_cache(tarpath)
     finally:
       shutil.rmtree(cache_dir)
 
@@ -223,6 +221,19 @@ class Software(object):
           extends = {url}
           """.format(url=url)))
     self._set_ownership(buildout_cfg)
+
+  def update_binary_cache(self, tarpath):
+    """
+    Upload to binary cache if possible and allowed
+    """
+    if all([self.software_root, self.url, self.software_url_hash,
+            self.upload_binary_cache_url, self.upload_binary_dir_url]):
+      if any(self.url.startswith(url)
+              for url in self.upload_to_binary_cache_url_blacklist):
+          self.logger.info("Can't upload to binary cache: "
+                           "Software Release URL is blacklisted.")
+      else:
+        self.uploadSoftwareRelease(tarpath)
 
   def uploadSoftwareRelease(self, tarpath):
     """
@@ -557,30 +568,32 @@ class Partition(object):
     else:
       self.logger.info("Requested stop of %s..." % self.computer_partition.getId())
 
+  def _pre_destroy(self, destroy_binary):
+    uid, gid = self.getUserGroupId()
+    self.logger.debug('Invoking %r', destroy_binary)
+    process_handler = SlapPopen([destroy_binary],
+                                preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),
+                                cwd=self.instance_path,
+                                env=getCleanEnvironment(logger=self.logger,
+                                                        home_path=pwd.getpwuid(uid).pw_dir),
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT,
+                                logger=self.logger)
+    if process_handler.returncode is None or process_handler.returncode != 0:
+      message = 'Failed to destroy Computer Partition in %r.' % self.instance_path
+      self.logger.error(message)
+      raise subprocess.CalledProcessError(message, process_handler.output)
+
   def destroy(self):
     """Destroys the partition and makes it available for subsequent use."
     """
     self.logger.info("Destroying Computer Partition %s..."
         % self.computer_partition.getId())
+
     # Launches "destroy" binary if exists
-    destroy_executable_location = os.path.join(self.instance_path, 'sbin',
-        'destroy')
-    if os.path.exists(destroy_executable_location):
-      uid, gid = self.getUserGroupId()
-      self.logger.debug('Invoking %r' % destroy_executable_location)
-      process_handler = SlapPopen([destroy_executable_location],
-                                  preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),
-                                  cwd=self.instance_path,
-                                  env=getCleanEnvironment(logger=self.logger,
-                                                          home_path=pwd.getpwuid(uid).pw_dir),
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT,
-                                  logger=self.logger)
-      if process_handler.returncode is None or process_handler.returncode != 0:
-        message = 'Failed to destroy Computer Partition in %r.' % \
-            self.instance_path
-        self.logger.error(message)
-        raise subprocess.CalledProcessError(message, process_handler.output)
+    destroy_binary = os.path.join(self.instance_path, 'sbin', 'destroy')
+    if os.path.exists(destroy_binary):
+      self._pre_destroy(destroy_binary)
     # Manually cleans what remains
     try:
       for f in [self.key_file, self.cert_file]:

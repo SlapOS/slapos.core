@@ -408,33 +408,35 @@ class Partition(object):
                     'Cannot deploy instance.' % self.software_release_url)
 
     # Generate buildout instance profile from template in Software Release
-    template_location = os.path.join(self.software_path, 'instance.cfg')
-    if not os.path.exists(template_location):
+    instance_cfg = os.path.join(self.software_path, 'instance.cfg')
+    if not os.path.exists(instance_cfg):
       # Backward compatibility: "instance.cfg" file was named "template.cfg".
       if os.path.exists(os.path.join(self.software_path, 'template.cfg')):
-        template_location = os.path.join(self.software_path, 'template.cfg')
+        instance_cfg = os.path.join(self.software_path, 'template.cfg')
       else:
         # No template: Software Release is either inconsistent or not correctly installed.
         # XXX What should it raise?
         raise IOError('Software Release %s is not correctly installed.\nMissing file: %s' % (
-            self.software_release_url, template_location))
-    config_location = os.path.join(self.instance_path, 'buildout.cfg')
-    self.logger.debug("Copying %r to %r" % (template_location, config_location))
-    shutil.copy(template_location, config_location)
+            self.software_release_url, instance_cfg))
 
-    # fill generated buildout with additional information
-    buildout_text = open(config_location).read()
-    buildout_text += '\n\n' + pkg_resources.resource_string(__name__,
-        'templates/buildout-tail.cfg.in') % {
+    buildout_cfg = os.path.join(self.instance_path, 'buildout.cfg')
+    self.logger.debug("Copying %r to %r" % (instance_cfg, buildout_cfg))
+
+    with open(buildout_cfg, 'w') as fout:
+        fout.write(open(instance_cfg).read())
+        fout.write('\n\n')
+        # fill generated buildout with additional information
+        fout.write(pkg_resources.resource_string(__name__,
+          'templates/buildout-tail.cfg.in') % {
             'computer_id': self.computer_id,
             'partition_id': self.partition_id,
             'server_url': self.server_url,
             'software_release_url': self.software_release_url,
             'key_file': self.key_file,
             'cert_file': self.cert_file,
-        }
-    open(config_location, 'w').write(buildout_text)
-    os.chmod(config_location, 0o640)
+          })
+    os.chmod(buildout_cfg, 0o640)
+
     # Try to find the best possible buildout:
     #  *) if software_root/bin/bootstrap exists use this one to bootstrap
     #     locally
@@ -447,7 +449,7 @@ class Partition(object):
     else:
       bootstrap_candidate_list = []
     uid, gid = self.getUserGroupId()
-    os.chown(config_location, -1, int(gid))
+    os.chown(buildout_cfg, -1, int(gid))
     if len(bootstrap_candidate_list) == 0:
       buildout_binary = os.path.join(self.software_path, 'bin', 'buildout')
       self.logger.warning("Falling back to default buildout %r" %
@@ -490,7 +492,7 @@ class Partition(object):
                                 ['buildout:bin-directory=%s' %
                                     os.path.join(self.instance_path, 'sbin')])
       buildout_binary = os.path.join(self.instance_path, 'sbin', 'buildout')
-    # Launches buildout
+
     utils.launchBuildout(path=self.instance_path,
                          buildout_binary=buildout_binary,
                          logger=self.logger)
@@ -588,6 +590,7 @@ class Partition(object):
     destroy_binary = os.path.join(self.instance_path, 'sbin', 'destroy')
     if os.path.exists(destroy_binary):
       self._pre_destroy(destroy_binary)
+
     # Manually cleans what remains
     try:
       for f in [self.key_file, self.cert_file]:

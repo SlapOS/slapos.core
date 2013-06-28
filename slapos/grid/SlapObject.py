@@ -183,9 +183,6 @@ class Software(object):
     """ Fetches buildout configuration from the server, run buildout with
     it. If it fails, we notify the server.
     """
-    root_stat = os.stat(self.software_root)
-    os.environ = getCleanEnvironment(logger=self.logger,
-                                     home_path=pwd.getpwuid(root_stat.st_uid).pw_dir)
     if not os.path.isdir(self.software_path):
       os.mkdir(self.software_path)
       self._set_ownership(self.software_path)
@@ -393,8 +390,6 @@ class Partition(object):
                                  'permissions are: 0%o, wanted are 0%o' %
                                  (self.instance_path, permission,
                                   REQUIRED_COMPUTER_PARTITION_PERMISSION))
-    os.environ = getCleanEnvironment(logger=self.logger,
-                                     home_path=pwd.getpwuid(instance_stat_info.st_uid).pw_dir)
 
     # Check that Software Release directory is present
     if not os.path.exists(self.software_path):

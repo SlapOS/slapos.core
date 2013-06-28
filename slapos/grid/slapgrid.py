@@ -196,7 +196,7 @@ def create_slapgrid_object(options, logger):
                   supervisord_configuration_path=op['supervisord_configuration_path'],
                   buildout=op.get('buildout'),
                   logger=logger,
-                  maximum_periodicity = op.get('maximum_periodicity', 86400),
+                  maximum_periodicity=op.get('maximum_periodicity', 86400),
                   key_file=op.get('key_file'),
                   cert_file=op.get('cert_file'),
                   signature_private_key_file=op.get('signature_private_key_file'),
@@ -375,7 +375,7 @@ class Slapgrid(object):
     try:
       return self.computer.getComputerPartitionList()
     except socket.error as exc:
-      self.logger.fatal(exc)
+      self.logger.critical(exc)
       raise
 
   def processSoftwareReleaseList(self):
@@ -472,56 +472,56 @@ class Slapgrid(object):
                       self.supervisord_configuration_path,
                       logger=self.logger)
 
-  def _checkPromises(self, computer_partition):
-    self.logger.info("Checking promises...")
-    instance_path = os.path.join(self.instance_root, computer_partition.getId())
+  def check_promise(self, instance_path, promise_path):
+    promise = os.path.basename(promise_path)
+    self.logger.info('Checking promise %r.', promise)
 
-    uid, gid = None, None
     stat_info = os.stat(instance_path)
-
-    #stat sys call to get statistics informations
     uid = stat_info.st_uid
     gid = stat_info.st_gid
 
-    promise_present = False
-    # Get the list of promises
+    p = subprocess.Popen([promise_path],
+                         preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),
+                         cwd=instance_path,
+                         env=None if sys.platform == 'cygwin' else {},
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE,
+                         stdin=subprocess.PIPE)
+    p.stdin.flush()
+    p.stdin.close()
+    p.stdin = None
+
+    time.sleep(self.promise_timeout)
+
+    if p.poll() is None:
+      p.terminate()
+      raise Slapgrid.PromiseError('The promise %r timed out' % promise)
+    elif p.poll() != 0:
+      stderr = p.communicate()[1]
+      if stderr is None:
+        message = 'No error output from %r.' % promise
+      else:
+        message = 'Promise %r:%s' % (promise, stderr)
+      raise Slapgrid.PromiseError(message)
+
+  def check_all_promises(self, computer_partition):
+    self.logger.info("Checking promises...")
+
+    instance_path = os.path.join(self.instance_root, computer_partition.getId())
+
     promise_dir = os.path.join(instance_path, 'etc', 'promise')
-    if os.path.exists(promise_dir) and os.path.isdir(promise_dir):
-      # Check whether every promise is kept
-      for promise in os.listdir(promise_dir):
-        promise_present = True
+    if os.path.isdir(promise_dir):
+      promises = os.listdir(promise_dir)
+    else:
+      promises = []
 
-        command = [os.path.join(promise_dir, promise)]
+    if not promises:
+      self.logger.info('No promise.')
+      return
 
-        promise = os.path.basename(command[0])
-        self.logger.info("Checking promise %r.", promise)
-
-        process_handler = subprocess.Popen(command,
-                                           preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),
-                                           cwd=instance_path,
-                                           env=None if sys.platform == 'cygwin' else {},
-                                           stdout=subprocess.PIPE,
-                                           stderr=subprocess.PIPE,
-                                           stdin=subprocess.PIPE)
-        process_handler.stdin.flush()
-        process_handler.stdin.close()
-        process_handler.stdin = None
-
-        time.sleep(self.promise_timeout)
-
-        if process_handler.poll() is None:
-          process_handler.terminate()
-          raise Slapgrid.PromiseError("The promise %r timed out" % promise)
-        elif process_handler.poll() != 0:
-          stderr = process_handler.communicate()[1]
-          if stderr is None:
-            stderr = 'No error output from %r.' % promise
-          else:
-            stderr = 'Promise %r:' % promise + stderr
-          raise Slapgrid.PromiseError(stderr)
-
-    if not promise_present:
-      self.logger.info("No promise.")
+    for promise_filename in promises:
+      promise_path = os.path.join(promise_dir, promise_filename)
+      self.check_promise(instance_path, promise_path)
 
   def processComputerPartition(self, computer_partition):
     """
@@ -536,7 +536,7 @@ class Slapgrid(object):
 
     # Check if we defined explicit list of partitions to process.
     # If so, if current partition not in this list, skip.
-    if len(self.computer_partition_filter_list) > 0 and \
+    if self.computer_partition_filter_list and \
          (computer_partition_id not in self.computer_partition_filter_list):
       return
 
@@ -561,6 +561,7 @@ class Slapgrid(object):
       # Problem with instance: SR URI not set.
       # Try to process it anyway, it may need to be deleted.
       software_url = None
+
     try:
       software_path = os.path.join(self.software_root, md5digest(software_url))
     except TypeError:
@@ -631,7 +632,7 @@ class Slapgrid(object):
       local_partition.install()
       computer_partition.available()
       local_partition.start()
-      self._checkPromises(computer_partition)
+      self.check_all_promises(computer_partition)
       computer_partition.started()
     elif computer_partition_state == COMPUTER_PARTITION_STOPPED_STATE:
       try:

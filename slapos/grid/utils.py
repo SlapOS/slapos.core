@@ -118,20 +118,27 @@ def md5digest(url):
   return hashlib.md5(url).hexdigest()
 
 
-def getCleanEnvironment(logger, home_path='/tmp'):
-  changed_env = {}
-  removed_env = []
+def getCleanEnvironment(logger, override=None):
+  if override is None:
+    override = {}
+
+  if not 'HOME' in override:
+    raise KeyError('Overridden environment must contain the HOME variable.')
+
+  removed = []
   env = os.environ.copy()
   # Clean python related environment variables
   for k in PYTHON_ENVIRONMENT_REMOVE_LIST + SYSTEM_ENVIRONMENT_REMOVE_LIST \
         + LOCALE_ENVIRONMENT_REMOVE_LIST:
     old = env.pop(k, None)
-    if old is not None:
-      removed_env.append(k)
-  changed_env['HOME'] = env['HOME'] = home_path
-  for k in sorted(changed_env.iterkeys()):
-    logger.debug('Overridden %s = %r' % (k, changed_env[k]))
-  logger.debug('Removed from environment: %s' % ', '.join(sorted(removed_env)))
+    if old is not None and k not in override:
+      removed.append(k)
+
+  for k in sorted(override):
+    env[k] = override[k]
+    logger.debug("Overridden %s = '%s'", k, override[k])
+
+  logger.debug('Removed from environment: %s' % ', '.join(sorted(removed)))
   return env
 
 
@@ -308,8 +315,11 @@ def launchBuildout(path, buildout_binary, logger,
     process_handler = SlapPopen(invocation_list,
                                 preexec_fn=lambda: dropPrivileges(uid, gid, logger=logger),
                                 cwd=path,
-                                env=getCleanEnvironment(logger=logger,
-                                                        home_path=path),
+                                env=getCleanEnvironment(logger,
+                                                        {
+                                                          'HOME': path,
+                                                          'USER': pwd.getpwuid(uid).pw_name,
+                                                        }),
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT,
                                 logger=logger)

@@ -465,8 +465,8 @@ class Partition(object):
       process_handler = SlapPopen(invocation_list,
                                   preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),
                                   cwd=self.instance_path,
-                                  env=getCleanEnvironment(logger=self.logger,
-                                                          home_path=pwd.getpwuid(uid).pw_dir),
+                                  env=getCleanEnvironment(self.logger,
+                                                          {'HOME': pwd.getpwuid(uid).pw_dir}),
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT,
                                   logger=self.logger)
@@ -571,8 +571,8 @@ class Partition(object):
       process_handler = SlapPopen([destroy_executable_location],
                                   preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),
                                   cwd=self.instance_path,
-                                  env=getCleanEnvironment(logger=self.logger,
-                                                          home_path=pwd.getpwuid(uid).pw_dir),
+                                  env=getCleanEnvironment(self.logger,
+                                                          {'HOME': pwd.getpwuid(uid).pw_dir}),
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT,
                                   logger=self.logger)

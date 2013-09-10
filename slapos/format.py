@@ -137,7 +137,11 @@ def callAndRead(argument_list, raise_on_error=True):
 def isGlobalScopeAddress(a):
   """Returns True if a is global scope IP v4/6 address"""
   ip = netaddr.IPAddress(a)
-  return not ip.is_link_local() and not ip.is_loopback() and \
+  if sys.platform=='cygwin':
+    scope = ip.is_link_local()
+  else:
+    scope = not ip.is_link_local()
+  return scope and not ip.is_loopback() and \
       not ip.is_reserved() and ip.is_unicast()
 
 
@@ -893,6 +897,9 @@ class Interface(object):
           an address with.
     """
     # Getting one address of the interface as base of the next addresses
+    if sys.platform == 'cygwin' and addr and addr.startswith('fe80:'):
+      # link-local addresses are added by linux/windows
+      return {'addr': addr, 'netmask': netmask}
     if self.ipv6_interface:
       interface_name = self.ipv6_interface
     else:

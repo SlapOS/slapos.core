@@ -427,7 +427,7 @@ class Computer(object):
         # Reconstructing User's
         partition.path = os.path.join(self.instance_root, partition.reference)
         partition.user.setPath(partition.path)
-        partition.user.additional_group_list = [slapsoft.name]
+        partition.user.additional_group_list = [slapsoft.groupname]
         if alter_user:
           partition.user.create()
 
@@ -548,6 +548,17 @@ class User(object):
   def setPath(self, path):
     self.path = path
 
+  @property
+  def groupname(self):
+    """
+    Prepend 'grp_' in cygwin, where users and groups
+    cannot have the same name.
+    """
+    if sys.platform == 'cygwin':
+      return 'grp_%s' % self.name
+    else:
+      return self.name
+
   def create(self):
     """
     Create a user on the system who will be named after the self.name with its
@@ -559,14 +570,13 @@ class User(object):
     # XXX: This method shall be no-op in case if all is correctly setup
     #      This method shall check if all is correctly done
     #      This method shall not reset groups, just add them
-    grpname = 'grp_' + self.name if sys.platform == 'cygwin' else self.name
     try:
-      grp.getgrnam(grpname)
+      grp.getgrnam(self.groupname)
     except KeyError:
-      callAndRead(['groupadd', grpname])
+      callAndRead(['groupadd', self.groupname])
 
-    user_parameter_list = ['-d', self.path, '-g', self.name]
-    if self.additional_group_list is not None:
+    user_parameter_list = ['-d', self.path, '-g', self.groupname]
+    if self.additional_group_list:
       user_parameter_list.extend(['-G', ','.join(self.additional_group_list)])
     user_parameter_list.append(self.name)
     try:

@@ -184,7 +184,7 @@ def dropPrivileges(uid, gid, logger):
   if uid == 0 or gid == 0:
     raise OSError('Dropping privileges to uid = %r or '
                   'gid = %r is too dangerous' % (uid, gid))
-  if current_uid or current_gid:
+  if (current_uid or current_gid) and sys.platform != 'cygwin':
     logger.debug('Running as uid = %r, gid = %r, dropping '
                  'not needed and not possible' % (current_uid, current_gid))
     return
@@ -194,6 +194,12 @@ def dropPrivileges(uid, gid, logger):
   group_list.add(gid)
   os.initgroups(pwd.getpwuid(uid)[0], gid)
   os.setgid(gid)
+  if sys.platform == 'cygwin':
+    os.setreuid(-1, uid)
+    logger.debug('Privileges dropped from Cygwin to uid=%r gid=%r' % (uid, gid))
+    # skip further checks
+    return
+
   os.setuid(uid)
 
   # assert that privileges are dropped

@@ -56,6 +56,7 @@ from slapos.util import chownDirectory
 from slapos.util import mkdir_p
 import slapos.slap as slap
 
+LINK_LOCAL=True
 
 def prettify_xml(xml):
   root = lxml.etree.fromstring(xml)
@@ -137,7 +138,7 @@ def callAndRead(argument_list, raise_on_error=True):
 def isGlobalScopeAddress(a):
   """Returns True if a is global scope IP v4/6 address"""
   ip = netaddr.IPAddress(a)
-  if sys.platform=='cygwin':
+  if sys.platform=='cygwin' and LINK_LOCAL:
     scope = ip.is_link_local()
   else:
     scope = not ip.is_link_local()
@@ -907,7 +908,7 @@ class Interface(object):
           an address with.
     """
     # Getting one address of the interface as base of the next addresses
-    if sys.platform == 'cygwin' and addr and addr.startswith('fe80:'):
+    if sys.platform == 'cygwin' and addr and addr.startswith('fe80:') and LINK_LOCAL:
       # link-local addresses are added by linux/windows
       return {'addr': addr, 'netmask': netmask}
     if self.ipv6_interface:

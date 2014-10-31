@@ -34,8 +34,6 @@ from slapos.cli.command import check_root_user
 from slapos.cli.config import ConfigCommand
 from slapos.grid.svcbackend import launchSupervisord
 
-from slapos.util import string_to_boolean
-
 import supervisor.supervisorctl
 
 

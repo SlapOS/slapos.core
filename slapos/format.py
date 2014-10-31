@@ -46,7 +46,6 @@ import subprocess
 import sys
 import threading
 import time
-import traceback
 import zipfile
 
 import lxml.etree
@@ -1210,7 +1209,6 @@ class FormatConfig(object):
       attr = getattr(self, option)
       if isinstance(attr, str):
         if attr.lower() == 'true':
-          root_needed = True
           setattr(self, option, True)
         elif attr.lower() == 'false':
           setattr(self, option, False)

@@ -329,15 +329,17 @@ class Slapgrid(object):
     self.buildout = buildout
     self.promise_timeout = promise_timeout
     self.develop = develop
-    if software_release_filter_list is not None:
+
+    self.software_release_filter_list = []
+    if software_release_filter_list:
       self.software_release_filter_list = \
           software_release_filter_list.split(",")
-    else:
-      self.software_release_filter_list = []
+
     self.computer_partition_filter_list = []
-    if computer_partition_filter_list is not None:
+    if computer_partition_filter_list:
       self.computer_partition_filter_list = \
           computer_partition_filter_list.split(",")
+
     self.maximum_periodicity = maximum_periodicity
 
   def getWatchdogLine(self):
@@ -559,7 +561,7 @@ class Slapgrid(object):
 
     # Check if we defined explicit list of partitions to process.
     # If so, if current partition not in this list, skip.
-    if len(self.computer_partition_filter_list) > 0 and \
+    if self.computer_partition_filter_list and \
          (computer_partition_id not in self.computer_partition_filter_list):
       return
 
@@ -877,7 +879,7 @@ class Slapgrid(object):
         self.logger.error(UnicodeError)
         raise UnicodeError("Failed to read %s: %s" % (computer_partition_usage.usage, exc))
       except (etree.XMLSyntaxError, etree.DocumentInvalid) as exc:
-        self.logger.info("Failed to parse %s." % (computer_partition_usage.usage))
+        self.logger.info("Failed to parse %s." % computer_partition_usage.usage)
         self.logger.error(exc)
         raise _formatXMLError(exc)
       except Exception as exc:
@@ -985,7 +987,7 @@ class Slapgrid(object):
             clean_run = False
             failed_script_list.append("Script %r failed." % script)
             self.logger.warning('Failed to run %r' % invocation_list)
-          if len(failed_script_list):
+          if failed_script_list:
             computer_partition.error('\n'.join(failed_script_list), logger=self.logger)
       # Whatever happens, don't stop processing other instances
       except Exception:

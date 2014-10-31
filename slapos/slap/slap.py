@@ -51,13 +51,6 @@ urllib3_logger = logging.getLogger('requests.packages.urllib3')
 urllib3_logger.setLevel(logging.WARNING)
 
 
-# XXX fallback_logger to be deprecated together with the old CLI entry points.
-fallback_logger = logging.getLogger(__name__)
-fallback_handler = logging.StreamHandler()
-fallback_logger.setLevel(logging.INFO)
-fallback_logger.addHandler(fallback_handler)
-
-
 DEFAULT_SOFTWARE_TYPE = 'RootSoftwareInstance'
 
 class SlapDocument:
@@ -133,7 +126,7 @@ class SoftwareRelease(SlapDocument):
     else:
       return self._software_release
 
-  def error(self, error_log, logger=None):
+  def error(self, error_log, logger):
     try:
       # Does not follow interface
       self._connection_helper.POST('softwareReleaseError', data={
@@ -141,7 +134,7 @@ class SoftwareRelease(SlapDocument):
         'computer_id': self.getComputerId(),
         'error_log': error_log})
     except Exception:
-      (logger or fallback_logger).exception('')
+      logger.exception('')
 
   def available(self):
     self._connection_helper.POST('availableSoftwareRelease', data={
@@ -439,14 +432,14 @@ class ComputerPartition(SlapRequester):
       'computer_partition_id': self.getId(),
       })
 
-  def error(self, error_log, logger=None):
+  def error(self, error_log, logger):
     try:
       self._connection_helper.POST('softwareInstanceError', data={
         'computer_id': self._computer_id,
         'computer_partition_id': self.getId(),
         'error_log': error_log})
     except Exception:
-      (logger or fallback_logger).exception('')
+      logger.exception('')
 
   def bang(self, message):
     self._connection_helper.POST('softwareInstanceBang', data={

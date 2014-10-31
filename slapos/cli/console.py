@@ -27,8 +27,6 @@
 #
 ##############################################################################
 
-import textwrap
-
 from slapos.cli.config import ClientConfigCommand
 from slapos.client import init, do_console, ClientConfig
 

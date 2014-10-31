@@ -468,7 +468,7 @@ class Partition(object):
       self.logger.warning("Falling back to default buildout %r" %
         buildout_binary)
     else:
-      if len(bootstrap_candidate_list) != 1:
+      if len(bootstrap_candidate_list) > 1:
         raise ValueError('More than one bootstrap candidate found.')
       # Reads uid/gid of path, launches buildout with thoses privileges
       bootstrap_file = os.path.abspath(os.path.join(bootstrap_candidate_dir,
@@ -529,7 +529,7 @@ class Partition(object):
     if os.path.exists(self.service_path):
       if os.path.isdir(self.service_path):
         service_list = os.listdir(self.service_path)
-    if len(runner_list) == 0 and len(service_list) == 0:
+    if not runner_list and not service_list:
       self.logger.warning('No runners nor services found for partition %r' %
           self.partition_id)
       if os.path.exists(self.supervisord_partition_configuration_path):

@@ -58,7 +58,7 @@ from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, NegatedQuery\n
 portal.portal_catalog.searchAndActivate(\n
   portal_type=\'Hosting Subscription\',\n
   validation_state=\'validated\',\n
-  where_expression="related_predecessor_title_1_catalog.title <> catalog.title",\n
+  where_expression="related_predecessor_title_1_catalog_full_text.title <> catalog.title",\n
   predecessor_title=NegatedQuery(SimpleQuery(predecessor_title=None, comparison_operator=\'is\')),\n
   method_id=\'HostingSubscription_assertPredecessor\',\n
   activate_kw={\'tag\': tag}\n

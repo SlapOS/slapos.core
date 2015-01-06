@@ -80,6 +80,7 @@ setup(name=name,
         'slapos.cli': [
           # Utilities
           'cache lookup = slapos.cli.cache:CacheLookupCommand',
+          'cache source = slapos.cli.cache_source:CacheLookupCommand',
           # SlapOS Node commands
           'node bang = slapos.cli.bang:BangCommand',
           'node format = slapos.cli.format:FormatCommand',

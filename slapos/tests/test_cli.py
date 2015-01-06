@@ -45,6 +45,7 @@ import slapos.cli.list
 import slapos.cli.supervisorctl
 from slapos.cli.proxy_show import do_show, StringIO
 from slapos.cli.cache import do_lookup as cache_do_lookup
+from slapos.cli.cache_source import do_lookup as cache_source_do_lookup
 from slapos.client import ClientConfig
 import slapos.grid.svcbackend
 import slapos.proxy
@@ -101,6 +102,61 @@ class TestCliCache(CliMixin):
       'http://xxx.shacache.org/cccdc51a07e8c575c880f2d70dd4d458')
 
 
+class TestCliCacheSource(CliMixin):
+
+  test_url = "https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.17.1.tar.xz"
+  def test_cached_source(self):
+    self.assertEquals(0, cache_source_do_lookup(
+        self.logger,
+        cache_dir="http://dir.shacache.org",
+        url=self.test_url))
+
+
+    self.logger.info.assert_any_call(
+      'Software source URL: %s', 
+      'https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.17.1.tar.xz')
+    self.logger.info.assert_any_call(
+      'SHADIR URL: %s',
+      'http://dir.shacache.org/slapos-buildout-9183e80d808e7dd49affd0d8977edd4f')
+    self.logger.info.assert_any_call(
+      u'--------------------------------------------------------------------'\
+       '--------------------------------------------------------------------'\
+       '------------'),
+    self.logger.info.assert_any_call(
+      u'        file                                                        '\
+       '            sha512                                                  '\
+       '            '),
+    self.logger.info.assert_any_call(
+      u'--------------------------------------------------------------------'\
+       '--------------------------------------------------------------------'\
+       '------------')
+    self.logger.info.assert_any_call(
+      u' git-2.17.1.tar.xz 77c27569d40fbae1842130baa0cdda674a02e384631bd8fb1'\
+       'f2ddf67ce372dd4903b2ce6b4283a4ae506cdedd5daa55baa2afe6a6689528511e24'\
+       'e4beb864960 '),
+
+    self.logger.info.assert_any_call(
+      u'--------------------------------------------------------------------'\
+       '--------------------------------------------------------------------'\
+       '------------')
+
+  def test_uncached_binary(self):
+    self.assertEquals(10, cache_source_do_lookup(
+        self.logger,
+        cache_dir="http://dir.shacache.org",
+        url="this_is_uncached_url"))
+
+    self.logger.critical.assert_any_call('Object not in cache: %s', 'this_is_uncached_url') 
+
+  def test_bad_cache_dir(self):
+    self.assertEquals(10, cache_source_do_lookup(
+        self.logger,
+        cache_dir="http://xxx.shacache.org",
+        url=self.test_url))
+
+    self.logger.critical.assert_any_call(
+      'Cannot connect to cache server at %s',
+      'http://xxx.shacache.org/slapos-buildout-9183e80d808e7dd49affd0d8977edd4f')
 
 class TestCliProxy(CliMixin):
   def test_generateSoftwareProductListFromString(self):

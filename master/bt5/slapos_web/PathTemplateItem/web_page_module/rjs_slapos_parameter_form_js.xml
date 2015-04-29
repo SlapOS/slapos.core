@@ -140,20 +140,25 @@
     );\n
   }\n
 \n
-  function render_selection(json_field) {\n
+  function render_selection(json_field, default_value) {\n
     var input = document.createElement("select"),\n
       option = document.createElement("option"),\n
       option_index,\n
       optionz;\n
     input.size = 1;\n
-    option.selected = "selected";\n
     option.value = "";\n
+    if (default_value === undefined) {\n
+      option.selected = "selected";\n
+    }\n
     input.appendChild(option);\n
     for (option_index in json_field.enum) {\n
       if (json_field.enum.hasOwnProperty(option_index)) {\n
         optionz = document.createElement("option");\n
         optionz.value = json_field.enum[option_index];\n
         optionz.textContent = json_field.enum[option_index];\n
+        if (json_field.enum[option_index] === default_value) {\n
+          optionz.selected = "selected";\n
+        }\n
         input.appendChild(optionz);\n
       }\n
     }\n
@@ -163,12 +168,12 @@
   function render_field(json_field, default_value) {\n
 \n
     if (json_field.enum !== undefined) {\n
-      return render_selection(json_field);\n
+      return render_selection(json_field, default_value);\n
     }\n
 \n
     if (json_field.type === "boolean") {\n
       json_field.enum = [true, false];\n
-      return render_selection(json_field);\n
+      return render_selection(json_field, default_value);\n
     }\n
 \n
     var input = document.createElement("input");\n
@@ -238,14 +243,17 @@
         for (default_value in default_dict) {\n
           if (default_dict.hasOwnProperty(default_value)) {\n
             default_div = document.createElement("div");\n
+            default_div.setAttribute("class", "slapos-parameter-dict-key");\n
             label = document.createElement("label");\n
             label.textContent = default_value;\n
+            label.setAttribute("class", "slapos-parameter-dict-key");\n
             default_div.appendChild(label);\n
             default_div = render_subform(\n
               json_field.patternProperties[\'.*\'],\n
               default_dict[default_value],\n
               default_div,\n
-              path + "/" + default_value);\n
+              path + "/" + default_value\n
+            );\n
             div.appendChild(default_div);\n
           }\n
         }\n
@@ -253,10 +261,6 @@
 \n
 \n
         return div;\n
-    \n
-        \n
-        \n
-        return root;\n
       }\n
     }\n
 \n
@@ -315,7 +319,7 @@
         }\n
       }\n
     });\n
-    console.log(json_dict);\n
+    // console.log(json_dict);\n
 \n
     function convertOnMultiLevel(key, value, d) {\n
       var i,\n
@@ -357,13 +361,16 @@
       return false;\n
     }\n
 \n
+    div.setAttribute("class", "slapos-parameter-dict-key");\n
     label = document.createElement("label");\n
     label.textContent = input_text.value;\n
+    label.setAttribute("class", "slapos-parameter-dict-key");\n
     div.appendChild(label);\n
 \n
     div = render_subform(subform_json, {}, div, element.name + "/" + input_text.value);\n
 \n
-    element.parentNode.parentNode.appendChild(div);\n
+    element.parentNode.parentNode.insertBefore(div, element.parentNode.parentNode.children[1]);\n
+    // element.parentNode.parentNode.appendChild(div);\n
 \n
     return div;\n
   }\n
@@ -375,7 +382,7 @@
       i,\n
       promise_list = [];\n
 \n
-    console.log("INITIATING A LOOP EVENT LISTENER");\n
+    // console.log("INITIATING A LOOP EVENT LISTENER");\n
 \n
     for (i = 0; i < field_list.length; i = i + 1) {\n
       promise_list.push(loopEventListener(\n
@@ -476,7 +483,7 @@
             xml_output = jsonDictToParameterXML(json_dict);\n
           }\n
           parameter_hash_input.value = btoa(xml_output);\n
-          console.log(parameter_hash_input.value);\n
+          // console.log(parameter_hash_input.value);\n
           if (validation.valid) {\n
             return xml_output;\n
           }\n
@@ -553,7 +560,7 @@
       if (options.json_url === undefined) {\n
         throw new Error("undefined json_url");\n
       }\n
-      console.log("CALLED RENDER");\n
+      // console.log("CALLED RENDER");\n
       var g = this,\n
         softwaretype;\n
 \n
@@ -640,17 +647,17 @@
             prefix = options.json_url.split(json_url_uri.path())[0] + prefix.join("/");\n
             parameter_json_schema_url = prefix + "/" + parameter_json_schema_url;\n
           }\n
-          console.log("GOING TO RENDER FORM");\n
+          // console.log("GOING TO RENDER FORM");\n
           return g.renderParameterForm(parameter_json_schema_url, parameter_dict);\n
         })\n
         .push(function () {\n
-          console.log("FINISHED TO RENDER, RETURNING THE GADGET");\n
+          // console.log("FINISHED TO RENDER, RETURNING THE GADGET");\n
           return g;\n
         })\n
 \n
         .fail(function (error) {\n
           var parameter_xml = \'\';\n
-          console.log("FAIL CALLED");\n
+          // console.log("FAIL CALLED");\n
           console.log(error.stack);\n
           if (g.options.parameter.parameter_hash !== undefined) {\n
             parameter_xml = atob(g.options.parameter.parameter_hash);\n
@@ -678,7 +685,7 @@
           });\n
       }\n
 \n
-      console.log("INITIATING A LOOP EVENT LISTENER FOR OPTION CHANGE");\n
+      // console.log("INITIATING A LOOP EVENT LISTENER FOR OPTION CHANGE");\n
       return loopEventListener(\n
         element,\n
         \'change\',\n
@@ -691,7 +698,20 @@
     })\n
     .declareService(function () {\n
       var g = this;\n
-      return g.processValidation(g.options.json_url);\n
+      return g.processValidation(g.options.json_url)\n
+        .fail(function (error) {\n
+          var parameter_xml = \'\';\n
+          // console.log("FAIL CALLED");\n
+          console.log(error.stack);\n
+          if (g.options.parameter.parameter_hash !== undefined) {\n
+            parameter_xml = atob(g.options.parameter.parameter_hash);\n
+          }\n
+          return g.renderFailoverTextArea(parameter_xml, error.toString())\n
+            .push(function () {\n
+              error = undefined;\n
+              return g;\n
+            });\n
+        });\n
     });\n
 \n
 }(window, document, rJS, loopEventListener, $, XMLSerializer, jQuery, vkbeautify));
@@ -831,7 +851,7 @@
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>941.58456.37859.54289</string> </value>
+                <value> <string>942.12751.5721.43315</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -849,7 +869,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1427289240.71</float>
+                        <float>1428479010.83</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

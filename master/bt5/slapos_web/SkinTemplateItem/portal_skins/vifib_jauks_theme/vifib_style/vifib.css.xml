@@ -242,31 +242,72 @@ div#WebPage_viewAsWeb .section {\n
   border: 0;\n
 }\n
 \n
-div.subfield {\n
-  margin-left: 15px;\n
-}\n
-\n
+fieldset > .subfield { padding-left: 0}\n
 \n
 .subfield {\n
   padding-left: 20px;\n
-} \n
+}\n
 \n
 label.slapos-parameter-dict-key::before {\n
-  content: "Parameter Entry: ";\n
+  content: "\\25BC  Parameter Entry: ";\n
+}\n
+\n
+label.slapos-parameter-dict-key-colapse::before {\n
+  content: "\\25BA   Parameter Entry: ";\n
 }\n
 \n
 label.slapos-parameter-dict-key {\n
-  font-color: "red";\n
+  text-transform: capitalize;\n
+  /* display: block !important; */\n
+  width: 99%;\n
+  padding: 5px;\n
+  font-size: 110%;\n
+  line-height: 20px;\n
+  color: rgb(93, 128, 125) !important;\n
+  cursor: pointer;\n
 }\n
 \n
 div.slapos-parameter-dict-key {\n
   margin-top: 10px;\n
-  margin-left: 6px;\n
+  background: rgb(239, 252, 249);\n
+  border: 1px solid rgb(233, 247, 253);\n
+  padding: 5px 5px 10px;\n
 }\n
 \n
-.subfield {\n
-  padding-top: 3px;\n
+#software-type {padding: 10px 0 0;}\n
+#software-type  .field[title=\'serialisation_type\'] .input { padding-top: 0; }\n
+.subfield, #software-type .input{\n
+  padding-top: 10px;\n
 }\n
+\n
+.subfield label, #software-type label {\n
+  display: inline-block;\n
+  margin-bottom: 1px;\n
+  color: rgb(124, 134, 149)\n
+}\n
+fieldset > .subfield > label { \n
+  font-size: 113%;\n
+  color: rgb(112, 125, 136);\n
+}\n
+.subfield span {\n
+  font-weight: normal;\n
+  font-style: italic;\n
+  padding-left: 7px;\n
+  color: rgb(94, 127, 141)\n
+}\n
+.subfield select { margin-bottom: 10px;}\n
+\n
+.subfield .error {\n
+  color: #E82525;\n
+  font-weight: 700;\n
+}\n
+\n
+.subfield input {\n
+  font-size: 100%;\n
+  width: 240px;\n
+}\n
+\n
+.input button {margin-left: 10px;}\n
 \n
 .add-sub-form {\n
   background: #3498db;\n
@@ -275,14 +316,16 @@ div.slapos-parameter-dict-key {\n
   background-image: -ms-linear-gradient(top, #3498db, #2980b9);\n
   background-image: -o-linear-gradient(top, #3498db, #2980b9);\n
   background-image: linear-gradient(to bottom, #3498db, #2980b9);\n
-  -webkit-border-radius: 28;\n
-  -moz-border-radius: 28;\n
-  border-radius: 28px;\n
-  font-family: Arial;\n
+  -webkit-border-radius: 4;\n
+  -moz-border-radius: 4;\n
+  border-radius: 4px;\n
+  border: 1px solid #3498db;\n
   color: #ffffff;\n
-  font-size: 12px;\n
-  padding: 5px 20px 5px 20px;\n
+  font-size: 15px;\n
+  font-weight: bold;\n
+  padding: 6px 20px;\n
   text-decoration: none;\n
+  cursor: pointer;\n
 }\n
 \n
 .add-sub-form:hover {\n

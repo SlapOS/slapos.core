@@ -45,6 +45,7 @@ import slapos.proxy
 import slapos.proxy.views as views
 import slapos.slap
 import slapos.slap.slap
+from slapos.util import sqlite_connect
 
 import sqlite3
 import pkg_resources
@@ -271,6 +272,14 @@ class TestInformation(BasicMixin, unittest.TestCase):
     response = xml_marshaller.xml_marshaller.loads(rv.data)
     self.assertEquals({'certificate': '', 'key': ''}, response)
 
+  def test_computerBang(self):
+    """
+    Tests that computerBang method is implemented in slapproxy.
+    """
+    rv = self.app.post( '/computerBang?computer_id=%s' % ( self.computer_id))
+    response = xml_marshaller.xml_marshaller.loads(rv.data)
+    self.assertEquals('', response)
+
 class MasterMixin(BasicMixin, unittest.TestCase):
   """
   Define advanced tool for test proxy simulating behavior slap library tools
@@ -411,7 +420,7 @@ class TestRequest(MasterMixin):
     request1_dict = request1.__dict__
     requested_result1 = self.getPartitionInformation(
         request1_dict['_partition_id'])
-    request2 = self.request('http://sr1//', 'Papa', 'MyFirstInstance', 'slappart2',
+    request2 = self.request('http://sr//', 'Papa', 'MyFirstInstance', 'slappart2',
                             partition_parameter_kw={'domain': wanted_domain2})
     request2_dict = request2.__dict__
     requested_result2 = self.getPartitionInformation(
@@ -428,6 +437,46 @@ class TestRequest(MasterMixin):
       elif key in ['_software_release_document']:
         self.assertEqual(requested_result2.__dict__[key].__dict__,
                          requested_result1.__dict__[key].__dict__)
+    #Test parameters where set correctly
+    self.assertEqual(wanted_domain1,
+                     requested_result1._parameter_dict['domain'])
+    self.assertEqual(wanted_domain2,
+                     requested_result2._parameter_dict['domain'])
+
+  def test_two_requests_with_different_parameters_and_sr_url_but_same_reference(self):
+    """
+    Request will return same partition for two different requests but will
+    only update parameters
+    """
+    self.add_free_partition(2)
+    wanted_domain1 = 'fou.org'
+    wanted_domain2 = 'carzy.org'
+
+    request1 = self.request('http://sr//', None, 'MyFirstInstance', 'slappart2',
+                            partition_parameter_kw={'domain': wanted_domain1})
+    request1_dict = request1.__dict__
+    requested_result1 = self.getPartitionInformation(
+        request1_dict['_partition_id'])
+    request2 = self.request('http://sr1//', 'Papa', 'MyFirstInstance', 'slappart2',
+                            partition_parameter_kw={'domain': wanted_domain2})
+    request2_dict = request2.__dict__
+    requested_result2 = self.getPartitionInformation(
+        request2_dict['_partition_id'])
+    # Test we received same partition
+    for key in ['_partition_id', '_computer_id']:
+      self.assertEqual(request1_dict[key], request2_dict[key])
+    # Test that parameters and software_release url changed
+    for key in requested_result2.__dict__:
+      if key not in ['_parameter_dict',
+                     '_software_release_document']:
+        self.assertEqual(requested_result2.__dict__[key],
+                         requested_result1.__dict__[key])
+      elif key in ['_software_release_document']:
+        # software_release will be updated
+        self.assertEqual(requested_result2.__dict__[key].__dict__['_software_release'],
+                         'http://sr1//')
+        self.assertEqual(requested_result1.__dict__[key].__dict__['_software_release'],
+                         'http://sr//')
     #Test parameters where set correctly
     self.assertEqual(wanted_domain1,
                      requested_result1._parameter_dict['domain'])
@@ -453,6 +502,15 @@ class TestRequest(MasterMixin):
     self.assertNotEqual(
         self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').__dict__,
         self.request('http://sr//', None, 'frontend', 'slappart2').__dict__)
+
+  def test_request_with_nonascii_parameters(self):
+    """
+    Verify that request with non-ascii parameters is correctly accepted
+    """
+    self.add_free_partition(1)
+    request = self.request('http://sr//', None, 'myinstance', 'slappart0',
+                           partition_parameter_kw={'text': u'Привет Мир!'})
+    self.assertIsInstance(request, slapos.slap.ComputerPartition)
 
 
 class TestSlaveRequest(MasterMixin):
@@ -896,7 +954,7 @@ class TestMultiMasterSupport(MasterMixin):
 
     super(TestMultiMasterSupport, self).setUp()
 
-    self.db = sqlite3.connect(self.proxy_db)
+    self.db = sqlite_connect(self.proxy_db)
     self.external_slapproxy_configuration_file_location = os.path.join(
         self._tempdir, 'external_slapos.cfg')
     self.createExternalProxyConfigurationFile()
@@ -928,7 +986,7 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     import slapos
     self.external_proxy_process = subprocess.Popen(
         [
-            sys.executable, '%s/cli/entry.py' % os.path.dirname(slapos.__file__),
+            sys.executable, '%s/../cli/entry.py' % os.path.dirname(slapos.tests.__file__),
             'proxy', 'start', '--cfg', self.external_slapproxy_configuration_file_location
         ],
         env={"PYTHONPATH": ':'.join(sys.path)}
@@ -1173,7 +1231,7 @@ class TestMigrateVersion10To11(TestInformation, TestRequest, TestSlaveRequest, T
     super(TestMigrateVersion10To11, self).setUp()
     schema = pkg_resources.resource_stream('slapos.tests.slapproxy', 'database_dump_version_10.sql')
     schema = schema.read() % dict(version='11')
-    self.db = sqlite3.connect(self.proxy_db)
+    self.db = sqlite_connect(self.proxy_db)
     self.db.cursor().executescript(schema)
     self.db.commit()
 

@@ -74,19 +74,30 @@
                 <item>
                     <key> <string>bottom</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>listbox</string>
+                      </list>
                     </value>
                 </item>
                 <item>
                     <key> <string>center</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>my_description</string>
+                        <string>my_url_string</string>
+                        <string>my_text_content</string>
+                        <string>my_sla_xml</string>
+                      </list>
                     </value>
                 </item>
                 <item>
                     <key> <string>hidden</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>listbox_aggregate_parent_title</string>
+                        <string>listbox_aggregate_default_ipv6</string>
+                        <string>listbox_is_slave</string>
+                      </list>
                     </value>
                 </item>
                 <item>
@@ -95,17 +106,19 @@
                       <list>
                         <string>my_title</string>
                         <string>my_reference</string>
-                        <string>my_predecessor_title_list</string>
                         <string>my_source_reference</string>
-                        <string>my_text_content</string>
-                        <string>my_sla_xml</string>
                       </list>
                     </value>
                 </item>
                 <item>
                     <key> <string>right</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>my_predecessor_title_list</string>
+                        <string>my_destination_section_title</string>
+                        <string>my_slap_state_title</string>
+                        <string>my_translated_validation_state_title</string>
+                      </list>
                     </value>
                 </item>
               </dictionary>

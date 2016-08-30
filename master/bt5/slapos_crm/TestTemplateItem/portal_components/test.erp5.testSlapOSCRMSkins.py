@@ -27,6 +27,324 @@ def simulate(script_id, params_string, code_string):
     return decorated
   return upperWrap
 
+class TestSlapOSFolder_getOpenTicketList(testSlapOSMixin):
+
+  def beforeTearDown(self):
+    transaction.abort()
+
+  def afterSetUp(self):
+    super(TestSlapOSFolder_getOpenTicketList, self).afterSetUp()
+    self.new_id = self.generateNewId()
+    self.person = self.portal.person_module.newContent(
+      portal_type='Person',
+      title="Person %s" % self.new_id,
+      reference="TESTPERS-%s" % self.new_id,
+      default_email_text="live_test_%s@example.org" % self.new_id,
+      )
+  
+  def _test_ticket(self, ticket, expected_amount):
+    module = ticket.getParentValue()
+    open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
+    
+    self.assertEquals(len(open_ticket_list), expected_amount-1)
+    
+    ticket.submit()
+    ticket.immediateReindexObject()
+    open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
+    self.assertEquals(len(open_ticket_list), expected_amount)
+    self.assertEquals(open_ticket_list[0].getUid(), ticket.getUid())
+    
+    
+    ticket.validate()
+    ticket.immediateReindexObject()
+    open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
+    self.assertEquals(len(open_ticket_list), expected_amount)
+    self.assertEquals(open_ticket_list[0].getUid(), ticket.getUid())
+    
+    ticket.suspend()
+    ticket.immediateReindexObject()
+    open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
+    self.assertEquals(len(open_ticket_list), expected_amount)
+    self.assertEquals(open_ticket_list[0].getUid(), ticket.getUid())
+    
+    ticket.invalidate()
+    ticket.immediateReindexObject()
+    open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
+    self.assertEquals(len(open_ticket_list), expected_amount)
+    self.assertEquals(open_ticket_list[0].getUid(), ticket.getUid())
+  
+  
+  def _test_upgrade_decision(self, ticket, expected_amount):
+    module = ticket.getParentValue()
+    open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
+    
+    self.assertEquals(len(open_ticket_list), expected_amount-1)
+    
+    ticket.plan()
+    ticket.immediateReindexObject()
+    open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
+    self.assertEquals(len(open_ticket_list), expected_amount-1)
+
+    ticket.confirm()
+    ticket.immediateReindexObject()
+    open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
+    self.assertEquals(len(open_ticket_list), expected_amount)
+    self.assertEquals(open_ticket_list[0].getUid(), ticket.getUid())
+    
+    ticket.start()
+    ticket.immediateReindexObject()
+    open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
+    self.assertEquals(len(open_ticket_list), expected_amount-1)
+
+
+    ticket.stop()
+    ticket.immediateReindexObject()
+    open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
+    self.assertEquals(len(open_ticket_list), expected_amount-1)
+    
+    ticket.deliver()
+    ticket.immediateReindexObject()
+    open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
+    self.assertEquals(len(open_ticket_list), expected_amount)
+    self.assertEquals(open_ticket_list[0].getUid(), ticket.getUid())
+  
+  
+  def test_support_request(self):
+    def newSupportRequest():
+      sr = self.portal.support_request_module.newContent(\
+                        title="Test Support Request %s" % self.new_id)
+      
+      sr.immediateReindexObject()
+      return sr
+    
+    ticket = newSupportRequest()
+    self._test_ticket(ticket, 1)
+
+    ticket = newSupportRequest()
+    self._test_ticket(ticket, 2)
+
+  def test_regularisation_request(self):
+    def newRegularisationRequest():
+      ticket = self.portal.regularisation_request_module.newContent(
+        portal_type='Regularisation Request',
+        title="Test Reg. Req.%s" % self.new_id,
+        reference="TESTREGREQ-%s" % self.new_id
+        )
+      
+      ticket.immediateReindexObject()
+      return ticket
+    
+    ticket = newRegularisationRequest()
+    self._test_ticket(ticket, 1)
+
+    ticket = newRegularisationRequest()
+    self._test_ticket(ticket, 2)
+
+  def test_upgrade_decision(self):
+    def newUpgradeDecision():
+      ticket = self.portal.upgrade_decision_module.newContent(
+        portal_type='Upgrade Decision',
+        title="Upgrade Decision Test %s" % self.new_id,
+        reference="TESTUD-%s" % self.new_id
+        )
+      
+      ticket.immediateReindexObject()
+      return ticket
+    
+    ticket = newUpgradeDecision()
+    self._test_upgrade_decision(ticket, 1)
+
+    ticket = newUpgradeDecision()
+    self._test_upgrade_decision(ticket, 2)
+
+
+class TestSlapOSEvent_getRSSTextContent(testSlapOSMixin):
+
+  def beforeTearDown(self):
+    transaction.abort()
+
+  def test_Event_getRSSTextContent(self):
+    self.new_id = self.generateNewId()
+    source = self.portal.person_module.newContent(
+      portal_type='Person',
+      title="Person %s" % self.new_id,
+      reference="TESTPERS-%s" % self.new_id,
+      default_email_text="live_test_%s@example.org" % self.new_id,
+      )
+
+    destination = self.portal.person_module.newContent(
+      portal_type='Person',
+      title="Person Destination %s" % self.new_id,
+      reference="TESTPERSD-%s" % self.new_id,
+      default_email_text="live_test_%s@example.org" % self.new_id,
+      )
+
+    destination_2 = self.portal.person_module.newContent(
+      portal_type='Person',
+      title="Person Destination 2 %s" % self.new_id,
+      reference="TESTPERSD2-%s" % self.new_id,
+      default_email_text="live_test_%s@example.org" % self.new_id,
+      )
+
+    event = self.portal.event_module.newContent(
+        title="Test Event %s" % self.new_id,
+        portal_type="Web Message",
+        text_content="Test Event %s" % self.new_id)
+
+
+    text_content = event.Event_getRSSTextContent()
+    
+    self.assertTrue(event.getTextContent() in text_content)
+    self.assertTrue("Sender: " in text_content, "Sender: not in %s" % text_content)
+    self.assertTrue("Recipient: " in text_content, "Recipient: not in %s" % text_content)
+    self.assertTrue("Content:" in text_content, "Content: not in %s" % text_content)
+
+    event.setSourceValue(source)
+    text_content = event.Event_getRSSTextContent()
+    self.assertTrue("Sender: %s" % source.getTitle() in text_content, 
+      "Sender: %s not in %s" % (source.getTitle(), text_content))
+    
+    event.setDestinationValue(destination)
+    text_content = event.Event_getRSSTextContent()
+    self.assertTrue("Recipient: %s" % destination.getTitle() in text_content, 
+      "Recipient: %s not in %s" % (destination.getTitle(), text_content))
+
+    event.setDestinationValue(destination_2)
+    text_content = event.Event_getRSSTextContent()
+    self.assertTrue("Recipient: %s" % destination_2.getTitle() in text_content, 
+      "Recipient: %s not in %s" % (destination.getTitle(), text_content))
+    
+    event.setDestinationValueList([destination, destination_2])
+    text_content = event.Event_getRSSTextContent()
+    self.assertTrue(
+      "Recipient: %s,%s" % (destination.getTitle(), 
+                            destination_2.getTitle()) in text_content, 
+      "Recipient: %s,%s not in %s" % (destination.getTitle(), 
+                                      destination_2.getTitle(), 
+                                      text_content)
+      )
+
+  def test_support_request(self):
+    ticket = self.portal.support_request_module.newContent(\
+                        title="Test Support Request %s" % self.new_id,
+                        resource="service_module/slapos_crm_monitoring",
+                        destination_decision_value=self.person)
+      
+    ticket.immediateReindexObject()
+    self._test_event(ticket)
+
+
+class TestSlapOSTicket_getLatestEvent(testSlapOSMixin):
+
+  def beforeTearDown(self):
+    transaction.abort()
+
+  def afterSetUp(self):
+    super(TestSlapOSTicket_getLatestEvent, self).afterSetUp()
+    self.new_id = self.generateNewId()
+    self.person = self.portal.person_module.newContent(
+      portal_type='Person',
+      title="Person %s" % self.new_id,
+      reference="TESTPERS-%s" % self.new_id,
+      default_email_text="live_test_%s@example.org" % self.new_id,
+      )
+      
+  def _test_event(self, ticket):
+    
+    def newEvent(ticket):
+      event = self.portal.event_module.newContent(
+        title="Test Event %s" % self.new_id,
+        portal_type="Web Message",
+        follow_up_value=ticket)
+      
+      event.immediateReindexObject()
+      return event
+      
+    last_event = ticket.Ticket_getLatestEvent()
+    
+    self.assertEquals(last_event, None)
+    
+    event = newEvent(ticket)
+    last_event = ticket.Ticket_getLatestEvent()
+    
+    self.assertEquals(last_event, None)
+    
+    event.plan()
+    event.immediateReindexObject()
+    self.assertEquals(last_event, None)
+
+    event.confirm()
+    event.immediateReindexObject()
+    last_event = ticket.Ticket_getLatestEvent()
+    self.assertEquals(last_event, event)
+
+    event.start()
+    event.immediateReindexObject()
+    last_event = ticket.Ticket_getLatestEvent()
+    self.assertEquals(last_event, event)
+
+    event.stop()
+    event.immediateReindexObject()
+    last_event = ticket.Ticket_getLatestEvent()
+    self.assertEquals(last_event, event)
+
+    event.deliver()
+    event.immediateReindexObject()
+    last_event = ticket.Ticket_getLatestEvent()
+    self.assertEquals(last_event, event)
+  
+
+    # Now we test unwanted cases (deleted and cancelled)
+    another_event = newEvent(ticket)
+    last_event = ticket.Ticket_getLatestEvent()
+    
+    self.assertEquals(last_event, event)
+    
+    another_event.cancel()
+    event.immediateReindexObject()
+    last_event = ticket.Ticket_getLatestEvent()
+    self.assertEquals(last_event, event) 
+
+    another_event = newEvent(ticket)
+    last_event = ticket.Ticket_getLatestEvent()
+    
+    self.assertEquals(last_event, event)
+    
+    another_event.delete()
+    event.immediateReindexObject()
+    last_event = ticket.Ticket_getLatestEvent()
+    self.assertEquals(last_event, event)
+  
+  def test_support_request(self):
+    ticket = self.portal.support_request_module.newContent(\
+                        title="Test Support Request %s" % self.new_id,
+                        resource="service_module/slapos_crm_monitoring",
+                        destination_decision_value=self.person)
+      
+    ticket.immediateReindexObject()
+    self._test_event(ticket)
+
+
+  def test_regularisation_request(self):
+    ticket = self.portal.regularisation_request_module.newContent(
+        portal_type='Regularisation Request',
+        title="Test Reg. Req.%s" % self.new_id,
+        reference="TESTREGREQ-%s" % self.new_id
+        )
+      
+    ticket.immediateReindexObject()
+    self._test_event(ticket)
+
+  def test_upgrade_decision(self):
+    ticket = self.portal.upgrade_decision_module.newContent(
+        portal_type='Upgrade Decision',
+        title="Upgrade Decision Test %s" % self.new_id,
+        reference="TESTUD-%s" % self.new_id
+        )
+      
+    ticket.immediateReindexObject()
+    self._test_event(ticket)
+
 
 class TestSlapOSPerson_checkToCreateRegularisationRequest(testSlapOSMixin):
 
@@ -2059,6 +2377,7 @@ class TestSlapOSisSupportRequestCreationClosed(testSlapOSMixin):
     def newSupportRequest():
       sr = self.portal.support_request_module.newContent(\
                         title="Test Support Request POIUY",
+                        resource="service_module/slapos_crm_monitoring",
                         destination_decision=url)
       sr.validate()
       sr.immediateReindexObject()
@@ -2079,7 +2398,7 @@ class TestSlapOSisSupportRequestCreationClosed(testSlapOSMixin):
     self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(
                      other_person.getRelativeUrl()))
   
-  def test_ERP5Site_isSupportRequestCreationClosed_submitted_state(self):
+  def test_ERP5Site_isSupportRequestCreationClosed_suspended_state(self):
     person = self._makePerson()
     url = person.getRelativeUrl()
     self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
@@ -2088,6 +2407,7 @@ class TestSlapOSisSupportRequestCreationClosed(testSlapOSMixin):
     def newSupportRequest():
       sr = self.portal.support_request_module.newContent(\
                         title="Test Support Request POIUY",
+                        resource="service_module/slapos_crm_monitoring",
                         destination_decision=url)
       sr.validate()
       sr.suspend()
@@ -2100,7 +2420,32 @@ class TestSlapOSisSupportRequestCreationClosed(testSlapOSMixin):
     newSupportRequest()
     self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
     self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed())
+
+
+  def test_ERP5Site_isSupportRequestCreationClosed_nonmonitoring(self):
+    person = self._makePerson()
+    url = person.getRelativeUrl()
+    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
+    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed())
     
+    def newSupportRequest():
+      sr = self.portal.support_request_module.newContent(\
+                        title="Test Support Request POIUY",
+                        destination_decision=url)
+      sr.validate()
+      sr.immediateReindexObject()
+
+    # Create five tickets, the limit of ticket creation
+    newSupportRequest()
+    newSupportRequest()
+    newSupportRequest()
+    newSupportRequest()
+    newSupportRequest()
+
+    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
+    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed())
+    
+
 class TestSlapOSGenerateSupportRequestForSlapOS(testSlapOSMixin):
   
   

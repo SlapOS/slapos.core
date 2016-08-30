@@ -29,6 +29,7 @@
 
 import psutil
 import os
+import subprocess
 from temperature import collectComputerTemperature, \
                         launchTemperatureTest
 
@@ -45,22 +46,22 @@ class ProcessSnapshot(_Snapshot):
   """
   def __init__(self, process=None):
     assert type(process) is psutil.Process
-    ui_counter_list = process.get_io_counters()
+    ui_counter_list = process.io_counters()
     self.username = process.username()
     self.process_object = process
     self.pid = process.pid 
     # Save full command line from the process.
     self.process = "%s-%s" % (process.pid, process.create_time())
     # CPU percentage, we will have to get actual absolute value
-    self.cpu_percent = self.process_object.get_cpu_percent(None)
+    self.cpu_percent = self.process_object.cpu_percent(None)
     # CPU Time
-    self.cpu_time = sum(process.get_cpu_times())
+    self.cpu_time = sum(process.cpu_times())
     # Thread number, might not be really relevant
-    self.cpu_num_threads = process.get_num_threads()      
+    self.cpu_num_threads = process.num_threads()
     # Memory percentage
-    self.memory_percent = process.get_memory_percent()
+    self.memory_percent = process.memory_percent()
     # Resident Set Size, virtual memory size is not accouned for
-    self.memory_rss = process.get_memory_info()[0]
+    self.memory_rss = process.memory_info()[0]
     # Byte count, Read and write. OSX NOT SUPPORTED
     self.io_rw_counter = ui_counter_list[2] + ui_counter_list[3]
     # Read + write IO cycles
@@ -69,7 +70,54 @@ class ProcessSnapshot(_Snapshot):
   def update_cpu_percent(self):
     if self.process_object.is_running():
       # CPU percentage, we will have to get actual absolute value
-      self.cpu_percent = self.process_object.get_cpu_percent()
+      self.cpu_percent = self.process_object.cpu_percent()
+
+class FolderSizeSnapshot(_Snapshot):
+  """Calculate partition folder size. 
+  """
+  def __init__(self, folder_path, pid_file=None, use_quota=False):
+    # slapos computer partition size
+    self.folder_path = folder_path
+    self.pid_file = pid_file
+    self.disk_usage = 0
+    self.use_quota = use_quota
+
+  def update_folder_size(self):
+    """Return 0 if the process du is still running
+    """
+    if self.pid_file and os.path.exists(self.pid_file):
+      with open(self.pid_file, 'r') as fpid:
+        pid_str = fpid.read()
+        if pid_str:
+          pid = int(pid_str)
+          try:
+            os.kill(pid, 0)
+          except OSError:
+            pass
+          else:
+            return
+
+    self.disk_usage = self._getSize(self.folder_path)
+    # If extra disk added to partition
+    data_dir = os.path.join(self.folder_path, 'DATA')
+    if os.path.exists(data_dir):
+      for filename in os.listdir(data_dir):
+        extra_path = os.path.join(data_dir, filename)
+        if os.path.islink(extra_path) and os.path.isdir('%s/' % extra_path):
+          self.disk_usage += self._getSize('%s/' % extra_path)
+
+  def _getSize(self, file_path):
+    size = 0
+    command = 'du -s %s' % file_path
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, 
+                              stderr=subprocess.PIPE, shell=True)
+    if self.pid_file:
+      with open(self.pid_file, 'w') as fpid:
+        pid = fpid.write(str(process.pid))
+    result = process.communicate()[0]
+    if process.returncode == 0:
+      size, _  = result.strip().split()
+    return float(size)
 
 class SystemSnapshot(_Snapshot):
   """ Take a snapshot from current system usage
@@ -79,7 +127,7 @@ class SystemSnapshot(_Snapshot):
     cpu_idle_percentage = psutil.cpu_times_percent(interval=interval).idle
     load_percent = 100 - cpu_idle_percentage
 
-    memory = psutil.phymem_usage()
+    memory = psutil.virtual_memory()
     net_io = psutil.net_io_counters()
     
     self.memory_used = memory.used
@@ -155,10 +203,10 @@ class ComputerSnapshot(_Snapshot):
   """ Take a snapshot from computer informations
   """
   def __init__(self, model_id=None, sensor_id=None, test_heating=False):
-    self.cpu_num_core = psutil.NUM_CPUS
+    self.cpu_num_core = psutil.cpu_count()
     self.cpu_frequency = 0
     self.cpu_type = 0
-    self.memory_size = psutil.TOTAL_PHYMEM  
+    self.memory_size = psutil.virtual_memory().total
     self.memory_type = 0
 
     #
@@ -195,3 +243,4 @@ class ComputerSnapshot(_Snapshot):
 
     return [(k, v) for k, v in partition_dict.iteritems()]
 
+  

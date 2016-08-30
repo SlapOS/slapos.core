@@ -41,6 +41,7 @@ from Products.ERP5Type import Permissions
 from Products.ERP5Type.Cache import DEFAULT_CACHE_SCOPE
 from Products.ERP5Type.Cache import CachingMethod
 from lxml import etree
+import hashlib
 import time
 from Products.ERP5Type.tests.utils import DummyMailHostMixin
 try:
@@ -272,6 +273,33 @@ class SlapTool(BaseTool):
           self._getSlapPartitionByPackingList(_assertACI(computer_partition.getObject())))
     return xml_marshaller.xml_marshaller.dumps(slap_computer)
 
+  @UnrestrictedMethod
+  def _getHostingSubscriptionIpList(self, computer_id, computer_partition_id):
+    software_instance = self._getSoftwareInstanceForComputerPartition(
+                                          computer_id, computer_partition_id)
+    
+    if software_instance is None or \
+                        software_instance.getSlapState() == 'destroy_requested':
+        return xml_marshaller.xml_marshaller.dumps([])
+    # Search hosting subscription
+    hosting = software_instance.getSpecialiseValue()
+    while hosting and hosting.getPortalType() != "Hosting Subscription":
+      hosting = hosting.getSpecialiseValue()
+    ip_address_list = []
+    for instance in hosting.getSpecialiseRelatedValueList(
+                                              portal_type="Software Instance"):
+      computer_partition = instance.getAggregateValue(portal_type="Computer Partition")
+      if not computer_partition:
+        continue
+      for internet_protocol_address in computer_partition.contentValues(
+                                      portal_type='Internet Protocol Address'):
+        ip_address_list.append(
+              (internet_protocol_address.getNetworkInterface('').decode("UTF-8"),
+              internet_protocol_address.getIpAddress().decode("UTF-8"))
+        )
+    
+    return xml_marshaller.xml_marshaller.dumps(ip_address_list)
+
   security.declareProtected(Permissions.AccessContentsInformation,
     'getFullComputerInformation')
   def getFullComputerInformation(self, computer_id):
@@ -286,6 +314,28 @@ class SlapTool(BaseTool):
       self._logAccess(user, user, '#access %s' % computer_id)
     result = self._getComputerInformation(computer_id, user)
 
+    if self.REQUEST.response.getStatus() == 200:
+      # Keep in cache server for 7 days
+      self.REQUEST.response.setHeader('Cache-Control',
+                                      'public, max-age=1, stale-if-error=604800')
+      self.REQUEST.response.setHeader('Vary',
+                                      'REMOTE_USER')
+      self.REQUEST.response.setHeader('Last-Modified', rfc1123_date(DateTime()))
+      self.REQUEST.response.setBody(result)
+      return self.REQUEST.response
+    else:
+      return result
+
+  security.declareProtected(Permissions.AccessContentsInformation,
+    'getHostingSubscriptionIpList')
+  def getHostingSubscriptionIpList(self, computer_id, computer_partition_id):
+    """
+    Search and return all Computer Partition IP address related to one 
+    Hosting Subscription
+    """
+    result =  self._getHostingSubscriptionIpList(computer_id,
+                                                      computer_partition_id)
+    
     if self.REQUEST.response.getStatus() == 200:
       # Keep in cache server for 7 days
       self.REQUEST.response.setHeader('Cache-Control',
@@ -777,12 +827,16 @@ class SlapTool(BaseTool):
       slap_partition._instance_guid = parameter_dict.pop('instance_guid')
       for slave_instance_dict in parameter_dict.get("slave_instance_list", []):
         if slave_instance_dict.has_key("connection_xml"):
-          slave_instance_dict.update(self._instanceXmlToDict(
-            slave_instance_dict.pop("connection_xml")))
+          connection_dict = self._instanceXmlToDict(
+            slave_instance_dict.pop("connection_xml"))
+          slave_instance_dict.update(connection_dict)
+          slave_instance_dict['connection-parameter-hash'] = \
+            hashlib.sha256(str(connection_dict)).hexdigest()
         if slave_instance_dict.has_key("xml"):
           slave_instance_dict.update(self._instanceXmlToDict(
             slave_instance_dict.pop("xml")))
       slap_partition._parameter_dict.update(parameter_dict)
+
     result = xml_marshaller.xml_marshaller.dumps(slap_partition)
 
     # Keep in cache server for 7 days
@@ -936,7 +990,7 @@ class SlapTool(BaseTool):
     Log the software release status
     """
     computer_document = self._getComputerDocument(computer_id)
-    software_installation_reference = self._getCachedSoftwareInstallationReference(url,
+    software_installation_reference = self._getSoftwareInstallationReference(url,
       computer_document)
     user = self.getPortalObject().portal_membership.\
         getAuthenticatedMember().getUserName()
@@ -949,7 +1003,7 @@ class SlapTool(BaseTool):
     Log the software release status
     """
     computer_document = self._getComputerDocument(computer_id)
-    software_installation_reference = self._getCachedSoftwareInstallationReference(url,
+    software_installation_reference = self._getSoftwareInstallationReference(url,
       computer_document)
     user = self.getPortalObject().portal_membership.\
         getAuthenticatedMember().getUserName()
@@ -1204,6 +1258,8 @@ class SlapTool(BaseTool):
       partition_parameter_kw = dict()
     if filter_xml:
       filter_kw = xml_marshaller.xml_marshaller.loads(filter_xml)
+      if software_type == 'pull-backup' and not 'retention_delay' in filter_kw:
+        filter_kw['retention_delay'] = 7.0
     else:
       filter_kw = dict()
 
@@ -1376,19 +1432,10 @@ class SlapTool(BaseTool):
           in software_installation_list])
       ))
   
-  def _getNonCachedSoftwareInstallationReference(self, url, computer_document):
+  def _getSoftwareInstallationReference(self, url, computer_document):
     return self._getSoftwareInstallationForComputer(url,
               computer_document).getReference()
   
-  def _getCachedSoftwareInstallationReference(self, url, computer_document):
-    """
-    Get the software installation reference (with this url) for the computer.
-    """
-    result = CachingMethod(self._getNonCachedSoftwareInstallationReference,
-        id='_getCachedSoftwareInstallationReference',
-        cache_factory='slap_cache_factory')(url, computer_document)
-    return result
-
   def _getSoftwareInstanceForComputerPartition(self, computer_id,
       computer_partition_id, slave_reference=None):
     computer_partition_document = self._getComputerPartitionDocument(
@@ -1426,6 +1473,8 @@ class SlapTool(BaseTool):
     newtimestamp = int(software_instance.getBangTimestamp(int(software_instance.getModificationDate())))
     if (newtimestamp > timestamp):
       timestamp = newtimestamp
+
+    hosting_subscription = software_instance.getSpecialiseValue()
 
     ip_list = []
     full_ip_list = []
@@ -1470,6 +1519,8 @@ class SlapTool(BaseTool):
             timestamp = newtimestamp
     return {
       'instance_guid': software_instance.getReference().decode("UTF-8"),
+      'instance_title': software_instance.getTitle().decode("UTF-8"),
+      'root_instance_title': hosting_subscription.getTitle().decode("UTF-8"),
       'xml': software_instance.getTextContent(),
       'connection_xml': software_instance.getConnectionXml(),
       'filter_xml': software_instance.getSlaXml(),
@@ -1517,7 +1568,7 @@ class SlapTool(BaseTool):
     Log the computer status
     """
     computer_document = self._getComputerDocument(computer_id)
-    software_installation_reference = self._getCachedSoftwareInstallationReference(url,
+    software_installation_reference = self._getSoftwareInstallationReference(url,
       computer_document)
     user = self.getPortalObject().portal_membership.\
         getAuthenticatedMember().getUserName()

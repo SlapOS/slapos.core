@@ -40,6 +40,7 @@ import time
 import traceback
 import warnings
 import logging
+import json
 
 if sys.version_info < (2, 6):
   warnings.warn('Used python version (%s) is old and has problems with'
@@ -56,9 +57,10 @@ from slapos.grid.svcbackend import (launchSupervisord,
                                     createSupervisordConfiguration,
                                     _getSupervisordConfigurationDirectory,
                                     _getSupervisordSocketPath)
-from slapos.grid.utils import (md5digest, dropPrivileges, SlapPopen)
+from slapos.grid.utils import (md5digest, dropPrivileges, SlapPopen, updateFile)
 from slapos.human import human2bytes
 import slapos.slap
+from netaddr import valid_ipv4, valid_ipv6
 
 
 # XXX: should be moved to SLAP library
@@ -82,6 +84,18 @@ WATCHDOG_PATH = '/opt/slapos/bin/slapos-watchdog'
 class _formatXMLError(Exception):
   pass
 
+
+class FPopen(subprocess.Popen):
+  def __init__(self, *args, **kwargs):
+    kwargs['stdin'] = subprocess.PIPE
+    kwargs['stderr'] = subprocess.STDOUT
+    kwargs.setdefault('stdout', subprocess.PIPE)
+    kwargs.setdefault('close_fds', True)
+    kwargs.setdefault('shell', True)
+    subprocess.Popen.__init__(self, *args, **kwargs)
+    self.stdin.flush()
+    self.stdin.close()
+    self.stdin = None
 
 def check_missing_parameters(options):
   required = set([
@@ -118,11 +132,14 @@ def check_missing_files(options):
       options.get('key_file'),
       options.get('cert_file'),
       options.get('master_ca_file'),
+      options.get('shacache-ca-file'),
       options.get('shacache-cert-file'),
       options.get('shacache-key-file'),
+      options.get('shadir-ca-file'),
       options.get('shadir-cert-file'),
       options.get('shadir-key-file'),
-      options.get('signature_private_key_file')
+      options.get('signature-private-key-file',
+        options.get('signature_private_key_file')),
   ]
 
   req_dirs = [
@@ -162,6 +179,22 @@ def merged_options(args, configp):
   options["upload-to-binary-cache-url-blacklist"] = [
       url.strip() for url in options.get(
           "upload-to-binary-cache-url-blacklist", "").split('\n') if url]
+
+  options['firewall'] = {}
+  if configp.has_section('firewall'):
+    options['firewall'] = dict(configp.items('firewall'))
+    options['firewall']["authorized_sources"] = [
+        source.strip() for source in options['firewall'].get(
+            "authorized_sources", "").split('\n') if source]
+    options['firewall']['firewall_cmd'] = options['firewall'].get(
+            "firewall_cmd", "firewall-cmd")
+    options['firewall']['firewall_executable'] = options['firewall'].get(
+            "firewall_executable", "")
+    options['firewall']['dbus_executable'] = options['firewall'].get(
+            "dbus_executable", "")
+    options['firewall']['reload_config_cmd'] = options['firewall'].get(
+            "reload_config_cmd",
+            "slapos node restart firewall")
 
   return options
 
@@ -206,7 +239,8 @@ def create_slapgrid_object(options, logger):
                   maximum_periodicity = op.get('maximum_periodicity', 86400),
                   key_file=op.get('key_file'),
                   cert_file=op.get('cert_file'),
-                  signature_private_key_file=op.get('signature_private_key_file'),
+                  signature_private_key_file=op.get(
+                    'signature-private-key-file', op.get('signature_private_key_file')),
                   signature_certificate_list=signature_certificate_list,
                   download_binary_cache_url=op.get('download-binary-cache-url'),
                   upload_binary_cache_url=op.get('upload-binary-cache-url'),
@@ -221,8 +255,10 @@ def create_slapgrid_object(options, logger):
                   master_ca_file=op.get('master_ca_file'),
                   certificate_repository_path=op.get('certificate_repository_path'),
                   promise_timeout=op.get('promise_timeout', PROMISE_TIMEOUT),
+                  shacache_ca_file=op.get('shacache-ca-file'),
                   shacache_cert_file=op.get('shacache-cert-file'),
                   shacache_key_file=op.get('shacache-key-file'),
+                  shadir_ca_file=op.get('shadir-ca-file'),
                   shadir_cert_file=op.get('shadir-cert-file'),
                   shadir_key_file=op.get('shadir-key-file'),
                   forbid_supervisord_automatic_launch=string_to_boolean(op.get('forbid_supervisord_automatic_launch', 'false')),
@@ -234,7 +270,8 @@ def create_slapgrid_object(options, logger):
                   software_min_free_space=software_min_free_space,
                   instance_min_free_space=instance_min_free_space,
                   instance_storage_home=op.get('instance_storage_home'),
-                  ipv4_global_network=op.get('ipv4_global_network'))
+                  ipv4_global_network=op.get('ipv4_global_network'),
+                  firewall_conf=op.get('firewall'))
 
 
 def check_required_only_partitions(existing, required):
@@ -278,8 +315,10 @@ class Slapgrid(object):
                master_ca_file=None,
                certificate_repository_path=None,
                promise_timeout=3,
+               shacache_ca_file=None,
                shacache_cert_file=None,
                shacache_key_file=None,
+               shadir_ca_file=None,
                shadir_cert_file=None,
                shadir_key_file=None,
                forbid_supervisord_automatic_launch=False,
@@ -290,6 +329,7 @@ class Slapgrid(object):
                instance_min_free_space=None,
                instance_storage_home=None,
                ipv4_global_network=None,
+               firewall_conf={},
                ):
     """Makes easy initialisation of class parameters"""
     # Parses arguments
@@ -314,8 +354,10 @@ class Slapgrid(object):
     self.download_binary_dir_url = download_binary_dir_url
     self.upload_binary_dir_url = upload_binary_dir_url
     self.upload_dir_url = upload_dir_url
+    self.shacache_ca_file = shacache_ca_file
     self.shacache_cert_file = shacache_cert_file
     self.shacache_key_file = shacache_key_file
+    self.shadir_ca_file = shadir_ca_file
     self.shadir_cert_file = shadir_cert_file
     self.shadir_key_file = shadir_key_file
     self.forbid_supervisord_automatic_launch = forbid_supervisord_automatic_launch
@@ -349,6 +391,8 @@ class Slapgrid(object):
       self.ipv4_global_network = ipv4_global_network
     else:
       self.ipv4_global_network= ""
+    self.firewall_conf = firewall_conf
+
 
   def _getWatchdogLine(self):
     invocation_list = [WATCHDOG_PATH]
@@ -360,6 +404,93 @@ class Slapgrid(object):
     invocation_list.append("--instance-root '%s'" % self.instance_root)
     return ' '.join(invocation_list)
 
+  def _generateFirewallSupervisorConf(self):
+    """If firewall section is defined in slapos configuration, generate
+      supervisor configuration entry for firewall process.
+    """
+    supervisord_conf_folder_path = os.path.join(self.instance_root,
+                                               'etc', 'supervisord.conf.d')
+    supervisord_firewall_conf = os.path.join(supervisord_conf_folder_path,
+                                              'firewall.conf')
+    if not self.firewall_conf or not self.firewall_conf.get('firewall_executable') \
+      or self.firewall_conf.get('testing', False):
+      if os.path.exists(supervisord_firewall_conf):
+        os.unlink(supervisord_firewall_conf)
+      return
+    supervisord_firewall_program_conf = """\
+[program:firewall]
+directory=/opt/slapos
+command=%(firewall_executable)s
+process_name=firewall
+priority=5
+autostart=true
+autorestart=true
+startsecs=0
+startretries=0
+exitcodes=0
+stopsignal=TERM
+stopwaitsecs=60
+user=0
+group=0
+serverurl=AUTO
+redirect_stderr=true
+stdout_logfile=%(log_file)s
+stdout_logfile_maxbytes=100KB
+stdout_logfile_backups=1
+stderr_logfile=%(log_file)s
+stderr_logfile_maxbytes=100KB
+stderr_logfile_backups=1
+""" %  {'firewall_executable': self.firewall_conf['firewall_executable'],
+        'log_file': self.firewall_conf.get('log_file', '/var/log/firewall.log')}
+
+    if not os.path.exists(supervisord_conf_folder_path):
+      os.makedirs(supervisord_conf_folder_path)
+    updateFile(supervisord_firewall_conf, supervisord_firewall_program_conf)
+
+
+  def _generateDbusSupervisorConf(self):
+    """If dbus command is defined in slapos configuration, generate
+      supervisor configuration entry for dbus daemon.
+    """
+    supervisord_conf_folder_path = os.path.join(self.instance_root,
+                                               'etc', 'supervisord.conf.d')
+    supervisord_dbus_conf = os.path.join(supervisord_conf_folder_path,
+                                              'dbus.conf')
+    if not self.firewall_conf or not self.firewall_conf.get('dbus_executable') \
+      or self.firewall_conf.get('testing', False):
+      if os.path.exists(supervisord_dbus_conf):
+        os.unlink(supervisord_dbus_conf)
+      return
+    supervisord_dbus_program_conf = """\
+[program:dbus]
+directory=/opt/slapos
+command=%(dbus_executable)s
+process_name=dbus
+priority=1
+autostart=true
+autorestart=true
+startsecs=0
+startretries=0
+exitcodes=0
+stopsignal=TERM
+stopwaitsecs=60
+user=0
+group=0
+serverurl=AUTO
+redirect_stderr=true
+stdout_logfile=%(dbus_log_file)s
+stdout_logfile_maxbytes=100KB
+stdout_logfile_backups=1
+stderr_logfile=%(dbus_log_file)s
+stderr_logfile_maxbytes=100KB
+stderr_logfile_backups=1
+""" %  {'dbus_executable': self.firewall_conf['dbus_executable'],
+        'dbus_log_file': self.firewall_conf.get('dbus_log_file', '/var/log/dbus.log')}
+
+    if not os.path.exists(supervisord_conf_folder_path):
+      os.makedirs(supervisord_conf_folder_path)
+    updateFile(supervisord_dbus_conf, supervisord_dbus_program_conf)
+
   def checkEnvironmentAndCreateStructure(self):
     """Checks for software_root and instance_root existence, then creates
        needed files and directories.
@@ -369,6 +500,8 @@ class Slapgrid(object):
       raise OSError('%s does not exist.' % self.software_root)
 
     createSupervisordConfiguration(self.instance_root, self._getWatchdogLine())
+    self._generateFirewallSupervisorConf()
+    self._generateDbusSupervisorConf()
 
   def _launchSupervisord(self):
     if not self.forbid_supervisord_automatic_launch:
@@ -410,8 +543,10 @@ class Slapgrid(object):
             download_binary_dir_url=self.download_binary_dir_url,
             upload_binary_dir_url=self.upload_binary_dir_url,
             upload_dir_url=self.upload_dir_url,
+            shacache_ca_file=self.shacache_ca_file,
             shacache_cert_file=self.shacache_cert_file,
             shacache_key_file=self.shacache_key_file,
+            shadir_ca_file=self.shadir_ca_file,
             shadir_cert_file=self.shadir_cert_file,
             shadir_key_file=self.shadir_key_file,
             software_min_free_space=self.software_min_free_space)
@@ -530,6 +665,224 @@ class Slapgrid(object):
 
     if not promise_present:
       self.logger.info("No promise.")
+
+  def _addFirewallRule(self, rule_command):
+    """
+    """
+    query_cmd = rule_command.replace('--add-rule', '--query-rule')
+    process = FPopen(query_cmd)
+    result = process.communicate()[0]
+    if result.strip() == 'no':
+      self.logger.debug(rule_command)
+      process = FPopen(rule_command)
+      process.communicate()[0]
+    if process.returncode == 1 and result.strip() != 'no':
+      raise Exception("Failed to add firewalld rule %s." % rule_command)
+
+    return result.strip() == 'no'
+
+  def _removeFirewallRule(self, rule_command):
+    """
+    """
+    query_cmd = rule_command.replace('--add-rule', '--query-rule')
+    process = FPopen(query_cmd)
+    result = process.communicate()[0]
+    if result.strip() == 'yes':
+      remove_command = rule_command.replace('--add-rule', '--remove-rule')
+      self.logger.debug(remove_command)
+      process = FPopen(remove_command)
+      process.communicate()[0]
+    if process.returncode == 1 and result.strip() != 'no':
+      raise Exception("Failed to remove firewalld rule %s." % remove_command)
+
+    return result.strip() == 'yes'
+
+  def _checkAddFirewallRules(self, partition_id, command_list, add=True):
+    """
+    Process Firewall rules from and save rules to firewall_rules_path
+    """
+    
+    instance_path = os.path.join(self.instance_root, partition_id)
+    firewall_rules_path = os.path.join(instance_path,
+                                Partition.partition_firewall_rules_name)
+    reload_rules = False
+    fw_base_cmd = self.firewall_conf['firewall_cmd']
+    json_list = []
+
+    if os.path.exists(firewall_rules_path):
+      with open(firewall_rules_path, 'r') as frules:
+        rules_list = json.loads(frules.read())
+
+      for command in rules_list:
+        skip_remove = False
+        if add:
+          for new_cmd in command_list:
+            if command == new_cmd:
+              skip_remove = True
+              break
+
+        if not skip_remove:
+          state = self._removeFirewallRule('%s %s' % (fw_base_cmd, command))
+          reload_rules = reload_rules or state
+
+    if add:
+      json_list = command_list
+      for command in command_list:
+        state = self._addFirewallRule('%s %s' % (fw_base_cmd, command))
+        reload_rules = reload_rules or state
+
+    if reload_rules:
+      # Apply changes: reload configuration
+      # XXX - need to check firewalld reload instead of restart
+      self.logger.info("Reloading firewall configuration...")
+      reload_cmd = self.firewall_conf['reload_config_cmd']
+      reload_process = FPopen(reload_cmd)
+      result = reload_process.communicate()[0]
+      if reload_process.returncode == 1:
+        raise Exception("Failed to load firewalld rules with command %s" % reload_cmd)
+
+      with open(firewall_rules_path, 'w') as frules:
+        frules.write(json.dumps(json_list))
+
+  def _getFirewallAcceptRules(self, ip, hosting_ip_list, source_ip_list, ip_type='ipv4'):
+    """
+    Generate rules for firewall based on list of IP that should have access to `ip`
+    """
+    if ip_type not in ['ipv4', 'ipv6', 'eb']:
+      raise NotImplementedError("firewall-cmd has not rules with tables %s." % ip_type)
+
+    command = '--permanent --direct --add-rule %s filter' % ip_type
+
+    cmd_list = []
+    ip_list = hosting_ip_list + source_ip_list
+
+    for other_ip in ip_list:
+      # Configure INPUT rules
+      cmd_list.append('%s INPUT 0 -s %s -d %s -j ACCEPT' % (command,
+                                                            other_ip, ip))
+      # Configure FORWARD rules
+      cmd_list.append('%s FORWARD 0 -s %s -d %s -j ACCEPT' % (command,
+                                                              other_ip, ip))
+
+    # Reject all other requests
+    cmd_list.append('%s INPUT 1000 -d %s -j REJECT' % (command, ip))
+    cmd_list.append('%s FORWARD 1000 -d %s -j REJECT' % (command, ip))
+    cmd_list.append('%s INPUT 900 -d %s -m state --state ESTABLISHED,RELATED -j REJECT' % (
+                    command, ip))
+    cmd_list.append('%s FORWARD 900 -d %s -m state --state ESTABLISHED,RELATED -j REJECT' % (
+                    command, ip))
+
+    return cmd_list
+  
+  def _getFirewallRejectRules(self, ip, hosting_ip_list, source_ip_list, ip_type='ipv4'):
+    """
+    Generate rules for firewall based on list of IP that should not have access to `ip`
+    """
+    if ip_type not in ['ipv4', 'ipv6', 'eb']:
+      raise NotImplementedError("firewall-cmd has not rules with tables %s." % ip_type)
+
+    command = '--permanent --direct --add-rule %s filter' % ip_type
+
+    cmd_list = []
+
+    # Accept all other requests
+    #cmd_list.append('%s INPUT 1000 -d %s -j ACCEPT' % (command, ip))
+    #cmd_list.append('%s FORWARD 1000 -d %s -j ACCEPT' % (command, ip))
+
+    # Reject all other requests from the list
+    for other_ip in source_ip_list:
+      cmd_list.append('%s INPUT 800 -s %s -d %s -m state --state ESTABLISHED,RELATED -j REJECT' % (
+                    command, other_ip, ip))
+      cmd_list.append('%s FORWARD 800 -s %s -d %s -m state --state ESTABLISHED,RELATED -j REJECT' % (
+                    command, other_ip, ip))
+      cmd_list.append('%s INPUT 900 -s %s -d %s -j REJECT' % (command,
+                                                            other_ip, ip))
+      cmd_list.append('%s FORWARD 900 -s %s -d %s -j REJECT' % (command,
+                                                              other_ip, ip))
+    # Accept on this hosting subscription
+    for other_ip in hosting_ip_list:
+      cmd_list.append('%s INPUT 0 -s %s -d %s -j ACCEPT' % (command,
+                                                            other_ip, ip))
+      cmd_list.append('%s FORWARD 0 -s %s -d %s -j ACCEPT' % (command,
+                                                              other_ip, ip))
+
+    return cmd_list
+
+  def _getValidIpv4FromList(self, ipv4_list, warn=False):
+    """
+    Return the list containing only valid ipv4 or network address.
+    """
+    valid_list = []
+    for ip in ipv4_list:
+      if not ip:
+        continue
+      the_ip = ip.split('/')[0]
+      if valid_ipv4(the_ip):
+        valid_list.append(ip)
+      elif warn:
+        self.logger.warn("IP/Network address %s is not valid. ignored.." % ip)
+    return valid_list
+
+  def _setupComputerPartitionFirewall(self, computer_partition, ip_list, drop_entries=False):
+    """
+    Using linux iptables, limit access to IP of this partition to all 
+    others partitions of the same Hosting Subscription
+    """
+    ipv4_list = []
+    ipv6_list = []
+    source_ipv4_list = []
+    source_ipv6_list = []
+    hosting_ipv4_list = []
+    hosting_ipv6_list = []
+    getFirewallRules = getattr(self, '_getFirewallAcceptRules')
+
+    if not drop_entries:
+      self.logger.info("Configuring firewall...")
+      add_rules = True
+    else:
+      add_rules = False
+      self.logger.info("Removing firewall configuration...")
+
+    for net_ip in ip_list:
+      iface, ip = (net_ip[0], net_ip[1])
+      if not iface.startswith('route_'):
+        continue
+      if valid_ipv4(ip):
+        ipv4_list.append(ip)
+      elif valid_ipv6(ip):
+        ipv6_list.append(ip)
+
+    hosting_ip_list = computer_partition.getFullHostingIpAddressList()
+    for iface, ip in hosting_ip_list:
+      if valid_ipv4(ip):
+        if not ip in ipv4_list:
+          hosting_ipv4_list.append(ip)
+      elif valid_ipv6(ip):
+        if not ip in ipv6_list:
+          hosting_ipv6_list.append(ip)
+
+    filter_dict = getattr(computer_partition, '_filter_dict', None)
+    extra_list = []
+    accept_ip_list = []
+    if filter_dict is not None:
+      if filter_dict.get('fw_restricted_access', 'on') == 'off':
+        extra_list = filter_dict.get('fw_rejected_sources', '').split(' ')
+        getFirewallRules = getattr(self, '_getFirewallRejectRules')
+        accept_ip_list.extend(self.firewall_conf.get('authorized_sources', []))
+        accept_ip_list.extend(filter_dict.get('fw_authorized_sources', '').split(' '))
+      else:
+        extra_list = filter_dict.get('fw_authorized_sources', '').split(' ')
+        extra_list.extend(self.firewall_conf.get('authorized_sources', []))
+
+    source_ipv4_list = self._getValidIpv4FromList(extra_list, True)
+    hosting_ipv4_list.extend(self._getValidIpv4FromList(accept_ip_list, True))
+
+    # XXX - ipv6_list and source_ipv6_list ignored for the moment
+    for ip in ipv4_list:
+      cmd_list = getFirewallRules(ip, hosting_ipv4_list,
+                                  source_ipv4_list, ip_type='ipv4')
+      self._checkAddFirewallRules(computer_partition.getId(),
+                                  cmd_list, add=add_rules)
 
   def processComputerPartition(self, computer_partition):
     """
@@ -665,10 +1018,18 @@ class Slapgrid(object):
       # self.logger.info('  Instance type: %s' % computer_partition.getType())
       self.logger.info('  Instance status: %s' % computer_partition_state)
 
+      partition_ip_list = full_hosting_ip_list = []
+      if self.firewall_conf:
+        partition_ip_list = parameter_dict['ip_list'] + parameter_dict.get(
+                                                            'full_ip_list', [])
+
       if computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
         local_partition.install()
         computer_partition.available()
         local_partition.start()
+        if self.firewall_conf:
+          self._setupComputerPartitionFirewall(computer_partition,
+                                              partition_ip_list)
         self._checkPromises(computer_partition)
         computer_partition.started()
       elif computer_partition_state == COMPUTER_PARTITION_STOPPED_STATE:
@@ -677,12 +1038,19 @@ class Slapgrid(object):
           # propagate the state to children if any.
           local_partition.install()
           computer_partition.available()
+          if self.firewall_conf:
+            self._setupComputerPartitionFirewall(computer_partition,
+                                                partition_ip_list)
         finally:
           # Instance has to be stopped even if buildout/reporting is wrong.
           local_partition.stop()
         computer_partition.stopped()
       elif computer_partition_state == COMPUTER_PARTITION_DESTROYED_STATE:
         local_partition.stop()
+        if self.firewall_conf:
+          self._setupComputerPartitionFirewall(computer_partition,
+                                              partition_ip_list,
+                                              drop_entries=True)
         try:
           computer_partition.stopped()
         except (SystemExit, KeyboardInterrupt):

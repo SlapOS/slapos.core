@@ -30,6 +30,7 @@
 
 import os
 import pkg_resources
+import psutil
 import pwd
 import shutil
 import stat
@@ -673,11 +674,12 @@ class Partition(object):
     if not self.checkRetentionIsAuthorized():
       return False
 
+    uid, gid = self.getUserGroupId()
+
     # Launches "destroy" binary if exists
     destroy_executable_location = os.path.join(self.instance_path, 'sbin',
         'destroy')
     if os.path.exists(destroy_executable_location):
-      uid, gid = self.getUserGroupId()
       self.logger.debug('Invoking %r' % destroy_executable_location)
       process_handler = SlapPopen([destroy_executable_location],
                                   preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),
@@ -725,6 +727,19 @@ class Partition(object):
       self.updateSupervisor()
     except IOError as exc:
       raise IOError("I/O error while freeing partition (%s): %s" % (self.instance_path, exc))
+
+    # Kill remaining processes
+    try:
+      current_pid = os.getpid()
+      [x.terminate() for x in psutil.process_iter() if uid in x.uids()
+       and x.pid != current_pid]
+    except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
+      self.logger.info("Process finished before being "
+                       "killed when freeing partition %s" % self.instance_path)
+    except psutil.TimeoutExpired as e:
+      self.logger.error("Couldn't kill process %s of destroyed partition %s"
+        % self.instance_path)
+      
 
     return True
 

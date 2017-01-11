@@ -445,6 +445,10 @@ class Partition(object):
     gid = stat_info.st_gid
     return (uid, gid)
 
+  def getUserName(self):
+    """Returns the name of the owner of partition"""
+    return pwd.getpwuid(self.getUserGroupId()[0]).pw_name
+
   def addServiceToGroup(self, partition_id, runner_list, path, extension=''):
     uid, gid = self.getUserGroupId()
     for runner in runner_list:
@@ -739,7 +743,17 @@ class Partition(object):
     except psutil.TimeoutExpired as e:
       self.logger.error("Couldn't kill process %s of destroyed partition %s"
         % self.instance_path)
-      
+
+    # Clean user crontab and at jobs
+    user_crontab_path = os.path.join('/', 'var', 'spool', 'cron', self.getUserName())
+    if os.path.exists(user_crontab_path):
+      os.unlink(user_crontab_path)
+
+    at_directory = os.path.join('/', 'var', 'spool', 'atjobs')
+    for at_file_name in os.listdir(at_directory):
+      at_file_path = os.path.join(at_directory, at_file_name)
+      if uid == os.stat(at_file_path).st_uid:
+        os.unlink(at_file_path)
 
     return True
 

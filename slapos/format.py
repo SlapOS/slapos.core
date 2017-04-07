@@ -514,7 +514,9 @@ class Computer(object):
       with open("/etc/sudoers.d/slapos-amarisoft", "wt") as fo:
         fo.writelines((
           "%slapsoft ALL=(root) NOPASSWD: /bin/systemctl start lte,\\\n",
-          "                               /bin/systemctl stop lte\n",
+          "                               /bin/systemctl stop lte,\\\n",
+          "                               /bin/systemctl enable lte,\\\n",
+          "                               /bin/systemctl disable lte\n",
           ""))
       os.chmod("/etc/sudoers.d/slapos-amarisoft", 0o440)
 

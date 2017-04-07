@@ -506,6 +506,18 @@ class Computer(object):
       os.chown(slapsoft.path, slapsoft_pw.pw_uid, slapsoft_pw.pw_gid)
     os.chmod(self.software_root, 0o755)
 
+    # XXX-katomaso TODO: remove hardcoded hack for amarisoft
+    # Any slapuser needs to have access to LTE service to start/stop it
+    # Amarisoft uses (misplaced) systemd unit file /usr/lib/systemd/system/lte.service
+    # We allow anybody from the group "slapsoft" to operate that service
+    if os.path.exists("/usr/lib/systemd/system/lte.service"):
+      with open("/etc/sudoers.d/slapos-amarisoft", "wt") as fo:
+        fo.writelines((
+          "%slapsoft ALL=(root) NOPASSWD: /bin/systemctl start lte,\\\n",
+          "                               /bin/systemctl stop lte\n",
+          ""))
+      os.chmod("/etc/sudoers.d/slapos-amarisoft", 0o440)
+
     # get list of instance external storage if exist
     instance_external_list = []
     if self.instance_storage_home:

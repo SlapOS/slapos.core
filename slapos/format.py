@@ -486,7 +486,7 @@ class Computer(object):
     return pwd.getpwnam(self.software_user)[3]
 
 
-  def _prepare_cgroups_folder(self, folder):
+  def _prepare_cgroup_folder(self, folder):
     """If-Create folder and set group write permission."""
     if not os.path.exists(folder):
       os.mkdir(folder)
@@ -494,11 +494,15 @@ class Computer(object):
     return folder
 
 
-  def _prepare_cgroups_cpuset(self, base_path, group):
-    """Create cgroups folder per-CPU with exclusive access to the CPU.
+  def _prepare_cgroup_cpuset(self):
+    """Create cgroup folder per-CPU with exclusive access to the CPU.
 
-    Those folders are "``base_path``/cpuset/cpu<N>".
+    Those folders are "/sys/fs/cgroup/cpuset/cpu<N>".
     """
+    if not os.path.exists("/sys/fs/cgroup/cpuset/cpuset.cpus"):
+      self.logger.warining("Cannot prepare CGROUP CPUSET - not supported by current OS")
+      return
+
     with open("/sys/fs/cgroup/cpuset/cpuset.cpus", "rt") as cpu_def:
       # build up cpu_list of available CPU IDs
       cpu_list = []  # types: list[int]
@@ -506,33 +510,28 @@ class Computer(object):
         # IDs can be in form "0-4" or "0,1,2,3,4"
         if "-" in cpu_def_split:
           a, b = map(int, cpu_def_split.split("-"))
-          cpu_list.extend(range(a, b + 1)) # because cgroups' range is inclusive
+          cpu_list.extend(range(a, b + 1)) # because cgroup's range is inclusive
           continue
         cpu_list.append(int(cpu_def_split))
 
     # For every CPU ID create an exclusive cgroup
     for cpu in cpu_list:
-      cpu_path = self._prepare_cgroups_folder(
-        os.path.join(base_path, "cpu" + str(cpu)))
+      cpu_path = self._prepare_cgroup_folder(
+        os.path.join("/sys/fs/cgroup/cpuset/", "cpu" + str(cpu)))
       with open(cpu_path + "/cpuset.cpus", "wt") as fx:
         fx.write(str(cpu))  # this cgroup manages only this cpu
       with open(cpu_path + "/cpuset.cpu_exclusive", "wt") as fx:
         fx.write("1")  # manages it exclusively
       os.chown(cpu_path + "/tasks", -1, self.software_gid)
 
-  def _prepare_cgroups(self):
-    """Build CGROUPS tree exclusively for slapos.
+
+  def prepare_cgroup(self):
+    """Build CGROUP tree exclusively for slapos.
 
     - Create hierarchy of CPU sets so that every partition can have exclusive
       hold of one of the CPUs.
     """
-    base_path = self._prepare_cgroups_folder("/sys/fs/cgroup/slapos")
-
-    # If cgroups-cpuset is present create exclusive cpusets "cpuN" per CPU
-    if os.path.exists("/sys/fs/cgroup/cpuset/cpuset.cpus"):
-      self._prepare_cgroups_cpuset(
-        self._prepare_cgroups_folder(
-          os.path.join(base_path, "cpuset")))
+    self._prepare_cgroup_cpuset()
 
 
   def construct(self, alter_user=True, alter_network=True, create_tap=True, use_unique_local_address_block=False):
@@ -565,7 +564,7 @@ class Computer(object):
     os.chmod(self.software_root, 0o755)
 
     # Build own CGROUPS tree for resource control
-    self._prepare_cgroups()
+    self.prepare_cgroup()
 
     # get list of instance external storage if exist
     instance_external_list = []

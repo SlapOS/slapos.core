@@ -58,7 +58,7 @@ class FormatCommand(ConfigCommand):
 
         ap.add_argument('-o', '--output_definition_file',
                         help="Path to file to write definition of computer from "
-                        "declaration.")
+                        "declaration (obsolete: will be written to .slapos-resources)")
 
         ap.add_argument('--alter_user',
                         choices=['True', 'False'],
@@ -89,8 +89,7 @@ class FormatCommand(ConfigCommand):
     def take_action(self, args):
         configp = self.fetch_config(args)
 
-        conf = FormatConfig(logger=self.app.log)
-
+        conf = FormatConfig()
         conf.mergeConfig(args, configp)
 
         # Parse if we have to check if running from root
@@ -98,6 +97,9 @@ class FormatCommand(ConfigCommand):
         if string_to_boolean(getattr(conf, 'root_check', 'True').lower()):
           check_root_user(self)
 
+        # Configuring locally-bound logger is obsolete - use standard logging module
+        app_logger = self.app.log  # backup original logger
+        self.app.log = logging.getLogger('slapos.format')  # and replace it with module logger
         if len(self.app.log.handlers) == 0 and not self.app.options.log_file and conf.log_file:
             # This block is called again if "slapos node boot" failed.
             # Don't add a handler again, otherwise the output becomes double.
@@ -119,3 +121,6 @@ class FormatCommand(ConfigCommand):
         tracing_monkeypatch(conf)
 
         do_format(conf=conf)
+
+        # restore original logger
+        self.app.log = app_logger

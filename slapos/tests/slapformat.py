@@ -234,11 +234,19 @@ class SlapformatMixin(unittest.TestCase):
     config = FakeConfig()
     config.dry_run = True
     config.verbose = True
+    # XXX: we shouldn't use global singleton locally
     logger = logging.getLogger('testcatch')
     logger.setLevel(logging.DEBUG)
     self.test_result = TestLoggerHandler()
     logger.addHandler(self.test_result)
+    # XXX: and we shouldn't pass references to it
     config.logger = logger
+    # This is the logger used in slapformat
+    logger = logging.getLogger('slapos.format')
+    # Set it up for test purposes
+    logger.setLevel(logging.DEBUG)
+    self.test_result = TestLoggerHandler()
+    logger.addHandler(self.test_result)
     self.partition = slapos.format.Partition('partition', '/part_path',
       slapos.format.User('testuser'), [], None)
     global USER_LIST

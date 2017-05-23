@@ -49,6 +49,7 @@ import sys
 import threading
 import time
 import traceback
+import warnings
 import zipfile
 import platform
 from urllib2 import urlopen
@@ -61,7 +62,9 @@ from slapos.util import mkdir_p
 import slapos.slap as slap
 from slapos import version
 
+
 logger = logging.getLogger("slapos.format")
+
 
 def prettify_xml(xml):
   root = lxml.etree.fromstring(xml)
@@ -74,21 +77,19 @@ class OS(object):
   _os = os
 
   def __init__(self, conf):
-    self._dry_run = conf.dry_run
-    self._logger = conf.logger
-    add = self._addWrapper
-    add('chown')
-    add('chmod')
-    add('makedirs')
-    add('mkdir')
+    self.conf = conf
+    self._addWrapper('chown')
+    self._addWrapper('chmod')
+    self._addWrapper('makedirs')
+    self._addWrapper('mkdir')
 
   def _addWrapper(self, name):
     def wrapper(*args, **kw):
       arg_list = [repr(x) for x in args] + [
           '%s=%r' % (x, y) for x, y in kw.iteritems()
       ]
-      self._logger.debug('%s(%s)' % (name, ', '.join(arg_list)))
-      if not self._dry_run:
+      logger.debug('%s(%s)' % (name, ', '.join(arg_list)))
+      if not self.conf.dry_run:
         getattr(self._os, name)(*args, **kw)
     setattr(self, name, wrapper)
 
@@ -238,18 +239,19 @@ def _getDict(obj):
 
 
 class Computer(object):
-  "Object representing the computer"
+  """Object representing the computer."""
+
   instance_root = None
   software_root = None
   instance_storage_home = None
 
   def __init__(self, reference, interface=None, addr=None, netmask=None,
                ipv6_interface=None, software_user='slapsoft',
-               tap_gateway_interface=None):
+               gateway_interface=None):
     """
     Attributes:
       reference: String, the reference of the computer.
-      interface: String, the name of the computer's used interface.
+      interface: String, the name of the computer's outside-facing interface.
     """
     self.reference = str(reference)
     self.interface = interface
@@ -258,7 +260,7 @@ class Computer(object):
     self.netmask = netmask
     self.ipv6_interface = ipv6_interface
     self.software_user = software_user
-    self.tap_gateway_interface = tap_gateway_interface
+    self.gateway_interface = gateway_interface
 
     # The follow properties are updated on update() method
     self.public_ipv4_address = None
@@ -333,82 +335,78 @@ class Computer(object):
           "Please make sure computer_id of slapos.cfg looks "
           "like 'COMP-123' and is correct.\nError is : 404 Not Found." % error)
 
-  def dump(self, path_to_xml, path_to_json, logger):
+  def dump(self, file_path):
+    """Serialize Computer object state into a ``file_path`` with given ``format``.
+
+    :param filename: String, path where to save the serialized file
+    :param format: String, format to save in ("xml" or"json")
     """
-    Dump the computer object to an xml file via xml_marshaller.
+    if "xml" in file_path:
+      serialized = lambda data: prettify_xml(xml_marshaller.xml_marshaller.dumps(data))
+    elif "json" in file_path:
+      serializer = functools.partial(json.dumps, sort_keys=True, indent=2)
+    else:
+      raise ValueError("Unable to distinguish serialization format! No \"xml\" or \"json\" in " + str(file_path))
 
-    Args:
-      path_to_xml: String, path to the file to load.
-      path_to_json: String, path to the JSON version to save.
-    """
+    serialized = serializer(_getDict(self))
+    path_to_archive = file_path + '.zip'
 
-    computer_dict = _getDict(self)
-
-    if path_to_json:
-      with open(path_to_json, 'wb') as fout:
-        fout.write(json.dumps(computer_dict, sort_keys=True, indent=2))
-
-    new_xml = xml_marshaller.xml_marshaller.dumps(computer_dict)
-    new_pretty_xml = prettify_xml(new_xml)
-
-    path_to_archive = path_to_xml + '.zip'
-
-    if os.path.exists(path_to_archive) and os.path.exists(path_to_xml):
+    if os.path.exists(path_to_archive) and os.path.exists(file_path):
       # the archive file exists, we only backup if something has changed
-      with open(path_to_xml, 'rb') as fin:
-        if fin.read() == new_pretty_xml:
+      with open(file_path, 'rb') as fin:
+        if fin.read() == serialized:
           # computer configuration did not change, nothing to write
           return
 
-    if os.path.exists(path_to_xml):
+    if os.path.exists(file_path):
       try:
-        self.backup_xml(path_to_archive, path_to_xml)
+        self.backup_file(path_to_archive, file_path)
       except:
         # might be a corrupted zip file. let's move it out of the way and retry.
         shutil.move(path_to_archive,
                     path_to_archive + time.strftime('_broken_%Y%m%d-%H:%M'))
         try:
-          self.backup_xml(path_to_archive, path_to_xml)
+          self.backup_file(path_to_archive, file_path)
         except:
           # give up trying
-          logger.exception("Can't backup %s:", path_to_xml)
+          logger.exception("Can't backup %s:", file_path)
 
-    with open(path_to_xml, 'wb') as fout:
-      fout.write(new_pretty_xml)
+    with open(file_path, 'wb') as fout:
+      fout.write(serialized)
 
-  def backup_xml(self, path_to_archive, path_to_xml):
-    """
-    Stores a copy of the current xml file to an historical archive.
-    """
-    xml_content = open(path_to_xml).read()
-    saved_filename = os.path.basename(path_to_xml) + time.strftime('.%Y%m%d-%H:%M')
+  def backup_file(self, archive_name, file_name):
+    """Copy a file to an historical archive."""
+    content = open(file_name).read()
+    saved_filename = os.path.basename(file_name) + time.strftime('.%Y%m%d-%H:%M')
 
-    with zipfile.ZipFile(path_to_archive, 'a') as archive:
-      archive.writestr(saved_filename, xml_content, zipfile.ZIP_DEFLATED)
+    with zipfile.ZipFile(archive_name, 'a') as archive:
+      archive.writestr(saved_filename, content, zipfile.ZIP_DEFLATED)
 
   @classmethod
-  def load(cls, path_to_xml, reference, ipv6_interface, tap_gateway_interface):
+  def load(cls, file_path):
     """
     Create a computer object from a valid xml file.
 
-    Arg:
-      path_to_xml: String, a path to a valid file containing
-          a valid configuration.
-
-    Return:
-      A Computer object.
+    :param file_path: String, path to serialized file - its extension is used to deserializer selection
+    :return: slapos.format.Computer
     """
-
-    dumped_dict = xml_marshaller.xml_marshaller.loads(open(path_to_xml).read())
+    if "xml" in file_path:
+      with open(file_path, "rb") as fi:
+        dumped_dict = xml_marshaller.xml_marshaller.loads(fi.read())
+    elif "json" in file_path:
+      with open(file_path, "rb") as fi:
+        dumped_dict = json.loads(fi.read())
+    else:
+      raise ValueError("Unable to distinguish serialization format! No \"xml\" or \"json\" in " + str(file_path))
 
     # Reconstructing the computer object from the xml
     computer = Computer(
-        reference=reference,
+        reference=dumped_dict['reference'],
         addr=dumped_dict['address'],
         netmask=dumped_dict['netmask'],
-        ipv6_interface=ipv6_interface,
+        ipv6_interface=dumped_dict.get("ipv6_interface"),
         software_user=dumped_dict.get('software_user', 'slapsoft'),
-        tap_gateway_interface=tap_gateway_interface,
+        gateway_interface=dumped_dict.get("gateway_interface", dumped_dict.get("gateway_interface", None)), 
     )
 
     for i, partition_dict in enumerate(dumped_dict['partition_list']):
@@ -420,7 +418,7 @@ class Computer(object):
 
       if partition_dict['tap']:
         tap = Tap(partition_dict['tap']['name'])
-        if tap_gateway_interface:
+        if gateway_interface:
           tap.ipv4_addr = partition_dict['tap'].get('ipv4_addr', '')
           tap.ipv4_netmask = partition_dict['tap'].get('ipv4_netmask', '')
           tap.ipv4_gateway = partition_dict['tap'].get('ipv4_gateway', '')
@@ -533,8 +531,8 @@ class Computer(object):
           instance_external_list.append(data_path)
 
     tap_address_list = []
-    if alter_network and self.tap_gateway_interface and create_tap:
-      gateway_addr_dict = getIfaceAddressIPv4(self.tap_gateway_interface)
+    if alter_network and self.gateway_interface and create_tap:
+      gateway_addr_dict = getIfaceAddressIPv4(self.gateway_interface)
       tap_address_list = getIPv4SubnetAddressRange(gateway_addr_dict['addr'],
                               gateway_addr_dict['netmask'],
                               len(self.partition_list))
@@ -567,9 +565,9 @@ class Computer(object):
             partition.tap.createWithOwner(owner, attach_to_tap=True)
           else:
             partition.tap.createWithOwner(owner)
-          # If tap_gateway_interface is specified, we don't add tap to bridge
+          # If gateway_interface is specified, we don't add tap to bridge
           # but we create route for this tap
-          if not self.tap_gateway_interface:
+          if not self.gateway_interface:
             self.interface.addTap(partition.tap)
           else:
             next_ipv4_addr = '%s' % tap_address_list.pop(0)
@@ -630,21 +628,20 @@ class Computer(object):
 
 
 class Partition(object):
-  "Represent a computer partition"
+  """Computer Partition with all assigned resources."""
 
-  def __init__(self, reference, path, user, address_list, 
-               tap, external_storage_list=[], tun=None):
-    """
-    Attributes:
-      reference: String, the name of the partition.
-      path: String, the path to the partition folder.
-      user: User, the user linked to this partition.
-      address_list: List of associated IP addresses.
-      tap: Tap, the tap interface linked to this partition e.g. used as a bridge for kvm
-      tun: Tun interface used for special apps simulating ethernet connections
-      external_storage_list: Base path list of folder to format for data storage
-    """
+  resource_file = '.slapos-resources'
 
+  def __init__(self, reference, path, user, address_list, tap, external_storage_list=[]):
+    """Assign default values to the partition.
+
+    :param reference` String, the name of the partition.
+    :param path` String, the path to the partition folder.
+    :param user` User, the user linked to this partition.
+    :param address_list` List of associated IP addresses.
+    :param interfaces` list[Interface], list of exclusive interfaces for this partition.
+    :param external_storage_list` Base path list of folder to format for data storage
+    """
     self.reference = str(reference)
     self.path = str(path)
     self.user = user
@@ -686,6 +683,7 @@ class Partition(object):
         owner_pw = pwd.getpwnam(owner.name)
         os.chown(storage_path, owner_pw.pw_uid, owner_pw.pw_gid)
       os.chmod(storage_path, 0o750)
+
 
 class User(object):
   """User: represent and manipulate a user on the system."""
@@ -741,14 +739,10 @@ class User(object):
     return True
 
   def isAvailable(self):
-    """
-    Determine the availability of a user on the system
+    """Determine the availability of a user on the system.
 
-    Return:
-        True: if available
-        False: otherwise
+    :return: bool
     """
-
     try:
       pwd.getpwnam(self.name)
       return True
@@ -756,30 +750,21 @@ class User(object):
       return False
 
 
-class Tap(object):
-  "Tap represent a tap interface on the system"
+class Tap(Interface):
+  """Tap represent a tap interface on the system."""
+
   IFF_TAP = 0x0002
   TUNSETIFF = 0x400454ca
   KEEP_TAP_ATTACHED_EVENT = threading.Event()
   MODE = "tap"
 
-  def __init__(self, tap_name):
-    """
-    Attributes:
-        tap_name: String, the name of the tap interface.
-        ipv4_address: String, local ipv4 to route to this tap
-        ipv4_network: String, netmask to use when configure route for this tap
-        gateway_ipv4: String, ipv4 of gateway to be used to reach local network
-    """
-
-    self.name = str(tap_name)
+  def __init__(self, name):
+    # TODO: move to Interface
     self.ipv4_addr = ""
     self.ipv4_netmask = ""
     self.ipv4_gateway = ""
     self.ipv4_network = ""
 
-  def __getinitargs__(self):
-    return (self.name,)
 
   def attach(self):
     """
@@ -924,38 +909,23 @@ class Tun(Tap):
 
 
 class Interface(object):
-  """Represent a network interface on the system"""
+  """Any linux network interface."""
 
-  def __init__(self, logger, name, ipv4_local_network, ipv6_interface=None):
-    """
-    Attributes:
-        name: String, the name of the interface
-    """
+  def __init__(self, name):
+    """Name the interface according to the name inside ``ip addr``.
 
-    self.logger = logger
+    :param name: String, the name of the interface
+    """
     self.name = str(name)
-    self.ipv4_local_network = ipv4_local_network
-    self.ipv6_interface = ipv6_interface
 
-    # Attach to TAP  network interface, only if the  interface interface does not
-    # report carrier
-    _, result = callAndRead(['ip', 'addr', 'list', self.name], raise_on_error=False)
-    self.attach_to_tap = 'DOWN' in result.split('\n', 1)[0]
-
-  # XXX no __getinitargs__, as instances of this class are never deserialized.
+  def __getinitargs__(self):
+    return (self.name,)
 
   def getIPv4LocalAddressList(self):
-    """
-    Returns currently configured local IPv4 addresses which are in
-    ipv4_local_network
-    """
+    """Return list of IPv4 addresses on this interface  within ``ipv4_local_network``."""
     if not socket.AF_INET in netifaces.ifaddresses(self.name):
       return []
-    return [
-            {
-                'addr': q['addr'],
-                'netmask': q['netmask']
-                }
+    return [{'addr': q['addr'], 'netmask': q['netmask']}
             for q in netifaces.ifaddresses(self.name)[socket.AF_INET]
             if netaddr.IPAddress(q['addr'], 4) in netaddr.glob_to_iprange(
                 netaddr.cidr_to_glob(self.ipv4_local_network))
@@ -989,36 +959,49 @@ class Interface(object):
     return address_list
 
   def isBridge(self):
-    _, result = callAndRead(['brctl', 'show'])
+    try:
+      _, result = callAndRead(['brctl', 'show'])
+    except ValueError:
+      logger.warn("Binary 'brctl' was not found - suppose no bridge interface can exist.")
+      return False
     return any(line.startswith(self.name) for line in result.split("\n"))
 
+  def isAttached(self):
+    """Check whether this interface has cabel/process attached to it."""
+    _, result = callAndRead(['ip', 'addr', 'list', self.name], raise_on_error=False)
+    return 'DOWN' in result.split('\n', 1)[0]
+
   def getInterfaceList(self):
-    """Returns list of interfaces already present on bridge"""
+    """Return list of interfaces already included in this bridge interface.
+
+    Bridge comand result has format of::
+
+    bridge name bridge id   STP enabled interfaces
+    slapbridge    8000.3ed0e8bf7964 no    compdummy
+                  slaptap1
+    """
+    if not self.isBridge():
+      # Regular interfaces cannot have other interfaces attached to them
+      return []
+
     interface_list = []
     _, result = callAndRead(['brctl', 'show'])
-    in_interface = False
-    for line in result.split('\n'):
-      if len(line.split()) > 1:
-        if self.name in line:
-          interface_list.append(line.split()[-1])
-          in_interface = True
-          continue
-        if in_interface:
-          break
-      elif in_interface:
-        if line.strip():
-          interface_list.append(line.strip())
-
+    lines = result.split('\n')[1:]  # cut off header because it might cause us troubles
+    # find the section fot this interface
+    interface_section = itertools.dropwhile(lambda line: not line.startswith(self.name), lines)
+    # first line contains <interface-name> <ID> <something> <attached-interface>
+    interface_list.append(next(interface_section).split()[-1])
+    # every other line has form of <many-spaces> <attached-interface>
+    interface_list.extend(line.strip()
+                          for line in itertools.takewhile(lambda line: line.startswith(" "), lines))
     return interface_list
 
-  def addTap(self, tap):
-    """
-    Add the tap interface tap to the bridge.
+  def addInterface(self, other):
+    """Add interface into the bridge.
 
-    Args:
-      tap: Tap, the tap interface.
+    :param other: Interface, the other interface to be added to the bridge
     """
-    if tap.name not in self.getInterfaceList():
+    if other.name not in self.getInterfaceList():
       if self.isBridge():
         callAndRead(['brctl', 'addif', self.name, tap.name])
       else:
@@ -1026,12 +1009,17 @@ class Interface(object):
                             "TUN/TAP interface {} might not have internet connection."
                             "".format(self.name, tap.name))
 
+  def addTap(self, tap):
+    """Deprecated!"""
+    warnings.warn("Use addInterface instead of addTap.", DeprecationWarning)
+    return self.addInterface(tap)
+
   def _addSystemAddress(self, address, netmask, ipv6=True):
-    """Adds system address to interface
+    """Add system address to interface
 
-    Returns True if address was added successfully.
+    Return True if address was added successfully.
 
-    Returns False if there was issue.
+    Return False if there was issue.
     """
     if ipv6:
       address_string = '%s/%s' % (address, netmaskToPrefixIPv6(netmask))
@@ -1045,7 +1033,7 @@ class Interface(object):
       address_string = '%s/%s' % (address, netmaskToPrefixIPv4(netmask))
       interface_name = self.name
 
-    # check if address is already took by any other interface
+    # check if address is already taken by any other interface
     for interface in netifaces.interfaces():
       if interface != interface_name:
         address_dict = netifaces.ifaddresses(interface)
@@ -1084,7 +1072,7 @@ class Interface(object):
     # even when added not found, this is bad...
     return False
 
-  def _generateRandomIPv4Address(self, netmask):
+  def _generateRandomIPv4Address(self, network, netmask):
     # no addresses found, generate new one
     # Try 10 times to add address, raise in case if not possible
     try_num = 10
@@ -1118,19 +1106,17 @@ class Interface(object):
       # confirmed to be configured
       return dict(addr=addr, netmask=netmask)
 
-  def addAddr(self, addr=None, netmask=None):
-    """
-    Adds IP address to interface.
+  def addAddr(self, addr, netmask):
+    """Add IP address to interface.
 
     If addr is specified and exists already on interface does nothing.
 
     If addr is specified and does not exists on interface, tries to add given
-    address. If it is not possible (ex. because network changed) calculates new
     address.
 
     Args:
-      addr: Wished address to be added to interface.
-      netmask: Wished netmask to be used.
+      addr: address to be added to interface.
+      netmask: netmask to be used.
 
     Returns:
       Tuple of (address, netmask).
@@ -1202,18 +1188,17 @@ def parse_computer_definition(conf, definition_path):
     address, netmask = computer_definition.get('computer', 'address').split('/')
   if (conf.alter_network and conf.interface_name is not None
         and conf.ipv4_local_network is not None):
-    interface = Interface(logger=conf.logger,
-                          name=conf.interface_name,
+    interface = Interface(name=conf.interface_name,
                           ipv4_local_network=conf.ipv4_local_network,
                           ipv6_interface=conf.ipv6_interface)
   computer = Computer(
       reference=conf.computer_id,
-      interface=interface,
+      software_user=computer_definition.get('computer', 'software_user'),
       addr=address,
       netmask=netmask,
+      interface=interface,
       ipv6_interface=conf.ipv6_interface,
-      software_user=computer_definition.get('computer', 'software_user'),
-      tap_gateway_interface=conf.tap_gateway_interface,
+      gateway_interface=conf.gateway_interface,
   )
   partition_list = []
   for partition_number in range(int(conf.partition_amount)):
@@ -1239,30 +1224,31 @@ def parse_computer_definition(conf, definition_path):
 
 
 def parse_computer_xml(conf, xml_path):
-  interface = Interface(logger=conf.logger,
-                        name=conf.interface_name,
-                        ipv4_local_network=conf.ipv4_local_network,
-                        ipv6_interface=conf.ipv6_interface)
+  ipv4_interface = Interface(name=conf.interface_name)
+  ipv6_interface = Interface(name=conf.ipv6_interface)
 
   if os.path.exists(xml_path):
-    conf.logger.debug('Loading previous computer data from %r' % xml_path)
-    computer = Computer.load(xml_path,
-                             reference=conf.computer_id,
-                             ipv6_interface=conf.ipv6_interface,
-                             tap_gateway_interface=conf.tap_gateway_interface)
+    logger.debug('Loading previous computer data from %r' % xml_path)
+    computer = Computer.load(
+      xml_path,
+      reference=conf.computer_id,
+      ipv6_interface=conf.ipv6_interface,
+      gateway_interface=getattr(conf, "tap_gateway_interface", 
+                                getattr(conf, "gateway_interface", "")))
     # Connect to the interface defined by the configuration
     computer.interface = interface
   else:
     # If no pre-existent configuration found, create a new computer object
-    conf.logger.warning('Creating new computer data with id %r', conf.computer_id)
+    logger.warning('Creating new computer data with id %r', conf.computer_id)
     computer = Computer(
       reference=conf.computer_id,
       interface=interface,
+      ipv6_interface=conf.ipv6_interface,
+      tap=None,
       addr=None,
       netmask=None,
-      ipv6_interface=conf.ipv6_interface,
       software_user=conf.software_user,
-      tap_gateway_interface=conf.tap_gateway_interface,
+      gateway_interface=conf.gateway_interface,
     )
 
   partition_amount = int(conf.partition_amount)
@@ -1336,7 +1322,7 @@ def do_format(conf):
   computer.instance_root = conf.instance_root
   computer.software_root = conf.software_root
   computer.instance_storage_home = conf.instance_storage_home
-  conf.logger.info('Updating computer')
+  logger.info('Updating computer')
   address = computer.getAddress(conf.create_tap)
   computer.address = address['addr']
   computer.netmask = address['netmask']
@@ -1355,15 +1341,16 @@ def do_format(conf):
   computer.update()
   # Dumping and sending to the erp5 the current configuration
   if not conf.dry_run:
-    computer.dump(path_to_xml=conf.computer_xml,
-                  path_to_json=conf.computer_json,
-                  logger=conf.logger)
-  conf.logger.info('Posting information to %r' % conf.master_url)
+    computer.dump(conf.computer_xml, format="xml")
+    computer.dump(conf.computer_json, format="json")
+  logger.info('Posting information to %r' % conf.master_url)
   computer.send(conf)
-  conf.logger.info('slapos successfully prepared the computer.')
+  logger.info('slapos successfully prepared the computer.')
 
 
 class FormatConfig(object):
+  """Config composed from command-line arguments to slapos node format and config file."""
+
   key_file = None
   cert_file = None
   alter_network = None
@@ -1376,12 +1363,9 @@ class FormatConfig(object):
   output_definition_file = None
   dry_run = None
   software_user = None
-  tap_gateway_interface = None
+  gateway_interface = None
   use_unique_local_address_block = None
   instance_storage_home = None
-
-  def __init__(self, logger):
-    self.logger = logger
 
   @staticmethod
   def checkRequiredBinary(binary_list):
@@ -1446,8 +1430,8 @@ class FormatConfig(object):
       self.software_user = 'slapsoft'
     if self.create_tap is None:
       self.create_tap = True
-    if self.tap_gateway_interface is None:
-      self.tap_gateway_interface = ''
+    if self.gateway_interface is None:
+      self.gateway_interface = ''
     if self.use_unique_local_address_block is None:
       self.use_unique_local_address_block = False
 

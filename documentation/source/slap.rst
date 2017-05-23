@@ -1,5 +1,5 @@
-slap interface documentation
-****************************
+SLAP Interface
+##############
 
 .. autointerface:: slapos.slap.interface.slap.IException
    :members:

@@ -6,6 +6,8 @@
 Welcome to slapos.core's documentation!
 =======================================
 
+SlapOS is a computer grid management tool written in Python using Buildout.
+
 Contents:
 
 .. toctree::

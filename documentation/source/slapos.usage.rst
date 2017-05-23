@@ -1,6 +1,5 @@
-=========================
-SlapOS command line usage
-=========================
+SlapOS Node command line
+========================
 
 
 Notes

@@ -61,7 +61,7 @@ setup(name=name,
       'docs': (
         'Sphinx',
         'repoze.sphinx.autointerface',
-        'sphinxcontrib.programoutput'
+        'sphinxcontrib-programoutput'
       ),
       'ipython_console': ('ipython',),
       'bpython_console': ('bpython',)},

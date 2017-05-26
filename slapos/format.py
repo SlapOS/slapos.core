@@ -940,7 +940,7 @@ class Interface(object):
     # Attach to TAP  network interface, only if the  interface interface does not
     # report carrier
     _, result = callAndRead(['ip', 'addr', 'list', self.name], raise_on_error=False)
-    self.attach_to_tap = 'DOWN' in result.split('\n', 1)[0]
+    self.attach_to_tap = self.isBridge() and ('DOWN' in result.split('\n', 1)[0])
 
   # XXX no __getinitargs__, as instances of this class are never deserialized.
 
@@ -1022,7 +1022,7 @@ class Interface(object):
       if self.isBridge():
         callAndRead(['brctl', 'addif', self.name, tap.name])
       else:
-        self.logger.warning("Interface slapos.cfg:interface_name={} is not a bridge."
+        self.logger.warning("Interface slapos.cfg:interface_name={} is not a bridge. "
                             "TUN/TAP interface {} might not have internet connection."
                             "".format(self.name, tap.name))
 

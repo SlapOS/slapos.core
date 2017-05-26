@@ -925,7 +925,12 @@ stderr_logfile_backups=1
 
   def processComputerPartition(self, computer_partition):
     """
-    Process a Computer Partition, depending on its state
+    Apply configuration received from SlapOS Master to given partition.
+
+    This function takes care only of Software Releases installed inside
+    partitions. It is different from `slapos.format.Partition` processing.
+
+    :param computer_partition: slapos.slap.slap.Computer, 
     """
     computer_partition_id = computer_partition.getId()
 

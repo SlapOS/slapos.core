@@ -321,7 +321,10 @@ class Software(object):
 
 
 class Partition(object):
-  """This class is responsible of the installation of an instance
+  """This class is responsible of the software installation into an instance.
+
+  It has nothing in common with `slapos.format.Partition` which is executed as root and
+  prepares underlaying system to accomodate an software release afterwards.
   """
   retention_lock_delay_filename = '.slapos-retention-lock-delay'
   retention_lock_date_filename = '.slapos-retention-lock-date'

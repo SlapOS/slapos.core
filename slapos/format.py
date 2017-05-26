@@ -906,7 +906,11 @@ class Tun(Tap):
       mask_shift = int(math.ceil(math.log(int(partitions), 2.0)))
       # IPNetwork.subnet returns iterator over all possible subnets of given mask
       ip_subnets = list(ip_network.subnet(Tun.BASE_MASK + mask_shift))
-      self.ipv4_network = self.ipv4_addr = str(ip_subnets[sequence])
+      subnet = ip_subnets[sequence]
+      # For serialization purposes, convert directly to ``str``
+      self.ipv4_network = str(subnet)
+      self.ipv4_addr = str(subnet.ip)
+      self.ipv4_netmask = str(subnet.netmask)
 
   def createRoutes(self):
     """Extend for physical addition of network address because TAP let this on external class."""

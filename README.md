@@ -16,9 +16,9 @@ Core components
 ERP5 Modules
 ------------
 
-* _master/product_ Zope Product for extending ERP5 to become fully-fledged SlapOS Master
-* _master/bt5_ ERP5 Business Templates for SlapOS subscription management
-* _master/tests_ Test Runner for tests contained within Business Templates
+* __master/product__ Zope Product for extending ERP5 to become fully-fledged SlapOS Master
+* __master/bt5__ ERP5 Business Templates for SlapOS subscription management
+* __master/tests__ Test Runner for tests contained within Business Templates
 
 
 Other links

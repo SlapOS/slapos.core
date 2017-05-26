@@ -376,6 +376,9 @@ class Computer(object):
     with open(path_to_xml, 'wb') as fout:
       fout.write(new_pretty_xml)
 
+    for partition in self.partition_list:
+      partition.dump()
+
   def backup_xml(self, path_to_archive, path_to_xml):
     """
     Stores a copy of the current xml file to an historical archive.
@@ -632,6 +635,8 @@ class Computer(object):
 class Partition(object):
   "Represent a computer partition"
 
+  resource_file = ".slapos-resource"
+
   def __init__(self, reference, path, user, address_list, 
                tap, external_storage_list=[], tun=None):
     """
@@ -686,6 +691,19 @@ class Partition(object):
         owner_pw = pwd.getpwnam(owner.name)
         os.chown(storage_path, owner_pw.pw_uid, owner_pw.pw_gid)
       os.chmod(storage_path, 0o750)
+
+  def dump(self):
+    """Dump available resources into ~partition_home/.slapos-resource."""
+    file_path = os.path.join(self.path, self.resource_file)
+    logger.info("Partition {} dumping resources to {}".format(
+      self.reference, file_path))
+    data = _getDict(self)
+    with open(file_path, "wb") as fo:
+      json.dump(data, fo, sort_keys=True, indent=4)
+    owner_pw = pwd.getpwnam(self.user.name)
+    os.chmod(file_path, 0o740)
+    os.chown(file_path, owner_pw.pw_uid, owner_pw.pw_gid)
+
 
 class User(object):
   """User: represent and manipulate a user on the system."""

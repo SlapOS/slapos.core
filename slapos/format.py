@@ -523,6 +523,7 @@ class Computer(object):
       with open(cpu_path + "/cpuset.cpu_exclusive", "wt") as fx:
         fx.write("1")  # manages it exclusively
       os.chown(cpu_path + "/tasks", -1, self.software_gid)
+      os.chmod(cpu_path + "/tasks", 0o664)
 
 
   def prepare_cgroup(self):

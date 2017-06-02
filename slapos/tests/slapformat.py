@@ -325,12 +325,12 @@ class SlapformatMixin(unittest.TestCase):
 
 class TestComputer(SlapformatMixin):
   def test_getAddress_empty_computer(self):
-    computer = slapos.format.Computer('computer')
+    computer = slapos.format.Computer('computer', instance_root='/instance_root', software_root='software_root')
     self.assertEqual(computer.getAddress(), {'netmask': None, 'addr': None})
 
   @unittest.skip("Not implemented")
   def test_construct_empty(self):
-    computer = slapos.format.Computer('computer')
+    computer = slapos.format.Computer('computer', instance_root='/instance_root', software_root='software_root')
     computer.format()
 
   @unittest.skip("Not implemented")
@@ -368,8 +368,9 @@ class TestComputer(SlapformatMixin):
       "makedirs('/software_root', 493)",
       "chmod('/software_root', 493)"],
       self.test_result.bucket)
-    self.assertEqual(['ip addr list bridge'],
-                     self.fakeCallAndRead.external_command_list)
+    self.assertEqualCommands(
+      ['ip addr list bridge'],
+      self.fakeCallAndRead.external_command_list)
 
   @unittest.skip("Not implemented")
   def test_construct_empty_prepared_no_alter_network(self):
@@ -462,12 +463,10 @@ class TestComputer(SlapformatMixin):
         logger=self.logger, name='bridge', ipv4_local_network='127.0.0.1/16'),
       partition_list=[
           slapos.format.Partition(
-            'partition', '/part_path', slapos.format.User('testuser'), [], tap=None),
+            'partition', '/part_path', slapos.format.User('testuser'), [], tap=slapos.format.Tap('tap')),
         ])
     global USER_LIST
     USER_LIST = ['testuser']
-    partition.tap = slapos.format.Tap('tap')
-    computer.partition_list = [partition]
     global INTERFACE_DICT
     INTERFACE_DICT['bridge'] = {
       socket.AF_INET: [{'addr': '192.168.242.77', 'broadcast': '127.0.0.1',
@@ -501,8 +500,9 @@ class TestComputer(SlapformatMixin):
     computer = slapos.format.Computer('computer',
       instance_root='/instance_root',
       software_root='/software_root',
+      tap_gateway_interface='eth1',
       interface=slapos.format.Interface(
-        logger=self.logger, name='iface', ipv4_local_network='127.0.0.1/16', tap_gateway_interface='eth1'),
+        logger=self.logger, name='iface', ipv4_local_network='127.0.0.1/16'),
       partition_list=[
           slapos.format.Partition(
             'partition', '/part_path', slapos.format.User('testuser'), [], tap=None),

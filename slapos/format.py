@@ -256,7 +256,7 @@ class CGroupManager(object):
     self.software_gid = computer.software_gid
 
   def allowed(self):
-    return os.path.exists("/sys/fs/cgroup/cpuset/cpuset.cpus"):
+    return os.path.exists("/sys/fs/cgroup/cpuset/cpuset.cpus")
 
   def format(self):
     """Build CGROUP tree to fit SlapOS needs.
@@ -408,10 +408,10 @@ class Computer(object):
     self.tap_gateway_interface = tap_gateway_interface
 
     # Used to be static attributes of the class object - didn't make sense (Marco again)
-    assert instance_root is not None and software_root is not None,
+    assert instance_root is not None and software_root is not None, \
            "Computer's instance_root and software_root must not be empty!"
-    self.software_root = instance_root
-    self.instance_root = software_root
+    self.software_root = software_root
+    self.instance_root = instance_root
     self.instance_storage_home = instance_storage_home
 
     # The following properties are updated on update() method
@@ -550,7 +550,7 @@ class Computer(object):
       archive.writestr(saved_filename, xml_content, zipfile.ZIP_DEFLATED)
 
   @classmethod
-  def load(cls, path_to_xml, reference, ipv6_interface, tap_gateway_interface
+  def load(cls, path_to_xml, reference, ipv6_interface, tap_gateway_interface,
            instance_root=None, software_root=None):
     """
     Create a computer object from a valid xml file.
@@ -758,6 +758,8 @@ class Computer(object):
               partition.tap.ipv4_gateway = gateway_addr_dict['addr']
               partition.tap.ipv4_network = gateway_addr_dict['network']
             partition.tap.createRoutes()
+
+        if alter_network and partition.tun is not None:
           # create TUN interface per partition as well
           partition.tun.createWithOwner(owner)
           partition.tun.createRoutes()
@@ -1219,9 +1221,9 @@ class Interface(object):
       if self.isBridge():
         callAndRead(['brctl', 'addif', self.name, tap.name])
       else:
-        self.logger.warning("Interface slapos.cfg:interface_name={} is not a bridge. "
-                            "TUN/TAP interface {} might not have internet connection."
-                            "".format(self.name, tap.name))
+        logger.warning("Interface slapos.cfg:interface_name={} is not a bridge. "
+                       "TUN/TAP interface {} might not have internet connection."
+                       "".format(self.name, tap.name))
 
   def _addSystemAddress(self, address, netmask, ipv6=True):
     """Adds system address to interface

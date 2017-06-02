@@ -237,34 +237,192 @@ def _getDict(obj):
   }
 
 
+class CGroupManager(object):
+  """Manage cgroups in terms on initializing and runtime operations.
+
+  This class takes advantage of slapformat being run periodically thus
+  it can act as a "daemon" performing runtime tasks.
+  """
+
+  cpu_exclusive_file = ".slapos-cpu-exclusive"
+  cpuset_path = "/sys/fs/cgroup/cpuset/"
+
+  def __init__(self, computer):
+    """Extract necessary information from the ``computer``.
+
+    :param computer: slapos.format.Computer, extract necessary attributes
+    """
+    self.instance_root = computer.instance_root
+    self.software_gid = computer.software_gid
+
+  def allowed(self):
+    return os.path.exists("/sys/fs/cgroup/cpuset/cpuset.cpus"):
+
+  def format(self):
+    """Build CGROUP tree to fit SlapOS needs.
+
+    - Create hierarchy of CPU sets so that every partition can have exclusive
+      hold of one of the CPUs.
+    """
+    self.prepare_cpuset()
+    self.prepare_cpu_space()
+
+  def update(self):
+    """Control runtime state of the computer."""
+    self.prepare_cpu_space()
+    self.ensure_exlusive_cpu()
+
+  def prepare_cpuset(self):
+    """Create cgroup folder per-CPU with exclusive access to the CPU.
+
+    Those folders are "/sys/fs/cgroup/cpuset/cpu<N>".
+    """
+    for cpu in self._list_cpus():
+      cpu_path = self._prepare_cgroup_folder(
+        os.path.join(self.cpuset_path, "cpu" + str(cpu)))
+      with open(cpu_path + "/cpuset.cpus", "wt") as fx:
+        fx.write(str(cpu))  # this cgroup manages only this cpu
+      with open(cpu_path + "/cpuset.cpu_exclusive", "wt") as fx:
+        fx.write("1")  # manages it exclusively
+      with open(cpu_path + "/cpuset.mems", "wt") as fx:
+        fx.write("0")  # it doesn't work without that
+      os.chown(cpu_path + "/tasks", -1, self.software_gid)
+      os.chmod(cpu_path + "/tasks", 0o664)
+
+  def ensure_exlusive_cpu(self):
+    """Move processes among exclusive CPUSets based on software release demands.
+
+    We expect PIDs which require own CPU to be found in ~instance/.slapos-cpu-exclusive
+    """
+    request_pid_set = set()  # gather requests from all instances
+    for request_file in glob.iglob(os.path.join(self.instance_root, '*', CGroupManager.cpu_exclusive_file)):
+      with open(request_file, "rt") as fi:
+        request_pid_set.update(map(int, fi.read().split()))
+
+    cpu_list = self._list_cpus()
+    generic_cpu = cpu_list[0]
+    exclusive_cpu_list = cpu_list[1:]
+
+    # gather all running PIDs for filtering out stale PIDs
+    running_pid_set = set()
+    with open(os.path.join(self.cpuset_path, "tasks"), "rt") as fi:
+      running_pid_set.update(map(int, fi.read().split()))
+    with open(os.path.join(self.cpuset_path, "cpu" + str(generic_cpu), "tasks"), "rt") as fi:
+      running_pid_set.update(map(int, fi.read().split()))
+
+    # gather already exclusively running PIDs
+    exlusive_pid_set = set()
+    for exclusive_cpu in exclusive_cpu_list:
+      with open(os.path.join(self.cpuset_path, "cpu" + str(exclusive_cpu), "tasks"), "rt") as fi:
+        exlusive_pid_set.update(map(int, fi.read().split()))
+
+    for request in request_set:
+      if request in exclusive_pid_set:
+        continue  # already exclusive
+      if request not in running_pid_set:
+        continue  # stale PID which is not running anywhere
+      self._move_to_exclusive_cpu(request)
+
+  def prepare_cpu_space(self):
+    """Move all PIDs from the pool of all CPUs into the first exclusive CPU."""
+    with open(self.cpuset_path + "tasks", "rt") as fi:
+      running_set = set(map(int, fi.read().split()))
+    first_cpu = self._list_cpus()[0]
+    task_path = os.path.join(self.cpuset_path, "cpu" + str(first_cpu), "tasks")
+
+    for pid in running_set:
+      with open(task_path, "wt") as fo:
+        fo.write(str(pid))
+      time.sleep(0.01)
+
+  def _list_cpus(self):
+    """Extract IDs of available CPUs and return them as a list.
+
+    The first one will be always used for all non-exclusive processes.
+    :return: list[int]
+    """
+    cpu_list = []  # types: list[int]
+    with open(self.cpuset_path + "cpuset.cpus", "rt") as cpu_def:
+      for cpu_def_split in cpu_def.read().strip().split(","):
+        # IDs can be in form "0-4" or "0,1,2,3,4"
+        if "-" in cpu_def_split:
+          a, b = map(int, cpu_def_split.split("-"))
+          cpu_list.extend(range(a, b + 1)) # because cgroup's range is inclusive
+          continue
+        cpu_list.append(int(cpu_def_split))
+    return cpu_list
+
+  def _move_to_exclusive_cpu(self, pid):
+    """Try all exclusive CPUs and place the ``pid`` to the first available one.
+
+    :return: int, cpu_id of used CPU, -1 if placement was not possible
+    """
+    exclusive_cpu_list = self._list_cpus()[1:]
+    for exclusive_cpu in exclusive_cpu_list:
+      # gather tasks assigned to current exclusive CPU
+      task_path = os.path.join(self.cpuset_path, "cpu" + str(first_cpu), "tasks")
+      with open(task_path, "rt") as fi:
+        task_list = fi.read().split()
+      if len(task_list) > 0:
+        continue  # skip occupied CPUs
+      with open(task_path, "wt") as fo:
+        fo.write(str(pid))
+      return exclusive_cpu
+    return -1
+
+  def _prepare_folder(self, folder):
+    """If-Create folder and set group write permission."""
+    if not os.path.exists(folder):
+      os.mkdir(folder)
+      os.chown(folder, -1, self.software_gid)
+      # make your life and testing easier and create mandatory files if they don't exist
+      mandatory_file_list = ("tasks", "cpuset.cpus")
+      for mandatory_file in mandatory_file_list:
+        file_path = os.path.join(folder, mandatory_file)
+        if not os.path.exists(file_path):
+          with open(file_path, "wb"):
+            pass  # touche
+    return folder
+
+
 class Computer(object):
-  "Object representing the computer"
-  instance_root = None
-  software_root = None
-  instance_storage_home = None
+  """Object representing the computer"""
 
   def __init__(self, reference, interface=None, addr=None, netmask=None,
                ipv6_interface=None, software_user='slapsoft',
-               tap_gateway_interface=None):
+               tap_gateway_interface=None,
+               instance_root=None, software_root=None, instance_storage_home=None,
+               partition_list=None, manager_list=None):
     """
     Attributes:
-      reference: String, the reference of the computer.
-      interface: String, the name of the computer's used interface.
+      reference: str, the reference of the computer.
+      interface: str, the name of the computer's used interface.
     """
     self.reference = str(reference)
     self.interface = interface
-    self.partition_list = []
+    self.partition_list = partition_list or []
     self.address = addr
     self.netmask = netmask
     self.ipv6_interface = ipv6_interface
     self.software_user = software_user
     self.tap_gateway_interface = tap_gateway_interface
 
-    # The follow properties are updated on update() method
+    # Used to be static attributes of the class object - didn't make sense (Marco again)
+    assert instance_root is not None and software_root is not None,
+           "Computer's instance_root and software_root must not be empty!"
+    self.software_root = instance_root
+    self.instance_root = software_root
+    self.instance_storage_home = instance_storage_home
+
+    # The following properties are updated on update() method
     self.public_ipv4_address = None
     self.os_type = None
     self.python_version = None
     self.slapos_version = None
+
+    # HASA relation to managers (could turn into plugins with `format` and `update` methods)
+    self.manager_list = (manager(self) for manager in manager_list if manager(self).allowed()) \
+                        if manager_list else tuple() 
 
   def __getinitargs__(self):
     return (self.reference, self.interface)
@@ -302,9 +460,11 @@ class Computer(object):
     raise NoAddressOnInterface('No valid IPv6 found on %s.' % self.interface.name)
 
   def update(self):
-    """
-      Collect environmental hardware/network information.
-    """
+    """Update computer runtime info and state."""
+    for manager in self.manager_list:
+      manager.update()
+
+    # Collect environmental hardware/network information.
     self.public_ipv4_address = getPublicIPv4Address()
     self.slapos_version = version.version
     self.python_version = platform.python_version()
@@ -390,7 +550,8 @@ class Computer(object):
       archive.writestr(saved_filename, xml_content, zipfile.ZIP_DEFLATED)
 
   @classmethod
-  def load(cls, path_to_xml, reference, ipv6_interface, tap_gateway_interface):
+  def load(cls, path_to_xml, reference, ipv6_interface, tap_gateway_interface
+           instance_root=None, software_root=None):
     """
     Create a computer object from a valid xml file.
 
@@ -412,6 +573,8 @@ class Computer(object):
         ipv6_interface=ipv6_interface,
         software_user=dumped_dict.get('software_user', 'slapsoft'),
         tap_gateway_interface=tap_gateway_interface,
+        software_root=dumped_dict.get('software_root', software_root),
+        instance_root=dumped_dict.get('instance_root', instance_root),
     )
 
     for i, partition_dict in enumerate(dumped_dict['partition_list']):
@@ -494,61 +657,11 @@ class Computer(object):
   def software_gid(self):
     """Return GID for self.software_user.
 
-    Has to be dynamic because __init__ happens before ``construct`` where we 
+    Has to be dynamic because __init__ happens before ``format`` where we 
     effectively create the user and group."""
     return pwd.getpwnam(self.software_user)[3]
 
-
-  def _prepare_cgroup_folder(self, folder):
-    """If-Create folder and set group write permission."""
-    if not os.path.exists(folder):
-      os.mkdir(folder)
-      os.chown(folder, -1, self.software_gid)
-    return folder
-
-
-  def _prepare_cgroup_cpuset(self):
-    """Create cgroup folder per-CPU with exclusive access to the CPU.
-
-    Those folders are "/sys/fs/cgroup/cpuset/cpu<N>".
-    """
-    if not os.path.exists("/sys/fs/cgroup/cpuset/cpuset.cpus"):
-      self.logger.warining("Cannot prepare CGROUP CPUSET - not supported by current OS")
-      return
-
-    with open("/sys/fs/cgroup/cpuset/cpuset.cpus", "rt") as cpu_def:
-      # build up cpu_list of available CPU IDs
-      cpu_list = []  # types: list[int]
-      for cpu_def_split in cpu_def.read().strip().split(","):
-        # IDs can be in form "0-4" or "0,1,2,3,4"
-        if "-" in cpu_def_split:
-          a, b = map(int, cpu_def_split.split("-"))
-          cpu_list.extend(range(a, b + 1)) # because cgroup's range is inclusive
-          continue
-        cpu_list.append(int(cpu_def_split))
-
-    # For every CPU ID create an exclusive cgroup
-    for cpu in cpu_list:
-      cpu_path = self._prepare_cgroup_folder(
-        os.path.join("/sys/fs/cgroup/cpuset/", "cpu" + str(cpu)))
-      with open(cpu_path + "/cpuset.cpus", "wt") as fx:
-        fx.write(str(cpu))  # this cgroup manages only this cpu
-      with open(cpu_path + "/cpuset.cpu_exclusive", "wt") as fx:
-        fx.write("1")  # manages it exclusively
-      os.chown(cpu_path + "/tasks", -1, self.software_gid)
-      os.chmod(cpu_path + "/tasks", 0o664)
-
-
-  def prepare_cgroup(self):
-    """Build CGROUP tree exclusively for slapos.
-
-    - Create hierarchy of CPU sets so that every partition can have exclusive
-      hold of one of the CPUs.
-    """
-    self._prepare_cgroup_cpuset()
-
-
-  def construct(self, alter_user=True, alter_network=True, create_tap=True, use_unique_local_address_block=False):
+  def format(self, alter_user=True, alter_network=True, create_tap=True, use_unique_local_address_block=False):
     """
     Setup underlaying OS so it reflects this instance (``self``).
     
@@ -582,8 +695,9 @@ class Computer(object):
       os.chown(slapsoft.path, slapsoft_pw.pw_uid, slapsoft_pw.pw_gid)
     os.chmod(self.software_root, 0o755)
 
-    # Build own CGROUPS tree for resource control
-    self.prepare_cgroup()
+    # Iterate over all managers and let them `format` the computer too
+    for manager in self.manager_list:
+      manager.format()
 
     # get list of instance external storage if exist
     instance_external_list = []
@@ -1427,7 +1541,7 @@ def do_format(conf):
   if conf.output_definition_file:
     write_computer_definition(conf, computer)
 
-  computer.construct(alter_user=conf.alter_user,
+  computer.format(alter_user=conf.alter_user,
                      alter_network=conf.alter_network,
                      create_tap=conf.create_tap,
                      use_unique_local_address_block=conf.use_unique_local_address_block)

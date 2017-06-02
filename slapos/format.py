@@ -490,6 +490,64 @@ class Computer(object):
     command = 'ip address add dev %s fd00::1/64' % interface_name
     callAndRead(command.split())
 
+  @property
+  def software_gid(self):
+    """Return GID for self.software_user.
+
+    Has to be dynamic because __init__ happens before ``construct`` where we 
+    effectively create the user and group."""
+    return pwd.getpwnam(self.software_user)[3]
+
+
+  def _prepare_cgroup_folder(self, folder):
+    """If-Create folder and set group write permission."""
+    if not os.path.exists(folder):
+      os.mkdir(folder)
+      os.chown(folder, -1, self.software_gid)
+    return folder
+
+
+  def _prepare_cgroup_cpuset(self):
+    """Create cgroup folder per-CPU with exclusive access to the CPU.
+
+    Those folders are "/sys/fs/cgroup/cpuset/cpu<N>".
+    """
+    if not os.path.exists("/sys/fs/cgroup/cpuset/cpuset.cpus"):
+      self.logger.warining("Cannot prepare CGROUP CPUSET - not supported by current OS")
+      return
+
+    with open("/sys/fs/cgroup/cpuset/cpuset.cpus", "rt") as cpu_def:
+      # build up cpu_list of available CPU IDs
+      cpu_list = []  # types: list[int]
+      for cpu_def_split in cpu_def.read().strip().split(","):
+        # IDs can be in form "0-4" or "0,1,2,3,4"
+        if "-" in cpu_def_split:
+          a, b = map(int, cpu_def_split.split("-"))
+          cpu_list.extend(range(a, b + 1)) # because cgroup's range is inclusive
+          continue
+        cpu_list.append(int(cpu_def_split))
+
+    # For every CPU ID create an exclusive cgroup
+    for cpu in cpu_list:
+      cpu_path = self._prepare_cgroup_folder(
+        os.path.join("/sys/fs/cgroup/cpuset/", "cpu" + str(cpu)))
+      with open(cpu_path + "/cpuset.cpus", "wt") as fx:
+        fx.write(str(cpu))  # this cgroup manages only this cpu
+      with open(cpu_path + "/cpuset.cpu_exclusive", "wt") as fx:
+        fx.write("1")  # manages it exclusively
+      os.chown(cpu_path + "/tasks", -1, self.software_gid)
+      os.chmod(cpu_path + "/tasks", 0o664)
+
+
+  def prepare_cgroup(self):
+    """Build CGROUP tree exclusively for slapos.
+
+    - Create hierarchy of CPU sets so that every partition can have exclusive
+      hold of one of the CPUs.
+    """
+    self._prepare_cgroup_cpuset()
+
+
   def construct(self, alter_user=True, alter_network=True, create_tap=True, use_unique_local_address_block=False):
     """
     Setup underlaying OS so it reflects this instance (``self``).
@@ -523,6 +581,9 @@ class Computer(object):
       slapsoft_pw = pwd.getpwnam(slapsoft.name)
       os.chown(slapsoft.path, slapsoft_pw.pw_uid, slapsoft_pw.pw_gid)
     os.chmod(self.software_root, 0o755)
+
+    # Build own CGROUPS tree for resource control
+    self.prepare_cgroup()
 
     # get list of instance external storage if exist
     instance_external_list = []

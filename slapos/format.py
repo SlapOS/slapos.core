@@ -246,6 +246,7 @@ class CGroupManager(object):
 
   cpu_exclusive_file = ".slapos-cpu-exclusive"
   cpuset_path = "/sys/fs/cgroup/cpuset/"
+  task_write_mode = "wt"
 
   def __init__(self, computer):
     """Extract necessary information from the ``computer``.
@@ -277,8 +278,8 @@ class CGroupManager(object):
 
     Those folders are "/sys/fs/cgroup/cpuset/cpu<N>".
     """
-    for cpu in self._list_cpus():
-      cpu_path = self._prepare_cgroup_folder(
+    for cpu in self._cpu_list():
+      cpu_path = self._prepare_folder(
         os.path.join(self.cpuset_path, "cpu" + str(cpu)))
       with open(cpu_path + "/cpuset.cpus", "wt") as fx:
         fx.write(str(cpu))  # this cgroup manages only this cpu
@@ -299,7 +300,7 @@ class CGroupManager(object):
       with open(request_file, "rt") as fi:
         request_pid_set.update(map(int, fi.read().split()))
 
-    cpu_list = self._list_cpus()
+    cpu_list = self._cpu_list()
     generic_cpu = cpu_list[0]
     exclusive_cpu_list = cpu_list[1:]
 
@@ -311,12 +312,12 @@ class CGroupManager(object):
       running_pid_set.update(map(int, fi.read().split()))
 
     # gather already exclusively running PIDs
-    exlusive_pid_set = set()
+    exclusive_pid_set = set()
     for exclusive_cpu in exclusive_cpu_list:
       with open(os.path.join(self.cpuset_path, "cpu" + str(exclusive_cpu), "tasks"), "rt") as fi:
-        exlusive_pid_set.update(map(int, fi.read().split()))
+        exclusive_pid_set.update(map(int, fi.read().split()))
 
-    for request in request_set:
+    for request in request_pid_set:
       if request in exclusive_pid_set:
         continue  # already exclusive
       if request not in running_pid_set:
@@ -325,17 +326,14 @@ class CGroupManager(object):
 
   def prepare_cpu_space(self):
     """Move all PIDs from the pool of all CPUs into the first exclusive CPU."""
-    with open(self.cpuset_path + "tasks", "rt") as fi:
+    with open(os.path.join(self.cpuset_path, "tasks"), "rt") as fi:
       running_set = set(map(int, fi.read().split()))
-    first_cpu = self._list_cpus()[0]
-    task_path = os.path.join(self.cpuset_path, "cpu" + str(first_cpu), "tasks")
-
+    first_cpu = self._cpu_list()[0]
     for pid in running_set:
-      with open(task_path, "wt") as fo:
-        fo.write(str(pid))
+      self._move_task(pid, first_cpu)
       time.sleep(0.01)
 
-  def _list_cpus(self):
+  def _cpu_list(self):
     """Extract IDs of available CPUs and return them as a list.
 
     The first one will be always used for all non-exclusive processes.
@@ -357,18 +355,22 @@ class CGroupManager(object):
 
     :return: int, cpu_id of used CPU, -1 if placement was not possible
     """
-    exclusive_cpu_list = self._list_cpus()[1:]
+    exclusive_cpu_list = self._cpu_list()[1:]
     for exclusive_cpu in exclusive_cpu_list:
       # gather tasks assigned to current exclusive CPU
-      task_path = os.path.join(self.cpuset_path, "cpu" + str(first_cpu), "tasks")
+      task_path = os.path.join(self.cpuset_path, "cpu" + str(exclusive_cpu), "tasks")
       with open(task_path, "rt") as fi:
         task_list = fi.read().split()
       if len(task_list) > 0:
         continue  # skip occupied CPUs
-      with open(task_path, "wt") as fo:
-        fo.write(str(pid))
-      return exclusive_cpu
+      return self._move_task(pid, exclusive_cpu)[1]
     return -1
+
+  def _move_task(self, pid, cpu_id):
+    """Move ``pid`` to ``cpu_id``."""
+    with open(os.path.join(self.cpuset_path, "cpu" + str(cpu_id), "tasks"), self.task_write_mode) as fo:
+      fo.write(str(pid) + "\n")
+    return pid, cpu_id
 
   def _prepare_folder(self, folder):
     """If-Create folder and set group write permission."""
@@ -421,7 +423,7 @@ class Computer(object):
     self.slapos_version = None
 
     # HASA relation to managers (could turn into plugins with `format` and `update` methods)
-    self.manager_list = (manager(self) for manager in manager_list if manager(self).allowed()) \
+    self.manager_list = [manager(self) for manager in manager_list if manager(self).allowed()] \
                         if manager_list else tuple() 
 
   def __getinitargs__(self):
@@ -1070,12 +1072,6 @@ class Tap(object):
     else:
       raise ValueError("%s should not be empty. No ipv4 address assigned to %s" %
                          (self.ipv4_addr, self.name))
-    # Add iptables rule to accept connections from this interface
-    chain_rule = ['INPUT', '-i', self.name, '-j', 'ACCEPT']
-    code, _ = callAndRead(['iptables', '-C'] + chain_rule, raise_on_error=False)
-    if code == 0:
-      # 0 means the rule does not exits so we are free to insert it
-      callAndRead(['iptables', '-I'] + chain_rule)
 
 
 class Tun(Tap):
@@ -1119,7 +1115,14 @@ class Tun(Tap):
     else:
       raise RuntimeError("Cannot setup address on interface {}. "
                          "Address is missing.".format(self.name))
+    # create routes
     super(Tun, self).createRoutes()
+    # add iptables rule to accept connections from this interface
+    chain_rule = ['INPUT', '-i', self.name, '-j', 'ACCEPT']
+    code, _ = callAndRead(['iptables', '-C'] + chain_rule, raise_on_error=False)
+    if code == 0:
+      # 0 means the rule does not exits so we are free to insert it
+      callAndRead(['iptables', '-I'] + chain_rule)
 
 
 class Interface(object):
@@ -1188,8 +1191,13 @@ class Interface(object):
     return address_list
 
   def isBridge(self):
-    _, result = callAndRead(['brctl', 'show'])
-    return any(line.startswith(self.name) for line in result.split("\n"))
+    try:
+      _, result = callAndRead(['brctl', 'show'])
+      return any(line.startswith(self.name) for line in result.split("\n"))
+    except Exception as e:
+      # the binary "brctl" itself does not exist - bridge is imposible to exist
+      logger.warning(str(e))
+      return False
 
   def getInterfaceList(self):
     """Returns list of interfaces already present on bridge"""

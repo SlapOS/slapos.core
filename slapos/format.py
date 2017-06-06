@@ -63,6 +63,10 @@ from slapos import version
 
 logger = logging.getLogger("slapos.format")
 
+# dict[str: ManagerClass] used in configuration and XML dump of computer
+# this dictionary is intended to be filled after each definition of a Manager
+available_managers = {}
+
 def prettify_xml(xml):
   root = lxml.etree.fromstring(xml)
   return lxml.etree.tostring(root, pretty_print=True)
@@ -233,20 +237,31 @@ def _getDict(obj):
     key: _getDict(value) \
     for key, value in dikt.iteritems() \
     # do not attempt to serialize logger: it is both useless and recursive.
-    if not isinstance(value, logging.Logger)
+    # do not serialize attributes starting with "_", let the classes have some privacy
+    if not key.startswith("_")
   }
 
 
-class CGroupManager(object):
+class Manager(object):
+  short_name = None
+
+  def format(self):
+    raise UnimplementedError("Implement function to format underlaying OS")
+
+  def update(self):
+    raise UnimplementedError("Implement function to format underlaying OS")
+
+
+class CGroupManager(Manager):
   """Manage cgroups in terms on initializing and runtime operations.
 
   This class takes advantage of slapformat being run periodically thus
   it can act as a "daemon" performing runtime tasks.
   """
-
+  short_name = 'cgroup'
   cpu_exclusive_file = ".slapos-cpu-exclusive"
   cpuset_path = "/sys/fs/cgroup/cpuset/"
-  task_write_mode = "wt"
+  task_write_mode = "at"
 
   def __init__(self, computer):
     """Extract necessary information from the ``computer``.
@@ -255,8 +270,13 @@ class CGroupManager(object):
     """
     self.instance_root = computer.instance_root
     self.software_gid = computer.software_gid
+    logger.info("Allowing " + self.__class__.__name__)
 
-  def allowed(self):
+  def __str__(self):
+    """Manager representation when dumped to string."""
+    return self.short_name
+
+  def is_allowed(self):
     return os.path.exists("/sys/fs/cgroup/cpuset/cpuset.cpus")
 
   def format(self):
@@ -270,8 +290,10 @@ class CGroupManager(object):
 
   def update(self):
     """Control runtime state of the computer."""
-    self.prepare_cpu_space()
-    self.ensure_exlusive_cpu()
+    if os.path.exists(os.path.join(self.cpuset_path, "cpu0")):
+      # proceed only whe CPUSETs were formatted by this manager
+      self.prepare_cpu_space()
+      self.ensure_exlusive_cpu()
 
   def prepare_cpuset(self):
     """Create cgroup folder per-CPU with exclusive access to the CPU.
@@ -327,11 +349,21 @@ class CGroupManager(object):
   def prepare_cpu_space(self):
     """Move all PIDs from the pool of all CPUs into the first exclusive CPU."""
     with open(os.path.join(self.cpuset_path, "tasks"), "rt") as fi:
-      running_set = set(map(int, fi.read().split()))
+      running_list = sorted(list(map(int, fi.read().split())), reverse=True)
     first_cpu = self._cpu_list()[0]
-    for pid in running_set:
-      self._move_task(pid, first_cpu)
-      time.sleep(0.01)
+    success_set = set()
+    refused_set = set()
+    for pid in running_list:
+      try:
+        self._move_task(pid, first_cpu)
+        success_set.add(pid)
+        time.sleep(0.01)
+      except IOError as e:
+        refused_set.add(pid)
+    logger.debug("Refused to move {:d} PIDs: {!s}\n"
+                 "Suceeded in moving {:d} PIDs {!s}\n".format(
+      len(refused_set), refused_set, len(success_set), success_set)
+    )
 
   def _cpu_list(self):
     """Extract IDs of available CPUs and return them as a list.
@@ -386,6 +418,9 @@ class CGroupManager(object):
             pass  # touche
     return folder
 
+# mark manager available
+available_managers[CGroupManager.short_name] = CGroupManager
+
 
 class Computer(object):
   """Object representing the computer"""
@@ -394,7 +429,7 @@ class Computer(object):
                ipv6_interface=None, software_user='slapsoft',
                tap_gateway_interface=None,
                instance_root=None, software_root=None, instance_storage_home=None,
-               partition_list=None, manager_list=None):
+               partition_list=None, managers=None):
     """
     Attributes:
       reference: str, the reference of the computer.
@@ -423,8 +458,11 @@ class Computer(object):
     self.slapos_version = None
 
     # HASA relation to managers (could turn into plugins with `format` and `update` methods)
-    self.manager_list = [manager(self) for manager in manager_list if manager(self).allowed()] \
-                        if manager_list else tuple() 
+    self.managers = managers  # for serialization
+    # hide list[Manager] from serializer by prepending "_"
+    self._manager_list = tuple(filter(lambda manager: manager.is_allowed(),
+                                    (available_managers[manager_str](self) for manager_str in managers))) \
+                        if managers else tuple()
 
   def __getinitargs__(self):
     return (self.reference, self.interface)
@@ -463,7 +501,7 @@ class Computer(object):
 
   def update(self):
     """Update computer runtime info and state."""
-    for manager in self.manager_list:
+    for manager in self._manager_list:
       manager.update()
 
     # Collect environmental hardware/network information.
@@ -553,7 +591,7 @@ class Computer(object):
 
   @classmethod
   def load(cls, path_to_xml, reference, ipv6_interface, tap_gateway_interface,
-           instance_root=None, software_root=None):
+           instance_root=None, software_root=None, managers=None):
     """
     Create a computer object from a valid xml file.
 
@@ -564,8 +602,8 @@ class Computer(object):
     Return:
       A Computer object.
     """
-
-    dumped_dict = xml_marshaller.xml_marshaller.loads(open(path_to_xml).read())
+    with open(path_to_xml, "rb") as fi:
+      dumped_dict = xml_marshaller.xml_marshaller.load(fi)
 
     # Reconstructing the computer object from the xml
     computer = Computer(
@@ -577,6 +615,7 @@ class Computer(object):
         tap_gateway_interface=tap_gateway_interface,
         software_root=dumped_dict.get('software_root', software_root),
         instance_root=dumped_dict.get('instance_root', instance_root),
+        managers=dumped_dict.get('managers', managers),
     )
 
     for i, partition_dict in enumerate(dumped_dict['partition_list']):
@@ -698,7 +737,8 @@ class Computer(object):
     os.chmod(self.software_root, 0o755)
 
     # Iterate over all managers and let them `format` the computer too
-    for manager in self.manager_list:
+    for manager in self._manager_list:
+      logger.info("Formatting with " + manager.__class__.__name__)
       manager.format()
 
     # get list of instance external storage if exist
@@ -1134,7 +1174,7 @@ class Interface(object):
         name: String, the name of the interface
     """
 
-    self.logger = logger
+    self._logger = logger
     self.name = str(name)
     self.ipv4_local_network = ipv4_local_network
     self.ipv6_interface = ipv6_interface
@@ -1318,7 +1358,7 @@ class Interface(object):
       if self._addSystemAddress(addr, netmask, False):
         return dict(addr=addr, netmask=netmask)
       else:
-        self.logger.warning('Impossible to add old local IPv4 %s. Generating '
+        self._logger.warning('Impossible to add old local IPv4 %s. Generating '
             'new IPv4 address.' % addr)
         return self._generateRandomIPv4Address(netmask)
     else:
@@ -1376,7 +1416,7 @@ class Interface(object):
             # succeed, return it
             return dict(addr=addr, netmask=netmask)
           else:
-            self.logger.warning('Impossible to add old public IPv6 %s. '
+            self._logger.warning('Impossible to add old public IPv6 %s. '
                 'Generating new IPv6 address.' % addr)
 
     # Try 10 times to add address, raise in case if not possible
@@ -1456,7 +1496,10 @@ def parse_computer_xml(conf, xml_path):
     computer = Computer.load(xml_path,
                              reference=conf.computer_id,
                              ipv6_interface=conf.ipv6_interface,
-                             tap_gateway_interface=conf.tap_gateway_interface)
+                             tap_gateway_interface=conf.tap_gateway_interface,
+                             software_root=conf.software_root,
+                             instance_root=conf.instance_root,
+                             managers=conf.managers)
     # Connect to the interface defined by the configuration
     computer.interface = interface
   else:
@@ -1464,12 +1507,15 @@ def parse_computer_xml(conf, xml_path):
     conf.logger.warning('Creating new computer data with id %r', conf.computer_id)
     computer = Computer(
       reference=conf.computer_id,
+      software_root=conf.software_root,
+      instance_root=conf.software_root,
       interface=interface,
       addr=None,
       netmask=None,
       ipv6_interface=conf.ipv6_interface,
       software_user=conf.software_user,
       tap_gateway_interface=conf.tap_gateway_interface,
+      managers=conf.managers,
     )
 
   partition_amount = int(conf.partition_amount)
@@ -1540,8 +1586,6 @@ def do_format(conf):
     # no definition file, figure out computer
     computer = parse_computer_xml(conf, conf.computer_xml)
 
-  computer.instance_root = conf.instance_root
-  computer.software_root = conf.software_root
   computer.instance_storage_home = conf.instance_storage_home
   conf.logger.info('Updating computer')
   address = computer.getAddress(conf.create_tap)
@@ -1586,6 +1630,7 @@ class FormatConfig(object):
   tap_gateway_interface = None
   use_unique_local_address_block = None
   instance_storage_home = None
+  managers = None
 
   def __init__(self, logger):
     self.logger = logger
@@ -1672,6 +1717,16 @@ class FormatConfig(object):
               '%r' % (option, getattr(self, option))
           self.logger.error(message)
           raise UsageError(message)
+
+    # Split str into list[str] and check availability of every manager
+    # Config value is expected to be strings separated by spaces or commas
+    managers = []
+    for manager in self.managers.replace(",", " ").split():
+      if manager not in available_managers:
+        raise ValueError("Unknown manager \"{}\"! Known are: {!s}".format(
+          manager, list(available_managers.keys())))
+      managers.append(manager)
+    self.managers = managers  # replace original str with list[str] of known managers
 
     if not self.dry_run:
       if self.alter_user:

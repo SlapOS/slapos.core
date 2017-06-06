@@ -186,12 +186,16 @@ class SlaposUtilMock:
 
 class CGroupManagerMock(slapos.format.CGroupManager):
 
+  short_name = 'cgroup_mock'
   cpuset_path = "/tmp/cpuset/"
   task_write_mode = "at"  # append insted of write tasks PIDs for the tests
 
   def is_allowed(self):
     """Always allowed."""
     return True
+
+# update available managers with our partially-mocked version
+slapos.format.available_managers[CGroupManagerMock.short_name] = CGroupManagerMock 
 
 
 class SlapformatMixin(unittest.TestCase):
@@ -701,7 +705,7 @@ class TestComputerWithCGroup(SlapformatMixin):
           slapos.format.Partition(
             'partition', '/tmp/slapgrid/instance_root/part1', slapos.format.User('testuser'), [], tap=None),
         ],
-      manager_list=(CGroupManagerMock, )
+      managers=(CGroupManagerMock.short_name, )
     )
     # self.patchOs(self.logger)
 
@@ -715,7 +719,7 @@ class TestComputerWithCGroup(SlapformatMixin):
   def test_positive_cgroups(self):
     """Positive test of cgroups."""
     # Test parsing "cpuset.cpus" file
-    self.assertEqual(self.computer.manager_list[0]._cpu_list(), self.cpu_list)
+    self.assertEqual(self.computer._manager_list[0]._cpu_list(), self.cpu_list)
     # This should created per-cpu groups and move all tasks in CPU pool into cpu0
     self.computer.format(alter_network=False, alter_user=False)
     # Test files creation for exclusive CPUs

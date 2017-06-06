@@ -317,11 +317,6 @@ class CGroupManager(Manager):
 
     We expect PIDs which require own CPU to be found in ~instance/.slapos-cpu-exclusive
     """
-    request_pid_set = set()  # gather requests from all instances
-    for request_file in glob.iglob(os.path.join(self.instance_root, '*', CGroupManager.cpu_exclusive_file)):
-      with open(request_file, "rt") as fi:
-        request_pid_set.update(map(int, fi.read().split()))
-
     cpu_list = self._cpu_list()
     generic_cpu = cpu_list[0]
     exclusive_cpu_list = cpu_list[1:]
@@ -339,12 +334,19 @@ class CGroupManager(Manager):
       with open(os.path.join(self.cpuset_path, "cpu" + str(exclusive_cpu), "tasks"), "rt") as fi:
         exclusive_pid_set.update(map(int, fi.read().split()))
 
-    for request in request_pid_set:
-      if request in exclusive_pid_set:
-        continue  # already exclusive
-      if request not in running_pid_set:
-        continue  # stale PID which is not running anywhere
-      self._move_to_exclusive_cpu(request)
+    for request_file in glob.iglob(os.path.join(self.instance_root, '*', CGroupManager.cpu_exclusive_file)):
+      with open(request_file, "rt") as fi:
+        # take such PIDs which are either really running or are not already exclusive
+        request_pid_list = [int(pid) for pid in fi.read().split()
+                            if int(pid) in running_pid_set or int(pid) not in exclusive_pid_set]
+      with open(request_file, "wt") as fo:
+        fo.write("")  # empty file (we will write back only PIDs which weren't moved)
+      for request_pid in request_pid_list:
+        assigned_cpu = self._move_to_exclusive_cpu(request_pid)
+        if assigned_cpu < 0:
+          # if no exclusive CPU was assigned - write the PID back and try other time
+          with open(request_file, "at") as fo:
+            fo.write(str(request_pid) + "\n")
 
   def prepare_cpu_space(self):
     """Move all PIDs from the pool of all CPUs into the first exclusive CPU."""

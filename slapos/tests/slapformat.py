@@ -189,7 +189,7 @@ class CGroupManagerMock(slapos.format.CGroupManager):
   cpuset_path = "/tmp/cpuset/"
   task_write_mode = "at"  # append insted of write tasks PIDs for the tests
 
-  def allowed(self):
+  def is_allowed(self):
     """Always allowed."""
     return True
 
@@ -734,14 +734,16 @@ class TestComputerWithCGroup(SlapformatMixin):
     file_write("", os.path.join(CGroupManagerMock.cpuset_path, "tasks"))
     # test moving tasks from generic core to private core
     # request PID 1001 to be moved to its private CPU
-    file_write("1001\n",
-               os.path.join(self.computer.partition_list[0].path,
-                            CGroupManagerMock.cpu_exclusive_file))
+    request_file_path = os.path.join(self.computer.partition_list[0].path,
+                                     CGroupManagerMock.cpu_exclusive_file)
+    file_write("1001\n", request_file_path)
     # let format do the moving
     self.computer.update()
     # test if the moving suceeded into any provate CPUS (id>0)
-    self.assertTrue(any("1001" in file_content(exclusive_task) 
+    self.assertTrue(any("1001" in file_content(exclusive_task)
                         for exclusive_task in glob.glob(os.path.join(CGroupManagerMock.cpuset_path, "cpu[1-9]", "tasks"))))
+    # slapformat should remove successfully moved PIDs from the .slapos-cpu-exclusive file
+    self.assertEqual("", file_content(request_file_path).strip())
 
 
 class TestPartition(SlapformatMixin):

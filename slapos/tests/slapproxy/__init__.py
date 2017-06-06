@@ -378,10 +378,10 @@ class TestRequest(MasterMixin):
     """
     self.add_free_partition(1)
     self.assertIsInstance(self.request('http://sr//', None,
-                                       'MyFirstInstance', 'slappart2'),
+                                       'MyFirstInstance', 'slappart0'),
                           slapos.slap.ComputerPartition)
     self.assertIsInstance(self.request('http://sr//', None,
-                                       'MyFirstInstance', 'slappart3'),
+                                       'MyFirstInstance', 'slappart1'),
                           slapos.slap.ComputerPartition)
 
   def test_two_request_two_partition_free(self):
@@ -391,10 +391,10 @@ class TestRequest(MasterMixin):
     """
     self.add_free_partition(2)
     self.assertIsInstance(self.request('http://sr//', None,
-                                       'MyFirstInstance', 'slappart2'),
+                                       'MyFirstInstance', 'slappart0'),
                           slapos.slap.ComputerPartition)
     self.assertIsInstance(self.request('http://sr//', None,
-                                       'MyFirstInstance', 'slappart3'),
+                                       'MyFirstInstance', 'slappart1'),
                           slapos.slap.ComputerPartition)
 
   def test_two_same_request_from_one_partition(self):
@@ -403,8 +403,8 @@ class TestRequest(MasterMixin):
     """
     self.add_free_partition(2)
     self.assertEqual(
-        self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').__dict__,
-        self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').__dict__)
+        self.request('http://sr//', None, 'MyFirstInstance', 'slappart1').__dict__,
+        self.request('http://sr//', None, 'MyFirstInstance', 'slappart1').__dict__)
 
   def test_request_propagate_partition_state(self):
     """
@@ -457,12 +457,12 @@ class TestRequest(MasterMixin):
     wanted_domain1 = 'fou.org'
     wanted_domain2 = 'carzy.org'
 
-    request1 = self.request('http://sr//', None, 'MyFirstInstance', 'slappart2',
+    request1 = self.request('http://sr//', None, 'MyFirstInstance', 'slappart1',
                             partition_parameter_kw={'domain': wanted_domain1})
     request1_dict = request1.__dict__
     requested_result1 = self.getPartitionInformation(
         request1_dict['_partition_id'])
-    request2 = self.request('http://sr//', 'Papa', 'MyFirstInstance', 'slappart2',
+    request2 = self.request('http://sr//', 'Papa', 'MyFirstInstance', 'slappart1',
                             partition_parameter_kw={'domain': wanted_domain2})
     request2_dict = request2.__dict__
     requested_result2 = self.getPartitionInformation(
@@ -494,12 +494,12 @@ class TestRequest(MasterMixin):
     wanted_domain1 = 'fou.org'
     wanted_domain2 = 'carzy.org'
 
-    request1 = self.request('http://sr//', None, 'MyFirstInstance', 'slappart2',
+    request1 = self.request('http://sr//', None, 'MyFirstInstance', 'slappart1',
                             partition_parameter_kw={'domain': wanted_domain1})
     request1_dict = request1.__dict__
     requested_result1 = self.getPartitionInformation(
         request1_dict['_partition_id'])
-    request2 = self.request('http://sr1//', 'Papa', 'MyFirstInstance', 'slappart2',
+    request2 = self.request('http://sr1//', 'Papa', 'MyFirstInstance', 'slappart1',
                             partition_parameter_kw={'domain': wanted_domain2})
     request2_dict = request2.__dict__
     requested_result2 = self.getPartitionInformation(
@@ -532,8 +532,8 @@ class TestRequest(MasterMixin):
     """
     self.add_free_partition(2)
     self.assertEqual(
-        self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').__dict__,
-        self.request('http://sr//', None, 'MyFirstInstance', 'slappart3').__dict__)
+        self.request('http://sr//', None, 'MyFirstInstance', 'slappart0').__dict__,
+        self.request('http://sr//', None, 'MyFirstInstance', 'slappart1').__dict__)
 
   def test_two_different_request_from_one_partition(self):
     """
@@ -542,8 +542,8 @@ class TestRequest(MasterMixin):
     """
     self.add_free_partition(2)
     self.assertNotEqual(
-        self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').__dict__,
-        self.request('http://sr//', None, 'frontend', 'slappart2').__dict__)
+        self.request('http://sr//', None, 'MyFirstInstance', 'slappart1').__dict__,
+        self.request('http://sr//', None, 'frontend', 'slappart1').__dict__)
 
   def test_request_with_nonascii_parameters(self):
     """

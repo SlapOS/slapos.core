@@ -61,11 +61,13 @@ from slapos.util import mkdir_p
 import slapos.slap as slap
 from slapos import version
 
+
 logger = logging.getLogger("slapos.format")
 
 # dict[str: ManagerClass] used in configuration and XML dump of computer
 # this dictionary is intended to be filled after each definition of a Manager
 available_managers = {}
+
 
 def prettify_xml(xml):
   root = lxml.etree.fromstring(xml)

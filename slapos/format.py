@@ -290,10 +290,14 @@ class CGroupManager(Manager):
 
   def update(self):
     """Control runtime state of the computer."""
-    if os.path.exists(os.path.join(self.cpuset_path, "cpu0")):
+    cpu0_path = os.path.join(self.cpuset_path, "cpu0")
+    if os.path.exists(cpu0_path):
       # proceed only whe CPUSETs were formatted by this manager
       self.prepare_cpu_space()
       self.ensure_exlusive_cpu()
+    else:
+      logger.warning("Computer was not formatted by {} because {} doesn't exist!".format(
+        self.__class__.__name__, cpu0_path))
 
   def prepare_cpuset(self):
     """Create cgroup folder per-CPU with exclusive access to the CPU.
@@ -504,6 +508,7 @@ class Computer(object):
   def update(self):
     """Update computer runtime info and state."""
     for manager in self._manager_list:
+      logger.info("Updating computer with " + manager.__class__.__name__)
       manager.update()
 
     # Collect environmental hardware/network information.
@@ -740,7 +745,7 @@ class Computer(object):
 
     # Iterate over all managers and let them `format` the computer too
     for manager in self._manager_list:
-      logger.info("Formatting with " + manager.__class__.__name__)
+      logger.info("Formatting computer with " + manager.__class__.__name__)
       manager.format()
 
     # get list of instance external storage if exist
@@ -916,7 +921,7 @@ class Partition(object):
   def dump(self):
     """Dump available resources into ~partition_home/.slapos-resource."""
     file_path = os.path.join(self.path, self.resource_file)
-    logger.info("Partition {} dumping resources to {}".format(
+    logger.info("Partition resources saved to {}".format(
       self.reference, file_path))
     data = _getDict(self)
     with open(file_path, "wb") as fo:

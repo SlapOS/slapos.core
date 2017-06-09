@@ -248,10 +248,10 @@ class Manager(object):
   short_name = None
 
   def format(self):
-    raise UnimplementedError("Implement function to format underlaying OS")
+    raise NotImplementedError("Implement function to format underlaying OS")
 
   def update(self):
-    raise UnimplementedError("Implement function to format underlaying OS")
+    raise NotImplementedError("Implement function to format underlaying OS")
 
 
 class CGroupManager(Manager):

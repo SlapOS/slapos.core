@@ -195,7 +195,7 @@ class CGroupManagerMock(slapos.format.CGroupManager):
     return True
 
 # update available managers with our partially-mocked version
-slapos.format.available_managers[CGroupManagerMock.short_name] = CGroupManagerMock 
+slapos.format.available_manager_list[CGroupManagerMock.short_name] = CGroupManagerMock
 
 
 class SlapformatMixin(unittest.TestCase):
@@ -705,7 +705,7 @@ class TestComputerWithCGroup(SlapformatMixin):
           slapos.format.Partition(
             'partition', '/tmp/slapgrid/instance_root/part1', slapos.format.User('testuser'), [], tap=None),
         ],
-      managers=(CGroupManagerMock.short_name, )
+      manager_list=(CGroupManagerMock.short_name, )
     )
     # self.patchOs(self.logger)
 

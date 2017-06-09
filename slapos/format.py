@@ -66,7 +66,7 @@ logger = logging.getLogger("slapos.format")
 
 # dict[str: ManagerClass] used in configuration and XML dump of computer
 # this dictionary is intended to be filled after each definition of a Manager
-available_managers = {}
+available_manager_list = {}
 
 
 def prettify_xml(xml):
@@ -427,7 +427,7 @@ class CGroupManager(Manager):
     return folder
 
 # mark manager available
-available_managers[CGroupManager.short_name] = CGroupManager
+available_manager_list[CGroupManager.short_name] = CGroupManager
 
 
 class Computer(object):
@@ -437,7 +437,7 @@ class Computer(object):
                ipv6_interface=None, software_user='slapsoft',
                tap_gateway_interface=None,
                instance_root=None, software_root=None, instance_storage_home=None,
-               partition_list=None, managers=None):
+               partition_list=None, manager_list=None):
     """
     Attributes:
       reference: str, the reference of the computer.
@@ -466,11 +466,11 @@ class Computer(object):
     self.slapos_version = None
 
     # HASA relation to managers (could turn into plugins with `format` and `update` methods)
-    self.managers = managers  # for serialization
+    self.manager_list = manager_list  # for serialization
     # hide list[Manager] from serializer by prepending "_"
     self._manager_list = tuple(filter(lambda manager: manager.is_allowed(),
-                                    (available_managers[manager_str](self) for manager_str in managers))) \
-                        if managers else tuple()
+                                    (available_manager_list[manager_str](self) for manager_str in manager_list))) \
+                        if manager_list else tuple()
 
   def __getinitargs__(self):
     return (self.reference, self.interface)
@@ -600,7 +600,7 @@ class Computer(object):
 
   @classmethod
   def load(cls, path_to_xml, reference, ipv6_interface, tap_gateway_interface,
-           instance_root=None, software_root=None, managers=None):
+           instance_root=None, software_root=None, manager_list=None):
     """
     Create a computer object from a valid xml file.
 
@@ -624,10 +624,10 @@ class Computer(object):
         tap_gateway_interface=tap_gateway_interface,
         software_root=dumped_dict.get('software_root', software_root),
         instance_root=dumped_dict.get('instance_root', instance_root),
-        managers=dumped_dict.get('managers', managers),
+        manager_list=dumped_dict.get('manager_list', manager_list),
     )
 
-    for i, partition_dict in enumerate(dumped_dict['partition_list']):
+    for partition_index, partition_dict in enumerate(dumped_dict['partition_list']):
 
       if partition_dict['user']:
         user = User(partition_dict['user']['name'])
@@ -645,10 +645,10 @@ class Computer(object):
         tap = Tap(partition_dict['reference'])
 
       if partition_dict.get('tun') is not None and partition_dict['tun'].get('ipv4_addr') is not None:
-        tun = Tun(partition_dict['tun']['name'], i, len(dumped_dict['partition_list']))
+        tun = Tun(partition_dict['tun']['name'], partition_index, len(dumped_dict['partition_list']))
         tun.ipv4_addr = partition_dict['tun']['ipv4_addr']
       else:
-        tun = Tun("slaptun" + str(i), i, len(dumped_dict['partition_list']))
+        tun = Tun("slaptun" + str(partition_index), partition_index, len(dumped_dict['partition_list']))
 
       address_list = partition_dict['address_list']
       external_storage_list = partition_dict.get('external_storage_list', [])
@@ -1509,7 +1509,7 @@ def parse_computer_xml(conf, xml_path):
                              tap_gateway_interface=conf.tap_gateway_interface,
                              software_root=conf.software_root,
                              instance_root=conf.instance_root,
-                             managers=conf.managers)
+                             manager_list=conf.manager_list)
     # Connect to the interface defined by the configuration
     computer.interface = interface
   else:
@@ -1525,7 +1525,7 @@ def parse_computer_xml(conf, xml_path):
       ipv6_interface=conf.ipv6_interface,
       software_user=conf.software_user,
       tap_gateway_interface=conf.tap_gateway_interface,
-      managers=conf.managers,
+      manager_list=conf.manager_list,
     )
 
   partition_amount = int(conf.partition_amount)
@@ -1640,7 +1640,7 @@ class FormatConfig(object):
   tap_gateway_interface = None
   use_unique_local_address_block = None
   instance_storage_home = None
-  managers = None
+  manager_list = None
 
   def __init__(self, logger):
     self.logger = logger
@@ -1730,13 +1730,13 @@ class FormatConfig(object):
 
     # Split str into list[str] and check availability of every manager
     # Config value is expected to be strings separated by spaces or commas
-    managers = []
-    for manager in self.managers.replace(",", " ").split():
-      if manager not in available_managers:
+    manager_list = []
+    for manager in self.manager_list.replace(",", " ").split():
+      if manager not in available_manager_list:
         raise ValueError("Unknown manager \"{}\"! Known are: {!s}".format(
-          manager, list(available_managers.keys())))
-      managers.append(manager)
-    self.managers = managers  # replace original str with list[str] of known managers
+          manager, list(available_manager_list.keys())))
+      manager_list.append(manager)
+    self.manager_list = manager_list  # replace original str with list[str] of known managers
 
     if not self.dry_run:
       if self.alter_user:

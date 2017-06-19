@@ -1003,6 +1003,7 @@ class HateoasNavigator(object):
     return json.loads(self.GET(person_url))
 
 class SlapHateoasNavigator(HateoasNavigator):
+
   def _hateoas_getHostingSubscriptionDict(self):
     action_object_slap_list = self.getMeDocument()['_links']['action_object_slap']
     for action in action_object_slap_list:
@@ -1079,3 +1080,19 @@ class SlapHateoasNavigator(HateoasNavigator):
     instance_url = self.hateoasGetLinkFromLinks(instance_list, reference)
     instance = self._hateoasGetInformation(instance_url)
     return instance
+
+  def getPersonReference(self):
+    """
+      Get Some information about the current user (Person)
+    """
+    person = getMeDocument()
+    portal_type = person['_links']['type'].get('name')
+    if not portal_type == "Person":
+      return {}
+
+    # Get Information on Person assignment
+    person_relative_url = self.getRelativeUrlFromUrn(
+      person['_embedded']['_view']['_links']['traversed_document']['href'])
+    return self.getDocumentAndHateoas(
+      person_relative_url, view='assignment'
+    )['_embedded']['_view']['my_reference']['default']

@@ -32,6 +32,7 @@ import os
 import sys
 
 import requests
+from caucase.cli_flask import CertificateAuthorityRequest
 
 from slapos.cli.config import ClientConfigCommand
 from slapos.util import mkdir_p, parse_certificate_key_pair
@@ -59,40 +60,48 @@ class ConfigureClientCommand(ClientConfigCommand):
                         help="SlapOS 'credential security' authentication token "
                              "(use '--token ask' for interactive prompt)")
 
+        ap.add_argument('--login',
+                        help="Your username on SlapOS Master web")
+
         return ap
 
     def take_action(self, args):
+        if not args.login:
+            parser.error('Please enter your username on SlapOS Master Web. Use --login LOGIN')
+            parser.print_help()
+            return
         do_configure_client(logger=self.app.log,
                             master_url_web=args.master_url_web,
                             token=args.token,
                             config_path=self.config_path(args),
-                            master_url=args.master_url)
+                            master_url=args.master_url,
+                            login=args.login)
 
-
-def get_certificate_key_pair(logger, master_url_web, token):
+def sign_certificate(logger, master_url_web, csr, token):
+    
     req = requests.post('/'.join([master_url_web, 'myspace/my_account/request-a-certificate/WebSection_requestNewCertificate']),
-                        data={},
+                        data={'certificate_signature_request': csr},
                         headers={'X-Access-Token': token},
                         verify=False)
-
+  
     if req.status_code == 403:
         logger.critical('Access denied to the SlapOS Master. '
                         'Please check the authentication token or require a new one.')
         sys.exit(1)
-
+  
     req.raise_for_status()
 
-    return parse_certificate_key_pair(req.text)
+    return parse_certificate_from_html(req.text)
 
 
 def fetch_configuration_template():
     # XXX: change to local version.
-    req = requests.get('http://git.erp5.org/gitweb/slapos.core.git/blob_plain/HEAD:/slapos-client.cfg.example')
+    req = requests.get('https://lab.nexedi.com/nexedi/slapos.core/raw/master/slapos-client.cfg.example')
     req.raise_for_status()
     return req.text
 
 
-def do_configure_client(logger, master_url_web, token, config_path, master_url):
+def do_configure_client(logger, master_url_web, token, config_path, master_url, login):
     while not token:
         token = raw_input('Credential security token: ').strip()
 
@@ -111,15 +120,28 @@ def do_configure_client(logger, master_url_web, token, config_path, master_url):
 
     cert_path = os.path.join(basedir, 'client.crt')
     if os.path.exists(cert_path):
-        logger.critical('There is a file in %s. '
+        logger.critical('There is a certificate in %s. '
                         'Please remove it before creating a new certificate.', cert_path)
         sys.exit(1)
 
     key_path = os.path.join(basedir, 'client.key')
     if os.path.exists(key_path):
-        logger.critical('There is a file in %s. '
+        logger.critical('There is a key in %s. '
                         'Please remove it before creating a new key.', key_path)
         sys.exit(1)
+
+    ca_cert_path = os.path.join(basedir, 'ca.crt')
+
+    # create certificate authority client
+    ca_client = CertificateAuthorityRequest(
+      key_path,
+      cert_path,
+      ca_cert_path,
+      ca_url='')
+
+    logger.debug('Generating key to %s', key_path)
+    ca_client.generatePrivatekey(key_path, size=2048)
+    csr_string = ca_client.generateCertificateRequest(key_path, cn=login)
 
     # retrieve a template for the configuration file
 
@@ -131,7 +153,7 @@ def do_configure_client(logger, master_url_web, token, config_path, master_url):
 
     # retrieve and parse the certicate and key
 
-    certificate, key = get_certificate_key_pair(logger, master_url_web, token)
+    certificate = sign_certificate(logger, master_url_web, csr_string, token)
 
     # write everything
 
@@ -142,9 +164,5 @@ def do_configure_client(logger, master_url_web, token, config_path, master_url):
     with os.fdopen(os.open(cert_path, os.O_CREAT | os.O_TRUNC | os.O_WRONLY, 0o600), 'w') as fout:
         logger.debug('Writing certificate to %s', cert_path)
         fout.write(certificate)
-
-    with os.fdopen(os.open(key_path, os.O_CREAT | os.O_TRUNC | os.O_WRONLY, 0o600), 'w') as fout:
-        logger.debug('Writing key to %s', key_path)
-        fout.write(key)
 
     logger.info('SlapOS client configuration written to %s', config_path)

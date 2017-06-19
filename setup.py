@@ -56,6 +56,7 @@ setup(name=name,
           'cliff',
           'requests>=2.4.3',
           'six',
+          'caucase', # used to manage ca client request
           'uritemplate', # used by hateoas navigator
         ] + additional_install_requires,
       extras_require={

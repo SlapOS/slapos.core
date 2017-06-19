@@ -11,3 +11,4 @@ SlaposPersonConstraint
 SlaposAssignmentConstraint
 SlaposEmailConstraint
 SlaposComputerConstraint
+RESTClientInterface

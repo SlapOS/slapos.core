@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>*args, **kwargs</string> </value>
+            <value> <string>certificate_signature_request, **kwargs</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

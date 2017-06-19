@@ -87,6 +87,8 @@
                     <value>
                       <list>
                         <string>your_description</string>
+                        <string>my_certificate_signature_request</string>
+                        <string>your_common_name</string>
                       </list>
                     </value>
                 </item>

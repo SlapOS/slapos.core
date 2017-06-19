@@ -211,7 +211,7 @@
                     <key> <string>default</string> </key>
                     <value> <string>Here you can request a new SSL certificate for computer.\n
 \n
-After presenting it please copy key and certificate and store in secure place.\n
+After presenting it please copy the certificate and store in secure place.\n
 \n
 In case of certificate compromise or lost please request it again.\n
 \n

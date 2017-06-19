@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>your_description</string> </value>
+            <value> <string>my_certificate_signature_request</string> </value>
         </item>
         <item>
             <key> <string>message_values</string> </key>
@@ -209,19 +209,15 @@
                 </item>
                 <item>
                     <key> <string>default</string> </key>
-                    <value> <string>Here you can request a signed SSL certificate.\n
-\n
-In case of certificate compromise or lost please request it again.\n
-\n
-Certificate is not stored on Vifib.net servers.</string> </value>
-                </item>
-                <item>
-                    <key> <string>description</string> </key>
                     <value> <string></string> </value>
                 </item>
                 <item>
+                    <key> <string>description</string> </key>
+                    <value> <string>Put here the CSR string in PEM format</string> </value>
+                </item>
+                <item>
                     <key> <string>editable</string> </key>
-                    <value> <int>0</int> </value>
+                    <value> <int>1</int> </value>
                 </item>
                 <item>
                     <key> <string>enabled</string> </key>
@@ -237,7 +233,7 @@ Certificate is not stored on Vifib.net servers.</string> </value>
                 </item>
                 <item>
                     <key> <string>height</string> </key>
-                    <value> <int>5</int> </value>
+                    <value> <int>15</int> </value>
                 </item>
                 <item>
                     <key> <string>hidden</string> </key>
@@ -261,7 +257,7 @@ Certificate is not stored on Vifib.net servers.</string> </value>
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Information</string> </value>
+                    <value> <string>Certificate Signature Request (CSR)</string> </value>
                 </item>
                 <item>
                     <key> <string>unicode</string> </key>
@@ -269,11 +265,11 @@ Certificate is not stored on Vifib.net servers.</string> </value>
                 </item>
                 <item>
                     <key> <string>whitespace_preserve</string> </key>
-                    <value> <int>1</int> </value>
+                    <value> <int>0</int> </value>
                 </item>
                 <item>
                     <key> <string>width</string> </key>
-                    <value> <int>40</int> </value>
+                    <value> <int>80</int> </value>
                 </item>
               </dictionary>
             </value>

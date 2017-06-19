@@ -87,7 +87,7 @@
                     <value>
                       <list>
                         <string>your_information</string>
-                        <string>your_key</string>
+                        <string>your_certificate_url</string>
                         <string>your_certificate</string>
                       </list>
                     </value>

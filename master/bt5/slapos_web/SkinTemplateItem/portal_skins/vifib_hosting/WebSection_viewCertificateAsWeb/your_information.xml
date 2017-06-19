@@ -209,7 +209,7 @@
                 </item>
                 <item>
                     <key> <string>default</string> </key>
-                    <value> <string>Please copy and store in safe place certificate and key.\n
+                    <value> <string>Please copy/download certificate and store in safe place.\n
 \n
 You can use them with slap library, for example in slap console.</string> </value>
                 </item>

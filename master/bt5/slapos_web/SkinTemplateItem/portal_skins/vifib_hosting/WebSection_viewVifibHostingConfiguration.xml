@@ -85,6 +85,7 @@
                         <string>my_layout_sale_order_notification_reference</string>
                         <string>my_layout_login_password_notification_reference</string>
                         <string>my_layout_opentrade_deliver_notification_reference</string>
+                        <string>my_layout_top_bar_widget_reference</string>
                       </list>
                     </value>
                 </item>
@@ -103,6 +104,7 @@
                         <string>my_layout_subscription_contract_reference</string>
                         <string>my_layout_terms_of_service_reference</string>
                         <string>my_layout_required_role</string>
+                        <string>my_layout_enable_social_login</string>
                       </list>
                     </value>
                 </item>

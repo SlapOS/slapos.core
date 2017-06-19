@@ -111,7 +111,22 @@
         <item>
             <key> <string>__translation_dict</string> </key>
             <value>
-              <dictionary/>
+              <dictionary>
+                <item>
+                    <key>
+                      <tuple>
+                        <string>title</string>
+                        <string>zh</string>
+                      </tuple>
+                    </key>
+                    <value>
+                      <tuple>
+                        <string>Monitoring</string>
+                        <string>监视</string>
+                      </tuple>
+                    </value>
+                </item>
+              </dictionary>
             </value>
         </item>
         <item>
@@ -140,7 +155,12 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>This page shows the status of your servers and instances</string> </value>
+            <value> <string encoding="cdata"><![CDATA[
+
+<p><strong>All your monitor instance connection parameters.</strong> </p>\n
+This page contain connection parameters of your requested instance with monitoring. Username and Password used are the initials ones, generated when deploying your instance.
+
+]]></string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

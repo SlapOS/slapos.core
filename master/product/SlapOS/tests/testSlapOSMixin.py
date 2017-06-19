@@ -149,12 +149,17 @@ class testSlapOSMixin(ERP5TypeTestCase):
     transaction.commit()
     self.portal.portal_caches.updateCache()
     if getattr(self.portal, 'is_site_bootstrapped', 0):
+      for alarm in self.portal.portal_alarms.contentValues():
+        if alarm.getId().startswith("promise_slapos"):
+           alarm.solve()
       return
     else:
       self.portal.is_site_bootstrapped = 1
       self.bootstrapSite()
       self.portal._p_changed = 1
       transaction.commit()
+    
+    
 
   def deSetUpPersistentDummyMailHost(self):
     if 'MailHost' in self.portal.objectIds():
@@ -209,8 +214,8 @@ class testSlapOSMixin(ERP5TypeTestCase):
       'erp5_workflow',
       'erp5_configurator',
       'slapos_configurator',
+      'erp5_ui_test',
       'slapos_monitoring_ui_test',
-      'erp5_ui_test_core',
     ]
     return result
 

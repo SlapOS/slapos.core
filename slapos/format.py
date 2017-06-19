@@ -34,6 +34,7 @@ import fcntl
 import grp
 import json
 import logging
+import math
 import netaddr
 import netifaces
 import os
@@ -49,6 +50,8 @@ import threading
 import time
 import traceback
 import zipfile
+import platform
+from urllib2 import urlopen
 
 import lxml.etree
 import xml_marshaller.xml_marshaller
@@ -56,6 +59,11 @@ import xml_marshaller.xml_marshaller
 import slapos.util
 from slapos.util import mkdir_p
 import slapos.slap as slap
+from slapos import version
+from slapos import manager as slapmanager
+
+
+logger = logging.getLogger("slapos.format")
 
 
 def prettify_xml(xml):
@@ -124,6 +132,23 @@ class AddressGenerationError(Exception):
     )
 
 
+def getPublicIPv4Address():
+  test_list = [
+    { "url": 'https://api.ipify.org/?format=json' , "json_key": "ip"},
+    { "url": 'http://httpbin.org/ip', "json_key": "origin"},
+    { "url": 'http://jsonip.com', "json_key": "ip"}]
+  previous = None
+  ipv4 = None
+  for test in test_list:
+    if ipv4 is not None:
+      previous = ipv4
+    try:
+      ipv4 = json.load(urlopen(test["url"]))[test["json_key"]]
+    except:
+      ipv4 = None
+    if ipv4 is not None and ipv4 == previous:
+      return ipv4
+
 def callAndRead(argument_list, raise_on_error=True):
   popen = subprocess.Popen(argument_list,
                            stdout=subprocess.PIPE,
@@ -154,7 +179,7 @@ def netmaskToPrefixIPv6(netmask):
           netaddr.strategy.ipv6.str_to_int(netmask)]
 
 def getIfaceAddressIPv4(iface):
-  """return dict containing ipv4 address netmask, network and broadcast address 
+  """return dict containing ipv4 address netmask, network and broadcast address
   of interface"""
   if not iface in netifaces.interfaces():
     raise ValueError('Could not find interface called %s to use as gateway ' \
@@ -162,7 +187,7 @@ def getIfaceAddressIPv4(iface):
   try:
     addresses_list = netifaces.ifaddresses(iface)[socket.AF_INET]
     if len (addresses_list) > 0:
-      
+
       addresses = addresses_list[0].copy()
       addresses['network'] = str(netaddr.IPNetwork('%s/%s' % (addresses['addr'],
                                           addresses['netmask'])).cidr.network)
@@ -173,7 +198,7 @@ def getIfaceAddressIPv4(iface):
     raise KeyError('Could not find IPv4 adress on interface %s.' % iface)
 
 def getIPv4SubnetAddressRange(ip_address, mask, size):
-  """Check if a given ipaddress can be used to create 'size' 
+  """Check if a given ipaddress can be used to create 'size'
   host ip address, then return list of ip address in the subnet"""
   ip = netaddr.IPNetwork('%s/%s' % (ip_address, mask))
   # Delete network and default ip_address from the list
@@ -211,32 +236,55 @@ def _getDict(obj):
     key: _getDict(value) \
     for key, value in dikt.iteritems() \
     # do not attempt to serialize logger: it is both useless and recursive.
-    if not isinstance(value, logging.Logger)
+    # do not serialize attributes starting with "_", let the classes have some privacy
+    if not key.startswith("_")
   }
 
 
 class Computer(object):
-  "Object representing the computer"
-  instance_root = None
-  software_root = None
-  instance_storage_home = None
+  """Object representing the computer"""
 
   def __init__(self, reference, interface=None, addr=None, netmask=None,
                ipv6_interface=None, software_user='slapsoft',
-               tap_gateway_interface=None):
+               tap_gateway_interface=None,
+               instance_root=None, software_root=None, instance_storage_home=None,
+               partition_list=None, config=None):
     """
     Attributes:
-      reference: String, the reference of the computer.
-      interface: String, the name of the computer's used interface.
+      reference: str, the reference of the computer.
+      interface: str, the name of the computer's used interface.
+
+      :param config: dict-like, holds raw data from configuration file
     """
     self.reference = str(reference)
     self.interface = interface
-    self.partition_list = []
+    self.partition_list = partition_list or []
     self.address = addr
     self.netmask = netmask
     self.ipv6_interface = ipv6_interface
     self.software_user = software_user
     self.tap_gateway_interface = tap_gateway_interface
+
+    # Used to be static attributes of the class object - didn't make sense (Marco again)
+    assert instance_root is not None and software_root is not None, \
+           "Computer's instance_root and software_root must not be empty!"
+    self.software_root = software_root
+    self.instance_root = instance_root
+    self.instance_storage_home = instance_storage_home
+
+    # The following properties are updated on update() method
+    self.public_ipv4_address = None
+    self.os_type = None
+    self.python_version = None
+    self.slapos_version = None
+
+    # attributes starting with '_' are saved from serialization
+    # monkey-patch use of class instead of dictionary
+    if config is None:
+      logger.warning("Computer needs config in constructor to allow managers.")
+
+    self._config = config if config is None or isinstance(config, dict) else config.__dict__
+    self._manager_list = slapmanager.from_config(self._config)
 
   def __getinitargs__(self):
     return (self.reference, self.interface)
@@ -273,11 +321,17 @@ class Computer(object):
     # Can't find address
     raise NoAddressOnInterface('No valid IPv6 found on %s.' % self.interface.name)
 
+  def update(self):
+    """Collect environmental hardware/network information."""
+    self.public_ipv4_address = getPublicIPv4Address()
+    self.slapos_version = version.version
+    self.python_version = platform.python_version()
+    self.os_type = platform.platform()
+
   def send(self, conf):
     """
     Send a marshalled dictionary of the computer object serialized via_getDict.
     """
-
     slap_instance = slap.slap()
     connection_dict = {}
     if conf.key_file and conf.cert_file:
@@ -340,6 +394,9 @@ class Computer(object):
     with open(path_to_xml, 'wb') as fout:
       fout.write(new_pretty_xml)
 
+    for partition in self.partition_list:
+      partition.dump()
+
   def backup_xml(self, path_to_archive, path_to_xml):
     """
     Stores a copy of the current xml file to an historical archive.
@@ -351,7 +408,8 @@ class Computer(object):
       archive.writestr(saved_filename, xml_content, zipfile.ZIP_DEFLATED)
 
   @classmethod
-  def load(cls, path_to_xml, reference, ipv6_interface, tap_gateway_interface):
+  def load(cls, path_to_xml, reference, ipv6_interface, tap_gateway_interface,
+           instance_root=None, software_root=None, config=None):
     """
     Create a computer object from a valid xml file.
 
@@ -362,8 +420,8 @@ class Computer(object):
     Return:
       A Computer object.
     """
-
-    dumped_dict = xml_marshaller.xml_marshaller.loads(open(path_to_xml).read())
+    with open(path_to_xml, "rb") as fi:
+      dumped_dict = xml_marshaller.xml_marshaller.load(fi)
 
     # Reconstructing the computer object from the xml
     computer = Computer(
@@ -373,9 +431,12 @@ class Computer(object):
         ipv6_interface=ipv6_interface,
         software_user=dumped_dict.get('software_user', 'slapsoft'),
         tap_gateway_interface=tap_gateway_interface,
+        software_root=dumped_dict.get('software_root', software_root),
+        instance_root=dumped_dict.get('instance_root', instance_root),
+        config=config,
     )
 
-    for partition_dict in dumped_dict['partition_list']:
+    for partition_index, partition_dict in enumerate(dumped_dict['partition_list']):
 
       if partition_dict['user']:
         user = User(partition_dict['user']['name'])
@@ -392,6 +453,12 @@ class Computer(object):
       else:
         tap = Tap(partition_dict['reference'])
 
+      if partition_dict.get('tun') is not None and partition_dict['tun'].get('ipv4_addr') is not None:
+        tun = Tun(partition_dict['tun']['name'], partition_index, len(dumped_dict['partition_list']))
+        tun.ipv4_addr = partition_dict['tun']['ipv4_addr']
+      else:
+        tun = Tun("slaptun" + str(partition_index), partition_index, len(dumped_dict['partition_list']))
+
       address_list = partition_dict['address_list']
       external_storage_list = partition_dict.get('external_storage_list', [])
 
@@ -401,6 +468,7 @@ class Computer(object):
           user=user,
           address_list=address_list,
           tap=tap,
+          tun=tun,
           external_storage_list=external_storage_list,
       )
 
@@ -444,9 +512,22 @@ class Computer(object):
     command = 'ip address add dev %s fd00::1/64' % interface_name
     callAndRead(command.split())
 
-  def construct(self, alter_user=True, alter_network=True, create_tap=True, use_unique_local_address_block=False):
+  @property
+  def software_gid(self):
+    """Return GID for self.software_user.
+
+    Has to be dynamic because __init__ happens before ``format`` where we 
+    effectively create the user and group."""
+    return pwd.getpwnam(self.software_user)[3]
+
+  def format(self, alter_user=True, alter_network=True, create_tap=True, use_unique_local_address_block=False):
     """
-    Construct the computer object as it is.
+    Setup underlaying OS so it reflects this instance (``self``).
+
+    - setup interfaces and addresses
+    - setup TAP and TUN interfaces
+    - add groups and users
+    - construct partitions inside slapgrid
     """
     if alter_network and self.address is not None:
       self.interface.addAddr(self.address, self.netmask)
@@ -472,6 +553,10 @@ class Computer(object):
       slapsoft_pw = pwd.getpwnam(slapsoft.name)
       os.chown(slapsoft.path, slapsoft_pw.pw_uid, slapsoft_pw.pw_gid)
     os.chmod(self.software_root, 0o755)
+
+    # Iterate over all managers and let them `format` the computer too
+    for manager in self._manager_list:
+      manager.format(self)
 
     # get list of instance external storage if exist
     instance_external_list = []
@@ -533,6 +618,11 @@ class Computer(object):
               partition.tap.ipv4_network = gateway_addr_dict['network']
             partition.tap.createRoutes()
 
+        if alter_network and partition.tun is not None:
+          # create TUN interface per partition as well
+          partition.tun.createWithOwner(owner)
+          partition.tun.createRoutes()
+
         # Reconstructing partition's directory
         partition.createPath(alter_user)
         partition.createExternalPath(alter_user)
@@ -579,16 +669,20 @@ class Computer(object):
 
 
 class Partition(object):
-  "Represent a computer partition"
+  """Represent a computer partition."""
 
-  def __init__(self, reference, path, user, address_list, tap, external_storage_list=[]):
+  resource_file = ".slapos-resource"
+
+  def __init__(self, reference, path, user, address_list, 
+               tap, external_storage_list=[], tun=None):
     """
     Attributes:
       reference: String, the name of the partition.
       path: String, the path to the partition folder.
       user: User, the user linked to this partition.
       address_list: List of associated IP addresses.
-      tap: Tap, the tap interface linked to this partition.
+      tap: Tap, the tap interface linked to this partition e.g. used as a bridge for kvm
+      tun: Tun interface used for special apps simulating ethernet connections
       external_storage_list: Base path list of folder to format for data storage
     """
 
@@ -597,10 +691,11 @@ class Partition(object):
     self.user = user
     self.address_list = address_list or []
     self.tap = tap
+    self.tun = tun
     self.external_storage_list = []
 
   def __getinitargs__(self):
-    return (self.reference, self.path, self.user, self.address_list, self.tap)
+    return (self.reference, self.path, self.user, self.address_list, self.tap, self.tun)
 
   def createPath(self, alter_user=True):
     """
@@ -633,6 +728,18 @@ class Partition(object):
         os.chown(storage_path, owner_pw.pw_uid, owner_pw.pw_gid)
       os.chmod(storage_path, 0o750)
 
+  def dump(self):
+    """Dump available resources into ~partition_home/.slapos-resource."""
+    file_path = os.path.join(self.path, self.resource_file)
+    logger.info("Partition resources saved to {}".format(
+      self.reference, file_path))
+    data = _getDict(self)
+    with open(file_path, "wb") as fo:
+      json.dump(data, fo, sort_keys=True, indent=4)
+    owner_pw = pwd.getpwnam(self.user.name)
+    os.chmod(file_path, 0o644)
+
+
 class User(object):
   """User: represent and manipulate a user on the system."""
 
@@ -644,6 +751,7 @@ class User(object):
         user_name: string, the name of the user, who will have is home in
     """
     self.name = str(user_name)
+    self.shell = '/bin/sh'
     self.additional_group_list = additional_group_list
 
   def __getinitargs__(self):
@@ -669,7 +777,7 @@ class User(object):
     except KeyError:
       callAndRead(['groupadd', grpname])
 
-    user_parameter_list = ['-d', self.path, '-g', self.name]
+    user_parameter_list = ['-d', self.path, '-g', self.name, '-s', self.shell]
     if self.additional_group_list is not None:
       user_parameter_list.extend(['-G', ','.join(self.additional_group_list)])
     user_parameter_list.append(self.name)
@@ -679,7 +787,10 @@ class User(object):
       user_parameter_list.append('-r')
       callAndRead(['useradd'] + user_parameter_list)
     else:
-      callAndRead(['usermod'] + user_parameter_list)
+      # if the user is already created and used we should not fail
+      callAndRead(['usermod'] + user_parameter_list, raise_on_error=False)
+    # lock the password of user
+    callAndRead(['passwd', '-l', self.name])
 
     return True
 
@@ -704,6 +815,7 @@ class Tap(object):
   IFF_TAP = 0x0002
   TUNSETIFF = 0x400454ca
   KEEP_TAP_ATTACHED_EVENT = threading.Event()
+  MODE = "tap"
 
   def __init__(self, tap_name):
     """
@@ -757,9 +869,9 @@ class Tap(object):
     except IOError as error:
       # If  EBUSY, it  means another  program is  already attached,  thus just
       # ignore it...
+      logger.warning("Cannot create interface " + self.name + ". Does it exist already?")
       if error.errno != errno.EBUSY:
         os.close(tap_fd)
-        raise
     else:
       # Block until the  caller send an event stating that  the program can be
       # now detached safely,  thus bringing down the TAP  device (from 2.6.36)
@@ -777,21 +889,27 @@ class Tap(object):
 
   def createWithOwner(self, owner, attach_to_tap=False):
     """
-    Create a tap interface on the system.
+    Create a tap interface on the system if it doesn't exist yet.
     """
-
-    # some systems does not have -p switch for tunctl
-    #callAndRead(['tunctl', '-p', '-t', self.name, '-u', owner.name])
     check_file = '/sys/devices/virtual/net/%s/owner' % self.name
     owner_id = None
     if os.path.exists(check_file):
-      owner_id = open(check_file).read().strip()
+      with open(check_file) as fx:
+        owner_id = fx.read().strip()
       try:
         owner_id = int(owner_id)
       except ValueError:
-        pass
-    if owner_id != pwd.getpwnam(owner.name).pw_uid:
-      callAndRead(['tunctl', '-t', self.name, '-u', owner.name])
+        owner_id = pwd.getpwnam(owner_id).pw_uid
+      #
+      if owner_id != pwd.getpwnam(owner.name).pw_uid:
+        logger.warning("Wrong owner of TUN/TAP interface {}! Not touching it."
+                       "Expected {:d} got {:d}".format(
+          self.name, pwd.getpwnam(owner.name).pw_uid, owner_id))
+      # if the interface already exists - don't do anything
+      return
+
+    callAndRead(['ip', 'tuntap', 'add', 'dev', self.name, 'mode',
+                 self.MODE, 'user', owner.name])
     callAndRead(['ip', 'link', 'set', self.name, 'up'])
 
     if attach_to_tap:
@@ -803,13 +921,66 @@ class Tap(object):
     """
     if self.ipv4_addr:
       # Check if this route exits
-      code, result = callAndRead(['ip', 'route', 'show', self.ipv4_addr])
+      code, result = callAndRead(['ip', 'route', 'show', self.ipv4_addr],
+                                 raise_on_error=False)
       if code == 0 and self.ipv4_addr in result and self.name in result:
         return
-      callAndRead(['route', 'add', '-host', self.ipv4_addr, 'dev', self.name])
+      callAndRead(['ip', 'route', 'add', self.ipv4_addr, 'dev', self.name])
     else:
       raise ValueError("%s should not be empty. No ipv4 address assigned to %s" %
                          (self.ipv4_addr, self.name))
+
+
+class Tun(Tap):
+  """Represent TUN interface which might be many per user."""
+ 
+  MODE = "tun"
+  BASE_MASK = 12
+  BASE_NETWORK = "172.16.0.0"
+
+  def __init__(self, name, sequence=None, partitions=None):
+    """Create TUN interface with subnet according to the optional ``sequence`` number.
+
+    :param name: name which will appear in ``ip list`` afterwards
+    :param sequence: {int} position of this TUN among all ``partitions``
+    """
+    super(Tun, self).__init__(name)
+    if sequence is not None:
+      assert 0 <= sequence < partitions, "0 <= {} < {}".format(sequence, partitions)
+      # create base IPNetwork
+      ip_network = netaddr.IPNetwork(Tun.BASE_NETWORK + "/" + str(Tun.BASE_MASK))
+      # compute shift in BITS to separate ``partitions`` networks into subset
+      # example: for 30 partitions we need log2(30) = 8 BITS
+      mask_shift = int(math.ceil(math.log(int(partitions), 2.0)))
+      # IPNetwork.subnet returns iterator over all possible subnets of given mask
+      ip_subnets = list(ip_network.subnet(Tun.BASE_MASK + mask_shift))
+      subnet = ip_subnets[sequence]
+      # For serialization purposes, convert directly to ``str``
+      self.ipv4_network = str(subnet)
+      self.ipv4_addr = str(subnet.ip)
+      self.ipv4_netmask = str(subnet.netmask)
+
+  def createRoutes(self):
+    """Extend for physical addition of network address because TAP let this on external class."""
+    if self.ipv4_network:
+      # add an address
+      code, _ = callAndRead(['ip', 'addr', 'add', self.ipv4_network, 'dev', self.name],
+                            raise_on_error=False)
+      if code == 0:
+        # address added to the interface - wait
+        time.sleep(1)
+    else:
+      raise RuntimeError("Cannot setup address on interface {}. "
+                         "Address is missing.".format(self.name))
+    # create routes
+    super(Tun, self).createRoutes()
+    # add iptables rule to accept connections from this interface
+    chain_rule = ['INPUT', '-i', self.name, '-j', 'ACCEPT']
+    code, _ = callAndRead(['iptables', '-C'] + chain_rule, raise_on_error=False)
+    if code == 0:
+      # 0 means the rule does not exits so we are free to insert it
+      callAndRead(['iptables', '-I'] + chain_rule)
+
 
 class Interface(object):
   """Represent a network interface on the system"""
@@ -820,15 +991,15 @@ class Interface(object):
         name: String, the name of the interface
     """
 
-    self.logger = logger
+    self._logger = logger
     self.name = str(name)
     self.ipv4_local_network = ipv4_local_network
     self.ipv6_interface = ipv6_interface
 
     # Attach to TAP  network interface, only if the  interface interface does not
     # report carrier
-    _, result = callAndRead(['ip', 'addr', 'list', self.name])
-    self.attach_to_tap = 'DOWN' in result.split('\n', 1)[0]
+    _, result = callAndRead(['ip', 'addr', 'list', self.name], raise_on_error=False)
+    self.attach_to_tap = self.isBridge() and ('DOWN' in result.split('\n', 1)[0])
 
   # XXX no __getinitargs__, as instances of this class are never deserialized.
 
@@ -876,6 +1047,15 @@ class Interface(object):
     # local addresses or anything which does not exists in RFC!
     return address_list
 
+  def isBridge(self):
+    try:
+      _, result = callAndRead(['brctl', 'show'])
+      return any(line.startswith(self.name) for line in result.split("\n"))
+    except Exception as e:
+      # the binary "brctl" itself does not exist - bridge is imposible to exist
+      logger.warning(str(e))
+      return False
+
   def getInterfaceList(self):
     """Returns list of interfaces already present on bridge"""
     interface_list = []
@@ -903,7 +1083,12 @@ class Interface(object):
       tap: Tap, the tap interface.
     """
     if tap.name not in self.getInterfaceList():
-      callAndRead(['brctl', 'addif', self.name, tap.name])
+      if self.isBridge():
+        callAndRead(['brctl', 'addif', self.name, tap.name])
+      else:
+        logger.warning("Interface slapos.cfg:interface_name={} is not a bridge. "
+                       "TUN/TAP interface {} might not have internet connection."
+                       "".format(self.name, tap.name))
 
   def _addSystemAddress(self, address, netmask, ipv6=True):
     """Adds system address to interface
@@ -990,7 +1175,7 @@ class Interface(object):
       if self._addSystemAddress(addr, netmask, False):
         return dict(addr=addr, netmask=netmask)
       else:
-        self.logger.warning('Impossible to add old local IPv4 %s. Generating '
+        self._logger.warning('Impossible to add old local IPv4 %s. Generating '
             'new IPv4 address.' % addr)
         return self._generateRandomIPv4Address(netmask)
     else:
@@ -1048,7 +1233,7 @@ class Interface(object):
             # succeed, return it
             return dict(addr=addr, netmask=netmask)
           else:
-            self.logger.warning('Impossible to add old public IPv6 %s. '
+            self._logger.warning('Impossible to add old public IPv6 %s. '
                 'Generating new IPv6 address.' % addr)
 
     # Try 10 times to add address, raise in case if not possible
@@ -1103,12 +1288,15 @@ def parse_computer_definition(conf, definition_path):
       address, netmask = a.split('/')
       address_list.append(dict(addr=address, netmask=netmask))
     tap = Tap(computer_definition.get(section, 'network_interface'))
+    tun = Tun("slaptun" + str(partition_number),
+              partition_number,
+              int(conf.partition_amount)) if conf.create_tap else None
     partition = Partition(reference=computer_definition.get(section, 'pathname'),
                           path=os.path.join(conf.instance_root,
                                             computer_definition.get(section, 'pathname')),
                           user=user,
                           address_list=address_list,
-                          tap=tap)
+                          tap=tap, tun=tun)
     partition_list.append(partition)
   computer.partition_list = partition_list
   return computer
@@ -1125,7 +1313,10 @@ def parse_computer_xml(conf, xml_path):
     computer = Computer.load(xml_path,
                              reference=conf.computer_id,
                              ipv6_interface=conf.ipv6_interface,
-                             tap_gateway_interface=conf.tap_gateway_interface)
+                             tap_gateway_interface=conf.tap_gateway_interface,
+                             software_root=conf.software_root,
+                             instance_root=conf.instance_root,
+                             config=conf)
     # Connect to the interface defined by the configuration
     computer.interface = interface
   else:
@@ -1133,12 +1324,15 @@ def parse_computer_xml(conf, xml_path):
     conf.logger.warning('Creating new computer data with id %r', conf.computer_id)
     computer = Computer(
       reference=conf.computer_id,
+      software_root=conf.software_root,
+      instance_root=conf.instance_root,
       interface=interface,
       addr=None,
       netmask=None,
       ipv6_interface=conf.ipv6_interface,
       software_user=conf.software_user,
       tap_gateway_interface=conf.tap_gateway_interface,
+      config=conf,
     )
 
   partition_amount = int(conf.partition_amount)
@@ -1161,7 +1355,8 @@ def parse_computer_xml(conf, xml_path):
           conf.partition_base_name, i)),
         user=User('%s%s' % (conf.user_base_name, i)),
         address_list=None,
-        tap=Tap('%s%s' % (conf.tap_base_name, i))
+        tap=Tap('%s%s' % (conf.tap_base_name, i)),
+        tun=Tun('slaptun' + str(i), i, partition_amount)
     )
     computer.partition_list.append(partition)
 
@@ -1208,8 +1403,6 @@ def do_format(conf):
     # no definition file, figure out computer
     computer = parse_computer_xml(conf, conf.computer_xml)
 
-  computer.instance_root = conf.instance_root
-  computer.software_root = conf.software_root
   computer.instance_storage_home = conf.instance_storage_home
   conf.logger.info('Updating computer')
   address = computer.getAddress(conf.create_tap)
@@ -1218,8 +1411,8 @@ def do_format(conf):
 
   if conf.output_definition_file:
     write_computer_definition(conf, computer)
-  
-  computer.construct(alter_user=conf.alter_user,
+
+  computer.format(alter_user=conf.alter_user,
                      alter_network=conf.alter_network,
                      create_tap=conf.create_tap,
                      use_unique_local_address_block=conf.use_unique_local_address_block)
@@ -1227,6 +1420,7 @@ def do_format(conf):
   if getattr(conf, 'certificate_repository_path', None):
     mkdir_p(conf.certificate_repository_path, mode=0o700)
 
+  computer.update()
   # Dumping and sending to the erp5 the current configuration
   if not conf.dry_run:
     computer.dump(path_to_xml=conf.computer_xml,
@@ -1342,12 +1536,8 @@ class FormatConfig(object):
 
     if not self.dry_run:
       if self.alter_user:
-        self.checkRequiredBinary(['groupadd', 'useradd', 'usermod'])
-      if self.create_tap:
-        self.checkRequiredBinary([['tunctl', '-d']])
-        if self.tap_gateway_interface:
-          self.checkRequiredBinary(['route'])
-      if self.alter_network:
+        self.checkRequiredBinary(['groupadd', 'useradd', 'usermod', ['passwd', '-h']])
+      if self.create_tap or self.alter_network:
         self.checkRequiredBinary(['ip'])
 
     # Required, even for dry run
@@ -1385,8 +1575,15 @@ class FormatConfig(object):
       self.output_definition_file = os.path.abspath(self.output_definition_file)
 
 
+tracing_monkeypatch_mark = []
 def tracing_monkeypatch(conf):
   """Substitute os module and callAndRead function with tracing wrappers."""
+
+  # This function is called again if "slapos node boot" failed.
+  # Don't wrap the logging method again, otherwise the output becomes double.
+  if tracing_monkeypatch_mark:
+    return
+
   global os
   global callAndRead
 
@@ -1415,3 +1612,5 @@ def tracing_monkeypatch(conf):
     return dry_callAndRead(argument_list, raise_on_error)
   callAndRead = logging_callAndRead
 
+  # Put a mark. This function was called once.
+  tracing_monkeypatch_mark.append(None)

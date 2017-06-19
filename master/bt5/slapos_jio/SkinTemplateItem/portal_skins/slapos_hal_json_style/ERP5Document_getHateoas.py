@@ -279,7 +279,7 @@ portal = context.getPortalObject()
 sql_catalog = portal.portal_catalog.getSQLCatalog()
 
 # Calculate the site root to prevent unexpected browsing
-is_web_mode = (context.REQUEST.get('current_web_section', None) is not None) or context.isWebMode()
+is_web_mode = (context.REQUEST.get('current_web_section', None) is not None) or (hasattr(context, 'isWebMode') and context.isWebMode())
 # is_web_mode =  traversed_document.isWebMode()
 if is_web_mode:
   site_root = context.getWebSiteValue()
@@ -532,7 +532,6 @@ elif (mode == 'root') or (mode == 'traverse'):
       # List of validated computers
       query = sql_catalog.buildQuery({
           "portal_type": "Computer",
-          "local_roles": "Assignee",
           "default_strict_allocation_scope_uid": "!=%s" % traversed_document.getPortalObject().portal_categories.allocation_scope.close.forever.getUid(),
           "validation_state": 'validated'
         }).asSearchTextExpression(sql_catalog)
@@ -549,7 +548,6 @@ elif (mode == 'root') or (mode == 'traverse'):
       # List of networks
       query = sql_catalog.buildQuery({
           "portal_type": "Computer Network",
-          "local_roles": "Assignee"
         }).asSearchTextExpression(sql_catalog)
       http_query = make_query({
         "mode": "search",

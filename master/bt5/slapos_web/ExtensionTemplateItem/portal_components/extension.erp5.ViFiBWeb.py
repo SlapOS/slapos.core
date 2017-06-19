@@ -35,8 +35,7 @@ import apiclient.discovery
 import httplib2
 import oauth2client.client
 import socket
-from Products.ERP5Security.ERP5UserManager import getUserByLogin
-from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
+
 
 # common methods
 def _getCacheFactory(self, cache_factory_name):
@@ -75,7 +74,7 @@ def Facebook_getServerToken(self, key):
   return getServerToken(self, key, 'facebook_server_auth_token_cache_factory')
 
 def Facebook_getAccessTokenFromCode(self, code, redirect_uri):
-  return facebook.get_access_token_from_code(code=code,
+  return facebook.GraphAPI(version="2.7").get_access_token_from_code(code=code,
     redirect_uri=redirect_uri,
     app_id=self.portal_preferences.getPreferredVifibFacebookApplicationId(),
     app_secret=self.portal_preferences.getPreferredVifibFacebookApplicationSecret())
@@ -180,50 +179,3 @@ def Google_checkUserExistence(self):
 
   # user exist if server gave some correct response without waiting for user
   return response.status in (200, 204)
-
-# Browser ID
-def BrowserID_setServerToken(self, key, body):
-  setServerToken(self, key, body, 'browser_id_auth_token_cache_factory')
-
-def BrowserID_getServerToken(self, key):
-  return getServerToken(self, key, 'browser_id_auth_token_cache_factory')
-
-
-def BrowserID_validateAssertion(self, assertion):
-  connection = httplib.HTTPSConnection(host='browserid.org', timeout=5)
-  data = urllib.urlencode({'assertion': assertion,
-    'audience': self.REQUEST.get('SERVER_URL')})
-  headers = {'Content-type': 'application/x-www-form-urlencoded'}
-  connection.request('POST', '/verify', data, headers)
-  response = connection.getresponse()
-
-  if response.status != 200:
-    return None
-
-  try:
-    body = json.loads(response.read())
-  except Exception:
-    return None
-
-  return body
-
-@UnrestrictedMethod
-def BrowserID_checkUserExistence(self):
-  hash = self.REQUEST.get('__ac_browser_id_hash')
-  try:
-    user_dict = BrowserID_getServerToken(self, hash)
-  except KeyError:
-    return False
-  user = user_dict['login']
-  tag = '%s_user_creation_in_progress' % user
-  person_list = getUserByLogin(self.getPortalObject(), user)
-  if len(person_list) == 0:
-    if self.getPortalObject().portal_activities.countMessageWithTag(tag) == 0:
-      user_entry = {'reference': user,
-        'email': user[4:],
-        'first_name': None,
-        'last_name': None}
-      self.Base_createOauth2User(tag, **user_entry)
-    return False
-  else:
-    return True

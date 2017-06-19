@@ -16,7 +16,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 "use strict";
-
 (function (window, $) {
 
   var methods,
@@ -60,7 +59,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         }
 
         return output;
-    },
+    }
   };
 
 
@@ -79,15 +78,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
           now = new Date(),
           context = $(this);
         // 5 minute for computer. 1 day for instance.
-        if (/#access/.test(data.text) & /computer_module/.test(data['@document']) & (now - created_at < 300000)) {
+        if (/#access/.test(data.text) & (/computer_module/.test(data['@document'])) & (now - created_at < 300000)) {
           $(this).attr("class", "monitoring_ok")
                  .attr("title", data.text + " (" + created_at + ")" )
                  .attr("href", data['@document']);
-        } else if (/#access/.test(data.text) & /software_instance_module/.test(data['@document']) & (now - created_at < 86400000)) {
+        } else if (/#access/.test(data.text) & (/software_instance_module/.test(data['@document'])) & (now - created_at < 86400000)) {
           $(this).attr("class", "monitoring_ok")
                  .attr("title", data.text + " (" + created_at + ")" )
                  .attr("href", data['@document']);
-        } else if (/#access/.test(data.text) & /software_installation_module/.test(data['@document']) & (now - created_at < 86400000)) {
+        } else if (/#access/.test(data.text) & (/software_installation_module/.test(data['@document'])) & (now - created_at < 86400000)) {
           $(this).attr("class", "monitoring_ok")
                  .attr("title", data.text + " (" + created_at + ")" )
                  .attr("href", data['@document']);
@@ -105,7 +104,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         // $(this).attr("class", "monitoring_failed");
         var context = $(this);
         if (jqXHR.status === 404) {
-          context.remove()
+          context.remove();
         } else {
           $(this).attr("class", "monitoring_failed")
                  .attr("title", "Unable to fetch content");
@@ -113,8 +112,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             update_status(context);
           }, 60000);
         }
-        
-      },
+      }
     });
   };
 
@@ -135,11 +133,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
           var status_url = result_list[i],
             status_id,
             status_context;
-          status_id = encodeURIComponent(Base61.encode(status_url)),
+          status_id = encodeURIComponent(Base61.encode(status_url));
           status_context = $(this).find('#' + status_id);
           if (!status_context[0]) {
-            status_context = $(this).append('<li><a class="check_monitoring" id="'
-+ status_id + '" data-url="' + encodeURIComponent(status_url) + '"></a></li>')
+            status_context = $(this).append('<li><a class="check_monitoring" id="' + status_id + '" data-url="' + encodeURIComponent(status_url) + '"></a></li>')
                                     .find('#' + status_id);
             (function(new_context) {
               setTimeout(function () {
@@ -154,7 +151,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         setTimeout(function () {
           search_document_list(context, context.attr('data-list-url'));
         }, 60000);
-      },
+      }
     });
   };
 
@@ -177,7 +174,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         update_status(context);
       });
       return context;
-    },
+    }
   };
 
   $.fn.vifibmonitoring = function (method) {

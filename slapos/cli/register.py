@@ -42,7 +42,15 @@ from slapos.util import parse_certificate_key_pair
 
 class RegisterCommand(Command):
     """
-    register a node in the SlapOS cloud
+    Register a new computer on SlapOS Master.
+
+    This command will generate everything you need for run your slapos node,
+    The files at /etc/opt/slapos (by default):
+
+      - /etc/opt/slapos/slapos.cfg: The configuration of your SlapOS Node
+      - /etc/opt/slapos/ssl/certificate : Your server SSL Cetificate
+      - /etc/opt/slapos/ssl/key: Your server SSL Private Key
+
     """
     command_group = 'node'
 
@@ -64,7 +72,7 @@ class RegisterCommand(Command):
                              ' (default: %(default)s)')
 
         ap.add_argument('--master-url-web',
-                        default='https://www.slapos.org',
+                        default='https://slapos.vifib.com',
                         help='URL of SlapOS Master webservice to register certificates'
                              ' (default: %(default)s)')
 
@@ -144,7 +152,7 @@ def get_certificate_key_pair(logger, master_url_web, node_name, token=None, logi
                             headers={'X-Access-Token': token},
                             verify=False)
     else:
-        register_server_url = '/'.join([master_url_web, ("add-a-server/WebSection_registerNewComputer?dialog_id=WebSection_viewServerInformationDialog&dialog_method=WebSection_registerNewComputer&title={}&object_path=/erp5/web_site_module/hosting/add-a-server&update_method=&cancel_url=https%3A//www.vifib.net/add-a-server/WebSection_viewServerInformationDialog&Base_callDialogMethod=&field_your_title=Essai1&dialog_category=None&form_id=view".format(node_name))])
+        register_server_url = '/'.join([master_url_web, ("add-a-server/WebSection_registerNewComputer?title={}".format(node_name))])
         req = requests.get(register_server_url, auth=(login, password), verify=False)
 
     if not req.ok and 'Certificate still active.' in req.text:

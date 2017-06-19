@@ -2,6 +2,7 @@
 import transaction
 from Products.SlapOS.tests.testSlapOSMixin import \
   testSlapOSMixin
+from unittest import skip
 from DateTime import DateTime
 from Products.ERP5Type.tests.utils import createZODBPythonScript
 
@@ -969,44 +970,59 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
 
   def test_alarm_allowed_allocation_scope_OpenPersonal_old_computer(self):
     self._makeComputer()
+    def getCreationDate(self):
+      return DateTime() - 31
     self.computer.edit(allocation_scope = 'open/personal')
-    def getModificationDate(self):
-      return DateTime() - 50
-    
+
     from Products.ERP5Type.Base import Base
-    
+
     self._simulateComputer_checkAndUpdatePersonalAllocationScope()
-    original_get_modification = Base.getModificationDate
-    Base.getModificationDate = getModificationDate
+    original_get_creation = Base.getCreationDate
+    Base.getCreationDate = getCreationDate
 
     try:
       self.portal.portal_alarms.slapos_crm_check_update_personal_allocation_scope.activeSense()
       self.tic()
     finally:
-      Base.getModificationDate = original_get_modification
+      Base.getCreationDate = original_get_creation
       self._dropComputer_checkAndUpdatePersonalAllocationScope()
 
     self.assertEqual('Visited by Computer_checkAndUpdatePersonalAllocationScope',
       self.computer.workflow_history['edit_workflow'][-1]['comment'])
 
-  def test_alarm_allowed_allocation_scope_OpenPersonalWithSoftwareInstallation(self):
+  @skip('computer creation date is not indexed')
+  def test_alarm_allowed_allocation_scope_OpenPersonal_recent_computer(self):
     self._makeComputer()
+    def getCreationDate(self):
+      return DateTime() - 28
     self.computer.edit(allocation_scope = 'open/personal')
-    self._makeSoftwareInstallation()
-    def getModificationDate(self):
-      return DateTime() - 50
-    
+
     from Products.ERP5Type.Base import Base
-    
+
     self._simulateComputer_checkAndUpdatePersonalAllocationScope()
-    original_get_modification = Base.getModificationDate
-    Base.getModificationDate = getModificationDate
+    original_get_creation = Base.getCreationDate
+    Base.getCreationDate = getCreationDate
 
     try:
       self.portal.portal_alarms.slapos_crm_check_update_personal_allocation_scope.activeSense()
       self.tic()
     finally:
-      Base.getModificationDate = original_get_modification
+      Base.getCreationDate = original_get_creation
+      self._dropComputer_checkAndUpdatePersonalAllocationScope()
+
+    self.assertNotEqual('Visited by Computer_checkAndUpdatePersonalAllocationScope',
+      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+
+  def test_alarm_allowed_allocation_scope_OpenPersonal_already_closed(self):
+    self._makeComputer()
+    self.computer.edit(allocation_scope = 'open/oudated')
+
+    self._simulateComputer_checkAndUpdatePersonalAllocationScope()
+
+    try:
+      self.portal.portal_alarms.slapos_crm_check_update_personal_allocation_scope.activeSense()
+      self.tic()
+    finally:
       self._dropComputer_checkAndUpdatePersonalAllocationScope()
 
     self.assertNotEqual('Visited by Computer_checkAndUpdatePersonalAllocationScope',
@@ -1047,8 +1063,8 @@ class TestSlapOSCrmMonitoringCheckInstanceInError(testSlapOSMixin):
     hosting_subscription.requestStart(**kw)
     hosting_subscription.requestInstance(**kw)
 
-  def _simulateHostingSubscription_checkSofwareInstanceState(self):
-    script_name = 'HostingSubscription_checkSofwareInstanceState'
+  def _simulateHostingSubscription_checkSoftwareInstanceState(self):
+    script_name = 'HostingSubscription_checkSoftwareInstanceState'
     if script_name in self.portal.portal_skins.custom.objectIds():
       raise ValueError('Precondition failed: %s exists in custom' % script_name)
     createZODBPythonScript(self.portal.portal_skins.custom,
@@ -1056,11 +1072,11 @@ class TestSlapOSCrmMonitoringCheckInstanceInError(testSlapOSMixin):
       '*args, **kw',
       '# Script body\n'
 """portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by HostingSubscription_checkSofwareInstanceState') """ )
+portal_workflow.doActionFor(context, action='edit_action', comment='Visited by HostingSubscription_checkSoftwareInstanceState') """ )
     transaction.commit()
   
-  def _dropHostingSubscription_checkSofwareInstanceState(self):
-    script_name = 'HostingSubscription_checkSofwareInstanceState'
+  def _dropHostingSubscription_checkSoftwareInstanceState(self):
+    script_name = 'HostingSubscription_checkSoftwareInstanceState'
     if script_name in self.portal.portal_skins.custom.objectIds():
       self.portal.portal_skins.custom.manage_delObjects(script_name)
     transaction.commit()
@@ -1068,30 +1084,90 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by H
   def test_alarm_check_instance_in_error_validated_hosting_subscription(self):
     host_sub = self._makeHostingSubscription()
 
-    self._simulateHostingSubscription_checkSofwareInstanceState()
+    self._simulateHostingSubscription_checkSoftwareInstanceState()
 
     try:
       self.portal.portal_alarms.slapos_crm_check_instance_in_error.activeSense()
       self.tic()
     finally:
-      self._dropHostingSubscription_checkSofwareInstanceState()
+      self._dropHostingSubscription_checkSoftwareInstanceState()
 
-    self.assertEqual('Visited by HostingSubscription_checkSofwareInstanceState',
+    self.assertEqual('Visited by HostingSubscription_checkSoftwareInstanceState',
       host_sub.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_check_instance_in_error_archived_hosting_subscription(self):
     host_sub = self._makeHostingSubscription()
     host_sub.archive()
     
-    self._simulateHostingSubscription_checkSofwareInstanceState()
+    self._simulateHostingSubscription_checkSoftwareInstanceState()
 
     try:
       self.portal.portal_alarms.slapos_crm_check_instance_in_error.activeSense()
       self.tic()
     finally:
-      self._dropHostingSubscription_checkSofwareInstanceState()
+      self._dropHostingSubscription_checkSoftwareInstanceState()
 
-    self.assertNotEqual('Visited by HostingSubscription_checkSofwareInstanceState',
+    self.assertNotEqual('Visited by HostingSubscription_checkSoftwareInstanceState',
       host_sub.workflow_history['edit_workflow'][-1]['comment'])
-      
-      
+
+class TestSlaposCrmUpdateSupportRequestState(testSlapOSMixin):
+
+  def beforeTearDown(self):
+    transaction.abort()
+  
+  def _makeSupportRequest(self):
+    person = self.portal.person_module.template_member\
+         .Base_createCloneDocument(batch_mode=1)
+    support_request = self.portal.support_request_module.\
+      slapos_crm_support_request_template_for_monitoring\
+         .Base_createCloneDocument(batch_mode=1)
+    support_request.validate()
+    new_id = self.generateNewId()
+    support_request.edit(
+        title= "Support Request éçà %s" % new_id,
+        reference="TESTSRQ-%s" % new_id,
+        destination_decision_value=person
+    )
+
+    return support_request
+
+
+  def _simulateSupportRequest_updateMonitoringState(self):
+    script_name = 'SupportRequest_updateMonitoringState'
+    if script_name in self.portal.portal_skins.custom.objectIds():
+      raise ValueError('Precondition failed: %s exists in custom' % script_name)
+    createZODBPythonScript(self.portal.portal_skins.custom,
+      script_name,
+      '*args, **kw',
+      '# Script body\n'
+"""portal_workflow = context.portal_workflow
+portal_workflow.doActionFor(context, action='edit_action', comment='Visited by SupportRequest_updateMonitoringState') """ )
+    transaction.commit()
+  
+  def _dropSupportRequest_updateMonitoringState(self):
+    script_name = 'SupportRequest_updateMonitoringState'
+    if script_name in self.portal.portal_skins.custom.objectIds():
+      self.portal.portal_skins.custom.manage_delObjects(script_name)
+    transaction.commit()
+  
+  def test_alarm_update_support_request_state(self):
+    support_request = self._makeSupportRequest()
+
+    self._simulateSupportRequest_updateMonitoringState()
+
+    try:
+      self.portal.portal_alarms.slapos_crm_update_support_request_state.activeSense()
+      self.tic()
+    finally:
+      self._dropSupportRequest_updateMonitoringState()
+
+    self.assertEqual('Visited by SupportRequest_updateMonitoringState',
+      support_request.workflow_history['edit_workflow'][-1]['comment'])
+
+
+
+
+
+
+
+

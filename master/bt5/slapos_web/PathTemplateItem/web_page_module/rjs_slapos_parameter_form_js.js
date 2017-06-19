@@ -1,7 +1,7 @@
 /*jslint nomen: true, maxlen: 200, indent: 2*/
-/*global rJS, console, window, document, RSVP, loopEventListener, btoa, atob, $, XMLSerializer, jQuery, URI, vkbeautify */
+/*global rJS, console, window, document, RSVP, btoa, atob, $, XMLSerializer, jQuery, URI, vkbeautify */
 
-(function (window, document, rJS, loopEventListener, $, XMLSerializer, jQuery, vkbeautify) {
+(function (window, document, rJS, $, XMLSerializer, jQuery, vkbeautify) {
   "use strict";
 
   var gk = rJS(window);
@@ -35,6 +35,66 @@
     return vkbeautify.xml(
       (new XMLSerializer()).serializeToString(xml_output.context)
     );
+  }
+
+  function loopEventListener(target, type, useCapture, callback,
+                             prevent_default) {
+    //////////////////////////
+    // Infinite event listener (promise is never resolved)
+    // eventListener is removed when promise is cancelled/rejected
+    //////////////////////////
+    var handle_event_callback,
+      callback_promise;
+
+    if (prevent_default === undefined) {
+      prevent_default = true;
+    }
+
+    function cancelResolver() {
+      if ((callback_promise !== undefined) &&
+          (typeof callback_promise.cancel === "function")) {
+        callback_promise.cancel();
+      }
+    }
+
+    function canceller() {
+      if (handle_event_callback !== undefined) {
+        target.removeEventListener(type, handle_event_callback, useCapture);
+      }
+      cancelResolver();
+    }
+    function itsANonResolvableTrap(resolve, reject) {
+      var result;
+      handle_event_callback = function (evt) {
+        if (prevent_default) {
+          evt.stopPropagation();
+          evt.preventDefault();
+        }
+
+        cancelResolver();
+
+        try {
+          result = callback(evt);
+        } catch (e) {
+          result = RSVP.reject(e);
+        }
+
+        callback_promise = result;
+        new RSVP.Queue()
+          .push(function () {
+            return result;
+          })
+          .push(undefined, function (error) {
+            if (!(error instanceof RSVP.CancellationError)) {
+              canceller();
+              reject(error);
+            }
+          });
+      };
+
+      target.addEventListener(type, handle_event_callback, useCapture);
+    }
+    return new RSVP.Promise(itsANonResolvableTrap, canceller);
   }
 
   function render_selection(json_field, default_value) {
@@ -869,4 +929,4 @@
         });
     });
 
-}(window, document, rJS, loopEventListener, $, XMLSerializer, jQuery, vkbeautify));
+}(window, document, rJS, $, XMLSerializer, jQuery, vkbeautify));

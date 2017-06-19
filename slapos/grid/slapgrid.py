@@ -41,6 +41,7 @@ import traceback
 import warnings
 import logging
 import json
+import shutil
 
 if sys.version_info < (2, 6):
   warnings.warn('Used python version (%s) is old and has problems with'
@@ -48,8 +49,10 @@ if sys.version_info < (2, 6):
 
 from lxml import etree
 
+from slapos import manager as slapmanager
 from slapos.slap.slap import NotFoundError
 from slapos.slap.slap import ServerError
+from slapos.slap.slap import COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME
 from slapos.util import mkdir_p, chownDirectory, string_to_boolean
 from slapos.grid.exception import BuildoutFailedError
 from slapos.grid.SlapObject import Software, Partition
@@ -76,6 +79,7 @@ PROMISE_TIMEOUT = 3
 
 COMPUTER_PARTITION_TIMESTAMP_FILENAME = '.timestamp'
 COMPUTER_PARTITION_LATEST_BANG_TIMESTAMP_FILENAME = '.slapos_latest_bang_timestamp'
+COMPUTER_PARTITION_INSTALL_ERROR_FILENAME = '.slapgrid-%s-error.log'
 
 # XXX hardcoded watchdog_path
 WATCHDOG_PATH = '/opt/slapos/bin/slapos-watchdog'
@@ -227,8 +231,8 @@ def create_slapgrid_object(options, logger):
     ]
 
   op = options
-  software_min_free_space = human2bytes(op.get('software_min_free_space', '200M'))
-  instance_min_free_space = human2bytes(op.get('instance_min_free_space', '100M'))
+  software_min_free_space = human2bytes(op.get('software_min_free_space', '1000M'))
+  instance_min_free_space = human2bytes(op.get('instance_min_free_space', '1000M'))
 
   return Slapgrid(software_root=op['software_root'],
                   instance_root=op['instance_root'],
@@ -271,7 +275,8 @@ def create_slapgrid_object(options, logger):
                   instance_min_free_space=instance_min_free_space,
                   instance_storage_home=op.get('instance_storage_home'),
                   ipv4_global_network=op.get('ipv4_global_network'),
-                  firewall_conf=op.get('firewall'))
+                  firewall_conf=op.get('firewall'),
+                  config=options)
 
 
 def check_required_only_partitions(existing, required):
@@ -330,6 +335,7 @@ class Slapgrid(object):
                instance_storage_home=None,
                ipv4_global_network=None,
                firewall_conf={},
+               config=None,
                ):
     """Makes easy initialisation of class parameters"""
     # Parses arguments
@@ -392,7 +398,8 @@ class Slapgrid(object):
     else:
       self.ipv4_global_network= ""
     self.firewall_conf = firewall_conf
-
+    self.config = config
+    self._manager_list = slapmanager.from_config(config)
 
   def _getWatchdogLine(self):
     invocation_list = [WATCHDOG_PATH]
@@ -550,6 +557,11 @@ stderr_logfile_backups=1
             shadir_cert_file=self.shadir_cert_file,
             shadir_key_file=self.shadir_key_file,
             software_min_free_space=self.software_min_free_space)
+
+        # call manager for every software release
+        for manager in self._manager_list:
+          manager.software(software)
+
         if state == 'available':
           completed_tag = os.path.join(software_path, '.completed')
           if (self.develop or (not os.path.exists(completed_tag) and
@@ -666,18 +678,45 @@ stderr_logfile_backups=1
     if not promise_present:
       self.logger.info("No promise.")
 
+  def _endInstallationTransaction(self, computer_partition):
+    partition_id = computer_partition.getId()
+    transaction_file_name = COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME % partition_id
+    transaction_file_path = os.path.join(self.instance_root,
+                                      partition_id,
+                                      transaction_file_name)
+
+    if os.path.exists(transaction_file_path):
+      with open(transaction_file_path, 'r') as tf:
+        try:
+          computer_partition.setComputerPartitionRelatedInstanceList(
+            [reference for reference in tf.read().split('\n') if reference]
+          )
+        except NotFoundError, e:
+          # Master doesn't implement this feature ?
+          self.logger.warning("NotFoundError: %s. \nCannot send requested instance "\
+                            "list to master. Please check if this feature is"\
+                            "implemented on SlapOS Master." % str(e))
+
   def _addFirewallRule(self, rule_command):
     """
     """
     query_cmd = rule_command.replace('--add-rule', '--query-rule')
     process = FPopen(query_cmd)
-    result = process.communicate()[0]
+    result, stderr = process.communicate()
     if result.strip() == 'no':
+      # rule doesn't exist add to firewall
       self.logger.debug(rule_command)
       process = FPopen(rule_command)
-      process.communicate()[0]
-    if process.returncode == 1 and result.strip() != 'no':
-      raise Exception("Failed to add firewalld rule %s." % rule_command)
+      rule_result, stderr = process.communicate()
+      if process.returncode == 0:
+        if rule_result.strip() != 'success':
+          raise Exception(rule_result)
+      else:
+        raise Exception("Failed to add firewalld rule %s\n%s.\n%s" % (
+                        rule_command, rule_result, stderr))
+    elif result.strip() != 'no' and process.returncode != 0:
+      raise Exception("Failed to run firewalld rule %s\n%s.\n%s" % (
+                      query_cmd, result, stderr))
 
     return result.strip() == 'no'
 
@@ -686,14 +725,22 @@ stderr_logfile_backups=1
     """
     query_cmd = rule_command.replace('--add-rule', '--query-rule')
     process = FPopen(query_cmd)
-    result = process.communicate()[0]
+    result, stderr = process.communicate()
     if result.strip() == 'yes':
+      # The rule really exist, remove it
       remove_command = rule_command.replace('--add-rule', '--remove-rule')
       self.logger.debug(remove_command)
       process = FPopen(remove_command)
-      process.communicate()[0]
-    if process.returncode == 1 and result.strip() != 'no':
-      raise Exception("Failed to remove firewalld rule %s." % remove_command)
+      rule_result, stderr = process.communicate()
+      if process.returncode == 0:
+        if rule_result.strip() != 'success':
+          raise Exception(rule_result)
+      else:
+        raise Exception("Failed to add firewalld rule %s\n%s.\n%s" % (
+                        rule_command, rule_result, stderr))
+    elif result.strip() != 'no' and process.returncode != 0:
+      raise Exception("Failed to run firewalld rule %s\n%s.\n%s" % (
+                      query_cmd, result, stderr))
 
     return result.strip() == 'yes'
 
@@ -737,9 +784,10 @@ stderr_logfile_backups=1
       self.logger.info("Reloading firewall configuration...")
       reload_cmd = self.firewall_conf['reload_config_cmd']
       reload_process = FPopen(reload_cmd)
-      result = reload_process.communicate()[0]
-      if reload_process.returncode == 1:
-        raise Exception("Failed to load firewalld rules with command %s" % reload_cmd)
+      stdout, stderr = reload_process.communicate()
+      if reload_process.returncode != 0:
+        raise Exception("Failed to load firewalld rules with command %s.\n%" % (
+                        stderr, reload_cmd))
 
       with open(firewall_rules_path, 'w') as frules:
         frules.write(json.dumps(json_list))
@@ -904,6 +952,14 @@ stderr_logfile_backups=1
     self.logger.debug('Check if %s requires processing...' % computer_partition_id)
 
     instance_path = os.path.join(self.instance_root, computer_partition_id)
+    os.environ['SLAPGRID_INSTANCE_ROOT'] = self.instance_root
+
+    # Check if transaction file of this partition exists, if the file was created,
+    # remove it so it will be generate with this new transaction
+    transaction_file_name = COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME % computer_partition_id
+    transaction_file_path = os.path.join(instance_path, transaction_file_name)
+    if os.path.exists(transaction_file_path):
+      os.unlink(transaction_file_path)
 
     # Try to get partition timestamp (last modification date)
     timestamp_path = os.path.join(
@@ -915,6 +971,11 @@ stderr_logfile_backups=1
       timestamp = parameter_dict['timestamp']
     else:
       timestamp = None
+
+    error_output_file = os.path.join(
+        instance_path,
+        COMPUTER_PARTITION_INSTALL_ERROR_FILENAME % computer_partition_id
+    )
 
     try:
       software_url = computer_partition.getSoftwareRelease().getURI()
@@ -1023,6 +1084,10 @@ stderr_logfile_backups=1
         partition_ip_list = parameter_dict['ip_list'] + parameter_dict.get(
                                                             'full_ip_list', [])
 
+      # call manager for every software release
+      for manager in self._manager_list:
+        manager.instance(local_partition)
+
       if computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
         local_partition.install()
         computer_partition.available()
@@ -1032,6 +1097,7 @@ stderr_logfile_backups=1
                                               partition_ip_list)
         self._checkPromises(computer_partition)
         computer_partition.started()
+        self._endInstallationTransaction(computer_partition)
       elif computer_partition_state == COMPUTER_PARTITION_STOPPED_STATE:
         try:
           # We want to process the partition, even if stopped, because it should
@@ -1045,6 +1111,7 @@ stderr_logfile_backups=1
           # Instance has to be stopped even if buildout/reporting is wrong.
           local_partition.stop()
         computer_partition.stopped()
+        self._endInstallationTransaction(computer_partition)
       elif computer_partition_state == COMPUTER_PARTITION_DESTROYED_STATE:
         local_partition.stop()
         if self.firewall_conf:
@@ -1063,8 +1130,15 @@ stderr_logfile_backups=1
           (computer_partition_id, computer_partition_state)
         computer_partition.error(error_string, logger=self.logger)
         raise NotImplementedError(error_string)
-    finally:
-       self.logger.removeHandler(partition_file_handler)
+    except Exception, e:
+      with open(error_output_file, 'w') as error_file:
+        # Write error message in a log file assible to computer partition user
+        error_file.write(str(e))
+      raise
+    else:
+      self.logger.removeHandler(partition_file_handler)
+      if os.path.exists(error_output_file):
+        os.unlink(error_output_file)  
 
     # If partition has been successfully processed, write timestamp
     if timestamp:
@@ -1094,6 +1168,14 @@ stderr_logfile_backups=1
           software_url = None
         if computer_partition_state == COMPUTER_PARTITION_DESTROYED_STATE and \
            not software_url:
+          # Exclude files which may come from concurrent processing 
+          #  ie.: slapos ndoe report and slapos node instance commands 
+          # can create a .timestamp file.
+          file_list = os.listdir(computer_partition_path)
+          for garbage_file in [".slapgrid", ".timestamp"]:
+            if garbage_file in file_list:
+              shutil.rmtree("/".join([computer_partition_path, garbage_file]))
+
           if os.listdir(computer_partition_path) != []:
             self.logger.warning("Free partition %s contains file(s) in %s." % (
                 computer_partition.getId(), computer_partition_path))

@@ -1,7 +1,7 @@
 computer = context
 request = context.REQUEST
 try:
-  computer.generateCertificate(csr=certificate_signature_request)
+  computer.generateCertificate(certificate_request=certificate_signature_request)
   request.set('portal_status_message', context.Base_translateString('Certificate created.'))
 except ValueError:
   request.set('portal_status_message', context.Base_translateString('Certificate is still active, please revoke existing one.'))

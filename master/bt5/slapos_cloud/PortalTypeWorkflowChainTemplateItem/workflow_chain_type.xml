@@ -4,6 +4,10 @@
   <workflow>edit_workflow, validation_workflow</workflow>
  </chain>
  <chain>
+  <type>Certificate Access ID</type>
+  <workflow>edit_workflow, validation_workflow</workflow>
+ </chain>
+ <chain>
   <type>Computer</type>
   <workflow>computer_slap_interface_workflow, slapos_cloud_interaction_workflow</workflow>
  </chain>

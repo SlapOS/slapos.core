@@ -7,6 +7,10 @@
   <item>RESTClientInterface</item>
   <item>Url</item>
  </portal_type>
+ <portal_type id="Certificate Access ID">
+  <item>Reference</item>
+  <item>Url</item>
+ </portal_type>
  <portal_type id="Computer">
   <item>SlaposCapacity</item>
   <item>SlaposComputerConstraint</item>

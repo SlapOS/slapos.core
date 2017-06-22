@@ -1,2 +1,3 @@
 document.erp5.Person
 document.erp5.SoftwareInstance
+document.erp5.CaucaseRESTClientInterface

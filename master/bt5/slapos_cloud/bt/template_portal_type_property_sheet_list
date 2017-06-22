@@ -2,6 +2,8 @@ Assignment | SlaposAssignmentConstraint
 Caucase REST Client Interface | Login
 Caucase REST Client Interface | RESTClientInterface
 Caucase REST Client Interface | Url
+Certificate Access ID | Reference
+Certificate Access ID | Url
 Computer Model | SlaposCapacity
 Computer Partition | ComputerPartition
 Computer Partition | SlaposComputerPartitionConstraint

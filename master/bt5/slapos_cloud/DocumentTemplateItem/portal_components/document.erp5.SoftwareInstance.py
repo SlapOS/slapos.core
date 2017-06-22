@@ -69,6 +69,62 @@ class SoftwareInstance(Item):
       result_dict[key] = value
     return result_dict
 
+  def _getInstanceCertificate(self):
+    certificate_id_list = [x for x in
+      self.contentValues(portal_type="Certificate Access ID")
+      if x.getValidationState() == 'validated']
+
+    if certificate_id_list:
+      return certificate_id_list[0]
+
+  def _getCertificate(self, cert_id):
+    return self.getPortalObject().portal_web_services.caucase_adapter\
+        .getCertificate(cert_id)
+
+  security.declareProtected(Permissions.AccessContentsInformation,
+    'getCertificate')
+  def getCertificate(self):
+    """Returns existing certificate of this instance"""
+    certificate_id = self._getInstanceCertificate()
+    if certificate_id:
+      return self._getCertificate(certificate_id.getReference())
+    raise ValueError(
+      "No certificate set for Software Instance %s" % self.getReference()
+    )
+
+  security.declareProtected(Permissions.AccessContentsInformation,
+    'requestCertificate')
+  def requestCertificate(self, certificate_request):
+    """Request a new certificate for this instance"""
+    certificate_id = self._getInstanceCertificate()
+    if certificate_id is None:
+      ca_service = self.getPortalObject().portal_web_services.caucase_adapter
+      csr_id = ca_service.putCertificateSigningRequest(certificate_request)
+  
+      # Sign the csr immediately
+      crt_id, url = ca_service.signCertificate(csr_id)
+
+      # link to the Instance
+      certificate_id = self.newContent(
+        portal_type="Certificate Access ID",
+        reference=crt_id,
+        url_string=url)
+
+      certificate_id.validate()
+    return self._getCertificate(certificate_id.getReference())
+
+  security.declareProtected(Permissions.AccessContentsInformation,
+    'revokeCertificate')
+  def revokeCertificate(self):
+    """Returns existing certificate of this instance"""
+    certificate_id = self._getInstanceCertificate()
+    if certificate_id:
+      return self.getPortalObject().portal_web_services.caucase_adapter \
+          .revokeCertificate(certificate_id.getReference())
+    raise ValueError(
+      "No certificate found for Software Instance %s" % self.getReference()
+    )
+
   security.declareProtected(Permissions.AccessContentsInformation,
     'getSlaXmlAsDict')
   def getSlaXmlAsDict(self):

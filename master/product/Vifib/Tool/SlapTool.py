@@ -350,16 +350,13 @@ class SlapTool(BaseTool):
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'getComputerPartitionCertificate')
-  def getComputerPartitionCertificate(self, computer_id, computer_partition_id):
+  def getComputerPartitionCertificate(self, computer_id, computer_partition_id,
+      certificate_request=None):
     """Method to fetch certificate"""
     self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
     software_instance = self._getSoftwareInstanceForComputerPartition(
       computer_id, computer_partition_id)
-    certificate_dict = dict(
-      key=software_instance.getSslKey(),
-      certificate=software_instance.getSslCertificate()
-    )
-    result = xml_marshaller.xml_marshaller.dumps(certificate_dict)
+
     # Cache with revalidation
     self.REQUEST.response.setStatus(200)
     self.REQUEST.response.setHeader('Cache-Control',
@@ -368,6 +365,22 @@ class SlapTool(BaseTool):
                                     'REMOTE_USER')
     self.REQUEST.response.setHeader('Last-Modified',
                                     rfc1123_date(software_instance.getModificationDate()))
+
+    try:
+      if certificate_request is None:
+        certificate_pem = software_instance.getCertificate()
+      else:
+        certificate_pem = software_instance.getCertificate()
+      certificate_dict = dict(
+        key='',
+        certificate=certificate_pem
+      )
+    except ValueError, e:
+      self.REQUEST.response.setStatus(400)
+      self.REQUEST.response.setBody(str(e))
+      return self.REQUEST.response
+
+    result = xml_marshaller.xml_marshaller.dumps(certificate_dict)
     self.REQUEST.response.setBody(result)
     return self.REQUEST.response
 
@@ -749,11 +762,13 @@ class SlapTool(BaseTool):
               WARNING : this method is deprecated. Please use useComputer."""
 
   @convertToREST
-  def _generateComputerCertificate(self, computer_id):
-    self._getComputerDocument(computer_id).generateCertificate()
+  def _generateComputerCertificate(self, computer_id, certificate_request):
+    self._getComputerDocument(computer_id).generateCertificate(
+      certificate_request=certificate_request
+    )
     result = {
      'certificate': self.REQUEST.get('computer_certificate').decode("UTF-8"),
-     'key': self.REQUEST.get('computer_key').decode("UTF-8")
+     'url': self.REQUEST.get('computer_certificate_url').decode("UTF-8")
      }
     return xml_marshaller.xml_marshaller.dumps(result)
 
@@ -1189,27 +1204,20 @@ class SlapTool(BaseTool):
         computer_id,
         computer_partition_id)
     if instance.getSlapState() == 'destroy_requested':
-      # remove certificate from SI
+      # remove certificate from SI (Backward compatibility)
       if instance.getSslKey() is not None or instance.getSslCertificate() is not None:
         instance.edit(
           ssl_key=None,
           ssl_certificate=None,
         )
+      # revoke certificate associated to this instance
+      for certificate_id in instance.contentValues(
+          portal_type='Certificate Access ID', validation_state='validated'):
+        if certificate_id.getValidationState() == 'validated':
+          instance.revokeCertificate(certificate_id.getReference())
+
       if instance.getValidationState() == 'validated':
         instance.invalidate()
-
-      # XXX Integrate with REST API
-      # Code duplication will be needed until SlapTool is removed
-      # revoke certificate
-      portal = self.getPortalObject()
-      try:
-        portal.portal_certificate_authority\
-          .revokeCertificate(instance.getDestinationReference())
-      except ValueError:
-        # Ignore already revoked certificates, as OpenSSL backend is
-        # non transactional, so it is ok to allow multiple tries to destruction
-        # even if certificate was already revoked
-        pass
 
 
   @convertToREST

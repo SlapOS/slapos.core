@@ -108,6 +108,7 @@ class SlapOSMachineAuthenticationPlugin(BasePlugin):
 
   meta_type = "SlapOS Machine Authentication Plugin"
   security = ClassSecurityInfo()
+  certificate_portal_type = "Certificate Access ID"
 
   def __init__(self, id, title=None):
     #Register value
@@ -126,17 +127,31 @@ class SlapOSMachineAuthenticationPlugin(BasePlugin):
       # use get_header instead for Zope-2.8
       getHeader = request.get_header
     user_id = getHeader('REMOTE_USER')
-    if user_id is not None:
+    serial = getHeader('SSL_CLIENT_SERIAL')
+    if serial is not None:
+      # search for user linked to this serial
+      certificate_login_list = self.portal_catalog.unrestrictedSearchResults(
+            portal_type=self.certificate_portal_type,
+            reference=serial)
+      creds['machine_login'] = None
+      if len(certificate_login_list) != 0:
+        if len(certificate_login_list) > 1:
+          raise ConsistencyError('There is more than one of %s whose \
+                serial is %s' % (self.certificate_portal_type, serial))
+          creds['machine_login'] = certificate_login_list[0]\
+            .getParent().getReference()
+    elif user_id is not None:
       creds['machine_login'] = user_id
-      creds['remote_host'] = request.get('REMOTE_HOST', '')
-      try:
-        creds['remote_address'] = request.getClientAddr()
-      except AttributeError:
-        creds['remote_address'] = request.get('REMOTE_ADDR', '')
-      return creds
     else:
       # fallback to default way
       return DumbHTTPExtractor().extractCredentials(request)
+
+    creds['remote_host'] = request.get('REMOTE_HOST', '')
+    try:
+      creds['remote_address'] = request.getClientAddr()
+    except AttributeError:
+      creds['remote_address'] = request.get('REMOTE_ADDR', '')
+    return creds
 
   ################################
   #     IAuthenticationPlugin    #

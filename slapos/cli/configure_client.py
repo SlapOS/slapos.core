@@ -30,6 +30,7 @@
 import re
 import os
 import sys
+import uuid
 
 import requests
 from caucase.cli_flask import CertificateAuthorityRequest
@@ -59,9 +60,6 @@ class ConfigureClientCommand(ClientConfigCommand):
         ap.add_argument('--token',
                         help="SlapOS 'credential security' authentication token "
                              "(use '--token ask' for interactive prompt)")
-
-        ap.add_argument('--login',
-                        help="Your username on SlapOS Master web")
 
         return ap
 
@@ -101,7 +99,7 @@ def fetch_configuration_template():
     return req.text
 
 
-def do_configure_client(logger, master_url_web, token, config_path, master_url, login):
+def do_configure_client(logger, master_url_web, token, config_path, master_url):
     while not token:
         token = raw_input('Credential security token: ').strip()
 
@@ -141,7 +139,9 @@ def do_configure_client(logger, master_url_web, token, config_path, master_url, 
 
     logger.debug('Generating key to %s', key_path)
     ca_client.generatePrivatekey(key_path, size=2048)
-    csr_string = ca_client.generateCertificateRequest(key_path, cn=login)
+    csr_string = ca_client.generateCertificateRequest(
+      key_path,
+      cn=str(uuid.uuid4()))
 
     # retrieve a template for the configuration file
 

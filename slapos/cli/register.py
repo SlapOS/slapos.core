@@ -35,7 +35,9 @@ import stat
 import sys
 import pkg_resources
 import requests
+import uuid
 
+from caucase.cli_flask import CertificateAuthorityRequest
 from slapos.cli.command import Command, must_be_root
 from slapos.util import parse_certificate_key_pair
 
@@ -143,16 +145,19 @@ def check_credentials(url, login, password):
     return 'Logout' in req.text
 
 
-def get_certificate_key_pair(logger, master_url_web, node_name, token=None, login=None, password=None):
-    """Download certificates from SlapOS Master"""
+def sign_certificate(logger, master_url_web, node_name, csr_string,
+        token=None, login=None, password=None):
+    """Sign certificates on SlapOS Master"""
 
+    data = {'title': node_name, 'certificate_request': csr_string}
     if token:
         req = requests.post('/'.join([master_url_web, 'add-a-server/WebSection_registerNewComputer']),
-                            data={'title': node_name},
+                            data=data,
                             headers={'X-Access-Token': token},
                             verify=False)
     else:
-        register_server_url = '/'.join([master_url_web, ("add-a-server/WebSection_registerNewComputer?title={}".format(node_name))])
+        register_server_url = '/'.join([master_url_web,
+            "add-a-server/WebSection_registerNewComputer?%s" % urllib.urlencode(data)])
         req = requests.get(register_server_url, auth=(login, password), verify=False)
 
     if not req.ok and 'Certificate still active.' in req.text:
@@ -178,14 +183,16 @@ def get_certificate_key_pair(logger, master_url_web, node_name, token=None, logi
     else:
         req.raise_for_status()
 
-    return parse_certificate_key_pair(req.text)
+
+    return (get_computer_name(req.text), parse_certificate_from_html(req.text))
 
 
-def get_computer_name(certificate):
-    """Parse certificate to get computer name and return it"""
-    k = certificate.find("COMP-")
-    i = certificate.find("/email", k)
-    return certificate[k:i]
+def get_computer_name(text_string):
+    """Parse text string to get computer name and return it"""
+    regex = r"<div[\w\s=\"]+>(COMP\-\d+)</div>"
+    result = re.search(regex, text_string)
+    if result:
+      return result.groups()[0]
 
 
 def save_former_config(conf):
@@ -240,16 +247,12 @@ def slapconfig(conf):
         if not dry_run:
             os.mkdir(user_certificate_repository_path, 0o711)
 
-    key_file = os.path.join(user_certificate_repository_path, 'key')
-    cert_file = os.path.join(user_certificate_repository_path, 'certificate')
-
-    for src, dst in [(conf.key, key_file), (conf.certificate, cert_file)]:
-        conf.logger.info('Copying to %r, and setting minimum privileges', dst)
-        if not dry_run:
-            with open(dst, 'w') as destination:
-                destination.write(''.join(src))
-            os.chmod(dst, 0o600)
-            os.chown(dst, 0, 0)
+    conf.logger.info('Copying to %r, and setting minimum privileges', conf.certificate_path)
+    if not dry_run:
+        with open(conf.certificate_path, 'w') as destination:
+            destination.write(''.join(src))
+        os.chmod(conf.certificate_path, 0o600)
+        os.chown(conf.certificate_path, 0, 0)
 
     certificate_repository_path = os.path.join(slap_conf_dir, 'ssl', 'partition_pki')
     if not os.path.exists(certificate_repository_path):
@@ -294,6 +297,8 @@ class RegisterConfig(object):
 
     def __init__(self, logger):
         self.logger = logger
+        self.computer_id = None
+        self.certificate = None
 
     def setConfig(self, options):
         """
@@ -303,11 +308,11 @@ class RegisterConfig(object):
         for option, value in options.__dict__.items():
             setattr(self, option, value)
 
-    def COMPConfig(self, slapos_configuration, computer_id, certificate, key):
+    def COMPConfig(self, slapos_configuration):
+        ssl_path = os.path.join(slapos_configuration, 'ssl')
         self.slapos_configuration = slapos_configuration
-        self.computer_id = computer_id
-        self.certificate = certificate
-        self.key = key
+        self.certificate_path = os.path.join(ssl_path, 'certificate')
+        self.key_path = os.path.join(ssl_path, 'key')
 
     def displayUserConfig(self):
         self.logger.debug('Computer Name: %s', self.node_name)
@@ -333,6 +338,22 @@ def gen_auth(conf):
 def do_register(conf):
     """Register new computer on SlapOS Master and generate slapos.cfg"""
 
+    # Getting configuration parameters
+    conf.COMPConfig(slapos_configuration='/etc/opt/slapos/')
+
+    # create certificate authority client
+    ca_client = CertificateAuthorityRequest(
+        conf.key_path,
+        conf.certificate_path,
+        ca_cert_path,
+        ca_url='')
+ 
+    conf.logger.info('Generating private key to %s', conf.key_path)
+    ca_client.generatePrivatekey(conf.key_path, size=2048)
+    csr_string = ca_client.generateCertificateRequest(
+        conf.key_path,
+        cn=str(uuid.uuid4()))
+
     if conf.login or conf.login_auth:
         for login, password in gen_auth(conf):
             if check_credentials(conf.master_url_web, login, password):
@@ -341,28 +362,25 @@ def do_register(conf):
         else:
             return 1
 
-        certificate, key = get_certificate_key_pair(conf.logger,
+        computer_id, certificate = sign_certificate(conf.logger,
                                                     conf.master_url_web,
                                                     conf.node_name,
+                                                    csr_string,
                                                     login=login,
                                                     password=password)
     else:
         while not conf.token:
             conf.token = raw_input('Computer security token: ').strip()
 
-        certificate, key = get_certificate_key_pair(conf.logger,
+        computer_id, certificate = sign_certificate(conf.logger,
                                                     conf.master_url_web,
                                                     conf.node_name,
+                                                    csr_string,
                                                     token=conf.token)
 
     # get computer id
-    COMP = get_computer_name(certificate)
-
-    # Getting configuration parameters
-    conf.COMPConfig(slapos_configuration='/etc/opt/slapos/',
-                    computer_id=COMP,
-                    certificate=certificate,
-                    key=key)
+    conf.computer_id = computer_id
+    conf.certificate = certificate
 
     # Save former configuration
     if not conf.dry_run:

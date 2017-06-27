@@ -36,7 +36,10 @@ import requests
 from caucase.cli_flask import CertificateAuthorityRequest
 
 from slapos.cli.config import ClientConfigCommand
-from slapos.util import mkdir_p, parse_certificate_key_pair
+from slapos.util import mkdir_p
+from slapos.certificate import (parse_certificate_from_html,
+                                generateCertificateRequest,
+                                generatePkey)
 
 
 class ConfigureClientCommand(ClientConfigCommand):
@@ -138,9 +141,9 @@ def do_configure_client(logger, master_url_web, token, config_path, master_url):
       ca_url='')
 
     logger.debug('Generating key to %s', key_path)
-    ca_client.generatePrivatekey(key_path, size=2048)
-    csr_string = ca_client.generateCertificateRequest(
-      key_path,
+    key_string =generatePrivatekey(key_path, size=2048)
+    csr_string = generateCertificateRequest(
+      key_string,
       cn=str(uuid.uuid4()))
 
     # retrieve a template for the configuration file

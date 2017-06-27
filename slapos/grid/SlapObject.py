@@ -38,6 +38,7 @@ import tarfile
 import tempfile
 import time
 import xmlrpclib
+import uuid
 
 from supervisor import xmlrpc
 
@@ -50,6 +51,7 @@ from slapos.grid.exception import (BuildoutFailedError, WrongPermissionError,
                                    PathDoesNotExistError, DiskSpaceError)
 from slapos.grid.networkcache import download_network_cached, upload_network_cached
 from slapos.human import bytes2human
+from slapos.certificate import generateCertificateRequest, generatePrivatekey
 
 
 WATCHDOG_MARK = '-on-watch'
@@ -405,15 +407,18 @@ class Partition(object):
                                       required=bytes2human(required)))
 
   def _updateCertificate(self):
+    key_string = generatePrivatekey(self.key_file)
+    csr_string = generateCertificateRequest(key_string, cn=str(uuid.uuid4()))
     try:
-      partition_certificate = self.computer_partition.getCertificate()
+      partition_certificate = self.computer_partition.getCertificate(
+        certificate_request=csr_string)
     except NotFoundError:
       raise NotFoundError('Partition %s is not known by SlapOS Master.' %
           self.partition_id)
 
     uid, gid = self.getUserGroupId()
 
-    for name, path in [('certificate', self.cert_file), ('key', self.key_file)]:
+    for name, path in [('certificate', self.cert_file)]:
       new_content = partition_certificate[name]
       old_content = None
       if os.path.exists(path):

@@ -31,6 +31,7 @@ import errno
 import os
 import subprocess
 import sqlite3
+import re
 
 
 def mkdir_p(path, mode=0o700):
@@ -58,18 +59,6 @@ def chownDirectory(path, uid, gid):
       '/usr/bin/find', path, '-not', '-user', str(uid), '-exec',
       '/bin/chown', '%s:%s' % (uid, gid), '{}', ';'
   ])
-
-
-def parse_certificate_from_html(html):
-  """
-  Extract certificate from an HTML page received by SlapOS Master.
-  """
-
-  c_start = html.find("Certificate:")
-  c_end = html.find("</textarea>", c_start)
-  certificate = html[c_start:c_end]
-
-  return certificate
 
 
 def string_to_boolean(string):

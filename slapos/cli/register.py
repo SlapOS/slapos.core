@@ -37,9 +37,10 @@ import pkg_resources
 import requests
 import uuid
 
-from caucase.cli_flask import CertificateAuthorityRequest
 from slapos.cli.command import Command, must_be_root
-from slapos.util import parse_certificate_key_pair
+from slapos.certificate import (parse_certificate_from_html,
+                                generateCertificateRequest,
+                                generatePkey)
 
 
 class RegisterCommand(Command):
@@ -183,8 +184,10 @@ def sign_certificate(logger, master_url_web, node_name, csr_string,
     else:
         req.raise_for_status()
 
-
-    return (get_computer_name(req.text), parse_certificate_from_html(req.text))
+    certificate = parse_certificate_from_html(req.text)
+    if certificate is None:
+        raise Exception("Computer Certificate was not returned by the Master")
+    return (get_computer_name(req.text), certificate)
 
 
 def get_computer_name(text_string):
@@ -247,12 +250,16 @@ def slapconfig(conf):
         if not dry_run:
             os.mkdir(user_certificate_repository_path, 0o711)
 
-    conf.logger.info('Copying to %r, and setting minimum privileges', conf.certificate_path)
-    if not dry_run:
-        with open(conf.certificate_path, 'w') as destination:
-            destination.write(''.join(src))
-        os.chmod(conf.certificate_path, 0o600)
-        os.chown(conf.certificate_path, 0, 0)
+    key_file = os.path.join(user_certificate_repository_path, 'key')
+    cert_file = os.path.join(user_certificate_repository_path, 'certificate')
+
+    for src, dst in [(conf.key, key_file), (conf.certificate, cert_file)]:
+        conf.logger.info('Copying to %r, and setting minimum privileges', dst)
+        if not dry_run:
+            with open(dst, 'w') as destination:
+                destination.write(''.join(src))
+            os.chmod(dst, 0o600)
+            os.chown(dst, 0, 0)
 
     certificate_repository_path = os.path.join(slap_conf_dir, 'ssl', 'partition_pki')
     if not os.path.exists(certificate_repository_path):
@@ -299,6 +306,7 @@ class RegisterConfig(object):
         self.logger = logger
         self.computer_id = None
         self.certificate = None
+        self.dry_run = False
 
     def setConfig(self, options):
         """
@@ -308,11 +316,12 @@ class RegisterConfig(object):
         for option, value in options.__dict__.items():
             setattr(self, option, value)
 
-    def COMPConfig(self, slapos_configuration):
+    def COMPConfig(self, slapos_configuration, key):
         ssl_path = os.path.join(slapos_configuration, 'ssl')
         self.slapos_configuration = slapos_configuration
         self.certificate_path = os.path.join(ssl_path, 'certificate')
         self.key_path = os.path.join(ssl_path, 'key')
+        self.key = key
 
     def displayUserConfig(self):
         self.logger.debug('Computer Name: %s', self.node_name)
@@ -339,20 +348,10 @@ def do_register(conf):
     """Register new computer on SlapOS Master and generate slapos.cfg"""
 
     # Getting configuration parameters
-    conf.COMPConfig(slapos_configuration='/etc/opt/slapos/')
+    conf.COMPConfig(slapos_configuration='/etc/opt/slapos/',
+                    key=generatePkey(size=2048))
 
-    # create certificate authority client
-    ca_client = CertificateAuthorityRequest(
-        conf.key_path,
-        conf.certificate_path,
-        ca_cert_path,
-        ca_url='')
- 
-    conf.logger.info('Generating private key to %s', conf.key_path)
-    ca_client.generatePrivatekey(conf.key_path, size=2048)
-    csr_string = ca_client.generateCertificateRequest(
-        conf.key_path,
-        cn=str(uuid.uuid4()))
+    csr_string = generateCertificateRequest(conf.key, cn=str(uuid.uuid4()))
 
     if conf.login or conf.login_auth:
         for login, password in gen_auth(conf):
@@ -388,6 +387,6 @@ def do_register(conf):
     # Prepare Slapos Configuration
     slapconfig(conf)
 
-    conf.logger.info('Node has successfully been configured as %s.', COMP)
+    conf.logger.info('Node has successfully been configured as %s.', computer_id)
     conf.logger.info('Now please invoke slapos node boot on your site.')
     return 0

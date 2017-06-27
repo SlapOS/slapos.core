@@ -372,9 +372,9 @@ class Computer(SlapDocument):
     self._connection_helper.POST('revokeComputerCertificate', data={
       'computer_id': self._computer_id})
 
-  def generateCertificate(self):
+  def generateCertificate(self, certificate_request):
     xml = self._connection_helper.POST('generateComputerCertificate', data={
-      'computer_id': self._computer_id})
+      'computer_id': self._computer_id, certificate_request=certificate_request})
     return xml_marshaller.loads(xml)
 
 
@@ -641,11 +641,12 @@ class ComputerPartition(SlapRequester):
     # XXX: this implementation has not been reviewed
     self.usage = usage_log
 
-  def getCertificate(self):
+  def getCertificate(self, certificate_request=None):
     xml = self._connection_helper.GET('getComputerPartitionCertificate',
             params={
                 'computer_id': self._computer_id,
                 'computer_partition_id': self._partition_id,
+                'certificate_request': certificate_request,
                 }
             )
     return xml_marshaller.loads(xml)

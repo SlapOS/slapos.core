@@ -132,14 +132,16 @@ class SlapOSMachineAuthenticationPlugin(BasePlugin):
       # search for user linked to this serial
       certificate_login_list = self.portal_catalog.unrestrictedSearchResults(
             portal_type=self.certificate_portal_type,
-            reference=serial)
+            # XXX - reference should not contain '.crt.pem' here
+            reference=serial.lower() + '.crt.pem',
+            validation_state='validated')
       creds['machine_login'] = None
       if len(certificate_login_list) != 0:
         if len(certificate_login_list) > 1:
           raise ConsistencyError('There is more than one of %s whose \
                 serial is %s' % (self.certificate_portal_type, serial))
-          creds['machine_login'] = certificate_login_list[0]\
-            .getParent().getReference()
+        creds['machine_login'] = certificate_login_list[0]\
+          .getParentValue().getReference()
     elif user_id is not None:
       creds['machine_login'] = user_id
     else:

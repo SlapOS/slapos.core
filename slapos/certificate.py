@@ -32,7 +32,7 @@ import os
 import subprocess
 import sqlite3
 import re
-from OpenSSL import crypto
+from OpenSSL import crypto, SSL
 from datetime import datetime, timedelta
 
 
@@ -48,7 +48,7 @@ def parse_certificate_from_html(html):
 
   return certificate
 
-def generateCertificateRequest(self, key_string, cn,
+def generateCertificateRequest(key_string, cn,
     country='', state='', locality='', email='', organization='',
     organization_unit='', csr_file=None, digest="sha256"):
   """
@@ -97,20 +97,36 @@ def generatePkey(size=2048):
   key.generate_key(crypto.TYPE_RSA, size)
   return crypto.dump_privatekey(crypto.FILETYPE_PEM, key)
 
-def generatePrivatekey(self, output_file, size=2048):
+def generatePrivatekey(key_file, size=2048, uid=None, gid=None):
   """
-    Generate private key into `output_file` and return the pkey string
+    Generate private key into `key_file` and return the pkey string
   """
 
   try:
-    key_fd = os.open(output_file,
+    key_fd = os.open(key_file,
                      os.O_CREAT|os.O_WRONLY|os.O_EXCL|os.O_TRUNC,
                      0600)
   except OSError, e:
     if e.errno != errno.EEXIST:
       raise
+    # return existing certificate content
+    return open(key_file).read()
   else:
     pkey = generatePkey(size)
     os.write(key_fd, pkey)
     os.close(key_fd)
+    if uid and gid:
+      os.chown(key_file, uid, gid)
     return pkey
+
+
+def validateCertAndKey(cert_file, key_file):
+  with open(cert_file) as ct:
+    x509 = crypto.load_certificate(crypto.FILETYPE_PEM, ct.read())
+  with open(key_file) as kf:
+    key = crypto.load_privatekey(crypto.FILETYPE_PEM, kf.read())
+
+  ctx = SSL.Context(SSL.TLSv1_METHOD)
+  ctx.use_privatekey(key)
+  ctx.use_certificate(x509)
+  ctx.check_privatekey()

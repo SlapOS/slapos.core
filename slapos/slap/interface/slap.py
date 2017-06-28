@@ -272,11 +272,14 @@ class IComputerPartition(IBuildoutController, IRequester):
     log -- a text explaining why the method was called
     """
 
-  def getCertificate():
+  def getCertificate(certificate_request=None):
     """
     Returns a dictionnary containing the authentification certificates
     associated to the computer partition.
-    The dictionnary keys are:
+
+    certificate_request -- is a string containing the CSR in PEM format
+
+    The returned dictionnary keys are:
       key -- value is a SSL key
       certificate -- value is a SSL certificate
 
@@ -406,13 +409,17 @@ class IComputer(Interface):
       text -- message log of the status
     """
 
-  def generateCertificate():
+  def generateCertificate(certificate_request):
     """
     Returns a dictionnary containing the new certificate files for
     the computer.
+
+    certificate_request -- a string with CSR in PEM format
+
     The dictionnary keys are:
       key -- key file
       certificate -- certificate file
+      url  --  url that can be used to download the certificate
 
     Raise ValueError is another certificate is already valid.
     """

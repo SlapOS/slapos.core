@@ -370,7 +370,8 @@ class SlapTool(BaseTool):
       if certificate_request is None:
         certificate_pem = software_instance.getCertificate()
       else:
-        certificate_pem = software_instance.getCertificate()
+        certificate_pem = software_instance.requestCertificate(
+                                                            certificate_request)
       certificate_dict = dict(
         key='',
         certificate=certificate_pem
@@ -768,15 +769,16 @@ class SlapTool(BaseTool):
     )
     result = {
      'certificate': self.REQUEST.get('computer_certificate').decode("UTF-8"),
+     'key': '',
      'url': self.REQUEST.get('computer_certificate_url').decode("UTF-8")
      }
     return xml_marshaller.xml_marshaller.dumps(result)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'generateComputerCertificate')
-  def generateComputerCertificate(self, computer_id):
+  def generateComputerCertificate(self, computer_id, certificate_request):
     """Fetches new computer certificate"""
-    return self._generateComputerCertificate(computer_id)
+    return self._generateComputerCertificate(computer_id, certificate_request)
 
   @convertToREST
   def _revokeComputerCertificate(self, computer_id):

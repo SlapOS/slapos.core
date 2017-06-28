@@ -374,7 +374,8 @@ class Computer(SlapDocument):
 
   def generateCertificate(self, certificate_request):
     xml = self._connection_helper.POST('generateComputerCertificate', data={
-      'computer_id': self._computer_id, certificate_request=certificate_request})
+      'computer_id': self._computer_id,
+      'certificate_request': certificate_request})
     return xml_marshaller.loads(xml)
 
 

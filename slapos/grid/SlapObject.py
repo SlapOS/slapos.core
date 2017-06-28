@@ -51,7 +51,9 @@ from slapos.grid.exception import (BuildoutFailedError, WrongPermissionError,
                                    PathDoesNotExistError, DiskSpaceError)
 from slapos.grid.networkcache import download_network_cached, upload_network_cached
 from slapos.human import bytes2human
-from slapos.certificate import generateCertificateRequest, generatePrivatekey
+from slapos.certificate import (generateCertificateRequest,
+                                generatePrivatekey,
+                                validateCertAndKey)
 
 
 WATCHDOG_MARK = '-on-watch'
@@ -407,7 +409,26 @@ class Partition(object):
                                       required=bytes2human(required)))
 
   def _updateCertificate(self):
-    key_string = generatePrivatekey(self.key_file)
+    """
+      Get or update instance certificate.
+
+      The Master can't decide to update the certificate, only the node can request
+      to renew it or generate a new one.
+      The node generate the private key and send
+    """
+
+    try:
+      cert_fd = os.open(self.cert_file,
+                     os.O_CREAT|os.O_WRONLY|os.O_EXCL|os.O_TRUNC,
+                     0600)
+    except OSError, e:
+      if e.errno != errno.EEXIST:
+        raise
+      # the certificate exists, no need to download it
+      return
+
+    uid, gid = self.getUserGroupId()
+    key_string = generatePrivatekey(self.key_file, uid, gid)
     csr_string = generateCertificateRequest(key_string, cn=str(uuid.uuid4()))
     try:
       partition_certificate = self.computer_partition.getCertificate(
@@ -416,23 +437,22 @@ class Partition(object):
       raise NotFoundError('Partition %s is not known by SlapOS Master.' %
           self.partition_id)
 
-    uid, gid = self.getUserGroupId()
+    os.write(cert_fd, partition_certificate)
+    os.close(cert_fd)
+    os.chown(self.cert_file, uid, gid)
+    self.logger.info('Certificate file saved at %r' % self.cert_file)
 
-    for name, path in [('certificate', self.cert_file)]:
-      new_content = partition_certificate[name]
-      old_content = None
-      if os.path.exists(path):
-        old_content = open(path).read()
+    # Check that certificate and key are OK
+    try:
+      validateCertAndKey(self.key_file, self.cert_file)
+    except crypto.Error:
+      # Invalid Certificate file
+      if os.path.exists(self.cert_file):
+        os.unlink(self.cert_file)
+      raise
+    # except SSL.Error
+    # Raise when certificate and key didn't match
 
-      if old_content != new_content:
-        if old_content is None:
-          self.logger.info('Missing %s file. Creating %r' % (name, path))
-        else:
-          self.logger.info('Changed %s content. Updating %r' % (name, path))
-
-        with os.fdopen(os.open(path, os.O_CREAT | os.O_WRONLY | os.O_TRUNC, 0o400), 'wb') as fout:
-          fout.write(new_content)
-        os.chown(path, uid, gid)
 
   def getUserGroupId(self):
     """Returns tuple of (uid, gid) of partition"""

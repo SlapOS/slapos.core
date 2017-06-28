@@ -45,12 +45,7 @@
         <item>
             <key> <string>text_content_warning_message</string> </key>
             <value>
-              <tuple>
-                <string>W: 33,  0: Unused DateTime imported from DateTime (unused-import)</string>
-                <string>W: 35,  0: Unused dumps imported from json (unused-import)</string>
-                <string>W: 39,  0: Unused INFO imported from zLOG (unused-import)</string>
-                <string>W: 39,  0: Unused LOG imported from zLOG (unused-import)</string>
-              </tuple>
+              <tuple/>
             </value>
         </item>
         <item>

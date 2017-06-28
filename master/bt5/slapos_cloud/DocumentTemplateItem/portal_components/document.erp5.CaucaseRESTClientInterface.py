@@ -30,13 +30,11 @@ from AccessControl import ClassSecurityInfo
 from Products.ERP5Type.Globals import InitializeClass
 from Products.ERP5Type import Permissions
 from Products.ERP5Type.XMLObject import XMLObject
-from DateTime import DateTime
 import functools
-from json import loads, dumps
+from json import loads
 import urllib2, urllib
 from httplib import HTTPSConnection
 import urlparse
-from zLOG import LOG, INFO
 
 class TolerateErrorHandler(urllib2.BaseHandler):
   handler_order = 100 # Get registered before default error hander (at 500)
@@ -168,7 +166,7 @@ class CaucaseRESTClientInterface(XMLObject):
 
   def deleteCertificateSigningRequest(self, csr_id):
     """
-      Return CSR from his id
+      Delete CSR from his id
     """
     response = self._request('/csr/%s' % csr_id, method='DELETE').read()
   

@@ -744,31 +744,49 @@ class TestComputerWithCPUSet(SlapformatMixin):
     self.assertEqual(self.computer._manager_list[0]._cpu_id_list(), self.cpu_list)
     # This should created per-cpu groups and move all tasks in CPU pool into cpu0
     self.computer.format(alter_network=False, alter_user=False)
+    
     # Test files creation for exclusive CPUs
-    for cpu_id in self.cpu_list:
-      cpu_n_path = os.path.join(self.cpuset_path, "cpu" + str(cpu_id))
+    # First half of CPUs is shared
+    shared_cpuset_path = os.path.join(self.cpuset_path, "shared")
+    for cpu_id in self.cpu_list[:2]:
+      self.assertFalse(os.path.exists(
+        os.path.join(shared_cpuset_path, "cpu" + str(cpu_id))),
+        "Specific cpu<N> doesn't make sense in shared cpuset.")
+
+    # The second half of CPUs most be ready for exclusive
+    exclusive_cpuset_path = os.path.join(self.cpuset_path, "exclusive")
+    for cpu_id in self.cpu_list[2:]:
+      cpu_n_path = os.path.join(exclusive_cpuset_path, "cpu" + str(cpu_id))
       self.assertEqual(str(cpu_id), file_content(os.path.join(cpu_n_path, "cpuset.cpus")))
       self.assertEqual("1", file_content(os.path.join(cpu_n_path, "cpuset.cpu_exclusive")))
-      if cpu_id > 0:
-        self.assertEqual("", file_content(os.path.join(cpu_n_path, "tasks")))
-
+    for cpu_id in self.cpu_list[:2]:
+      self.assertFalse(os.path.exists(
+        os.path.join(exclusive_cpuset_path, "cpu" + str(cpu_id))),
+        "Shared CPU cannot appear in EXCLUSIVE set.")
+      
     # Test moving tasks from generic core to private core
     # request PID 1001 to be moved to its private CPU
     request_file_path = os.path.join(self.computer.partition_list[0].path,
                                      slapos.manager.cpuset.Manager.cpu_exclusive_file)
-    file_write("1001\n", request_file_path)
+    # ask exclusivity for existing and non-existing PID
+    file_write("1001\n9999\n", request_file_path)
     # Simulate slapos instance call to perform the actual movement
     self.computer._manager_list[0].instance(
       SlapGridPartitionMock(self.computer.partition_list[0]))
     # Simulate cgroup behaviour - empty tasks in the pool
     file_write("", os.path.join(self.cpuset_path, "tasks"))
-    # Test that format moved all PIDs from CPU pool into CPU0
-    tasks_at_cpu0 = file_content(os.path.join(self.cpuset_path, "cpu0", "tasks")).split()
-    self.assertIn("1000", tasks_at_cpu0)
+    # Test that format moved all PIDs from CPU pool into shared pool
+    shared_task_list = file_content(os.path.join(self.cpuset_path, "shared", "tasks")).split()
+    self.assertIn("1000", shared_task_list)
+    self.assertIn("1002", shared_task_list)
     # test if the moving suceeded into any provate CPUS (id>0)
-    self.assertTrue(any("1001" in file_content(exclusive_task)
-                        for exclusive_task in glob.glob(os.path.join(self.cpuset_path, "cpu[1-9]", "tasks"))))
-    self.assertIn("1002", tasks_at_cpu0)
+    exclusive_tasks_path_list = [
+      os.path.join(self.cpuset_path, "exclusive", "tasks"), 
+      ] + glob.glob(os.path.join(self.cpuset_path, "exclusive", "cpu[1-9]", "tasks"))
+    self.assertTrue(any("1001" in file_content(exclusive_tasks_path)
+                        for exclusive_tasks_path in exclusive_tasks_path_list))
+    self.assertFalse(any("9999" in file_content(exclusive_tasks_path)
+                        for exclusive_tasks_path in exclusive_tasks_path_list))
     # slapformat should remove successfully moved PIDs from the .slapos-cpu-exclusive file
     self.assertEqual("", file_content(request_file_path).strip())
 

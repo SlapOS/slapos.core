@@ -31,7 +31,7 @@ from Products.ERP5Type.Globals import InitializeClass
 from Products.ERP5Type import Permissions
 from Products.ERP5Type.XMLObject import XMLObject
 import functools
-from json import loads
+from json import loads, dumps
 import urllib2, urllib
 from httplib import HTTPSConnection
 import urlparse
@@ -120,13 +120,19 @@ class CaucaseRESTClientInterface(XMLObject):
     """
     return self._request('crt/%s' % crt_id).read()
 
-  def signCertificate(self, csr_id):
+  def signCertificate(self, csr_id, subject=None):
     """
       Sign a certificate from the CSR id
       
       return the certificate ID and URL to download certificate
     """
-    data = urllib.urlencode({'csr_id': csr_id})
+    if not subject:
+      data = urllib.urlencode({'csr_id': csr_id})
+    else:
+      data = urllib.urlencode({
+        'csr_id': csr_id,
+        'subject': dumps(subject)
+      })
     response = self._request('/crt', data=data, method='PUT')
     cert_id = response.headers['Location'].split('/')[-1]
     return (cert_id, response.headers['Location'])

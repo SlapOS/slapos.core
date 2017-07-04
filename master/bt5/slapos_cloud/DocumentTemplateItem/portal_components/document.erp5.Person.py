@@ -33,7 +33,9 @@ class Person(ERP5Person):
     csr_id = ca_service.putCertificateSigningRequest(csr)
 
     # Sign the csr immediately
-    crt_id, url = ca_service.signCertificate(csr_id)
+    crt_id, url = ca_service.signCertificate(
+      csr_id,
+      subject={'CN': self.getReference()})
 
     # link to the user
     certificate_id = self.newContent(

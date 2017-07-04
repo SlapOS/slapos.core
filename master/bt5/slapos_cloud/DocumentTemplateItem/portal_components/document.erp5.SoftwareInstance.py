@@ -99,13 +99,16 @@ class SoftwareInstance(Item):
     certificate_id = self._getInstanceCertificate()
     if certificate_id is not None:
       # Get new Certificate will automatically revoke the previous
-      self.revokeCertificate(certificate_id)
+      self.revokeCertificate(certificate_id=certificate_id)
 
     ca_service = self.getPortalObject().portal_web_services.caucase_adapter
     csr_id = ca_service.putCertificateSigningRequest(certificate_request)
 
     # Sign the csr immediately
-    crt_id, url = ca_service.signCertificate(csr_id)
+    crt_id, url = ca_service.signCertificate(
+      csr_id,
+      subject={'CN': self.getReference()}
+    )
 
     # link to the Instance
     certificate_id = self.newContent(
@@ -123,11 +126,13 @@ class SoftwareInstance(Item):
     if certificate_id is None:
       certificate_id = self._getInstanceCertificate()
     if certificate_id:
-      return self.getPortalObject().portal_web_services.caucase_adapter \
+      self.getPortalObject().portal_web_services.caucase_adapter \
           .revokeCertificate(certificate_id.getReference())
-    raise ValueError(
-      "No certificate found for Software Instance %s" % self.getReference()
-    )
+      certificate_id.invalidate()
+    else:
+      raise ValueError(
+        "No certificate found for Software Instance %s" % self.getReference()
+      )
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'getSlaXmlAsDict')

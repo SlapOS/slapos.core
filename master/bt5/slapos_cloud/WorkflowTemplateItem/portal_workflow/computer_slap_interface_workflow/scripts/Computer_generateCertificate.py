@@ -20,7 +20,9 @@ if len(certificate_id_list):
 ca_service = context.getPortalObject().portal_web_services.caucase_adapter
 csr_id = ca_service.putCertificateSigningRequest(certificate_signature_request)
 # Sign the csr immediately
-crt_id, url = ca_service.signCertificate(csr_id)
+crt_id, url = ca_service.signCertificate(
+      csr_id,
+      subject={'CN': computer.getReference()})
 certificate = ca_service.getCertificate(crt_id)
 
 certificate_id = computer.newContent(

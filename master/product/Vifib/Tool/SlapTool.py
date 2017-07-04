@@ -1216,7 +1216,7 @@ class SlapTool(BaseTool):
       for certificate_id in instance.contentValues(
           portal_type='Certificate Access ID', validation_state='validated'):
         if certificate_id.getValidationState() == 'validated':
-          instance.revokeCertificate(certificate_id.getReference())
+          instance.revokeCertificate(certificate_id)
 
       if instance.getValidationState() == 'validated':
         instance.invalidate()

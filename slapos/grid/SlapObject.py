@@ -39,8 +39,10 @@ import tempfile
 import time
 import xmlrpclib
 import uuid
+import errno
 
 from supervisor import xmlrpc
+
 
 from slapos.grid.utils import (md5digest, getCleanEnvironment,
                                SlapPopen, dropPrivileges, updateFile)
@@ -54,6 +56,7 @@ from slapos.human import bytes2human
 from slapos.certificate import (generateCertificateRequest,
                                 generatePrivatekey,
                                 validateCertAndKey)
+from OpenSSL import crypto
 
 
 WATCHDOG_MARK = '-on-watch'
@@ -417,18 +420,15 @@ class Partition(object):
       The node generate the private key and send
     """
 
-    try:
-      cert_fd = os.open(self.cert_file,
-                     os.O_CREAT|os.O_WRONLY|os.O_EXCL|os.O_TRUNC,
-                     0600)
-    except OSError, e:
-      if e.errno != errno.EEXIST:
-        raise
-      # the certificate exists, no need to download it
-      return
+    if os.path.exists(self.cert_file): 
+      if not os.stat(self.cert_file).st_size:
+        os.unlink(self.cert_file)
+      else:
+        # the certificate exists, no need to download it
+        return
 
     uid, gid = self.getUserGroupId()
-    key_string = generatePrivatekey(self.key_file, uid, gid)
+    key_string = generatePrivatekey(self.key_file, uid=uid, gid=gid)
     csr_string = generateCertificateRequest(key_string, cn=str(uuid.uuid4()))
     try:
       partition_certificate = self.computer_partition.getCertificate(
@@ -437,14 +437,14 @@ class Partition(object):
       raise NotFoundError('Partition %s is not known by SlapOS Master.' %
           self.partition_id)
 
-    os.write(cert_fd, partition_certificate)
+    cert_fd = os.open(self.cert_file, os.O_CREAT|os.O_WRONLY|os.O_TRUNC, 0600)
+    os.write(cert_fd, partition_certificate['certificate'])
     os.close(cert_fd)
     os.chown(self.cert_file, uid, gid)
-    self.logger.info('Certificate file saved at %r' % self.cert_file)
 
     # Check that certificate and key are OK
     try:
-      validateCertAndKey(self.key_file, self.cert_file)
+      validateCertAndKey(self.cert_file, self.key_file)
     except crypto.Error:
       # Invalid Certificate file
       if os.path.exists(self.cert_file):
@@ -452,7 +452,7 @@ class Partition(object):
       raise
     # except SSL.Error
     # Raise when certificate and key didn't match
-
+    self.logger.info('Certificate file saved at %r' % self.cert_file)
 
   def getUserGroupId(self):
     """Returns tuple of (uid, gid) of partition"""
@@ -711,10 +711,6 @@ class Partition(object):
         raise subprocess.CalledProcessError(message, process_handler.output)
     # Manually cleans what remains
     try:
-      for f in [self.key_file, self.cert_file]:
-        if f:
-          if os.path.exists(f):
-            os.unlink(f)
 
       # better to manually remove symlinks because rmtree might choke on them
       sr_symlink = os.path.join(self.instance_path, 'software_release')
@@ -739,6 +735,10 @@ class Partition(object):
 
       if os.path.exists(self.supervisord_partition_configuration_path):
         os.remove(self.supervisord_partition_configuration_path)
+      for f in [self.key_file, self.cert_file]:
+        if f:
+          if os.path.exists(f):
+            os.unlink(f)
       self.updateSupervisor()
     except IOError as exc:
       raise IOError("I/O error while freeing partition (%s): %s" % (self.instance_path, exc))

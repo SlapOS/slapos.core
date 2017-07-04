@@ -36,6 +36,7 @@ import sys
 import pkg_resources
 import requests
 import uuid
+import urllib
 
 from slapos.cli.command import Command, must_be_root
 from slapos.certificate import (parse_certificate_from_html,

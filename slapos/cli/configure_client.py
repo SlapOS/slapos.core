@@ -33,13 +33,12 @@ import sys
 import uuid
 
 import requests
-from caucase.cli_flask import CertificateAuthorityRequest
 
 from slapos.cli.config import ClientConfigCommand
 from slapos.util import mkdir_p
 from slapos.certificate import (parse_certificate_from_html,
                                 generateCertificateRequest,
-                                generatePkey)
+                                generatePrivatekey)
 
 
 class ConfigureClientCommand(ClientConfigCommand):
@@ -67,16 +66,11 @@ class ConfigureClientCommand(ClientConfigCommand):
         return ap
 
     def take_action(self, args):
-        if not args.login:
-            parser.error('Please enter your username on SlapOS Master Web. Use --login LOGIN')
-            parser.print_help()
-            return
         do_configure_client(logger=self.app.log,
                             master_url_web=args.master_url_web,
                             token=args.token,
                             config_path=self.config_path(args),
-                            master_url=args.master_url,
-                            login=args.login)
+                            master_url=args.master_url)
 
 def sign_certificate(logger, master_url_web, csr, token):
     
@@ -120,25 +114,16 @@ def do_configure_client(logger, master_url_web, token, config_path, master_url):
         mkdir_p(basedir, mode=0o700)
 
     cert_path = os.path.join(basedir, 'client.crt')
-    if os.path.exists(cert_path):
-        logger.critical('There is a certificate in %s. '
-                        'Please remove it before creating a new certificate.', cert_path)
-        sys.exit(1)
-
     key_path = os.path.join(basedir, 'client.key')
-    if os.path.exists(key_path):
+    if os.path.exists(cert_path):
+        if os.path.exists(cert_path):
+            logger.critical('There is a certificate in %s. '
+                            'Please remove it before creating a new certificate.', cert_path)
         logger.critical('There is a key in %s. '
                         'Please remove it before creating a new key.', key_path)
         sys.exit(1)
 
     ca_cert_path = os.path.join(basedir, 'ca.crt')
-
-    # create certificate authority client
-    ca_client = CertificateAuthorityRequest(
-      key_path,
-      cert_path,
-      ca_cert_path,
-      ca_url='')
 
     logger.debug('Generating key to %s', key_path)
     key_string =generatePrivatekey(key_path, size=2048)
@@ -147,7 +132,6 @@ def do_configure_client(logger, master_url_web, token, config_path, master_url):
       cn=str(uuid.uuid4()))
 
     # retrieve a template for the configuration file
-
     cfg = fetch_configuration_template()
 
     cfg = re.sub('master_url = .*', 'master_url = %s' % master_url, cfg)

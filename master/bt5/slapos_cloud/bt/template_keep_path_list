@@ -1,2 +1,4 @@
 portal_preferences/slapos_default_site_preference
 portal_preferences/slapos_default_system_preference
+portal_web_services/caucase_adapter
+portal_web_services/caucase_adapter/**

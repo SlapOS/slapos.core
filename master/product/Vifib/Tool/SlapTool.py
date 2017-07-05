@@ -1214,7 +1214,7 @@ class SlapTool(BaseTool):
         )
       # revoke certificate associated to this instance
       for certificate_id in instance.contentValues(
-          portal_type='Certificate Access ID', validation_state='validated'):
+          portal_type='Certificate Login', validation_state='validated'):
         if certificate_id.getValidationState() == 'validated':
           instance.revokeCertificate(certificate_id)
 

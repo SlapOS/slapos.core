@@ -108,7 +108,7 @@ class SlapOSMachineAuthenticationPlugin(BasePlugin):
 
   meta_type = "SlapOS Machine Authentication Plugin"
   security = ClassSecurityInfo()
-  certificate_portal_type = "Certificate Access ID"
+  certificate_portal_type = "Certificate Login"
 
   def __init__(self, id, title=None):
     #Register value

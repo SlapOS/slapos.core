@@ -1,7 +1,7 @@
-Computer | Certificate Access ID
+Computer | Certificate Login
 Hosting Subscription Module | Hosting Subscription
-Person | Certificate Access ID
+Person | Certificate Login
 Software Installation Module | Software Installation
 Software Instance Module | Slave Instance
 Software Instance Module | Software Instance
-Software Instance | Certificate Access ID
+Software Instance | Certificate Login

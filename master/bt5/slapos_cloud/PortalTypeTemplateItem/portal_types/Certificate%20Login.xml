@@ -39,7 +39,7 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Certificate used to authenticate Object in erp5</string> </value>
+            <value> <string>Certificate Login used to authenticate Object in erp5</string> </value>
         </item>
         <item>
             <key> <string>factory</string> </key>
@@ -57,7 +57,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Certificate Access ID</string> </value>
+            <value> <string>Certificate Login</string> </value>
         </item>
         <item>
             <key> <string>init_script</string> </key>

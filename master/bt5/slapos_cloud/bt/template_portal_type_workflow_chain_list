@@ -1,7 +1,7 @@
 Caucase REST Client Interface | edit_workflow
 Caucase REST Client Interface | validation_workflow
-Certificate Access ID | edit_workflow
-Certificate Access ID | validation_workflow
+Certificate Login | edit_workflow
+Certificate Login | validation_workflow
 Computer Partition | computer_partition_slap_interface_workflow
 Computer | computer_slap_interface_workflow
 Computer | slapos_cloud_interaction_workflow

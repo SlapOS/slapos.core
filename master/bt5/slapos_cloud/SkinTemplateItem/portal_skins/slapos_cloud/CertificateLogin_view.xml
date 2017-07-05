@@ -74,9 +74,7 @@
                 <item>
                     <key> <string>bottom</string> </key>
                     <value>
-                      <list>
-                        <string>listbox</string>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>
@@ -94,13 +92,18 @@
                 <item>
                     <key> <string>left</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>my_reference</string>
+                      </list>
                     </value>
                 </item>
                 <item>
                     <key> <string>right</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>my_url_string</string>
+                        <string>my_translated_validation_state_title</string>
+                      </list>
                     </value>
                 </item>
               </dictionary>
@@ -108,7 +111,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>CertificateAccessID_viewAsList</string> </value>
+            <value> <string>CertificateLogin_view</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -116,7 +119,7 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>Computer_viewCertificateAccessList</string> </value>
+            <value> <string>CertificateLogin_view</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>
@@ -132,7 +135,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Certificate Access IDs</string> </value>
+            <value> <string>Certificate Login</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

@@ -129,8 +129,8 @@
                     <value>
                       <list>
                         <tuple>
-                          <string>Certificate Access ID</string>
-                          <string>Certificate Access ID</string>
+                          <string>Certificate Login</string>
+                          <string>Certificate Login</string>
                         </tuple>
                       </list>
                     </value>

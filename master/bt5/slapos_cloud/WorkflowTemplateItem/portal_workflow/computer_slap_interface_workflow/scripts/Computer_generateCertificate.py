@@ -7,7 +7,7 @@ try:
 except KeyError, e:
   raise TypeError("Computer_generateCertificate takes exactly 1 argument: %s" % str(e))
 
-certificate_portal_type = "Certificate Access ID"
+certificate_portal_type = "Certificate Login"
 certificate_id_list = [x for x in
   computer.contentValues(portal_type=certificate_portal_type)
   if x.getValidationState() == 'validated']

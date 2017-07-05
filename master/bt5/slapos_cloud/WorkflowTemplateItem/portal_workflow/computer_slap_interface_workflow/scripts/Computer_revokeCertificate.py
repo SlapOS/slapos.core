@@ -2,7 +2,7 @@ computer = state_change['object']
 context.REQUEST.set('computer_certificate', None)
 context.REQUEST.set('computer_certificate_url', None)
 certificate_id_list = [x for x in
-  computer.contentValues(portal_type="Certificate Access ID")
+  computer.contentValues(portal_type="Certificate Login")
   if x.getValidationState() == 'validated']
 
 if not len(certificate_id_list):

@@ -20,7 +20,7 @@ class Person(ERP5Person):
 
   def getPersonCertificateList(self):
     return [x for x in
-      self.contentValues(portal_type="Certificate Access ID")
+      self.contentValues(portal_type="Certificate Login")
       if x.getValidationState() == 'validated']
 
   security.declarePublic('signCertificate')
@@ -39,7 +39,7 @@ class Person(ERP5Person):
 
     # link to the user
     certificate_id = self.newContent(
-      portal_type="Certificate Access ID",
+      portal_type="Certificate Login",
       reference=crt_id,
       url_string=url)
 

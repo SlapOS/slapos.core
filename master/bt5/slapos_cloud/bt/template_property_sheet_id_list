@@ -12,3 +12,4 @@ SlaposAssignmentConstraint
 SlaposEmailConstraint
 SlaposComputerConstraint
 RESTClientInterface
+CaucaseRESTClientAdapterCheckConstraint

@@ -71,7 +71,7 @@ class SoftwareInstance(Item):
 
   def _getInstanceCertificate(self):
     certificate_id_list = [x for x in
-      self.contentValues(portal_type="Certificate Access ID")
+      self.contentValues(portal_type="Certificate Login")
       if x.getValidationState() == 'validated']
 
     if certificate_id_list:
@@ -112,7 +112,7 @@ class SoftwareInstance(Item):
 
     # link to the Instance
     certificate_id = self.newContent(
-      portal_type="Certificate Access ID",
+      portal_type="Certificate Login",
       reference=crt_id,
       url_string=url)
 

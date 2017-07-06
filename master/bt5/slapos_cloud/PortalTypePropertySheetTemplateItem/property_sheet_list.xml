@@ -7,7 +7,7 @@
   <item>RESTClientInterface</item>
   <item>Url</item>
  </portal_type>
- <portal_type id="Certificate Access ID">
+ <portal_type id="Certificate Login">
   <item>Reference</item>
   <item>Url</item>
  </portal_type>

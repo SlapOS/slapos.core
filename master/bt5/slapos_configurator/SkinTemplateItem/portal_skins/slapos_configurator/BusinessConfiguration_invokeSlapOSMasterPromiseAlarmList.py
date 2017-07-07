@@ -9,7 +9,8 @@ alarm_to_solve_list = ['promise_certificate_autority_tool',
                        'promise_conversion_server',
                        'promise_kumofs_server',
                        'promise_mailhost_configuration',
-                       'promise_memcached_server']
+                       'promise_memcached_server',
+                       'promise_caucase_web_service',]
 
 for alarm in context.portal_alarms.contentValues():
   alarm_id = alarm.getId()

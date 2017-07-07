@@ -34,6 +34,25 @@ class Simulator:
       'reckwargs': kwargs})
     open(self.outfile, 'w').write(repr(l))
 
+def generateCertificateRequest():
+
+  return """-----BEGIN CERTIFICATE REQUEST-----
+MIIClDCCAXwCAQAwJjEkMCIGA1UEAwwbbmdpbnhAY2VydGlmaWNhdGUuYXV0aG9y
+aXR5MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAx0KJXUK6dDNQ1R7C
+t3p4HBtBZ3LWqW8SzAvQUDHIlDuxVAa1CRZVcDA79Z7wLosUDDk1ImB7ZADt2nhX
+xBJY66cCLtNamboQX9Lz6aCymWOHntHLVXj65tF6z0U19H+5c7Js/J+xfuDtya2Y
+zGN27jsx6xLSgf/RZ2e9YB1yI6CfvBb8U4OD521iK6UxPXW9dnQLcNdwzo378pfT
+oAqcVsyV0F+6aSjHfasPljC72AmEh6/lpiT4hzNZ6A7Xz1lPbJ8TKTD1FMSDB/Nd
+POqglfsQY62GWbHSvhwLm6sfyusO3zeUFdxLmVztGjRAMWV/c65BiaHUR/CrWSoA
+J8aP/QIDAQABoCkwJwYJKoZIhvcNAQkOMRowGDAJBgNVHRMEAjAAMAsGA1UdDwQE
+AwIF4DANBgkqhkiG9w0BAQsFAAOCAQEAiL2PQCFeUrshU2/G8W1YDlbcseicJZqF
+wft2UOxTRA95CKgW5WMxTbpqUbVXtw7fccgud7GcT8jwxx2g1rq9vgh2SaIu0dCQ
+MEUMHPih3eb0atze/+QZr/v0a/+9LuoWffZU7FGEAtEpBDXV1n4X3RmSQXdtrmUj
+a3af5hwyhoXqX4wZ/sB6rA00CyyimPLLiRyDDqY/hYHvUEOLMzdmlpb7yAeMZSsO
+b20ShhRHw0cPl+dQaU5ejXGmXOIywslIVn8ffy5K7rv6PQ2OSdRazbSehqFNXzG1
+VqyqoMcNesjuW8qbVF4LrOyqLo7RR/6x8Owhu9+rOm2ukMgzF+PAow==
+-----END CERTIFICATE REQUEST-----"""
+
 class TestSlapOSSlapToolMixin(testSlapOSMixin):
   def afterSetUp(self, person=None):
     testSlapOSMixin.afterSetUp(self)
@@ -891,8 +910,9 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     partition_id = self.start_requested_software_instance.getAggregateValue(
         portal_type='Computer Partition').getReference()
     self.login(self.start_requested_software_instance.getReference())
+    csr_string = generateCertificateRequest()
     response = self.portal_slap.getComputerPartitionCertificate(self.computer_id,
-        partition_id)
+        partition_id, certificate_request=csr_string)
     self.assertEqual(200, response.status)
     self.assertEqual( 'public, max-age=0, must-revalidate',
         response.headers.get('cache-control'))
@@ -901,6 +921,14 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     self.assertTrue('last-modified' in response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
+
+    # Get assigned certificate
+    certificate_login_list = [x for x in
+      self.start_requested_software_instance.contentValues(portal_type="Certificate Login")
+      if x.getValidationState() == 'validated']
+    self.assertEqual(len(certificate_login_list), 1)
+    certificate = self.start_requested_software_instance.getCertificate()
+
     # check returned XML
     xml_fp = StringIO.StringIO()
 
@@ -919,8 +947,69 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   </dictionary>
 </marshal>
 """ % dict(
-  instance_certificate=self.start_requested_software_instance.getSslCertificate(),
-  instance_key=self.start_requested_software_instance.getSslKey()
+  instance_certificate=certificate,
+  instance_key=""
+)
+    self.assertEqual(expected_xml, got_xml,
+        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+
+  def test_getComputerPartitionCertificate_when_exists(self):
+    self._makeComplexComputer()
+    partition_id = self.start_requested_software_instance.getAggregateValue(
+        portal_type='Computer Partition').getReference()
+    self.login(self.start_requested_software_instance.getReference())
+    csr_string = generateCertificateRequest()
+    response = self.portal_slap.getComputerPartitionCertificate(self.computer_id,
+        partition_id, certificate_request=csr_string)
+    self.assertEqual(200, response.status)
+    self.assertEqual( 'public, max-age=0, must-revalidate',
+        response.headers.get('cache-control'))
+    self.assertEqual('REMOTE_USER',
+        response.headers.get('vary'))
+    self.assertTrue('last-modified' in response.headers)
+    self.assertEqual('text/xml; charset=utf-8',
+        response.headers.get('content-type'))
+
+    # Get assigned certificate
+    certificate = self.start_requested_software_instance.getCertificate()
+
+    # get assigned certificate
+    response = self.portal_slap.getComputerPartitionCertificate(self.computer_id,
+        partition_id, certificate_request=None)
+    self.assertEqual(200, response.status)
+    self.assertEqual( 'public, max-age=0, must-revalidate',
+        response.headers.get('cache-control'))
+    self.assertEqual('REMOTE_USER',
+        response.headers.get('vary'))
+    self.assertTrue('last-modified' in response.headers)
+    self.assertEqual('text/xml; charset=utf-8',
+        response.headers.get('content-type'))
+
+    certificate_login_list = [x for x in
+      self.start_requested_software_instance.contentValues(portal_type="Certificate Login")
+      if x.getValidationState() == 'validated']
+    self.assertEqual(len(certificate_login_list), 1)
+
+    # check returned XML
+    xml_fp = StringIO.StringIO()
+
+    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
+        stream=xml_fp)
+    xml_fp.seek(0)
+    got_xml = xml_fp.read()
+    expected_xml = """\
+<?xml version='1.0' encoding='UTF-8'?>
+<marshal>
+  <dictionary id='i2'>
+    <string>certificate</string>
+    <string>%(instance_certificate)s</string>
+    <string>key</string>
+    <string>%(instance_key)s</string>
+  </dictionary>
+</marshal>
+""" % dict(
+  instance_certificate=certificate,
+  instance_key=""
 )
     self.assertEqual(expected_xml, got_xml,
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
@@ -1596,6 +1685,16 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     partition_id = self.destroy_requested_software_instance.getAggregateValue(
         portal_type='Computer Partition').getReference()
     self.login(self.destroy_requested_software_instance.getReference())
+    csr_string = generateCertificateRequest()
+    response = self.portal_slap.getComputerPartitionCertificate(self.computer_id,
+        partition_id, certificate_request=csr_string)
+    self.assertEqual(200, response.status)
+
+    # Get assigned certificate
+    certificate = self.destroy_requested_software_instance.getCertificate()
+    for cert in self.destroy_requested_software_instance.contentValues(portal_type="Certificate Login"):
+      self.assertTrue(cert.getValidationState() == "validated")
+
     response = self.portal_slap.destroyedComputerPartition(self.computer_id,
       partition_id)
     self.assertEqual('None', response)
@@ -1603,6 +1702,9 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         self.destroy_requested_software_instance.getValidationState())
     self.assertEqual(None, self.destroy_requested_software_instance.getSslKey())
     self.assertEqual(None, self.destroy_requested_software_instance.getSslCertificate())
+
+    for cert in self.destroy_requested_software_instance.contentValues(portal_type="Certificate Login"):
+      self.assertTrue(cert.getValidationState() == "invalidated")
 
   def assertInstanceRequestSimulator(self, args, kwargs):
     stored = eval(open(self.instance_request_simulator).read())
@@ -2938,10 +3040,14 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         'generateComputerCertificate')
 
       computer_certificate = 'live_\ncertificate_%s' % self.generateNewId()
-      computer_key = 'live_\nkey_%s' % self.generateNewId()
+      computer_key = ""
+      url = 'http://ca.certificate/%s' % self.generateNewId()
+      certificate_request = 'live_\nkey_%s' % self.generateNewId()
       self.portal.REQUEST.set('computer_certificate', computer_certificate)
       self.portal.REQUEST.set('computer_key', computer_key)
-      response = self.portal_slap.generateComputerCertificate(self.computer_id)
+      self.portal.REQUEST.set('computer_certificate_url', url)
+      response = self.portal_slap.generateComputerCertificate(self.computer_id,
+        certificate_request)
 
       # check returned XML
       xml_fp = StringIO.StringIO()
@@ -2958,9 +3064,13 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     <unicode>%(computer_certificate)s</unicode>
     <string>key</string>
     <unicode>%(computer_key)s</unicode>
+    <string>url</string>
+    <unicode>%(url)s</unicode>
   </dictionary>
 </marshal>
-""" % {'computer_key': computer_key, 'computer_certificate': computer_certificate}
+""" % {'computer_key': computer_key,
+       'computer_certificate': computer_certificate,
+       'url': url}
 
       self.assertEqual(expected_xml, got_xml,
           '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))

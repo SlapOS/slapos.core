@@ -2,6 +2,7 @@
 from Products.SlapOS.tests.testSlapOSMixin import \
   testSlapOSMixin
 import transaction
+import re
 from unittest import expectedFailure
 from Products.ERP5Type.Errors import UnsupportedWorkflowMethod
 from Products.DCWorkflow.DCWorkflow import ValidationFailed
@@ -100,8 +101,32 @@ class TestSlapOSCoreComputerPartitionSlapInterfaceWorkflow(testSlapOSMixin):
         parent_uid=self.computer.getUid(), free_for_request=1)[0][0])
 
 class TestSlapOSCoreComputerSlapInterfaceWorkflow(testSlapOSMixin):
+
+  csr_string = """-----BEGIN CERTIFICATE REQUEST-----
+MIIClDCCAXwCAQAwJjEkMCIGA1UEAwwbbmdpbnhAY2VydGlmaWNhdGUuYXV0aG9y
+aXR5MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAx0KJXUK6dDNQ1R7C
+t3p4HBtBZ3LWqW8SzAvQUDHIlDuxVAa1CRZVcDA79Z7wLosUDDk1ImB7ZADt2nhX
+xBJY66cCLtNamboQX9Lz6aCymWOHntHLVXj65tF6z0U19H+5c7Js/J+xfuDtya2Y
+zGN27jsx6xLSgf/RZ2e9YB1yI6CfvBb8U4OD521iK6UxPXW9dnQLcNdwzo378pfT
+oAqcVsyV0F+6aSjHfasPljC72AmEh6/lpiT4hzNZ6A7Xz1lPbJ8TKTD1FMSDB/Nd
+POqglfsQY62GWbHSvhwLm6sfyusO3zeUFdxLmVztGjRAMWV/c65BiaHUR/CrWSoA
+J8aP/QIDAQABoCkwJwYJKoZIhvcNAQkOMRowGDAJBgNVHRMEAjAAMAsGA1UdDwQE
+AwIF4DANBgkqhkiG9w0BAQsFAAOCAQEAiL2PQCFeUrshU2/G8W1YDlbcseicJZqF
+wft2UOxTRA95CKgW5WMxTbpqUbVXtw7fccgud7GcT8jwxx2g1rq9vgh2SaIu0dCQ
+MEUMHPih3eb0atze/+QZr/v0a/+9LuoWffZU7FGEAtEpBDXV1n4X3RmSQXdtrmUj
+a3af5hwyhoXqX4wZ/sB6rA00CyyimPLLiRyDDqY/hYHvUEOLMzdmlpb7yAeMZSsO
+b20ShhRHw0cPl+dQaU5ejXGmXOIywslIVn8ffy5K7rv6PQ2OSdRazbSehqFNXzG1
+VqyqoMcNesjuW8qbVF4LrOyqLo7RR/6x8Owhu9+rOm2ukMgzF+PAow==
+-----END CERTIFICATE REQUEST-----"""
+
+  serial_regex = r"\s*(Serial\s+Number:)\s*([\d\w:]*)\s*"
+
   def afterSetUp(self):
     super(TestSlapOSCoreComputerSlapInterfaceWorkflow, self).afterSetUp()
+    # configure caucase
+    self.portal.portal_web_services.caucase_adapter.fixConsistency()
+    if self.portal.portal_web_services.caucase_adapter.checkConsistency():
+      raise Exception("Caucase is not configured!")
     # Clone computer document
     self.computer = self.portal.computer_module.template_computer\
         .Base_createCloneDocument(batch_mode=1)
@@ -130,35 +155,48 @@ class TestSlapOSCoreComputerSlapInterfaceWorkflow(testSlapOSMixin):
 
   def beforeTearDown(self):
     super(TestSlapOSCoreComputerSlapInterfaceWorkflow, self).beforeTearDown()
-    self.portal.REQUEST['computer_key'] = None
+    self.portal.REQUEST['computer_certificate_url'] = None
     self.portal.REQUEST['computer_certificate'] = None
 
   def test_generateCertificate(self):
     self.login(self.computer.getReference())
-    self.computer.generateCertificate()
-    computer_key = self.portal.REQUEST.get('computer_key')
+    self.computer.generateCertificate(certificate_request=self.csr_string)
+    computer_certificate_url = self.portal.REQUEST.get('computer_certificate_url')
     computer_certificate = self.portal.REQUEST.get('computer_certificate')
-    self.assertNotEqual(None, computer_key)
+    self.assertNotEqual(None, computer_certificate_url)
     self.assertNotEqual(None, computer_certificate)
-    self.assertNotEqual(None, self.computer.getDestinationReference())
-    serial = '0x%x' % int(self.computer.getDestinationReference(), 16)
-    self.assertTrue(serial in computer_certificate)
+    certificate_list = [x for x in
+      self.computer.contentValues(portal_type="Certificate Login")
+      if x.getValidationState() == 'validated']
+    self.assertEqual(len(certificate_list), 1)
+
+    matches = re.finditer(self.serial_regex, computer_certificate, re.DOTALL | re.MULTILINE | re.VERBOSE)
+    serial = matches.groups()[1].replace(':', '').lower()
+
+    self.assertEqual(serial, certificate_list[1].getReference())
     self.assertTrue(self.computer.getReference() in computer_certificate.decode('string_escape'))
 
   def test_generateCertificate_twice(self):
     self.login(self.computer.getReference())
-    self.computer.generateCertificate()
-    computer_key = self.portal.REQUEST.get('computer_key')
+    self.computer.generateCertificate(certificate_request=self.csr_string)
+    computer_certificate_url = self.portal.REQUEST.get('computer_certificate_url')
     computer_certificate = self.portal.REQUEST.get('computer_certificate')
-    self.assertNotEqual(None, computer_key)
+    self.assertNotEqual(None, computer_certificate_url)
     self.assertNotEqual(None, computer_certificate)
-    self.assertNotEqual(None, self.computer.getDestinationReference())
-    serial = '0x%x' % int(self.computer.getDestinationReference(), 16)
-    self.assertTrue(serial in computer_certificate)
+    certificate_list = [x for x in
+      self.computer.contentValues(portal_type="Certificate Login")
+      if x.getValidationState() == 'validated']
+    self.assertEqual(len(certificate_list), 1)
+
+    matches = re.finditer(self.serial_regex, computer_certificate, re.DOTALL | re.MULTILINE | re.VERBOSE)
+    serial = matches.groups()[1].replace(':', '').lower()
+
+    self.assertEqual(serial, certificate_list[1].getReference())
     self.assertTrue(self.computer.getReference() in computer_certificate.decode('string_escape'))
 
-    self.assertRaises(ValueError, self.computer.generateCertificate)
-    self.assertEqual(None, self.portal.REQUEST.get('computer_key'))
+    with self.assertRaises(ValueError):
+      self.computer.generateCertificate(certificate_request=self.csr_string)
+    self.assertEqual(None, self.portal.REQUEST.get('computer_certificate_url'))
     self.assertEqual(None, self.portal.REQUEST.get('computer_certificate'))
 
   def test_approveComputerRegistration(self):
@@ -336,51 +374,60 @@ class TestSlapOSCoreComputerSlapInterfaceWorkflow(testSlapOSMixin):
 
   def test_revokeCertificate(self):
     self.login(self.computer.getReference())
-    self.computer.generateCertificate()
-    computer_key = self.portal.REQUEST.get('computer_key')
+    self.computer.generateCertificate(certificate_request=self.csr_string)
+    computer_certificate_url = self.portal.REQUEST.get('computer_certificate_url')
     computer_certificate = self.portal.REQUEST.get('computer_certificate')
-    self.assertNotEqual(None, computer_key)
+    self.assertNotEqual(None, computer_certificate_url)
     self.assertNotEqual(None, computer_certificate)
-    self.assertNotEqual(None, self.computer.getDestinationReference())
-    serial = '0x%x' % int(self.computer.getDestinationReference(), 16)
-    self.assertTrue(serial in computer_certificate)
+    certificate_list = [x for x in
+      self.computer.contentValues(portal_type="Certificate Login")
+      if x.getValidationState() == 'validated']
+    self.assertEqual(len(certificate_list), 1)
+    matches = re.finditer(self.serial_regex, computer_certificate, re.DOTALL | re.MULTILINE | re.VERBOSE)
+    serial = matches.groups()[1].replace(':', '').lower()
+    self.assertEqual(serial, certificate_list[1].getReference())
     self.assertTrue(self.computer.getReference() in computer_certificate.decode('string_escape'))
 
     self.computer.revokeCertificate()
-    self.assertEqual(None, self.portal.REQUEST.get('computer_key'))
+    self.assertEqual(None, self.portal.REQUEST.get('computer_certificate_url'))
     self.assertEqual(None, self.portal.REQUEST.get('computer_certificate'))
 
-    self.assertEqual(None, self.computer.getDestinationReference())
+    for cert in self.computer.contentValues(portal_type="Certificate Login"):
+      self.assertEqual(cert.getValidationState(), 'invalidated')
 
   def test_revokeCertificateNoCertificate(self):
     self.login(self.computer.getReference())
     self.assertRaises(ValueError, self.computer.revokeCertificate)
-    self.assertEqual(None, self.portal.REQUEST.get('computer_key'))
+    self.assertEqual(None, self.portal.REQUEST.get('computer_certificate_url'))
     self.assertEqual(None, self.portal.REQUEST.get('computer_certificate'))
-    self.assertEqual(None, self.computer.getDestinationReference())
+    self.assertEqual(0, len(self.computer.contentValues(portal_type="Certificate Login")))
 
   def test_revokeCertificate_twice(self):
     self.login(self.computer.getReference())
-    self.computer.generateCertificate()
-    computer_key = self.portal.REQUEST.get('computer_key')
+    self.computer.generateCertificate(certificate_request=self.csr_string)
+    computer_certificate_url = self.portal.REQUEST.get('computer_certificate_url')
     computer_certificate = self.portal.REQUEST.get('computer_certificate')
-    self.assertNotEqual(None, computer_key)
+    self.assertNotEqual(None, computer_certificate_url)
     self.assertNotEqual(None, computer_certificate)
-    self.assertNotEqual(None, self.computer.getDestinationReference())
-    serial = '0x%x' % int(self.computer.getDestinationReference(), 16)
-    self.assertTrue(serial in computer_certificate)
+    certificate_list = [x for x in
+      self.computer.contentValues(portal_type="Certificate Login")
+      if x.getValidationState() == 'validated']
+    self.assertEqual(len(certificate_list), 1)
+    matches = re.finditer(self.serial_regex, computer_certificate, re.DOTALL | re.MULTILINE | re.VERBOSE)
+    serial = matches.groups()[1].replace(':', '').lower()
+    self.assertEqual(serial, certificate_list[1].getReference())
     self.assertTrue(self.computer.getReference() in computer_certificate.decode('string_escape'))
 
     self.computer.revokeCertificate()
-    self.assertEqual(None, self.portal.REQUEST.get('computer_key'))
+    self.assertEqual(None, self.portal.REQUEST.get('computer_certificate_url'))
     self.assertEqual(None, self.portal.REQUEST.get('computer_certificate'))
 
-    self.assertEqual(None, self.computer.getDestinationReference())
+    for cert in self.computer.contentValues(portal_type="Certificate Login"):
+      self.assertEqual(cert.getValidationState(), 'invalidated')
 
     self.assertRaises(ValueError, self.computer.revokeCertificate)
-    self.assertEqual(None, self.portal.REQUEST.get('computer_key'))
+    self.assertEqual(None, self.portal.REQUEST.get('computer_certificate_url'))
     self.assertEqual(None, self.portal.REQUEST.get('computer_certificate'))
-    self.assertEqual(None, self.computer.getDestinationReference())
 
 class TestSlapOSCorePersonComputerSupply(testSlapOSMixin):
 

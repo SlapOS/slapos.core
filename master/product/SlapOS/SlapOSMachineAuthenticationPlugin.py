@@ -132,8 +132,7 @@ class SlapOSMachineAuthenticationPlugin(BasePlugin):
       # search for user linked to this serial
       certificate_login_list = self.portal_catalog.unrestrictedSearchResults(
             portal_type=self.certificate_portal_type,
-            # XXX - reference should not contain '.crt.pem' here
-            reference=serial.lower() + '.crt.pem',
+            reference=serial.lower(),
             validation_state='validated')
       creds['machine_login'] = None
       if len(certificate_login_list) != 0:

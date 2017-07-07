@@ -108,23 +108,25 @@ class CaucaseRESTClientInterface(XMLObject):
     """
     return loads(self._request('/crt/ca.crt.json').read())
 
-  def getCertificateFromSerial(self, serial):
+  def getCertificateFromId(self, crt_id):
     """
-      Get Certificate as PEM string
+      Get Certificate as PEM string from CRT ID
     """
-    return self._request('crt/serial/%s' % serial).read()
+    return self._request('crt/%s' % crt_id).read()
 
-  def getCertificate(self, crt_id):
+  def getCertificate(self, serial):
     """
-      Get Certificate as PEM string
+      Get Certificate as PEM string from serial
     """
+    crt_id = '%s.crt.pem' % serial
     return self._request('crt/%s' % crt_id).read()
 
   def signCertificate(self, csr_id, subject=None):
     """
       Sign a certificate from the CSR id
       
-      return the certificate ID and URL to download certificate
+      return the certificate ID and URL to download certificate and serial into
+        dict
     """
     if not subject:
       data = urllib.urlencode({'csr_id': csr_id})
@@ -135,12 +137,17 @@ class CaucaseRESTClientInterface(XMLObject):
       })
     response = self._request('/crt', data=data, method='PUT')
     cert_id = response.headers['Location'].split('/')[-1]
-    return (cert_id, response.headers['Location'])
+    # XXX - remove extension on cert_id (.crt.pem) to get serial
+    serial = cert_id[:-8]
+    return {'id': cert_id,
+            'serial': serial,
+            'url': response.headers['Location']}
 
-  def revokeCertificate(self, crt_id):
+  def revokeCertificate(self, serial):
     """
       Revoke existing and valid certificate
     """
+    crt_id = '%s.crt.pem' % serial
     return self._request(
       '/crt/revoke/id',
       data=urllib.urlencode({'crt_id': crt_id}),
@@ -175,5 +182,5 @@ class CaucaseRESTClientInterface(XMLObject):
       Delete CSR from his id
     """
     response = self._request('/csr/%s' % csr_id, method='DELETE').read()
-  
+
 InitializeClass(CaucaseRESTClientInterface)

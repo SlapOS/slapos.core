@@ -77,9 +77,9 @@ class SoftwareInstance(Item):
     if certificate_id_list:
       return certificate_id_list[0]
 
-  def _getCertificate(self, cert_id):
+  def _getCertificate(self, serial):
     return self.getPortalObject().portal_web_services.caucase_adapter\
-        .getCertificate(cert_id)
+        .getCertificate(serial)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'getCertificate')
@@ -105,7 +105,7 @@ class SoftwareInstance(Item):
     csr_id = ca_service.putCertificateSigningRequest(certificate_request)
 
     # Sign the csr immediately
-    crt_id, url = ca_service.signCertificate(
+    result_dict = ca_service.signCertificate(
       csr_id,
       subject={'CN': self.getReference()}
     )
@@ -113,8 +113,8 @@ class SoftwareInstance(Item):
     # link to the Instance
     certificate_id = self.newContent(
       portal_type="Certificate Login",
-      reference=crt_id,
-      url_string=url)
+      reference=result_dict['serial'],
+      url_string=result_dict['url'])
 
     certificate_id.validate()
     return self._getCertificate(certificate_id.getReference())

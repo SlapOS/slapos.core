@@ -33,28 +33,28 @@ class Person(ERP5Person):
     csr_id = ca_service.putCertificateSigningRequest(csr)
 
     # Sign the csr immediately
-    crt_id, url = ca_service.signCertificate(
+    result_dict = ca_service.signCertificate(
       csr_id,
       subject={'CN': self.getReference()})
 
     # link to the user
     certificate_id = self.newContent(
       portal_type="Certificate Login",
-      reference=crt_id,
-      url_string=url)
+      reference=result_dict['serial'],
+      url_string=result_dict['url'])
 
     certificate_id.validate()
-    return crt_id, url
+    return result_dict['serial'], result_dict['url']
 
   security.declarePublic('getCertificate')
   def getCertificate(self):
     """Returns existing SSL certificate"""
     self._checkCertificateRequest()
-    crt_id_list = self.getPersonCertificateList()
-    if crt_id_list:
+    crt_login_list = self.getPersonCertificateList()
+    if crt_login_list:
       # XXX - considering there is only one certificate per user
       return self.getPortalObject().portal_web_services.caucase_adapter\
-        .getCertificate(crt_id_list[0].getReference())
+        .getCertificate(crt_login_list[0].getReference())
     raise ValueError(
       "No certificate set for the user %s" % self.getReference()
     )
@@ -63,10 +63,10 @@ class Person(ERP5Person):
   def revokeCertificate(self):
     """Revokes existing certificate"""
     self._checkCertificateRequest()
-    crt_id_list = self.getPersonCertificateList()
-    if crt_id_list:
+    crt_login_list = self.getPersonCertificateList()
+    if crt_login_list:
       # XXX - considering there is only one certificate per user
-      certificate_id = crt_id_list[0]
+      certificate_id = crt_login_list[0]
       response = self.getPortalObject().portal_web_services.caucase_adapter\
         .revokeCertificate(certificate_id.getReference())
       # Invalidate certificate id of the user

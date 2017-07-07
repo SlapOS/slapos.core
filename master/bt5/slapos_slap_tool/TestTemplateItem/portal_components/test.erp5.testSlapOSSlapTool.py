@@ -77,6 +77,10 @@ class TestSlapOSSlapToolMixin(testSlapOSMixin):
 
     self.computer_id = self.computer.getReference()
     self.pinDateTime(DateTime())
+    # configure caucase
+    self.portal.portal_web_services.caucase_adapter.fixConsistency()
+    if self.portal.portal_web_services.caucase_adapter.checkConsistency():
+      raise Exception("Caucase is not configured!")
 
   def beforeTearDown(self):
     self.unpinDateTime()

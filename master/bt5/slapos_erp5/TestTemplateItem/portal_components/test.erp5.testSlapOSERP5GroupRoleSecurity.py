@@ -439,7 +439,7 @@ class TestOrganisationModule(TestSlapOSGroupRoleSecurityMixin):
     self.changeOwnership(module)
     self.assertSecurityGroup(module,
         ['G-COMPANY', 'R-COMPUTER', 'R-MEMBER', self.user_id, 'R-SHADOW-PERSON'], False)
-    self.assertRoles(module, 'R-MEMBER', ['Auditor'])
+    self.assertRoles(module, 'R-MEMBER', ['Auditor', 'Author'])
     self.assertRoles(module, 'R-COMPUTER', ['Auditor'])
     self.assertRoles(module, 'G-COMPANY', ['Auditor', 'Author'])
     self.assertRoles(module, 'R-SHADOW-PERSON', ['Auditor'])

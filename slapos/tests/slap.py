@@ -83,26 +83,26 @@ class TestSlap(SlapMixin):
 
   def test_slap_initialisation_ipv6_and_port(self):
     slap_instance = slapos.slap.slap()
-    slap_instance.initializeConnection("http://1234:1234:1234:1234:1:1:1:1:5000/foo/")
+    slap_instance.initializeConnection("http://fe80:1234:1234:1234:1:1:1:1:5000/foo/")
     self.assertEqual(
         slap_instance._connection_helper.slapgrid_uri,
-        "http://[1234:1234:1234:1234:1:1:1:1]:5000/foo/"
+        "http://[fe80:1234:1234:1234:1:1:1:1]:5000/foo/"
     )
 
   def test_slap_initialisation_ipv6_without_port(self):
     slap_instance = slapos.slap.slap()
-    slap_instance.initializeConnection("http://1234:1234:1234:1234:1:1:1:1/foo/")
+    slap_instance.initializeConnection("http://fe80:1234:1234:1234:1:1:1:1/foo/")
     self.assertEqual(
         slap_instance._connection_helper.slapgrid_uri,
-        "http://[1234:1234:1234:1234:1:1:1:1]/foo/"
+        "http://[fe80:1234:1234:1234:1:1:1:1]/foo/"
     )
 
   def test_slap_initialisation_ipv6_with_bracket(self):
     slap_instance = slapos.slap.slap()
-    slap_instance.initializeConnection("http://[1234:1234:1234:1234:1:1:1:1]:5000/foo/")
+    slap_instance.initializeConnection("http://[fe80:1234:1234:1234:1:1:1:1]:5000/foo/")
     self.assertEqual(
         slap_instance._connection_helper.slapgrid_uri,
-        "http://[1234:1234:1234:1234:1:1:1:1]:5000/foo/"
+        "http://[fe80:1234:1234:1234:1:1:1:1]:5000/foo/"
     )
 
   def test_slap_initialisation_ipv4(self):
@@ -116,10 +116,10 @@ class TestSlap(SlapMixin):
   def test_slap_initialisation_hostname(self):
     # XXX this really opens a connection !
     slap_instance = slapos.slap.slap()
-    slap_instance.initializeConnection("http://foo.com:5000/foo/")
+    slap_instance.initializeConnection("http://example.com:80/foo/")
     self.assertEqual(
         slap_instance._connection_helper.slapgrid_uri,
-        "http://foo.com:5000/foo/"
+        "http://example.com:80/foo/"
     )
 
   def test_registerComputer_with_new_guid(self):

@@ -15,4 +15,4 @@ ${slapos_unstable_content}
 clear
 
 echo "Starting Ansible playbook:"
-ansible-playbook test-suite.yml -i hosts --connection=local
+$ANSIBLE_PLAYBOOK test-suite.yml -i hosts --connection=local

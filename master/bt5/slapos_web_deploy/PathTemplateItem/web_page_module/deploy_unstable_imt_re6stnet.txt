@@ -15,4 +15,4 @@ ${slapos_unstable_content}
 clear
 
 echo "Starting Ansible playbook:"
-ansible-playbook imt-re6stnet.yml -i hosts --connection=local
+$ANSIBLE_PLAYBOOK imt-re6stnet.yml -i hosts --connection=local

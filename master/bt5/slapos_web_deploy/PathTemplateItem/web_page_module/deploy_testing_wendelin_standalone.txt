@@ -15,4 +15,4 @@ ${slapos_testing_content}
 clear
 
 echo "Starting Ansible playbook:"
-ansible-playbook wendelin-standalone.yml -i hosts --connection=local
+$ANSIBLE_PLAYBOOK wendelin-standalone.yml -i hosts --connection=local

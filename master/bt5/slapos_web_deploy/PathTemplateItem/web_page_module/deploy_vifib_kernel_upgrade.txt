@@ -21,4 +21,4 @@ rm -rf /opt/upgrader/playbook-tmp
 rm -rf /opt/upgrader/playbook
 
 echo "Starting Ansible playbook:"
-ansible-playbook upgrader-run.yml --extra-vars "upgrader_playbook=vifib-kernel-upgrade.yml" -i hosts --connection=local
+$ANSIBLE_PLAYBOOK upgrader-run.yml --extra-vars "upgrader_playbook=vifib-kernel-upgrade.yml" -i hosts --connection=local

@@ -14,4 +14,4 @@ ${slapos_install_content}
 clear
 
 echo "Starting Ansible playbook:"
-ansible-playbook webrunner-standalone.yml -i hosts --connection=local
+$ANSIBLE_PLAYBOOK webrunner-standalone.yml -i hosts --connection=local

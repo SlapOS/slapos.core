@@ -13,4 +13,4 @@ download_playbook
 clear
 
 echo "Starting Ansible playbook:"
-ansible-playbook imt-server-update.yml -i hosts --connection=local
+$ANSIBLE_PLAYBOOK imt-server-update.yml -i hosts --connection=local

@@ -15,4 +15,4 @@ ${slapos_testing_content}
 clear
 
 echo "Starting Ansible playbook:"
-ansible-playbook re6stnet.yml -i hosts --connection=local
+$ANSIBLE_PLAYBOOK re6stnet.yml -i hosts --connection=local

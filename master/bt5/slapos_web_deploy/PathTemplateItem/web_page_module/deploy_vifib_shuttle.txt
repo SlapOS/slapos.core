@@ -15,4 +15,4 @@ ${slapos_install_content}
 clear
 
 echo "Starting Ansible playbook:"
-ansible-playbook vifib-shuttle.yml -i hosts --connection=local
+$ANSIBLE_PLAYBOOK vifib-shuttle.yml -i hosts --connection=local

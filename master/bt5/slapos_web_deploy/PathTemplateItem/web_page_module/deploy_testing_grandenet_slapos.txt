@@ -15,4 +15,4 @@ ${slapos_testing_content}
 clear
 
 echo "Starting Ansible playbook:"
-ansible-playbook gnet-server.yml -i hosts --connection=local
+$ANSIBLE_PLAYBOOK gnet-server.yml -i hosts --connection=local

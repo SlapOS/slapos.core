@@ -15,4 +15,4 @@ ${slapos_install_content}
 clear
 
 echo "Starting Ansible playbook:"
-ansible-playbook erp5-standalone.yml -i hosts --connection=local
+$ANSIBLE_PLAYBOOK erp5-standalone.yml -i hosts --connection=local

@@ -26,7 +26,7 @@ ${slapos_unstable_content}
 clear
 
 echo "Starting Ansible playbook:"
-ansible-playbook imt-vm-bootstrap.yml -i hosts --connection=local
+$ANSIBLE_PLAYBOOK imt-vm-bootstrap.yml -i hosts --connection=local
 
 
 # Check if playbook has been correctly extracted

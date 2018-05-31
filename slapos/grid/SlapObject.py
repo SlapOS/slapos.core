@@ -109,7 +109,8 @@ class Software(object):
                download_binary_dir_url=None, upload_binary_dir_url=None,
                download_from_binary_cache_url_blacklist=None,
                upload_to_binary_cache_url_blacklist=None,
-               software_min_free_space=None):
+               software_min_free_space=None,
+               slapos_recipe_cmmi_shared_path=None):
     """Initialisation of class parameters
     """
 
@@ -124,6 +125,7 @@ class Software(object):
     self.software_url_hash = md5digest(self.url)
     self.software_path = os.path.join(self.software_root,
                                       self.software_url_hash)
+    self.slapos_recipe_cmmi_shared_path = slapos_recipe_cmmi_shared_path
     self.buildout = buildout
     self.logger = logger
     self.signature_private_key_file = signature_private_key_file
@@ -257,6 +259,10 @@ class Software(object):
 
       additional_parameters = list(self._additional_buildout_parameters(extends_cache))
       additional_parameters.extend(['-c', buildout_cfg])
+
+      if self.slapos_recipe_cmmi_shared_path:
+        additional_parameters.append('buildout:slapos-recipe-cmmi-shared-path=%s' %
+            self.slapos_recipe_cmmi_shared_path)
 
       utils.bootstrapBuildout(path=self.software_path,
                               buildout=self.buildout,

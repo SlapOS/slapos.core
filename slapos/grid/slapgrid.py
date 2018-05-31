@@ -556,7 +556,8 @@ stderr_logfile_backups=1
             shadir_ca_file=self.shadir_ca_file,
             shadir_cert_file=self.shadir_cert_file,
             shadir_key_file=self.shadir_key_file,
-            software_min_free_space=self.software_min_free_space)
+            software_min_free_space=self.software_min_free_space,
+            slapos_recipe_cmmi_shared_path=self.config.get('slapos_recipe_cmmi_shared_path'),)
 
         # call manager for every software release
         for manager in self._manager_list:

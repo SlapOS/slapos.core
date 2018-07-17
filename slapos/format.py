@@ -248,7 +248,7 @@ class Computer(object):
                ipv6_interface=None, software_user='slapsoft',
                tap_gateway_interface=None,
                instance_root=None, software_root=None, instance_storage_home=None,
-               partition_list=None, config=None):
+               shared_software_root=None, partition_list=None, config=None):
     """
     Attributes:
       reference: str, the reference of the computer.
@@ -270,6 +270,7 @@ class Computer(object):
            "Computer's instance_root and software_root must not be empty!"
     self.software_root = software_root
     self.instance_root = instance_root
+    self.shared_software_root = shared_software_root
     self.instance_storage_home = instance_storage_home
 
     # The following properties are updated on update() method
@@ -540,7 +541,12 @@ class Computer(object):
         network_interface_name = self.interface.name
       self._addUniqueLocalAddressIpv6(network_interface_name)
 
-    for path in self.instance_root, self.software_root:
+    path_list = [self.instance_root, self.software_root]
+
+    if self.shared_software_root is not None:
+      path_list.extend(self.shared_software_root.split(",")]
+
+    for path in path_list:
       if not os.path.exists(path):
         os.makedirs(path, 0o755)
       else:

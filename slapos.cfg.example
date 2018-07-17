@@ -8,7 +8,7 @@ cert_file =  /etc/opt/slapos/ssl/computer.crt
 certificate_repository_path = /etc/opt/slapos/ssl/partition_pki
 software_root = /opt/slapgrid
 instance_root = /srv/slapgrid
-slapos_recipe_cmmi_shared_path = /opt/slapgrid/shared
+shared_software_root = /opt/slapgrid/shared
 
 [slapformat]
 # Replace by your network interface providing IPv6 if you don't use re6st

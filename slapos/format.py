@@ -544,7 +544,7 @@ class Computer(object):
     path_list = [self.instance_root, self.software_root]
 
     if self.shared_software_root is not None:
-      path_list.extend(self.shared_software_root.split(",")]
+      path_list.extend(self.shared_software_root.split("\n"))
 
     for path in path_list:
       if not os.path.exists(path):

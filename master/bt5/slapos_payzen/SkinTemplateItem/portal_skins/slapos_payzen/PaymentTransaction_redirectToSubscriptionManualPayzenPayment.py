@@ -4,8 +4,8 @@
 portal = context.getPortalObject()
 person = portal.ERP5Site_getAuthenticatedMemberPersonValue()
 
-def wrapWithShadow(payment_transaction):
-  return payment_transaction.PaymentTransaction_redirectToManualPayzenPayment()
+def wrapWithShadow(payment_transaction, web_site):
+  return payment_transaction.PaymentTransaction_redirectToManualPayzenPayment(web_site)
 
 if person is None:
   if portal.portal_membership.isAnonymousUser():
@@ -16,4 +16,4 @@ if person is None:
 return person.Person_restrictMethodAsShadowUser(
   shadow_document=person,
   callable_object=wrapWithShadow,
-  argument_list=[context])
+  argument_list=[context, web_site])

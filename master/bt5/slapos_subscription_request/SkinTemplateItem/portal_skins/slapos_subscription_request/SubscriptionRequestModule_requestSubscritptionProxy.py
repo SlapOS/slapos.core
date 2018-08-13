@@ -75,6 +75,7 @@ payment = person.Person_restrictMethodAsShadowUser(
   argument_list=[subscription_request, user_input_dict["amount"]])
 
 if batch_mode:
-  return subscription_request
+  return {'subscription' : subscription_request.getRelativeUrl(), 'payment': payment.getRelativeUrl() }
 
-return json.dumps({'subscription' : subscription_request.getRelativeUrl(), 'payment': payment.getRelativeUrl() } )
+
+return payment.PaymentTransaction_redirectToSubscriptionManualPayzenPayment(context.getWebSiteValue())

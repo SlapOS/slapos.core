@@ -56,6 +56,7 @@ if current_invoice is None:
   current_payment.start(comment=comment)
   current_payment.PaymentTransaction_updateStatus()
   current_payment.reindexObject(activate_kw={'tag': tag})
+  context.immediateReindexObject()
   context.reindexObject(activate_kw={'tag': tag})
 
 

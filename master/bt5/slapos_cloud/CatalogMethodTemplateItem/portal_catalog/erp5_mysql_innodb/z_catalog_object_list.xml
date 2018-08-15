@@ -8,44 +8,47 @@
       <dictionary>
         <item>
             <key> <string>allow_simple_one_argument_traversal</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <int>0</int> </value>
         </item>
         <item>
             <key> <string>arguments_src</string> </key>
-            <value> <string>uid\r\n
-security_uid\r\n
-getOwnerInfo\r\n
-getViewPermissionOwner\r\n
-getPath\r\n
-getRelativeUrl\r\n
-getParentUid\r\n
-id\r\n
-getDescription\r\n
-getTitle\r\n
-meta_type\r\n
-getPortalType\r\n
-getOpportunityState\r\n
-getCorporateRegistrationCode\r\n
-getEan13Code\r\n
-getSimulationState\r\n
-getCausalityState\r\n
-getInvoiceState\r\n
-getValidationState\r\n
-getPaymentState\r\n
-getEventState\r\n
-getImmobilisationState\r\n
-getReference\r\n
-getGroupingReference\r\n
-getGroupingDate\r\n
-getSourceReference\r\n
-getDestinationReference\r\n
-getStringIndex\r\n
-getIntIndex\r\n
-getFloatIndex\r\n
-hasCellContent\r\n
-getCreationDate\r\n
+            <value> <string>uid\n
+security_uid\n
+group_security_uid\n
+shadow_security_uid\n
+computer_security_uid\n
+user_security_uid\n
+subscription_security_uid\n
+getOwnerInfo\n
+getViewPermissionOwner\n
+getPath\n
+getRelativeUrl\n
+getParentUid\n
+id\n
+getDescription\n
+getTitle\n
+meta_type\n
+getPortalType\n
+getOpportunityState\n
+getCorporateRegistrationCode\n
+getEan13Code\n
+getSimulationState\n
+getCausalityState\n
+getInvoiceState\n
+getValidationState\n
+getPaymentState\n
+getEventState\n
+getImmobilisationState\n
+getReference\n
+getGroupingReference\n
+getGroupingDate\n
+getSourceReference\n
+getDestinationReference\n
+getStringIndex\n
+getIntIndex\n
+getFloatIndex\n
+hasCellContent\n
+getCreationDate\n
 getModificationDate</string> </value>
         </item>
         <item>
@@ -54,11 +57,15 @@ getModificationDate</string> </value>
         </item>
         <item>
             <key> <string>class_file_</string> </key>
-            <value> <string></string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>class_name_</string> </key>
-            <value> <string></string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>connection_hook</string> </key>
@@ -72,20 +79,12 @@ getModificationDate</string> </value>
         </item>
         <item>
             <key> <string>expression</string> </key>
-            <value> <string>python: context.getPortalType() not in (\'Software Instance\', \'Slave Instance\', \'Computer\', \'Computer Partition\', \'Sale Order\')</string> </value>
+            <value> <string>python: context.getPortalType() not in (\'Software Instance\', \'Slave Instance\', \'Computer\', \'Computer Partition\', \'Sale Order\') </string> </value>
         </item>
         <item>
             <key> <string>expression_cache_key</string> </key>
             <value>
-              <tuple>
-                <string>portal_type</string>
-              </tuple>
-            </value>
-        </item>
-        <item>
-            <key> <string>expression_instance</string> </key>
-            <value>
-              <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
+              <tuple/>
             </value>
         </item>
         <item>
@@ -110,26 +109,7 @@ getModificationDate</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string></string> </value>
-        </item>
-        <item>
-            <key> <string>type</string> </key>
-            <value>
-              <tuple/>
-            </value>
-        </item>
-      </dictionary>
-    </pickle>
-  </record>
-  <record id="2" aka="AAAAAAAAAAI=">
-    <pickle>
-      <global name="Expression" module="Products.CMFCore.Expression"/>
-    </pickle>
-    <pickle>
-      <dictionary>
-        <item>
-            <key> <string>text</string> </key>
-            <value> <string>python: context.getPortalType() not in (\'Software Instance\', \'Slave Instance\', \'Computer\', \'Computer Partition\', \'Sale Order\')</string> </value>
+            <value> <string>z_catalog_object_list</string> </value>
         </item>
       </dictionary>
     </pickle>

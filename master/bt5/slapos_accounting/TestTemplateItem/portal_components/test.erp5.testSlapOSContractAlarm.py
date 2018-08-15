@@ -78,6 +78,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     preference =  self.portal.portal_preferences.getActiveSystemPreference()
     preference.setPreferredCloudContractEnabled(False)
     self.tic()
+    self.clearCache()
 
     self._simulateSoftwareInstance_requestValidationPayment()
     try:

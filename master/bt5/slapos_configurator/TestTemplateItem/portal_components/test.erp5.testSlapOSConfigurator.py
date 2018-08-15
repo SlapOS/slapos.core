@@ -246,6 +246,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'erp5_crm',
       'erp5_system_event',
       'erp5_secure_payment',
+      'erp5_security_uid_innodb_catalog',
       'erp5_payzen_secure_payment',
       'erp5_ooo_import',
       'erp5_odt_style',

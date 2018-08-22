@@ -91,12 +91,21 @@ LOCALE_ENVIRONMENT_REMOVE_LIST = [
 class SlapPopen(subprocess.Popen):
   """
   Almost normal subprocess with greedish features and logging.
+
   Each line is logged "live", and self.output is a string containing the whole
-  log.
+  log, unless kwargs['debug'] is True, in which case the process outputs
+  normally on stdout and stderr.
   """
   def __init__(self, *args, **kwargs):
     logger = kwargs.pop('logger')
-    kwargs.update(stdin=subprocess.PIPE)
+
+    debug = kwargs.pop('debug', False)
+    if debug:
+      kwargs.pop('stdout')
+      kwargs.pop('stderr')
+    else:
+      kwargs.update(stdin=subprocess.PIPE)
+
     if sys.platform == 'cygwin' and kwargs.get('env') == {}:
       kwargs['env'] = None
 
@@ -104,6 +113,10 @@ class SlapPopen(subprocess.Popen):
     kwargs.setdefault('close_fds', True)
 
     subprocess.Popen.__init__(self, *args, **kwargs)
+    if debug:
+      self.wait()
+      self.output = '(output not captured in debug mode)'
+      return
     self.stdin.flush()
     self.stdin.close()
     self.stdin = None
@@ -289,7 +302,8 @@ def bootstrapBuildout(path, logger, buildout=None,
 
 
 def launchBuildout(path, buildout_binary, logger,
-                   additional_buildout_parameter_list=None):
+                   additional_buildout_parameter_list=None,
+                   debug=False):
   """ Launches buildout."""
   if additional_buildout_parameter_list is None:
     additional_buildout_parameter_list = []
@@ -304,6 +318,10 @@ def launchBuildout(path, buildout_binary, logger,
     line = line[2:]
     # Prepares parameters for buildout
     invocation_list = line.split() + [buildout_binary]
+
+  if debug:
+    invocation_list.append('-D')
+
   # Run buildout without reading user defaults
   invocation_list.append('-U')
   invocation_list.extend(additional_buildout_parameter_list)
@@ -318,6 +336,7 @@ def launchBuildout(path, buildout_binary, logger,
                                 env=getCleanEnvironment(logger=logger,
                                                         home_path=path),
                                 stdout=subprocess.PIPE,
+                                debug=debug,
                                 stderr=subprocess.STDOUT,
                                 logger=logger)
     if process_handler.returncode is None or process_handler.returncode != 0:

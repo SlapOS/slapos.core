@@ -11,7 +11,7 @@ if instance.getValidationState() != 'validated' \
   return
 
 latest_comment = portal.portal_workflow.getInfoFor(instance, 'comment', wf_id='edit_workflow')
-if latest_comment != 'Allocation failed: no free Computer Partition':
+if latest_comment not in ('Allocation failed: no free Computer Partition', 'Allocation failed: Allocation disallowed'):
   # No nothing if allocation alarm didn't run on it
   return
 

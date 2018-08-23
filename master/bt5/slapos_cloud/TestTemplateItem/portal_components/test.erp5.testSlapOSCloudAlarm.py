@@ -829,7 +829,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     self.computer.edit(**{base_category: computer_category})
     self.assertEquals(self.computer.getAllocationScope(), "open/public")
     self.assertEquals(self.computer.getCapacityScope(), "open")
-    
+
     self._installSoftware(self.computer,
         self.software_instance.getUrlString())
 
@@ -1763,6 +1763,24 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
     hosting_subscription = instance.getSpecialiseValue()
     self.assertEqual('start_requested', hosting_subscription.getSlapState())
 
+
+  def test_tryToGarbageCollect_recent_allocation_try_found_allocation_disallowed(self):
+    instance = self.createInstance()
+    self.tic()
+    instance.workflow_history['edit_workflow'].append({
+        'comment':'Allocation failed: Allocation disallowed',
+        'error_message': '',
+        'actor': 'ERP5TypeTestCase',
+        'slap_state': '',
+        'time': addToDate(DateTime(), to_add={'day': -2}),
+        'action': 'edit'
+    })
+
+    instance.Instance_tryToGarbageCollectNonAllocatedRootTree()
+    self.assertEqual('start_requested', instance.getSlapState())
+    hosting_subscription = instance.getSpecialiseValue()
+    self.assertEqual('start_requested', hosting_subscription.getSlapState())
+
   def test_tryToGarbageCollect_complex_tree(self):
     instance = self.createInstance()
     hosting_subscription = instance.getSpecialiseValue()
@@ -1791,12 +1809,58 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
     sub_instance.Instance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('start_requested', hosting_subscription.getSlapState())
 
+  def test_tryToGarbageCollect_complex_tree_allocation_disallowed(self):
+    instance = self.createInstance()
+    hosting_subscription = instance.getSpecialiseValue()
+    request_kw = dict(
+      software_release=\
+          self.generateNewSoftwareReleaseUrl(),
+      software_type=self.generateNewSoftwareType(),
+      instance_xml=self.generateSafeXml(),
+      sla_xml=self.generateSafeXml(),
+      shared=False,
+      software_title="another %s" % hosting_subscription.getTitle(),
+      state='started'
+    )
+    instance.requestInstance(**request_kw)
+    sub_instance = instance.getPredecessorValue()
+    self.tic()
+    sub_instance.workflow_history['edit_workflow'].append({
+        'comment':'Allocation failed: Allocation disallowed',
+        'error_message': '',
+        'actor': 'ERP5TypeTestCase',
+        'slap_state': '',
+        'time': addToDate(DateTime(), to_add={'day': -4}),
+        'action': 'edit'
+    })
+
+    sub_instance.Instance_tryToGarbageCollectNonAllocatedRootTree()
+    self.assertEqual('start_requested', hosting_subscription.getSlapState())
+
   def test_tryToGarbageCollect_old_allocation_try_found(self):
     instance = self.createInstance()
     hosting_subscription = instance.getSpecialiseValue()
     self.tic()
     instance.workflow_history['edit_workflow'].append({
         'comment':'Allocation failed: no free Computer Partition',
+        'error_message': '',
+        'actor': 'ERP5TypeTestCase',
+        'slap_state': '',
+        'time': addToDate(DateTime(), to_add={'day': -8}),
+        'action': 'edit'
+    })
+
+    instance.Instance_tryToGarbageCollectNonAllocatedRootTree()
+    self.assertEqual('destroy_requested', hosting_subscription.getSlapState())
+    self.assertEqual('archived', hosting_subscription.getValidationState())
+
+
+  def test_tryToGarbageCollect_old_allocation_try_found_allocation_disallowed(self):
+    instance = self.createInstance()
+    hosting_subscription = instance.getSpecialiseValue()
+    self.tic()
+    instance.workflow_history['edit_workflow'].append({
+        'comment':'Allocation failed: Allocation disallowed',
         'error_message': '',
         'actor': 'ERP5TypeTestCase',
         'slap_state': '',

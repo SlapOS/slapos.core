@@ -5,12 +5,6 @@
    <multi_property id='categories'>local_role_group/computer</multi_property>
    <multi_property id='base_category'>aggregate</multi_property>
   </role>
-  <role id='Assignee'>
-   <property id='title'>Customer of the Instance</property>
-   <property id='base_category_script'>InstanceType_getSecurityCategoryFromUser</property>
-   <multi_property id='categories'>local_role_group/user</multi_property>
-   <multi_property id='base_category'>destination_section</multi_property>
-  </role>
   <role id='Assignor'>
    <property id='title'>Group company</property>
    <multi_property id='categories'>local_role_group/group</multi_property>
@@ -22,5 +16,11 @@
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/subscription</multi_property>
    <multi_property id='base_category'>specialise</multi_property>
+  </role>
+  <role id='Assignee'>
+   <property id='title'>Owner become Assignee</property>
+   <property id='base_category_script'>ERP5Type_acquireSecurityFromOwner</property>
+   <multi_property id='categories'>local_role_group/user</multi_property>
+   <multi_property id='base_category'>source</multi_property>
   </role>
 </type_roles>

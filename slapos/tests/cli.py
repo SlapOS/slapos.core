@@ -31,15 +31,21 @@ import unittest
 import tempfile
 import StringIO
 import sys
+import os
+import sqlite3
+import pkg_resources
+
 
 from mock import patch, create_autospec
 import mock
+from slapos.util import sqlite_connect
 
 import slapos.cli.console
 import slapos.cli.entry
 import slapos.cli.info
 import slapos.cli.list
 import slapos.cli.supervisorctl
+import slapos.cli.proxy_show
 from slapos.client import ClientConfig
 import slapos.grid.svcbackend
 import slapos.proxy
@@ -56,6 +62,7 @@ class CliMixin(unittest.TestCase):
     self.local = {'slap': slap}
     self.logger = create_autospec(logging.Logger)
     self.conf = create_autospec(ClientConfig)
+
 
 class TestCliProxy(CliMixin):
   def test_generateSoftwareProductListFromString(self):
@@ -81,6 +88,62 @@ product2 url2"""
         slapos.proxy._generateSoftwareProductListFromString(''),
         {}
     )
+
+
+class TestCliProxyShow(CliMixin):
+  def setUp(self):
+    super(TestCliProxyShow, self).setUp()
+    self.db_file = tempfile.NamedTemporaryFile(delete=False, suffix='.db')
+    self.db_file.close()
+    self.conf.database_uri = self.db_file.name
+    self.conf.logger = self.logger
+
+    # load database
+    schema = pkg_resources.resource_stream('slapos.tests.slapproxy', 'database_dump_version_11.sql')
+    db = sqlite_connect(self.db_file.name)
+    db.cursor().executescript(schema.read())
+    db.commit()
+
+
+  def tearDown(self):
+    super(TestCliProxyShow, self).tearDown()
+    os.remove(self.db_file.name)
+
+
+  def test_proxy_show(self):
+    # simulate "show all" arguments
+    self.conf.computers = True
+    self.conf.software = True
+    self.conf.partitions = True
+    self.conf.slaves = True
+    self.conf.params = True
+    self.conf.network = True
+
+    slapos.cli.proxy_show.do_show(self.conf)
+
+    # installed softwares are listed
+    self.logger.info.assert_any_call(
+        '      /srv/slapgrid/slappart8/srv/runner/project/slapos/software/erp5/software.cfg          slaprunner     287375f0cba269902ba1bc50242839d7 ' )
+
+    # instance parameters are listed
+    # _ parameter is json formatted
+    self.logger.info.assert_any_call(
+        '    %s = %s',
+        '_',
+        '{\n  "url": "memcached://10.0.30.235:2003/", \n  "monitor-base-url": ""\n}')
+
+    # other parameters are displayed as simple string
+    self.logger.info.assert_any_call(
+        '    %s = %s',
+        'url',
+        'http://10.0.30.235:4444/wd/hub')
+
+    # if _ cannot be decoded as json, it is displayed "as is"
+    self.logger.info.assert_any_call(
+        '    %s = %s',
+        '_',
+        u'Ahah this is not json \U0001f61c ')
+
 
 class TestCliNode(CliMixin):
 

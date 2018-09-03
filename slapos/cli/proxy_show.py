@@ -29,6 +29,7 @@
 
 import collections
 import hashlib
+import json
 
 import lxml.etree
 import prettytable
@@ -141,6 +142,12 @@ def log_params(logger, conn):
             text = parameter.text
             if text and name in ('ssh-key', 'ssh-public-key'):
                 text = text[:20] + '...' + text[-20:]
+            # _ is usually json encoded - re-format to make it easier to read
+            if name == '_':
+                try:
+                    text = json.dumps(json.loads(text), indent=2)
+                except ValueError:
+                    pass
             logger.info('    %s = %s', name, text)
 
 

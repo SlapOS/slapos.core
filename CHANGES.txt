@@ -5,6 +5,7 @@ Changes
 -------------------
  * add `--buildout-debug` command line option to `slapos node software` and
    `slapos node instance` commands which starts buildout debugger on errors.
+ * pretty print json serialised instance parameters in `slapos proxy show`
 
 1.4.9 (2018-07-31)
 ------------------

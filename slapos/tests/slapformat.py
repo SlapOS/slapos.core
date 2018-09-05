@@ -414,7 +414,6 @@ class TestComputer(SlapformatMixin):
         'netmask': '255.255.255.0'}],
       socket.AF_INET6: [{'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::'}]
     }
-
     computer.format()
     self.assertEqual([
       "makedirs('/instance_root', 493)",
@@ -463,6 +462,10 @@ class TestComputer(SlapformatMixin):
       socket.AF_INET6: [{'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::'}]
     }
 
+    INTERFACE_DICT['tap'] = {
+      socket.AF_INET6: [{'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::'}]
+    }
+
     computer.format(alter_user=False)
     self.assertEqual([
       "makedirs('/instance_root', 493)",
@@ -477,9 +480,13 @@ class TestComputer(SlapformatMixin):
         'brctl show',
         'ip tuntap add dev tap mode tap user testuser',
         'ip link set tap up',
-        'brctl show',
-        'brctl show',
-        'brctl addif bridge tap',
+        #'brctl show',
+        #'brctl show',
+        #'brctl addif bridge tap',
+        'ip addr add ip/ffff:ffff:ffff:ffff:ffff:ffff:: dev tap',
+        'ip -6 addr list tap',
+        'ip route show 10.0.0.2',
+        'ip route add 10.0.0.2 dev tap',
         'ip addr add ip/255.255.255.255 dev bridge',
         # 'ip addr list bridge',
         'ip addr add ip/ffff:ffff:ffff:ffff:: dev bridge',
@@ -512,6 +519,10 @@ class TestComputer(SlapformatMixin):
         'netmask': '255.255.255.0'}]
     }
 
+    INTERFACE_DICT['tap'] = {
+      socket.AF_INET6: [{'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::'}]
+    }
+
     computer.format(alter_user=False)
     self.assertEqual([
       "makedirs('/instance_root', 493)",
@@ -526,6 +537,8 @@ class TestComputer(SlapformatMixin):
         'brctl show',
         'ip tuntap add dev tap mode tap user testuser',
         'ip link set tap up',
+        'ip addr add ip/ffff:ffff:ffff:ffff:ffff:ffff:: dev tap',
+        'ip -6 addr list tap',  
         'ip route show 10.8.0.2',
         'ip route add 10.8.0.2 dev tap',
         'ip addr add ip/255.255.255.255 dev iface',

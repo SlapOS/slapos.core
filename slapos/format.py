@@ -446,11 +446,10 @@ class Computer(object):
 
       if partition_dict['tap']:
         tap = Tap(partition_dict['tap']['name'])
-        if tap_gateway_interface:
-          tap.ipv4_addr = partition_dict['tap'].get('ipv4_addr', '')
-          tap.ipv4_netmask = partition_dict['tap'].get('ipv4_netmask', '')
-          tap.ipv4_gateway = partition_dict['tap'].get('ipv4_gateway', '')
-          tap.ipv4_network = partition_dict['tap'].get('ipv4_network', '')
+        tap.ipv4_addr = partition_dict['tap'].get('ipv4_addr', '')
+        tap.ipv4_netmask = partition_dict['tap'].get('ipv4_netmask', '')
+        tap.ipv4_gateway = partition_dict['tap'].get('ipv4_gateway', '')
+        tap.ipv4_network = partition_dict['tap'].get('ipv4_network', '')
       else:
         tap = Tap(partition_dict['reference'])
 
@@ -571,12 +570,20 @@ class Computer(object):
           instance_external_list.append(data_path)
 
     tap_address_list = []
-    if alter_network and self.tap_gateway_interface and create_tap:
-      gateway_addr_dict = getIfaceAddressIPv4(self.tap_gateway_interface)
-      tap_address_list = getIPv4SubnetAddressRange(gateway_addr_dict['addr'],
+    if alter_network and create_tap:
+      if self.tap_gateway_interface:
+        gateway_addr_dict = getIfaceAddressIPv4(self.tap_gateway_interface)
+        tap_address_list = getIPv4SubnetAddressRange(gateway_addr_dict['addr'],
                               gateway_addr_dict['netmask'],
                               len(self.partition_list))
-      assert(len(self.partition_list) <= len(tap_address_list))
+        assert(len(self.partition_list) <= len(tap_address_list))
+      else:
+       gateway_addr_dict = {'peer': '10.0.0.1', 'netmask': '255.255.0.0', 
+                            'addr': '10.0.0.1', 'network': '10.0.0.0'}
+ 
+       tap_address_list = getIPv4SubnetAddressRange(gateway_addr_dict['addr'],
+                              gateway_addr_dict['netmask'],
+                              len(self.partition_list))
 
     if alter_network:
       self._speedHackAddAllOldIpsToInterface()
@@ -607,7 +614,7 @@ class Computer(object):
             partition.tap.createWithOwner(owner)
           # If tap_gateway_interface is specified, we don't add tap to bridge
           # but we create route for this tap
-          if not self.tap_gateway_interface:
+          if not self.tap_gateway_interface and self.interface.attach_to_tap:
             self.interface.addTap(partition.tap)
           else:
             next_ipv4_addr = '%s' % tap_address_list.pop(0)
@@ -617,6 +624,14 @@ class Computer(object):
               partition.tap.ipv4_netmask = gateway_addr_dict['netmask']
               partition.tap.ipv4_gateway = gateway_addr_dict['addr']
               partition.tap.ipv4_network = gateway_addr_dict['network']
+
+            if not partition.tap.ipv6_addr:
+              ipv6_addr = self.interface.addAddr(tap=partition.tap)
+              partition.tap.ipv6_addr = "" 
+              partition.tap.ipv6_netmask = ""
+              partition.tap.ipv6_gateway = ""
+              partition.tap.ipv6_network = "" 
+
             partition.tap.createRoutes()
 
         if alter_network and partition.tun is not None:
@@ -835,6 +850,11 @@ class Tap(object):
     self.ipv4_netmask = ""
     self.ipv4_gateway = ""
     self.ipv4_network = ""
+    self.ipv6_addr = ""
+    self.ipv6_netmask = ""
+    self.ipv6_gateway = ""
+    self.ipv6_network = ""
+
 
   def __getinitargs__(self):
     return (self.name,)
@@ -1024,7 +1044,7 @@ class Interface(object):
                 netaddr.cidr_to_glob(self.ipv4_local_network))
             ]
 
-  def getGlobalScopeAddressList(self):
+  def getGlobalScopeAddressList(self, tap=None):
     """Returns currently configured global scope IPv6 addresses"""
     if self.ipv6_interface:
       interface_name = self.ipv6_interface
@@ -1039,6 +1059,17 @@ class Interface(object):
     except KeyError:
       raise ValueError("%s must have at least one IPv6 address assigned" %
                          interface_name)
+
+    if tap:
+      try:
+        address_list += [
+          q
+          for q in netifaces.ifaddresses(tap.name)[socket.AF_INET6]
+          if isGlobalScopeAddress(q['addr'].split('%')[0])
+      ]
+      except KeyError:
+        pass
+
     if sys.platform == 'cygwin':
       for q in address_list:
         q.setdefault('netmask', 'FFFF:FFFF:FFFF:FFFF::')
@@ -1094,13 +1125,14 @@ class Interface(object):
                        "TUN/TAP interface {} might not have internet connection."
                        "".format(self.name, tap.name))
 
-  def _addSystemAddress(self, address, netmask, ipv6=True):
+  def _addSystemAddress(self, address, netmask, ipv6=True, tap=None):
     """Adds system address to interface
 
     Returns True if address was added successfully.
 
     Returns False if there was issue.
     """
+    
     if ipv6:
       address_string = '%s/%s' % (address, netmaskToPrefixIPv6(netmask))
       af = socket.AF_INET6
@@ -1113,6 +1145,9 @@ class Interface(object):
       address_string = '%s/%s' % (address, netmaskToPrefixIPv4(netmask))
       interface_name = self.name
 
+
+    if tap:
+      interface_name = tap.name
     # check if address is already took by any other interface
     for interface in netifaces.interfaces():
       if interface != interface_name:
@@ -1143,7 +1178,7 @@ class Interface(object):
     _, result = callAndRead(['ip', '-6', 'addr', 'list', interface_name])
     for l in result.split('\n'):
       if address in l:
-        if 'tentative' in l:
+        if 'tentative' in l and not tap:
           # duplicate, remove
           callAndRead(['ip', 'addr', 'del', address_string, 'dev', interface_name])
           return False
@@ -1186,7 +1221,7 @@ class Interface(object):
       # confirmed to be configured
       return dict(addr=addr, netmask=netmask)
 
-  def addAddr(self, addr=None, netmask=None):
+  def addAddr(self, addr=None, netmask=None, tap=None):
     """
     Adds IP address to interface.
 
@@ -1199,6 +1234,7 @@ class Interface(object):
     Args:
       addr: Wished address to be added to interface.
       netmask: Wished netmask to be used.
+      tap: tap interface 
 
     Returns:
       Tuple of (address, netmask).
@@ -1233,7 +1269,7 @@ class Interface(object):
           netmaskToPrefixIPv6(netmask)))
         if interface_network.network == requested_network.network:
           # same network, try to add
-          if self._addSystemAddress(addr, netmask):
+          if self._addSystemAddress(addr, netmask, tap=tap):
             # succeed, return it
             return dict(addr=addr, netmask=netmask)
           else:
@@ -1244,13 +1280,22 @@ class Interface(object):
     try_num = 10
     netmask = address_dict['netmask']
     while try_num > 0:
-      addr = ':'.join(address_dict['addr'].split(':')[:-1] + ['%x' % (
-        random.randint(1, 65000), )])
-      socket.inet_pton(socket.AF_INET6, addr)
+      if tap:
+        cut = -3
+        if "::" in address_dict['addr']:
+          cut = -2
+        
+        addr = ':'.join(address_dict['addr'].split(':')[:cut] + ['%x' % (
+          random.randint(1, 65000), )] + ["ff", "ff"])
+        netmask = "ffff:ffff:ffff:ffff:ffff:ffff::"
+      else:
+        addr = ':'.join(address_dict['addr'].split(':')[:-1] + ['%x' % (
+          random.randint(1, 65000), )])
+        socket.inet_pton(socket.AF_INET6, addr)
       if (dict(addr=addr, netmask=netmask) not in
-            self.getGlobalScopeAddressList()):
+            self.getGlobalScopeAddressList(tap=tap)):
         # Checking the validity of the IPv6 address
-        if self._addSystemAddress(addr, netmask):
+        if self._addSystemAddress(addr, netmask, tap=tap):
           return dict(addr=addr, netmask=netmask)
         try_num -= 1
 

@@ -162,6 +162,7 @@ def callAndRead(argument_list, raise_on_error=True):
 
 def isGlobalScopeAddress(a):
   """Returns True if a is global scope IP v4/6 address"""
+  logging.warning(a)
   ip = netaddr.IPAddress(a)
   return not ip.is_link_local() and not ip.is_loopback() and \
       not ip.is_reserved() and ip.is_unicast()
@@ -627,11 +628,23 @@ class Computer(object):
 
             if not partition.tap.ipv6_addr:
               ipv6_addr = self.interface.addAddr(tap=partition.tap)
-              import pdb;pdb.set_trace()
-              partition.tap.ipv6_addr = "" 
-              partition.tap.ipv6_netmask = ""
+              partition.tap.ipv6_addr = ipv6_addr["addr"] 
+              partition.tap.ipv6_netmask = ipv6_addr["netmask"]
               partition.tap.ipv6_gateway = ""
               partition.tap.ipv6_network = "" 
+
+            if not self.tap_gateway_interface:
+              # add an address
+              code, output = callAndRead(['ip', 'addr', 'add', "10.0.0.1/16", 'dev', self.interface.name],
+                              raise_on_error=False)
+              if code == 0:
+                # address added to the interface - wait
+                time.sleep(1)
+              elif (code == 2) and ("File exists" in output):
+                 time.sleep(1)
+              else:
+                raise RuntimeError("Cannot setup address on interface {}. "
+                         "Address is missing.".format(self.interface.name)) 
 
             partition.tap.createRoutes()
 
@@ -1284,7 +1297,7 @@ class Interface(object):
           cut = -2
         
         addr = ':'.join(address_dict['addr'].split(':')[:cut] + ['%x' % (
-          random.randint(1, 65000), )] + ["ff", "ff"])
+          int(tap.ipv4_addr.split(".")[-1]) + 10, )] + ["ff", "ff"])
         netmask = "ffff:ffff:ffff:ffff:ffff:ffff::"
       else:
         addr = ':'.join(address_dict['addr'].split(':')[:-1] + ['%x' % (
@@ -1296,7 +1309,9 @@ class Interface(object):
         if self._addSystemAddress(addr, netmask, tap=tap):
           return dict(addr=addr, netmask=netmask)
         try_num -= 1
-
+      elif tap is not None:
+        # Address is already set
+        return dict(addr=addr, netmask=netmask)
     raise AddressGenerationError(addr)
 
 

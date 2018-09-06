@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>email, subscription_reference, user_input_dict={}, batch_mode=True, REQUEST=None</string> </value>
+            <value> <string>email, name, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>_proxy_roles</string> </key>
@@ -63,7 +63,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SubscriptionRequestModule_requestSubscritptionProxy</string> </value>
+            <value> <string>SubscriptionRequest_createUser</string> </value>
         </item>
       </dictionary>
     </pickle>

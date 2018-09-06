@@ -50,20 +50,19 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>email, subscription_reference, user_input_dict={}, batch_mode=True, REQUEST=None</string> </value>
+            <value> <string>amount, tag, payment, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>_proxy_roles</string> </key>
             <value>
               <tuple>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SubscriptionRequestModule_requestSubscritptionProxy</string> </value>
+            <value> <string>SubscriptionRequest_createRelatedSaleInvoiceTransaction</string> </value>
         </item>
       </dictionary>
     </pickle>

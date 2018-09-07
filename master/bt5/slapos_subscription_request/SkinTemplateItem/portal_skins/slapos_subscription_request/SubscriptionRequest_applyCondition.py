@@ -2,10 +2,19 @@ from zExceptions import Unauthorized
 if REQUEST is not None:
   raise Unauthorized
 
-subscription_condition = context.portal_catalog(
-  portal_type="Subscription Condition",
-  reference=subscription_reference,
-  validation_state="validated")
+if subscription_condition_reference is not None:
+  # It would be better use some clever API here.
+  subscription_condition = context.portal_catalog.getResultValue(
+    portal_type="Subscription Condition",
+    reference=subscription_condition_reference,
+    validation_state="validated")
+else:
+  subscription_condition = context.getSpecialiseValue()
+
+if subscription_condition is None:
+  raise ValueError(
+    "It was not possible to find the appropriate Condition %s for this Subscription" \
+      % subscription_condition_reference)
 
 # Get Subscription condition for this Subscription Request
 subscription_configuration = {

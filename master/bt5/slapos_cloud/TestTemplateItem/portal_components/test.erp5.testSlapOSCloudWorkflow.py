@@ -2717,11 +2717,22 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
     self.person_user = self.makePerson()
     self.login(self.person_user.getUserId())
 
+    # Hosting Subscription required for security.
+    hs = self.portal.hosting_subscription_module.newContent(
+      portal_type='Hosting Subscription',
+      title="HS %s for %s" % (self.new_id, self.person_user.getReference()),
+      reference="TESTHS-%s" % self.new_id,
+      destination_reference="TESTHS-%s" % self.new_id,
+      destination_section=self.person_user.getRelativeUrl()
+      )
+
     instance = self.portal.software_instance_module.newContent(
       portal_type='Slave Instance',
       title="Instance %s for %s" % (self.new_id, self.person_user.getReference()),
       reference="TESTINST-%s" % self.new_id,
       destination_reference="TESTINST-%s" % self.new_id,
+      destination_section=self.person_user.getRelativeUrl(),
+      specialise_value=hs
       )
     request_kw = dict(
       software_release='http://example.org',
@@ -2730,6 +2741,7 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       sla_xml=self.generateSafeXml(),
       shared=True,
     )
+    self.commit()
     instance.requestStop(**request_kw)
     self.assertEqual(instance.getValidationState(), 'draft')
     instance.validate()

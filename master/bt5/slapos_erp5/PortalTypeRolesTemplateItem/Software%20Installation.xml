@@ -12,10 +12,9 @@
    <multi_property id='base_category'>group</multi_property>
   </role>
   <role id='Assignee'>
-   <property id='title'>Owner become Assignee</property>
-   <property id='description'>XXX Needed to allow doActionFor while creating the document</property>
-   <property id='base_category_script'>ERP5Type_acquireSecurityFromOwner</property>
+   <property id='title'>Provider of the Installation</property>
+   <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/user</multi_property>
-   <multi_property id='base_category'>source</multi_property>
+   <multi_property id='base_category'>destination_section</multi_property>
   </role>
 </type_roles>

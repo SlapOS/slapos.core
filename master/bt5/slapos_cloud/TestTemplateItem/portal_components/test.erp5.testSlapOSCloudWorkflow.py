@@ -2749,7 +2749,6 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       sla_xml=self.generateSafeXml(),
       shared=True,
     )
-    self.commit()
     instance.requestStop(**request_kw)
     self.assertEqual(instance.getValidationState(), 'draft')
     instance.validate()

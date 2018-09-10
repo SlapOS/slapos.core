@@ -2676,12 +2676,20 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
     self.person_user = self.makePerson()
     self.login(self.person_user.getUserId())
 
-    new_id = self.generateNewId()
+    # Hosting Subscription required for security.
+    hs = self.portal.hosting_subscription_module.newContent(
+      portal_type='Hosting Subscription',
+      title="HS %s for %s" % (self.new_id, self.person_user.getReference()),
+      reference="TESTHS-%s" % self.new_id,
+      destination_reference="TESTHS-%s" % self.new_id,
+      destination_section=self.person_user.getRelativeUrl()
+      )
 
     instance = self.portal.software_instance_module.newContent(
       portal_type=portal_type,
-      title="Instance %s for %s" % (new_id, self.person_user.getReference()),
-      reference="TESTINST-%s" % new_id)
+      title="Instance %s for %s" % (self.new_id, self.person_user.getReference()),
+      reference="TESTINST-%s" % self.new_id,
+      specialise_value=hs)
 
     if portal_type == "Software Instance":
       self._addERP5Login(instance)
@@ -2741,7 +2749,6 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       sla_xml=self.generateSafeXml(),
       shared=True,
     )
-    self.commit()
     instance.requestStop(**request_kw)
     self.assertEqual(instance.getValidationState(), 'draft')
     instance.validate()

@@ -40,14 +40,18 @@ import os
 import json
 import logging
 import re
-import urlparse
+try:
+  from urllib import parse as urlparse
+except ImportError:
+  import urlparse
+
 import hashlib
-from util import xml2dict
+from .util import xml2dict
 
 import netaddr
 from xml.sax import saxutils
-import zope.interface
-from interface import slap as interface
+from zope.interface import implementer
+from .interface import slap as interface
 from xml_marshaller import xml_marshaller
 
 from uritemplate import expand
@@ -114,11 +118,11 @@ class SlapRequester(SlapDocument):
     return computer_partition
 
 
+@implementer(interface.ISoftwareRelease)
 class SoftwareRelease(SlapDocument):
   """
   Contains Software Release information
   """
-  zope.interface.implements(interface.ISoftwareRelease)
 
   def __init__(self, software_release=None, computer_guid=None, **kw):
     """
@@ -129,8 +133,6 @@ class SoftwareRelease(SlapDocument):
     SlapDocument.__init__(self, kw.pop('connection_helper', None),
                                 kw.pop('hateoas_navigator', None))
     self._software_instance_list = []
-    if software_release is not None:
-      software_release = software_release.encode('UTF-8')
     self._software_release = software_release
     self._computer_guid = computer_guid
 
@@ -178,8 +180,8 @@ class SoftwareRelease(SlapDocument):
     return getattr(self, '_requested_state', 'available')
 
 
+@implementer(interface.ISoftwareProductCollection)
 class SoftwareProductCollection(object):
-  zope.interface.implements(interface.ISoftwareProductCollection)
 
   def __init__(self, logger, slap):
     self.logger = logger
@@ -201,11 +203,11 @@ class SoftwareProductCollection(object):
 
 
 # XXX What is this SoftwareInstance class?
+@implementer(interface.ISoftwareInstance)
 class SoftwareInstance(SlapDocument):
   """
   Contains Software Instance information
   """
-  zope.interface.implements(interface.ISoftwareInstance)
 
   def __init__(self, **kwargs):
     """
@@ -216,25 +218,27 @@ class SoftwareInstance(SlapDocument):
 
 
 """Exposed exceptions"""
+@implementer(interface.IResourceNotReady)
 class ResourceNotReady(Exception):
-  zope.interface.implements(interface.IResourceNotReady)
+  pass
 
+@implementer(interface.IServerError)
 class ServerError(Exception):
-  zope.interface.implements(interface.IServerError)
+  pass
 
+@implementer(interface.INotFoundError)
 class NotFoundError(Exception):
-  zope.interface.implements(interface.INotFoundError)
+  pass
 
 class AuthenticationError(Exception):
   pass
 
-
+@implementer(interface.IConnectionError)
 class ConnectionError(Exception):
-  zope.interface.implements(interface.IConnectionError)
+  pass
 
-
+@implementer(interface.ISupply)
 class Supply(SlapDocument):
-  zope.interface.implements(interface.ISupply)
 
   def supply(self, software_release, computer_guid=None, state='available'):
     try:
@@ -247,8 +251,8 @@ class Supply(SlapDocument):
           % computer_guid)
 
 
+@implementer(interface.IOpenOrder)
 class OpenOrder(SlapRequester):
-  zope.interface.implements(interface.IOpenOrder)
 
   def request(self, software_release, partition_reference,
               partition_parameter_kw=None, software_type=None,
@@ -319,8 +323,8 @@ def _syncComputerInformation(func):
   return decorated
 
 
+@implementer(interface.IComputer)
 class Computer(SlapDocument):
-  zope.interface.implements(interface.IComputer)
 
   def __init__(self, computer_id, connection_helper=None, hateoas_navigator=None):
     SlapDocument.__init__(self, connection_helper, hateoas_navigator)
@@ -391,8 +395,8 @@ def parsed_error_message(status, body, path):
     return 'Server responded with wrong code %s with %s' % (status, path)
 
 
+@implementer(interface.IComputerPartition)
 class ComputerPartition(SlapRequester):
-  zope.interface.implements(interface.IComputerPartition)
 
   def __init__(self, computer_id=None, partition_id=None,
                request_dict=None, connection_helper=None,
@@ -816,8 +820,8 @@ class ConnectionHelper:
 
 
 getHateoasUrl_cache = {}
+@implementer(interface.slap)
 class slap:
-  zope.interface.implements(interface.slap)
 
   def initializeConnection(self, slapgrid_uri,
                            key_file=None, cert_file=None,
@@ -879,15 +883,12 @@ class slap:
       # XXX-Cedric: should raise something smarter than NotFound
       raise NotFoundError
 
-    xml = self._connection_helper.GET('registerComputerPartition',
+    xml = bytes(self._connection_helper.GET('registerComputerPartition',
             params = {
                 'computer_reference': computer_guid,
                 'computer_partition_reference': partition_id,
                 }
-            )
-    if type(xml) is unicode:
-      xml = str(xml)
-      xml.encode('utf-8')
+            ))
     result = xml_marshaller.loads(xml)
     # XXX: dirty hack to make computer partition usable. xml_marshaller is too
     # low-level for our needs here.
@@ -922,10 +923,7 @@ class slap:
                              'software_release_url parameters are specified.')
       params['software_release_url'] = software_release_url
 
-    xml = self._connection_helper.GET(url, params=params)
-    if type(xml) is unicode:
-      xml = str(xml)
-      xml.encode('utf-8')
+    xml = bytes(self._connection_helper.GET(url, params=params))
     result = xml_marshaller.loads(xml)
     assert(type(result) == list)
     return result

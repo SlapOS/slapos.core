@@ -40,10 +40,7 @@ import os
 import json
 import logging
 import re
-try:
-  from urllib import parse as urlparse
-except ImportError:
-  import urlparse
+from six.moves.urllib import parse
 
 import hashlib
 from .util import xml2dict
@@ -680,7 +677,7 @@ def _addIpv6Brackets(url):
   # if master_url contains an ipv6 without bracket, add it
   # Note that this is mostly to limit specific issues with
   # backward compatiblity, not to ensure generic detection.
-  api_scheme, api_netloc, api_path, api_query, api_fragment = urlparse.urlsplit(url)
+  api_scheme, api_netloc, api_path, api_query, api_fragment = parse.urlsplit(url)
   try:
     ip = netaddr.IPAddress(api_netloc)
     port = None
@@ -694,7 +691,7 @@ def _addIpv6Brackets(url):
     api_netloc = '[%s]' % ip
     if port:
       api_netloc = '%s:%s' % (api_netloc, port)
-    url = urlparse.urlunsplit((api_scheme, api_netloc, api_path, api_query, api_fragment))
+    url = parse.urlunsplit((api_scheme, api_netloc, api_path, api_query, api_fragment))
   return url
 
 class ConnectionHelper:
@@ -738,7 +735,7 @@ class ConnectionHelper:
     return xml_marshaller.loads(xml)
 
   def do_request(self, method, path, params=None, data=None, headers=None):
-    url = urlparse.urljoin(self.slapgrid_uri, path)
+    url = parse.urljoin(self.slapgrid_uri, path)
     if headers is None:
       headers = {}
     headers.setdefault('Accept', '*/*')

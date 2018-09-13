@@ -28,7 +28,7 @@
 ##############################################################################
 
 import atexit
-import ConfigParser
+from six.moves import configparser
 import os
 import sys
 
@@ -52,7 +52,7 @@ class ClientConfig(object):
     # Merges the arguments and configuration
     try:
       configuration_dict = dict(configp.items('slapconsole'))
-    except ConfigParser.NoSectionError:
+    except configparser.NoSectionError:
       pass
     else:
       for key in configuration_dict:
@@ -119,7 +119,7 @@ def _getSoftwareReleaseFromSoftwareString(logger, software_string, product):
     try:
         return product.__getattr__(software_string[len(SOFTWARE_PRODUCT_NAMESPACE):])
     except AttributeError as e:
-       logger.error('Error: %s Exiting now.' % e.message)
+       logger.error('Error: %s Exiting now.', e)
        sys.exit(1)
 
 def do_console(local):

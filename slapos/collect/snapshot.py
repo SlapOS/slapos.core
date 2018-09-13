@@ -27,13 +27,16 @@
 #
 ##############################################################################
 
+from __future__ import print_function
 import psutil
 import os
 import subprocess
-from temperature import collectComputerTemperature, \
+from .temperature import collectComputerTemperature, \
                         launchTemperatureTest
 
-from temperature.heating import get_contribution_ratio
+from .temperature.heating import get_contribution_ratio
+
+import six
 
 MEASURE_INTERVAL = 5
 
@@ -159,7 +162,7 @@ class HeatingContributionSnapshot(_Snapshot):
     
     result = launchTemperatureTest(sensor_id)
     if result is None:
-      print "Impossible to test sensor: %s " % sensor_id
+      print("Impossible to test sensor: %s " % sensor_id)
       
 
     initial_temperature, final_temperature, duration = result 
@@ -215,8 +218,7 @@ class ComputerSnapshot(_Snapshot):
     #
     self.system_snapshot = SystemSnapshot()
     self.temperature_snapshot_list = self._get_temperature_snapshot_list()
-    self.disk_snapshot_list = []
-    self.partition_list = self._get_physical_disk_info()
+    self._get_physical_disk_info()
 
     if test_heating and model_id is not None \
                     and sensor_id is not None:
@@ -231,16 +233,16 @@ class ComputerSnapshot(_Snapshot):
     return temperature_snapshot_list
 
   def _get_physical_disk_info(self):
-    partition_dict = {}
+    # XXX: merge the following 2 to avoid calling disk_usage() twice
+    self.disk_snapshot_list = []
+    self.partition_list = []
+    partition_set = set()
 
     for partition in psutil.disk_partitions():
-      if partition.device not in partition_dict:
+      dev = partition.device
+      if dev not in partition_set: # XXX: useful ?
+        partition_set.add(dev)
         usage = psutil.disk_usage(partition.mountpoint)
-        partition_dict[partition.device] = usage.total
+        self.partition_list.append((dev, usage.total))
         self.disk_snapshot_list.append(
-          DiskPartitionSnapshot(partition.device, 
-                                partition.mountpoint))
-
-    return [(k, v) for k, v in partition_dict.iteritems()]
-
-  
+          DiskPartitionSnapshot(dev, partition.mountpoint))

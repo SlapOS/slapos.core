@@ -39,6 +39,7 @@ from slapos.cli.config import ConfigCommand
 from slapos.grid.slapgrid import create_slapgrid_object
 from slapos.grid.utils import updateFile, createPrivateDirectory
 from slapos.grid.svcbackend import launchSupervisord
+from slapos.util import bytes2str
 
 DEFAULT_COMPUTER_ID = 'local_computer'
 
@@ -126,8 +127,8 @@ def _replaceParameterValue(original_content, to_replace):
 
 def _generateSlaposNodeConfigurationFile(slapos_node_config_path, args):
     template_arg_list = (__name__, '../../slapos.cfg.example')
-    with pkg_resources.resource_stream(*template_arg_list) as fout:
-      slapos_node_configuration_template = fout.read()
+    slapos_node_configuration_template = \
+      bytes2str(pkg_resources.resource_string(*template_arg_list))
     master_url = 'http://%s:%s' % (args.daemon_listen_ip, args.daemon_listen_port)
     slapos_home = args.slapos_buildout_directory
     to_replace = [
@@ -149,12 +150,12 @@ def _generateSlaposNodeConfigurationFile(slapos_node_config_path, args):
         '(key_file|cert_file|certificate_repository_path).*=.*\n',
         '', slapos_node_configuration_content)
     with open(slapos_node_config_path, 'w') as fout:
-        fout.write(slapos_node_configuration_content.encode('utf8'))
+        fout.write(slapos_node_configuration_content)
 
 def _generateSlaposProxyConfigurationFile(conf):
     template_arg_list = (__name__, '../../slapos-proxy.cfg.example')
-    with pkg_resources.resource_stream(*template_arg_list) as fout:
-      slapos_proxy_configuration_template = fout.read()
+    slapos_proxy_configuration_template = \
+      bytes2str(pkg_resources.resource_string(*template_arg_list))
     slapos_proxy_configuration_path = os.path.join(
       conf.slapos_configuration_directory, 'slapos-proxy.cfg')
     listening_ip, listening_port = \
@@ -172,7 +173,7 @@ def _generateSlaposProxyConfigurationFile(conf):
         slapos_proxy_configuration_template, to_replace)
 
     with open(slapos_proxy_configuration_path, 'w') as fout:
-        fout.write(slapos_proxy_configuration_content.encode('utf8'))
+        fout.write(slapos_proxy_configuration_content)
 
     return slapos_proxy_configuration_path
 

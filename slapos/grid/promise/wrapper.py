@@ -32,16 +32,15 @@ import subprocess
 import functools
 import signal
 import traceback
-from zope import interface as zope_interface
+from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
 
+@implementer(interface.IPromise)
 class WrapPromise(GenericPromise):
   """
     A wrapper promise used to run old promises style and bash promises
   """
-
-  zope_interface.implements(interface.IPromise)
 
   def __init__(self, config):
     GenericPromise.__init__(self, config)

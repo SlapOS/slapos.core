@@ -34,8 +34,8 @@ import json
 import random
 import logging
 from datetime import datetime, timedelta
-import Queue
-from zope import interface as zope_interface
+import six
+from six.moves import queue
 from slapos.grid.promise import interface, PromiseLauncher, PromiseProcess, PromiseError
 from slapos.grid.promise.generic import (GenericPromise, TestResult, AnomalyResult,
                                          PromiseQueueResult, PROMISE_STATE_FOLDER_NAME,
@@ -59,7 +59,7 @@ class TestSlapOSPromiseMixin(unittest.TestCase):
   def writeInit(self):
     with open(os.path.join(self.plugin_dir, '__init__'), 'w') as f:
       f.write('')
-    os.chmod(os.path.join(self.plugin_dir, '__init__'), 0644)
+    os.chmod(os.path.join(self.plugin_dir, '__init__'), 0o644)
     if sys.path[0] != self.plugin_dir:
       sys.path[0:0] = [self.plugin_dir]
 
@@ -111,7 +111,7 @@ class TestSlapOSPromiseMixin(unittest.TestCase):
       'debug': False,
       'name': promise_name,
       'path': os.path.join(self.plugin_dir, promise_name),
-      'queue': Queue.Queue(),
+      'queue': queue.Queue(),
     }
 
   def createPromiseProcess(self, promise_name, check_anomaly=False, wrap=False):
@@ -128,20 +128,19 @@ class TestSlapOSPromiseMixin(unittest.TestCase):
       wrap=wrap,
     )
 
-  def writeFile(self, path, content, mode=0644):
+  def writeFile(self, path, content, mode=0o644):
     with open(path, 'w') as f:
       f.write(content)
     os.chmod(path, mode)
 
   def generatePromiseScript(self, name, success=True, failure_count=1, content="",
     periodicity=0.03):
-    promise_content = """from zope import interface as zope_interface
+    promise_content = """from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise import GenericPromise
 
+@implementer(interface.IPromise)
 class RunPromise(GenericPromise):
-
-  zope_interface.implements(interface.IPromise)
 
   def __init__(self, config):
     GenericPromise.__init__(self, config)
@@ -186,7 +185,9 @@ class TestSlapOSPromiseLauncher(TestSlapOSPromiseMixin):
 
     with self.assertRaises(ImportError) as exc:
       promise_module = promise_process._loadPromiseModule()
-    self.assertEquals(exc.exception.message, 'No module named my_promise_no_py')
+    self.assertEqual(str(exc.exception), 'No module named %s' %
+                                          ("'%s'" % promise_name if six.PY3 else
+                                           promise_name))
 
   def test_promise_match_interface_no_implement(self):
     promise_name = 'my_promise_noimplement.py'
@@ -208,18 +209,17 @@ class RunPromise(GenericPromise):
 
     with self.assertRaises(RuntimeError) as exc:
       promise_module = promise_process._loadPromiseModule()
-    message = "RunPromise class in my_promise_noimplement.py must implements" \
-      " 'IPromise' interface. zope_interface.implements(interface.IPromise) is missing ?"
-    self.assertEquals(exc.exception.message, message)
+    message = "RunPromise class in my_promise_noimplement.py must implement" \
+      " 'IPromise' interface. @implementer(interface.IPromise) is missing ?"
+    self.assertEqual(str(exc.exception), message)
 
   def test_promise_match_interface_no_generic(self):
     promise_name = 'my_promise_nogeneric.py'
-    promise_content = """from zope import interface as zope_interface
+    promise_content = """from zope.interface import implementer
 from slapos.grid.promise import interface
 
+@implementer(interface.IPromise)
 class RunPromise(object):
-
-  zope_interface.implements(interface.IPromise)
 
   def __init__(self, config):
     pass
@@ -236,17 +236,16 @@ class RunPromise(object):
     with self.assertRaises(RuntimeError) as exc:
       promise_module = promise_process._loadPromiseModule()
 
-    self.assertEquals(exc.exception.message, 'RunPromise class is not a subclass of GenericPromise class.')
+    self.assertEqual(str(exc.exception), 'RunPromise class is not a subclass of GenericPromise class.')
 
   def test_promise_match_interface_no_sense(self):
     promise_name = 'my_promise_nosense.py'
-    promise_content = """from zope import interface as zope_interface
+    promise_content = """from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise import GenericPromise
 
+@implementer(interface.IPromise)
 class RunPromise(GenericPromise):
-
-  zope_interface.implements(interface.IPromise)
 
   def __init__(self, config):
     pass
@@ -263,22 +262,21 @@ class RunPromise(GenericPromise):
     with self.assertRaises(TypeError) as exc:
       promise_module = promise_process._loadPromiseModule()
       promise = promise_module.RunPromise({})
-    self.assertEquals(exc.exception.message,
+    self.assertEqual(str(exc.exception),
       "Can't instantiate abstract class RunPromise with abstract methods sense")
 
   def test_promise_extra_config(self):
     promise_name = 'my_promise_extra.py'
     config_dict = {'foo': 'bar', 'my-config': 4522111,
                    'text': 'developers \ninformation, sample\n\ner'}
-    promise_content = """from zope import interface as zope_interface
+    promise_content = """from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise import GenericPromise
 
 %(config_name)s = %(config_content)s
 
+@implementer(interface.IPromise)
 class RunPromise(GenericPromise):
-
-  zope_interface.implements(interface.IPromise)
 
   def sense(self):
     pass
@@ -299,15 +297,14 @@ class RunPromise(GenericPromise):
   def test_promise_extra_config_reserved_name(self):
     promise_name = 'my_promise_extra.py'
     config_dict = {'name': 'bar', 'my-config': 4522111}
-    promise_content = """from zope import interface as zope_interface
+    promise_content = """from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise import GenericPromise
 
 %(config_name)s = %(config_content)s
 
+@implementer(interface.IPromise)
 class RunPromise(GenericPromise):
-
-  zope_interface.implements(interface.IPromise)
 
   def sense(self):
     pass
@@ -321,7 +318,7 @@ class RunPromise(GenericPromise):
 
     with self.assertRaises(ValueError) as exc:
       promise_module = promise_process._loadPromiseModule()
-    self.assertEquals(exc.exception.message, "Extra parameter name 'name' cannot be used.\n%s" % config_dict)
+    self.assertEqual(str(exc.exception), "Extra parameter name 'name' cannot be used.\n%s" % config_dict)
 
   def test_runpromise(self):
     promise_name = 'my_promise.py'
@@ -540,7 +537,7 @@ class RunPromise(GenericPromise):
     # run promise will fail when promise fail (usefull for slapgrid)
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run()
-    self.assertEquals(exc.exception.message, 'Promise %r failed.' % second_promise)
+    self.assertEqual(str(exc.exception), 'Promise %r failed.' % second_promise)
 
     # force to reload the module without rerun python
     os.system('rm %s/*.pyc' % self.plugin_dir)
@@ -643,7 +640,7 @@ class RunPromise(GenericPromise):
 
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run()
-    self.assertEquals(exc.exception.message, 'Promise %r failed.' % second_promise)
+    self.assertEqual(str(exc.exception), 'Promise %r failed.' % second_promise)
 
     self.assertTrue(os.path.exists(first_state_file))
     self.assertTrue(os.path.exists(second_state_file))
@@ -658,7 +655,7 @@ class RunPromise(GenericPromise):
     time.sleep(2)
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run() # only my_first_promise will run but second_promise still failing
-    self.assertEquals(exc.exception.message, 'Promise %r failed.' % second_promise)
+    self.assertEqual(str(exc.exception), 'Promise %r failed.' % second_promise)
 
     first_result = json.load(open(first_state_file))
     second_result = json.load(open(second_state_file))
@@ -670,7 +667,7 @@ class RunPromise(GenericPromise):
     self.configureLauncher()
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run()
-    self.assertEquals(exc.exception.message, 'Promise %r failed.' % second_promise)
+    self.assertEqual(str(exc.exception), 'Promise %r failed.' % second_promise)
 
     first_result = json.load(open(first_state_file))
     second_result = json.load(open(second_state_file))
@@ -693,7 +690,7 @@ class RunPromise(GenericPromise):
 
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run()
-    self.assertEquals(exc.exception.message, 'Promise %r failed.' % second_promise)
+    self.assertEqual(str(exc.exception), 'Promise %r failed.' % second_promise)
 
     self.assertTrue(os.path.exists(first_state_file))
     self.assertTrue(os.path.exists(second_state_file))
@@ -708,7 +705,7 @@ class RunPromise(GenericPromise):
     time.sleep(2)
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run() # only my_first_promise will run but second_promise still failing
-    self.assertEquals(exc.exception.message, 'Promise %r failed.' % second_promise)
+    self.assertEqual(str(exc.exception), 'Promise %r failed.' % second_promise)
 
     first_result = json.load(open(first_state_file))
     second_result = json.load(open(second_state_file))
@@ -781,7 +778,7 @@ class RunPromise(GenericPromise):
       f.write("""#!/bin/bash
 echo "success"
 """)
-    os.chmod(promise_path, 0744)
+    os.chmod(promise_path, 0o744)
 
     def test_method(result):
       self.called = True
@@ -810,13 +807,13 @@ echo "success"
 echo "This promise failed"
 exit 1
 """)
-    os.chmod(promise_path, 0744)
+    os.chmod(promise_path, 0o744)
 
     self.configureLauncher()
     state_file = os.path.join(self.partition_dir, PROMISE_STATE_FOLDER_NAME)
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run()
-    self.assertEquals(exc.exception.message, 'Promise %r failed.' % promise_name)
+    self.assertEqual(str(exc.exception), 'Promise %r failed.' % promise_name)
 
   def test_runpromise_wrapped_mixed(self):
     self.called = 0
@@ -841,13 +838,13 @@ exit 1
 echo "promise 1 succeeded"
 exit 0
 """)
-    os.chmod(promise_path, 0744)
+    os.chmod(promise_path, 0o744)
     with open(promise_path2, 'w') as f:
       f.write("""#!/bin/bash
 echo "promise 2 succeeded"
 exit 0
 """)
-    os.chmod(promise_path2, 0744)
+    os.chmod(promise_path2, 0o744)
     self.generatePromiseScript("first_promise.py", success=True)
     self.generatePromiseScript("second_promise.py", success=True)
 
@@ -989,7 +986,7 @@ exit 0
 sleep 20
 echo "success"
 """)
-    os.chmod(promise_path, 0744)
+    os.chmod(promise_path, 0o744)
 
     def test_method(result):
       self.called = True
@@ -1025,7 +1022,7 @@ sleep 20
 echo "success"
 exit 1
 """)
-      os.chmod(promise_path, 0744)
+      os.chmod(promise_path, 0o744)
 
     createPromise(first_promise_path)
     createPromise(second_promise_path)
@@ -1073,7 +1070,7 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     self.configureLauncher()
     self.generatePromiseScript(self.promise_name, periodicity=1, content=promise_content, success=success)
     self.writeInit()
-    self.queue = Queue.Queue()
+    self.queue = queue.Queue()
     self.promise_config = {
       'log-folder': self.log_dir,
       'partition-folder': self.partition_dir,

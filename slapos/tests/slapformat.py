@@ -26,6 +26,8 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
+from __future__ import print_function
+
 import glob
 import logging
 import slapos.format
@@ -45,6 +47,8 @@ import time
 import mock
 
 from .slapgrid import DummyManager
+
+import six
 
 USER_LIST = []
 GROUP_LIST = []
@@ -86,7 +90,7 @@ class FakeCallAndRead:
     retval = 0, 'UP'
     global INTERFACE_DICT
     if 'useradd' in argument_list:
-      print argument_list
+      print(argument_list)
       global USER_LIST
       username = argument_list[-1]
       if username == '-r':
@@ -132,7 +136,7 @@ class LoggableWrapper:
 
   def __call__(self, *args, **kwargs):
     arg_list = [repr(x) for x in args] + [
-      '%s=%r' % (x, y) for x, y in kwargs.iteritems()]
+      '%s=%r' % (x, y) for x, y in six.iteritems(kwargs)]
     self.__logger.debug('%s(%s)' % (self.__name, ', '.join(arg_list)))
 
 

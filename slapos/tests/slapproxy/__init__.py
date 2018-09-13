@@ -28,7 +28,8 @@
 #
 ##############################################################################
 
-import ConfigParser
+import six
+from six.moves import configparser
 import os
 import logging
 import shutil
@@ -45,7 +46,7 @@ import slapos.proxy
 import slapos.proxy.views as views
 import slapos.slap
 import slapos.slap.slap
-from slapos.util import sqlite_connect
+from slapos.util import sqlite_connect, bytes2str
 
 import sqlite3
 import pkg_resources
@@ -77,7 +78,8 @@ class BasicMixin(object):
     self.startProxy()
 
   def createSlapOSConfigurationFile(self):
-    open(self.slapos_cfg, 'w').write("""[slapos]
+    with open(self.slapos_cfg, 'w') as f:
+      f.write("""[slapos]
 software_root = %(tempdir)s/opt/slapgrid
 instance_root = %(tempdir)s/srv/slapgrid
 master_url = %(proxyaddr)s
@@ -106,7 +108,7 @@ database_uri = %(tempdir)s/lib/proxy.db
     Set config for slapproxy and start it
     """
     conf = slapos.proxy.ProxyConfig(logger=logging.getLogger())
-    configp = ConfigParser.SafeConfigParser()
+    configp = configparser.SafeConfigParser()
     configp.read(self.slapos_cfg)
     conf.mergeConfig(ProxyOption(self.proxy_db), configp)
     conf.setConfig()
@@ -1006,7 +1008,8 @@ class TestMultiMasterSupport(MasterMixin):
     super(TestMultiMasterSupport, self).tearDown()
 
   def createExternalProxyConfigurationFile(self):
-    open(self.external_slapproxy_configuration_file_location, 'w').write("""[slapos]
+    with open(self.external_slapproxy_configuration_file_location, 'w') as f:
+      f.write("""[slapos]
 computer_id = %(external_computer_id)s
 [slapproxy]
 host = %(host)s
@@ -1040,7 +1043,7 @@ database_uri = %(tempdir)s/lib/external_proxy.db
         self.external_proxy_slap._connection_helper.GET('/')
       except slapos.slap.NotFoundError:
         break
-      except slapos.slap.ConnectionError, socket.error:
+      except (slapos.slap.ConnectionError, socket.error):
         attempts = attempts + 1
         time.sleep(0.1)
     else:
@@ -1054,9 +1057,9 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     Overwrite default slapos configuration file to enable specific multimaster
     behaviours.
     """
-    configuration = pkg_resources.resource_stream(
+    configuration = bytes2str(pkg_resources.resource_string(
         'slapos.tests.slapproxy', 'slapos_multimaster.cfg.in'
-    ).read() % {
+    )) % {
         'tempdir': self._tempdir, 'proxyaddr': self.proxyaddr,
         'external_proxy_host': self.external_proxy_host,
         'external_proxy_port': self.external_proxy_port
@@ -1121,7 +1124,7 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     external_slap.initializeConnection(self.external_master_url)
     external_computer = external_slap.registerComputer(self.external_computer_id)
     external_partition = external_computer.getComputerPartitionList()[0]
-    for k, v in partition_parameter_kw.iteritems():
+    for k, v in six.iteritems(partition_parameter_kw):
       self.assertEqual(
           external_partition.getInstanceParameter(k),
           v
@@ -1146,7 +1149,7 @@ database_uri = %(tempdir)s/lib/external_proxy.db
         '/getFullComputerInformation?computer_id=%s' % self.computer_id
     ).data)
     partition = computer._computer_partition_list[0]
-    for k, v in partition_parameter_kw.iteritems():
+    for k, v in six.iteritems(partition_parameter_kw):
       self.assertEqual(
           partition.getInstanceParameter(k),
           v
@@ -1251,7 +1254,7 @@ database_uri = %(tempdir)s/lib/external_proxy.db
         '/getFullComputerInformation?computer_id=%s' % self.computer_id
     ).data)
     partition = computer._computer_partition_list[0]
-    for k, v in dummy_parameter_dict.iteritems():
+    for k, v in six.iteritems(dummy_parameter_dict):
       self.assertEqual(
           partition.getInstanceParameter(k),
           v
@@ -1271,8 +1274,10 @@ class TestMigrateVersion10To11(TestInformation, TestRequest, TestSlaveRequest, T
   """
   def setUp(self):
     super(TestMigrateVersion10To11, self).setUp()
-    schema = pkg_resources.resource_stream('slapos.tests.slapproxy', 'database_dump_version_10.sql')
-    schema = schema.read() % dict(version='11')
+    schema = bytes2str(pkg_resources.resource_string(
+      'slapos.tests.slapproxy',
+      'database_dump_version_10.sql'
+    )) % dict(version='11')
     self.db = sqlite_connect(self.proxy_db)
     self.db.cursor().executescript(schema)
     self.db.commit()

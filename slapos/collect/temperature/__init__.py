@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 from multiprocessing import Process, active_children, cpu_count, Pipe
 import subprocess
@@ -14,28 +15,21 @@ except NotImplementedError:
     DEFAULT_CPU = 1
 
 def collectComputerTemperature(sensor_bin="sensors"):
-  cmd = ["%s -u" % sensor_bin]
-  
-  sp = subprocess.Popen(cmd, stdout=subprocess.PIPE, 
-                        stderr=subprocess.PIPE, shell=True)
-  
-  stdout, stderr = sp.communicate()
-  
+  stdout = subprocess.check_output((sensor_bin, '-u'), universal_newlines=True)
+
   sensor_output_list = stdout.splitlines()
   adapter_name = ""
   
   sensor_temperature_list = []
-  for line_number in range(len(sensor_output_list)):
-    found_sensor = None
-    stripped_line = sensor_output_list[line_number].strip()
+  for line_number, sensor_output in enumerate(sensor_output_list):
+    stripped_line = sensor_output.strip()
     if stripped_line.startswith("Adapter:"):
       adapter_name = sensor_output_list[line_number-1]
    
     elif stripped_line.startswith("temp") and "_input" in stripped_line:
-      temperature = sensor_output_list[line_number].split()[-1] 
+      temperature = sensor_output.split()[-1]
       found_sensor = ["%s %s" % (adapter_name, sensor_output_list[line_number-1]), float(temperature)]
   
-    if found_sensor is not None:
       critical = '1000'
       maximal = '1000'
       for next_line in sensor_output_list[line_number+1:line_number+3]:
@@ -120,7 +114,7 @@ def launchTemperatureTest(sensor_id, sensor_bin="sensors", timeout=600, interval
 
   for connection in process_connection_list:
     try:
-      print connection.recv()
+      print(connection.recv())
     except EOFError:
       continue
 

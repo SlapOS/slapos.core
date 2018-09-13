@@ -38,13 +38,13 @@ import tempfile
 import textwrap
 import time
 import unittest
-import urlparse
+from six.moves.urllib import parse
 import json
 import re
 
 import xml_marshaller
 from mock import patch
-from zope import interface
+from zope.interface import implementer
 
 import slapos.slap.slap
 import slapos.grid.utils
@@ -113,7 +113,7 @@ class BasicMixin(object):
     self.manager_list = []
     self.software_root = os.path.join(self._tempdir, 'software')
     self.instance_root = os.path.join(self._tempdir, 'instance')
-    if os.environ.has_key('SLAPGRID_INSTANCE_ROOT'):
+    if 'SLAPGRID_INSTANCE_ROOT' in os.environ:
       del os.environ['SLAPGRID_INSTANCE_ROOT']
     logging.basicConfig(level=logging.DEBUG)
     self.setSlapgrid()
@@ -314,9 +314,9 @@ class ComputerForTest(object):
     """
     self.sequence.append(url.path)
     if req.method == 'GET':
-      qs = urlparse.parse_qs(url.query)
+      qs = parse.parse_qs(url.query)
     else:
-      qs = urlparse.parse_qs(req.body)
+      qs = parse.parse_qs(req.body)
     if (url.path == '/getFullComputerInformation'
             and 'computer_id' in qs):
       slap_computer = self.getComputer(qs['computer_id'][0])
@@ -549,9 +549,8 @@ touch worked"""):
       fout.write(str(periodicity))
 
 
+@implementer(IManager)
 class DummyManager(object):
-  interface.implements(IManager)
-
   def __init__(self):
     self.sequence = []
 
@@ -2151,8 +2150,8 @@ echo "ERROR: $var"
 exit 1
 """)
 
-    os.chmod(self.firewall_cmd_add, 0755)
-    os.chmod(self.firewall_cmd_remove, 0755)
+    os.chmod(self.firewall_cmd_add, 0o755)
+    os.chmod(self.firewall_cmd_remove, 0o755)
 
     firewall_conf= dict(
       authorized_sources=source_ip,
@@ -2543,7 +2542,7 @@ exit 0
       os.makedirs(pre_delete_dir, 0o700)
       with open(pre_delete_script, 'w') as f:
         f.write(self.prerm_script_content)
-      os.chmod(pre_delete_script, 0754)
+      os.chmod(pre_delete_script, 0o754)
       self.assertInstanceDirectoryListEqual(['0'])
       self.assertItemsEqual(os.listdir(partition.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
@@ -2593,7 +2592,7 @@ exit 0
       os.makedirs(pre_delete_dir, 0o700)
       with open(pre_delete_script, 'w') as f:
         f.write(self.prerm_script_content)
-      os.chmod(pre_delete_script, 0754)
+      os.chmod(pre_delete_script, 0o754)
       self.assertTrue(os.path.exists(pre_delete_script))
 
       manager_list = slapmanager.from_config({'manager_list': 'prerm'})
@@ -2640,7 +2639,7 @@ exit 0
       os.makedirs(pre_delete_dir, 0o700)
       with open(pre_delete_script, 'w') as f:
         f.write(self.prerm_script_content)
-      os.chmod(pre_delete_script, 0754)
+      os.chmod(pre_delete_script, 0o754)
       self.assertEqual(partition.state, 'started')
       manager_list = slapmanager.from_config({'manager_list': 'prerm'})
       self.grid._manager_list = manager_list
@@ -2675,7 +2674,7 @@ exit 0
       os.makedirs(pre_delete_dir, 0o700)
       with open(pre_delete_script, 'w') as f:
         f.write(self.prerm_script_content)
-      os.chmod(pre_delete_script, 0754)
+      os.chmod(pre_delete_script, 0o754)
 
       manager_list = slapmanager.from_config({'manager_list': 'prerm'})
       self.grid._manager_list = manager_list

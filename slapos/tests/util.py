@@ -65,9 +65,9 @@ class TestUtil(unittest.TestCase):
     wanted_directory0 = os.path.join(root_slaptest, 'slap-write0')
     wanted_directory1 = os.path.join(root_slaptest, 'slap-write0', 'write-slap1')
     wanted_directory2 = os.path.join(root_slaptest, 'slap-write0', 'write-slap1', 'write-teste2')
-    wanted_directory_mkdir0 = os.makedirs(wanted_directory0, mode=0777)
-    wanted_directory_mkdir1 = os.makedirs(wanted_directory1, mode=0777)
-    wanted_directory_mkdir2 = os.makedirs(wanted_directory2, mode=0777)
+    wanted_directory_mkdir0 = os.makedirs(wanted_directory0, mode=0o777)
+    wanted_directory_mkdir1 = os.makedirs(wanted_directory1, mode=0o777)
+    wanted_directory_mkdir2 = os.makedirs(wanted_directory2, mode=0o777)
     create_file_txt = tempfile.mkstemp(suffix='.txt', prefix='tmp', dir=wanted_directory2, text=True)
     user = 'nobody'
     try:
@@ -109,23 +109,14 @@ class TestUtil(unittest.TestCase):
     shutil.rmtree(root_slaptest)
 
   def test_string_to_boolean_with_true_values(self):
-    """
-    Check that mkdir_p doesn't raise if directory already exist.
-    """
     for value in ['true', 'True', 'TRUE']:
       self.assertTrue(string_to_boolean(value))
 
   def test_string_to_boolean_with_false_values(self):
-    """
-    Check that mkdir_p doesn't raise if directory already exist.
-    """
     for value in ['false', 'False', 'False']:
       self.assertFalse(string_to_boolean(value))
 
   def test_string_to_boolean_with_incorrect_values(self):
-    """
-    Check that mkdir_p doesn't raise if directory already exist.
-    """
     for value in [True, False, 1, '1', 't', 'tru', 'truelle', 'f', 'fals', 'falsey']:
       self.assertRaises(ValueError, string_to_boolean, value)
 

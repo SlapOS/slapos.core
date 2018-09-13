@@ -161,8 +161,8 @@ class GenericPromise(object):
       self.logger.removeHandler(handler)
     if self.__log_folder is None:
       # configure logger with StringIO
-      import cStringIO
-      self.__logger_buffer = cStringIO.StringIO()
+      from six.moves import cStringIO
+      self.__logger_buffer = cStringIO()
       logger_handler = logging.StreamHandler(self.__logger_buffer)
       self.__log_file = None
     else:
@@ -230,9 +230,9 @@ class GenericPromise(object):
     """
       Call bang if requested
     """
-    if self.__config.has_key('master-url') and \
-        self.__config.has_key('partition-id') and \
-        self.__config.has_key('computer-id'):
+    if 'master-url' in self.__config and \
+       'partition-in' in self.__config and \
+       'computer-id' in self.__config:
 
       slap = slapos.slap.slap()
       slap.initializeConnection(
@@ -410,7 +410,7 @@ class GenericPromise(object):
       try:
         self.__queue.put_nowait(result_item)
         break
-      except Queue.Full, e:
+      except Queue.Full as e:
         error = e
         time.sleep(0.5)
     if error:
@@ -459,7 +459,7 @@ class GenericPromise(object):
     """
     try:
       self.sense()
-    except Exception, e:
+    except Exception as e:
       # log the result
       self.logger.error(str(e))
     if check_anomaly:
@@ -468,7 +468,7 @@ class GenericPromise(object):
         result = self.anomaly()
         if result is None:
           raise ValueError("Promise anomaly method returned 'None'")
-      except Exception, e:
+      except Exception as e:
         result = AnomalyResult(problem=True, message=str(e))
       else:
         if isinstance(result, AnomalyResult) and result.hasFailed() and can_bang:
@@ -482,7 +482,7 @@ class GenericPromise(object):
         result = self.test()
         if result is None:
           raise ValueError("Promise test method returned 'None'")
-      except Exception, e:
+      except Exception as e:
         result = TestResult(problem=True, message=str(e))
 
     if self.__logger_buffer is not None:

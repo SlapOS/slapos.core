@@ -11,6 +11,7 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
+from __future__ import print_function
 
 import ast
 import json
@@ -29,10 +30,10 @@ try:
     else:
         LIBNETWORKCACHE_ENABLED = True
 except:
-    print 'There was problem while trying to import slapos.libnetworkcache:'\
-        '\n%s' % traceback.format_exc()
+    print('There was problem while trying to import slapos.libnetworkcache:\n%s'
+          % traceback.format_exc())
     LIBNETWORKCACHE_ENABLED = False
-    print 'Networkcache forced to be disabled.'
+    print('Networkcache forced to be disabled.')
 
 
 
@@ -45,8 +46,8 @@ def fallback_call(function):
         try:
             return function(self, *args, **kwd)
         except: # indeed, *any* exception is swallowed
-            print 'There was problem while calling method %r:\n%s' % (
-                function.__name__, traceback.format_exc())
+            print('There was problem while calling method %r:\n%s' % (
+                function.__name__, traceback.format_exc()))
             return False
     wrapper.__doc__ = function.__doc__
     return wrapper
@@ -107,7 +108,7 @@ def download_network_cached(cache_url, dir_url, software_url, software_root,
                 f.close()
                 file_descriptor.close()
             return True
-    except (IOError, DirectoryNotFound), e:
+    except (IOError, DirectoryNotFound) as e:
         logger.info('Failed to download from network cache %s: %s' % \
                                                        (software_url, str(e)))
     return False
@@ -169,7 +170,7 @@ def upload_network_cached(software_root, software_url, cached_key,
 
     try:
         return nc.upload_generic(f, cached_key, **kw)
-    except (IOError, UploadError), e:
+    except (IOError, UploadError) as e:
         logger.info('Failed to upload file. %s' % (str(e)))
         return False
     finally:

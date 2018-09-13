@@ -27,6 +27,7 @@
 #
 ##############################################################################
 
+from __future__ import print_function
 from psutil import process_iter, NoSuchProcess, AccessDenied
 from time import strftime
 import shutil
@@ -42,7 +43,7 @@ from slapos.collect.reporter import RawCSVDumper, \
                                     compressLogFolder, \
                                     ConsumptionReport 
 
-from entity import get_user_list, Computer
+from .entity import get_user_list, Computer
 
 def _get_time():
   return strftime("%Y-%m-%d -- %H:%M:%S").split(" -- ")
@@ -157,5 +158,5 @@ def do_collect(conf):
     database.garbageCollect()
 
   except AccessDenied:
-    print "You HAVE TO execute this script with root permission."
+    print("You HAVE TO execute this script with root permission.")
 

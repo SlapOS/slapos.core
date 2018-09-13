@@ -5,8 +5,8 @@ import netaddr
 import os
 
 from .interface import IManager
-from itertools import ifilter
-from zope import interface
+from six.moves import filter
+from zope.interface import implementer
 
 logger = logging.getLogger(__name__)
 
@@ -22,9 +22,8 @@ def which(exename):
       return full_path
   return None
 
+@implementer(IManager)
 class Manager(object):
-  interface.implements(IManager)
-
   port_redirect_filename = '.slapos-port-redirect'
 
   def __init__(self, config):
@@ -88,7 +87,7 @@ class Manager(object):
       'full_ip_list', [])
     partition_ip_list = [tup[1] for tup in partition_ip_list]
 
-    partition_ipv6 = next(ifilter(lambda ip_addr: ':' in ip_addr,
+    partition_ipv6 = next(filter(lambda ip_addr: ':' in ip_addr,
                                  partition_ip_list),
                           None)
 

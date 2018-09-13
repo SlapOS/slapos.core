@@ -84,16 +84,9 @@ def string_to_boolean(string):
 
   The parser is completely arbitrary, see code for actual implementation.
   """
-  if not isinstance(string, str) and not isinstance(string, unicode):
-    raise ValueError('Given value is not a string.')
-  acceptable_true_values = ['true']
-  acceptable_false_values = ['false']
-  string = string.lower()
-  if string in acceptable_true_values:
-    return True
-  if string in acceptable_false_values:
-    return False
-  else:
+  try:
+    return ('false', 'true').index(string.lower())
+  except Exception:
     raise ValueError('%s is neither True nor False.' % string)
 
 
@@ -104,3 +97,15 @@ def sqlite_connect(dburi, timeout=None):
   conn = sqlite3.connect(dburi, **connect_kw)
   conn.text_factory = str       # allow 8-bit strings
   return conn
+
+
+if str is bytes:
+  def bytes2str(s):
+    return s
+  def unicode2str(s):
+    return s.encode('utf-8')
+else:
+  def bytes2str(s):
+    return s.decode()
+  def unicode2str(s):
+    return s

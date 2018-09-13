@@ -28,7 +28,7 @@
 #
 ##############################################################################
 
-import ConfigParser
+from six.moves import configparser
 import errno
 import fcntl
 import grp
@@ -51,7 +51,7 @@ import time
 import traceback
 import zipfile
 import platform
-from urllib2 import urlopen
+from six.moves.urllib.request import urlopen
 
 import lxml.etree
 import xml_marshaller.xml_marshaller
@@ -1304,7 +1304,7 @@ class Interface(object):
 
 def parse_computer_definition(conf, definition_path):
   conf.logger.info('Using definition file %r' % definition_path)
-  computer_definition = ConfigParser.RawConfigParser({
+  computer_definition = configparser.RawConfigParser({
     'software_user': 'slapsoft',
   })
   computer_definition.read(definition_path)
@@ -1415,7 +1415,7 @@ def parse_computer_xml(conf, xml_path):
 
 
 def write_computer_definition(conf, computer):
-  computer_definition = ConfigParser.RawConfigParser()
+  computer_definition = configparser.RawConfigParser()
   computer_definition.add_section('computer')
   if computer.address is not None and computer.netmask is not None:
     computer_definition.set('computer', 'address', '/'.join(

@@ -40,6 +40,8 @@ import tarfile
 import time
 import psutil
 
+import six
+
 log_file = False
 
 class Dumper(object):
@@ -59,10 +61,10 @@ class SystemReporter(Dumper):
     """ Dump data """
     _date = time.strftime("%Y-%m-%d")
     self.db.connect()
-    for item, collected_item_list in self.db.exportSystemAsDict(_date).iteritems():
+    for item, collected_item_list in six.iteritems(self.db.exportSystemAsDict(_date)):
       self.writeFile(item, folder, collected_item_list)
 
-    for partition, collected_item_list in self.db.exportDiskAsDict(_date).iteritems():
+    for partition, collected_item_list in six.iteritems(self.db.exportDiskAsDict(_date)):
       partition_id = "_".join(partition.split("-")[:-1]).replace("/", "_")
       item = "memory_%s" % partition.split("-")[-1]
       self.writeFile("disk_%s_%s" % (item, partition_id), folder, collected_item_list)
@@ -135,62 +137,53 @@ class ConsumptionReportBase(object):
 
   def getPartitionCPULoadAverage(self, partition_id, date_scope):
     self.db.connect()
-    query_result_cursor = self.db.select("user", date_scope,
+    (cpu_percent_sum,), = self.db.select("user", date_scope,
                        columns="SUM(cpu_percent)", 
                        where="partition = '%s'" % partition_id)
 
-    cpu_percent_sum = zip(*query_result_cursor)
-    if len(cpu_percent_sum) and cpu_percent_sum[0][0] is None:
+    if cpu_percent_sum is None:
       return
 
-    query_result_cursor = self.db.select("user", date_scope,
+    (sample_amount,), = self.db.select("user", date_scope,
                        columns="COUNT(DISTINCT time)", 
                        where="partition = '%s'" % partition_id)
 
-    sample_amount = zip(*query_result_cursor)
     self.db.close()
 
-    if len(sample_amount) and len(cpu_percent_sum):
-      return cpu_percent_sum[0][0]/sample_amount[0][0]
+    return cpu_percent_sum/sample_amount
 
   def getPartitionUsedMemoryAverage(self, partition_id, date_scope):
     self.db.connect()
-    query_result_cursor = self.db.select("user", date_scope,
+    (memory_sum,), = self.db.select("user", date_scope,
                        columns="SUM(memory_rss)", 
                        where="partition = '%s'" % partition_id)
 
-    memory_sum = zip(*query_result_cursor)
-    if len(memory_sum) and memory_sum[0][0] is None:
+    if memory_sum is None:
       return
 
-    query_result_cursor = self.db.select("user", date_scope,
+    (sample_amount,), = self.db.select("user", date_scope,
                        columns="COUNT(DISTINCT time)", 
                        where="partition = '%s'" % partition_id)
 
-    sample_amount = zip(*query_result_cursor)
     self.db.close()
 
-    if len(sample_amount) and len(memory_sum):
-      return memory_sum[0][0]/sample_amount[0][0]
+    return memory_sum/sample_amount
 
   def getPartitionDiskUsedAverage(self, partition_id, date_scope):
     self.db.connect()
-    query_result_cursor = self.db.select("folder", date_scope,
+    (disk_used_sum,), = self.db.select("folder", date_scope,
                        columns="SUM(disk_used)", 
                        where="partition = '%s'" % partition_id)
 
-    disk_used_sum = zip(*query_result_cursor)
-    if len(disk_used_sum) and disk_used_sum[0][0] is None:
+    if disk_used_sum is None:
       return
-    query_result_cursor = self.db.select("folder", date_scope,
+    (collect_amount,), = self.db.select("folder", date_scope,
                        columns="COUNT(DISTINCT time)", 
                        where="partition = '%s'" % partition_id)
 
-    collect_amount = zip(*query_result_cursor)
     self.db.close()
 
-    if len(collect_amount) and len(disk_used_sum):
-      return disk_used_sum[0][0]/collect_amount[0][0]
+    return disk_used_sum/collect_amount
 
 class ConsumptionReport(ConsumptionReportBase):
 
@@ -287,7 +280,7 @@ class ConsumptionReport(ConsumptionReportBase):
                            reference=user,
                            category="")
 
-     with open(xml_report_path, 'w') as f:
+     with open(xml_report_path, 'wb') as f:
        f.write(journal.getXML())
        f.close()
 
@@ -298,23 +291,19 @@ class ConsumptionReport(ConsumptionReportBase):
 
   def _getCpuLoadAverageConsumption(self, date_scope):
     self.db.connect()
-    query_result_cursor = self.db.select("system", date_scope, 
+    (cpu_load_percent_list,), = self.db.select("system", date_scope,
                        columns="SUM(cpu_percent)/COUNT(cpu_percent)")
 
-    cpu_load_percent_list = zip(*query_result_cursor)
     self.db.close()
-    if len(cpu_load_percent_list):
-      return cpu_load_percent_list[0][0]
+    return cpu_load_percent_list
 
   def _getMemoryAverageConsumption(self, date_scope):
     self.db.connect()
-    query_result_cursor = self.db.select("system", date_scope, 
+    (memory_used_list,), = self.db.select("system", date_scope,
                        columns="SUM(memory_used)/COUNT(memory_used)")
 
-    memory_used_list = zip(*query_result_cursor)
     self.db.close()
-    if len(memory_used_list):
-      return memory_used_list[0][0]
+    return memory_used_list
 
   def _getZeroEmissionContribution(self):
     self.db.connect()
@@ -329,7 +318,7 @@ class Journal(object):
 
    def getXML(self):
      report = ElementTree.tostring(self.root) 
-     return "<?xml version='1.0' encoding='utf-8'?>%s" % report
+     return b"<?xml version='1.0' encoding='utf-8'?>%s" % report
    
    def newTransaction(self, portal_type="Sale Packing List"):
      transaction = ElementTree.SubElement(self.root, "transaction")

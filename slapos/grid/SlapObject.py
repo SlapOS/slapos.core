@@ -38,7 +38,7 @@ import subprocess
 import tarfile
 import tempfile
 import time
-import xmlrpclib
+from six.moves import xmlrpc_client as xmlrpclib
 
 from supervisor import xmlrpc
 
@@ -51,6 +51,7 @@ from slapos.grid.exception import (BuildoutFailedError, WrongPermissionError,
                                    PathDoesNotExistError, DiskSpaceError)
 from slapos.grid.networkcache import download_network_cached, upload_network_cached
 from slapos.human import bytes2human
+from slapos.util import bytes2str
 
 
 WATCHDOG_MARK = '-on-watch'
@@ -150,7 +151,7 @@ class Software(object):
     self.software_min_free_space = software_min_free_space
 
   def check_free_space(self):
-    required = self.software_min_free_space
+    required = self.software_min_free_space or 0
     available = free_space_nonroot(self.software_path)
 
     if available < required:
@@ -292,7 +293,7 @@ class Software(object):
         f.close()
 
   def _create_buildout_profile(self, buildout_cfg, url):
-    with open(buildout_cfg, 'wb') as fout:
+    with open(buildout_cfg, 'w') as fout:
       fout.write('[buildout]\nextends = ' + url + '\n')
     self._set_ownership(buildout_cfg)
 
@@ -419,7 +420,7 @@ class Partition(object):
 
 
   def check_free_space(self):
-    required = self.instance_min_free_space
+    required = self.instance_min_free_space or 0
     available = free_space_nonroot(self.instance_path)
 
     if available < required:
@@ -481,8 +482,8 @@ class Partition(object):
       }
 
   def addCustomGroup(self, group_suffix, partition_id, program_list):
-    group_partition_template = pkg_resources.resource_stream(__name__,
-      'templates/group_partition_supervisord.conf.in').read()
+    group_partition_template = bytes2str(pkg_resources.resource_string(__name__,
+      'templates/group_partition_supervisord.conf.in'))
     group_id = '{}-{}'.format(partition_id, group_suffix)
 
     self.supervisor_configuration_group += group_partition_template % {
@@ -568,8 +569,8 @@ class Partition(object):
 
     # fill generated buildout with additional information
     buildout_text = open(config_location).read()
-    buildout_text += '\n\n' + pkg_resources.resource_string(__name__,
-        'templates/buildout-tail.cfg.in') % {
+    buildout_text += '\n\n' + bytes2str(pkg_resources.resource_string(__name__,
+        'templates/buildout-tail.cfg.in')) % {
             'computer_id': self.computer_id,
             'partition_id': self.partition_id,
             'server_url': self.server_url,

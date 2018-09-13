@@ -30,4 +30,4 @@ if sys.version_info < (2, 6):
   import warnings
   warnings.warn('Used python version (%s) is old and has problems with'
       ' IPv6 connections' % '.'.join([str(q) for q in sys.version_info[:3]]))
-from slap import *
+from .slap import *

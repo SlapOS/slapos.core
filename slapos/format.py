@@ -28,10 +28,7 @@
 #
 ##############################################################################
 
-try:
-  from configparser import RawConfigParser
-except ImportError:
-  from ConfigParser import RawConfigParser
+from six.moves.configparser import RawConfigParser
 import errno
 import fcntl
 import grp
@@ -54,10 +51,7 @@ import time
 import traceback
 import zipfile
 import platform
-try:
-  from urllib.request import urlopen
-except ImportError:
-  from urllib2 import urlopen
+from six.moves.urllib.request import urlopen
 
 import lxml.etree
 import xml_marshaller.xml_marshaller

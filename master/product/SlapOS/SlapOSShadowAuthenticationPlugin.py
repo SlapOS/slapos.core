@@ -40,6 +40,7 @@ from Products.ERP5Security.ERP5GroupManager import NO_CACHE_MODE
 from Products.ERP5Type.Cache import CachingMethod
 from Products.ERP5Security.ERP5LoginUserManager import SYSTEM_USER_USER_NAME,\
                                                    SPECIAL_USER_NAME_SET
+from Products.ERP5Type.TransactionalVariable import getTransactionalVariable
 
 # some usefull globals
 LOGIN_PREFIX = 'SHADOW-'
@@ -251,6 +252,31 @@ class SlapOSShadowAuthenticationPlugin(BasePlugin):
       for user in user_list if user['user_id']
     ]
     # END OF CUSTOM CODE
+
+    if getTransactionalVariable()["transactional_user"] is not None: 
+
+      person = getTransactionalVariable()["transactional_user"]
+      erp5_login = person.objectValues("ERP5 Login")[0]
+
+      if (id is not None and person.getUserId() == id[0]):
+        result.append({
+          'id': LOGIN_PREFIX + person.getUserId(),
+          # Note: PAS forbids us from returning more than one entry per given id,
+          # so take any available login.
+          'login': LOGIN_PREFIX + erp5_login.getReference(),
+          'pluginid': plugin_id,
+
+          # Extra properties, specific to ERP5
+          'path': person.getPath(),
+          'uid': person.getUid(),
+          'login_list': [
+            {
+              'reference': LOGIN_PREFIX + erp5_login.getReference(),
+              'path': erp5_login.getRelativeUrl(),
+              'uid': erp5_login.getPath(),
+            }
+          ],
+        })
 
     return tuple(result)
 

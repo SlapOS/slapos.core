@@ -253,9 +253,10 @@ class SlapOSShadowAuthenticationPlugin(BasePlugin):
     ]
     # END OF CUSTOM CODE
 
-    if getTransactionalVariable()["transactional_user"] is not None: 
+    tv = getTransactionalVariable()
 
-      person = getTransactionalVariable()["transactional_user"]
+    person = tv.get("transactional_user", None)
+    if person is not None: 
       erp5_login = person.objectValues("ERP5 Login")[0]
 
       if (id is not None and person.getUserId() == id[0]):

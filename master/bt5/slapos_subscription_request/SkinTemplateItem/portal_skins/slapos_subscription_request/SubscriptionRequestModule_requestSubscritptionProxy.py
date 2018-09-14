@@ -31,6 +31,7 @@ if batch_mode:
 def wrapRedirectWithShadow(payment_transaction, web_site):
   return payment_transaction.PaymentTransaction_redirectToManualPayzenPayment(web_site)
 
+
 return person.Person_restrictMethodAsShadowUser(
   shadow_document=person,
   callable_object=wrapRedirectWithShadow,

@@ -1,3 +1,7 @@
+from zExceptions import Unauthorized
+if REQUEST is not None:
+  raise Unauthorized
+
 portal = context.getPortalObject()
 
 person = portal.portal_membership.getAuthenticatedMember().getUserValue()
@@ -16,7 +20,6 @@ if person is None:
 
   login.validate()
   person.validate()
-  person.immediateReindexObject()
-  login.immediateReindexObject()
 
+  person.SubscriptionRequest_saveTransactionalUser(person)
 return person

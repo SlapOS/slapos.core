@@ -1,0 +1,1 @@
+SELECT DISTINCT shadow_security_uid FROM catalog

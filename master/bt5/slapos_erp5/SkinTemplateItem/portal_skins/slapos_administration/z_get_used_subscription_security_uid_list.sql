@@ -1,0 +1,1 @@
+SELECT DISTINCT subscription_security_uid FROM catalog

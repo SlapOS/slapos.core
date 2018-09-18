@@ -1,3 +1,4 @@
+from zExceptions import Unauthorized
 import transaction
 
 def Base_getSecurityUidDictAndRoleColumnDictForUser(self, user_id):
@@ -34,3 +35,21 @@ def ERP5Site_getSecurityUidListForRecreateTable(self):
     security_uid_entry_list.append((item[2], item[1]))
 
   return security_uid_entry_list
+
+def slapos_getattr(portal=None, *args):
+  if portal is None or portal.getPortalObject() != portal:
+    raise Unauthorized
+
+  return getattr(*args)
+
+def checkConsistencyAsUser(self, user_id):
+  from AccessControl.SecurityManagement import getSecurityManager
+  from AccessControl.SecurityManagement import setSecurityManager
+  from AccessControl.SecurityManagement import newSecurityManager
+  sm = getSecurityManager()
+  try:
+    u = self.acl_users.getUserById(user_id)
+    newSecurityManager(None, u.__of__(self.acl_users))
+    return self.Base_checkConsistency()
+  finally:
+    setSecurityManager(sm)

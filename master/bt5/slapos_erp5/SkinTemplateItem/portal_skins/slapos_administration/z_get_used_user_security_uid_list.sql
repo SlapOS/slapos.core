@@ -1,0 +1,1 @@
+SELECT DISTINCT user_security_uid FROM catalog

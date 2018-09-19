@@ -1,4 +1,8 @@
 <base_category_list>
+ <portal_type id="Subscription Condition">
+  <item>aggregate</item>
+  <item>follow_up</item>
+ </portal_type>
  <portal_type id="Subscription Condition Module">
   <item>business_application</item>
  </portal_type>

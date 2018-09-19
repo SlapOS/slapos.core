@@ -1,4 +1,10 @@
 <property_sheet_list>
+ <portal_type id="Subscription Condition">
+  <item>HostingSubscription</item>
+  <item>SoftwareInstance</item>
+  <item>TextDocument</item>
+  <item>Url</item>
+ </portal_type>
  <portal_type id="Subscription Request">
   <item>CredentialRequest</item>
   <item>HostingSubscription</item>

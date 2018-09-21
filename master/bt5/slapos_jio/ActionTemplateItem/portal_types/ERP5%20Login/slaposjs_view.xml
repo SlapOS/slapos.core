@@ -73,7 +73,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>string:${object_url}/Login_view</string> </value>
+            <value> <string>string:${object_url}/Login_viewAsHateoas</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -117,7 +117,7 @@
         .push(function (url_list) {
           var header_dict = {
             selection_url: url_list[1],
-            page_title: "Google Login : " + gadget.state.doc.title,
+            page_title: "Google Login : " + gadget.state.doc.reference,
             delete_url: url_list[2]
           };
           if (!gadget.state.editable) {

@@ -32,7 +32,8 @@
     })
 
     .onEvent('submit', function () {
-      var gadget = this;
+      var gadget = this,
+          doc = {};
       return gadget.notifySubmitting()
         .push(function () {
           return gadget.getDeclaredGadget('form_view');
@@ -41,10 +42,24 @@
           return form_gadget.getContent();
         })
         .push(function (content) {
-          return gadget.updateDocument(content);
-        })
-        .push(function () {
-          return gadget.notifySubmitted({message: 'Data Updated', status: 'success'});
+          var k;
+          for (k in content) {
+            if (k !== "password_confirmation") {
+              doc[k] = content[k];
+            }
+            if ((k === "password_confirmation") &&
+                (content.password !== content.password_confirmation)) {
+              return gadget.notifySubmitted({message: 'Password is different from confirmation', status: 'error'});
+            }
+          }
+          return gadget.getSetting("hateoas_url")
+            .push(function (hateoas_url) {
+              return gadget.jio_putAttachment(gadget.state.jio_key,
+                hateoas_url + gadget.state.jio_key + "/Login_edit", doc)
+                  .push(function () {
+                    return gadget.notifySubmitted({message: 'Data Updated', status: 'success'});
+                  });
+            });
         });
     })
 
@@ -125,7 +140,7 @@
         .push(function (url_list) {
           var header_dict = {
             selection_url: url_list[1],
-            page_title: "Login : " + gadget.state.doc.title,
+            page_title: "Login : " + gadget.state.doc.reference,
             delete_url: url_list[2],
             save_action: true
           };

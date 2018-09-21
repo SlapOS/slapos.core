@@ -88,7 +88,13 @@
     })
 
     .onStateChange(function () {
-      var gadget = this, data;
+      var gadget = this,
+        column_list = [
+          ['reference', 'Reference'],
+          ['portal_type', 'Type'],
+          ['validation_state', 'Status']
+        ],
+        data;
       return new RSVP.Queue()
         .push(function () {
           return gadget.getDeclaredGadget('form_view');
@@ -130,6 +136,26 @@
                   "key": "default_email_text",
                   "hidden": 0,
                   "type": "StringField"
+                },
+                "listbox": {
+                  "column_list": column_list,
+                  "show_anchor": 0,
+                  "default_params": {},
+                  "editable": 1,
+                  "editable_column_list": [],
+                  "key": "slap_person_login_listbox",
+                  "lines": 20,
+                  "list_method": "portal_catalog",
+                  "query": "urn:jio:allDocs?query=%28portal_type%3A%28%22" +
+                    "ERP5 Login" + "%22%2C%20%22" +
+                    "Google Login" + "%22%2C%20%22" +
+                    "Facebook Login" + "%22%29%29",
+                  "portal_type": [],
+                  "search_column_list": column_list,
+                  "sort_column_list": column_list,
+                  "sort": [["reference", "ascending"]],
+                  "title": "Logins",
+                  "type": "ListBox"
                 }
               }},
               "_links": {
@@ -143,6 +169,9 @@
               group_list: [[
                 "left",
                 [["my_first_name"], ["my_last_name"], ["my_default_email_text"]]
+              ], [
+                "bottom",
+                [["listbox"]]
               ]]
             }
           });

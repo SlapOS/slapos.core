@@ -110,7 +110,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget SlapOS Person List</string> </value>
+            <value> <string>Gadget SlapOS Person View</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
@@ -241,7 +241,7 @@
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>966.51361.49328.12834</string> </value>
+                <value> <string>970.25763.2775.62754</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -259,7 +259,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1523440982.76</float>
+                        <float>1537459390.15</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

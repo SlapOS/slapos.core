@@ -7,6 +7,9 @@ Computer | revoke_certificate
 Computer | slaposjs_view
 Computer | update_allocation_scope
 Computer | update_category
+ERP5 Login | slaposjs_view
+Facebook Login | slaposjs_view
+Google Login | slaposjs_view
 Hosting Subscription | get_hateoas_instance_list
 Hosting Subscription | get_hateoas_root_instance
 Hosting Subscription | slaposjs_view

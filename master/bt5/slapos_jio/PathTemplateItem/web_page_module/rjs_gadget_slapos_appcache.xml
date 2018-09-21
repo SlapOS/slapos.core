@@ -275,6 +275,12 @@ gadget_erp5_page_slap_computer_list.html\n
 gadget_erp5_page_slap_computer_list.js\n
 gadget_erp5_page_slap_computer_network_view.html\n
 gadget_erp5_page_slap_computer_network_view.js\n
+gadget_erp5_page_slap_facebook_login_view.html\n
+gadget_erp5_page_slap_google_login_view.html\n
+gadget_erp5_page_slap_erp5_login_view.html\n
+gadget_erp5_page_slap_google_login_view.js\n
+gadget_erp5_page_slap_facebook_login_view.js\n
+gadget_erp5_page_slap_erp5_login_view.js\n
 gadget_erp5_page_slap_reject_upgrade_decision.html\n
 gadget_erp5_page_slap_reject_upgrade_decision.js\n
 gadget_erp5_page_slap_computer_request_certificate.html\n
@@ -549,7 +555,7 @@ NETWORK:\n
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>969.19283.65183.18978</string> </value>
+                <value> <string>969.36476.25776.58999</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -567,7 +573,7 @@ NETWORK:\n
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1533138491.34</float>
+                        <float>1537538794.01</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

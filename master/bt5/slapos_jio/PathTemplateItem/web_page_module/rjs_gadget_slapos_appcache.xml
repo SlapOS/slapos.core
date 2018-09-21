@@ -366,6 +366,8 @@ gadget_erp5_page_slap_trial_request_message.html\n
 gadget_erp5_page_slap_trial_request_message.js\n
 gadget_erp5_page_slap_upgrade_decision_view.html\n
 gadget_erp5_page_slap_upgrade_decision_view.js\n
+gadget_erp5_page_slap_invalidate_login.js\n
+gadget_erp5_page_slap_invalidate_login.html\n
 gadget_erp5_page_slapos.css\n
 gadget_erp5_page_slapos.html\n
 gadget_erp5_page_slapos.js\n
@@ -555,7 +557,7 @@ NETWORK:\n
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>969.36476.25776.58999</string> </value>
+                <value> <string>970.27086.37195.14557</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -573,7 +575,7 @@ NETWORK:\n
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1537538794.01</float>
+                        <float>1537545503.96</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

@@ -14,3 +14,8 @@ if password is not None:
 
 if len(edit_kw):
   context.edit(**edit_kw)
+
+
+# This will raise if login is duplicated. 
+# XXX Improve this later by 
+context.Base_checkConsistency()

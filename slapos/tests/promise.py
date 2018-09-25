@@ -59,7 +59,7 @@ class TestSlapOSPromiseMixin(unittest.TestCase):
   def writeInit(self):
     with open(os.path.join(self.plugin_dir, '__init__'), 'w') as f:
       f.write('')
-    os.chmod(os.path.join(self.plugin_dir, '__init__'), 0644)
+    os.chmod(os.path.join(self.plugin_dir, '__init__'), 0o644)
     if sys.path[0] != self.plugin_dir:
       sys.path[0:0] = [self.plugin_dir]
 
@@ -128,7 +128,7 @@ class TestSlapOSPromiseMixin(unittest.TestCase):
       wrap=wrap,
     )
 
-  def writeFile(self, path, content, mode=0644):
+  def writeFile(self, path, content, mode=0o644):
     with open(path, 'w') as f:
       f.write(content)
     os.chmod(path, mode)
@@ -781,7 +781,7 @@ class RunPromise(GenericPromise):
       f.write("""#!/bin/bash
 echo "success"
 """)
-    os.chmod(promise_path, 0744)
+    os.chmod(promise_path, 0o744)
 
     def test_method(result):
       self.called = True
@@ -810,7 +810,7 @@ echo "success"
 echo "This promise failed"
 exit 1
 """)
-    os.chmod(promise_path, 0744)
+    os.chmod(promise_path, 0o744)
 
     self.configureLauncher()
     state_file = os.path.join(self.partition_dir, PROMISE_STATE_FOLDER_NAME)
@@ -841,13 +841,13 @@ exit 1
 echo "promise 1 succeeded"
 exit 0
 """)
-    os.chmod(promise_path, 0744)
+    os.chmod(promise_path, 0o744)
     with open(promise_path2, 'w') as f:
       f.write("""#!/bin/bash
 echo "promise 2 succeeded"
 exit 0
 """)
-    os.chmod(promise_path2, 0744)
+    os.chmod(promise_path2, 0o744)
     self.generatePromiseScript("first_promise.py", success=True)
     self.generatePromiseScript("second_promise.py", success=True)
 
@@ -989,7 +989,7 @@ exit 0
 sleep 20
 echo "success"
 """)
-    os.chmod(promise_path, 0744)
+    os.chmod(promise_path, 0o744)
 
     def test_method(result):
       self.called = True
@@ -1025,7 +1025,7 @@ sleep 20
 echo "success"
 exit 1
 """)
-      os.chmod(promise_path, 0744)
+      os.chmod(promise_path, 0o744)
 
     createPromise(first_promise_path)
     createPromise(second_promise_path)

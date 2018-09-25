@@ -27,6 +27,7 @@
 #
 ##############################################################################
 
+from __future__ import print_function
 import psutil
 import os
 import subprocess
@@ -159,7 +160,7 @@ class HeatingContributionSnapshot(_Snapshot):
     
     result = launchTemperatureTest(sensor_id)
     if result is None:
-      print "Impossible to test sensor: %s " % sensor_id
+      print("Impossible to test sensor: %s " % sensor_id)
       
 
     initial_temperature, final_temperature, duration = result 

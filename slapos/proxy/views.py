@@ -28,6 +28,8 @@
 #
 ##############################################################################
 
+from __future__ import print_function
+
 from lxml import etree
 import random
 import string
@@ -41,6 +43,8 @@ from flask import g, Flask, request, abort
 import xml_marshaller
 from xml_marshaller.xml_marshaller import loads
 from xml_marshaller.xml_marshaller import dumps
+
+from six.moves import range
 
 app = Flask(__name__)
 
@@ -139,7 +143,7 @@ def execute_db(table, query, args=(), one=False, db_version=None, log=False, db=
     db_version = DB_VERSION
   query = query % (table + db_version,)
   if log:
-    print query
+    print(query)
   try:
     cur = db.execute(query, args)
   except:
@@ -404,7 +408,7 @@ def parseRequestComputerPartitionForm(form):
 
   return parsed_dict
 
-run_id = ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
+run_id = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
 def checkIfMasterIsCurrentMaster(master_url):
   """
   Because there are several ways to contact this server, we can't easily check

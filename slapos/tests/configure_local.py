@@ -34,7 +34,7 @@ import slapos.cli.configure_local
 from slapos.cli.configure_local import ConfigureLocalCommand, _createConfigurationDirectory 
 from slapos.cli.entry import SlapOSApp
 from argparse import Namespace
-from ConfigParser import ConfigParser
+from six.moves.configparser import ConfigParser
 
 # Disable any command to launch slapformat and supervisor
 slapos.cli.configure_local._runFormat = lambda x: "Do nothing"

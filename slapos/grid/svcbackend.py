@@ -35,7 +35,7 @@ import subprocess
 import stat
 import sys
 import time
-import xmlrpclib
+from six.moves import xmlrpc_client as xmlrpclib
 
 from slapos.grid.utils import (createPrivateDirectory, SlapPopen, updateFile)
 

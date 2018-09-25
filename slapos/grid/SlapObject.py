@@ -38,7 +38,7 @@ import subprocess
 import tarfile
 import tempfile
 import time
-import xmlrpclib
+from six.moves import xmlrpc_client as xmlrpclib
 
 from supervisor import xmlrpc
 
@@ -150,7 +150,7 @@ class Software(object):
     self.software_min_free_space = software_min_free_space
 
   def check_free_space(self):
-    required = self.software_min_free_space
+    required = self.software_min_free_space or 0
     available = free_space_nonroot(self.software_path)
 
     if available < required:
@@ -293,7 +293,7 @@ class Software(object):
 
   def _create_buildout_profile(self, buildout_cfg, url):
     with open(buildout_cfg, 'wb') as fout:
-      fout.write('[buildout]\nextends = ' + url + '\n')
+      fout.write(('[buildout]\nextends = ' + url + '\n').encode('utf-8'))
     self._set_ownership(buildout_cfg)
 
   def uploadSoftwareRelease(self, tarpath):
@@ -419,7 +419,7 @@ class Partition(object):
 
 
   def check_free_space(self):
-    required = self.instance_min_free_space
+    required = self.instance_min_free_space or 0
     available = free_space_nonroot(self.instance_path)
 
     if available < required:

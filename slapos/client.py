@@ -28,7 +28,7 @@
 ##############################################################################
 
 import atexit
-import ConfigParser
+import six.moves.configparser
 import os
 import sys
 
@@ -119,7 +119,7 @@ def _getSoftwareReleaseFromSoftwareString(logger, software_string, product):
     try:
         return product.__getattr__(software_string[len(SOFTWARE_PRODUCT_NAMESPACE):])
     except AttributeError as e:
-       logger.error('Error: %s Exiting now.' % e.message)
+       logger.error('Error: %s Exiting now.' % e)
        sys.exit(1)
 
 def do_console(local):

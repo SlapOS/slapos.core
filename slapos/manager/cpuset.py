@@ -5,12 +5,12 @@ import os.path
 import pwd
 import time
 
-from zope import interface as zope_interface
+from zope.interface import implementer
 from slapos.manager import interface
 
 logger = logging.getLogger(__name__)
 
-
+@implementer(interface.IManager)
 class Manager(object):
   """Manage cgroup's cpuset in terms on initializing and runtime operations.
 
@@ -21,8 +21,6 @@ class Manager(object):
 
   TODO: there is no limit on number of reserved cores per user.
   """
-  zope_interface.implements(interface.IManager)
-
   cpu_exclusive_file = ".slapos-cpu-exclusive"
   cpuset_path = "/sys/fs/cgroup/cpuset/"
   task_write_mode = "wt"

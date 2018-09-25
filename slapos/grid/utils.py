@@ -40,6 +40,8 @@ import logging
 import psutil
 import time
 
+import six
+
 from slapos.grid.exception import BuildoutFailedError, WrongPermissionError
 
 # Such umask by default will create paths with full permission
@@ -131,12 +133,12 @@ class SlapPopen(subprocess.Popen):
         break
       if line:
         output_lines.append(line)
-        logger.info(line.rstrip('\n'))
+        logger.info(line.rstrip(b'\n'))
     self.output = ''.join(output_lines)
 
 
 def md5digest(url):
-  return hashlib.md5(url).hexdigest()
+  return hashlib.md5(url.encode('utf-8')).hexdigest()
 
 
 def getCleanEnvironment(logger, home_path='/tmp'):
@@ -150,7 +152,7 @@ def getCleanEnvironment(logger, home_path='/tmp'):
     if old is not None:
       removed_env.append(k)
   changed_env['HOME'] = env['HOME'] = home_path
-  for k in sorted(changed_env.iterkeys()):
+  for k in sorted(six.iterkeys(changed_env)):
     logger.debug('Overridden %s = %r' % (k, changed_env[k]))
   if removed_env:
     logger.debug('Removed from environment: %s' % ', '.join(sorted(removed_env)))
@@ -399,7 +401,7 @@ def killProcessTree(pid, logger):
     for child in running_process_list:
       try:
         child.suspend()
-      except psutil.Error, e:
+      except psutil.Error as e:
         logger.debug(str(e))
 
     time.sleep(0.2)
@@ -408,5 +410,5 @@ def killProcessTree(pid, logger):
   for process in process_list:
     try:
       process.kill()
-    except psutil.Error, e:
+    except psutil.Error as e:
       logger.debug("Process kill: %s" % e)

@@ -38,7 +38,7 @@ import importlib
 import traceback
 import psutil
 from multiprocessing import Process, Queue as MQueue
-import Queue
+from six.moves import queue
 from slapos.util import mkdir_p, chownDirectory
 from slapos.grid.utils import dropPrivileges, killProcessTree
 from slapos.grid.promise import interface
@@ -168,7 +168,7 @@ class PromiseProcess(Process):
     if not os.path.exists(init_file):
       with open(init_file, 'w') as f:
         f.write("")
-      os.chmod(init_file, 0644)
+      os.chmod(init_file, 0o644)
     # add promise folder to sys.path so we can import promise script
     if sys.path[0] != promise_folder:
       sys.path[0:0] = [promise_folder]
@@ -362,7 +362,7 @@ class PromiseLauncher(object):
         try:
           result = PromiseQueueResult()
           result.load(json.loads(f.read()))
-        except ValueError, e:
+        except ValueError as e:
           result = None
           self.logger.warn('Bad promise JSON result at %r: %s' % (
             promise_output_file,
@@ -375,7 +375,7 @@ class PromiseLauncher(object):
     while True:
       try:
         self.queue_result.get_nowait()
-      except Queue.Empty:
+      except queue.Empty:
         return
 
   def _updateFolderOwner(self, folder_path=None):
@@ -443,7 +443,7 @@ class PromiseLauncher(object):
       if not promise_process.is_alive():
         try:
           queue_item = self.queue_result.get(True, 1)
-        except Queue.Empty:
+        except queue.Empty:
           # no result found in process result Queue
           pass
         else:

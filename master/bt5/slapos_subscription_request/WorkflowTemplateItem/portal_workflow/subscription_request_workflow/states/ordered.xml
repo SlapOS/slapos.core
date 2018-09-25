@@ -12,22 +12,18 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>submitted</string> </value>
+            <value> <string>ordered</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Submitted</string> </value>
+            <value> <string>Ordered</string> </value>
         </item>
         <item>
             <key> <string>transitions</string> </key>
             <value>
               <tuple>
-                <string>delete</string>
-                <string>delete_action</string>
-                <string>invalidate</string>
-                <string>invalidate_action</string>
-                <string>validate</string>
-                <string>validate_action</string>
+                <string>confirm</string>
+                <string>confirm_action</string>
               </tuple>
             </value>
         </item>

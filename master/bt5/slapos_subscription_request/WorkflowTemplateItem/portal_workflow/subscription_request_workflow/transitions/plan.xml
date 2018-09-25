@@ -11,6 +11,10 @@
             <value> <string>workflow</string> </value>
         </item>
         <item>
+            <key> <string>actbox_icon</string> </key>
+            <value> <string></string> </value>
+        </item>
+        <item>
             <key> <string>actbox_name</string> </key>
             <value> <string></string> </value>
         </item>
@@ -34,11 +38,11 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>validate</string> </value>
+            <value> <string>plan</string> </value>
         </item>
         <item>
             <key> <string>new_state_id</string> </key>
-            <value> <string>validated</string> </value>
+            <value> <string>planned</string> </value>
         </item>
         <item>
             <key> <string>script_name</string> </key>
@@ -46,7 +50,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Validate</string> </value>
+            <value> <string>Plan</string> </value>
         </item>
         <item>
             <key> <string>trigger_type</string> </key>

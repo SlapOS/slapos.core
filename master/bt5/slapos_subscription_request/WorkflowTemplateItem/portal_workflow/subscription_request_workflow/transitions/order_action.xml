@@ -11,8 +11,12 @@
             <value> <string>workflow</string> </value>
         </item>
         <item>
-            <key> <string>actbox_name</string> </key>
+            <key> <string>actbox_icon</string> </key>
             <value> <string></string> </value>
+        </item>
+        <item>
+            <key> <string>actbox_name</string> </key>
+            <value> <string>Order</string> </value>
         </item>
         <item>
             <key> <string>actbox_url</string> </key>
@@ -20,7 +24,7 @@
         </item>
         <item>
             <key> <string>after_script_name</string> </key>
-            <value> <string></string> </value>
+            <value> <string>order</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -29,28 +33,54 @@
         <item>
             <key> <string>guard</string> </key>
             <value>
-              <none/>
+              <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
             </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>invalidate</string> </value>
+            <value> <string>order_action</string> </value>
         </item>
         <item>
             <key> <string>new_state_id</string> </key>
-            <value> <string>invalidated</string> </value>
-        </item>
-        <item>
-            <key> <string>script_name</string> </key>
             <value> <string></string> </value>
         </item>
         <item>
+            <key> <string>script_name</string> </key>
+            <value> <string>checkConsistency</string> </value>
+        </item>
+        <item>
             <key> <string>title</string> </key>
-            <value> <string>Invalidate</string> </value>
+            <value> <string>Order Action</string> </value>
         </item>
         <item>
             <key> <string>trigger_type</string> </key>
-            <value> <int>2</int> </value>
+            <value> <int>1</int> </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="2" aka="AAAAAAAAAAI=">
+    <pickle>
+      <global name="Guard" module="Products.DCWorkflow.Guard"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>permissions</string> </key>
+            <value>
+              <tuple>
+                <string>Modify portal content</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>roles</string> </key>
+            <value>
+              <tuple>
+                <string>Assignor</string>
+                <string>Assignee</string>
+              </tuple>
+            </value>
         </item>
       </dictionary>
     </pickle>

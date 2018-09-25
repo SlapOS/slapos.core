@@ -28,14 +28,12 @@
             <key> <string>transitions</string> </key>
             <value>
               <tuple>
+                <string>cancel</string>
+                <string>cancel_action</string>
                 <string>delete</string>
                 <string>delete_action</string>
-                <string>invalidate</string>
-                <string>invalidate_action</string>
-                <string>submit</string>
-                <string>submit_action</string>
-                <string>validate</string>
-                <string>validate_action</string>
+                <string>plan</string>
+                <string>plan_action</string>
               </tuple>
             </value>
         </item>

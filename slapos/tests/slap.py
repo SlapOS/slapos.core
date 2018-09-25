@@ -25,6 +25,8 @@
 #
 ##############################################################################
 
+from __future__ import print_function
+
 import logging
 import os
 import unittest
@@ -51,7 +53,7 @@ class SlapMixin(unittest.TestCase):
       self.server_url = 'http://localhost/'
     else:
       self.server_url = self._server_url
-    print 'Testing against SLAP server %r' % self.server_url
+    print('Testing against SLAP server %r' % self.server_url)
     self.slap = slapos.slap.slap()
     self.partition_id = 'PARTITION_01'
     if os.environ.has_key('SLAPGRID_INSTANCE_ROOT'):
@@ -1205,7 +1207,7 @@ class TestSoftwareProductCollection(SlapMixin):
     self.assertEqual(self.product_collection.foo, '0')
 
 if __name__ == '__main__':
-  print 'You can point to any SLAP server by setting TEST_SLAP_SERVER_URL '\
-      'environment variable'
+  print('You can point to any SLAP server by setting TEST_SLAP_SERVER_URL '\
+      'environment variable')
   unittest.main()
 

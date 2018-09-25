@@ -121,7 +121,7 @@ def _replaceParameterValue(original_content, to_replace):
     """
     for key, value in to_replace:
         original_content = re.sub('%s\s+=.*' % key, '%s = %s' % (key, value),
-          original_content)
+          str(original_content))
     return original_content
 
 def _generateSlaposNodeConfigurationFile(slapos_node_config_path, args):
@@ -148,7 +148,7 @@ def _generateSlaposNodeConfigurationFile(slapos_node_config_path, args):
     slapos_node_configuration_content = re.sub(
         '(key_file|cert_file|certificate_repository_path).*=.*\n',
         '', slapos_node_configuration_content)
-    with open(slapos_node_config_path, 'w') as fout:
+    with open(slapos_node_config_path, 'wb') as fout:
         fout.write(slapos_node_configuration_content.encode('utf8'))
 
 def _generateSlaposProxyConfigurationFile(conf):
@@ -171,7 +171,7 @@ def _generateSlaposProxyConfigurationFile(conf):
     slapos_proxy_configuration_content = _replaceParameterValue(
         slapos_proxy_configuration_template, to_replace)
 
-    with open(slapos_proxy_configuration_path, 'w') as fout:
+    with open(slapos_proxy_configuration_path, 'wb') as fout:
         fout.write(slapos_proxy_configuration_content.encode('utf8'))
 
     return slapos_proxy_configuration_path

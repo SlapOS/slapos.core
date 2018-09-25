@@ -28,7 +28,7 @@ import unittest
 
 from zope.interface.verify import verifyClass
 import zope.interface
-import types
+from six import class_types
 from slapos import slap
 
 def getOnlyImplementationAssertionMethod(klass, method_list):
@@ -61,7 +61,7 @@ def generateTestMethodListOnClass(klass, module):
   """Generate test method on klass"""
   for class_id in dir(module):
     implementing_class = getattr(module, class_id)
-    if type(implementing_class) not in (types.ClassType, types.TypeType):
+    if not isinstance(implementing_class, class_types):
       continue
     # add methods to assert that publicly available classes are defining
     # interfaces

@@ -32,7 +32,7 @@ import os
 import pkg_resources
 import random
 import socket
-import StringIO
+from six import StringIO
 import subprocess
 import sys
 import tempfile
@@ -672,7 +672,7 @@ stderr_logfile_backups=1
           computer_partition.setComputerPartitionRelatedInstanceList(
             [reference for reference in tf.read().split('\n') if reference]
           )
-        except NotFoundError, e:
+        except NotFoundError as e:
           # Master doesn't implement this feature ?
           self.logger.warning("NotFoundError: %s. \nCannot send requested instance "\
                             "list to master. Please check if this feature is"\
@@ -922,7 +922,7 @@ stderr_logfile_backups=1
       self._checkPromiseList(local_partition,
                              check_anomaly=True,
                              force=False)
-    except PromiseError, e:
+    except PromiseError as e:
       self.logger.error(e)
       if partition_access_status is None or not status_error:
         computer_partition.error(e, logger=self.logger)
@@ -1140,7 +1140,7 @@ stderr_logfile_backups=1
           (computer_partition_id, computer_partition_state)
         computer_partition.error(error_string, logger=self.logger)
         raise NotImplementedError(error_string)
-    except Exception, e:
+    except Exception as e:
       if not isinstance(e, PromiseError):
         with open(error_output_file, 'w') as error_file:
           # Write error message in a log file assible to computer partition user

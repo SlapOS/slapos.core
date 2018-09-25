@@ -47,7 +47,7 @@ class SlapPopenTestCase(unittest.TestCase):
   def test_exec(self):
     """Test command execution with SlapPopen.
     """
-    self.script.write('#!/bin/sh\necho "hello"\nexit 123')
+    self.script.write(b'#!/bin/sh\necho "hello"\nexit 123')
     self.script.close()
 
     logger = mock.MagicMock()

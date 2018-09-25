@@ -26,6 +26,8 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
+from __future__ import print_function
+
 import glob
 import logging
 import slapos.format
@@ -86,7 +88,7 @@ class FakeCallAndRead:
     retval = 0, 'UP'
     global INTERFACE_DICT
     if 'useradd' in argument_list:
-      print argument_list
+      print(argument_list)
       global USER_LIST
       username = argument_list[-1]
       if username == '-r':

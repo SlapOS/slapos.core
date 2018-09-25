@@ -28,7 +28,7 @@
 #
 ##############################################################################
 
-import ConfigParser
+from six.moves import configparser
 import os
 import logging
 import shutil
@@ -106,7 +106,7 @@ database_uri = %(tempdir)s/lib/proxy.db
     Set config for slapproxy and start it
     """
     conf = slapos.proxy.ProxyConfig(logger=logging.getLogger())
-    configp = ConfigParser.SafeConfigParser()
+    configp = configparser.SafeConfigParser()
     configp.read(self.slapos_cfg)
     conf.mergeConfig(ProxyOption(self.proxy_db), configp)
     conf.setConfig()
@@ -1040,7 +1040,7 @@ database_uri = %(tempdir)s/lib/external_proxy.db
         self.external_proxy_slap._connection_helper.GET('/')
       except slapos.slap.NotFoundError:
         break
-      except slapos.slap.ConnectionError, socket.error:
+      except (slapos.slap.ConnectionError, socket.error):
         attempts = attempts + 1
         time.sleep(0.1)
     else:

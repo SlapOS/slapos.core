@@ -27,6 +27,7 @@
 #
 ##############################################################################
 
+from __future__ import print_function
 from psutil import process_iter, NoSuchProcess, AccessDenied
 from time import strftime
 import shutil
@@ -157,5 +158,5 @@ def do_collect(conf):
     database.garbageCollect()
 
   except AccessDenied:
-    print "You HAVE TO execute this script with root permission."
+    print("You HAVE TO execute this script with root permission.")
 

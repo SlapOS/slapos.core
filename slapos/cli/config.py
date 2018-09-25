@@ -27,7 +27,7 @@
 #
 ##############################################################################
 
-import ConfigParser
+from six.moves import configparser
 import os
 
 from slapos.cli.command import Command
@@ -77,7 +77,7 @@ class ConfigCommand(Command):
         if not os.path.exists(cfg_path):
             raise ConfigError('Configuration file does not exist: %s' % cfg_path)
 
-        configp = ConfigParser.SafeConfigParser()
+        configp = configparser.SafeConfigParser()
         if configp.read(cfg_path) != [cfg_path]:
             # bad permission, etc.
             raise ConfigError('Cannot parse configuration file: %s' % cfg_path)

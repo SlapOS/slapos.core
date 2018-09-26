@@ -88,6 +88,7 @@
                         <string>my_default_email_text</string>
                         <string>my_aggregate_title_list</string>
                         <string>my_specialise_title_list</string>
+                        <string>my_causality_title_list</string>
                       </list>
                     </value>
                 </item>

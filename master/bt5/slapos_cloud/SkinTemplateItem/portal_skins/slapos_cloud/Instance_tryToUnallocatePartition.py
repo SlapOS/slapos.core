@@ -27,4 +27,5 @@ if partition is not None:
           can_be_free = False
           break
       if can_be_free:
-        partition.markFree()
+        if partition.getSlapState() != "free":
+          partition.markFree()

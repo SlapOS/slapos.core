@@ -1,7 +1,10 @@
 from Products.ERP5Type.Document import newTempSimulationMovement
 
 portal = context.getPortalObject()
-select_dict = {'causality_payment_transaction_related_uid': None}
+select_dict = {
+  'causality_payment_transaction_related_uid': None,
+  'causality_subscription_request_related_uid': None,
+}
 
 select_kw = kwargs.copy()
 select_kw.pop('portal_type', None)
@@ -14,6 +17,7 @@ select_kw.update(
   select_dict=select_dict,
   left_join_list=select_dict.keys(),
   causality_payment_transaction_related_uid=None,
+  causality_subscription_request_related_uid=None
 )
 
 default_source_uid=portal.restrictedTraverse('account_module/receivable').getUid()

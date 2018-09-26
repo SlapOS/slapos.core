@@ -64,13 +64,13 @@ def _runFormat(app):
       return 0
     return 1
 
-def _ping():
+def _ping(hostname):
     """ 
     Ping a hostname
     """
     print "[BOOT] Invoking ping to ipv4 network..."
     p = subprocess.Popen(
-      ["ping", "-c", "2", "www.google.com"],
+      ["ping", "-c", "2", hostname],
        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     if p.returncode == 0:
@@ -79,13 +79,13 @@ def _ping():
     print "[BOOT] [ERROR] IPv4 network unreachable..."
     return 0
 
-def _ping6():
+def _ping6(hostname):
     """ 
     Ping an ipv6 address
     """
     print "[BOOT] Invoking ping to ipv6 network..."
     p = subprocess.Popen(
-        ["ping6", "-c", "2", "ipv6.google.com"],
+        ["ping6", "-c", "2", hostname],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     if p.returncode == 0:
@@ -110,15 +110,21 @@ class BootCommand(ConfigCommand):
     @must_be_root
     def take_action(self, args):
         configp = self.fetch_config(args)
-        # Make sure ipv4 is working
         instance_root = configp.get('slapos','instance_root')
-        is_ready = _ping()
+        ipv6_host = ipv4_host = "slap.vifib.com"
+        if configp.has_option('slapformat','ipv6_test_hostname'):
+          ipv6_host = configp.get('slapformat','ipv6_test_hostname')
+        if configp.has_option('slapformat','ipv4_test_hostname'):
+          ipv4_host = configp.get('slapformat','ipv4_test_hostname')
+
+        # Make sure ipv4 is working
+        is_ready = _ping(ipv4_host)
         while is_ready == 0:
            sleep(5)
            is_ready = _ping()
 
         # Make sure ipv6 is working
-        is_ready = _ping6()
+        is_ready = _ping6(ipv6_host)
         while is_ready == 0:
             sleep(5)
             is_ready = _ping6()

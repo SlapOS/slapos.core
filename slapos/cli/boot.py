@@ -68,7 +68,7 @@ def _ping(hostname):
     """ 
     Ping a hostname
     """
-    print "[BOOT] Invoking ping to ipv4 network..."
+    print "[BOOT] Invoking ipv4 ping to %s..." % hostname
     p = subprocess.Popen(
       ["ping", "-c", "2", hostname],
        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -83,7 +83,7 @@ def _ping6(hostname):
     """ 
     Ping an ipv6 address
     """
-    print "[BOOT] Invoking ping to ipv6 network..."
+    print "[BOOT] Invoking ipv6 ping to %s..." % hostname
     p = subprocess.Popen(
         ["ping6", "-c", "2", hostname],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -121,13 +121,13 @@ class BootCommand(ConfigCommand):
         is_ready = _ping(ipv4_host)
         while is_ready == 0:
            sleep(5)
-           is_ready = _ping()
+           is_ready = _ping(ipv4_host)
 
         # Make sure ipv6 is working
         is_ready = _ping6(ipv6_host)
         while is_ready == 0:
             sleep(5)
-            is_ready = _ping6()
+            is_ready = _ping6(ipv6_host)
 
         app = SlapOSApp() 
         # Make sure slapos node format returns ok

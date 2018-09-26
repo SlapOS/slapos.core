@@ -18,3 +18,4 @@ erp5_mysql_innodb/z_create_item
 erp5_mysql_innodb/z_create_slapos_item
 erp5_mysql_innodb/z_create_software_instance_tree
 erp5_mysql_innodb/z_create_versioning
+erp5_mysql_innodb/z_related_causality_subscription_request

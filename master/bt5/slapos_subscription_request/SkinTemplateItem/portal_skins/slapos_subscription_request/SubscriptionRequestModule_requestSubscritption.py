@@ -19,4 +19,6 @@ user_input_dict = {
   "amount" : amount}
 
 return context.SubscriptionRequestModule_requestSubscritptionProxy(
-    default_email_text, subscription_reference, user_input_dict=user_input_dict, batch_mode=0)
+    default_email_text, subscription_reference,
+    confirmation_required=bool(confirmation_required),
+    user_input_dict=user_input_dict, batch_mode=0)

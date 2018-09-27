@@ -4,8 +4,20 @@ if REQUEST is not None:
   raise Unauthorized
 
 # You always needs a user here
-person = context.SubscriptionRequest_createUser(email, user_input_dict['name'])
+person, person_is_new = context.SubscriptionRequest_createUser(email, user_input_dict['name'])
 
+web_site = context.getWebSiteValue()
+# Check if user is already exist, otherwise redirect to ask confirmation
+if confirmation_required and not person_is_new:
+  base_url = web_site.absolute_url()
+
+  return context.REQUEST.RESPONSE.redirect(
+    "%s/#order_confirmation?name=%s&email=%s&amount=%s&subscription_reference=%s" % (
+       base_url,
+       person.getTitle(),
+       person.getDefaultEmailText(),
+       user_input_dict["amount"],
+       subscription_reference))
 
 subscription_request = context.subscription_request_module.newContent(
   portal_type="Subscription Request",
@@ -17,6 +29,7 @@ subscription_request.setDefaultEmailText(email)
 def wrapWithShadow(subscription_request, amount, subscription_reference):
   subscription_request.activate(tag="subscription_condition_%s" % subscription_request.getId()
                              ).SubscriptionRequest_applyCondition(subscription_reference)
+
   return subscription_request.SubscriptionRequest_requestPaymentTransaction(amount=amount,
                                                 tag="subscription_%s" % subscription_request.getId())
 
@@ -31,8 +44,7 @@ if batch_mode:
 def wrapRedirectWithShadow(payment_transaction, web_site):
   return payment_transaction.PaymentTransaction_redirectToManualPayzenPayment(web_site)
 
-
 return person.Person_restrictMethodAsShadowUser(
   shadow_document=person,
   callable_object=wrapRedirectWithShadow,
-  argument_list=[payment, context.getWebSiteValue()])
+  argument_list=[payment, web_site])

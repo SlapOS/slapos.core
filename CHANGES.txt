@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.4.11 (2018-09-28)
+-------------------
+
+ * slapgrid-sr: do not rebootstrap unnecessarily
+
 1.4.10 (2018-09-20)
 -------------------
  * add `--buildout-debug` command line option to `slapos node software` and

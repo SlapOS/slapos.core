@@ -100,8 +100,8 @@
                     <value>
                       <list>
                         <tuple>
-                          <string>Hosting Subscription</string>
-                          <string>Hosting Subscription</string>
+                          <string>Subscription Condition</string>
+                          <string>Subscription Condition</string>
                         </tuple>
                       </list>
                     </value>
@@ -112,7 +112,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Hosting Subscription</string> </value>
+                    <value> <string>Subscription Condition</string> </value>
                 </item>
               </dictionary>
             </value>

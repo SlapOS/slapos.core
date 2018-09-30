@@ -3,7 +3,7 @@ specialise = context.getPortalObject().portal_preferences.getPreferredAggregated
 if invoice.getSpecialise() != specialise:
   raise TypeError('Only invoice specialised by %s shall be checked' % specialise)
 
-if len(invoice.getCausalityRelatedList(portal_type='Cloud Contract')) > 0:
+if len(invoice.getCausalityRelatedList(portal_type=['Cloud Contract', 'Subscription Request'])) > 0:
   # Nothing to compare
   return True
 

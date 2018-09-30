@@ -2,6 +2,10 @@ from zExceptions import Unauthorized
 if REQUEST is not None:
   raise Unauthorized
 
+if context.getSimulationState() not in ["draft", "planned"]:
+  # Don't modify it anymore
+  return
+
 if subscription_condition_reference is not None:
   # It would be better use some clever API here.
   subscription_condition = context.portal_catalog.getResultValue(
@@ -38,4 +42,5 @@ context.edit(
   start_date=now,
   root_slave=subscription_configuration["shared"],
   subject_list=subscription_configuration["subject_list"],
+  specialise_value=subscription_condition
 )

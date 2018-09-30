@@ -20,7 +20,9 @@ if current_invoice is None:
         start_date=DateTime(),
         stop_date=DateTime()
       )
-  quantity = int(amount)*19.95
+
+  # Hardcoded value for reservation
+  quantity = int(amount)*25
   for line in current_payment.contentValues():
     if line.getSource() == "account_module/bank":
       line.setQuantity(-1*quantity)

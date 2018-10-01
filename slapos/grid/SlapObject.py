@@ -28,6 +28,7 @@
 #
 ##############################################################################
 
+import errno
 import os
 import pkg_resources
 import pwd
@@ -254,6 +255,7 @@ class Software(object):
     extends_cache = tempfile.mkdtemp()
     self._set_ownership(extends_cache)
 
+    f = None
     try:
       buildout_cfg = os.path.join(self.software_path, 'buildout.cfg')
       if not os.path.exists(buildout_cfg):
@@ -262,18 +264,32 @@ class Software(object):
       additional_parameters = list(self._additional_buildout_parameters(extends_cache))
       additional_parameters.extend(['-c', buildout_cfg])
 
-      utils.bootstrapBuildout(path=self.software_path,
-                              buildout=self.buildout,
-                              logger=self.logger,
-                              additional_buildout_parameter_list=additional_parameters)
+      buildout_binary = os.path.join(self.software_path, 'bin', 'buildout')
+      buildout_marker = buildout_binary + "-bootstrap-skipped"
 
+      try:
+        os.remove(buildout_marker)
+      except OSError as e:
+        if e.errno != errno.ENOENT:
+          raise
+        if os.path.exists(buildout_binary):
+          f = open(buildout_marker, "w")
+      if f is None:
+        utils.bootstrapBuildout(path=self.software_path,
+                                buildout=self.buildout,
+                                logger=self.logger,
+                                additional_buildout_parameter_list=additional_parameters)
       utils.launchBuildout(path=self.software_path,
-                           buildout_binary=os.path.join(self.software_path, 'bin', 'buildout'),
+                           buildout_binary=buildout_binary,
                            logger=self.logger,
                            additional_buildout_parameter_list=additional_parameters,
                            debug=self.buildout_debug)
+      if f is not None:
+        os.remove(buildout_marker)
     finally:
       shutil.rmtree(extends_cache)
+      if f is not None:
+        f.close()
 
   def _create_buildout_profile(self, buildout_cfg, url):
     with open(buildout_cfg, 'wb') as fout:

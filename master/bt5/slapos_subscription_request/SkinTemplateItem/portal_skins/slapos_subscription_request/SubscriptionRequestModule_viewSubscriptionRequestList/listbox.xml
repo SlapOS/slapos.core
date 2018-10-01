@@ -94,7 +94,7 @@
                           <string>Stop Date</string>
                         </tuple>
                         <tuple>
-                          <string>validation_state</string>
+                          <string>translated_simulation_state_title</string>
                           <string>State</string>
                         </tuple>
                       </list>

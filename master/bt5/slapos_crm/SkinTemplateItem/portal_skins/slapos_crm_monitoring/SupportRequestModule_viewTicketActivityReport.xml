@@ -59,11 +59,11 @@
             <key> <string>group_list</string> </key>
             <value>
               <list>
+                <string>bottom</string>
                 <string>left (User Tickets)</string>
                 <string>right</string>
                 <string>right (Monitor)</string>
                 <string>center</string>
-                <string>bottom</string>
                 <string>hidden</string>
               </list>
             </value>
@@ -75,7 +75,9 @@
                 <item>
                     <key> <string>bottom</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>your_comment</string>
+                      </list>
                     </value>
                 </item>
                 <item>
@@ -97,6 +99,7 @@
                     <value>
                       <list>
                         <string>your_at_date</string>
+                        <string>your_grade</string>
                       </list>
                     </value>
                 </item>
@@ -141,7 +144,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>SlapOS Ticket Activity Report</string> </value>
+            <value> <string>Ticket Grade</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

@@ -4,6 +4,10 @@ from Products.ERP5Type.DateUtils import addToDate
 hosting_subscription = context
 portal = context.getPortalObject()
 
+if hosting_subscription.getMonitorScope() == "disable":
+  # Don't generate ticket if Monitor Scope is marked to disable
+  return
+
 if portal.ERP5Site_isSupportRequestCreationClosed():
   # Stop ticket creation
   return
@@ -13,9 +17,6 @@ date_check_limit = addToDate(DateTime(), to_add={'hour': -1})
 if (date_check_limit - hosting_subscription.Base_getCachedCreationDate()) < 0:
   # Too early to check
   return
-
-#if not source_instance:
-#  return
 
 software_instance_list = hosting_subscription.getSpecialiseRelatedValueList(
                  portal_type=["Software Instance", "Slave Instance"])

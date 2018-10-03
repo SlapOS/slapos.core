@@ -2,6 +2,7 @@ Assignment | SlaposAssignmentConstraint
 Computer Model | SlaposCapacity
 Computer Partition | ComputerPartition
 Computer Partition | SlaposComputerPartitionConstraint
+Computer | ComputerSlapOSMetadata
 Computer | ERP5User
 Computer | SlaposCapacity
 Computer | SlaposComputerConstraint

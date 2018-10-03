@@ -3,6 +3,7 @@
   <item>SlaposAssignmentConstraint</item>
  </portal_type>
  <portal_type id="Computer">
+  <item>ComputerSlapOSMetadata</item>
   <item>ERP5User</item>
   <item>SlaposCapacity</item>
   <item>SlaposComputerConstraint</item>

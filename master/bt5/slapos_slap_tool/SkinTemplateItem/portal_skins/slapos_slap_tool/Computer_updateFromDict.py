@@ -43,9 +43,29 @@ for c in context.contentValues(portal_type="Computer Partition"):
   existing_partition_dict[c.getReference()] = c
 
 # update computer data
+edit_kw = {}
 quantity = len(computer_dict['partition_list'])
 if context.getQuantity() != quantity:
-  context.edit(quantity=quantity)
+  edit_kw['quantity'] = quantity
+
+os_type = computer_dict.get('os_type', None)
+if context.getOsType() != os_type:
+  edit_kw['os_type'] = os_type
+
+public_ipv4_address = computer_dict.get('public_ipv4_address', None)
+if context.getPublicIpv4Address() != public_ipv4_address:
+  edit_kw['public_ipv4_address'] = public_ipv4_address
+
+python_version = computer_dict.get('python_version', None)
+if context.getPythonVersion() != python_version:
+  edit_kw['python_version'] = python_version
+
+slapos_version = computer_dict.get('slapos_version', None)
+if context.getSlaposVersion() != slapos_version:
+  edit_kw['slapos_version'] = slapos_version
+
+if edit_kw:
+  context.edit(**edit_kw)
 
 compareAndUpdateAddressList(context, [{'addr': computer_dict['address'], 'netmask': computer_dict['netmask']}])
 expected_partition_dict = {}

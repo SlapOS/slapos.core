@@ -1,3 +1,6 @@
+if context.getSimulationState() != "draft":
+  return
+
 sale_invoice_transaction = context.getCausalityValue(
   portal_type="Sale Invoice Transaction")
 

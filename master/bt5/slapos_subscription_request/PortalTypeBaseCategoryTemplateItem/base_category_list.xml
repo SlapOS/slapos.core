@@ -9,6 +9,7 @@
  <portal_type id="Subscription Request">
   <item>causality</item>
   <item>destination_section</item>
+  <item>specialise</item>
  </portal_type>
  <portal_type id="Subscription Request Module">
   <item>business_application</item>

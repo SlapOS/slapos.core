@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 from multiprocessing import Process, active_children, cpu_count, Pipe
 import subprocess
@@ -120,7 +121,7 @@ def launchTemperatureTest(sensor_id, sensor_bin="sensors", timeout=600, interval
 
   for connection in process_connection_list:
     try:
-      print connection.recv()
+      print(connection.recv())
     except EOFError:
       continue
 

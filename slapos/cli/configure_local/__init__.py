@@ -120,8 +120,8 @@ def _replaceParameterValue(original_content, to_replace):
     to_replace by their value.
     """
     for key, value in to_replace:
-        original_content = re.sub('%s\s+=.*' % key, '%s = %s' % (key, value),
-          str(original_content))
+        original_content = re.sub(b'%s\s+=.*' % key, b'%s = %s' % (key, value),
+          original_content)
     return original_content
 
 def _generateSlaposNodeConfigurationFile(slapos_node_config_path, args):

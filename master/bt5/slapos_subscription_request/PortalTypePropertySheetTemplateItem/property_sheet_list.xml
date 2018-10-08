@@ -12,6 +12,7 @@
   <item>SlapOSAccountingHostingSubscriptionConstraint</item>
   <item>SlaposHostingSubscriptionConstraint</item>
   <item>SoftwareInstance</item>
+  <item>TextDocument</item>
   <item>Url</item>
   <item>VariationRange</item>
  </portal_type>

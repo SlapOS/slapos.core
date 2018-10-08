@@ -31,10 +31,10 @@ from __future__ import print_function
 import psutil
 import os
 import subprocess
-from temperature import collectComputerTemperature, \
+from .temperature import collectComputerTemperature, \
                         launchTemperatureTest
 
-from temperature.heating import get_contribution_ratio
+from .temperature.heating import get_contribution_ratio
 
 MEASURE_INTERVAL = 5
 

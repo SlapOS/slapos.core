@@ -27,6 +27,8 @@
 #
 ##############################################################################
 
+from six.moves import zip
+
 from lxml import etree as ElementTree
 from slapos.util import mkdir_p
 
@@ -139,7 +141,7 @@ class ConsumptionReportBase(object):
                        columns="SUM(cpu_percent)", 
                        where="partition = '%s'" % partition_id)
 
-    cpu_percent_sum = zip(*query_result_cursor)
+    cpu_percent_sum = list(zip(*query_result_cursor))
     if len(cpu_percent_sum) and cpu_percent_sum[0][0] is None:
       return
 
@@ -147,7 +149,7 @@ class ConsumptionReportBase(object):
                        columns="COUNT(DISTINCT time)", 
                        where="partition = '%s'" % partition_id)
 
-    sample_amount = zip(*query_result_cursor)
+    sample_amount = list(zip(*query_result_cursor))
     self.db.close()
 
     if len(sample_amount) and len(cpu_percent_sum):
@@ -159,7 +161,7 @@ class ConsumptionReportBase(object):
                        columns="SUM(memory_rss)", 
                        where="partition = '%s'" % partition_id)
 
-    memory_sum = zip(*query_result_cursor)
+    memory_sum = list(zip(*query_result_cursor))
     if len(memory_sum) and memory_sum[0][0] is None:
       return
 
@@ -167,7 +169,7 @@ class ConsumptionReportBase(object):
                        columns="COUNT(DISTINCT time)", 
                        where="partition = '%s'" % partition_id)
 
-    sample_amount = zip(*query_result_cursor)
+    sample_amount = list(zip(*query_result_cursor))
     self.db.close()
 
     if len(sample_amount) and len(memory_sum):
@@ -179,14 +181,14 @@ class ConsumptionReportBase(object):
                        columns="SUM(disk_used)", 
                        where="partition = '%s'" % partition_id)
 
-    disk_used_sum = zip(*query_result_cursor)
+    disk_used_sum = list(zip(*query_result_cursor))
     if len(disk_used_sum) and disk_used_sum[0][0] is None:
       return
     query_result_cursor = self.db.select("folder", date_scope,
                        columns="COUNT(DISTINCT time)", 
                        where="partition = '%s'" % partition_id)
 
-    collect_amount = zip(*query_result_cursor)
+    collect_amount = list(zip(*query_result_cursor))
     self.db.close()
 
     if len(collect_amount) and len(disk_used_sum):
@@ -301,7 +303,7 @@ class ConsumptionReport(ConsumptionReportBase):
     query_result_cursor = self.db.select("system", date_scope, 
                        columns="SUM(cpu_percent)/COUNT(cpu_percent)")
 
-    cpu_load_percent_list = zip(*query_result_cursor)
+    cpu_load_percent_list = list(zip(*query_result_cursor))
     self.db.close()
     if len(cpu_load_percent_list):
       return cpu_load_percent_list[0][0]
@@ -311,7 +313,7 @@ class ConsumptionReport(ConsumptionReportBase):
     query_result_cursor = self.db.select("system", date_scope, 
                        columns="SUM(memory_used)/COUNT(memory_used)")
 
-    memory_used_list = zip(*query_result_cursor)
+    memory_used_list = list(zip(*query_result_cursor))
     self.db.close()
     if len(memory_used_list):
       return memory_used_list[0][0]

@@ -43,7 +43,7 @@ from slapos.collect.reporter import RawCSVDumper, \
                                     compressLogFolder, \
                                     ConsumptionReport 
 
-from entity import get_user_list, Computer
+from .entity import get_user_list, Computer
 
 def _get_time():
   return strftime("%Y-%m-%d -- %H:%M:%S").split(" -- ")

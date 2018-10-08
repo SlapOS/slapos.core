@@ -44,6 +44,7 @@ import xml_marshaller
 from xml_marshaller.xml_marshaller import loads
 from xml_marshaller.xml_marshaller import dumps
 
+import six
 from six.moves import range
 
 app = Flask(__name__)
@@ -81,7 +82,7 @@ def xml2dict(xml):
 
 def dict2xml(dictionary):
   instance = etree.Element('instance')
-  for parameter_id, parameter_value in dictionary.iteritems():
+  for parameter_id, parameter_value in six.iteritems(dictionary):
     # cast everything to string
     parameter_value = unicode(parameter_value)
     etree.SubElement(instance, "parameter",
@@ -93,7 +94,7 @@ def dict2xml(dictionary):
 
 
 def partitiondict2partition(partition):
-  for key, value in partition.iteritems():
+  for key, value in six.iteritems(partition):
     if type(value) is unicode:
       partition[key] = value.encode()
   slap_partition = ComputerPartition(partition['computer_reference'],
@@ -188,7 +189,7 @@ def _upgradeDatabaseIfNeeded():
   if current_schema_version == DB_VERSION:
     return
 
-  schema = app.open_resource('schema.sql')
+  schema = app.open_resource('schema.sql', 'r')
   schema = schema.read() % dict(version=DB_VERSION, computer=app.config['computer_id'])
   g.db.cursor().executescript(schema)
   g.db.commit()
@@ -308,7 +309,7 @@ def useComputer():
 @app.route('/loadComputerConfigurationFromXML', methods=['POST'])
 def loadComputerConfigurationFromXML():
   xml = request.form['xml']
-  computer_dict = xml_marshaller.xml_marshaller.loads(str(xml))
+  computer_dict = xml_marshaller.xml_marshaller.loads(str(xml).encode('utf-8'))
   execute_db('computer', 'INSERT OR REPLACE INTO %s values(:reference, :address, :netmask)',
              computer_dict)
   for partition in computer_dict['partition_list']:
@@ -473,7 +474,7 @@ def isRequestToBeForwardedToExternalMaster(parsed_request_dict):
       return master_url
 
     software_release = parsed_request_dict['software_release']
-    for mutimaster_url, mutimaster_entry in app.config.get('multimaster').iteritems():
+    for mutimaster_url, mutimaster_entry in six.iteritems(app.config.get('multimaster')):
       if software_release in mutimaster_entry['software_release_list']:
         # Don't allocate the instance locally, but forward to specified master
         return mutimaster_url

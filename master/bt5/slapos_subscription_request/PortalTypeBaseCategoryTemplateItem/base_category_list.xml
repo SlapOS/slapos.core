@@ -7,6 +7,7 @@
   <item>business_application</item>
  </portal_type>
  <portal_type id="Subscription Request">
+  <item>aggregate</item>
   <item>causality</item>
   <item>destination_section</item>
   <item>specialise</item>

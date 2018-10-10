@@ -25,3 +25,10 @@ def Base_instanceXmlToDict(self, xml):
     LOG('SubscriptionRequest', INFO, 'Issue during parsing xml:', error=True)
   return result_dict
 
+def SubscriptionCondition_renderParameter(self, amount=0, **kw):
+  method_id = self.getParameterTemplateRendererMethodId()
+  if method_id is not None:
+    return getattr(self, method_id)(amount=amount, **kw)
+
+  return self.getTextContent()
+

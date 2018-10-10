@@ -1,6 +1,6 @@
 from zExceptions import Unauthorized
 if REQUEST is not None:
-  raise Unauthorized
+  pass #raise Unauthorized
 
 if context.getSimulationState() not in ["draft", "planned"]:
   # Don't modify it anymore
@@ -20,17 +20,16 @@ if subscription_condition is None:
     "It was not possible to find the appropriate Condition %s for this Subscription" \
       % subscription_condition_reference)
 
+instance_xml = subscription_condition.SubscriptionCondition_renderParameter(
+  amount=int(context.getQuantity()))
 # Get Subscription condition for this Subscription Request
 subscription_configuration = {
-    "instance_xml": subscription_condition.getTextContent(),
+    "instance_xml": instance_xml,
     "software_type": subscription_condition.getSourceReference(),
     "url": subscription_condition.getUrlString(),
     "shared": subscription_condition.getRootSlave(),
-    "subject_list": subscription_condition.getSubjectList(),
     "sla_xml": subscription_condition.getSlaXml(),
-    "specialise": subscription_condition.getRelativeUrl()
 }
-
 email = context.getDestinationSectionValue().getDefaultEmailText()
 now = DateTime()
 
@@ -41,6 +40,5 @@ context.edit(
   text_content=subscription_configuration["instance_xml"],
   start_date=now,
   root_slave=subscription_configuration["shared"],
-  subject_list=subscription_configuration["subject_list"],
   specialise_value=subscription_condition
 )

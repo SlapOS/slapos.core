@@ -5,6 +5,9 @@
   This adapt the definition of KVM to instantiate multiple VMs instead a single
   for example.
 """
+from zExceptions import Unauthorized
+if REQUEST is not None:
+  raise Unauthorized
 import json
 
 parameter_text = context.getTextContent()

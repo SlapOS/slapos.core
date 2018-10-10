@@ -116,7 +116,7 @@ class SlapPopen(subprocess.Popen):
     # don't leak log & co. filedescriptors to child process
     kwargs.setdefault('close_fds', True)
 
-    subprocess.Popen.__init__(self, *args, **kwargs)
+    subprocess.Popen.__init__(self, universal_newlines=True, *args, **kwargs)
     if debug:
       self.wait()
       self.output = '(output not captured in debug mode)'
@@ -133,7 +133,7 @@ class SlapPopen(subprocess.Popen):
         break
       if line:
         output_lines.append(line)
-        logger.info(line.rstrip(b'\n'))
+        logger.info(line.rstrip('\n'))
     self.output = ''.join(output_lines)
 
 

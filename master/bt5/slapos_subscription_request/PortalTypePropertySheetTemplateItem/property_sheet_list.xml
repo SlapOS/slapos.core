@@ -6,6 +6,7 @@
   <item>Url</item>
  </portal_type>
  <portal_type id="Subscription Request">
+  <item>Amount</item>
   <item>CredentialRequest</item>
   <item>HostingSubscription</item>
   <item>Person</item>

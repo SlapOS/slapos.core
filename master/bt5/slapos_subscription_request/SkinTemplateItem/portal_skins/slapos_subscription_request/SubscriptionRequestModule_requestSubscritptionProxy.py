@@ -21,7 +21,8 @@ if confirmation_required and not person_is_new:
 
 subscription_request = context.subscription_request_module.newContent(
   portal_type="Subscription Request",
-  destination_section_value=person
+  destination_section_value=person,
+  quantity=user_input_dict["amount"]
 )
 
 subscription_request.setDefaultEmailText(email)

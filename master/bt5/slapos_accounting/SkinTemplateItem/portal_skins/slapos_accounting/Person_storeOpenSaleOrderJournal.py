@@ -37,7 +37,7 @@ def storeWorkflowComment(document, comment):
 
 def calculateOpenOrderLineStopDate(open_order_line, hosting_subscription):
   end_date = hosting_subscription.HostingSubscription_calculateSubscriptionStopDate()
-  if end_date is None: 
+  if end_date is None:
     # Be sure that start date is different from stop date
     next_stop_date = hosting_subscription.getNextPeriodicalDate(hosting_subscription.HostingSubscription_calculateSubscriptionStartDate())
     current_stop_date = next_stop_date
@@ -148,12 +148,22 @@ if (add_line_list):
     open_sale_order_line = open_sale_order_line_template.Base_createCloneDocument(batch_mode=1,
         destination=open_sale_order)
     start_date = hosting_subscription.HostingSubscription_calculateSubscriptionStartDate()
+
+    edit_kw = {}
+    subscription_request = hosting_subscription.getAggregateRelatedValue(portal_type="Subscription Request")
+    if subscription_request is not None:
+      edit_kw['quantity'] = subscription_request.getQuantity()
+      edit_kw['price'] = subscription_request.getPrice()
+      edit_kw['price_currency'] = subscription_request.getPriceCurrency()
+      
+    
     open_sale_order_line.edit(
       activate_kw=activate_kw,
       title=hosting_subscription.getTitle(),
       start_date=start_date,
       stop_date=calculateOpenOrderLineStopDate(open_sale_order_line, hosting_subscription),
       aggregate_value=hosting_subscription,
+      **edit_kw
       )
     storeWorkflowComment(open_sale_order_line, "Created for %s" % hosting_subscription.getRelativeUrl())
     if (hosting_subscription.getSlapState() == 'destroy_requested'):

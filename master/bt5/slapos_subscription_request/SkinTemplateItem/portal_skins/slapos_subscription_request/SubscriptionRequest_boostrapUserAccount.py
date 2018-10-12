@@ -14,6 +14,10 @@ reference = None
 password = None
 
 person = context.getDestinationSectionValue(portal_type="Person")
+
+if person.getDefaultEmailText() is None:
+  person.setDefaultEmailText(context.getDefaultEmailText())
+
 # Should come from subscription condition probably or preference
 role_list = ['member', 'subscriber']
 

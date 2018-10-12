@@ -2,9 +2,9 @@ from zExceptions import Unauthorized
 if REQUEST is not None:
   raise Unauthorized
 
-if context.getSimulationState() not in ["draft", "planned"]:
+#if context.getSimulationState() not in ["draft", "planned"]:
   # Don't modify it anymore
-  return
+#  return
 
 if subscription_condition_reference is not None:
   # It would be better use some clever API here.
@@ -23,23 +23,20 @@ if subscription_condition is None:
 instance_xml = subscription_condition.SubscriptionCondition_renderParameter(
   amount=int(context.getQuantity()))
 # Get Subscription condition for this Subscription Request
-subscription_configuration = {
-    "instance_xml": instance_xml,
-    "software_type": subscription_condition.getSourceReference(),
-    "url": subscription_condition.getUrlString(),
-    "shared": subscription_condition.getRootSlave(),
-    "sla_xml": subscription_condition.getSlaXml(),
-    "specialise": subscription_condition.getRelativeUrl()
-}
+
 email = context.getDestinationSectionValue().getDefaultEmailText()
 now = DateTime()
 
 context.edit(
-  source_reference=subscription_configuration["software_type"],
   title="Subscription %s for %s" % (subscription_condition.getTitle(), email),
-  url_string=subscription_configuration["url"],
-  text_content=subscription_configuration["instance_xml"],
+  url_string=subscription_condition.getUrlString(),
+  text_content=instance_xml,
+  sla_xml=subscription_condition.getSlaXml(),
   start_date=now,
-  root_slave=subscription_configuration["shared"],
-  specialise_value=subscription_condition
+  root_slave=subscription_condition.getRootSlave(),
+  specialise_value=subscription_condition,
+  price=subscription_condition.getPrice(),
+  price_currency=subscription_condition.getPriceCurrency()
 )
+
+context.setSourceReference(subscription_condition.getSourceReference())

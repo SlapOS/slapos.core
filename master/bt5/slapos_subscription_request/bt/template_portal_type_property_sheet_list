@@ -1,4 +1,6 @@
 Subscription Condition | HostingSubscription
+Subscription Condition | Price
+Subscription Condition | SlapOSSubscriptionCondition
 Subscription Condition | SoftwareInstance
 Subscription Condition | TextDocument
 Subscription Condition | Url
@@ -6,6 +8,7 @@ Subscription Request | Amount
 Subscription Request | CredentialRequest
 Subscription Request | HostingSubscription
 Subscription Request | Person
+Subscription Request | Reference
 Subscription Request | SlapOSAccountingHostingSubscriptionConstraint
 Subscription Request | SlaposHostingSubscriptionConstraint
 Subscription Request | SoftwareInstance

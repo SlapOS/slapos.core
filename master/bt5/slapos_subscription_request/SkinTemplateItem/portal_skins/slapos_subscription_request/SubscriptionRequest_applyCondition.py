@@ -1,6 +1,6 @@
 from zExceptions import Unauthorized
 if REQUEST is not None:
-  pass #raise Unauthorized
+  raise Unauthorized
 
 if context.getSimulationState() not in ["draft", "planned"]:
   # Don't modify it anymore
@@ -29,6 +29,7 @@ subscription_configuration = {
     "url": subscription_condition.getUrlString(),
     "shared": subscription_condition.getRootSlave(),
     "sla_xml": subscription_condition.getSlaXml(),
+    "specialise": subscription_condition.getRelativeUrl()
 }
 email = context.getDestinationSectionValue().getDefaultEmailText()
 now = DateTime()

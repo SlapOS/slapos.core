@@ -90,6 +90,7 @@
                         <string>my_specialise_title_list</string>
                         <string>my_causality_title_list</string>
                         <string>my_destination_section_title_list</string>
+                        <string>my_source_section_title</string>
                       </list>
                     </value>
                 </item>

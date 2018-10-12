@@ -481,8 +481,8 @@ class Partition(object):
       }
 
   def addCustomGroup(self, group_suffix, partition_id, program_list):
-    group_partition_template = pkg_resources.resource_stream(__name__,
-      'templates/group_partition_supervisord.conf.in').read()
+    group_partition_template = pkg_resources.resource_string(__name__,
+      'templates/group_partition_supervisord.conf.in').decode('utf-8')
     group_id = '{}-{}'.format(partition_id, group_suffix)
 
     self.supervisor_configuration_group += group_partition_template % {
@@ -569,7 +569,7 @@ class Partition(object):
     # fill generated buildout with additional information
     buildout_text = open(config_location).read()
     buildout_text += '\n\n' + pkg_resources.resource_string(__name__,
-        'templates/buildout-tail.cfg.in') % {
+        'templates/buildout-tail.cfg.in').decode('utf-8') % {
             'computer_id': self.computer_id,
             'partition_id': self.partition_id,
             'server_url': self.server_url,

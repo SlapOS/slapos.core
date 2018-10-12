@@ -33,6 +33,8 @@ import logging
 from slapos.proxy.views import app
 from slapos.util import sqlite_connect
 
+import six
+
 def _generateSoftwareProductListFromString(software_product_list_string):
   """
   Take a string as argument (which usually comes from the software_product_list
@@ -72,7 +74,7 @@ class ProxyConfig(object):
       elif section.startswith('multimaster/'):
         # Merge multimaster configuration if any
         # XXX: check for duplicate SR entries
-        for key, value in configuration_dict.iteritems():
+        for key, value in six.iteritems(configuration_dict):
           if key == 'software_release_list':
             # Split multi-lines values
             configuration_dict[key] = [line.strip() for line in value.strip().split('\n')]

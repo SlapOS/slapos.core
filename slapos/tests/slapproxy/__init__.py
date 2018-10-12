@@ -28,6 +28,7 @@
 #
 ##############################################################################
 
+import six
 from six.moves import configparser
 import os
 import logging
@@ -1054,9 +1055,9 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     Overwrite default slapos configuration file to enable specific multimaster
     behaviours.
     """
-    configuration = pkg_resources.resource_stream(
+    configuration = pkg_resources.resource_string(
         'slapos.tests.slapproxy', 'slapos_multimaster.cfg.in'
-    ).read() % {
+    ).decode('utf-8') % {
         'tempdir': self._tempdir, 'proxyaddr': self.proxyaddr,
         'external_proxy_host': self.external_proxy_host,
         'external_proxy_port': self.external_proxy_port
@@ -1121,7 +1122,7 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     external_slap.initializeConnection(self.external_master_url)
     external_computer = external_slap.registerComputer(self.external_computer_id)
     external_partition = external_computer.getComputerPartitionList()[0]
-    for k, v in partition_parameter_kw.iteritems():
+    for k, v in six.iteritems(partition_parameter_kw):
       self.assertEqual(
           external_partition.getInstanceParameter(k),
           v
@@ -1146,7 +1147,7 @@ database_uri = %(tempdir)s/lib/external_proxy.db
         '/getFullComputerInformation?computer_id=%s' % self.computer_id
     ).data)
     partition = computer._computer_partition_list[0]
-    for k, v in partition_parameter_kw.iteritems():
+    for k, v in six.iteritems(partition_parameter_kw):
       self.assertEqual(
           partition.getInstanceParameter(k),
           v
@@ -1251,7 +1252,7 @@ database_uri = %(tempdir)s/lib/external_proxy.db
         '/getFullComputerInformation?computer_id=%s' % self.computer_id
     ).data)
     partition = computer._computer_partition_list[0]
-    for k, v in dummy_parameter_dict.iteritems():
+    for k, v in six.iteritems(dummy_parameter_dict):
       self.assertEqual(
           partition.getInstanceParameter(k),
           v
@@ -1271,8 +1272,10 @@ class TestMigrateVersion10To11(TestInformation, TestRequest, TestSlaveRequest, T
   """
   def setUp(self):
     super(TestMigrateVersion10To11, self).setUp()
-    schema = pkg_resources.resource_stream('slapos.tests.slapproxy', 'database_dump_version_10.sql')
-    schema = schema.read() % dict(version='11')
+    schema = pkg_resources.resource_string(
+      'slapos.tests.slapproxy',
+      'database_dump_version_10.sql'
+    ).decode('utf-8') % dict(version='11')
     self.db = sqlite_connect(self.proxy_db)
     self.db.cursor().executescript(schema)
     self.db.commit()

@@ -57,10 +57,10 @@ class UnauthorizedError(Exception):
 
 # cast everything to string, utf-8 encoded
 def to_str(v):
-  if isinstance(v, str):
+  if isinstance(v, six.binary_type):
     return v
-  if not isinstance(v, unicode):
-    v = unicode(v)
+  if not isinstance(v, six.text_type):
+    v = six.text_type(v)
   return v.encode('utf-8')
 
 
@@ -84,7 +84,7 @@ def dict2xml(dictionary):
   instance = etree.Element('instance')
   for parameter_id, parameter_value in six.iteritems(dictionary):
     # cast everything to string
-    parameter_value = unicode(parameter_value)
+    parameter_value = six.text_type(parameter_value)
     etree.SubElement(instance, "parameter",
                      attrib={'id': parameter_id}).text = parameter_value
   return etree.tostring(instance,
@@ -95,7 +95,7 @@ def dict2xml(dictionary):
 
 def partitiondict2partition(partition):
   for key, value in six.iteritems(partition):
-    if type(value) is unicode:
+    if type(value) is six.text_type:
       partition[key] = value.encode()
   slap_partition = ComputerPartition(partition['computer_reference'],
       partition['reference'])
@@ -511,8 +511,7 @@ def forwardRequestToExternalMaster(master_url, request_form):
   new_request_form['filter_xml'] = dumps(filter_kw)
 
   xml = slap._connection_helper.POST('/requestComputerPartition', data=new_request_form)
-  if type(xml) is unicode:
-    xml = str(xml)
+  if type(xml) is six.text_type:
     xml.encode('utf-8')
   partition = loads(xml)
 
@@ -793,7 +792,7 @@ def getSoftwareReleaseListFromSoftwareProduct():
     raise NotImplementedError('software_release_url parameter is not supported yet.')
   else:
     assert(software_product_reference is not None)
-    if app.config['software_product_list'].has_key(software_product_reference):
+    if software_product_reference in app.config['software_product_list']:
       software_release_url_list =\
           [app.config['software_product_list'][software_product_reference]]
     else:

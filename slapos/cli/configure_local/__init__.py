@@ -120,14 +120,13 @@ def _replaceParameterValue(original_content, to_replace):
     to_replace by their value.
     """
     for key, value in to_replace:
-        original_content = re.sub(b'%s\s+=.*' % key, b'%s = %s' % (key, value),
+        original_content = re.sub('%s\s+=.*' % key, '%s = %s' % (key, value),
           original_content)
     return original_content
 
 def _generateSlaposNodeConfigurationFile(slapos_node_config_path, args):
     template_arg_list = (__name__, '../../slapos.cfg.example')
-    with pkg_resources.resource_stream(*template_arg_list) as fout:
-      slapos_node_configuration_template = fout.read()
+    slapos_node_configuration_template = pkg_resources.resource_string(*template_arg_list).decode('utf-8')
     master_url = 'http://%s:%s' % (args.daemon_listen_ip, args.daemon_listen_port)
     slapos_home = args.slapos_buildout_directory
     to_replace = [
@@ -153,8 +152,7 @@ def _generateSlaposNodeConfigurationFile(slapos_node_config_path, args):
 
 def _generateSlaposProxyConfigurationFile(conf):
     template_arg_list = (__name__, '../../slapos-proxy.cfg.example')
-    with pkg_resources.resource_stream(*template_arg_list) as fout:
-      slapos_proxy_configuration_template = fout.read()
+    slapos_proxy_configuration_template = pkg_resources.resource_string(*template_arg_list).decode('utf-8')
     slapos_proxy_configuration_path = os.path.join(
       conf.slapos_configuration_directory, 'slapos-proxy.cfg')
     listening_ip, listening_port = \

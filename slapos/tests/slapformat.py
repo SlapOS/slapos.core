@@ -48,6 +48,8 @@ import mock
 
 from .slapgrid import DummyManager
 
+import six
+
 USER_LIST = []
 GROUP_LIST = []
 INTERFACE_DICT = {}
@@ -134,7 +136,7 @@ class LoggableWrapper:
 
   def __call__(self, *args, **kwargs):
     arg_list = [repr(x) for x in args] + [
-      '%s=%r' % (x, y) for x, y in kwargs.iteritems()]
+      '%s=%r' % (x, y) for x, y in six.iteritems(kwargs)]
     self.__logger.debug('%s(%s)' % (self.__name, ', '.join(arg_list)))
 
 

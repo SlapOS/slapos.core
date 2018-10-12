@@ -1,4 +1,5 @@
 portal = context.getPortalObject()
+sender = context.getSourceSectionValue(portal_type="Person")
 recipient = context.getDestinationSectionValue(portal_type="Person")
 
 #Define the type of notification
@@ -13,8 +14,16 @@ notification_message = portal.portal_notifications.getDocumentValue(reference=no
 if notification_message is None:
   raise ValueError, 'Unable to found Notification Message with reference "%s".' % notification_reference
 
+if reference is None:
+  login_list = recipient.searchFolder(portal_type="ERP5 Login")
+  if login_list:
+    reference = login_list[0].getReference()
+
 #Set notification mapping
-notification_mapping_dict = {'login_name': reference}
+notification_mapping_dict = {
+  'login_name': reference,
+  'name': recipient.getTitle()}
+
 if password:
   notification_mapping_dict.update(
                             {'login_password' : password})
@@ -29,7 +38,7 @@ else:
 
 #Send email
 portal.portal_notifications.sendMessage(
-  sender=None,
+  sender=sender,
   recipient=recipient,
   subject=notification_message.getTitle(),
   message=mail_text,

@@ -40,6 +40,7 @@ import os
 import json
 import logging
 import re
+import six
 from six.moves.urllib import parse
 
 import hashlib
@@ -93,8 +94,7 @@ class SlapRequester(SlapDocument):
         request_dict=request_dict,
         connection_helper=self._connection_helper,
       )
-    if type(xml) is unicode:
-      xml = str(xml)
+    if type(xml) is six.text_type:
       xml.encode('utf-8')
     software_instance = xml_marshaller.loads(xml)
     computer_partition = ComputerPartition(
@@ -210,7 +210,7 @@ class SoftwareInstance(SlapDocument):
     """
     Makes easy initialisation of class parameters
     """
-    for k, v in kwargs.iteritems():
+    for k, v in six.iteritems(kwargs):
       setattr(self, k, v)
 
 
@@ -281,7 +281,7 @@ class OpenOrder(SlapRequester):
     raw_information = self._hateoas_navigator.getHostingSubscriptionRootSoftwareInstanceInformation(partition_reference)
     software_instance = SoftwareInstance()
     # XXX redefine SoftwareInstance to be more consistent
-    for key, value in raw_information.iteritems():
+    for key, value in six.iteritems(raw_information):
       if key in ['_links']:
         continue
       setattr(software_instance, '_%s' % key, value)
@@ -308,8 +308,7 @@ def _syncComputerInformation(func):
       return func(self, *args, **kw)
     computer = self._connection_helper.getFullComputerInformation(self._computer_id)
     for key, value in computer.__dict__.items():
-      if isinstance(value, unicode):
-        # convert unicode to utf-8
+      if isinstance(value, six.text_type):
         setattr(self, key, value.encode('utf-8'))
       else:
         setattr(self, key, value)
@@ -530,7 +529,7 @@ class ComputerPartition(SlapRequester):
     raw_information = self._hateoas_navigator.getRelatedInstanceInformation(partition_reference)
     software_instance = SoftwareInstance()
     # XXX redefine SoftwareInstance to be more consistent
-    for key, value in raw_information.iteritems():
+    for key, value in six.iteritems(raw_information):
       if key in ['_links']:
         continue
       setattr(software_instance, '_%s' % key, value)
@@ -729,8 +728,7 @@ class ConnectionHelper:
       # We should stablise slap library soon.
       xml = self.GET('getComputerInformation', params=params)
 
-    if type(xml) is unicode:
-      xml = str(xml)
+    if type(xml) is six.text_type:
       xml.encode('utf-8')
     return xml_marshaller.loads(xml)
 
@@ -755,7 +753,7 @@ class ConnectionHelper:
       # Behavior kept for compatibility with old slapproxies (< v1.3.3).
       # Can be removed when old slapproxies are no longer in use.
       if data:
-        for k, v in data.iteritems():
+        for k, v in six.iteritems(data):
           if v is None:
             data[k] = 'None'
 
@@ -1041,7 +1039,7 @@ class SlapHateoasNavigator(HateoasNavigator):
       raw_information = self.getHostingSubscriptionRootSoftwareInstanceInformation(hosting_subscription_link['title'])
       software_instance = SoftwareInstance()
       # XXX redefine SoftwareInstance to be more consistent
-      for key, value in raw_information.iteritems():
+      for key, value in six.iteritems(raw_information):
         if key in ['_links']:
           continue
         setattr(software_instance, '_%s' % key, value)

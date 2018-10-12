@@ -89,8 +89,8 @@ def createSupervisordConfiguration(instance_root, watchdog_command=''):
 
   # Creates supervisord configuration
   updateFile(supervisord_configuration_file_path,
-    pkg_resources.resource_stream(__name__,
-      'templates/supervisord.conf.in').read() % {
+    pkg_resources.resource_string(__name__,
+      'templates/supervisord.conf.in').decode('utf-8') % {
           'supervisord_configuration_directory': supervisord_configuration_directory,
           'supervisord_socket': os.path.abspath(supervisord_socket),
           'supervisord_loglevel': 'info',

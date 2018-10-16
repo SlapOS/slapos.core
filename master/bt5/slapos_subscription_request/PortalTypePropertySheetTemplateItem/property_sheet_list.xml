@@ -12,6 +12,7 @@
   <item>CredentialRequest</item>
   <item>HostingSubscription</item>
   <item>Person</item>
+  <item>Price</item>
   <item>Reference</item>
   <item>SlapOSAccountingHostingSubscriptionConstraint</item>
   <item>SlaposHostingSubscriptionConstraint</item>

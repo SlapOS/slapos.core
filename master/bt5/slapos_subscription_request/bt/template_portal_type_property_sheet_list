@@ -8,6 +8,7 @@ Subscription Request | Amount
 Subscription Request | CredentialRequest
 Subscription Request | HostingSubscription
 Subscription Request | Person
+Subscription Request | Price
 Subscription Request | Reference
 Subscription Request | SlapOSAccountingHostingSubscriptionConstraint
 Subscription Request | SlaposHostingSubscriptionConstraint

@@ -45,9 +45,8 @@ for movement in movement_list:
     price_currency=movement.getPriceCurrency()
   )
   if movement.getResource() == 'service_module/slapos_instance_subscription':
-    temp_movement.edit(price=0.83612040133800003)
-  else:
-    temp_movement.edit(price=0.0)
+    temp_movement.edit(price=movement.getPrice())
+
   temp_movement_list.append(temp_movement)
   id += 1
 

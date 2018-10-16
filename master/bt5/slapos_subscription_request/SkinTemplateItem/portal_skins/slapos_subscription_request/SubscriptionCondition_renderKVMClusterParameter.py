@@ -24,10 +24,10 @@ if "_" in json_parameter:
 else:
   raise ValueError("KVM Cluster only supports serialised values!")
 
-KVM1 = json_parameter["kvm-partition-dict"]["KVM1"]
+KVM0 = json_parameter["kvm-partition-dict"]["KVM0"]
 
 for i in range(amount):
-  json_parameter["kvm-partition-dict"]["KVM" + str(i)] = KVM1
+  json_parameter["kvm-partition-dict"]["KVM" + str(i)] = KVM0
 
 xml_paramerter = """
   <?xml version="1.0" encoding="utf-8"?>

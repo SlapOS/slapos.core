@@ -195,3 +195,14 @@ label.slapos-parameter-dict-key ~ div.input label {
   left: 4px;
 }
 
+  .subfield {
+    min-height: 5em;
+  }
+  .subfield select {
+    margin-bottom: 0;
+  }
+  .subfield .input select + span {
+    position: relative;
+    top: -1.9em;
+    opacity: .7;
+  }

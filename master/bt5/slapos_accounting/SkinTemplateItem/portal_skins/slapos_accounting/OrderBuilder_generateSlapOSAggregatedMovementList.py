@@ -47,6 +47,8 @@ for movement in movement_list:
   if movement.getResource() == 'service_module/slapos_instance_subscription':
     # reduce tax from there directly
     temp_movement.edit(price=movement.getPrice(0.0)/1.2)
+  else:
+    temp_movement.edit(price=0.0)
 
   temp_movement_list.append(temp_movement)
   id += 1

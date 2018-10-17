@@ -24,6 +24,12 @@ def assignComputerPartition(software_instance, hosting_subscription):
     if not person.Person_isAllowedToAllocate():
       raise Unauthorized('Allocation disallowed')
 
+    subscription_request = hosting_subscription.getAggregateRelatedValue(
+        portal_type="Subscription Request")
+    if subscription_request is not None:
+      if subscription_request.getSimulationState() not in ["confirmed", "started"]:
+        raise Unauthorized("Related Subscription Requested isn't confirmed or started")
+
     tag = None
     try:
       sla_dict = software_instance.getSlaXmlAsDict()

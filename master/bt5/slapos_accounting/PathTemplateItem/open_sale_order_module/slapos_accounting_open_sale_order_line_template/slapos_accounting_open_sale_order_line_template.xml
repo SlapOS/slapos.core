@@ -38,9 +38,7 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>Price is an TCC (20% included)</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
@@ -66,7 +64,7 @@
         </item>
         <item>
             <key> <string>price</string> </key>
-            <value> <float>0.836120401338</float> </value>
+            <value> <float>1.0</float> </value>
         </item>
         <item>
             <key> <string>quantity</string> </key>

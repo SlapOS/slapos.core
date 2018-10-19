@@ -1,5 +1,5 @@
 import random
-from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, ComplexQuery
+from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, ComplexQuery, NegatedQuery
 person = context
 
 computer_partition = None
@@ -85,6 +85,10 @@ query_kw["capacity_scope_uid"] = context.getPortalObject().portal_categories.cap
 if subscription_reference is not None:
   # Subscriptions uses a specific set of allocation scope
   query_kw["allocation_scope_uid"] = context.getPortalObject().portal_categories.allocation_scope.open.subscription.getUid()
+else:
+  # else pic anything but open/subscription
+  query_kw["allocation_scope_uid"] = NegatedQuery(SimpleQuery(allocation_scope_uid=context.getPortalObject().portal_categories.allocation_scope.open.subscription.getUid()))
+
 
 extra_query_kw = context.ComputerPartition_getCustomAllocationParameterDict(
       software_release_url, software_type, software_instance_portal_type,

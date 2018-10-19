@@ -24,11 +24,15 @@ def assignComputerPartition(software_instance, hosting_subscription):
     if not person.Person_isAllowedToAllocate():
       raise Unauthorized('Allocation disallowed')
 
+
     subscription_request = hosting_subscription.getAggregateRelatedValue(
         portal_type="Subscription Request")
     if subscription_request is not None:
+      subscription_reference = subscription_request.getReference()
       if subscription_request.getSimulationState() not in ["confirmed", "started"]:
         raise Unauthorized("Related Subscription Requested isn't confirmed or started")
+      else:
+        subscription_reference = None
 
     tag = None
     try:
@@ -77,7 +81,7 @@ def assignComputerPartition(software_instance, hosting_subscription):
                 default_subordination_uid=computer_network.getUid()),
                 logical_operator='not',
             ))
-      
+
         computer_network_query = ComplexQuery(*computer_network_query_list)
         hosting_subscription.serialize()
 
@@ -88,7 +92,7 @@ def assignComputerPartition(software_instance, hosting_subscription):
         shadow_document=person,
         callable_object=person.Person_findPartition,
         argument_list=[software_instance.getUrlString(), software_instance.getSourceReference(),
-        software_instance.getPortalType(), sla_dict, computer_network_query])
+        software_instance.getPortalType(), sla_dict, computer_network_query, subscription_reference])
     return computer_partition_relative_url, tag
 
 software_instance = context
@@ -106,7 +110,7 @@ try:
   if tag:
     hosting_subscription.activate(activity="SQLQueue", tag=tag,
         after_tag="allocate_%s" % computer_partition_url).getId()
-  
+
 except ValueError:
   # It was not possible to find free Computer Partition
   markHistory(software_instance, 'Allocation failed: no free Computer Partition')

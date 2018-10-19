@@ -17,23 +17,31 @@ else:
   raise NotImplementedError("Unknown portal type %s"%
       software_instance_portal_type)
 
-# support SLA
-
 # Explicit location
-explicit_location = False
 if "computer_guid" in filter_kw:
-  explicit_location = True
   query_kw["parent_reference"] = SimpleQuery(parent_reference=filter_kw.pop("computer_guid"))
 
 if "instance_guid" in filter_kw:
-  explicit_location = True
-  portal = context.getPortalObject()
   instance_guid = filter_kw.pop("instance_guid")
   query_kw["aggregate_related_reference"] = SimpleQuery(aggregate_related_reference=instance_guid)
 
 if 'network_guid' in filter_kw:
   network_guid = filter_kw.pop('network_guid')
   query_kw["default_subordination_reference"] = SimpleQuery(default_subordination_reference=network_guid)
+
+if 'project_guid' in filter_kw:
+  # This implementation isn't optimal, as we would prefere place a direct query rather them make an
+  # direct query.
+  project_reference = filter_kw.pop("project_guid")
+
+  # Get Computer list from Tracking API
+  from DateTime import DateTime
+  project = context.portal_catalog(portal_type="Project", refernece=project_reference)
+
+  if project is not None:
+    query_kw["parent_reference"] = SimpleQuery(parent_reference=[i.getReference()
+             for i in context.portal_simulation.getCurrentTrackingList(
+               {"project_uid": project.getUid(), "at_date": DateTime()})])
 
 if computer_network_query:
   if query_kw.get("default_subordination_reference"):
@@ -76,9 +84,9 @@ for base_category in computer_base_category_list:
       query_kw["%s_uid" % base_category] = category.getUid()
 
 query_kw["capacity_scope_uid"] = context.getPortalObject().portal_categories.capacity_scope.open.getUid()
-# if not explicit_location:
-#   # Only allocation on public computer
-#   query_kw["allocation_scope_uid"] = context.getPortalObject().portal_categories.allocation_scope.open.public.getUid()
+if subscription_reference is not None:
+  # Subscriptions uses a specific set of allocation scope
+  query_kw["allocation_scope_uid"] = context.getPortalObject().portal_categories.allocation_scope.open.subscription.getUid()
 
 extra_query_kw = context.ComputerPartition_getCustomAllocationParameterDict(
       software_release_url, software_type, software_instance_portal_type,

@@ -18,6 +18,8 @@ category_list = []
 scope = computer.getAllocationScope()
 if scope == 'open/public':
   return {"Auditor": ["R-SHADOW-PERSON"]}
+elif scope == 'open/subscription':
+  return {"Auditor": ["R-SHADOW-PERSON"]}
 elif scope == 'open/personal':
   person = computer.getSourceAdministrationValue(portal_type="Person")
   if person is not None:

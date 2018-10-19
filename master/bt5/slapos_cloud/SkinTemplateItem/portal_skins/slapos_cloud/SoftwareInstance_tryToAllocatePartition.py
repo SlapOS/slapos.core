@@ -24,15 +24,13 @@ def assignComputerPartition(software_instance, hosting_subscription):
     if not person.Person_isAllowedToAllocate():
       raise Unauthorized('Allocation disallowed')
 
-
+    subscription_reference = None
     subscription_request = hosting_subscription.getAggregateRelatedValue(
         portal_type="Subscription Request")
     if subscription_request is not None:
       subscription_reference = subscription_request.getReference()
       if subscription_request.getSimulationState() not in ["confirmed", "started"]:
         raise Unauthorized("Related Subscription Requested isn't confirmed or started")
-      else:
-        subscription_reference = None
 
     tag = None
     try:

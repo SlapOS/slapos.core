@@ -15,11 +15,9 @@ if not amount or parameter_text is None:
   return None
 
 json_parameter = context.Base_instanceXmlToDict(parameter_text)
-serialisation = "xml"
 
 if "_" in json_parameter:
   # This is json-in-xml serialisation
-  serialisation = "json-in-xml"
   json_parameter = json.loads(json_parameter["_"])
 else:
   raise ValueError("KVM Cluster only supports serialised values!")
@@ -27,7 +25,12 @@ else:
 KVM0 = json_parameter["kvm-partition-dict"]["KVM0"]
 
 for i in range(amount):
-  json_parameter["kvm-partition-dict"]["KVM" + str(i)] = KVM0
+  if i == 0:
+    k = KVM0.copy()
+    k["sticky-computer"] = True
+    json_parameter["kvm-partition-dict"]["KVM" + str(i)] = k
+  else:
+    json_parameter["kvm-partition-dict"]["KVM" + str(i)] = KVM0
 
 xml_paramerter = """
   <?xml version="1.0" encoding="utf-8"?>

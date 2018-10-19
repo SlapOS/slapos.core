@@ -36,12 +36,10 @@ if 'project_guid' in filter_kw:
 
   # Get Computer list from Tracking API
   from DateTime import DateTime
-  project = context.portal_catalog(portal_type="Project", refernece=project_reference)
+  project = context.portal_catalog.getResultValue(portal_type="Project", reference=project_reference)
 
   if project is not None:
-    query_kw["parent_reference"] = SimpleQuery(parent_reference=[i.getReference()
-             for i in context.portal_simulation.getCurrentTrackingList(
-               {"project_uid": project.getUid(), "at_date": DateTime()})])
+    query_kw["parent_reference"] = SimpleQuery(parent_reference=project.Project_getComputerReferenceList())
 
 if computer_network_query:
   if query_kw.get("default_subordination_reference"):
@@ -91,6 +89,7 @@ if subscription_reference is not None:
 extra_query_kw = context.ComputerPartition_getCustomAllocationParameterDict(
       software_release_url, software_type, software_instance_portal_type,
       filter_kw_copy, computer_network_query, test_mode)
+
 if extra_query_kw:
   query_kw.update(extra_query_kw)
 
@@ -111,6 +110,7 @@ if offset >= SQL_WINDOW_SIZE:
   limit = (random.randint(0, offset), SQL_WINDOW_SIZE)
 else:
   limit = (0, SQL_WINDOW_SIZE)
+
 
 for computer_partition_candidate in context.portal_catalog(
                                          limit=limit, **query_kw):

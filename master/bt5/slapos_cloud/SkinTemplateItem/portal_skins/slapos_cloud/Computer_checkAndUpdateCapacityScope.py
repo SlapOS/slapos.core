@@ -2,7 +2,7 @@ import json
 computer = context
 portal = context.getPortalObject()
 
-if computer.getAllocationScope() != 'open/public':
+if computer.getAllocationScope() not in ['open/public', 'open/subscription']:
   # Don't update non public computer
   return
 

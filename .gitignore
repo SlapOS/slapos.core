@@ -1,5 +1,6 @@
 *pyc
 *swp
+*.example
 /.installed.cfg
 /bin/
 /build/

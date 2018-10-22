@@ -184,8 +184,8 @@ class PromiseProcess(Process):
       raise AttributeError("Class RunPromise not found in promise" \
         "%s" % self.name)
     if not interface.IPromise.implementedBy(promise_module.RunPromise):
-      raise RuntimeError("RunPromise class in %s must implements 'IPromise'" \
-        " interface. zope_interface.implements(interface.IPromise) is" \
+      raise RuntimeError("RunPromise class in %s must implement 'IPromise'" \
+        " interface. @implementer(interface.IPromise) is" \
         " missing ?" % self.name)
 
     from slapos.grid.promise.generic import GenericPromise

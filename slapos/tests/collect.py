@@ -36,7 +36,7 @@ import psutil
 from time import strftime
 from slapos.collect import entity, snapshot, db, reporter
 from slapos.cli.entry import SlapOSApp
-from ConfigParser import ConfigParser
+from six.moves.configparser import ConfigParser
 
 class FakeDatabase(object):
     def __init__(self):

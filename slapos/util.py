@@ -31,6 +31,7 @@ import errno
 import os
 import subprocess
 import sqlite3
+import six
 
 
 def mkdir_p(path, mode=0o700):
@@ -84,7 +85,7 @@ def string_to_boolean(string):
 
   The parser is completely arbitrary, see code for actual implementation.
   """
-  if not isinstance(string, str) and not isinstance(string, unicode):
+  if not isinstance(string, six.binary_type) and not isinstance(string, six.text_type):
     raise ValueError('Given value is not a string.')
   acceptable_true_values = ['true']
   acceptable_false_values = ['false']

@@ -353,7 +353,7 @@ def updateFile(file_path, content, mode=0o600):
   """Creates or updates a file with "content" as content."""
   altered = False
   if not (os.path.isfile(file_path)) or \
-     not (hashlib.md5(open(file_path).read()).digest() ==
+     not (hashlib.md5(open(file_path, 'rb').read()).digest() ==
           hashlib.md5(content).digest()):
     with open(file_path, 'w') as fout:
       fout.write(content)

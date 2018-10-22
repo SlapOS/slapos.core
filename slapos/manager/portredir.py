@@ -5,7 +5,7 @@ import netaddr
 import os
 
 from .interface import IManager
-from itertools import ifilter
+from six.moves import filter
 from zope import interface
 
 logger = logging.getLogger(__name__)
@@ -88,7 +88,7 @@ class Manager(object):
       'full_ip_list', [])
     partition_ip_list = [tup[1] for tup in partition_ip_list]
 
-    partition_ipv6 = next(ifilter(lambda ip_addr: ':' in ip_addr,
+    partition_ipv6 = next(filter(lambda ip_addr: ':' in ip_addr,
                                  partition_ip_list),
                           None)
 

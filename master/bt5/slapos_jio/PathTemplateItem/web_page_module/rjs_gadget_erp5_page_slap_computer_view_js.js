@@ -132,9 +132,10 @@
                                 ['Closed for termination', 'close/termination'],
                                 ['Closed forever', 'close/forever'],
                                 ['Closed oudated', 'close/outdated'],
-                                ['Open/Friend', 'open/friend'],
-                                ['Open/Personal', 'open/personal'],
-                                ['Open/Public', 'open/public']],
+                                ['Open for Friends only', 'open/friend'],
+                                ['Open for Personal use only', 'open/personal'],
+                                ['Open Public', 'open/public'],
+                                ['Open for Subscribers only', 'open/subscription']],
             i, value, len = results[1].data.total_rows;
 
 

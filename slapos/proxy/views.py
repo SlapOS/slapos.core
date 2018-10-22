@@ -359,7 +359,7 @@ def requestComputerPartition():
   if slave:
     # XXX: change schema to include a simple "partition_reference" which
     # is name of the instance. Then, no need to do complex search here.
-    slave_reference = parsed_request_dict['partition_id'] + '_' + parsed_request_dict['partition_reference']
+    slave_reference = parsed_request_dict['partition_id'] + b'_' + parsed_request_dict['partition_reference']
     requested_computer_id = parsed_request_dict['filter_kw'].get('computer_guid', app.config['computer_id'])
     matching_partition = getAllocatedSlaveInstance(slave_reference, requested_computer_id)
   else:

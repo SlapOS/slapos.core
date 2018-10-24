@@ -104,14 +104,7 @@ class TestCliProxyShow(CliMixin):
     db.cursor().executescript(schema.read())
     db.commit()
 
-
-  def tearDown(self):
-    super(TestCliProxyShow, self).tearDown()
-    os.remove(self.db_file.name)
-
-
-  def test_proxy_show(self):
-    # simulate "show all" arguments
+    # by default we simulate being invoked with "show all" arguments
     self.conf.computers = True
     self.conf.software = True
     self.conf.partitions = True
@@ -119,30 +112,59 @@ class TestCliProxyShow(CliMixin):
     self.conf.params = True
     self.conf.network = True
 
-    slapos.cli.proxy_show.do_show(self.conf)
+  def tearDown(self):
+    super(TestCliProxyShow, self).tearDown()
+    os.remove(self.db_file.name)
+
+  def test_proxy_show(self):
+    logger = create_autospec(logging.Logger)
+    with mock.patch(
+            'slapos.cli.proxy_show.logging.getLogger',
+            return_value=logger):
+        slapos.cli.proxy_show.do_show(self.conf)
 
     # installed softwares are listed
-    self.logger.info.assert_any_call(
+    logger.info.assert_any_call(
         '      /srv/slapgrid/slappart8/srv/runner/project/slapos/software/erp5/software.cfg          slaprunner     287375f0cba269902ba1bc50242839d7 ' )
 
     # instance parameters are listed
     # _ parameter is json formatted
-    self.logger.info.assert_any_call(
+    logger.info.assert_any_call(
         '    %s = %s',
         '_',
         '{\n  "url": "memcached://10.0.30.235:2003/", \n  "monitor-base-url": ""\n}')
 
     # other parameters are displayed as simple string
-    self.logger.info.assert_any_call(
+    logger.info.assert_any_call(
         '    %s = %s',
         'url',
         'http://10.0.30.235:4444/wd/hub')
 
     # if _ cannot be decoded as json, it is displayed "as is"
-    self.logger.info.assert_any_call(
+    logger.info.assert_any_call(
         '    %s = %s',
         '_',
         u'Ahah this is not json \U0001f61c ')
+    # Nothing was output on application logger, because this command uses
+    # its own logger.
+    self.logger.info.assert_not_called()
+
+  def test_proxy_show_displays_on_stdout(self):
+    saved_stderr = sys.stderr
+    saved_stdout = sys.stdout
+    sys.stderr = stderr = StringIO.StringIO()
+    sys.stdout = stdout = StringIO.StringIO()
+    try:
+      slapos.cli.proxy_show.do_show(self.conf)
+    finally:
+      sys.stderr = saved_stderr
+      sys.stdout = saved_stdout
+
+    # 287375f0cba269902ba1bc50242839d7 is the hash of an installed software
+    # in our setup database
+    # pytest users, be sure to use --log-level=DEBUG
+    self.assertIn('287375f0cba269902ba1bc50242839d7', stdout.getvalue())
+    self.assertEqual('', stderr.getvalue())
 
 
 class TestCliNode(CliMixin):

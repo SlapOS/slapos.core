@@ -30,6 +30,8 @@
 import collections
 import hashlib
 import json
+import logging
+import sys
 
 import lxml.etree
 import prettytable
@@ -198,7 +200,17 @@ def log_network(logger, conn):
 
 
 def do_show(conf):
-    conf.logger.debug('Using database: %s', conf.database_uri)
+    # Because this command uses logging facility to output,
+    # setup a logger which displays on stdout.
+    proxy_show_logger = logging.getLogger(__name__)
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(message)s')
+    handler.setFormatter(formatter)
+    proxy_show_logger.addHandler(handler)
+    proxy_show_logger.propagate = False
+
+    proxy_show_logger.debug('Using database: %s', conf.database_uri)
     conn = sqlite_connect(conf.database_uri)
     conn.row_factory = sqlite3.Row
 
@@ -219,6 +231,6 @@ def do_show(conf):
         to_call = [func for flag, func in call_table if flag]
 
     for idx, func in enumerate(to_call):
-        func(conf.logger, conn)
+        func(proxy_show_logger, conn)
         if idx < len(to_call) - 1:
-            conf.logger.info(' ')
+            proxy_show_logger.info(' ')

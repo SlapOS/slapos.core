@@ -32,6 +32,9 @@ import hashlib
 import json
 import logging
 import sys
+import os
+import subprocess
+import StringIO
 
 import lxml.etree
 import prettytable
@@ -201,9 +204,13 @@ def log_network(logger, conn):
 
 def do_show(conf):
     # Because this command uses logging facility to output,
-    # setup a logger which displays on stdout.
+    # setup a logger which displays on stdout and uses a pager
+    # to paginate input, honoring $PAGER.
+    output = sys.stdout
+    if output.isatty():
+       output = StringIO.StringIO()
     proxy_show_logger = logging.getLogger(__name__)
-    handler = logging.StreamHandler(sys.stdout)
+    handler = logging.StreamHandler(output)
     handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(message)s')
     handler.setFormatter(formatter)
@@ -234,3 +241,11 @@ def do_show(conf):
         func(proxy_show_logger, conn)
         if idx < len(to_call) - 1:
             proxy_show_logger.info(' ')
+
+    if sys.stdout.isatty():
+        pager = subprocess.Popen(
+            os.getenv('PAGER', 'less --quit-if-one-screen --no-init'),
+            close_fds=True,
+            shell=True,
+            stdin=subprocess.PIPE,)
+        pager.communicate(output.getvalue().encode('utf-8'))

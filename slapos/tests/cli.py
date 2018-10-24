@@ -166,6 +166,29 @@ class TestCliProxyShow(CliMixin):
     self.assertIn('287375f0cba269902ba1bc50242839d7', stdout.getvalue())
     self.assertEqual('', stderr.getvalue())
 
+  def test_proxy_show_use_pager(self):
+    saved_stderr = sys.stderr
+    saved_stdout = sys.stdout
+    sys.stderr = stderr = StringIO.StringIO()
+    sys.stdout = stdout = StringIO.StringIO()
+    stdout.isatty = lambda *args: True
+
+    # use a pager that just output to a file.
+    tmp = tempfile.NamedTemporaryFile(delete=False)
+    self.addCleanup(os.unlink, tmp.name)
+    os.environ['PAGER'] = 'cat > {}'.format(tmp.name)
+
+    try:
+      slapos.cli.proxy_show.do_show(self.conf)
+    finally:
+      sys.stderr = saved_stderr
+      sys.stdout = saved_stdout
+
+    self.assertEqual('', stdout.getvalue())
+    self.assertEqual('', stderr.getvalue())
+    # our pager was set to output to this temporary file
+    self.assertIn('287375f0cba269902ba1bc50242839d7', open(tmp.name, 'r').read())
+
 
 class TestCliNode(CliMixin):
 

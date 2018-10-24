@@ -56,13 +56,7 @@ if can_allocate:
   software_release_capacity_dict = {}
   consumed_capacity = 0
 
-  for instance in portal.portal_catalog.portal_catalog(
-      default_aggregate_relative_url='%s/%%' % computer.getRelativeUrl(),
-      portal_type=['Software Instance', 'Slave Instance'],
-      validation_state='validated'):
-
-    instance = instance.getObject()
-
+  def getSoftwareReleaseCapacity(instance):
     software_release_url = instance.getUrlString()
     if software_release_url in software_release_capacity_dict:
       software_release_capacity = software_release_capacity_dict[software_release_url]
@@ -75,11 +69,27 @@ if can_allocate:
       else:
         software_release_capacity = 1
       software_release_capacity_dict[software_release_url] = software_release_capacity
+    return software_release_capacity
+
+  if allocated_instance is not None:
+    software_release_capacity = getSoftwareReleaseCapacity(allocated_instance)
     consumed_capacity += software_release_capacity
     if consumed_capacity >= computer_capacity_quantity:
       can_allocate = False
       comment = 'Computer capacity limit exceeded'
-      break
+
+  if can_allocate:
+    for instance in portal.portal_catalog.portal_catalog(
+        default_aggregate_relative_url='%s/%%' % computer.getRelativeUrl(),
+        portal_type=['Software Instance', 'Slave Instance'],
+        validation_state='validated'):
+
+      software_release_capacity = getSoftwareReleaseCapacity(instance.getObject())
+      consumed_capacity += software_release_capacity
+      if consumed_capacity >= computer_capacity_quantity:
+        can_allocate = False
+        comment = 'Computer capacity limit exceeded'
+        break
 
 # if can_allocate:
 #   result_list = portal.portal_catalog.portal_catalog(

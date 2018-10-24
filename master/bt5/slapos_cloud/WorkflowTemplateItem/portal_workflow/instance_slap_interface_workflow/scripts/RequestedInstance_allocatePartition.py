@@ -16,3 +16,9 @@ computer_partition = portal.restrictedTraverse(computer_partition_url)
 assert computer_partition.getPortalType() == "Computer Partition"
 
 instance.edit(aggregate_value=computer_partition, activate_kw={'tag': 'allocate_%s' % computer_partition_url})
+
+computer = computer_partition.getParentValue()
+
+computer.Computer_checkAndUpdateCapacityScope(
+  allocated_instance=instance
+)

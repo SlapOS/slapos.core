@@ -119,6 +119,10 @@ else:
 for computer_partition_candidate in context.portal_catalog(
                                          limit=limit, **query_kw):
   computer_partition_candidate = computer_partition_candidate.getObject()
+  if computer_partition_candidate.getParentValue().getCapacityScope() == "close":
+    # The computer was closed on this partition, so skip it.
+    continue
+
   if software_instance_portal_type == "Software Instance":
     # Check if the computer partition can be marked as busy
     if isTransitionPossible(computer_partition_candidate, 'mark_busy'):

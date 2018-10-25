@@ -2,6 +2,10 @@ request = context.REQUEST
 
 edit_kw = {}
 
+if monitor_scope is not None and monitor_scope != context.getMonitorScope():
+  edit_kw["monitor_scope"] = monitor_scope
+
+
 if short_title != context.getShortTitle():
   edit_kw["short_title"] = short_title
 

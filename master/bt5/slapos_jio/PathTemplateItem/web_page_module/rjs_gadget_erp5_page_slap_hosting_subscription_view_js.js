@@ -137,6 +137,9 @@
             ['reference', 'Reference'],
             ['portal_type', 'Type'],
             ['computer_monitoring_status', 'Status']
+          ], monitor_scope_list = [['', ''],
+                                ['Enabled', 'enable'],
+                                ['Disabled', 'disable']
           ], ticket_column_list = [
             ['title', 'Title'],
             ['reference', 'Reference'],
@@ -268,6 +271,18 @@
                       "hidden": gadget.state.doc.root_slave === 1,
                       "type": "GadgetField"
                     },
+                    "my_monitor_scope": {
+                      "description": "",
+                      "title": "Monitoring",
+                      "default": gadget.state.doc.monitor_scope,
+                      "css_class": "",
+                      "items": monitor_scope_list,
+                      "required": 1,
+                      "editable": 1,
+                      "key": "monitor_scope",
+                      "hidden": 0,
+                      "type": "ListField"
+                    },
                     "connection_listbox": {
                       "column_list": connection_column_list,
                       "show_anchor": 0,
@@ -340,11 +355,11 @@
                 form_definition: {
                   group_list: [[
                     "left",
-                    [["my_title"], ["my_reference"],["my_short_title"], ["my_description"]]
+                    [["my_title"], ["my_reference"], ["my_short_title"], ["my_description"]]
 
                   ], [
                     "right",
-                    [["my_slap_state_title"],  ['my_monitoring_status']]
+                    [["my_slap_state_title"],  ['my_monitoring_status'], ['my_monitor_scope']]
 
                   ], ["center",
                       [["my_source_reference"], ["my_url_string"], ["my_text_content"]]

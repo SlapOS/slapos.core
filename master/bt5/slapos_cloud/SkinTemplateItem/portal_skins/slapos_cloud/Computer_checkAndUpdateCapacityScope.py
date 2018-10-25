@@ -1,6 +1,9 @@
 import json
 computer = context
 portal = context.getPortalObject()
+from zExceptions import Unauthorized
+if REQUEST is not None:
+  raise Unauthorized
 
 if computer.getAllocationScope() not in ['open/public', 'open/subscription']:
   # Don't update non public computer

@@ -13,13 +13,14 @@ try:
   tioxml_dict = document.ComputerConsumptionTioXMLFile_parseXml()
 except KeyError:
   document.reject(comment="Fail")
-  return 
+  return
 
 if tioxml_dict is None:
   document.reject(comment="Not usable TioXML data")
 else:
 
   computer = context.getContributorValue(portal_type="Computer")
+  computer_project = computer.Item_getCurrentProjectValue()
   delivery_title = tioxml_dict['title']
 
   movement_list = []
@@ -31,7 +32,9 @@ else:
     if computer.getReference() == reference:
       aggregate_value_list = [computer]
       person = computer.getSourceAdministrationValue(portal_type="Person")
+      project = computer_project
     else:
+      project = None # For now, else we should calculate this too.
       if reference.startswith("slapuser"):
         reference = reference.replace("slapuser", "slappart") 
       # Find the partition / software instance / user
@@ -72,7 +75,8 @@ else:
                         quantity=movement['quantity'],
                         aggregate_value_list=aggregate_value_list,
                         resource=movement['resource'],
-                        person=person.getRelativeUrl()
+                        person=person.getRelativeUrl(),
+                        project=project
                     )
         )
 
@@ -99,6 +103,8 @@ else:
       destination=movement['person'],
       destination_decision=movement['person'],
       destination_section=movement['person'],
+      source_project=project,
+      destination_project=project,
       resource_value=service,
       quantity_unit=service.getQuantityUnit(),
     )

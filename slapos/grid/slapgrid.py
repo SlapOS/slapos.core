@@ -32,7 +32,7 @@ import os
 import pkg_resources
 import random
 import socket
-from six import StringIO
+from io import BytesIO
 import subprocess
 import sys
 import tempfile
@@ -1309,7 +1309,7 @@ stderr_logfile_backups=1
   def validateXML(self, to_be_validated, xsd_model):
     """Validates a given xml file"""
     #We retrieve the xsd model
-    xsd_model = StringIO.StringIO(xsd_model)
+    xsd_model = BytesIO(xsd_model)
     xmlschema_doc = etree.parse(xsd_model)
     xmlschema = etree.XMLSchema(xmlschema_doc)
 

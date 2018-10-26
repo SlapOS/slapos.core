@@ -292,8 +292,8 @@ class Software(object):
         f.close()
 
   def _create_buildout_profile(self, buildout_cfg, url):
-    with open(buildout_cfg, 'wb') as fout:
-      fout.write(('[buildout]\nextends = ' + url + '\n').encode('utf-8'))
+    with open(buildout_cfg, 'w') as fout:
+      fout.write('[buildout]\nextends = ' + url + '\n')
     self._set_ownership(buildout_cfg)
 
   def uploadSoftwareRelease(self, tarpath):

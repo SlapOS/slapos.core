@@ -94,8 +94,6 @@ class SlapRequester(SlapDocument):
         request_dict=request_dict,
         connection_helper=self._connection_helper,
       )
-    if type(xml) is six.text_type:
-      xml.encode('utf-8')
     software_instance = xml_marshaller.loads(xml)
     computer_partition = ComputerPartition(
       software_instance.slap_computer_id.encode('UTF-8'),
@@ -206,12 +204,11 @@ class SoftwareInstance(SlapDocument):
   Contains Software Instance information
   """
 
-  def __init__(self, **kwargs):
+  def __init__(self, **kw):
     """
     Makes easy initialisation of class parameters
     """
-    for k, v in six.iteritems(kwargs):
-      setattr(self, k, v)
+    self.__dict__.update(kw)
 
 
 """Exposed exceptions"""
@@ -728,8 +725,6 @@ class ConnectionHelper:
       # We should stablise slap library soon.
       xml = self.GET('getComputerInformation', params=params)
 
-    if type(xml) is six.text_type:
-      xml.encode('utf-8')
     return xml_marshaller.loads(xml)
 
   def do_request(self, method, path, params=None, data=None, headers=None):

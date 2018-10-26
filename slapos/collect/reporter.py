@@ -27,8 +27,6 @@
 #
 ##############################################################################
 
-from six.moves import zip
-
 from lxml import etree as ElementTree
 from slapos.util import mkdir_p
 
@@ -137,19 +135,17 @@ class ConsumptionReportBase(object):
 
   def getPartitionCPULoadAverage(self, partition_id, date_scope):
     self.db.connect()
-    query_result_cursor = self.db.select("user", date_scope,
+    cpu_percent_sum = self.db.select("user", date_scope,
                        columns="SUM(cpu_percent)", 
                        where="partition = '%s'" % partition_id)
 
-    cpu_percent_sum = list(zip(*query_result_cursor))
     if len(cpu_percent_sum) and cpu_percent_sum[0][0] is None:
       return
 
-    query_result_cursor = self.db.select("user", date_scope,
+    sample_amount = self.db.select("user", date_scope,
                        columns="COUNT(DISTINCT time)", 
                        where="partition = '%s'" % partition_id)
 
-    sample_amount = list(zip(*query_result_cursor))
     self.db.close()
 
     if len(sample_amount) and len(cpu_percent_sum):
@@ -157,19 +153,17 @@ class ConsumptionReportBase(object):
 
   def getPartitionUsedMemoryAverage(self, partition_id, date_scope):
     self.db.connect()
-    query_result_cursor = self.db.select("user", date_scope,
+    memory_sum = self.db.select("user", date_scope,
                        columns="SUM(memory_rss)", 
                        where="partition = '%s'" % partition_id)
 
-    memory_sum = list(zip(*query_result_cursor))
     if len(memory_sum) and memory_sum[0][0] is None:
       return
 
-    query_result_cursor = self.db.select("user", date_scope,
+    sample_amount = self.db.select("user", date_scope,
                        columns="COUNT(DISTINCT time)", 
                        where="partition = '%s'" % partition_id)
 
-    sample_amount = list(zip(*query_result_cursor))
     self.db.close()
 
     if len(sample_amount) and len(memory_sum):
@@ -177,18 +171,16 @@ class ConsumptionReportBase(object):
 
   def getPartitionDiskUsedAverage(self, partition_id, date_scope):
     self.db.connect()
-    query_result_cursor = self.db.select("folder", date_scope,
+    disk_used_sum = self.db.select("folder", date_scope,
                        columns="SUM(disk_used)", 
                        where="partition = '%s'" % partition_id)
 
-    disk_used_sum = list(zip(*query_result_cursor))
     if len(disk_used_sum) and disk_used_sum[0][0] is None:
       return
-    query_result_cursor = self.db.select("folder", date_scope,
+    collect_amount = self.db.select("folder", date_scope,
                        columns="COUNT(DISTINCT time)", 
                        where="partition = '%s'" % partition_id)
 
-    collect_amount = list(zip(*query_result_cursor))
     self.db.close()
 
     if len(collect_amount) and len(disk_used_sum):
@@ -289,7 +281,7 @@ class ConsumptionReport(ConsumptionReportBase):
                            reference=user,
                            category="")
 
-     with open(xml_report_path, 'w') as f:
+     with open(xml_report_path, 'wb') as f:
        f.write(journal.getXML())
        f.close()
 
@@ -300,20 +292,18 @@ class ConsumptionReport(ConsumptionReportBase):
 
   def _getCpuLoadAverageConsumption(self, date_scope):
     self.db.connect()
-    query_result_cursor = self.db.select("system", date_scope, 
+    cpu_load_percent_list = self.db.select("system", date_scope, 
                        columns="SUM(cpu_percent)/COUNT(cpu_percent)")
 
-    cpu_load_percent_list = list(zip(*query_result_cursor))
     self.db.close()
     if len(cpu_load_percent_list):
       return cpu_load_percent_list[0][0]
 
   def _getMemoryAverageConsumption(self, date_scope):
     self.db.connect()
-    query_result_cursor = self.db.select("system", date_scope, 
+    memory_used_list = self.db.select("system", date_scope, 
                        columns="SUM(memory_used)/COUNT(memory_used)")
 
-    memory_used_list = list(zip(*query_result_cursor))
     self.db.close()
     if len(memory_used_list):
       return memory_used_list[0][0]
@@ -331,7 +321,7 @@ class Journal(object):
 
    def getXML(self):
      report = ElementTree.tostring(self.root) 
-     return "<?xml version='1.0' encoding='utf-8'?>%s" % report
+     return b"<?xml version='1.0' encoding='utf-8'?>%s" % report
    
    def newTransaction(self, portal_type="Sale Packing List"):
      transaction = ElementTree.SubElement(self.root, "transaction")

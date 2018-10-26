@@ -55,19 +55,10 @@ class UnauthorizedError(Exception):
   pass
 
 
-# cast everything to string, utf-8 encoded
-def to_str(v):
-  if isinstance(v, six.binary_type):
-    return v
-  if not isinstance(v, six.text_type):
-    v = six.text_type(v)
-  return v.encode('utf-8')
-
-
 def xml2dict(xml):
   result_dict = {}
-  if xml is not None and xml != '':
-    tree = etree.fromstring(to_str(xml))
+  if xml:
+    tree = etree.fromstring(xml)
     for element in tree.iter(tag=etree.Element):
       if element.tag == 'parameter':
         key = element.get('id')
@@ -83,8 +74,6 @@ def xml2dict(xml):
 def dict2xml(dictionary):
   instance = etree.Element('instance')
   for parameter_id, parameter_value in six.iteritems(dictionary):
-    # cast everything to string
-    parameter_value = six.text_type(parameter_value)
     etree.SubElement(instance, "parameter",
                      attrib={'id': parameter_id}).text = parameter_value
   return etree.tostring(instance,
@@ -511,8 +500,6 @@ def forwardRequestToExternalMaster(master_url, request_form):
   new_request_form['filter_xml'] = dumps(filter_kw)
 
   xml = slap._connection_helper.POST('/requestComputerPartition', data=new_request_form)
-  if type(xml) is six.text_type:
-    xml.encode('utf-8')
   partition = loads(xml)
 
   # XXX move to other end

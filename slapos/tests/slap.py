@@ -30,7 +30,7 @@ from __future__ import print_function
 import logging
 import os
 import unittest
-import urlparse
+from six.moves.urllib import parse
 import tempfile
 
 import httmock
@@ -187,7 +187,7 @@ class TestSlap(SlapMixin):
     self.slap.registerComputer(computer_guid)
 
     def handler(url, req):
-      qs = urlparse.parse_qs(url.query)
+      qs = parse.parse_qs(url.query)
       if (url.path == '/registerComputerPartition'
             and qs == {
                 'computer_reference': [computer_guid],
@@ -228,7 +228,7 @@ class TestSlap(SlapMixin):
     partition_id = 'PARTITION_01'
 
     def handler(url, req):
-      qs = urlparse.parse_qs(url.query)
+      qs = parse.parse_qs(url.query)
       if (url.path == '/registerComputerPartition'
             and qs == {
                 'computer_reference': [computer_guid],
@@ -320,7 +320,7 @@ class TestSlap(SlapMixin):
     software_release_url_list = ['1', '2']
 
     def handler(url, req):
-      qs = urlparse.parse_qs(url.query)
+      qs = parse.parse_qs(url.query)
       if (url.path == '/getSoftwareReleaseListFromSoftwareProduct'
             and qs == {'software_product_reference': [software_product_reference]}):
         return {
@@ -346,7 +346,7 @@ class TestSlap(SlapMixin):
     software_release_url_list = ['1', '2']
 
     def handler(url, req):
-      qs = urlparse.parse_qs(url.query)
+      qs = parse.parse_qs(url.query)
       if (url.path == '/getSoftwareReleaseListFromSoftwareProduct'
          and qs == {'software_release_url': [software_release_url]}):
         return {
@@ -387,7 +387,7 @@ class TestSlap(SlapMixin):
     """
     hateoas_url = 'foo'
     def handler(url, req):
-      qs = urlparse.parse_qs(url.query)
+      qs = parse.parse_qs(url.query)
       if (url.path == '/getHateoasUrl'):
         return {
                 'status_code': 200,
@@ -408,7 +408,7 @@ class TestSlap(SlapMixin):
     """
     hateoas_url = 'foo'
     def handler(url, req):
-      qs = urlparse.parse_qs(url.query)
+      qs = parse.parse_qs(url.query)
       if (url.path == '/getHateoasUrl'):
         self.fail('slap should not have contacted master to get Hateoas URL.')
 
@@ -426,7 +426,7 @@ class TestSlap(SlapMixin):
     """
     hateoas_url = 'foo'
     def handler(url, req):
-      qs = urlparse.parse_qs(url.query)
+      qs = parse.parse_qs(url.query)
       if (url.path == '/getHateoasUrl'):
         return {
                 'status_code': 404,
@@ -452,7 +452,7 @@ class TestComputer(SlapMixin):
     slap.initializeConnection(self.server_url)
 
     def handler(url, req):
-      qs = urlparse.parse_qs(url.query)
+      qs = parse.parse_qs(url.query)
       if (url.path == '/registerComputerPartition'
               and 'computer_reference' in qs
               and 'computer_partition_reference' in qs):
@@ -522,7 +522,7 @@ class TestComputer(SlapMixin):
     self.slap.initializeConnection(self.server_url)
 
     def handler(url, req):
-      qs = urlparse.parse_qs(url.query)
+      qs = parse.parse_qs(url.query)
       if (url.path == '/registerComputerPartition'
             and qs == {
                 'computer_reference': [self.computer_guid],
@@ -604,7 +604,7 @@ class TestComputerPartition(SlapMixin):
     partition_id = 'PARTITION_01'
 
     def handler(url, req):
-      qs = urlparse.parse_qs(url.query)
+      qs = parse.parse_qs(url.query)
       if (url.path == '/registerComputerPartition'
               and 'computer_reference' in qs
               and 'computer_partition_reference' in qs):
@@ -649,7 +649,7 @@ class TestComputerPartition(SlapMixin):
     partition_id = 'PARTITION_01'
 
     def handler(url, req):
-      qs = urlparse.parse_qs(url.query)
+      qs = parse.parse_qs(url.query)
       if (url.path == '/registerComputerPartition'
               and 'computer_reference' in qs
               and 'computer_partition_reference' in qs):
@@ -693,7 +693,7 @@ class TestComputerPartition(SlapMixin):
     partition_id = 'PARTITION_01'
 
     def handler(url, req):
-      qs = urlparse.parse_qs(url.query)
+      qs = parse.parse_qs(url.query)
       if (url.path == '/registerComputerPartition' and
               'computer_reference' in qs and
               'computer_partition_reference' in qs):
@@ -742,7 +742,7 @@ class TestComputerPartition(SlapMixin):
     computer_guid = self._getTestComputerId()
 
     def handler(url, req):
-      qs = urlparse.parse_qs(url.query)
+      qs = parse.parse_qs(url.query)
       if (url.path == '/registerComputerPartition' and
               'computer_reference' in qs and
               'computer_partition_reference' in qs):
@@ -803,7 +803,7 @@ class TestComputerPartition(SlapMixin):
     transaction_file_path = os.path.join(partition_root, transaction_file_name)
 
     def handler(url, req):
-      qs = urlparse.parse_qs(url.query)
+      qs = parse.parse_qs(url.query)
       if (url.path == '/registerComputerPartition'
               and 'computer_reference' in qs
               and 'computer_partition_reference' in qs):
@@ -881,7 +881,7 @@ class TestComputerPartition(SlapMixin):
     slap.initializeConnection(self.server_url)
 
     def handler(url, req):
-      qs = urlparse.parse_qs(url.query)
+      qs = parse.parse_qs(url.query)
       if (url.path == '/registerComputerPartition' and
               qs['computer_reference'][0] == computer_guid and
               qs['computer_partition_reference'][0] == partition_id):
@@ -925,7 +925,7 @@ class TestComputerPartition(SlapMixin):
     slap.initializeConnection(self.server_url)
 
     def handler(url, req):
-      qs = urlparse.parse_qs(url.query)
+      qs = parse.parse_qs(url.query)
       if (url.path == '/registerComputerPartition' and
               qs['computer_reference'][0] == computer_guid and
               qs['computer_partition_reference'][0] == partition_id):
@@ -936,7 +936,7 @@ class TestComputerPartition(SlapMixin):
                 'content': xml_marshaller.xml_marshaller.dumps(partition)
                 }
       elif url.path == '/softwareInstanceError':
-        parsed_qs_body = urlparse.parse_qs(req.body)
+        parsed_qs_body = parse.parse_qs(req.body)
         # XXX: why do we have computer_id and not computer_reference?
         # XXX: why do we have computer_partition_id and not
         # computer_partition_reference?
@@ -997,7 +997,7 @@ class TestSoftwareRelease(SlapMixin):
     slap.initializeConnection(self.server_url)
 
     def handler(url, req):
-      qs = urlparse.parse_qs(req.body)
+      qs = parse.parse_qs(req.body)
       if (url.path == '/softwareReleaseError' and
               qs['computer_id'][0] == computer_guid and
               qs['url'][0] == software_release_uri and

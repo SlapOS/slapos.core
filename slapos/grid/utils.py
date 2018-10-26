@@ -352,10 +352,12 @@ def launchBuildout(path, buildout_binary, logger,
 def updateFile(file_path, content, mode=0o600):
   """Creates or updates a file with "content" as content."""
   altered = False
+  if isinstance(content, six.text_type):
+    content = content.encode('utf-8')
   if not (os.path.isfile(file_path)) or \
      not (hashlib.md5(open(file_path, 'rb').read()).digest() ==
           hashlib.md5(content).digest()):
-    with open(file_path, 'w') as fout:
+    with open(file_path, 'wb') as fout:
       fout.write(content)
     altered = True
   os.chmod(file_path, stat.S_IREAD | stat.S_IWRITE | stat.S_IEXEC)

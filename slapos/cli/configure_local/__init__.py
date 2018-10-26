@@ -126,7 +126,8 @@ def _replaceParameterValue(original_content, to_replace):
 
 def _generateSlaposNodeConfigurationFile(slapos_node_config_path, args):
     template_arg_list = (__name__, '../../slapos.cfg.example')
-    slapos_node_configuration_template = pkg_resources.resource_string(*template_arg_list).decode('utf-8')
+    slapos_node_configuration_template = \
+      pkg_resources.resource_string(*template_arg_list).decode('utf-8')
     master_url = 'http://%s:%s' % (args.daemon_listen_ip, args.daemon_listen_port)
     slapos_home = args.slapos_buildout_directory
     to_replace = [
@@ -152,7 +153,8 @@ def _generateSlaposNodeConfigurationFile(slapos_node_config_path, args):
 
 def _generateSlaposProxyConfigurationFile(conf):
     template_arg_list = (__name__, '../../slapos-proxy.cfg.example')
-    slapos_proxy_configuration_template = pkg_resources.resource_string(*template_arg_list).decode('utf-8')
+    slapos_proxy_configuration_template = \
+      pkg_resources.resource_string(*template_arg_list).decode('utf-8')
     slapos_proxy_configuration_path = os.path.join(
       conf.slapos_configuration_directory, 'slapos-proxy.cfg')
     listening_ip, listening_port = \

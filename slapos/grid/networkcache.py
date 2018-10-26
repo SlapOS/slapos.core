@@ -30,8 +30,8 @@ try:
     else:
         LIBNETWORKCACHE_ENABLED = True
 except:
-    print('There was problem while trying to import slapos.libnetworkcache:'\
-        '\n%s' % traceback.format_exc())
+    print('There was problem while trying to import slapos.libnetworkcache:\n%s'
+          % traceback.format_exc())
     LIBNETWORKCACHE_ENABLED = False
     print('Networkcache forced to be disabled.')
 

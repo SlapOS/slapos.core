@@ -38,7 +38,7 @@ import importlib
 import traceback
 import psutil
 from multiprocessing import Process, Queue as MQueue
-from six.moves import queue
+from six.moves import queue, reload_module
 from slapos.util import mkdir_p, chownDirectory
 from slapos.grid.utils import dropPrivileges, killProcessTree
 from slapos.grid.promise import interface
@@ -195,7 +195,7 @@ class PromiseProcess(Process):
 
     if promise_module.__file__ != self.promise_path:
       # cached module need to be updated
-      promise_module = reload(promise_module)
+      promise_module = reload_module(promise_module)
     # load extra parameters
     self._loadPromiseParameterDict(promise_module)
 
@@ -208,7 +208,7 @@ class PromiseProcess(Process):
       if not isinstance(extra_dict, dict):
         raise ValueError("Extra parameter is not a dict")
       for key in extra_dict:
-        if self.argument_dict.has_key(key):
+        if key in self.argument_dict:
           raise ValueError("Extra parameter name %r cannot be used.\n%s" % (
                            key, extra_dict))
         self.argument_dict[key] = extra_dict[key]

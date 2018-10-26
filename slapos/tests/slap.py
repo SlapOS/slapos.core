@@ -1207,7 +1207,7 @@ class TestSoftwareProductCollection(SlapMixin):
     self.assertEqual(self.product_collection.foo, '0')
 
 if __name__ == '__main__':
-  print('You can point to any SLAP server by setting TEST_SLAP_SERVER_URL '\
-      'environment variable')
+  print('You can point to any SLAP server by setting TEST_SLAP_SERVER_URL'
+        ' environment variable')
   unittest.main()
 

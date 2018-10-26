@@ -8,6 +8,7 @@
 from erp5.component.test.testSlapOSCloudSecurityGroup import TestSlapOSSecurityMixin
 from erp5.component.test.SlapOSTestCaseMixin import changeSkin
 import re
+import json
 import xml_marshaller
 from AccessControl.SecurityManagement import getSecurityManager, \
              setSecurityManager
@@ -98,6 +99,16 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     return []
 
 class TestSlapOSDefaultScenario(DefaultScenarioMixin):
+
+  def setAccessToMemcached(self, agent):
+    memcached_dict = self.portal.portal_memcached.getMemcachedDict(
+      key_prefix='slap_tool',
+      plugin_path='portal_memcached/default_memcached_plugin')
+
+    access_date = DateTime()
+    memcached_dict[agent.getReference()] = json.dumps(
+        {"created_at":"%s" % access_date, "text": "#access "}
+    )
 
   def requestComputer(self, title):
     requestXml = self.portal.portal_slap.requestComputer(title)
@@ -668,6 +679,7 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     public_server_id = self.requestComputer(public_server_title)
     public_server = self.portal.portal_catalog.getResultValue(
         portal_type='Computer', reference=public_server_id)
+    self.setAccessToMemcached(public_server)
     self.assertNotEqual(None, public_server)
     self.setServerOpenPublic(public_server)
 

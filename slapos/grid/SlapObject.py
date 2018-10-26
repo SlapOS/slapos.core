@@ -51,6 +51,7 @@ from slapos.grid.exception import (BuildoutFailedError, WrongPermissionError,
                                    PathDoesNotExistError, DiskSpaceError)
 from slapos.grid.networkcache import download_network_cached, upload_network_cached
 from slapos.human import bytes2human
+from slapos.util import bytes2str
 
 
 WATCHDOG_MARK = '-on-watch'
@@ -481,8 +482,8 @@ class Partition(object):
       }
 
   def addCustomGroup(self, group_suffix, partition_id, program_list):
-    group_partition_template = pkg_resources.resource_string(__name__,
-      'templates/group_partition_supervisord.conf.in').decode('utf-8')
+    group_partition_template = bytes2str(pkg_resources.resource_string(__name__,
+      'templates/group_partition_supervisord.conf.in'))
     group_id = '{}-{}'.format(partition_id, group_suffix)
 
     self.supervisor_configuration_group += group_partition_template % {
@@ -568,8 +569,8 @@ class Partition(object):
 
     # fill generated buildout with additional information
     buildout_text = open(config_location).read()
-    buildout_text += '\n\n' + pkg_resources.resource_string(__name__,
-        'templates/buildout-tail.cfg.in').decode('utf-8') % {
+    buildout_text += '\n\n' + bytes2str(pkg_resources.resource_string(__name__,
+        'templates/buildout-tail.cfg.in')) % {
             'computer_id': self.computer_id,
             'partition_id': self.partition_id,
             'server_url': self.server_url,

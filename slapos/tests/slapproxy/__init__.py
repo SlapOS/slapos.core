@@ -46,7 +46,7 @@ import slapos.proxy
 import slapos.proxy.views as views
 import slapos.slap
 import slapos.slap.slap
-from slapos.util import sqlite_connect
+from slapos.util import sqlite_connect, bytes2str
 
 import sqlite3
 import pkg_resources
@@ -1055,9 +1055,9 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     Overwrite default slapos configuration file to enable specific multimaster
     behaviours.
     """
-    configuration = pkg_resources.resource_string(
+    configuration = bytes2str(pkg_resources.resource_string(
         'slapos.tests.slapproxy', 'slapos_multimaster.cfg.in'
-    ).decode('utf-8') % {
+    )) % {
         'tempdir': self._tempdir, 'proxyaddr': self.proxyaddr,
         'external_proxy_host': self.external_proxy_host,
         'external_proxy_port': self.external_proxy_port
@@ -1272,10 +1272,10 @@ class TestMigrateVersion10To11(TestInformation, TestRequest, TestSlaveRequest, T
   """
   def setUp(self):
     super(TestMigrateVersion10To11, self).setUp()
-    schema = pkg_resources.resource_string(
+    schema = bytes2str(pkg_resources.resource_string(
       'slapos.tests.slapproxy',
       'database_dump_version_10.sql'
-    ).decode('utf-8') % dict(version='11')
+    )) % dict(version='11')
     self.db = sqlite_connect(self.proxy_db)
     self.db.cursor().executescript(schema)
     self.db.commit()

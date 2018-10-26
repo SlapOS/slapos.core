@@ -99,3 +99,11 @@ def sqlite_connect(dburi, timeout=None):
   conn = sqlite3.connect(dburi, **connect_kw)
   conn.text_factory = str       # allow 8-bit strings
   return conn
+
+
+if str is bytes:
+  def bytes2str(s):
+    return s
+else:
+  def bytes2str(s):
+    return s.decode()

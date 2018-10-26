@@ -38,6 +38,7 @@ import time
 from six.moves import xmlrpc_client as xmlrpclib
 
 from slapos.grid.utils import (createPrivateDirectory, SlapPopen, updateFile)
+from slapos.util import bytes2str
 
 from supervisor import xmlrpc, states
 
@@ -89,8 +90,8 @@ def createSupervisordConfiguration(instance_root, watchdog_command=''):
 
   # Creates supervisord configuration
   updateFile(supervisord_configuration_file_path,
-    pkg_resources.resource_string(__name__,
-      'templates/supervisord.conf.in').decode('utf-8') % {
+    bytes2str(pkg_resources.resource_string(__name__,
+      'templates/supervisord.conf.in')) % {
           'supervisord_configuration_directory': supervisord_configuration_directory,
           'supervisord_socket': os.path.abspath(supervisord_socket),
           'supervisord_loglevel': 'info',

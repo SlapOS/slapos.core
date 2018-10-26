@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pkg_resources
+from slapos.util import bytes2str
 
-DB_VERSION = pkg_resources.resource_stream('slapos.proxy', 'schema.sql').readline().strip().split(b':')[1]
-import six
-if six.PY3:
-  DB_VERSION = DB_VERSION.decode('utf-8')
+DB_VERSION = bytes2str(pkg_resources.resource_stream('slapos.proxy', 'schema.sql').readline().strip().split(b':')[1])
 

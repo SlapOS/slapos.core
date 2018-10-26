@@ -34,12 +34,13 @@ if 'project_guid' in filter_kw:
   # direct query.
   project_reference = filter_kw.pop("project_guid")
 
-  # Get Computer list from Tracking API
-  from DateTime import DateTime
-  project = context.portal_catalog.getResultValue(portal_type="Project", reference=project_reference)
+  if 'parent_reference' not in query_kw:
+    # Get Computer list from Tracking API
+    from DateTime import DateTime
+    project = context.portal_catalog.getResultValue(portal_type="Project", reference=project_reference)
 
-  if project is not None:
-    query_kw["parent_reference"] = SimpleQuery(parent_reference=project.Project_getComputerReferenceList())
+    if project is not None:
+      query_kw["parent_reference"] = SimpleQuery(parent_reference=project.Project_getComputerReferenceList())
 
 if computer_network_query:
   if query_kw.get("default_subordination_reference"):

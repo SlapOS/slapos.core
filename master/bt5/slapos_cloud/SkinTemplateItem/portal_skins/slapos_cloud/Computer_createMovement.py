@@ -3,7 +3,7 @@
 """
 from DateTime import DateTime
 from Products.ERP5Type.Message import translateString
-
+from zExceptions import Unauthorized
 
 user = context.getPortalObject().portal_membership.getAuthenticatedMember().getUserValue()
 
@@ -32,10 +32,7 @@ if source is None and destination is None:
 if source_section is None:
   source_section = context.getSourceAdministration()
 
-
-if resource_value is None:
-  # Default value
-  resource_value = context.product_module.computer
+resource_value = context.product_module.computer
 
 module = context.getDefaultModule(portal_type=portal_type)
 line_portal_type = '%s Line' % portal_type

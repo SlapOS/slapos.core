@@ -61,17 +61,36 @@ if can_allocate:
 
   def getSoftwareReleaseCapacity(instance):
     software_release_url = instance.getUrlString()
+    software_type = instance.getSourceReference()
     if software_release_url in software_release_capacity_dict:
-      software_release_capacity = software_release_capacity_dict[software_release_url]
-    else:
-      software_release = portal.portal_catalog.getResultValue(
-          portal_type='Software Release',
-          url_string={'query': software_release_url, 'key': 'ExactMatch'})
-      if software_release is not None:
+      return software_release_capacity_dict[software_release_url]
+
+    software_release = portal.portal_catalog.getResultValue(
+      portal_type='Software Release',
+      url_string={'query': software_release_url, 'key': 'ExactMatch'})
+
+    software_release_capacity = None
+    if software_release is not None:
+      # Search for Software Product Individual Variation with same reference
+      software_product = software_release.getAggregateValue()
+      if software_product is not None:
+        for variation in software_product.searchFolder(
+            portal_type="Software Product Individual Variation",
+            reference=software_type):
+          software_release_capacity = variation.getCapacityQuantity(None)
+          if software_release_capacity is not None:
+            break
+
+        if software_release_capacity is None:
+          software_release_capacity = software_product.getCapacityQuantity(None)
+
+      if software_release_capacity is None:
         software_release_capacity = software_release.getCapacityQuantity(1)
-      else:
-        software_release_capacity = 1
-      software_release_capacity_dict[software_release_url] = software_release_capacity
+
+    if software_release_capacity is None:
+      software_release_capacity = 1
+
+    software_release_capacity_dict[software_release_url] = software_release_capacity
     return software_release_capacity
 
   if allocated_instance is not None:

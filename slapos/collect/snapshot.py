@@ -218,8 +218,7 @@ class ComputerSnapshot(_Snapshot):
     #
     self.system_snapshot = SystemSnapshot()
     self.temperature_snapshot_list = self._get_temperature_snapshot_list()
-    self.disk_snapshot_list = []
-    self.partition_list = self._get_physical_disk_info()
+    self._get_physical_disk_info()
 
     if test_heating and model_id is not None \
                     and sensor_id is not None:
@@ -234,16 +233,16 @@ class ComputerSnapshot(_Snapshot):
     return temperature_snapshot_list
 
   def _get_physical_disk_info(self):
-    partition_dict = {}
+    # XXX: merge the following 2 to avoid calling disk_usage() twice
+    self.disk_snapshot_list = []
+    self.partition_list = []
+    partition_set = set()
 
     for partition in psutil.disk_partitions():
-      if partition.device not in partition_dict:
+      dev = partition.device
+      if dev not in partition_set: # XXX: useful ?
+        partition_set.add(dev)
         usage = psutil.disk_usage(partition.mountpoint)
-        partition_dict[partition.device] = usage.total
+        self.partition_list.append((dev, usage.total))
         self.disk_snapshot_list.append(
-          DiskPartitionSnapshot(partition.device, 
-                                partition.mountpoint))
-
-    return [(k, v) for k, v in six.iteritems(partition_dict)]
-
-  
+          DiskPartitionSnapshot(dev, partition.mountpoint))

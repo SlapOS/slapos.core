@@ -37,12 +37,13 @@ from slapos.slap.slap import Computer, ComputerPartition, \
     SoftwareRelease, SoftwareInstance, NotFoundError
 from slapos.proxy.db_version import DB_VERSION
 import slapos.slap
-from slapos.util import sqlite_connect
+from slapos.util import bytes2str, sqlite_connect
 
 from flask import g, Flask, request, abort
-import xml_marshaller
-from xml_marshaller.xml_marshaller import loads
-from xml_marshaller.xml_marshaller import dumps
+from xml_marshaller import xml_marshaller
+
+loads = lambda x: xml_marshaller.loads(x.encode('utf-8'))
+dumps = lambda x: bytes2str(xml_marshaller.dumps(x))
 
 import six
 from six.moves import range
@@ -83,9 +84,6 @@ def dict2xml(dictionary):
 
 
 def partitiondict2partition(partition):
-  for key, value in six.iteritems(partition):
-    if type(value) is six.text_type:
-      partition[key] = value.encode()
   slap_partition = ComputerPartition(partition['computer_reference'],
       partition['reference'])
   slap_partition._software_release_document = None
@@ -115,7 +113,7 @@ def partitiondict2partition(partition):
         root_partition['partition_reference']
     if partition['slave_instance_list'] is not None:
       slap_partition._parameter_dict['slave_instance_list'] = \
-          xml_marshaller.xml_marshaller.loads(partition['slave_instance_list'])
+          loads(partition['slave_instance_list'])
     else:
       slap_partition._parameter_dict['slave_instance_list'] = []
     slap_partition._connection_dict = xml2dict(partition['connection_xml'])
@@ -178,8 +176,8 @@ def _upgradeDatabaseIfNeeded():
   if current_schema_version == DB_VERSION:
     return
 
-  schema = app.open_resource('schema.sql', 'r')
-  schema = schema.read() % dict(version=DB_VERSION, computer=app.config['computer_id'])
+  with app.open_resource('schema.sql', 'r') as f:
+    schema = f.read() % dict(version=DB_VERSION, computer=app.config['computer_id'])
   g.db.cursor().executescript(schema)
   g.db.commit()
 
@@ -236,16 +234,15 @@ def getFullComputerInformation():
   for partition in execute_db('partition', 'SELECT * FROM %s WHERE computer_reference=?', [computer_id]):
     slap_computer._computer_partition_list.append(partitiondict2partition(
       partition))
-  return xml_marshaller.xml_marshaller.dumps(slap_computer)
+  return dumps(slap_computer)
 
 @app.route('/setComputerPartitionConnectionXml', methods=['POST'])
 def setComputerPartitionConnectionXml():
   slave_reference = request.form.get('slave_reference', None)
-  computer_partition_id = request.form['computer_partition_id'].encode()
-  computer_id = request.form['computer_id'].encode()
-  connection_xml = request.form['connection_xml'].encode()
-  connection_dict = xml_marshaller.xml_marshaller.loads(
-                                            connection_xml)
+  computer_partition_id = request.form['computer_partition_id']
+  computer_id = request.form['computer_id']
+  connection_xml = request.form['connection_xml']
+  connection_dict = loads(connection_xml)
   connection_xml = dict2xml(connection_dict)
   if not slave_reference or slave_reference == 'None':
     query = 'UPDATE %s SET connection_xml=? WHERE reference=? AND computer_reference=?'
@@ -253,7 +250,6 @@ def setComputerPartitionConnectionXml():
     execute_db('partition', query, argument_list)
     return 'done'
   else:
-    slave_reference = slave_reference.encode()
     query = 'UPDATE %s SET connection_xml=? , hosted_by=? WHERE reference=?'
     argument_list = [connection_xml, computer_partition_id, slave_reference]
     execute_db('slave', query, argument_list)
@@ -298,7 +294,7 @@ def useComputer():
 @app.route('/loadComputerConfigurationFromXML', methods=['POST'])
 def loadComputerConfigurationFromXML():
   xml = request.form['xml']
-  computer_dict = xml_marshaller.xml_marshaller.loads(xml.encode('utf-8'))
+  computer_dict = loads(xml)
   execute_db('computer', 'INSERT OR REPLACE INTO %s values(:reference, :address, :netmask)',
              computer_dict)
   for partition in computer_dict['partition_list']:
@@ -316,13 +312,13 @@ def loadComputerConfigurationFromXML():
 
 @app.route('/registerComputerPartition', methods=['GET'])
 def registerComputerPartition():
-  computer_reference = request.args['computer_reference'].encode()
-  computer_partition_reference = request.args['computer_partition_reference'].encode()
+  computer_reference = request.args['computer_reference']
+  computer_partition_reference = request.args['computer_partition_reference']
   partition = execute_db('partition', 'SELECT * FROM %s WHERE reference=? and computer_reference=?',
       [computer_partition_reference, computer_reference], one=True)
   if partition is None:
     raise UnauthorizedError
-  return xml_marshaller.xml_marshaller.dumps(
+  return dumps(
       partitiondict2partition(partition))
 
 @app.route('/supplySupply', methods=['POST'])
@@ -342,13 +338,13 @@ def requestComputerPartition():
   parsed_request_dict = parseRequestComputerPartitionForm(request.form)
 
   # Is it a slave instance?
-  slave = loads(request.form.get('shared_xml', EMPTY_DICT_XML).encode())
+  slave = loads(request.form.get('shared_xml', EMPTY_DICT_XML))
 
   # Check first if instance is already allocated
   if slave:
     # XXX: change schema to include a simple "partition_reference" which
     # is name of the instance. Then, no need to do complex search here.
-    slave_reference = parsed_request_dict['partition_id'] + b'_' + parsed_request_dict['partition_reference']
+    slave_reference = parsed_request_dict['partition_id'] + '_' + parsed_request_dict['partition_reference']
     requested_computer_id = parsed_request_dict['filter_kw'].get('computer_guid', app.config['computer_id'])
     matching_partition = getAllocatedSlaveInstance(slave_reference, requested_computer_id)
   else:
@@ -386,15 +382,15 @@ def parseRequestComputerPartitionForm(form):
   Parse without intelligence a form from a request(), return it.
   """
   parsed_dict = {}
-  parsed_dict['software_release'] = form['software_release'].encode()
-  parsed_dict['software_type'] = form.get('software_type').encode()
-  parsed_dict['partition_reference'] = form.get('partition_reference', '').encode()
-  parsed_dict['partition_id'] = form.get('computer_partition_id', '').encode()
-  parsed_dict['partition_parameter_kw'] = loads(form.get('partition_parameter_xml', EMPTY_DICT_XML).encode())
-  parsed_dict['filter_kw'] = loads(form.get('filter_xml', EMPTY_DICT_XML).encode())
+  parsed_dict['software_release'] = form['software_release']
+  parsed_dict['software_type'] = form.get('software_type')
+  parsed_dict['partition_reference'] = form.get('partition_reference', '')
+  parsed_dict['partition_id'] = form.get('computer_partition_id', '')
+  parsed_dict['partition_parameter_kw'] = loads(form.get('partition_parameter_xml', EMPTY_DICT_XML))
+  parsed_dict['filter_kw'] = loads(form.get('filter_xml', EMPTY_DICT_XML))
   # Note: currently ignored for slave instance (slave instances
   # are always started).
-  parsed_dict['requested_state'] = loads(form.get('state').encode())
+  parsed_dict['requested_state'] = loads(form.get('state'))
 
   return parsed_dict
 
@@ -489,13 +485,13 @@ def forwardRequestToExternalMaster(master_url, request_form):
   else:
     slap.initializeConnection(master_url)
 
-  partition_reference = request_form['partition_reference'].encode()
+  partition_reference = request_form['partition_reference']
   # Store in database
   execute_db('forwarded_partition_request', 'INSERT OR REPLACE INTO %s values(:partition_reference, :master_url)',
              {'partition_reference':partition_reference, 'master_url': master_url})
 
   new_request_form = request_form.copy()
-  filter_kw = loads(new_request_form['filter_xml'].encode())
+  filter_kw = loads(new_request_form['filter_xml'])
   filter_kw['source_instance_id'] = partition_reference
   new_request_form['filter_xml'] = dumps(filter_kw)
 
@@ -590,7 +586,7 @@ def requestNotSlave(software_release, software_type, partition_reference, partit
       software_type = 'RootSoftwareInstance'
   else:
     # XXX Check if software_release should be updated
-    if partition['software_release'].encode() != software_release:
+    if partition['software_release'] != software_release:
       q += ' ,software_release=?'
       a(software_release)
     if partition['requested_by']:
@@ -616,8 +612,8 @@ def requestNotSlave(software_release, software_type, partition_reference, partit
     q += ' ,xml=?'
     a(instance_xml)
   q += ' WHERE reference=? AND computer_reference=?'
-  a(partition['reference'].encode())
-  a(partition['computer_reference'].encode())
+  a(partition['reference'])
+  a(partition['computer_reference'])
 
   execute_db('partition', q, args)
   args = []
@@ -633,12 +629,12 @@ def requestNotSlave(software_release, software_type, partition_reference, partit
   software_instance = SoftwareInstance(_connection_dict=xml2dict(partition['connection_xml']),
                                        _parameter_dict=xml2dict(partition['xml']),
                                        connection_xml=partition['connection_xml'],
-                                       slap_computer_id=partition['computer_reference'].encode(),
+                                       slap_computer_id=partition['computer_reference'],
                                        slap_computer_partition_id=partition['reference'],
                                        slap_software_release_url=partition['software_release'],
                                        slap_server_url='slap_server_url',
                                        slap_software_type=partition['software_type'],
-                                       _instance_guid='%s-%s' % (partition['computer_reference'].encode(), partition['reference']),
+                                       _instance_guid='%s-%s' % (partition['computer_reference'], partition['reference']),
                                        _requested_state=requested_state,
                                        ip_list=address_list)
   return software_instance
@@ -698,7 +694,7 @@ def requestSlave(software_release, software_type, partition_reference, partition
   if slave_instance_list is None:
     slave_instance_list = []
   else:
-    slave_instance_list = xml_marshaller.xml_marshaller.loads(slave_instance_list.encode())
+    slave_instance_list = loads(slave_instance_list)
     for x in slave_instance_list:
       if x['slave_reference'] == slave_reference:
         slave_instance_list.remove(x)
@@ -709,14 +705,14 @@ def requestSlave(software_release, software_type, partition_reference, partition
   args = []
   a = args.append
   q = 'UPDATE %s SET slave_instance_list=?'
-  a(xml_marshaller.xml_marshaller.dumps(slave_instance_list))
+  a(dumps(slave_instance_list))
   q += ' WHERE reference=? and computer_reference=?'
-  a(partition['reference'].encode())
+  a(partition['reference'])
   a(requested_computer_id)
   execute_db('partition', q, args)
   args = []
   partition = execute_db('partition', 'SELECT * FROM %s WHERE reference=? and computer_reference=?',
-      [partition['reference'].encode(), requested_computer_id], one=True)
+      [partition['reference'], requested_computer_id], one=True)
 
   # Add slave to slave table if not there
   slave = execute_db('slave', 'SELECT * FROM %s WHERE reference=? and computer_reference=?',
@@ -748,9 +744,9 @@ def requestSlave(software_release, software_type, partition_reference, partition
 
 @app.route('/softwareInstanceRename', methods=['POST'])
 def softwareInstanceRename():
-  new_name = request.form['new_name'].encode()
-  computer_partition_id = request.form['computer_partition_id'].encode()
-  computer_id = request.form['computer_id'].encode()
+  new_name = request.form['new_name']
+  computer_partition_id = request.form['computer_partition_id']
+  computer_id = request.form['computer_id']
 
   q = 'UPDATE %s SET partition_reference = ? WHERE reference = ? AND computer_reference = ?'
   execute_db('partition', q, [new_name, computer_partition_id, computer_id])
@@ -758,16 +754,16 @@ def softwareInstanceRename():
 
 @app.route('/getComputerPartitionStatus', methods=['GET'])
 def getComputerPartitionStatus():
-  return xml_marshaller.xml_marshaller.dumps('Not implemented.')
+  return dumps('Not implemented.')
 
 @app.route('/computerBang', methods=['POST'])
 def computerBang():
-  return xml_marshaller.xml_marshaller.dumps('')
+  return dumps('')
 
 @app.route('/getComputerPartitionCertificate', methods=['GET'])
 def getComputerPartitionCertificate():
   # proxy does not use partition certificate, but client calls this.
-  return xml_marshaller.xml_marshaller.dumps({'certificate': '', 'key': ''})
+  return dumps({'certificate': '', 'key': ''})
 
 @app.route('/getSoftwareReleaseListFromSoftwareProduct', methods=['GET'])
 def getSoftwareReleaseListFromSoftwareProduct():
@@ -784,5 +780,5 @@ def getSoftwareReleaseListFromSoftwareProduct():
           [app.config['software_product_list'][software_product_reference]]
     else:
       software_release_url_list = []
-    return xml_marshaller.xml_marshaller.dumps(software_release_url_list)
+    return dumps(software_release_url_list)
 

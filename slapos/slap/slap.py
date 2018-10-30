@@ -96,8 +96,8 @@ class SlapRequester(SlapDocument):
       )
     software_instance = xml_marshaller.loads(xml)
     computer_partition = ComputerPartition(
-      software_instance.slap_computer_id.encode('UTF-8'),
-      software_instance.slap_computer_partition_id.encode('UTF-8'),
+      software_instance.slap_computer_id,
+      software_instance.slap_computer_partition_id,
       connection_helper=self._connection_helper,
     )
     # Hack to give all object attributes to the ComputerPartition instance

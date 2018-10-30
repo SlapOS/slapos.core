@@ -78,7 +78,8 @@ class BasicMixin(object):
     self.startProxy()
 
   def createSlapOSConfigurationFile(self):
-    open(self.slapos_cfg, 'w').write("""[slapos]
+    with open(self.slapos_cfg, 'w') as f:
+      f.write("""[slapos]
 software_root = %(tempdir)s/opt/slapgrid
 instance_root = %(tempdir)s/srv/slapgrid
 master_url = %(proxyaddr)s
@@ -1007,7 +1008,8 @@ class TestMultiMasterSupport(MasterMixin):
     super(TestMultiMasterSupport, self).tearDown()
 
   def createExternalProxyConfigurationFile(self):
-    open(self.external_slapproxy_configuration_file_location, 'w').write("""[slapos]
+    with open(self.external_slapproxy_configuration_file_location, 'w') as f:
+      f.write("""[slapos]
 computer_id = %(external_computer_id)s
 [slapproxy]
 host = %(host)s

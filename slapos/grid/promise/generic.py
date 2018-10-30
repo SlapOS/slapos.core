@@ -161,8 +161,8 @@ class GenericPromise(object):
       self.logger.removeHandler(handler)
     if self.__log_folder is None:
       # configure logger with StringIO
-      import cStringIO
-      self.__logger_buffer = cStringIO.StringIO()
+      from six.moves import cStringIO
+      self.__logger_buffer = cStringIO()
       logger_handler = logging.StreamHandler(self.__logger_buffer)
       self.__log_file = None
     else:

@@ -873,12 +873,12 @@ class slap:
       # XXX-Cedric: should raise something smarter than NotFound
       raise NotFoundError
 
-    xml = bytes(self._connection_helper.GET('registerComputerPartition',
+    xml = self._connection_helper.GET('registerComputerPartition',
             params = {
                 'computer_reference': computer_guid,
                 'computer_partition_reference': partition_id,
                 }
-            ))
+            )
     result = xml_marshaller.loads(xml)
     # XXX: dirty hack to make computer partition usable. xml_marshaller is too
     # low-level for our needs here.
@@ -913,7 +913,7 @@ class slap:
                              'software_release_url parameters are specified.')
       params['software_release_url'] = software_release_url
 
-    xml = bytes(self._connection_helper.GET(url, params=params))
+    xml = self._connection_helper.GET(url, params=params)
     result = xml_marshaller.loads(xml)
     assert(type(result) == list)
     return result

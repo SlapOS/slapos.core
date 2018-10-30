@@ -28,7 +28,7 @@
 ##############################################################################
 
 import atexit
-import six.moves.configparser
+from six.moves import configparser
 import os
 import sys
 
@@ -52,7 +52,7 @@ class ClientConfig(object):
     # Merges the arguments and configuration
     try:
       configuration_dict = dict(configp.items('slapconsole'))
-    except ConfigParser.NoSectionError:
+    except configparser.NoSectionError:
       pass
     else:
       for key in configuration_dict:

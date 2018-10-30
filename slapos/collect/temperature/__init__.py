@@ -18,7 +18,8 @@ def collectComputerTemperature(sensor_bin="sensors"):
   cmd = ["%s -u" % sensor_bin]
   
   sp = subprocess.Popen(cmd, stdout=subprocess.PIPE, 
-                        stderr=subprocess.PIPE, shell=True)
+                        stderr=subprocess.PIPE, shell=True,
+                        universal_newlines=True)
   
   stdout, stderr = sp.communicate()
   

@@ -36,6 +36,8 @@ from .temperature import collectComputerTemperature, \
 
 from .temperature.heating import get_contribution_ratio
 
+import six
+
 MEASURE_INTERVAL = 5
 
 class _Snapshot(object):
@@ -242,6 +244,6 @@ class ComputerSnapshot(_Snapshot):
           DiskPartitionSnapshot(partition.device, 
                                 partition.mountpoint))
 
-    return [(k, v) for k, v in partition_dict.iteritems()]
+    return [(k, v) for k, v in six.iteritems(partition_dict)]
 
   

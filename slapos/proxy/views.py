@@ -298,7 +298,7 @@ def useComputer():
 @app.route('/loadComputerConfigurationFromXML', methods=['POST'])
 def loadComputerConfigurationFromXML():
   xml = request.form['xml']
-  computer_dict = xml_marshaller.xml_marshaller.loads(str(xml).encode('utf-8'))
+  computer_dict = xml_marshaller.xml_marshaller.loads(xml.encode('utf-8'))
   execute_db('computer', 'INSERT OR REPLACE INTO %s values(:reference, :address, :netmask)',
              computer_dict)
   for partition in computer_dict['partition_list']:
@@ -622,7 +622,7 @@ def requestNotSlave(software_release, software_type, partition_reference, partit
   execute_db('partition', q, args)
   args = []
   partition = execute_db('partition', 'SELECT * FROM %s WHERE reference=? and computer_reference=?',
-      [partition['reference'].encode(), partition['computer_reference'].encode()], one=True)
+      [partition['reference'], partition['computer_reference']], one=True)
   address_list = []
   for address in execute_db('partition_network', 'SELECT * FROM %s WHERE partition_reference=?', [partition['reference']]):
     address_list.append((address['reference'], address['address']))

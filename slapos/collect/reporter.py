@@ -40,6 +40,8 @@ import tarfile
 import time
 import psutil
 
+import six
+
 log_file = False
 
 class Dumper(object):
@@ -59,10 +61,10 @@ class SystemReporter(Dumper):
     """ Dump data """
     _date = time.strftime("%Y-%m-%d")
     self.db.connect()
-    for item, collected_item_list in self.db.exportSystemAsDict(_date).iteritems():
+    for item, collected_item_list in six.iteritems(self.db.exportSystemAsDict(_date)):
       self.writeFile(item, folder, collected_item_list)
 
-    for partition, collected_item_list in self.db.exportDiskAsDict(_date).iteritems():
+    for partition, collected_item_list in six.iteritems(self.db.exportDiskAsDict(_date)):
       partition_id = "_".join(partition.split("-")[:-1]).replace("/", "_")
       item = "memory_%s" % partition.split("-")[-1]
       self.writeFile("disk_%s_%s" % (item, partition_id), folder, collected_item_list)

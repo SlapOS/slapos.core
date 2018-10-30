@@ -84,8 +84,6 @@ def string_to_boolean(string):
 
   The parser is completely arbitrary, see code for actual implementation.
   """
-  if isinstance(string, bytes):
-    string = string.decode('utf-8')
   try:
     return ('false', 'true').index(string.lower())
   except Exception:

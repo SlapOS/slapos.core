@@ -6,7 +6,7 @@ import os
 
 from .interface import IManager
 from six.moves import filter
-from zope import interface
+from zope.interface import implementer
 
 logger = logging.getLogger(__name__)
 
@@ -22,9 +22,8 @@ def which(exename):
       return full_path
   return None
 
+@implementer(IManager)
 class Manager(object):
-  interface.implements(IManager)
-
   port_redirect_filename = '.slapos-port-redirect'
 
   def __init__(self, config):

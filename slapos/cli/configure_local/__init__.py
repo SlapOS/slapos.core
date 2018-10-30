@@ -149,8 +149,8 @@ def _generateSlaposNodeConfigurationFile(slapos_node_config_path, args):
     slapos_node_configuration_content = re.sub(
         '(key_file|cert_file|certificate_repository_path).*=.*\n',
         '', slapos_node_configuration_content)
-    with open(slapos_node_config_path, 'wb') as fout:
-        fout.write(slapos_node_configuration_content.encode('utf8'))
+    with open(slapos_node_config_path, 'w') as fout:
+        fout.write(slapos_node_configuration_content)
 
 def _generateSlaposProxyConfigurationFile(conf):
     template_arg_list = (__name__, '../../slapos-proxy.cfg.example')
@@ -172,8 +172,8 @@ def _generateSlaposProxyConfigurationFile(conf):
     slapos_proxy_configuration_content = _replaceParameterValue(
         slapos_proxy_configuration_template, to_replace)
 
-    with open(slapos_proxy_configuration_path, 'wb') as fout:
-        fout.write(slapos_proxy_configuration_content.encode('utf8'))
+    with open(slapos_proxy_configuration_path, 'w') as fout:
+        fout.write(slapos_proxy_configuration_content)
 
     return slapos_proxy_configuration_path
 

@@ -364,7 +364,7 @@ class TestCollectReport(unittest.TestCase):
         with tarfile.open("%s.tar.gz" % dump_folder) as tf:
             self.assertEquals(tf.getmembers()[0].name, "1990-01-01")
             self.assertEquals(tf.getmembers()[1].name, "1990-01-01/test.txt")
-            self.assertEquals(tf.extractfile(tf.getmembers()[1]).read(), 'hi')
+            self.assertEquals(tf.extractfile(tf.getmembers()[1]).read(), b'hi')
 
 class TestCollectSnapshot(unittest.TestCase):
 
@@ -482,10 +482,10 @@ class TestCollectEntity(unittest.TestCase):
         config.set('slapos', 'instance_root', self.instance_root)
  
         user_dict = entity.get_user_list(config)
-        username_list = ['slapuser0', 'slapuser1', 'slapuser2'] 
-        self.assertEquals(username_list, user_dict.keys())
+        username_set = {'slapuser0', 'slapuser1', 'slapuser2'} 
+        self.assertEquals(username_set, set(user_dict))
        
-        for name in username_list:
+        for name in username_set:
           self.assertEquals(user_dict[name].name, name)
           self.assertEquals(user_dict[name].snapshot_list, [])
           expected_path = "%s/slappart%s" % (self.instance_root, name.strip("slapuser")) 
@@ -508,11 +508,11 @@ class TestCollectEntity(unittest.TestCase):
 
         self.assertEquals(database.invoked_method_list[1][0], "insertUserSnapshot")
         self.assertEquals(database.invoked_method_list[1][1][0], ("fakeuser0",))
-        self.assertEquals(database.invoked_method_list[1][1][1].keys(), 
-                   ['cpu_time', 'cpu_percent', 'process',
+        self.assertEquals(set(database.invoked_method_list[1][1][1]), 
+                   {'cpu_time', 'cpu_percent', 'process',
                     'memory_rss', 'pid', 'memory_percent',
                     'io_rw_counter', 'insertion_date', 'insertion_time',
-                    'io_cycles_counter', 'cpu_num_threads'])
+                    'io_cycles_counter', 'cpu_num_threads'})
         self.assertEquals(database.invoked_method_list[2], ("commit", ""))
         self.assertEquals(database.invoked_method_list[3], ("close", ""))
 
@@ -527,19 +527,19 @@ class TestCollectEntity(unittest.TestCase):
 
         self.assertEquals(database.invoked_method_list[1][0], "insertUserSnapshot")
         self.assertEquals(database.invoked_method_list[1][1][0], ("fakeuser0",))
-        self.assertEquals(database.invoked_method_list[1][1][1].keys(), 
-                   ['cpu_time', 'cpu_percent', 'process',
+        self.assertEquals(set(database.invoked_method_list[1][1][1]), 
+                   {'cpu_time', 'cpu_percent', 'process',
                     'memory_rss', 'pid', 'memory_percent',
                     'io_rw_counter', 'insertion_date', 'insertion_time',
-                    'io_cycles_counter', 'cpu_num_threads'])
+                    'io_cycles_counter', 'cpu_num_threads'})
         self.assertEquals(database.invoked_method_list[2], ("commit", ""))
         self.assertEquals(database.invoked_method_list[3], ("close", ""))
 
         self.assertEquals(database.invoked_method_list[4], ("connect", ""))
         self.assertEquals(database.invoked_method_list[5][0], "inserFolderSnapshot")
         self.assertEquals(database.invoked_method_list[5][1][0], ("fakeuser0",))
-        self.assertEquals(database.invoked_method_list[5][1][1].keys(), 
-                   ['insertion_date', 'disk_usage', 'insertion_time'])
+        self.assertEquals(set(database.invoked_method_list[5][1][1]), 
+                   {'insertion_date', 'disk_usage', 'insertion_time'})
         self.assertEquals(database.invoked_method_list[6], ("commit", ""))
         self.assertEquals(database.invoked_method_list[7], ("close", ""))
 
@@ -554,23 +554,23 @@ class TestCollectEntity(unittest.TestCase):
 
         self.assertEquals(database.invoked_method_list[1][0], "insertUserSnapshot")
         self.assertEquals(database.invoked_method_list[1][1][0], ("fakeuser0",))
-        self.assertEquals(database.invoked_method_list[1][1][1].keys(), 
-                   ['cpu_time', 'cpu_percent', 'process',
+        self.assertEquals(set(database.invoked_method_list[1][1][1]), 
+                   {'cpu_time', 'cpu_percent', 'process',
                     'memory_rss', 'pid', 'memory_percent',
                     'io_rw_counter', 'insertion_date', 'insertion_time',
-                    'io_cycles_counter', 'cpu_num_threads'])
+                    'io_cycles_counter', 'cpu_num_threads'})
         self.assertEquals(database.invoked_method_list[2], ("commit", ""))
         self.assertEquals(database.invoked_method_list[3], ("close", ""))
 
         self.assertEquals(database.invoked_method_list[4], ("connect", ""))
         self.assertEquals(database.invoked_method_list[5][0], "select")
         self.assertEquals(database.invoked_method_list[5][1][0], ())
-        self.assertEquals(database.invoked_method_list[5][1][1].keys(),
-                                ['table', 'where', 'limit', 'order', 'columns'])
+        self.assertEquals(set(database.invoked_method_list[5][1][1]),
+                                {'table', 'where', 'limit', 'order', 'columns'})
         self.assertEquals(database.invoked_method_list[6][0], "inserFolderSnapshot")
         self.assertEquals(database.invoked_method_list[6][1][0], ("fakeuser0",))
-        self.assertEquals(database.invoked_method_list[6][1][1].keys(), 
-                   ['insertion_date', 'disk_usage', 'insertion_time'])
+        self.assertEquals(set(database.invoked_method_list[6][1][1]), 
+                   {'insertion_date', 'disk_usage', 'insertion_time'})
         self.assertEquals(database.invoked_method_list[7], ("commit", ""))
         self.assertEquals(database.invoked_method_list[8], ("close", ""))
 
@@ -583,14 +583,14 @@ class TestCollectEntity(unittest.TestCase):
 
         self.assertEquals(database.invoked_method_list[1][0], "insertComputerSnapshot")
         self.assertEquals(database.invoked_method_list[1][1][0], ())
-        self.assertEquals(database.invoked_method_list[1][1][1].keys(), 
-                 ['insertion_time', 'insertion_date', 'cpu_num_core',
+        self.assertEquals(set(database.invoked_method_list[1][1][1]), 
+                 {'insertion_time', 'insertion_date', 'cpu_num_core',
                   'partition_list', 'cpu_frequency', 'memory_size', 
-                  'cpu_type', 'memory_type'])
+                  'cpu_type', 'memory_type'})
  
         self.assertEquals(database.invoked_method_list[2][0], "insertSystemSnapshot")
         self.assertEquals(database.invoked_method_list[2][1][0], ())
-        self.assertEquals(set(database.invoked_method_list[2][1][1].keys()), 
+        self.assertEquals(set(database.invoked_method_list[2][1][1]), 
           set([ 'memory_used', 'cpu_percent', 'insertion_date', 'insertion_time',
                 'loadavg', 'memory_free', 'net_in_bytes', 'net_in_dropped', 
                 'net_in_errors', 'net_out_bytes', 'net_out_dropped', 
@@ -598,7 +598,7 @@ class TestCollectEntity(unittest.TestCase):
 
         self.assertEquals(database.invoked_method_list[3][0], "insertDiskPartitionSnapshot")
         self.assertEquals(database.invoked_method_list[3][1][0], ())
-        self.assertEquals(set(database.invoked_method_list[3][1][1].keys()), 
+        self.assertEquals(set(database.invoked_method_list[3][1][1]), 
           set([ 'used', 'insertion_date', 'partition', 'free', 
                 'mountpoint', 'insertion_time' ]))
 

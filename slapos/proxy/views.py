@@ -37,7 +37,7 @@ from slapos.slap.slap import Computer, ComputerPartition, \
     SoftwareRelease, SoftwareInstance, NotFoundError
 from slapos.proxy.db_version import DB_VERSION
 import slapos.slap
-from slapos.util import bytes2str, sqlite_connect
+from slapos.util import bytes2str, unicode2str, sqlite_connect
 
 from flask import g, Flask, request, abort
 from xml_marshaller import xml_marshaller
@@ -239,9 +239,9 @@ def getFullComputerInformation():
 @app.route('/setComputerPartitionConnectionXml', methods=['POST'])
 def setComputerPartitionConnectionXml():
   slave_reference = request.form.get('slave_reference', None)
-  computer_partition_id = request.form['computer_partition_id']
-  computer_id = request.form['computer_id']
-  connection_xml = request.form['connection_xml']
+  computer_partition_id = unicode2str(request.form['computer_partition_id'])
+  computer_id = unicode2str(request.form['computer_id'])
+  connection_xml = unicode2str(request.form['connection_xml'])
   connection_dict = loads(connection_xml)
   connection_xml = dict2xml(connection_dict)
   if not slave_reference or slave_reference == 'None':
@@ -338,7 +338,7 @@ def requestComputerPartition():
   parsed_request_dict = parseRequestComputerPartitionForm(request.form)
 
   # Is it a slave instance?
-  slave = loads(request.form.get('shared_xml', EMPTY_DICT_XML))
+  slave = loads(unicode2str(request.form.get('shared_xml', EMPTY_DICT_XML)))
 
   # Check first if instance is already allocated
   if slave:
@@ -382,15 +382,15 @@ def parseRequestComputerPartitionForm(form):
   Parse without intelligence a form from a request(), return it.
   """
   parsed_dict = {}
-  parsed_dict['software_release'] = form['software_release']
-  parsed_dict['software_type'] = form.get('software_type')
-  parsed_dict['partition_reference'] = form.get('partition_reference', '')
-  parsed_dict['partition_id'] = form.get('computer_partition_id', '')
-  parsed_dict['partition_parameter_kw'] = loads(form.get('partition_parameter_xml', EMPTY_DICT_XML))
-  parsed_dict['filter_kw'] = loads(form.get('filter_xml', EMPTY_DICT_XML))
+  parsed_dict['software_release'] = unicode2str(form['software_release'])
+  parsed_dict['software_type'] = unicode2str(form.get('software_type'))
+  parsed_dict['partition_reference'] = unicode2str(form.get('partition_reference', ''))
+  parsed_dict['partition_id'] = unicode2str(form.get('computer_partition_id', ''))
+  parsed_dict['partition_parameter_kw'] = loads(unicode2str(form.get('partition_parameter_xml', EMPTY_DICT_XML)))
+  parsed_dict['filter_kw'] = loads(unicode2str(form.get('filter_xml', EMPTY_DICT_XML)))
   # Note: currently ignored for slave instance (slave instances
   # are always started).
-  parsed_dict['requested_state'] = loads(form.get('state'))
+  parsed_dict['requested_state'] = loads(unicode2str(form.get('state')))
 
   return parsed_dict
 
@@ -485,13 +485,13 @@ def forwardRequestToExternalMaster(master_url, request_form):
   else:
     slap.initializeConnection(master_url)
 
-  partition_reference = request_form['partition_reference']
+  partition_reference = unicode2str(request_form['partition_reference'])
   # Store in database
   execute_db('forwarded_partition_request', 'INSERT OR REPLACE INTO %s values(:partition_reference, :master_url)',
              {'partition_reference':partition_reference, 'master_url': master_url})
 
   new_request_form = request_form.copy()
-  filter_kw = loads(new_request_form['filter_xml'])
+  filter_kw = loads(unicode2str(new_request_form['filter_xml']))
   filter_kw['source_instance_id'] = partition_reference
   new_request_form['filter_xml'] = dumps(filter_kw)
 
@@ -744,9 +744,9 @@ def requestSlave(software_release, software_type, partition_reference, partition
 
 @app.route('/softwareInstanceRename', methods=['POST'])
 def softwareInstanceRename():
-  new_name = request.form['new_name']
-  computer_partition_id = request.form['computer_partition_id']
-  computer_id = request.form['computer_id']
+  new_name = unicode2str(request.form['new_name'])
+  computer_partition_id = unicode2str(request.form['computer_partition_id'])
+  computer_id = unicode2str(request.form['computer_id'])
 
   q = 'UPDATE %s SET partition_reference = ? WHERE reference = ? AND computer_reference = ?'
   execute_db('partition', q, [new_name, computer_partition_id, computer_id])

@@ -102,6 +102,10 @@ def sqlite_connect(dburi, timeout=None):
 if str is bytes:
   def bytes2str(s):
     return s
+  def unicode2str(s):
+    return s.encode('utf-8')
 else:
   def bytes2str(s):
     return s.decode()
+  def unicode2str(s):
+    return s

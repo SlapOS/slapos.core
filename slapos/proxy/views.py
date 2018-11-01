@@ -312,8 +312,8 @@ def loadComputerConfigurationFromXML():
 
 @app.route('/registerComputerPartition', methods=['GET'])
 def registerComputerPartition():
-  computer_reference = request.args['computer_reference']
-  computer_partition_reference = request.args['computer_partition_reference']
+  computer_reference = unicode2str(request.args['computer_reference'])
+  computer_partition_reference = unicode2str(request.args['computer_partition_reference'])
   partition = execute_db('partition', 'SELECT * FROM %s WHERE reference=? and computer_reference=?',
       [computer_partition_reference, computer_reference], one=True)
   if partition is None:
@@ -381,16 +381,17 @@ def parseRequestComputerPartitionForm(form):
   """
   Parse without intelligence a form from a request(), return it.
   """
-  parsed_dict = {}
-  parsed_dict['software_release'] = unicode2str(form['software_release'])
-  parsed_dict['software_type'] = unicode2str(form.get('software_type'))
-  parsed_dict['partition_reference'] = unicode2str(form.get('partition_reference', ''))
-  parsed_dict['partition_id'] = unicode2str(form.get('computer_partition_id', ''))
-  parsed_dict['partition_parameter_kw'] = loads(unicode2str(form.get('partition_parameter_xml', EMPTY_DICT_XML)))
-  parsed_dict['filter_kw'] = loads(unicode2str(form.get('filter_xml', EMPTY_DICT_XML)))
-  # Note: currently ignored for slave instance (slave instances
-  # are always started).
-  parsed_dict['requested_state'] = loads(unicode2str(form.get('state')))
+  parsed_dict = {
+    'software_release': unicode2str(form['software_release']),
+    'software_type': unicode2str(form.get('software_type')),
+    'partition_reference': unicode2str(form.get('partition_reference', '')),
+    'partition_id': unicode2str(form.get('computer_partition_id', '')),
+    'partition_parameter_kw': loads(unicode2str(form.get('partition_parameter_xml', EMPTY_DICT_XML))),
+    'filter_kw': loads(unicode2str(form.get('filter_xml', EMPTY_DICT_XML))),
+    # Note: currently ignored for slave instance (slave instances
+    # are always started).
+    'requested_state': loads(unicode2str(form.get('state'))),
+  }
 
   return parsed_dict
 
@@ -411,12 +412,9 @@ def checkIfMasterIsCurrentMaster(master_url):
   slap = slapos.slap.slap()
   slap.initializeConnection(master_url)
   try:
-    master_run_id = slap._connection_helper.GET('/getRunId')
+    return run_id == slap._connection_helper.GET('/getRunId')
   except:
     return False
-  if master_run_id == run_id:
-    return True
-  return False
 
 @app.route('/getRunId', methods=['GET'])
 def getRunId():
@@ -691,15 +689,16 @@ def requestSlave(software_release, software_type, partition_reference, partition
 
   # Add slave to partition slave_list if not present else replace information
   slave_instance_list = partition['slave_instance_list']
-  if slave_instance_list is None:
-    slave_instance_list = []
-  else:
+  if slave_instance_list:
     slave_instance_list = loads(slave_instance_list)
-    for x in slave_instance_list:
+    for i, x in enumerate(slave_instance_list):
       if x['slave_reference'] == slave_reference:
-        slave_instance_list.remove(x)
-
-  slave_instance_list.append(new_slave)
+        slave_instance_list[i] = new_slave
+        break
+    else:
+      slave_instance_list.append(new_slave)
+  else:
+    slave_instance_list = [new_slave]
 
   # Update slave_instance_list in database
   args = []

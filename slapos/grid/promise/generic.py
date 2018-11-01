@@ -230,9 +230,9 @@ class GenericPromise(object):
     """
       Call bang if requested
     """
-    if self.__config.has_key('master-url') and \
-        self.__config.has_key('partition-id') and \
-        self.__config.has_key('computer-id'):
+    if 'master-url' in self.__config and \
+       'partition-in' in self.__config and \
+       'computer-id' in self.__config:
 
       slap = slapos.slap.slap()
       slap.initializeConnection(

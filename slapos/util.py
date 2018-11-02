@@ -53,10 +53,10 @@ def chownDirectory(path, uid, gid):
   if os.getuid() != 0:
     # we are probably inside of a webrunner
     return
-  # find /opt/slapgrid -not -user 1000 -exec chown slapsoft:slapsoft {} \;
+  # find /opt/slapgrid -not -user 1000 -exec chown slapsoft:slapsoft {} +
   subprocess.check_call([
       '/usr/bin/find', path, '-not', '-user', str(uid), '-exec',
-      '/bin/chown', '%s:%s' % (uid, gid), '{}', ';'
+      '/bin/chown', '%s:%s' % (uid, gid), '{}', '+'
   ])
 
 

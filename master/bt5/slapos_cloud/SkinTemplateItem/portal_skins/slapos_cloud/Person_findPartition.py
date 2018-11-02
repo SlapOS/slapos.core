@@ -1,6 +1,11 @@
 import random
 from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, ComplexQuery, NegatedQuery
 person = context
+portal = context.getPortalObject()
+
+def getOpenAllocationScopeUidList(exclude_uid_list=[]):
+  return [scope.getUid() for scope in portal.portal_categories.allocation_scope.open.objectValues() if scope.getUid() not in exclude_uid_list]
+
 
 computer_partition = None
 filter_kw_copy = filter_kw.copy()
@@ -82,13 +87,13 @@ for base_category in computer_base_category_list:
     else:
       query_kw["%s_uid" % base_category] = category.getUid()
 
-query_kw["capacity_scope_uid"] = context.getPortalObject().portal_categories.capacity_scope.open.getUid()
+query_kw["capacity_scope_uid"] = portal.portal_categories.capacity_scope.open.getUid()
 if subscription_reference is not None:
   # Subscriptions uses a specific set of allocation scope
-  query_kw["allocation_scope_uid"] = context.getPortalObject().portal_categories.allocation_scope.open.subscription.getUid()
+  query_kw["allocation_scope_uid"] = portal.portal_categories.allocation_scope.open.subscription.getUid()
 else:
   # else pic anything but open/subscription
-  query_kw["allocation_scope_uid"] = NegatedQuery(SimpleQuery(allocation_scope_uid=context.getPortalObject().portal_categories.allocation_scope.open.subscription.getUid()))
+  query_kw["allocation_scope_uid"] = getOpenAllocationScopeUidList(exclude_uid_list=[portal.portal_categories.allocation_scope.open.subscription.getUid()])
 
 
 extra_query_kw = context.ComputerPartition_getCustomAllocationParameterDict(

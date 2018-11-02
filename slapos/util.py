@@ -31,6 +31,7 @@ import errno
 import os
 import subprocess
 import sqlite3
+from xml_marshaller.xml_marshaller import dumps, loads
 
 
 def mkdir_p(path, mode=0o700):

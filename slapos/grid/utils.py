@@ -351,19 +351,20 @@ def launchBuildout(path, buildout_binary, logger,
 
 def updateFile(file_path, content, mode=0o600):
   """Creates or updates a file with "content" as content."""
-  altered = False
   content = content.encode('utf-8')
-  if not (os.path.isfile(file_path)) or \
-     not (hashlib.md5(open(file_path, 'rb').read()).digest() ==
-          hashlib.md5(content).digest()):
-    with open(file_path, 'wb') as fout:
-      fout.write(content)
-    altered = True
-  os.chmod(file_path, stat.S_IREAD | stat.S_IWRITE | stat.S_IEXEC)
-  if stat.S_IMODE(os.stat(file_path).st_mode) != mode:
-    os.chmod(file_path, mode)
-    altered = True
-  return altered
+  try:
+    with open(file_path, 'rb') as f:
+      if f.read(len(content) + 1) == content:
+        if stat.S_IMODE(os.fstat(f.fileno()).st_mode) == mode:
+          return False
+        os.fchmod(f.fileno(), mode)
+        return True
+  except IOError:
+    pass
+  with open(file_path, 'wb') as f:
+    os.fchmod(f.fileno(), mode)
+    f.write(content)
+  return True
 
 
 def updateExecutable(executable_path, content):

@@ -42,7 +42,6 @@ from six.moves.urllib import parse
 import json
 import re
 
-import xml_marshaller
 from mock import patch
 from zope.interface import implementer
 
@@ -57,6 +56,7 @@ from slapos.manager.interface import IManager
 from slapos.slap.slap import COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME
 import slapos.grid.SlapObject
 from slapos import manager as slapmanager
+from slapos.util import dumps
 
 import httmock
 
@@ -322,13 +322,13 @@ class ComputerForTest(object):
       slap_computer = self.getComputer(qs['computer_id'][0])
       return {
               'status_code': 200,
-              'content': xml_marshaller.xml_marshaller.dumps(slap_computer)
+              'content': dumps(slap_computer)
               }
     elif url.path == '/getHostingSubscriptionIpList':
       ip_address_list = self.ip_address_list
       return {
               'status_code': 200,
-              'content': xml_marshaller.xml_marshaller.dumps(ip_address_list)
+              'content': dumps(ip_address_list)
               }
     if req.method == 'POST' and 'computer_partition_id' in qs:
       instance = self.instance_list[int(qs['computer_partition_id'][0])]

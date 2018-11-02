@@ -36,7 +36,7 @@ import tempfile
 import httmock
 
 import slapos.slap
-import xml_marshaller
+from slapos.util import dumps
 
 
 class UndefinedYetException(Exception):
@@ -196,7 +196,7 @@ class TestSlap(SlapMixin):
         partition = slapos.slap.ComputerPartition(computer_guid, partition_id)
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(partition)
+                'content': dumps(partition)
                 }
       else:
         return {'status_code': 400}
@@ -325,7 +325,7 @@ class TestSlap(SlapMixin):
             and qs == {'software_product_reference': [software_product_reference]}):
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(software_release_url_list)
+                'content': dumps(software_release_url_list)
                 }
 
     with httmock.HTTMock(handler):
@@ -351,7 +351,7 @@ class TestSlap(SlapMixin):
          and qs == {'software_release_url': [software_release_url]}):
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(software_release_url_list)
+                'content': dumps(software_release_url_list)
                 }
 
     with httmock.HTTMock(handler):
@@ -461,7 +461,7 @@ class TestComputer(SlapMixin):
             qs['computer_partition_reference'][0])
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(slap_partition)
+                'content': dumps(slap_partition)
                 }
       elif (url.path == '/getFullComputerInformation'
               and 'computer_id' in qs):
@@ -470,7 +470,7 @@ class TestComputer(SlapMixin):
         slap_computer._computer_partition_list = []
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(slap_computer)
+                'content': dumps(slap_computer)
                 }
       elif url.path == '/requestComputerPartition':
         return {'status_code': 408}
@@ -531,7 +531,7 @@ class TestComputer(SlapMixin):
         partition = slapos.slap.ComputerPartition(self.computer_guid, partition_id)
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(partition)
+                'content': dumps(partition)
                 }
       elif (url.path == '/getFullComputerInformation'
               and 'computer_id' in qs):
@@ -539,7 +539,7 @@ class TestComputer(SlapMixin):
         slap_computer._computer_partition_list = []
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(slap_computer)
+                'content': dumps(slap_computer)
                 }
       else:
         return {'status_code': 400}
@@ -613,7 +613,7 @@ class TestComputerPartition(SlapMixin):
             qs['computer_partition_reference'][0])
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(slap_partition)
+                'content': dumps(slap_partition)
                 }
       elif (url.path == '/getComputerInformation'
               and 'computer_id' in qs):
@@ -625,7 +625,7 @@ class TestComputerPartition(SlapMixin):
         slap_computer._computer_partition_list = [slap_partition]
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(slap_computer)
+                'content': dumps(slap_computer)
                 }
       elif url.path == '/requestComputerPartition':
         raise RequestWasCalled
@@ -658,7 +658,7 @@ class TestComputerPartition(SlapMixin):
             qs['computer_partition_reference'][0])
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(slap_partition)
+                'content': dumps(slap_partition)
                 }
       elif (url.path == '/getComputerInformation'
               and 'computer_id' in qs):
@@ -670,7 +670,7 @@ class TestComputerPartition(SlapMixin):
         slap_computer._computer_partition_list = [slap_partition]
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(slap_computer)
+                'content': dumps(slap_computer)
                 }
       elif url.path == '/requestComputerPartition':
         return {'status_code': 408}
@@ -702,7 +702,7 @@ class TestComputerPartition(SlapMixin):
             qs['computer_partition_reference'][0])
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(slap_partition)
+                'content': dumps(slap_partition)
                 }
       elif (url.path == '/getComputerInformation'
               and 'computer_id' in qs):
@@ -714,7 +714,7 @@ class TestComputerPartition(SlapMixin):
         slap_computer._computer_partition_list = [slap_partition]
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(slap_computer)
+                'content': dumps(slap_computer)
                 }
       elif url.path == '/requestComputerPartition':
         return {'status_code': 408}
@@ -751,7 +751,7 @@ class TestComputerPartition(SlapMixin):
             qs['computer_partition_reference'][0])
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(slap_partition)
+                'content': dumps(slap_partition)
                 }
       elif (url.path == '/getComputerInformation' and 'computer_id' in qs):
         slap_computer = slapos.slap.Computer(qs['computer_id'][0])
@@ -762,7 +762,7 @@ class TestComputerPartition(SlapMixin):
         slap_computer._computer_partition_list = [slap_partition]
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(slap_computer)
+                'content': dumps(slap_computer)
                 }
       elif url.path == '/requestComputerPartition':
         from slapos.slap.slap import SoftwareInstance
@@ -771,7 +771,7 @@ class TestComputerPartition(SlapMixin):
             slap_computer_partition_id=requested_partition_id)
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(slap_partition)
+                'content': dumps(slap_partition)
                 }
       else:
         return {'status_code': 404}
@@ -812,7 +812,7 @@ class TestComputerPartition(SlapMixin):
             qs['computer_partition_reference'][0])
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(slap_partition)
+                'content': dumps(slap_partition)
                 }
       elif (url.path == '/getComputerInformation'
               and 'computer_id' in qs):
@@ -824,7 +824,7 @@ class TestComputerPartition(SlapMixin):
         slap_computer._computer_partition_list = [slap_partition]
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(slap_computer)
+                'content': dumps(slap_computer)
                 }
       elif url.path == '/requestComputerPartition':
         raise RequestWasCalled
@@ -889,7 +889,7 @@ class TestComputerPartition(SlapMixin):
             computer_guid, partition_id)
         return {
                 'status_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(partition)
+                'content': dumps(partition)
                 }
       else:
         return {'status_code': 404}
@@ -933,7 +933,7 @@ class TestComputerPartition(SlapMixin):
             computer_guid, partition_id)
         return {
                 'statu_code': 200,
-                'content': xml_marshaller.xml_marshaller.dumps(partition)
+                'content': dumps(partition)
                 }
       elif url.path == '/softwareInstanceError':
         parsed_qs_body = parse.parse_qs(req.body)
@@ -1081,7 +1081,7 @@ class TestOpenOrder(SlapMixin):
           slap_computer_partition_id=requested_partition_id)
       return {
               'status_code': 200,
-              'content': xml_marshaller.xml_marshaller.dumps(slap_partition)
+              'content': dumps(slap_partition)
               }
 
     with httmock.HTTMock(handler):
@@ -1108,7 +1108,7 @@ class TestOpenOrder(SlapMixin):
           slap_computer_partition_id=requested_partition_id)
       return {
               'status_code': 200,
-              'content': xml_marshaller.xml_marshaller.dumps(slap_partition)
+              'content': dumps(slap_partition)
               }
 
 
@@ -1141,7 +1141,7 @@ class TestOpenOrder(SlapMixin):
           slap_computer_partition_id=requested_partition_id)
       return {
               'status_code': 200,
-              'content': xml_marshaller.xml_marshaller.dumps(slap_partition)
+              'content': dumps(slap_partition)
               }
 
     with httmock.HTTMock(handler):

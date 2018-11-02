@@ -40,17 +40,19 @@ import os
 import json
 import logging
 import re
+import hashlib
+from functools import wraps
+
 import six
 from six.moves.urllib import parse
 
-import hashlib
 from .util import xml2dict
+from slapos.util import loads, dumps
 
 import netaddr
 from xml.sax import saxutils
 from zope.interface import implementer
 from .interface import slap as interface
-from xml_marshaller import xml_marshaller
 
 from uritemplate import expand
 
@@ -94,7 +96,7 @@ class SlapRequester(SlapDocument):
         request_dict=request_dict,
         connection_helper=self._connection_helper,
       )
-    software_instance = xml_marshaller.loads(xml)
+    software_instance = loads(xml)
     computer_partition = ComputerPartition(
       software_instance.slap_computer_id,
       software_instance.slap_computer_partition_id,
@@ -106,7 +108,7 @@ class SlapRequester(SlapDocument):
     computer_partition.__dict__ = dict(computer_partition.__dict__.items() +
                                        software_instance.__dict__.items())
     # XXX not generic enough.
-    if xml_marshaller.loads(request_dict['shared_xml']):
+    if loads(request_dict['shared_xml']):
       computer_partition._synced = True
       computer_partition._connection_dict = software_instance._connection_dict
       computer_partition._parameter_dict = software_instance._parameter_dict
@@ -258,12 +260,12 @@ class OpenOrder(SlapRequester):
     request_dict = {
         'software_release': software_release,
         'partition_reference': partition_reference,
-        'partition_parameter_xml': xml_marshaller.dumps(partition_parameter_kw),
-        'filter_xml': xml_marshaller.dumps(filter_kw),
+        'partition_parameter_xml': dumps(partition_parameter_kw),
+        'filter_xml': dumps(filter_kw),
         # XXX Cedric: Why state and shared are marshalled? First is a string
         #             And second is a boolean.
-        'state': xml_marshaller.dumps(state),
-        'shared_xml': xml_marshaller.dumps(shared),
+        'state': dumps(state),
+        'shared_xml': dumps(shared),
     }
     if software_type is not None:
       request_dict['software_type'] = software_type
@@ -290,7 +292,7 @@ class OpenOrder(SlapRequester):
     Requests a computer.
     """
     xml = self._connection_helper.POST('requestComputer', data={'computer_title': computer_reference})
-    computer = xml_marshaller.loads(xml)
+    computer = loads(xml)
     computer._connection_helper = self._connection_helper
     computer._hateoas_navigator = self._hateoas_navigator
     return computer
@@ -301,19 +303,15 @@ def _syncComputerInformation(func):
   Synchronize computer object with server information
   """
   def decorated(self, *args, **kw):
-    if getattr(self, '_synced', 0):
-      return func(self, *args, **kw)
-    computer = self._connection_helper.getFullComputerInformation(self._computer_id)
-    for key, value in computer.__dict__.items():
-      if isinstance(value, six.text_type):
-        setattr(self, key, value.encode('utf-8'))
-      else:
-        setattr(self, key, value)
-    setattr(self, '_synced', True)
-    for computer_partition in self.getComputerPartitionList():
-      setattr(computer_partition, '_synced', True)
+    if not getattr(self, '_synced', 0):
+      computer = self._connection_helper.getFullComputerInformation(
+        self._computer_id)
+      self.__dict__.update(computer.__dict__)
+      self._synced = True
+      for computer_partition in self.getComputerPartitionList():
+        computer_partition._synced = True
     return func(self, *args, **kw)
-  return decorated
+  return wraps(func)(decorated)
 
 
 @implementer(interface.IComputer)
@@ -363,7 +361,7 @@ class Computer(SlapDocument):
 
   def getStatus(self):
     xml = self._connection_helper.GET('getComputerStatus', params={'computer_id': self._computer_id})
-    return xml_marshaller.loads(xml)
+    return loads(xml)
 
   def revokeCertificate(self):
     self._connection_helper.POST('revokeComputerCertificate', data={
@@ -372,7 +370,7 @@ class Computer(SlapDocument):
   def generateCertificate(self):
     xml = self._connection_helper.POST('generateComputerCertificate', data={
       'computer_id': self._computer_id})
-    return xml_marshaller.loads(xml)
+    return loads(xml)
 
 
 def parsed_error_message(status, body, path):
@@ -463,11 +461,10 @@ class ComputerPartition(SlapRequester):
         'software_release': software_release,
         'software_type': software_type,
         'partition_reference': partition_reference,
-        'shared_xml': xml_marshaller.dumps(shared),
-        'partition_parameter_xml': xml_marshaller.dumps(
-                                        partition_parameter_kw),
-        'filter_xml': xml_marshaller.dumps(filter_kw),
-        'state': xml_marshaller.dumps(state),
+        'shared_xml': dumps(shared),
+        'partition_parameter_xml': dumps(partition_parameter_kw),
+        'filter_xml': dumps(filter_kw),
+        'state': dumps(state),
     }
     self._updateTransactionFile(partition_reference)
     return self._requestComputerPartition(request_dict)
@@ -612,7 +609,7 @@ class ComputerPartition(SlapRequester):
     self._connection_helper.POST('setComputerPartitionConnectionXml', data={
           'computer_id': self._computer_id,
           'computer_partition_id': self._partition_id,
-          'connection_xml': xml_marshaller.dumps(connection_dict),
+          'connection_xml': dumps(connection_dict),
           'slave_reference': slave_reference})
 
   def getInstanceParameter(self, key):
@@ -640,7 +637,7 @@ class ComputerPartition(SlapRequester):
                 'computer_partition_id': self._partition_id,
                 }
             )
-    return xml_marshaller.loads(xml)
+    return loads(xml)
 
   def getStatus(self):
     xml = self._connection_helper.GET('getComputerPartitionStatus',
@@ -649,7 +646,7 @@ class ComputerPartition(SlapRequester):
                 'computer_partition_id': self._partition_id,
                 }
             )
-    return xml_marshaller.loads(xml)
+    return loads(xml)
   
   def getFullHostingIpAddressList(self):
     xml = self._connection_helper.GET('getHostingSubscriptionIpList',
@@ -658,14 +655,14 @@ class ComputerPartition(SlapRequester):
                 'computer_partition_id': self._partition_id,
                 }
             )
-    return xml_marshaller.loads(xml)
+    return loads(xml)
 
   def setComputerPartitionRelatedInstanceList(self, instance_reference_list):
     self._connection_helper.POST('updateComputerPartitionRelatedInstanceList',
         data={
           'computer_id': self._computer_id,
           'computer_partition_id': self._partition_id,
-          'instance_reference_xml': xml_marshaller.dumps(instance_reference_list)
+          'instance_reference_xml': dumps(instance_reference_list)
           }
         )
 
@@ -706,7 +703,7 @@ class ConnectionHelper:
 
   def getComputerInformation(self, computer_id):
     xml = self.GET('getComputerInformation', params={'computer_id': computer_id})
-    return xml_marshaller.loads(xml)
+    return loads(xml)
 
   def getFullComputerInformation(self, computer_id):
     """
@@ -725,7 +722,7 @@ class ConnectionHelper:
       # We should stablise slap library soon.
       xml = self.GET('getComputerInformation', params=params)
 
-    return xml_marshaller.loads(xml)
+    return loads(xml)
 
   def do_request(self, method, path, params=None, data=None, headers=None):
     url = parse.urljoin(self.slapgrid_uri, path)
@@ -879,7 +876,7 @@ class slap:
                 'computer_partition_reference': partition_id,
                 }
             )
-    result = xml_marshaller.loads(xml)
+    result = loads(xml)
     # XXX: dirty hack to make computer partition usable. xml_marshaller is too
     # low-level for our needs here.
     result._connection_helper = self._connection_helper
@@ -914,7 +911,7 @@ class slap:
       params['software_release_url'] = software_release_url
 
     xml = self._connection_helper.GET(url, params=params)
-    result = xml_marshaller.loads(xml)
+    result = loads(xml)
     assert(type(result) == list)
     return result
 

@@ -39,14 +39,12 @@ import sys
 import tempfile
 import time
 import unittest
-import xml_marshaller
-from xml_marshaller.xml_marshaller import loads, dumps
 
 import slapos.proxy
 import slapos.proxy.views as views
 import slapos.slap
 import slapos.slap.slap
-from slapos.util import sqlite_connect, bytes2str
+from slapos.util import loads, dumps, sqlite_connect, bytes2str
 
 import sqlite3
 import pkg_resources
@@ -144,7 +142,7 @@ database_uri = %(tempdir)s/lib/proxy.db
 
     request_dict = {
         'computer_id': self.computer_id,
-        'xml': xml_marshaller.xml_marshaller.dumps(computer_dict),
+        'xml': dumps(computer_dict),
     }
     rv = self.app.post('/loadComputerConfigurationFromXML',
                   data=request_dict)
@@ -170,7 +168,7 @@ class TestInformation(BasicMixin, unittest.TestCase):
     """
     rv = self.app.get('/getComputerInformation?computer_id=%s' % self.computer_id)
     self.assertIsInstance(
-        xml_marshaller.xml_marshaller.loads(rv.data),
+        loads(rv.data),
         slapos.slap.Computer)
     self.assertTrue(os.path.exists(self.proxy_db))
 
@@ -181,7 +179,7 @@ class TestInformation(BasicMixin, unittest.TestCase):
     """
     rv = self.app.get('/getFullComputerInformation?computer_id=%s' % self.computer_id)
     self.assertIsInstance(
-        xml_marshaller.xml_marshaller.loads(rv.data),
+        loads(rv.data),
         slapos.slap.Computer)
     self.assertTrue(os.path.exists(self.proxy_db))
 
@@ -199,7 +197,7 @@ class TestInformation(BasicMixin, unittest.TestCase):
     """
     self.add_free_partition(10)
     rv = self.app.get('/getFullComputerInformation?computer_id=%s' % self.computer_id)
-    computer = xml_marshaller.xml_marshaller.loads(rv.data)
+    computer = loads(rv.data)
     for slap_partition in computer._computer_partition_list:
         self.assertIsNone(slap_partition._software_release_document)
         self.assertEqual(slap_partition._requested_state, 'destroyed')
@@ -218,8 +216,7 @@ class TestInformation(BasicMixin, unittest.TestCase):
     response = self.app.get('/getSoftwareReleaseListFromSoftwareProduct'
                             '?software_product_reference=%s' %\
                             software_product_reference)
-    software_release_url_list = xml_marshaller.xml_marshaller.loads(
-        response.data)
+    software_release_url_list = loads(response.data)
     self.assertEqual(
         software_release_url_list,
         [software_release_url]
@@ -234,8 +231,7 @@ class TestInformation(BasicMixin, unittest.TestCase):
     self.app_config['software_product_list'] = {'random': 'random'}
     response = self.app.get('/getSoftwareReleaseListFromSoftwareProduct'
                             '?software_product_reference=idonotexist')
-    software_release_url_list = xml_marshaller.xml_marshaller.loads(
-        response.data)
+    software_release_url_list = loads(response.data)
     self.assertEqual(
         software_release_url_list,
         []
@@ -271,7 +267,7 @@ class TestInformation(BasicMixin, unittest.TestCase):
     rv = self.app.get(
       '/getComputerPartitionCertificate?computer_id=%s&computer_partition_id=%s' % (
       self.computer_id, 'slappart0'))
-    response = xml_marshaller.xml_marshaller.loads(rv.data)
+    response = loads(rv.data)
     self.assertEquals({'certificate': '', 'key': ''}, response)
 
   def test_computerBang(self):
@@ -279,7 +275,7 @@ class TestInformation(BasicMixin, unittest.TestCase):
     Tests that computerBang method is implemented in slapproxy.
     """
     rv = self.app.post( '/computerBang?computer_id=%s' % ( self.computer_id))
-    response = xml_marshaller.xml_marshaller.loads(rv.data)
+    response = loads(rv.data)
     self.assertEquals('', response)
 
 class MasterMixin(BasicMixin, unittest.TestCase):
@@ -307,11 +303,10 @@ class MasterMixin(BasicMixin, unittest.TestCase):
         'software_release': software_release,
         'software_type': software_type,
         'partition_reference': partition_reference,
-        'shared_xml': xml_marshaller.xml_marshaller.dumps(shared),
-        'partition_parameter_xml': xml_marshaller.xml_marshaller.dumps(
-            partition_parameter_kw),
-        'filter_xml': xml_marshaller.xml_marshaller.dumps(filter_kw),
-        'state': xml_marshaller.xml_marshaller.dumps(state),
+        'shared_xml': dumps(shared),
+        'partition_parameter_xml': dumps(partition_parameter_kw),
+        'filter_xml': dumps(filter_kw),
+        'state': dumps(state),
     }
     return self.app.post('/requestComputerPartition', data=request_dict)
 
@@ -323,7 +318,7 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     rv = self._requestComputerPartition(*args, **kwargs)
     self.assertEqual(rv._status_code, 200)
     xml = rv.data
-    software_instance = xml_marshaller.xml_marshaller.loads(xml)
+    software_instance = loads(xml)
 
     computer_partition = slapos.slap.ComputerPartition(
         software_instance.slap_computer_id,
@@ -345,7 +340,7 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     self.app.post('/setComputerPartitionConnectionXml', data={
         'computer_id': self.computer_id,
         'computer_partition_id': partition_id,
-        'connection_xml': xml_marshaller.xml_marshaller.dumps(connection_dict),
+        'connection_xml': dumps(connection_dict),
         'slave_reference': slave_reference})
 
   def getPartitionInformation(self, computer_partition_id):
@@ -353,7 +348,7 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     Return computer information as stored in proxy for corresponding id
     """
     rv = self.app.get('/getFullComputerInformation?computer_id=%s' % self.computer_id)
-    computer = xml_marshaller.xml_marshaller.loads(rv.data)
+    computer = loads(rv.data)
     for instance in computer._computer_partition_list:
       if instance._partition_id == computer_partition_id:
         return instance
@@ -1092,7 +1087,7 @@ database_uri = %(tempdir)s/lib/external_proxy.db
 
     request_dict = {
         'computer_id': self.computer_id,
-        'xml': xml_marshaller.xml_marshaller.dumps(computer_dict),
+        'xml': dumps(computer_dict),
     }
     self.external_proxy_slap._connection_helper.POST('/loadComputerConfigurationFromXML',
                                                      data=request_dict)

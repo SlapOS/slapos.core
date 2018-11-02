@@ -57,7 +57,7 @@ import lxml.etree
 import xml_marshaller.xml_marshaller
 
 import slapos.util
-from slapos.util import mkdir_p
+from slapos.util import dumps, mkdir_p
 import slapos.slap as slap
 from slapos import version
 from slapos import manager as slapmanager
@@ -344,7 +344,7 @@ class Computer(object):
     if conf.dry_run:
       return
     try:
-      slap_computer.updateConfiguration(xml_marshaller.xml_marshaller.dumps(_getDict(self)))
+      slap_computer.updateConfiguration(dumps(_getDict(self)))
     except slap.NotFoundError as error:
       raise slap.NotFoundError("%s\nERROR: This SlapOS node is not recognised by "
           "SlapOS Master and/or computer_id and certificates don't match. "
@@ -366,7 +366,7 @@ class Computer(object):
       with open(path_to_json, 'wb') as fout:
         fout.write(json.dumps(computer_dict, sort_keys=True, indent=2))
 
-    new_xml = xml_marshaller.xml_marshaller.dumps(computer_dict)
+    new_xml = dumps(computer_dict)
     new_pretty_xml = prettify_xml(new_xml)
 
     path_to_archive = path_to_xml + '.zip'

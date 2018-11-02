@@ -40,10 +40,7 @@ import slapos.slap
 from slapos.util import bytes2str, unicode2str, sqlite_connect
 
 from flask import g, Flask, request, abort
-from xml_marshaller import xml_marshaller
-
-loads = lambda x: xml_marshaller.loads(x.encode('utf-8'))
-dumps = lambda x: bytes2str(xml_marshaller.dumps(x))
+from slapos.util import loads, dumps
 
 import six
 from six.moves import range
@@ -113,7 +110,7 @@ def partitiondict2partition(partition):
         root_partition['partition_reference']
     if partition['slave_instance_list'] is not None:
       slap_partition._parameter_dict['slave_instance_list'] = \
-          loads(partition['slave_instance_list'])
+          loads(partition['slave_instance_list'].encode('utf-8'))
     else:
       slap_partition._parameter_dict['slave_instance_list'] = []
     slap_partition._connection_dict = xml2dict(partition['connection_xml'])
@@ -241,9 +238,7 @@ def setComputerPartitionConnectionXml():
   slave_reference = request.form.get('slave_reference', None)
   computer_partition_id = unicode2str(request.form['computer_partition_id'])
   computer_id = unicode2str(request.form['computer_id'])
-  connection_xml = unicode2str(request.form['connection_xml'])
-  connection_dict = loads(connection_xml)
-  connection_xml = dict2xml(connection_dict)
+  connection_xml = dict2xml(loads(request.form['connection_xml'].encode('utf-8')))
   if not slave_reference or slave_reference == 'None':
     query = 'UPDATE %s SET connection_xml=? WHERE reference=? AND computer_reference=?'
     argument_list = [connection_xml, computer_partition_id, computer_id]
@@ -294,7 +289,7 @@ def useComputer():
 @app.route('/loadComputerConfigurationFromXML', methods=['POST'])
 def loadComputerConfigurationFromXML():
   xml = request.form['xml']
-  computer_dict = loads(xml)
+  computer_dict = loads(xml.encode('utf-8'))
   execute_db('computer', 'INSERT OR REPLACE INTO %s values(:reference, :address, :netmask)',
              computer_dict)
   for partition in computer_dict['partition_list']:
@@ -318,8 +313,7 @@ def registerComputerPartition():
       [computer_partition_reference, computer_reference], one=True)
   if partition is None:
     raise UnauthorizedError
-  return dumps(
-      partitiondict2partition(partition))
+  return dumps(partitiondict2partition(partition))
 
 @app.route('/supplySupply', methods=['POST'])
 def supplySupply():
@@ -338,7 +332,7 @@ def requestComputerPartition():
   parsed_request_dict = parseRequestComputerPartitionForm(request.form)
 
   # Is it a slave instance?
-  slave = loads(unicode2str(request.form.get('shared_xml', EMPTY_DICT_XML)))
+  slave = loads(request.form.get('shared_xml', EMPTY_DICT_XML).encode('utf-8'))
 
   # Check first if instance is already allocated
   if slave:
@@ -386,11 +380,11 @@ def parseRequestComputerPartitionForm(form):
     'software_type': unicode2str(form.get('software_type')),
     'partition_reference': unicode2str(form.get('partition_reference', '')),
     'partition_id': unicode2str(form.get('computer_partition_id', '')),
-    'partition_parameter_kw': loads(unicode2str(form.get('partition_parameter_xml', EMPTY_DICT_XML))),
-    'filter_kw': loads(unicode2str(form.get('filter_xml', EMPTY_DICT_XML))),
+    'partition_parameter_kw': loads(form.get('partition_parameter_xml', EMPTY_DICT_XML).encode('utf-8')),
+    'filter_kw': loads(form.get('filter_xml', EMPTY_DICT_XML).encode('utf-8')),
     # Note: currently ignored for slave instance (slave instances
     # are always started).
-    'requested_state': loads(unicode2str(form.get('state'))),
+    'requested_state': loads(form.get('state').encode('utf-8')),
   }
 
   return parsed_dict
@@ -489,7 +483,7 @@ def forwardRequestToExternalMaster(master_url, request_form):
              {'partition_reference':partition_reference, 'master_url': master_url})
 
   new_request_form = request_form.copy()
-  filter_kw = loads(unicode2str(new_request_form['filter_xml']))
+  filter_kw = loads(new_request_form['filter_xml'].encode('utf-8'))
   filter_kw['source_instance_id'] = partition_reference
   new_request_form['filter_xml'] = dumps(filter_kw)
 
@@ -690,7 +684,7 @@ def requestSlave(software_release, software_type, partition_reference, partition
   # Add slave to partition slave_list if not present else replace information
   slave_instance_list = partition['slave_instance_list']
   if slave_instance_list:
-    slave_instance_list = loads(slave_instance_list)
+    slave_instance_list = loads(slave_instance_list.encode('utf-8'))
     for i, x in enumerate(slave_instance_list):
       if x['slave_reference'] == slave_reference:
         slave_instance_list[i] = new_slave
@@ -704,7 +698,7 @@ def requestSlave(software_release, software_type, partition_reference, partition
   args = []
   a = args.append
   q = 'UPDATE %s SET slave_instance_list=?'
-  a(dumps(slave_instance_list))
+  a(bytes2str(dumps(slave_instance_list)))
   q += ' WHERE reference=? and computer_reference=?'
   a(partition['reference'])
   a(requested_computer_id)

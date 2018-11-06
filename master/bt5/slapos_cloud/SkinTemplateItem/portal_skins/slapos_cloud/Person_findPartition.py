@@ -1,5 +1,5 @@
 import random
-from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, ComplexQuery, NegatedQuery
+from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, ComplexQuery
 person = context
 portal = context.getPortalObject()
 
@@ -88,7 +88,7 @@ for base_category in computer_base_category_list:
       query_kw["%s_uid" % base_category] = category.getUid()
 
 query_kw["capacity_scope_uid"] = portal.portal_categories.capacity_scope.open.getUid()
-if subscription_reference is not None:
+if subscription_reference is not None and software_instance_portal_type != "Slave Instance":
   # Subscriptions uses a specific set of allocation scope
   query_kw["allocation_scope_uid"] = portal.portal_categories.allocation_scope.open.subscription.getUid()
 else:

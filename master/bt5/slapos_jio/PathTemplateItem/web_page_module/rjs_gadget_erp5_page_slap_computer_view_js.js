@@ -263,7 +263,8 @@
                   "lines": 10,
                   "list_method": "portal_catalog",
                   "query": "urn:jio:allDocs?query=portal_type%3A%22" +
-                    "Software Installation" + "%22%20AND%20default_aggregate_reference%3A" + gadget.state.doc.reference,
+                    "Software Installation" + "%22%20AND%20validation_state%3A%22validated%22%20AND%20default_aggregate_reference%3A" +
+                    gadget.state.doc.reference,
                   "portal_type": [],
                   "search_column_list": column_list,
                   "sort_column_list": column_list,

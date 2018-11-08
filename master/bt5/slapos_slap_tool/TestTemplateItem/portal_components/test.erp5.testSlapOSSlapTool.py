@@ -672,10 +672,10 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     self._makeComplexComputer()
     self.login(self.computer_user_id)
     destroy_requested = self.destroy_requested_software_installation
-    self.assertEquals(destroy_requested.getValidationState(), "validated")
+    self.assertEqual(destroy_requested.getValidationState(), "validated")
     self.portal_slap.destroyedSoftwareRelease(
         destroy_requested.getUrlString(), self.computer_id)
-    self.assertEquals(destroy_requested.getValidationState(), "invalidated")
+    self.assertEqual(destroy_requested.getValidationState(), "invalidated")
 
   def test_availableSoftwareRelease(self):
     self._makeComplexComputer()

@@ -1429,7 +1429,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
           portal_type=self.computer_portal_type,
           reference=computer_reference,
           )
-    self.assertEquals(0, len(result_list))
+    self.assertEqual(0, len(result_list))
 
   def stepCheckUnauthorizedSlapGetComputerPartitionListCall(self, sequence,
       **kw):
@@ -2040,7 +2040,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
     self.slap.initializeConnection(self.server_url, timeout=None)
     computer = self.slap.registerComputer(computer_guid)
     computer_partition_list = computer.getComputerPartitionList()
-    self.assertEquals(computer_partition_amount,
+    self.assertEqual(computer_partition_amount,
                       len(computer_partition_list))
 
   def stepCheckSuccessComputerPartitionGetIdCall(self, sequence, **kw):
@@ -2053,7 +2053,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
     self.slap.initializeConnection(self.server_url, timeout=None)
     computer_partition = self.slap.registerComputerPartition(
         computer_guid, partition_id)
-    self.assertEquals(partition_id, computer_partition.getId())
+    self.assertEqual(partition_id, computer_partition.getId())
 
   def stepCheckSuccessSoftwareReleaseGetURICall(self, sequence, **kw):
     """
@@ -2063,7 +2063,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
     self.slap = slap.slap()
     self.slap.initializeConnection(self.server_url, timeout=None)
     software_release = self.slap.registerSoftwareRelease(url)
-    self.assertEquals(url, software_release.getURI())
+    self.assertEqual(url, software_release.getURI())
 
   def stepCheckUnauthorizedComputerGetSoftwareReleaseListCall(self, sequence,
       **kw):
@@ -2085,7 +2085,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
     self.slap = slap.slap()
     self.slap.initializeConnection(self.server_url, timeout=None)
     computer = self.slap.registerComputer(computer_guid)
-    self.assertEquals([], [q for q in computer.getSoftwareReleaseList() \
+    self.assertEqual([], [q for q in computer.getSoftwareReleaseList() \
       if q.getState() != 'destroyed'])
 
   def stepCheckDestroyedStateGetSoftwareReleaseListCall(self, sequence, **kw):
@@ -2097,7 +2097,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
     self.slap = slap.slap()
     self.slap.initializeConnection(self.server_url, timeout=None)
     computer = self.slap.registerComputer(computer_guid)
-    self.assertEquals(1, len(computer.getSoftwareReleaseList()))
+    self.assertEqual(1, len(computer.getSoftwareReleaseList()))
     software_release = computer.getSoftwareReleaseList()[0]
     self.assertEqual('destroyed', software_release.getState())
 
@@ -2110,7 +2110,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
     self.slap = slap.slap()
     self.slap.initializeConnection(self.server_url, timeout=None)
     computer = self.slap.registerComputer(computer_guid)
-    self.assertEquals(1, len(computer.getSoftwareReleaseList()))
+    self.assertEqual(1, len(computer.getSoftwareReleaseList()))
     self.assertTrue(isinstance(computer.getSoftwareReleaseList()[0],
                                slap.SoftwareRelease))
 
@@ -2313,7 +2313,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
     url = sequence["software_release_uri"]
     software_release = computer_partition.getSoftwareRelease()
     self.assertTrue(isinstance(software_release, slap.SoftwareRelease))
-    self.assertEquals(url, software_release.getURI())
+    self.assertEqual(url, software_release.getURI())
 
   def stepCheckSuccessComputerPartitionGetInstanceParameterDictCall(self,
       sequence, **kw):
@@ -2450,7 +2450,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
     computer_partition = self.slap.registerComputerPartition(
         computer_guid, partition_id)
 
-    self.assertEquals('stopped', computer_partition.getState())
+    self.assertEqual('stopped', computer_partition.getState())
 
   def stepCheckStartedComputerPartitionGetStateCall(self, sequence, **kw):
     """
@@ -2463,7 +2463,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
     computer_partition = self.slap.registerComputerPartition(
         computer_guid, partition_id)
 
-    self.assertEquals('started', computer_partition.getState())
+    self.assertEqual('started', computer_partition.getState())
 
   def stepCheckDestroyedComputerPartitionGetStateCall(self, sequence, **kw):
     """
@@ -2477,7 +2477,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
     computer_partition = self.slap.registerComputerPartition(
         computer_guid, partition_id)
 
-    self.assertEquals('destroyed', computer_partition.getState())
+    self.assertEqual('destroyed', computer_partition.getState())
 
   def stepCheckComputerPartitionIsFree(self, sequence, **kw):
     computer_partition_uid = sequence["computer_partition_uid"]
@@ -2707,22 +2707,22 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
         self.slave_instance_portal_type,
         self.software_instance_portal_type,
         self.software_instance_portal_type]
-    self.assertEquals(expected_portal_type_list, sorted(portal_type_list))
+    self.assertEqual(expected_portal_type_list, sorted(portal_type_list))
     computer_partition_list = [obj.getAggregateValue(
       portal_type=self.computer_partition_portal_type) \
           for obj in sale_packing_list_line_list]
     uid_list = [computer_partition.getUid() \
         for computer_partition in computer_partition_list]
-    self.assertEquals(1, len(set(uid_list)))
+    self.assertEqual(1, len(set(uid_list)))
 
   def stepCheckSlaveInstanceReady(self, sequence):
     slave_instance = self.portal.portal_catalog.getResultValue(
         uid=sequence['software_instance_uid'])
-    self.assertEquals(self.slave_instance_portal_type,
+    self.assertEqual(self.slave_instance_portal_type,
         slave_instance.getPortalType())
     sale_order_line = slave_instance.getAggregateRelatedValue(
         portal_type=self.sale_order_line_portal_type)
-    self.assertEquals("confirmed", sale_order_line.getSimulationState())
+    self.assertEqual("confirmed", sale_order_line.getSimulationState())
     sale_packing_list_line = slave_instance.getAggregateRelatedValue(
         portal_type=self.sale_packing_list_line_portal_type)
     self.assertNotEquals(sale_packing_list_line.getAggregate(
@@ -2743,12 +2743,12 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
         software_release_uri = sale_packing_list_line.getResultValue(
             portal_type="Software Release")
         software_release_uri_list.append(software_release_uri.getUrlString())
-      self.assertEquals(1, len(set(software_release_uri_list)))
+      self.assertEqual(1, len(set(software_release_uri_list)))
 
   def stepCheckSlaveInstanceAllocationWithTwoDifferentSoftwareInstance(self, sequence):
     slave_instance = self.portal.portal_catalog.getResultValue(
         uid=sequence['software_instance_uid'])
-    self.assertEquals(self.slave_instance_portal_type,
+    self.assertEqual(self.slave_instance_portal_type,
         slave_instance.getPortalType())
     sale_packing_list_line = slave_instance.getAggregateRelatedValue(
         portal_type=self.sale_packing_list_line_portal_type)
@@ -2759,9 +2759,9 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
     computer_partition_list = [obj.getAggregate(
       portal_type=self.computer_partition_portal_type)\
           for obj in sale_packing_list_line_list]
-    self.assertEquals(computer_partition_list[0],
+    self.assertEqual(computer_partition_list[0],
         computer_partition_list[1])
-    self.assertEquals(4, len(computer_partition_list))
+    self.assertEqual(4, len(computer_partition_list))
 
   def stepCheckSlaveInstanceNotReady(self, sequence):
     slave_instance = self.portal.portal_catalog.getResultValue(
@@ -2786,7 +2786,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
         partition_id)
     parameter_dict = computer_partition.getInstanceParameterDict()
     slave_instance_list = parameter_dict["slave_instance_list"]
-    self.assertEquals([], slave_instance_list)
+    self.assertEqual([], slave_instance_list)
 
   def stepCheckSlaveInstanceListFromOneComputerPartition(self, sequence,
           expected_amount=1):
@@ -2797,14 +2797,14 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
     computer_partition = self.slap.registerComputerPartition(computer_guid,
         partition_id)
     parameter_dict = computer_partition.getInstanceParameterDict()
-    self.assertEquals(
+    self.assertEqual(
         sequence.get('requested_software_type',
                      'requested_software_type'),
         parameter_dict["slap_software_type"])
     slave_instance_list = parameter_dict["slave_instance_list"]
-    self.assertEquals(expected_amount, len(slave_instance_list))
+    self.assertEqual(expected_amount, len(slave_instance_list))
     for slave_instance in slave_instance_list:
-      self.assertEquals(
+      self.assertEqual(
           sequence.get('requested_software_type',
                        'requested_software_type'),
           slave_instance["slap_software_type"])

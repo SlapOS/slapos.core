@@ -57,8 +57,8 @@ class TestSlapOSPersonERP5Document_getHateoas(TestSlapOSHypermediaMixin):
     person_user = self._makePerson()
     fake_request = do_fake_request("GET")
     result = person_user.ERP5Document_getHateoas(REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 406)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 406)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
@@ -67,8 +67,8 @@ class TestSlapOSPersonERP5Document_getHateoas(TestSlapOSHypermediaMixin):
     person_user = self._makePerson()
     fake_request = do_fake_request("POST")
     result = person_user.ERP5Document_getHateoas(REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 405)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 405)
+    self.assertEqual(result, "")
 
 
   @simulate('Base_getRequestUrl', '*args, **kwargs',
@@ -80,8 +80,8 @@ class TestSlapOSPersonERP5Document_getHateoas(TestSlapOSHypermediaMixin):
     person_user = self._makePerson()
     fake_request = do_fake_request("GET")
     result = person_user.ERP5Document_getHateoas(REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 200)
-    self.assertEquals(fake_request.RESPONSE.getHeader('Content-Type'),
+    self.assertEqual(fake_request.RESPONSE.status, 200)
+    self.assertEqual(fake_request.RESPONSE.getHeader('Content-Type'),
       "application/hal+json"
     )
     results = json.loads(result)
@@ -112,7 +112,7 @@ class TestSlapOSPersonERP5Document_getHateoas(TestSlapOSHypermediaMixin):
     ]:
       self.assertTrue(action in action_object_slap, \
         "%s not in %s" % (action, action_object_slap))
-    self.assertEquals(results['_links']['action_object_slap_post'], {
+    self.assertEqual(results['_links']['action_object_slap_post'], {
         u"href": u'%s/Person_requestHateoasHostingSubscription' %  \
           person_user.absolute_url(),
         u"name": u"request_hateoas_hosting_subscription",
@@ -136,12 +136,12 @@ class TestSlapOSERP5Document_getHateoas_me(TestSlapOSHypermediaMixin):
     self.changeSkin('Hal')
     fake_request = do_fake_request("GET")
     result = self.portal.ERP5Document_getHateoas(REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 200)
-    self.assertEquals(fake_request.RESPONSE.getHeader('Content-Type'),
+    self.assertEqual(fake_request.RESPONSE.status, 200)
+    self.assertEqual(fake_request.RESPONSE.getHeader('Content-Type'),
       "application/hal+json"
     )
     result = json.loads(result)
-    self.assertEquals(result['_links']['self'],
+    self.assertEqual(result['_links']['self'],
         {"href": "http://example.org/bar"}
     )
     self.assertEqual(result['_links'].get('me'), me)
@@ -188,8 +188,8 @@ class TestSlapOSPerson_requestHateoasHostingSubscription(TestSlapOSHypermediaMix
     fake_request = do_fake_request("POST")
     result = person_user.Person_requestHateoasHostingSubscription(
       REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 406)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 406)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/json"')
@@ -199,8 +199,8 @@ class TestSlapOSPerson_requestHateoasHostingSubscription(TestSlapOSHypermediaMix
     fake_request = do_fake_request("GET")
     result = person_user.Person_requestHateoasHostingSubscription(
       REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 405)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 405)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/json"')
@@ -209,8 +209,8 @@ class TestSlapOSPerson_requestHateoasHostingSubscription(TestSlapOSHypermediaMix
     fake_request = do_fake_request("POST")
     result = self.portal.Person_requestHateoasHostingSubscription(
       REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 403)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 403)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestBody', '*args, **kwargs',
             'return "[}"')
@@ -222,8 +222,8 @@ class TestSlapOSPerson_requestHateoasHostingSubscription(TestSlapOSHypermediaMix
     fake_request = do_fake_request("POST")
     result = person_user.Person_requestHateoasHostingSubscription(
       REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 400)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 400)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestBody', '*args, **kwargs',
             'return "%s"' % json.dumps({
@@ -236,8 +236,8 @@ class TestSlapOSPerson_requestHateoasHostingSubscription(TestSlapOSHypermediaMix
     fake_request = do_fake_request("POST")
     result = person_user.Person_requestHateoasHostingSubscription(
       REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 400)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 400)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestBody', '*args, **kwargs',
             'return """%s"""' % json.dumps({
@@ -257,8 +257,8 @@ class TestSlapOSPerson_requestHateoasHostingSubscription(TestSlapOSHypermediaMix
     fake_request = do_fake_request("POST")
     result = person_user.Person_requestHateoasHostingSubscription(
       REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 201)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 201)
+    self.assertEqual(result, "")
     # XXX Test that person.request is called.
 
 class TestSlapOSPerson_getHateoasHostingSubscriptionList(TestSlapOSHypermediaMixin):
@@ -278,8 +278,8 @@ class TestSlapOSPerson_getHateoasHostingSubscriptionList(TestSlapOSHypermediaMix
     fake_request = do_fake_request("GET")
     result = person_user.Person_getHateoasHostingSubscriptionList(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 406)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 406)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json')
@@ -288,8 +288,8 @@ class TestSlapOSPerson_getHateoasHostingSubscriptionList(TestSlapOSHypermediaMix
     fake_request = do_fake_request("POST")
     result = self.portal.Person_getHateoasHostingSubscriptionList(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 405)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 405)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
@@ -298,8 +298,8 @@ class TestSlapOSPerson_getHateoasHostingSubscriptionList(TestSlapOSHypermediaMix
     fake_request = do_fake_request("GET")
     result = self.portal.Person_getHateoasHostingSubscriptionList(
       REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 403)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 403)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestUrl', '*args, **kwargs',
       'return "http://example.org/foo"')
@@ -316,11 +316,11 @@ class TestSlapOSPerson_getHateoasHostingSubscriptionList(TestSlapOSHypermediaMix
     fake_request = do_fake_request("GET")
     result = person_user.Person_getHateoasHostingSubscriptionList(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 200)
-    self.assertEquals(fake_request.RESPONSE.getHeader('Content-Type'),
+    self.assertEqual(fake_request.RESPONSE.status, 200)
+    self.assertEqual(fake_request.RESPONSE.getHeader('Content-Type'),
       "application/hal+json"
     )
-    self.assertEquals(result, json.dumps({
+    self.assertEqual(result, json.dumps({
       '_links': {
         "self": {
           "href": "http://example.org/foo",
@@ -354,8 +354,8 @@ class TestSlapOSHostingSubscription_getHateoasInstanceList(TestSlapOSHypermediaM
     fake_request = do_fake_request("GET")
     result = subscription.HostingSubscription_getHateoasInstanceList(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 406)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 406)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
@@ -364,8 +364,8 @@ class TestSlapOSHostingSubscription_getHateoasInstanceList(TestSlapOSHypermediaM
     fake_request = do_fake_request("POST")
     result = self.portal.HostingSubscription_getHateoasInstanceList(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 405)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 405)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
@@ -374,8 +374,8 @@ class TestSlapOSHostingSubscription_getHateoasInstanceList(TestSlapOSHypermediaM
     fake_request = do_fake_request("GET")
     result = self.portal.HostingSubscription_getHateoasInstanceList(
       REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 403)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 403)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestUrl', '*args, **kwargs',
       'return "http://example.org/bar"')
@@ -391,11 +391,11 @@ class TestSlapOSHostingSubscription_getHateoasInstanceList(TestSlapOSHypermediaM
     fake_request = do_fake_request("GET")
     result = subscription.HostingSubscription_getHateoasInstanceList(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 200)
-    self.assertEquals(fake_request.RESPONSE.getHeader('Content-Type'),
+    self.assertEqual(fake_request.RESPONSE.status, 200)
+    self.assertEqual(fake_request.RESPONSE.getHeader('Content-Type'),
       "application/hal+json"
     )
-    self.assertEquals(result, json.dumps({
+    self.assertEqual(result, json.dumps({
       '_links': {
         "self": {
           "href": "http://example.org/bar"
@@ -429,8 +429,8 @@ class TestSlapOSHostingSubscription_getHateoasRootSoftwareInstance(TestSlapOSHyp
     fake_request = do_fake_request("GET")
     result = subscription.HostingSubscription_getHateoasRootSoftwareInstance(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 406)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 406)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
@@ -439,8 +439,8 @@ class TestSlapOSHostingSubscription_getHateoasRootSoftwareInstance(TestSlapOSHyp
     fake_request = do_fake_request("POST")
     result = self.portal.HostingSubscription_getHateoasRootSoftwareInstance(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 405)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 405)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
@@ -449,8 +449,8 @@ class TestSlapOSHostingSubscription_getHateoasRootSoftwareInstance(TestSlapOSHyp
     fake_request = do_fake_request("GET")
     result = self.portal.HostingSubscription_getHateoasRootSoftwareInstance(
       REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 403)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 403)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestUrl', '*args, **kwargs',
       'return "http://example.org/bar"')
@@ -468,11 +468,11 @@ class TestSlapOSHostingSubscription_getHateoasRootSoftwareInstance(TestSlapOSHyp
     fake_request = do_fake_request("GET")
     result = subscription.HostingSubscription_getHateoasRootSoftwareInstance(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 200)
-    self.assertEquals(fake_request.RESPONSE.getHeader('Content-Type'),
+    self.assertEqual(fake_request.RESPONSE.status, 200)
+    self.assertEqual(fake_request.RESPONSE.getHeader('Content-Type'),
       "application/hal+json"
     )
-    self.assertEquals(result, json.dumps({
+    self.assertEqual(result, json.dumps({
       '_links': {
         "self": {
           "href": "http://example.org/bar"
@@ -521,8 +521,8 @@ class TestSlapOSInstance_getHateoasNews(TestSlapOSHypermediaMixin):
     fake_request = do_fake_request("GET")
     result = instance.Instance_getHateoasNews(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 406)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 406)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
@@ -532,8 +532,8 @@ class TestSlapOSInstance_getHateoasNews(TestSlapOSHypermediaMixin):
     fake_request = do_fake_request("POST")
     result = instance.Instance_getHateoasNews(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 405)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 405)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
@@ -541,8 +541,8 @@ class TestSlapOSInstance_getHateoasNews(TestSlapOSHypermediaMixin):
   def test_getHateoasNewsInstance_not_instance_context(self):
     fake_request = do_fake_request("GET")
     result = self.portal.Instance_getHateoasNews(REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 403)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 403)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestUrl', '*args, **kwargs',
       'return "http://example.org/bar"')
@@ -554,12 +554,12 @@ class TestSlapOSInstance_getHateoasNews(TestSlapOSHypermediaMixin):
     fake_request = do_fake_request("GET")
     result = instance.Instance_getHateoasNews(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 200)
-    self.assertEquals(fake_request.RESPONSE.getHeader('Content-Type'),
+    self.assertEqual(fake_request.RESPONSE.status, 200)
+    self.assertEqual(fake_request.RESPONSE.getHeader('Content-Type'),
       "application/hal+json"
     )
 
-    self.assertEquals(json.loads(result), json.loads(json.dumps({
+    self.assertEqual(json.loads(result), json.loads(json.dumps({
       'news': [{
         "user": "SlapOS Master",
         "text": "#error no data found for %s" % instance.getReference()
@@ -609,8 +609,8 @@ class TestSlapOSInstance_getHateoasRelatedHostingSubscription(TestSlapOSHypermed
     fake_request = do_fake_request("GET")
     result = instance.Instance_getHateoasRelatedHostingSubscription(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 406)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 406)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
@@ -620,8 +620,8 @@ class TestSlapOSInstance_getHateoasRelatedHostingSubscription(TestSlapOSHypermed
     fake_request = do_fake_request("POST")
     result = instance.Instance_getHateoasRelatedHostingSubscription(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 405)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 405)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
@@ -629,8 +629,8 @@ class TestSlapOSInstance_getHateoasRelatedHostingSubscription(TestSlapOSHypermed
   def test_getHateoasRelatedHostingSubscription_not_instance_context(self):
     fake_request = do_fake_request("GET")
     result = self.portal.Instance_getHateoasRelatedHostingSubscription(REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 403)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 403)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestUrl', '*args, **kwargs',
       'return "http://example.org/bar"')
@@ -645,12 +645,12 @@ class TestSlapOSInstance_getHateoasRelatedHostingSubscription(TestSlapOSHypermed
     fake_request = do_fake_request("GET")
     result = instance.Instance_getHateoasRelatedHostingSubscription(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 200)
-    self.assertEquals(fake_request.RESPONSE.getHeader('Content-Type'),
+    self.assertEqual(fake_request.RESPONSE.status, 200)
+    self.assertEqual(fake_request.RESPONSE.getHeader('Content-Type'),
       "application/hal+json"
     )
 
-    self.assertEquals(json.loads(result), json.loads(json.dumps({
+    self.assertEqual(json.loads(result), json.loads(json.dumps({
       '_links': {
         "self": {
           "href": "http://example.org/bar"
@@ -691,8 +691,8 @@ class TestSlapOSInstance_getHateoasInformation(TestSlapOSHypermediaMixin):
   def test_getHateoas_wrong_ACCEPT(self):
     fake_request = do_fake_request("GET")
     result = self.portal.Instance_getHateoasInformation(REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 406)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 406)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
@@ -701,8 +701,8 @@ class TestSlapOSInstance_getHateoasInformation(TestSlapOSHypermediaMixin):
     fake_request = do_fake_request("POST")
     result = self.portal.Instance_getHateoasInformation(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 405)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 405)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
@@ -710,8 +710,8 @@ class TestSlapOSInstance_getHateoasInformation(TestSlapOSHypermediaMixin):
   def test_getHateoas_request_not_correct_context(self):
     fake_request = do_fake_request("GET")
     result = self.portal.Instance_getHateoasInformation(REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 403)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 403)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestUrl', '*args, **kwargs',
       'return "http://example.org/foo"')
@@ -726,11 +726,11 @@ class TestSlapOSInstance_getHateoasInformation(TestSlapOSHypermediaMixin):
     fake_request = do_fake_request("GET")
     result = instance.Instance_getHateoasInformation(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 200)
-    self.assertEquals(fake_request.RESPONSE.getHeader('Content-Type'),
+    self.assertEqual(fake_request.RESPONSE.status, 200)
+    self.assertEqual(fake_request.RESPONSE.getHeader('Content-Type'),
       "application/hal+json"
     )
-    self.assertEquals(json.loads(result), json.loads(json.dumps({
+    self.assertEqual(json.loads(result), json.loads(json.dumps({
       'title': instance.getTitle(),
       'requested_state': 'started',
       'slave': False,
@@ -768,8 +768,8 @@ class TestSlapOSPerson_getHateoasComputerList(TestSlapOSHypermediaMixin):
   def test_getHateoasComputerList_wrong_ACCEPT(self):
     fake_request = do_fake_request("GET")
     result = self.portal.Person_getHateoasComputerList(REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 406)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 406)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
@@ -778,8 +778,8 @@ class TestSlapOSPerson_getHateoasComputerList(TestSlapOSHypermediaMixin):
     fake_request = do_fake_request("POST")
     result = self.portal.Person_getHateoasComputerList(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 405)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 405)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
@@ -787,8 +787,8 @@ class TestSlapOSPerson_getHateoasComputerList(TestSlapOSHypermediaMixin):
   def test_getHateoasComputerList_request_not_correct_context(self):
     fake_request = do_fake_request("GET")
     result = self.portal.Person_getHateoasComputerList(REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 403)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 403)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestUrl', '*args, **kwargs',
       'return "http://example.org/foo"')
@@ -803,11 +803,11 @@ class TestSlapOSPerson_getHateoasComputerList(TestSlapOSHypermediaMixin):
     fake_request = do_fake_request("GET")
     self.changeSkin('Hal')
     result = person_user.Person_getHateoasComputerList(REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 200)
-    self.assertEquals(fake_request.RESPONSE.getHeader('Content-Type'),
+    self.assertEqual(fake_request.RESPONSE.status, 200)
+    self.assertEqual(fake_request.RESPONSE.getHeader('Content-Type'),
       "application/hal+json"
     )
-    self.assertEquals(json.loads(result), json.loads(json.dumps({
+    self.assertEqual(json.loads(result), json.loads(json.dumps({
       '_links': {
         "self": {
           "href": "http://example.org/foo"
@@ -841,8 +841,8 @@ class TestSlapOSComputer_getHateoasSoftwareInstallationList(TestSlapOSHypermedia
     fake_request = do_fake_request("GET")
     result = self.portal.Computer_getHateoasSoftwareInstallationList(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 406)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 406)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
@@ -851,8 +851,8 @@ class TestSlapOSComputer_getHateoasSoftwareInstallationList(TestSlapOSHypermedia
     fake_request = do_fake_request("POST")
     result = self.portal.Computer_getHateoasSoftwareInstallationList(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 405)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 405)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
@@ -861,8 +861,8 @@ class TestSlapOSComputer_getHateoasSoftwareInstallationList(TestSlapOSHypermedia
     fake_request = do_fake_request("GET")
     result = self.portal.Computer_getHateoasSoftwareInstallationList(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 403)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 403)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestUrl', '*args, **kwargs',
       'return "http://example.org/foo"')
@@ -877,11 +877,11 @@ class TestSlapOSComputer_getHateoasSoftwareInstallationList(TestSlapOSHypermedia
     fake_request = do_fake_request("GET")
     result = computer.Computer_getHateoasSoftwareInstallationList(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 200)
-    self.assertEquals(fake_request.RESPONSE.getHeader('Content-Type'),
+    self.assertEqual(fake_request.RESPONSE.status, 200)
+    self.assertEqual(fake_request.RESPONSE.getHeader('Content-Type'),
       "application/hal+json"
     )
-    self.assertEquals(json.loads(result), json.loads(json.dumps({
+    self.assertEqual(json.loads(result), json.loads(json.dumps({
       '_links': {
         "self": {
           "href": "http://example.org/foo"
@@ -906,8 +906,8 @@ class TestSlapOSSoftwareInstallation_getHateoasInformation(TestSlapOSHypermediaM
   def test_getHateoas_wrong_ACCEPT(self):
     fake_request = do_fake_request("GET")
     result = self.portal.SoftwareInstallation_getHateoasInformation(REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 406)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 406)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
@@ -916,8 +916,8 @@ class TestSlapOSSoftwareInstallation_getHateoasInformation(TestSlapOSHypermediaM
     fake_request = do_fake_request("POST")
     result = self.portal.SoftwareInstallation_getHateoasInformation(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 405)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 405)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
@@ -925,8 +925,8 @@ class TestSlapOSSoftwareInstallation_getHateoasInformation(TestSlapOSHypermediaM
   def test_getHateoas_request_not_correct_context(self):
     fake_request = do_fake_request("GET")
     result = self.portal.SoftwareInstallation_getHateoasInformation(REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 403)
-    self.assertEquals(result, "")
+    self.assertEqual(fake_request.RESPONSE.status, 403)
+    self.assertEqual(result, "")
 
   @simulate('Base_getRequestUrl', '*args, **kwargs',
       'return "http://example.org/foo"')
@@ -941,11 +941,11 @@ class TestSlapOSSoftwareInstallation_getHateoasInformation(TestSlapOSHypermediaM
     fake_request = do_fake_request("GET")
     result = software_installation.SoftwareInstallation_getHateoasInformation(
         REQUEST=fake_request)
-    self.assertEquals(fake_request.RESPONSE.status, 200)
-    self.assertEquals(fake_request.RESPONSE.getHeader('Content-Type'),
+    self.assertEqual(fake_request.RESPONSE.status, 200)
+    self.assertEqual(fake_request.RESPONSE.getHeader('Content-Type'),
       "application/hal+json"
     )
-    self.assertEquals(json.loads(result), json.loads(json.dumps({
+    self.assertEqual(json.loads(result), json.loads(json.dumps({
       'title': software_installation.getTitle(),
       'status': 'started',
       '_links': {

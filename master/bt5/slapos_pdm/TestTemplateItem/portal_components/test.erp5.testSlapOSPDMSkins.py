@@ -256,7 +256,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
 
     release_list = software_product.SoftwareProduct_getSortedSoftwareReleaseList(
       software_product.getReference())
-    self.assertEquals([release.getUrlString() for release in release_list],
+    self.assertEqual([release.getUrlString() for release in release_list],
       ['http://example.org/2-%s.cfg' % self.new_id, 'http://example.org/1-%s.cfg' % self.new_id])
 
   def test_getSortedSoftwareReleaseListFromSoftwareProduct_Changed(self):
@@ -283,11 +283,11 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
 
     release_list = software_product.SoftwareProduct_getSortedSoftwareReleaseList(
       software_product.getReference())
-    self.assertEquals([release.getUrlString() for release in release_list],
+    self.assertEqual([release.getUrlString() for release in release_list],
       ['http://example.org/1-%s.cfg' % self.new_id, 'http://example.org/2-%s.cfg' % self.new_id])
     release_list = software_product.SoftwareProduct_getSortedSoftwareReleaseList(
       software_release_url='http://example.org/1-%s.cfg' % self.new_id)
-    self.assertEquals([release.getUrlString() for release in release_list],
+    self.assertEqual([release.getUrlString() for release in release_list],
       ['http://example.org/1-%s.cfg' % self.new_id, 'http://example.org/2-%s.cfg' % self.new_id])
   
   
@@ -385,7 +385,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     upgrade_decision_line.setAggregateValue(computer)
 
     found_computer = upgrade_decision.UpgradeDecision_getComputer()
-    self.assertEquals(computer.getRelativeUrl(),
+    self.assertEqual(computer.getRelativeUrl(),
                       found_computer.getRelativeUrl())
 
   def testUpgradeDecision_getComputer_2_lines(self):
@@ -398,7 +398,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
 
     found_computer = upgrade_decision.UpgradeDecision_getComputer()
-    self.assertEquals(computer.getRelativeUrl(),
+    self.assertEqual(computer.getRelativeUrl(),
                       found_computer.getRelativeUrl())
 
   def testUpgradeDecision_getComputer_2_computer(self):
@@ -418,7 +418,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     self._makeUpgradeDecisionLine(upgrade_decision)
 
     found_computer = upgrade_decision.UpgradeDecision_getComputer()
-    self.assertEquals(None, found_computer)
+    self.assertEqual(None, found_computer)
 
 
   def testUpgradeDecision_getHostingSubscription(self):
@@ -429,7 +429,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     upgrade_decision_line.setAggregateValue(hosting_subscription)
 
     found_hosting_subscription = upgrade_decision.UpgradeDecision_getHostingSubscription()
-    self.assertEquals(hosting_subscription.getRelativeUrl(),
+    self.assertEqual(hosting_subscription.getRelativeUrl(),
                       found_hosting_subscription.getRelativeUrl())
 
 
@@ -443,7 +443,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
 
     found_hosting_subscription = upgrade_decision.UpgradeDecision_getHostingSubscription()
-    self.assertEquals(hosting_subscription.getRelativeUrl(),
+    self.assertEqual(hosting_subscription.getRelativeUrl(),
                       found_hosting_subscription.getRelativeUrl())
 
 
@@ -464,7 +464,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     self._makeUpgradeDecisionLine(upgrade_decision)
 
     found_hosting_subscription = upgrade_decision.UpgradeDecision_getHostingSubscription()
-    self.assertEquals(None, found_hosting_subscription)
+    self.assertEqual(None, found_hosting_subscription)
 
      
   def testUpgradeDecision_getSoftwareRelease(self):
@@ -475,7 +475,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     upgrade_decision_line.setAggregateValue(software_release)
 
     found_software_release = upgrade_decision.UpgradeDecision_getSoftwareRelease()
-    self.assertEquals(software_release.getRelativeUrl(),
+    self.assertEqual(software_release.getRelativeUrl(),
                       found_software_release.getRelativeUrl())
 
   def testUpgradeDecision_getSoftwareRelease_2_lines(self):
@@ -488,7 +488,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
 
     found_software_release = upgrade_decision.UpgradeDecision_getSoftwareRelease()
-    self.assertEquals(software_release.getRelativeUrl(),
+    self.assertEqual(software_release.getRelativeUrl(),
                       found_software_release.getRelativeUrl())
 
   def testUpgradeDecision_getSoftwareRelease_2_sr(self):
@@ -508,7 +508,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     self._makeUpgradeDecisionLine(upgrade_decision)
 
     found_software_release = upgrade_decision.UpgradeDecision_getSoftwareRelease()
-    self.assertEquals(None, found_software_release)
+    self.assertEqual(None, found_software_release)
 
   def testUpgradeDecision_upgradeHostingSubscription(self):
 
@@ -1321,7 +1321,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
       "?portal_status_message=This%20Upgrade%20Decision%20has%20been%20"\
       "requested%2C%20it%20will%20be%20processed%20in%20few%20minutes."), 
       "%s contains the wrong message" %  redirect_url)
-    self.assertEquals(upgrade_decision.getSimulationState(), 'started')
+    self.assertEqual(upgrade_decision.getSimulationState(), 'started')
 
   def testBase_acceptUpgradeDecision_started_decision(self):
     upgrade_decision = self._makeUpgradeDecision()
@@ -1403,7 +1403,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
       "?portal_status_message=Thanks%20Upgrade%20Decision%20has%20been"\
       "%20rejected%20Successfully%20%28You%20cannot%20use%20it%20anymore%29."), 
       "%s contains the wrong message" %  redirect_url)
-    self.assertEquals(upgrade_decision.getSimulationState(), 'rejected')
+    self.assertEqual(upgrade_decision.getSimulationState(), 'rejected')
 
   def testBase_rejectUpgradeDecision_planned_upgrade_decision(self):
     upgrade_decision = self._makeUpgradeDecision()
@@ -1415,7 +1415,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
       "?portal_status_message=Thanks%20Upgrade%20Decision%20has%20been"\
       "%20rejected%20Successfully%20%28You%20cannot%20use%20it%20anymore%29."), 
       "%s contains the wrong message" %  redirect_url)
-    self.assertEquals(upgrade_decision.getSimulationState(), 'rejected')
+    self.assertEqual(upgrade_decision.getSimulationState(), 'rejected')
 
   def testBase_rejectUpgradeDecision_confirmed_upgrade_decision(self):
     upgrade_decision = self._makeUpgradeDecision()
@@ -1427,7 +1427,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
       "?portal_status_message=Thanks%20Upgrade%20Decision%20has%20been"\
       "%20rejected%20Successfully%20%28You%20cannot%20use%20it%20anymore%29."),
       "%s contains the wrong message" %  redirect_url)
-    self.assertEquals(upgrade_decision.getSimulationState(), 'rejected')
+    self.assertEqual(upgrade_decision.getSimulationState(), 'rejected')
 
   def testBase_rejectUpgradeDecision_started_decision(self):
     upgrade_decision = self._makeUpgradeDecision()
@@ -1504,18 +1504,18 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     upgrade_decision.setReference("UD-TESTDECISION")
     upgrade_decision.confirm()
     requested_state = "started"
-    self.assertEquals(upgrade_decision.getSimulationState(), 'confirmed')
+    self.assertEqual(upgrade_decision.getSimulationState(), 'confirmed')
     upgrade_decision.UpgradeDecision_requestChangeState(requested_state)
-    self.assertEquals(upgrade_decision.getSimulationState(), 'started')
+    self.assertEqual(upgrade_decision.getSimulationState(), 'started')
 
   def testUpgradeDecision_requestChangeState_reject(self):
     upgrade_decision = self._makeUpgradeDecision()
     upgrade_decision.setReference("UD-TESTDECISION")
     upgrade_decision.confirm()
     requested_state = "rejected"
-    self.assertEquals(upgrade_decision.getSimulationState(), 'confirmed')
+    self.assertEqual(upgrade_decision.getSimulationState(), 'confirmed')
     upgrade_decision.UpgradeDecision_requestChangeState(requested_state)
-    self.assertEquals(upgrade_decision.getSimulationState(), 'rejected')
+    self.assertEqual(upgrade_decision.getSimulationState(), 'rejected')
 
   def testUpgradeDecision_requestChangeState_stopped(self):
     upgrade_decision = self._makeUpgradeDecision()
@@ -1523,10 +1523,10 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     upgrade_decision.confirm()
     upgrade_decision.stop()
     requested_state = "started"
-    self.assertEquals(upgrade_decision.getSimulationState(), 'stopped')
+    self.assertEqual(upgrade_decision.getSimulationState(), 'stopped')
     result = upgrade_decision.UpgradeDecision_requestChangeState(requested_state)
-    self.assertEquals(upgrade_decision.getSimulationState(), 'stopped')
-    self.assertEquals(result, "Transition from state %s to %s is not permitted" % (
+    self.assertEqual(upgrade_decision.getSimulationState(), 'stopped')
+    self.assertEqual(result, "Transition from state %s to %s is not permitted" % (
                       upgrade_decision.getSimulationState(), requested_state))
 
   def testUpgradeDecision_requestChangeState_rejected(self):
@@ -1535,10 +1535,10 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     upgrade_decision.confirm()
     upgrade_decision.start()
     requested_state = "rejected"
-    self.assertEquals(upgrade_decision.getSimulationState(), 'started')
+    self.assertEqual(upgrade_decision.getSimulationState(), 'started')
     result = upgrade_decision.UpgradeDecision_requestChangeState(requested_state)
-    self.assertEquals(upgrade_decision.getSimulationState(), 'started')
-    self.assertEquals(result, "Transition from state %s to %s is not permitted" % (
+    self.assertEqual(upgrade_decision.getSimulationState(), 'started')
+    self.assertEqual(result, "Transition from state %s to %s is not permitted" % (
                       upgrade_decision.getSimulationState(), requested_state))
 
   def testUpgradeDecision_isUpgradeFinished_hosting_subscription(self):
@@ -1591,21 +1591,21 @@ ${new_software_release_url}""",
     
     self.tic()
     
-    self.assertEquals(None, upgrade_decision.UpgradeDecision_notify())
+    self.assertEqual(None, upgrade_decision.UpgradeDecision_notify())
     
     upgrade_decision.plan()
     
     self.tic()
     
-    self.assertEquals(None, upgrade_decision.UpgradeDecision_notify())
+    self.assertEqual(None, upgrade_decision.UpgradeDecision_notify())
     
     self.tic()
     
-    self.assertEquals(upgrade_decision.getSimulationState(), 'confirmed')
-    self.assertEquals(len(upgrade_decision.getFollowUpRelatedValueList()), 1)
+    self.assertEqual(upgrade_decision.getSimulationState(), 'confirmed')
+    self.assertEqual(len(upgrade_decision.getFollowUpRelatedValueList()), 1)
     event = upgrade_decision.getFollowUpRelatedValue()
     
-    self.assertEquals(event.getTitle(), 
+    self.assertEqual(event.getTitle(), 
      "New Software available for Installation at %s" % computer.getTitle())
      
     self.assertEqual(event.getTextContent().splitlines(),
@@ -1614,7 +1614,7 @@ ${new_software_release_url}""",
        software_release.getUrlString()])
       
       
-    self.assertEquals(event.getSimulationState(), "delivered")
+    self.assertEqual(event.getSimulationState(), "delivered")
 
   @simulate('NotificationTool_getDocumentValue',
             'reference=None',
@@ -1654,21 +1654,21 @@ ${new_software_release_url}""",
     
     self.tic()
     
-    self.assertEquals(None, upgrade_decision.UpgradeDecision_notify())
+    self.assertEqual(None, upgrade_decision.UpgradeDecision_notify())
     
     upgrade_decision.plan()
     
     self.tic()
     
-    self.assertEquals(None, upgrade_decision.UpgradeDecision_notify())
+    self.assertEqual(None, upgrade_decision.UpgradeDecision_notify())
     
     self.tic()
     
-    self.assertEquals(upgrade_decision.getSimulationState(), 'confirmed')
-    self.assertEquals(len(upgrade_decision.getFollowUpRelatedValueList()), 1)
+    self.assertEqual(upgrade_decision.getSimulationState(), 'confirmed')
+    self.assertEqual(len(upgrade_decision.getFollowUpRelatedValueList()), 1)
     event = upgrade_decision.getFollowUpRelatedValue()
     
-    self.assertEquals(event.getTitle(), 
+    self.assertEqual(event.getTitle(), 
      "New Upgrade available for %s" % hosting_subscription.getTitle())
      
     self.assertEqual(event.getTextContent().splitlines(),
@@ -1676,7 +1676,7 @@ ${new_software_release_url}""",
        old_url, software_release.getTitle(), software_release.getReference(),
        software_release.getUrlString()])
 
-    self.assertEquals(event.getSimulationState(), "delivered")
+    self.assertEqual(event.getSimulationState(), "delivered")
     
     
   @simulate('NotificationTool_getDocumentValue',
@@ -1716,22 +1716,22 @@ ${new_software_release_url}""",
     
     self.tic()
     
-    self.assertEquals(None, upgrade_decision.UpgradeDecision_notifyDelivered())
+    self.assertEqual(None, upgrade_decision.UpgradeDecision_notifyDelivered())
     
     upgrade_decision.start()
     upgrade_decision.stop()
     
     self.tic()
     
-    self.assertEquals(None, upgrade_decision.UpgradeDecision_notifyDelivered())
+    self.assertEqual(None, upgrade_decision.UpgradeDecision_notifyDelivered())
     
     self.tic()
     
-    self.assertEquals(upgrade_decision.getSimulationState(), 'delivered')
-    self.assertEquals(len(upgrade_decision.getFollowUpRelatedValueList()), 1)
+    self.assertEqual(upgrade_decision.getSimulationState(), 'delivered')
+    self.assertEqual(len(upgrade_decision.getFollowUpRelatedValueList()), 1)
     event = upgrade_decision.getFollowUpRelatedValue()
     
-    self.assertEquals(event.getTitle(), 
+    self.assertEqual(event.getTitle(), 
       "Upgrade processed at %s for %s" % (computer.getTitle(), 
                                           software_release.getReference()))
      
@@ -1740,7 +1740,7 @@ ${new_software_release_url}""",
        software_release.getTitle(), software_release.getReference(),
        software_release.getUrlString()])
       
-    self.assertEquals(event.getSimulationState(), "delivered")
+    self.assertEqual(event.getSimulationState(), "delivered")
 
   @simulate('NotificationTool_getDocumentValue',
             'reference=None',
@@ -1782,22 +1782,22 @@ ${new_software_release_url}""",
     
     self.tic()
     
-    self.assertEquals(None, upgrade_decision.UpgradeDecision_notifyDelivered())
+    self.assertEqual(None, upgrade_decision.UpgradeDecision_notifyDelivered())
     
     upgrade_decision.start()
     upgrade_decision.stop()
     
     self.tic()
     
-    self.assertEquals(None, upgrade_decision.UpgradeDecision_notifyDelivered())
+    self.assertEqual(None, upgrade_decision.UpgradeDecision_notifyDelivered())
     
     self.tic()
     
-    self.assertEquals(upgrade_decision.getSimulationState(), 'delivered')
-    self.assertEquals(len(upgrade_decision.getFollowUpRelatedValueList()), 1)
+    self.assertEqual(upgrade_decision.getSimulationState(), 'delivered')
+    self.assertEqual(len(upgrade_decision.getFollowUpRelatedValueList()), 1)
     event = upgrade_decision.getFollowUpRelatedValue()
     
-    self.assertEquals(event.getTitle(),
+    self.assertEqual(event.getTitle(),
       "Upgrade Processed for %s (%s)" % (hosting_subscription.getTitle(), 
                                               software_release.getReference()))
      
@@ -1806,6 +1806,6 @@ ${new_software_release_url}""",
        old_url, software_release.getTitle(), software_release.getReference(),
        software_release.getUrlString()])
 
-    self.assertEquals(event.getSimulationState(), "delivered")
+    self.assertEqual(event.getSimulationState(), "delivered")
     
 

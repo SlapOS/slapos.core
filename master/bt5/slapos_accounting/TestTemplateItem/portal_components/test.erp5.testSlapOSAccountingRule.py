@@ -495,27 +495,27 @@ class TestHostingSubscriptionSimulation(SlapOSTestCaseMixin):
       # Check simulation movement property
       self.assertEqual(movement_start_date, simulation_movement.getStartDate())
       self.assertEqual(movement_stop_date, simulation_movement.getStopDate())
-      self.assertEquals(self.open_order_line.getQuantity(),
+      self.assertEqual(self.open_order_line.getQuantity(),
         simulation_movement.getQuantity())
-      self.assertEquals(self.open_order_line.getQuantityUnit(),
+      self.assertEqual(self.open_order_line.getQuantityUnit(),
         simulation_movement.getQuantityUnit())
-      self.assertEquals(self.open_order_line.getPrice(),
+      self.assertEqual(self.open_order_line.getPrice(),
         simulation_movement.getPrice())
-      self.assertEquals(self.open_order_line.getPriceCurrency(),
+      self.assertEqual(self.open_order_line.getPriceCurrency(),
         simulation_movement.getPriceCurrency())
-      self.assertEquals(self.open_order_line.getSource(),
+      self.assertEqual(self.open_order_line.getSource(),
         simulation_movement.getSource())
-      self.assertEquals(self.open_order_line.getSourceSection(),
+      self.assertEqual(self.open_order_line.getSourceSection(),
         simulation_movement.getSourceSection())
-      self.assertEquals(self.open_order_line.getDestination(),
+      self.assertEqual(self.open_order_line.getDestination(),
         simulation_movement.getDestination())
-      self.assertEquals(self.open_order_line.getDestinationSection(),
+      self.assertEqual(self.open_order_line.getDestinationSection(),
         simulation_movement.getDestinationSection())
-      self.assertEquals(self.open_order_line.getSpecialise(),
+      self.assertEqual(self.open_order_line.getSpecialise(),
         simulation_movement.getSpecialise())
-      self.assertEquals(self.open_order_line.getResource(),
+      self.assertEqual(self.open_order_line.getResource(),
         simulation_movement.getResource())
-      self.assertEquals(applied_rule.getSpecialiseValue().getTradePhaseList(),
+      self.assertEqual(applied_rule.getSpecialiseValue().getTradePhaseList(),
         simulation_movement.getTradePhaseList())
       self.assertSameSet(self.open_order_line.getAggregateList(),
         simulation_movement.getAggregateList())
@@ -611,27 +611,27 @@ class TestHostingSubscriptionSimulation(SlapOSTestCaseMixin):
       # Check simulation movement property
       self.assertEqual(movement_start_date, simulation_movement.getStartDate())
       self.assertEqual(movement_stop_date, simulation_movement.getStopDate())
-      self.assertEquals(self.open_order_line.getQuantity(),
+      self.assertEqual(self.open_order_line.getQuantity(),
         simulation_movement.getQuantity())
-      self.assertEquals(self.open_order_line.getQuantityUnit(),
+      self.assertEqual(self.open_order_line.getQuantityUnit(),
         simulation_movement.getQuantityUnit())
-      self.assertEquals(self.open_order_line.getPrice(),
+      self.assertEqual(self.open_order_line.getPrice(),
         simulation_movement.getPrice())
-      self.assertEquals(self.open_order_line.getPriceCurrency(),
+      self.assertEqual(self.open_order_line.getPriceCurrency(),
         simulation_movement.getPriceCurrency())
-      self.assertEquals(self.open_order_line.getSource(),
+      self.assertEqual(self.open_order_line.getSource(),
         simulation_movement.getSource())
-      self.assertEquals(self.open_order_line.getSourceSection(),
+      self.assertEqual(self.open_order_line.getSourceSection(),
         simulation_movement.getSourceSection())
-      self.assertEquals(self.open_order_line.getDestination(),
+      self.assertEqual(self.open_order_line.getDestination(),
         simulation_movement.getDestination())
-      self.assertEquals(self.open_order_line.getDestinationSection(),
+      self.assertEqual(self.open_order_line.getDestinationSection(),
         simulation_movement.getDestinationSection())
-      self.assertEquals(self.open_order_line.getSpecialise(),
+      self.assertEqual(self.open_order_line.getSpecialise(),
         simulation_movement.getSpecialise())
-      self.assertEquals(self.open_order_line.getResource(),
+      self.assertEqual(self.open_order_line.getResource(),
         simulation_movement.getResource())
-      self.assertEquals(applied_rule.getSpecialiseValue().getTradePhaseList(),
+      self.assertEqual(applied_rule.getSpecialiseValue().getTradePhaseList(),
         simulation_movement.getTradePhaseList())
       self.assertSameSet(self.open_order_line.getAggregateList(),
         simulation_movement.getAggregateList())

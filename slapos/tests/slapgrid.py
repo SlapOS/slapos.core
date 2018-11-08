@@ -586,7 +586,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       self.assertInstanceDirectoryListEqual([])
       self.assertItemsEqual(os.listdir(self.software_root), [])
       st = os.stat(os.path.join(self.instance_root, 'var'))
-      self.assertEquals(stat.S_IMODE(st.st_mode), 0o755)
+      self.assertEqual(stat.S_IMODE(st.st_mode), 0o755)
 
   def test_one_partition(self):
     computer = ComputerForTest(self.software_root, self.instance_root)
@@ -1989,7 +1989,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
         instance.setPromise('promise_%s' % i, promise)
       self.assertEqual(self.grid.processComputerPartitionList(),
                        slapos.grid.slapgrid.SLAPGRID_PROMISE_FAIL)
-      self.assertEquals(instance.error, 1)
+      self.assertEqual(instance.error, 1)
       self.assertNotEqual('started', instance.state)
 
   def test_one_succeeding_one_timing_out_promises(self):
@@ -2019,7 +2019,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.processComputerPartitionList(),
                        slapos.grid.slapgrid.SLAPGRID_PROMISE_FAIL)
 
-      self.assertEquals(instance.error, 1)
+      self.assertEqual(instance.error, 1)
       self.assertNotEqual(instance.state, 'started')
 
   def test_promise_run_if_partition_started_fail(self):

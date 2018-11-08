@@ -175,7 +175,7 @@ class TestVifibUsageReportMixin(TestVifibSlapWebServiceMixin):
         'query' : sequence['start'],
         'range' : 'min'})
 
-    self.assertEquals(len(sale_packing_list_list), 1)
+    self.assertEqual(len(sale_packing_list_list), 1)
     sale_packing_list = sale_packing_list_list[0]
     sequence['sale_packing_list'] = sale_packing_list
 
@@ -194,7 +194,7 @@ class TestVifibUsageReportMixin(TestVifibSlapWebServiceMixin):
     xml = etree.tostring(etree.XML(xml, parser))
 
     sequence.edit(check_quantity='first')
-    self.assertEquals(xml, initial_xml)
+    self.assertEqual(xml, initial_xml)
 
   def stepCheckSaleInvoiceExists(self, sequence, **kw):
     """
@@ -213,11 +213,11 @@ class TestVifibUsageReportMixin(TestVifibSlapWebServiceMixin):
         'query' : sequence['start'],
         'range' : 'min'})
 
-    self.assertEquals(len(sale_invoice_list), self.sale_invoice_list_quantity)
+    self.assertEqual(len(sale_invoice_list), self.sale_invoice_list_quantity)
 
     for sale_invoice in sale_invoice_list:
-      self.assertEquals(sale_invoice.getTitle(), 'Resource consumptions')
-      self.assertEquals(sale_invoice.getSimulationState(), 'planned')
+      self.assertEqual(sale_invoice.getTitle(), 'Resource consumptions')
+      self.assertEqual(sale_invoice.getSimulationState(), 'planned')
 
     sequence.edit(sale_invoice_list=sale_invoice_list)
 
@@ -227,18 +227,18 @@ class TestVifibUsageReportMixin(TestVifibSlapWebServiceMixin):
     """
     # We retrieve the sale invoice
     sale_invoice = sequence['sale_invoice_list']
-    self.assertEquals(len(sale_invoice), self.sale_invoice_list_quantity)
+    self.assertEqual(len(sale_invoice), self.sale_invoice_list_quantity)
 
     sale_invoice_line_list = sale_invoice[0].getObject().contentValues(
         portal_type='Invoice Line')
 
-    self.assertEquals(
+    self.assertEqual(
       len(sale_invoice_line_list), 
       self.sale_invoice_line_list_quantity)
 
     # Then, we check quantities in sale invoice's lines
     for sale_invoice_line in sale_invoice_line_list:
-      self.assertEquals(
+      self.assertEqual(
         sale_invoice_line.getQuantity(), 
         self.sale_invoice_line_quantity)
 
@@ -279,7 +279,7 @@ class TestVifibUsageReportMixin(TestVifibSlapWebServiceMixin):
 
     # We retrieve sale invoice list
     sale_invoice_list = sequence['sale_invoice_list']
-    self.assertEquals(len(sale_invoice_list), self.sale_invoice_list_quantity)
+    self.assertEqual(len(sale_invoice_list), self.sale_invoice_list_quantity)
 
     # We retrieve computer
     computer_id = sequence['computer_reference']
@@ -291,7 +291,7 @@ class TestVifibUsageReportMixin(TestVifibSlapWebServiceMixin):
         sale_invoice.contentValues(portal_type='Invoice Line')
 
       # We check the number of line in sale invoices
-      self.assertEquals(
+      self.assertEqual(
         len(sale_invoice_line_list),
         self.sale_invoice_line_list_quantity)
 
@@ -305,9 +305,9 @@ class TestVifibUsageReportMixin(TestVifibSlapWebServiceMixin):
           id = partition_id)[0].getObject().getTitle()
 
         if partition_title == 'slappart0':
-          self.assertEquals(sale_invoice_line.getQuantity(), quantity1)
+          self.assertEqual(sale_invoice_line.getQuantity(), quantity1)
         else:
-          self.assertEquals(sale_invoice_line.getQuantity(), quantity2)
+          self.assertEqual(sale_invoice_line.getQuantity(), quantity2)
 
 class TestVifibUsageReport(TestVifibUsageReportMixin):
 

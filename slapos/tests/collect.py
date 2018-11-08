@@ -92,7 +92,7 @@ class TestCollectDatabase(unittest.TestCase):
         database = db.Database(self.instance_root)
         database.connect()
         try:
-          self.assertEquals(
+          self.assertEqual(
               [u'user', u'folder', u'computer', u'system', u'disk', u'temperature', u'heating'],
               database.getTableList())
         finally:
@@ -109,12 +109,12 @@ class TestCollectDatabase(unittest.TestCase):
       original_execute = database._execute
       try:
         database._execute = _fake_execute
-        self.assertEquals("SELECT * FROM user  ", database.select('user'))
-        self.assertEquals("SELECT DATE FROM user  WHERE date = '0.1'  AND time=\"00:02\"  ",
+        self.assertEqual("SELECT * FROM user  ", database.select('user'))
+        self.assertEqual("SELECT DATE FROM user  WHERE date = '0.1'  AND time=\"00:02\"  ",
                           database.select('user', 0.1, 'DATE', 'time="00:02"'))
-        self.assertEquals("SELECT DATE FROM user  WHERE date = '0.1'   GROUP BY time ORDER BY date",
+        self.assertEqual("SELECT DATE FROM user  WHERE date = '0.1'   GROUP BY time ORDER BY date",
                           database.select('user', 0.1, 'DATE', order='date', group='time' ))
-        self.assertEquals("SELECT DATE FROM user  WHERE date = '0.1'   limit 1",
+        self.assertEqual("SELECT DATE FROM user  WHERE date = '0.1'   limit 1",
                           database.select('user', 0.1, 'DATE', limit=1))
       finally:
         database._execute = original_execute
@@ -129,7 +129,7 @@ class TestCollectDatabase(unittest.TestCase):
              'fakeuser0', 10, '10-12345', '0.1', '10.0', '1',
              '10.0', '10.0', '0.1', '0.1', 'DATE', 'TIME')
             database.commit()
-            self.assertEquals([i for i in database.select('user')], 
+            self.assertEqual([i for i in database.select('user')], 
                           [(u'fakeuser0', 10.0, u'10-12345', 0.1, 10.0, 
                           1.0, 10.0, 10.0, 0.1, 0.1, u'DATE', u'TIME', 0)])
         finally:
@@ -143,7 +143,7 @@ class TestCollectDatabase(unittest.TestCase):
             database.inserFolderSnapshot(
              'fakeuser0', '0.1', 'DATE', 'TIME')
             database.commit()
-            self.assertEquals([i for i in database.select('folder')], 
+            self.assertEqual([i for i in database.select('folder')], 
                           [(u'fakeuser0', 0.1, u'DATE', u'TIME', 0)])
         finally:
             database.close()
@@ -156,7 +156,7 @@ class TestCollectDatabase(unittest.TestCase):
             database.insertComputerSnapshot(
               '1', '0', '0', '100', '0', '/dev/sdx1', 'DATE', 'TIME')
             database.commit()
-            self.assertEquals([i for i in database.select('computer')], 
+            self.assertEqual([i for i in database.select('computer')], 
                     [(1.0, 0.0, u'0', 100.0, u'0', u'/dev/sdx1', u'DATE', u'TIME', 0)]) 
         finally:
           database.close()
@@ -169,7 +169,7 @@ class TestCollectDatabase(unittest.TestCase):
             database.insertDiskPartitionSnapshot(
                  '/dev/sdx1', '10', '20', '/mnt', 'DATE', 'TIME')
             database.commit() 
-            self.assertEquals([i for i in database.select('disk')], 
+            self.assertEqual([i for i in database.select('disk')], 
                             [(u'/dev/sdx1', u'10', u'20', u'/mnt', u'DATE', u'TIME', 0)])
         finally:
           database.close()
@@ -183,7 +183,7 @@ class TestCollectDatabase(unittest.TestCase):
                          '10.0', '1', '2', '12.0', '1', '1', 'DATE', 'TIME')
             database.commit()
 
-            self.assertEquals([i for i in database.select('system')], 
+            self.assertEqual([i for i in database.select('system')], 
                              [(0.1, 10.0, 100.0, 100.0, 10.0, 1.0, 
                                2.0, 12.0, 1.0, 1.0, u'DATE', u'TIME', 0)])
         finally:
@@ -198,14 +198,14 @@ class TestCollectDatabase(unittest.TestCase):
                  '10.0', '1', '2', '12.0', '1', '1', 'EXPECTED-DATE', 'TIME')
             database.commit()
 
-            self.assertEquals([i for i in database.getDateScopeList()], 
+            self.assertEqual([i for i in database.getDateScopeList()], 
                              [('EXPECTED-DATE', 1)])
 
-            self.assertEquals([i for i in \
+            self.assertEqual([i for i in \
                database.getDateScopeList(ignore_date='EXPECTED-DATE')], 
                [])
 
-            self.assertEquals([i for i in \
+            self.assertEqual([i for i in \
                database.getDateScopeList(reported=1)], 
                [])
 
@@ -214,11 +214,11 @@ class TestCollectDatabase(unittest.TestCase):
 
     def test_garbage_collection_date_list(self):
         database = db.Database(self.instance_root)
-        self.assertEquals(len(database._getGarbageCollectionDateList()), 3)
-        self.assertEquals(len(database._getGarbageCollectionDateList(1)), 1)
-        self.assertEquals(len(database._getGarbageCollectionDateList(0)), 0)
+        self.assertEqual(len(database._getGarbageCollectionDateList()), 3)
+        self.assertEqual(len(database._getGarbageCollectionDateList(1)), 1)
+        self.assertEqual(len(database._getGarbageCollectionDateList(0)), 0)
 
-        self.assertEquals(database._getGarbageCollectionDateList(1), 
+        self.assertEqual(database._getGarbageCollectionDateList(1), 
                            [strftime("%Y-%m-%d")])
 
     def test_garbage(self):
@@ -235,17 +235,17 @@ class TestCollectDatabase(unittest.TestCase):
         database.markDayAsReported(date_scope="1983-01-10", 
                                        table_list=database.table_list)
         database.commit()
-        self.assertEquals(len([x for x in database.select('system')]), 1)
-        self.assertEquals(len([x for x in database.select('computer')]), 1)
-        self.assertEquals(len([x for x in database.select('disk')]), 1)
+        self.assertEqual(len([x for x in database.select('system')]), 1)
+        self.assertEqual(len([x for x in database.select('computer')]), 1)
+        self.assertEqual(len([x for x in database.select('disk')]), 1)
         database.close()
 
         database.garbageCollect()
         database.connect()
 
-        self.assertEquals(len([x for x in database.select('system')]), 0)
-        self.assertEquals(len([x for x in database.select('computer')]), 0)
-        self.assertEquals(len([x for x in database.select('disk')]), 0)
+        self.assertEqual(len([x for x in database.select('system')]), 0)
+        self.assertEqual(len([x for x in database.select('computer')]), 0)
+        self.assertEqual(len([x for x in database.select('disk')]), 0)
 
     def test_mark_day_as_reported(self):
 
@@ -258,7 +258,7 @@ class TestCollectDatabase(unittest.TestCase):
                  '10.0', '1', '2', '12.0', '1', '1', 'NOT-EXPECTED-DATE', 'TIME')
             database.commit()
 
-            self.assertEquals([i for i in database.select('system')], 
+            self.assertEqual([i for i in database.select('system')], 
                              [(0.1, 10.0, 100.0, 100.0, 10.0, 1.0, 
                                2.0, 12.0, 1.0, 1.0, u'EXPECTED-DATE', u'TIME', 0),
                              (0.1, 10.0, 100.0, 100.0, 10.0, 1.0, 
@@ -268,7 +268,7 @@ class TestCollectDatabase(unittest.TestCase):
                                        table_list=["system"])
             database.commit()
 
-            self.assertEquals([i for i in database.select('system')], 
+            self.assertEqual([i for i in database.select('system')], 
                              [(0.1, 10.0, 100.0, 100.0, 10.0, 1.0, 
                                2.0, 12.0, 1.0, 1.0, u'EXPECTED-DATE', u'TIME', 1),
                              (0.1, 10.0, 100.0, 100.0, 10.0, 1.0, 
@@ -309,7 +309,7 @@ class TestCollectReport(unittest.TestCase):
                          '%s/1983-01-10/dump_temperature.csv' % self.instance_root,
                          '%s/1983-01-10/dump_system.csv' % self.instance_root]
 
-        self.assertEquals(set(glob.glob("%s/1983-01-10/*.csv" % self.instance_root)),
+        self.assertEqual(set(glob.glob("%s/1983-01-10/*.csv" % self.instance_root)),
                           set(csv_path_list))
 
     def test_system_csv_report(self):
@@ -338,7 +338,7 @@ class TestCollectReport(unittest.TestCase):
                          '%s/system_net_in_dropped.csv' % self.instance_root,
                          '%s/system_loadavg.csv' % self.instance_root]
 
-        self.assertEquals(set(glob.glob("%s/*.csv" % self.instance_root)), set(csv_path_list)) 
+        self.assertEqual(set(glob.glob("%s/*.csv" % self.instance_root)), set(csv_path_list)) 
 
     def test_compress_log_directory(self):
         log_directory = "%s/test_compress" % self.instance_root
@@ -362,9 +362,9 @@ class TestCollectReport(unittest.TestCase):
         self.assertTrue(os.path.exists("%s.tar.gz" % dump_folder))
 
         with tarfile.open("%s.tar.gz" % dump_folder) as tf:
-            self.assertEquals(tf.getmembers()[0].name, "1990-01-01")
-            self.assertEquals(tf.getmembers()[1].name, "1990-01-01/test.txt")
-            self.assertEquals(tf.extractfile(tf.getmembers()[1]).read(), 'hi')
+            self.assertEqual(tf.getmembers()[0].name, "1990-01-01")
+            self.assertEqual(tf.getmembers()[1].name, "1990-01-01/test.txt")
+            self.assertEqual(tf.extractfile(tf.getmembers()[1]).read(), 'hi')
 
 class TestCollectSnapshot(unittest.TestCase):
 
@@ -383,8 +383,8 @@ class TestCollectSnapshot(unittest.TestCase):
         process_snapshot = snapshot.ProcessSnapshot(process)
 
         self.assertNotEquals(process_snapshot.username, None)  
-        self.assertEquals(int(process_snapshot.pid), os.getpid())
-        self.assertEquals(int(process_snapshot.process.split("-")[0]),
+        self.assertEqual(int(process_snapshot.pid), os.getpid())
+        self.assertEqual(int(process_snapshot.process.split("-")[0]),
                           os.getpid())
 
         self.assertNotEquals(process_snapshot.cpu_percent , None)
@@ -431,13 +431,13 @@ class TestCollectSnapshot(unittest.TestCase):
         self.assertNotEquals(computer_snapshot.memory_size , None)
         self.assertNotEquals(computer_snapshot.memory_type , None)
         
-        self.assertEquals(type(computer_snapshot.system_snapshot),  
+        self.assertEqual(type(computer_snapshot.system_snapshot),  
                                snapshot.SystemSnapshot)
 
         self.assertNotEquals(computer_snapshot.disk_snapshot_list, [])
         self.assertNotEquals(computer_snapshot.partition_list, []) 
 
-        self.assertEquals(type(computer_snapshot.disk_snapshot_list[0]), 
+        self.assertEqual(type(computer_snapshot.disk_snapshot_list[0]), 
                 snapshot.DiskPartitionSnapshot)
 
     def test_system_snapshot(self):
@@ -483,19 +483,19 @@ class TestCollectEntity(unittest.TestCase):
  
         user_dict = entity.get_user_list(config)
         username_list = ['slapuser0', 'slapuser1', 'slapuser2'] 
-        self.assertEquals(username_list, user_dict.keys())
+        self.assertEqual(username_list, user_dict.keys())
        
         for name in username_list:
-          self.assertEquals(user_dict[name].name, name)
-          self.assertEquals(user_dict[name].snapshot_list, [])
+          self.assertEqual(user_dict[name].name, name)
+          self.assertEqual(user_dict[name].snapshot_list, [])
           expected_path = "%s/slappart%s" % (self.instance_root, name.strip("slapuser")) 
-          self.assertEquals(user_dict[name].path, expected_path) 
+          self.assertEqual(user_dict[name].path, expected_path) 
        
     def test_user_add_snapshot(self):
         user = self.getFakeUser() 
-        self.assertEquals(user.snapshot_list, [])
+        self.assertEqual(user.snapshot_list, [])
         user.append("SNAPSHOT")
-        self.assertEquals(user.snapshot_list, ["SNAPSHOT"])
+        self.assertEqual(user.snapshot_list, ["SNAPSHOT"])
 
     def test_user_save(self):
         disk_snapshot_params = {'enable': False}
@@ -504,17 +504,17 @@ class TestCollectEntity(unittest.TestCase):
         user.append(snapshot.ProcessSnapshot(process))
         database = FakeDatabase()
         user.save(database, "DATE", "TIME")
-        self.assertEquals(database.invoked_method_list[0], ("connect", ""))
+        self.assertEqual(database.invoked_method_list[0], ("connect", ""))
 
-        self.assertEquals(database.invoked_method_list[1][0], "insertUserSnapshot")
-        self.assertEquals(database.invoked_method_list[1][1][0], ("fakeuser0",))
-        self.assertEquals(database.invoked_method_list[1][1][1].keys(), 
+        self.assertEqual(database.invoked_method_list[1][0], "insertUserSnapshot")
+        self.assertEqual(database.invoked_method_list[1][1][0], ("fakeuser0",))
+        self.assertEqual(database.invoked_method_list[1][1][1].keys(), 
                    ['cpu_time', 'cpu_percent', 'process',
                     'memory_rss', 'pid', 'memory_percent',
                     'io_rw_counter', 'insertion_date', 'insertion_time',
                     'io_cycles_counter', 'cpu_num_threads'])
-        self.assertEquals(database.invoked_method_list[2], ("commit", ""))
-        self.assertEquals(database.invoked_method_list[3], ("close", ""))
+        self.assertEqual(database.invoked_method_list[2], ("commit", ""))
+        self.assertEqual(database.invoked_method_list[3], ("close", ""))
 
     def test_user_save_disk_snapshot(self):
         disk_snapshot_params = {'enable': True, 'testing': True}
@@ -523,25 +523,25 @@ class TestCollectEntity(unittest.TestCase):
         user.append(snapshot.ProcessSnapshot(process))
         database = FakeDatabase2()
         user.save(database, "DATE", "TIME")
-        self.assertEquals(database.invoked_method_list[0], ("connect", ""))
+        self.assertEqual(database.invoked_method_list[0], ("connect", ""))
 
-        self.assertEquals(database.invoked_method_list[1][0], "insertUserSnapshot")
-        self.assertEquals(database.invoked_method_list[1][1][0], ("fakeuser0",))
-        self.assertEquals(database.invoked_method_list[1][1][1].keys(), 
+        self.assertEqual(database.invoked_method_list[1][0], "insertUserSnapshot")
+        self.assertEqual(database.invoked_method_list[1][1][0], ("fakeuser0",))
+        self.assertEqual(database.invoked_method_list[1][1][1].keys(), 
                    ['cpu_time', 'cpu_percent', 'process',
                     'memory_rss', 'pid', 'memory_percent',
                     'io_rw_counter', 'insertion_date', 'insertion_time',
                     'io_cycles_counter', 'cpu_num_threads'])
-        self.assertEquals(database.invoked_method_list[2], ("commit", ""))
-        self.assertEquals(database.invoked_method_list[3], ("close", ""))
+        self.assertEqual(database.invoked_method_list[2], ("commit", ""))
+        self.assertEqual(database.invoked_method_list[3], ("close", ""))
 
-        self.assertEquals(database.invoked_method_list[4], ("connect", ""))
-        self.assertEquals(database.invoked_method_list[5][0], "inserFolderSnapshot")
-        self.assertEquals(database.invoked_method_list[5][1][0], ("fakeuser0",))
-        self.assertEquals(database.invoked_method_list[5][1][1].keys(), 
+        self.assertEqual(database.invoked_method_list[4], ("connect", ""))
+        self.assertEqual(database.invoked_method_list[5][0], "inserFolderSnapshot")
+        self.assertEqual(database.invoked_method_list[5][1][0], ("fakeuser0",))
+        self.assertEqual(database.invoked_method_list[5][1][1].keys(), 
                    ['insertion_date', 'disk_usage', 'insertion_time'])
-        self.assertEquals(database.invoked_method_list[6], ("commit", ""))
-        self.assertEquals(database.invoked_method_list[7], ("close", ""))
+        self.assertEqual(database.invoked_method_list[6], ("commit", ""))
+        self.assertEqual(database.invoked_method_list[7], ("close", ""))
 
     def test_user_save_disk_snapshot_cycle(self):
         disk_snapshot_params = {'enable': True, 'time_cycle': 3600, 'testing': True}
@@ -550,58 +550,58 @@ class TestCollectEntity(unittest.TestCase):
         user.append(snapshot.ProcessSnapshot(process))
         database = FakeDatabase2()
         user.save(database, "DATE", "TIME")
-        self.assertEquals(database.invoked_method_list[0], ("connect", ""))
+        self.assertEqual(database.invoked_method_list[0], ("connect", ""))
 
-        self.assertEquals(database.invoked_method_list[1][0], "insertUserSnapshot")
-        self.assertEquals(database.invoked_method_list[1][1][0], ("fakeuser0",))
-        self.assertEquals(database.invoked_method_list[1][1][1].keys(), 
+        self.assertEqual(database.invoked_method_list[1][0], "insertUserSnapshot")
+        self.assertEqual(database.invoked_method_list[1][1][0], ("fakeuser0",))
+        self.assertEqual(database.invoked_method_list[1][1][1].keys(), 
                    ['cpu_time', 'cpu_percent', 'process',
                     'memory_rss', 'pid', 'memory_percent',
                     'io_rw_counter', 'insertion_date', 'insertion_time',
                     'io_cycles_counter', 'cpu_num_threads'])
-        self.assertEquals(database.invoked_method_list[2], ("commit", ""))
-        self.assertEquals(database.invoked_method_list[3], ("close", ""))
+        self.assertEqual(database.invoked_method_list[2], ("commit", ""))
+        self.assertEqual(database.invoked_method_list[3], ("close", ""))
 
-        self.assertEquals(database.invoked_method_list[4], ("connect", ""))
-        self.assertEquals(database.invoked_method_list[5][0], "select")
-        self.assertEquals(database.invoked_method_list[5][1][0], ())
-        self.assertEquals(database.invoked_method_list[5][1][1].keys(),
+        self.assertEqual(database.invoked_method_list[4], ("connect", ""))
+        self.assertEqual(database.invoked_method_list[5][0], "select")
+        self.assertEqual(database.invoked_method_list[5][1][0], ())
+        self.assertEqual(database.invoked_method_list[5][1][1].keys(),
                                 ['table', 'where', 'limit', 'order', 'columns'])
-        self.assertEquals(database.invoked_method_list[6][0], "inserFolderSnapshot")
-        self.assertEquals(database.invoked_method_list[6][1][0], ("fakeuser0",))
-        self.assertEquals(database.invoked_method_list[6][1][1].keys(), 
+        self.assertEqual(database.invoked_method_list[6][0], "inserFolderSnapshot")
+        self.assertEqual(database.invoked_method_list[6][1][0], ("fakeuser0",))
+        self.assertEqual(database.invoked_method_list[6][1][1].keys(), 
                    ['insertion_date', 'disk_usage', 'insertion_time'])
-        self.assertEquals(database.invoked_method_list[7], ("commit", ""))
-        self.assertEquals(database.invoked_method_list[8], ("close", ""))
+        self.assertEqual(database.invoked_method_list[7], ("commit", ""))
+        self.assertEqual(database.invoked_method_list[8], ("close", ""))
 
     def test_computer_entity(self):
         computer = entity.Computer(snapshot.ComputerSnapshot())
         database = FakeDatabase()
         computer.save(database, "DATE", "TIME")
 
-        self.assertEquals(database.invoked_method_list[0], ("connect", ""))
+        self.assertEqual(database.invoked_method_list[0], ("connect", ""))
 
-        self.assertEquals(database.invoked_method_list[1][0], "insertComputerSnapshot")
-        self.assertEquals(database.invoked_method_list[1][1][0], ())
-        self.assertEquals(database.invoked_method_list[1][1][1].keys(), 
+        self.assertEqual(database.invoked_method_list[1][0], "insertComputerSnapshot")
+        self.assertEqual(database.invoked_method_list[1][1][0], ())
+        self.assertEqual(database.invoked_method_list[1][1][1].keys(), 
                  ['insertion_time', 'insertion_date', 'cpu_num_core',
                   'partition_list', 'cpu_frequency', 'memory_size', 
                   'cpu_type', 'memory_type'])
  
-        self.assertEquals(database.invoked_method_list[2][0], "insertSystemSnapshot")
-        self.assertEquals(database.invoked_method_list[2][1][0], ())
-        self.assertEquals(set(database.invoked_method_list[2][1][1].keys()), 
+        self.assertEqual(database.invoked_method_list[2][0], "insertSystemSnapshot")
+        self.assertEqual(database.invoked_method_list[2][1][0], ())
+        self.assertEqual(set(database.invoked_method_list[2][1][1].keys()), 
           set([ 'memory_used', 'cpu_percent', 'insertion_date', 'insertion_time',
                 'loadavg', 'memory_free', 'net_in_bytes', 'net_in_dropped', 
                 'net_in_errors', 'net_out_bytes', 'net_out_dropped', 
                 'net_out_errors']))
 
-        self.assertEquals(database.invoked_method_list[3][0], "insertDiskPartitionSnapshot")
-        self.assertEquals(database.invoked_method_list[3][1][0], ())
-        self.assertEquals(set(database.invoked_method_list[3][1][1].keys()), 
+        self.assertEqual(database.invoked_method_list[3][0], "insertDiskPartitionSnapshot")
+        self.assertEqual(database.invoked_method_list[3][1][0], ())
+        self.assertEqual(set(database.invoked_method_list[3][1][1].keys()), 
           set([ 'used', 'insertion_date', 'partition', 'free', 
                 'mountpoint', 'insertion_time' ]))
 
-        self.assertEquals(database.invoked_method_list[-2], ("commit", ""))
-        self.assertEquals(database.invoked_method_list[-1], ("close", ""))
+        self.assertEqual(database.invoked_method_list[-2], ("commit", ""))
+        self.assertEqual(database.invoked_method_list[-1], ("close", ""))
 

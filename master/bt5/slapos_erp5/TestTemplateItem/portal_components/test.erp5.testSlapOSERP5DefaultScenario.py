@@ -527,7 +527,7 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     # is covered by unit tests
     packing_list_line_list = subscription.getAggregateRelatedValueList(
         portal_type='Sale Packing List Line')
-    self.assertEquals(len(packing_list_line_list), 1)
+    self.assertEqual(len(packing_list_line_list), 1)
     for packing_list_line in packing_list_line_list:
       packing_list = packing_list_line.getParentValue()
       self.assertEqual('Sale Packing List',
@@ -936,7 +936,7 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
     # is covered by unit tests
     packing_list_line_list = subscription.getAggregateRelatedValueList(
         portal_type='Sale Packing List Line')
-    self.assertEquals(len(packing_list_line_list), 1)
+    self.assertEqual(len(packing_list_line_list), 1)
     for packing_list_line in packing_list_line_list:
       packing_list = packing_list_line.getParentValue()
       self.assertEqual('Sale Packing List',

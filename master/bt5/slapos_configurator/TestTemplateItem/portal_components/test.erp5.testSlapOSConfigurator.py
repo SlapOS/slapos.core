@@ -19,41 +19,41 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
   def testConfiguredModuleGeneratorIDViaConstraint(self):
     """ Make sure Generator ID is well configured, in this
         case we trust on promise outcome."""
-    self.assertEquals(self.portal.portal_ids.checkConsistency(), [])
+    self.assertEqual(self.portal.portal_ids.checkConsistency(), [])
 
     self.portal.person_module.setIdGenerator("_Id_fake")
     self.assertNotEquals(self.portal.portal_ids.checkConsistency(), [])
     self.portal.portal_ids.fixConsistency()
-    self.assertEquals(self.portal.portal_ids.checkConsistency(), [])
-    self.assertEquals(self.portal.person_module.getIdGenerator(),
+    self.assertEqual(self.portal.portal_ids.checkConsistency(), [])
+    self.assertEqual(self.portal.person_module.getIdGenerator(),
                         "_generatePerDayId")
 
   def testConfiguredShacacheWebSite(self):
     """ Make sure Shacache WebSite is setuped by Alarm
         case we trust on promise outcome."""
-    self.assertEquals(self.portal.web_site_module.checkConsistency(), [])
+    self.assertEqual(self.portal.web_site_module.checkConsistency(), [])
 
   def testConfiguredCacheViaConstraint(self):
     """ Make sure Volitile and Persistent Cache was configured well,
         invoking the consistency to check """
-    self.assertEquals(self.portal.portal_memcached.checkConsistency(), [])
+    self.assertEqual(self.portal.portal_memcached.checkConsistency(), [])
 
   def testConfiguredConversionServerViaConstraint(self):
     """ Make sure Conversion Server was configured well,
         invoking checkConsistency """
-    self.assertEquals(self.portal.portal_preferences.checkConsistency(), [])
+    self.assertEqual(self.portal.portal_preferences.checkConsistency(), [])
 
   def testConfiguredCertificateAuthoringConstraint(self):
     """Make sure Certificate Authoring was configured well,
        invoking checkConsistency.
 
        Make sure PAS is well configured."""
-    self.assertEquals(self.portal.portal_certificate_authority.checkConsistency(), [])
+    self.assertEqual(self.portal.portal_certificate_authority.checkConsistency(), [])
 
   def testConfiguredTemplateToolViaConstraint(self):
     """ Make sure Template Tool Repositories was configured well,
         invoking checkConsistency """
-    self.assertEquals(
+    self.assertEqual(
         [ i for i in self.portal.portal_templates.checkConsistency()
                      if "(reinstall)" not in i.message], [])
 
@@ -72,7 +72,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     memcached_tool = self.getPortal().portal_memcached
     connection_dict = _getVolatileMemcachedServerDict()
     url_string = 'erp5-memcached-volatile:%(port)s' % connection_dict
-    self.assertEquals(memcached_tool.default_memcached_plugin.getUrlString(),
+    self.assertEqual(memcached_tool.default_memcached_plugin.getUrlString(),
                       url_string)
 
   def testConfiguredPersistentCache(self):
@@ -89,7 +89,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     memcached_tool = self.getPortal().portal_memcached
     connection_dict = _getPersistentMemcachedServerDict()
     url_string = 'erp5-memcached-persistent:%(port)s' % connection_dict
-    self.assertEquals(memcached_tool.persistent_memcached_plugin.getUrlString(),
+    self.assertEqual(memcached_tool.persistent_memcached_plugin.getUrlString(),
                       url_string)
 
   def testConfiguredConversionServer(self):
@@ -106,7 +106,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     # set preference
     preference_tool = self.portal.portal_preferences
     conversion_url = _getConversionServerUrl()
-    self.assertEquals(preference_tool.getPreferredDocumentConversionServerUrl(), conversion_url)
+    self.assertEqual(preference_tool.getPreferredDocumentConversionServerUrl(), conversion_url)
 
   def testConfiguredCertificateAuthoring(self):
     """ Make sure Certificate Authoting is
@@ -119,7 +119,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       return
 
     self.assertTrue(self.portal.hasObject('portal_certificate_authority'))
-    self.assertEquals(os.environ['TEST_CA_PATH'],
+    self.assertEqual(os.environ['TEST_CA_PATH'],
           self.portal.portal_certificate_authority.certificate_authority_path)
 
   def testModuleHasIdGeneratorByDay(self):

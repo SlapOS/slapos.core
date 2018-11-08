@@ -172,7 +172,7 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     self.assertNotEquals(transaction_id, None)
 
     # Event state
-    self.assertEquals(event.getValidationState(), "acknowledged")
+    self.assertEqual(event.getValidationState(), "acknowledged")
 
     data_dict = {
       'vads_language': 'en',
@@ -228,7 +228,7 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
 
     # Event message state
     event_message_list = event.contentValues(portal_type="Payzen Event Message")
-    self.assertEquals(len(event_message_list), 1)
+    self.assertEqual(len(event_message_list), 1)
     message = event_message_list[0]
     self.assertEqual(message.getTitle(), 'Shown Page')
     self.assertEqual(message.getTextContent(), expected_html_page,
@@ -259,8 +259,8 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
   def mockSoapGetInfo(self, method_to_call, expected_args, result_tuple):
     payment_service = self.portal.portal_secure_payments.slapos_payzen_test
     def mocksoad_getInfo(arg1, arg2):
-      self.assertEquals(arg1, expected_args[0])
-      self.assertEquals(arg2, expected_args[1])
+      self.assertEqual(arg1, expected_args[0])
+      self.assertEqual(arg2, expected_args[1])
       return result_tuple
     setattr(payment_service, 'soap_getInfo', mocksoad_getInfo)
     try:
@@ -312,17 +312,17 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by P
       self._dropPayzenEvent_processUpdate()
 
     event_message_list = event.contentValues(portal_type="Payzen Event Message")
-    self.assertEquals(len(event_message_list), 2)
+    self.assertEqual(len(event_message_list), 2)
 
     sent_message = [x for x in event_message_list \
                     if x.getTitle() == 'Sent SOAP'][0]
-    self.assertEquals(sent_message.getTextContent(), mocked_sent_text)
+    self.assertEqual(sent_message.getTextContent(), mocked_sent_text)
 
     received_message = [x for x in event_message_list \
                         if x.getTitle() == 'Received SOAP'][0]
-    self.assertEquals(received_message.getPredecessor(), 
+    self.assertEqual(received_message.getPredecessor(), 
                       sent_message.getRelativeUrl())
-    self.assertEquals(received_message.getTextContent(), mocked_received_text)
+    self.assertEqual(received_message.getTextContent(), mocked_received_text)
 
     self.assertEqual(
         'Visited by PayzenEvent_processUpdate',

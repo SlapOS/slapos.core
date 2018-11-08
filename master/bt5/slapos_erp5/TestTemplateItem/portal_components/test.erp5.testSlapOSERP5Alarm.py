@@ -42,7 +42,7 @@ context.edit(description=description)""")
       reference="ACTPROC-%s" % new_id,
       description="Active Process %s" % new_id,
       )
-    self.assertEquals(active_process.getCreationDate(), date)
+    self.assertEqual(active_process.getCreationDate(), date)
 
     self._simulateActiveProcess_deleteSelf()
     try:

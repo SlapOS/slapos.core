@@ -60,18 +60,18 @@ class TestSlapOSComputer_reportComputerConsumption(SlapOSTestCaseMixinWithAbort)
     document_relative_url = computer.Computer_reportComputerConsumption(
                                                  new_id, consumption_xml)
     document = self.portal.restrictedTraverse(document_relative_url)
-    self.assertEquals(document.getPortalType(),
+    self.assertEqual(document.getPortalType(),
                       "Computer Consumption TioXML File")
-    self.assertEquals(document.getSourceReference(), new_id)
-    self.assertEquals(document.getTitle(),
+    self.assertEqual(document.getSourceReference(), new_id)
+    self.assertEqual(document.getTitle(),
                       "%s consumption (%s)" % (computer.getReference(), new_id))
     self.assertNotEquals(document.getReference(), "")
-    self.assertEquals(document.getVersion(), "1")
-    self.assertEquals(document.getData(), consumption_xml)
-    self.assertEquals(document.getClassification(), "personal")
-    self.assertEquals(document.getPublicationSection(), "other")
-    self.assertEquals(document.getValidationState(), "submitted")
-    self.assertEquals(document.getContributor(), computer.getRelativeUrl())
+    self.assertEqual(document.getVersion(), "1")
+    self.assertEqual(document.getData(), consumption_xml)
+    self.assertEqual(document.getClassification(), "personal")
+    self.assertEqual(document.getPublicationSection(), "other")
+    self.assertEqual(document.getValidationState(), "submitted")
+    self.assertEqual(document.getContributor(), computer.getRelativeUrl())
 
   def test_reportComputerConsumption_reported_twice(self):
     new_id = self.generateNewId()
@@ -110,20 +110,20 @@ class TestSlapOSComputer_reportComputerConsumption(SlapOSTestCaseMixinWithAbort)
                                                  new_id, consumption_xml)
     document2 = self.portal.restrictedTraverse(document2_relative_url)
 
-    self.assertEquals(document2.getPortalType(),
+    self.assertEqual(document2.getPortalType(),
                       "Computer Consumption TioXML File")
-    self.assertEquals(document2.getSourceReference(),
+    self.assertEqual(document2.getSourceReference(),
                       document1.getSourceReference())
-    self.assertEquals(document2.getTitle(), document1.getTitle())
-    self.assertEquals(document2.getReference(), document1.getReference())
-    self.assertEquals(document1.getVersion(), "1")
-    self.assertEquals(document2.getVersion(), "2")
-    self.assertEquals(document2.getData(), consumption_xml)
-    self.assertEquals(document2.getClassification(), "personal")
-    self.assertEquals(document2.getPublicationSection(), "other")
-    self.assertEquals(document1.getValidationState(), "submitted")
-    self.assertEquals(document2.getValidationState(), "submitted")
-    self.assertEquals(document2.getContributor(), computer.getRelativeUrl())
+    self.assertEqual(document2.getTitle(), document1.getTitle())
+    self.assertEqual(document2.getReference(), document1.getReference())
+    self.assertEqual(document1.getVersion(), "1")
+    self.assertEqual(document2.getVersion(), "2")
+    self.assertEqual(document2.getData(), consumption_xml)
+    self.assertEqual(document2.getClassification(), "personal")
+    self.assertEqual(document2.getPublicationSection(), "other")
+    self.assertEqual(document1.getValidationState(), "submitted")
+    self.assertEqual(document2.getValidationState(), "submitted")
+    self.assertEqual(document2.getContributor(), computer.getRelativeUrl())
 
 class TestSlapOSComputerConsumptionTioXMLFile_parseXml(SlapOSTestCaseMixinWithAbort):
 

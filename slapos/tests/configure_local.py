@@ -73,16 +73,16 @@ class TestConfigureLocal(unittest.TestCase):
         with open(self.temp_dir + '/slapos-proxy.cfg') as fout:
             proxy_config = ConfigParser()
             proxy_config.readfp(fout)
-            self.assertEquals(proxy_config.get('slapos', 'instance_root'),
+            self.assertEqual(proxy_config.get('slapos', 'instance_root'),
                 self.instance_root)
-            self.assertEquals(proxy_config.get('slapos', 'software_root'),
+            self.assertEqual(proxy_config.get('slapos', 'software_root'),
                 expected_software_root)
         with open(self.temp_dir + '/slapos.cfg') as fout:
             proxy_config = ConfigParser()
             proxy_config.readfp(fout)
-            self.assertEquals(proxy_config.get('slapos', 'instance_root'),
+            self.assertEqual(proxy_config.get('slapos', 'instance_root'),
                 self.instance_root)
-            self.assertEquals(proxy_config.get('slapos', 'software_root'),
+            self.assertEqual(proxy_config.get('slapos', 'software_root'),
                 expected_software_root)
 
     def test_configure_local_environment(self):
@@ -102,16 +102,16 @@ class TestConfigureLocal(unittest.TestCase):
         with open(self.temp_dir + '/slapos-proxy.cfg') as fout:
             proxy_config = ConfigParser()
             proxy_config.readfp(fout)
-            self.assertEquals(proxy_config.get('slapos', 'instance_root'),
+            self.assertEqual(proxy_config.get('slapos', 'instance_root'),
                 self.instance_root)
-            self.assertEquals(proxy_config.get('slapos', 'software_root'),
+            self.assertEqual(proxy_config.get('slapos', 'software_root'),
                 self.software_root)
         with open(self.temp_dir + '/slapos.cfg') as fout:
             proxy_config = ConfigParser()
             proxy_config.readfp(fout)
-            self.assertEquals(proxy_config.get('slapos', 'instance_root'),
+            self.assertEqual(proxy_config.get('slapos', 'instance_root'),
                 self.instance_root)
-            self.assertEquals(proxy_config.get('slapos', 'software_root'),
+            self.assertEqual(proxy_config.get('slapos', 'software_root'),
                 self.software_root)
             log_file = proxy_config.get('slapformat', 'log_file')
             self.assertTrue(log_file.startswith(log_folder),

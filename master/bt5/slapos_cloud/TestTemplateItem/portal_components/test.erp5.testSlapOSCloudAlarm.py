@@ -415,8 +415,8 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     self._makeTree()
 
     self._makeComputer()
-    self.assertEquals(self.computer.getAllocationScope(), "open/public")
-    self.assertEquals(self.computer.getCapacityScope(), "open")
+    self.assertEqual(self.computer.getAllocationScope(), "open/public")
+    self.assertEqual(self.computer.getCapacityScope(), "open")
 
     self._installSoftware(self.computer,
         self.software_instance.getUrlString())
@@ -824,11 +824,11 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     self._makeTree()
 
     self._makeComputer()
-    self.assertEquals(self.computer.getAllocationScope(), "open/public")
-    self.assertEquals(self.computer.getCapacityScope(), "open")
+    self.assertEqual(self.computer.getAllocationScope(), "open/public")
+    self.assertEqual(self.computer.getCapacityScope(), "open")
     self.computer.edit(**{base_category: computer_category})
-    self.assertEquals(self.computer.getAllocationScope(), "open/public")
-    self.assertEquals(self.computer.getCapacityScope(), "open")
+    self.assertEqual(self.computer.getAllocationScope(), "open/public")
+    self.assertEqual(self.computer.getCapacityScope(), "open")
 
     self._installSoftware(self.computer,
         self.software_instance.getUrlString())

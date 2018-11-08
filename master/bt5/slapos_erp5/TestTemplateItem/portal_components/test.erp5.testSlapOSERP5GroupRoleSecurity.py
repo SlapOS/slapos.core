@@ -37,7 +37,7 @@ class TestSlapOSGroupRoleSecurityMixin(SlapOSTestCaseMixinWithAbort):
       self._acquirePermissions(context))
 
   def assertSecurityGroup(self, context, security_group_list, acquired):
-    self.assertEquals(acquired, context._getAcquireLocalRoles())
+    self.assertEqual(acquired, context._getAcquireLocalRoles())
     self.assertSameSet(
       security_group_list,
       self._getLocalRoles(context)

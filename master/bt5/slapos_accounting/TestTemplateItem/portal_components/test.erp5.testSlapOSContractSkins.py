@@ -68,17 +68,17 @@ class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWit
     self.commit()
 
     result = instance.SoftwareInstance_requestValidationPayment()
-    self.assertEquals(result, None)
+    self.assertEqual(result, None)
 
   def test_addCloudContract(self):
     person, instance, _ = self.createNeededDocuments()
     contract = instance.SoftwareInstance_requestValidationPayment()
 
     # Default property
-    self.assertEquals(contract.getPortalType(), 'Cloud Contract')
-    self.assertEquals(contract.getValidationState(), 'invalidated')
-    self.assertEquals(contract.getDestinationSection(), person.getRelativeUrl())
-    self.assertEquals(contract.getTitle(),
+    self.assertEqual(contract.getPortalType(), 'Cloud Contract')
+    self.assertEqual(contract.getValidationState(), 'invalidated')
+    self.assertEqual(contract.getDestinationSection(), person.getRelativeUrl())
+    self.assertEqual(contract.getTitle(),
            'Contract for "%s"' % person.getTitle())
 
   def test_addCloudContract_do_not_duplicate_contract_if_not_reindexed(self):
@@ -87,7 +87,7 @@ class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWit
     self.commit()
     contract2 = instance.SoftwareInstance_requestValidationPayment()
     self.assertNotEquals(contract, None)
-    self.assertEquals(contract2, None)
+    self.assertEqual(contract2, None)
 
   def test_addCloudContract_existing_invalidated_contract(self):
     _, instance, _ = self.createNeededDocuments()
@@ -96,7 +96,7 @@ class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWit
     self.tic()
     contract2 = instance.SoftwareInstance_requestValidationPayment()
     self.assertNotEquals(contract, None)
-    self.assertEquals(contract2.getRelativeUrl(), contract.getRelativeUrl())
+    self.assertEqual(contract2.getRelativeUrl(), contract.getRelativeUrl())
 
   def test_addCloudContract_existing_validated_contract(self):
     _, instance, _ = self.createNeededDocuments()
@@ -106,7 +106,7 @@ class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWit
     self.tic()
     contract2 = instance.SoftwareInstance_requestValidationPayment()
     self.assertNotEquals(contract, None)
-    self.assertEquals(contract2.getRelativeUrl(), contract.getRelativeUrl())
+    self.assertEqual(contract2.getRelativeUrl(), contract.getRelativeUrl())
 
   def test_do_nothing_if_validated_contract(self):
     person, instance, _ = self.createNeededDocuments()
@@ -116,9 +116,9 @@ class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWit
     self.tic()
 
     contract2 = instance.SoftwareInstance_requestValidationPayment()
-    self.assertEquals(contract2.getRelativeUrl(), contract.getRelativeUrl())
-    self.assertEquals(contract2.getCausality(""), "")
-    self.assertEquals(contract2.getValidationState(), "validated")
+    self.assertEqual(contract2.getRelativeUrl(), contract.getRelativeUrl())
+    self.assertEqual(contract2.getCausality(""), "")
+    self.assertEqual(contract2.getValidationState(), "validated")
 
   def test_validate_contract_if_payment_found(self):
     person, instance, _ = self.createNeededDocuments()
@@ -129,41 +129,41 @@ class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWit
       default_destination_section_value=person,
     )
     self.portal.portal_workflow._jumpToStateFor(payment, 'stopped')
-    self.assertEquals(contract.getValidationState(), "invalidated")
+    self.assertEqual(contract.getValidationState(), "invalidated")
     self.tic()
 
     contract2 = instance.SoftwareInstance_requestValidationPayment()
-    self.assertEquals(contract2.getRelativeUrl(), contract.getRelativeUrl())
-    self.assertEquals(contract2.getCausality(""), "")
-    self.assertEquals(contract2.getValidationState(), "validated")
+    self.assertEqual(contract2.getRelativeUrl(), contract.getRelativeUrl())
+    self.assertEqual(contract2.getCausality(""), "")
+    self.assertEqual(contract2.getValidationState(), "validated")
 
   def test_create_invoice_if_needed_and_no_payment_found(self):
     person, instance, _ = self.createNeededDocuments()
     contract = self.createCloudContract()
     contract.edit(destination_section_value=person)
-    self.assertEquals(contract.getValidationState(), "invalidated")
+    self.assertEqual(contract.getValidationState(), "invalidated")
     self.tic()
 
     before_date = DateTime()
     contract2 = instance.SoftwareInstance_requestValidationPayment()
     after_date = DateTime()
-    self.assertEquals(contract2.getRelativeUrl(), contract.getRelativeUrl())
+    self.assertEqual(contract2.getRelativeUrl(), contract.getRelativeUrl())
     self.assertNotEquals(contract2.getCausality(""), "")
-    self.assertEquals(contract2.getValidationState(), "invalidated")
+    self.assertEqual(contract2.getValidationState(), "invalidated")
 
     invoice = contract2.getCausalityValue()
-    self.assertEquals(invoice.getPortalType(), 'Sale Invoice Transaction')
-    self.assertEquals(len(invoice.contentValues()), 1)
-    self.assertEquals(invoice.getSimulationState(), 'confirmed')
-    self.assertEquals(invoice.getCausalityState(), 'building')
-    self.assertEquals(invoice.getTitle(), 'Account validation')
-    self.assertEquals(invoice.getSource(), person.getRelativeUrl())
-    self.assertEquals(invoice.getDestination(), person.getRelativeUrl())
-    self.assertEquals(invoice.getDestinationSection(), person.getRelativeUrl())
-    self.assertEquals(invoice.getDestinationDecision(), person.getRelativeUrl())
+    self.assertEqual(invoice.getPortalType(), 'Sale Invoice Transaction')
+    self.assertEqual(len(invoice.contentValues()), 1)
+    self.assertEqual(invoice.getSimulationState(), 'confirmed')
+    self.assertEqual(invoice.getCausalityState(), 'building')
+    self.assertEqual(invoice.getTitle(), 'Account validation')
+    self.assertEqual(invoice.getSource(), person.getRelativeUrl())
+    self.assertEqual(invoice.getDestination(), person.getRelativeUrl())
+    self.assertEqual(invoice.getDestinationSection(), person.getRelativeUrl())
+    self.assertEqual(invoice.getDestinationDecision(), person.getRelativeUrl())
     self.assertTrue(invoice.getStartDate() >= before_date)
     self.assertTrue(invoice.getStartDate() <= after_date)
-    self.assertEquals(invoice.getStartDate(), invoice.getStopDate())
+    self.assertEqual(invoice.getStartDate(), invoice.getStopDate())
 
   def test_do_nothing_if_invoice_is_ongoing(self):
     person, instance, _ = self.createNeededDocuments()
@@ -174,13 +174,13 @@ class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWit
       destination_section_value=person,
       causality_value=invoice,
     )
-    self.assertEquals(contract.getValidationState(), "invalidated")
+    self.assertEqual(contract.getValidationState(), "invalidated")
     self.tic()
 
     contract2 = instance.SoftwareInstance_requestValidationPayment()
-    self.assertEquals(contract2.getRelativeUrl(), contract.getRelativeUrl())
-    self.assertEquals(contract2.getCausality(""), invoice.getRelativeUrl())
-    self.assertEquals(contract2.getValidationState(), "invalidated")
+    self.assertEqual(contract2.getRelativeUrl(), contract.getRelativeUrl())
+    self.assertEqual(contract2.getCausality(""), invoice.getRelativeUrl())
+    self.assertEqual(contract2.getValidationState(), "invalidated")
 
   def test_forget_current_cancelled_invoice(self):
     person, instance, _ = self.createNeededDocuments()
@@ -191,13 +191,13 @@ class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWit
       destination_section_value=person,
       causality_value=invoice,
     )
-    self.assertEquals(contract.getValidationState(), "invalidated")
+    self.assertEqual(contract.getValidationState(), "invalidated")
     self.tic()
 
     contract2 = instance.SoftwareInstance_requestValidationPayment()
-    self.assertEquals(contract2.getRelativeUrl(), contract.getRelativeUrl())
-    self.assertEquals(contract2.getCausality(""), "")
-    self.assertEquals(contract2.getValidationState(), "invalidated")
+    self.assertEqual(contract2.getRelativeUrl(), contract.getRelativeUrl())
+    self.assertEqual(contract2.getCausality(""), "")
+    self.assertEqual(contract2.getValidationState(), "invalidated")
 
   def test_forget_current_grouped_invoice(self):
     person, instance, _ = self.createNeededDocuments()
@@ -214,13 +214,13 @@ class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWit
       destination_section_value=person,
       causality_value=invoice,
     )
-    self.assertEquals(contract.getValidationState(), "invalidated")
+    self.assertEqual(contract.getValidationState(), "invalidated")
     self.tic()
 
     contract2 = instance.SoftwareInstance_requestValidationPayment()
-    self.assertEquals(contract2.getRelativeUrl(), contract.getRelativeUrl())
-    self.assertEquals(contract2.getCausality(""), "")
-    self.assertEquals(contract2.getValidationState(), "invalidated")
+    self.assertEqual(contract2.getRelativeUrl(), contract.getRelativeUrl())
+    self.assertEqual(contract2.getCausality(""), "")
+    self.assertEqual(contract2.getValidationState(), "invalidated")
 
   def test_do_nothing_if_invoice_is_not_grouped(self):
     person, instance, _ = self.createNeededDocuments()
@@ -235,13 +235,13 @@ class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWit
       destination_section_value=person,
       causality_value=invoice,
     )
-    self.assertEquals(contract.getValidationState(), "invalidated")
+    self.assertEqual(contract.getValidationState(), "invalidated")
     self.tic()
 
     contract2 = instance.SoftwareInstance_requestValidationPayment()
-    self.assertEquals(contract2.getRelativeUrl(), contract.getRelativeUrl())
-    self.assertEquals(contract2.getCausality(""), invoice.getRelativeUrl())
-    self.assertEquals(contract2.getValidationState(), "invalidated")
+    self.assertEqual(contract2.getRelativeUrl(), contract.getRelativeUrl())
+    self.assertEqual(contract2.getCausality(""), invoice.getRelativeUrl())
+    self.assertEqual(contract2.getValidationState(), "invalidated")
 
 class TestSlapOSPerson_isAllowedToAllocate(SlapOSTestCaseMixinWithAbort):
 
@@ -266,7 +266,7 @@ class TestSlapOSPerson_isAllowedToAllocate(SlapOSTestCaseMixinWithAbort):
     person = self.createPerson()
     preference.setPreferredCloudContractEnabled(True)
     result = person.Person_isAllowedToAllocate()
-    self.assertEquals(result, False)
+    self.assertEqual(result, False)
 
   def test_not_allowed_by_default_with_disabled_preference(self):
     preference =  self.portal.portal_preferences.getActiveSystemPreference()
@@ -274,7 +274,7 @@ class TestSlapOSPerson_isAllowedToAllocate(SlapOSTestCaseMixinWithAbort):
     # If Contract is disabled, anyone can allocate
     preference.setPreferredCloudContractEnabled(False)
     result = person.Person_isAllowedToAllocate()
-    self.assertEquals(result, True)
+    self.assertEqual(result, True)
 
   def test_allowed_if_has_a_validated_contract(self):
     preference =  self.portal.portal_preferences.getActiveSystemPreference()
@@ -287,7 +287,7 @@ class TestSlapOSPerson_isAllowedToAllocate(SlapOSTestCaseMixinWithAbort):
     preference.setPreferredCloudContractEnabled(True)
     self.tic()
     result = person.Person_isAllowedToAllocate()
-    self.assertEquals(result, True)
+    self.assertEqual(result, True)
 
   def test_allowed_if_has_a_validated_contract_with_disabled_preference(self):
     preference =  self.portal.portal_preferences.getActiveSystemPreference()
@@ -301,7 +301,7 @@ class TestSlapOSPerson_isAllowedToAllocate(SlapOSTestCaseMixinWithAbort):
     self.tic()
     result = person.Person_isAllowedToAllocate()
     # If Contract is disabled, anyone can allocate
-    self.assertEquals(result, True)
+    self.assertEqual(result, True)
 
 
   def test_not_allowed_if_has_an_invalidated_contract(self):
@@ -315,7 +315,7 @@ class TestSlapOSPerson_isAllowedToAllocate(SlapOSTestCaseMixinWithAbort):
     preference.setPreferredCloudContractEnabled(True)
     self.tic()
     result = person.Person_isAllowedToAllocate()
-    self.assertEquals(result, False)
+    self.assertEqual(result, False)
 
   def test_not_allowed_if_has_an_invalidated_contract_with_disabled_preference(self):
     preference =  self.portal.portal_preferences.getActiveSystemPreference()
@@ -329,7 +329,7 @@ class TestSlapOSPerson_isAllowedToAllocate(SlapOSTestCaseMixinWithAbort):
     self.tic()
     result = person.Person_isAllowedToAllocate()
     # If Contract is disabled, anyone can allocate
-    self.assertEquals(result, True)
+    self.assertEqual(result, True)
 
   def test_not_allowed_if_no_related_contract(self):
     preference =  self.portal.portal_preferences.getActiveSystemPreference()
@@ -339,7 +339,7 @@ class TestSlapOSPerson_isAllowedToAllocate(SlapOSTestCaseMixinWithAbort):
     self.portal.portal_workflow._jumpToStateFor(contract, 'validated')
     self.tic()
     result = person.Person_isAllowedToAllocate()
-    self.assertEquals(result, False)
+    self.assertEqual(result, False)
 
   def test_not_allowed_if_no_related_contract_with_disabled_preference(self):
     preference =  self.portal.portal_preferences.getActiveSystemPreference()
@@ -350,5 +350,5 @@ class TestSlapOSPerson_isAllowedToAllocate(SlapOSTestCaseMixinWithAbort):
     self.tic()
     result = person.Person_isAllowedToAllocate()
     # If Contract is disabled, anyone can allocate
-    self.assertEquals(result, True)
+    self.assertEqual(result, True)
 

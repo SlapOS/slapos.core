@@ -9,7 +9,7 @@ class TestSlapOSCurrency_getIntegrationMapping(SlapOSTestCaseMixinWithAbort):
 
   def test_integratedCurrency(self):
     currency = self.portal.currency_module.EUR
-    self.assertEquals(currency.Currency_getIntegrationMapping(), '978')
+    self.assertEqual(currency.Currency_getIntegrationMapping(), '978')
 
   def test_getIntegrationMapping_notIntegratedCurrency(self):
     new_id = self.generateNewId()
@@ -37,7 +37,7 @@ class TestSlapOSAccountingTransaction_updateStartDate(SlapOSTestCaseMixinWithAbo
     date = DateTime("2001/01/01")
     payment_transaction = self.createPaymentTransaction()
     payment_transaction.AccountingTransaction_updateStartDate(date)
-    self.assertEquals(payment_transaction.getStartDate(), date)
+    self.assertEqual(payment_transaction.getStartDate(), date)
 
   def test_REQUEST_disallowed(self):
     date = DateTime()
@@ -52,14 +52,14 @@ class TestSlapOSPaymentTransaction_getPayzenId(SlapOSTestCaseMixinWithAbort):
 
   def test_getPayzenId_newPaymentTransaction(self):
     payment_transaction = self.createPaymentTransaction()
-    self.assertEquals(payment_transaction.PaymentTransaction_getPayzenId(), (None, None))
+    self.assertEqual(payment_transaction.PaymentTransaction_getPayzenId(), (None, None))
 
   def test_getPayzenId_mappedPaymentTransaction(self):
     payment_transaction = self.createPaymentTransaction()
     transaction_date, payzen_id = payment_transaction.PaymentTransaction_generatePayzenId()
     transaction_date2, payzen_id2 = payment_transaction.PaymentTransaction_getPayzenId()
-    self.assertEquals(payzen_id, payzen_id2)
-    self.assertEquals(transaction_date, transaction_date2)
+    self.assertEqual(payzen_id, payzen_id2)
+    self.assertEqual(transaction_date, transaction_date2)
 
   def test_getPayzenId_manualMappedPaymentTransaction(self):
     payment_transaction = self.createPaymentTransaction()
@@ -77,8 +77,8 @@ class TestSlapOSPaymentTransaction_getPayzenId(SlapOSTestCaseMixinWithAbort):
       setDestinationReference("20010101_123456")
 
     transaction_date, payzen_id = payment_transaction.PaymentTransaction_getPayzenId()
-    self.assertEquals(payzen_id, "123456")
-    self.assertEquals(transaction_date, DateTime("20010101"))
+    self.assertEqual(payzen_id, "123456")
+    self.assertEqual(transaction_date, DateTime("20010101"))
 
   def test_getPayzenId_REQUEST_disallowed(self):
     payment_transaction = self.createPaymentTransaction()
@@ -100,27 +100,27 @@ class TestSlapOSPaymentTransaction_generatePayzenId(SlapOSTestCaseMixinWithAbort
     # Integration tool returns category value as mapping if nothing is set
     mapping = integration_site.getCategoryFromMapping(
       'Causality/%s' % transaction_url)
-    self.assertEquals(mapping, 'causality/%s' % transaction_url)
+    self.assertEqual(mapping, 'causality/%s' % transaction_url)
     category = integration_site.getMappingFromCategory(mapping)
-    self.assertEquals(category, 'Causality/%s' % transaction_url)
+    self.assertEqual(category, 'Causality/%s' % transaction_url)
 
     transaction_date, payzen_id = payment_transaction.PaymentTransaction_generatePayzenId()
 
     mapping = integration_site.getCategoryFromMapping(
       'Causality/%s' % transaction_url)
-    self.assertEquals(mapping, "%s_%s" % (
+    self.assertEqual(mapping, "%s_%s" % (
       transaction_date.asdatetime().strftime('%Y%m%d'), payzen_id))
     category = integration_site.getMappingFromCategory('causality/%s' % mapping)
     # XXX Not indexed yet
-#     self.assertEquals(category, 'Causality/%s' % transaction_url)
+#     self.assertEqual(category, 'Causality/%s' % transaction_url)
 
     self.assertNotEquals(payzen_id, None)
-    self.assertEquals(len(payzen_id), 6)
-    self.assertEquals(str(int(payzen_id)).zfill(6), payzen_id)
+    self.assertEqual(len(payzen_id), 6)
+    self.assertEqual(str(int(payzen_id)).zfill(6), payzen_id)
 
     self.assertNotEquals(transaction_date, None)
-    self.assertEquals(transaction_date.timezone(), 'UTC')
-    self.assertEquals(transaction_date.asdatetime().strftime('%Y%m%d'),
+    self.assertEqual(transaction_date.timezone(), 'UTC')
+    self.assertEqual(transaction_date.asdatetime().strftime('%Y%m%d'),
                       DateTime().toZone('UTC').asdatetime().strftime('%Y%m%d'))
 
 
@@ -128,14 +128,14 @@ class TestSlapOSPaymentTransaction_generatePayzenId(SlapOSTestCaseMixinWithAbort
     payment_transaction = self.createPaymentTransaction()
     payment_transaction.PaymentTransaction_generatePayzenId()
     payzen_id = payment_transaction.PaymentTransaction_generatePayzenId()
-    self.assertEquals(payzen_id, (None, None))
+    self.assertEqual(payzen_id, (None, None))
 
   def test_generatePayzenId_increasePaymentId(self):
     payment_transaction = self.createPaymentTransaction()
     payment_transaction2 = self.createPaymentTransaction()
     date, payzen_id = payment_transaction.PaymentTransaction_generatePayzenId()
     date2, payzen_id2 = payment_transaction2.PaymentTransaction_generatePayzenId()
-    self.assertEquals(date.asdatetime().strftime('%Y%m%d'),
+    self.assertEqual(date.asdatetime().strftime('%Y%m%d'),
                       date2.asdatetime().strftime('%Y%m%d'))
     self.assertNotEquals(payzen_id, payzen_id2)
     self.assertTrue(int(payzen_id) < int(payzen_id2))
@@ -160,20 +160,20 @@ class TestSlapOSPaymentTransaction_createPayzenEvent(SlapOSTestCaseMixinWithAbor
   def test_createPayzenEvent_newPayment(self):
     payment_transaction = self.createPaymentTransaction()
     payzen_event = payment_transaction.PaymentTransaction_createPayzenEvent()
-    self.assertEquals(payzen_event.getPortalType(), "Payzen Event")
-    self.assertEquals(payzen_event.getSource(),
+    self.assertEqual(payzen_event.getPortalType(), "Payzen Event")
+    self.assertEqual(payzen_event.getSource(),
       "portal_secure_payments/slapos_payzen_test")
-    self.assertEquals(payzen_event.getDestination(), payment_transaction.getRelativeUrl())
+    self.assertEqual(payzen_event.getDestination(), payment_transaction.getRelativeUrl())
 
   def test_createPayzenEvent_kwParameter(self):
     payment_transaction = self.createPaymentTransaction()
     payzen_event = payment_transaction.PaymentTransaction_createPayzenEvent(
       title='foo')
-    self.assertEquals(payzen_event.getPortalType(), "Payzen Event")
-    self.assertEquals(payzen_event.getSource(),
+    self.assertEqual(payzen_event.getPortalType(), "Payzen Event")
+    self.assertEqual(payzen_event.getSource(),
       "portal_secure_payments/slapos_payzen_test")
-    self.assertEquals(payzen_event.getDestination(), payment_transaction.getRelativeUrl())
-    self.assertEquals(payzen_event.getTitle(), "foo")
+    self.assertEqual(payzen_event.getDestination(), payment_transaction.getRelativeUrl())
+    self.assertEqual(payzen_event.getTitle(), "foo")
 
 
 class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
@@ -208,7 +208,7 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
     event.edit(destination_value=payment)
 
     event.PayzenEvent_processUpdate('a', False)
-    self.assertEquals(event.getValidationState(), "confirmed")
+    self.assertEqual(event.getValidationState(), "confirmed")
     self.assertEqual(
         'Signature does not match',
         event.workflow_history['system_event_workflow'][-1]['comment'])
@@ -232,7 +232,7 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
     }
 
     event.PayzenEvent_processUpdate(data_kw, True)
-    self.assertEquals(event.getValidationState(), "confirmed")
+    self.assertEqual(event.getValidationState(), "confirmed")
     self.assertEqual(
         "Unknown errorCode 'foo'",
         event.workflow_history['system_event_workflow'][-1]['comment'])
@@ -248,7 +248,7 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
     }
 
     event.PayzenEvent_processUpdate(data_kw, True)
-    self.assertEquals(event.getValidationState(), "confirmed")
+    self.assertEqual(event.getValidationState(), "confirmed")
     self.assertEqual(
         "Unknown transactionStatus 'foo'",
         event.workflow_history['system_event_workflow'][-1]['comment'])
@@ -264,7 +264,7 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
     }
 
     event.PayzenEvent_processUpdate(data_kw, True)
-    self.assertEquals(event.getValidationState(), "confirmed")
+    self.assertEqual(event.getValidationState(), "confirmed")
     self.assertEqual(
         "Transaction status '2' ('To be forced - Contact issuer') " \
         "is not supported",
@@ -283,12 +283,12 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
 
     event.PayzenEvent_processUpdate(data_kw, True)
 
-    self.assertEquals(event.getValidationState(), "acknowledged")
+    self.assertEqual(event.getValidationState(), "acknowledged")
     self.assertEqual(
         'Automatic acknowledge as result of correct communication',
         event.workflow_history['system_event_workflow'][-1]['comment'])
 
-    self.assertEquals(payment.getSimulationState(), "confirmed")
+    self.assertEqual(payment.getSimulationState(), "confirmed")
     self.assertEqual(
         'Transaction status 0 (Initial (being treated)) did not changed ' \
         'the document state',
@@ -356,10 +356,10 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
       'authDevise': 1,
     }
 
-    self.assertEquals(payment.PaymentTransaction_getTotalPayablePrice(), 0)
+    self.assertEqual(payment.PaymentTransaction_getTotalPayablePrice(), 0)
     event.PayzenEvent_processUpdate(data_kw, True)
 
-    self.assertEquals(event.getValidationState(), "confirmed")
+    self.assertEqual(event.getValidationState(), "confirmed")
     self.assertEqual(
         'Received amount (1) does not match stored on transaction (0)',
         event.workflow_history['system_event_workflow'][-1]['comment'])
@@ -379,10 +379,10 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
       'authDevise': "dollars",
     }
 
-    self.assertEquals(payment.PaymentTransaction_getTotalPayablePrice(), 0)
+    self.assertEqual(payment.PaymentTransaction_getTotalPayablePrice(), 0)
     event.PayzenEvent_processUpdate(data_kw, True)
 
-    self.assertEquals(event.getValidationState(), "confirmed")
+    self.assertEqual(event.getValidationState(), "confirmed")
     self.assertEqual(
         "Received devise ('dollars') does not match stored on transaction ('978')",
         event.workflow_history['system_event_workflow'][-1]['comment'])
@@ -405,7 +405,7 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
 
     event.PayzenEvent_processUpdate(data_kw, True)
 
-    self.assertEquals(event.getValidationState(), "confirmed")
+    self.assertEqual(event.getValidationState(), "confirmed")
     self.assertEqual(
         'Expected to put transaction in stopped state, but achieved only ' \
         'cancelled state',
@@ -428,8 +428,8 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
 
     event.PayzenEvent_processUpdate(data_kw, True)
 
-    self.assertEquals(payment.getSimulationState(), "stopped")
-    self.assertEquals(event.getValidationState(), "acknowledged")
+    self.assertEqual(payment.getSimulationState(), "stopped")
+    self.assertEqual(event.getValidationState(), "acknowledged")
     self.assertEqual(
         'Automatic acknowledge as result of correct communication',
         event.workflow_history['system_event_workflow'][-1]['comment'])
@@ -475,7 +475,7 @@ return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'f
     finally:
       self._dropPaymentTransaction_getPayzenId()
 
-    self.assertEquals(event.getValidationState(), "acknowledged")
+    self.assertEqual(event.getValidationState(), "acknowledged")
     self.assertEqual(
         'Transaction not found on payzen side.',
         event.workflow_history['system_event_workflow'][-1]['comment'])
@@ -499,11 +499,11 @@ return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'f
     finally:
       self._dropPaymentTransaction_getPayzenId()
 
-    self.assertEquals(event.getValidationState(), "acknowledged")
+    self.assertEqual(event.getValidationState(), "acknowledged")
     self.assertEqual(
         'Transaction not found on payzen side.',
         event.workflow_history['system_event_workflow'][-1]['comment'])
-    self.assertEquals(payment.getSimulationState(), "cancelled")
+    self.assertEqual(payment.getSimulationState(), "cancelled")
     self.assertEqual(
         'Aborting unknown payzen payment.',
         payment.workflow_history['accounting_workflow'][-1]['comment'])
@@ -520,11 +520,11 @@ return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'f
 
     event.PayzenEvent_processUpdate(data_kw, True)
 
-    self.assertEquals(event.getValidationState(), "acknowledged")
+    self.assertEqual(event.getValidationState(), "acknowledged")
     self.assertEqual(
         'Refused payzen payment.',
         event.workflow_history['system_event_workflow'][-1]['comment'])
-    self.assertEquals(payment.getSimulationState(), "cancelled")
+    self.assertEqual(payment.getSimulationState(), "cancelled")
     self.assertEqual(
         'Aborting refused payzen payment.',
         payment.workflow_history['accounting_workflow'][-1]['comment'])
@@ -539,58 +539,58 @@ class TestSlapOSPayzenBase_getPayzenServiceRelativeUrl(SlapOSTestCaseMixinWithAb
 
   def test_getPayzenServiceRelativeUrl_default_result(self):
     result = self.portal.Base_getPayzenServiceRelativeUrl()
-    self.assertEquals(result, 'portal_secure_payments/slapos_payzen_test')
+    self.assertEqual(result, 'portal_secure_payments/slapos_payzen_test')
 
 class TestSlapOSPayzenAccountingTransaction_getPaymentState(
                                                     SlapOSTestCaseMixinWithAbort):
 
   def test_AccountingTransaction_getPaymentState_draft_payment(self):
     invoice = self.createSaleInvoiceTransaction()
-    self.assertEquals("Cancelled", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_deleted_payment(self):
     invoice = self.createSaleInvoiceTransaction()
     invoice.delete()
-    self.assertEquals("Cancelled", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_cancelled_payment(self):
     invoice = self.createSaleInvoiceTransaction()
     invoice.cancel()
-    self.assertEquals("Cancelled", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_planned_payment(self):
     invoice = self.createSaleInvoiceTransaction()
     invoice.plan()
-    self.assertEquals("Ongoing", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_confirmed_payment(self):
     invoice = self.createSaleInvoiceTransaction()
     invoice.setStartDate(DateTime())
     invoice.confirm()
-    self.assertEquals("Ongoing", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_started_payment(self):
     invoice = self.createSaleInvoiceTransaction()
     invoice.start()
-    self.assertEquals("Ongoing", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual("Ongoing", invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_reversed_payment(self):
     invoice =  self.createPayzenSaleInvoiceTransaction()
     self.tic()
     reversal = invoice.SaleInvoiceTransaction_createReversalPayzenTransaction()
     self.tic()
-    self.assertEquals("Cancelled", invoice.AccountingTransaction_getPaymentState())
-    self.assertEquals(0, invoice.getTotalPrice() + reversal.getTotalPrice())
+    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual(0, invoice.getTotalPrice() + reversal.getTotalPrice())
 
   def test_AccountingTransaction_getPaymentState_free_payment(self):
     invoice =  self.createPayzenSaleInvoiceTransaction(price=0)
     self.tic()
-    self.assertEquals("Free!", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual("Free!", invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_unpaid_payment(self):
     invoice =  self.createPayzenSaleInvoiceTransaction()
     # If payment is not indexed or not started the state should be unpaid
-    self.assertEquals("Unpaid", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual("Unpaid", invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_paynow_payment(self):
     person = self.makePerson()
@@ -598,7 +598,7 @@ class TestSlapOSPayzenAccountingTransaction_getPaymentState(
       destination_section=person.getRelativeUrl())
     self.tic()
     self.login(person.getUserId())
-    self.assertEquals("Pay now", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual("Pay now", invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_waiting_payment(self):
     person = self.makePerson()
@@ -608,7 +608,7 @@ class TestSlapOSPayzenAccountingTransaction_getPaymentState(
     payment = invoice.SaleInvoiceTransaction_getPayzenPaymentRelatedValue()
     payment.PaymentTransaction_generatePayzenId()
     self.login(person.getUserId())
-    self.assertEquals("Waiting for payment confirmation",
+    self.assertEqual("Waiting for payment confirmation",
                       invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_paid_payment(self):
@@ -618,7 +618,7 @@ class TestSlapOSPayzenAccountingTransaction_getPaymentState(
       node_value = line.getSourceValue(portal_type='Account')
       if node_value.getAccountType() == 'asset/receivable':
         line.setGroupingReference("TEST%s" % self.new_id)
-    self.assertEquals("Paid", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual("Paid", invoice.AccountingTransaction_getPaymentState())
 
 class TestSlapOSPayzenPaymentTransaction_redirectToManualPayzenPayment(
                                                     SlapOSTestCaseMixinWithAbort):
@@ -712,7 +712,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     finally:
       self._dropPaymentTransaction_getVADSUrlDict()
 
-    self.assertEquals("%s/already_registered" % payment.getRelativeUrl(),
+    self.assertEqual("%s/already_registered" % payment.getRelativeUrl(),
                       redirect)
 
 class TestSlapOSPayzenSaleInvoiceTransaction_getPayzenPaymentRelatedValue(
@@ -723,16 +723,16 @@ class TestSlapOSPayzenSaleInvoiceTransaction_getPayzenPaymentRelatedValue(
     self.tic()
     payment = invoice.SaleInvoiceTransaction_getPayzenPaymentRelatedValue()
     self.assertNotEquals(None, payment)
-    self.assertEquals(payment.getSimulationState(), "started")
-    self.assertEquals(payment.getCausalityValue(), invoice)
-    self.assertEquals(payment.getPaymentModeUid(),
+    self.assertEqual(payment.getSimulationState(), "started")
+    self.assertEqual(payment.getCausalityValue(), invoice)
+    self.assertEqual(payment.getPaymentModeUid(),
       self.portal.portal_categories.payment_mode.payzen.getUid())
 
     payment.setStartDate(DateTime())
     payment.stop()
     payment.immediateReindexObject()
     payment = invoice.SaleInvoiceTransaction_getPayzenPaymentRelatedValue()
-    self.assertEquals(None, payment)
+    self.assertEqual(None, payment)
 
 class TestSlapOSPayzenSaleInvoiceTransaction_createReversalPayzenTransaction(
                                                     SlapOSTestCaseMixinWithAbort):

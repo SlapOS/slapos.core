@@ -186,7 +186,7 @@ class TestSlapOSPromiseLauncher(TestSlapOSPromiseMixin):
 
     with self.assertRaises(ImportError) as exc:
       promise_module = promise_process._loadPromiseModule()
-    self.assertEquals(exc.exception.message, 'No module named my_promise_no_py')
+    self.assertEqual(exc.exception.message, 'No module named my_promise_no_py')
 
   def test_promise_match_interface_no_implement(self):
     promise_name = 'my_promise_noimplement.py'
@@ -210,7 +210,7 @@ class RunPromise(GenericPromise):
       promise_module = promise_process._loadPromiseModule()
     message = "RunPromise class in my_promise_noimplement.py must implements" \
       " 'IPromise' interface. zope_interface.implements(interface.IPromise) is missing ?"
-    self.assertEquals(exc.exception.message, message)
+    self.assertEqual(exc.exception.message, message)
 
   def test_promise_match_interface_no_generic(self):
     promise_name = 'my_promise_nogeneric.py'
@@ -236,7 +236,7 @@ class RunPromise(object):
     with self.assertRaises(RuntimeError) as exc:
       promise_module = promise_process._loadPromiseModule()
 
-    self.assertEquals(exc.exception.message, 'RunPromise class is not a subclass of GenericPromise class.')
+    self.assertEqual(exc.exception.message, 'RunPromise class is not a subclass of GenericPromise class.')
 
   def test_promise_match_interface_no_sense(self):
     promise_name = 'my_promise_nosense.py'
@@ -263,7 +263,7 @@ class RunPromise(GenericPromise):
     with self.assertRaises(TypeError) as exc:
       promise_module = promise_process._loadPromiseModule()
       promise = promise_module.RunPromise({})
-    self.assertEquals(exc.exception.message,
+    self.assertEqual(exc.exception.message,
       "Can't instantiate abstract class RunPromise with abstract methods sense")
 
   def test_promise_extra_config(self):
@@ -292,9 +292,9 @@ class RunPromise(GenericPromise):
     promise_module = promise_process._loadPromiseModule()
     promise = promise_module.RunPromise(promise_process.argument_dict)
 
-    self.assertEquals(promise.getConfig('foo'), 'bar')
-    self.assertEquals(promise.getConfig('my-config'), 4522111)
-    self.assertEquals(promise.getConfig('text'), config_dict['text'])
+    self.assertEqual(promise.getConfig('foo'), 'bar')
+    self.assertEqual(promise.getConfig('my-config'), 4522111)
+    self.assertEqual(promise.getConfig('text'), config_dict['text'])
 
   def test_promise_extra_config_reserved_name(self):
     promise_name = 'my_promise_extra.py'
@@ -321,7 +321,7 @@ class RunPromise(GenericPromise):
 
     with self.assertRaises(ValueError) as exc:
       promise_module = promise_process._loadPromiseModule()
-    self.assertEquals(exc.exception.message, "Extra parameter name 'name' cannot be used.\n%s" % config_dict)
+    self.assertEqual(exc.exception.message, "Extra parameter name 'name' cannot be used.\n%s" % config_dict)
 
   def test_runpromise(self):
     promise_name = 'my_promise.py'
@@ -350,7 +350,7 @@ class RunPromise(GenericPromise):
     with open(state_file) as f:
       result_dict = json.loads(f.read())
       result_dict['result'].pop('date')
-      self.assertEquals(json.loads(expected_result), result_dict)
+      self.assertEqual(json.loads(expected_result), result_dict)
 
   def test_runpromise_multiple(self):
     promise_name = 'my_promise.py'
@@ -384,7 +384,7 @@ class RunPromise(GenericPromise):
       result_dict = json.loads(f.read())
       result_dict['result'].pop('date')
       expected_dict = expected_result % {'promise_dir': self.plugin_dir, 'name': 'my_promise'}
-      self.assertEquals(json.loads(expected_dict), result_dict)
+      self.assertEqual(json.loads(expected_dict), result_dict)
 
     # second promise
     state_file = os.path.join(self.partition_dir, PROMISE_RESULT_FOLDER_NAME, 'my_second_promise.status.json')
@@ -393,7 +393,7 @@ class RunPromise(GenericPromise):
       result_dict = json.loads(f.read())
       result_dict['result'].pop('date')
       expected_dict = expected_result % {'promise_dir': self.plugin_dir, 'name': 'my_second_promise'}
-      self.assertEquals(json.loads(expected_dict), result_dict)
+      self.assertEqual(json.loads(expected_dict), result_dict)
 
   def test_runpromise_no_logdir(self):
     promise_name = 'my_promise.py'
@@ -413,11 +413,11 @@ class RunPromise(GenericPromise):
       self.assertTrue(isinstance(result, PromiseQueueResult))
       self.assertTrue(isinstance(result.item, TestResult))
       self.assertTrue(result.execution_time != 0)
-      self.assertEquals(result.title, 'my_promise')
-      self.assertEquals(result.name, promise_name)
-      self.assertEquals(result.path, os.path.join(self.plugin_dir, promise_name))
-      self.assertEquals(result.item.message, "success")
-      self.assertEquals(result.item.hasFailed(), False)
+      self.assertEqual(result.title, 'my_promise')
+      self.assertEqual(result.name, promise_name)
+      self.assertEqual(result.path, os.path.join(self.plugin_dir, promise_name))
+      self.assertEqual(result.item.message, "success")
+      self.assertEqual(result.item.hasFailed(), False)
       self.assertTrue(isinstance(result.item.date, datetime))
 
     self.configureLauncher(save_method=test_method)
@@ -435,11 +435,11 @@ class RunPromise(GenericPromise):
       self.assertTrue(isinstance(result, PromiseQueueResult))
       self.assertTrue(isinstance(result.item, TestResult))
       self.assertTrue(result.execution_time != 0)
-      self.assertEquals(result.title, 'my_promise')
-      self.assertEquals(result.name, promise_name)
-      self.assertEquals(result.path, os.path.join(self.plugin_dir, promise_name))
-      self.assertEquals(result.item.message, "success")
-      self.assertEquals(result.item.hasFailed(), False)
+      self.assertEqual(result.title, 'my_promise')
+      self.assertEqual(result.name, promise_name)
+      self.assertEqual(result.path, os.path.join(self.plugin_dir, promise_name))
+      self.assertEqual(result.item.message, "success")
+      self.assertEqual(result.item.hasFailed(), False)
       self.assertTrue(isinstance(result.item.date, datetime))
 
     # no promise log output dir
@@ -458,11 +458,11 @@ class RunPromise(GenericPromise):
       self.assertTrue(isinstance(result, PromiseQueueResult))
       self.assertTrue(isinstance(result.item, AnomalyResult))
       self.assertTrue(result.execution_time != 0)
-      self.assertEquals(result.title, 'my_promise')
-      self.assertEquals(result.name, promise_name)
-      self.assertEquals(result.path, os.path.join(self.plugin_dir, promise_name))
-      self.assertEquals(result.item.message, "success")
-      self.assertEquals(result.item.hasFailed(), False)
+      self.assertEqual(result.title, 'my_promise')
+      self.assertEqual(result.name, promise_name)
+      self.assertEqual(result.path, os.path.join(self.plugin_dir, promise_name))
+      self.assertEqual(result.item.message, "success")
+      self.assertEqual(result.item.hasFailed(), False)
       self.assertTrue(isinstance(result.item.date, datetime))
 
     self.configureLauncher(save_method=test_method, enable_anomaly=True)
@@ -483,11 +483,11 @@ class RunPromise(GenericPromise):
       self.assertTrue(isinstance(result.item, TestResult))
       self.assertTrue(result.name in [promise_failed, promise_name])
       if result.name == promise_failed:
-        self.assertEquals(result.item.hasFailed(), True)
-        self.assertEquals(result.item.message, "failed")
+        self.assertEqual(result.item.hasFailed(), True)
+        self.assertEqual(result.item.message, "failed")
       else:
-        self.assertEquals(result.item.hasFailed(), False)
-        self.assertEquals(result.item.message, "success")
+        self.assertEqual(result.item.hasFailed(), False)
+        self.assertEqual(result.item.message, "success")
       self.counter += 1
 
     self.configureLauncher(save_method=test_method)
@@ -497,7 +497,7 @@ class RunPromise(GenericPromise):
 
     with self.assertRaises(PromiseError):
       self.launcher.run()
-    self.assertEquals(self.counter, 2)
+    self.assertEqual(self.counter, 2)
     self.assertTrue(os.path.exists(state_file))
     self.assertTrue(os.path.exists(os.path.join(self.log_dir, 'my_promise.log')))
     self.assertTrue(os.path.exists(os.path.join(self.log_dir, 'my_failed_promise.log')))
@@ -511,8 +511,8 @@ class RunPromise(GenericPromise):
       self.assertTrue(isinstance(result, PromiseQueueResult))
       self.assertTrue(isinstance(result.item, TestResult))
       self.assertTrue(result.name in [first_promise, second_promise, third_promise])
-      self.assertEquals(result.item.hasFailed(), False)
-      self.assertEquals(result.item.message, "success")
+      self.assertEqual(result.item.hasFailed(), False)
+      self.assertEqual(result.item.message, "success")
       self.counter += 1
 
     self.configureLauncher(save_method=test_method)
@@ -523,7 +523,7 @@ class RunPromise(GenericPromise):
 
     # run promise will not fail
     self.launcher.run()
-    self.assertEquals(self.counter, 3)
+    self.assertEqual(self.counter, 3)
     self.assertTrue(os.path.exists(state_file))
     self.assertTrue(os.path.exists(os.path.join(self.log_dir, 'my_first_promise.log')))
     self.assertTrue(os.path.exists(os.path.join(self.log_dir, 'my_second_promise.log')))
@@ -540,7 +540,7 @@ class RunPromise(GenericPromise):
     # run promise will fail when promise fail (usefull for slapgrid)
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run()
-    self.assertEquals(exc.exception.message, 'Promise %r failed.' % second_promise)
+    self.assertEqual(exc.exception.message, 'Promise %r failed.' % second_promise)
 
     # force to reload the module without rerun python
     os.system('rm %s/*.pyc' % self.plugin_dir)
@@ -565,15 +565,15 @@ class RunPromise(GenericPromise):
 
     def test_method_first(result):
       self.assertTrue(result.name in [first_promise, second_promise])
-      self.assertEquals(result.item.hasFailed(), False)
-      self.assertEquals(result.item.message, "success")
+      self.assertEqual(result.item.hasFailed(), False)
+      self.assertEqual(result.item.message, "success")
       self.counter += 1
 
     def test_method_one(result):
       self.counter += 1
-      self.assertEquals(result.name, first_promise)
-      self.assertEquals(result.item.hasFailed(), False)
-      self.assertEquals(result.item.message, "success")
+      self.assertEqual(result.name, first_promise)
+      self.assertEqual(result.item.hasFailed(), False)
+      self.assertEqual(result.item.message, "success")
 
     self.configureLauncher(save_method=test_method_first)
     # ~2 seconds
@@ -582,19 +582,19 @@ class RunPromise(GenericPromise):
     self.generatePromiseScript(second_promise, success=True, periodicity=0.05)
 
     self.launcher.run()
-    self.assertEquals(self.counter, 2)
+    self.assertEqual(self.counter, 2)
 
     self.configureLauncher(save_method=test_method_one)
     time.sleep(2)
     self.counter = 0
     self.launcher.run() # only my_first_promise will run
-    self.assertEquals(self.counter, 1)
+    self.assertEqual(self.counter, 1)
 
     time.sleep(3)
     self.counter = 0
     self.configureLauncher(save_method=test_method_first)
     self.launcher.run()
-    self.assertEquals(self.counter, 2)
+    self.assertEqual(self.counter, 2)
 
   def test_runpromise_with_periodicity_same(self):
     first_promise = 'my_first_promise.py'
@@ -603,8 +603,8 @@ class RunPromise(GenericPromise):
 
     def test_method(result):
       self.assertTrue(result.name in [first_promise, second_promise])
-      self.assertEquals(result.item.hasFailed(), False)
-      self.assertEquals(result.item.message, "success")
+      self.assertEqual(result.item.hasFailed(), False)
+      self.assertEqual(result.item.message, "success")
       self.counter += 1
 
     self.configureLauncher(save_method=test_method)
@@ -613,19 +613,19 @@ class RunPromise(GenericPromise):
     self.generatePromiseScript(second_promise, success=True, periodicity=0.03)
 
     self.launcher.run()
-    self.assertEquals(self.counter, 2)
+    self.assertEqual(self.counter, 2)
 
     self.configureLauncher(save_method=test_method)
     time.sleep(1)
     self.counter = 0
     self.launcher.run() # run nothing
-    self.assertEquals(self.counter, 0)
+    self.assertEqual(self.counter, 0)
 
     time.sleep(1)
     self.counter = 0
     self.configureLauncher(save_method=test_method)
     self.launcher.run()
-    self.assertEquals(self.counter, 2)
+    self.assertEqual(self.counter, 2)
 
   def test_runpromise_with_periodicity_result_failed(self):
     first_promise = 'my_first_promise.py'
@@ -643,14 +643,14 @@ class RunPromise(GenericPromise):
 
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run()
-    self.assertEquals(exc.exception.message, 'Promise %r failed.' % second_promise)
+    self.assertEqual(exc.exception.message, 'Promise %r failed.' % second_promise)
 
     self.assertTrue(os.path.exists(first_state_file))
     self.assertTrue(os.path.exists(second_state_file))
     first_result = json.load(open(first_state_file))
     second_result = json.load(open(second_state_file))
-    self.assertEquals(first_result['name'], first_promise)
-    self.assertEquals(second_result['name'], second_promise)
+    self.assertEqual(first_result['name'], first_promise)
+    self.assertEqual(second_result['name'], second_promise)
     first_date = first_result['result']['date']
     second_date = second_result['result']['date']
 
@@ -658,19 +658,19 @@ class RunPromise(GenericPromise):
     time.sleep(2)
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run() # only my_first_promise will run but second_promise still failing
-    self.assertEquals(exc.exception.message, 'Promise %r failed.' % second_promise)
+    self.assertEqual(exc.exception.message, 'Promise %r failed.' % second_promise)
 
     first_result = json.load(open(first_state_file))
     second_result = json.load(open(second_state_file))
     self.assertNotEquals(first_result['result']['date'], first_date)
-    self.assertEquals(second_result['result']['date'], second_date)
+    self.assertEqual(second_result['result']['date'], second_date)
     first_date = first_result['result']['date']
 
     time.sleep(3)
     self.configureLauncher()
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run()
-    self.assertEquals(exc.exception.message, 'Promise %r failed.' % second_promise)
+    self.assertEqual(exc.exception.message, 'Promise %r failed.' % second_promise)
 
     first_result = json.load(open(first_state_file))
     second_result = json.load(open(second_state_file))
@@ -693,14 +693,14 @@ class RunPromise(GenericPromise):
 
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run()
-    self.assertEquals(exc.exception.message, 'Promise %r failed.' % second_promise)
+    self.assertEqual(exc.exception.message, 'Promise %r failed.' % second_promise)
 
     self.assertTrue(os.path.exists(first_state_file))
     self.assertTrue(os.path.exists(second_state_file))
     first_result = json.load(open(first_state_file))
     second_result = json.load(open(second_state_file))
-    self.assertEquals(first_result['name'], first_promise)
-    self.assertEquals(second_result['name'], second_promise)
+    self.assertEqual(first_result['name'], first_promise)
+    self.assertEqual(second_result['name'], second_promise)
     first_date = first_result['result']['date']
     second_date = second_result['result']['date']
 
@@ -708,12 +708,12 @@ class RunPromise(GenericPromise):
     time.sleep(2)
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run() # only my_first_promise will run but second_promise still failing
-    self.assertEquals(exc.exception.message, 'Promise %r failed.' % second_promise)
+    self.assertEqual(exc.exception.message, 'Promise %r failed.' % second_promise)
 
     first_result = json.load(open(first_state_file))
     second_result = json.load(open(second_state_file))
     self.assertNotEquals(first_result['result']['date'], first_date)
-    self.assertEquals(second_result['result']['date'], second_date)
+    self.assertEqual(second_result['result']['date'], second_date)
     first_date = first_result['result']['date']
     second_date = second_result['result']['date']
 
@@ -738,8 +738,8 @@ class RunPromise(GenericPromise):
 
     def test_method(result):
       self.assertTrue(result.name in [first_promise, second_promise])
-      self.assertEquals(result.item.hasFailed(), False)
-      self.assertEquals(result.item.message, "success")
+      self.assertEqual(result.item.hasFailed(), False)
+      self.assertEqual(result.item.message, "success")
       self.counter += 1
 
     self.configureLauncher(save_method=test_method)
@@ -748,30 +748,30 @@ class RunPromise(GenericPromise):
     self.generatePromiseScript(second_promise, success=True, periodicity=0.03)
 
     self.launcher.run()
-    self.assertEquals(self.counter, 2)
+    self.assertEqual(self.counter, 2)
 
     self.configureLauncher(save_method=test_method)
     time.sleep(1)
     self.counter = 0
     self.launcher.run() # run nothing
-    self.assertEquals(self.counter, 0)
+    self.assertEqual(self.counter, 0)
 
     self.configureLauncher(save_method=test_method, force=True)
     self.counter = 0
     self.launcher.run() # will run all as force is True
-    self.assertEquals(self.counter, 2)
+    self.assertEqual(self.counter, 2)
 
     self.configureLauncher(save_method=test_method)
     time.sleep(1)
     self.counter = 0
     self.launcher.run() # run nothing
-    self.assertEquals(self.counter, 0)
+    self.assertEqual(self.counter, 0)
 
     time.sleep(1)
     self.counter = 0
     self.configureLauncher(save_method=test_method)
     self.launcher.run() # after 2 seconds will run all
-    self.assertEquals(self.counter, 2)
+    self.assertEqual(self.counter, 2)
 
   def test_runpromise_wrapped(self):
     promise_name = "my_bash_promise"
@@ -788,11 +788,11 @@ echo "success"
       self.assertTrue(isinstance(result, PromiseQueueResult))
       self.assertTrue(isinstance(result.item, TestResult))
       self.assertTrue(result.execution_time != 0)
-      self.assertEquals(result.title, promise_name)
-      self.assertEquals(result.name, promise_name)
-      self.assertEquals(result.path, os.path.join(self.legacy_promise_dir, promise_name))
-      self.assertEquals(result.item.message, "success")
-      self.assertEquals(result.item.hasFailed(), False)
+      self.assertEqual(result.title, promise_name)
+      self.assertEqual(result.name, promise_name)
+      self.assertEqual(result.path, os.path.join(self.legacy_promise_dir, promise_name))
+      self.assertEqual(result.item.message, "success")
+      self.assertEqual(result.item.hasFailed(), False)
       self.assertTrue(isinstance(result.item.date, datetime))
 
     self.configureLauncher(save_method=test_method)
@@ -816,7 +816,7 @@ exit 1
     state_file = os.path.join(self.partition_dir, PROMISE_STATE_FOLDER_NAME)
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run()
-    self.assertEquals(exc.exception.message, 'Promise %r failed.' % promise_name)
+    self.assertEqual(exc.exception.message, 'Promise %r failed.' % promise_name)
 
   def test_runpromise_wrapped_mixed(self):
     self.called = 0
@@ -825,12 +825,12 @@ exit 1
       self.called += 1
       result_dict.pop(result.name)
       if result.title == "first_promise" or result.title == "second_promise":
-        self.assertEquals(result.item.message, "success")
+        self.assertEqual(result.item.message, "success")
       if result.title == "my_bash_promise":
-        self.assertEquals(result.item.message, "promise 1 succeeded")
+        self.assertEqual(result.item.message, "promise 1 succeeded")
       if result.title == "my_bash_promise2":
-        self.assertEquals(result.item.message, "promise 2 succeeded")
-      self.assertEquals(result.item.hasFailed(), False)
+        self.assertEqual(result.item.message, "promise 2 succeeded")
+      self.assertEqual(result.item.hasFailed(), False)
 
     promise_name = "my_bash_promise"
     promise_path = os.path.join(self.legacy_promise_dir, promise_name)
@@ -853,7 +853,7 @@ exit 0
 
     self.configureLauncher(save_method=test_method)
     self.launcher.run()
-    self.assertEquals(self.called, 4)
+    self.assertEqual(self.called, 4)
 
 
   def test_runpromise_run_only(self):
@@ -864,8 +864,8 @@ exit 0
     self.check_list = [first_promise, second_promise, third_promise]
     def test_method(result):
       self.assertTrue(result.name in self.check_list)
-      self.assertEquals(result.item.hasFailed(), False)
-      self.assertEquals(result.item.message, "success")
+      self.assertEqual(result.item.hasFailed(), False)
+      self.assertEqual(result.item.message, "success")
       self.counter += 1
 
     self.configureLauncher(save_method=test_method)
@@ -875,14 +875,14 @@ exit 0
 
     # run promise will not fail
     self.launcher.run()
-    self.assertEquals(self.counter, 3)
+    self.assertEqual(self.counter, 3)
 
     self.counter = 0
     self.check_list = [second_promise]
     self.configureLauncher(save_method=test_method, run_list=[second_promise], force=True)
     time.sleep(1)
     self.launcher.run()
-    self.assertEquals(self.counter, 1)
+    self.assertEqual(self.counter, 1)
 
   def test_runpromise_run_only_multiple(self):
     first_promise = 'my_first_promise.py'
@@ -892,8 +892,8 @@ exit 0
     self.check_list = [first_promise, second_promise, third_promise]
     def test_method(result):
       self.assertTrue(result.name in self.check_list)
-      self.assertEquals(result.item.hasFailed(), False)
-      self.assertEquals(result.item.message, "success")
+      self.assertEqual(result.item.hasFailed(), False)
+      self.assertEqual(result.item.message, "success")
       self.counter += 1
 
     self.configureLauncher(save_method=test_method)
@@ -903,14 +903,14 @@ exit 0
 
     # run promise will not fail
     self.launcher.run()
-    self.assertEquals(self.counter, 3)
+    self.assertEqual(self.counter, 3)
 
     self.counter = 0
     self.check_list = [third_promise, second_promise]
     self.configureLauncher(save_method=test_method, run_list=self.check_list, force=True)
     time.sleep(1)
     self.launcher.run()
-    self.assertEquals(self.counter, 2)
+    self.assertEqual(self.counter, 2)
 
   def writeLatestPromiseResult(self):
     state_file = os.path.join(self.partition_dir, PROMISE_RESULT_FOLDER_NAME, 'my_promise.status.json')
@@ -965,10 +965,10 @@ exit 0
       self.assertTrue(isinstance(result, PromiseQueueResult))
       self.assertTrue(isinstance(result.item, AnomalyResult))
       self.assertTrue(result.execution_time >= 1)
-      self.assertEquals(result.title, 'my_promise')
-      self.assertEquals(result.name, promise_name)
+      self.assertEqual(result.title, 'my_promise')
+      self.assertEqual(result.name, promise_name)
       self.assertTrue("Promise timed out after" in result.item.message)
-      self.assertEquals(result.item.hasFailed(), True)
+      self.assertEqual(result.item.hasFailed(), True)
 
     self.configureLauncher(save_method=test_method, enable_anomaly=True, timeout=1)
     self.generatePromiseScript(promise_name, success=True, content="""import time
@@ -996,11 +996,11 @@ echo "success"
       self.assertTrue(isinstance(result, PromiseQueueResult))
       self.assertTrue(isinstance(result.item, TestResult))
       self.assertTrue(result.execution_time >= 1)
-      self.assertEquals(result.title, promise_name)
-      self.assertEquals(result.name, promise_name)
-      self.assertEquals(result.path, promise_path)
+      self.assertEqual(result.title, promise_name)
+      self.assertEqual(result.name, promise_name)
+      self.assertEqual(result.path, promise_path)
       self.assertTrue("Promise timed out after" in result.item.message)
-      self.assertEquals(result.item.hasFailed(), True)
+      self.assertEqual(result.item.hasFailed(), True)
       self.assertTrue(isinstance(result.item.date, datetime))
 
     self.configureLauncher(save_method=test_method, timeout=1)
@@ -1108,16 +1108,16 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     promise_process = self.createPromiseProcess()
     promise_module = promise_process._loadPromiseModule()
     promise = promise_module.RunPromise(self.promise_config)
-    self.assertEquals(promise.getPeriodicity(), 1)
-    self.assertEquals(promise.getName(), self.promise_name)
-    self.assertEquals(promise.getTitle(), 'my_promise')
-    self.assertEquals(promise.getPartitionFolder(), self.partition_dir)
-    self.assertEquals(promise.getPromiseFile(), self.promise_path)
-    self.assertEquals(promise.getLogFolder(), self.log_dir)
-    self.assertEquals(promise.getLogFile(), os.path.join(self.log_dir, 'my_promise.log'))
+    self.assertEqual(promise.getPeriodicity(), 1)
+    self.assertEqual(promise.getName(), self.promise_name)
+    self.assertEqual(promise.getTitle(), 'my_promise')
+    self.assertEqual(promise.getPartitionFolder(), self.partition_dir)
+    self.assertEqual(promise.getPromiseFile(), self.promise_path)
+    self.assertEqual(promise.getLogFolder(), self.log_dir)
+    self.assertEqual(promise.getLogFile(), os.path.join(self.log_dir, 'my_promise.log'))
 
     promise.setPeriodicity(2)
-    self.assertEquals(promise.getPeriodicity(), 2)
+    self.assertEqual(promise.getPeriodicity(), 2)
     with self.assertRaises(ValueError):
       promise.setPeriodicity(0)
 
@@ -1125,11 +1125,11 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     result = self.queue.get(True, 1)
     self.assertTrue(isinstance(result, PromiseQueueResult))
     self.assertTrue(isinstance(result.item, AnomalyResult))
-    self.assertEquals(result.title, 'my_promise')
-    self.assertEquals(result.name, self.promise_name)
-    self.assertEquals(result.path, os.path.join(self.plugin_dir, self.promise_name))
-    self.assertEquals(result.item.message, "success")
-    self.assertEquals(result.item.hasFailed(), False)
+    self.assertEqual(result.title, 'my_promise')
+    self.assertEqual(result.name, self.promise_name)
+    self.assertEqual(result.path, os.path.join(self.plugin_dir, self.promise_name))
+    self.assertEqual(result.item.message, "success")
+    self.assertEqual(result.item.hasFailed(), False)
     self.assertTrue(isinstance(result.item.date, datetime))
 
   def test_promise_anomaly_disabled(self):
@@ -1142,11 +1142,11 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     result = self.queue.get(True, 1)
     self.assertTrue(isinstance(result, PromiseQueueResult))
     self.assertTrue(isinstance(result.item, TestResult))
-    self.assertEquals(result.title, 'my_promise')
-    self.assertEquals(result.name, self.promise_name)
-    self.assertEquals(result.path, os.path.join(self.plugin_dir, self.promise_name))
-    self.assertEquals(result.item.message, "success")
-    self.assertEquals(result.item.hasFailed(), False)
+    self.assertEqual(result.title, 'my_promise')
+    self.assertEqual(result.name, self.promise_name)
+    self.assertEqual(result.path, os.path.join(self.plugin_dir, self.promise_name))
+    self.assertEqual(result.item.message, "success")
+    self.assertEqual(result.item.hasFailed(), False)
     self.assertTrue(isinstance(result.item.date, datetime))
 
   def test_promise_with_raise(self):
@@ -1159,10 +1159,10 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     # no raise
     promise.run()
     result = self.queue.get(True, 1)
-    self.assertEquals(result.title, 'my_promise')
-    self.assertEquals(result.name, self.promise_name)
-    self.assertEquals(result.item.message, "Bad Promise raised")
-    self.assertEquals(result.item.hasFailed(), True)
+    self.assertEqual(result.title, 'my_promise')
+    self.assertEqual(result.name, self.promise_name)
+    self.assertEqual(result.item.message, "Bad Promise raised")
+    self.assertEqual(result.item.hasFailed(), True)
 
   def test_promise_no_return(self):
     promise_content = "return"
@@ -1174,10 +1174,10 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     # no raise
     promise.run()
     result = self.queue.get(True, 1)
-    self.assertEquals(result.title, 'my_promise')
-    self.assertEquals(result.name, self.promise_name)
-    self.assertEquals(result.item.message, "No result found!")
-    self.assertEquals(result.item.hasFailed(), False)
+    self.assertEqual(result.title, 'my_promise')
+    self.assertEqual(result.name, self.promise_name)
+    self.assertEqual(result.item.message, "No result found!")
+    self.assertEqual(result.item.hasFailed(), False)
 
   def test_promise_resultfromlog(self):
     promise_content = "self.logger.info('Promise is running...')"
@@ -1191,11 +1191,11 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     # get all messages during the latest minute
     latest_message_list = promise.getLastPromiseResultList(result_count=1)
     date = datetime.strptime(date.strftime('%Y-%m-%d %H:%M:%S'), '%Y-%m-%d %H:%M:%S')
-    self.assertEquals(len(latest_message_list), 1)
-    self.assertEquals(
+    self.assertEqual(len(latest_message_list), 1)
+    self.assertEqual(
       latest_message_list[0][0],
       {'date': date, 'status': 'INFO', 'message': 'Promise is running...'})
-    self.assertEquals(
+    self.assertEqual(
       latest_message_list[0][1],
       {'date': date, 'status': 'INFO', 'message': 'success'})
 
@@ -1211,12 +1211,12 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     # get all messages during the latest minute
     latest_message_list = promise.getLastPromiseResultList(result_count=1)
     date = datetime.strptime(date.strftime('%Y-%m-%d %H:%M:%S'), '%Y-%m-%d %H:%M:%S')
-    self.assertEquals(len(latest_message_list), 1)
-    self.assertEquals(
+    self.assertEqual(len(latest_message_list), 1)
+    self.assertEqual(
       latest_message_list[0][0],
       {'date': date, 'status': 'ERROR',
        'message': 'Promise is running...\nmessage in new line'})
-    self.assertEquals(
+    self.assertEqual(
       latest_message_list[0][1],
       {'date': date, 'status': 'INFO', 'message': 'success'})
 
@@ -1230,17 +1230,17 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
 
     date = datetime.now()
     promise.sense()
-    self.assertEquals(promise.getLogFolder(), None)
-    self.assertEquals(promise.getLogFile(), None)
+    self.assertEqual(promise.getLogFolder(), None)
+    self.assertEqual(promise.getLogFile(), None)
 
     # get all messages during the latest minute
     latest_message_list = promise.getLastPromiseResultList(result_count=1)
     date = datetime.strptime(date.strftime('%Y-%m-%d %H:%M:%S'), '%Y-%m-%d %H:%M:%S')
-    self.assertEquals(len(latest_message_list), 1)
-    self.assertEquals(
+    self.assertEqual(len(latest_message_list), 1)
+    self.assertEqual(
       latest_message_list[0][0],
       {'date': date, 'status': 'INFO', 'message': 'Promise is running...'})
-    self.assertEquals(
+    self.assertEqual(
       latest_message_list[0][1],
       {'date': date, 'status': 'INFO', 'message': 'success'})
 
@@ -1267,13 +1267,13 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     start_date = datetime.strptime(start_date.strftime('%Y-%m-%d %H:%M:%S'), '%Y-%m-%d %H:%M:%S')
     end_date_string = (start_date - timedelta(minutes=9)).strftime('%Y-%m-%d %H:%M:%S')
     end_date = datetime.strptime(end_date_string, '%Y-%m-%d %H:%M:%S')
-    self.assertEquals(len(latest_message_list), 10)
+    self.assertEqual(len(latest_message_list), 10)
     for message in latest_message_list:
-      self.assertEquals(len(message), 1)
-    self.assertEquals(
+      self.assertEqual(len(message), 1)
+    self.assertEqual(
       latest_message_list[0][0],
       {'date': start_date, 'status': 'INFO', 'message': 'Promise result 49'})
-    self.assertEquals(
+    self.assertEqual(
       latest_message_list[-1][0],
       {'date': end_date, 'status': 'INFO', 'message': 'Promise result 40'})
 
@@ -1312,13 +1312,13 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     end_date_string = (start_date - timedelta(seconds=30*19)).strftime('%Y-%m-%d %H:%M:%S')
     end_date = datetime.strptime(end_date_string, '%Y-%m-%d %H:%M:%S')
     # there is 2 result line per minutes
-    self.assertEquals(len(latest_message_list), 10)
+    self.assertEqual(len(latest_message_list), 10)
     for message in latest_message_list:
-      self.assertEquals(len(message), 2)
-    self.assertEquals(
+      self.assertEqual(len(message), 2)
+    self.assertEqual(
       latest_message_list[0][1],
       {'date': start_date, 'status': 'INFO', 'message': 'Promise result 0'})
-    self.assertEquals(
+    self.assertEqual(
       latest_message_list[-1][0],
       {'date': end_date, 'status': 'INFO', 'message': 'Promise result 19'})
 
@@ -1356,11 +1356,11 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     end_date_string = (start_date - timedelta(seconds=30)).strftime('%Y-%m-%d %H:%M:%S')
     end_date = datetime.strptime(end_date_string, '%Y-%m-%d %H:%M:%S')
     # there is 2 result line per minutes
-    self.assertEquals(len(latest_message_list), 1)
-    self.assertEquals(
+    self.assertEqual(len(latest_message_list), 1)
+    self.assertEqual(
       latest_message_list[0][0],
       {'date': end_date, 'status': 'INFO', 'message': 'Promise result 1'})
-    self.assertEquals(
+    self.assertEqual(
       latest_message_list[0][1],
       {'date': start_date, 'status': 'INFO', 'message': 'Promise result 0'})
 
@@ -1398,19 +1398,19 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     end_date_string = (start_date - timedelta(seconds=30*3)).strftime('%Y-%m-%d %H:%M:%S')
     end_date = datetime.strptime(end_date_string, '%Y-%m-%d %H:%M:%S')
     # there is 2 result line per minutes
-    self.assertEquals(len(latest_message_list), 2)
+    self.assertEqual(len(latest_message_list), 2)
     for message in latest_message_list:
-      self.assertEquals(len(message), 2)
-    self.assertEquals(
+      self.assertEqual(len(message), 2)
+    self.assertEqual(
       latest_message_list[0][1],
       {'date': start_date, 'status': 'INFO', 'message': 'Promise result 0'})
-    self.assertEquals(
+    self.assertEqual(
       latest_message_list[-1][0],
       {'date': end_date, 'status': 'INFO', 'message': 'Promise result 3'})
 
     latest_message_list = promise.getLastPromiseResultList(result_count=100)
     # all results
-    self.assertEquals(len(latest_message_list), 25)
+    self.assertEqual(len(latest_message_list), 25)
 
   def test_promise_defaulttest(self):
     promise_content = 'self.logger.info("Promise is running...\\nmessage in new line")'
@@ -1423,8 +1423,8 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
 
     result = promise._test(result_count=1, failure_amount=1)
     self.assertTrue(isinstance(result, TestResult))
-    self.assertEquals(result.message, 'Promise is running...\nmessage in new line\nsuccess')
-    self.assertEquals(result.hasFailed(), False)
+    self.assertEqual(result.message, 'Promise is running...\nmessage in new line\nsuccess')
+    self.assertEqual(result.hasFailed(), False)
 
   def test_promise_defaulttest_failure(self):
     self.initialisePromise(success=False)
@@ -1436,8 +1436,8 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
 
     result = promise._test(result_count=1, failure_amount=1)
     self.assertTrue(isinstance(result, TestResult))
-    self.assertEquals(result.message, 'failed')
-    self.assertEquals(result.hasFailed(), True)
+    self.assertEqual(result.message, 'failed')
+    self.assertEqual(result.hasFailed(), True)
 
   def test_promise_defaulttest_error_if_two_fail(self):
     self.initialisePromise(success=False, timeout=1)
@@ -1450,8 +1450,8 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     # fail if 2 errors found
     result = promise._test(result_count=2, failure_amount=2)
     self.assertTrue(isinstance(result, TestResult))
-    self.assertEquals(result.message, 'failed')
-    self.assertEquals(result.hasFailed(), False)
+    self.assertEqual(result.message, 'failed')
+    self.assertEqual(result.hasFailed(), False)
 
     self.initialisePromise(success=False, timeout=1)
     promise_process = self.createPromiseProcess()
@@ -1459,8 +1459,8 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     promise = promise_module.RunPromise(self.promise_config)
     promise.sense()
     result = promise._test(result_count=2, failure_amount=2)
-    self.assertEquals(result.message, 'failed')
-    self.assertEquals(result.hasFailed(), True)
+    self.assertEqual(result.message, 'failed')
+    self.assertEqual(result.hasFailed(), True)
 
     # will continue to fail
     self.initialisePromise(success=False, timeout=1)
@@ -1469,8 +1469,8 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     promise = promise_module.RunPromise(self.promise_config)
     promise.sense()
     result = promise._test(result_count=2, failure_amount=2)
-    self.assertEquals(result.message, 'failed')
-    self.assertEquals(result.hasFailed(), True)
+    self.assertEqual(result.message, 'failed')
+    self.assertEqual(result.hasFailed(), True)
 
   def test_promise_defaulttest_anomaly(self):
     promise_content = 'self.logger.info("Promise is running...\\nmessage in new line")'
@@ -1483,8 +1483,8 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
 
     result = promise._anomaly(result_count=1, failure_amount=1)
     self.assertTrue(isinstance(result, AnomalyResult))
-    self.assertEquals(result.message, 'Promise is running...\nmessage in new line\nsuccess')
-    self.assertEquals(result.hasFailed(), False)
+    self.assertEqual(result.message, 'Promise is running...\nmessage in new line\nsuccess')
+    self.assertEqual(result.hasFailed(), False)
 
 
 if __name__ == '__main__':

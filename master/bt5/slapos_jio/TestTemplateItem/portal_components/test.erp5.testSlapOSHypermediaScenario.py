@@ -72,8 +72,8 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
       body="",
     )
     response = connection.getresponse()
-    self.assertEquals(response.status, 200)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
     home_page_hal = json.loads(response.read())
 
     #####################################################
@@ -101,8 +101,8 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
       body="",
     )
     response = connection.getresponse()
-    self.assertEquals(response.status, 200)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
     user_hal = json.loads(response.read())
 
     #####################################################
@@ -134,7 +134,7 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
     )
     response = connection.getresponse()
  
-    self.assertEquals(response.status, 201)
+    self.assertEqual(response.status, 201)
 
     self.tic()
 
@@ -158,8 +158,8 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
     )
     response = connection.getresponse()
  
-    self.assertEquals(response.status, 200)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
     subscription_collection_hal = json.loads(response.read())
 
     #####################################################
@@ -180,8 +180,8 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
     )
     response = connection.getresponse()
  
-    self.assertEquals(response.status, 200)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
     subscription_hal = json.loads(response.read())
 
     #####################################################
@@ -204,8 +204,8 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
     )
     response = connection.getresponse()
  
-    self.assertEquals(response.status, 200)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
     instance_collection_hal = json.loads(response.read())
 
     #####################################################
@@ -226,8 +226,8 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
     )
     response = connection.getresponse()
  
-    self.assertEquals(response.status, 200)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
     instance_hal = json.loads(response.read())
 
     #####################################################
@@ -251,8 +251,8 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
     )
     response = connection.getresponse()
  
-    self.assertEquals(response.status, 200)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
 
     self.tic()
 
@@ -276,8 +276,8 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
     )
     response = connection.getresponse()
  
-    self.assertEquals(response.status, 200)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
     news_hal = json.loads(response.read())
 
     # We are going to check computer and software
@@ -315,8 +315,8 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
     )
     response = connection.getresponse()
  
-    self.assertEquals(response.status, 200)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
     computer_collection_hal = json.loads(response.read())
 
     #####################################################
@@ -337,8 +337,8 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
     )
     response = connection.getresponse()
  
-    self.assertEquals(response.status, 200)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
     computer_hal = json.loads(response.read())
 
     #####################################################
@@ -361,8 +361,8 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
     )
     response = connection.getresponse()
  
-    self.assertEquals(response.status, 200)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
     software_collection_hal = json.loads(response.read())
 
     #####################################################
@@ -382,7 +382,7 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
       body="",
     )
     response = connection.getresponse()
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
     software_hal = json.loads(response.read())
 
 
@@ -438,8 +438,8 @@ class TestSlapOSHypermediaInstanceScenario(SlapOSTestCaseMixin):
       body="",
     )
     response = connection.getresponse()
-    self.assertEquals(response.status, 200, response)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200, response)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
     home_page_hal = json.loads(response.read())
 
     #####################################################
@@ -467,8 +467,8 @@ class TestSlapOSHypermediaInstanceScenario(SlapOSTestCaseMixin):
       body="",
     )
     response = connection.getresponse()
-    self.assertEquals(response.status, 200)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
     instance_hal = json.loads(response.read())
 
     #####################################################
@@ -492,8 +492,8 @@ class TestSlapOSHypermediaInstanceScenario(SlapOSTestCaseMixin):
     )
     response = connection.getresponse()
 
-    self.assertEquals(response.status, 200)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
 
     self.tic()
 
@@ -517,8 +517,8 @@ class TestSlapOSHypermediaInstanceScenario(SlapOSTestCaseMixin):
     )
     response = connection.getresponse()
  
-    self.assertEquals(response.status, 200)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
 
     self.tic()
 
@@ -543,8 +543,8 @@ class TestSlapOSHypermediaInstanceScenario(SlapOSTestCaseMixin):
     )
     response = connection.getresponse()
  
-    self.assertEquals(response.status, 200)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
     subscription_hal = json.loads(response.read())
 
     self.tic()
@@ -567,8 +567,8 @@ class TestSlapOSHypermediaInstanceScenario(SlapOSTestCaseMixin):
     )
     response = connection.getresponse()
  
-    self.assertEquals(response.status, 200)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
     subscription_hal = json.loads(response.read())
 
     self.tic()
@@ -593,8 +593,8 @@ class TestSlapOSHypermediaInstanceScenario(SlapOSTestCaseMixin):
     )
     response = connection.getresponse()
 
-    self.assertEquals(response.status, 200)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
     instance_collection_hal = json.loads(response.read())
 
     #####################################################
@@ -615,7 +615,7 @@ class TestSlapOSHypermediaInstanceScenario(SlapOSTestCaseMixin):
     )
     response = connection.getresponse()
 
-    self.assertEquals(response.status, 200)
-    self.assertEquals(response.getheader('Content-Type'), content_type)
+    self.assertEqual(response.status, 200)
+    self.assertEqual(response.getheader('Content-Type'), content_type)
     instance_hal = json.loads(response.read())
 

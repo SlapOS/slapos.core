@@ -79,7 +79,7 @@ class TestSlap(SlapMixin):
     """
     slap_instance = slapos.slap.slap()
     slap_instance.initializeConnection(self.server_url)
-    self.assertEquals(slap_instance._connection_helper.slapgrid_uri, self.server_url)
+    self.assertEqual(slap_instance._connection_helper.slapgrid_uri, self.server_url)
 
   def test_slap_initialisation_ipv6_and_port(self):
     slap_instance = slapos.slap.slap()
@@ -866,7 +866,7 @@ class TestComputerPartition(SlapMixin):
                         'software_type', 'mysecondref')
       with open(transaction_file_path, 'r') as f:
         content_list = f.read().strip().split('\n')
-        self.assertEquals(list(set(content_list)), ['myref', 'mysecondref'])
+        self.assertEqual(list(set(content_list)), ['myref', 'mysecondref'])
 
   def _test_new_computer_partition_state(self, state):
     """

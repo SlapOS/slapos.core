@@ -270,7 +270,7 @@ class TestInformation(BasicMixin, unittest.TestCase):
       '/getComputerPartitionCertificate?computer_id=%s&computer_partition_id=%s' % (
       self.computer_id, 'slappart0'))
     response = xml_marshaller.xml_marshaller.loads(rv.data)
-    self.assertEquals({'certificate': '', 'key': ''}, response)
+    self.assertEqual({'certificate': '', 'key': ''}, response)
 
   def test_computerBang(self):
     """
@@ -278,7 +278,7 @@ class TestInformation(BasicMixin, unittest.TestCase):
     """
     rv = self.app.post( '/computerBang?computer_id=%s' % ( self.computer_id))
     response = xml_marshaller.xml_marshaller.loads(rv.data)
-    self.assertEquals('', response)
+    self.assertEqual('', response)
 
 class MasterMixin(BasicMixin, unittest.TestCase):
   """

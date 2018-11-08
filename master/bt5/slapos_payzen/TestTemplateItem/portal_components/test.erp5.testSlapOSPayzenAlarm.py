@@ -153,8 +153,8 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by P
       transaction.PaymentTransaction_startPayzenPayment()
     finally:
       self._dropPaymentTransaction_getTotalPayablePrice()
-    self.assertEquals(transaction.getSimulationState(), simulation_state)
-    self.assertEquals(transaction.getModificationDate(), modification_date)
+    self.assertEqual(transaction.getSimulationState(), simulation_state)
+    self.assertEqual(transaction.getModificationDate(), modification_date)
 
   def test_not_payzen_payment(self):
     new_id = self.generateNewId()
@@ -171,8 +171,8 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by P
       transaction.PaymentTransaction_startPayzenPayment()
     finally:
       self._dropPaymentTransaction_getTotalPayablePrice()
-    self.assertEquals(transaction.getSimulationState(), simulation_state)
-    self.assertEquals(transaction.getModificationDate(), modification_date)
+    self.assertEqual(transaction.getSimulationState(), simulation_state)
+    self.assertEqual(transaction.getModificationDate(), modification_date)
 
   def test_zero_amount_payment(self):
     new_id = self.generateNewId()
@@ -191,8 +191,8 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by P
       transaction.PaymentTransaction_startPayzenPayment()
     finally:
       self._dropPaymentTransaction_getTotalPayablePrice()
-    self.assertEquals(transaction.getSimulationState(), simulation_state)
-    self.assertEquals(transaction.getModificationDate(), modification_date)
+    self.assertEqual(transaction.getSimulationState(), simulation_state)
+    self.assertEqual(transaction.getModificationDate(), modification_date)
 
   def test_expected_payment(self):
     new_id = self.generateNewId()
@@ -209,7 +209,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by P
       transaction.PaymentTransaction_startPayzenPayment()
     finally:
       self._dropPaymentTransaction_getTotalPayablePrice()
-    self.assertEquals(transaction.getSimulationState(), 'started')
+    self.assertEqual(transaction.getSimulationState(), 'started')
 
 
 class TestSlapOSPayzenUpdateStartedPayment(SlapOSTestCaseMixinWithAbort):
@@ -225,8 +225,8 @@ class TestSlapOSPayzenUpdateStartedPayment(SlapOSTestCaseMixinWithAbort):
     simulation_state = transaction.getSimulationState()
     modification_date = transaction.getModificationDate()
     transaction.PaymentTransaction_updateStatus()
-    self.assertEquals(transaction.getSimulationState(), simulation_state)
-    self.assertEquals(transaction.getModificationDate(), modification_date)
+    self.assertEqual(transaction.getSimulationState(), simulation_state)
+    self.assertEqual(transaction.getModificationDate(), modification_date)
 
   def test_not_payzen_payment(self):
     new_id = self.generateNewId()
@@ -239,8 +239,8 @@ class TestSlapOSPayzenUpdateStartedPayment(SlapOSTestCaseMixinWithAbort):
     simulation_state = transaction.getSimulationState()
     modification_date = transaction.getModificationDate()
     transaction.PaymentTransaction_updateStatus()
-    self.assertEquals(transaction.getSimulationState(), simulation_state)
-    self.assertEquals(transaction.getModificationDate(), modification_date)
+    self.assertEqual(transaction.getSimulationState(), simulation_state)
+    self.assertEqual(transaction.getModificationDate(), modification_date)
 
   def test_not_registered_payment(self):
     new_id = self.generateNewId()
@@ -253,7 +253,7 @@ class TestSlapOSPayzenUpdateStartedPayment(SlapOSTestCaseMixinWithAbort):
     self.portal.portal_workflow._jumpToStateFor(transaction, 'started')
 
     transaction.PaymentTransaction_updateStatus()
-    self.assertEquals(transaction.getSimulationState(), 'started')
+    self.assertEqual(transaction.getSimulationState(), 'started')
 
   def _simulatePaymentTransaction_createPaidPayzenEvent(self):
     script_name = 'PaymentTransaction_createPayzenEvent'
@@ -322,7 +322,7 @@ return Foo()
     self.assertEqual(
         "",
         transaction.workflow_history['edit_workflow'][-2]['comment'])
-    self.assertEquals(transaction.getSimulationState(), 'stopped')
+    self.assertEqual(transaction.getSimulationState(), 'stopped')
 
   def test_not_paid_payment(self):
     new_id = self.generateNewId()
@@ -346,7 +346,7 @@ return Foo()
     self.assertEqual(
         'Visited by PaymentTransaction_createPayzenEvent',
         transaction.workflow_history['edit_workflow'][-1]['comment'])
-    self.assertEquals(transaction.getSimulationState(), 'started')
+    self.assertEqual(transaction.getSimulationState(), 'started')
 
   def _simulatePaymentTransaction_updateStatus(self):
     script_name = 'PaymentTransaction_updateStatus'

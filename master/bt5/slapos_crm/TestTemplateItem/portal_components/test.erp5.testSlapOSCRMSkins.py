@@ -40,65 +40,65 @@ class TestSlapOSFolder_getOpenTicketList(TestCRMSkinsMixin):
     module = ticket.getParentValue()
     open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
 
-    self.assertEquals(len(open_ticket_list), expected_amount-1)
+    self.assertEqual(len(open_ticket_list), expected_amount-1)
 
     ticket.submit()
     ticket.immediateReindexObject()
     open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
-    self.assertEquals(len(open_ticket_list), expected_amount)
-    self.assertEquals(open_ticket_list[0].getUid(), ticket.getUid())
+    self.assertEqual(len(open_ticket_list), expected_amount)
+    self.assertEqual(open_ticket_list[0].getUid(), ticket.getUid())
 
     ticket.validate()
     ticket.immediateReindexObject()
     open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
-    self.assertEquals(len(open_ticket_list), expected_amount)
-    self.assertEquals(open_ticket_list[0].getUid(), ticket.getUid())
+    self.assertEqual(len(open_ticket_list), expected_amount)
+    self.assertEqual(open_ticket_list[0].getUid(), ticket.getUid())
 
     ticket.suspend()
     ticket.immediateReindexObject()
     open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
-    self.assertEquals(len(open_ticket_list), expected_amount)
-    self.assertEquals(open_ticket_list[0].getUid(), ticket.getUid())
+    self.assertEqual(len(open_ticket_list), expected_amount)
+    self.assertEqual(open_ticket_list[0].getUid(), ticket.getUid())
 
     ticket.invalidate()
     ticket.immediateReindexObject()
     open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
-    self.assertEquals(len(open_ticket_list), expected_amount)
-    self.assertEquals(open_ticket_list[0].getUid(), ticket.getUid())
+    self.assertEqual(len(open_ticket_list), expected_amount)
+    self.assertEqual(open_ticket_list[0].getUid(), ticket.getUid())
 
   def _test_upgrade_decision(self, ticket, expected_amount):
     module = ticket.getParentValue()
     open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
 
-    self.assertEquals(len(open_ticket_list), expected_amount-1)
+    self.assertEqual(len(open_ticket_list), expected_amount-1)
 
     ticket.plan()
     ticket.immediateReindexObject()
     open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
-    self.assertEquals(len(open_ticket_list), expected_amount-1)
+    self.assertEqual(len(open_ticket_list), expected_amount-1)
 
     ticket.confirm()
     ticket.immediateReindexObject()
     open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
-    self.assertEquals(len(open_ticket_list), expected_amount)
-    self.assertEquals(open_ticket_list[0].getUid(), ticket.getUid())
+    self.assertEqual(len(open_ticket_list), expected_amount)
+    self.assertEqual(open_ticket_list[0].getUid(), ticket.getUid())
 
     ticket.start()
     ticket.immediateReindexObject()
     open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
-    self.assertEquals(len(open_ticket_list), expected_amount-1)
+    self.assertEqual(len(open_ticket_list), expected_amount-1)
 
 
     ticket.stop()
     ticket.immediateReindexObject()
     open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
-    self.assertEquals(len(open_ticket_list), expected_amount-1)
+    self.assertEqual(len(open_ticket_list), expected_amount-1)
 
     ticket.deliver()
     ticket.immediateReindexObject()
     open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
-    self.assertEquals(len(open_ticket_list), expected_amount)
-    self.assertEquals(open_ticket_list[0].getUid(), ticket.getUid())
+    self.assertEqual(len(open_ticket_list), expected_amount)
+    self.assertEqual(open_ticket_list[0].getUid(), ticket.getUid())
 
   def test_support_request(self):
     def newSupportRequest():
@@ -161,57 +161,57 @@ class TestSlapOSTicketEvent(TestCRMSkinsMixin):
 
     last_event = ticket.Ticket_getLatestEvent()
 
-    self.assertEquals(last_event, None)
+    self.assertEqual(last_event, None)
 
     event = newEvent(ticket)
     last_event = ticket.Ticket_getLatestEvent()
 
-    self.assertEquals(last_event, None)
+    self.assertEqual(last_event, None)
 
     event.plan()
     event.immediateReindexObject()
-    self.assertEquals(last_event, None)
+    self.assertEqual(last_event, None)
 
     event.confirm()
     event.immediateReindexObject()
     last_event = ticket.Ticket_getLatestEvent()
-    self.assertEquals(last_event, event)
+    self.assertEqual(last_event, event)
 
     event.start()
     event.immediateReindexObject()
     last_event = ticket.Ticket_getLatestEvent()
-    self.assertEquals(last_event, event)
+    self.assertEqual(last_event, event)
 
     event.stop()
     event.immediateReindexObject()
     last_event = ticket.Ticket_getLatestEvent()
-    self.assertEquals(last_event, event)
+    self.assertEqual(last_event, event)
 
     event.deliver()
     event.immediateReindexObject()
     last_event = ticket.Ticket_getLatestEvent()
-    self.assertEquals(last_event, event)
+    self.assertEqual(last_event, event)
 
     # Now we test unwanted cases (deleted and cancelled)
     another_event = newEvent(ticket)
     last_event = ticket.Ticket_getLatestEvent()
 
-    self.assertEquals(last_event, event)
+    self.assertEqual(last_event, event)
 
     another_event.cancel()
     event.immediateReindexObject()
     last_event = ticket.Ticket_getLatestEvent()
-    self.assertEquals(last_event, event)
+    self.assertEqual(last_event, event)
 
     another_event = newEvent(ticket)
     last_event = ticket.Ticket_getLatestEvent()
 
-    self.assertEquals(last_event, event)
+    self.assertEqual(last_event, event)
 
     another_event.delete()
     event.immediateReindexObject()
     last_event = ticket.Ticket_getLatestEvent()
-    self.assertEquals(last_event, event)
+    self.assertEqual(last_event, event)
 
 class TestSlapOSEvent_getRSSTextContent(TestSlapOSTicketEvent):
 
@@ -327,26 +327,26 @@ class TestSlapOSPerson_checkToCreateRegularisationRequest(SlapOSTestCaseMixinWit
     before_date = DateTime()
     ticket, event = person.Person_checkToCreateRegularisationRequest()
     after_date = DateTime()
-    self.assertEquals(ticket.getPortalType(), 'Regularisation Request')
-    self.assertEquals(ticket.getSimulationState(), 'suspended')
-    self.assertEquals(ticket.getSourceProject(), person.getRelativeUrl())
-    self.assertEquals(ticket.getResource(),
+    self.assertEqual(ticket.getPortalType(), 'Regularisation Request')
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    self.assertEqual(ticket.getSourceProject(), person.getRelativeUrl())
+    self.assertEqual(ticket.getResource(),
                       'service_module/slapos_crm_acknowledgement')
-    self.assertEquals(ticket.getTitle(),
+    self.assertEqual(ticket.getTitle(),
            'Account regularisation expected for "%s"' % person.getTitle())
-    self.assertEquals(ticket.getDestination(),
+    self.assertEqual(ticket.getDestination(),
                       person.getRelativeUrl())
-    self.assertEquals(ticket.getDestinationDecision(),
+    self.assertEqual(ticket.getDestinationDecision(),
                       person.getRelativeUrl())
-    self.assertEquals(event.getPortalType(), 'Mail Message')
-    self.assertEquals(event.getResource(),
+    self.assertEqual(event.getPortalType(), 'Mail Message')
+    self.assertEqual(event.getResource(),
                       'service_module/slapos_crm_acknowledgement')
     self.assertTrue(event.getStartDate() >= before_date)
     self.assertTrue(event.getStopDate() <= after_date)
-    self.assertEquals(event.getTitle(), "Invoice payment requested")
-    self.assertEquals(event.getDestination(),
+    self.assertEqual(event.getTitle(), "Invoice payment requested")
+    self.assertEqual(event.getDestination(),
                       person.getRelativeUrl())
-    self.assertEquals(event.getSource(),
+    self.assertEqual(event.getSource(),
                       ticket.getSource())
     expected_text_content = """Dear user,
 
@@ -358,11 +358,11 @@ Do not hesitate to visit the web forum (http://community.slapos.org/forum) in ca
 Regards,
 The slapos team
 """
-    self.assertEquals(event.getTextContent(), expected_text_content,
+    self.assertEqual(event.getTextContent(), expected_text_content,
                       '\n'.join([x for x in difflib.unified_diff(
                                            event.getTextContent().splitlines(),
                                            expected_text_content.splitlines())]))
-    self.assertEquals(event.getSimulationState(), 'delivered')
+    self.assertEqual(event.getSimulationState(), 'delivered')
 
   @simulate('NotificationTool_getDocumentValue',
             'reference=None',
@@ -392,41 +392,41 @@ The slapos team
     before_date = DateTime()
     ticket, event = person.Person_checkToCreateRegularisationRequest()
     after_date = DateTime()
-    self.assertEquals(ticket.getPortalType(), 'Regularisation Request')
-    self.assertEquals(ticket.getSimulationState(), 'suspended')
-    self.assertEquals(ticket.getSourceProject(), person.getRelativeUrl())
-    self.assertEquals(ticket.getResource(),
+    self.assertEqual(ticket.getPortalType(), 'Regularisation Request')
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    self.assertEqual(ticket.getSourceProject(), person.getRelativeUrl())
+    self.assertEqual(ticket.getResource(),
                       'service_module/slapos_crm_acknowledgement')
-    self.assertEquals(ticket.getTitle(),
+    self.assertEqual(ticket.getTitle(),
            'Account regularisation expected for "%s"' % person.getTitle())
-    self.assertEquals(ticket.getDestination(),
+    self.assertEqual(ticket.getDestination(),
                       person.getRelativeUrl())
-    self.assertEquals(ticket.getDestinationDecision(),
+    self.assertEqual(ticket.getDestinationDecision(),
                       person.getRelativeUrl())
-    self.assertEquals(event.getPortalType(), 'Mail Message')
-    self.assertEquals(event.getResource(),
+    self.assertEqual(event.getPortalType(), 'Mail Message')
+    self.assertEqual(event.getResource(),
                       'service_module/slapos_crm_acknowledgement')
     self.assertTrue(event.getStartDate() >= before_date)
     self.assertTrue(event.getStopDate() <= after_date)
-    self.assertEquals(event.getTitle(),
+    self.assertEqual(event.getTitle(),
            'Test NM title %s' % new_id)
-    self.assertEquals(event.getDestination(),
+    self.assertEqual(event.getDestination(),
                       person.getRelativeUrl())
-    self.assertEquals(event.getSource(),
+    self.assertEqual(event.getSource(),
                       ticket.getSource())
     expected_text_content = 'Test NM content\n%s\n' % new_id
-    self.assertEquals(event.getTextContent(), expected_text_content,
+    self.assertEqual(event.getTextContent(), expected_text_content,
                       '\n'.join([x for x in difflib.unified_diff(
                                            event.getTextContent().splitlines(),
                                            expected_text_content.splitlines())]))
-    self.assertEquals(event.getSimulationState(), 'delivered')
+    self.assertEqual(event.getSimulationState(), 'delivered')
 
 
 #   def test_addRegularisationRequest_do_not_duplicate_ticket(self):
 #     person = self.createPerson()
 #     ticket = person.Person_checkToCreateRegularisationRequest()
 #     ticket2 = person.Person_checkToCreateRegularisationRequest()
-#     self.assertEquals(ticket.getRelativeUrl(), ticket2.getRelativeUrl())
+#     self.assertEqual(ticket.getRelativeUrl(), ticket2.getRelativeUrl())
 
   @simulate('Entity_statBalance', '*args, **kwargs', 'return "1"')
   def test_addRegularisationRequest_do_not_duplicate_ticket_if_not_reindexed(self):
@@ -436,8 +436,8 @@ The slapos team
     ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
     self.assertNotEquals(ticket, None)
     self.assertNotEquals(event, None)
-    self.assertEquals(ticket2, None)
-    self.assertEquals(event2, None)
+    self.assertEqual(ticket2, None)
+    self.assertEqual(event2, None)
 
   @simulate('Entity_statBalance', '*args, **kwargs', 'return "0"')
   @simulate('RegularisationRequest_checkToSendUniqEvent',
@@ -446,8 +446,8 @@ The slapos team
   def test_addRegularisationRequest_balance_ok(self):
     person = self.makePerson(index=0, user=0)
     ticket, event = person.Person_checkToCreateRegularisationRequest()
-    self.assertEquals(ticket, None)
-    self.assertEquals(event, None)
+    self.assertEqual(ticket, None)
+    self.assertEqual(event, None)
 
   @simulate('Entity_statBalance', '*args, **kwargs', 'return "1"')
   def test_addRegularisationRequest_existing_suspended_ticket(self):
@@ -458,8 +458,8 @@ The slapos team
     ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
     self.assertNotEquals(ticket, None)
     self.assertNotEquals(event, None)
-    self.assertEquals(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
-    self.assertEquals(event2, None)
+    self.assertEqual(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
+    self.assertEqual(event2, None)
 
   @simulate('Entity_statBalance', '*args, **kwargs', 'return "1"')
   def test_addRegularisationRequest_existing_validated_ticket(self):
@@ -471,8 +471,8 @@ The slapos team
     ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
     self.assertNotEquals(ticket, None)
     self.assertNotEquals(event, None)
-    self.assertEquals(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
-    self.assertEquals(event2, None)
+    self.assertEqual(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
+    self.assertEqual(event2, None)
 
   @simulate('Entity_statBalance', '*args, **kwargs', 'return "1"')
   def test_addRegularisationRequest_existing_invalidated_ticket(self):
@@ -519,7 +519,7 @@ class TestSlapOSRegularisationRequest_invalidateIfPersonBalanceIsOk(
     ticket.validate()
     ticket.suspend()
     ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk()
-    self.assertEquals(ticket.getSimulationState(), 'invalidated')
+    self.assertEqual(ticket.getSimulationState(), 'invalidated')
 
   @simulate('Entity_statBalance', '*args, **kwargs', 'return "0"')
   def test_invalidateIfPersonBalanceIsOk_not_suspended(self):
@@ -528,7 +528,7 @@ class TestSlapOSRegularisationRequest_invalidateIfPersonBalanceIsOk(
     ticket.edit(source_project_value=person)
     ticket.validate()
     ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk()
-    self.assertEquals(ticket.getSimulationState(), 'validated')
+    self.assertEqual(ticket.getSimulationState(), 'validated')
 
   @simulate('Entity_statBalance', '*args, **kwargs', 'return "0"')
   def test_invalidateIfPersonBalanceIsOk_no_person(self):
@@ -536,7 +536,7 @@ class TestSlapOSRegularisationRequest_invalidateIfPersonBalanceIsOk(
     ticket.validate()
     ticket.suspend()
     ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk()
-    self.assertEquals(ticket.getSimulationState(), 'suspended')
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
 
   @simulate('Entity_statBalance', '*args, **kwargs', 'return "1"')
   def test_invalidateIfPersonBalanceIsOk_wrong_balance(self):
@@ -546,7 +546,7 @@ class TestSlapOSRegularisationRequest_invalidateIfPersonBalanceIsOk(
     ticket.validate()
     ticket.suspend()
     ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk()
-    self.assertEquals(ticket.getSimulationState(), 'suspended')
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
 
 class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
 
@@ -573,19 +573,19 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
       'service_module/slapos_crm_spam', 'foo title', 'foo content', 'foo comment')
     after_date = DateTime()
 
-    self.assertEquals(ticket.getSimulationState(), 'suspended')
-    self.assertEquals(ticket.getResource(), 'service_module/slapos_crm_spam')
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    self.assertEqual(ticket.getResource(), 'service_module/slapos_crm_spam')
 
-    self.assertEquals(event.getPortalType(), 'Mail Message')
-    self.assertEquals(event.getSimulationState(), 'delivered')
+    self.assertEqual(event.getPortalType(), 'Mail Message')
+    self.assertEqual(event.getSimulationState(), 'delivered')
     self.assertTrue(event.getStartDate() >= before_date)
     self.assertTrue(event.getStopDate() <= after_date)
-    self.assertEquals(event.getTitle(), "foo title")
-    self.assertEquals(event.getResource(), 'service_module/slapos_crm_spam')
-    self.assertEquals(event.getFollowUp(), ticket.getRelativeUrl())
-    self.assertEquals(event.getSource(), "organisation_module/slapos")
-    self.assertEquals(event.getDestination(), person.getRelativeUrl())
-    self.assertEquals(event.getTextContent(), 'foo content')
+    self.assertEqual(event.getTitle(), "foo title")
+    self.assertEqual(event.getResource(), 'service_module/slapos_crm_spam')
+    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
+    self.assertEqual(event.getSource(), "organisation_module/slapos")
+    self.assertEqual(event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(event.getTextContent(), 'foo content')
 
   def test_checkToSendUniqEvent_service_required(self):
     ticket = self.createRegularisationRequest()
@@ -610,9 +610,9 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
 
     event2 = ticket.RegularisationRequest_checkToSendUniqEvent(
       'service_module/slapos_crm_spam', 'foo2 title', 'foo2 content', 'foo2 comment')
-    self.assertEquals(event.getTitle(), "foo title")
-    self.assertEquals(event.getTextContent(), 'foo content')
-    self.assertEquals(event.getRelativeUrl(), event2.getRelativeUrl())
+    self.assertEqual(event.getTitle(), "foo title")
+    self.assertEqual(event.getTextContent(), 'foo content')
+    self.assertEqual(event.getRelativeUrl(), event2.getRelativeUrl())
 
   def test_checkToSendUniqEvent_manual_event(self):
     person = self.makePerson(index=0, user=0)
@@ -633,11 +633,11 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
     event2 = ticket.RegularisationRequest_checkToSendUniqEvent(
       'service_module/slapos_crm_spam', 'foo2 title', 'foo2 content', 'foo2 comment')
 
-    self.assertEquals(ticket.getResource(), 'foo/bar')
+    self.assertEqual(ticket.getResource(), 'foo/bar')
     self.assertNotEquals(event.getTitle(), 'foo2 title')
-    self.assertEquals(event.getTextContent(), None)
-    self.assertEquals(event.getSimulationState(), 'draft')
-    self.assertEquals(event.getRelativeUrl(), event2.getRelativeUrl())
+    self.assertEqual(event.getTextContent(), None)
+    self.assertEqual(event.getSimulationState(), 'draft')
+    self.assertEqual(event.getRelativeUrl(), event2.getRelativeUrl())
 
   def test_checkToSendUniqEvent_not_suspended(self):
     person = self.makePerson(index=0, user=0)
@@ -650,7 +650,7 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
 
     event = ticket.RegularisationRequest_checkToSendUniqEvent(
       'service_module/slapos_crm_spam', 'foo2 title', 'foo2 content', 'foo2 comment')
-    self.assertEquals(event, None)
+    self.assertEqual(event, None)
 
   def test_checkToSendUniqEvent_event_not_reindexed(self):
     person = self.makePerson(index=0, user=0)
@@ -667,7 +667,7 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
     event2 = ticket.RegularisationRequest_checkToSendUniqEvent(
       'service_module/slapos_crm_spam', 'foo2 title', 'foo2 content', 'foo2 comment')
     self.assertNotEquals(event, event2)
-    self.assertEquals(event2, None)
+    self.assertEqual(event2, None)
 
   def test_checkToSendUniqEvent_REQUEST_disallowed(self):
     ticket = self.createRegularisationRequest()
@@ -950,7 +950,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
         'service_module/slapos_crm_spam',
         'foo2 title', 'foo2 content', 'foo2 comment')
 
-    self.assertEquals(event2, event.getRelativeUrl())
+    self.assertEqual(event2, event.getRelativeUrl())
     self.assertEqual(
       'Visited by RegularisationRequest_checkToSendUniqEvent %s %s %s %s' % \
       ('service_module/slapos_crm_spam', 'foo2 title', 'foo2 content',
@@ -979,7 +979,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
         'service_module/slapos_crm_spam',
         'foo2 title', 'foo2 content', 'foo2 comment')
 
-    self.assertEquals(event2, None)
+    self.assertEqual(event2, None)
 
   @simulate('RegularisationRequest_checkToSendUniqEvent',
             '*args, **kwargs',
@@ -1002,7 +1002,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
         'service_module/slapos_crm_spam',
         'foo2 title', 'foo2 content', 'foo2 comment')
 
-    self.assertEquals(event2, None)
+    self.assertEqual(event2, None)
 
   @simulate('RegularisationRequest_checkToSendUniqEvent',
             '*args, **kwargs',
@@ -1026,7 +1026,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
         'service_module/slapos_crm_spam',
         'foo2 title', 'foo2 content', 'foo2 comment')
 
-    self.assertEquals(event2, None)
+    self.assertEqual(event2, None)
 
   @simulate('RegularisationRequest_checkToSendUniqEvent',
             '*args, **kwargs',
@@ -1043,7 +1043,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
         'service_module/slapos_crm_spam',
         'foo2 title', 'foo2 content', 'foo2 comment')
 
-    self.assertEquals(event2, None)
+    self.assertEqual(event2, None)
 
   @simulate('RegularisationRequest_checkToSendUniqEvent',
             '*args, **kwargs',
@@ -1066,7 +1066,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
         'service_module/slapos_crm_spam',
         'foo2 title', 'foo2 content', 'foo2 comment')
 
-    self.assertEquals(event2, None)
+    self.assertEqual(event2, None)
 
   @simulate('RegularisationRequest_checkToSendUniqEvent',
             '*args, **kwargs',
@@ -1089,7 +1089,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
         'service_module/slapos_crm_spam',
         'foo2 title', 'foo2 content', 'foo2 comment')
 
-    self.assertEquals(event2, None)
+    self.assertEqual(event2, None)
 
   def test_checkToTriggerNextEscalationStep_REQUEST_disallowed(self):
     ticket = self.createRegularisationRequest()
@@ -1606,19 +1606,19 @@ class TestSlapOSHostingSubscription_stopFromRegularisationRequest(
     instance_xml = hosting_subscription.getTextContent()
     sla_xml = hosting_subscription.getSlaXml()
     shared = hosting_subscription.isRootSlave()
-    self.assertEquals(hosting_subscription.getSlapState(), "start_requested")
+    self.assertEqual(hosting_subscription.getSlapState(), "start_requested")
 
     result = hosting_subscription.\
         HostingSubscription_stopFromRegularisationRequest(person.getRelativeUrl())
 
-    self.assertEquals(result, True)
-    self.assertEquals(hosting_subscription.getUrlString(), software_release)
-    self.assertEquals(hosting_subscription.getTitle(), software_title)
-    self.assertEquals(hosting_subscription.getSourceReference(), software_type)
-    self.assertEquals(hosting_subscription.getTextContent(), instance_xml)
-    self.assertEquals(hosting_subscription.getSlaXml(), sla_xml)
-    self.assertEquals(hosting_subscription.isRootSlave(), shared)
-    self.assertEquals(hosting_subscription.getSlapState(), "stop_requested")
+    self.assertEqual(result, True)
+    self.assertEqual(hosting_subscription.getUrlString(), software_release)
+    self.assertEqual(hosting_subscription.getTitle(), software_title)
+    self.assertEqual(hosting_subscription.getSourceReference(), software_type)
+    self.assertEqual(hosting_subscription.getTextContent(), instance_xml)
+    self.assertEqual(hosting_subscription.getSlaXml(), sla_xml)
+    self.assertEqual(hosting_subscription.isRootSlave(), shared)
+    self.assertEqual(hosting_subscription.getSlapState(), "stop_requested")
 
   def test_stopFromRegularisationRequest_stopped_subscription(self):
     person = self.makePerson(index=0, user=0)
@@ -1632,7 +1632,7 @@ class TestSlapOSHostingSubscription_stopFromRegularisationRequest(
     result = hosting_subscription.\
         HostingSubscription_stopFromRegularisationRequest(person.getRelativeUrl())
 
-    self.assertEquals(result, False)
+    self.assertEqual(result, False)
 
   def test_stopFromRegularisationRequest_non_matching_person(self):
     hosting_subscription = self.createHostingSubscription()
@@ -1677,19 +1677,19 @@ class TestSlapOSHostingSubscription_deleteFromRegularisationRequest(
     instance_xml = hosting_subscription.getTextContent()
     sla_xml = hosting_subscription.getSlaXml()
     shared = hosting_subscription.isRootSlave()
-    self.assertEquals(hosting_subscription.getSlapState(), "start_requested")
+    self.assertEqual(hosting_subscription.getSlapState(), "start_requested")
 
     result = hosting_subscription.\
         HostingSubscription_deleteFromRegularisationRequest(person.getRelativeUrl())
 
-    self.assertEquals(result, True)
-    self.assertEquals(hosting_subscription.getUrlString(), software_release)
-    self.assertEquals(hosting_subscription.getTitle(), software_title)
-    self.assertEquals(hosting_subscription.getSourceReference(), software_type)
-    self.assertEquals(hosting_subscription.getTextContent(), instance_xml)
-    self.assertEquals(hosting_subscription.getSlaXml(), sla_xml)
-    self.assertEquals(hosting_subscription.isRootSlave(), shared)
-    self.assertEquals(hosting_subscription.getSlapState(), "destroy_requested")
+    self.assertEqual(result, True)
+    self.assertEqual(hosting_subscription.getUrlString(), software_release)
+    self.assertEqual(hosting_subscription.getTitle(), software_title)
+    self.assertEqual(hosting_subscription.getSourceReference(), software_type)
+    self.assertEqual(hosting_subscription.getTextContent(), instance_xml)
+    self.assertEqual(hosting_subscription.getSlaXml(), sla_xml)
+    self.assertEqual(hosting_subscription.isRootSlave(), shared)
+    self.assertEqual(hosting_subscription.getSlapState(), "destroy_requested")
 
   def test_deleteFromRegularisationRequest_stopped_subscription(self):
     person = self.makePerson(index=0, user=0)
@@ -1707,19 +1707,19 @@ class TestSlapOSHostingSubscription_deleteFromRegularisationRequest(
     instance_xml = hosting_subscription.getTextContent()
     sla_xml = hosting_subscription.getSlaXml()
     shared = hosting_subscription.isRootSlave()
-    self.assertEquals(hosting_subscription.getSlapState(), "stop_requested")
+    self.assertEqual(hosting_subscription.getSlapState(), "stop_requested")
 
     result = hosting_subscription.\
         HostingSubscription_deleteFromRegularisationRequest(person.getRelativeUrl())
 
-    self.assertEquals(result, True)
-    self.assertEquals(hosting_subscription.getUrlString(), software_release)
-    self.assertEquals(hosting_subscription.getTitle(), software_title)
-    self.assertEquals(hosting_subscription.getSourceReference(), software_type)
-    self.assertEquals(hosting_subscription.getTextContent(), instance_xml)
-    self.assertEquals(hosting_subscription.getSlaXml(), sla_xml)
-    self.assertEquals(hosting_subscription.isRootSlave(), shared)
-    self.assertEquals(hosting_subscription.getSlapState(), "destroy_requested")
+    self.assertEqual(result, True)
+    self.assertEqual(hosting_subscription.getUrlString(), software_release)
+    self.assertEqual(hosting_subscription.getTitle(), software_title)
+    self.assertEqual(hosting_subscription.getSourceReference(), software_type)
+    self.assertEqual(hosting_subscription.getTextContent(), instance_xml)
+    self.assertEqual(hosting_subscription.getSlaXml(), sla_xml)
+    self.assertEqual(hosting_subscription.isRootSlave(), shared)
+    self.assertEqual(hosting_subscription.getSlapState(), "destroy_requested")
 
   def test_deleteFromRegularisationRequest_destroyed_subscription(self):
     person = self.makePerson(index=0, user=0)
@@ -1733,7 +1733,7 @@ class TestSlapOSHostingSubscription_deleteFromRegularisationRequest(
     result = hosting_subscription.\
         HostingSubscription_deleteFromRegularisationRequest(person.getRelativeUrl())
 
-    self.assertEquals(result, False)
+    self.assertEqual(result, False)
 
   def test_deleteFromRegularisationRequest_non_matching_person(self):
     hosting_subscription = self.createHostingSubscription()
@@ -1954,10 +1954,10 @@ class TestSlapOSComputer_notifyWrongAllocationScope(TestCRMSkinsMixin):
     computer.edit(allocation_scope='open/public')
     ticket = computer.Computer_checkAndUpdateAllocationScope()
     self.tic()
-    self.assertEquals(computer.getAllocationScope(), 'open/personal')
+    self.assertEqual(computer.getAllocationScope(), 'open/personal')
     #ticket = self._getGeneratedSupportRequest(computer)
     self.assertNotEquals(None, ticket)
-    self.assertEquals(ticket.getSimulationState(), 'suspended')
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
 
     self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \
       '%s %s %s' % \
@@ -1992,8 +1992,8 @@ class TestSlapOSComputer_notifyWrongAllocationScope(TestCRMSkinsMixin):
         destination_section=friend_person.getRelativeUrl())
     ticket = computer.Computer_checkAndUpdateAllocationScope()
     self.tic()
-    self.assertEquals(computer.getAllocationScope(), 'open/personal')
-    self.assertEquals(ticket.getSimulationState(), 'suspended')
+    self.assertEqual(computer.getAllocationScope(), 'open/personal')
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
     self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \
       '%s %s %s' % \
       ('Allocation scope of %s changed to %s' % (computer.getReference(),
@@ -2027,8 +2027,8 @@ class TestSlapOSComputer_notifyWrongAllocationScope(TestCRMSkinsMixin):
     support_request = computer.Computer_checkAndUpdatePersonalAllocationScope()
     self.tic()
 
-    self.assertEquals('suspended', support_request.getSimulationState())
-    self.assertEquals(computer.getAllocationScope(), target_allocation_scope)
+    self.assertEqual('suspended', support_request.getSimulationState())
+    self.assertEqual(computer.getAllocationScope(), target_allocation_scope)
     self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \
       '%s %s %s' % \
       ('Allocation scope of %s changed to %s' % (computer.getReference(),
@@ -2044,7 +2044,7 @@ class TestSlapOSComputer_notifyWrongAllocationScope(TestCRMSkinsMixin):
     computer.edit(allocation_scope='open/personal')
     computer.Computer_checkAndUpdateAllocationScope()
     self.tic()
-    self.assertEquals(computer.getAllocationScope(), 'open/personal')
+    self.assertEqual(computer.getAllocationScope(), 'open/personal')
 
   def test_computerAllowedAllocationScope_OpenPublic(self):
     computer = self._makeComputer()
@@ -2054,7 +2054,7 @@ class TestSlapOSComputer_notifyWrongAllocationScope(TestCRMSkinsMixin):
     computer.edit(allocation_scope='open/public')
     computer.Computer_checkAndUpdateAllocationScope()
     self.tic()
-    self.assertEquals(computer.getAllocationScope(), 'open/public')
+    self.assertEqual(computer.getAllocationScope(), 'open/public')
 
   def test_computerAllowedAllocationScope_OpenFriend(self):
     computer = self._makeComputer()
@@ -2066,7 +2066,7 @@ class TestSlapOSComputer_notifyWrongAllocationScope(TestCRMSkinsMixin):
         destination_section=friend_person.getRelativeUrl())
     computer.Computer_checkAndUpdateAllocationScope()
     self.tic()
-    self.assertEquals(computer.getAllocationScope(), 'open/friend')
+    self.assertEqual(computer.getAllocationScope(), 'open/friend')
 
 
 class TestComputer_hasContactedRecently(SlapOSTestCaseMixinWithAbort):
@@ -2353,11 +2353,11 @@ class TestSlapOSGenerateSupportRequestForSlapOS(TestCRMSkinsMixin):
       self.portal.REQUEST.get("support_request_in_progress", None))
 
     # The support request is added to computer owner.
-    self.assertEquals(support_request.getDestinationDecision(),
+    self.assertEqual(support_request.getDestinationDecision(),
                       self.computer.getSourceAdministration())
-    self.assertEquals(support_request.getTitle(), title)
-    self.assertEquals(support_request.getDescription(), title)
-    self.assertEquals(support_request.getAggregateValue(),
+    self.assertEqual(support_request.getTitle(), title)
+    self.assertEqual(support_request.getDescription(), title)
+    self.assertEqual(support_request.getAggregateValue(),
                       self.computer)
 
   def test_software_instance_Base_generateSupportRequestForSlapOS(self):
@@ -2379,11 +2379,11 @@ class TestSlapOSGenerateSupportRequestForSlapOS(TestCRMSkinsMixin):
       self.portal.REQUEST.get("support_request_in_progress", None))
 
     # The support request is added to computer owner.
-    self.assertEquals(support_request.getDestinationDecision(),
+    self.assertEqual(support_request.getDestinationDecision(),
                       hosting_subscription.getDestinationSection())
-    self.assertEquals(support_request.getTitle(), title)
-    self.assertEquals(support_request.getDescription(), title)
-    self.assertEquals(support_request.getAggregateValue(),
+    self.assertEqual(support_request.getTitle(), title)
+    self.assertEqual(support_request.getDescription(), title)
+    self.assertEqual(support_request.getAggregateValue(),
                       instance)
 
   def test_hosting_subscription_Base_generateSupportRequestForSlapOS(self):
@@ -2402,12 +2402,12 @@ class TestSlapOSGenerateSupportRequestForSlapOS(TestCRMSkinsMixin):
       self.portal.REQUEST.get("support_request_in_progress", None))
 
     # The support request is added to computer owner.
-    self.assertEquals(support_request.getDestinationDecision(),
+    self.assertEqual(support_request.getDestinationDecision(),
                       hosting_subscription.getDestinationSection())
 
-    self.assertEquals(support_request.getTitle(), title)
-    self.assertEquals(support_request.getDescription(), title)
-    self.assertEquals(support_request.getAggregateValue(),
+    self.assertEqual(support_request.getTitle(), title)
+    self.assertEqual(support_request.getDescription(), title)
+    self.assertEqual(support_request.getAggregateValue(),
                       hosting_subscription)
 
   def test_software_installation_Base_generateSupportRequestForSlapOS(self):
@@ -2426,12 +2426,12 @@ class TestSlapOSGenerateSupportRequestForSlapOS(TestCRMSkinsMixin):
       self.portal.REQUEST.get("support_request_in_progress", None))
 
     # The support request is added to computer owner.
-    self.assertEquals(support_request.getDestinationDecision(),
+    self.assertEqual(support_request.getDestinationDecision(),
                       software_installation.getDestinationSection())
 
-    self.assertEquals(support_request.getTitle(), title)
-    self.assertEquals(support_request.getDescription(), title)
-    self.assertEquals(support_request.getAggregateValue(),
+    self.assertEqual(support_request.getTitle(), title)
+    self.assertEqual(support_request.getDescription(), title)
+    self.assertEqual(support_request.getAggregateValue(),
                       software_installation)
 
 
@@ -2766,7 +2766,7 @@ class TestSlapOSHostingSubscription_createSupportRequestEvent(SlapOSTestCaseMixi
 
     ticket.suspend()
     self.tic()
-    self.assertEquals(None, self._getGeneratedSupportRequest(
+    self.assertEqual(None, self._getGeneratedSupportRequest(
       hosting_subscription.getUid()))
 
     hosting_subscription.HostingSubscription_createSupportRequestEvent(
@@ -2781,7 +2781,7 @@ class TestSlapOSHostingSubscription_createSupportRequestEvent(SlapOSTestCaseMixi
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 1')
   def testHostingSubscription_createSupportRequestEvent_closed(self):
     hosting_subscription = self._makeHostingSubscription()
-    self.assertEquals(None,
+    self.assertEqual(None,
       hosting_subscription.HostingSubscription_createSupportRequestEvent(
          hosting_subscription, "test-slapos-crm-check.notification"))
 
@@ -2789,7 +2789,7 @@ class TestSlapOSHostingSubscription_createSupportRequestEvent(SlapOSTestCaseMixi
   def testHostingSubscription_createSupportRequestEvent_no_person(self):
     hosting_subscription = self._makeHostingSubscription()
     hosting_subscription.setDestinationSectionValue(None)
-    self.assertEquals(None,
+    self.assertEqual(None,
       hosting_subscription.HostingSubscription_createSupportRequestEvent(
          hosting_subscription, "test-slapos-crm-check.notification"))
 
@@ -2886,17 +2886,17 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
         {"created_at":"%s" % error_date, "text": "#error "}
     )
 
-    self.assertEquals(instance.SoftwareInstance_hasReportedError(), None)
+    self.assertEqual(instance.SoftwareInstance_hasReportedError(), None)
 
     instance.setAggregateValue(self.computer.partition1)
 
-    self.assertEquals(str(instance.SoftwareInstance_hasReportedError()), '#error ')
+    self.assertEqual(str(instance.SoftwareInstance_hasReportedError()), '#error ')
 
     memcached_dict[instance.getReference()] = json.dumps(
         {"created_at":"%s" % error_date, "text": "#access "}
     )
 
-    self.assertEquals(instance.SoftwareInstance_hasReportedError(), None)
+    self.assertEqual(instance.SoftwareInstance_hasReportedError(), None)
 
   def test_SoftwareInstallation_hasReportedError(self):
     software_release = self._makeSoftwareRelease()
@@ -2909,20 +2909,20 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
       key_prefix='slap_tool',
       plugin_path='portal_memcached/default_memcached_plugin')
 
-    self.assertEquals(installation.SoftwareInstallation_hasReportedError(), None)
+    self.assertEqual(installation.SoftwareInstallation_hasReportedError(), None)
 
     error_date = DateTime()
     memcached_dict[installation.getReference()] = json.dumps(
         {"created_at":"%s" % error_date, "text": "#error "}
     )
 
-    self.assertEquals(installation.SoftwareInstallation_hasReportedError(), error_date)
+    self.assertEqual(installation.SoftwareInstallation_hasReportedError(), error_date)
 
     memcached_dict[installation.getReference()] = json.dumps(
         {"created_at":"%s" % error_date, "text": "#building "}
      )
 
-    self.assertEquals(installation.SoftwareInstallation_hasReportedError(), None)
+    self.assertEqual(installation.SoftwareInstallation_hasReportedError(), None)
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
   @simulate('HostingSubscription_createSupportRequestEvent',
@@ -2941,13 +2941,13 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     try:
       hosting_subscription = self._makeHostingSubscription()
 
-      self.assertEquals(hosting_subscription.getCreationDate(), date - 2)
+      self.assertEqual(hosting_subscription.getCreationDate(), date - 2)
 
       self._makeSoftwareInstance(hosting_subscription,
           self.generateNewSoftwareReleaseUrl())
       instance = hosting_subscription.getPredecessorValue()
 
-      self.assertEquals(instance.getCreationDate(), date - 2)
+      self.assertEqual(instance.getCreationDate(), date - 2)
 
       self._makeComputer()
       self._makeComputerPartitionList()
@@ -2962,7 +2962,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
         {"created_at":"%s" % error_date, "text": "#error "}
       )
 
-      self.assertEquals(
+      self.assertEqual(
         'Visited by HostingSubscription_createSupportRequestEvent %s %s' % \
         (instance.getUid(),
          "slapos-crm-hosting-subscription-instance-state.notification"),
@@ -2972,7 +2972,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
           {"created_at":"%s" % error_date, "text": "#access "}
       )
 
-      self.assertEquals(None,
+      self.assertEqual(None,
         hosting_subscription.HostingSubscription_checkSoftwareInstanceState())
 
 
@@ -3000,13 +3000,13 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     try:
       hosting_subscription = self._makeHostingSubscription()
 
-      self.assertEquals(hosting_subscription.getCreationDate(), date - 2)
+      self.assertEqual(hosting_subscription.getCreationDate(), date - 2)
 
       self._makeSoftwareInstance(hosting_subscription,
           self.generateNewSoftwareReleaseUrl())
       instance = hosting_subscription.getPredecessorValue()
 
-      self.assertEquals(instance.getCreationDate(), date - 2)
+      self.assertEqual(instance.getCreationDate(), date - 2)
 
       self._makeComputer()
       self._makeComputerPartitionList()
@@ -3032,7 +3032,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
         {"created_at":"%s" % error_date, "text": "#access "}
       )
 
-      self.assertEquals(
+      self.assertEqual(
         'Visited by HostingSubscription_createSupportRequestEvent %s %s' % \
         (instance.getPredecessor(portal_type="Software Instance"),
          "slapos-crm-hosting-subscription-instance-allocation.notification"),
@@ -3042,7 +3042,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
       instance.requestInstance(**kw)
       self.tic()
 
-      self.assertEquals(
+      self.assertEqual(
         None,
         hosting_subscription.HostingSubscription_checkSoftwareInstanceState())
 
@@ -3074,7 +3074,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
       {"created_at":"%s" % error_date, "text": "#error "}
     )
 
-    self.assertEquals(
+    self.assertEqual(
         None,
         hosting_subscription.HostingSubscription_checkSoftwareInstanceState())
 
@@ -3107,17 +3107,17 @@ class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
     )
     self.assertNotEqual(first_event, None)
 
-    self.assertEquals(
+    self.assertEqual(
       support_request.getFollowUpRelatedList(),
       [first_event.getRelativeUrl()])
 
-    self.assertEquals(title, first_event.getTitle())
-    self.assertEquals(text_content, first_event.getTextContent())
+    self.assertEqual(title, first_event.getTitle())
+    self.assertEqual(text_content, first_event.getTextContent())
     self.assertNotEquals(None, first_event.getStartDate())
-    self.assertEquals("service_module/slapos_crm_information",
+    self.assertEqual("service_module/slapos_crm_information",
                       first_event.getResource())
-    self.assertEquals(first_event.getDestination(), person.getRelativeUrl())
-    self.assertEquals(first_event.getFollowUp(), support_request.getRelativeUrl())
+    self.assertEqual(first_event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(first_event.getFollowUp(), support_request.getRelativeUrl())
 
     event = support_request.SupportRequest_trySendNotificationMessage(
       message_title=title, message=text_content,
@@ -3125,12 +3125,12 @@ class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
     )
     self.assertEqual(event, first_event)
 
-    self.assertEquals(title, event.getTitle())
-    self.assertEquals(text_content, event.getTextContent())
+    self.assertEqual(title, event.getTitle())
+    self.assertEqual(text_content, event.getTextContent())
     self.assertNotEquals(None, event.getStartDate())
-    self.assertEquals("service_module/slapos_crm_information",
+    self.assertEqual("service_module/slapos_crm_information",
                       event.getResource())
-    self.assertEquals(event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(event.getDestination(), person.getRelativeUrl())
 
     title += "__zz"
     event = support_request.SupportRequest_trySendNotificationMessage(
@@ -3139,11 +3139,11 @@ class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
     )
 
     self.assertEqual(event.getTitle(), title)
-    self.assertEquals(text_content, event.getTextContent())
+    self.assertEqual(text_content, event.getTextContent())
     self.assertNotEquals(None, event.getStartDate())
-    self.assertEquals("service_module/slapos_crm_information",
+    self.assertEqual("service_module/slapos_crm_information",
                       event.getResource())
-    self.assertEquals(event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(event.getDestination(), person.getRelativeUrl())
 
     another_support_request = self.portal.support_request_module.newContent(\
             title=title, description=title,
@@ -3159,17 +3159,17 @@ class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
 
     self.assertNotEqual(another_first_event, None)
 
-    self.assertEquals(
+    self.assertEqual(
       another_support_request.getFollowUpRelatedList(),
       [another_first_event.getRelativeUrl()])
 
-    self.assertEquals(title, another_first_event.getTitle())
-    self.assertEquals(text_content, another_first_event.getTextContent())
+    self.assertEqual(title, another_first_event.getTitle())
+    self.assertEqual(text_content, another_first_event.getTextContent())
     self.assertNotEquals(None, another_first_event.getStartDate())
-    self.assertEquals("service_module/slapos_crm_information",
+    self.assertEqual("service_module/slapos_crm_information",
                       another_first_event.getResource())
-    self.assertEquals(another_first_event.getDestination(), person.getRelativeUrl())
-    self.assertEquals(another_first_event.getFollowUp(),
+    self.assertEqual(another_first_event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(another_first_event.getFollowUp(),
      another_support_request.getRelativeUrl())
 
 
@@ -3222,33 +3222,33 @@ class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
     '%s" % (context.getRelativeUrl(),)')
   def testSupportRequest_updateMonitoringState(self):
     support_request = self._makeSupportRequest()
-    self.assertEquals(None,
+    self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringState())
     support_request.validate()
-    self.assertEquals(None,
+    self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringState())
     # Now try to go to set a computer...
     support_request.setAggregateValue(self._makeComputer())
-    self.assertEquals(
+    self.assertEqual(
       "Visited by SupportRequest_updateMonitoringComputerState %s" % \
         support_request.getRelativeUrl(),
       support_request.SupportRequest_updateMonitoringState())
 
     hs = self._makeHostingSubscription()
     support_request.setAggregateValue(hs)
-    self.assertEquals(
+    self.assertEqual(
       "Visited by SupportRequest_updateMonitoringHostingSubscriptionState %s" %\
         support_request.getRelativeUrl(),
       support_request.SupportRequest_updateMonitoringState())
 
     hs.getSlapState = getFakeSlapState
-    self.assertEquals(
+    self.assertEqual(
       "Visited by SupportRequest_updateMonitoringDestroyRequestedState %s" %\
         support_request.getRelativeUrl(),
       support_request.SupportRequest_updateMonitoringState())
 
     support_request.invalidate()
-    self.assertEquals(None,
+    self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringState())
 
   @simulate('SupportRequest_trySendNotificationMessage',
@@ -3257,13 +3257,13 @@ class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
   '%s %s %s" % (message_title, message, source_relative_url)')
   def testSupportRequest_updateMonitoringComputerState(self):
     support_request = self._makeSupportRequest()
-    self.assertEquals(None,
+    self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringComputerState())
     support_request.validate()
-    self.assertEquals(None,
+    self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringComputerState())
     support_request.setAggregateValue(self._makeHostingSubscription())
-    self.assertEquals(None,
+    self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringComputerState())
 
     support_request.setAggregateValue(self._makeComputer())
@@ -3275,14 +3275,14 @@ class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
       "created_at": DateTime().strftime("%Y/%m/%d %H:%M")
     })
     # W/o destination decision the ticket is not notified.
-    self.assertEquals(None,
+    self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringComputerState())
 
     support_request.setDestinationDecisionValue(self.makePerson(user=0))
     expected_text = """Visited by SupportRequest_trySendNotificationMessage Computer is contacting again  Suspending this ticket as the computer contacted again.  %s""" % support_request.getDestinationDecision()
-    self.assertEquals(expected_text,
+    self.assertEqual(expected_text,
       support_request.SupportRequest_updateMonitoringComputerState())
-    self.assertEquals(support_request.getSimulationState(), "suspended")
+    self.assertEqual(support_request.getSimulationState(), "suspended")
 
   @simulate('SupportRequest_trySendNotificationMessage',
             "message_title, message, source_relative_url",
@@ -3290,27 +3290,27 @@ class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
   '%s %s %s" % (message_title, message, source_relative_url)')
   def testSupportRequest_updateMonitoringHostingSubscriptionState(self):
     support_request = self._makeSupportRequest()
-    self.assertEquals(None,
+    self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringHostingSubscriptionState())
     support_request.validate()
-    self.assertEquals(None,
+    self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringHostingSubscriptionState())
 
     support_request.setAggregateValue(self._makeComputer())
-    self.assertEquals(None,
+    self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringHostingSubscriptionState())
 
     support_request.setAggregateValue(self._makeHostingSubscription())
-    self.assertEquals(None,
+    self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringHostingSubscriptionState())
 
     support_request.setDestinationDecisionValue(self.makePerson(user=0))
 
-    self.assertEquals("Visited by SupportRequest_trySendNotificationMessage Suspending this ticket as the problem is not present anymore  Suspending this ticket as the problem is not present anymore.  %s" % \
+    self.assertEqual("Visited by SupportRequest_trySendNotificationMessage Suspending this ticket as the problem is not present anymore  Suspending this ticket as the problem is not present anymore.  %s" % \
     support_request.getDestinationDecision(),
       support_request.SupportRequest_updateMonitoringHostingSubscriptionState())
 
-    self.assertEquals("suspended",
+    self.assertEqual("suspended",
       support_request.getSimulationState())
 
 
@@ -3320,14 +3320,14 @@ class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
   '%s %s %s" % (message_title, message, source_relative_url)')
   def testSupportRequest_updateMonitoringDestroyRequestedState(self):
     support_request = self._makeSupportRequest()
-    self.assertEquals(None,
+    self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringDestroyRequestedState())
     support_request.validate()
-    self.assertEquals(None,
+    self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringDestroyRequestedState())
 
     support_request.setAggregateValue(self._makeComputer())
-    self.assertEquals(None,
+    self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringDestroyRequestedState())
 
     hs = self._makeHostingSubscription()
@@ -3339,10 +3339,10 @@ class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
     support_request.setDestinationDecisionValue(self.makePerson(user=0))
     expected_text = """Visited by SupportRequest_trySendNotificationMessage Hosting Subscription was destroyed was destroyed by the user  Closing this ticket as the Hosting Subscription was destroyed by the user. 
    %s""" % support_request.getDestinationDecision()
-    self.assertEquals(expected_text,
+    self.assertEqual(expected_text,
       support_request.SupportRequest_updateMonitoringDestroyRequestedState())
 
-    self.assertEquals("invalidated",
+    self.assertEqual("invalidated",
       support_request.getSimulationState())
 
 

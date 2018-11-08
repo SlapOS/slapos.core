@@ -1095,11 +1095,11 @@ class TestSlapOSStartConfirmedAggregatedSalePackingListAlarm(
     self.portal.portal_workflow._jumpToStateFor(delivery, 'solved')
     self.portal.portal_workflow._jumpToStateFor(delivery, 'confirmed')
     delivery.Delivery_startConfirmedAggregatedSalePackingList()
-    self.assertEquals(delivery.getStartDate(),
+    self.assertEqual(delivery.getStartDate(),
                       DateTime().earliestTime())
-    self.assertEquals(delivery.getStopDate(),
+    self.assertEqual(delivery.getStopDate(),
                       DateTime().earliestTime())
-    self.assertEquals(delivery.getSimulationState(), 'started')
+    self.assertEqual(delivery.getSimulationState(), 'started')
 
 class TestSlapOSDeliverStartedAggregatedSalePackingListAlarm(
       SlapOSTestCaseMixin):

@@ -28,6 +28,8 @@
 ##############################################################################
 
 import subprocess
+import socket
+import urlparse
 from time import sleep
 import glob
 import os
@@ -94,6 +96,47 @@ def _ping6(hostname):
     print "[BOOT] [ERROR] IPv6 network unreachable..."
     return 0
 
+def _test_ping(hostname):
+  is_ready = _ping(hostname)
+  while is_ready == 0:
+    sleep(5)
+    is_ready = _ping(hostname)
+
+def _test_ping6(hostname):
+  is_ready = _ping6(hostname)
+  while is_ready == 0:
+    sleep(5)
+    is_ready = _ping6(hostname)
+
+def _test_ping6_and_ping4(hostname):
+  is_ready = _ping6(hostname)
+  while is_ready == 0:
+    sleep(5)
+    # Try ping on ipv4
+    is_ready = _ping(hostname)
+    if is_ready == 0:
+      # try ping on ipv6
+      is_ready = _ping6(hostname)
+
+def _is_ipv4_address(address):
+  try:
+    socket.inet_pton(socket.AF_INET, address)
+  except AttributeError:  # no inet_pton here, sorry
+    try:
+      socket.inet_aton(address)
+    except socket.error:
+      return False
+  except socket.error:  # not a valid address
+    return False
+  return True
+
+def _is_ipv6_address(address):
+  try:
+    socket.inet_pton(socket.AF_INET6, address)
+  except socket.error:
+    return False
+  return True
+
 class BootCommand(ConfigCommand):
     """
     Test network and invoke simple format and bang (Use on Linux startup)
@@ -111,25 +154,19 @@ class BootCommand(ConfigCommand):
     def take_action(self, args):
         configp = self.fetch_config(args)
         instance_root = configp.get('slapos','instance_root')
-        ipv6_host = ipv4_host = "slap.vifib.com"
-        if configp.has_option('slapformat','ipv6_test_hostname'):
-          ipv6_host = configp.get('slapformat','ipv6_test_hostname')
-        if configp.has_option('slapformat','ipv4_test_hostname'):
-          ipv4_host = configp.get('slapformat','ipv4_test_hostname')
+        master_url = urlparse.urlparse(configp.get('slapos','master_url'))
+        master_hostname = master_url.hostname
 
-        # Make sure ipv4 is working
-        is_ready = _ping(ipv4_host)
-        while is_ready == 0:
-           sleep(5)
-           is_ready = _ping(ipv4_host)
+        # Check that node can ping master
+        if _is_ipv4_address(master_hostname):
+          _test_ping(master_hostname)
+        elif _is_ipv6_address(master_hostname):
+          _test_ping6(master_hostname)
+        else:
+          # hostname
+          _test_ping6_and_ping4(master_hostname)
 
-        # Make sure ipv6 is working
-        is_ready = _ping6(ipv6_host)
-        while is_ready == 0:
-            sleep(5)
-            is_ready = _ping6(ipv6_host)
-
-        app = SlapOSApp() 
+        app = SlapOSApp()
         # Make sure slapos node format returns ok
         is_ready = _runFormat(app)
         while is_ready == 0:

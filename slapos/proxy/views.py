@@ -56,6 +56,8 @@ class UnauthorizedError(Exception):
 def xml2dict(xml):
   result_dict = {}
   if xml:
+    if isinstance(xml, str):
+      xml = xml.encode('utf-8')
     tree = etree.fromstring(xml)
     for element in tree.iter(tag=etree.Element):
       if element.tag == 'parameter':

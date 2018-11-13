@@ -307,15 +307,15 @@ class GenericPromise(object):
     result_list = []
     transaction_id = None
     transaction_count = 0
-    with open(self.__log_file, 'r') as f:
+    with open(self.__log_file, 'rb') as f:
       offset = 0
       f.seek(0, 2)
-      size = f.tell() * -1
+      size = -f.tell()
       line = line_part = ""
       while offset > size:
         offset -= 1
         f.seek(offset, 2)
-        char = f.read(1)
+        char = f.read(1).decode('utf-8')
         if char != '\n':
           line = char + line
         if char == '\n' or offset == size:

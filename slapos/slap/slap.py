@@ -105,8 +105,7 @@ class SlapRequester(SlapDocument):
     # Hack to give all object attributes to the ComputerPartition instance
     # XXX Should be removed by correctly specifying difference between
     # ComputerPartition and SoftwareInstance
-    computer_partition.__dict__ = dict(computer_partition.__dict__.items() +
-                                       software_instance.__dict__.items())
+    computer_partition.__dict__.update(software_instance.__dict__)
     # XXX not generic enough.
     if loads(request_dict['shared_xml']):
       computer_partition._synced = True

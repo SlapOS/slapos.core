@@ -203,6 +203,8 @@ class SlapformatMixin(unittest.TestCase):
     self.netifaces = NetifacesMock()
     self.saved_netifaces = {}
     for fake in vars(NetifacesMock):
+      if fake.startswith("__"):
+        continue
       self.saved_netifaces[fake] = getattr(netifaces, fake, None)
       setattr(netifaces, fake, getattr(self.netifaces, fake))
 
@@ -214,6 +216,8 @@ class SlapformatMixin(unittest.TestCase):
   def patchPwd(self):
     self.saved_pwd = {}
     for fake in vars(PwdMock):
+      if fake.startswith("__"):
+        continue
       self.saved_pwd[fake] = getattr(pwd, fake, None)
       setattr(pwd, fake, getattr(PwdMock, fake))
 
@@ -225,6 +229,8 @@ class SlapformatMixin(unittest.TestCase):
   def patchTime(self):
     self.saved_time = {}
     for fake in vars(TimeMock):
+      if fake.startswith("__"):
+        continue
       self.saved_time[fake] = getattr(time, fake, None)
       setattr(time, fake, getattr(TimeMock, fake))
 
@@ -236,6 +242,8 @@ class SlapformatMixin(unittest.TestCase):
   def patchGrp(self):
     self.saved_grp = {}
     for fake in vars(GrpMock):
+      if fake.startswith("__"):
+        continue
       self.saved_grp[fake] = getattr(grp, fake, None)
       setattr(grp, fake, getattr(GrpMock, fake))
 

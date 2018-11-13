@@ -37,7 +37,7 @@ from slapos.slap.slap import Computer, ComputerPartition, \
     SoftwareRelease, SoftwareInstance, NotFoundError
 from slapos.proxy.db_version import DB_VERSION
 import slapos.slap
-from slapos.util import bytes2str, unicode2str, sqlite_connect
+from slapos.util import bytes2str, str2bytes, unicode2str, sqlite_connect
 
 from flask import g, Flask, request, abort
 from slapos.util import loads, dumps
@@ -56,9 +56,7 @@ class UnauthorizedError(Exception):
 def xml2dict(xml):
   result_dict = {}
   if xml:
-    if isinstance(xml, str):
-      xml = xml.encode('utf-8')
-    tree = etree.fromstring(xml)
+    tree = etree.fromstring(str2bytes(xml))
     for element in tree.iter(tag=etree.Element):
       if element.tag == 'parameter':
         key = element.get('id')
@@ -76,10 +74,10 @@ def dict2xml(dictionary):
   for parameter_id, parameter_value in six.iteritems(dictionary):
     etree.SubElement(instance, "parameter",
                      attrib={'id': parameter_id}).text = parameter_value
-  return etree.tostring(instance,
+  return bytes2str(etree.tostring(instance,
                         pretty_print=True,
                         xml_declaration=True,
-                        encoding='utf-8')
+                        encoding='utf-8'))
 
 
 def partitiondict2partition(partition):
@@ -549,7 +547,6 @@ def requestNotSlave(software_release, software_type, partition_reference, partit
   instance_xml = dict2xml(partition_parameter_kw)
   requested_computer_id = filter_kw['computer_guid']
 
-  instance_xml = dict2xml(partition_parameter_kw)
   args = []
   a = args.append
   q = 'SELECT * FROM %s WHERE partition_reference=?'

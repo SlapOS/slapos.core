@@ -29,6 +29,7 @@
 
 import logging
 import sys
+import six
 
 from slapos.cli.config import ClientConfigCommand
 from slapos.client import init, ClientConfig
@@ -64,5 +65,5 @@ def do_list(logger, conf, local):
       logger.info('No existing service.')
       return
     logger.info('List of services:')
-    for title, instance in instance_dict.iteritems():
+    for title, instance in six.iteritems(instance_dict):
       logger.info('%s %s', title, instance._software_release_url)

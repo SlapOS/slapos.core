@@ -56,7 +56,7 @@ class SlapMixin(unittest.TestCase):
     print('Testing against SLAP server %r' % self.server_url)
     self.slap = slapos.slap.slap()
     self.partition_id = 'PARTITION_01'
-    if os.environ.has_key('SLAPGRID_INSTANCE_ROOT'):
+    if 'SLAPGRID_INSTANCE_ROOT' in os.environ:
       del os.environ['SLAPGRID_INSTANCE_ROOT']
 
   def tearDown(self):

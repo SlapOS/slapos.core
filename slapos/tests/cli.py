@@ -38,7 +38,7 @@ import pkg_resources
 
 from mock import patch, create_autospec
 import mock
-from slapos.util import sqlite_connect
+from slapos.util import sqlite_connect, bytes2str
 
 import slapos.cli.console
 import slapos.cli.entry
@@ -99,9 +99,9 @@ class TestCliProxyShow(CliMixin):
     self.conf.logger = self.logger
 
     # load database
-    schema = pkg_resources.resource_stream('slapos.tests.slapproxy', 'database_dump_version_11.sql')
+    schema = bytes2str(pkg_resources.resource_string('slapos.tests.slapproxy', 'database_dump_version_11.sql'))
     db = sqlite_connect(self.db_file.name)
-    db.cursor().executescript(schema.read())
+    db.cursor().executescript(schema)
     db.commit()
 
     # by default we simulate being invoked with "show all" arguments

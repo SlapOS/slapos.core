@@ -34,11 +34,9 @@ from slapos import slap
 def getOnlyImplementationAssertionMethod(klass, method_list):
   """Returns method which verifies if a klass only implements its interfaces"""
   def testMethod(self):
-    implemented_method_list = [x for x in dir(klass) \
-        if ((not x.startswith('_')) and callable(getattr(klass, x)))]
-    for interface_method in method_list:
-      if interface_method in implemented_method_list:
-        implemented_method_list.remove(interface_method)
+    implemented_method_list = {x for x in dir(klass)
+        if not x.startswith('_') and callable(getattr(klass, x))}
+    implemented_method_list.difference_update(method_list)
 
     if implemented_method_list:
       raise AssertionError("Unexpected methods %s" % implemented_method_list)
@@ -69,7 +67,7 @@ def generateTestMethodListOnClass(klass, module):
     setattr(klass, method_name, getDeclarationAssertionMethod(
       implementing_class))
 
-    implemented_method_list = []
+    implemented_method_list = ['with_traceback']
     for interface in list(zope.interface.implementedBy(implementing_class)):
       # for each interface which class declares add a method which verify
       # implementation

@@ -100,13 +100,15 @@ def sqlite_connect(dburi, timeout=None):
   return conn
 
 
+# Used for Python 2-3 compatibility
 if str is bytes:
-  def bytes2str(s):
-    return s
+  bytes2str = str2bytes = lambda s: s
   def unicode2str(s):
     return s.encode('utf-8')
 else:
   def bytes2str(s):
     return s.decode()
+  def str2bytes(s):
+    return s.encode()
   def unicode2str(s):
     return s

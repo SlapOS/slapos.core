@@ -47,7 +47,7 @@ import six
 from six.moves.urllib import parse
 
 from .util import xml2dict
-from slapos.util import loads, dumps
+from slapos.util import loads, dumps, bytes2str
 
 import netaddr
 from xml.sax import saxutils
@@ -827,7 +827,8 @@ class slap:
         pass
     if not slapgrid_rest_uri:
       try:
-        slapgrid_rest_uri = getHateoasUrl_cache[getHateoasUrl_cache_key] = self._connection_helper.GET('getHateoasUrl')
+        slapgrid_rest_uri = getHateoasUrl_cache[getHateoasUrl_cache_key] = \
+          bytes2str(self._connection_helper.GET('getHateoasUrl'))
       except:
         pass
     if slapgrid_rest_uri:

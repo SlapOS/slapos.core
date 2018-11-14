@@ -850,7 +850,7 @@ class TestComputerPartition(SlapMixin):
                         'software_type', 'myref')
       self.assertTrue(os.path.exists(transaction_file_path))
       with open(transaction_file_path, 'r') as f:
-        content_list = f.read().strip().split('\n')
+        content_list = f.read().splitlines()
         self.assertEqual(content_list, ['myref'])
 
       # Not override
@@ -858,7 +858,7 @@ class TestComputerPartition(SlapMixin):
           self.computer_guid, partition_id)
       self.assertTrue(os.path.exists(transaction_file_path))
       with open(transaction_file_path, 'r') as f:
-        content_list = f.read().strip().split('\n')
+        content_list = f.read().splitlines()
         self.assertEqual(content_list, ['myref'])
 
       # Request a second instance
@@ -867,8 +867,8 @@ class TestComputerPartition(SlapMixin):
                         'http://server/new/' + self._getTestComputerId(),
                         'software_type', 'mysecondref')
       with open(transaction_file_path, 'r') as f:
-        content_list = f.read().strip().split('\n')
-        self.assertEquals(list(set(content_list)), ['myref', 'mysecondref'])
+        content_list = f.read().splitlines()
+        self.assertEqual(sorted(content_list), ['myref', 'mysecondref'])
 
   def _test_new_computer_partition_state(self, state):
     """

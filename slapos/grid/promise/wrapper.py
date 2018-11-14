@@ -61,7 +61,8 @@ class WrapPromise(GenericPromise):
         [self.getPromiseFile()],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
-        cwd=self.getPartitionFolder()
+        cwd=self.getPartitionFolder(),
+        universal_newlines=True,
     )
     handler = functools.partial(self.terminate, self.getName(), self.logger,
                                 promise_process)

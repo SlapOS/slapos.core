@@ -37,6 +37,7 @@ import traceback
 import slapos.slap
 from slapos.util import mkdir_p
 from abc import ABCMeta, abstractmethod
+from six import with_metaclass
 from datetime import datetime, timedelta
 
 PROMISE_STATE_FOLDER_NAME = '.slapgrid/promise'
@@ -129,10 +130,9 @@ class PromiseQueueResult(object):
     self.path = data['path']
     self.execution_time = data['execution-time']
 
-class GenericPromise(object):
+class GenericPromise(with_metaclass(ABCMeta, object)):
 
   # Abstract class
-  __metaclass__ = ABCMeta
 
   def __init__(self, config):
     self.__config = config

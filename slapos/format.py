@@ -1485,19 +1485,19 @@ def do_format(conf):
 class FormatConfig(object):
   key_file = None
   cert_file = None
-  alter_network = None
-  alter_user = None
-  create_tap = None
-  create_tun = None
+  alter_network = 'True'
+  alter_user = 'True'
+  create_tap = True
+  create_tun = False
   computer_xml = None
   computer_json = None
   input_definition_file = None
   log_file = None
   output_definition_file = None
   dry_run = None
-  software_user = None
-  tap_gateway_interface = None
-  use_unique_local_address_block = None
+  software_user = 'slapsoft'
+  tap_gateway_interface = ''
+  use_unique_local_address_block = False
   instance_storage_home = None
 
   def __init__(self, logger):
@@ -1556,22 +1556,6 @@ class FormatConfig(object):
       setattr(self, "create_tap", not self.no_bridge)
       self.logger.warning('no_bridge option is deprecated and should be '
           'replaced by create_tap.')
-
-    # Set defaults lately
-    if self.alter_network is None:
-      self.alter_network = 'True'
-    if self.alter_user is None:
-      self.alter_user = 'True'
-    if self.software_user is None:
-      self.software_user = 'slapsoft'
-    if self.create_tap is None:
-      self.create_tap = True
-    if self.create_tun is None:
-      self.create_tun = False
-    if self.tap_gateway_interface is None:
-      self.tap_gateway_interface = ''
-    if self.use_unique_local_address_block is None:
-      self.use_unique_local_address_block = False
 
     # Convert strings to booleans
     for option in ['alter_network', 'alter_user', 'create_tap', 'create_tun', 'use_unique_local_address_block']:

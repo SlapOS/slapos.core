@@ -62,13 +62,15 @@ class FormatCommand(ConfigCommand):
 
         ap.add_argument('--alter_user',
                         choices=['True', 'False'],
+                        #default=FormatConfig.alter_user, #can't use default here because it would overwrite .cfg
                         help='Shall slapformat alter user database'
-                             ' (default: %(default)s)')
+                             ' (default: {})'.format(FormatConfig.alter_user))
 
         ap.add_argument('--alter_network',
                         choices=['True', 'False'],
+                        #default=FormatConfig.alter_network, #can't use default here because it would overwrite .cfg
                         help='Shall slapformat alter network configuration'
-                             ' (default: %(default)s)')
+                             ' (default: {})'.format(FormatConfig.alter_network))
 
         ap.add_argument('--now',
                         default=False,
@@ -87,11 +89,11 @@ class FormatCommand(ConfigCommand):
         return ap
 
     def take_action(self, args):
-        configp = self.fetch_config(args)
+        configp = self.fetch_config(args) # read the options in .cfg
 
         conf = FormatConfig(logger=self.app.log)
 
-        conf.mergeConfig(args, configp)
+        conf.mergeConfig(args, configp) # commandline options overwrite .cfg options
 
         # Parse if we have to check if running from root
         # XXX document this feature.

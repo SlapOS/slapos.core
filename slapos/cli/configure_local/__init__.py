@@ -45,7 +45,7 @@ DEFAULT_COMPUTER_ID = 'local_computer'
 
 class ConfigureLocalCommand(ConfigCommand):
     """
-    Configure a slapos node, from scratch to ready-ro-use, using slapproxy.
+    Configure a slapos node, from scratch to ready-to-use, using slapproxy.
     """
 
     def get_parser(self, prog_name):

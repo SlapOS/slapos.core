@@ -10,13 +10,6 @@ from zope import interface
 
 logger = logging.getLogger(__name__)
 
-def which(exename):
-  for path in os.environ["PATH"].split(os.pathsep):
-    full_path = os.path.join(path, exename)
-    if os.path.exists(full_path):
-      return full_path
-  return None
-
 class Manager(object):
   interface.implements(IManager)
 

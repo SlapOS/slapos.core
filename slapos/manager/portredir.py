@@ -16,6 +16,7 @@ def _format_ip_addr(ip_addr):
   return str(ip_addr)
 
 def which(exename):
+  # BBB: In Python 3, shutil.which must be used
   for path in os.environ["PATH"].split(os.pathsep):
     full_path = os.path.join(path, exename)
     if os.path.exists(full_path):
@@ -127,7 +128,10 @@ class Manager(object):
         logger.warning('Bad source address provided', exc_info=True)
         continue
 
-      command = [which('socat')]
+      socat_path = which('socat')
+      if not socat_path:
+        raise OSError("Path to socat executable does not exist")
+      command = [socat_path]
 
       socat_source_version = source_addr.version if source_addr is not None else 4
       socat_source_type = '{rtype}{version}-LISTEN'.format(rtype=redir_type.upper(), version=socat_source_version)

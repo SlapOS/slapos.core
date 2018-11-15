@@ -34,7 +34,7 @@ import logging
 import sys
 import os
 import subprocess
-import StringIO
+from six import BytesIO
 
 import lxml.etree
 import prettytable
@@ -208,7 +208,7 @@ def do_show(conf):
     # to paginate input, honoring $PAGER.
     output = sys.stdout
     if output.isatty():
-       output = StringIO.StringIO()
+      output = BytesIO()
     proxy_show_logger = logging.getLogger(__name__)
     handler = logging.StreamHandler(output)
     handler.setLevel(logging.DEBUG)

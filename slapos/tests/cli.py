@@ -29,7 +29,7 @@ import logging
 import pprint
 import unittest
 import tempfile
-import StringIO
+from six import StringIO
 import sys
 import os
 import sqlite3
@@ -152,8 +152,8 @@ class TestCliProxyShow(CliMixin):
   def test_proxy_show_displays_on_stdout(self):
     saved_stderr = sys.stderr
     saved_stdout = sys.stdout
-    sys.stderr = stderr = StringIO.StringIO()
-    sys.stdout = stdout = StringIO.StringIO()
+    sys.stderr = stderr = StringIO()
+    sys.stdout = stdout = StringIO()
     try:
       slapos.cli.proxy_show.do_show(self.conf)
     finally:
@@ -169,8 +169,8 @@ class TestCliProxyShow(CliMixin):
   def test_proxy_show_use_pager(self):
     saved_stderr = sys.stderr
     saved_stdout = sys.stdout
-    sys.stderr = stderr = StringIO.StringIO()
-    sys.stdout = stdout = StringIO.StringIO()
+    sys.stderr = stderr = StringIO()
+    sys.stdout = stdout = StringIO()
     stdout.isatty = lambda *args: True
 
     # use a pager that just output to a file.
@@ -335,7 +335,7 @@ class TestCliConsole(unittest.TestCase):
     self.mock_request = request_patch.start()
 
     self.config_file = tempfile.NamedTemporaryFile()
-    self.config_file.write('''[slapos]
+    self.config_file.write(b'''[slapos]
 master_url=null
 ''')
     self.config_file.flush()
@@ -349,9 +349,9 @@ master_url=null
       saved_stdin = sys.stdin
       saved_stdout = sys.stdout
       try:
-        sys.stdin = app_stdin = StringIO.StringIO(
-            """print request('software_release', 'instance').getInstanceParameterDict()['parameter_name']\n""")
-        sys.stdout = app_stdout = StringIO.StringIO()
+        sys.stdin = app_stdin = StringIO(
+          """print(request('software_release', 'instance').getInstanceParameterDict()['parameter_name'])\n""")
+        sys.stdout = app_stdout = StringIO()
         app.run(('console', '--cfg', self.config_file.name))
       finally:
         sys.stdin = saved_stdin
@@ -363,13 +363,13 @@ master_url=null
   def test_console_script(self):
     with tempfile.NamedTemporaryFile() as script:
       script.write(
-        """print request('software_release', 'instance').getInstanceParameterDict()['parameter_name']\n""")
+        b"""print(request('software_release', 'instance').getInstanceParameterDict()['parameter_name'])\n""")
       script.flush()
 
       app = slapos.cli.entry.SlapOSApp()
       saved_stdout = sys.stdout
       try:
-        sys.stdout = app_stdout = StringIO.StringIO()
+        sys.stdout = app_stdout = StringIO()
         app.run(('console', '--cfg', self.config_file.name, script.name))
       finally:
         sys.stdout = saved_stdout

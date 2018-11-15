@@ -42,6 +42,7 @@ import warnings
 import logging
 import json
 import shutil
+import six
 
 if sys.version_info < (2, 6):
   warnings.warn('Used python version (%s) is old and has problems with'
@@ -167,7 +168,7 @@ def merged_options(args, configp):
 
   if configp.has_section('networkcache'):
     options.update(dict(configp.items('networkcache')))
-  for key, value in vars(args).iteritems():
+  for key, value in six.iteritems(vars(args)):
     if value is not None:
       options[key] = value
 

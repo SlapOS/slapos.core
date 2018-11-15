@@ -61,8 +61,8 @@ REQUIRED_COMPUTER_PARTITION_PERMISSION = 0o750
 CP_STORAGE_FOLDER_NAME = 'DATA'
 
 # XXX not very clean. this is changed when testing
-PROGRAM_PARTITION_TEMPLATE = pkg_resources.resource_stream(__name__,
-            'templates/program_partition_supervisord.conf.in').read()
+PROGRAM_PARTITION_TEMPLATE = bytes2str(pkg_resources.resource_string(__name__,
+            'templates/program_partition_supervisord.conf.in'))
 
 
 def free_space(path, fn):
@@ -672,8 +672,8 @@ class Partition(object):
         os.unlink(self.supervisord_partition_configuration_path)
     else:
       partition_id = self.computer_partition.getId()
-      group_partition_template = pkg_resources.resource_stream(__name__,
-          'templates/group_partition_supervisord.conf.in').read()
+      group_partition_template = bytes2str(pkg_resources.resource_string(__name__,
+          'templates/group_partition_supervisord.conf.in'))
       self.supervisor_configuration_group = group_partition_template % {
           'instance_id': partition_id,
           'program_list': ','.join(['_'.join([partition_id, runner])

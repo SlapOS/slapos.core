@@ -38,6 +38,7 @@ import tempfile
 import textwrap
 import time
 import unittest
+import six
 from six.moves.urllib import parse
 import json
 import re
@@ -197,7 +198,7 @@ class BasicMixin(object):
     instance_list.append('etc')
     instance_list.append('var')
     instance_list.append('supervisord.socket')
-    self.assertItemsEqual(os.listdir(self.instance_root), instance_list)
+    six.assertCountEqual(self, os.listdir(self.instance_root), instance_list)
 
   def tearDown(self):
     # XXX: Hardcoded pid, as it is not configurable in slapos
@@ -583,7 +584,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
     with httmock.HTTMock(computer.request_handler):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual([])
-      self.assertItemsEqual(os.listdir(self.software_root), [])
+      six.assertCountEqual(self, os.listdir(self.software_root), [])
       st = os.stat(os.path.join(self.instance_root, 'var'))
       self.assertEquals(stat.S_IMODE(st.st_mode), 0o755)
 
@@ -594,9 +595,9 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
-      self.assertItemsEqual(os.listdir(partition), ['.slapgrid', 'buildout.cfg',
+      six.assertCountEqual(self, os.listdir(partition), ['.slapgrid', 'buildout.cfg',
                                                     'software_release', 'worked', '.slapos-retention-lock-delay'])
-      self.assertItemsEqual(os.listdir(self.software_root), [instance.software.software_hash])
+      six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation', 
                         '/stoppedComputerPartition'])
@@ -612,9 +613,9 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
-      self.assertItemsEqual(os.listdir(partition), ['.slapgrid', 'buildout.cfg',
+      six.assertCountEqual(self, os.listdir(partition), ['.slapgrid', 'buildout.cfg',
                                                     'software_release', 'worked', '.slapos-retention-lock-delay'])
-      self.assertItemsEqual(os.listdir(self.software_root), [instance.software.software_hash])
+      six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation', 
                         '/stoppedComputerPartition'])
@@ -631,8 +632,8 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       partition.requested_state = 'destroyed'
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(partition.partition_path), [])
-      self.assertItemsEqual(os.listdir(self.software_root), [])
+      six.assertCountEqual(self, os.listdir(partition.partition_path), [])
+      six.assertCountEqual(self, os.listdir(self.software_root), [])
       self.assertEqual(partition.sequence, [])
 
   def test_one_partition_started(self):
@@ -643,12 +644,12 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       partition.software.setBuildout(WRAPPER_CONTENT)
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(partition.partition_path),
+      six.assertCountEqual(self, os.listdir(partition.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       wrapper_log = os.path.join(partition.partition_path, '.0_wrapper.log')
       self.assertLogContent(wrapper_log, 'Working')
-      self.assertItemsEqual(os.listdir(self.software_root), [partition.software.software_hash])
+      six.assertCountEqual(self, os.listdir(self.software_root), [partition.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation', 
                         '/startedComputerPartition'])
@@ -662,12 +663,12 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       partition.software.setBuildout(WRAPPER_CONTENT)
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(partition.partition_path),
+      six.assertCountEqual(self, os.listdir(partition.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       wrapper_log = os.path.join(partition.partition_path, '.0_wrapper.log')
       self.assertLogContent(wrapper_log, 'Working')
-      self.assertItemsEqual(os.listdir(self.software_root), [partition.software.software_hash])
+      six.assertCountEqual(self, os.listdir(self.software_root), [partition.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation', 
                         '/startedComputerPartition'])
@@ -679,7 +680,7 @@ exit 1
 """)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_FAIL)
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(instance.partition_path),
+      six.assertCountEqual(self, os.listdir(instance.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked',
                              '.slapos-retention-lock-delay', '.slapgrid-0-error.log'])
@@ -701,27 +702,28 @@ mkdir -p etc/run &&
 (
 cat <<'HEREDOC'
 #!%(python)s
+from __future__ import print_function
 import signal
 def handler(signum, frame):
   for i in range(30):
-    print 'Signal handler called with signal', signum
+    print('Signal handler called with signal', signum)
   raise SystemExit
 signal.signal(signal.SIGTERM, handler)
 
 while True:
-  print "Working"
+  print("Working")
 HEREDOC
 )> etc/run/wrapper &&
 chmod 755 etc/run/wrapper
 """ % {'python': sys.executable})
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(instance.partition_path),
+      six.assertCountEqual(self, os.listdir(instance.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
       self.assertLogContent(wrapper_log, 'Working')
-      self.assertItemsEqual(os.listdir(self.software_root), [instance.software.software_hash])
+      six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation', 
                         '/startedComputerPartition'])
@@ -731,7 +733,7 @@ chmod 755 etc/run/wrapper
       instance.requested_state = 'stopped'
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(instance.partition_path),
+      six.assertCountEqual(self, os.listdir(instance.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       self.assertLogContent(wrapper_log, 'Signal handler called with signal 15')
@@ -757,27 +759,28 @@ mkdir -p etc/run &&
 (
 cat <<'HEREDOC'
 #!%(python)s
+from __future__ import print_function
 import signal
 def handler(signum, frame):
   for i in range(30):
-    print 'Signal handler called with signal', signum
+    print('Signal handler called with signal', signum)
   raise SystemExit
 signal.signal(signal.SIGTERM, handler)
 
 while True:
-  print "Working"
+  print("Working")
 HEREDOC
 )> etc/run/wrapper &&
 chmod 755 etc/run/wrapper
 """ % {'python': sys.executable})
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(instance.partition_path),
+      six.assertCountEqual(self, os.listdir(instance.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
       self.assertLogContent(wrapper_log, 'Working')
-      self.assertItemsEqual(os.listdir(self.software_root),
+      six.assertCountEqual(self, os.listdir(self.software_root),
                             [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation', 
@@ -791,7 +794,7 @@ exit 1
 """)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_FAIL)
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(instance.partition_path),
+      six.assertCountEqual(self, os.listdir(instance.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked',
                              '.slapos-retention-lock-delay', '.slapgrid-0-error.log'])
@@ -811,9 +814,9 @@ exit 1
 
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
-      self.assertItemsEqual(os.listdir(partition),
+      six.assertCountEqual(self, os.listdir(partition),
                             ['.slapgrid', 'buildout.cfg', 'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
-      self.assertItemsEqual(os.listdir(self.software_root),
+      six.assertCountEqual(self, os.listdir(self.software_root),
                             [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation', 
@@ -825,10 +828,10 @@ exit 1
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
-      self.assertItemsEqual(os.listdir(partition),
+      six.assertCountEqual(self, os.listdir(partition),
                             ['.slapgrid', '.0_wrapper.log', 'etc',
                              'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
-      self.assertItemsEqual(os.listdir(self.software_root),
+      six.assertCountEqual(self, os.listdir(self.software_root),
                             [instance.software.software_hash])
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
       self.assertLogContent(wrapper_log, 'Working')
@@ -855,8 +858,8 @@ exit 1
 
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
-      self.assertItemsEqual(os.listdir(partition), ['.slapgrid', dummy_file_name])
-      self.assertItemsEqual(os.listdir(self.software_root), [instance.software.software_hash])
+      six.assertCountEqual(self, os.listdir(partition), ['.slapgrid', dummy_file_name])
+      six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation',
                         '/stoppedComputerPartition'])
@@ -899,7 +902,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
 
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(partition.partition_path),
+      six.assertCountEqual(self, os.listdir(partition.partition_path),
                             ['.slapgrid', '.0_daemon.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       daemon_log = os.path.join(partition.partition_path, '.0_daemon.log')
@@ -945,7 +948,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       time.sleep(1)
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(partition.partition_path),
+      six.assertCountEqual(self, os.listdir(partition.partition_path),
                             ['.slapgrid', '.0_daemon.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay',
                              'launched', 'crashed'])
@@ -1228,9 +1231,9 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
-      self.assertItemsEqual(os.listdir(partition),
+      six.assertCountEqual(self, os.listdir(partition),
                             ['.slapgrid', '.timestamp', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
-      self.assertItemsEqual(os.listdir(self.software_root), [instance.software.software_hash])
+      six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       timestamp_path = os.path.join(instance.partition_path, '.timestamp')
       self.setSlapgrid()
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
@@ -1248,10 +1251,10 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
-      self.assertItemsEqual(os.listdir(partition),
+      six.assertCountEqual(self, os.listdir(partition),
                             ['.slapgrid', '.timestamp', 'buildout.cfg',
                              'software_release', 'worked', '.slapos-retention-lock-delay'])
-      self.assertItemsEqual(os.listdir(self.software_root), [instance.software.software_hash])
+      six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
 
       self.assertEqual(self.launchSlapgrid(develop=True),
                        slapgrid.SLAPGRID_SUCCESS)
@@ -1271,9 +1274,9 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
-      self.assertItemsEqual(os.listdir(partition),
+      six.assertCountEqual(self, os.listdir(partition),
                             ['.slapgrid', '.timestamp', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
-      self.assertItemsEqual(os.listdir(self.software_root), [instance.software.software_hash])
+      six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       instance.timestamp = str(int(timestamp) - 1)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
       self.assertEqual(instance.sequence,
@@ -1289,9 +1292,9 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
-      self.assertItemsEqual(os.listdir(partition),
+      six.assertCountEqual(self, os.listdir(partition),
                             ['.slapgrid', '.timestamp', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
-      self.assertItemsEqual(os.listdir(self.software_root), [instance.software.software_hash])
+      six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       instance.timestamp = str(int(timestamp) + 1)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
@@ -1314,9 +1317,9 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.launchSlapgrid()
       self.assertInstanceDirectoryListEqual(['0'])
       partition = os.path.join(self.instance_root, '0')
-      self.assertItemsEqual(os.listdir(partition),
+      six.assertCountEqual(self, os.listdir(partition),
                             ['.slapgrid', '.timestamp', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay'])
-      self.assertItemsEqual(os.listdir(self.software_root),
+      six.assertCountEqual(self, os.listdir(self.software_root),
                             [instance.software.software_hash])
       instance.timestamp = None
       self.launchSlapgrid()
@@ -1343,7 +1346,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
 
       self.launchSlapgrid()
       partition = os.path.join(self.instance_root, '0')
-      self.assertItemsEqual(os.listdir(partition),
+      six.assertCountEqual(self, os.listdir(partition),
                             ['.slapgrid', '.timestamp', 'buildout.cfg',
                              'software_release', 'worked', '.slapos-retention-lock-delay'])
 
@@ -1353,7 +1356,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       instance.install = lambda: None
 
       self.launchSlapgrid()
-      self.assertItemsEqual(os.listdir(partition),
+      six.assertCountEqual(self, os.listdir(partition),
                             ['.slapgrid', '.timestamp', 'buildout.cfg',
                              'software_release', 'worked', '.slapos-retention-lock-delay'])
 
@@ -1637,12 +1640,12 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       instance.software.setBuildout(WRAPPER_CONTENT)
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(instance.partition_path),
+      six.assertCountEqual(self, os.listdir(instance.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
       self.assertLogContent(wrapper_log, 'Working')
-      self.assertItemsEqual(os.listdir(self.software_root), [instance.software.software_hash])
+      six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation',
                         
@@ -1655,8 +1658,8 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(instance.partition_path), [])
-      self.assertItemsEqual(os.listdir(self.software_root),
+      six.assertCountEqual(self, os.listdir(instance.partition_path), [])
+      six.assertCountEqual(self, os.listdir(self.software_root),
                             [instance.software.software_hash])
       # Assert supervisor stopped process
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
@@ -1686,8 +1689,8 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(instance.partition_path), [])
-      self.assertItemsEqual(os.listdir(self.software_root),
+      six.assertCountEqual(self, os.listdir(instance.partition_path), [])
+      six.assertCountEqual(self, os.listdir(self.software_root),
                             [instance.software.software_hash])
       # Assert supervisor stopped process
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
@@ -1708,12 +1711,12 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       instance.software.setBuildout(WRAPPER_CONTENT)
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(instance.partition_path),
+      six.assertCountEqual(self, os.listdir(instance.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
       self.assertLogContent(wrapper_log, 'Working')
-      self.assertItemsEqual(os.listdir(self.software_root), [instance.software.software_hash])
+      six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation',
                         
@@ -1727,14 +1730,14 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       from slapos.slap.slap import COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME
       request_list_file = COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME % instance.name
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(instance.partition_path),
+      six.assertCountEqual(self, os.listdir(instance.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked',
                              '.slapos-retention-lock-delay', request_list_file])
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
       self.assertLogContent(wrapper_log, 'Working')
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(instance.partition_path),
+      six.assertCountEqual(self, os.listdir(instance.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked',
                              '.slapos-retention-lock-delay', request_list_file])
@@ -1759,8 +1762,8 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(instance.partition_path), [])
-      self.assertItemsEqual(os.listdir(self.software_root), [instance.software.software_hash])
+      six.assertCountEqual(self, os.listdir(instance.partition_path), [])
+      six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence, ['/getFullComputerInformation'])
 
   def test_slapgrid_report_ignore_free_instance(self):
@@ -1778,8 +1781,8 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(instance.partition_path), [])
-      self.assertItemsEqual(os.listdir(self.software_root), [instance.software.software_hash])
+      six.assertCountEqual(self, os.listdir(instance.partition_path), [])
+      six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence, ['/getFullComputerInformation'])
 
 
@@ -2032,7 +2035,7 @@ exit 1
       self.assertEqual(self.grid.processComputerPartitionList(),
                        slapos.grid.slapgrid.SLAPGRID_FAIL)
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(instance.partition_path),
+      six.assertCountEqual(self, os.listdir(instance.partition_path),
                             ['.slapgrid', 'buildout.cfg', 'software_release',
                              '.slapgrid-0-error.log'])
 
@@ -2058,7 +2061,7 @@ exit 1
       self.assertEqual(self.grid.processComputerPartitionList(),
                        slapos.grid.slapgrid.SLAPGRID_FAIL)
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(instance.partition_path),
+      six.assertCountEqual(self, os.listdir(instance.partition_path),
                             ['.slapgrid', 'buildout.cfg', 'software_release',
                              '.slapgrid-0-error.log'])
 
@@ -2544,7 +2547,7 @@ exit 0
         f.write(self.prerm_script_content)
       os.chmod(pre_delete_script, 0o754)
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(partition.partition_path),
+      six.assertCountEqual(self, os.listdir(partition.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       self.assertEqual(computer.sequence,
@@ -2558,12 +2561,12 @@ exit 0
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is not destroyed (pre-delete is running)
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(partition.partition_path),
+      six.assertCountEqual(self, os.listdir(partition.partition_path),
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay',
                              '.0-prerm_slapos_pre_delete.log', '.slapos-report-wait-service-list',
                              '.slapos-request-transaction-0'])
-      self.assertItemsEqual(os.listdir(self.software_root),
+      six.assertCountEqual(self, os.listdir(self.software_root),
                             [partition.software.software_hash])
 
       # wait until the pre-delete script is finished
@@ -2572,7 +2575,7 @@ exit 0
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(partition.partition_path), [])
+      six.assertCountEqual(self, os.listdir(partition.partition_path), [])
 
   def test_partition_destroy_pre_remove_with_retention_lock(self):
     computer = ComputerForTest(self.software_root, self.instance_root)
@@ -2601,7 +2604,7 @@ exit 0
       partition.requested_state = 'destroyed'
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is not destroyed (retention-delay-lock)
-      self.assertItemsEqual(os.listdir(partition.partition_path),
+      six.assertCountEqual(self, os.listdir(partition.partition_path),
                             ['.slapgrid', 'buildout.cfg', 'etc', 'software_release',
                              'worked', '.slapos-retention-lock-delay',
                              '.slapos-retention-lock-date', '.slapos-request-transaction-0'])
@@ -2615,7 +2618,7 @@ exit 0
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
 
       # Assert partition directory is not destroyed (pre-delete is running)
-      self.assertItemsEqual(os.listdir(partition.partition_path),
+      six.assertCountEqual(self, os.listdir(partition.partition_path),
                             ['.slapgrid', 'buildout.cfg', 'etc', 'software_release',
                              'worked', '.slapos-retention-lock-delay', '.slapos-retention-lock-date',
                              '.0-prerm_slapos_pre_delete.log', '.slapos-report-wait-service-list',
@@ -2626,7 +2629,7 @@ exit 0
 
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
-      self.assertItemsEqual(os.listdir(partition.partition_path), [])
+      six.assertCountEqual(self, os.listdir(partition.partition_path), [])
 
   def test_partition_destroy_pre_remove_script_not_stopped(self):
     computer = ComputerForTest(self.software_root, self.instance_root)
@@ -2647,7 +2650,7 @@ exit 0
       partition.requested_state = 'destroyed'
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is not destroyed (pre-delete is running)
-      self.assertItemsEqual(os.listdir(partition.partition_path),
+      six.assertCountEqual(self, os.listdir(partition.partition_path),
                             ['.slapgrid', 'buildout.cfg', 'etc', 'software_release',
                              'worked', '.slapos-retention-lock-delay', '.slapos-request-transaction-0',
                              '.0-prerm_slapos_pre_delete.log', '.slapos-report-wait-service-list'])
@@ -2661,7 +2664,7 @@ exit 0
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(partition.partition_path), [])
+      six.assertCountEqual(self, os.listdir(partition.partition_path), [])
 
   def test_partition_destroy_pre_remove_script_run_as_partition_user(self):
     computer = ComputerForTest(self.software_root, self.instance_root)
@@ -2682,7 +2685,7 @@ exit 0
       partition.requested_state = 'destroyed'
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is not destroyed (pre-delete is running)
-      self.assertItemsEqual(os.listdir(partition.partition_path),
+      six.assertCountEqual(self, os.listdir(partition.partition_path),
                             ['.slapgrid', 'buildout.cfg', 'etc', 'software_release',
                              'worked', '.slapos-retention-lock-delay', '.slapos-request-transaction-0',
                              '.0-prerm_slapos_pre_delete.log', '.slapos-report-wait-service-list'])
@@ -2713,7 +2716,7 @@ exit 0
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
       # Assert partition directory is empty
       self.assertInstanceDirectoryListEqual(['0'])
-      self.assertItemsEqual(os.listdir(partition.partition_path), [])
+      six.assertCountEqual(self, os.listdir(partition.partition_path), [])
 
 
 # test that slapgrid commands, like e.g. 'slapos node software' do not leak

@@ -289,7 +289,7 @@ class Computer(object):
   def __getinitargs__(self):
     return (self.reference, self.interface)
 
-  def getAddress(self, allow_tap=False):
+  def getAddress(self):
     """
     Return a list of the interface address not attributed to any partition (which
     are therefore free for the computer itself).
@@ -310,13 +310,6 @@ class Computer(object):
       # Comparing with computer's partition addresses
       if address_dict['addr'] not in computer_partition_address_list:
         return address_dict
-
-    if allow_tap:
-      # all addresses on interface are for partition, so let's add new one
-      computer_tap = Tap('compdummy')
-      computer_tap.createWithOwner(User('root'), attach_to_tap=True)
-      self.interface.addTap(computer_tap)
-      return self.interface.addAddr()
 
     # Can't find address
     raise NoAddressOnInterface('No valid IPv6 found on %s.' % self.interface.name)
@@ -516,7 +509,7 @@ class Computer(object):
   def software_gid(self):
     """Return GID for self.software_user.
 
-    Has to be dynamic because __init__ happens before ``format`` where we 
+    Has to be dynamic because __init__ happens before ``format`` where we
     effectively create the user and group."""
     return pwd.getpwnam(self.software_user)[3]
 
@@ -578,9 +571,9 @@ class Computer(object):
                               len(self.partition_list))
         assert(len(self.partition_list) <= len(tap_address_list))
       else:
-       gateway_addr_dict = {'peer': '10.0.0.1', 'netmask': '255.255.0.0', 
+       gateway_addr_dict = {'peer': '10.0.0.1', 'netmask': '255.255.0.0',
                             'addr': '10.0.0.1', 'network': '10.0.0.0'}
- 
+
        tap_address_list = getIPv4SubnetAddressRange(gateway_addr_dict['addr'],
                               gateway_addr_dict['netmask'],
                               len(self.partition_list))
@@ -606,33 +599,25 @@ class Computer(object):
           owner = User('root')
 
         if alter_network and create_tap:
-          # In case it has to be  attached to the TAP network device, only one
-          # is necessary for the interface to assert carrier
-          if self.interface.attach_to_tap and partition_index == 0:
-            partition.tap.createWithOwner(owner, attach_to_tap=True)
-          else:
-            partition.tap.createWithOwner(owner)
-          # If tap_gateway_interface is specified, we don't add tap to bridge
-          # but we create route for this tap
-          if not self.tap_gateway_interface and self.interface.attach_to_tap:
-            self.interface.addTap(partition.tap)
-          else:
-            next_ipv4_addr = '%s' % tap_address_list.pop(0)
-            if not partition.tap.ipv4_addr:
-              # define new ipv4 address for this tap
-              partition.tap.ipv4_addr = next_ipv4_addr
-              partition.tap.ipv4_netmask = gateway_addr_dict['netmask']
-              partition.tap.ipv4_gateway = gateway_addr_dict['addr']
-              partition.tap.ipv4_network = gateway_addr_dict['network']
+          partition.tap.createWithOwner(owner)
 
-            if not partition.tap.ipv6_addr:
-              ipv6_addr = self.interface.addAddr(tap=partition.tap)
-              partition.tap.ipv6_addr = "" 
-              partition.tap.ipv6_netmask = ""
-              partition.tap.ipv6_gateway = ""
-              partition.tap.ipv6_network = "" 
+          # add addresses and create route for this tap
+          next_ipv4_addr = '%s' % tap_address_list.pop(0)
+          if not partition.tap.ipv4_addr:
+            # define new ipv4 address for this tap
+            partition.tap.ipv4_addr = next_ipv4_addr
+            partition.tap.ipv4_netmask = gateway_addr_dict['netmask']
+            partition.tap.ipv4_gateway = gateway_addr_dict['addr']
+            partition.tap.ipv4_network = gateway_addr_dict['network']
 
-            partition.tap.createRoutes()
+          if not partition.tap.ipv6_addr:
+            ipv6_addr = self.interface.addAddr(tap=partition.tap)
+            partition.tap.ipv6_addr = ""
+            partition.tap.ipv6_netmask = ""
+            partition.tap.ipv6_gateway = ""
+            partition.tap.ipv6_network = ""
+
+          partition.tap.createRoutes()
 
         if alter_network and partition.tun is not None:
           # create TUN interface per partition as well
@@ -677,12 +662,6 @@ class Computer(object):
             else:
               raise ValueError('Address %r is incorrect' % address['addr'])
     finally:
-      if alter_network and create_tap and self.interface.attach_to_tap:
-        try:
-          self.partition_list[0].tap.detach()
-        except IndexError:
-          pass
-
       for manager in self._manager_list:
         manager.formatTearDown(self)
 
@@ -692,7 +671,7 @@ class Partition(object):
 
   resource_file = ".slapos-resource"
 
-  def __init__(self, reference, path, user, address_list, 
+  def __init__(self, reference, path, user, address_list,
                tap, external_storage_list=[], tun=None):
     """
     Attributes:
@@ -700,7 +679,7 @@ class Partition(object):
       path: String, the path to the partition folder.
       user: User, the user linked to this partition.
       address_list: List of associated IP addresses.
-      tap: Tap, the tap interface linked to this partition e.g. used as a bridge for kvm
+      tap: Tap, the tap interface linked to this partition e.g. used as a gateway for kvm
       tun: Tun interface used for special apps simulating ethernet connections
       external_storage_list: Base path list of folder to format for data storage
     """
@@ -842,7 +821,7 @@ class Tap(object):
         tap_name: String, the name of the tap interface.
         ipv4_address: String, local ipv4 to route to this tap
         ipv4_network: String, netmask to use when configure route for this tap
-        gateway_ipv4: String, ipv4 of gateway to be used to reach local network
+        ipv4_gateway: String, ipv4 of gateway to be used to reach local network
     """
 
     self.name = str(tap_name)
@@ -859,59 +838,7 @@ class Tap(object):
   def __getinitargs__(self):
     return (self.name,)
 
-  def attach(self):
-    """
-    Attach to the TAP interface, meaning  that it just opens the TAP interface
-    and waits for the caller to notify that it can be safely detached.
-
-    Linux  distinguishes administrative  and operational  state of  an network
-    interface.  The  former can be set  manually by running ``ip  link set dev
-    <dev> up|down'', whereas the latter states that the interface can actually
-    transmit  data (for  a wired  network interface,  it basically  means that
-    there is  carrier, e.g.  the network  cable is plugged  into a  switch for
-    example).
-
-    In case of bridge:
-    In order  to be able to check  the uniqueness of IPv6  address assigned to
-    the bridge, the network interface  must be up from an administrative *and*
-    operational point of view.
-
-    However,  from  Linux  2.6.39,  the  bridge  reflects  the  state  of  the
-    underlying device (e.g.  the bridge asserts carrier if at least one of its
-    ports has carrier) whereas it  always asserted carrier before. This should
-    work fine for "real" network interface,  but will not work properly if the
-    bridge only binds TAP interfaces, which, from 2.6.36, reports carrier only
-    and only if an userspace program is attached.
-    """
-    tap_fd = os.open("/dev/net/tun", os.O_RDWR)
-
-    try:
-      # Attach to the TAP interface which has previously been created
-      fcntl.ioctl(tap_fd, self.TUNSETIFF,
-                  struct.pack("16sI", self.name, self.IFF_TAP))
-
-    except IOError as error:
-      # If  EBUSY, it  means another  program is  already attached,  thus just
-      # ignore it...
-      logger.warning("Cannot create interface " + self.name + ". Does it exist already?")
-      if error.errno != errno.EBUSY:
-        os.close(tap_fd)
-    else:
-      # Block until the  caller send an event stating that  the program can be
-      # now detached safely,  thus bringing down the TAP  device (from 2.6.36)
-      # and the bridge at the same time (from 2.6.39)
-      self.KEEP_TAP_ATTACHED_EVENT.wait()
-    finally:
-      os.close(tap_fd)
-
-  def detach(self):
-    """
-    Detach to the  TAP network interface by notifying  the thread which attach
-    to the TAP and closing the TAP file descriptor
-    """
-    self.KEEP_TAP_ATTACHED_EVENT.set()
-
-  def createWithOwner(self, owner, attach_to_tap=False):
+  def createWithOwner(self, owner):
     """
     Create a tap interface on the system if it doesn't exist yet.
     """
@@ -936,9 +863,6 @@ class Tap(object):
                  self.MODE, 'user', owner.name])
     callAndRead(['ip', 'link', 'set', self.name, 'up'])
 
-    if attach_to_tap:
-      threading.Thread(target=self.attach).start()
-
   def createRoutes(self):
     """
     Configure ipv4 route to reach this interface from local network
@@ -957,7 +881,7 @@ class Tap(object):
 
 class Tun(Tap):
   """Represent TUN interface which might be many per user."""
- 
+
   MODE = "tun"
   BASE_MASK = 12
   BASE_NETWORK = "172.16.0.0"
@@ -1020,11 +944,6 @@ class Interface(object):
     self.ipv4_local_network = ipv4_local_network
     self.ipv6_interface = ipv6_interface
 
-    # Attach to TAP  network interface, only if the  interface interface does not
-    # report carrier
-    _, result = callAndRead(['ip', 'addr', 'list', self.name], raise_on_error=False)
-    self.attach_to_tap = self.isBridge() and ('DOWN' in result.split('\n', 1)[0])
-
   # XXX no __getinitargs__, as instances of this class are never deserialized.
 
   def getIPv4LocalAddressList(self):
@@ -1082,49 +1001,6 @@ class Interface(object):
     # local addresses or anything which does not exists in RFC!
     return address_list
 
-  def isBridge(self):
-    try:
-      _, result = callAndRead(['brctl', 'show'])
-      return any(line.startswith(self.name) for line in result.split("\n"))
-    except Exception as e:
-      # the binary "brctl" itself does not exist - bridge is imposible to exist
-      logger.warning(str(e))
-      return False
-
-  def getInterfaceList(self):
-    """Returns list of interfaces already present on bridge"""
-    interface_list = []
-    _, result = callAndRead(['brctl', 'show'])
-    in_interface = False
-    for line in result.split('\n'):
-      if len(line.split()) > 1:
-        if self.name in line:
-          interface_list.append(line.split()[-1])
-          in_interface = True
-          continue
-        if in_interface:
-          break
-      elif in_interface:
-        if line.strip():
-          interface_list.append(line.strip())
-
-    return interface_list
-
-  def addTap(self, tap):
-    """
-    Add the tap interface tap to the bridge.
-
-    Args:
-      tap: Tap, the tap interface.
-    """
-    if tap.name not in self.getInterfaceList():
-      if self.isBridge():
-        callAndRead(['brctl', 'addif', self.name, tap.name])
-      else:
-        logger.warning("Interface slapos.cfg:interface_name={} is not a bridge. "
-                       "TUN/TAP interface {} might not have internet connection."
-                       "".format(self.name, tap.name))
-
   def _addSystemAddress(self, address, netmask, ipv6=True, tap=None):
     """Adds system address to interface
 
@@ -1132,7 +1008,7 @@ class Interface(object):
 
     Returns False if there was issue.
     """
-    
+
     if ipv6:
       address_string = '%s/%s' % (address, netmaskToPrefixIPv6(netmask))
       af = socket.AF_INET6
@@ -1234,7 +1110,7 @@ class Interface(object):
     Args:
       addr: Wished address to be added to interface.
       netmask: Wished netmask to be used.
-      tap: tap interface 
+      tap: tap interface
 
     Returns:
       Tuple of (address, netmask).
@@ -1284,7 +1160,7 @@ class Interface(object):
         cut = -3
         if "::" in address_dict['addr']:
           cut = -2
-        
+
         addr = ':'.join(address_dict['addr'].split(':')[:cut] + ['%x' % (
           random.randint(1, 65000), )] + ["ff", "ff"])
         netmask = "ffff:ffff:ffff:ffff:ffff:ffff::"
@@ -1456,7 +1332,7 @@ def do_format(conf):
 
   computer.instance_storage_home = conf.instance_storage_home
   conf.logger.info('Updating computer')
-  address = computer.getAddress(conf.create_tap)
+  address = computer.getAddress()
   computer.address = address['addr']
   computer.netmask = address['netmask']
 
@@ -1545,17 +1421,12 @@ class FormatConfig(object):
       if getattr(self, parameter, None) is None:
         setattr(self, parameter, None)
 
-    # Backward compatibility
-    if not getattr(self, "interface_name", None) \
-          and getattr(self, "bridge_name", None):
-      setattr(self, "interface_name", self.bridge_name)
-      self.logger.warning('bridge_name option is deprecated and should be '
-          'replaced by interface_name.')
-    if not getattr(self, "create_tap", None) \
-          and getattr(self, "no_bridge", None):
-      setattr(self, "create_tap", not self.no_bridge)
-      self.logger.warning('no_bridge option is deprecated and should be '
-          'replaced by create_tap.')
+    # deprecated options raise an error
+    for option in ['bridge_name', 'no_bridge']:
+      if getattr(self, option, None):
+        message = 'Option %r is totally deprecated, please update your config file' % (option)
+        self.logger.error(message)
+        raise UsageError(message)
 
     # Convert strings to booleans
     for option in ['alter_network', 'alter_user', 'create_tap', 'create_tun', 'use_unique_local_address_block']:
@@ -1577,10 +1448,6 @@ class FormatConfig(object):
         self.checkRequiredBinary(['groupadd', 'useradd', 'usermod', ['passwd', '-h']])
       if self.create_tap or self.alter_network:
         self.checkRequiredBinary(['ip'])
-
-    # Required, even for dry run
-    if self.alter_network and self.create_tap:
-      self.checkRequiredBinary(['brctl'])
 
     # Check mandatory options
     for parameter in ('computer_id', 'instance_root', 'master_url',
@@ -1630,10 +1497,7 @@ def tracing_monkeypatch(conf):
   os = OS(conf)
   if conf.dry_run:
     def dry_callAndRead(argument_list, raise_on_error=True):
-      if argument_list == ['brctl', 'show']:
-        return real_callAndRead(argument_list, raise_on_error)
-      else:
-        return 0, ''
+      return 0, ''
     callAndRead = dry_callAndRead
 
     def fake_getpwnam(user):

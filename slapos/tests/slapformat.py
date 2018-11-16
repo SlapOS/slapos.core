@@ -116,11 +116,6 @@ class FakeCallAndRead:
       retval = 0, 'OK'
     elif argument_list[:3] == ['route', 'add', '-host']:
       retval = 0, 'OK'
-    elif argument_list[:2] == ['brctl', 'show']:
-      retval = 0, "\n".join(("bridge name bridge id   STP enabled interfaces",
-                             "bridge bridge bridge b001   000:000 1 fakeinterface",
-                             "                                      fakeinterface2"
-                             ""))
     self.external_command_list.append(' '.join(argument_list))
     return retval
 
@@ -351,10 +346,7 @@ class TestComputer(SlapformatMixin):
       "makedirs('/software_root', 493)",
       "chmod('/software_root', 493)"],
       self.test_result.bucket)
-    self.assertEqual([
-        'ip addr list bridge',
-        'brctl show',
-      ],
+    self.assertEqual([],
       self.fakeCallAndRead.external_command_list)
 
   @unittest.skip("Not implemented")
@@ -391,10 +383,7 @@ class TestComputer(SlapformatMixin):
       "makedirs('/software_root', 493)",
       "chmod('/software_root', 493)"],
       self.test_result.bucket)
-    self.assertEqual([
-        'ip addr list bridge',
-        'brctl show',
-      ],
+    self.assertEqual([],
       self.fakeCallAndRead.external_command_list)
 
   @unittest.skip("Not implemented")
@@ -431,11 +420,8 @@ class TestComputer(SlapformatMixin):
       'useradd -d /software_root -g slapsoft slapsoft -r',
       'groupadd testuser',
       'useradd -d /instance_root/partition -g testuser -G slapsoft testuser -r',
-      'brctl show',
       'ip tuntap add dev tap mode tap user testuser',
       'ip link set tap up',
-      'brctl show',
-      'brctl addif bridge tap',
       'ip addr add ip/255.255.255.255 dev bridge',
       'ip addr list bridge',
       'ip addr add ip/ffff:ffff:ffff:ffff:: dev bridge',
@@ -476,13 +462,8 @@ class TestComputer(SlapformatMixin):
     ],
       self.test_result.bucket)
     self.assertEqual([
-        'ip addr list bridge',
-        'brctl show',
         'ip tuntap add dev tap mode tap user testuser',
         'ip link set tap up',
-        #'brctl show',
-        #'brctl show',
-        #'brctl addif bridge tap',
         'ip addr add ip/ffff:ffff:ffff:ffff:ffff:ffff:: dev tap',
         'ip -6 addr list tap',
         'ip route show 10.0.0.2',
@@ -533,8 +514,6 @@ class TestComputer(SlapformatMixin):
     ],
       self.test_result.bucket)
     self.assertEqual([
-        'ip addr list iface',
-        'brctl show',
         'ip tuntap add dev tap mode tap user testuser',
         'ip link set tap up',
         'ip addr add ip/ffff:ffff:ffff:ffff:ffff:ffff:: dev tap',
@@ -622,8 +601,6 @@ class TestComputer(SlapformatMixin):
       ],
       self.test_result.bucket)
     self.assertEqual([
-        'ip addr list bridge',
-        'brctl show',
         'ip addr add ip/255.255.255.255 dev bridge',
         # 'ip addr list bridge',
         'ip addr add ip/ffff:ffff:ffff:ffff:: dev bridge',
@@ -664,8 +641,6 @@ class TestComputer(SlapformatMixin):
       ],
       self.test_result.bucket)
     self.assertEqual([
-        'ip addr list myinterface',
-        'brctl show',
         'ip address add dev myinterface fd00::1/64',
         'ip addr add ip/255.255.255.255 dev myinterface',
         'ip addr add ip/ffff:ffff:ffff:ffff:: dev myinterface',

@@ -30,6 +30,7 @@
 import argparse
 import os.path
 import sys
+import six
 
 import slapos.slap.slap
 from slapos.grid.slapgrid import COMPUTER_PARTITION_TIMESTAMP_FILENAME, \
@@ -56,7 +57,7 @@ def parseArgumentTuple():
 
   # Build option_dict
   option_dict = {}
-  for argument_key, argument_value in vars(option).iteritems():
+  for argument_key, argument_value in six.iteritems(vars(option)):
     option_dict.update({argument_key: argument_value})
 
   return option_dict

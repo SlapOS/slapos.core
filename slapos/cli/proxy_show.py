@@ -34,7 +34,7 @@ import logging
 import sys
 import os
 import subprocess
-from six import BytesIO
+from six import StringIO
 
 import lxml.etree
 import prettytable
@@ -43,7 +43,7 @@ import sqlite3
 from slapos.cli.config import ConfigCommand
 from slapos.proxy import ProxyConfig
 from slapos.proxy.db_version import DB_VERSION
-from slapos.util import sqlite_connect
+from slapos.util import sqlite_connect, str2bytes
 
 
 class ProxyShowCommand(ConfigCommand):
@@ -208,7 +208,7 @@ def do_show(conf):
     # to paginate input, honoring $PAGER.
     output = sys.stdout
     if output.isatty():
-      output = BytesIO()
+      output = StringIO()
     proxy_show_logger = logging.getLogger(__name__)
     handler = logging.StreamHandler(output)
     handler.setLevel(logging.DEBUG)
@@ -248,4 +248,4 @@ def do_show(conf):
             close_fds=True,
             shell=True,
             stdin=subprocess.PIPE,)
-        pager.communicate(output.getvalue().encode('utf-8'))
+        pager.communicate(str2bytes(output.getvalue()))

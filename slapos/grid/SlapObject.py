@@ -38,7 +38,7 @@ import subprocess
 import tarfile
 import tempfile
 import time
-from six.moves import xmlrpc_client as xmlrpclib
+from six.moves import xmlrpc_client as xmlrpclib, range
 
 from supervisor import xmlrpc
 
@@ -843,7 +843,7 @@ class Partition(object):
         self.logger.warning('Problem while stopping process %r, will try later' % gname)
       else:
         self.logger.info('Stopped %r' % gname)
-      for i in xrange(0, 10):
+      for i in range(0, 10):
         # Some process may be still running, be nice and wait for them to be stopped.
         try:
           supervisor.removeProcessGroup(gname)

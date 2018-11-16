@@ -755,7 +755,10 @@ class ConnectionHelper:
                    data=data,
                    headers=headers,
                    timeout=self.timeout)
-      req.raise_for_status()
+      try:
+        req.raise_for_status()
+      except TypeError:
+        pass
 
     except (requests.Timeout, requests.ConnectionError) as exc:
       raise ConnectionError("Couldn't connect to the server. Please "

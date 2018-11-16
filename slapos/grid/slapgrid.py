@@ -683,12 +683,12 @@ stderr_logfile_backups=1
     """
     """
     query_cmd = rule_command.replace('--add-rule', '--query-rule')
-    process = FPopen(query_cmd)
+    process = FPopen(query_cmd, universal_newlines=True)
     result, stderr = process.communicate()
     if result.strip() == 'no':
       # rule doesn't exist add to firewall
       self.logger.debug(rule_command)
-      process = FPopen(rule_command)
+      process = FPopen(rule_command, universal_newlines=True)
       rule_result, stderr = process.communicate()
       if process.returncode == 0:
         if rule_result.strip() != 'success':
@@ -706,13 +706,13 @@ stderr_logfile_backups=1
     """
     """
     query_cmd = rule_command.replace('--add-rule', '--query-rule')
-    process = FPopen(query_cmd)
+    process = FPopen(query_cmd, universal_newlines=True)
     result, stderr = process.communicate()
     if result.strip() == 'yes':
       # The rule really exist, remove it
       remove_command = rule_command.replace('--add-rule', '--remove-rule')
       self.logger.debug(remove_command)
-      process = FPopen(remove_command)
+      process = FPopen(remove_command, universal_newlines=True)
       rule_result, stderr = process.communicate()
       if process.returncode == 0:
         if rule_result.strip() != 'success':
@@ -765,7 +765,7 @@ stderr_logfile_backups=1
       # XXX - need to check firewalld reload instead of restart
       self.logger.info("Reloading firewall configuration...")
       reload_cmd = self.firewall_conf['reload_config_cmd']
-      reload_process = FPopen(reload_cmd)
+      reload_process = FPopen(reload_cmd, universal_newlines=True)
       stdout, stderr = reload_process.communicate()
       if reload_process.returncode != 0:
         raise Exception("Failed to load firewalld rules with command %s.\n%" % (

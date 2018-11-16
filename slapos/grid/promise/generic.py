@@ -35,9 +35,10 @@ import time
 import random
 import traceback
 import slapos.slap
-from slapos.util import mkdir_p
+from slapos.util import bytes2str, mkdir_p
 from abc import ABCMeta, abstractmethod
-from six import with_metaclass
+import six
+from six import PY3, with_metaclass
 from datetime import datetime, timedelta
 
 PROMISE_STATE_FOLDER_NAME = '.slapgrid/promise'
@@ -46,6 +47,10 @@ PROMISE_LOG_FOLDER_NAME = '.slapgrid/promise/log'
 
 PROMISE_PARAMETER_NAME = 'extra_config_dict'
 PROMISE_PERIOD_FILE_NAME = '%s.periodicity'
+
+LOGLINE_RE = r"(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s+\-?\s*(\w{4,7})\s+\-?\s+(\d+\-\d{3})\s+\-?\s*(.*)"
+matchLogStr = re.compile(LOGLINE_RE).match
+matchLogBytes = re.compile(LOGLINE_RE.encode()).match if PY3 else matchLogStr
 
 class BaseResult(object):
   def __init__(self, problem=False, message=None, date=None):
@@ -132,8 +137,6 @@ class PromiseQueueResult(object):
 
 class GenericPromise(with_metaclass(ABCMeta, object)):
 
-  # Abstract class
-
   def __init__(self, config):
     self.__config = config
 
@@ -160,9 +163,7 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
     for handler in self.logger.handlers:
       self.logger.removeHandler(handler)
     if self.__log_folder is None:
-      # configure logger with StringIO
-      from six.moves import cStringIO
-      self.__logger_buffer = cStringIO()
+      self.__logger_buffer = six.StringIO()
       logger_handler = logging.StreamHandler(self.__logger_buffer)
       self.__log_file = None
     else:
@@ -247,18 +248,14 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
       computer_partition.bang(message)
       self.logger.info("Bang with message %r." % message)
 
-  def __getLogRegex(self):
-    return re.compile(r"(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s+\-?\s*(\w{4,7})\s+\-?\s+(\d+\-\d{3})\s+\-?\s*(.*)")
-
   def __getResultFromString(self, result_string, only_failure=False):
     line_list = result_string.split('\n')
     result_list = []
     line_part = ""
-    regex = self.__getLogRegex()
     for line in line_list:
       if not line:
         continue
-      match = regex.match(line)
+      match = matchLogStr(line)
       if match is not None:
         if not only_failure or (only_failure and match.groups()[1] == 'ERROR'):
           result_list.append({
@@ -297,37 +294,36 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
     if not os.path.exists(self.__log_file):
       return []
 
-    regex = self.__getLogRegex()
-    max_date_string = ""
     if latest_minute > 0:
       date = datetime.now() - timedelta(minutes=latest_minute)
       max_date_string = date.strftime('%Y-%m-%d %H:%M:%S')
+    else:
+      max_date_string = ""
 
     line_list = []
     result_list = []
     transaction_id = None
     transaction_count = 0
     with open(self.__log_file, 'rb') as f:
-      offset = 0
       f.seek(0, 2)
-      size = -f.tell()
-      line = line_part = ""
-      while offset > size:
+      offset = f.tell()
+      line = b""
+      line_part = ""
+      while offset:
         offset -= 1
-        f.seek(offset, 2)
-        char = f.read(1).decode('utf-8')
-        if char != '\n':
+        f.seek(offset)
+        char = f.read(1)
+        if char != b'\n':
           line = char + line
-        if char == '\n' or offset == size:
-          # Add new line
-          if offset == -1:
+          if offset:
             continue
-          if line != "":
-            result = regex.match(line)
+        if line:
+            result = matchLogBytes(line)
             if result is not None:
-              if max_date_string and result.groups()[0] <= max_date_string:
+              date, level, tid, msg = map(bytes2str, result.groups())
+              if max_date_string and date <= max_date_string:
                 break
-              if transaction_id != result.groups()[2]:
+              if transaction_id != tid:
                 if transaction_id is not None:
                   # append new result
                   result_list.append(line_list)
@@ -335,20 +331,18 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
                 transaction_count += 1
                 if transaction_count > result_count:
                   break
-                transaction_id = result.groups()[2]
-              if not only_failure or \
-                  (only_failure and result.groups()[1] == 'ERROR'):
+                transaction_id = tid
+              if not only_failure or level == 'ERROR':
                 line_list.insert(0, {
-                  'date': datetime.strptime(result.groups()[0],
+                  'date': datetime.strptime(date,
                                             '%Y-%m-%d %H:%M:%S'),
-                  'status': result.groups()[1],
-                  'message': (result.groups()[3] + line_part).strip(),
+                  'status': level,
+                  'message': (msg + line_part).strip(),
                 })
+              line_part = ""
             else:
-              line_part = '\n' + line + line_part
-              line = ""
-              continue
-            line = line_part = ""
+              line_part = '\n' + bytes2str(line) + line_part
+            line = b""
 
     if len(line_list):
       result_list.append(line_list)

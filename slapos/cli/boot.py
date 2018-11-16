@@ -28,7 +28,6 @@
 ##############################################################################
 
 import subprocess
-import netaddr
 import urlparse
 from time import sleep
 import glob

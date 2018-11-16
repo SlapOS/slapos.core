@@ -28,11 +28,12 @@
 ##############################################################################
 
 import subprocess
-import socket
+import netaddr
 import urlparse
 from time import sleep
 import glob
 import os
+from netaddr import valid_ipv4, valid_ipv6
 from slapos.cli.command import must_be_root
 from slapos.cli.entry import SlapOSApp
 from slapos.cli.config import ConfigCommand
@@ -108,7 +109,7 @@ def _test_ping6(hostname):
     sleep(5)
     is_ready = _ping6(hostname)
 
-def _test_ping6_and_ping4(hostname):
+def _ping_hostname(hostname):
   is_ready = _ping6(hostname)
   while is_ready == 0:
     sleep(5)
@@ -117,25 +118,6 @@ def _test_ping6_and_ping4(hostname):
     if is_ready == 0:
       # try ping on ipv6
       is_ready = _ping6(hostname)
-
-def _is_ipv4_address(address):
-  try:
-    socket.inet_pton(socket.AF_INET, address)
-  except AttributeError:  # no inet_pton here, sorry
-    try:
-      socket.inet_aton(address)
-    except socket.error:
-      return False
-  except socket.error:  # not a valid address
-    return False
-  return True
-
-def _is_ipv6_address(address):
-  try:
-    socket.inet_pton(socket.AF_INET6, address)
-  except socket.error:
-    return False
-  return True
 
 class BootCommand(ConfigCommand):
     """
@@ -158,13 +140,13 @@ class BootCommand(ConfigCommand):
         master_hostname = master_url.hostname
 
         # Check that node can ping master
-        if _is_ipv4_address(master_hostname):
+        if valid_ipv4(master_hostname):
           _test_ping(master_hostname)
-        elif _is_ipv6_address(master_hostname):
+        elif valid_ipv6(master_hostname):
           _test_ping6(master_hostname)
         else:
           # hostname
-          _test_ping6_and_ping4(master_hostname)
+          _ping_hostname(master_hostname)
 
         app = SlapOSApp()
         # Make sure slapos node format returns ok

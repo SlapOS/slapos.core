@@ -522,22 +522,6 @@ class Computer(object):
     - add groups and users
     - construct partitions inside slapgrid
     """
-    if alter_network and self.address is not None:
-      self.interface.addAddr(self.address, self.netmask)
-
-    if use_unique_local_address_block and alter_network:
-      if self.ipv6_interface:
-        network_interface_name = self.ipv6_interface
-      else:
-        network_interface_name = self.interface.name
-      self._addUniqueLocalAddressIpv6(network_interface_name)
-
-    for path in self.instance_root, self.software_root:
-      if not os.path.exists(path):
-        os.makedirs(path, 0o755)
-      else:
-        os.chmod(path, 0o755)
-
     # own self.software_root by software user
     slapsoft = User(self.software_user)
     slapsoft.path = self.software_root
@@ -562,23 +546,40 @@ class Computer(object):
         if the_digit.isdigit():
           instance_external_list.append(data_path)
 
-    tap_address_list = []
-    if alter_network and create_tap:
-      if self.tap_gateway_interface:
-        gateway_addr_dict = getIfaceAddressIPv4(self.tap_gateway_interface)
-        tap_address_list = getIPv4SubnetAddressRange(gateway_addr_dict['addr'],
-                              gateway_addr_dict['netmask'],
-                              len(self.partition_list))
-        assert(len(self.partition_list) <= len(tap_address_list))
+    for path in self.instance_root, self.software_root:
+      if not os.path.exists(path):
+        os.makedirs(path, 0o755)
       else:
-       gateway_addr_dict = {'peer': '10.0.0.1', 'netmask': '255.255.0.0',
-                            'addr': '10.0.0.1', 'network': '10.0.0.0'}
+        os.chmod(path, 0o755)
 
-       tap_address_list = getIPv4SubnetAddressRange(gateway_addr_dict['addr'],
-                              gateway_addr_dict['netmask'],
-                              len(self.partition_list))
-
+    ####################
+    ### Network part ###
+    ####################
     if alter_network:
+      if self.address is not None:
+        self.interface.addIPv6Address(self.address, self.netmask)
+
+      if use_unique_local_address_block:
+        if self.ipv6_interface:
+          network_interface_name = self.ipv6_interface
+        else:
+          network_interface_name = self.interface.name
+        self._addUniqueLocalAddressIpv6(network_interface_name)
+
+      if create_tap:
+        if self.tap_gateway_interface:
+          gateway_addr_dict = getIfaceAddressIPv4(self.tap_gateway_interface)
+          tap_address_list = getIPv4SubnetAddressRange(gateway_addr_dict['addr'],
+                                gateway_addr_dict['netmask'],
+                                len(self.partition_list))
+          assert(len(self.partition_list) <= len(tap_address_list))
+        else:
+          gateway_addr_dict = {'peer': '10.0.0.1', 'netmask': '255.255.0.0',
+                               'addr': '10.0.0.1', 'network': '10.0.0.0'}
+          tap_address_list = getIPv4SubnetAddressRange(gateway_addr_dict['addr'],
+                                 gateway_addr_dict['netmask'],
+                                 len(self.partition_list))
+
       self._speedHackAddAllOldIpsToInterface()
 
     try:
@@ -592,37 +593,38 @@ class Computer(object):
         if alter_user:
           partition.user.create()
 
-        # Reconstructing Tap
-        if partition.user and partition.user.isAvailable():
-          owner = partition.user
-        else:
-          owner = User('root')
+        # Reconstructing Tap and Tun
+        if alter_network:
+          if partition.user and partition.user.isAvailable():
+            owner = partition.user
+          else:
+            owner = User('root')
 
-        if alter_network and create_tap:
-          partition.tap.createWithOwner(owner)
+          if create_tap:
+            partition.tap.createWithOwner(owner)
 
-          # add addresses and create route for this tap
-          next_ipv4_addr = '%s' % tap_address_list.pop(0)
-          if not partition.tap.ipv4_addr:
-            # define new ipv4 address for this tap
-            partition.tap.ipv4_addr = next_ipv4_addr
-            partition.tap.ipv4_netmask = gateway_addr_dict['netmask']
-            partition.tap.ipv4_gateway = gateway_addr_dict['addr']
-            partition.tap.ipv4_network = gateway_addr_dict['network']
+            # add addresses and create route for this tap
+            if not partition.tap.ipv4_addr:
+              # define new ipv4 address for this tap
+              next_ipv4_addr = '%s' % tap_address_list.pop(0)
+              partition.tap.ipv4_addr = next_ipv4_addr
+              partition.tap.ipv4_netmask = gateway_addr_dict['netmask']
+              partition.tap.ipv4_gateway = gateway_addr_dict['addr']
+              partition.tap.ipv4_network = gateway_addr_dict['network']
 
-          if not partition.tap.ipv6_addr:
-            ipv6_addr = self.interface.addAddr(tap=partition.tap)
-            partition.tap.ipv6_addr = ""
-            partition.tap.ipv6_netmask = ""
-            partition.tap.ipv6_gateway = ""
-            partition.tap.ipv6_network = ""
+            if not partition.tap.ipv6_addr:
+              ipv6_addr = self.interface.addIPv6Address(tap=partition.tap)
+              partition.tap.ipv6_addr = ""
+              partition.tap.ipv6_netmask = ""
+              partition.tap.ipv6_gateway = ""
+              partition.tap.ipv6_network = ""
 
-          partition.tap.createRoutes()
+            partition.tap.createRoutes()
 
-        if alter_network and partition.tun is not None:
-          # create TUN interface per partition as well
-          partition.tun.createWithOwner(owner)
-          partition.tun.createRoutes()
+          if partition.tun is not None:
+            # create TUN interface per partition as well
+            partition.tun.createWithOwner(owner)
+            partition.tun.createRoutes()
 
         # Reconstructing partition's directory
         partition.createPath(alter_user)
@@ -630,12 +632,12 @@ class Computer(object):
 
         # Reconstructing partition's address
         # There should be two addresses on each Computer Partition:
-        #  * global IPv6
         #  * local IPv4, took from slapformat:ipv4_local_network
+        #  * global IPv6
         if not partition.address_list:
           # regenerate
           partition.address_list.append(self.interface.addIPv4LocalAddress())
-          partition.address_list.append(self.interface.addAddr())
+          partition.address_list.append(self.interface.addIPv6Address())
         elif alter_network:
           # regenerate list of addresses
           old_partition_address_list = partition.address_list
@@ -653,7 +655,7 @@ class Computer(object):
 
           for address in old_partition_address_list:
             if netaddr.valid_ipv6(address['addr']):
-              partition.address_list.append(self.interface.addAddr(
+              partition.address_list.append(self.interface.addIPv6Address(
                 address['addr'],
                 address['netmask']))
             elif netaddr.valid_ipv4(address['addr']):
@@ -1097,14 +1099,14 @@ class Interface(object):
       # confirmed to be configured
       return dict(addr=addr, netmask=netmask)
 
-  def addAddr(self, addr=None, netmask=None, tap=None):
+  def addIPv6Address(self, addr=None, netmask=None, tap=None):
     """
-    Adds IP address to interface.
+    Adds IPv6 address to interface.
 
-    If addr is specified and exists already on interface does nothing.
+    If addr is specified and exists already on interface, do nothing.
 
-    If addr is specified and does not exists on interface, tries to add given
-    address. If it is not possible (ex. because network changed) calculates new
+    If addr is specified and does not exist on interface, try to add given
+    address. If it is not possible (ex. because network changed), calculate new
     address.
 
     Args:

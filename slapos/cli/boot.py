@@ -32,10 +32,13 @@ import urlparse
 from time import sleep
 import glob
 import os
+import netifaces
+import socket
 from netaddr import valid_ipv4, valid_ipv6
 from slapos.cli.command import must_be_root
 from slapos.cli.entry import SlapOSApp
 from slapos.cli.config import ConfigCommand
+from slapos.format import isGlobalScopeAddress
 
 def _removeTimestamp(instancehome):
     """
@@ -118,6 +121,23 @@ def _ping_hostname(hostname):
       # try ping on ipv6
       is_ready = _ping6(hostname)
 
+def _waitIpv6Ready(ipv6_interface):
+  """
+    test if ipv6 is ready on ipv6_interface
+  """
+  ipv6_address = ""
+  print "[BOOT] Checking if %r has IPv6..." % ipv6_interface
+  while ipv6_address == "":
+    for inet_dict in netifaces.ifaddresses(ipv6_interface)[socket.AF_INET6]:
+      ipv6_address = inet_dict['addr'].split('%')[0]
+      if isGlobalScopeAddress(ipv6_address):
+        break
+    else:
+      ipv6_address = ""
+      print "[BOOT] [ERROR] No IPv6 found on interface %r, " \
+        "try again in 5 seconds..." % ipv6_interface
+      sleep(5)
+
 class BootCommand(ConfigCommand):
     """
     Test network and invoke simple format and bang (Use on Linux startup)
@@ -135,8 +155,12 @@ class BootCommand(ConfigCommand):
     def take_action(self, args):
         configp = self.fetch_config(args)
         instance_root = configp.get('slapos','instance_root')
+        interface_name = configp.get('slapformat','interface_name')
         master_url = urlparse.urlparse(configp.get('slapos','master_url'))
         master_hostname = master_url.hostname
+
+        # Check that we have IPv6 ready on interface_name
+        _waitIpv6Ready(interface_name)
 
         # Check that node can ping master
         if valid_ipv4(master_hostname):

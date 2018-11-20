@@ -58,6 +58,8 @@ import xml_marshaller.xml_marshaller
 
 import slapos.util
 from slapos.util import mkdir_p
+from slapos.util import ipv6FromBin
+from slapos.util import binFromIpv6
 import slapos.slap as slap
 from slapos import version
 from slapos import manager as slapmanager
@@ -443,6 +445,10 @@ class Computer(object):
         tap.ipv4_netmask = partition_dict['tap'].get('ipv4_netmask', '')
         tap.ipv4_gateway = partition_dict['tap'].get('ipv4_gateway', '')
         tap.ipv4_network = partition_dict['tap'].get('ipv4_network', '')
+        tap.ipv6_addr = partition_dict['tap'].get('ipv6_addr', '')
+        tap.ipv6_netmask = partition_dict['tap'].get('ipv6_netmask', '')
+        tap.ipv6_gateway = partition_dict['tap'].get('ipv6_gateway', '')
+        tap.ipv6_network = partition_dict['tap'].get('ipv6_network', '')
       else:
         tap = Tap(partition_dict['reference'])
 
@@ -613,9 +619,9 @@ class Computer(object):
               partition.tap.ipv4_network = gateway_addr_dict['network']
 
             if not partition.tap.ipv6_addr:
-              ipv6_addr = self.interface.addIPv6Address(tap=partition.tap)
-              partition.tap.ipv6_addr = ""
-              partition.tap.ipv6_netmask = ""
+              ipv6_dict = self.interface.addIPv6Address(tap=partition.tap)
+              partition.tap.ipv6_addr = ipv6_dict['addr']
+              partition.tap.ipv6_netmask = ipv6_dict['netmask']
               partition.tap.ipv6_gateway = ""
               partition.tap.ipv6_network = ""
 
@@ -1115,7 +1121,7 @@ class Interface(object):
       tap: tap interface
 
     Returns:
-      Tuple of (address, netmask).
+      dict(addr=address, netmask=netmask).
 
     Raises:
       AddressGenerationError: Couldn't construct valid address with existing
@@ -1157,15 +1163,23 @@ class Interface(object):
     # Try 10 times to add address, raise in case if not possible
     try_num = 10
     netmask = address_dict['netmask']
+    netmask_len = len(binFromIpv6(netmask).rstrip('0'))
+    if tap:
+      # generate a subnetwork for the tap
+      # the subnetwork has 16 bits more than the interface network
+      netmask = ipv6FromBin('1'*(netmask_len+16))
+
     while try_num > 0:
       if tap:
-        cut = -3
-        if "::" in address_dict['addr']:
-          cut = -2
+        if netmask_len > 96:
+          self._logger.error('Interface {} has netmask {} which is too big for generating IPv6 on taps.'.format(
+              interface_name, netmask))
+          raise AddressGenerationError(addr)
 
-        addr = ':'.join(address_dict['addr'].split(':')[:cut] + ['%x' % (
-          random.randint(1, 65000), )] + ["ff", "ff"])
-        netmask = "ffff:ffff:ffff:ffff:ffff:ffff::"
+        addr = ipv6FromBin(
+          binFromIpv6(address_dict['addr'])[:netmask_len] +
+          bin(random.randint(1, 65000))[2:].zfill(16) +
+          '1' * (128 - netmask_len - 16))
       else:
         addr = ':'.join(address_dict['addr'].split(':')[:-1] + ['%x' % (
           random.randint(1, 65000), )])

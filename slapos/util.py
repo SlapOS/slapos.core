@@ -29,6 +29,8 @@
 
 import errno
 import os
+import socket
+import struct
 import subprocess
 import sqlite3
 
@@ -104,3 +106,30 @@ def sqlite_connect(dburi, timeout=None):
   conn = sqlite3.connect(dburi, **connect_kw)
   conn.text_factory = str       # allow 8-bit strings
   return conn
+
+def binFromRawIpv6(ip):
+  ip1, ip2 = struct.unpack('>QQ', ip)
+  return bin(ip1)[2:].rjust(64, '0') + bin(ip2)[2:].rjust(64, '0')
+
+def binFromIpv6(ip):
+  """
+  convert an IPv6  to a 128 characters string containing 0 and 1
+  e.g.: 'ffff:ffff:fc00::'-> '1111111111111111111111111111111111111100000000000000000000000000...0000'
+  """
+  return binFromRawIpv6(socket.inet_pton(socket.AF_INET6, ip))
+
+def ipv6FromBin(ip, suffix=''):
+  """
+  convert a string containing 0 and 1 to an IPv6
+  if the string is less than 128 characters:
+   * consider the string is the first bits
+   * optionnaly can replace the last bits of the IP with a suffix (in binary string format)
+  """
+  suffix_len = 128 - len(ip)
+  if suffix_len > 0:
+    ip += suffix.rjust(suffix_len, '0')
+  elif suffix_len:
+    sys.exit("Prefix exceeds 128 bits")
+  return socket.inet_ntop(socket.AF_INET6,
+    struct.pack('>QQ', int(ip[:64], 2), int(ip[64:], 2)))
+

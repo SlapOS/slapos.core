@@ -362,10 +362,10 @@
                     [["my_slap_state_title"],  ['my_monitoring_status'], ['my_monitor_scope']]
 
                   ], ["center",
-                      [["my_source_reference"], ["my_url_string"], ["my_text_content"]]
+                      [["my_source_reference"], ["my_url_string"]]
                   ], [
                     "bottom",
-                    [["connection_listbox"], ["listbox"], ["ticket_listbox"]]
+                    [["connection_listbox"], ["my_text_content"], ["listbox"], ["ticket_listbox"]]
                   ]]
                 }
               });

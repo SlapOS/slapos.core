@@ -44,19 +44,57 @@
     return partition_class;
   }
 
+  function getDoc(gadget) {
+    if (gadget.options.doc && gadget.options.doc !== undefined) {
+      return gadget.options.doc;
+    }
+    return gadget.jio_get(gadget.options.value.jio_key);
+  }
+
+  function getMonitorParameterDict(gadget, doc) {
+    if (doc.portal_type === "Hosting Subscription") {
+      return gadget.jio_getAttachment(gadget.options.value.jio_key,
+        gadget.props.hateoas_url +  gadget.options.value.jio_key +
+        "/HostingSubscription_getMonitorParameterDict");
+    }
+  }
+
   function getStatus(gadget) {
+    var result;
     return new RSVP.Queue()
       .push(function () {
-        return gadget.jio_get(gadget.options.value.jio_key);
+        return getDoc(gadget);
       })
-      .push(function (result) {
+      .push(function (jio_doc) {
+        result = jio_doc;
+        if (gadget.state.monitor_dict === undefined ||
+            !gadget.state.has_monitor_info) {
+          return getMonitorParameterDict(gadget, jio_doc)
+            .push(function (param_dict) {
+              return gadget.changeState({
+                monitor_dict: param_dict,
+                has_monitor_info: true
+              });
+            });
+        }
+      })
+      .push(function () {
         var monitor_url,
           status_class = 'ui-btn-no-data',
           status_title = 'Instances',
           status_style = "";
 
         status_class = checkHostingSubscriptionStatus(result);
-        monitor_url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type%3A%22Hosting%20Subscription%22%20AND%20title%3A' + result.title;
+        if (gadget.state.monitor_dict.url &&
+            gadget.state.monitor_dict.username &&
+            gadget.state.monitor_dict.password) {
+          monitor_url = "https://monitor.app.officejs.com/#page=settings_configurator&url=" +
+            gadget.state.monitor_dict.url + "&username=" +
+            gadget.state.monitor_dict.username + "&password=" +
+            gadget.state.monitor_dict.password;
+        } else {
+          monitor_url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type%3A%22Hosting%20Subscription%22%20AND%20title%3A' + result.title;
+        }
 
         if (status_class === 'ui-btn-no-data') {
           status_style = "color: transparent !important;";
@@ -73,6 +111,9 @@
   }
 
   gadget_klass
+    .setState({
+      has_monitor_info: false
+    })
     .ready(function (gadget) {
       gadget.props = {};
       return gadget.getSetting("hateoas_url")
@@ -82,6 +123,7 @@
     })
     .declareAcquiredMethod("jio_get", "jio_get")
     .declareAcquiredMethod("getSetting", "getSetting")
+    .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("translateHtml", "translateHtml")
 
     .declareMethod("getContent", function () {

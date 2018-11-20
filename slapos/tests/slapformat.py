@@ -464,7 +464,7 @@ class TestComputer(SlapformatMixin):
     self.assertEqual([
         'ip tuntap add dev tap mode tap user testuser',
         'ip link set tap up',
-        'ip addr add ip/ffff:ffff:ffff:ffff:ffff:ffff:: dev tap',
+        'ip addr add ip/ffff:ffff:ffff:ffff:ffff:: dev tap',
         'ip -6 addr list tap',
         'ip route show 10.0.0.2',
         'ip route add 10.0.0.2 dev tap',
@@ -493,7 +493,7 @@ class TestComputer(SlapformatMixin):
     INTERFACE_DICT['iface'] = {
       socket.AF_INET: [{'addr': '192.168.242.77', 'broadcast': '127.0.0.1',
         'netmask': '255.255.255.0'}],
-      socket.AF_INET6: [{'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::'}]
+      socket.AF_INET6: [{'addr': '2a01:e35:2e27:3456::e59c', 'netmask': 'ffff:ffff:ffff:ffff:ffff::'}]
     }
     INTERFACE_DICT['eth1'] = {
       socket.AF_INET: [{'addr': '10.8.0.1', 'broadcast': '10.8.0.254',
@@ -501,7 +501,7 @@ class TestComputer(SlapformatMixin):
     }
 
     INTERFACE_DICT['tap'] = {
-      socket.AF_INET6: [{'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::'}]
+      socket.AF_INET6: [{'addr': '2a01:e35:2e27:3456::e59c', 'netmask': 'ffff:ffff:ffff:ffff:ffff::'}]
     }
 
     computer.format(alter_user=False)
@@ -521,7 +521,7 @@ class TestComputer(SlapformatMixin):
         'ip route show 10.8.0.2',
         'ip route add 10.8.0.2 dev tap',
         'ip addr add ip/255.255.255.255 dev iface',
-        'ip addr add ip/ffff:ffff:ffff:ffff:: dev iface',
+        'ip addr add ip/ffff:ffff:ffff:ffff:ffff:: dev iface',
         'ip -6 addr list iface'
       ],
       self.fakeCallAndRead.external_command_list)

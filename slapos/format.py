@@ -443,6 +443,10 @@ class Computer(object):
         tap.ipv4_netmask = partition_dict['tap'].get('ipv4_netmask', '')
         tap.ipv4_gateway = partition_dict['tap'].get('ipv4_gateway', '')
         tap.ipv4_network = partition_dict['tap'].get('ipv4_network', '')
+        tap.ipv6_addr = partition_dict['tap'].get('ipv6_addr', '')
+        tap.ipv6_netmask = partition_dict['tap'].get('ipv6_netmask', '')
+        tap.ipv6_gateway = partition_dict['tap'].get('ipv6_gateway', '')
+        tap.ipv6_network = partition_dict['tap'].get('ipv6_network', '')
       else:
         tap = Tap(partition_dict['reference'])
 
@@ -613,9 +617,9 @@ class Computer(object):
               partition.tap.ipv4_network = gateway_addr_dict['network']
 
             if not partition.tap.ipv6_addr:
-              ipv6_addr = self.interface.addIPv6Address(tap=partition.tap)
-              partition.tap.ipv6_addr = ""
-              partition.tap.ipv6_netmask = ""
+              ipv6_dict = self.interface.addIPv6Address(tap=partition.tap)
+              partition.tap.ipv6_addr = ipv6_dict['addr']
+              partition.tap.ipv6_netmask = ipv6_dict['netmask']
               partition.tap.ipv6_gateway = ""
               partition.tap.ipv6_network = ""
 
@@ -1115,7 +1119,7 @@ class Interface(object):
       tap: tap interface
 
     Returns:
-      Tuple of (address, netmask).
+      dict(addr=address, netmask=netmask).
 
     Raises:
       AddressGenerationError: Couldn't construct valid address with existing
@@ -1159,13 +1163,26 @@ class Interface(object):
     netmask = address_dict['netmask']
     while try_num > 0:
       if tap:
-        cut = -3
-        if "::" in address_dict['addr']:
+        # generate a subnetwork for the tap
+        # the subnetwork has 16 bits more than the interface network
+        # for now support only /64, /80 and /96 networks for the interface
+        if   netmask == "ffff:ffff:ffff:ffff::":
+          cut = -4
+          last_addr_suffix = ["ffff", "ffff", "ffff"]
+        elif netmask == "ffff:ffff:ffff:ffff:ffff::":
+          cut = -3
+          last_addr_suffix = ["ffff", "ffff"]
+        elif netmask == "ffff:ffff:ffff:ffff:ffff:ffff::":
           cut = -2
+          last_addr_suffix = ["ffff"]
+        else:
+          self._logger.error('Interface {} has netmask {} which is not supported yet for generating IPv6 on taps.'.format(
+              interface_name, netmask))
+          raise AddressGenerationError(addr)
 
         addr = ':'.join(address_dict['addr'].split(':')[:cut] + ['%x' % (
-          random.randint(1, 65000), )] + ["ff", "ff"])
-        netmask = "ffff:ffff:ffff:ffff:ffff:ffff::"
+          random.randint(1, 65000), )] + last_addr_suffix)
+        netmask = netmask[:-1] + "ffff::"
       else:
         addr = ':'.join(address_dict['addr'].split(':')[:-1] + ['%x' % (
           random.randint(1, 65000), )])

@@ -103,6 +103,7 @@
                       <list>
                         <string>my_title</string>
                         <string>my_reference</string>
+                        <string>my_monitor_link</string>
                       </list>
                     </value>
                 </item>

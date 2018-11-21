@@ -197,17 +197,22 @@
   }
 
   gk
+
+    .declareMethod("getBaseUrl", function (url) {
+      var base_url, url_uri = URI(url);
+      base_url = url_uri.path().split("/");
+      base_url.pop();
+      base_url = url.split(url_uri.path())[0] + base_url.join("/");
+      return base_url;
+    })
     .declareMethod("loadJSONSchema", function (url) {
+      var gadget = this;
       return getJSON(url)
         .push(function (json) {
-          var base_url, url_uri;
-
-          url_uri = URI(url);
-          base_url = url_uri.path().split("/");
-          base_url.pop();
-          base_url = url.split(url_uri.path())[0] + base_url.join("/");
-          
-          return validateJSONSchema(json, base_url);
+          return gadget.getBaseUrl(url)
+            .push(function (base_url) {
+              return validateJSONSchema(json, base_url);
+            });
         });
     })
 
@@ -218,62 +223,22 @@
         });
     })
 
-    .declareMethod("validateJSONForSoftwareType", function (schema_url, software_type, generated_json) {
-      return getJSON(schema_url)
+    .declareMethod("validateJSON", function (base_url, schema_url, generated_json) {
+      var parameter_schema_url = schema_url;
+
+      if (URI(parameter_schema_url).protocol() === "") {
+        if (base_url !== undefined) {
+          parameter_schema_url = base_url + "/" + parameter_schema_url;
+        }
+      }
+
+      return getJSON(parameter_schema_url)
         .push(function (json) {
-          return JSON.parse(json);
-        })
-        .push(function (json_object) {
-          var parameter_schema_url,
-            st,
-            base_url,
-            url_uri = URI(schema_url);
-        
-          for (st in json_object["software-type"]) {
-            if (json_object["software-type"].hasOwnProperty(st)) {
-              if (st === software_type) {
-                parameter_schema_url = json_object["software-type"][st].request;
-              }
-            }
-          }
-          
-          if (URI(parameter_schema_url).protocol() === "") {
-            base_url = url_uri.path().split("/");
-            base_url.pop();
-            base_url = schema_url.split(url_uri.path())[0] + base_url.join("/");
-            if (base_url !== undefined) {
-              parameter_schema_url = base_url + "/" + parameter_schema_url;
-            }
-          }
-          
-          return getJSON(parameter_schema_url)
-            .push(function (json) {
-              var schema = JSON.parse(json);
-
-              return expandSchema(schema, schema, base_url)
-                .push(function (loaded_json) {
-                  return tv4.validateMultiple(generated_json, loaded_json);
-                });
-            });
-         });
-    })
-
-    .declareMethod("validateJSON", function (schema_url, generated_json) {
-      return getJSON(schema_url)
-        .push(function (json) {
-          var base_url,
-            url_uri = URI(schema_url),
-            schema = JSON.parse(json);
-
-          base_url = url_uri.path().split("/");
-          base_url.pop();
-          base_url = schema_url.split(url_uri.path())[0] + base_url.join("/");
-
+          var schema = JSON.parse(json);
           return expandSchema(schema, schema, base_url)
-            .push(function (loaded_schema) {
-              return tv4.validateMultiple(generated_json, loaded_schema);
+           .push(function (loaded_json) {
+              return tv4.validateMultiple(generated_json, loaded_json);
             });
         });
     });
-
 }(window, rJS, $, RSVP));

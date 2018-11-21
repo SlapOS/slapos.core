@@ -475,6 +475,16 @@
     return "";
   }
 
+
+  function getSchemaUrlFromForm(element) {
+    var input = element.querySelector(".parameter_schema_url");
+
+    if (input !== undefined && input !== null) {
+      return input.value;
+    }
+    return "";
+  }
+
   gk.declareMethod("loadJSONSchema", function (url) {
       return this.getDeclaredGadget('loadschema')
         .push(function (gadget) {
@@ -482,13 +492,19 @@
         });
     })
 
-    .declareMethod("validateJSONForSoftwareType", function (schema_url, softwaretype, generated_json) {
+    .declareMethod("validateJSON", function (base_url, schema_url, generated_json) {
       return this.getDeclaredGadget('loadschema')
         .push(function (gadget) {
-          return gadget.validateJSONForSoftwareType(schema_url, softwaretype, generated_json);
+          return gadget.validateJSON(base_url, schema_url, generated_json);
         });
     })
 
+    .declareMethod("getBaseUrl", function (url) {
+      return this.getDeclaredGadget('loadschema')
+        .push(function (gadget) {
+          return gadget.getBaseUrl(url);
+        });
+    })
     .declareMethod("loadSoftwareJSON", function (url) {
       return this.getDeclaredGadget('loadschema')
         .push(function (gadget) {
@@ -500,7 +516,9 @@
       var g = this,
         software_type = getSoftwareTypeFromForm(g.element),
         json_dict = getFormValuesAsJSONDict(g.element),
+        schema_url = getSchemaUrlFromForm(g.element),
         serialisation_type = getSerialisationTypeFromForm(g.element);
+
       if (software_type === "") {
         if (g.options.value.parameter.shared) {
           throw new Error("The software type is not part of the json (" + software_type + " as slave)");
@@ -508,7 +526,10 @@
         throw new Error("The software type is not part of the json (" + software_type + ")");
       }
 
-      return g.validateJSONForSoftwareType(json_url, software_type, json_dict)
+      return g.getBaseUrl(json_url)
+        .push(function (base_url) {
+          return g.validateJSON(base_url, json_url, json_dict);
+        })
         .push(function (validation) {
           var error_index,
             parameter_hash_input = g.element.querySelectorAll('.parameter_hash_output')[0],
@@ -693,6 +714,7 @@
             simplified_only = options.value.parameter.simplified_only,
             input = gadget.element.querySelector('select.slapos-software-type'),
             parameter_shared = gadget.element.querySelector('input.parameter_shared'),
+            parameter_schema_url = gadget.element.querySelector('input.parameter_schema_url'),
             s_input = gadget.element.querySelector('input.slapos-serialisation-type'),
             selection_option_list = [];
 
@@ -796,7 +818,10 @@
             options.serialisation = json.serialisation;
           }
 
-          return json['software-type'][option_selected_index].request;
+          // Save current schema on the field
+          parameter_schema_url.value = json['software-type'][option_selected_index].request;
+
+          return parameter_schema_url.value;
         })
         .push(function (parameter_json_schema_url) {
           var parameter_dict = {}, json_url_uri, prefix, parameter_entry,

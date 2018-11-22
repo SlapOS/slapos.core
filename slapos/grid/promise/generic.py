@@ -105,7 +105,7 @@ class PromiseQueueResult(object):
       'result': {
         'type': self.item.type(),
         'failed': self.item.hasFailed(),
-        'date': self.item.date.strftime('%Y-%m-%dT%H:%M:%S'),
+        'date': self.item.date.strftime('%Y-%m-%dT%H:%M:%S+0000'),
         'message': self.item.message
       }
     }
@@ -115,12 +115,12 @@ class PromiseQueueResult(object):
       self.item = AnomalyResult(
         problem=data['result']['failed'],
         message=data['result']['message'],
-        date=datetime.strptime(data['result']['date'], '%Y-%m-%dT%H:%M:%S'))
+        date=datetime.strptime(data['result']['date'], '%Y-%m-%dT%H:%M:%S+0000'))
     elif data['result']['type'] == TestResult.type():
       self.item = TestResult(
         problem=data['result']['failed'],
         message=data['result']['message'],
-        date=datetime.strptime(data['result']['date'], '%Y-%m-%dT%H:%M:%S'))
+        date=datetime.strptime(data['result']['date'], '%Y-%m-%dT%H:%M:%S+0000'))
     else:
       raise ValueError('Unknown result type: %r' % data['result']['type'])
 

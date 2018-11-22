@@ -925,7 +925,7 @@ exit 0
   "name": "my_promise.py",
   "execution-time": 0.1,
   "title": "my_promise"
-}""" % (datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S'), self.plugin_dir)
+}""" % (datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S+0000'), self.plugin_dir)
 
     if not os.path.exists(os.path.dirname(state_file)):
       os.makedirs(os.path.dirname(state_file))
@@ -946,7 +946,7 @@ exit 0
   "name": "%(name)s",
   "execution-time": 0.1,
   "title": "%(name)s"
-}""" % {'date': datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S'),
+}""" % {'date': datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S+0000'),
         'folder': self.legacy_promise_dir,
         'name': name}
 

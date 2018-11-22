@@ -88,6 +88,17 @@
                   "hidden": 1,
                   "type": "StringField"
                 },
+                "my_destination": {
+                  "description": "",
+                  "title": "Source",
+                  "default": result[2].source,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 1,
+                  "key": "destination",
+                  "hidden": 1,
+                  "type": "StringField"
+                },
                 "my_text_content": {
                   "description": "Include your message",
                   "title": "Your Message",
@@ -153,6 +164,17 @@
                   "key": "parent_relative_url",
                   "hidden": 1,
                   "type": "StringField"
+                },
+                "my_start_date": {
+                  "description": "",
+                  "title": "Start Date",
+                  "default": (new Date()).toUTCString(),
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 1,
+                  "key": "start_date",
+                  "hidden": 1,
+                  "type": "StringField"
                 }
               }},
               "_links": {
@@ -167,7 +189,9 @@
                 "center",
                 [["my_title"], ["my_text_content"], ["my_follow_up"],
                  ["my_portal_type"], ["my_parent_relative_url"],
-                 ["my_follow_up"], ["my_source"]]
+                 ["my_follow_up"], ["my_source"], ["my_resource"],
+                 ["my_content_type"], ["my_destination"],
+                 ["my_start_date"]]
               ]]
             }
           });

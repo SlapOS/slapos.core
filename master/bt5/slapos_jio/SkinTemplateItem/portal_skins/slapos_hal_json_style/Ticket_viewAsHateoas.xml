@@ -103,6 +103,7 @@
                         <string>my_resource_title</string>
                         <string>my_simulation_state_title</string>
                         <string>my_destination_decision</string>
+                        <string>my_source</string>
                       </list>
                     </value>
                 </item>

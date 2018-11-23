@@ -98,9 +98,6 @@
                         <string>your_created_yesterday_grade</string>
                         <string>your_created_avg_week_grade</string>
                         <string>your_created_avg_month_grade</string>
-                        <string>your_suspended_ticket_total</string>
-                        <string>your_closed_ticket_total</string>
-                        <string>your_open_ticket_total</string>
                       </list>
                     </value>
                 </item>
@@ -112,9 +109,6 @@
                         <string>your_closed_yesterday_grade</string>
                         <string>your_closed_avg_month_grade</string>
                         <string>your_closed_avg_week_grade</string>
-                        <string>your_open_monitor_ticket_total</string>
-                        <string>your_suspended_monitor_ticket_total</string>
-                        <string>your_closed_monitor_ticket_total</string>
                       </list>
                     </value>
                 </item>

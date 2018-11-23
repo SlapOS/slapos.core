@@ -336,7 +336,8 @@
                         "Slave Instance" + "%22%2C%20%22" +
                         "Software Instance" + "%22%29%20AND%20%28" +
                         "default_specialise_reference%3A%22" +
-                        gadget.state.doc.reference + "%22%29%29",
+                        gadget.state.doc.reference + "%22%29%20AND%20%28" +
+                        "validation_state%3A%22validated%22%29%29",
                       "portal_type": [],
                       "search_column_list": column_list,
                       "sort_column_list": column_list,

@@ -1212,7 +1212,7 @@ class SlapTool(BaseTool):
     instance = etree.Element('instance')
     for parameter_id, parameter_value in partition_parameter_kw.iteritems():
       etree.SubElement(instance, "parameter",
-                       attrib={'id':parameter_id}).text = parameter_value
+                       attrib={'id':parameter_id}).text = str(parameter_value)
     connection_xml = etree.tostring(instance, pretty_print=True,
                                   xml_declaration=True, encoding='utf-8')
     reference = software_instance.getReference()

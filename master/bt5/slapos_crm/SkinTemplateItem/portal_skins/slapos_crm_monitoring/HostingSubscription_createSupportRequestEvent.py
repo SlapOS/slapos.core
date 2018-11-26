@@ -27,8 +27,12 @@ notification_reference = notification_message_reference
 notification_message = portal.portal_notifications.getDocumentValue(
                  reference=notification_reference)
 if notification_message is not None:
+  error_message = instance.SoftwareInstance_hasReportedError(include_message=True)
+  if not error_message:
+    error_message = "No message!"
   mapping_dict = {'hosting_subscription_title':context.getTitle(),
-                  'instance': instance.getTitle()}
+                  'instance': instance.getTitle(),
+                  'error_text': error_message}
 
   message = notification_message.asText(
               substitution_method_parameter_dict={'mapping_dict':mapping_dict})

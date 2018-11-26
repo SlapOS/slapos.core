@@ -7,7 +7,7 @@
 # programmers who take the whole responsibility of assessing all potential
 # consequences resulting from its eventual inadequacies and bugs
 # End users who are looking for a ready-to-use solution with commercial
-# guarantees and support are strongly adviced to contract a Free Software
+# guarantees and support are strongly advised to contract a Free Software
 # Service Company
 #
 # This program is Free Software; you can redistribute it and/or
@@ -30,10 +30,13 @@ from zope.interface import Interface
 """
 Note: all strings accepted/returned by the slap library are encoded in UTF-8.
 """
+
+
 class IException(Interface):
   """
   Classes which implement IException are used to report errors.
   """
+
 
 class IConnectionError(IException):
   """
@@ -41,23 +44,27 @@ class IConnectionError(IException):
   to the slap server.
   """
 
+
 class IServerError(IException):
   """
   Classes which implement IServerError are used to report unexpected error
   from the slap server.
   """
 
+
 class INotFoundError(IException):
   """
   Classes which implement INotFoundError are used to report missing
-  informations on the slap server.
+  information on the slap server.
   """
+
 
 class IResourceNotReady(IException):
   """
   Classes which implement IResourceNotReady are used to report resource not
   ready on the slap server.
   """
+
 
 class IRequester(Interface):
   """
@@ -70,11 +77,11 @@ class IRequester(Interface):
     """
     Request software release instantiation to slapgrid server.
 
-    Returns a new computer partition document, where this sofware release will
+    Returns a new computer partition document, where this software release will
     be installed.
 
-    software_release -- uri of the software release
-                        which has to be instanciated
+    software_release -- URI of the software release
+                        which has to be instantiated
 
     software_type -- type of component provided by software_release
 
@@ -84,7 +91,7 @@ class IRequester(Interface):
     shared -- boolean to use a shared service
 
     partition_parameter_kw -- dictionary of parameter used to fill the
-                              parameter dict of newly created partition.
+                              parameter dictionary of newly created partition.
 
     filter_kw -- dictionary of filtering parameter to select the requested
                  computer partition.
@@ -94,18 +101,19 @@ class IRequester(Interface):
       port - port provided by the requested partition
 
     Example:
-       request('http://example.com/toto/titi', 'typeA', 'mysql_1')
+       request('http://example.com/foo/bar', 'typeA', 'mysql_1')
     """
 
   def getInformation(partition_reference):
     """
-    Get informations about an existing instance.
-    If it is called from a Computer Partition, get informations
+    Get information about an existing instance.
+    If it is called from a Computer Partition, get information
     about Software Instance of the instance tree.
 
     partition_reference -- local reference of the instance used by the recipe
                            to identify the instances.
     """
+
 
 class ISoftwareRelease(Interface):
   """
@@ -114,7 +122,7 @@ class ISoftwareRelease(Interface):
 
   def getURI():
     """
-    Returns a string representing the uri of the software release.
+    Returns a string representing the URI of the software release.
     """
 
   def getComputerId():
@@ -151,12 +159,13 @@ class ISoftwareRelease(Interface):
 
   def error(error_log):
     """
-    Notify (to the slapgrid server) that the software installation is 
+    Notify (to the slapgrid server) that the software installation is
     not available and reports an error.
 
     error_log -- a text describing the error
                  It can be a traceback for example.
     """
+
 
 class ISoftwareProductCollection(Interface):
   """
@@ -169,11 +178,13 @@ class ISoftwareProductCollection(Interface):
   Release URL of KVM.
   """
 
+
 class ISoftwareInstance(Interface):
   """
   Classes which implement ISoftwareRelease are used by slap to represent
-  informations about a Software Instance.
+  information about a Software Instance.
   """
+
 
 class IComputerPartition(IRequester):
   """
@@ -204,13 +215,12 @@ class IComputerPartition(IRequester):
 
   def error(error_log):
     """
-    Notify (to the slapgrid server) that the software instance is 
+    Notify (to the slapgrid server) that the software instance is
     not available and reports an error.
 
     error_log -- a text describing the error
                  It can be a traceback for example.
     """
-
 
   def getId():
     """
@@ -245,7 +255,7 @@ class IComputerPartition(IRequester):
     """
     Returns a dictionary of instance parameters.
 
-    The contained values can be used to fill the software instanciation
+    The contained values can be used to fill the software instantiation
     profile.
     """
 
@@ -274,16 +284,16 @@ class IComputerPartition(IRequester):
   def bang(log):
     """
     Report a problem detected on a computer partition.
-    This will trigger the reinstanciation of all partitions in the instance tree.
+    This will trigger the re-instantiation of all partitions in the instance tree.
 
     log -- a text explaining why the method was called
     """
 
   def getCertificate():
     """
-    Returns a dictionnary containing the authentification certificates
+    Returns a dictionary containing the authentication certificates
     associated to the computer partition.
-    The dictionnary keys are:
+    The dictionary keys are:
       key -- value is a SSL key
       certificate -- value is a SSL certificate
 
@@ -295,7 +305,7 @@ class IComputerPartition(IRequester):
     Store the connection parameters associated to a partition.
 
     connection_dict -- dictionary of parameter used to fill the
-                              connection dict of the partition.
+                              connection dictionary of the partition.
 
     slave_reference -- current reference of the slave instance to modify
     """
@@ -330,9 +340,9 @@ class IComputerPartition(IRequester):
 
   def getStatus():
     """
-    Returns a dictionnary containing the latest status of the
+    Returns a dictionary containing the latest status of the
     computer partition.
-    The dictionnary keys are:
+    The dictionary keys are:
       user -- user who reported the latest status
       created_at -- date of the status
       text -- message log of the status
@@ -340,7 +350,7 @@ class IComputerPartition(IRequester):
 
   def getFullHostingIpAddressList():
     """
-    Returns a dictionnary containing the latest status of the
+    Returns a dictionary containing the latest status of the
     computer partition.
     """
 
@@ -349,14 +359,15 @@ class IComputerPartition(IRequester):
     Set relation between this Instance and all his children.
 
     instance_reference_list -- list of instances requested by this Computer
-                               Partition.   
+                               Partition.
     """
+
 
 class IComputer(Interface):
   """
   Computer interface specification
 
-  Classes which implement IComputer can fetch informations from the slapgrid
+  Classes which implement IComputer can fetch information from the slapgrid
   server to know which Software Releases and Software Instances have to be
   installed.
   """
@@ -405,9 +416,9 @@ class IComputer(Interface):
 
   def getStatus():
     """
-    Returns a dictionnary containing the latest status of the
+    Returns a dictionary containing the latest status of the
     computer.
-    The dictionnary keys are:
+    The dictionary keys are:
       user -- user who reported the latest status
       created_at -- date of the status
       text -- message log of the status
@@ -415,9 +426,9 @@ class IComputer(Interface):
 
   def generateCertificate():
     """
-    Returns a dictionnary containing the new certificate files for
+    Returns a dictionary containing the new certificate files for
     the computer.
-    The dictionnary keys are:
+    The dictionary keys are:
       key -- key file
       certificate -- certificate file
 
@@ -430,6 +441,7 @@ class IComputer(Interface):
 
     Raise ValueError is there is not valid certificate.
     """
+
 
 class IOpenOrder(IRequester):
   """
@@ -448,6 +460,7 @@ class IOpenOrder(IRequester):
     computer_reference -- local reference of the computer
     """
 
+
 class ISupply(Interface):
   """
   Supply interface specification
@@ -458,18 +471,19 @@ class ISupply(Interface):
 
   def supply(software_release, computer_guid=None):
     """
-    Tell that given client is ready to supply given sofware release
+    Tell that given client is ready to supply given software release
 
-    software_release -- uri of the software release
-                        which has to be instanciated
+    software_release -- URI of the software release
+                        which has to be instantiated
 
     computer_guid -- the identifier of the computer inside the slapgrid
                      server.
     """
 
+
 class slap(Interface):
   """
-  Initialise slap connection to the slapgrid server
+  Initialize slap connection to the slapgrid server
 
   Slapgrid server URL is defined during the slap library installation,
   as recipes should not use another server.
@@ -479,23 +493,23 @@ class slap(Interface):
     """
     Initialize the connection parameters to the slapgrid servers.
 
-    slapgrid_uri -- uri the slapgrid server connector
+    slapgrid_uri -- URI the slapgrid server connector
 
-    authentification_key -- string the authentificate the agent.
+    authentification_key -- string the authenticate the agent. (Yes, there's a typo in the argument name)
 
     Example: https://slapos.server/slap_interface
     """
 
   def registerComputer(computer_guid):
     """
-    Instanciate a computer in the slap library.
+    Instantiate a computer in the slap library.
 
     computer_guid -- the identifier of the computer inside the slapgrid server.
     """
 
   def registerComputerPartition(computer_guid, partition_id):
     """
-    Instanciate a computer partition in the slap library.
+    Instantiate a computer partition in the slap library.
 
     computer_guid -- the identifier of the computer inside the slapgrid server.
 
@@ -507,25 +521,25 @@ class slap(Interface):
 
   def registerSoftwareRelease(software_release):
     """
-    Instanciate a software release in the slap library.
+    Instantiate a software release in the slap library.
 
-    software_release -- uri of the software release definition
+    software_release -- URI of the software release definition
     """
 
   def registerOpenOrder():
     """
-    Instanciate an open order in the slap library.
+    Instantiate an open order in the slap library.
     """
 
   def registerSupply():
     """
-    Instanciate a supply in the slap library.
+    Instantiate a supply in the slap library.
     """
 
   def getSoftwareReleaseListFromSoftwareProduct(software_product_reference, software_release_url):
     """
     Get the list of Software Releases from a product or from another related
-    Sofware Release, from a Software Product point of view.
+    Software Release, from a Software Product point of view.
     """
 
   def getOpenOrderDict():

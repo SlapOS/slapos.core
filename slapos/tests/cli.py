@@ -29,7 +29,6 @@ import logging
 import pprint
 import unittest
 import tempfile
-from six import StringIO
 import sys
 import os
 import sqlite3
@@ -45,7 +44,7 @@ import slapos.cli.entry
 import slapos.cli.info
 import slapos.cli.list
 import slapos.cli.supervisorctl
-import slapos.cli.proxy_show
+from slapos.cli.proxy_show import do_show, StringIO
 from slapos.client import ClientConfig
 import slapos.grid.svcbackend
 import slapos.proxy
@@ -121,7 +120,7 @@ class TestCliProxyShow(CliMixin):
     with mock.patch(
             'slapos.cli.proxy_show.logging.getLogger',
             return_value=logger):
-        slapos.cli.proxy_show.do_show(self.conf)
+        do_show(self.conf)
 
     # installed softwares are listed
     logger.info.assert_any_call(
@@ -155,7 +154,7 @@ class TestCliProxyShow(CliMixin):
     sys.stderr = stderr = StringIO()
     sys.stdout = stdout = StringIO()
     try:
-      slapos.cli.proxy_show.do_show(self.conf)
+      do_show(self.conf)
     finally:
       sys.stderr = saved_stderr
       sys.stdout = saved_stdout
@@ -167,8 +166,8 @@ class TestCliProxyShow(CliMixin):
     self.assertEqual('', stderr.getvalue())
 
   def test_proxy_show_use_pager(self):
-    saved_stderr = sys.stderr
-    saved_stdout = sys.stdout
+    sys.saved_stderr = sys.stderr
+    sys.saved_stdout = sys.stdout
     sys.stderr = stderr = StringIO()
     sys.stdout = stdout = StringIO()
     stdout.isatty = lambda *args: True
@@ -179,10 +178,10 @@ class TestCliProxyShow(CliMixin):
     os.environ['PAGER'] = 'cat > {}'.format(tmp.name)
 
     try:
-      slapos.cli.proxy_show.do_show(self.conf)
+      do_show(self.conf)
     finally:
-      sys.stderr = saved_stderr
-      sys.stdout = saved_stdout
+      sys.stderr = sys.saved_stderr
+      sys.stdout = sys.saved_stdout
 
     self.assertEqual('', stdout.getvalue())
     self.assertEqual('', stderr.getvalue())

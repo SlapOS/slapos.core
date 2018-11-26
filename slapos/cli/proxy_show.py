@@ -34,7 +34,6 @@ import logging
 import sys
 import os
 import subprocess
-from six import StringIO
 
 import lxml.etree
 import prettytable
@@ -45,6 +44,15 @@ from slapos.proxy import ProxyConfig
 from slapos.proxy.db_version import DB_VERSION
 from slapos.util import sqlite_connect, str2bytes
 
+if bytes is str:
+  from io import BytesIO
+  class StringIO(BytesIO):
+    # Something between strict io.BytesIO and laxist/slow StringIO.StringIO
+    # (which starts returning unicode once unicode is written) for logging. 
+    def write(self, b):
+      return BytesIO.write(self, b.encode('utf-8'))
+else:
+  from io import StringIO
 
 class ProxyShowCommand(ConfigCommand):
     """

@@ -129,8 +129,8 @@ database_uri = %(tempdir)s/lib/proxy.db
       computer_id = self.computer_id
     computer_dict = {
         'reference': computer_id,
-        'address': '123.456.789',
-        'netmask': 'fffffffff',
+        'address': '12.34.56.78',
+        'netmask': '255.255.255.255',
         'partition_list': [],
     }
     for i in range(partition_amount):
@@ -158,6 +158,47 @@ database_uri = %(tempdir)s/lib/proxy.db
     """
     shutil.rmtree(self._tempdir, True)
     views.is_schema_already_executed = False
+
+
+class TestLoadComputerConfiguration(BasicMixin, unittest.TestCase):
+  """tests /loadComputerConfigurationFromXML the endpoint for format
+  """
+  def test_loadComputerConfigurationFromXML_remove_partitions(self):
+    computer_dict = {
+        'reference': self.computer_id,
+        'address': '12.34.56.78',
+        'netmask': '255.255.255.255',
+        'partition_list': [
+            {
+                'reference': 'slappart1',
+                'address_list': [
+                    {
+                        'addr': '1.2.3.4',
+                        'netmask': '255.255.255.255'
+                    },
+                ],
+                'tap': {'name': 'tap0'},
+            }
+        ],
+    }
+    rv = self.app.post('/loadComputerConfigurationFromXML', data={
+        'computer_id': self.computer_id,
+        'xml': dumps(computer_dict),
+    })
+    self.assertEqual(rv._status_code, 200)
+    # call again with different partition reference, old partition will be removed
+    # and a new partition will be used.
+    computer_dict['partition_list'][0]['reference'] = 'something else'
+    rv = self.app.post('/loadComputerConfigurationFromXML', data={
+        'computer_id': self.computer_id,
+        'xml': dumps(computer_dict),
+    })
+    self.assertEqual(rv._status_code, 200)
+    computer = loads(
+        self.app.get('/getFullComputerInformation', query_string={'computer_id': self.computer_id}).data)
+    self.assertEqual(
+        ['something else'],
+        [p.getId() for p in computer._computer_partition_list])
 
 
 class TestInformation(BasicMixin, unittest.TestCase):
@@ -681,6 +722,44 @@ class TestRequest(MasterMixin):
     # Get updated information for the partition
     partition_new = self.request('http://sr//', None, 'myinstance', 'slappart0')
     self.assertEqual(partition_new.getConnectionParameter('foo'), '1')
+
+  def test_request_frontend(self):
+    # slapproxy tells client to bypass "simple" frontends by just using the URL.
+    request = self.request(
+        'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
+        None,
+        self.id(),
+        'slappart0',
+        shared=True,
+        partition_parameter_kw={'url': 'https://[::1]:123/', })
+    self.assertEqual(
+        'https://[::1]:123/',
+        request.getConnectionParameterDict()['secure_access'])
+    self.assertEqual(
+        '[::1]:123',
+        request.getConnectionParameterDict()['domain'])
+
+  def test_request_kvm_frontend(self):
+    # slapproxy tells client to bypass kvm vnc frontends by building an URL using the backend.
+    request = self.request(
+        'http://git.erp5.org/gitweb/slapos.git/blob_plain/refs/tags/slapos-0.92:/software/kvm/software.cfg',
+        'frontend',
+        self.id(),
+        'slappart0',
+        shared=True,
+        partition_parameter_kw={'host': '::1', 'port': '123'})
+    self.assertEqual(
+        'https://[::1]:123/',
+        request.getConnectionParameterDict()['url'])
+    self.assertEqual(
+        '[::1]',
+        request.getConnectionParameterDict()['domainname'])
+    self.assertEqual(
+        '123',
+        request.getConnectionParameterDict()['port'])
+    self.assertEqual(
+        '/',
+        request.getConnectionParameterDict()['path'])
 
 
 class TestSlaveRequest(MasterMixin):
@@ -1221,8 +1300,8 @@ database_uri = %(tempdir)s/lib/external_proxy.db
       computer_id = self.external_computer_id
     computer_dict = {
         'reference': computer_id,
-        'address': '123.456.789',
-        'netmask': 'fffffffff',
+        'address': '12.34.56.78',
+        'netmask': '255.255.255.255',
         'partition_list': [],
     }
     for i in range(partition_amount):

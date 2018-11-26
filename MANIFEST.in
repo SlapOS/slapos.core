@@ -1,4 +1,4 @@
-include CHANGES.txt
+include CHANGES.rst
 include slapos/proxy/schema.sql
 include slapos/slapos-client.cfg.example
 include slapos/slapos-proxy.cfg.example

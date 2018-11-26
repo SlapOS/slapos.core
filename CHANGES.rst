@@ -1,13 +1,13 @@
 Changes
 =======
 
-1.4.12 (???)
-------------
+1.4.12 (2018-11-26)
+-------------------
 
  * totally deprecate no_bridge and bridge_name options (there was a warning for a long time)
  * create_tap = True won't create tap attached to bridge anymore
-    -> it should always be used with option tap_gateway_interface
-    -> if option tap_gateway_interface is not present, the tap will have a default gateway (10.0.0.1)
+     - it should always be used with option tap_gateway_interface
+     - if option tap_gateway_interface is not present, the tap will have a default gateway (10.0.0.1)
 
 1.4.11 (2018-09-28)
 -------------------

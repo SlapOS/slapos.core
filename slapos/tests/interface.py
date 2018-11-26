@@ -30,6 +30,8 @@ from zope.interface.verify import verifyClass
 import zope.interface
 from six import class_types
 from slapos import slap
+# XXX ???
+import slapos.slap.standalone
 
 def getOnlyImplementationAssertionMethod(klass, method_list):
   """Returns method which verifies if a klass only implements its interfaces"""
@@ -94,7 +96,8 @@ class TestInterface(unittest.TestCase):
   """
 
 # add methods to test class
-generateTestMethodListOnClass(TestInterface, slap)
+generateTestMethodListOnClass(TestInterface, slapos.slap)
+generateTestMethodListOnClass(TestInterface, slapos.slap.standalone)
 
 if __name__ == '__main__':
   unittest.main()

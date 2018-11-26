@@ -54,21 +54,21 @@ documentation.
      request(product.kvm, "mykvm")
 
  * "slap" is an instance of the SLAP library. It is only used for advanced usages.
-"slap" instance is obtained by doing ::
-
-  slap = slapos.slap.slap()
-  slap.initializeConnection(config.master_url,
-    key_file=config.key_file, cert_file=config.cert_file)
+   "slap" instance is obtained by doing ::
     
+    slap = slapos.slap.slap()
+    slap.initializeConnection(config.master_url,
+      key_file=config.key_file, cert_file=config.cert_file)
+
 
 Examples
 ~~~~~~~~
 
 ::
-
+  
   >>> # Request instance
   >>> request(product.kvm, "myuniquekvm")
-
+  
   >>> # Request instance on specific computer
   >>> request(product.kvm, "myotheruniquekvm",
     filter_kw={ "computer_guid": "COMP-12345" })
@@ -77,12 +77,12 @@ Examples
   >>> request(product.kvm, "mythirduniquekvm",
     partition_parameter_kw={"nbd_ip":"2a01:e35:2e27:460:e2cb:4eff:fed9:48dc",
     "nbd_port":"1024"})
-
+  
   >>> # Request software installation on owned computer
   >>> supply(product.kvm, "mycomputer")
-
+  
   >>> # Fetch existing instance status
   >>> request(product.kvm, "myuniquekvm").getState()
-
+  
   >>> # Fetch instance information on already launched instance
   >>> request(product.kvm, "myuniquekvm").getConnectionParameter("url")

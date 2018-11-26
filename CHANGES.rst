@@ -16,9 +16,9 @@ Changes
 
 1.4.10 (2018-09-20)
 -------------------
- * add `--buildout-debug` command line option to `slapos node software` and
-   `slapos node instance` commands which starts buildout debugger on errors.
- * pretty print json serialised instance parameters in `slapos proxy show`
+ * add ``--buildout-debug`` command line option to ``slapos node software`` and
+   ``slapos node instance`` commands which starts buildout debugger on errors.
+ * pretty print json serialised instance parameters in ``slapos proxy show``
  * Add devperm plugin
 
 1.4.9 (2018-07-31)
@@ -64,7 +64,7 @@ Changes
  * slapos.grid: rework checkpromise method to utils so it can be reused
 
 1.4.3 (2017-11-08)
------------------
+------------------
  * slapos.cli.grid: Allow definition of different pidfiles for each software subcommand in config file
  * slapos.cli.configure_local: Get template locally instead do an http request.
  * slapos.cli: Update API for get person certificates and register computer
@@ -101,7 +101,7 @@ Changes
  * slapos.grid: Save slapgrid state into the partition
  * slapos.format: Remove passwd call while format.
  * svcbackend: explicitely call the executable instead of using Popen 'executable' keyword.
- * slapos.grid: Introduce new garbage collector for instances ignored by buildout 
+ * slapos.grid: Introduce new garbage collector for instances ignored by buildout
 
 1.3.16 (2016-09-29)
 -------------------

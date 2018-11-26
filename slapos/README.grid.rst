@@ -5,11 +5,11 @@ grid
   This section is outdated, ``slapgrid`` command was reorganised in ``slapos`` sub-commands.
 
 
-slapgrid is a client of SLAPos. SLAPos provides support for deploying a SaaS
+slapgrid is a client of SlapOS. SlapOS provides support for deploying a SaaS
 system in a minute.
 Slapgrid allows you to easily deploy instances of softwares based on buildout
 profiles.
-For more informations about SLAP and SLAPos, please see the SLAP documentation.
+For more informations about SLAP and SlapOS, please see the SLAP documentation.
 
 
 Requirements

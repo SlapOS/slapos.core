@@ -3,14 +3,6 @@ slap
 
 Simple Language for Accounting and Provisioning python library.
 
-Developer note - python version
--------------------------------
-
-This library is used on client (slapgrid) and server side.
-Server is using python2.4 and client is using python2.6
-Having this in mind, code of this library *have* to work
-on python2.4
-
 How it works
 ------------
 
@@ -20,11 +12,10 @@ Each participating server is identified by a unique ID and runs a slap-server da
 
 The data structure on the main server is the following:
 
-A - Action: an action which can happen to provide a resource or account its usage
-CP - Computer Partition: provides a URL to Access a Cloud Resource
-RI - Resource Item: describes a resource
-CI - Contract Item: describes the contract to attach the DL to (This is unclear still)
-R - Resource: describes a type of cloud resource (ex. MySQL Table) is published on slapgrid.org
-DL - Delivery Line: Describes an action happening on a resource item on a computer partition
-D - Delivery: groups multiple Delivery Lines
-
+ * A - Action: an action which can happen to provide a resource or account its usage
+ * CP - Computer Partition: provides a URL to Access a Cloud Resource
+ * RI - Resource Item: describes a resource
+ * CI - Contract Item: describes the contract to attach the DL to (This is unclear still)
+ * R - Resource: describes a type of cloud resource (ex. MySQL Table) is published on slapgrid.org
+ * DL - Delivery Line: Describes an action happening on a resource item on a computer partition
+ * D - Delivery: groups multiple Delivery Lines

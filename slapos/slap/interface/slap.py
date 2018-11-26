@@ -26,6 +26,7 @@
 #
 ##############################################################################
 from zope.interface import Interface
+from zope.interface import Attribute
 
 """
 Note: all strings accepted/returned by the slap library are encoded in UTF-8.
@@ -545,4 +546,141 @@ class slap(Interface):
   def getOpenOrderDict():
     """
     Get the list of existing open orders (services) for the current user.
+    """
+
+
+class IStandaloneSlapOS(ISupply, IRequester):
+  """A SlapOS that can be embedded in other applications,
+  also useful for testing.
+
+  This plays the role of an `IComputer` where users of classes
+  implementing this interface can install software, create partitions
+  and access parameters of the running partitions.
+
+  Extends the existing `IRequester` and `ISupply`, with the
+  special behavior that `IRequester.request` and `ISupply.supply` will
+  automatically use the embedded computer.
+  """
+
+  def __init__(base_directory, server_ip, server_port):
+    """Constructor, just create an instance in `base_directory`.
+
+    Arguments:
+      * `base_directory`  -- the directory which will contain softwares and instances.
+      * `server_ip`, `server_port` -- the address this SlapOS proxy will listen to.
+
+    Error cases:
+      * `IException` when `base_directory` is too deep. Because of limitation with
+        the length of paths of UNIX sockets, too deep paths cannot be used. Note that
+        once slapns work is integrated, this should not be an issue anymore.
+    """
+
+  def register():
+    """Creates configuration file, starts the SlapOS proxy. TODO ?
+
+        Error cases:
+          * `socket.SocketError` when failed to bind `server_ip` / `server_port`.
+             SlapOS proxy might already be running.
+    """
+
+  def simple_format(partition_count, ipv4_address, ipv6_address):
+    """Creates `partition_count` partitions.
+
+    All partitions are created to listen on `ipv4_address` and `ipv6_address`.
+
+    Stop and delete previously existing instances. XXX ???
+    Error when already running.
+
+    This is a simplified version of format that uses current user and
+    same ips for all partitions.
+    """
+
+  def getInstallProcess():
+    """Returns a IStandaloneSlapOSProcess installing softwares.
+    """
+
+  def getInstanciationProcess():
+    """Returns a IStandaloneSlapOSProcess creating instances.
+    """
+
+  def getReportProcess():
+    """ XXX Name? Cleanup unused instances."""
+
+  def getComputerPartition(partition_reference):
+    """Returns the `IComputerPartition` for partition with reference `partition_reference`
+    """
+
+  def getComputer():
+    """ XXX do we need need getPartition?
+    """
+
+  def shutdown():
+    """Stop embedded SlapOS server and running instances.
+    """
+
+  def cleanup():
+    """Remove instances and softwares.
+
+    In most cases, this method is not recommended because it's
+    usually convenient to keep softwares installed.
+    XXX bad idea ? this is just .shutdown() the shutil.rmtree ?
+    """
+
+
+class IStandaloneSlapOSProcess(Interface):
+  """A background process.  XXX more doc
+  """
+  return_code = Attribute("""Return code of the process.
+  None if process is still running or was killed. ( XXX why no return code if killed ?)
+  """)
+  output = Attribute("""output of the program.""")
+
+  def start():
+    """Start the process.
+
+    Returns immediately.
+    """
+
+  def isAlive():
+    """Returns True if process is still alive, false otherwise.
+    Returns immediately.
+    """
+
+  def terminate():
+    """Stop the process.
+    Must call join() after terminate.
+    """
+
+  def join():
+    """Wait until process finished.
+    """
+
+
+class ISynchronousStandaloneSlapOS(IStandaloneSlapOS):
+  """A synchronous API on top of IStandaloneSlapOS, for convenience
+  """
+  def installSoftware(max_retry=0, debug=False):
+    """Synchronously install or uninstall all softwares previously supplied/removed.
+
+    This method retries on errors. If after `max_retry` times there's
+    still an error, the error is raised.
+
+    Error cases:
+      * `IException` when buildout error while installing software.
+      * Unexpected `IConnectionError` while connecting embedded slap server.
+    """
+
+  def instantiatePartition(max_retry=5):
+    """Instantiate all partitions previously requested.
+
+    This method retry on errors. If after `max_retry` times there's
+    still an error, the error is raised.
+
+    Error cases:
+      * `IResourceNotReady` requested software_url is not installed.
+      * `IException` when buildout error while installing software.
+        In that case, exception message contain the last lines of the
+        buildout log to help diagnosing what the problem was.
+      * `IException` when some promise are reporting errors.
+      * Unexpected `IConnectionError` while connecting embedded slap server.
     """

@@ -5,10 +5,10 @@ import os
 
 from slapos.version import version
 name = 'slapos.core'
-long_description = open("README.txt").read() + "\n" + \
-    open("CHANGES.txt").read() + "\n"
+long_description = open("README.rst").read() + "\n" + \
+    open("CHANGES.rst").read() + "\n"
 
-for f in sorted(glob.glob(os.path.join('slapos', 'README.*.txt'))):
+for f in sorted(glob.glob(os.path.join('slapos', 'README.*.rst'))):
   long_description += '\n' + open(f).read() + '\n'
 
 slapos_folder_path = os.path.dirname(__file__)

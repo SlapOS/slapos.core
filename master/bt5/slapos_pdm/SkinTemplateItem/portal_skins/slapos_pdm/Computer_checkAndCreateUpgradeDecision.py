@@ -22,17 +22,17 @@ for software_release in software_release_list:
   software_product_reference = software_release.getAggregateReference()
   if software_product_reference in [None, ""]:
     continue
-  
+
   sorted_list = portal.SoftwareProduct_getSortedSoftwareReleaseList(
     software_product_reference=software_product_reference)
-  
+
   # Check if there is a new version of this software Product
   if sorted_list and \
       sorted_list[0].getUrlString() not in full_software_release_list:
-    
+
     newer_release = sorted_list[0]
     title = 'A new version of %s is available for %s' % \
-                        (software_product_reference, context.getTitle()) 
+                        (software_product_reference, context.getTitle())
     # If exist upgrade decision in progress try to cancel it
     decision_in_progress = newer_release.\
             SoftwareRelease_getUpgradeDecisionInProgress(computer.getUid())
@@ -40,16 +40,16 @@ for software_release in software_release_list:
         not decision_in_progress.UpgradeDecision_tryToCancel(
           newer_release.getUrlString()):
       continue
-  
+
     upgrade_decision = newer_release.SoftwareRelease_createUpgradeDecision(
         source_url=computer.getRelativeUrl(),
         title=title)
-        
-    if context.getAllocationScope() in ["open/public", "open/friend"]:
+
+    if context.getAllocationScope() in ["open/public", "open/friend", "open/subscription"]:
       upgrade_decision.start()
     elif context.getAllocationScope() in ["open/personal"]:
       upgrade_decision.plan()
-    
+
     upgrade_decision.setStartDate(DateTime())
     upgrade_decision_list.append(upgrade_decision)
 

@@ -118,6 +118,10 @@
                     <value>
                       <list>
                         <string>my_last_contact_date</string>
+                        <string>my_slapos_version</string>
+                        <string>my_os_type</string>
+                        <string>my_python_version</string>
+                        <string>my_public_ipv4_address</string>
                       </list>
                     </value>
                 </item>

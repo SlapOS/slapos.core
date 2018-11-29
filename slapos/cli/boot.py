@@ -155,11 +155,14 @@ class BootCommand(ConfigCommand):
     def take_action(self, args):
         configp = self.fetch_config(args)
         instance_root = configp.get('slapos','instance_root')
-        interface_name = configp.get('slapformat','interface_name')
         master_url = urlparse.urlparse(configp.get('slapos','master_url'))
         master_hostname = master_url.hostname
 
-        # Check that we have IPv6 ready on interface_name
+        # Check that we have IPv6 ready
+        if configp.get('slapformat','ipv6_interface'):
+            interface_name = configp.get('slapformat','ipv6_interface')
+        else:
+            interface_name = configp.get('slapformat','interface_name')
         _waitIpv6Ready(interface_name)
 
         # Check that node can ping master

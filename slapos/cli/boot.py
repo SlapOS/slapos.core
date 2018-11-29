@@ -27,8 +27,10 @@
 #
 ##############################################################################
 
+from __future__ import print_function
+
 import subprocess
-import urlparse
+from six.moves.urllib.parse import urlparse
 from time import sleep
 import glob
 import os
@@ -46,14 +48,14 @@ def _removeTimestamp(instancehome):
     """
     timestamp_glob_path = "%s/slappart*/.timestamp" % instancehome
     for timestamp_path in glob.glob(timestamp_glob_path):
-       print "Removing %s" % timestamp_path
+       print("Removing %s" % timestamp_path)
        os.remove(timestamp_path)
 
 def _runBang(app):
     """
     Launch slapos node format.
     """
-    print "[BOOT] Invoking slapos node bang..."
+    print("[BOOT] Invoking slapos node bang...")
     result = app.run(['node', 'bang', '-m', 'Reboot'])
     if result == 1:
       return 0
@@ -63,7 +65,7 @@ def _runFormat(app):
     """
     Launch slapos node format.
     """
-    print "[BOOT] Invoking slapos node format..."
+    print("[BOOT] Invoking slapos node format...")
     result = app.run(['node', 'format', '--now', '--verbose'])
     if result == 1:
       return 0
@@ -73,30 +75,30 @@ def _ping(hostname):
     """ 
     Ping a hostname
     """
-    print "[BOOT] Invoking ipv4 ping to %s..." % hostname
+    print("[BOOT] Invoking ipv4 ping to %s..." % hostname)
     p = subprocess.Popen(
       ["ping", "-c", "2", hostname],
        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     if p.returncode == 0:
-      print "[BOOT] IPv4 network reachable..."
+      print("[BOOT] IPv4 network reachable...")
       return 1
-    print "[BOOT] [ERROR] IPv4 network unreachable..."
+    print("[BOOT] [ERROR] IPv4 network unreachable...")
     return 0
 
 def _ping6(hostname):
     """ 
     Ping an ipv6 address
     """
-    print "[BOOT] Invoking ipv6 ping to %s..." % hostname
+    print("[BOOT] Invoking ipv6 ping to %s..." % hostname)
     p = subprocess.Popen(
         ["ping6", "-c", "2", hostname],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     if p.returncode == 0:
-        print "[BOOT] IPv6 network reachable..."
+        print("[BOOT] IPv6 network reachable...")
         return 1
-    print "[BOOT] [ERROR] IPv6 network unreachable..."
+    print("[BOOT] [ERROR] IPv6 network unreachable...")
     return 0
 
 def _test_ping(hostname):
@@ -126,7 +128,7 @@ def _waitIpv6Ready(ipv6_interface):
     test if ipv6 is ready on ipv6_interface
   """
   ipv6_address = ""
-  print "[BOOT] Checking if %r has IPv6..." % ipv6_interface
+  print("[BOOT] Checking if %r has IPv6..." % ipv6_interface)
   while ipv6_address == "":
     for inet_dict in netifaces.ifaddresses(ipv6_interface)[socket.AF_INET6]:
       ipv6_address = inet_dict['addr'].split('%')[0]
@@ -134,8 +136,8 @@ def _waitIpv6Ready(ipv6_interface):
         break
     else:
       ipv6_address = ""
-      print "[BOOT] [ERROR] No IPv6 found on interface %r, " \
-        "try again in 5 seconds..." % ipv6_interface
+      print("[BOOT] [ERROR] No IPv6 found on interface %r, "
+        "try again in 5 seconds..." % ipv6_interface))
       sleep(5)
 
 class BootCommand(ConfigCommand):
@@ -155,7 +157,7 @@ class BootCommand(ConfigCommand):
     def take_action(self, args):
         configp = self.fetch_config(args)
         instance_root = configp.get('slapos','instance_root')
-        master_url = urlparse.urlparse(configp.get('slapos','master_url'))
+        master_url = urlparse(configp.get('slapos','master_url'))
         master_hostname = master_url.hostname
 
         # Check that we have IPv6 ready
@@ -177,12 +179,12 @@ class BootCommand(ConfigCommand):
         app = SlapOSApp()
         # Make sure slapos node format returns ok
         while not _runFormat(app):
-            print "[BOOT] [ERROR] Fail to format, try again in 15 seconds..."
+            print("[BOOT] [ERROR] Fail to format, try again in 15 seconds...")
             sleep(15)
        
         # Make sure slapos node bang returns ok
         while not _runBang(app):
-            print "[BOOT] [ERROR] Fail to bang, try again in 15 seconds..."
+            print("[BOOT] [ERROR] Fail to bang, try again in 15 seconds...")
             sleep(15)
 
         _removeTimestamp(instance_root)

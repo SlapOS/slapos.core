@@ -29,23 +29,21 @@ import logging
 import pprint
 import unittest
 import tempfile
-import StringIO
 import sys
 import os
-import sqlite3
 import pkg_resources
 
-
+from contextlib import contextmanager
 from mock import patch, create_autospec
 import mock
-from slapos.util import sqlite_connect
+from slapos.util import sqlite_connect, bytes2str
 
 import slapos.cli.console
 import slapos.cli.entry
 import slapos.cli.info
 import slapos.cli.list
 import slapos.cli.supervisorctl
-import slapos.cli.proxy_show
+from slapos.cli.proxy_show import do_show, StringIO
 from slapos.client import ClientConfig
 import slapos.grid.svcbackend
 import slapos.proxy
@@ -99,9 +97,9 @@ class TestCliProxyShow(CliMixin):
     self.conf.logger = self.logger
 
     # load database
-    schema = pkg_resources.resource_stream('slapos.tests.slapproxy', 'database_dump_version_11.sql')
+    schema = bytes2str(pkg_resources.resource_string('slapos.tests.slapproxy', 'database_dump_version_11.sql'))
     db = sqlite_connect(self.db_file.name)
-    db.cursor().executescript(schema.read())
+    db.cursor().executescript(schema)
     db.commit()
 
     # by default we simulate being invoked with "show all" arguments
@@ -121,7 +119,7 @@ class TestCliProxyShow(CliMixin):
     with mock.patch(
             'slapos.cli.proxy_show.logging.getLogger',
             return_value=logger):
-        slapos.cli.proxy_show.do_show(self.conf)
+        do_show(self.conf)
 
     # installed softwares are listed
     logger.info.assert_any_call(
@@ -132,7 +130,7 @@ class TestCliProxyShow(CliMixin):
     logger.info.assert_any_call(
         '    %s = %s',
         '_',
-        '{\n  "url": "memcached://10.0.30.235:2003/", \n  "monitor-base-url": ""\n}')
+        '{\n  "monitor-base-url": "",\n  "url": "memcached://10.0.30.235:2003/"\n}')
 
     # other parameters are displayed as simple string
     logger.info.assert_any_call(
@@ -152,10 +150,10 @@ class TestCliProxyShow(CliMixin):
   def test_proxy_show_displays_on_stdout(self):
     saved_stderr = sys.stderr
     saved_stdout = sys.stdout
-    sys.stderr = stderr = StringIO.StringIO()
-    sys.stdout = stdout = StringIO.StringIO()
+    sys.stderr = stderr = StringIO()
+    sys.stdout = stdout = StringIO()
     try:
-      slapos.cli.proxy_show.do_show(self.conf)
+      do_show(self.conf)
     finally:
       sys.stderr = saved_stderr
       sys.stdout = saved_stdout
@@ -169,8 +167,8 @@ class TestCliProxyShow(CliMixin):
   def test_proxy_show_use_pager(self):
     saved_stderr = sys.stderr
     saved_stdout = sys.stdout
-    sys.stderr = stderr = StringIO.StringIO()
-    sys.stdout = stdout = StringIO.StringIO()
+    sys.stderr = stderr = StringIO()
+    sys.stdout = stdout = StringIO()
     stdout.isatty = lambda *args: True
 
     # use a pager that just output to a file.
@@ -179,7 +177,7 @@ class TestCliProxyShow(CliMixin):
     os.environ['PAGER'] = 'cat > {}'.format(tmp.name)
 
     try:
-      slapos.cli.proxy_show.do_show(self.conf)
+      do_show(self.conf)
     finally:
       sys.stderr = saved_stderr
       sys.stdout = saved_stdout
@@ -327,53 +325,34 @@ class TestCliSupervisorctl(CliMixin):
 
 
 class TestCliConsole(unittest.TestCase):
-  def setUp(self):
+
+  script = """\
+print(request('software_release', 'instance').getInstanceParameterDict()['parameter_name'])
+"""
+
+  @contextmanager
+  def _test_console(self):
     cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
     cp._parameter_dict = {'parameter_name': 'parameter_value'}
-
-    request_patch = patch.object(slapos.slap.OpenOrder, 'request', return_value = cp)
-    self.mock_request = request_patch.start()
-
-    self.config_file = tempfile.NamedTemporaryFile()
-    self.config_file.write('''[slapos]
-master_url=null
-''')
-    self.config_file.flush()
-
-  def tearDown(self):
-    self.mock_request.stop()
-    self.config_file.close()
+    with patch.object(slapos.slap.OpenOrder, 'request',
+                      return_value = cp) as mock_request, \
+         patch.object(sys, 'stdout', StringIO()) as app_stdout, \
+         tempfile.NamedTemporaryFile() as config_file:
+      config_file.write(b'[slapos]\nmaster_url=null\n')
+      config_file.flush()
+      yield slapos.cli.entry.SlapOSApp(), config_file.name
+      mock_request.assert_called_once_with(
+          'software_release', 'instance')
+      self.assertIn('parameter_value', app_stdout.getvalue())
 
   def test_console_interactive(self):
-      app = slapos.cli.entry.SlapOSApp()
-      saved_stdin = sys.stdin
-      saved_stdout = sys.stdout
-      try:
-        sys.stdin = app_stdin = StringIO.StringIO(
-            """print request('software_release', 'instance').getInstanceParameterDict()['parameter_name']\n""")
-        sys.stdout = app_stdout = StringIO.StringIO()
-        app.run(('console', '--cfg', self.config_file.name))
-      finally:
-        sys.stdin = saved_stdin
-        sys.stdout = saved_stdout
-
-      self.mock_request.assert_called_once_with('software_release', 'instance')
-      self.assertIn('parameter_value', app_stdout.getvalue())
+    with self._test_console() as (app, config_file), \
+         patch.object(sys, 'stdin', StringIO(self.script)):
+      app.run(('console', '--cfg', config_file))
 
   def test_console_script(self):
-    with tempfile.NamedTemporaryFile() as script:
-      script.write(
-        """print request('software_release', 'instance').getInstanceParameterDict()['parameter_name']\n""")
+    with self._test_console() as (app, config_file), \
+         tempfile.NamedTemporaryFile('w') as script:
+      script.write(self.script)
       script.flush()
-
-      app = slapos.cli.entry.SlapOSApp()
-      saved_stdout = sys.stdout
-      try:
-        sys.stdout = app_stdout = StringIO.StringIO()
-        app.run(('console', '--cfg', self.config_file.name, script.name))
-      finally:
-        sys.stdout = saved_stdout
-
-      self.mock_request.assert_called_once_with('software_release', 'instance')
-      self.assertIn('parameter_value', app_stdout.getvalue())
-
+      app.run(('console', '--cfg', config_file, script.name))

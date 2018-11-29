@@ -36,6 +36,7 @@ import sys
 import pkg_resources
 import requests
 import json
+from six.moves import input
 
 from slapos.cli.command import Command, must_be_root
 
@@ -327,7 +328,7 @@ def gen_auth(conf):
         else:
             yield conf.login, getpass.getpass()
     while ask:
-        yield raw_input('SlapOS Master Login: '), getpass.getpass()
+        yield input('SlapOS Master Login: '), getpass.getpass()
 
 
 def do_register(conf):
@@ -348,7 +349,7 @@ def do_register(conf):
                                                     password=password)
     else:
         while not conf.token:
-            conf.token = raw_input('Computer security token: ').strip()
+            conf.token = input('Computer security token: ').strip()
 
         certificate, key = get_certificate_key_pair(conf.logger,
                                                     conf.master_url_web,

@@ -32,6 +32,8 @@ import textwrap
 from slapos.cli.config import ClientConfigCommand
 from slapos.client import init, do_console, ClientConfig
 
+from six import exec_
+
 
 class ShellNotFound(Exception):
     pass
@@ -90,7 +92,9 @@ class ConsoleCommand(ClientConfigCommand):
         local = init(conf, self.app.log)
 
         if args.script_file:
-            return execfile(args.script_file, globals(), local)
+            with open(args.script_file) as f:
+                code = compile(f.read(), args.script_file, 'exec')
+                return exec_(code, globals(), local)
 
         if not any([args.python, args.ipython, args.bpython]):
             args.ipython = True

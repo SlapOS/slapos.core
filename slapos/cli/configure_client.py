@@ -31,6 +31,7 @@ import re
 import os
 import sys
 import json
+from six.moves import input
 
 import requests
 
@@ -94,7 +95,7 @@ def fetch_configuration_template():
 
 def do_configure_client(logger, master_url_web, token, config_path, master_url):
     while not token:
-        token = raw_input('Credential security token: ').strip()
+        token = input('Credential security token: ').strip()
 
     # Check for existence of previous configuration, certificate or key files
     # where we expect to create them. If so, ask the use to manually remove them.

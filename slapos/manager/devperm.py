@@ -5,7 +5,6 @@ import os
 import pwd
 import grp
 from .interface import IManager
-from itertools import ifilter
 from zope import interface
 
 logger = logging.getLogger(__name__)

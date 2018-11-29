@@ -4,16 +4,15 @@ import os
 import sys
 import subprocess
 
-from zope import interface as zope_interface
+from zope.interface import implementer
 from slapos.manager import interface
 from slapos.grid.slapgrid import COMPUTER_PARTITION_WAIT_LIST_FILENAME
 
 logger = logging.getLogger(__name__)
 
+@implementer(interface.IManager)
 class Manager(object):
   """Manager is called in every step of preparation of the computer."""
-
-  zope_interface.implements(interface.IManager)
 
   def __init__(self, config):
     """Manager needs to know config for its functioning.

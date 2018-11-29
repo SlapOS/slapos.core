@@ -40,6 +40,8 @@ import logging
 import psutil
 import time
 
+import six
+
 from slapos.grid.exception import BuildoutFailedError, WrongPermissionError
 
 # Such umask by default will create paths with full permission
@@ -123,20 +125,18 @@ class SlapPopen(subprocess.Popen):
     self.stdin.close()
     self.stdin = None
 
-    # XXX-Cedric: this algorithm looks overkill for simple logging.
     output_lines = []
-    while True:
-      line = self.stdout.readline()
-      if line == '' and self.poll() is not None:
-        break
-      if line:
-        output_lines.append(line)
-        logger.info(line.rstrip('\n'))
+    for line in self.stdout:
+      if type(line) is not str:
+        line = line.decode(errors='replace')
+      output_lines.append(line)
+      logger.info(line.rstrip('\n'))
+    self.wait()
     self.output = ''.join(output_lines)
 
 
 def md5digest(url):
-  return hashlib.md5(url).hexdigest()
+  return hashlib.md5(url.encode('utf-8')).hexdigest()
 
 
 def getCleanEnvironment(logger, home_path='/tmp'):
@@ -150,7 +150,7 @@ def getCleanEnvironment(logger, home_path='/tmp'):
     if old is not None:
       removed_env.append(k)
   changed_env['HOME'] = env['HOME'] = home_path
-  for k in sorted(changed_env.iterkeys()):
+  for k in sorted(six.iterkeys(changed_env)):
     logger.debug('Overridden %s = %r' % (k, changed_env[k]))
   if removed_env:
     logger.debug('Removed from environment: %s' % ', '.join(sorted(removed_env)))
@@ -351,18 +351,20 @@ def launchBuildout(path, buildout_binary, logger,
 
 def updateFile(file_path, content, mode=0o600):
   """Creates or updates a file with "content" as content."""
-  altered = False
-  if not (os.path.isfile(file_path)) or \
-     not (hashlib.md5(open(file_path).read()).digest() ==
-          hashlib.md5(content).digest()):
-    with open(file_path, 'w') as fout:
-      fout.write(content)
-    altered = True
-  os.chmod(file_path, stat.S_IREAD | stat.S_IWRITE | stat.S_IEXEC)
-  if stat.S_IMODE(os.stat(file_path).st_mode) != mode:
-    os.chmod(file_path, mode)
-    altered = True
-  return altered
+  content = content.encode('utf-8')
+  try:
+    with open(file_path, 'rb') as f:
+      if f.read(len(content) + 1) == content:
+        if stat.S_IMODE(os.fstat(f.fileno()).st_mode) == mode:
+          return False
+        os.fchmod(f.fileno(), mode)
+        return True
+  except IOError:
+    pass
+  with open(file_path, 'wb') as f:
+    os.fchmod(f.fileno(), mode)
+    f.write(content)
+  return True
 
 
 def updateExecutable(executable_path, content):
@@ -399,7 +401,7 @@ def killProcessTree(pid, logger):
     for child in running_process_list:
       try:
         child.suspend()
-      except psutil.Error, e:
+      except psutil.Error as e:
         logger.debug(str(e))
 
     time.sleep(0.2)
@@ -408,5 +410,5 @@ def killProcessTree(pid, logger):
   for process in process_list:
     try:
       process.kill()
-    except psutil.Error, e:
+    except psutil.Error as e:
       logger.debug("Process kill: %s" % e)

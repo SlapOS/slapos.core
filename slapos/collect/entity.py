@@ -74,19 +74,15 @@ class User(object):
       time_cycle = self.disk_snapshot_params.get('time_cycle', 0)
       database.connect()
       if time_cycle:
-        order = 'date DESC, time DESC'
-        limit = 1
-        query = database.select(table="folder", columns="date, time",
-                                    order=order, limit=limit,
-                                    where="partition='%s'" % self.name)
-        query_result = zip(*query)
-        if len(query_result):
-          date, time = (query_result[0][0], query_result[1][0])
-          latest_date = datetime.strptime('%s %s' % (date, time),
-                                           "%Y-%m-%d %H:%M:%S")
+        for date_time in database.select(table="folder", columns="date, time",
+                                    order='date DESC, time DESC', limit=1,
+                                    where="partition='%s'" % self.name):
+          latest_date = datetime.strptime('%s %s' % date_time,
+                                          "%Y-%m-%d %H:%M:%S")
           if (datetime.now() - latest_date).seconds < time_cycle:
             # wait the time cycle
             return
+          break
       pid_file = self.disk_snapshot_params.get('pid_folder', None)
       if pid_file is not None:
         pid_file = os.path.join(pid_file, '%s_disk_size.pid' % self.name)

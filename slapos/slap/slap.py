@@ -40,15 +40,19 @@ import os
 import json
 import logging
 import re
-import urlparse
 import hashlib
-from util import xml2dict
+from functools import wraps
+
+import six
+from six.moves.urllib import parse
+
+from .util import xml2dict
+from slapos.util import loads, dumps, bytes2str
 
 import netaddr
 from xml.sax import saxutils
-import zope.interface
-from interface import slap as interface
-from xml_marshaller import xml_marshaller
+from zope.interface import implementer
+from .interface import slap as interface
 
 from uritemplate import expand
 
@@ -92,33 +96,29 @@ class SlapRequester(SlapDocument):
         request_dict=request_dict,
         connection_helper=self._connection_helper,
       )
-    if type(xml) is unicode:
-      xml = str(xml)
-      xml.encode('utf-8')
-    software_instance = xml_marshaller.loads(xml)
+    software_instance = loads(xml)
     computer_partition = ComputerPartition(
-      software_instance.slap_computer_id.encode('UTF-8'),
-      software_instance.slap_computer_partition_id.encode('UTF-8'),
+      software_instance.slap_computer_id,
+      software_instance.slap_computer_partition_id,
       connection_helper=self._connection_helper,
     )
     # Hack to give all object attributes to the ComputerPartition instance
     # XXX Should be removed by correctly specifying difference between
     # ComputerPartition and SoftwareInstance
-    computer_partition.__dict__ = dict(computer_partition.__dict__.items() +
-                                       software_instance.__dict__.items())
+    computer_partition.__dict__.update(software_instance.__dict__)
     # XXX not generic enough.
-    if xml_marshaller.loads(request_dict['shared_xml']):
+    if loads(request_dict['shared_xml']):
       computer_partition._synced = True
       computer_partition._connection_dict = software_instance._connection_dict
       computer_partition._parameter_dict = software_instance._parameter_dict
     return computer_partition
 
 
+@implementer(interface.ISoftwareRelease)
 class SoftwareRelease(SlapDocument):
   """
   Contains Software Release information
   """
-  zope.interface.implements(interface.ISoftwareRelease)
 
   def __init__(self, software_release=None, computer_guid=None, **kw):
     """
@@ -129,8 +129,6 @@ class SoftwareRelease(SlapDocument):
     SlapDocument.__init__(self, kw.pop('connection_helper', None),
                                 kw.pop('hateoas_navigator', None))
     self._software_instance_list = []
-    if software_release is not None:
-      software_release = software_release.encode('UTF-8')
     self._software_release = software_release
     self._computer_guid = computer_guid
 
@@ -178,8 +176,8 @@ class SoftwareRelease(SlapDocument):
     return getattr(self, '_requested_state', 'available')
 
 
+@implementer(interface.ISoftwareProductCollection)
 class SoftwareProductCollection(object):
-  zope.interface.implements(interface.ISoftwareProductCollection)
 
   def __init__(self, logger, slap):
     self.logger = logger
@@ -201,40 +199,41 @@ class SoftwareProductCollection(object):
 
 
 # XXX What is this SoftwareInstance class?
+@implementer(interface.ISoftwareInstance)
 class SoftwareInstance(SlapDocument):
   """
   Contains Software Instance information
   """
-  zope.interface.implements(interface.ISoftwareInstance)
 
-  def __init__(self, **kwargs):
+  def __init__(self, **kw):
     """
     Makes easy initialisation of class parameters
     """
-    for k, v in kwargs.iteritems():
-      setattr(self, k, v)
+    self.__dict__.update(kw)
 
 
 """Exposed exceptions"""
+@implementer(interface.IResourceNotReady)
 class ResourceNotReady(Exception):
-  zope.interface.implements(interface.IResourceNotReady)
+  pass
 
+@implementer(interface.IServerError)
 class ServerError(Exception):
-  zope.interface.implements(interface.IServerError)
+  pass
 
+@implementer(interface.INotFoundError)
 class NotFoundError(Exception):
-  zope.interface.implements(interface.INotFoundError)
+  pass
 
 class AuthenticationError(Exception):
   pass
 
-
+@implementer(interface.IConnectionError)
 class ConnectionError(Exception):
-  zope.interface.implements(interface.IConnectionError)
+  pass
 
-
+@implementer(interface.ISupply)
 class Supply(SlapDocument):
-  zope.interface.implements(interface.ISupply)
 
   def supply(self, software_release, computer_guid=None, state='available'):
     try:
@@ -247,8 +246,8 @@ class Supply(SlapDocument):
           % computer_guid)
 
 
+@implementer(interface.IOpenOrder)
 class OpenOrder(SlapRequester):
-  zope.interface.implements(interface.IOpenOrder)
 
   def request(self, software_release, partition_reference,
               partition_parameter_kw=None, software_type=None,
@@ -260,12 +259,12 @@ class OpenOrder(SlapRequester):
     request_dict = {
         'software_release': software_release,
         'partition_reference': partition_reference,
-        'partition_parameter_xml': xml_marshaller.dumps(partition_parameter_kw),
-        'filter_xml': xml_marshaller.dumps(filter_kw),
+        'partition_parameter_xml': dumps(partition_parameter_kw),
+        'filter_xml': dumps(filter_kw),
         # XXX Cedric: Why state and shared are marshalled? First is a string
         #             And second is a boolean.
-        'state': xml_marshaller.dumps(state),
-        'shared_xml': xml_marshaller.dumps(shared),
+        'state': dumps(state),
+        'shared_xml': dumps(shared),
     }
     if software_type is not None:
       request_dict['software_type'] = software_type
@@ -280,7 +279,7 @@ class OpenOrder(SlapRequester):
     raw_information = self._hateoas_navigator.getHostingSubscriptionRootSoftwareInstanceInformation(partition_reference)
     software_instance = SoftwareInstance()
     # XXX redefine SoftwareInstance to be more consistent
-    for key, value in raw_information.iteritems():
+    for key, value in six.iteritems(raw_information):
       if key in ['_links']:
         continue
       setattr(software_instance, '_%s' % key, value)
@@ -292,7 +291,7 @@ class OpenOrder(SlapRequester):
     Requests a computer.
     """
     xml = self._connection_helper.POST('requestComputer', data={'computer_title': computer_reference})
-    computer = xml_marshaller.loads(xml)
+    computer = loads(xml)
     computer._connection_helper = self._connection_helper
     computer._hateoas_navigator = self._hateoas_navigator
     return computer
@@ -303,24 +302,19 @@ def _syncComputerInformation(func):
   Synchronize computer object with server information
   """
   def decorated(self, *args, **kw):
-    if getattr(self, '_synced', 0):
-      return func(self, *args, **kw)
-    computer = self._connection_helper.getFullComputerInformation(self._computer_id)
-    for key, value in computer.__dict__.items():
-      if isinstance(value, unicode):
-        # convert unicode to utf-8
-        setattr(self, key, value.encode('utf-8'))
-      else:
-        setattr(self, key, value)
-    setattr(self, '_synced', True)
-    for computer_partition in self.getComputerPartitionList():
-      setattr(computer_partition, '_synced', True)
+    if not getattr(self, '_synced', 0):
+      computer = self._connection_helper.getFullComputerInformation(
+        self._computer_id)
+      self.__dict__.update(computer.__dict__)
+      self._synced = True
+      for computer_partition in self.getComputerPartitionList():
+        computer_partition._synced = True
     return func(self, *args, **kw)
-  return decorated
+  return wraps(func)(decorated)
 
 
+@implementer(interface.IComputer)
 class Computer(SlapDocument):
-  zope.interface.implements(interface.IComputer)
 
   def __init__(self, computer_id, connection_helper=None, hateoas_navigator=None):
     SlapDocument.__init__(self, connection_helper, hateoas_navigator)
@@ -366,7 +360,7 @@ class Computer(SlapDocument):
 
   def getStatus(self):
     xml = self._connection_helper.GET('getComputerStatus', params={'computer_id': self._computer_id})
-    return xml_marshaller.loads(xml)
+    return loads(xml)
 
   def revokeCertificate(self):
     self._connection_helper.POST('revokeComputerCertificate', data={
@@ -375,7 +369,7 @@ class Computer(SlapDocument):
   def generateCertificate(self):
     xml = self._connection_helper.POST('generateComputerCertificate', data={
       'computer_id': self._computer_id})
-    return xml_marshaller.loads(xml)
+    return loads(xml)
 
 
 def parsed_error_message(status, body, path):
@@ -391,8 +385,8 @@ def parsed_error_message(status, body, path):
     return 'Server responded with wrong code %s with %s' % (status, path)
 
 
+@implementer(interface.IComputerPartition)
 class ComputerPartition(SlapRequester):
-  zope.interface.implements(interface.IComputerPartition)
 
   def __init__(self, computer_id=None, partition_id=None,
                request_dict=None, connection_helper=None,
@@ -466,11 +460,10 @@ class ComputerPartition(SlapRequester):
         'software_release': software_release,
         'software_type': software_type,
         'partition_reference': partition_reference,
-        'shared_xml': xml_marshaller.dumps(shared),
-        'partition_parameter_xml': xml_marshaller.dumps(
-                                        partition_parameter_kw),
-        'filter_xml': xml_marshaller.dumps(filter_kw),
-        'state': xml_marshaller.dumps(state),
+        'shared_xml': dumps(shared),
+        'partition_parameter_xml': dumps(partition_parameter_kw),
+        'filter_xml': dumps(filter_kw),
+        'state': dumps(state),
     }
     self._updateTransactionFile(partition_reference)
     return self._requestComputerPartition(request_dict)
@@ -529,7 +522,7 @@ class ComputerPartition(SlapRequester):
     raw_information = self._hateoas_navigator.getRelatedInstanceInformation(partition_reference)
     software_instance = SoftwareInstance()
     # XXX redefine SoftwareInstance to be more consistent
-    for key, value in raw_information.iteritems():
+    for key, value in six.iteritems(raw_information):
       if key in ['_links']:
         continue
       setattr(software_instance, '_%s' % key, value)
@@ -615,7 +608,7 @@ class ComputerPartition(SlapRequester):
     self._connection_helper.POST('setComputerPartitionConnectionXml', data={
           'computer_id': self._computer_id,
           'computer_partition_id': self._partition_id,
-          'connection_xml': xml_marshaller.dumps(connection_dict),
+          'connection_xml': dumps(connection_dict),
           'slave_reference': slave_reference})
 
   def getInstanceParameter(self, key):
@@ -643,7 +636,7 @@ class ComputerPartition(SlapRequester):
                 'computer_partition_id': self._partition_id,
                 }
             )
-    return xml_marshaller.loads(xml)
+    return loads(xml)
 
   def getStatus(self):
     xml = self._connection_helper.GET('getComputerPartitionStatus',
@@ -652,7 +645,7 @@ class ComputerPartition(SlapRequester):
                 'computer_partition_id': self._partition_id,
                 }
             )
-    return xml_marshaller.loads(xml)
+    return loads(xml)
   
   def getFullHostingIpAddressList(self):
     xml = self._connection_helper.GET('getHostingSubscriptionIpList',
@@ -661,14 +654,14 @@ class ComputerPartition(SlapRequester):
                 'computer_partition_id': self._partition_id,
                 }
             )
-    return xml_marshaller.loads(xml)
+    return loads(xml)
 
   def setComputerPartitionRelatedInstanceList(self, instance_reference_list):
     self._connection_helper.POST('updateComputerPartitionRelatedInstanceList',
         data={
           'computer_id': self._computer_id,
           'computer_partition_id': self._partition_id,
-          'instance_reference_xml': xml_marshaller.dumps(instance_reference_list)
+          'instance_reference_xml': dumps(instance_reference_list)
           }
         )
 
@@ -676,7 +669,7 @@ def _addIpv6Brackets(url):
   # if master_url contains an ipv6 without bracket, add it
   # Note that this is mostly to limit specific issues with
   # backward compatiblity, not to ensure generic detection.
-  api_scheme, api_netloc, api_path, api_query, api_fragment = urlparse.urlsplit(url)
+  api_scheme, api_netloc, api_path, api_query, api_fragment = parse.urlsplit(url)
   try:
     ip = netaddr.IPAddress(api_netloc)
     port = None
@@ -690,7 +683,7 @@ def _addIpv6Brackets(url):
     api_netloc = '[%s]' % ip
     if port:
       api_netloc = '%s:%s' % (api_netloc, port)
-    url = urlparse.urlunsplit((api_scheme, api_netloc, api_path, api_query, api_fragment))
+    url = parse.urlunsplit((api_scheme, api_netloc, api_path, api_query, api_fragment))
   return url
 
 class ConnectionHelper:
@@ -709,7 +702,7 @@ class ConnectionHelper:
 
   def getComputerInformation(self, computer_id):
     xml = self.GET('getComputerInformation', params={'computer_id': computer_id})
-    return xml_marshaller.loads(xml)
+    return loads(xml)
 
   def getFullComputerInformation(self, computer_id):
     """
@@ -728,13 +721,10 @@ class ConnectionHelper:
       # We should stablise slap library soon.
       xml = self.GET('getComputerInformation', params=params)
 
-    if type(xml) is unicode:
-      xml = str(xml)
-      xml.encode('utf-8')
-    return xml_marshaller.loads(xml)
+    return loads(xml)
 
   def do_request(self, method, path, params=None, data=None, headers=None):
-    url = urlparse.urljoin(self.slapgrid_uri, path)
+    url = parse.urljoin(self.slapgrid_uri, path)
     if headers is None:
       headers = {}
     headers.setdefault('Accept', '*/*')
@@ -754,7 +744,7 @@ class ConnectionHelper:
       # Behavior kept for compatibility with old slapproxies (< v1.3.3).
       # Can be removed when old slapproxies are no longer in use.
       if data:
-        for k, v in data.iteritems():
+        for k, v in six.iteritems(data):
           if v is None:
             data[k] = 'None'
 
@@ -765,7 +755,12 @@ class ConnectionHelper:
                    data=data,
                    headers=headers,
                    timeout=self.timeout)
-      req.raise_for_status()
+      try:
+        req.raise_for_status()
+      except TypeError:
+        # In Py3, a comparison between NoneType and int can occur if req has no
+        # status_code (= None).
+        pass
 
     except (requests.Timeout, requests.ConnectionError) as exc:
       raise ConnectionError("Couldn't connect to the server. Please "
@@ -816,8 +811,8 @@ class ConnectionHelper:
 
 
 getHateoasUrl_cache = {}
+@implementer(interface.slap)
 class slap:
-  zope.interface.implements(interface.slap)
 
   def initializeConnection(self, slapgrid_uri,
                            key_file=None, cert_file=None,
@@ -837,7 +832,8 @@ class slap:
         pass
     if not slapgrid_rest_uri:
       try:
-        slapgrid_rest_uri = getHateoasUrl_cache[getHateoasUrl_cache_key] = self._connection_helper.GET('getHateoasUrl')
+        slapgrid_rest_uri = getHateoasUrl_cache[getHateoasUrl_cache_key] = \
+          bytes2str(self._connection_helper.GET('getHateoasUrl'))
       except:
         pass
     if slapgrid_rest_uri:
@@ -885,10 +881,7 @@ class slap:
                 'computer_partition_reference': partition_id,
                 }
             )
-    if type(xml) is unicode:
-      xml = str(xml)
-      xml.encode('utf-8')
-    result = xml_marshaller.loads(xml)
+    result = loads(xml)
     # XXX: dirty hack to make computer partition usable. xml_marshaller is too
     # low-level for our needs here.
     result._connection_helper = self._connection_helper
@@ -923,10 +916,7 @@ class slap:
       params['software_release_url'] = software_release_url
 
     xml = self._connection_helper.GET(url, params=params)
-    if type(xml) is unicode:
-      xml = str(xml)
-      xml.encode('utf-8')
-    result = xml_marshaller.loads(xml)
+    result = loads(xml)
     assert(type(result) == list)
     return result
 
@@ -1046,7 +1036,7 @@ class SlapHateoasNavigator(HateoasNavigator):
       raw_information = self.getHostingSubscriptionRootSoftwareInstanceInformation(hosting_subscription_link['title'])
       software_instance = SoftwareInstance()
       # XXX redefine SoftwareInstance to be more consistent
-      for key, value in raw_information.iteritems():
+      for key, value in six.iteritems(raw_information):
         if key in ['_links']:
           continue
         setattr(software_instance, '_%s' % key, value)

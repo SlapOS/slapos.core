@@ -33,6 +33,7 @@ import socket
 import struct
 import subprocess
 import sqlite3
+from xml_marshaller.xml_marshaller import dumps, loads
 
 
 def mkdir_p(path, mode=0o700):
@@ -86,16 +87,9 @@ def string_to_boolean(string):
 
   The parser is completely arbitrary, see code for actual implementation.
   """
-  if not isinstance(string, str) and not isinstance(string, unicode):
-    raise ValueError('Given value is not a string.')
-  acceptable_true_values = ['true']
-  acceptable_false_values = ['false']
-  string = string.lower()
-  if string in acceptable_true_values:
-    return True
-  if string in acceptable_false_values:
-    return False
-  else:
+  try:
+    return ('false', 'true').index(string.lower())
+  except Exception:
     raise ValueError('%s is neither True nor False.' % string)
 
 
@@ -138,3 +132,15 @@ def ipv6FromBin(ip, suffix=''):
 def lenNetmaskIpv6(netmask):
   return len(binFromIpv6(netmask).rstrip('0'))
 
+# Used for Python 2-3 compatibility
+if str is bytes:
+  bytes2str = str2bytes = lambda s: s
+  def unicode2str(s):
+    return s.encode('utf-8')
+else:
+  def bytes2str(s):
+    return s.decode()
+  def str2bytes(s):
+    return s.encode()
+  def unicode2str(s):
+    return s

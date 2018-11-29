@@ -38,7 +38,7 @@ import importlib
 import traceback
 import psutil
 from multiprocessing import Process, Queue as MQueue
-import Queue
+from six.moves import queue, reload_module
 from slapos.util import mkdir_p, chownDirectory
 from slapos.grid.utils import dropPrivileges, killProcessTree
 from slapos.grid.promise import interface
@@ -168,7 +168,7 @@ class PromiseProcess(Process):
     if not os.path.exists(init_file):
       with open(init_file, 'w') as f:
         f.write("")
-      os.chmod(init_file, 0644)
+      os.chmod(init_file, 0o644)
     # add promise folder to sys.path so we can import promise script
     if sys.path[0] != promise_folder:
       sys.path[0:0] = [promise_folder]
@@ -184,9 +184,8 @@ class PromiseProcess(Process):
       raise AttributeError("Class RunPromise not found in promise" \
         "%s" % self.name)
     if not interface.IPromise.implementedBy(promise_module.RunPromise):
-      raise RuntimeError("RunPromise class in %s must implements 'IPromise'" \
-        " interface. zope_interface.implements(interface.IPromise) is" \
-        " missing ?" % self.name)
+      raise RuntimeError("RunPromise class in %s must implement 'IPromise'"
+        " interface. @implementer(interface.IPromise) is missing ?" % self.name)
 
     from slapos.grid.promise.generic import GenericPromise
     if not issubclass(promise_module.RunPromise, GenericPromise):
@@ -195,7 +194,7 @@ class PromiseProcess(Process):
 
     if promise_module.__file__ != self.promise_path:
       # cached module need to be updated
-      promise_module = reload(promise_module)
+      promise_module = reload_module(promise_module)
     # load extra parameters
     self._loadPromiseParameterDict(promise_module)
 
@@ -208,7 +207,7 @@ class PromiseProcess(Process):
       if not isinstance(extra_dict, dict):
         raise ValueError("Extra parameter is not a dict")
       for key in extra_dict:
-        if self.argument_dict.has_key(key):
+        if key in self.argument_dict:
           raise ValueError("Extra parameter name %r cannot be used.\n%s" % (
                            key, extra_dict))
         self.argument_dict[key] = extra_dict[key]
@@ -362,7 +361,7 @@ class PromiseLauncher(object):
         try:
           result = PromiseQueueResult()
           result.load(json.loads(f.read()))
-        except ValueError, e:
+        except ValueError as e:
           result = None
           self.logger.warn('Bad promise JSON result at %r: %s' % (
             promise_output_file,
@@ -375,7 +374,7 @@ class PromiseLauncher(object):
     while True:
       try:
         self.queue_result.get_nowait()
-      except Queue.Empty:
+      except queue.Empty:
         return
 
   def _updateFolderOwner(self, folder_path=None):
@@ -443,7 +442,7 @@ class PromiseLauncher(object):
       if not promise_process.is_alive():
         try:
           queue_item = self.queue_result.get(True, 1)
-        except Queue.Empty:
+        except queue.Empty:
           # no result found in process result Queue
           pass
         else:

@@ -47,7 +47,7 @@ class SlapPopenTestCase(unittest.TestCase):
   def test_exec(self):
     """Test command execution with SlapPopen.
     """
-    self.script.write('#!/bin/sh\necho "hello"\nexit 123')
+    self.script.write(b'#!/bin/sh\necho "hello"\nexit 123')
     self.script.close()
 
     logger = mock.MagicMock()
@@ -65,7 +65,7 @@ class SlapPopenTestCase(unittest.TestCase):
   def test_debug(self):
     """Test debug=True, which keeps interactive.
     """
-    self.script.write('#!/bin/sh\necho "exit code?"\nread rc\nexit $rc')
+    self.script.write(b'#!/bin/sh\necho "exit code?"\nread rc\nexit $rc')
     self.script.close()
 
     # keep a reference to stdin and stdout to restore them later
@@ -74,7 +74,7 @@ class SlapPopenTestCase(unittest.TestCase):
 
     # replace stdin with a pipe that will write 123
     child_stdin_r, child_stdin_w = os.pipe()
-    os.write(child_stdin_w, "123")
+    os.write(child_stdin_w, b"123")
     os.close(child_stdin_w)
     os.dup2(child_stdin_r, sys.stdin.fileno())
 
@@ -88,7 +88,7 @@ class SlapPopenTestCase(unittest.TestCase):
           debug=True,
           logger=logging.getLogger())
       # program output
-      self.assertEqual('exit code?\n', os.read(child_stdout_r, 1024))
+      self.assertEqual(b'exit code?\n', os.read(child_stdout_r, 1024))
 
       self.assertEqual(123, program.returncode)
       self.assertEqual('(output not captured in debug mode)', program.output)

@@ -32,7 +32,7 @@ import os
 import pkg_resources
 import random
 import socket
-import StringIO
+from io import BytesIO
 import subprocess
 import sys
 import tempfile
@@ -42,6 +42,7 @@ import warnings
 import logging
 import json
 import shutil
+import six
 
 if sys.version_info < (2, 6):
   warnings.warn('Used python version (%s) is old and has problems with'
@@ -167,7 +168,7 @@ def merged_options(args, configp):
 
   if configp.has_section('networkcache'):
     options.update(dict(configp.items('networkcache')))
-  for key, value in vars(args).iteritems():
+  for key, value in six.iteritems(vars(args)):
     if value is not None:
       options[key] = value
 
@@ -672,7 +673,7 @@ stderr_logfile_backups=1
           computer_partition.setComputerPartitionRelatedInstanceList(
             [reference for reference in tf.read().split('\n') if reference]
           )
-        except NotFoundError, e:
+        except NotFoundError as e:
           # Master doesn't implement this feature ?
           self.logger.warning("NotFoundError: %s. \nCannot send requested instance "\
                             "list to master. Please check if this feature is"\
@@ -682,12 +683,12 @@ stderr_logfile_backups=1
     """
     """
     query_cmd = rule_command.replace('--add-rule', '--query-rule')
-    process = FPopen(query_cmd)
+    process = FPopen(query_cmd, universal_newlines=True)
     result, stderr = process.communicate()
     if result.strip() == 'no':
       # rule doesn't exist add to firewall
       self.logger.debug(rule_command)
-      process = FPopen(rule_command)
+      process = FPopen(rule_command, universal_newlines=True)
       rule_result, stderr = process.communicate()
       if process.returncode == 0:
         if rule_result.strip() != 'success':
@@ -705,13 +706,13 @@ stderr_logfile_backups=1
     """
     """
     query_cmd = rule_command.replace('--add-rule', '--query-rule')
-    process = FPopen(query_cmd)
+    process = FPopen(query_cmd, universal_newlines=True)
     result, stderr = process.communicate()
     if result.strip() == 'yes':
       # The rule really exist, remove it
       remove_command = rule_command.replace('--add-rule', '--remove-rule')
       self.logger.debug(remove_command)
-      process = FPopen(remove_command)
+      process = FPopen(remove_command, universal_newlines=True)
       rule_result, stderr = process.communicate()
       if process.returncode == 0:
         if rule_result.strip() != 'success':
@@ -764,7 +765,7 @@ stderr_logfile_backups=1
       # XXX - need to check firewalld reload instead of restart
       self.logger.info("Reloading firewall configuration...")
       reload_cmd = self.firewall_conf['reload_config_cmd']
-      reload_process = FPopen(reload_cmd)
+      reload_process = FPopen(reload_cmd, universal_newlines=True)
       stdout, stderr = reload_process.communicate()
       if reload_process.returncode != 0:
         raise Exception("Failed to load firewalld rules with command %s.\n%" % (
@@ -922,7 +923,7 @@ stderr_logfile_backups=1
       self._checkPromiseList(local_partition,
                              check_anomaly=True,
                              force=False)
-    except PromiseError, e:
+    except PromiseError as e:
       self.logger.error(e)
       if partition_access_status is None or not status_error:
         computer_partition.error(e, logger=self.logger)
@@ -1140,7 +1141,7 @@ stderr_logfile_backups=1
           (computer_partition_id, computer_partition_state)
         computer_partition.error(error_string, logger=self.logger)
         raise NotImplementedError(error_string)
-    except Exception, e:
+    except Exception as e:
       if not isinstance(e, PromiseError):
         with open(error_output_file, 'w') as error_file:
           # Write error message in a log file assible to computer partition user
@@ -1309,7 +1310,7 @@ stderr_logfile_backups=1
   def validateXML(self, to_be_validated, xsd_model):
     """Validates a given xml file"""
     #We retrieve the xsd model
-    xsd_model = StringIO.StringIO(xsd_model)
+    xsd_model = BytesIO(xsd_model)
     xmlschema_doc = etree.parse(xsd_model)
     xmlschema = etree.XMLSchema(xmlschema_doc)
 

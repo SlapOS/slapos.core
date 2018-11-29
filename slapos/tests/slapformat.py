@@ -26,6 +26,8 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
+from __future__ import print_function
+
 import glob
 import logging
 import slapos.format
@@ -48,6 +50,8 @@ import time
 import mock
 
 from .slapgrid import DummyManager
+
+import six
 
 USER_LIST = []
 GROUP_LIST = []
@@ -89,7 +93,7 @@ class FakeCallAndRead:
     retval = 0, 'UP'
     global INTERFACE_DICT
     if 'useradd' in argument_list:
-      print argument_list
+      print(argument_list)
       global USER_LIST
       username = argument_list[-1]
       if username == '-r':
@@ -130,7 +134,7 @@ class LoggableWrapper:
 
   def __call__(self, *args, **kwargs):
     arg_list = [repr(x) for x in args] + [
-      '%s=%r' % (x, y) for x, y in kwargs.iteritems()]
+      '%s=%r' % (x, y) for x, y in six.iteritems(kwargs)]
     self.__logger.debug('%s(%s)' % (self.__name, ', '.join(arg_list)))
 
 
@@ -197,6 +201,8 @@ class SlapformatMixin(unittest.TestCase):
     self.netifaces = NetifacesMock()
     self.saved_netifaces = {}
     for fake in vars(NetifacesMock):
+      if fake.startswith("__"):
+        continue
       self.saved_netifaces[fake] = getattr(netifaces, fake, None)
       setattr(netifaces, fake, getattr(self.netifaces, fake))
 
@@ -208,6 +214,8 @@ class SlapformatMixin(unittest.TestCase):
   def patchPwd(self):
     self.saved_pwd = {}
     for fake in vars(PwdMock):
+      if fake.startswith("__"):
+        continue
       self.saved_pwd[fake] = getattr(pwd, fake, None)
       setattr(pwd, fake, getattr(PwdMock, fake))
 
@@ -219,6 +227,8 @@ class SlapformatMixin(unittest.TestCase):
   def patchTime(self):
     self.saved_time = {}
     for fake in vars(TimeMock):
+      if fake.startswith("__"):
+        continue
       self.saved_time[fake] = getattr(time, fake, None)
       setattr(time, fake, getattr(TimeMock, fake))
 
@@ -230,6 +240,8 @@ class SlapformatMixin(unittest.TestCase):
   def patchGrp(self):
     self.saved_grp = {}
     for fake in vars(GrpMock):
+      if fake.startswith("__"):
+        continue
       self.saved_grp[fake] = getattr(grp, fake, None)
       setattr(grp, fake, getattr(GrpMock, fake))
 

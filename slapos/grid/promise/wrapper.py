@@ -32,16 +32,15 @@ import subprocess
 import functools
 import signal
 import traceback
-from zope import interface as zope_interface
+from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import GenericPromise
 
+@implementer(interface.IPromise)
 class WrapPromise(GenericPromise):
   """
     A wrapper promise used to run old promises style and bash promises
   """
-
-  zope_interface.implements(interface.IPromise)
 
   def __init__(self, config):
     GenericPromise.__init__(self, config)
@@ -62,21 +61,19 @@ class WrapPromise(GenericPromise):
         [self.getPromiseFile()],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
-        cwd=self.getPartitionFolder()
+        cwd=self.getPartitionFolder(),
+        universal_newlines=True,
     )
     handler = functools.partial(self.terminate, self.getName(), self.logger,
                                 promise_process)
     signal.signal(signal.SIGINT, handler)
     signal.signal(signal.SIGTERM, handler)
 
-    output, error = promise_process.communicate()
-    message = output or ""
-    if error:
-      message += "\n" + error
-    if promise_process.returncode != 0:
-      self.logger.error(message.strip())
+    message = promise_process.communicate()[0].strip()
+    if promise_process.returncode:
+      self.logger.error(message)
     else:
-      self.logger.info(message.strip())
+      self.logger.info(message)
 
   def test(self):
     # Fail if the latest promise result failed

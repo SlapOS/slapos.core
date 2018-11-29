@@ -28,7 +28,7 @@
 #
 ##############################################################################
 
-import ConfigParser
+from six.moves import configparser
 import errno
 import fcntl
 import grp
@@ -51,12 +51,13 @@ import time
 import traceback
 import zipfile
 import platform
-from urllib2 import urlopen
+from six.moves.urllib.request import urlopen
+import six
 
 import lxml.etree
 import xml_marshaller.xml_marshaller
 
-from slapos.util import mkdir_p, ipv6FromBin, binFromIpv6, lenNetmaskIpv6
+from slapos.util import dumps, mkdir_p, ipv6FromBin, binFromIpv6, lenNetmaskIpv6
 import slapos.slap as slap
 from slapos import version
 from slapos import manager as slapmanager
@@ -87,7 +88,7 @@ class OS(object):
   def _addWrapper(self, name):
     def wrapper(*args, **kw):
       arg_list = [repr(x) for x in args] + [
-          '%s=%r' % (x, y) for x, y in kw.iteritems()
+          '%s=%r' % (x, y) for x, y in six.iteritems(kw)
       ]
       self._logger.debug('%s(%s)' % (name, ', '.join(arg_list)))
       if not self._dry_run:
@@ -232,8 +233,8 @@ def _getDict(obj):
       return obj
 
   return {
-    key: _getDict(value) \
-    for key, value in dikt.iteritems() \
+    key: _getDict(value)
+    for key, value in six.iteritems(dikt)
     # do not attempt to serialize logger: it is both useless and recursive.
     # do not serialize attributes starting with "_", let the classes have some privacy
     if not key.startswith("_")
@@ -336,7 +337,7 @@ class Computer(object):
     if conf.dry_run:
       return
     try:
-      slap_computer.updateConfiguration(xml_marshaller.xml_marshaller.dumps(_getDict(self)))
+      slap_computer.updateConfiguration(dumps(_getDict(self)))
     except slap.NotFoundError as error:
       raise slap.NotFoundError("%s\nERROR: This SlapOS node is not recognised by "
           "SlapOS Master and/or computer_id and certificates don't match. "
@@ -358,7 +359,7 @@ class Computer(object):
       with open(path_to_json, 'wb') as fout:
         fout.write(json.dumps(computer_dict, sort_keys=True, indent=2))
 
-    new_xml = xml_marshaller.xml_marshaller.dumps(computer_dict)
+    new_xml = dumps(computer_dict)
     new_pretty_xml = prettify_xml(new_xml)
 
     path_to_archive = path_to_xml + '.zip'
@@ -1197,7 +1198,7 @@ class Interface(object):
 
 def parse_computer_definition(conf, definition_path):
   conf.logger.info('Using definition file %r' % definition_path)
-  computer_definition = ConfigParser.RawConfigParser({
+  computer_definition = configparser.RawConfigParser({
     'software_user': 'slapsoft',
   })
   computer_definition.read(definition_path)
@@ -1308,7 +1309,7 @@ def parse_computer_xml(conf, xml_path):
 
 
 def write_computer_definition(conf, computer):
-  computer_definition = ConfigParser.RawConfigParser()
+  computer_definition = configparser.RawConfigParser()
   computer_definition.add_section('computer')
   if computer.address is not None and computer.netmask is not None:
     computer_definition.set('computer', 'address', '/'.join(

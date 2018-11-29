@@ -247,7 +247,7 @@ class SlapOSApp(App):
           return
 
         if self.options.log_color:
-            import coloredlogs
+            from slapos.cli import coloredlogs
             console = coloredlogs.ColoredStreamHandler(show_name=True,     # logger name (slapos) and PID
                                                        show_severity=True,
                                                        show_timestamps=self.options.log_time,

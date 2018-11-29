@@ -34,7 +34,6 @@ import logging
 import sys
 import os
 import subprocess
-import StringIO
 
 import lxml.etree
 import prettytable
@@ -43,8 +42,17 @@ import sqlite3
 from slapos.cli.config import ConfigCommand
 from slapos.proxy import ProxyConfig
 from slapos.proxy.db_version import DB_VERSION
-from slapos.util import sqlite_connect
+from slapos.util import sqlite_connect, str2bytes
 
+if bytes is str:
+  from io import BytesIO
+  class StringIO(BytesIO):
+    # Something between strict io.BytesIO and laxist/slow StringIO.StringIO
+    # (which starts returning unicode once unicode is written) for logging. 
+    def write(self, b):
+      return BytesIO.write(self, b.encode('utf-8'))
+else:
+  from io import StringIO
 
 class ProxyShowCommand(ConfigCommand):
     """
@@ -139,7 +147,7 @@ def log_params(logger, conn):
         if not row['connection_xml']:
             continue
 
-        xml = str(row['connection_xml'])
+        xml = str2bytes(row['connection_xml'])
         logger.info('%s: %s (type %s)', row['reference'], row['partition_reference'], row['software_type'])
         instance = lxml.etree.fromstring(xml)
         for parameter in list(instance):
@@ -150,9 +158,12 @@ def log_params(logger, conn):
             # _ is usually json encoded - re-format to make it easier to read
             if name == '_':
                 try:
-                    text = json.dumps(json.loads(text), indent=2)
+                    text = json.dumps(json.loads(text),
+                        indent=2, sort_keys=True)
                 except ValueError:
                     pass
+                else: # to avoid differences between Py2 and Py3 in unit tests
+                    text = '\n'.join(map(str.rstrip, text.splitlines()))
             logger.info('    %s = %s', name, text)
 
 
@@ -208,7 +219,7 @@ def do_show(conf):
     # to paginate input, honoring $PAGER.
     output = sys.stdout
     if output.isatty():
-       output = StringIO.StringIO()
+      output = StringIO()
     proxy_show_logger = logging.getLogger(__name__)
     handler = logging.StreamHandler(output)
     handler.setLevel(logging.DEBUG)
@@ -221,7 +232,8 @@ def do_show(conf):
     conn = sqlite_connect(conf.database_uri)
     conn.row_factory = sqlite3.Row
 
-    conn.create_function('md5', 1, lambda s: hashlib.md5(s).hexdigest())
+    conn.create_function('md5', 1,
+                         lambda s: hashlib.md5(str2bytes(s)).hexdigest())
 
     call_table = [
         (conf.computers, log_computer_table),
@@ -248,4 +260,4 @@ def do_show(conf):
             close_fds=True,
             shell=True,
             stdin=subprocess.PIPE,)
-        pager.communicate(output.getvalue().encode('utf-8'))
+        pager.communicate(str2bytes(output.getvalue()))

@@ -29,6 +29,7 @@
 
 import logging
 import sys
+import argparse
 
 from slapos.cli.command import check_root_user
 from slapos.cli.config import ConfigCommand
@@ -45,41 +46,45 @@ class FormatCommand(ConfigCommand):
         ap = super(FormatCommand, self).get_parser(prog_name)
 
         ap.add_argument('-x', '--computer_xml',
+                        default=argparse.SUPPRESS, #can't use default here because it would overwrite .cfg
                         help="Path to file with computer's XML. If does not exists, will be created")
 
         ap.add_argument('--computer_json',
+                        default=argparse.SUPPRESS, #can't use default here because it would overwrite .cfg
                         help="Path to a JSON version of the computer's XML (for development only)")
 
         ap.add_argument('-i', '--input_definition_file',
+                        default=argparse.SUPPRESS, #can't use default here because it would overwrite .cfg
                         help="Path to file to read definition of computer instead of "
                         "declaration. Using definition file allows to disable "
                         "'discovery' of machine services and allows to define computer "
                         "configuration in fully controlled manner.")
 
         ap.add_argument('-o', '--output_definition_file',
+                        default=argparse.SUPPRESS, #can't use default here because it would overwrite .cfg
                         help="Path to file to write definition of computer from "
                         "declaration.")
 
         ap.add_argument('--alter_user',
                         choices=['True', 'False'],
-                        #default=FormatConfig.alter_user, #can't use default here because it would overwrite .cfg
+                        default=argparse.SUPPRESS, #can't use default here because it would overwrite .cfg
                         help='Shall slapformat alter user database'
                              ' (default: {})'.format(FormatConfig.alter_user))
 
         ap.add_argument('--alter_network',
                         choices=['True', 'False'],
-                        #default=FormatConfig.alter_network, #can't use default here because it would overwrite .cfg
+                        default=argparse.SUPPRESS, #can't use default here because it would overwrite .cfg
                         help='Shall slapformat alter network configuration'
                              ' (default: {})'.format(FormatConfig.alter_network))
 
         ap.add_argument('--now',
-                        default=False,
+                        default=False, # can have a default as it is not in .cfg
                         action="store_true",
                         help='Launch slapformat without delay'
                              ' (default: %(default)s)')
 
         ap.add_argument('-n', '--dry_run',
-                        default=False,
+                        default=False, # can have a default as it is not in .cfg
                         action="store_true",
                         help="Don't actually do anything"
                              " (default: %(default)s)")

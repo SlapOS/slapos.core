@@ -29,6 +29,7 @@
 
 import logging
 import sys
+import argparse
 
 from slapos.cli.command import check_root_user
 from slapos.cli.config import ConfigCommand
@@ -62,13 +63,13 @@ class FormatCommand(ConfigCommand):
 
         ap.add_argument('--alter_user',
                         choices=['True', 'False'],
-                        #default=FormatConfig.alter_user, #can't use default here because it would overwrite .cfg
+                        default=argparse.SUPPRESS, #can't use default here because it would overwrite .cfg
                         help='Shall slapformat alter user database'
                              ' (default: {})'.format(FormatConfig.alter_user))
 
         ap.add_argument('--alter_network',
                         choices=['True', 'False'],
-                        #default=FormatConfig.alter_network, #can't use default here because it would overwrite .cfg
+                        default=argparse.SUPPRESS, #can't use default here because it would overwrite .cfg
                         help='Shall slapformat alter network configuration'
                              ' (default: {})'.format(FormatConfig.alter_network))
 

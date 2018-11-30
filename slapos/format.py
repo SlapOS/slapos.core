@@ -1380,8 +1380,8 @@ class FormatConfig(object):
   cert_file = None
   alter_network = 'True'
   alter_user = 'True'
-  create_tap = True
-  create_tun = False
+  create_tap = None
+  create_tun = None
   computer_xml = None
   computer_json = None
   input_definition_file = None

@@ -484,7 +484,7 @@ class TestComputer(SlapformatMixin):
         logger=self.logger, name='iface', ipv4_local_network='127.0.0.1/16'),
       partition_list=[
           slapos.format.Partition(
-            'partition', '/part_path', slapos.format.User('testuser'), [], 
+            'partition', '/part_path', slapos.format.User('testuser'), [],
             tap=slapos.format.Tap('tap')),
         ])
     global USER_LIST
@@ -517,7 +517,7 @@ class TestComputer(SlapformatMixin):
         'ip tuntap add dev tap mode tap user testuser',
         'ip link set tap up',
         'ip addr add ip/ffff:ffff:ffff:ffff:ffff:ffff:: dev tap',
-        'ip -6 addr list tap',  
+        'ip -6 addr list tap',
         'ip route show 10.8.0.2',
         'ip route add 10.8.0.2 dev tap',
         'ip addr add ip/255.255.255.255 dev iface',

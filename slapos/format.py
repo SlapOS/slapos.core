@@ -1376,22 +1376,38 @@ def do_format(conf):
 
 
 class FormatConfig(object):
-  key_file = None
-  cert_file = None
-  alter_network = 'True'
-  alter_user = 'True'
+  """This class represents the options for slapos node format
+  all the attributes of this class are options
+  all the attributes can be modified by config file (.cfg)
+  some attributes can be modified by command line"""
+
+  # Network options
+  alter_network = 'True' # modifiable by cmdline
+  interface_name = None
+  ipv6_interface = None
   create_tap = True
   create_tun = False
-  computer_xml = None
-  computer_json = None
-  input_definition_file = None
-  log_file = None
-  output_definition_file = None
-  dry_run = None
-  software_user = 'slapsoft'
+  tap_base_name = None
+  ipv4_local_network = None
   tap_gateway_interface = ''
   use_unique_local_address_block = False
+
+  # User options
+  alter_user = 'True' # modifiable by cmdline
+  software_user = 'slapsoft'
   instance_storage_home = None
+  partition_base_name = None
+  user_base_name = None
+
+  # Other options
+  input_definition_file = None  # modifiable by cmdline
+  computer_xml = None           # modifiable by cmdline
+  computer_json = None          # modifiable by cmdline
+  log_file = None               # modifiable by cmdline
+  output_definition_file = None # modifiable by cmdline
+  dry_run = None                # modifiable by cmdline
+  key_file = None
+  cert_file = None
 
   def __init__(self, logger):
     self.logger = logger
@@ -1414,30 +1430,20 @@ class FormatConfig(object):
 
   def mergeConfig(self, args, configp):
     """
-    Set options given by parameters.
+    Set options given by config files and arguments.
     Must be executed before setting up the logger.
     """
-    self.key_file = None
-    self.cert_file = None
-
-    # Set argument parameters
-    for key, value in args.__dict__.items():
-      setattr(self, key, value)
-
-    # Merges the arguments and configuration
+    # First, the configuration file options erase the default class options
     for section in ("slapformat", "slapos"):
       configuration_dict = dict(configp.items(section))
       for key in configuration_dict:
-        if not getattr(self, key, None):
-          setattr(self, key, configuration_dict[key])
+        setattr(self, key, configuration_dict[key])
+
+    # Second, the command line arguments erase the configuration file options
+    for key, value in args.__dict__.items():
+      setattr(self, key, value)
 
   def setConfig(self):
-    # setup some nones
-    for parameter in ['interface_name', 'partition_base_name', 'user_base_name',
-          'tap_base_name', 'ipv4_local_network', 'ipv6_interface']:
-      if getattr(self, parameter, None) is None:
-        setattr(self, parameter, None)
-
     # deprecated options raise an error
     for option in ['bridge_name', 'no_bridge']:
       if getattr(self, option, None):

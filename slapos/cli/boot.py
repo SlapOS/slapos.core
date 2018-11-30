@@ -159,11 +159,8 @@ class BootCommand(ConfigCommand):
         master_hostname = master_url.hostname
 
         # Check that we have IPv6 ready
-        if configp.get('slapformat','ipv6_interface'):
-            interface_name = configp.get('slapformat','ipv6_interface')
-        else:
-            interface_name = configp.get('slapformat','interface_name')
-        _waitIpv6Ready(interface_name)
+        _waitIpv6Ready(configp.get('slapformat', 'ipv6_interface') or
+                       configp.get('slapformat', 'interface_name'))
 
         # Check that node can ping master
         if valid_ipv4(master_hostname):
@@ -176,17 +173,13 @@ class BootCommand(ConfigCommand):
 
         app = SlapOSApp()
         # Make sure slapos node format returns ok
-        is_ready = _runFormat(app)
-        while is_ready == 0:
+        while not _runFormat(app):
             print "[BOOT] [ERROR] Fail to format, try again in 15 seconds..."
             sleep(15)
-            is_ready = _runFormat(app)
        
         # Make sure slapos node bang returns ok
-        is_ready = _runBang(app)
-        while is_ready == 0:
+        while not _runBang(app):
             print "[BOOT] [ERROR] Fail to bang, try again in 15 seconds..."
             sleep(15)
-            is_ready = _runBang(app)
 
         _removeTimestamp(instance_root)

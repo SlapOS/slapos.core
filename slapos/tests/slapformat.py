@@ -32,6 +32,9 @@ import slapos.format
 import slapos.util
 import slapos.manager.cpuset
 import unittest
+from slapos.cli.format import FormatCommand
+from slapos.cli.entry import SlapOSApp
+from argparse import Namespace
 
 import netaddr
 import shutil
@@ -290,6 +293,7 @@ class SlapformatMixin(unittest.TestCase):
     self.patchPwd()
     self.patchNetifaces()
     self.patchSlaposUtil()
+    self.app = SlapOSApp()
 
   def tearDown(self):
     self.restoreOs()
@@ -887,6 +891,28 @@ class TestSlapformatManagerLifecycle(SlapformatMixin):
     self.assertEqual(manager.sequence,
                      ['format', 'formatTearDown'])
 
+class TestFormatConfig(SlapformatMixin):
+
+  def fake_take_action(self, args):
+    format_command = FormatCommand(self.app, Namespace())
+    parsed_args = format_command.get_parser("slapos node format fake").parse_args(args)
+    configp = format_command.fetch_config(parsed_args)
+    conf = slapos.format.FormatConfig(logger=self.logger)
+    conf.mergeConfig(parsed_args, configp)
+    conf.setConfig()
+    return conf
+
+  def test_empty_cmdline_options(self):
+    conf = self.fake_take_action("")
+    self.assertEqual(conf.alter_network, True)
+    self.assertEqual(conf.alter_user, True)
+
+  def test_cmdline1_options(self):
+    conf = self.fake_take_action(["--alter_network", "False", "--alter_user", "True"])
+    self.assertEqual(conf.alter_network, False)
+    self.assertEqual(conf.alter_user, True)
+
+  # TODO add more tests with config file
 
 if __name__ == '__main__':
       unittest.main()

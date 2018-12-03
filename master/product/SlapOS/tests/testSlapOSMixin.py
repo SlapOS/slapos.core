@@ -151,9 +151,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
       initsite = {}
 
     if initsite.get("cloudooo_url", None) is None:
-      from Products.ERP5Type.tests.ERP5TypeTestCase import\
-                  _getConversionServerUrl
-      initsite["cloudooo_url"] = _getConversionServerUrl()
+      initsite["cloudooo_url"] = "https://cloudooo.erp5.net" 
 
     config.product_config["initsite"] = initsite
 

@@ -293,7 +293,6 @@ class SlapformatMixin(unittest.TestCase):
     self.patchPwd()
     self.patchNetifaces()
     self.patchSlaposUtil()
-    self.app = SlapOSApp()
 
   def tearDown(self):
     self.restoreOs()
@@ -893,8 +892,9 @@ class TestSlapformatManagerLifecycle(SlapformatMixin):
 
 class TestFormatConfig(SlapformatMixin):
 
-  def fake_take_action(self, args):
-    format_command = FormatCommand(self.app, Namespace())
+  def fake_take_action(self, *args):
+    app = SlapOSApp()
+    format_command = FormatCommand(app, Namespace())
     parsed_args = format_command.get_parser("slapos node format fake").parse_args(args)
     configp = format_command.fetch_config(parsed_args)
     conf = slapos.format.FormatConfig(logger=self.logger)
@@ -903,14 +903,15 @@ class TestFormatConfig(SlapformatMixin):
     return conf
 
   def test_empty_cmdline_options(self):
-    conf = self.fake_take_action("")
-    self.assertEqual(conf.alter_network, True)
-    self.assertEqual(conf.alter_user, True)
+    conf = self.fake_take_action()
+    self.assertTrue(conf.alter_network)
+    self.assertTrue(conf.alter_user)
 
   def test_cmdline1_options(self):
-    conf = self.fake_take_action(["--alter_network", "False", "--alter_user", "True"])
-    self.assertEqual(conf.alter_network, False)
-    self.assertEqual(conf.alter_user, True)
+    conf = self.fake_take_action(
+      "--alter_network", "False", "--alter_user", "True")
+    self.assertFalse(conf.alter_network)
+    self.assertTrue(conf.alter_user)
 
   # TODO add more tests with config file
 

@@ -1416,7 +1416,7 @@ class FormatConfig(object):
   def checkRequiredBinary(binary_list):
     missing_binary_list = []
     for b in binary_list:
-      if type(b) != type([]):
+      if type(b) is not list:
         b = [b]
       try:
         callAndRead(b)
@@ -1435,13 +1435,10 @@ class FormatConfig(object):
     """
     # First, the configuration file options erase the default class options
     for section in ("slapformat", "slapos"):
-      configuration_dict = dict(configp.items(section))
-      for key in configuration_dict:
-        setattr(self, key, configuration_dict[key])
+      self.__dict__.update(configp.items(section))
 
     # Second, the command line arguments erase the configuration file options
-    for key, value in args.__dict__.items():
-      setattr(self, key, value)
+    self.__dict__.update(args.__dict__)
 
   def setConfig(self):
     # deprecated options raise an error

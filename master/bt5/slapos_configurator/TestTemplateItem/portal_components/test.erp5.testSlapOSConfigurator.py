@@ -259,6 +259,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'erp5_jquery_plugin_sheet',
       'erp5_jquery_sheet_editor',
       'erp5_jquery_ui',
+      'erp5_deferred_style',
       'erp5_dhtml_style',
       'erp5_knowledge_pad',
       'erp5_web',

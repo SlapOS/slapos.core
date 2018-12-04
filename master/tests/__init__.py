@@ -57,7 +57,7 @@ class SlapOSCloud(SavedTestSuite, ProjectTestSuite):
       test_list.append(test_case)
     return test_list
 
-  #def __init__(self, max_instance_count=1, *args, **kw):
-  #  # hardcode number of node, to prevent concurrency issue on certificate
-  #  # authority file system storage
-  #  super(SlapOSCloud, self).__init__(max_instance_count=1, *args, **kw)
+  def __init__(self, max_instance_count=1, *args, **kw):
+    # hardcode number of node, to prevent concurrency issue on certificate
+    # authority file system storage
+    super(SlapOSCloud, self).__init__(max_instance_count=1, *args, **kw)

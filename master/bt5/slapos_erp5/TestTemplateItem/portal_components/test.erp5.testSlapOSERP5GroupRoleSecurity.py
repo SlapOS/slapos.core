@@ -226,7 +226,7 @@ class TestComputerPartition(TestSlapOSGroupRoleSecurityMixin):
     partition = self.portal.computer_module.newContent(
         portal_type='Computer').newContent(portal_type='Computer Partition')
     self.portal.portal_workflow._jumpToStateFor(partition, 'busy')
-    partition.recursiveImmediateReindexObject()
+    self.commit()
 
     instance_customer_reference = 'TESTPERSON-%s' % self.generateNewId()
     slave_customer_reference = 'TESTPERSON-%s' % self.generateNewId()
@@ -246,7 +246,7 @@ class TestComputerPartition(TestSlapOSGroupRoleSecurityMixin):
     instance.edit(specialise=instance_subscription.getRelativeUrl(),
         aggregate=partition.getRelativeUrl())
     instance.validate()
-    instance.recursiveImmediateReindexObject()
+    self.commit()
 
     slave_subscription = self.portal.hosting_subscription_module\
         .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
@@ -257,7 +257,7 @@ class TestComputerPartition(TestSlapOSGroupRoleSecurityMixin):
     slave.validate()
     slave.edit(specialise=slave_subscription.getRelativeUrl(),
         aggregate=partition.getRelativeUrl())
-    slave.recursiveImmediateReindexObject()
+    self.commit()
 
     partition.updateLocalRolesOnSecurityGroups()
     self.assertSecurityGroup(partition,
@@ -597,8 +597,7 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
         aggregate=partition.getRelativeUrl())
     provider.validate()
 
-    provider.recursiveImmediateReindexObject()
-    partition.recursiveImmediateReindexObject()
+    self.commit()
 
     instance = self.portal.software_instance_module.newContent(
         portal_type='Slave Instance', aggregate=partition.getRelativeUrl())
@@ -713,7 +712,7 @@ class TestSoftwareInstance(TestSlapOSGroupRoleSecurityMixin):
     computer.edit(reference=computer_reference)
     partition = computer.newContent(portal_type='Computer Partition')
 
-    partition.recursiveImmediateReindexObject()
+    self.commit()
 
     instance = self.portal.software_instance_module.newContent(
         portal_type='Software Instance', aggregate=partition.getRelativeUrl())

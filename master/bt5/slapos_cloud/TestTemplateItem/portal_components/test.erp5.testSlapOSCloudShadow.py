@@ -46,7 +46,6 @@ class TestSlapOSShadowPerson(TestSlapOSSecurityMixin):
     person.newContent(portal_type='ERP5 Login',
           reference=reference, password=password).validate()
     self.commit()
-    person.recursiveImmediateReindexObject()
 
     self._assertUserExists(user_id, reference, password)
 
@@ -70,7 +69,6 @@ class TestSlapOSShadowPerson(TestSlapOSSecurityMixin):
     person.setUserId(user_id)
 
     self.commit()
-    person.recursiveImmediateReindexObject()
 
     self._assertUserDoesNotExists(user_id, reference, password)
     self._assertUserDoesNotExists(shadow_user_id, reference, None)
@@ -90,7 +88,7 @@ class TestSlapOSShadowComputer(TestSlapOSSecurityMixin):
           reference=reference).validate()
 
     computer.validate()
-    computer.recursiveImmediateReindexObject()
+    self.commit()
 
     self._assertUserExists(user_id, reference, None)
     self._assertUserExists(shadow_user_id, reference, None)
@@ -111,7 +109,7 @@ class TestSlapOSShadowComputer(TestSlapOSSecurityMixin):
       reference=reference)
     computer.setUserId(user_id)
 
-    computer.recursiveImmediateReindexObject()
+    self.commit()
 
     self._assertUserDoesNotExists(user_id, reference, None)
     self._assertUserDoesNotExists(user_id, shadow_reference, None)
@@ -130,7 +128,7 @@ class TestSlapOSShadowSoftwareInstance(TestSlapOSSecurityMixin):
     instance.newContent(portal_type='ERP5 Login',
           reference=reference).validate()
     instance.validate()
-    instance.recursiveImmediateReindexObject()
+    self.commit()
 
     self._assertUserExists(user_id, reference, None)
     self._assertUserExists(shadow_user_id, reference, None)
@@ -150,7 +148,7 @@ class TestSlapOSShadowSoftwareInstance(TestSlapOSSecurityMixin):
     instance = self.portal.getDefaultModule(portal_type=self.portal_type)\
       .newContent(portal_type=self.portal_type, reference=reference)
     instance.setUserId(user_id)
-    instance.recursiveImmediateReindexObject()
+    self.commit()
 
     self._assertUserDoesNotExists(user_id, reference, None)
     self._assertUserDoesNotExists(user_id, shadow_reference, None)

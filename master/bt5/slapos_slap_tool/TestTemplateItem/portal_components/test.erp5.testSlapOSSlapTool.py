@@ -2085,8 +2085,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     person.newContent(portal_type='Assignment', role='member').open()
     person.newContent(portal_type='ERP5 Login', reference=reference).validate()
 
-    transaction.commit()
-    person.recursiveImmediateReindexObject()
+    self.commit()
     self.person = person
     self.person_reference = person.getReference()
     self.person_user_id = person.getUserId()

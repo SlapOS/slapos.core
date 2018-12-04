@@ -93,7 +93,7 @@ class TestSlapOSComputerSecurity(TestSlapOSSecurityMixin):
     computer.newContent(portal_type='ERP5 Login',
                       reference=reference).validate()
 
-    computer.recursiveImmediateReindexObject()
+    self.commit()
 
     self._assertUserExists(user_id, reference, None)
 
@@ -112,7 +112,7 @@ class TestSlapOSComputerSecurity(TestSlapOSSecurityMixin):
     computer.setUserId(user_id)
     computer.newContent(portal_type='ERP5 Login',
                       reference=reference)
-    computer.recursiveImmediateReindexObject()
+    self.commit()
 
     self._assertUserDoesNotExists(user_id, reference, None)
 
@@ -128,7 +128,7 @@ class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
     instance.validate()
     instance.newContent(portal_type='ERP5 Login',
                       reference=reference).validate()
-    instance.recursiveImmediateReindexObject()
+    self.commit()
 
     self._assertUserExists(user_id, reference, None)
 
@@ -147,8 +147,7 @@ class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
         reference=subscription_reference)
     subscription.validate()
     instance.setSpecialise(subscription.getRelativeUrl())
-    subscription.recursiveImmediateReindexObject()
-    instance.recursiveImmediateReindexObject()
+    self.commit()
 
     # clear cache in order to reset calculation
     self.portal.portal_caches.clearAllCache()
@@ -165,7 +164,7 @@ class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
     instance = self.portal.getDefaultModule(portal_type=self.portal_type)\
       .newContent(portal_type=self.portal_type, reference=reference)
     instance.setUserId(user_id)
-    instance.recursiveImmediateReindexObject()
+    self.commit()
 
     self._assertUserDoesNotExists(user_id, reference, None)
 
@@ -185,7 +184,6 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
       reference=reference, password=password).validate()
 
     self.commit()
-    person.recursiveImmediateReindexObject()
 
     self._assertUserExists(user_id, reference, password)
 
@@ -199,7 +197,6 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
     self.login()
     person.newContent(portal_type='Assignment', group='company').open()
     self.commit()
-    person.recursiveImmediateReindexObject()
 
     self.tic()
     self.portal.portal_caches.clearAllCache()
@@ -211,7 +208,7 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
     # add to role category
     self.login()
     person.newContent(portal_type='Assignment', role='member').open()
-    person.recursiveImmediateReindexObject()
+    self.commit()
 
     self.portal.portal_caches.clearAllCache()
     self.login(person.getUserId())
@@ -228,7 +225,6 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
       reference=reference, password=password)
 
     self.commit()
-    person.recursiveImmediateReindexObject()
 
     self._assertUserDoesNotExists(user_id, reference, password)
 

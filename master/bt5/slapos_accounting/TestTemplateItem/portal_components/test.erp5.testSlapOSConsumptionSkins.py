@@ -282,8 +282,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_solveInvoicingGeneration(
       reference=reference, password=password)
     second_person.newContent(portal_type='Assignment', role='member').open()
 
-    transaction.commit()
-    person.recursiveImmediateReindexObject()
+    self.commit()
     self.person = person
     self.person_reference = person.getReference()
     self.second_person = second_person

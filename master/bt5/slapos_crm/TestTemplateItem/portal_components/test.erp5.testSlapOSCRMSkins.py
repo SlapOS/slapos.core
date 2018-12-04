@@ -2731,6 +2731,7 @@ class TestSlapOSHostingSubscription_createSupportRequestEvent(SlapOSTestCaseMixi
     return support_request
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
+  @simulate('SoftwareInstance_hasReportedError', '*args, **kwargs','return "MSG"')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None',
   'assert reference == "test-slapos-crm-check.notification"\n' \
@@ -2779,6 +2780,7 @@ class TestSlapOSHostingSubscription_createSupportRequestEvent(SlapOSTestCaseMixi
     self.assertEqual(None, ticket)
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 1')
+  @simulate('SoftwareInstance_hasReportedError', '*args, **kwargs','return "MSG"')
   def testHostingSubscription_createSupportRequestEvent_closed(self):
     hosting_subscription = self._makeHostingSubscription()
     self.assertEqual(None,
@@ -2786,6 +2788,7 @@ class TestSlapOSHostingSubscription_createSupportRequestEvent(SlapOSTestCaseMixi
          hosting_subscription, "test-slapos-crm-check.notification"))
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
+  @simulate('SoftwareInstance_hasReportedError', '*args, **kwargs','return "MSG"')
   def testHostingSubscription_createSupportRequestEvent_no_person(self):
     hosting_subscription = self._makeHostingSubscription()
     hosting_subscription.setDestinationSectionValue(None)

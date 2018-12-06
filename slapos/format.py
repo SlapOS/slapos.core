@@ -56,10 +56,7 @@ from urllib2 import urlopen
 import lxml.etree
 import xml_marshaller.xml_marshaller
 
-import slapos.util
-from slapos.util import mkdir_p
-from slapos.util import ipv6FromBin
-from slapos.util import binFromIpv6
+from slapos.util import mkdir_p, ipv6FromBin, binFromIpv6, lenNetmaskIpv6
 import slapos.slap as slap
 from slapos import version
 from slapos import manager as slapmanager
@@ -566,11 +563,7 @@ class Computer(object):
         self.interface.addIPv6Address(self.address, self.netmask)
 
       if use_unique_local_address_block:
-        if self.ipv6_interface:
-          network_interface_name = self.ipv6_interface
-        else:
-          network_interface_name = self.interface.name
-        self._addUniqueLocalAddressIpv6(network_interface_name)
+        self._addUniqueLocalAddressIpv6(self.ipv6_interface or self.interface.name)
 
       if create_tap:
         if self.tap_gateway_interface:
@@ -619,12 +612,23 @@ class Computer(object):
               partition.tap.ipv4_network = gateway_addr_dict['network']
 
             if not partition.tap.ipv6_addr:
+              # create a new IPv6 randomly for the tap
               ipv6_dict = self.interface.addIPv6Address(tap=partition.tap)
               partition.tap.ipv6_addr = ipv6_dict['addr']
               partition.tap.ipv6_netmask = ipv6_dict['netmask']
-              partition.tap.ipv6_gateway = ""
-              partition.tap.ipv6_network = ""
+            else:
+              # make sure the tap has its IPv6
+              self.interface.addIPv6Address(
+                      addr=partition.tap.ipv6_addr,
+                      netmask=partition.tap.ipv6_netmask,
+                      tap=partition.tap)
 
+            # construct ipv6_network and create routes
+            netmask_len = lenNetmaskIpv6(partition.tap.ipv6_netmask)
+            prefix = binFromIpv6(partition.tap.ipv6_addr)[:netmask_len]
+            network_addr = ipv6FromBin(prefix)
+            partition.tap.ipv6_gateway = partition.tap.ipv6_addr
+            partition.tap.ipv6_network = "{}/{}".format(network_addr, netmask_len)
             partition.tap.createRoutes()
 
           if partition.tun is not None:
@@ -973,10 +977,7 @@ class Interface(object):
 
   def getGlobalScopeAddressList(self, tap=None):
     """Returns currently configured global scope IPv6 addresses"""
-    if self.ipv6_interface:
-      interface_name = self.ipv6_interface
-    else:
-      interface_name = self.name
+    interface_name = self.ipv6_interface or self.name
     try:
       address_list = [
           q
@@ -1020,10 +1021,7 @@ class Interface(object):
     if ipv6:
       address_string = '%s/%s' % (address, netmaskToPrefixIPv6(netmask))
       af = socket.AF_INET6
-      if self.ipv6_interface:
-        interface_name = self.ipv6_interface
-      else:
-        interface_name = self.name
+      interface_name = self.ipv6_interface or self.name
     else:
       af = socket.AF_INET
       address_string = '%s/%s' % (address, netmaskToPrefixIPv4(netmask))
@@ -1038,6 +1036,8 @@ class Interface(object):
         address_dict = netifaces.ifaddresses(interface)
         if af in address_dict:
           if address in [q['addr'].split('%')[0] for q in address_dict[af]]:
+            self._logger.warning('Cannot add address {} to {} as it already exists on interface {}.'.format(
+                address, interface_name, interface))
             return False
 
     if not af in netifaces.ifaddresses(interface_name) \
@@ -1129,33 +1129,34 @@ class Interface(object):
       NoAddressOnInterface: There's no address on the interface to construct
           an address with.
     """
-    # Getting one address of the interface as base of the next addresses
-    if self.ipv6_interface:
-      interface_name = self.ipv6_interface
-    else:
-      interface_name = self.name
-    interface_addr_list = self.getGlobalScopeAddressList()
+    interface_name = self.ipv6_interface or self.name
 
+    # Getting one address of the interface as base of the next addresses
+    interface_addr_list = self.getGlobalScopeAddressList()
     # No address found
     if len(interface_addr_list) == 0:
       raise NoAddressOnInterface(interface_name)
     address_dict = interface_addr_list[0]
 
     if addr is not None:
-      if dict(addr=addr, netmask=netmask) in interface_addr_list:
+      dict_addr_netmask = dict(addr=addr, netmask=netmask)
+      if dict_addr_netmask in interface_addr_list or \
+         (tap and dict_addr_netmask in self.getGlobalScopeAddressList(tap=tap)):
         # confirmed to be configured
-        return dict(addr=addr, netmask=netmask)
-      if netmask == address_dict['netmask']:
+        return dict_addr_netmask
+      if netmask == address_dict['netmask'] or \
+         (tap and lenNetmaskIpv6(netmask) == lenNetmaskIpv6(address_dict['netmask']) + 16):
         # same netmask, so there is a chance to add good one
         interface_network = netaddr.ip.IPNetwork('%s/%s' % (address_dict['addr'],
           netmaskToPrefixIPv6(address_dict['netmask'])))
         requested_network = netaddr.ip.IPNetwork('%s/%s' % (addr,
-          netmaskToPrefixIPv6(netmask)))
+          netmaskToPrefixIPv6(address_dict['netmask'])))
         if interface_network.network == requested_network.network:
           # same network, try to add
           if self._addSystemAddress(addr, netmask, tap=tap):
             # succeed, return it
-            return dict(addr=addr, netmask=netmask)
+            self._logger.info('Successfully added IPv6 {} to {}.'.format(addr, tap.name or interface_name))
+            return dict_addr_netmask
           else:
             self._logger.warning('Impossible to add old public IPv6 %s. '
                 'Generating new IPv6 address.' % addr)
@@ -1164,7 +1165,7 @@ class Interface(object):
     try_num = 10
     netmask = address_dict['netmask']
     if tap:
-      netmask_len = len(binFromIpv6(netmask).rstrip('0'))
+      netmask_len = lenNetmaskIpv6(netmask)
       prefix = binFromIpv6(address_dict['addr'])[:netmask_len]
       netmask_len += 16
       # we generate a subnetwork for the tap

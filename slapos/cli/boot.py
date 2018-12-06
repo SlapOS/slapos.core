@@ -70,7 +70,7 @@ def _runFormat(app):
     return 1
 
 def _ping(hostname):
-    """ 
+    """
     Ping a hostname
     """
     print "[BOOT] Invoking ipv4 ping to %s..." % hostname
@@ -85,7 +85,7 @@ def _ping(hostname):
     return 0
 
 def _ping6(hostname):
-    """ 
+    """
     Ping an ipv6 address
     """
     print "[BOOT] Invoking ipv6 ping to %s..." % hostname
@@ -159,8 +159,11 @@ class BootCommand(ConfigCommand):
         master_hostname = master_url.hostname
 
         # Check that we have IPv6 ready
-        _waitIpv6Ready(configp.get('slapformat', 'ipv6_interface') or
-                       configp.get('slapformat', 'interface_name'))
+        if configp.has_option('slapformat', 'ipv6_interface'):
+            ipv6_interface = configp.get('slapformat', 'ipv6_interface')
+        else:
+            ipv6_interface = configp.get('slapformat', 'interface_name')
+        _waitIpv6Ready(ipv6_interface)
 
         # Check that node can ping master
         if valid_ipv4(master_hostname):
@@ -176,7 +179,7 @@ class BootCommand(ConfigCommand):
         while not _runFormat(app):
             print "[BOOT] [ERROR] Fail to format, try again in 15 seconds..."
             sleep(15)
-       
+
         # Make sure slapos node bang returns ok
         while not _runBang(app):
             print "[BOOT] [ERROR] Fail to bang, try again in 15 seconds..."

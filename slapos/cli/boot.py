@@ -70,7 +70,7 @@ def _runFormat(app):
     return 1
 
 def _ping(hostname):
-    """ 
+    """
     Ping a hostname
     """
     print "[BOOT] Invoking ipv4 ping to %s..." % hostname
@@ -85,7 +85,7 @@ def _ping(hostname):
     return 0
 
 def _ping6(hostname):
-    """ 
+    """
     Ping an ipv6 address
     """
     print "[BOOT] Invoking ipv6 ping to %s..." % hostname
@@ -176,7 +176,7 @@ class BootCommand(ConfigCommand):
         while not _runFormat(app):
             print "[BOOT] [ERROR] Fail to format, try again in 15 seconds..."
             sleep(15)
-       
+
         # Make sure slapos node bang returns ok
         while not _runBang(app):
             print "[BOOT] [ERROR] Fail to bang, try again in 15 seconds..."

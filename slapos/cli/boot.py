@@ -159,8 +159,11 @@ class BootCommand(ConfigCommand):
         master_hostname = master_url.hostname
 
         # Check that we have IPv6 ready
-        _waitIpv6Ready(configp.get('slapformat', 'ipv6_interface') or
-                       configp.get('slapformat', 'interface_name'))
+        if configp.has_option('slapformat', 'ipv6_interface'):
+            ipv6_interface = configp.get('slapformat', 'ipv6_interface')
+        else:
+            ipv6_interface = configp.get('slapformat', 'interface_name')
+        _waitIpv6Ready(ipv6_interface)
 
         # Check that node can ping master
         if valid_ipv4(master_hostname):

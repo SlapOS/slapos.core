@@ -60,6 +60,7 @@ import slapos.util
 from slapos.util import mkdir_p
 from slapos.util import ipv6FromBin
 from slapos.util import binFromIpv6
+from slapos.util import lenNetmaskIpv6
 import slapos.slap as slap
 from slapos import version
 from slapos import manager as slapmanager
@@ -619,11 +620,18 @@ class Computer(object):
               partition.tap.ipv4_network = gateway_addr_dict['network']
 
             if not partition.tap.ipv6_addr:
+              # create a new IPv6 randomly for the tap
               ipv6_dict = self.interface.addIPv6Address(tap=partition.tap)
               partition.tap.ipv6_addr = ipv6_dict['addr']
               partition.tap.ipv6_netmask = ipv6_dict['netmask']
               partition.tap.ipv6_gateway = ""
               partition.tap.ipv6_network = ""
+            else:
+              # make sure the tap has its IPv6
+              self.interface.addIPv6Address(
+                      addr=partition.tap.ipv6_addr,
+                      netmask=partition.tap.ipv6_netmask,
+                      tap=partition.tap)
 
             partition.tap.createRoutes()
 
@@ -1038,6 +1046,8 @@ class Interface(object):
         address_dict = netifaces.ifaddresses(interface)
         if af in address_dict:
           if address in [q['addr'].split('%')[0] for q in address_dict[af]]:
+            self._logger.warning('Cannot add address {} to {} as it already exists on interface {}.'.format(
+                address, interface_name, interface))
             return False
 
     if not af in netifaces.ifaddresses(interface_name) \
@@ -1129,32 +1139,35 @@ class Interface(object):
       NoAddressOnInterface: There's no address on the interface to construct
           an address with.
     """
-    # Getting one address of the interface as base of the next addresses
     if self.ipv6_interface:
       interface_name = self.ipv6_interface
     else:
       interface_name = self.name
-    interface_addr_list = self.getGlobalScopeAddressList()
 
+    # Getting one address of the interface as base of the next addresses
+    interface_addr_list = self.getGlobalScopeAddressList()
     # No address found
     if len(interface_addr_list) == 0:
       raise NoAddressOnInterface(interface_name)
     address_dict = interface_addr_list[0]
 
     if addr is not None:
-      if dict(addr=addr, netmask=netmask) in interface_addr_list:
+      if dict(addr=addr, netmask=netmask) in interface_addr_list or \
+         (tap and dict(addr=addr, netmask=netmask) in self.getGlobalScopeAddressList(tap=tap)):
         # confirmed to be configured
         return dict(addr=addr, netmask=netmask)
-      if netmask == address_dict['netmask']:
+      if netmask == address_dict['netmask'] or \
+         (tap and lenNetmaskIpv6(netmask) == lenNetmaskIpv6(address_dict['netmask']) + 16):
         # same netmask, so there is a chance to add good one
         interface_network = netaddr.ip.IPNetwork('%s/%s' % (address_dict['addr'],
           netmaskToPrefixIPv6(address_dict['netmask'])))
         requested_network = netaddr.ip.IPNetwork('%s/%s' % (addr,
-          netmaskToPrefixIPv6(netmask)))
+          netmaskToPrefixIPv6(address_dict['netmask'])))
         if interface_network.network == requested_network.network:
           # same network, try to add
           if self._addSystemAddress(addr, netmask, tap=tap):
             # succeed, return it
+            self._logger.info('Successfully added IPv6 {} to {}.'.format(addr, tap.name or interface_name))
             return dict(addr=addr, netmask=netmask)
           else:
             self._logger.warning('Impossible to add old public IPv6 %s. '
@@ -1164,7 +1177,7 @@ class Interface(object):
     try_num = 10
     netmask = address_dict['netmask']
     if tap:
-      netmask_len = len(binFromIpv6(netmask).rstrip('0'))
+      netmask_len = lenNetmaskIpv6(netmask)
       prefix = binFromIpv6(address_dict['addr'])[:netmask_len]
       netmask_len += 16
       # we generate a subnetwork for the tap

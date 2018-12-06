@@ -135,3 +135,6 @@ def ipv6FromBin(ip, suffix=''):
   return socket.inet_ntop(socket.AF_INET6,
     struct.pack('>QQ', int(ip[:64], 2), int(ip[64:], 2)))
 
+def lenNetmaskIpv6(netmask):
+  return len(binFromIpv6(netmask).rstrip('0'))
+

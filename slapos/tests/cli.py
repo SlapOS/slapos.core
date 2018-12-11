@@ -333,16 +333,14 @@ class TestCliConsole(unittest.TestCase):
 
     request_patch = patch.object(slapos.slap.OpenOrder, 'request', return_value = cp)
     self.mock_request = request_patch.start()
+    self.addCleanup(request_patch.stop)
 
     self.config_file = tempfile.NamedTemporaryFile()
     self.config_file.write('''[slapos]
 master_url=null
 ''')
     self.config_file.flush()
-
-  def tearDown(self):
-    self.mock_request.stop()
-    self.config_file.close()
+    self.addCleanup(self.config_file.close)
 
   def test_console_interactive(self):
       app = slapos.cli.entry.SlapOSApp()

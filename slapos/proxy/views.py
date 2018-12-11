@@ -28,8 +28,6 @@
 #
 ##############################################################################
 
-from __future__ import print_function
-
 from lxml import etree
 import random
 import string
@@ -121,14 +119,13 @@ def partitiondict2partition(partition):
   return slap_partition
 
 
-def execute_db(table, query, args=(), one=False, db_version=None, log=False, db=None):
+def execute_db(table, query, args=(), one=False, db_version=None, db=None):
   if not db:
     db = g.db
   if not db_version:
     db_version = DB_VERSION
   query = query % (table + db_version,)
-  if log:
-    print(query)
+  app.logger.debug(query)
   try:
     cur = db.execute(query, args)
   except:
@@ -189,7 +186,7 @@ def _upgradeDatabaseIfNeeded():
       columns = ', '.join(row.keys())
       placeholders = ':'+', :'.join(row.keys())
       query = 'INSERT INTO %s (%s) VALUES (%s)' % ('%s', columns, placeholders)
-      execute_db(table, query, row, log=True)
+      execute_db(table, query, row)
 
   g.db.commit()
 

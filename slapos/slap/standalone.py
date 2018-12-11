@@ -145,6 +145,7 @@ class StandaloneSlapOS(object):
   """Standalone/Embeddable SlapOS.
 
   See ``slapos.core.interface.slap.IStandaloneSlapOS`` for details.
+  XXX no
   """
   zope.interface.implements(IStandaloneSlapOS, ISupply)
 
@@ -196,7 +197,7 @@ class StandaloneSlapOS(object):
     # Supervisord socket name contains the pid number, which is why we add
     # .xxxxxxx in this check.
     if len(os.path.join(self._instance_root, 'supervisord.socket.xxxxxxx')) > 108:
-      raise IException(
+      raise IException( # TODO custom exception
         'working directory ( {base_directory} ) is too deep'.format(**locals()))
 
     if not os.path.exists(base_directory):
@@ -308,7 +309,6 @@ class StandaloneSlapOS(object):
 
       computer.updateConfiguration(
         xml_marshaller.xml_marshaller.dumps({
-            # Is address here needed ?
            'address': ipv4_address,
            'netmask': '255.255.255.255',
            'partition_list': [

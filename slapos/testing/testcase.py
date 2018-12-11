@@ -51,7 +51,10 @@ def _getPortFromPath(path):
         % (65535 - 1024)
 
 # TODO:
-#  - allow requesting multiple instances ?
+#  - split slapos logic in methods ( supply, request etc )
+#  - stop processes at the end
+#  - build software in setup module
+#  - allow requesting multiple instances ? no -> make another class
 
 class SlapOSInstanceTestCase(unittest.TestCase):
   """Install one slapos instance.
@@ -122,8 +125,8 @@ class SlapOSInstanceTestCase(unittest.TestCase):
            None,
            None,
            # XXX hardcoded socket path
-           serverurl="unix://{working_directory}/inst/supervisord.socket".format(
-             **self.config)))
+           serverurl="unix://{self.slap._instance_root}/supervisord.socket".format(
+               **locals())))
 
   # Unittest methods
   @classmethod
@@ -134,20 +137,71 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     parent class.
     """
     try:
-      cls.setUpWorkingDirectory()
-      cls.setUpConfig()
-      cls.setUpSlapOSController()
+      # init
+      ipv4_address = os.environ.get('LOCAL_IPV4', '127.0.1.1')
+      ipv6_address = os.environ['GLOBAL_IPV6']
+      base_directory = '/tmp/slaps/'
 
-      cls.runSoftwareRelease()
-      # XXX instead of "runSoftwareRelease", it would be better to be closer to slapos usage:
-      # cls.supplySoftwares()
-      # cls.installSoftwares()
+      cls.slap = StandaloneSlapOS(
+          base_directory=base_directory, # XXX
+          server_ip=ipv4_address,
+          server_port=_getPortFromPath(base_directory)
+      )
+      # format
+      cls.slap.format(
+          partition_count=10,
+          ipv4_address=ipv4_address,
+          ipv6_address=ipv6_address,
+      )
+      # supply
+      for software_url in cls.getSoftwareURLList():
+        cls.slap.supply(software_url)
 
-      cls.runComputerPartition()
-      # XXX instead of "runComputerPartition", it would be better to be closer to slapos usage:
-      # cls.requestInstances()
-      # cls.createInstances()
-      # cls.requestInstances()
+      # node software
+      try:
+        cls.slap.installSoftware(max_retry=3)
+      except SlapOSNodeCommandError as e:
+        raise cls.failureException(
+            "Building softwares failed\n{}".format(e.args[0]['output']))
+
+
+      # XXX this loop is silly, we in fact support only one the first software.
+      def request():
+        computer_partition_list = []
+        for i, software_url in enumerate(cls.getSoftwareURLList()):
+          computer_partition_list.append(
+            cls.slap.request(
+              software_release=software_url,
+              software_type=cls.getInstanceSoftwareType(),
+              partition_reference='testing partition {i}'.format(**locals()),
+              partition_parameter_kw=cls.getInstanceParameterDict()))
+        return computer_partition_list
+
+      # request
+      request()
+
+      # node instance
+      try:
+        cls.slap.instantiatePartition(max_retry=1)
+      except SlapOSNodeCommandError as e:
+        if e.args[0]['exitstatus'] != 2:
+          # XXX ignore promise error
+          raise cls.failureException(
+              "Requesting instances failed\n{}".format(e.args[0]['output']))
+
+      # request
+      computer_partition_list = request()
+
+      # expose attributes
+
+      # expose some class attributes so that tests can use them:
+      # the ComputerPartition instances, to getInstanceParameterDict
+      cls.computer_partition = computer_partition_list[0]
+
+      # the path of the instance on the filesystem, for low level inspection
+      cls.computer_partition_root_path = os.path.join(
+          cls.slap._instance_root,
+          cls.computer_partition.getId())
 
     except BaseException:
       cls.stopSlapOSProcesses()
@@ -158,6 +212,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
   def tearDownClass(cls):
     """Tear down class, stop the processes and destroy instance.
     """
+    # TODO
     cls.stopSlapOSProcesses()
 
   # Implementation
@@ -166,167 +221,5 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     if hasattr(cls, '_process_manager'):
       cls._process_manager.killPreviousRun()
 
-  @classmethod
-  def setUpWorkingDirectory(cls):
-    """Initialise the directories"""
-    cls.working_directory = os.environ.get(
-        'SLAPOS_TEST_WORKING_DIR',
-        os.path.join(os.path.dirname(__file__), '.slapos'))
-    # To prevent error: Cannot open an HTTP server: socket.error reported
-    # AF_UNIX path too long This `working_directory` should not be too deep.
-    # Socket path is 108 char max on linux
-    # https://github.com/torvalds/linux/blob/3848ec5/net/unix/af_unix.c#L234-L238
-    # Supervisord socket name contains the pid number, which is why we add
-    # .xxxxxxx in this check.
-    if len(cls.working_directory + '/inst/supervisord.socket.xxxxxxx') > 108:
-      raise RuntimeError('working directory ( {} ) is too deep, try setting '
-              'SLAPOS_TEST_WORKING_DIR'.format(cls.working_directory))
-
-    if not os.path.exists(cls.working_directory):
-      os.mkdir(cls.working_directory)
-
-  @classmethod
-  def setUpConfig(cls):
-    """Create slapos configuration"""
-    cls.config = {
-      "working_directory": cls.working_directory,
-      "slapos_directory": cls.working_directory,
-      "log_directory": cls.working_directory,
-      "computer_id": 'slapos.test',  # XXX
-      'proxy_database': os.path.join(cls.working_directory, 'proxy.db'),
-      'partition_reference': getattr(cls, '__partition_reference__', cls.__name__),
-      # "proper" slapos command must be in $PATH
-      'slapos_binary': 'slapos',
-    }
-    # Some tests are expecting that local IP is not set to 127.0.0.1
-    ipv4_address = os.environ.get('LOCAL_IPV4', '127.0.1.1')
-    ipv6_address = os.environ['GLOBAL_IPV6']
-
-    cls.config['proxy_host'] = cls.config['ipv4_address'] = ipv4_address
-    cls.config['ipv6_address'] = ipv6_address
-    cls.config['proxy_port'] = findFreeTCPPort(ipv4_address)
-    cls.config['master_url'] = 'http://{proxy_host}:{proxy_port}'.format(
-      **cls.config)
-
-  @classmethod
-  def setUpSlapOSController(cls):
-    """Create the a "slapos controller" and supply softwares from `getSoftwareURLList`.
-
-    This is equivalent to:
-
-    slapos proxy start
-    for sr in getSoftwareURLList; do
-      slapos supply $SR $COMP
-    done
-    """
-    cls._process_manager = ProcessManager()
-
-    # XXX this code is copied from testnode code
-    cls.slapos_controler = SlapOSControler(
-        cls.working_directory,
-        cls.config
-    )
-
-    slapproxy_log = os.path.join(cls.config['log_directory'], 'slapproxy.log')
-    logger = logging.getLogger(__name__)
-    logger.debug('Configured slapproxy log to %r', slapproxy_log)
-
-    cls.software_url_list = cls.getSoftwareURLList()
-    cls.slapos_controler.initializeSlapOSControler(
-        slapproxy_log=slapproxy_log,
-        process_manager=cls._process_manager,
-        reset_software=False,
-        software_path_list=cls.software_url_list)
-
-    # XXX we should check *earlier* if that pidfile exist and if supervisord
-    # process still running, because if developer started supervisord (or bugs?)
-    # then another supervisord will start and starting services a second time
-    # will fail.
-    cls._process_manager.supervisord_pid_file = os.path.join(
-      cls.slapos_controler.instance_root, 'var', 'run', 'supervisord.pid')
-
-  @classmethod
-  def runSoftwareRelease(cls):
-    """Run all the software releases that were supplied before.
-
-    This is the equivalent of `slapos node software`.
-
-    The tests will be marked file if software building fail.
-    """
-    logger = logging.getLogger()
-    logger.level = logging.DEBUG
-    stream = StringIO.StringIO()
-    stream_handler = logging.StreamHandler(stream)
-    logger.addHandler(stream_handler)
-
-    try:
-      cls.software_status_dict = cls.slapos_controler.runSoftwareRelease(
-        cls.config, environment=os.environ)
-      stream.seek(0)
-      stream.flush()
-      message = ''.join(stream.readlines()[-100:])
-      assert cls.software_status_dict['status_code'] == 0, message
-    finally:
-      logger.removeHandler(stream_handler)
-      del stream
-
-
-  @classmethod
-  def runComputerPartition(cls):
-    """Instanciate the software.
-
-    This is the equivalent of doing:
-
-    slapos request --type=getInstanceSoftwareType --parameters=getInstanceParameterDict
-    slapos node instance
-
-    and return the slapos request instance parameters.
-
-    This can be called by tests to simulate re-request with different parameters.
-    """
-    logger = logging.getLogger()
-    logger.level = logging.DEBUG
-    stream = StringIO.StringIO()
-    stream_handler = logging.StreamHandler(stream)
-    logger.addHandler(stream_handler)
-
-    if cls.getInstanceSoftwareType() != 'default':
-      raise NotImplementedError
-
-    instance_parameter_dict = cls.getInstanceParameterDict()
-    try:
-      cls.instance_status_dict = cls.slapos_controler.runComputerPartition(
-        cls.config,
-        cluster_configuration=instance_parameter_dict,
-        environment=os.environ)
-      stream.seek(0)
-      stream.flush()
-      message = ''.join(stream.readlines()[-100:])
-      assert cls.instance_status_dict['status_code'] == 0, message
-    finally:
-      logger.removeHandler(stream_handler)
-      del stream
-
-    # FIXME: similar to test node, only one (root) partition is really
-    #        supported for now.
-    computer_partition_list = []
-    for i in range(len(cls.software_url_list)):
-      computer_partition_list.append(
-          cls.slapos_controler.slap.registerOpenOrder().request(
-            cls.software_url_list[i],
-            # This is how testnode's SlapOSControler name created partitions
-            partition_reference='testing partition {i}'.format(
-              i=i, **cls.config),
-            partition_parameter_kw=instance_parameter_dict))
-
-    # expose some class attributes so that tests can use them:
-    # the ComputerPartition instances, to getInstanceParameterDict
-    cls.computer_partition = computer_partition_list[0]
-
-    # the path of the instance on the filesystem, for low level inspection
-    cls.computer_partition_root_path = os.path.join(
-        cls.config['working_directory'],
-        'inst',
-        cls.computer_partition.getId())
 
 

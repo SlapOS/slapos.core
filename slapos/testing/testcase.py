@@ -39,6 +39,16 @@ from erp5.util.testnode.SlapOSControler import SlapOSControler
 from erp5.util.testnode.ProcessManager import ProcessManager
 
 
+from ..slap.standalone import StandaloneSlapOS
+from ..slap.standalone import SlapOSNodeCommandError
+
+
+def _getPortFromPath(path):
+  """A stable port using a hash from path.
+  """
+  import hashlib
+  return (int(hashlib.md5(path).hexdigest(), 16) + 1024) \
+        % (65535 - 1024)
 
 # TODO:
 #  - allow requesting multiple instances ?

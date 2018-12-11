@@ -25,12 +25,14 @@
 #
 ##############################################################################
 
+import unittest
 import logging
 import os
 
-# When running with debug enabled output more logs, otherwise disable warning
-# level logs.
+# When running with debug enabled install Ctrl+C handler and output more logs,
+# otherwise disable warning level logs.
 if os.environ.get('SLAPOS_TEST_DEBUG'):
+  unittest.installHandler()
   logging.basicConfig(level=logging.WARNING)
 else:
   logging.disable(logging.ERROR)

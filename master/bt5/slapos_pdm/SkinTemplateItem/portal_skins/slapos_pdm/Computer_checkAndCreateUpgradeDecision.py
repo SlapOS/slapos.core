@@ -47,7 +47,7 @@ for software_release in software_release_list:
 
     if context.getAllocationScope() in ["open/public", "open/friend", "open/subscription"]:
       upgrade_decision.start()
-    elif context.getAllocationScope() in ["open/personal"]:
+    elif context.getAllocationScope() in ["open/personal"] and upgrade_decision.getSimulationState() != "planned":
       upgrade_decision.plan()
 
     upgrade_decision.setStartDate(DateTime())

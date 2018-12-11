@@ -57,7 +57,7 @@ class SlapMixin(unittest.TestCase):
       self.server_url = self._server_url
     logger.debug('Testing against SLAP server %r', self.server_url)
     self.slap = slapos.slap.slap()
-    self.partition_id = 'PARTITION_01'
+    self.partition_id = self.id()
     os.environ.pop('SLAPGRID_INSTANCE_ROOT', None)
 
   def tearDown(self):
@@ -229,7 +229,7 @@ class TestSlap(SlapMixin):
     """
     computer_guid = self._getTestComputerId()
     self.slap.initializeConnection(self.server_url)
-    partition_id = 'PARTITION_01'
+    partition_id = self.id()
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
@@ -650,7 +650,7 @@ class TestComputerPartition(SlapMixin):
                         'software_type', 'myref')
 
   def test_request_not_raises(self):
-    partition_id = 'PARTITION_01'
+    partition_id = self.id()
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
@@ -694,7 +694,7 @@ class TestComputerPartition(SlapMixin):
       self.assertIsInstance(requested_partition, slapos.slap.ComputerPartition)
 
   def test_request_raises_later(self):
-    partition_id = 'PARTITION_01'
+    partition_id = self.id()
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
@@ -741,8 +741,8 @@ class TestComputerPartition(SlapMixin):
                         requested_partition.getId)
 
   def test_request_fullfilled_work(self):
-    partition_id = 'PARTITION_01'
-    requested_partition_id = 'PARTITION_02'
+    partition_id = 'PARTITION_01-%s' % self.id()
+    requested_partition_id = 'PARTITION_02-%s' % self.id()
     computer_guid = self._getTestComputerId()
 
     def handler(url, req):
@@ -798,7 +798,7 @@ class TestComputerPartition(SlapMixin):
 
   def test_request_with_slapgrid_request_transaction(self):
     from slapos.slap.slap import COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME
-    partition_id = 'PARTITION_01'
+    partition_id = self.id()
     instance_root = tempfile.mkdtemp()
     partition_root = os.path.join(instance_root, partition_id)
     os.mkdir(partition_root)
@@ -880,7 +880,7 @@ class TestComputerPartition(SlapMixin):
     Partition
     """
     computer_guid = self._getTestComputerId()
-    partition_id = 'PARTITION_01'
+    partition_id = self.id()
     slap = self.slap
     slap.initializeConnection(self.server_url)
 
@@ -924,7 +924,7 @@ class TestComputerPartition(SlapMixin):
     Asserts that calling ComputerPartition.error on new partition works
     """
     computer_guid = self._getTestComputerId()
-    partition_id = 'PARTITION_01'
+    partition_id = self.id()
     slap = self.slap
     slap.initializeConnection(self.server_url)
 
@@ -1076,7 +1076,7 @@ class TestOpenOrder(SlapMixin):
     # XXX: Interface lack registerOpenOrder method declaration
     open_order = self.slap.registerOpenOrder()
     computer_guid = self._getTestComputerId()
-    requested_partition_id = 'PARTITION_01'
+    requested_partition_id = self.id()
 
     def handler(url, req):
       from slapos.slap.slap import SoftwareInstance
@@ -1102,7 +1102,7 @@ class TestOpenOrder(SlapMixin):
     # XXX: Interface lack registerOpenOrder method declaration
     open_order = self.slap.registerOpenOrder()
     computer_guid = self._getTestComputerId()
-    requested_partition_id = 'PARTITION_01'
+    requested_partition_id = self.id()
 
     def handler(url, req):
       from slapos.slap.slap import SoftwareInstance
@@ -1132,7 +1132,7 @@ class TestOpenOrder(SlapMixin):
     # XXX: Interface lack registerOpenOrder method declaration
     open_order = self.slap.registerOpenOrder()
     computer_guid = self._getTestComputerId()
-    requested_partition_id = 'PARTITION_01'
+    requested_partition_id = self.id()
 
     def handler(url, req):
       from slapos.slap.slap import SoftwareInstance

@@ -576,20 +576,23 @@ class IStandaloneSlapOS(ISupply, IRequester):
     """
 
   def register():
-    """Creates configuration file, starts the SlapOS proxy.
+    """Creates configuration file, starts the SlapOS proxy. TODO ?
 
         Error cases:
           * `socket.SocketError` when failed to bind `server_ip` / `server_port`.
              SlapOS proxy might already be running.
     """
 
-  def format(partition_count, ipv4_url, ipv6_url):
+  def simple_format(partition_count, ipv4_address, ipv6_address):
     """Creates `partition_count` partitions.
 
-    All partitions are created to listen on `ipv4_url` and `ipv6_url`.
+    All partitions are created to listen on `ipv4_address` and `ipv6_address`.
 
-    Stop and delete previously existing instances. XXX.
+    Stop and delete previously existing instances. XXX ???
     Error when already running.
+
+    This is a simplified version of format that uses current user and
+    same ips for all partitions.
     """
 
   def getInstallProcess():
@@ -611,7 +614,7 @@ class IStandaloneSlapOS(ISupply, IRequester):
     """ XXX do we need need getPartition?
     """
 
-  def stop():
+  def shutdown():
     """Stop embedded SlapOS server and running instances.
     """
 
@@ -620,7 +623,7 @@ class IStandaloneSlapOS(ISupply, IRequester):
 
     In most cases, this method is not recommended because it's
     usually convenient to keep softwares installed.
-    XXX bad idea ?
+    XXX bad idea ? this is just .shutdown() the shutil.rmtree ?
     """
 
 
@@ -628,7 +631,7 @@ class IStandaloneSlapOSProcess(Interface):
   """A background process.  XXX more doc
   """
   return_code = Attribute("""Return code of the process.
-  None if process is still running or was killed.
+  None if process is still running or was killed. ( XXX why no return code if killed ?)
   """)
   output = Attribute("""output of the program.""")
 

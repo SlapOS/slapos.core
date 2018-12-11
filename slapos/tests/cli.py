@@ -343,20 +343,20 @@ master_url=null
     self.addCleanup(self.config_file.close)
 
   def test_console_interactive(self):
-      app = slapos.cli.entry.SlapOSApp()
-      saved_stdin = sys.stdin
-      saved_stdout = sys.stdout
-      try:
-        sys.stdin = app_stdin = StringIO.StringIO(
-            """print request('software_release', 'instance').getInstanceParameterDict()['parameter_name']\n""")
-        sys.stdout = app_stdout = StringIO.StringIO()
-        app.run(('console', '--cfg', self.config_file.name))
-      finally:
-        sys.stdin = saved_stdin
-        sys.stdout = saved_stdout
+    app = slapos.cli.entry.SlapOSApp()
+    saved_stdin = sys.stdin
+    saved_stdout = sys.stdout
+    try:
+      sys.stdin = app_stdin = StringIO.StringIO(
+          """print request('software_release', 'instance').getInstanceParameterDict()['parameter_name']\n""")
+      sys.stdout = app_stdout = StringIO.StringIO()
+      app.run(('console', '--cfg', self.config_file.name))
+    finally:
+      sys.stdin = saved_stdin
+      sys.stdout = saved_stdout
 
-      self.mock_request.assert_called_once_with('software_release', 'instance')
-      self.assertIn('parameter_value', app_stdout.getvalue())
+    self.mock_request.assert_called_once_with('software_release', 'instance')
+    self.assertIn('parameter_value', app_stdout.getvalue())
 
   def test_console_script(self):
     with tempfile.NamedTemporaryFile() as script:

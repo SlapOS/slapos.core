@@ -1090,7 +1090,7 @@ class TestOpenOrder(SlapMixin):
 
 
   def test_request_getConnectionParameter(self):
-    """ Backward compatibility API for slapproxy older them 1.0.1 """
+    """ Backward compatibility API for slapproxy older than 1.0.1 """
     software_release_uri = 'http://server/new/' + self._getTestComputerId()
     self.slap = slapos.slap.slap()
     self.slap.initializeConnection(self.server_url)
@@ -1120,7 +1120,7 @@ class TestOpenOrder(SlapMixin):
 
 
   def test_request_connection_dict_backward_compatibility(self):
-    """ Backward compatibility API for slapproxy older them 1.0.1 """
+    """ Backward compatibility API for slapproxy older than 1.0.1 """
     software_release_uri = 'http://server/new/' + self._getTestComputerId()
     self.slap = slapos.slap.slap()
     self.slap.initializeConnection(self.server_url)

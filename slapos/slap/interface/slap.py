@@ -569,13 +569,16 @@ class IStandaloneSlapOS(ISupply, IRequester):
              SlapOS proxy might already be running.
     """
 
-  def format(partition_count, ipv4_url, ipv6_url):
+  def simple_format(partition_count, ipv4_address, ipv6_address):
     """Creates `partition_count` partitions.
 
-    All partitions are created to listen on `ipv4_url` and `ipv6_url`.
+    All partitions are created to listen on `ipv4_url` and `ipv6_url`. XXX wrong
 
-    Stop and delete previously existing instances. XXX.
+    Stop and delete previously existing instances. XXX ???
     Error when already running.
+
+    This is a simplified version of format that uses current user and
+    same ips for all partitions.
     """
 
   def getInstallProcess():

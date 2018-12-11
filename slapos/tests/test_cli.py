@@ -327,7 +327,7 @@ print(request('software_release', 'instance').getInstanceParameterDict()['parame
 
   @contextmanager
   def _test_console(self):
-    cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
+    cp = slapos.slap.ComputerPartition('computer_%s' % self.id(), 'partition_%s' % self.id())
     cp._parameter_dict = {'parameter_name': 'parameter_value'}
     with patch.object(slapos.slap.OpenOrder, 'request',
                       return_value = cp) as mock_request, \

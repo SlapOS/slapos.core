@@ -15,7 +15,7 @@ if len(full_software_release_list) == 0:
 software_release_list = portal.portal_catalog(
                           portal_type='Software Release',
                           url_string=full_software_release_list,
-                          group_by='default_aggregate_uid'
+                          group_by=['default_aggregate_uid']
                         )
 upgrade_decision_list = []
 for software_release in software_release_list:

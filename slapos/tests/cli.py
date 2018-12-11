@@ -328,7 +328,7 @@ class TestCliSupervisorctl(CliMixin):
 
 class TestCliConsole(unittest.TestCase):
   def setUp(self):
-    cp = slapos.slap.ComputerPartition('computer_id', 'partition_id')
+    cp = slapos.slap.ComputerPartition('computer_id', self.id())
     cp._parameter_dict = {'parameter_name': 'parameter_value'}
 
     request_patch = patch.object(slapos.slap.OpenOrder, 'request', return_value = cp)

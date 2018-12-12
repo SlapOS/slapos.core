@@ -23,7 +23,7 @@ if context.getAggregateValue(portal_type="Computer Partition") is not None:
 
   # XXX time limit of 48 hours for run at least once.
 
-if include_message:
-  return result
+  if include_message:
+    return result
 
 return None

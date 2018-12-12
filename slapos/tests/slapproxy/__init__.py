@@ -1031,6 +1031,9 @@ database_uri = %(tempdir)s/lib/external_proxy.db
             sys.executable, '%s/../cli/entry.py' % os.path.dirname(slapos.tests.__file__),
             'proxy', 'start', '--cfg', self.external_slapproxy_configuration_file_location
         ],
+        close_fds=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         env={"PYTHONPATH": ':'.join(sys.path)}
     )
     # Wait a bit for proxy to be started

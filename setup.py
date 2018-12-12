@@ -54,6 +54,7 @@ setup(name=name,
           'zope.interface', # slap library implementes interfaces
           'zc.buildout',
           'cliff',
+          'subprocess32; python_version<"3"',
           'requests>=2.4.3',
           'six',
           'uritemplate', # used by hateoas navigator

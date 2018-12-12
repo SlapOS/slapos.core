@@ -116,7 +116,6 @@ class TestSlapOSPromiseMixin(unittest.TestCase):
 
   def createPromiseProcess(self, promise_name, check_anomaly=False, wrap=False):
 
-    logging.basicConfig()
     promise_path = os.path.join(self.plugin_dir, promise_name)
     return PromiseProcess(
       self.partition_dir,
@@ -1091,8 +1090,6 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     }
 
   def createPromiseProcess(self, check_anomaly=False, wrap=False):
-
-    logging.basicConfig()
     return PromiseProcess(
       self.partition_dir,
       self.promise_name,

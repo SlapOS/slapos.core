@@ -2,6 +2,7 @@ from setuptools import setup, find_packages
 from shutil import copyfile
 import glob
 import os
+import sys
 
 from slapos.version import version
 name = 'slapos.core'
@@ -26,6 +27,9 @@ try:
   import argparse
 except ImportError:
   additional_install_requires.append('argparse')
+
+if sys.version_info[0] < 3:
+  additional_install_requires.append('subprocess32')
 
 setup(name=name,
       version=version,

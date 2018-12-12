@@ -93,7 +93,7 @@ class TestSlapOSPromiseMixin(unittest.TestCase):
 
     self.launcher = PromiseLauncher(
       config=parameter_dict,
-      logger=None,
+      logger=logging.getLogger('slapos.test.promise'),
       dry_run=dry_run
     )
     if save_method:
@@ -116,13 +116,12 @@ class TestSlapOSPromiseMixin(unittest.TestCase):
 
   def createPromiseProcess(self, promise_name, check_anomaly=False, wrap=False):
 
-    logging.basicConfig()
     promise_path = os.path.join(self.plugin_dir, promise_name)
     return PromiseProcess(
       self.partition_dir,
       promise_name,
       promise_path,
-      logger=logging.getLogger('grid.promise'),
+      logger=logging.getLogger('slapos.test.promise'),
       argument_dict=self.genPromiseConfigDict(promise_name),
       check_anomaly=check_anomaly,
       wrap=wrap,
@@ -1091,13 +1090,11 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     }
 
   def createPromiseProcess(self, check_anomaly=False, wrap=False):
-
-    logging.basicConfig()
     return PromiseProcess(
       self.partition_dir,
       self.promise_name,
       self.promise_path,
-      logger=logging.getLogger('grid.promise'),
+      logger=logging.getLogger('slapos.test.promise'),
       argument_dict=self.promise_config,
       check_anomaly=check_anomaly,
       wrap=wrap,

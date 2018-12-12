@@ -34,7 +34,10 @@ import os
 import logging
 import shutil
 import socket
-import subprocess
+try:
+  import subprocess32 as subprocess
+except ImportError:
+  import subprocess
 import sys
 import tempfile
 import time
@@ -1107,6 +1110,9 @@ database_uri = %(tempdir)s/lib/external_proxy.db
             sys.executable, '%s/../cli/entry.py' % os.path.dirname(slapos.tests.__file__),
             'proxy', 'start', '--cfg', self.external_slapproxy_configuration_file_location
         ],
+        close_fds=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
         env={"PYTHONPATH": ':'.join(sys.path)}
     )
     # Wait a bit for proxy to be started

@@ -81,7 +81,7 @@ class TestSlapOSFolder_getOpenTicketList(TestCRMSkinsMixin):
     ticket.immediateReindexObject()
     open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
     self.assertEqual(len(open_ticket_list), expected_amount)
-    self.assertEqual(open_ticket_list[0].getUid(), ticket.getUid())
+    self.assertTrue(ticket.getUid() in [i.getUid() for i in open_ticket_list])
 
     ticket.start()
     ticket.immediateReindexObject()
@@ -98,7 +98,7 @@ class TestSlapOSFolder_getOpenTicketList(TestCRMSkinsMixin):
     ticket.immediateReindexObject()
     open_ticket_list = module.Folder_getOpenTicketList(title=ticket.getTitle())
     self.assertEqual(len(open_ticket_list), expected_amount)
-    self.assertEqual(open_ticket_list[0].getUid(), ticket.getUid())
+    self.assertTrue(ticket.getUid() in [i.getUid() for i in open_ticket_list])
 
   def test_support_request(self):
     def newSupportRequest():

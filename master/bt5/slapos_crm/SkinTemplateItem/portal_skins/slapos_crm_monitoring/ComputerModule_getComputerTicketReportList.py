@@ -12,12 +12,12 @@ friend_category_uid = portal.restrictedTraverse(
 personal_category_uid = portal.restrictedTraverse(
   "portal_categories/allocation_scope/open/personal", None).getUid()
 
+
 l = []
 
 show_all = False
 if "show_all" in kw:
   show_all = kw.pop("omit_zero_ticket")
-
 
 memcached_dict = context.getPortalObject().portal_memcached.getMemcachedDict(
   key_prefix='slap_tool',
@@ -51,15 +51,15 @@ for computer in portal.portal_catalog(
   instance_error_count = 0
   if computer_partition_uid_list:
     for instance in portal.portal_catalog(
-      portal_type="Software Instance",
-      select_list="specialise_uid, reference",
-      default_aggregate_uid=computer_partition_uid_list):
-        instance_count += 1
-        if instance.specialise_uid is not None:
-          uid_list.append(instance.specialise_uid or computer.getUid())
-        if checkForError(instance.reference) is not None:
-          instance_error_count += 1
-          
+        portal_type="Software Instance",
+        select_list="specialise_uid, reference",
+        default_aggregate_uid=computer_partition_uid_list):
+      instance_count += 1
+      if instance.specialise_uid is not None:
+        uid_list.append(instance.specialise_uid or computer.getUid())
+      if checkForError(instance.reference) is not None:
+        instance_error_count += 1
+
 
   related_ticket_quantity = portal.portal_catalog.countResults(
                                 portal_type='Support Request',
@@ -68,8 +68,14 @@ for computer in portal.portal_catalog(
 
 
   if show_all or related_ticket_quantity > 0:
-    partition_use_ratio = float(instance_count)/len(computer_partition_uid_list)
-    instance_error_ratio = float(instance_error_count)/instance_count
+    if len(computer_partition_uid_list) == 0:
+      partition_use_ratio = 0
+    else:
+      partition_use_ratio = float(instance_count)/len(computer_partition_uid_list)
+    if instance_count == 0:
+      instance_error_ratio = 0
+    else:
+      instance_error_ratio = float(instance_error_count)/instance_count
 
     l.append(
        newTempDocument(context, '%s'% computer.id, **{"title": computer.title,

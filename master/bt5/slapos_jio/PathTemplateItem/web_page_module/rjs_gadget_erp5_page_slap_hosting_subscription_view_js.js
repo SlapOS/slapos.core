@@ -309,17 +309,17 @@
                       "default_params": {},
                       "editable": 1,
                       "editable_column_list": [],
-                      "key": "slap_project_computer_listbox",
+                      "key": "slap_ticket_listbox",
                       "lines": 10,
-                      "list_method": "portal_catalog",
-                      "query": "urn:jio:allDocs?query=%28%28portal_type%3A%22" +
-                        "Support Request" + "%22%29%20AND%20%28" +
-                        "default_aggregate_reference%3A%22" +
-                        gadget.state.doc.reference + "%22%29%29",
+                      "list_method": "HostingSubscription_getTicketList",
+                      "list_method_template": url + "ERP5Document_getHateoas?mode=search&" +
+                            "list_method=HostingSubscription_getTicketList&relative_url=" +
+                            gadget.state.jio_key + "&default_param_json=eyJpZ25vcmVfdW5rbm93bl9jb2x1bW5zIjogdHJ1ZX0={&query,select_list*,limit*,sort_on*,local_roles*}",
+                      "query": "urn:jio:allDocs?query=",
                       "portal_type": [],
                       "search_column_list": ticket_column_list,
                       "sort_column_list": ticket_column_list,
-                      "sort": [["title", "ascending"]],
+                      "sort": [["modification_date", "descending"]],
                       "title": "Associated Tickets",
                       "type": "ListBox"
                     },
@@ -366,7 +366,7 @@
                       [["my_source_reference"], ["my_url_string"]]
                   ], [
                     "bottom",
-                    [["connection_listbox"], ["my_text_content"], ["listbox"], ["ticket_listbox"]]
+                    [["ticket_listbox"], ["connection_listbox"], ["my_text_content"], ["listbox"]]
                   ]]
                 }
               });

@@ -99,7 +99,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget SlapOS Site invoice State</string> </value>
+            <value> <string>Gadget SlapOS Label Listbox Field</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
@@ -216,7 +216,7 @@
             </item>
             <item>
                 <key> <string>actor</string> </key>
-                <value> <string>ERP5TypeTestCase</string> </value>
+                <value> <string>superthomas</string> </value>
             </item>
             <item>
                 <key> <string>comment</string> </key>
@@ -230,7 +230,7 @@
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>965.40941.62497.477</string> </value>
+                <value> <string>972.17178.36781.34560</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -248,7 +248,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1519141899.05</float>
+                        <float>1544636507.97</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

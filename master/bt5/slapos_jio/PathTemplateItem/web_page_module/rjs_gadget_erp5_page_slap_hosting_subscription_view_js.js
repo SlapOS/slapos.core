@@ -309,17 +309,23 @@
                       "default_params": {},
                       "editable": 1,
                       "editable_column_list": [],
-                      "key": "slap_project_computer_listbox",
+                      "key": "slap_ticket_listbox",
                       "lines": 10,
+                      relative_url: gadget.state.jio_key,
                       "list_method": "portal_catalog",
-                      "query": "urn:jio:allDocs?query=%28%28portal_type%3A%22" +
-                        "Support Request" + "%22%29%20AND%20%28" +
-                        "default_aggregate_reference%3A%22" +
-                        gadget.state.doc.reference + "%22%29%29",
+                      "query": "urn:jio:allDocs?query=portal_type%3A%20%28%20%22" +
+                        "Support Request" + "%22%2C%20%22" +
+                        "Upgrade Decision" + "%22%29%20AND%20" +
+                        "default_or_child_aggregate_reference" +
+                        "%3A%22" + gadget.state.doc.reference + "%22%20AND%20" +
+                        "simulation_state" + "%3A%28%22" +
+                        "validated" + "%22%2C%22" + "suspended" +
+                        "%22%2C%22" + "confirmed" + "%22%2C%22" +
+                        "started" + "%22%2C%22" + "stopped" + "%22%29",
                       "portal_type": [],
                       "search_column_list": ticket_column_list,
                       "sort_column_list": ticket_column_list,
-                      "sort": [["title", "ascending"]],
+                      "sort": [["modification_date", "descending"]],
                       "title": "Associated Tickets",
                       "type": "ListBox"
                     },
@@ -366,7 +372,7 @@
                       [["my_source_reference"], ["my_url_string"]]
                   ], [
                     "bottom",
-                    [["connection_listbox"], ["my_text_content"], ["listbox"], ["ticket_listbox"]]
+                    [["ticket_listbox"], ["connection_listbox"], ["my_text_content"], ["listbox"]]
                   ]]
                 }
               });

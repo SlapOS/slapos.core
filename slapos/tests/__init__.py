@@ -29,6 +29,12 @@ import unittest
 import logging
 import os
 
+
+if os.environ.pop('SLAPOS_CLIENT_CONFIGURATION', None):
+  print ('Removed SLAPOS_CLIENT_CONFIGURATION from environment')
+if os.environ.pop('SLAPOS_CONFIGURATION', None):
+  print ('Removed SLAPOS_CONFIGURATION from environment')
+
 # When running with debug enabled install Ctrl+C handler and output more logs,
 # otherwise disable log output.
 if os.environ.get('SLAPOS_TEST_DEBUG'):

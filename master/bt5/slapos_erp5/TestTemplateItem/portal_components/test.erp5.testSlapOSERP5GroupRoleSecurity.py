@@ -260,6 +260,7 @@ class TestComputerPartition(TestSlapOSGroupRoleSecurityMixin):
     self.commit()
 
     partition.updateLocalRolesOnSecurityGroups()
+    self.tic()
     self.assertSecurityGroup(partition,
         [self.user_id, instance_customer.getUserId(), slave_customer.getUserId(),
           instance_subscription_reference], True)
@@ -597,12 +598,11 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
         aggregate=partition.getRelativeUrl())
     provider.validate()
 
-    self.commit()
+    self.tic()
 
     instance = self.portal.software_instance_module.newContent(
         portal_type='Slave Instance', aggregate=partition.getRelativeUrl())
     instance.updateLocalRolesOnSecurityGroups()
-
     self.assertSecurityGroup(instance, ['G-COMPANY', provider.getUserId(),
         computer.getUserId(), self.user_id], False)
     self.assertRoles(instance, 'G-COMPANY', ['Assignor'])

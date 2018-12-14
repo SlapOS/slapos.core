@@ -457,15 +457,19 @@ class ISupply(Interface):
   a given client is ready to supply.
   """
 
-  def supply(software_release, computer_guid=None):
+  def supply(software_release, computer_guid=None, state="available"):
     """
-    Tell that given client is ready to supply given sofware release
+    Request installation or deletion of a software relase.
+
+    To destroy a software, supply it with state "destroyed".
 
     software_release -- uri of the software release
                         which has to be instanciated
 
     computer_guid -- the identifier of the computer inside the slapgrid
                      server.
+
+    state -- the state of the software, can be "available" or "destroyed".
     """
 
 class slap(Interface):

@@ -30,11 +30,18 @@ import os
 import textwrap
 import xmlrpclib
 import hashlib
-import subprocess
 import logging
 import time
 import sys
 
+import socket
+import errno
+from contextlib import closing
+
+try:
+  import subprocess32 as subprocess
+except ImportError:
+  import subprocess
 import xml_marshaller
 import zope.interface
 import supervisor.xmlrpc
@@ -157,7 +164,7 @@ class StandaloneSlapOS(object):
     self._server_port = server_port
     self._master_url = "http://{server_ip}:{server_port}".format(**locals())
 
-    self._formatted = False
+    self._formatted = False # XXX useless
 
     self._base_directory = base_directory
 
@@ -243,6 +250,7 @@ class StandaloneSlapOS(object):
     self._ensureSlaposAvailable()
 
   def _writeSlaposCommand(self):
+    # XXX move to class ?
     with open(self._slapos_bin, 'w') as f:
       f.write(textwrap.dedent('''\
         #!/bin/sh
@@ -257,7 +265,7 @@ class StandaloneSlapOS(object):
     try:
       subprocess.check_call(
         ['supervisord'],
-        close_fds=True,
+       # close_fds=True,
         cwd=self._base_directory,
       )
     except:
@@ -271,7 +279,7 @@ class StandaloneSlapOS(object):
       time.sleep(1)
       try:
         # Call a method to ensure connection to master can be established
-        self.getComputer().getComputerPartitionList()
+        self.computer.getComputerPartitionList()
       except ConnectionError, e:
         retry += 1
         if retry >= 60:
@@ -288,8 +296,6 @@ class StandaloneSlapOS(object):
       partition_base_name="slappart"):
     """Create partitions
     """
-    computer = self.getComputer()
-
     for path in (
       self._software_root,
       self._instance_root, ):
@@ -307,7 +313,7 @@ class StandaloneSlapOS(object):
         os.mkdir(partition_path)
       os.chmod(partition_path, 0o750)
 
-      computer.updateConfiguration(
+      self.computer.updateConfiguration(
         xml_marshaller.xml_marshaller.dumps({
            'address': ipv4_address,
            'netmask': '255.255.255.255',
@@ -324,17 +330,33 @@ class StandaloneSlapOS(object):
            'software_root': self._software_root}))
     self._formatted = True
 
-  def getComputer(self):
+  @property
+  def computer(self):
     if self._computer is None:
       self._computer = self._slap.registerComputer(self._computer_id)
     return self._computer
 
-  def supply(self, software_url, computer_guid=None):
+  @property
+  def software_directory(self):
+    return self._software_root
+
+  @property
+  def instance_directory(self):
+    return self._instance_root
+
+  @property
+  def supervisor_rpc(self):
+    # XXX is this exposed ?
+    return self._getSupervisorRPCServer()
+
+  def supply(self, software_url, computer_guid=None, state="available"):
     if computer_guid not in (None, self._computer_id):
       raise ValueError("Can only supply on embedded computer")
     self._slap.registerSupply().supply(
       software_url,
-      self._computer_id)
+      self._computer_id,
+      state=state,
+    )
 
   def request(self, software_release, software_type, partition_reference,
               shared=False, partition_parameter_kw=None, filter_kw=None):
@@ -350,6 +372,24 @@ class StandaloneSlapOS(object):
       partition_parameter_kw=partition_parameter_kw,
       filter_kw=filter_kw)
 
+  def shutdown(self):
+    """Shutdown all services.
+
+    This methods blocks until services are stop or a timeout is reached.
+    TODO: deadline instead of timeout ?
+    """
+    self.supervisor_rpc.supervisor.shutdown()
+    # wait for supervisor to shutdown and free its port
+    for i in range(10):
+      with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+        try:
+          s.bind((self._server_ip, self._server_port))
+        except socket.error as e:
+          if e.errno == errno.EADDRINUSE:
+            return
+          raise
+        time.sleep(.2 * i)
+
   def _runSlapOSCommand(self, command, max_retry=0, debug=False, error_lines=30):
     success = False
     if debug:
@@ -357,10 +397,10 @@ class StandaloneSlapOS(object):
       debug_args = prog.get('debug_args', '')
       return subprocess.check_call(
           prog['command'].format(**locals()),
-          close_fds=True,
+#          close_fds=True,
           shell=True)
 
-    server = self._getSupervisorRPCServer()
+    server = self.supervisor_rpc
     retry = 0
     while True:
       self._logger.debug("retry %s: starting %s", retry, command)
@@ -447,7 +487,6 @@ class StandaloneSlapOS(object):
        transport=supervisor.xmlrpc.SupervisorTransport(
            None,
            None,
-           # XXX hardcoded socket path
            serverurl="unix://{self._supervisor_socket}".format(
              **locals())))
 

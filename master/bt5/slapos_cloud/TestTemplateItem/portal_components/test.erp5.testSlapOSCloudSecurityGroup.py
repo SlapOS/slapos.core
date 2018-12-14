@@ -93,7 +93,7 @@ class TestSlapOSComputerSecurity(TestSlapOSSecurityMixin):
     computer.newContent(portal_type='ERP5 Login',
                       reference=reference).validate()
 
-    self.commit()
+    self.tic()
 
     self._assertUserExists(user_id, reference, None)
 
@@ -112,7 +112,7 @@ class TestSlapOSComputerSecurity(TestSlapOSSecurityMixin):
     computer.setUserId(user_id)
     computer.newContent(portal_type='ERP5 Login',
                       reference=reference)
-    self.commit()
+    self.tic()
 
     self._assertUserDoesNotExists(user_id, reference, None)
 
@@ -128,7 +128,7 @@ class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
     instance.validate()
     instance.newContent(portal_type='ERP5 Login',
                       reference=reference).validate()
-    self.commit()
+    self.tic()
 
     self._assertUserExists(user_id, reference, None)
 
@@ -147,7 +147,7 @@ class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
         reference=subscription_reference)
     subscription.validate()
     instance.setSpecialise(subscription.getRelativeUrl())
-    self.commit()
+    self.tic()
 
     # clear cache in order to reset calculation
     self.portal.portal_caches.clearAllCache()
@@ -164,7 +164,7 @@ class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
     instance = self.portal.getDefaultModule(portal_type=self.portal_type)\
       .newContent(portal_type=self.portal_type, reference=reference)
     instance.setUserId(user_id)
-    self.commit()
+    self.tic()
 
     self._assertUserDoesNotExists(user_id, reference, None)
 
@@ -183,7 +183,7 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
     person.newContent(portal_type='ERP5 Login',
       reference=reference, password=password).validate()
 
-    self.commit()
+    self.tic()
 
     self._assertUserExists(user_id, reference, password)
 
@@ -196,7 +196,7 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
     # add to group category
     self.login()
     person.newContent(portal_type='Assignment', group='company').open()
-    self.commit()
+    self.tic()
 
     self.tic()
     self.portal.portal_caches.clearAllCache()
@@ -208,7 +208,7 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
     # add to role category
     self.login()
     person.newContent(portal_type='Assignment', role='member').open()
-    self.commit()
+    self.tic()
 
     self.portal.portal_caches.clearAllCache()
     self.login(person.getUserId())
@@ -224,7 +224,7 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
     person = self.portal.person_module.newContent(portal_type='Person',
       reference=reference, password=password)
 
-    self.commit()
+    self.tic()
 
     self._assertUserDoesNotExists(user_id, reference, password)
 

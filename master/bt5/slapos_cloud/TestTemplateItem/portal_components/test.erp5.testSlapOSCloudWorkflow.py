@@ -2780,13 +2780,13 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
         return self.reindexObject_call(*args, **kw)
 
     from Products.ERP5Type.Base import Base
-    Base.reindexObject_call = Base.reindexObject
-    Base.reindexObject = verify_reindexObject_call
+    Base.reindexObject_call = Base._reindexObject
+    Base._reindexObject = verify_reindexObject_call
     try:
       getattr(installation, method_id)()
       self.tic()
     finally:
-      Base.reindexObject = Base.reindexObject_call
+      Base._reindexObject = Base.reindexObject_call
     self.assertEqual(
         'reindexObject triggered on %s' % method_id,
         computer.workflow_history['edit_workflow'][-1]['comment'])
@@ -2842,13 +2842,13 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
 
     # Replace activeSense by a dummy method
     from Products.ERP5Type.Base import Base
-    Base.reindexObject_call = Base.reindexObject
-    Base.reindexObject = verify_reindexObject_call
+    Base.reindexObject_call = Base._reindexObject
+    Base._reindexObject = verify_reindexObject_call
     try:
       getattr(instance, method_id)(**request_kw)
       self.tic()
     finally:
-      Base.reindexObject = Base.reindexObject_call
+      Base._reindexObject = Base.reindexObject_call
     self.assertEqual(
         'reindexObject triggered on %s' % method_id,
         partition.workflow_history['edit_workflow'][-1]['comment'])
@@ -2966,13 +2966,13 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
 
     # Replace activeSense by a dummy method
     from Products.ERP5Type.Base import Base
-    Base.reindexObject_call = Base.reindexObject
-    Base.reindexObject = verify_reindexObject_call
+    Base.reindexObject_call = Base._reindexObject
+    Base._reindexObject = verify_reindexObject_call
     try:
       instance1.edit(predecessor_value=instance3)
       self.tic()
     finally:
-      Base.reindexObject = Base.reindexObject_call
+      Base._reindexObject = Base.reindexObject_call
     self.assertEqual(
         'reindexObject triggered',
         instance1.workflow_history['edit_workflow'][-1]['comment'])

@@ -225,8 +225,12 @@ def getFullComputerInformation():
   slap_computer = Computer(computer_id)
   slap_computer._software_release_list = []
   for sr in execute_db('software', 'select * from %s WHERE computer_reference=?', [computer_id]):
-    slap_computer._software_release_list.append(SoftwareRelease(
-      software_release=sr['url'], computer_guid=computer_id))
+    slap_computer._software_release_list.append(
+      SoftwareRelease(
+        software_release=sr['url'],
+        computer_guid=computer_id,
+        requested_state=sr['slap_state']
+      ))
   slap_computer._computer_partition_list = []
   for partition in execute_db('partition', 'SELECT * FROM %s WHERE computer_reference=?', [computer_id]):
     slap_computer._computer_partition_list.append(partitiondict2partition(
@@ -252,15 +256,35 @@ def setComputerPartitionConnectionXml():
 
 @app.route('/buildingSoftwareRelease', methods=['POST'])
 def buildingSoftwareRelease():
-  return 'Ignored'
+  execute_db(
+    'software',
+    'INSERT OR REPLACE INTO %s VALUES(?, ?, "building")',
+    [request.form['url'], request.form['computer_id']])
+  return 'OK'
+
+@app.route('/destroyedSoftwareRelease', methods=['POST'])
+def destroyedSoftwareRelease():
+  execute_db(
+    'software',
+    'DELETE FROM %s WHERE url = ? and computer_reference=? ',
+    [request.form['url'], request.form['computer_id']])
+  return 'OK'
 
 @app.route('/availableSoftwareRelease', methods=['POST'])
 def availableSoftwareRelease():
-  return 'Ignored'
+  execute_db(
+    'software',
+    'UPDATE %s SET slap_state="available" WHERE url=? AND computer_reference=?',
+    [request.form['url'], request.form['computer_id']])
+  return 'OK'
 
 @app.route('/softwareReleaseError', methods=['POST'])
 def softwareReleaseError():
-  return 'Ignored'
+  execute_db(
+    'software',
+    'INSERT OR REPLACE INTO %s VALUES(?, ?, "error")',
+    [request.form['url'], request.form['computer_id']])
+  return 'OK'
 
 @app.route('/softwareInstanceError', methods=['POST'])
 def softwareInstanceError():
@@ -319,11 +343,26 @@ def registerComputerPartition():
 def supplySupply():
   url = request.form['url']
   computer_id = request.form['computer_id']
-  if request.form['state'] == 'destroyed':
-    execute_db('software', 'DELETE FROM %s WHERE url = ? AND computer_reference=?',
-               [url, computer_id])
-  else:
-    execute_db('software', 'INSERT OR REPLACE INTO %s VALUES(?, ?)', [url, computer_id])
+  state = request.form['state']
+  if state not in ('available', 'destroyed'):
+    raise ValueError("Wrong state %s" % state)
+
+  if state == 'available':
+    software = execute_db(
+        'software',
+        'SELECT slap_state FROM %s WHERE url=? and computer_reference=?',
+        [url, computer_id], one=True)
+    if software and software['slap_state'] == 'available':
+      return '%r already available' % url
+    state = 'install_requested'
+
+  execute_db(
+    'software',
+    'INSERT OR REPLACE INTO %s VALUES(?, ?, ?)',
+    [url, computer_id, state])
+
+  if state == 'destroyed':
+    return '%r destroyed' % url
   return '%r added' % url
 
 

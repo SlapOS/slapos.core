@@ -166,7 +166,7 @@ def log_computer_table(logger, conn):
 def log_software_table(logger, conn):
     tbl_software = 'software' + DB_VERSION
     cur = conn.cursor()
-    qry = cur.execute("SELECT *, md5(url) as md5 FROM %s" % tbl_software)
+    qry = cur.execute("SELECT *, md5(url) as md5 FROM %s where slap_state <> 'destroyed'" % tbl_software)
     log_table(logger, qry, tbl_software)
 
 

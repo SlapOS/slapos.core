@@ -120,7 +120,7 @@ class SoftwareRelease(SlapDocument):
   """
   zope.interface.implements(interface.ISoftwareRelease)
 
-  def __init__(self, software_release=None, computer_guid=None, **kw):
+  def __init__(self, software_release=None, computer_guid=None, requested_state='available', **kw):
     """
     Makes easy initialisation of class parameters
 
@@ -133,9 +133,10 @@ class SoftwareRelease(SlapDocument):
       software_release = software_release.encode('UTF-8')
     self._software_release = software_release
     self._computer_guid = computer_guid
+    self._requested_state = requested_state
 
   def __getinitargs__(self):
-    return (self._software_release, self._computer_guid, )
+    return (self._software_release, self._computer_guid, self._requested_state)
 
   def getComputerId(self):
     if not self._computer_guid:
@@ -175,7 +176,7 @@ class SoftwareRelease(SlapDocument):
       'computer_id': self.getComputerId()})
 
   def getState(self):
-    return getattr(self, '_requested_state', 'available')
+    return self._requested_state
 
 
 class SoftwareProductCollection(object):

@@ -534,6 +534,7 @@ stderr_logfile_backups=1
     clean_run = True
     for software_release in self.computer.getSoftwareReleaseList():
       state = software_release.getState()
+      action = 'destroy' if state == 'destroyed' else 'install'
       try:
         software_release_uri = software_release.getURI()
         url_hash = md5digest(software_release_uri)
@@ -567,7 +568,7 @@ stderr_logfile_backups=1
         for manager in self._manager_list:
           manager.software(software)
 
-        if state == 'available':
+        if action == 'install':
           completed_tag = os.path.join(software_path, '.completed')
           if (self.develop or (not os.path.exists(completed_tag) and
                  len(self.software_release_filter_list) == 0) or
@@ -580,7 +581,7 @@ stderr_logfile_backups=1
             software.install()
             with open(completed_tag, 'w') as fout:
               fout.write(time.asctime())
-        elif state == 'destroyed':
+        elif action == 'destroy':
           if os.path.exists(software_path):
             self.logger.info('Destroying %r...' % software_release_uri)
             software.destroy()
@@ -610,12 +611,12 @@ stderr_logfile_backups=1
         software_release.error(traceback.format_exc(), logger=self.logger)
         clean_run = False
       else:
-        if state == 'available':
+        if action == 'install':
           try:
             software_release.available()
           except (NotFoundError, ServerError):
             pass
-        elif state == 'destroyed':
+        elif action == 'destroy':
           try:
             software_release.destroyed()
           except (NotFoundError, ServerError):

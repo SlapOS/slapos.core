@@ -25,13 +25,12 @@
 #
 ##############################################################################
 
-from __future__ import print_function
-
 import logging
 import os
 import unittest
 from six.moves.urllib import parse
 import tempfile
+import logging
 
 import httmock
 
@@ -41,6 +40,9 @@ from slapos.util import dumps
 
 class UndefinedYetException(Exception):
   """To catch exceptions which are not yet defined"""
+
+
+logger = logging.getLogger('slapos.tests.slap')
 
 
 class SlapMixin(unittest.TestCase):
@@ -53,7 +55,7 @@ class SlapMixin(unittest.TestCase):
       self.server_url = 'http://localhost/'
     else:
       self.server_url = self._server_url
-    print('Testing against SLAP server %r' % self.server_url)
+    logger.debug('Testing against SLAP server %r', self.server_url)
     self.slap = slapos.slap.slap()
     self.partition_id = 'PARTITION_01'
     os.environ.pop('SLAPGRID_INSTANCE_ROOT', None)
@@ -71,6 +73,9 @@ class SlapMixin(unittest.TestCase):
 class TestSlap(SlapMixin):
   """
   Test slap against slap server
+
+  This test can be used to test a running SLAP server by setting
+  TEST_SLAP_SERVER_URL environment variable to the URL of this server.
   """
 
   def test_slap_initialisation(self):
@@ -1204,9 +1209,4 @@ class TestSoftwareProductCollection(SlapMixin):
       self.product_collection.get
     )
     self.assertEqual(self.product_collection.foo, '0')
-
-if __name__ == '__main__':
-  print('You can point to any SLAP server by setting TEST_SLAP_SERVER_URL'
-        ' environment variable')
-  unittest.main()
 

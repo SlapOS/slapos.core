@@ -49,9 +49,14 @@
         .push(function (result) {
 
           if (result.portal_type !== undefined) {
-            child_gadget_url = 'gadget_erp5_page_slap_' +
-              result.portal_type.replace(/ /g, '_').toLowerCase() +
-              '_view.html';
+            if (["Web Message", "Mail Message"]
+                .indexOf(result.portal_type) !== -1) {
+              child_gadget_url = 'gadget_erp5_page_slap_message_view.html';
+            } else {
+              child_gadget_url = 'gadget_erp5_page_slap_' +
+                result.portal_type.replace(/ /g, '_').toLowerCase() +
+                '_view.html';
+            }
           } else {
             throw new Error('Can not display document: ' + options.jio_key);
           }

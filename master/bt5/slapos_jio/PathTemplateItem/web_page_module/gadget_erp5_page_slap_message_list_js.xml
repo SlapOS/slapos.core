@@ -64,6 +64,14 @@
             </value>
         </item>
         <item>
+            <key> <string>categories</string> </key>
+            <value>
+              <tuple>
+                <string>contributor/person_module/20181108-673DC</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
             <key> <string>content_md5</string> </key>
             <value>
               <none/>
@@ -71,7 +79,7 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_erp5_page_slap_controller.js</string> </value>
+            <value> <string>gadget_erp5_page_slap_message_list.js</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -81,7 +89,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_erp5_page_slap_controller_js</string> </value>
+            <value> <string>gadget_erp5_page_slap_message_list_js</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -99,11 +107,11 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget SlapOS Controller JS</string> </value>
+            <value> <string>Gadget SlapOS Message List</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
-            <value> <string>001</string> </value>
+            <value> <string>002</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -185,7 +193,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1508424182.72</float>
+                        <float>1544779543.85</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -230,7 +238,7 @@
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>972.24145.27625.63436</string> </value>
+                <value> <string>972.24268.18396.32358</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -248,7 +256,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1545062511.01</float>
+                        <float>1545062015.24</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -305,7 +313,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1508424127.17</float>
+                        <float>1544698566.05</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

@@ -1,16 +1,17 @@
 .box-gadget-left {
   width: 49%;
   float: left;
+  margin-bottom: 30px;
 }
 .box-gadget-right {
   width: 49%;
   float: right;
 }
 
-.box-gadget-bottom {
+.box-gadget-top {
   float: left;
   width: 100%;
-  padding-top: 17px;
+  margin-bottom: 20px;
 }
 
 .ui-btn-white-front,

@@ -72,6 +72,13 @@
                 type: "DateTimeField"
               };
             }
+            if (result.data.rows[i].value.hasOwnProperty("text_content")) {
+              if (result.data.rows[i].value.text_content &&
+                  result.data.rows[i].value.text_content.length > 80) {
+                result.data.rows[i].value.text_content =
+                  result.data.rows[i].value.text_content.slice(0, 80) + " ...";
+              }
+            }
           }
           return result;
         });
@@ -169,8 +176,9 @@
               var form_list = result[0],
                   column_list = [
                 ['title', 'Title'],
-                ['modification_date', 'Modification Date'],
-                ['translated_simulation_state_title', 'State']
+                ['modification_date', 'Date'],
+                ['source_title', "From"],
+                ['text_content', 'Message']
               ];
 
               return form_list.render({
@@ -200,13 +208,24 @@
                       "key": "slap_ticket_listbox",
                       "lines": lines_limit,
                       "list_method": "portal_catalog",
-                      "query": "urn:jio:allDocs?query=portal_type%3A%20%28%22Support%20Request%22%2C%20%22Upgrade%20Decision%22%2C%20%22Regularisation%20Request%22%29%20AND%20" +
-                        "destination_decision_reference%3A" +  gadget.me_dict.reference + "%20AND%20simulation_state%3A%20%28%22suspended%22%2C%20%22validated%22%2C%20%22confirmed%22%29",
+                      "query": "urn:jio:allDocs?query=portal_type%3A%20%28%20" +
+                        "%22" + "Web Message" + "%22%2C%20%22" + "Mail Message" +
+                        "%22%29%20AND%20%28" + "default_destination_reference" +
+                        "%3A" +  gadget.me_dict.reference + "%29%20AND%20%28" +
+                        "simulation_state" + "%3A%20%28%22" + "started" +
+                        "%22%2C%22" + "stopped" + "%22%29%29%20AND%20%28" +
+                        "follow_up_portal_type" + "%3A%20%28%22" + "Support Request" +
+                        "%22%2C%22" + "Upgrade Decision" + "%22%2C%22" +
+                        "Regularisation Request" + "%22%29%29%20AND%20%28" +
+                        "follow_up_simulation_state" + "%3A%20%28%22" +
+                        "validated" + "%22%2C%22" + "suspended" + "%22%2C%22" +
+                        "confirmed" + "%22%2C%22" + "started" + "%22%2C%22" +
+                        "stopped" + "%22%2C%22" + "%22%29%29",
                       "portal_type": [],
                       "search_column_list": column_list,
                       "sort_column_list": column_list,
                       "sort": [["modification_date", "Descending"]],
-                      "title": "Pending Tickets to Process",
+                      "title": "Unread Messages",
                       "type": "ListBox"
                     }
                   }},

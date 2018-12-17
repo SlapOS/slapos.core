@@ -382,18 +382,18 @@ class TestCollectSnapshot(unittest.TestCase):
         process = psutil.Process(os.getpid())
         process_snapshot = snapshot.ProcessSnapshot(process)
 
-        self.assertNotEquals(process_snapshot.username, None)  
+        self.assertNotEqual(process_snapshot.username, None)  
         self.assertEqual(int(process_snapshot.pid), os.getpid())
         self.assertEqual(int(process_snapshot.process.split("-")[0]),
                           os.getpid())
 
-        self.assertNotEquals(process_snapshot.cpu_percent , None)
-        self.assertNotEquals(process_snapshot.cpu_time , None)
-        self.assertNotEquals(process_snapshot.cpu_num_threads, None)
-        self.assertNotEquals(process_snapshot.memory_percent , None)
-        self.assertNotEquals(process_snapshot.memory_rss, None)
-        self.assertNotEquals(process_snapshot.io_rw_counter, None)
-        self.assertNotEquals(process_snapshot.io_cycles_counter, None)
+        self.assertNotEqual(process_snapshot.cpu_percent , None)
+        self.assertNotEqual(process_snapshot.cpu_time , None)
+        self.assertNotEqual(process_snapshot.cpu_num_threads, None)
+        self.assertNotEqual(process_snapshot.memory_percent , None)
+        self.assertNotEqual(process_snapshot.memory_rss, None)
+        self.assertNotEqual(process_snapshot.io_rw_counter, None)
+        self.assertNotEqual(process_snapshot.io_cycles_counter, None)
 
     def test_folder_size_snapshot(self):
         disk_snapshot = snapshot.FolderSizeSnapshot(self.instance_root)
@@ -405,18 +405,18 @@ class TestCollectSnapshot(unittest.TestCase):
             f.write('toto text')
 
         disk_snapshot.update_folder_size()
-        self.assertNotEquals(disk_snapshot.disk_usage, 0)
+        self.assertNotEqual(disk_snapshot.disk_usage, 0)
 
         pid_file = os.path.join(self.instance_root, 'disk_snap.pid')
         disk_snapshot = snapshot.FolderSizeSnapshot(self.instance_root, pid_file)
         disk_snapshot.update_folder_size()
-        self.assertNotEquals(disk_snapshot.disk_usage, 0)
+        self.assertNotEqual(disk_snapshot.disk_usage, 0)
 
         pid_file = os.path.join(self.instance_root, 'disk_snap.pid')
         disk_snapshot = snapshot.FolderSizeSnapshot(self.instance_root, pid_file,
                                            use_quota=True)
         disk_snapshot.update_folder_size()
-        self.assertNotEquals(disk_snapshot.disk_usage, 0)
+        self.assertNotEqual(disk_snapshot.disk_usage, 0)
         
 
     def test_process_snapshot_broken_process(self):
@@ -425,34 +425,34 @@ class TestCollectSnapshot(unittest.TestCase):
 
     def test_computer_snapshot(self):
         computer_snapshot = snapshot.ComputerSnapshot()
-        self.assertNotEquals(computer_snapshot.cpu_num_core , None)
-        self.assertNotEquals(computer_snapshot.cpu_frequency , None)
-        self.assertNotEquals(computer_snapshot.cpu_type , None)
-        self.assertNotEquals(computer_snapshot.memory_size , None)
-        self.assertNotEquals(computer_snapshot.memory_type , None)
+        self.assertNotEqual(computer_snapshot.cpu_num_core , None)
+        self.assertNotEqual(computer_snapshot.cpu_frequency , None)
+        self.assertNotEqual(computer_snapshot.cpu_type , None)
+        self.assertNotEqual(computer_snapshot.memory_size , None)
+        self.assertNotEqual(computer_snapshot.memory_type , None)
         
         self.assertEqual(type(computer_snapshot.system_snapshot),  
                                snapshot.SystemSnapshot)
 
-        self.assertNotEquals(computer_snapshot.disk_snapshot_list, [])
-        self.assertNotEquals(computer_snapshot.partition_list, []) 
+        self.assertNotEqual(computer_snapshot.disk_snapshot_list, [])
+        self.assertNotEqual(computer_snapshot.partition_list, []) 
 
         self.assertEqual(type(computer_snapshot.disk_snapshot_list[0]), 
                 snapshot.DiskPartitionSnapshot)
 
     def test_system_snapshot(self):
         system_snapshot = snapshot.SystemSnapshot()       
-        self.assertNotEquals(system_snapshot.memory_used , None)
-        self.assertNotEquals(system_snapshot.memory_free , None)
-        self.assertNotEquals(system_snapshot.memory_percent , None)
-        self.assertNotEquals(system_snapshot.cpu_percent , None)
-        self.assertNotEquals(system_snapshot.load , None)
-        self.assertNotEquals(system_snapshot.net_in_bytes , None)
-        self.assertNotEquals(system_snapshot.net_in_errors, None)
-        self.assertNotEquals(system_snapshot.net_in_dropped , None)
-        self.assertNotEquals(system_snapshot.net_out_bytes , None)
-        self.assertNotEquals(system_snapshot.net_out_errors, None)
-        self.assertNotEquals(system_snapshot.net_out_dropped , None)
+        self.assertNotEqual(system_snapshot.memory_used , None)
+        self.assertNotEqual(system_snapshot.memory_free , None)
+        self.assertNotEqual(system_snapshot.memory_percent , None)
+        self.assertNotEqual(system_snapshot.cpu_percent , None)
+        self.assertNotEqual(system_snapshot.load , None)
+        self.assertNotEqual(system_snapshot.net_in_bytes , None)
+        self.assertNotEqual(system_snapshot.net_in_errors, None)
+        self.assertNotEqual(system_snapshot.net_in_dropped , None)
+        self.assertNotEqual(system_snapshot.net_out_bytes , None)
+        self.assertNotEqual(system_snapshot.net_out_errors, None)
+        self.assertNotEqual(system_snapshot.net_out_dropped , None)
  
 class TestCollectEntity(unittest.TestCase):
 
@@ -483,7 +483,7 @@ class TestCollectEntity(unittest.TestCase):
  
         user_dict = entity.get_user_list(config)
         username_set = {'slapuser0', 'slapuser1', 'slapuser2'} 
-        self.assertEquals(username_set, set(user_dict))
+        self.assertEqual(username_set, set(user_dict))
        
         for name in username_set:
           self.assertEqual(user_dict[name].name, name)
@@ -532,8 +532,8 @@ class TestCollectEntity(unittest.TestCase):
                     'memory_rss', 'pid', 'memory_percent',
                     'io_rw_counter', 'insertion_date', 'insertion_time',
                     'io_cycles_counter', 'cpu_num_threads'})
-        self.assertEquals(database.invoked_method_list[2], ("commit", ""))
-        self.assertEquals(database.invoked_method_list[3], ("close", ""))
+        self.assertEqual(database.invoked_method_list[2], ("commit", ""))
+        self.assertEqual(database.invoked_method_list[3], ("close", ""))
 
         self.assertEqual(database.invoked_method_list[4], ("connect", ""))
         self.assertEqual(database.invoked_method_list[5][0], "inserFolderSnapshot")

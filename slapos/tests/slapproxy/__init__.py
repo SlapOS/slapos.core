@@ -1059,7 +1059,8 @@ database_uri = %(tempdir)s/lib/external_proxy.db
         'external_proxy_host': self.external_proxy_host,
         'external_proxy_port': self.external_proxy_port
     }
-    open(self.slapos_cfg, 'w').write(configuration)
+    with open(self.slapos_cfg, 'w') as f:
+      f.write(configuration)
 
   def external_proxy_add_free_partition(self, partition_amount, computer_id=None):
     """

@@ -143,8 +143,10 @@ class Watchdog(object):
       # Partition never managed to deploy successfully, ignore bang
       return True
 
-    last_bang_timestamp = int(open(slapos_last_bang_timestamp_file_path, 'r').read())
-    deployment_timestamp = int(open(partition_timestamp_file_path, 'r').read())
+    with open(slapos_last_bang_timestamp_file_path, 'r') as f:
+      last_bang_timestamp = int(f.read())
+    with open(partition_timestamp_file_path, 'r') as f:
+      deployment_timestamp = int(f.read())
     if deployment_timestamp > last_bang_timestamp:
       # It previously banged BEFORE latest successful deployment
       # i.e it haven't banged since last successful deployment
@@ -174,11 +176,12 @@ class Watchdog(object):
         partition_home_path,
         COMPUTER_PARTITION_LATEST_BANG_TIMESTAMP_FILENAME
     )
+    timestamp = '0'
     if os.path.exists(partition_timestamp_file_path):
-      timestamp = open(partition_timestamp_file_path, 'r').read()
-    else:
-      timestamp = '0'
-    open(slapos_last_bang_timestamp_file_path, 'w').write(timestamp)
+      with open(partition_timestamp_file_path, 'r') as f:
+        timestamp = f.read()
+    with open(slapos_last_bang_timestamp_file_path, 'w') as f:
+      f.write(timestamp)
 
   def handle_process_state_change_event(self, headers, payload_dict):
     partition_id = payload_dict['groupname']

@@ -330,7 +330,7 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     computer_partition.__dict__.update(software_instance.__dict__)
     return computer_partition
 
-  def supply(self, url, computer_id=None, state=''):
+  def supply(self, url, computer_id=None, state='available'):
     if not computer_id:
       computer_id = self.computer_id
     request_dict = {'url':url, 'computer_id': computer_id, 'state':state}
@@ -350,11 +350,72 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     """
     Return computer information as stored in proxy for corresponding id
     """
-    rv = self.app.get('/getFullComputerInformation?computer_id=%s' % self.computer_id)
-    computer = loads(rv.data)
+    computer = self.getFullComputerInformation()
     for instance in computer._computer_partition_list:
       if instance._partition_id == computer_partition_id:
         return instance
+
+  def getFullComputerInformation(self):
+    return loads(self.app.get('/getFullComputerInformation?computer_id=%s' % self.computer_id).data)
+
+
+class TestSoftwareInstallation(MasterMixin, unittest.TestCase):
+  def setUp(self):
+    super(TestSoftwareInstallation, self).setUp()
+    self.software_release_url = self.id()
+
+  def assertSoftwareState(self, state):
+    # Check that the software was requested in `state`
+    sr, = self.getFullComputerInformation()._software_release_list
+    self.assertEqual(sr.getState(), state)
+
+  def test_installation_success(self):
+    self.supply(self.software_release_url)
+    self.assertSoftwareState('available')
+
+    self.app.post('/buildingSoftwareRelease', data={
+      'url': self.software_release_url,
+      'computer_id': self.computer_id
+    })
+    # there's no intermediate "building" state, because state is
+    # the "requested state".
+    self.assertSoftwareState('available')
+
+    self.app.post('/availableSoftwareRelease', data={
+      'url': self.software_release_url,
+      'computer_id': self.computer_id
+    })
+    self.assertSoftwareState('available')
+
+  def test_installation_failed(self):
+    self.supply(self.software_release_url)
+    self.assertSoftwareState('available')
+
+    self.app.post('/buildingSoftwareRelease', data={
+      'url': self.software_release_url,
+      'computer_id': self.computer_id
+    })
+    self.assertSoftwareState('available')
+
+    self.app.post('/softwareReleaseError', data={
+      'url': self.software_release_url,
+      'computer_id': self.computer_id
+    })
+    self.assertSoftwareState('available')
+
+  def test_destroyed(self):
+    self.supply(self.software_release_url)
+    self.assertSoftwareState('available')
+
+    self.supply(self.software_release_url, state="destroyed")
+    self.assertSoftwareState('destroyed')
+
+    self.app.post('/destroyedSoftwareRelease', data={
+      'url': self.software_release_url,
+      'computer_id': self.computer_id
+    })
+    # this really remove the software from DB
+    self.assertEqual([], self.getFullComputerInformation()._software_release_list)
 
 
 class TestRequest(MasterMixin):
@@ -705,6 +766,7 @@ class TestSlaveRequest(MasterMixin):
          shared=True, filter_kw=dict(instance_guid=partition._instance_guid))
     self.assertEqual(slave._partition_id, partition._partition_id)
 
+
 class TestMultiNodeSupport(MasterMixin):
   def test_multi_node_support_different_software_release_list(self):
     """
@@ -778,16 +840,32 @@ class TestMultiNodeSupport(MasterMixin):
     computer_0 = loads(self.app.get('/getFullComputerInformation?computer_id=COMP-0').data)
     computer_1 = loads(self.app.get('/getFullComputerInformation?computer_id=COMP-1').data)
 
-    self.assertEqual(len(computer_0._software_release_list), 0)
-    self.assertEqual(len(computer_1._software_release_list), 1)
-
+    # at this point, software is requested to be destroyed on COMP-0
     self.assertEqual(
-        computer_1._software_release_list[0]._software_release,
+        computer_0._software_release_list[0].getURI(),
         software_release_url
     )
     self.assertEqual(
-        computer_1._software_release_list[0]._computer_guid,
+        computer_0._software_release_list[0].getComputerId(),
+        'COMP-0'
+    )
+    self.assertEqual(
+        computer_0._software_release_list[0].getState(),
+        'destroyed'
+    )
+
+    # but is still requested for installation on COMP-1
+    self.assertEqual(
+        computer_1._software_release_list[0].getURI(),
+        software_release_url
+    )
+    self.assertEqual(
+        computer_1._software_release_list[0].getComputerId(),
         'COMP-1'
+    )
+    self.assertEqual(
+        computer_1._software_release_list[0].getState(),
+        'available'
     )
 
   def test_multi_node_support_instance_default_computer(self):
@@ -976,6 +1054,7 @@ class TestMultiNodeSupport(MasterMixin):
       self.app.get('/getComputerInformation?computer_id=%s' % new_computer_id)
     except slapos.slap.NotFoundError:
       self.fail('Could not fetch informations for registered computer.')
+
 
 class TestMultiMasterSupport(MasterMixin):
   """
@@ -1266,25 +1345,25 @@ database_uri = %(tempdir)s/lib/external_proxy.db
 
 # XXX: when testing new schema version,
 # rename to "TestMigrateVersion10ToLatest" and test accordingly.
-# Of course, also test version 11 to latest (should be 12).
-class TestMigrateVersion10To11(TestInformation, TestRequest, TestSlaveRequest, TestMultiNodeSupport):
+# Of course, also test version 12 to latest (should be 13).
+class TestMigrateVersion10To12(TestInformation, TestRequest, TestSlaveRequest, TestMultiNodeSupport):
   """
   Test that old database version are automatically migrated without failure
   """
   def setUp(self):
-    super(TestMigrateVersion10To11, self).setUp()
+    super(TestMigrateVersion10To12, self).setUp()
     schema = bytes2str(pkg_resources.resource_string(
       'slapos.tests.slapproxy',
       'database_dump_version_10.sql'
-    )) % dict(version='11')
+    )) % dict(version='12')
     self.db = sqlite_connect(self.proxy_db)
     self.db.cursor().executescript(schema)
     self.db.commit()
 
   def test_automatic_migration(self):
-    table_list = ('software11', 'computer11', 'partition11', 'slave11', 'partition_network11')
+    table_list = ('software12', 'computer12', 'partition12', 'slave12', 'partition_network12')
     for table in table_list:
-      self.assertRaises(sqlite3.OperationalError, self.db.execute, "SELECT name FROM computer11")
+      self.assertRaises(sqlite3.OperationalError, self.db.execute, "SELECT name FROM computer12")
     # Run a dummy request to cause migration
     self.app.get('/getComputerInformation?computer_id=computer')
 
@@ -1295,31 +1374,31 @@ class TestMigrateVersion10To11(TestInformation, TestRequest, TestSlaveRequest, T
     )
 
     # Lower level tests
-    computer_list = self.db.execute("SELECT * FROM computer11").fetchall()
+    computer_list = self.db.execute("SELECT * FROM computer12").fetchall()
     self.assertEqual(
         computer_list,
         [(u'computer', u'127.0.0.1', u'255.255.255.255')]
     )
 
-    software_list = self.db.execute("SELECT * FROM software11").fetchall()
+    software_list = self.db.execute("SELECT * FROM software12").fetchall()
     self.assertEqual(
         software_list,
-        [(u'/srv/slapgrid//srv//runner/project//slapos/software.cfg', u'computer')]
+        [(u'/srv/slapgrid//srv//runner/project//slapos/software.cfg', u'computer', u'available')]
     )
 
-    partition_list = self.db.execute("select * from partition11").fetchall()
+    partition_list = self.db.execute("select * from partition12").fetchall()
     self.assertEqual(
         partition_list,
         [(u'slappart0', u'computer', u'busy', u'/srv/slapgrid//srv//runner/project//slapos/software.cfg', u'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="json">{\n  "site-id": "erp5"\n  }\n}</parameter>\n</instance>\n', None, None, u'production', u'slapos', None, u'started'), (u'slappart1', u'computer', u'busy', u'/srv/slapgrid//srv//runner/project//slapos/software.cfg', u"<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", u'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">mysql://127.0.0.1:45678/erp5</parameter>\n</instance>\n', None, u'mariadb', u'MariaDB DataBase', u'slappart0', u'started'), (u'slappart2', u'computer', u'busy', u'/srv/slapgrid//srv//runner/project//slapos/software.cfg', u'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="cloudooo-json"></parameter>\n</instance>\n', u'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">cloudooo://127.0.0.1:23000/</parameter>\n</instance>\n', None, u'cloudooo', u'Cloudooo', u'slappart0', u'started'), (u'slappart3', u'computer', u'busy', u'/srv/slapgrid//srv//runner/project//slapos/software.cfg', u"<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", u'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">memcached://127.0.0.1:11000/</parameter>\n</instance>\n', None, u'memcached', u'Memcached', u'slappart0', u'started'), (u'slappart4', u'computer', u'busy', u'/srv/slapgrid//srv//runner/project//slapos/software.cfg', u"<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", u'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">memcached://127.0.0.1:13301/</parameter>\n</instance>\n', None, u'kumofs', u'KumoFS', u'slappart0', u'started'), (u'slappart5', u'computer', u'busy', u'/srv/slapgrid//srv//runner/project//slapos/software.cfg', u'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="kumofs-url">memcached://127.0.0.1:13301/</parameter>\n  <parameter id="memcached-url">memcached://127.0.0.1:11000/</parameter>\n  <parameter id="cloudooo-url">cloudooo://127.0.0.1:23000/</parameter>\n</instance>\n', u'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">https://[fc00::1]:10001</parameter>\n</instance>\n', None, u'tidstorage', u'TidStorage', u'slappart0', u'started'), (u'slappart6', u'computer', u'free', None, None, None, None, None, None, None, u'started'), (u'slappart7', u'computer', u'free', None, None, None, None, None, None, None, u'started'), (u'slappart8', u'computer', u'free', None, None, None, None, None, None, None, u'started'), (u'slappart9', u'computer', u'free', None, None, None, None, None, None, None, u'started')]
     )
 
-    slave_list = self.db.execute("select * from slave11").fetchall()
+    slave_list = self.db.execute("select * from slave12").fetchall()
     self.assertEqual(
         slave_list,
         []
     )
 
-    partition_network_list = self.db.execute("select * from partition_network11").fetchall()
+    partition_network_list = self.db.execute("select * from partition_network12").fetchall()
     self.assertEqual(
         partition_network_list,
         [(u'slappart0', u'computer', u'slappart0', u'127.0.0.1', u'255.255.255.255'), (u'slappart0', u'computer', u'slappart0', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart1', u'computer', u'slappart1', u'127.0.0.1', u'255.255.255.255'), (u'slappart1', u'computer', u'slappart1', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart2', u'computer', u'slappart2', u'127.0.0.1', u'255.255.255.255'), (u'slappart2', u'computer', u'slappart2', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart3', u'computer', u'slappart3', u'127.0.0.1', u'255.255.255.255'), (u'slappart3', u'computer', u'slappart3', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart4', u'computer', u'slappart4', u'127.0.0.1', u'255.255.255.255'), (u'slappart4', u'computer', u'slappart4', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart5', u'computer', u'slappart5', u'127.0.0.1', u'255.255.255.255'), (u'slappart5', u'computer', u'slappart5', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart6', u'computer', u'slappart6', u'127.0.0.1', u'255.255.255.255'), (u'slappart6', u'computer', u'slappart6', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart7', u'computer', u'slappart7', u'127.0.0.1', u'255.255.255.255'), (u'slappart7', u'computer', u'slappart7', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart8', u'computer', u'slappart8', u'127.0.0.1', u'255.255.255.255'), (u'slappart8', u'computer', u'slappart8', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart9', u'computer', u'slappart9', u'127.0.0.1', u'255.255.255.255'), (u'slappart9', u'computer', u'slappart9', u'fc00::1', u'ffff:ffff:ffff::')]

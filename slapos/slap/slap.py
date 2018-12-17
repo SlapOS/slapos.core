@@ -120,7 +120,7 @@ class SoftwareRelease(SlapDocument):
   Contains Software Release information
   """
 
-  def __init__(self, software_release=None, computer_guid=None, **kw):
+  def __init__(self, software_release=None, computer_guid=None, requested_state='available', **kw):
     """
     Makes easy initialisation of class parameters
 

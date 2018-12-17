@@ -97,7 +97,7 @@ class TestCliProxyShow(CliMixin):
     self.conf.logger = self.logger
 
     # load database
-    schema = bytes2str(pkg_resources.resource_string('slapos.tests.slapproxy', 'database_dump_version_11.sql'))
+    schema = bytes2str(pkg_resources.resource_string('slapos.tests.slapproxy', 'database_dump_version_current.sql'))
     db = sqlite_connect(self.db_file.name)
     db.cursor().executescript(schema)
     db.commit()
@@ -123,7 +123,7 @@ class TestCliProxyShow(CliMixin):
 
     # installed softwares are listed
     logger.info.assert_any_call(
-        '      /srv/slapgrid/slappart8/srv/runner/project/slapos/software/erp5/software.cfg          slaprunner     287375f0cba269902ba1bc50242839d7 ' )
+        '      /srv/slapgrid/slappart8/srv/runner/project/slapos/software/erp5/software.cfg         available        slaprunner     287375f0cba269902ba1bc50242839d7 ' )
 
     # instance parameters are listed
     # _ parameter is json formatted

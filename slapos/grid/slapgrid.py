@@ -1155,8 +1155,9 @@ stderr_logfile_backups=1
             # updating promises state, no need to raise here
             pass
       raise e
-    else:
+    finally:
       self.logger.removeHandler(partition_file_handler)
+      partition_file_handler.close()
 
     # Run manager tear down
     for manager in self._manager_list:

@@ -164,17 +164,6 @@
                   "key": "parent_relative_url",
                   "hidden": 1,
                   "type": "StringField"
-                },
-                "my_start_date": {
-                  "description": "",
-                  "title": "Start Date",
-                  "default": (new Date()).toISOString(),
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "start_date",
-                  "hidden": 1,
-                  "type": "StringField"
                 }
               }},
               "_links": {
@@ -190,8 +179,7 @@
                 [["my_title"], ["my_text_content"], ["my_follow_up"],
                  ["my_portal_type"], ["my_parent_relative_url"],
                  ["my_follow_up"], ["my_source"], ["my_resource"],
-                 ["my_content_type"], ["my_destination"],
-                 ["my_start_date"]]
+                 ["my_content_type"], ["my_destination"]]
               ]]
             }
           });

@@ -312,7 +312,9 @@ def launchBuildout(path, buildout_binary, logger,
   uid = stat_info.st_uid
   gid = stat_info.st_gid
   # Extract python binary to prevent shebang size limit
-  line = open(buildout_binary, 'r').readline()
+  with open(buildout_binary, 'r') as f:
+    line = f.readline()
+
   invocation_list = []
   if line.startswith('#!'):
     line = line[2:]

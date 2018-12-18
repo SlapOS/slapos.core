@@ -167,13 +167,13 @@ class Manager(object):
     partition.writeSupervisorConfigurationFile()
 
     # Start processes
-    supervisord = partition.getSupervisorRPC()
-    for program in socat_programs:
-      process_name = '{}:{}'.format(group_id, program['name'])
-      status = supervisord.getProcessInfo(process_name)
+    with partition.getSupervisorRPC() as supervisor:
+      for program in socat_programs:
+        process_name = '{}:{}'.format(group_id, program['name'])
+        status = supervisor.getProcessInfo(process_name)
 
-      if status['start'] == 0:
-        supervisord.startProcess(process_name, False)
+        if status['start'] == 0:
+          supervisor.startProcess(process_name, False)
 
   def report(self, partition):
     """Method called at `slapos node report` phase.

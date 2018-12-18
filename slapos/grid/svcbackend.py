@@ -36,6 +36,7 @@ import stat
 import sys
 import time
 from six.moves import xmlrpc_client as xmlrpclib
+import contextlib
 
 from slapos.grid.utils import (createPrivateDirectory, SlapPopen, updateFile)
 from slapos.util import bytes2str
@@ -44,11 +45,25 @@ from supervisor import xmlrpc, states
 
 
 def getSupervisorRPC(socket):
+  """Get a supervisor XML-RPC connection.
+  Use in a context manager for proper cleanup of the socket
+  """
   supervisor_transport = xmlrpc.SupervisorTransport('', '',
       'unix://' + socket)
   server_proxy = xmlrpclib.ServerProxy('http://127.0.0.1',
       supervisor_transport)
-  return getattr(server_proxy, 'supervisor')
+
+  # python3's xmlrpc is a closing context manager, python2 is not and it does
+  # not seem possible to close the transport.
+  # on python2, make it a do-nothing context manager so that we have a
+  # normalized API of always using a context manager
+  if sys.version_info.major == 2:
+    @contextlib.contextmanager
+    def _getSupervisorRPC():
+      yield server_proxy
+    return _getSupervisorRPC()
+
+  return server_proxy
 
 
 def _getSupervisordSocketPath(instance_root):
@@ -116,13 +131,14 @@ def _updateWatchdog(socket):
   Then, when running slapgrid, the real watchdog configuration is generated.
   We thus need to reload watchdog configuration if needed and start it.
   """
-  supervisor = getSupervisorRPC(socket)
-  if supervisor.getProcessInfo('watchdog')['state'] not in states.RUNNING_STATES:
-    # XXX workaround for https://github.com/Supervisor/supervisor/issues/339
-    # In theory, only reloadConfig is needed.
-    supervisor.removeProcessGroup('watchdog')
-    supervisor.reloadConfig()
-    supervisor.addProcessGroup('watchdog')
+  with getSupervisorRPC(socket) as supervisor_rpc:
+    supervisor = supervisor_rpc.supervisor
+    if supervisor.getProcessInfo('watchdog')['state'] not in states.RUNNING_STATES:
+      # XXX workaround for https://github.com/Supervisor/supervisor/issues/339
+      # In theory, only reloadConfig is needed.
+      supervisor.removeProcessGroup('watchdog')
+      supervisor.reloadConfig()
+      supervisor.addProcessGroup('watchdog')
 
 def launchSupervisord(instance_root, logger,
                       supervisord_additional_argument_list=None):
@@ -132,13 +148,15 @@ def launchSupervisord(instance_root, logger,
     trynum = 1
     while trynum < 6:
       try:
-        supervisor = getSupervisorRPC(socket)
-        status = supervisor.getState()
+        with getSupervisorRPC(socket) as supervisor_rpc:
+          status = supervisor_rpc.supervisor.getState()
       except xmlrpclib.Fault as e:
         if e.faultCode == 6 and e.faultString == 'SHUTDOWN_STATE':
           logger.info('Supervisor in shutdown procedure, will check again later.')
           trynum += 1
           time.sleep(2 * trynum)
+        else:
+          raise
       except Exception:
         # In case if there is problem with connection, assume that supervisord
         # is not running and try to run it
@@ -187,8 +205,8 @@ def launchSupervisord(instance_root, logger,
     while trynum < 6:
       try:
         socketlib.setdefaulttimeout(current_timeout)
-        supervisor = getSupervisorRPC(socket)
-        status = supervisor.getState()
+        with getSupervisorRPC(socket) as supervisor_rpc:
+          status = supervisor_rpc.supervisor.getState()
         if status['statename'] == 'RUNNING' and status['statecode'] == 1:
           return
         logger.warning('Wrong status name %(statename)r and code '

@@ -80,16 +80,16 @@ class Manager(object):
       partition.writeSupervisorConfigurationFile()
 
       # check the state of all process, if the process is not started yes, start it
-      supervisord = partition.getSupervisorRPC()
-      process_list_string = ""
-      for name in wrapper_list:
-        process_name = '-'.join([partition_id, group_suffix]) + ':' + name
-        process_list_string += '%s\n' % process_name
-        status = supervisord.getProcessInfo(process_name)
-        if status['start'] == 0:
-          # process is not started yet
-          logger.info("Starting pre-delete process %r..." % name)
-          supervisord.startProcess(process_name, False)
+      with partition.getSupervisorRPC() as supervisor_rpc:
+        process_list_string = ""
+        for name in wrapper_list:
+          process_name = '-'.join([partition_id, group_suffix]) + ':' + name
+          process_list_string += '%s\n' % process_name
+          status = supervisor_rpc.supervisor.getProcessInfo(process_name)
+          if status['start'] == 0:
+            # process is not started yet
+            logger.info("Starting pre-delete process %r..." % name)
+            supervisor_rpc.supervisor.startProcess(process_name, False)
 
       # ask to slapgrid to check theses scripts before destroy partition
       with open(wait_filepath, 'w') as f:

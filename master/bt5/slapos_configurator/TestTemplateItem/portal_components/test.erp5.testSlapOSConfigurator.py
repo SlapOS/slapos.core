@@ -101,11 +101,9 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       # expected, nothing else, and if alamrs were invoked.
       return
 
-    from Products.ERP5Type.tests.ERP5TypeTestCase import\
-           _getConversionServerUrl
     # set preference
     preference_tool = self.portal.portal_preferences
-    conversion_url = _getConversionServerUrl()
+    conversion_url = "https://cloudooo.erp5.net"
     self.assertEqual(preference_tool.getPreferredDocumentConversionServerUrl(), conversion_url)
 
   def testConfiguredCertificateAuthoring(self):

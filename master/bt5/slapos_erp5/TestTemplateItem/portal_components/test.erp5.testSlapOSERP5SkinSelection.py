@@ -58,6 +58,7 @@ class TestSlaposSkinSelection(SlapOSTestCaseMixin):
     self.assertSameSet(
         [x[0] for x in portal.portal_skins.getSkinPaths()],
         [
+          'Deferred',
           'Deploy',
           'Download',
           'Hal',
@@ -68,6 +69,7 @@ class TestSlaposSkinSelection(SlapOSTestCaseMixin):
           'ODT',
           'RJS',
           'RSS',
+          'RedirectAssist',
           'SHACACHE',
           'SHADIR',
           'View'
@@ -106,6 +108,228 @@ class TestSlaposSkinSelection(SlapOSTestCaseMixin):
           selection_string_list]:
         message += '\t + %s\n' % i
       self.fail(message)
+
+
+  def test_092_RedirectAssist_selection(self, quiet=0, run=run_all_test):
+    """
+    Check the skin folder order
+    """
+    if not run: return
+
+    skin_name = 'RedirectAssist'
+    selection_string_list = \
+"""
+custom
+erp5_font
+erp5_web_hal_json
+slapos_ecoallocation
+slapos_erp5
+slapos_upgrader
+slapos_contract
+slapos_subscription_request
+slapos_crm_monitoring
+slapos_accounting
+slapos_administration
+slapos_cloud
+slapos_consumption
+slapos_core
+slapos_crm
+slapos_payzen
+slapos_pdm
+slapos_simulation
+slapos_slap_tool
+slapos_configurator
+erp5_web_redirect_assist
+erp5_km
+erp5_knowledge_pad
+erp5_simulation
+erp5_dms_base
+erp5_dms_web
+erp5_accounting_l10n_fr
+erp5_item
+erp5_item_trade
+erp5_upgrader
+erp5_access_tab
+erp5_access_token
+erp5_accounting
+erp5_ace_editor
+erp5_administration
+erp5_auto_logout
+erp5_base
+erp5_bearer_token
+erp5_ckeditor
+erp5_code_mirror
+erp5_commerce
+erp5_commerce_widget_library
+erp5_computer_immobilisation
+erp5_configurator
+erp5_configurator_wizard
+erp5_content_translation
+erp5_core
+erp5_core_proxy_field_legacy
+erp5_credential
+erp5_credential_oauth2
+erp5_crm
+erp5_data_set
+erp5_deferred_style_core
+erp5_dhtml_style
+erp5_diff
+erp5_dms
+erp5_fckeditor
+erp5_forge
+erp5_forge_release
+erp5_gadget
+erp5_glossary
+erp5_ingestion
+erp5_ingestion_test
+erp5_integration
+erp5_invoicing
+erp5_jquery_sheet_editor
+erp5_oauth
+erp5_oauth_facebook_login
+erp5_oauth_google_login
+erp5_ods_core
+erp5_odt_core
+erp5_ooo_import
+erp5_open_trade
+erp5_payzen_secure_payment
+erp5_pdm
+erp5_project
+erp5_project_trade
+erp5_rss_core
+erp5_secure_payment
+erp5_simplified_invoicing
+erp5_software_pdm
+erp5_svg_editor
+erp5_system_event
+erp5_toolbox
+erp5_trade
+erp5_ui_test_core
+erp5_vcs
+erp5_web
+erp5_web_crm
+erp5_web_minimal_theme
+erp5_web_renderjs
+erp5_web_service
+erp5_web_widget_library
+erp5_workflow
+erp5_xhtml_style
+external_method
+Images
+activity
+"""
+    self.assertSameSkinSelection(skin_name, selection_string_list)
+
+
+
+  def test_091_Deffered_selection(self, quiet=0, run=run_all_test):
+    """
+    Check the skin folder order
+    """
+    if not run: return
+
+    skin_name = 'Deferred'
+    selection_string_list = \
+"""
+custom
+erp5_font
+erp5_web_hal_json
+slapos_ecoallocation
+slapos_erp5
+slapos_upgrader
+slapos_contract
+slapos_subscription_request
+slapos_crm_monitoring
+slapos_accounting
+slapos_administration
+slapos_cloud
+slapos_consumption
+slapos_core
+slapos_crm
+slapos_payzen
+slapos_pdm
+slapos_simulation
+slapos_slap_tool
+slapos_configurator
+erp5_km
+erp5_knowledge_pad
+erp5_simulation
+erp5_dms_base
+erp5_dms_web
+erp5_accounting_l10n_fr
+erp5_item
+erp5_item_trade
+erp5_upgrader
+erp5_access_tab
+erp5_access_token
+erp5_accounting
+erp5_ace_editor
+erp5_administration
+erp5_auto_logout
+erp5_base
+erp5_bearer_token
+erp5_ckeditor
+erp5_code_mirror
+erp5_commerce
+erp5_commerce_widget_library
+erp5_computer_immobilisation
+erp5_configurator
+erp5_configurator_wizard
+erp5_content_translation
+erp5_core
+erp5_core_proxy_field_legacy
+erp5_credential
+erp5_credential_oauth2
+erp5_crm
+erp5_data_set
+erp5_deferred_style
+erp5_deferred_style_core
+erp5_dhtml_style
+erp5_diff
+erp5_dms
+erp5_fckeditor
+erp5_forge
+erp5_forge_release
+erp5_gadget
+erp5_glossary
+erp5_ingestion
+erp5_ingestion_test
+erp5_integration
+erp5_invoicing
+erp5_jquery_sheet_editor
+erp5_oauth
+erp5_oauth_facebook_login
+erp5_oauth_google_login
+erp5_ods_core
+erp5_odt_core
+erp5_ooo_import
+erp5_open_trade
+erp5_payzen_secure_payment
+erp5_pdm
+erp5_project
+erp5_project_trade
+erp5_rss_core
+erp5_secure_payment
+erp5_simplified_invoicing
+erp5_software_pdm
+erp5_svg_editor
+erp5_system_event
+erp5_toolbox
+erp5_trade
+erp5_ui_test_core
+erp5_vcs
+erp5_web
+erp5_web_crm
+erp5_web_minimal_theme
+erp5_web_renderjs
+erp5_web_service
+erp5_web_widget_library
+erp5_workflow
+external_method
+Images
+activity
+"""
+    self.assertSameSkinSelection(skin_name, selection_string_list)
 
 
   def test_09_Deploy_selection(self, quiet=0, run=run_all_test):

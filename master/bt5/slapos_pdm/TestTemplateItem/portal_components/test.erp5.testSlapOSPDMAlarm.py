@@ -33,6 +33,19 @@ class TestSlapOSUpgradeDecisionProcess(SlapOSTestCaseMixin):
 
     return computer
 
+  def _makeHostingSubscription(self, slap_state="start_requested"):
+    hosting_subscription = self.portal\
+      .hosting_subscription_module.template_hosting_subscription\
+      .Base_createCloneDocument(batch_mode=1)
+    hosting_subscription.validate()
+    hosting_subscription.edit(
+        title= "Test hosting sub start %s" % self.new_id,
+        reference="TESTHSS-%s" % self.new_id,
+    )
+    self.portal.portal_workflow._jumpToStateFor(hosting_subscription, slap_state)
+
+    return hosting_subscription
+
   def _simulateScript(self, script_name, fake_return='True'):
     if script_name in self.portal.portal_skins.custom.objectIds():
       raise ValueError('Precondition failed: %s exists in custom' % script_name)
@@ -126,30 +139,44 @@ return %s
       computer3.workflow_history['edit_workflow'][-1]['comment'])
   
   def test_alarm_hosting_subscription_create_upgrade_decision(self):
-    computer = self._makeComputer(self.new_id)
-    computer.edit(allocation_scope = 'open/public')
-    computer2 = self._makeComputer(self.generateNewId())
-    computer2.edit(allocation_scope = 'open/personal')
-    computer3 = self._makeComputer(self.generateNewId())
-    computer3.edit(allocation_scope = 'open/friend')
+    hosting_subscription = self._makeHostingSubscription()
+    hosting_subscription2 = self._makeHostingSubscription()
+    hosting_subscription3 = self._makeHostingSubscription()
     
-    self._simulateScript('Computer_createHostingSubscriptionUpgradeDecision')
+    self._simulateScript('HostingSubscription_createUpgradeDecision')
     try:
       self.portal.portal_alarms.slapos_pdm_hosting_subscription_create_upgrade_decision.\
         activeSense()
       self.tic()
     finally:
-      self._dropScript('Computer_createHostingSubscriptionUpgradeDecision')
+      self._dropScript('HostingSubscription_createUpgradeDecision')
 
-    self.assertEqual('Visited by Computer_createHostingSubscriptionUpgradeDecision',
-      computer.workflow_history['edit_workflow'][-1]['comment'])
+    self.assertEqual('Visited by HostingSubscription_createUpgradeDecision',
+      hosting_subscription.workflow_history['edit_workflow'][-1]['comment'])
     
-    self.assertEqual('Visited by Computer_createHostingSubscriptionUpgradeDecision',
-      computer2.workflow_history['edit_workflow'][-1]['comment'])
+    self.assertEqual('Visited by HostingSubscription_createUpgradeDecision',
+      hosting_subscription2.workflow_history['edit_workflow'][-1]['comment'])
 
-    self.assertEqual('Visited by Computer_createHostingSubscriptionUpgradeDecision',
-      computer3.workflow_history['edit_workflow'][-1]['comment'])
+    self.assertEqual('Visited by HostingSubscription_createUpgradeDecision',
+      hosting_subscription3.workflow_history['edit_workflow'][-1]['comment'])
 
+  def test_alarm_create_upgrade_decision_destroyed_hosting_subscription(self):
+    hosting_subscription = self._makeHostingSubscription(slap_state="destroy_requested")
+    hosting_subscription2 = self._makeHostingSubscription(slap_state="destroy_requested")
+    
+    self._simulateScript('HostingSubscription_createUpgradeDecision')
+    try:
+      self.portal.portal_alarms.slapos_pdm_hosting_subscription_create_upgrade_decision.\
+        activeSense()
+      self.tic()
+    finally:
+      self._dropScript('HostingSubscription_createUpgradeDecision')
+
+    self.assertNotEqual('Visited by HostingSubscription_createUpgradeDecision',
+      hosting_subscription.workflow_history['edit_workflow'][-1]['comment'])
+    
+    self.assertNotEqual('Visited by HostingSubscription_createUpgradeDecision',
+      hosting_subscription2.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_create_upgrade_decision_closed_computer(self):
     computer = self._makeComputer(self.new_id)

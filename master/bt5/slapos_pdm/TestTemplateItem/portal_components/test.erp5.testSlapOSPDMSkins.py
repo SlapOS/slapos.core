@@ -55,7 +55,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     person_user = self.makePerson(new_id=self.new_id)
     return person_user
 
-  def _makeComputer(self):
+  def _makeComputer(self, allocation_scope='open/public'):
     # Clone computer document
     computer = self.portal.computer_module\
       .template_computer.Base_createCloneDocument(batch_mode=1)
@@ -64,6 +64,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
       reference="TESTCOMPS-%s" % (self.new_id, )
     )
     computer.validate()
+    computer.edit(allocation_scope = allocation_scope)
 
     return computer
 
@@ -1074,7 +1075,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     self.assertEqual(upgrade_decision.getSimulationState(), 'started')
 
   
-  def testComputer_createHostingSubscriptionUpgradeDecision_no_newer(self):
+  def testHostingSubscription_createUpgradeDecision_no_newer(self):
     person = self._makePerson()
     computer = self._makeComputer()
     computer.edit(source_administration_value=person)
@@ -1085,17 +1086,14 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     url_string = software_release.getUrlString()
     self._makeSoftwareInstallation(computer, url_string)
     self.tic()
-    
-    upgrade_decision = computer.Computer_createHostingSubscriptionUpgradeDecision()
-    self.assertEqual(len(upgrade_decision), 0)
-    
+
     # Create Hosting Subscription
     hosting_subscription = self._makeFullHostingSubscription(
                                     url_string, person)
     self.tic()
     
-    upgrade_decision = computer.Computer_createHostingSubscriptionUpgradeDecision()
-    self.assertEqual(len(upgrade_decision), 0)
+    upgrade_decision = hosting_subscription.HostingSubscription_createUpgradeDecision()
+    self.assertEqual(upgrade_decision, None)
     
     self._makeFullSoftwareInstance(hosting_subscription, url_string)
     self._markComputerPartitionBusy(computer,
@@ -1104,10 +1102,39 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     self._requestSoftwareRelease(software_product.getRelativeUrl())
     self.tic()
     
-    upgrade_decision = computer.Computer_createHostingSubscriptionUpgradeDecision()
-    self.assertEqual(len(upgrade_decision), 0)
-  
-  def testComputer_createHostingSubscriptionUpgradeDecision(self):
+    upgrade_decision = hosting_subscription.HostingSubscription_createUpgradeDecision()
+    self.assertEqual(upgrade_decision, None)
+
+  def testHostingSubscription_createUpgradeDecision_closed_computer(self):
+    person = self._makePerson()
+    computer = self._makeComputer(allocation_scope="close/outdated")
+    computer.edit(source_administration_value=person)
+    self._makeComputerPartitions(computer)
+    software_product = self._makeSoftwareProduct()
+    software_release = self._requestSoftwareRelease(
+                                    software_product.getRelativeUrl())
+    url_string = software_release.getUrlString()
+    
+    self._makeSoftwareInstallation( computer, url_string)
+    
+    # Create Hosting Subscription and Software Instance
+    hosting_subscription = self._makeFullHostingSubscription(
+                                    url_string, person)
+    self._makeFullSoftwareInstance(hosting_subscription, url_string)
+    self._markComputerPartitionBusy(computer,
+                                    hosting_subscription.getPredecessorValue())
+    
+    # Install the Newest software release
+    software_release2 = self._requestSoftwareRelease(
+                                      software_product.getRelativeUrl())
+    self._makeSoftwareInstallation(computer,
+                                    software_release2.getUrlString())
+    self.tic()
+    
+    up_decision = hosting_subscription.HostingSubscription_createUpgradeDecision()
+    self.assertEqual(up_decision, None)
+
+  def testHostingSubscription_createUpgradeDecision(self):
     person = self._makePerson()
     computer = self._makeComputer()
     computer.edit(source_administration_value=person)
@@ -1133,7 +1160,8 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
                                     software_release2.getUrlString())
     self.tic()
     
-    up_decision = computer.Computer_createHostingSubscriptionUpgradeDecision()[0]
+    up_decision = hosting_subscription.HostingSubscription_createUpgradeDecision()
+    self.assertNotEqual(up_decision, None)
     self.assertEqual(up_decision.getSimulationState(), 'planned')
     
     self.assertEqual(up_decision.UpgradeDecision_getHostingSubscription().\
@@ -1143,11 +1171,11 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
                               getUrlString(), software_release2.getUrlString())
     
     self.tic()
-    up_decision2 = computer.Computer_createHostingSubscriptionUpgradeDecision()
-    self.assertEqual(len(up_decision2), 0)
+    up_decision2 = hosting_subscription.HostingSubscription_createUpgradeDecision()
+    self.assertEqual(up_decision2, None)
   
   
-  def testComputer_createHostingSubscriptionUpgradeDecision_with_exist(self):
+  def testHostingSubscription_createUpgradeDecision_with_exist(self):
     person = self._makePerson()
     computer = self._makeComputer()
     computer.edit(source_administration_value=person)
@@ -1172,7 +1200,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     self._makeSoftwareInstallation(computer, software_release2.getUrlString())
     self.tic()
     
-    up_decision = computer.Computer_createHostingSubscriptionUpgradeDecision()[0]
+    up_decision = hosting_subscription.HostingSubscription_createUpgradeDecision()
     self.assertEqual(up_decision.getSimulationState(), 'planned')
     
     # Install the another software release
@@ -1181,14 +1209,14 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     self._makeSoftwareInstallation(computer, software_release3.getUrlString())
     self.tic()
     
-    up_decision2 = computer.Computer_createHostingSubscriptionUpgradeDecision()[0]
+    up_decision2 = hosting_subscription.HostingSubscription_createUpgradeDecision()
     self.assertEqual(up_decision2.getSimulationState(), 'planned')
     self.assertEqual(up_decision.getSimulationState(), 'cancelled')
     release = up_decision2.UpgradeDecision_getSoftwareRelease()
     self.assertEqual(release.getUrlString(),
                                 software_release3.getUrlString())
 
-  def testComputer_createHostingSubscriptionUpgradeDecision_rejected(self):
+  def testHostingSubscription_createUpgradeDecision_rejected(self):
     person = self._makePerson()
     computer = self._makeComputer()
     computer.edit(source_administration_value=person)
@@ -1213,22 +1241,22 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     self._makeSoftwareInstallation(computer, software_release2.getUrlString())
     self.tic()
     
-    decision_list = computer.Computer_createHostingSubscriptionUpgradeDecision()
-    self.assertEqual(decision_list[0].getSimulationState(), 'planned')
+    up_decision = hosting_subscription.HostingSubscription_createUpgradeDecision()
+    self.assertEqual(up_decision.getSimulationState(), 'planned')
     
     # Reject upgrade decision
-    decision_list[0].reject()
+    up_decision.reject()
     self.tic()
     
     in_progress = software_release2.SoftwareRelease_getUpgradeDecisionInProgress(
                                 hosting_subscription.getUid())
-    decision_list = computer.Computer_createHostingSubscriptionUpgradeDecision()
+    up_decision = hosting_subscription.HostingSubscription_createUpgradeDecision()
     # There is an upgrade decision in progress
     self.assertNotEqual(in_progress, None)
     # No new upgrade decision created with software_release2
-    self.assertEqual(decision_list, [])
+    self.assertEqual(up_decision, None)
 
-  def testComputer_createHostingSubscriptionUpgradeDecision_rejected_2(self):
+  def testHostingSubscription_createUpgradeDecision_rejected_2(self):
     person = self._makePerson()
     computer = self._makeComputer()
     computer.edit(source_administration_value=person)
@@ -1253,11 +1281,10 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     self._makeSoftwareInstallation(computer, software_release2.getUrlString())
     self.tic()
     
-    decision_list = computer.Computer_createHostingSubscriptionUpgradeDecision()
-    self.assertEqual(decision_list[0].getSimulationState(), 'planned')
+    up_decision = hosting_subscription.HostingSubscription_createUpgradeDecision()
+    self.assertEqual(up_decision.getSimulationState(), 'planned')
     
     # Reject upgrade decision
-    up_decision = decision_list[0]
     up_decision.reject()
     self.tic()
     
@@ -1267,7 +1294,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     self._makeSoftwareInstallation(computer, software_release3.getUrlString())
     self.tic()
     
-    decision2 = computer.Computer_createHostingSubscriptionUpgradeDecision()[0]
+    decision2 = hosting_subscription.HostingSubscription_createUpgradeDecision()
     self.assertEqual(decision2.getSimulationState(), 'planned')
     self.assertEqual(up_decision.getSimulationState(), 'rejected')
     release = decision2.UpgradeDecision_getSoftwareRelease()

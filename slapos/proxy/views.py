@@ -257,6 +257,14 @@ def setComputerPartitionConnectionXml():
 def buildingSoftwareRelease():
   return 'Ignored'
 
+@app.route('/destroyedSoftwareRelease', methods=['POST'])
+def destroyedSoftwareRelease():
+  execute_db(
+    'software',
+    'DELETE FROM %s WHERE url = ? and computer_reference=? ',
+    [request.form['url'], request.form['computer_id']])
+  return 'OK'
+
 @app.route('/availableSoftwareRelease', methods=['POST'])
 def availableSoftwareRelease():
   return 'Ignored'
@@ -322,12 +330,16 @@ def registerComputerPartition():
 def supplySupply():
   url = request.form['url']
   computer_id = request.form['computer_id']
-  if request.form['state'] == 'destroyed':
-    execute_db('software', 'DELETE FROM %s WHERE url = ? AND computer_reference=?',
-               [url, computer_id])
-  else:
-    execute_db('software', 'INSERT OR REPLACE INTO %s VALUES(?, ?)', [url, computer_id])
-  return '%r added' % url
+  state = request.form['state']
+  if state not in ('available', 'destroyed'):
+    raise ValueError("Wrong state %s" % state)
+
+  execute_db(
+    'software',
+    'INSERT OR REPLACE INTO %s VALUES(?, ?, ?)',
+    [url, computer_id, state])
+
+  return 'Supplied %r to be %s' % (url, state)
 
 
 @app.route('/requestComputerPartition', methods=['POST'])

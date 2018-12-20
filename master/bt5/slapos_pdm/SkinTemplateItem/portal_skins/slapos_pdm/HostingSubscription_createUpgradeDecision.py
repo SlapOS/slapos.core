@@ -15,6 +15,7 @@ if not partition.getParent().getAllocationScopeUid() in [category.getUid() \
     for category in portal.portal_categories.allocation_scope.open.objectValues()]:
   return
 
+decision_title = 'A new upgrade is available for %s' % hosting_subscription.getTitle()
 newer_release = hosting_subscription.\
                   HostingSubscription_getUpgradableSoftwareRelease()
 if newer_release is None:
@@ -28,11 +29,25 @@ if decision_in_progress and \
       newer_release.getUrlString()):
   return
 
+requested_decision = context.REQUEST.get("upgrade_decision_request", None)
+if requested_decision is not None and \
+    requested_decision.getTitle() == decision_title:
+  related_hosting = requested_decision.UpgradeDecision_getHostingSubscription()
+  related_release = requested_decision.UpgradeDecision_getSoftwareRelease()
+  if related_hosting is not None and \
+      related_hosting.getUid() == hosting_subscription.getUid() and \
+      related_release.getUid() == newer_release.getUid():
+    return
+
 upgrade_decision = newer_release.SoftwareRelease_createUpgradeDecision(
   source_url=hosting_subscription.getRelativeUrl(),
-  title='A new upgrade is available for %s' % hosting_subscription.getTitle()
+  title=decision_title
 )
 upgrade_decision.plan()
 upgrade_decision.setStartDate(DateTime())
+context.REQUEST.set("upgrade_decision_request", upgrade_decision)
+
+# Prevent concurrent transaction to create 2 upgrade decision for the same hosting_subscription
+hosting_subscription.serialize()
 
 return upgrade_decision

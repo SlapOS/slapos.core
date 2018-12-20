@@ -327,7 +327,7 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     computer_partition.__dict__.update(software_instance.__dict__)
     return computer_partition
 
-  def supply(self, url, computer_id=None, state=''):
+  def supply(self, url, computer_id=None, state='available'):
     if not computer_id:
       computer_id = self.computer_id
     request_dict = {'url':url, 'computer_id': computer_id, 'state':state}
@@ -347,11 +347,72 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     """
     Return computer information as stored in proxy for corresponding id
     """
-    rv = self.app.get('/getFullComputerInformation?computer_id=%s' % self.computer_id)
-    computer = loads(rv.data)
+    computer = self.getFullComputerInformation()
     for instance in computer._computer_partition_list:
       if instance._partition_id == computer_partition_id:
         return instance
+
+  def getFullComputerInformation(self):
+    return loads(self.app.get('/getFullComputerInformation?computer_id=%s' % self.computer_id).data)
+
+
+class TestSoftwareInstallation(MasterMixin, unittest.TestCase):
+  def setUp(self):
+    super(TestSoftwareInstallation, self).setUp()
+    self.software_release_url = self.id()
+
+  def assertSoftwareState(self, state):
+    # Check that the software was requested in `state`
+    sr, = self.getFullComputerInformation()._software_release_list
+    self.assertEqual(sr.getState(), state)
+
+  def test_installation_success(self):
+    self.supply(self.software_release_url)
+    self.assertSoftwareState('available')
+
+    self.app.post('/buildingSoftwareRelease', data={
+      'url': self.software_release_url,
+      'computer_id': self.computer_id
+    })
+    # there's no intermediate "building" state, because state is
+    # the "requested state".
+    self.assertSoftwareState('available')
+
+    self.app.post('/availableSoftwareRelease', data={
+      'url': self.software_release_url,
+      'computer_id': self.computer_id
+    })
+    self.assertSoftwareState('available')
+
+  def test_installation_failed(self):
+    self.supply(self.software_release_url)
+    self.assertSoftwareState('available')
+
+    self.app.post('/buildingSoftwareRelease', data={
+      'url': self.software_release_url,
+      'computer_id': self.computer_id
+    })
+    self.assertSoftwareState('available')
+
+    self.app.post('/softwareReleaseError', data={
+      'url': self.software_release_url,
+      'computer_id': self.computer_id
+    })
+    self.assertSoftwareState('available')
+
+  def test_destroyed(self):
+    self.supply(self.software_release_url)
+    self.assertSoftwareState('available')
+
+    self.supply(self.software_release_url, state="destroyed")
+    self.assertSoftwareState('destroyed')
+
+    self.app.post('/destroyedSoftwareRelease', data={
+      'url': self.software_release_url,
+      'computer_id': self.computer_id
+    })
+    # this really remove the software from DB
+    self.assertEqual([], self.getFullComputerInformation()._software_release_list)
 
 
 class TestRequest(MasterMixin):
@@ -702,6 +763,7 @@ class TestSlaveRequest(MasterMixin):
          shared=True, filter_kw=dict(instance_guid=partition._instance_guid))
     self.assertEqual(slave._partition_id, partition._partition_id)
 
+
 class TestMultiNodeSupport(MasterMixin):
   def test_multi_node_support_different_software_release_list(self):
     """
@@ -775,16 +837,32 @@ class TestMultiNodeSupport(MasterMixin):
     computer_0 = loads(self.app.get('/getFullComputerInformation?computer_id=COMP-0').data)
     computer_1 = loads(self.app.get('/getFullComputerInformation?computer_id=COMP-1').data)
 
-    self.assertEqual(len(computer_0._software_release_list), 0)
-    self.assertEqual(len(computer_1._software_release_list), 1)
-
+    # at this point, software is requested to be destroyed on COMP-0
     self.assertEqual(
-        computer_1._software_release_list[0]._software_release,
+        computer_0._software_release_list[0].getURI(),
         software_release_url
     )
     self.assertEqual(
-        computer_1._software_release_list[0]._computer_guid,
+        computer_0._software_release_list[0].getComputerId(),
+        'COMP-0'
+    )
+    self.assertEqual(
+        computer_0._software_release_list[0].getState(),
+        'destroyed'
+    )
+
+    # but is still requested for installation on COMP-1
+    self.assertEqual(
+        computer_1._software_release_list[0].getURI(),
+        software_release_url
+    )
+    self.assertEqual(
+        computer_1._software_release_list[0].getComputerId(),
         'COMP-1'
+    )
+    self.assertEqual(
+        computer_1._software_release_list[0].getState(),
+        'available'
     )
 
   def test_multi_node_support_instance_default_computer(self):
@@ -973,6 +1051,7 @@ class TestMultiNodeSupport(MasterMixin):
       self.app.get('/getComputerInformation?computer_id=%s' % new_computer_id)
     except slapos.slap.NotFoundError:
       self.fail('Could not fetch informations for registered computer.')
+
 
 class TestMultiMasterSupport(MasterMixin):
   """

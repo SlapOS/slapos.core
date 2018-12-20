@@ -97,7 +97,7 @@ class TestCliProxyShow(CliMixin):
     self.conf.logger = self.logger
 
     # load database
-    schema = bytes2str(pkg_resources.resource_string('slapos.tests.slapproxy', 'database_dump_version_11.sql'))
+    schema = bytes2str(pkg_resources.resource_string('slapos.tests.slapproxy', 'database_dump_version_current.sql'))
     db = sqlite_connect(self.db_file.name)
     db.cursor().executescript(schema)
     db.commit()

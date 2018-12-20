@@ -1,7 +1,8 @@
---version:11
+--version:12
 CREATE TABLE IF NOT EXISTS software%(version)s (
   url VARCHAR(255),
   computer_reference VARCHAR(255) DEFAULT '%(computer)s',
+  requested_state VARCHAR(255) DEFAULT 'available',
   CONSTRAINT uniq PRIMARY KEY (url, computer_reference)
 );
 

@@ -225,8 +225,11 @@ def getFullComputerInformation():
   slap_computer = Computer(computer_id)
   slap_computer._software_release_list = []
   for sr in execute_db('software', 'select * from %s WHERE computer_reference=?', [computer_id]):
-    slap_computer._software_release_list.append(SoftwareRelease(
-      software_release=sr['url'], computer_guid=computer_id))
+    software_release = SoftwareRelease(
+        software_release=sr['url'],
+        computer_guid=computer_id)
+    software_release._requested_state = sr['slap_state']
+    slap_computer._software_release_list.append(software_release)
   slap_computer._computer_partition_list = []
   for partition in execute_db('partition', 'SELECT * FROM %s WHERE computer_reference=?', [computer_id]):
     slap_computer._computer_partition_list.append(partitiondict2partition(

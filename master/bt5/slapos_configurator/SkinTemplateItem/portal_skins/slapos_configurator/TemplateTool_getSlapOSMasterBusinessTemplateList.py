@@ -10,6 +10,7 @@ bt5_installation_list = bt5_update_catalog_list + ('slapos_configurator', 'slapo
 
 keep_bt5_id_list = ['erp5_ui_test',
                     'erp5_ui_test_core',
+                    'slapos_jio_ui_test',
                     'slapos_category',
                     'erp5_secure_payment',
                     'slapos_hypermedia',

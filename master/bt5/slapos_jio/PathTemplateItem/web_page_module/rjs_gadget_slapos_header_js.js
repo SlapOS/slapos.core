@@ -1,32 +1,9 @@
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-/*global window, rJS, Handlebars, document, RSVP */
-(function (window, rJS, Handlebars, document, RSVP) {
+/*global window, rJS, document, RSVP */
+(function (window, rJS, document, RSVP) {
   "use strict";
 
-  /////////////////////////////////////////////////////////////////
-  // Handlebars
-  /////////////////////////////////////////////////////////////////
-  // Precompile the templates while loading the first gadget instance
-  var gadget_klass = rJS(window),
-    template_element = gadget_klass.__template_element,
-
-    header_title_template = Handlebars.compile(template_element
-                                                 .getElementById("header-title-template")
-                                                 .innerHTML),
-    header_title_link_template = Handlebars.compile(template_element
-                                                      .getElementById("header-title-link-template")
-                                                      .innerHTML),
-    sub_header_template = Handlebars.compile(template_element
-                                               .getElementById("sub-header-template")
-                                               .innerHTML),
-    header_button_template = Handlebars.compile(template_element
-                                                  .getElementById("header-button-template")
-                                                  .innerHTML),
-    header_link_template = Handlebars.compile(template_element
-                                                .getElementById("header-link-template")
-                                                .innerHTML),
-
-    possible_left_button_list = [
+  var possible_left_button_list = [
       ['panel_action', 'Menu', 'bars', 'panel']
     ],
     possible_main_link_list = [
@@ -39,7 +16,8 @@
     possible_right_link_list = [
       ['edit_url', 'Editable', 'pencil'],
       ['view_url', 'Viewable', 'eye'],
-      ['right_url', 'New', 'plus']
+      ['right_url', 'New', 'plus'],
+      ['language_url', 'Language', 'flag']
     ],
     possible_right_button_list = [
       ['save_action', 'Save', 'check', 'submit'],
@@ -50,15 +28,16 @@
     possible_sub_header_list = [
       ['tab_url', 'Views', 'eye'],
       ['jump_url', 'Jump', 'plane'],
-      ['delete_url', 'Delete', 'times'],
-      ['export_url', 'Export', 'share-square-o'],
       ['actions_url', 'Actions', 'cogs'],
-      ['cut_url', 'Cut', 'scissors'],
       ['add_url', 'Add', 'plus'],
+      ['export_url', 'Export', 'share-square-o'],
+      ['delete_url', 'Delete', 'times'],
+      ['cut_url', 'Cut', 'scissors'],
+      ['fast_input_url', 'Fast Input', 'magic'],
       ['previous_url', 'Previous', 'carat-l'],
       ['next_url', 'Next', 'carat-r'],
-      ['edit_content', 'Content', 'file-text'],
-      ['edit_properties', 'Properties', 'info'],
+      ['upload_url', 'Upload', 'upload'],
+      ['download_url', 'Download', 'download'],
       // Include SlapOS specific items
       ['ticket_url', 'Add Ticket', 'ticket'],
       ['token_url', 'Token', 'key'],
@@ -73,9 +52,40 @@
       ['transfer_url', 'Transfer', 'exchange'],
       ['accept_url', 'Accept', 'check-circle'],
       ['reject_url', 'Reject', 'ban']
-    ];
+    ],
+    header_button_template = function (data) {
+      // <form><button name='{{name}}' data-i18n="{{title}}" type='submit' class='ui-icon-{{icon}} ui-btn-icon-left {{class}}'>{{title}}</button></form>
+      var form_element = document.createElement('form'),
+        button_element = document.createElement('button');
 
-  gadget_klass
+      button_element.setAttribute('name', data.name);
+      button_element.setAttribute('data-i18n', data.title);
+      button_element.setAttribute('type', 'submit');
+      button_element.setAttribute('class', 'ui-icon-' + data.icon + ' ui-btn-icon-left ' + data.class);
+      form_element.appendChild(button_element);
+      return form_element.outerHTML;
+    },
+    sub_header_template = function (data) {
+      // {{#each sub_header_list}}
+      // <li><a href="{{url}}" data-i18n="{{title}}" class="ui-btn-icon-top ui-icon-{{icon}} {{class}}">{{title}}</a></li>
+      // {{/each}}
+      var fragment = document.createElement('div'),
+        li_element,
+        a_element,
+        i;
+      for (i = 0; i < data.sub_header_list.length; i += 1) {
+        li_element = document.createElement('li');
+        a_element = document.createElement('a');
+        a_element.setAttribute('href', data.sub_header_list[i].url);
+        a_element.setAttribute('data-i18n', data.sub_header_list[i].title);
+        a_element.setAttribute('class', 'ui-btn-icon-top ui-icon-' + data.sub_header_list[i].icon + ' ' + data.sub_header_list[i].class);
+        li_element.appendChild(a_element);
+        fragment.appendChild(li_element);
+      }
+      return fragment.innerHTML;
+    };
+
+  rJS(window)
     .setState({
       loaded: false,
       modified: false,
@@ -89,7 +99,7 @@
     // ready
     /////////////////////////////////////////////////////////////////
     // Init local properties
-    .ready(function () {
+    .ready(function ready() {
       this.props = {
         element_list: [
           this.element.querySelector("h1"),
@@ -106,42 +116,49 @@
     .declareAcquiredMethod("translateHtml", "translateHtml")
     .declareAcquiredMethod("triggerSubmit", "triggerSubmit")
     .declareAcquiredMethod("triggerPanel", "triggerPanel")
+    .declareAcquiredMethod("triggerMaximize", "triggerMaximize")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
     /////////////////////////////////////////////////////////////////
-    .declareMethod('notifyLoaded', function () {
+    .declareMethod('notifyLoaded', function notifyLoaded() {
       return this.changeState({
         loaded: true
       });
     })
-    .declareMethod('notifyLoading', function () {
+    .declareMethod('notifyLoading', function notifyLoading() {
       return this.changeState({
         loaded: false
       });
     })
-    .declareMethod('notifySubmitted', function () {
+    .declareMethod('notifySubmitted', function notifySubmitted() {
       return this.changeState({
         submitted: true,
         // Change modify here, to allow user to redo some modification and being correctly notified
         modified: false
       });
     })
-    .declareMethod('notifySubmitting', function () {
+    .declareMethod('notifySubmitting', function notifySubmitting() {
       return this.changeState({
         submitted: false
       });
     })
-    .declareMethod('notifyError', function () {
+    .declareMethod('notifyError', function notifyError() {
       return this.changeState({
         loaded: true,
         submitted: true,
         error: true
       });
     })
-    .declareMethod('notifyChange', function () {
+    .declareMethod('notifyChange', function notifyChange() {
       return this.changeState({
         modified: true
+      });
+    })
+    .declareMethod('setButtonTitle', function setButtonTitle(options) {
+      return this.changeState({
+        title_button_icon: options.icon,
+        title_button_name: options.action
       });
     })
 /*
@@ -149,7 +166,7 @@
       return this.render(this.stats.options);
     })
 */
-    .declareMethod('render', function (options) {
+    .declareMethod('render', function render(options) {
       var state = {
         error: false,
         title_text: '',
@@ -174,14 +191,15 @@
       if (options.hasOwnProperty("page_title")) {
         state.title_text = options.page_title;
       }
-      if (options.hasOwnProperty("page_icon")) {
-        state.title_icon = options.page_icon;
-      }
       for (i = 0; i < possible_main_link_list.length; i += 1) {
         if (options.hasOwnProperty(possible_main_link_list[i][0])) {
           state.title_icon = possible_main_link_list[i][2];
           state.title_url = options[possible_main_link_list[i][0]];
         }
+      }
+      // Surcharge icon if the page want it
+      if (options.hasOwnProperty("page_icon")) {
+        state.title_icon = options.page_icon;
       }
 
       // Left button
@@ -196,9 +214,14 @@
       // Handle right link
       for (i = 0; i < possible_right_link_list.length; i += 1) {
         if (options.hasOwnProperty(possible_right_link_list[i][0])) {
-          klass = "";
+          if (options.extra_class &&
+              options.extra_class.hasOwnProperty(possible_right_link_list[i][0])) {
+            klass = options.extra_class[possible_right_link_list[i][0]];
+          } else {
+            klass = "";
+          }
           if (!options[possible_right_link_list[i][0]]) {
-            klass = "ui-disabled";
+            klass += " ui-disabled";
           }
           state.right_link_title = possible_right_link_list[i][1];
           state.right_link_icon = possible_right_link_list[i][2];
@@ -234,21 +257,24 @@
       return this.changeState(state);
     })
 
-    .onStateChange(function (modification_dict) {
+    .onStateChange(function onStateChange(modification_dict) {
       var gadget = this,
         right_link,
         right_button,
         default_title_icon = "",
         default_right_icon = "",
         title_link,
-        promise_list = [];
+        title_button,
+        promise_list = [],
+        tmp_element;
       // Main title
       if (modification_dict.hasOwnProperty('error') ||
           modification_dict.hasOwnProperty('loaded') ||
           modification_dict.hasOwnProperty('submitted') ||
           modification_dict.hasOwnProperty('title_text') ||
           modification_dict.hasOwnProperty('title_icon') ||
-          modification_dict.hasOwnProperty('title_url')) {
+          modification_dict.hasOwnProperty('title_url') ||
+          modification_dict.hasOwnProperty('title_button_name')) {
         if (gadget.state.error) {
           default_title_icon = "exclamation";
         } else if (!gadget.state.loaded) {
@@ -257,16 +283,36 @@
           default_title_icon = "spinner";
         }
         // Updating globally the page title. Does not follow RenderJS philosophy, but, it is enough for now
-        document.title = gadget.state.title_text;
+        if (modification_dict.hasOwnProperty('title_text')) {
+          // Be careful, this is CPU costly
+          document.title = gadget.state.title_text;
+        }
         title_link = {
           title: gadget.state.title_text,
           icon: default_title_icon || gadget.state.title_icon,
           url: gadget.state.title_url
         };
-        if (title_link.url === undefined) {
-          promise_list.push(gadget.translateHtml(header_title_template(title_link)));
+        if (gadget.state.title_button_name) {
+          title_button = {
+            title: gadget.state.title_text,
+            icon: default_title_icon || gadget.state.title_button_icon,
+            name: gadget.state.title_button_name
+          };
+          promise_list.push(gadget.translateHtml(header_button_template(title_button)));
+        } else if (title_link.url === undefined) {
+          // <span data-i18n="{{title}}" class="ui-btn-icon-left ui-icon-{{icon}}" >{{title}}</span>
+          tmp_element = document.createElement('span');
+          tmp_element.setAttribute('data-i18n', title_link.title);
+          tmp_element.setAttribute('class', 'ui-btn-icon-left ui-icon-' + title_link.icon);
+          promise_list.push(gadget.translateHtml(tmp_element.outerHTML));
         } else {
-          promise_list.push(gadget.translateHtml(header_title_link_template(title_link)));
+          // <a data-i18n="{{title}}" class="ui-btn-icon-left ui-icon-{{icon}}" href="{{url}}"  accesskey="u">{{title}}</a>
+          tmp_element = document.createElement('a');
+          tmp_element.setAttribute('data-i18n', title_link.title);
+          tmp_element.setAttribute('class', 'ui-btn-icon-left ui-icon-' + title_link.icon);
+          tmp_element.setAttribute('href', title_link.url);
+          tmp_element.setAttribute('accesskey', 'u');
+          promise_list.push(gadget.translateHtml(tmp_element.outerHTML));
         }
       } else {
         promise_list.push(null);
@@ -324,7 +370,12 @@
         if (right_button !== undefined) {
           promise_list.push(gadget.translateHtml(header_button_template(right_button)));
         } else if (right_link !== undefined) {
-          promise_list.push(gadget.translateHtml(header_link_template(right_link)));
+          // <a data-i18n="{{title}}" href="{{url}}" class="ui-icon-{{icon}} ui-btn-icon-left {{class}}">{{title}}</a>
+          tmp_element = document.createElement('a');
+          tmp_element.setAttribute('data-i18n', right_link.title);
+          tmp_element.setAttribute('class', 'ui-icon-' + right_link.icon + ' ui-btn-icon-left ' + right_link.class);
+          tmp_element.setAttribute('href', right_link.url);
+          promise_list.push(gadget.translateHtml(tmp_element.outerHTML));
         } else {
           promise_list.push("");
         }
@@ -358,7 +409,7 @@
     //////////////////////////////////////////////
     // handle button submit
     //////////////////////////////////////////////
-    .onEvent('submit', function (evt) {
+    .onEvent('submit', function submit(evt) {
       var name = evt.target[0].getAttribute("name");
       if (name === "panel") {
         return this.triggerPanel();
@@ -366,7 +417,10 @@
       if (name === "submit") {
         return this.triggerSubmit();
       }
+      if (name === "maximize") {
+        return this.triggerMaximize();
+      }
       throw new Error("Unsupported button " + name);
     });
 
-}(window, rJS, Handlebars, document, RSVP));
+}(window, rJS, document, RSVP));

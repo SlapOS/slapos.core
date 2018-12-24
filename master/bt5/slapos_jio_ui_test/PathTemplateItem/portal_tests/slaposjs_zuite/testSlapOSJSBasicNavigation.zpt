@@ -81,253 +81,57 @@
 </tr>
 
 
-<!-- Tickets -->
-<tr>
-  <td>click</td>
-  <td>//a[@data-i18n="Tickets"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//a[@data-i18n='Tickets']</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//h1[@data-i18n='Tickets']</td>
-  <td></td>
-</tr>
+<tal:block define="menu_item python: 'Tickets'; header menu_item ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
+</tal:block>
 
-<tr>
-  <td>click</td>
-  <td>//button[@data-i18n='Menu']</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//button[@data-i18n='Menu']</td>
-  <td></td>
-</tr>
+<tal:block define="menu_item python: 'Sites'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
+</tal:block>
 
-<!-- Sites -->
-<tr>
-  <td>click</td>
-  <td>//a[@data-i18n="Sites"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//a[@data-i18n='Sites']</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//h1[@data-i18n='Sites']</td>
-  <td></td>
-</tr>
+<tal:block define="menu_item python: 'Projects'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
+</tal:block>
 
-<tr>
-  <td>click</td>
-  <td>//button[@data-i18n='Menu']</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//button[@data-i18n='Menu']</td>
-  <td></td>
-</tr>
+<tal:block define="menu_item python: 'Invoices'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
+</tal:block>
 
-<!-- Projects -->
-<tr>
-  <td>click</td>
-  <td>//a[@data-i18n="Projects"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//a[@data-i18n='Projects']</td>
-  <td></td>
-</tr>
+<tal:block define="menu_item python: 'Services'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
+</tal:block>
 
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//h1[@data-i18n='Projects']</td>
-  <td></td>
-</tr>
+<tal:block define="menu_item python: 'Servers'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
+</tal:block>
 
-<tr>
-  <td>click</td>
-  <td>//button[@data-i18n='Menu']</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//button[@data-i18n='Menu']</td>
-  <td></td>
-</tr>
+<tal:block define="menu_item python: 'Networks'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
+</tal:block>
 
 
-<!-- Invoices -->
-<tr>
-  <td>click</td>
-  <td>//a[@data-i18n="Invoices"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//a[@data-i18n='Invoices']</td>
-  <td></td>
-</tr>
+<tal:block define="person_name python: 'Demo User Functional'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
+</tal:block>
 
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//h1[@data-i18n='Invoices']</td>
-  <td></td>
-</tr>
-
-<tr>
-  <td>click</td>
-  <td>//button[@data-i18n='Menu']</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//button[@data-i18n='Menu']</td>
-  <td></td>
-</tr>
-
-<!-- Invoices -->
-<tr>
-  <td>click</td>
-  <td>//a[@data-i18n="Invoices"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//a[@data-i18n='Invoices']</td>
-  <td></td>
-</tr>
-
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//h1[@data-i18n='Invoices']</td>
-  <td></td>
-</tr>
-
-<tr>
-  <td>click</td>
-  <td>//button[@data-i18n='Menu']</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//button[@data-i18n='Menu']</td>
-  <td></td>
-</tr>
-
-<!-- Services -->
-<tr>
-  <td>click</td>
-  <td>//a[@data-i18n="Services"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//a[@data-i18n='Services']</td>
-  <td></td>
-</tr>
-
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//h1[@data-i18n='Services']</td>
-  <td></td>
-</tr>
-
-<tr>
-  <td>click</td>
-  <td>//button[@data-i18n='Menu']</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//button[@data-i18n='Menu']</td>
-  <td></td>
-</tr>
-
-<!-- Servers -->
-<tr>
-  <td>click</td>
-  <td>//a[@data-i18n="Servers"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//a[@data-i18n='Servers']</td>
-  <td></td>
-</tr>
-
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//h1[@data-i18n='Servers']</td>
-  <td></td>
-</tr>
-
-<tr>
-  <td>click</td>
-  <td>//button[@data-i18n='Menu']</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//button[@data-i18n='Menu']</td>
-  <td></td>
-</tr>
-
-<!-- Networks -->
-<tr>
-  <td>click</td>
-  <td>//a[@data-i18n="Networks"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//a[@data-i18n='Networks']</td>
-  <td></td>
-</tr>
-
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//h1[@data-i18n='Networks']</td>
-  <td></td>
-</tr>
-
-<tr>
-  <td>click</td>
-  <td>//button[@data-i18n='Menu']</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//button[@data-i18n='Menu']</td>
-  <td></td>
-</tr>
-
-<tr>
-  <td>click</td>
-  <td>//a[@data-i18n="Account"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//a[@data-i18n='Your Account : Demo User Functional']</td>
-  <td></td>
-</tr>
-
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//label[@for="first_name"]</td>
-  <td></td>
-</tr>
+<tal:block define="header python: 'Your Account : Demo User Functional';">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
+</tal:block>
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
 
 <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_logout" />
 

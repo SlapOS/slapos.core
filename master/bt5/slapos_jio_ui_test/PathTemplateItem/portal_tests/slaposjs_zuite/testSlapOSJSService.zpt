@@ -16,42 +16,44 @@
 
 <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
 
-<!-- Sites -->
+<tal:block define="menu_item python: 'Services'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+</tal:block>
+
+<tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+</tal:block>
+
+<tal:block define="menu_action python: 'Add'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+</tal:block>
+
+
 <tr>
-  <td>click</td>
-  <td>//a[@data-i18n="Services" and @accesskey="l"]</td>
-  <td></td>
+   <td colspan="3"><b> Request a Software </b></td>
 </tr>
+
 <tr>
-  <td>waitForElementPresent</td>
-  <td>//a[@data-i18n='Services' and @accesskey="u"]</td>
-  <td></td>
+   <td colspan="3"><b> Select a Software Product</b></td>
 </tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//h1[@data-i18n='Services']</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//span[@data-i18n="No records"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//a[@data-i18n="Add"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>click</td>
-  <td>//a[@data-i18n="Add"]</td>
-  <td></td>
-</tr>
+
+<tal:block define="header python: 'Select one Software'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
 <tr>
   <td>waitForElementPresent</td>
-  <td>//h1[@data-i18n='Software Products']</td>
+  <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), 'Software Products')]</td>
   <td></td>
 </tr>
+<tr>
+  <td>assertElementPresent</td>
+  <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), 'Software Products')]</td>
+  <td></td>
+</tr>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_listbox_loaded" />
+
 <tr>
   <td>waitForElementPresent</td>
   <td>//td/a[text()="Frontend"]</td>
@@ -64,26 +66,40 @@
 </tr>
 
 <tr>
+   <td colspan="3"><b> Select a Software Release</b></td>
+</tr>
+
+<tal:block define="header python: 'Select one Release'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tr>
   <td>waitForElementPresent</td>
-  <td>//h1[@data-i18n='Software Releases']</td>
+  <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), 'Software Releases')]</td>
   <td></td>
 </tr>
 <tr>
-  <td>waitForElementPresent</td>
-  <td>//td/a[text()="Frontend"]</td>
+  <td>assertElementPresent</td>
+  <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), 'Software Releases')]</td>
   <td></td>
 </tr>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_listbox_loaded" />
+
 <tr>
   <td>click</td>
   <td>//td/a[text()="Frontend"]</td>
   <td></td>
 </tr>
+
+
 <tr>
-  <td>waitForElementPresent</td>
-  <td>//span[@data-i18n="Request Service: Frontend"]</td>
-  <td></td>
+   <td colspan="3"><b> Fill Request form </b></td>
 </tr>
 
+<tal:block define="header python: 'Request Service: Frontend'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
 
 <tr>
   <td>waitForElementPresent</td>
@@ -95,6 +111,34 @@
   <td>type</td>
   <td>//input[@id="title"]</td>
   <td>TEST-SLAPOSJS-SERVICE-FRONTEND 0</td>
+</tr>
+  
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//div[contains(@data-gadget-url, 'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>assertElementPresent</td>
+  <td>//div[contains(@data-gadget-url, 'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//div[contains(@data-gadget-url, 'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Custom Personal"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>assertElementPresent</td>
+  <td>//div[contains(@data-gadget-url, 'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Custom Personal"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>select</td>
+  <td>//div[contains(@data-gadget-url, 'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
+  <td>Custom Personal</td>
 </tr>
 <tr>
   <td>waitForElementPresent</td>
@@ -108,39 +152,23 @@
   <td>http://www.erp5.com</td>
 </tr>
 
-<tr>
-  <td>click</td>
-  <td>//button[@data-i18n="Proceed"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//button[@type="submit" and text()="New service created."]</td>
-  <td></td>
-</tr>
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
+<tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                           'text': 'New service created.'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+</tal:block>
 
 <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
 
-<tr>
-  <td>click</td>
-  <td>//a[@data-i18n="Services" and @accesskey="l"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//a[@data-i18n='Services' and @accesskey="u"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//h1[@data-i18n='Services']</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//span[@data-i18n="1 Records"]</td>
-  <td></td>
-</tr>
+<tal:block define="menu_item python: 'Services'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+</tal:block>
+
+<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+</tal:block>
+
 <tr>
   <td>waitForElementPresent</td>
   <td>//a[text()="TEST-SLAPOSJS-SERVICE-FRONTEND 0"]</td>
@@ -161,45 +189,32 @@
 <!-- Update Add Ticket -->
 <!-- Update Stop -->
 <!-- Update Start -->
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//a[@data-i18n="Destroy"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>click</td>
-  <td>//a[@data-i18n="Destroy"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//a[@data-i18n="Destroy Hosting Subscription: TEST-SLAPOSJS-SERVICE-FRONTEND 0"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//button[@data-i18n="Proceed"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>click</td>
-  <td>//button[@data-i18n="Proceed"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//button[@type="submit" and text()="Service is Destroyed."]</td>
-  <td></td>
-</tr>
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//span[@data-i18n="No records"]</td>
-  <td></td>
-</tr>
 
+
+<tal:block define="menu_action python: 'Destroy'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+</tal:block>
+
+<tal:block define="header python: 'Destroy Hosting Subscription: TEST-SLAPOSJS-SERVICE-FRONTEND 0'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
+<tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                           'text': 'Service is Destroyed.'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+</tal:block>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
+
+<tal:block define="menu_item python: 'Services'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+</tal:block>
+
+<tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+</tal:block>
 <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_logout" />
--->
 
 </tbody></table>
 </body>

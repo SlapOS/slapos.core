@@ -887,6 +887,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
           watchdog_banged=self.watchdog_banged
       ))
     os.chmod(watchdog_path, 0o755)
+    # TODO: undo patch
     self.grid.watchdog_path = watchdog_path
     slapos.grid.slapgrid.WATCHDOG_PATH = watchdog_path
 

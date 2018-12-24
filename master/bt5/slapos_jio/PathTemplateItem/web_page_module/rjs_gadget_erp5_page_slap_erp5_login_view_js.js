@@ -57,7 +57,7 @@
               return gadget.jio_putAttachment(gadget.state.jio_key,
                 hateoas_url + gadget.state.jio_key + "/Login_edit", doc)
                   .push(function () {
-                    return gadget.notifySubmitted({message: 'Data Updated', status: 'success'});
+                    return gadget.notifySubmitted({message: 'Data updated.', status: 'success'});
                   });
             });
         });

@@ -79,7 +79,7 @@
             });
         })
         .push(function () {
-          return gadget.notifySubmitted({message: 'Data Updated', status: 'success'});
+          return gadget.notifySubmitted({message: 'Data updated.', status: 'success'});
         });
     })
 

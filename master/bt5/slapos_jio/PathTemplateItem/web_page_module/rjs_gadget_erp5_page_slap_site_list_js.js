@@ -119,12 +119,14 @@
         })
         .push(function (result) {
           return RSVP.all([
-            gadget.getUrlFor({command: "change", options: {"page": "slap_add_organisation"}})
+            gadget.getUrlFor({command: "change", options: {"page": "slap_add_organisation"}}),
+            gadget.getUrlFor({command: "change", options: {"page": "slapos"}})
           ]);
         })
         .push(function (result) {
           return gadget.updateHeader({
             page_title: "Sites",
+            selection_url: result[1],
             filter_action: true,
             add_url: result[0]
           });

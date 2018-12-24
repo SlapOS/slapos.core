@@ -37,7 +37,7 @@ from .temperature.heating import get_contribution_ratio
 
 import six
 
-MEASURE_INTERVAL = 5
+MEASURE_INTERVAL = .01
 
 class _Snapshot(object):
   def get(self, property, default=None):

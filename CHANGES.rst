@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.4.16 (???)
+-------------------
+
+ * format: new tap_iv6 configuration file option
+
 1.4.15 (2018-12-11)
 -------------------
 

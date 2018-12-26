@@ -62,7 +62,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SupportRequest_validate</string> </value>
+            <value> <string>SupportRequest_createInitialWebMessage</string> </value>
         </item>
       </dictionary>
     </pickle>

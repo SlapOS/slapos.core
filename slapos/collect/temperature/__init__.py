@@ -1,7 +1,10 @@
 from __future__ import print_function
 
 from multiprocessing import Process, active_children, cpu_count, Pipe
-import subprocess
+try:
+  import subprocess32 as subprocess
+except ImportError:
+  import subprocess
 import os
 import signal
 import sys
@@ -15,9 +18,18 @@ except NotImplementedError:
     DEFAULT_CPU = 1
 
 def collectComputerTemperature(sensor_bin="sensors"):
-  stdout = subprocess.check_output((sensor_bin, '-u'), universal_newlines=True)
+  result = subprocess.run((sensor_bin, '-u'),
+                          universal_newlines=True,
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.STDOUT)
 
-  sensor_output_list = stdout.splitlines()
+  if result.returncode:
+    # This can happen on environments where sensors are not available,
+    # such as virtual machines.
+    if "No sensors found!" not in result.stdout:
+      raise RuntimeError("Error executing {}: {}".format(sensor_bin, result.stdout))
+
+  sensor_output_list = result.stdout.splitlines()
   adapter_name = ""
   
   sensor_temperature_list = []

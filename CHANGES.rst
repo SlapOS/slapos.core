@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.4.16 (???)
+-------------------
+
+ * add option "tap_ipv6" in cfg file. By default it is true meaning that the taps will have an IPv6 address and an IPv6 subnetwork will be routed to this tap. Put it to false to have only IPv4 on taps. Of course, this option has no purpose if create_tap is False.
+
 1.4.15 (2018-12-11)
 -------------------
 

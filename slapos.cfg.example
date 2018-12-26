@@ -20,6 +20,8 @@ log_file = /opt/slapos/log/slapos-node-format.log
 partition_base_name = slappart
 user_base_name = slapuser
 tap_base_name = slaptap
+# Change "tap_ipv6" into "false" if you don't want the tap to have IPv6 addresses
+tap_ipv6 = true
 # You can choose any other local network which does not conflict with your
 # current machine configuration
 ipv4_local_network = 10.0.0.0/16

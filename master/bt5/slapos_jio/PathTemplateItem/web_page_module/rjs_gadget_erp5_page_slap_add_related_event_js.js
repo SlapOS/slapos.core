@@ -32,17 +32,10 @@
         .push(function (doc) {
           return gadget.jio_post(doc);
         })
-        .push(function (key) {
-          return gadget.getSetting('hateoas_url')
-            .push(function (hateoas_url) {
-              return gadget.jio_putAttachment(key,
-               hateoas_url + key + "/WebMessage_stop", {});
-            })
-            .push(function () {
-              return gadget.redirect({"command": "change",
+        .push(function () {
+          return gadget.redirect({"command": "change",
                                   "options": {"jio_key": gadget.state.jio_key,
                                               "page": "slap_controller"}});
-            });
         });
     })
 
@@ -77,28 +70,6 @@
                   "hidden": 1,
                   "type": "StringField"
                 },
-                "my_resource": {
-                  "description": "Resource",
-                  "title": "Title",
-                  "default": result[2].resource,
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "resource",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_destination": {
-                  "description": "",
-                  "title": "Source",
-                  "default": result[2].source,
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "destination",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
                 "my_text_content": {
                   "description": "Include your message",
                   "title": "Your Message",
@@ -118,17 +89,6 @@
                   "required": 1,
                   "editable": 1,
                   "key": "source",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_content_type": {
-                  "description": "",
-                  "title": "Content Type",
-                  "default": "plain/text",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "content_type",
                   "hidden": 1,
                   "type": "StringField"
                 },
@@ -164,17 +124,6 @@
                   "key": "parent_relative_url",
                   "hidden": 1,
                   "type": "StringField"
-                },
-                "my_start_date": {
-                  "description": "",
-                  "title": "Start Date",
-                  "default": (new Date()).toISOString(),
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "start_date",
-                  "hidden": 1,
-                  "type": "StringField"
                 }
               }},
               "_links": {
@@ -189,9 +138,7 @@
                 "center",
                 [["my_title"], ["my_text_content"], ["my_follow_up"],
                  ["my_portal_type"], ["my_parent_relative_url"],
-                 ["my_follow_up"], ["my_source"], ["my_resource"],
-                 ["my_content_type"], ["my_destination"],
-                 ["my_start_date"]]
+                 ["my_follow_up"], ["my_source"]]
               ]]
             }
           });

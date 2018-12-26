@@ -483,7 +483,7 @@ class TestCollectEntity(unittest.TestCase):
  
         user_dict = entity.get_user_list(config)
         username_set = {'slapuser0', 'slapuser1', 'slapuser2'} 
-        self.assertEquals(username_set, set(user_dict))
+        self.assertEqual(username_set, set(user_dict))
        
         for name in username_set:
           self.assertEqual(user_dict[name].name, name)
@@ -532,8 +532,8 @@ class TestCollectEntity(unittest.TestCase):
                     'memory_rss', 'pid', 'memory_percent',
                     'io_rw_counter', 'insertion_date', 'insertion_time',
                     'io_cycles_counter', 'cpu_num_threads'})
-        self.assertEquals(database.invoked_method_list[2], ("commit", ""))
-        self.assertEquals(database.invoked_method_list[3], ("close", ""))
+        self.assertEqual(database.invoked_method_list[2], ("commit", ""))
+        self.assertEqual(database.invoked_method_list[3], ("close", ""))
 
         self.assertEqual(database.invoked_method_list[4], ("connect", ""))
         self.assertEqual(database.invoked_method_list[5][0], "inserFolderSnapshot")

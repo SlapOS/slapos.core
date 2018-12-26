@@ -986,7 +986,6 @@ class TestMultiMasterSupport(MasterMixin):
 
   def setUp(self):
     self.addCleanup(self.stopExternalProxy)
-    # XXX don't use lo
     self.external_proxy_host = os.environ.get('LOCAL_IPV4', '127.0.0.1')
     self.external_proxy_port = 8281
     self.external_master_url = 'http://%s:%s' % (self.external_proxy_host, self.external_proxy_port)

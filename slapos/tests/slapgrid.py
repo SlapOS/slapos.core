@@ -96,7 +96,7 @@ chmod 755 etc/run/wrapper
 DAEMON_CONTENT = """#!/bin/sh
 mkdir -p etc/service &&
 echo "#!/bin/sh" > etc/service/daemon &&
-echo "touch launched
+echo "sleep 1; touch launched
 if [ -f ./crashed ]; then
 while true; do echo Working; sleep 0.1; done
 else

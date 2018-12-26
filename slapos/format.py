@@ -246,7 +246,7 @@ class Computer(object):
 
   def __init__(self, reference, interface=None, addr=None, netmask=None,
                ipv6_interface=None, software_user='slapsoft',
-               tap_gateway_interface=None,
+               tap_gateway_interface=None, tap_ipv6=None,
                instance_root=None, software_root=None, instance_storage_home=None,
                partition_list=None, config=None):
     """
@@ -264,6 +264,7 @@ class Computer(object):
     self.ipv6_interface = ipv6_interface
     self.software_user = software_user
     self.tap_gateway_interface = tap_gateway_interface
+    self.tap_ipv6 = tap_ipv6
 
     # Used to be static attributes of the class object - didn't make sense (Marco again)
     assert instance_root is not None and software_root is not None, \
@@ -402,7 +403,7 @@ class Computer(object):
 
   @classmethod
   def load(cls, path_to_xml, reference, ipv6_interface, tap_gateway_interface,
-           instance_root=None, software_root=None, config=None):
+           tap_ipv6, instance_root=None, software_root=None, config=None):
     """
     Create a computer object from a valid xml file.
 
@@ -424,6 +425,7 @@ class Computer(object):
         ipv6_interface=ipv6_interface,
         software_user=dumped_dict.get('software_user', 'slapsoft'),
         tap_gateway_interface=tap_gateway_interface,
+        tap_ipv6=tap_ipv6,
         software_root=dumped_dict.get('software_root', software_root),
         instance_root=dumped_dict.get('instance_root', instance_root),
         config=config,
@@ -612,24 +614,32 @@ class Computer(object):
               partition.tap.ipv4_gateway = gateway_addr_dict['addr']
               partition.tap.ipv4_network = gateway_addr_dict['network']
 
-            if not partition.tap.ipv6_addr:
-              # create a new IPv6 randomly for the tap
-              ipv6_dict = self.interface.addIPv6Address(tap=partition.tap)
-              partition.tap.ipv6_addr = ipv6_dict['addr']
-              partition.tap.ipv6_netmask = ipv6_dict['netmask']
-            else:
-              # make sure the tap has its IPv6
-              self.interface.addIPv6Address(
-                      addr=partition.tap.ipv6_addr,
-                      netmask=partition.tap.ipv6_netmask,
-                      tap=partition.tap)
+            if self.tap_ipv6:
+              if not partition.tap.ipv6_addr:
+                # create a new IPv6 randomly for the tap
+                ipv6_dict = self.interface.addIPv6Address(tap=partition.tap)
+                partition.tap.ipv6_addr = ipv6_dict['addr']
+                partition.tap.ipv6_netmask = ipv6_dict['netmask']
+              else:
+                # make sure the tap has its IPv6
+                self.interface.addIPv6Address(
+                        addr=partition.tap.ipv6_addr,
+                        netmask=partition.tap.ipv6_netmask,
+                        tap=partition.tap)
 
-            # construct ipv6_network and create routes
-            netmask_len = lenNetmaskIpv6(partition.tap.ipv6_netmask)
-            prefix = binFromIpv6(partition.tap.ipv6_addr)[:netmask_len]
-            network_addr = ipv6FromBin(prefix)
-            partition.tap.ipv6_gateway = partition.tap.ipv6_addr
-            partition.tap.ipv6_network = "{}/{}".format(network_addr, netmask_len)
+              # construct ipv6_network (16 bit more than the computer network)
+              netmask_len = lenNetmaskIpv6(self.interface.getGlobalScopeAddressList()[0]['netmask']) + 16
+              prefix = binFromIpv6(partition.tap.ipv6_addr)[:netmask_len]
+              network_addr = ipv6FromBin(prefix)
+              partition.tap.ipv6_gateway = partition.tap.ipv6_addr
+              partition.tap.ipv6_network = "{}/{}".format(network_addr, netmask_len)
+            else:
+              partition.tap.ipv6_addr = ''
+              partition.tap.ipv6_netmask = ''
+              partition.tap.ipv6_gateway = ''
+              partition.tap.ipv6_network = ''
+
+            # create IPv4 and IPv6 routes
             partition.tap.createRoutes()
 
           if partition.tun is not None:
@@ -878,18 +888,24 @@ class Tap(object):
 
   def createRoutes(self):
     """
-    Configure ipv4 route to reach this interface from local network
+    Configure ipv4 and ipv6 routes
     """
     if self.ipv4_addr:
       # Check if this route exits
       code, result = callAndRead(['ip', 'route', 'show', self.ipv4_addr],
                                  raise_on_error=False)
-      if code == 0 and self.ipv4_addr in result and self.name in result:
-        return
-      callAndRead(['ip', 'route', 'add', self.ipv4_addr, 'dev', self.name])
+      if code != 0 or self.ipv4_addr not in result or self.name not in result:
+        callAndRead(['ip', 'route', 'add', self.ipv4_addr, 'dev', self.name])
     else:
       raise ValueError("%s should not be empty. No ipv4 address assigned to %s" %
                          (self.ipv4_addr, self.name))
+
+    if self.ipv6_network:
+      # Check if this route exits
+      code, result = callAndRead(['ip', '-6', 'route', 'show', self.ipv6_network],
+                                 raise_on_error=False)
+      if code != 0 or self.ipv6_network not in result or self.name not in result:
+        callAndRead(['ip', '-6', 'route', 'add', self.ipv6_network, 'dev', self.name])
 
 
 class Tun(Tap):
@@ -1146,7 +1162,7 @@ class Interface(object):
         # confirmed to be configured
         return dict_addr_netmask
       if netmask == address_dict['netmask'] or \
-         (tap and lenNetmaskIpv6(netmask) == lenNetmaskIpv6(address_dict['netmask']) + 16):
+         (tap and lenNetmaskIpv6(netmask) == 128):
         # same netmask, so there is a chance to add good one
         interface_network = netaddr.ip.IPNetwork('%s/%s' % (address_dict['addr'],
           netmaskToPrefixIPv6(address_dict['netmask'])))
@@ -1175,7 +1191,7 @@ class Interface(object):
       if netmask_len >= 128:
         self._logger.error('Interface %s has netmask %s which is too big for generating IPv6 on taps.' % (interface_name, netmask))
         raise AddressGenerationError(addr)
-      netmask = ipv6FromBin('1'*netmask_len)
+      netmask = ipv6FromBin('1'*128) # the netmask of the tap itself is always 128 bits
 
     while try_num > 0:
       if tap:
@@ -1221,6 +1237,7 @@ def parse_computer_definition(conf, definition_path):
       ipv6_interface=conf.ipv6_interface,
       software_user=computer_definition.get('computer', 'software_user'),
       tap_gateway_interface=conf.tap_gateway_interface,
+      tap_ipv6=conf.tap_ipv6,
       software_root=conf.software_root,
       instance_root=conf.instance_root
   )
@@ -1259,6 +1276,7 @@ def parse_computer_xml(conf, xml_path):
                              reference=conf.computer_id,
                              ipv6_interface=conf.ipv6_interface,
                              tap_gateway_interface=conf.tap_gateway_interface,
+                             tap_ipv6=conf.tap_ipv6,
                              software_root=conf.software_root,
                              instance_root=conf.instance_root,
                              config=conf)
@@ -1277,6 +1295,7 @@ def parse_computer_xml(conf, xml_path):
       ipv6_interface=conf.ipv6_interface,
       software_user=conf.software_user,
       tap_gateway_interface=conf.tap_gateway_interface,
+      tap_ipv6=conf.tap_ipv6,
       config=conf,
     )
 
@@ -1389,8 +1408,9 @@ class FormatConfig(object):
   create_tap = True
   create_tun = False
   tap_base_name = None
-  ipv4_local_network = None
+  tap_ipv6 = True
   tap_gateway_interface = ''
+  ipv4_local_network = None
   use_unique_local_address_block = False
 
   # User options
@@ -1450,7 +1470,7 @@ class FormatConfig(object):
         raise UsageError(message)
 
     # Convert strings to booleans
-    for option in ['alter_network', 'alter_user', 'create_tap', 'create_tun', 'use_unique_local_address_block']:
+    for option in ['alter_network', 'alter_user', 'create_tap', 'create_tun', 'use_unique_local_address_block', 'tap_ipv6']:
       attr = getattr(self, option)
       if isinstance(attr, str):
         if attr.lower() == 'true':
@@ -1489,7 +1509,7 @@ class FormatConfig(object):
     if self.dry_run:
       self.logger.info("Dry-run mode enabled.")
     if self.create_tap:
-      self.logger.info("Tap creation mode enabled.")
+      self.logger.info("Tap creation mode enabled (%s IPv6).", "with" if with_ipv6 else "without")
 
     # Calculate path once
     self.computer_xml = os.path.abspath(self.computer_xml)

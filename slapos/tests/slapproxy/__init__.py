@@ -1044,7 +1044,7 @@ database_uri = %(tempdir)s/lib/external_proxy.db
         break
       except (slapos.slap.ConnectionError, socket.error):
         attempts = attempts + 1
-        time.sleep(0.1)
+        time.sleep(0.1 * attempts)
     else:
       self.fail('Could not start external proxy.')
 

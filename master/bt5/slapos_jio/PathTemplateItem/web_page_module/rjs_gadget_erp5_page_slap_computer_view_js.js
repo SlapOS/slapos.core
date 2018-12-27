@@ -27,33 +27,25 @@
         .push(function (result) {
           var i, value, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
-            if (1 || (result.data.rows[i].hasOwnProperty("id"))) {
+            if (1 || (result.data.rows[i].value.monitoring_status)) {
               value = result.data.rows[i].id;
               result.data.rows[i].value.monitoring_status = {
-                css_class: "",
-                description: "The Status",
-                hidden: 0,
-                "default": {jio_key: value},
-                key: "status",
-                url: "gadget_slapos_installation_status.html",
-                title: "Status",
-                type: "GadgetField"
+                field_gadget_param : {
+                  css_class: "",
+                  description: "The Status",
+                  hidden: 0,
+                  "default": {jio_key: value},
+                  key: "status",
+                  url: "gadget_slapos_installation_status.html",
+                  title: "Status",
+                  type: "GadgetField"
+                }
               };
-              result.data.rows[i].value.software_release = {
-                css_class: "",
-                description: "Software Release Info",
-                hidden: 0,
-                "default": {jio_key: value},
-                key: "software_release",
-                url: "gadget_slapos_software_release_info.html",
-                title: "Software Release Info",
-                type: "GadgetField"
-              };
-              result.data.rows[i].value["listbox_uid:list"] = {
+            }
+            result.data.rows[i].value["listbox_uid:list"] = {
                 key: "listbox_uid:list",
                 value: 2713
               };
-            }
           }
           return result;
         });
@@ -114,7 +106,7 @@
             form_gadget = results[0],
             computer_network_list = [["", ""]],
             column_list = [
-              ['software_release', 'Software Release'],
+              ['SoftwareInstallation_getSoftwareReleaseInformation', 'Software Release'],
               ['url_string', 'Url'],
               ['monitoring_status', 'Status']
             ],

@@ -63,9 +63,23 @@
     .declareMethod("getContent", function () {
       return {};
     })
-    .declareJob("getStatus", function () {
-      var gadget = this;
-      return getStatus(gadget);
+    .declareJob("getStatus", function (result) {
+      var gadget = this,
+          status_class = 'ui-btn-no-data',
+          status_title = 'Installation',
+          status_style = "";
+
+      status_class = checkInstallationStatus({news: result});
+      if (status_class === 'ui-btn-no-data') {
+        status_style = "color: transparent !important;";
+      }
+
+      gadget.element.innerHTML = inline_status_template({
+          status_class: status_class,
+          status_title: status_title,
+          status_style: status_style
+        });
+      return gadget;
     })
     .onLoop(function () {
       var gadget = this;
@@ -76,7 +90,7 @@
       var gadget = this;
       gadget.options = options;
       gadget.flag = options.value.jio_key;
-      return gadget.getStatus();
+      return gadget.getStatus(options.value.result);
     });
 
 }(window, rJS, RSVP, Handlebars));

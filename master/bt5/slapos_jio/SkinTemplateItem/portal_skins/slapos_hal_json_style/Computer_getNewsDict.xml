@@ -62,7 +62,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ComputerNetwork_getHateoasComputerPartitionNews</string> </value>
+            <value> <string>Computer_getNewsDict</string> </value>
         </item>
       </dictionary>
     </pickle>

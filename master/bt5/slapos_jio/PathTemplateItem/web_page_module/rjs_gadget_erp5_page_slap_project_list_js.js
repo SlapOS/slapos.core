@@ -16,15 +16,17 @@
       var gadget = this;
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
-          var i, value, len = result.data.total_rows;
+          var i, value, news, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
-            if (1 || (result.data.rows[i].hasOwnProperty("id"))) {
+            if (1 || (result.data.rows[i].value.hasOwnProperty("Project_getNewsDict"))) {
               value = result.data.rows[i].id;
-              result.data.rows[i].value.monitoring_status = {
+              news = result.data.rows[i].Project_getNewsDict;
+              result.data.rows[i].value.Project_getNewsDict = {
                 css_class: "",
                 description: "The Status",
                 hidden: 0,
-                "default": {jio_key: value},
+                "default": {jio_key: value,
+                            result: news},
                 key: "status",
                 url: "gadget_slapos_project_status.html",
                 title: "Status",
@@ -73,7 +75,7 @@
               column_list = [
             ['title', 'Title'],
             ['reference', 'Reference'],
-            ['monitoring_status', 'Status']
+            ['Project_getNewsDict', 'Status']
           ];
           destination_project_list = "%22NULL%22%2C";
           for (i in result[1].assignment_destination_project_list) {

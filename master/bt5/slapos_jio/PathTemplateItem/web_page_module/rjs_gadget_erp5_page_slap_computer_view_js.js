@@ -27,14 +27,14 @@
         .push(function (result) {
           var i, value, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
-            if (1 || (result.data.rows[i].value.monitoring_status)) {
-              value = result.data.rows[i].id;
-              result.data.rows[i].value.monitoring_status = {
+            if (1 || (result.data.rows[i].value.SoftwareInstallation_getNewsDict)) {
+              value = result.data.rows[i].value.SoftwareInstallation_getNewsDict;
+              result.data.rows[i].value.SoftwareInstallation_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
                   description: "The Status",
                   hidden: 0,
-                  "default": {jio_key: value},
+                  "default": {jio_key: value, result: value},
                   key: "status",
                   url: "gadget_slapos_installation_status.html",
                   title: "Status",
@@ -108,7 +108,7 @@
             column_list = [
               ['SoftwareInstallation_getSoftwareReleaseInformation', 'Software Release'],
               ['url_string', 'Url'],
-              ['monitoring_status', 'Status']
+              ['SoftwareInstallation_getNewsDict', 'Status']
             ],
             ticket_column_list = [
               ['title', 'Title'],
@@ -235,7 +235,8 @@
                 "my_monitoring_status": {
                   "description": "",
                   "title": "Monitoring Status",
-                  "default": {jio_key: gadget.state.jio_key},
+                  "default": {jio_key: gadget.state.jio_key,
+                              result: gadget.state.doc.news},
                   "css_class": "",
                   "required": 1,
                   "editable": 0,

@@ -65,38 +65,42 @@
     return partition_class;
   }
 
-  function getStatus(gadget) {
+  function getStatus(gadget, result) {
+    var monitor_url,
+      status_class = 'ui-btn-no-data',
+      status_title = 'Computer',
+      right_title = 'Partitions',
+      right_class = 'ui-btn-no-data',
+      status_style = '',
+      right_style = '';
+
+    status_class = checkComputerStatus({news: result.news.computer});
+    right_class = checkComputerPartitionStatus({computer_partition_news: result.news.partition});
+
+    monitor_url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type%3A%22Software%20Instance%22%20AND%20aggregate_reference%3A%22' + result.reference + '%22';
+    if (status_class === 'ui-btn-no-data') {
+      status_style = "color: transparent !important;";
+    }
+
+    gadget.element.innerHTML = inline_status_template({
+      monitor_url: monitor_url,
+      status_class: status_class,
+      status_title: status_title,
+      status_style: status_style,
+      right_class: right_class,
+      right_title: right_title,
+      right_style: right_style
+    });
+    return gadget;
+  }
+
+  function getStatusLoop(gadget) {
     return new RSVP.Queue()
       .push(function () {
         return gadget.jio_get(gadget.options.value.jio_key);
       })
       .push(function (result) {
-        var monitor_url,
-          status_class = 'ui-btn-no-data',
-          status_title = 'Computer',
-          right_title = 'Partitions',
-          right_class = 'ui-btn-no-data',
-          status_style = '',
-          right_style = '';
-
-        status_class = checkComputerStatus(result);
-        right_class = checkComputerPartitionStatus(result);
-
-        monitor_url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type%3A%22Software%20Instance%22%20AND%20aggregate_reference%3A%22' + result.reference + '%22';
-        if (status_class === 'ui-btn-no-data') {
-          status_style = "color: transparent !important;";
-        }
-
-        gadget.element.innerHTML = inline_status_template({
-          monitor_url: monitor_url,
-          status_class: status_class,
-          status_title: status_title,
-          status_style: status_style,
-          right_class: right_class,
-          right_title: right_title,
-          right_style: right_style
-        });
-        return gadget;
+        return getStatus(gadget, result);
       });
   }
 
@@ -116,19 +120,19 @@
       return {};
     })
 
-    .declareJob("getStatus", function () {
+    .declareJob("getStatus", function (result) {
       var gadget = this;
-      return getStatus(gadget);
+      return getStatus(gadget, {news: result});
     })
     .onLoop(function () {
       var gadget = this;
-      return getStatus(gadget);
+      return getStatusLoop(gadget);
     }, 300000)
 
     .declareMethod("render", function (options) {
       var gadget = this;
       gadget.options = options;
       gadget.flag = options.value.jio_key;
-      return gadget.getStatus();
+      return gadget.getStatus(options.value.result);
     });
 }(window, rJS, RSVP, Handlebars));

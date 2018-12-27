@@ -9,22 +9,23 @@
     .declareAcquiredMethod("reload", "reload")
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("setSetting", "setSetting")
+    .declareAcquiredMethod("getUrlForList", "getUrlForList")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
 
-    .allowPublicAcquisition("getUrlFor", function (param_list) {
-      var gadget = this;
-      if ((param_list[0].command === "index") && (param_list[0].options.jio_key) &&
-          (param_list[0].options.jio_key.startsWith("software_product_module"))) {
-        param_list[0].options.page = "slap_select_software_release";
-        if (gadget.computer_jio_key !== undefined) {
-          param_list[0].options.computer_jio_key = gadget.computer_jio_key;
+    .allowPublicAcquisition("getUrlForList", function (promise_list) {
+
+      var index, param_list, gadget = this;
+      for (index in promise_list[0]) {
+        if ((promise_list[0][index].command === "index") && (promise_list[0][index].options.jio_key) &&
+            (promise_list[0][index].options.jio_key.startsWith("software_product_module"))) {
+          promise_list[0][index].options.page = "slap_select_software_release";
+          if (gadget.computer_jio_key !== undefined) {
+            promise_list[0][index].options.computer_jio_key = gadget.computer_jio_key;
+          }
         }
       }
-      return gadget.getUrlFor(param_list[0])
-        .push(function (result) {
-          return result;
-        });
+      return gadget.getUrlForList(promise_list[0]);
     })
 
     /////////////////////////////////////////////////////////////////
@@ -95,9 +96,15 @@
             }
           });
         })
-        .push(function (result) {
+        .push(function () {
+          return RSVP.all([
+            gadget.getUrlFor({command: 'change', options: {"page": "slap_controller"}})
+          ]);
+        })
+        .push(function (url_list) {
           return gadget.updateHeader({
             page_title: "Select one Software",
+            selection_url: url_list[0],
             filter_action: true
           });
         });

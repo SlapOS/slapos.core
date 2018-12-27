@@ -10,24 +10,26 @@
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("setSetting", "setSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
+    .declareAcquiredMethod("getUrlForList", "getUrlForList")
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
     .declareAcquiredMethod("jio_get", "jio_get")
 
-    .allowPublicAcquisition("getUrlFor", function (param_list) {
-      var gadget = this;
-      if ((param_list[0].command === "index") && (param_list[0].options.jio_key) &&
-          (param_list[0].options.jio_key.startsWith("software_release_module"))) {
-        if (gadget.computer_jio_key !== undefined) {
-          param_list[0].options.page = "slap_add_software_installation";
-          param_list[0].options.computer_jio_key = gadget.computer_jio_key;
-        } else {
-          param_list[0].options.page = "slap_add_hosting_subscription";
+
+    .allowPublicAcquisition("getUrlForList", function (promise_list) {
+
+      var index, param_list, gadget = this;
+      for (index in promise_list[0]) {
+        if ((promise_list[0][index].command === "index") && (promise_list[0][index].options.jio_key) &&
+            (promise_list[0][index].options.jio_key.startsWith("software_release_module"))) {
+          if (gadget.computer_jio_key !== undefined) {
+            promise_list[0][index].options.page = "slap_add_software_installation";
+            promise_list[0][index].options.computer_jio_key = gadget.computer_jio_key;
+          } else {
+            promise_list[0][index].options.page = "slap_add_hosting_subscription";
+          }
         }
       }
-      return gadget.getUrlFor(param_list[0])
-        .push(function (result) {
-          return result;
-        });
+      return gadget.getUrlForList(promise_list[0]);
     })
 
     /////////////////////////////////////////////////////////////////
@@ -104,9 +106,15 @@
               });
             });
         })
-        .push(function (result) {
+        .push(function () {
+          return RSVP.all([
+            gadget.getUrlFor({command: 'change', options: {"page": "slap_select_software_product"}})
+          ]);
+        })
+        .push(function (url_list) {
           return gadget.updateHeader({
             page_title: "Select one Release",
+            selection_url: url_list[0],
             filter_action: true
           });
         });

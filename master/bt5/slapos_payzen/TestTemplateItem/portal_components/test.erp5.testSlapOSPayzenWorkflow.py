@@ -168,8 +168,8 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     # Payment is registered
     transaction_date, transaction_id = \
       payment.PaymentTransaction_getPayzenId()
-    self.assertNotEquals(transaction_date, None)
-    self.assertNotEquals(transaction_id, None)
+    self.assertNotEqual(transaction_date, None)
+    self.assertNotEqual(transaction_id, None)
 
     # Event state
     self.assertEqual(event.getValidationState(), "acknowledged")

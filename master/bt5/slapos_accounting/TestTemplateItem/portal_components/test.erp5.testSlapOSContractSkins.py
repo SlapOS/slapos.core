@@ -86,7 +86,7 @@ class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWit
     contract = instance.SoftwareInstance_requestValidationPayment()
     self.commit()
     contract2 = instance.SoftwareInstance_requestValidationPayment()
-    self.assertNotEquals(contract, None)
+    self.assertNotEqual(contract, None)
     self.assertEqual(contract2, None)
 
   def test_addCloudContract_existing_invalidated_contract(self):
@@ -95,7 +95,7 @@ class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWit
     self.commit()
     self.tic()
     contract2 = instance.SoftwareInstance_requestValidationPayment()
-    self.assertNotEquals(contract, None)
+    self.assertNotEqual(contract, None)
     self.assertEqual(contract2.getRelativeUrl(), contract.getRelativeUrl())
 
   def test_addCloudContract_existing_validated_contract(self):
@@ -105,7 +105,7 @@ class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWit
     self.commit()
     self.tic()
     contract2 = instance.SoftwareInstance_requestValidationPayment()
-    self.assertNotEquals(contract, None)
+    self.assertNotEqual(contract, None)
     self.assertEqual(contract2.getRelativeUrl(), contract.getRelativeUrl())
 
   def test_do_nothing_if_validated_contract(self):
@@ -148,7 +148,7 @@ class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWit
     contract2 = instance.SoftwareInstance_requestValidationPayment()
     after_date = DateTime()
     self.assertEqual(contract2.getRelativeUrl(), contract.getRelativeUrl())
-    self.assertNotEquals(contract2.getCausality(""), "")
+    self.assertNotEqual(contract2.getCausality(""), "")
     self.assertEqual(contract2.getValidationState(), "invalidated")
 
     invoice = contract2.getCausalityValue()

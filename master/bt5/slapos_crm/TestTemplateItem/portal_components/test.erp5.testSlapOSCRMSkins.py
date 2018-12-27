@@ -434,8 +434,8 @@ The slapos team
     ticket, event = person.Person_checkToCreateRegularisationRequest()
     transaction.commit()
     ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
-    self.assertNotEquals(ticket, None)
-    self.assertNotEquals(event, None)
+    self.assertNotEqual(ticket, None)
+    self.assertNotEqual(event, None)
     self.assertEqual(ticket2, None)
     self.assertEqual(event2, None)
 
@@ -456,8 +456,8 @@ The slapos team
     transaction.commit()
     self.tic()
     ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
-    self.assertNotEquals(ticket, None)
-    self.assertNotEquals(event, None)
+    self.assertNotEqual(ticket, None)
+    self.assertNotEqual(event, None)
     self.assertEqual(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
     self.assertEqual(event2, None)
 
@@ -469,8 +469,8 @@ The slapos team
     transaction.commit()
     self.tic()
     ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
-    self.assertNotEquals(ticket, None)
-    self.assertNotEquals(event, None)
+    self.assertNotEqual(ticket, None)
+    self.assertNotEqual(event, None)
     self.assertEqual(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
     self.assertEqual(event2, None)
 
@@ -482,8 +482,8 @@ The slapos team
     transaction.commit()
     self.tic()
     ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
-    self.assertNotEquals(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
-    self.assertNotEquals(event2, None)
+    self.assertNotEqual(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
+    self.assertNotEqual(event2, None)
 
   def test_addRegularisationRequest_REQUEST_disallowed(self):
     person = self.makePerson(index=0, user=0)
@@ -634,7 +634,7 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
       'service_module/slapos_crm_spam', 'foo2 title', 'foo2 content', 'foo2 comment')
 
     self.assertEqual(ticket.getResource(), 'foo/bar')
-    self.assertNotEquals(event.getTitle(), 'foo2 title')
+    self.assertNotEqual(event.getTitle(), 'foo2 title')
     self.assertEqual(event.getTextContent(), None)
     self.assertEqual(event.getSimulationState(), 'draft')
     self.assertEqual(event.getRelativeUrl(), event2.getRelativeUrl())
@@ -666,7 +666,7 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
     transaction.commit()
     event2 = ticket.RegularisationRequest_checkToSendUniqEvent(
       'service_module/slapos_crm_spam', 'foo2 title', 'foo2 content', 'foo2 comment')
-    self.assertNotEquals(event, event2)
+    self.assertNotEqual(event, event2)
     self.assertEqual(event2, None)
 
   def test_checkToSendUniqEvent_REQUEST_disallowed(self):
@@ -1956,7 +1956,7 @@ class TestSlapOSComputer_notifyWrongAllocationScope(TestCRMSkinsMixin):
     self.tic()
     self.assertEqual(computer.getAllocationScope(), 'open/personal')
     #ticket = self._getGeneratedSupportRequest(computer)
-    self.assertNotEquals(None, ticket)
+    self.assertNotEqual(None, ticket)
     self.assertEqual(ticket.getSimulationState(), 'suspended')
 
     self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \
@@ -3116,7 +3116,7 @@ class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
 
     self.assertEqual(title, first_event.getTitle())
     self.assertEqual(text_content, first_event.getTextContent())
-    self.assertNotEquals(None, first_event.getStartDate())
+    self.assertNotEqual(None, first_event.getStartDate())
     self.assertEqual("service_module/slapos_crm_information",
                       first_event.getResource())
     self.assertEqual(first_event.getDestination(), person.getRelativeUrl())
@@ -3130,7 +3130,7 @@ class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
 
     self.assertEqual(title, event.getTitle())
     self.assertEqual(text_content, event.getTextContent())
-    self.assertNotEquals(None, event.getStartDate())
+    self.assertNotEqual(None, event.getStartDate())
     self.assertEqual("service_module/slapos_crm_information",
                       event.getResource())
     self.assertEqual(event.getDestination(), person.getRelativeUrl())
@@ -3143,7 +3143,7 @@ class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
 
     self.assertEqual(event.getTitle(), title)
     self.assertEqual(text_content, event.getTextContent())
-    self.assertNotEquals(None, event.getStartDate())
+    self.assertNotEqual(None, event.getStartDate())
     self.assertEqual("service_module/slapos_crm_information",
                       event.getResource())
     self.assertEqual(event.getDestination(), person.getRelativeUrl())
@@ -3168,7 +3168,7 @@ class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
 
     self.assertEqual(title, another_first_event.getTitle())
     self.assertEqual(text_content, another_first_event.getTextContent())
-    self.assertNotEquals(None, another_first_event.getStartDate())
+    self.assertNotEqual(None, another_first_event.getStartDate())
     self.assertEqual("service_module/slapos_crm_information",
                       another_first_event.getResource())
     self.assertEqual(another_first_event.getDestination(), person.getRelativeUrl())

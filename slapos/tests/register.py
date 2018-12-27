@@ -38,7 +38,7 @@ class TestRegister(unittest.TestCase):
     """ Simple test to Fetch the configuration template 
     """
     template = slapos.cli.register.fetch_configuration_template()
-    self.assertNotEquals("", template)
+    self.assertNotEqual("", template)
 
     for entry in  ['computer_id', 
                    'master_url',

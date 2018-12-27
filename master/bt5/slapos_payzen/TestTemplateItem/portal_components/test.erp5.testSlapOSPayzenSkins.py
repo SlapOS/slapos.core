@@ -114,11 +114,11 @@ class TestSlapOSPaymentTransaction_generatePayzenId(SlapOSTestCaseMixinWithAbort
     # XXX Not indexed yet
 #     self.assertEqual(category, 'Causality/%s' % transaction_url)
 
-    self.assertNotEquals(payzen_id, None)
+    self.assertNotEqual(payzen_id, None)
     self.assertEqual(len(payzen_id), 6)
     self.assertEqual(str(int(payzen_id)).zfill(6), payzen_id)
 
-    self.assertNotEquals(transaction_date, None)
+    self.assertNotEqual(transaction_date, None)
     self.assertEqual(transaction_date.timezone(), 'UTC')
     self.assertEqual(transaction_date.asdatetime().strftime('%Y%m%d'),
                       DateTime().toZone('UTC').asdatetime().strftime('%Y%m%d'))
@@ -137,7 +137,7 @@ class TestSlapOSPaymentTransaction_generatePayzenId(SlapOSTestCaseMixinWithAbort
     date2, payzen_id2 = payment_transaction2.PaymentTransaction_generatePayzenId()
     self.assertEqual(date.asdatetime().strftime('%Y%m%d'),
                       date2.asdatetime().strftime('%Y%m%d'))
-    self.assertNotEquals(payzen_id, payzen_id2)
+    self.assertNotEqual(payzen_id, payzen_id2)
     self.assertTrue(int(payzen_id) < int(payzen_id2))
 
   def test_generatePayzenId_REQUEST_disallowed(self):
@@ -479,7 +479,7 @@ return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'f
     self.assertEqual(
         'Transaction not found on payzen side.',
         event.workflow_history['system_event_workflow'][-1]['comment'])
-    self.assertNotEquals(payment.getSimulationState(), "cancelled")
+    self.assertNotEqual(payment.getSimulationState(), "cancelled")
     self.assertEqual(
         'Error code 2 (Not found) did not changed the document state.',
         payment.workflow_history['edit_workflow'][-1]['comment'])
@@ -722,7 +722,7 @@ class TestSlapOSPayzenSaleInvoiceTransaction_getPayzenPaymentRelatedValue(
     invoice =  self.createPayzenSaleInvoiceTransaction()
     self.tic()
     payment = invoice.SaleInvoiceTransaction_getPayzenPaymentRelatedValue()
-    self.assertNotEquals(None, payment)
+    self.assertNotEqual(None, payment)
     self.assertEqual(payment.getSimulationState(), "started")
     self.assertEqual(payment.getCausalityValue(), invoice)
     self.assertEqual(payment.getPaymentModeUid(),

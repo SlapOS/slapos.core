@@ -250,7 +250,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
     """Login as a given username. The user must exist."""
     uf = self.getPortal().acl_users
     user = uf.getUserById(username)
-    self.assertNotEquals(user, None, 'No user %s' % username)
+    self.assertNotEqual(user, None, 'No user %s' % username)
     newSecurityManager(None, user.__of__(uf))
 
   ########################################
@@ -1499,7 +1499,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
       if uri != software_release_uri:
         sequence.edit(software_release_uri=uri)
         break
-    self.assertNotEquals(sequence["software_release_uri"],
+    self.assertNotEqual(sequence["software_release_uri"],
         old_software_release_uri)
 
   def stepStoreSoftwareReleaseUri(self, sequence, **kw):
@@ -2725,7 +2725,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
     self.assertEqual("confirmed", sale_order_line.getSimulationState())
     sale_packing_list_line = slave_instance.getAggregateRelatedValue(
         portal_type=self.sale_packing_list_line_portal_type)
-    self.assertNotEquals(sale_packing_list_line.getAggregate(
+    self.assertNotEqual(sale_packing_list_line.getAggregate(
       portal_type=self.computer_partition_portal_type), None)
 
   def stepCheckSlaveInstanceAssociationWithSoftwareInstance(self, sequence):
@@ -2824,7 +2824,7 @@ class TestVifibSlapWebServiceMixin(testVifibMixin):
   def stepSlapLoginSoftwareInstanceFromCurrentSoftwareInstance(self, sequence):
     software_instance = self._getSoftwareInstanceFromCurrentComputerPartition(
         sequence)
-    self.assertNotEquals(None, software_instance)
+    self.assertNotEqual(None, software_instance)
     self.stepSlapLogout()
     global REMOTE_USER
     REMOTE_USER = software_instance.getReference()

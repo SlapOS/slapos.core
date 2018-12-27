@@ -661,7 +661,7 @@ class RunPromise(GenericPromise):
 
     first_result = json.load(open(first_state_file))
     second_result = json.load(open(second_state_file))
-    self.assertNotEquals(first_result['result']['date'], first_date)
+    self.assertNotEqual(first_result['result']['date'], first_date)
     self.assertEqual(second_result['result']['date'], second_date)
     first_date = first_result['result']['date']
 
@@ -673,8 +673,8 @@ class RunPromise(GenericPromise):
 
     first_result = json.load(open(first_state_file))
     second_result = json.load(open(second_state_file))
-    self.assertNotEquals(first_result['result']['date'], first_date)
-    self.assertNotEquals(second_result['result']['date'], second_date)
+    self.assertNotEqual(first_result['result']['date'], first_date)
+    self.assertNotEqual(second_result['result']['date'], second_date)
 
   def test_runpromise_with_periodicity_result_failed_and_ok(self):
     first_promise = 'my_first_promise.py'
@@ -711,7 +711,7 @@ class RunPromise(GenericPromise):
 
     first_result = json.load(open(first_state_file))
     second_result = json.load(open(second_state_file))
-    self.assertNotEquals(first_result['result']['date'], first_date)
+    self.assertNotEqual(first_result['result']['date'], first_date)
     self.assertEqual(second_result['result']['date'], second_date)
     first_date = first_result['result']['date']
     second_date = second_result['result']['date']
@@ -727,8 +727,8 @@ class RunPromise(GenericPromise):
 
     first_result = json.load(open(first_state_file))
     second_result = json.load(open(second_state_file))
-    self.assertNotEquals(first_result['result']['date'], first_date)
-    self.assertNotEquals(second_result['result']['date'], second_date)
+    self.assertNotEqual(first_result['result']['date'], first_date)
+    self.assertNotEqual(second_result['result']['date'], second_date)
 
   def test_runpromise_force(self):
     first_promise = 'my_first_promise.py'

@@ -2347,9 +2347,9 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     )
 
     hosting_subscription2 = person.REQUEST.get('request_hosting_subscription')
-    self.assertNotEquals(hosting_subscription.getRelativeUrl(),
+    self.assertNotEqual(hosting_subscription.getRelativeUrl(),
                       hosting_subscription2.getRelativeUrl())
-    self.assertNotEquals(hosting_subscription.getReference(),
+    self.assertNotEqual(hosting_subscription.getReference(),
                       hosting_subscription2.getReference())
 
     self.assertEqual(software_release2,
@@ -2450,7 +2450,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     )
     hosting_subscription2 = person.REQUEST.get('request_hosting_subscription')
     self.assertEqual("start_requested", hosting_subscription2.getSlapState())
-    self.assertNotEquals(hosting_subscription.getRelativeUrl(),
+    self.assertNotEqual(hosting_subscription.getRelativeUrl(),
                          hosting_subscription2.getRelativeUrl())
 
 class TestSlapOSCorePersonRequestComputer(SlapOSTestCaseMixin):

@@ -65,7 +65,7 @@ class TestSlapOSComputer_reportComputerConsumption(SlapOSTestCaseMixinWithAbort)
     self.assertEqual(document.getSourceReference(), new_id)
     self.assertEqual(document.getTitle(),
                       "%s consumption (%s)" % (computer.getReference(), new_id))
-    self.assertNotEquals(document.getReference(), "")
+    self.assertNotEqual(document.getReference(), "")
     self.assertEqual(document.getVersion(), "1")
     self.assertEqual(document.getData(), consumption_xml)
     self.assertEqual(document.getClassification(), "personal")

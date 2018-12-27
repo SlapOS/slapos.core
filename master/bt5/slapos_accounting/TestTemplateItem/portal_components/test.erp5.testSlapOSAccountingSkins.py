@@ -164,7 +164,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     new_indexation_timestamp = portal.portal_catalog(
       uid=order.getUid(),
       select_dict={'indexation_timestamp': None})[0].indexation_timestamp
-    self.assertNotEquals(new_indexation_timestamp,
+    self.assertNotEqual(new_indexation_timestamp,
                          indexation_timestamp)
 
   def test_OpenSaleOrder_reindexIfIndexedBeforeLine_line_indexed_before(self):

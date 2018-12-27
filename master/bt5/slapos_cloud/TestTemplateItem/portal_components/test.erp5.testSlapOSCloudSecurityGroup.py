@@ -56,7 +56,7 @@ class TestSlapOSSecurityMixin(SlapOSTestCaseMixin):
     system.
     """
     uf = self.getUserFolder()
-    self.assertNotEquals(uf.getUserById(user_id, None), None)
+    self.assertNotEqual(uf.getUserById(user_id, None), None)
     for _, plugin in uf._getOb('plugins').listPlugins(
                                 IAuthenticationPlugin ):
       if plugin.authenticateCredentials(

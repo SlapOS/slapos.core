@@ -22,7 +22,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     self.assertEqual(self.portal.portal_ids.checkConsistency(), [])
 
     self.portal.person_module.setIdGenerator("_Id_fake")
-    self.assertNotEquals(self.portal.portal_ids.checkConsistency(), [])
+    self.assertNotEqual(self.portal.portal_ids.checkConsistency(), [])
     self.portal.portal_ids.fixConsistency()
     self.assertEqual(self.portal.portal_ids.checkConsistency(), [])
     self.assertEqual(self.portal.person_module.getIdGenerator(),

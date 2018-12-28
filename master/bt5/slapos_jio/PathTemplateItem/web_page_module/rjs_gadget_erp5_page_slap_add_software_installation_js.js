@@ -144,9 +144,15 @@
               ]]
             }
           })
-          .push(function () {
+         .push(function () {
+            return RSVP.all([
+              gadget.getUrlFor({command: 'change', options: {"page": "slap_select_software_release"}})
+            ]);
+          })
+          .push(function (url_list) {
             return gadget.updateHeader({
               page_title: "Proceed to Supply Software  " + doc.title + " on " +  computer.reference,
+              selection_url: url_list[0],
               submit_action: true
             });
           });

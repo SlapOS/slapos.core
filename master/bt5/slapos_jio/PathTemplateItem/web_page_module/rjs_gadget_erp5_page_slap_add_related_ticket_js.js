@@ -191,10 +191,16 @@
             }
           })
           .push(function () {
+            return RSVP.all([
+              gadget.getUrlFor({command: 'history_previous'})
+            ]);
+          })
+          .push(function (url_list) {
             return gadget.jio_get(gadget.state.jio_key)
               .push(function (doc) {
                 gadget.updateHeader({
                   page_title: "New Ticket related to " + doc.title,
+                  selection_url: url_list[0],
                   submit_action: true
                 });
               });

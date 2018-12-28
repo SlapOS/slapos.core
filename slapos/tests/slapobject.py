@@ -459,14 +459,16 @@ class TestPartitionDestructionLock(MasterMixin, unittest.TestCase):
     software = self.createSoftware()
     partition = self.createPartition(software.url, retention_delay=delay)
     partition.install()
-    deployed_delay = int(open(partition.retention_lock_delay_file_path).read())
+    with open(partition.retention_lock_delay_file_path) as f:
+      deployed_delay = int(f.read())
     self.assertEqual(delay, deployed_delay)
 
   def test_no_retention_lock_delay(self):
     software = self.createSoftware()
     partition = self.createPartition(software.url)
     partition.install()
-    delay = open(partition.retention_lock_delay_file_path).read()
+    with open(partition.retention_lock_delay_file_path) as f:
+      delay = f.read()
     self.assertTrue(delay, '0')
 
     self.assertTrue(partition.destroy())
@@ -485,7 +487,8 @@ class TestPartitionDestructionLock(MasterMixin, unittest.TestCase):
     partition.install()
     partition.destroy()
 
-    deployed_delay = int(open(partition.retention_lock_delay_file_path).read())
+    with open(partition.retention_lock_delay_file_path) as f:
+      deployed_delay = int(f.read())
     self.assertEqual(delay, deployed_delay)
 
   def test_retention_lock_delay_is_respected(self):
@@ -494,7 +497,8 @@ class TestPartitionDestructionLock(MasterMixin, unittest.TestCase):
     partition = self.createPartition(software.url, retention_delay=delay)
     partition.install()
 
-    deployed_delay = float(open(partition.retention_lock_delay_file_path).read())
+    with open(partition.retention_lock_delay_file_path) as f:
+      deployed_delay = float(f.read())
     self.assertEqual(int(delay), int(deployed_delay))
 
     self.assertFalse(partition.destroy())
@@ -510,7 +514,8 @@ class TestPartitionDestructionLock(MasterMixin, unittest.TestCase):
     partition.install()
     self.assertFalse(os.path.exists(partition.retention_lock_date_file_path))
     partition.destroy()
-    deployed_date = float(open(partition.retention_lock_date_file_path).read())
+    with open(partition.retention_lock_date_file_path) as f:
+      deployed_date = float(f.read())
     self.assertEqual(delay * 3600 * 24 + int(time.time()), int(deployed_date))
 
   def test_retention_lock_date_does_not_change(self):
@@ -529,5 +534,6 @@ class TestPartitionDestructionLock(MasterMixin, unittest.TestCase):
     partition.install()
     partition.destroy()
 
-    deployed_date = float(open(partition.retention_lock_date_file_path).read())
+    with open(partition.retention_lock_date_file_path) as f:
+      deployed_date = float(f.read())
     self.assertEqual(delay * 3600 * 24 + int(now), int(deployed_date))

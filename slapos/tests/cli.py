@@ -185,7 +185,8 @@ class TestCliProxyShow(CliMixin):
     self.assertEqual('', stdout.getvalue())
     self.assertEqual('', stderr.getvalue())
     # our pager was set to output to this temporary file
-    self.assertIn('287375f0cba269902ba1bc50242839d7', open(tmp.name, 'r').read())
+    with open(tmp.name, 'r') as f:
+      self.assertIn('287375f0cba269902ba1bc50242839d7', f.read())
 
 
 class TestCliNode(CliMixin):

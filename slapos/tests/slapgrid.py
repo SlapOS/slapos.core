@@ -176,8 +176,9 @@ class BasicMixin(object):
 
   def assertLogContent(self, log_path, expected, tries=600):
     for i in range(tries):
-      if expected in open(log_path).read():
-        return
+      with open(log_path) as f:
+        if expected in f.read():
+          return
       time.sleep(0.1)
     self.fail('%r not found in %s' % (expected, log_path))
 
@@ -205,7 +206,8 @@ class BasicMixin(object):
     svc = os.path.join(self.instance_root, 'var', 'run', 'supervisord.pid')
     if os.path.exists(svc):
       try:
-        pid = int(open(svc).read().strip())
+        with open(svc) as f:
+          pid = int(f.read().strip())
       except ValueError:
         pass
       else:
@@ -483,7 +485,8 @@ class InstanceForTest(object):
     if not os.path.isdir(promise_path):
       os.makedirs(promise_path)
     promise = os.path.join(promise_path, promise_name)
-    open(promise, 'w').write(promise_content)
+    with open(promise, 'w') as f:
+      f.write(promise_content)
     os.chmod(promise, 0o777)
 
   def setCertificate(self, certificate_repository_path):
@@ -492,11 +495,13 @@ class InstanceForTest(object):
     self.cert_file = os.path.join(certificate_repository_path,
                                   "%s.crt" % self.name)
     self.certificate = str(random.random())
-    open(self.cert_file, 'w').write(self.certificate)
+    with open(self.cert_file, 'w') as f:
+      f.write(self.certificate)
     self.key_file = os.path.join(certificate_repository_path,
                                  '%s.key' % self.name)
     self.key = str(random.random())
-    open(self.key_file, 'w').write(self.key)
+    with open(self.key_file, 'w') as f:
+      f.write(self.key)
 
 
 class SoftwareForTest(object):
@@ -532,22 +537,24 @@ class SoftwareForTest(object):
     """
     Set template.cfg
     """
-    open(os.path.join(self.srdir, 'template.cfg'), 'w').write(template)
+    with open(os.path.join(self.srdir, 'template.cfg'), 'w') as f:
+      f.write(template)
 
   def setBuildout(self, buildout="""#!/bin/sh
 touch worked"""):
     """
     Set a buildout exec in bin
     """
-    open(os.path.join(self.srbindir, 'buildout'), 'w').write(buildout)
+    with open(os.path.join(self.srbindir, 'buildout'), 'w') as f:
+      f.write(buildout)
     os.chmod(os.path.join(self.srbindir, 'buildout'), 0o755)
 
   def setPeriodicity(self, periodicity):
     """
     Set a periodicity file
     """
-    with open(os.path.join(self.srdir, 'periodicity'), 'w') as fout:
-      fout.write(str(periodicity))
+    with open(os.path.join(self.srdir, 'periodicity'), 'w') as f:
+      f.write(str(periodicity))
 
 
 @implementer(IManager)
@@ -873,11 +880,12 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
     # Prepare watchdog
     self.watchdog_banged = os.path.join(self._tempdir, 'watchdog_banged')
     watchdog_path = os.path.join(self._tempdir, 'watchdog')
-    open(watchdog_path, 'w').write(WATCHDOG_TEMPLATE.format(
-        python_path=sys.executable,
-        sys_path=sys.path,
-        watchdog_banged=self.watchdog_banged
-    ))
+    with open(watchdog_path, 'w') as f:
+      f.write(WATCHDOG_TEMPLATE.format(
+          python_path=sys.executable,
+          sys_path=sys.path,
+          watchdog_banged=self.watchdog_banged
+      ))
     os.chmod(watchdog_path, 0o755)
     self.grid.watchdog_path = watchdog_path
     slapos.grid.slapgrid.WATCHDOG_PATH = watchdog_path
@@ -908,7 +916,8 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       daemon_log = os.path.join(partition.partition_path, '.0_daemon.log')
       self.assertLogContent(daemon_log, 'Failing')
       self.assertIsCreated(self.watchdog_banged)
-      self.assertIn('daemon', open(self.watchdog_banged).read())
+      with open(self.watchdog_banged) as f:
+        self.assertIn('daemon', f.read())
 
   def test_one_failing_daemon_in_run_will_not_bang_with_watchdog(self):
     """
@@ -1059,8 +1068,10 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       watchdog.handle_event(headers, payload)
       self.assertEqual(instance.sequence, ['/softwareInstanceBang'])
 
-      self.assertEqual(open(os.path.join(partition, slapos.grid.slapgrid.COMPUTER_PARTITION_LATEST_BANG_TIMESTAMP_FILENAME)).read(), timestamp_content)
-
+      with open(os.path.join(
+          partition,
+          slapos.grid.slapgrid.COMPUTER_PARTITION_LATEST_BANG_TIMESTAMP_FILENAME)) as f:
+        self.assertEqual(f.read(), timestamp_content)
 
   def test_watchdog_ignore_bang_if_partition_not_deployed(self):
     """
@@ -1092,8 +1103,10 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       watchdog.handle_event(headers, payload)
       self.assertEqual(instance.sequence, ['/softwareInstanceBang'])
 
-      self.assertNotEqual(open(os.path.join(partition, slapos.grid.slapgrid.COMPUTER_PARTITION_LATEST_BANG_TIMESTAMP_FILENAME)).read(), timestamp_content)
-
+      with open(os.path.join(
+          partition,
+          slapos.grid.slapgrid.COMPUTER_PARTITION_LATEST_BANG_TIMESTAMP_FILENAME)) as f:
+        self.assertNotEqual(f.read(), timestamp_content)
 
   def test_watchdog_bang_only_once_if_partition_never_deployed(self):
     """
@@ -1179,7 +1192,10 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       watchdog.handle_event(headers, payload)
       self.assertEqual(instance.sequence, ['/softwareInstanceBang'])
 
-      self.assertEqual(open(os.path.join(partition, slapos.grid.slapgrid.COMPUTER_PARTITION_LATEST_BANG_TIMESTAMP_FILENAME)).read(), timestamp_content)
+      with open(os.path.join(
+          partition,
+          slapos.grid.slapgrid.COMPUTER_PARTITION_LATEST_BANG_TIMESTAMP_FILENAME)) as f:
+        self.assertEqual(f.read(), timestamp_content)
 
       # Second bang
       event = watchdog.process_state_events[0]
@@ -1207,7 +1223,10 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       watchdog.handle_event(headers, payload)
       self.assertEqual(instance.sequence, ['/softwareInstanceBang'])
 
-      self.assertEqual(open(os.path.join(partition, slapos.grid.slapgrid.COMPUTER_PARTITION_LATEST_BANG_TIMESTAMP_FILENAME)).read(), timestamp_content)
+      with open(os.path.join(
+          partition,
+          slapos.grid.slapgrid.COMPUTER_PARTITION_LATEST_BANG_TIMESTAMP_FILENAME)) as f:
+        self.assertEqual(f.read(), timestamp_content)
 
       # Fourth bang
       event = watchdog.process_state_events[0]
@@ -1237,7 +1256,8 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       timestamp_path = os.path.join(instance.partition_path, '.timestamp')
       self.setSlapgrid()
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
-      self.assertIn(timestamp, open(timestamp_path).read())
+      with open(timestamp_path) as f:
+        self.assertIn(timestamp, f.read())
       self.assertEqual(instance.sequence,
                        ['/stoppedComputerPartition'])
 

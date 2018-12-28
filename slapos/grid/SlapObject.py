@@ -568,7 +568,8 @@ class Partition(object):
     shutil.copy(template_location, config_location)
 
     # fill generated buildout with additional information
-    buildout_text = open(config_location).read()
+    with open(config_location) as f:
+      buildout_text = f.read()
     buildout_text += '\n\n' + bytes2str(pkg_resources.resource_string(__name__,
         'templates/buildout-tail.cfg.in')) % {
             'computer_id': self.computer_id,
@@ -580,7 +581,8 @@ class Partition(object):
             'storage_home': self.instance_storage_home,
             'global_ipv4_network_prefix': self.ipv4_global_network,
         }
-    open(config_location, 'w').write(buildout_text)
+    with open(config_location, 'w') as f:
+      f.write(buildout_text)
     os.chmod(config_location, 0o640)
     # Try to find the best possible buildout:
     #  *) if software_root/bin/bootstrap exists use this one to bootstrap

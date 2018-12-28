@@ -646,8 +646,10 @@ class RunPromise(GenericPromise):
 
     self.assertTrue(os.path.exists(first_state_file))
     self.assertTrue(os.path.exists(second_state_file))
-    first_result = json.load(open(first_state_file))
-    second_result = json.load(open(second_state_file))
+    with open(first_state_file) as f:
+      first_result = json.load(f)
+    with open(second_state_file) as f:
+      second_result = json.load(f)
     self.assertEqual(first_result['name'], first_promise)
     self.assertEqual(second_result['name'], second_promise)
     first_date = first_result['result']['date']
@@ -659,8 +661,10 @@ class RunPromise(GenericPromise):
       self.launcher.run() # only my_first_promise will run but second_promise still failing
     self.assertEqual(str(exc.exception), 'Promise %r failed.' % second_promise)
 
-    first_result = json.load(open(first_state_file))
-    second_result = json.load(open(second_state_file))
+    with open(first_state_file) as f:
+      first_result = json.load(f)
+    with open(second_state_file) as f:
+      second_result = json.load(f)
     self.assertNotEqual(first_result['result']['date'], first_date)
     self.assertEqual(second_result['result']['date'], second_date)
     first_date = first_result['result']['date']
@@ -671,8 +675,10 @@ class RunPromise(GenericPromise):
       self.launcher.run()
     self.assertEqual(str(exc.exception), 'Promise %r failed.' % second_promise)
 
-    first_result = json.load(open(first_state_file))
-    second_result = json.load(open(second_state_file))
+    with open(first_state_file) as f:
+      first_result = json.load(f)
+    with open(second_state_file) as f:
+      second_result = json.load(f)
     self.assertNotEqual(first_result['result']['date'], first_date)
     self.assertNotEqual(second_result['result']['date'], second_date)
 
@@ -696,8 +702,10 @@ class RunPromise(GenericPromise):
 
     self.assertTrue(os.path.exists(first_state_file))
     self.assertTrue(os.path.exists(second_state_file))
-    first_result = json.load(open(first_state_file))
-    second_result = json.load(open(second_state_file))
+    with open(first_state_file) as f:
+      first_result = json.load(f)
+    with open(second_state_file) as f:
+      second_result = json.load(f)
     self.assertEqual(first_result['name'], first_promise)
     self.assertEqual(second_result['name'], second_promise)
     first_date = first_result['result']['date']
@@ -709,8 +717,10 @@ class RunPromise(GenericPromise):
       self.launcher.run() # only my_first_promise will run but second_promise still failing
     self.assertEqual(str(exc.exception), 'Promise %r failed.' % second_promise)
 
-    first_result = json.load(open(first_state_file))
-    second_result = json.load(open(second_state_file))
+    with open(first_state_file) as f:
+      first_result = json.load(f)
+    with open(second_state_file) as f:
+      second_result = json.load(f)
     self.assertNotEqual(first_result['result']['date'], first_date)
     self.assertEqual(second_result['result']['date'], second_date)
     first_date = first_result['result']['date']
@@ -725,8 +735,10 @@ class RunPromise(GenericPromise):
     self.configureLauncher()
     self.launcher.run() # now all succeed
 
-    first_result = json.load(open(first_state_file))
-    second_result = json.load(open(second_state_file))
+    with open(first_state_file) as f:
+      first_result = json.load(f)
+    with open(second_state_file) as f:
+      second_result = json.load(f)
     self.assertNotEqual(first_result['result']['date'], first_date)
     self.assertNotEqual(second_result['result']['date'], second_date)
 

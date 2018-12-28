@@ -708,14 +708,16 @@ class Partition(object):
     """Asks supervisord to start the instance. If this instance is not
     installed, we install it.
     """
-    supervisor = self.getSupervisorRPC()
     partition_id = self.computer_partition.getId()
     try:
-      supervisor.startProcessGroup(partition_id, False)
+      with self.getSupervisorRPC() as supervisor:
+        supervisor.startProcessGroup(partition_id, False)
     except xmlrpclib.Fault as exc:
       if exc.faultString.startswith('BAD_NAME:'):
         self.logger.info("Nothing to start on %s..." %
                          self.computer_partition.getId())
+      else:
+        raise
     else:
       self.logger.info("Requested start of %s..." % self.computer_partition.getId())
 
@@ -723,11 +725,13 @@ class Partition(object):
     """Asks supervisord to stop the instance."""
     partition_id = self.computer_partition.getId()
     try:
-      supervisor = self.getSupervisorRPC()
-      supervisor.stopProcessGroup(partition_id, False)
+      with self.getSupervisorRPC() as supervisor:
+        supervisor.stopProcessGroup(partition_id, False)
     except xmlrpclib.Fault as exc:
       if exc.faultString.startswith('BAD_NAME:'):
         self.logger.info('Partition %s not known in supervisord, ignoring' % partition_id)
+      else:
+        raise
     else:
       self.logger.info("Requested stop of %s..." % self.computer_partition.getId())
 
@@ -798,15 +802,18 @@ class Partition(object):
 
   def checkProcessesFromStateList(self, process_list, state_list):
     """Asks supervisord to check if one of the processes are in the state_list."""
-    supervisor = self.getSupervisorRPC()
     for process in process_list:
       try:
-        info = supervisor.getProcessInfo(process)
+        with self.getSupervisorRPC() as supervisor:
+          info = supervisor.getProcessInfo(process)
         if info['statename'] in state_list:
           return True
       except xmlrpclib.Fault as exc:
-        self.logger.debug("BAD process name: %r" % process)
-        continue
+        if exc.faultString.startswith('BAD_NAME:'):
+          self.logger.debug("BAD process name: %r" % process)
+          continue
+        else:
+          raise
     return False
 
   def cleanupFolder(self, folder_path):
@@ -832,43 +839,43 @@ class Partition(object):
     #       In future it will not be needed, as update command
     #       is going to be implemented on server side.
     self.logger.debug('Updating supervisord')
-    supervisor = self.getSupervisorRPC()
-    # took from supervisord.supervisorctl.do_update
-    result = supervisor.reloadConfig()
-    added, changed, removed = result[0]
+    with self.getSupervisorRPC() as supervisor:
+      # took from supervisord.supervisorctl.do_update
+      result = supervisor.reloadConfig()
+      added, changed, removed = result[0]
 
-    for gname in removed:
-      results = supervisor.stopProcessGroup(gname)
-      fails = [res for res in results
-               if res['status'] == xmlrpc.Faults.FAILED]
-      if fails:
-        self.logger.warning('Problem while stopping process %r, will try later' % gname)
-      else:
+      for gname in removed:
+        results = supervisor.stopProcessGroup(gname)
+        fails = [res for res in results
+                 if res['status'] == xmlrpc.Faults.FAILED]
+        if fails:
+          self.logger.warning('Problem while stopping process %r, will try later' % gname)
+        else:
+          self.logger.info('Stopped %r' % gname)
+        for i in range(0, 10):
+          # Some process may be still running, be nice and wait for them to be stopped.
+          try:
+            supervisor.removeProcessGroup(gname)
+            break
+          except:
+            if i == 9:
+              raise
+            time.sleep(1)
+
+        self.logger.info('Removed %r' % gname)
+
+      for gname in changed:
+        results = supervisor.stopProcessGroup(gname)
         self.logger.info('Stopped %r' % gname)
-      for i in range(0, 10):
-        # Some process may be still running, be nice and wait for them to be stopped.
-        try:
-          supervisor.removeProcessGroup(gname)
-          break
-        except:
-          if i == 9:
-            raise
-          time.sleep(1)
 
-      self.logger.info('Removed %r' % gname)
+        supervisor.removeProcessGroup(gname)
+        supervisor.addProcessGroup(gname)
+        self.logger.info('Updated %r' % gname)
 
-    for gname in changed:
-      results = supervisor.stopProcessGroup(gname)
-      self.logger.info('Stopped %r' % gname)
-
-      supervisor.removeProcessGroup(gname)
-      supervisor.addProcessGroup(gname)
-      self.logger.info('Updated %r' % gname)
-
-    for gname in added:
-      supervisor.addProcessGroup(gname)
-      self.logger.info('Updated %r' % gname)
-    self.logger.debug('Supervisord updated')
+      for gname in added:
+        supervisor.addProcessGroup(gname)
+        self.logger.info('Updated %r' % gname)
+      self.logger.debug('Supervisord updated')
 
   def _set_ownership(self, path):
     """

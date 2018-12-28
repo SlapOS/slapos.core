@@ -1066,9 +1066,7 @@ stderr_logfile_backups=1
     # Include Partition Logging
     log_folder_path = "%s/.slapgrid/log" % instance_path
     mkdir_p(log_folder_path)
-    partition_file_handler = logging.FileHandler(
-                filename="%s/instance.log" % (log_folder_path)
-            )
+
     stat_info = os.stat(instance_path)
     chownDirectory("%s/.slapgrid" % instance_path,
                    uid=stat_info.st_uid,
@@ -1076,9 +1074,13 @@ stderr_logfile_backups=1
 
     formatter = logging.Formatter(
        '[%(asctime)s] %(levelname)-8s %(name)s %(message)s')
+
+    # this partition_file_handler will be cleaned up after this try: block
+    partition_file_handler = logging.FileHandler(
+                filename="%s/instance.log" % (log_folder_path)
+            )
     partition_file_handler.setFormatter(formatter)
     self.logger.addHandler(partition_file_handler)
-
     try:
       self.logger.info('Processing Computer Partition %s.' % computer_partition_id)
       self.logger.info('  Software URL: %s' % software_url)
@@ -1155,8 +1157,9 @@ stderr_logfile_backups=1
             # updating promises state, no need to raise here
             pass
       raise e
-    else:
+    finally:
       self.logger.removeHandler(partition_file_handler)
+      partition_file_handler.close()
 
     # Run manager tear down
     for manager in self._manager_list:

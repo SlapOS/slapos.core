@@ -24,7 +24,14 @@ default_source_uid=portal.restrictedTraverse('account_module/receivable').getUid
 movement_list = []
 id = 1
 for invoice in portal.portal_catalog(**select_kw):
-  invoice.getObject().serialize() # in order to avoid selection in same transaction
+  invoice.getObject().serialize() # in order to avoid selection on concurrent transactions
+
+  payment_tag = "sale_invoice_transaction_order_builder_%s" % invoice.getObject().getUid()
+  if context.REQUEST.get(payment_tag, None) is not None or \
+    context.portal_activities.countMessageWithTag(payment_tag) > 0:
+    # Invoice was selected before the payment be indexed or it was already created on this transaction
+    # so skip the invoice for now.
+    continue
   quantity = 0.
   for movement in invoice.searchFolder(portal_type='Sale Invoice Transaction Line',
     default_source_uid=default_source_uid):

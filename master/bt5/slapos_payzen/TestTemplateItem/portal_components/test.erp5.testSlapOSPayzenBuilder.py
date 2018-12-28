@@ -162,6 +162,8 @@ class TestSlapOSPaymentTransactionOrderBuilder(SlapOSTestCaseMixin):
     payment_list = self.fullBuild(uid=invoice.getUid())
     payment_list[0].cancel()
     self.tic()
+    self.portal.REQUEST.set("sale_invoice_transaction_order_builder_%s" % invoice.getUid(), None)
+
     payment_list = self.fullBuild(uid=invoice.getUid())
     self.tic()
     self.emptyBuild(uid=invoice.getUid())

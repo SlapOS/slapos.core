@@ -309,13 +309,7 @@ class StandaloneSlapOS(object):
   def supervisor_rpc(self):
     """A xmlrpc connection to control supervisor, use as a context manager.
     """
-    # XXX make getSupervisorRPC a context manager properly closing
-    import contextlib
-    @contextlib.contextmanager
-    def _getSupervisorRPC():
-      yield getSupervisorRPC(self._supervisor_socket)
-    return _getSupervisorRPC()
-    #return getSupervisorRPC(self._supervisor_socket)
+    return getSupervisorRPC(self._supervisor_socket)
 
   def format(
       self,

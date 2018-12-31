@@ -764,7 +764,8 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
   def test_alarm_check_public_computer_state(self):
     self._makeComputer()
     self.computer.edit(allocation_scope='open/public')
-    
+
+    self.tic()    
     self._simulateComputer_checkState()
 
     try:
@@ -779,6 +780,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
   def test_alarm_check_friend_computer_state(self):
     self._makeComputer()
     self.computer.edit(allocation_scope='open/friend')
+    self.tic()    
     
     self._simulateComputer_checkState()
 
@@ -795,7 +797,8 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
   def _test_alarm_check_computer_state_not_selected(self, allocation_scope):
     self._makeComputer()
     self.computer.edit(allocation_scope=allocation_scope)
-    
+    self.tic()
+ 
     self._simulateComputer_checkState()
 
     try:
@@ -865,6 +868,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
   def test_alarm_not_allowed_allocation_scope_OpenPublic(self):
     self._makeComputer()
     self.computer.edit(allocation_scope = 'open/public')
+    self.tic()    
     
     self._simulateComputer_checkAndUpdateAllocationScope()
 
@@ -880,6 +884,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
   def test_alarm_not_allowed_allocation_scope_OpenFriend(self):
     self._makeComputer()
     self.computer.edit(allocation_scope = 'open/friend')
+    self.tic()    
     
     self._simulateComputer_checkAndUpdateAllocationScope()
 
@@ -895,6 +900,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
   def test_alarm_not_allowed_allocationScope_open_personal(self):
     self._makeComputer()
     self.computer.edit(allocation_scope = 'open/personal')
+    self.tic()    
 
     self._simulateComputer_checkAndUpdateAllocationScope()
 
@@ -951,6 +957,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
     def getCreationDate(self):
       return DateTime() - 31
     self.computer.edit(allocation_scope = 'open/personal')
+    self.tic()
 
     from Products.ERP5Type.Base import Base
 
@@ -974,6 +981,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
     def getCreationDate(self):
       return DateTime() - 28
     self.computer.edit(allocation_scope = 'open/personal')
+    self.tic()    
 
     from Products.ERP5Type.Base import Base
 
@@ -993,7 +1001,8 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
 
   def test_alarm_allowed_allocation_scope_OpenPersonal_already_closed(self):
     self._makeComputer()
-    self.computer.edit(allocation_scope = 'open/oudated')
+    self.computer.edit(allocation_scope = 'close/outdated')
+    self.tic()    
 
     self._simulateComputer_checkAndUpdatePersonalAllocationScope()
 

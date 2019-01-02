@@ -2,6 +2,22 @@
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
 from AccessControl import getSecurityManager
 
+class TestSlapOSGroupRoleSecurityCoverage(SlapOSTestCaseMixinWithAbort):
+
+  def testCoverage(self):
+    """ Test which Portal types are not covered by this test.
+    """
+    test_source_code = self.portal.portal_components['test.erp5.testSlapOSERP5GroupRoleSecurity'].getTextContent()
+
+    test_list = []
+    for pt in self.portal.portal_types.objectValues():
+      if len(pt.contentValues(portal_type="Role Information")) > 0:
+        test_klass = "class Test%s" % "".join(pt.getId().split(" "))
+        if test_klass not in test_source_code:
+          test_list.append(test_klass)
+    self.assertEqual(test_list, [])
+
+
 class TestSlapOSGroupRoleSecurityMixin(SlapOSTestCaseMixinWithAbort):
 
   def afterSetUp(self):
@@ -511,12 +527,33 @@ class TestPerson(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(person, shadow_reference, ['Auditor'])
     self.assertRoles(person, self.user_id, ['Owner'])
 
-  # XXX Uncommment once facebook and google login be merged.
-  # def test_TheUserHimself_Facebook(self):
-  #   self.test_TheUserHimself(login_portal_type="Facebook Login")
+  def test_TheUserHimself_Facebook(self):
+    self.test_TheUserHimself(login_portal_type="Facebook Login")
 
-  # def test_TheUserHimself_Google(self):
-  #   self.test_TheUserHimself(login_portal_type="Google Login")
+  def test_TheUserHimself_Google(self):
+    self.test_TheUserHimself(login_portal_type="Google Login")
+
+class TestERP5Login(TestSlapOSGroupRoleSecurityMixin):
+
+  login_portal_type = "ERP5 Login"
+
+  def test_TheUserHimself(self):
+    person = self.portal.person_module.newContent(portal_type='Person')
+    login = person.newContent(portal_type=self.login_portal_type)
+    person.updateLocalRolesOnSecurityGroups()
+    login.updateLocalRolesOnSecurityGroups()
+
+    self.assertSecurityGroup(login,
+        [self.user_id, person.getUserId()], False)
+    self.assertRoles(login, person.getUserId(), ['Assignee'])
+    self.assertRoles(login, self.user_id, ['Owner'])
+
+
+class TestGoogleLogin(TestERP5Login):
+  login_portal_type = "Google Login"
+
+class TestFacebookLogin(TestERP5Login):
+  login_portal_type = "Facebook Login"
 
 class TestPersonModule(TestSlapOSGroupRoleSecurityMixin):
   def test(self):
@@ -2210,3 +2247,5 @@ class TestUpgradeDecision(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(product, 'G-COMPANY', ['Assignor'])
     self.assertRoles(product, person.getUserId(), ['Assignee'])
     self.assertRoles(product, self.user_id, ['Owner'])
+
+    

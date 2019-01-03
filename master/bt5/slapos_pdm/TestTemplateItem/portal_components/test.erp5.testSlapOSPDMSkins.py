@@ -26,6 +26,7 @@
 #
 ##############################################################################
 
+import transaction
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, simulate
 from DateTime import DateTime
 
@@ -1163,6 +1164,42 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     up_decision = hosting_subscription.HostingSubscription_createUpgradeDecision()
     self.assertNotEqual(up_decision, None)
     self.assertEqual(up_decision.getSimulationState(), 'planned')
+    # call a second time without tic
+    up_decision = hosting_subscription.HostingSubscription_createUpgradeDecision()
+    # no new Upgrade decision created
+    self.assertEqual(up_decision, None)
+
+  def testHostingSubscription_createUpgradeDecision_create_once_transaction(self):
+    person = self._makePerson()
+    computer = self._makeComputer(allocation_scope="open/personal")
+    computer.edit(source_administration_value=person)
+    self._makeComputerPartitions(computer)
+    software_product = self._makeSoftwareProduct()
+    software_release = self._requestSoftwareRelease(
+                                    software_product.getRelativeUrl())
+    url_string = software_release.getUrlString()
+    
+    self._makeSoftwareInstallation( computer, url_string)
+    
+    # Create Hosting Subscription and Software Instance
+    hosting_subscription = self._makeFullHostingSubscription(
+                                    url_string, person)
+    self._makeFullSoftwareInstance(hosting_subscription, url_string)
+    self._markComputerPartitionBusy(computer,
+                                    hosting_subscription.getPredecessorValue())
+    
+    # Install the Newest software release
+    software_release2 = self._requestSoftwareRelease(
+                                      software_product.getRelativeUrl())
+    self._makeSoftwareInstallation(computer,
+                                    software_release2.getUrlString())
+    self.tic()
+    
+    up_decision = hosting_subscription.HostingSubscription_createUpgradeDecision()
+    self.assertNotEqual(up_decision, None)
+    self.assertEqual(up_decision.getSimulationState(), 'planned')
+    transaction.commit()
+    self.portal.REQUEST["upgrade_decision_request"] = None
     # call a second time without tic
     up_decision = hosting_subscription.HostingSubscription_createUpgradeDecision()
     # no new Upgrade decision created

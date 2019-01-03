@@ -2,6 +2,12 @@ from DateTime import DateTime
 portal = context.getPortalObject()
 
 hosting_subscription = context
+tag = "%s_requestUpgradeDecisionCreation_inProgress" % hosting_subscription.getUid()
+activate_kw = {'tag': tag}
+if portal.portal_activities.countMessageWithTag(tag) > 0:
+  # nothing to do
+  return
+
 root_instance = hosting_subscription.getPredecessorValue()
 if root_instance is None or root_instance.getPortalType() == "Slave Instance":
   return
@@ -43,8 +49,8 @@ upgrade_decision = newer_release.SoftwareRelease_createUpgradeDecision(
   source_url=hosting_subscription.getRelativeUrl(),
   title=decision_title
 )
-upgrade_decision.plan()
-upgrade_decision.setStartDate(DateTime())
+upgrade_decision.plan(activate_kw=activate_kw)
+upgrade_decision.setStartDate(DateTime(), activate_kw=activate_kw)
 context.REQUEST.set("upgrade_decision_request", upgrade_decision)
 
 # Prevent concurrent transaction to create 2 upgrade decision for the same hosting_subscription

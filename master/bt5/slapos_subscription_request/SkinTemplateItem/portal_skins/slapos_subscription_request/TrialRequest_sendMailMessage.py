@@ -3,20 +3,20 @@ portal = context.getPortalObject()
 notification_message = portal.portal_notifications.getDocumentValue(
                      reference=notification_message_reference)
 
+if notification_message is None:
+  raise ValueError("Notification Message with reference %s was not found" % notification_message_reference)
+
 subject = notification_message.getTitle()
 
 message = notification_message.asText(
   substitution_method_parameter_dict={'mapping_dict': mapping_dict})
 
-
 person_title = "%s FREE TRIAL" % email
 
 free_trial_destination = portal.portal_catalog.getResultValue(
   portal_type="Person",
-  title=person_title,
-  reference=None)
+  title=person_title)
 
-    
 if free_trial_destination is None:
   free_trial_destination = portal.person_module.newContent(
     portal_type="Person",

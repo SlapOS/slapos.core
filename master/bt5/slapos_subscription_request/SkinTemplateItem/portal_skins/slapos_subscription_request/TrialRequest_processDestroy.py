@@ -1,20 +1,20 @@
 from DateTime import DateTime
 portal = context.getPortalObject()
 person = portal.portal_catalog.getResultValue(
-  portal_type="Person", 
+  portal_type="Person",
   reference="free_trial_user")
 
 if context.getStopDate() >= DateTime():
-  return 
+  return
 
-if person is None: 
-  return 
+if person is None:
+  return
 
 if context.getSpecialise() is None:
   return
 
 if context.getValidationState() != "validated":
-  return 
+  return
 
 state = "destroyed"
 
@@ -44,7 +44,7 @@ mapping_dict = {"token": connection_string }
 
 context.TrialRequest_sendMailMessage(person,
     context.getDefaultEmailText(),
-   'slapos-free.trial.destroy', 
+   'slapos-free.trial.destroy',
    mapping_dict)
 
 context.invalidate()

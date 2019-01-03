@@ -6,6 +6,9 @@ if REQUEST is not None:
 
 portal = context.getPortalObject()
 
+if context.getValidationState() != "validated":
+  raise ValueError("This Trial Condition isn't validated.")
+
 trial_configuration = {
     "instance_xml": context.getTextContent(),
     "title": "%s for %s" % (context.getTitle(), email),
@@ -39,11 +42,15 @@ if len(trial_request_list) >= 10:
 
 now = DateTime()
 
+text_content = trial_configuration.get("instance_xml")
+if text_content is not None:
+  text_content = text_content % user_input_dict
+
 trial = context.trial_request_module.newContent(
   source_reference=trial_configuration["software_type"],
   title=software_title,
   url_string=trial_configuration["url"],
-  text_content=trial_configuration["instance_xml"] % user_input_dict,
+  text_content=text_content,
   start_date=now,
   stop_date=now + 30,
   root_slave=trial_configuration["shared"],

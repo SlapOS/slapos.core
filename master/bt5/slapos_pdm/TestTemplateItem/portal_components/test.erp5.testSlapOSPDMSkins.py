@@ -26,6 +26,7 @@
 #
 ##############################################################################
 
+import transaction
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, simulate
 from DateTime import DateTime
 
@@ -1134,7 +1135,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     up_decision = hosting_subscription.HostingSubscription_createUpgradeDecision()
     self.assertEqual(up_decision, None)
 
-  def testHostingSubscription_createUpgradeDecision_create_once(self):
+  def testHostingSubscription_createUpgradeDecision_create_once_transaction(self):
     person = self._makePerson()
     computer = self._makeComputer(allocation_scope="open/personal")
     computer.edit(source_administration_value=person)
@@ -1163,6 +1164,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     up_decision = hosting_subscription.HostingSubscription_createUpgradeDecision()
     self.assertNotEqual(up_decision, None)
     self.assertEqual(up_decision.getSimulationState(), 'planned')
+    transaction.commit()
     # call a second time without tic
     up_decision = hosting_subscription.HostingSubscription_createUpgradeDecision()
     # no new Upgrade decision created

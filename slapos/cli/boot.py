@@ -137,7 +137,7 @@ def _waitIpv6Ready(ipv6_interface):
     else:
       ipv6_address = ""
       print("[BOOT] [ERROR] No IPv6 found on interface %r, "
-        "try again in 5 seconds..." % ipv6_interface))
+        "try again in 5 seconds..." % ipv6_interface)
       sleep(5)
 
 class BootCommand(ConfigCommand):

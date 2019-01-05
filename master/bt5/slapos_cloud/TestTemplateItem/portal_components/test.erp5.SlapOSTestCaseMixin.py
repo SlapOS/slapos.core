@@ -534,5 +534,54 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       resource='foo/bar',
       )
 
+  # Set of methods to help test alarms and to see if the script was called
+  def _simulateScript(self, script_name):
+    if script_name in self.portal.portal_skins.custom.objectIds():
+      raise ValueError('Precondition failed: %s exists in custom' % script_name)
+    createZODBPythonScript(self.portal.portal_skins.custom,
+                        script_name,
+                        '*args, **kwargs',
+                        '# Script body\n'
+"""portal_workflow = context.portal_workflow
+portal_workflow.doActionFor(context, action='edit_action', comment='Visited by %s') """ % script_name )
+    transaction.commit()
+
+  def _dropScript(self, script_name):
+    if script_name in self.portal.portal_skins.custom.objectIds():
+      self.portal.portal_skins.custom.manage_delObjects(script_name)
+    transaction.commit()
+
+  def assertScriptVisited(self, document, script_name):
+    self.assertEqual(
+        'Visited by %s' % script_name,
+        document.workflow_history['edit_workflow'][-1]['comment'])
+
+  def assertScriptNotVisited(self, document, script_name):
+    self.assertNotEqual(
+        'Visited by %s' % script_name,
+        document.workflow_history['edit_workflow'][-1]['comment'])
+
+  def _test_alarm(self, alarm, document, script_name):
+    self.tic()
+    self._simulateScript(script_name)
+    try:
+      alarm.activeSense()
+      self.tic()
+    finally:
+      self._dropScript(script_name)
+    self.assertScriptVisited(document, script_name)
+
+  def _test_alarm_not_visited(self, alarm, document, script_name):
+    self.tic()
+    self._simulateScript(script_name)
+    try:
+      alarm.activeSense()
+      self.tic()
+    finally:
+      self._dropScript(script_name)
+    self.assertScriptNotVisited(document, script_name)
+
+
+
 class SlapOSTestCaseMixinWithAbort(SlapOSTestCaseMixin):
   abort_transaction = 1

@@ -5,6 +5,7 @@ if REQUEST is not None:
 portal = context.getPortalObject()
 
 current_invoice = context.getCausalityValue()
+current_payment = None
 
 if current_invoice is None:
 

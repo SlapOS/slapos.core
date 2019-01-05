@@ -6,7 +6,7 @@ person = context.getDestinationSectionValue()
 if person is None:
   return
 
-if context.getSimulationState() == "validated":
+if context.getSimulationState() == "confirmed":
   return
 
 request_kw = {}

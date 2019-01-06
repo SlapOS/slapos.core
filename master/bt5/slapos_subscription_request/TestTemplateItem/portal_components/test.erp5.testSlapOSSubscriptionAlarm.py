@@ -26,7 +26,7 @@ class TestSlapOSSubscriptionRequestProcessDraft(SlapOSTestCaseMixin):
         title="Test Subscription Request %s" % self.new_id,
         reference="TESTSUBSCRIPTIONREQUEST-%s" % self.new_id
     )
-    subscription_request.planned()
+    subscription_request.plan()
 
     self._test_alarm(
       alarm, subscription_request, script_name)
@@ -40,8 +40,8 @@ class TestSlapOSSubscriptionRequestProcessDraft(SlapOSTestCaseMixin):
         title="Test Subscription Request %s" % self.new_id,
         reference="TESTSUBSCRIPTIONREQUEST-%s" % self.new_id
     )
-    subscription_request.planned()
-    subscription_request.ordered()
+    subscription_request.plan()
+    subscription_request.order()
 
     self._test_alarm(
       alarm, subscription_request, script_name)

@@ -3,6 +3,7 @@ from erp5.component.test.SlapOSTestCaseMixin import \
   SlapOSTestCaseMixinWithAbort, simulate
 from zExceptions import Unauthorized
 from DateTime import DateTime
+import json
 
 class TestTrialSkinsMixin(SlapOSTestCaseMixinWithAbort):
 
@@ -49,6 +50,15 @@ class TestTrialSkinsMixin(SlapOSTestCaseMixinWithAbort):
       )
     self.tic()
     return trial_condition
+
+  def cleanupAllTestTrialCondition(self):
+    self.portal.trial_condition_module.manage_delObjects(
+      ids=[i.getId() for i in self.portal.portal_catalog(
+        portal_type='Trial Condition',
+        title="Test Trial Condition %",
+        reference="TESTTRIALCONDITION-%"
+      ) ])
+    self.tic()
 
   def newTrialRequest(self, title=None, index=1, **kw):
     if title is None:
@@ -542,3 +552,50 @@ if "token" not in  mapping_dict:
     self.assertEqual("destroy_requested", hosting_subscription.getSlapState(), hosting_subscription.getRelativeUrl())
     self.assertEqual("destroy_requested", instance.getSlapState())
 
+
+class TestERP5Site_getTrialConfigurationAsJSON(TestTrialSkinsMixin):
+
+  def test_simple_ERP5Site_getTrialConfigurationAsJSON(self):
+    self.cleanupAllTestTrialCondition()
+    trial_condition = self.newTrialCondition()
+    trial_condition.edit(
+      title = "Test Trial Condition TEST",
+      text_content="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="abc">%(input)s</parameter>
+</instance>""",
+      source_reference="default",
+      url_string="http://lab.nexedi.com/nexedi/couscous",
+      root_slave=False,
+      subject_list=["input"],
+      sla_xml="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+</instance>"""
+    )
+    self.tic()
+
+    expected_json = json.dumps([])
+    self.assertEqual(expected_json, self.portal.ERP5Site_getTrialConfigurationAsJSON())
+
+    trial_condition.validate()
+    self.tic()
+
+    self.assertEqual(expected_json, self.portal.ERP5Site_getTrialConfigurationAsJSON())
+
+    trial_condition.publish()
+    self.tic()
+
+    expected_dict = {"name": trial_condition.getTitle(),
+                      "footer": "",
+                      "url": trial_condition.getRelativeUrl(),
+                      "price": "1 Month Free Trial",
+                      "product_description": "",
+                      "header": "",
+                      "input_list": [],
+                      "terms_of_service": ""}
+    found_list = json.loads(self.portal.ERP5Site_getTrialConfigurationAsJSON())
+    self.assertEqual(1, len(found_list))
+    found_dict = found_list[0]
+
+    for key in expected_dict:
+      self.assertEqual(expected_dict[key], found_dict[key])

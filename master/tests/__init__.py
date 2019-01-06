@@ -8,6 +8,7 @@ slapos_bt_list = [
     'erp5_web_shadir',
     'slapos_accounting',
     'slapos_cache',
+    'slapos_subscription_request',
     'slapos_cloud',
     'slapos_erp5',
     'slapos_pdm',

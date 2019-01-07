@@ -1509,7 +1509,7 @@ class FormatConfig(object):
     if self.dry_run:
       self.logger.info("Dry-run mode enabled.")
     if self.create_tap:
-      self.logger.info("Tap creation mode enabled (%s IPv6).", "with" if with_ipv6 else "without")
+      self.logger.info("Tap creation mode enabled (%s IPv6).", "with" if self.tap_ipv6 else "without")
 
     # Calculate path once
     self.computer_xml = os.path.abspath(self.computer_xml)

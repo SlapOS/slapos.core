@@ -1,11 +1,11 @@
 if brain is None:
   brain = context
 
-software_instance = brain.getAggregateRelatedValue(portal_type=["Software Instance"])
-hosting_subscription = software_instance.getSpecialiseValue()
-jio_key = hosting_subscription.getRelativeUrl()
+instance = brain.getAggregateRelatedValue(portal_type=["Software Instance", "Slave Instance"])
+owner = instance.getSpecialiseValue().getDestinationSectionValue()
+jio_key = owner.getRelativeUrl()
 
-url = hosting_subscription.absolute_url()
+url = owner.absolute_url()
 
 if url_dict:
   return {

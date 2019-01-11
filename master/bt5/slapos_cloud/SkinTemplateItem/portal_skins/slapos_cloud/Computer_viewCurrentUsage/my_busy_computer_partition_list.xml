@@ -662,6 +662,10 @@
                           <string>ComputerPartition_getInstanceUrlString</string>
                         </tuple>
                         <tuple>
+                          <string>owner_title</string>
+                          <string>ComputerPartition_getOwnerUrl</string>
+                        </tuple>
+                        <tuple>
                           <string>ComputerPartition_getLastestContactedDate</string>
                           <string>ComputerPartition_getInstanceUrlString</string>
                         </tuple>

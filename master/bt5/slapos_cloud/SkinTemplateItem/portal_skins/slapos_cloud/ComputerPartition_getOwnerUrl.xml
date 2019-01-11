@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ComputerPartition_getHostingSubscriptionUrlString</string> </value>
+            <value> <string>ComputerPartition_getOwnerUrl</string> </value>
         </item>
       </dictionary>
     </pickle>

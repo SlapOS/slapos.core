@@ -20,6 +20,7 @@
                 <string>search_columns</string>
                 <string>selection_name</string>
                 <string>title</string>
+                <string>url_columns</string>
               </list>
             </value>
         </item>
@@ -139,11 +140,11 @@
                           <string>Computer Ref.</string>
                         </tuple>
                         <tuple>
-                          <string>getAggregateTitle</string>
+                          <string>aggregate_title</string>
                           <string>Computer Partition</string>
                         </tuple>
                         <tuple>
-                          <string>aggregate_default_ipv6</string>
+                          <string>SoftwareInstance_getComputerPartitionIPv6</string>
                           <string>IPv6</string>
                         </tuple>
                         <tuple>
@@ -227,6 +228,25 @@
                 <item>
                     <key> <string>title</string> </key>
                     <value> <string>Software Instances</string> </value>
+                </item>
+                <item>
+                    <key> <string>url_columns</string> </key>
+                    <value>
+                      <list>
+                        <tuple>
+                          <string>aggregate_title</string>
+                          <string>SoftwareInstance_getPartitionUrl</string>
+                        </tuple>
+                        <tuple>
+                          <string>aggregate_parent_title</string>
+                          <string>SoftwareInstance_getComputerUrl</string>
+                        </tuple>
+                        <tuple>
+                          <string>aggregate_parent_reference</string>
+                          <string>SoftwareInstance_getComputerUrl</string>
+                        </tuple>
+                      </list>
+                    </value>
                 </item>
               </dictionary>
             </value>

@@ -1,22 +1,23 @@
 if brain is None:
   brain = context
 
-software_instance = brain.getAggregateRelatedValue(portal_type=["Software Instance"])
-if software_instance is None:
+partition = brain.getAggregateValue()
+if partition is None:
   return None
 
+computer = partition.getParent()
+
 if url_dict: # If RenderJS UI
-  jio_key = software_instance.getRelativeUrl()
+  jio_key = computer.getRelativeUrl()
   return {
     'command': 'push_history',
     'view_kw': {
       'view': 'view',
       'jio_key': jio_key,
-      'editable': 'true',
     },
     'options': {
       'jio_key': jio_key
     },
   }
 else:
-  return software_instance.absolute_url()
+  return computer.absolute_url()

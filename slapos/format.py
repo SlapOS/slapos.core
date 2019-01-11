@@ -354,6 +354,10 @@ class Computer(object):
       path_to_json: String, path to the JSON version to save.
     """
 
+    # dump partition resources information
+    for partition in self.partition_list:
+      partition.dump()
+
     computer_dict = _getDict(self)
 
     if path_to_json:
@@ -387,9 +391,6 @@ class Computer(object):
 
     with open(path_to_xml, 'wb') as fout:
       fout.write(new_pretty_xml)
-
-    for partition in self.partition_list:
-      partition.dump()
 
   def backup_xml(self, path_to_archive, path_to_xml):
     """
@@ -752,9 +753,13 @@ class Partition(object):
   def dump(self):
     """Dump available resources into ~partition_home/.slapos-resource."""
     file_path = os.path.join(self.path, self.resource_file)
+    data = _getDict(self)
+
+    if os.path.exists(file_path) and os.stat(file_path).st_size:
+      return
+
     logger.info("Partition resources saved to {}".format(
       self.reference, file_path))
-    data = _getDict(self)
     with open(file_path, "wb") as fo:
       json.dump(data, fo, sort_keys=True, indent=4)
     owner_pw = pwd.getpwnam(self.user.name)

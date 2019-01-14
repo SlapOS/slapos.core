@@ -1,10 +1,12 @@
 Changes
 =======
 
-1.4.16 (???)
+1.4.16 (2019-01-14)
 -------------------
 
  * format: new tap_iv6 configuration file option
+ * format: dump partition resources information if not exists yet
+ * slapgrid: explicitly close partition file logger for instanciation
 
 1.4.15 (2018-12-11)
 -------------------

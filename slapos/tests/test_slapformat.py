@@ -49,7 +49,7 @@ import pwd
 import time
 import mock
 
-from .slapgrid import DummyManager
+from .test_slapgrid import DummyManager
 
 import six
 

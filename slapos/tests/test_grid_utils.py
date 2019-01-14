@@ -68,36 +68,40 @@ class SlapPopenTestCase(unittest.TestCase):
     self.script.write(b'#!/bin/sh\necho "exit code?"\nread rc\nexit $rc')
     self.script.close()
 
-    # keep a reference to stdin and stdout to restore them later
-    stdin_backup = os.dup(sys.stdin.fileno())
-    stdout_backup = os.dup(sys.stdout.fileno())
+    # when running under pytest we want to disable capture
+    with mock.patch.object(sys, 'stdin', sys.__stdin__), \
+        mock.patch.object(sys, 'stdout', sys.__stdout__):
 
-    # replace stdin with a pipe that will write 123
-    child_stdin_r, child_stdin_w = os.pipe()
-    os.write(child_stdin_w, b"123")
-    os.close(child_stdin_w)
-    os.dup2(child_stdin_r, sys.stdin.fileno())
+      # keep a reference to stdin and stdout to restore them later
+      stdin_backup = os.dup(sys.stdin.fileno())
+      stdout_backup = os.dup(sys.stdout.fileno())
 
-    # and stdout with the pipe to capture output
-    child_stdout_r, child_stdout_w = os.pipe()
-    os.dup2(child_stdout_w, sys.stdout.fileno())
+      # replace stdin with a pipe that will write 123
+      child_stdin_r, child_stdin_w = os.pipe()
+      os.write(child_stdin_w, b"123")
+      os.close(child_stdin_w)
+      os.dup2(child_stdin_r, sys.stdin.fileno())
 
-    try:
-      program = slapos.grid.utils.SlapPopen(
-          self.script.name,
-          debug=True,
-          logger=logging.getLogger())
-      # program output
-      self.assertEqual(b'exit code?\n', os.read(child_stdout_r, 1024))
+      # and stdout with the pipe to capture output
+      child_stdout_r, child_stdout_w = os.pipe()
+      os.dup2(child_stdout_w, sys.stdout.fileno())
 
-      self.assertEqual(123, program.returncode)
-      self.assertEqual('(output not captured in debug mode)', program.output)
-    finally:
-      # restore stdin & stderr
-      os.dup2(stdin_backup, sys.stdin.fileno())
-      os.dup2(stdout_backup, sys.stdout.fileno())
-      # close all fds open for the test
-      for fd in (child_stdin_r, child_stdout_r, child_stdout_w, stdin_backup, stdout_backup):
-        os.close(fd)
+      try:
+        program = slapos.grid.utils.SlapPopen(
+            self.script.name,
+            debug=True,
+            logger=logging.getLogger())
+        # program output
+        self.assertEqual(b'exit code?\n', os.read(child_stdout_r, 1024))
+
+        self.assertEqual(123, program.returncode)
+        self.assertEqual('(output not captured in debug mode)', program.output)
+      finally:
+        # restore stdin & stderr
+        os.dup2(stdin_backup, sys.stdin.fileno())
+        os.dup2(stdout_backup, sys.stdout.fileno())
+        # close all fds open for the test
+        for fd in (child_stdin_r, child_stdout_r, child_stdout_w, stdin_backup, stdout_backup):
+          os.close(fd)
 
 

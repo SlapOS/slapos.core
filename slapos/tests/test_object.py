@@ -36,7 +36,7 @@ from slapos.grid.SlapObject import Partition, Software
 from slapos.grid import utils
 from slapos.grid import networkcache
 # XXX: BasicMixin should be in a separated module, not in slapgrid test module.
-from slapos.tests.slapgrid import BasicMixin
+from slapos.tests.test_slapgrid import BasicMixin
 
 # Mockup
 # XXX: Ambiguous name

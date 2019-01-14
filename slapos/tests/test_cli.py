@@ -97,7 +97,8 @@ class TestCliProxyShow(CliMixin):
     self.conf.logger = self.logger
 
     # load database
-    schema = bytes2str(pkg_resources.resource_string('slapos.tests.slapproxy', 'database_dump_version_current.sql'))
+    schema = bytes2str(pkg_resources.resource_string(
+        'slapos.tests.test_slapproxy', 'database_dump_version_current.sql'))
     db = sqlite_connect(self.db_file.name)
     db.cursor().executescript(schema)
     db.commit()
@@ -148,39 +149,32 @@ class TestCliProxyShow(CliMixin):
     self.logger.info.assert_not_called()
 
   def test_proxy_show_displays_on_stdout(self):
-    saved_stderr = sys.stderr
-    saved_stdout = sys.stdout
-    sys.stderr = stderr = StringIO()
-    sys.stdout = stdout = StringIO()
-    try:
+    # we patch logging to make sure our messages are outputed, even with test
+    # runners like pytest which allows disabling output
+    with patch.object(sys, 'stdout', StringIO()) as stdout, \
+        patch.object(sys, 'stderr', StringIO()) as stderr, \
+        patch('logging.Logger.isEnabledFor', returned_value=True):
       do_show(self.conf)
-    finally:
-      sys.stderr = saved_stderr
-      sys.stdout = saved_stdout
 
     # 287375f0cba269902ba1bc50242839d7 is the hash of an installed software
     # in our setup database
-    # pytest users, be sure to use --log-level=DEBUG
     self.assertIn('287375f0cba269902ba1bc50242839d7', stdout.getvalue())
     self.assertEqual('', stderr.getvalue())
 
   def test_proxy_show_use_pager(self):
-    saved_stderr = sys.stderr
-    saved_stdout = sys.stdout
-    sys.stderr = stderr = StringIO()
-    sys.stdout = stdout = StringIO()
-    stdout.isatty = lambda *args: True
+    # we patch logging to make sure our messages are outputed, even with test
+    # runners like pytest which allows disabling output
+    with patch.object(sys, 'stdout', StringIO()) as stdout, \
+        patch.object(sys, 'stderr', StringIO()) as stderr, \
+        patch('logging.Logger.isEnabledFor', returned_value=True):
+      stdout.isatty = lambda *args: True
 
-    # use a pager that just output to a file.
-    tmp = tempfile.NamedTemporaryFile(delete=False)
-    self.addCleanup(os.unlink, tmp.name)
-    os.environ['PAGER'] = 'cat > {}'.format(tmp.name)
+      # use a pager that just output to a file.
+      tmp = tempfile.NamedTemporaryFile(delete=False)
+      self.addCleanup(os.unlink, tmp.name)
+      os.environ['PAGER'] = 'cat > {}'.format(tmp.name)
 
-    try:
       do_show(self.conf)
-    finally:
-      sys.stderr = saved_stderr
-      sys.stdout = saved_stdout
 
     self.assertEqual('', stdout.getvalue())
     self.assertEqual('', stderr.getvalue())

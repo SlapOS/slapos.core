@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ComputerPartition_getOwnerAsHtml</string> </value>
+            <value> <string>ComputerPartition_getOwnerName</string> </value>
         </item>
       </dictionary>
     </pickle>

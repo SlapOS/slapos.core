@@ -125,7 +125,7 @@ def ipv6FromBin(ip, suffix=''):
   if suffix_len > 0:
     ip += suffix.rjust(suffix_len, '0')
   elif suffix_len:
-    sys.exit("Prefix exceeds 128 bits")
+    raise ValueError("Prefix exceeds 128 bits")
   return socket.inet_ntop(socket.AF_INET6,
     struct.pack('>QQ', int(ip[:64], 2), int(ip[64:], 2)))
 

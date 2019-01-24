@@ -93,8 +93,8 @@
                           <string>Instances Amount</string>
                         </tuple>
                         <tuple>
-                          <string>status</string>
-                          <string>Allocation Status</string>
+                          <string>free_instances_amount</string>
+                          <string>Free Instances Amount (on public computers)</string>
                         </tuple>
                       </list>
                     </value>

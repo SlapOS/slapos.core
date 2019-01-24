@@ -135,6 +135,10 @@
                           <string>Free Partition Count</string>
                         </tuple>
                         <tuple>
+                          <string>free_instance_partition_count</string>
+                          <string>Free Software Instance Count</string>
+                        </tuple>
+                        <tuple>
                           <string>allocation_scope_translated_title</string>
                           <string>Allocation Scope</string>
                         </tuple>

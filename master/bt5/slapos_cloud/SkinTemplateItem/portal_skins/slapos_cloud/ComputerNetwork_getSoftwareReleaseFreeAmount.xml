@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>software_release_url</string> </value>
+            <value> <string>software_release_url=None, debug=False</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ComputerNetwork_getSoftwareReleaseAllocableState</string> </value>
+            <value> <string>ComputerNetwork_getSoftwareReleaseFreeAmount</string> </value>
         </item>
       </dictionary>
     </pickle>

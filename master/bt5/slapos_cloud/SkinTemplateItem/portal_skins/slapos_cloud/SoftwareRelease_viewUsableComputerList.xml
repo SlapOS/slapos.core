@@ -94,6 +94,7 @@
                       <list>
                         <string>listbox_free_partition</string>
                         <string>listbox_amount</string>
+                        <string>listbox_free_instance_partitions</string>
                       </list>
                     </value>
                 </item>

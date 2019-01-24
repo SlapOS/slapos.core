@@ -10,6 +10,7 @@ if computer.getAllocationScope() not in ['open/public', 'open/subscription']:
   return
 
 can_allocate = True
+free_capacity = None
 comment = ''
 
 # First and simple way to see if computer is dead
@@ -59,43 +60,20 @@ if can_allocate:
   software_release_capacity_dict = {}
   consumed_capacity = 0
 
-  def getSoftwareReleaseCapacity(instance):
+  def getSoftwareInstanceCapacity(instance):
     software_release_url = instance.getUrlString()
     software_type = instance.getSourceReference()
     if software_release_url in software_release_capacity_dict:
       return software_release_capacity_dict[software_release_url]
 
-    software_release = portal.portal_catalog.getResultValue(
-      portal_type='Software Release',
-      url_string={'query': software_release_url, 'key': 'ExactMatch'})
-
-    software_release_capacity = None
-    if software_release is not None:
-      # Search for Software Product Individual Variation with same reference
-      software_product = software_release.getAggregateValue()
-      if software_product is not None:
-        for variation in software_product.searchFolder(
-            portal_type="Software Product Individual Variation",
-            reference=software_type):
-          software_release_capacity = variation.getCapacityQuantity(None)
-          if software_release_capacity is not None:
-            break
-
-        if software_release_capacity is None:
-          software_release_capacity = software_product.getCapacityQuantity(None)
-
-      if software_release_capacity is None:
-        software_release_capacity = software_release.getCapacityQuantity(1)
-
-    if software_release_capacity is None:
-      software_release_capacity = 1
-
+    software_release_capacity = instance.SoftwareInstance_getCapacity()
     software_release_capacity_dict[software_release_url] = software_release_capacity
+
     return software_release_capacity
 
   if allocated_instance is not None:
-    software_release_capacity = getSoftwareReleaseCapacity(allocated_instance)
-    consumed_capacity += software_release_capacity
+    software_instance_capacity = getSoftwareInstanceCapacity(allocated_instance)
+    consumed_capacity += software_instance_capacity
     if consumed_capacity >= computer_capacity_quantity:
       can_allocate = False
       comment = 'Computer capacity limit exceeded'
@@ -106,12 +84,14 @@ if can_allocate:
         portal_type=['Software Instance', 'Slave Instance'],
         validation_state='validated'):
 
-      software_release_capacity = getSoftwareReleaseCapacity(instance.getObject())
-      consumed_capacity += software_release_capacity
+      software_instance_capacity = getSoftwareInstanceCapacity(instance.getObject())
+      consumed_capacity += software_instance_capacity
       if consumed_capacity >= computer_capacity_quantity:
         can_allocate = False
         comment = 'Computer capacity limit exceeded'
         break
+
+  free_capacity = computer_capacity_quantity - consumed_capacity
 
 # if can_allocate:
 #   result_list = portal.portal_catalog.portal_catalog(
@@ -123,15 +103,18 @@ if can_allocate:
 #     can_allocate = False
 #     comment = 'No free partition left'
 
-new_value = None
-if can_allocate:
-  if computer.getCapacityScope() == 'close':
-    new_value = 'open'
-else:
-  if computer.getCapacityScope() == 'open':
-    new_value = 'close'
+modified_data = {}
 
-if new_value is not None:
-  computer.edit(capacity_scope=new_value)
+capacity_scope = 'open' if can_allocate else 'close'
+if computer.getCapacityScope() != capacity_scope:
+  modified_data['capacity_scope'] = capacity_scope
+
+if free_capacity is None or free_capacity < 0:
+  free_capacity = 0
+if computer.getFreeCapacityQuantity() != free_capacity:
+  modified_data['free_capacity_quantity'] = free_capacity
+
+if len(modified_data) > 0:
+  computer.edit(**modified_data)
   if comment:
     portal.portal_workflow.doActionFor(computer, 'edit_action', comment=comment)

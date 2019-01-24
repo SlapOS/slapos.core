@@ -96,6 +96,7 @@
                         <string>my_title</string>
                         <string>my_capacity_quantity</string>
                         <string>my_capacity_scope_translated_title</string>
+                        <string>my_free_capacity_quantity</string>
                       </list>
                     </value>
                 </item>

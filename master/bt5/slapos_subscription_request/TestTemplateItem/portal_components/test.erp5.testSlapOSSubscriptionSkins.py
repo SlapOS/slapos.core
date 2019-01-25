@@ -25,7 +25,6 @@ class TestSubscriptionSkinsMixin(SlapOSTestCaseMixinWithAbort):
       )
     self.tic()
     return subscription_request
-  
 
 class TestBase_instanceXmlToDict(TestSubscriptionSkinsMixin):
 
@@ -296,7 +295,7 @@ class TestSubscriptionRequest_createUser(TestSubscriptionSkinsMixin):
 
     self.assertEqual(person.getFirstName(), name)
     erp5_login = [i for i in person.searchFolder(portal_type="ERP5 Login")][0]
-    self.assertEqual(person.getValidationState(), "validated")
+    self.assertEqual(person.getValidationState(), "draft")
     self.assertEqual(erp5_login.getValidationState(), "validated")
     self.assertEqual(erp5_login.getReference(), person.getUserId())
 

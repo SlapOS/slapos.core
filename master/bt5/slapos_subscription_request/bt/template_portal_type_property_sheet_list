@@ -13,6 +13,7 @@ Subscription Request | Reference
 Subscription Request | SlapOSAccountingHostingSubscriptionConstraint
 Subscription Request | SlaposHostingSubscriptionConstraint
 Subscription Request | SoftwareInstance
+Subscription Request | Task
 Subscription Request | TextDocument
 Subscription Request | Url
 Subscription Request | VariationRange

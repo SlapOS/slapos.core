@@ -17,6 +17,7 @@
   <item>SlapOSAccountingHostingSubscriptionConstraint</item>
   <item>SlaposHostingSubscriptionConstraint</item>
   <item>SoftwareInstance</item>
+  <item>Task</item>
   <item>TextDocument</item>
   <item>Url</item>
   <item>VariationRange</item>

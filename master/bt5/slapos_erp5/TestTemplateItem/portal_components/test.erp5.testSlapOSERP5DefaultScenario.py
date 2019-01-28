@@ -432,9 +432,14 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
     self.tic()
 
-    # build the aggregated payment
-    self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
-    self.tic()
+    builder = self.portal.portal_orders.slapos_payment_transaction_builder
+    for _ in range(500):
+      # build the aggregated payment
+      self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
+      self.tic()
+      # If there is something unbuild recall alarm.
+      if len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
+        break
 
     # start the payzen payment
     self.stepCallSlaposPayzenUpdateConfirmedPaymentAlarm()
@@ -637,7 +642,7 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
       portal_type="Person",
       user_id=user_id)
 
-    self.assertNotEqual(person, None)
+    self.assertNotEquals(person, None)
 
     # User received an email for payment
     email = person.getDefaultEmailText()
@@ -649,7 +654,9 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     to_click_message = findMessage(email, 'A new invoice has been generated.')
     self.assertNotEqual(None, to_click_message)
 
-    # Pay to payzen
+    # Pay to payzen...
+    # If you are using live test, be aware that the call of the alarm can be
+    # not enough for the number of objects on the site.
     document_id = self.portal.portal_catalog.getResultValue(
 				portal_type="Payment Transaction",
 				simulation_state="started",
@@ -884,9 +891,14 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
     self.tic()
 
-    # build the aggregated payment
-    self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
-    self.tic()
+    builder = self.portal.portal_orders.slapos_payment_transaction_builder
+    for _ in range(500):
+      # build the aggregated payment
+      self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
+      self.tic()
+      # If there is something unbuild recall alarm.
+      if len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
+        break
 
     # start the payzen payment
     self.stepCallSlaposPayzenUpdateConfirmedPaymentAlarm()
@@ -1196,9 +1208,14 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
     self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
     self.tic()
 
-    # build the aggregated payment
-    self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
-    self.tic()
+    builder = self.portal.portal_orders.slapos_payment_transaction_builder
+    for _ in range(500):
+      # build the aggregated payment
+      self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
+      self.tic()
+      # If there is something unbuild recall alarm.
+      if len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
+        break
 
     # start the payzen payment
     self.stepCallSlaposPayzenUpdateConfirmedPaymentAlarm()
@@ -1317,9 +1334,14 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
     self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
     self.tic()
 
-    # build the aggregated payment
-    self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
-    self.tic()
+    builder = self.portal.portal_orders.slapos_payment_transaction_builder
+    for _ in range(500):
+      # build the aggregated payment
+      self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
+      self.tic()
+      # If there is something unbuild recall alarm.
+      if len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
+        break
 
     # start the payzen payment
     self.stepCallSlaposPayzenUpdateConfirmedPaymentAlarm()

@@ -18,6 +18,10 @@ def assignComputerPartition(software_instance, hosting_subscription):
   if computer_partition is None:
     hosting_subscription = software_instance.getSpecialiseValue(
         portal_type='Hosting Subscription')
+
+    if hosting_subscription is None:
+      raise ValueError('%s does not have related hosting subscription' % software_instance.getRelativeUrl())
+
     person = hosting_subscription.getDestinationSectionValue(portal_type='Person')
     if person is None:
       raise ValueError('%s does not have person related' % hosting_subscription.getRelativeUrl())

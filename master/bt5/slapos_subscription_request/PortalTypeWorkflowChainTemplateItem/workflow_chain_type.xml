@@ -1,5 +1,9 @@
 <workflow_chain>
  <chain>
+  <type>Email</type>
+  <workflow>-coordinate_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Subscription Condition</type>
   <workflow>commerce_validation_workflow, edit_workflow</workflow>
  </chain>

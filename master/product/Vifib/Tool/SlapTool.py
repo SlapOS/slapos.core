@@ -809,8 +809,6 @@ class SlapTool(BaseTool):
       slap_partition._software_release_document = SoftwareRelease(
             software_release=software_instance.getUrlString().decode("UTF-8"),
             computer_guid=computer_reference.decode("UTF-8"))
-      slap_partition._software_release_document._software_release = \
-        slap_partition._software_release_document._software_release.decode("UTF-8")
 
       slap_partition._need_modification = 1
 
@@ -951,8 +949,6 @@ class SlapTool(BaseTool):
       slap_partition._software_release_document = SoftwareRelease(
             software_release=software_instance.getUrlString().decode("UTF-8"),
             computer_guid=computer_id)
-      slap_partition._software_release_document._software_release = \
-        slap_partition._software_release_document._software_release.decode("UTF-8")
 
       slap_partition._need_modification = 1
 
@@ -1599,8 +1595,6 @@ class SlapTool(BaseTool):
       software_release_response = SoftwareRelease(
           software_release=software_installation.getUrlString().decode('UTF-8'),
           computer_guid=computer_reference.decode('UTF-8'))
-      software_release_response._software_release = \
-        software_release_response._software_release.decode("UTF-8")
       if software_installation.getSlapState() == 'destroy_requested':
         software_release_response._requested_state = 'destroyed'
       else:

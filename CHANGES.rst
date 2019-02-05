@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.4.17 (2019-02-05)
+-------------------
+
+ * grid.promise: add support for promise without test or anomaly
+
 1.4.16 (2019-01-14)
 -------------------
 

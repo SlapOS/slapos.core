@@ -1,8 +1,13 @@
-from DateTime import DateTime
 portal = context.getPortalObject()
-person = portal.portal_catalog.getResultValue(
-  portal_type="Person",
-  reference="free_trial_user")
+erp5_login = portal.portal_catalog.getResultValue(
+  portal_type="ERP5 Login",
+  reference="free_trial_user",
+  validation_state="validated")
+
+if erp5_login is None:
+  return
+
+person = erp5_login.getParentValue()
 
 if context.getStopDate() >= DateTime():
   return
@@ -16,7 +21,7 @@ if context.getSpecialise() is None:
 if context.getValidationState() != "validated":
   return
 
-state = "destroyed"
+state = 'destroyed'
 
 hosting_subscription = context.getSpecialiseValue()
 
@@ -33,6 +38,8 @@ request_kw.update(
 
 person.requestSoftwareInstance(**request_kw)
 
+assert hosting_subscription.getSlapState() == "destroy_requested",\
+  "Hosting Subscription not destroyed!!"
 
 connection_dict = hosting_subscription.getPredecessorValue().getConnectionXmlAsDict()
 

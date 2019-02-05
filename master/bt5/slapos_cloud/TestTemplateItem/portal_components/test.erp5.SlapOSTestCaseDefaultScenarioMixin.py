@@ -198,6 +198,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       self.login(computer_user_id)
       computer_xml = self.portal.portal_slap.getFullComputerInformation(
           computer_id=computer.getReference())
+      if not isinstance(computer_xml, str):
+        computer_xml = computer_xml.getBody()
       slap_computer = xml_marshaller.xml_marshaller.loads(computer_xml)
       self.assertEqual('Computer', slap_computer.__class__.__name__)
       for software_release in slap_computer._software_release_list:
@@ -220,6 +222,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       self.login(computer_user_id)
       computer_xml = self.portal.portal_slap.getFullComputerInformation(
           computer_id=computer.getReference())
+      if not isinstance(computer_xml, str):
+        computer_xml = computer_xml.getBody()
       slap_computer = xml_marshaller.xml_marshaller.loads(computer_xml)
       self.assertEqual('Computer', slap_computer.__class__.__name__)
       destroyed_partition_id_list = []
@@ -249,7 +253,9 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     try:
       self.login(computer_user_id)
       computer_xml = self.portal.portal_slap.getFullComputerInformation(
-          computer_id=computer.getReference())
+        computer_id=computer.getReference())
+      if not isinstance(computer_xml, str):
+        computer_xml = computer_xml.getBody()
       slap_computer = xml_marshaller.xml_marshaller.loads(computer_xml)
       self.assertEqual('Computer', slap_computer.__class__.__name__)
       for partition in slap_computer._computer_partition_list:

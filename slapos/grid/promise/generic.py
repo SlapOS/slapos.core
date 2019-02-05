@@ -58,7 +58,7 @@ class BaseResult(object):
     # The promise message should be very short,
     # a huge message size can freeze the process Pipe
     # XXX this is important to prevent process deadlock
-    if len(message) > 5000:
+    if message is not None and len(message) > 5000:
       message = '...%s' % message[-5000:]
     self.__message = message
     self.__date = date

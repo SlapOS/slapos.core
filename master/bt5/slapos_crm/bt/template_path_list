@@ -1,4 +1,8 @@
 event_module/slapos_crm_web_message_template
+notification_message_module/outdated_instance_en
+notification_message_module/outdated_instance_fr
+notification_message_module/slapos_broken_instance_en
+notification_message_module/slapos_broken_instance_fr
 person_module/allocation_tester
 portal_alarms/slapos_crm_*
 portal_categories/monitor_scope/**

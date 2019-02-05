@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<ZopeData>
+  <record id="1" aka="AAAAAAAAAAE=">
+    <pickle>
+      <global name="Notification Message" module="erp5.portal_type"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>_Access_contents_information_Permission</string> </key>
+            <value>
+              <tuple>
+                <string>Assignee</string>
+                <string>Assignor</string>
+                <string>Associate</string>
+                <string>Auditor</string>
+                <string>Manager</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>_Add_portal_content_Permission</string> </key>
+            <value>
+              <tuple>
+                <string>Manager</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>_Delete_objects_Permission</string> </key>
+            <value>
+              <tuple>
+                <string>Manager</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>_Modify_portal_content_Permission</string> </key>
+            <value>
+              <tuple>
+                <string>Assignee</string>
+                <string>Assignor</string>
+                <string>Manager</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>_View_Permission</string> </key>
+            <value>
+              <tuple>
+                <string>Assignee</string>
+                <string>Assignor</string>
+                <string>Associate</string>
+                <string>Auditor</string>
+                <string>Manager</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>categories</string> </key>
+            <value>
+              <tuple>
+                <string>function/production</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>content_md5</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>text/plain</string> </value>
+        </item>
+        <item>
+            <key> <string>default_reference</string> </key>
+            <value> <string>slapos-broken-instance-fr</string> </value>
+        </item>
+        <item>
+            <key> <string>description</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>id</string> </key>
+            <value> <string>slapos_broken_instance_fr</string> </value>
+        </item>
+        <item>
+            <key> <string>language</string> </key>
+            <value> <string>fr</string> </value>
+        </item>
+        <item>
+            <key> <string>portal_type</string> </key>
+            <value> <string>Notification Message</string> </value>
+        </item>
+        <item>
+            <key> <string>text_content</string> </key>
+            <value> <string>Bonjour ${owner_name},\n
+\n
+Votre instance ${instance_name} semble ne plus correctement s\'instancier en résilience suite à une erreur dans le processus de compilation et/ou d\'instanciation.\n
+Ce problème provient des fichiers buildout qui sont incorrects.\n
+\n
+Afin de garantir une intégrité et une stabilité des instances résilientes, il est nécessaire que celles-ci soient constamment en état d’être reconstruite sans erreur.\n
+De ce fait, il faut que vous corrigiez les erreurs présentes sur vos instances, celles-ci étant affichées sur votre interface de monitoring disponible à l’URL indiquée sur slapos.vifib.com.\n
+\n
+Sans nouvelles ou actions de votre part d’ici trois jours, nous ne garantirons plus l’intégrité de votre instance.\n
+N’hésitez pas à revenir vers moi en cas de problèmes ou de questions.\n
+\n
+Support Team</string> </value>
+        </item>
+        <item>
+            <key> <string>text_content_substitution_mapping_method_id</string> </key>
+            <value> <string>Event_getHostingSubscriptionData</string> </value>
+        </item>
+        <item>
+            <key> <string>title</string> </key>
+            <value> <string>Votre instance est cassée</string> </value>
+        </item>
+        <item>
+            <key> <string>version</string> </key>
+            <value> <string>001</string> </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+</ZopeData>

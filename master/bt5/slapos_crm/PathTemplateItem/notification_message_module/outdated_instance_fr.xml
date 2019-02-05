@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<ZopeData>
+  <record id="1" aka="AAAAAAAAAAE=">
+    <pickle>
+      <global name="Notification Message" module="erp5.portal_type"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>_Access_contents_information_Permission</string> </key>
+            <value>
+              <tuple>
+                <string>Assignee</string>
+                <string>Assignor</string>
+                <string>Associate</string>
+                <string>Auditor</string>
+                <string>Manager</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>_Add_portal_content_Permission</string> </key>
+            <value>
+              <tuple>
+                <string>Manager</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>_Delete_objects_Permission</string> </key>
+            <value>
+              <tuple>
+                <string>Manager</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>_Modify_portal_content_Permission</string> </key>
+            <value>
+              <tuple>
+                <string>Assignee</string>
+                <string>Assignor</string>
+                <string>Manager</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>_View_Permission</string> </key>
+            <value>
+              <tuple>
+                <string>Assignee</string>
+                <string>Assignor</string>
+                <string>Associate</string>
+                <string>Auditor</string>
+                <string>Manager</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>categories</string> </key>
+            <value>
+              <tuple>
+                <string>function/production</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>content_md5</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>text/plain</string> </value>
+        </item>
+        <item>
+            <key> <string>default_reference</string> </key>
+            <value> <string>outdated-instance-fr</string> </value>
+        </item>
+        <item>
+            <key> <string>description</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>id</string> </key>
+            <value> <string>outdated_instance_fr</string> </value>
+        </item>
+        <item>
+            <key> <string>language</string> </key>
+            <value> <string>fr</string> </value>
+        </item>
+        <item>
+            <key> <string>portal_type</string> </key>
+            <value> <string>Notification Message</string> </value>
+        </item>
+        <item>
+            <key> <string>text_content</string> </key>
+            <value> <string>Bonjour ${owner_name},\n
+\n
+Votre instance ${instance_name} n\'est pas à la dernière version de la Software Release disponible.\n
+\n
+Or afin de garantir une intégrité et une stabilité des instances, il est nécessaire que celles-ci soient régulièrement mise à jour afin qu’elles puissent profiter des dernières fonctionnalités et correction de bugs, simplifiant ainsi leur maintenance.\n
+De ce fait, il est nécessaire que vous effectuez une des actions suivantes:\n
+\n
+- Vérifier que votre instance est toujours utilisée, étant nécessaire de ne pas garder des instances qui ne sont plus utilisées, et de soit détruire l’instance en question ou la stopper le cas étant.\n
+- Consulter les tickets correspondant aux “Upgrade Decision” conçernant vos instances et que vous les acceptiez (s’il y en a plusieurs, il n’est nécessaire que d’accepter la dernière en date correspondant à la dernière version disponible pour l’instance)\n
+  La dernière trouvée étant: ${preferred_slapos_web_site_url}/#/${upgrade_decision_path}\n
+\n
+Sans nouvelles ou actions de votre part d’ici trois jours, nous ne garantirons plus l’intégrité de votre instance.\n
+N’hésitez pas à revenir vers moi en cas de problèmes ou de questions.\n
+\n
+PS: Lorsqu’un ticket “Upgrade Decision” est accepté et complété, l’instance correspondante nécessite [pour le moment] d’être redémarrée afin que la mise à jour s’applique (il faut stopper l’instance et la redémarrer une fois complètement stoppée pour cela)\n
+\n
+Support Team</string> </value>
+        </item>
+        <item>
+            <key> <string>text_content_substitution_mapping_method_id</string> </key>
+            <value> <string>Event_getOutdatedHostingSubscriptionData</string> </value>
+        </item>
+        <item>
+            <key> <string>title</string> </key>
+            <value> <string>Instance dépréciée</string> </value>
+        </item>
+        <item>
+            <key> <string>version</string> </key>
+            <value> <string>001</string> </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+</ZopeData>

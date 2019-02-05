@@ -492,6 +492,12 @@ class PromiseLauncher(object):
         message="Error: No output returned by the promise",
         execution_time=execution_time
       )
+    elif queue_item.item is None:
+      # no result collected (sense skipped)
+      skipped_method = "Anomaly" if self.check_anomaly else "Test"
+      self.logger.debug("Skipped, %s is disabled in promise %r." % (
+        skipped_method, promise_name))
+      return False
 
     if not self.dry_run:
       self._savePromiseResult(queue_item)

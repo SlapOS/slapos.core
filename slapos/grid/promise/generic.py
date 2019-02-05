@@ -58,7 +58,7 @@ class BaseResult(object):
     # The promise message should be very short,
     # a huge message size can freeze the process Pipe
     # XXX this is important to prevent process deadlock
-    if len(message) > 5000:
+    if message is not None and len(message) > 5000:
       message = '...%s' % message[-5000:]
     self.__message = message
     self.__date = date
@@ -154,6 +154,9 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
     self.setPeriodicity(self.__config.pop('periodicity', 2))
 
     self.__transaction_id = '%s-%s' % (int(time.time()), random.randint(100, 999))
+    self.__is_tested = True
+    # XXX - JP asked to use __is_anomaly_detected = True, but __is_anomaly_less seems more convenient
+    self.__is_anomaly_detected = True
 
     self._validateConf()
     self._configureLogger()
@@ -226,6 +229,24 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
 
   def getPeriodicity(self):
     return self.__periodicity
+
+  def setTestLess(self):
+    """
+      Ask to skip test method. Only Anomaly will run
+    """
+    self.__is_tested = False
+
+  def isTested(self):
+    return self.__is_tested
+
+  def setAnomalyLess(self):
+    """
+      Ask to skip anomaly method. Only Test will run
+    """
+    self.__is_anomaly_detected = False
+
+  def isAnomalyLess(self):
+    return self.__is_anomaly_detected
 
   def __bang(self, message):
     """
@@ -451,41 +472,58 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
       @param can_bang: Set to True if bang can be called, this parameter should
         be set to False if bang is already called by another promise.
     """
-    try:
-      self.sense()
-    except Exception as e:
-      # log the result
-      self.logger.error(str(e))
-    if check_anomaly:
-      # run sense, anomaly
-      try:
-        result = self.anomaly()
-        if result is None:
-          raise ValueError("Promise anomaly method returned 'None'")
-      except Exception as e:
-        result = AnomalyResult(problem=True, message=str(e))
+    if not self.__is_tested and not self.__is_anomaly_detected:
+      message = "It's not allowed to disable both Test and Anomaly in promise!"
+      if check_anomaly:
+        result = AnomalyResult(problem=True, message=message)
       else:
-        if isinstance(result, AnomalyResult) and result.hasFailed() and can_bang:
-          try:
-            self.__bang("Promise %s is failing" % self.__title)
-          except:
-            self.logger.warning(traceback.format_exc())
+        result = TestResult(problem=True, message=message)
+      self.__sendResult(PromiseQueueResult(
+        path=self.__promise_path,
+        name=self.__name,
+        title=self.__title,
+        item=result
+      ))
+    elif (not self.__is_tested and not check_anomaly) or \
+        (not self.__is_anomaly_detected and check_anomaly):
+      # Anomaly or Test is disabled on this promise, send empty result
+      self.__sendResult(PromiseQueueResult())
     else:
-      # run sense, test
       try:
-        result = self.test()
-        if result is None:
-          raise ValueError("Promise test method returned 'None'")
+        self.sense()
       except Exception as e:
-        result = TestResult(problem=True, message=str(e))
+        # log the result
+        self.logger.error(str(e))
+      if check_anomaly:
+        # run sense, anomaly
+        try:
+          result = self.anomaly()
+          if result is None:
+            raise ValueError("Promise anomaly method returned 'None'")
+        except Exception as e:
+          result = AnomalyResult(problem=True, message=str(e))
+        else:
+          if isinstance(result, AnomalyResult) and result.hasFailed() and can_bang:
+            try:
+              self.__bang("Promise %s is failing" % self.__title)
+            except:
+              self.logger.warning(traceback.format_exc())
+      else:
+        # run sense, test
+        try:
+          result = self.test()
+          if result is None:
+            raise ValueError("Promise test method returned 'None'")
+        except Exception as e:
+          result = TestResult(problem=True, message=str(e))
+
+      # send the result of this promise
+      self.__sendResult(PromiseQueueResult(
+        path=self.__promise_path,
+        name=self.__name,
+        title=self.__title,
+        item=result
+      ))
 
     if self.__logger_buffer is not None:
       self.__logger_buffer.close()
-
-    # send the result of this promise
-    self.__sendResult(PromiseQueueResult(
-      path=self.__promise_path,
-      name=self.__name,
-      title=self.__title,
-      item=result
-    ))

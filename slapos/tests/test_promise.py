@@ -133,7 +133,7 @@ class TestSlapOSPromiseMixin(unittest.TestCase):
     os.chmod(path, mode)
 
   def generatePromiseScript(self, name, success=True, failure_count=1, content="",
-    periodicity=0.03):
+    periodicity=0.03, is_tested=True):
     promise_content = """from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise import GenericPromise
@@ -144,6 +144,8 @@ class RunPromise(GenericPromise):
   def __init__(self, config):
     GenericPromise.__init__(self, config)
     self.setPeriodicity(minute=%(periodicity)s)
+    if not %(is_tested)s:
+      self.setTestLess()
 
   def sense(self):
     %(content)s
@@ -160,7 +162,7 @@ class RunPromise(GenericPromise):
     return self._test(latest_minute=%(periodicity)s, failure_amount=%(failure_amount)s)
 
 """ % {'success': success, 'content': content, 'failure_amount': failure_count,
-       'periodicity': periodicity}
+       'periodicity': periodicity, 'is_tested': is_tested}
 
     with open(os.path.join(self.plugin_dir, name), 'w') as f:
       f.write(promise_content)
@@ -1075,6 +1077,40 @@ exit 1
     time.sleep(1)
     with self.assertRaises(PromiseError):
       self.launcher.run()
+
+  def test_runpromise_not_tested(self):
+    promise_name = 'my_promise.py'
+
+    def test_method(result):
+      self.called = True
+
+    self.called = False
+    self.configureLauncher(save_method=test_method, timeout=5, enable_anomaly=False)
+    self.generatePromiseScript(promise_name, success=True, content="""import time
+    time.sleep(20)""", periodicity=0.01, is_tested=False,)
+
+    # will not run the promise in test mode (so no sleep)
+    self.launcher.run()
+    # no result returned by the promise
+    self.assertFalse(self.called)
+
+  def test_runpromise_not_tested_with_anomaly(self):
+    promise_name = 'my_promise.py'
+
+    def test_method(result):
+      self.called = True
+      self.assertTrue(isinstance(result, PromiseQueueResult))
+      self.assertTrue(isinstance(result.item, AnomalyResult))
+
+    self.called = False
+    self.configureLauncher(save_method=test_method, timeout=1, enable_anomaly=True)
+    self.generatePromiseScript(promise_name, success=True,
+      periodicity=0.01, is_tested=False,)
+
+    # will run the promise because we are in anomaly mode
+    self.launcher.run()
+    # promise result is saved
+    self.assertTrue(self.called)
 
 class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
 

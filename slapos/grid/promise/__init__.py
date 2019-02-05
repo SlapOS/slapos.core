@@ -492,6 +492,10 @@ class PromiseLauncher(object):
         message="Error: No output returned by the promise",
         execution_time=execution_time
       )
+    elif queue_item.item is None:
+      # no result collected (sense skipped)
+      self.logger.debug("Skipped, promise %r is not tested." % promise_name)
+      return False
 
     if not self.dry_run:
       self._savePromiseResult(queue_item)

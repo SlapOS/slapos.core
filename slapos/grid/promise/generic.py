@@ -92,6 +92,15 @@ class AnomalyResult(BaseResult):
   def type():
     return "Anomaly Result"
 
+class EmptyResult(BaseResult):
+
+  def __init__(self):
+    BaseResult.__init__(self, False, None, None)
+
+  @staticmethod
+  def type():
+    return "Empty Result"
+
 class PromiseQueueResult(object):
 
   def __init__(self, path=None, name=None, title=None,
@@ -101,6 +110,9 @@ class PromiseQueueResult(object):
     self.item = item
     self.title = title
     self.execution_time = execution_time
+    if self.item is None:
+      # if no result set, then set EmptyResult
+      self.item = EmptyResult()
 
   def serialize(self):
     return {
@@ -245,7 +257,7 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
     """
     self.__is_anomaly_detected = False
 
-  def isAnomalyLess(self):
+  def isAnomalyDetected(self):
     return self.__is_anomaly_detected
 
   def __bang(self, message):
@@ -487,7 +499,11 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
     elif (not self.__is_tested and not check_anomaly) or \
         (not self.__is_anomaly_detected and check_anomaly):
       # Anomaly or Test is disabled on this promise, send empty result
-      self.__sendResult(PromiseQueueResult())
+      if self.getConfig('slapgrid-version', '') <= '1.4.17':
+        # old version cannot send EmptyResult
+        self.__sendResult(PromiseQueueResult(item=TestResult()))
+      else:
+        self.__sendResult(PromiseQueueResult())
     else:
       try:
         self.sense()

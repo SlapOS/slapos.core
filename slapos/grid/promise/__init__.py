@@ -49,6 +49,7 @@ from slapos.grid.promise.generic import (GenericPromise, PromiseQueueResult,
                                          PROMISE_PARAMETER_NAME,
                                          PROMISE_PERIOD_FILE_NAME)
 from slapos.grid.promise.wrapper import WrapPromise
+from slapos.version import version
 
 class PromiseError(Exception):
   pass
@@ -492,7 +493,7 @@ class PromiseLauncher(object):
         message="Error: No output returned by the promise",
         execution_time=execution_time
       )
-    elif queue_item.item is None:
+    elif queue_item.item.type() == "Empty Result":
       # no result collected (sense skipped)
       skipped_method = "Anomaly" if self.check_anomaly else "Test"
       self.logger.debug("Skipped, %s is disabled in promise %r." % (
@@ -530,6 +531,7 @@ class PromiseLauncher(object):
       'partition-id': self.partition_id,
       'computer-id': self.computer_id,
       'queue': self.queue_result,
+      'slapgrid-version': version,
     }
 
     if os.path.exists(self.promise_folder) and os.path.isdir(self.promise_folder):

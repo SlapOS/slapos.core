@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.4.18 (2019-02-06)
+-------------------
+
+ * grid.promise: do no write execution timestamp if running testless or anomalyless promise
+ * grid.promise: send EmptyResult if promise is test less or anomaly less
+
 1.4.17 (2019-02-05)
 -------------------
 

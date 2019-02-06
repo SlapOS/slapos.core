@@ -1148,6 +1148,50 @@ exit 1
     # promise result is saved
     self.assertTrue(self.called)
 
+  def test_runpromise_not_tested_will_not_change_periodicity(self):
+    promise_name = 'my_promise.py'
+
+    def test_method(result):
+      self.called = True
+
+    self.called = False
+
+    self.configureLauncher(save_method=test_method, timeout=5, enable_anomaly=False)
+    self.generatePromiseScript(promise_name, success=True, periodicity=5,
+      is_tested=False,)
+
+    # will not run the promise in test mode
+    self.launcher.run()
+    self.assertFalse(self.called)
+
+    self.configureLauncher(save_method=test_method, timeout=5, enable_anomaly=True)
+    # will not run immediately anomaly
+    self.launcher.run()
+    # no result returned by the promise
+    self.assertTrue(self.called)
+
+  def test_runpromise_without_anomaly_no_change_periodicity(self):
+    promise_name = 'my_promise.py'
+
+    def test_method(result):
+      self.called = True
+
+    self.called = False
+
+    self.configureLauncher(save_method=test_method, timeout=5, enable_anomaly=True)
+    self.generatePromiseScript(promise_name, success=True, periodicity=5,
+      with_anomaly=False,)
+
+    # will not run the promise in anomaly mode
+    self.launcher.run()
+    self.assertFalse(self.called)
+
+    self.configureLauncher(save_method=test_method, timeout=5, enable_anomaly=False)
+    # will not run immediately anomaly (periodicity didn't change)
+    self.launcher.run()
+    # no result returned by the promise
+    self.assertTrue(self.called)
+
   def test_runpromise_not_tested_without_anomaly_fail(self):
     promise_name = 'my_promise.py'
 

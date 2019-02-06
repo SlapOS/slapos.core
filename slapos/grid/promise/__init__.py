@@ -146,7 +146,6 @@ class PromiseProcess(Process):
     """
     try:
       os.chdir(self.partition_folder)
-      self.setPromiseStartTimestamp()
       if self.uid and self.gid:
         dropPrivileges(self.uid, self.gid, logger=self.logger)
 
@@ -157,6 +156,10 @@ class PromiseProcess(Process):
         promise_module = self._loadPromiseModule()
         promise_instance = promise_module.RunPromise(self.argument_dict)
 
+      if (promise_instance.isAnomalyDetected() and self.check_anomaly) or \
+          (promise_instance.isTested() and not self.check_anomaly):
+        # if the promise will run, we save execution timestamp
+        self.setPromiseStartTimestamp()
       promise_instance.run(self.check_anomaly, self.allow_bang)
     except Exception:
       self.logger.error(traceback.format_exc())

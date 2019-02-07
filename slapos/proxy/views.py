@@ -689,8 +689,7 @@ def requestSlave(software_release, software_type, partition_reference, partition
   new_slave['slave_reference'] = slave_reference
 
   for key in partition_parameter_kw:
-    if partition_parameter_kw[key] is not None:
-      new_slave[key] = partition_parameter_kw[key]
+    new_slave[key] = partition_parameter_kw[key]
 
   # Add slave to partition slave_list if not present else replace information
   slave_instance_list = partition['slave_instance_list']

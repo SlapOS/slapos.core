@@ -156,7 +156,9 @@ class PromiseProcess(Process):
         promise_module = self._loadPromiseModule()
         promise_instance = promise_module.RunPromise(self.argument_dict)
 
-      if (promise_instance.isAnomalyDetected() and self.check_anomaly) or \
+      if not hasattr(promise_instance, 'isAnomalyDetected') or not \
+          hasattr(promise_instance, 'isTested') or \
+          (promise_instance.isAnomalyDetected() and self.check_anomaly) or \
           (promise_instance.isTested() and not self.check_anomaly):
         # if the promise will run, we save execution timestamp
         self.setPromiseStartTimestamp()

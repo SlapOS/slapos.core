@@ -483,7 +483,7 @@ class PromiseLauncher(object):
 
     self.logger.info("Checking promise %s..." % promise_name)
     queue_item = None
-    sleep_time = 0.1
+    sleep_time = 0.05
     increment_limit = int(self.promise_timeout / sleep_time)
     execution_time = self.promise_timeout
     ps_profile = False

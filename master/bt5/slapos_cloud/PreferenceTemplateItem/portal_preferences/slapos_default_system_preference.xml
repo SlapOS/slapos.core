@@ -86,6 +86,10 @@
             <value> <string>sale_trade_condition_module/slapos_aggregated_trade_condition</string> </value>
         </item>
         <item>
+            <key> <string>preferred_aggregated_subscription_sale_trade_condition</string> </key>
+            <value> <string>sale_trade_condition_module/slapos_aggregated_subscription_trade_condition</string> </value>
+        </item>
+        <item>
             <key> <string>preferred_campaign_use</string> </key>
             <value>
               <tuple/>
@@ -98,6 +102,14 @@
         <item>
             <key> <string>preferred_credential_request_automatic_approval</string> </key>
             <value> <int>1</int> </value>
+        </item>
+        <item>
+            <key> <string>preferred_document_conversion_server_url</string> </key>
+            <value>
+              <tuple>
+                <string>https://cloudooo.erp5.net/</string>
+              </tuple>
+            </value>
         </item>
         <item>
             <key> <string>preferred_event_resource</string> </key>
@@ -121,6 +133,12 @@
               <tuple>
                 <string>crm/event</string>
               </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>preferred_hateoas_url</string> </key>
+            <value>
+              <none/>
             </value>
         </item>
         <item>
@@ -213,6 +231,16 @@
             <key> <string>preferred_sale_opportunity_use</string> </key>
             <value>
               <tuple/>
+            </value>
+        </item>
+        <item>
+            <key> <string>preferred_shacache_website_expected_state</string> </key>
+            <value> <string>embeeded</string> </value>
+        </item>
+        <item>
+            <key> <string>preferred_slapos_web_site_url</string> </key>
+            <value>
+              <none/>
             </value>
         </item>
         <item>

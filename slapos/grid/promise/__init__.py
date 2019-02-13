@@ -198,7 +198,7 @@ class PromiseProcess(Process):
       raise RuntimeError("RunPromise class is not a subclass of " \
         "GenericPromise class.")
 
-    if promise_module.__file__ != self.promise_path:
+    if 'py'.join(promise_module.__file__.rsplit('pyc')) != self.promise_path:
       # cached module need to be updated
       promise_module = reload_module(promise_module)
     # load extra parameters

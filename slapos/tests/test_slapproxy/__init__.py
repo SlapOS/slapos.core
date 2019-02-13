@@ -615,6 +615,31 @@ class TestRequest(MasterMixin):
                            partition_parameter_kw={'text': u'Привет Мир!'})
     self.assertIsInstance(request, slapos.slap.ComputerPartition)
 
+  def test_request_with_int(self):
+    """
+    Verify that request with int parameters is correctly accepted
+    """
+    self.add_free_partition(1)
+    request = self.request('http://sr//', None, 'myinstance', 'slappart0',
+                           partition_parameter_kw={'int': 1})
+    self.assertIsInstance(request, slapos.slap.ComputerPartition)
+
+  def test_request_set_connection_parameters_with_int(self):
+    """
+    Verify that request int works in connection parameters
+    """
+    self.add_free_partition(1)
+    partition_id = self.request('http://sr//', None, 'myinstance', 'slappart0')._partition_id
+    # Set connection parameter
+    partition = self.getPartitionInformation(partition_id)
+
+    self.setConnectionDict(partition_id=partition_id,
+                           connection_dict={'foo': 1})
+
+    # Get updated information for the partition
+    partition_new = self.request('http://sr//', None, 'myinstance', 'slappart0')
+    self.assertEqual(partition_new.getConnectionParameter('foo'), '1')
+
 
 class TestSlaveRequest(MasterMixin):
   """

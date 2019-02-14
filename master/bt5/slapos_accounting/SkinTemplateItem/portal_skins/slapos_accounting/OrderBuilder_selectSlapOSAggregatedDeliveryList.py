@@ -3,7 +3,6 @@
 person_delivery_mapping = {}
 portal = context.getPortalObject()
 
-specialise = portal.portal_preferences.getPreferredAggregatedSaleTradeCondition()
 for movement in movement_list:
   person = movement.getDestinationValue()
   try:
@@ -18,7 +17,7 @@ for movement in movement_list:
         source_section=movement.getSourceSection(),
         destination_section=movement.getDestination(),
         destination_decision=movement.getDestination(),
-        specialise=specialise,
+        specialise=movement.getSpecialise(),
         price_currency=movement.getPriceCurrency()
       )
       delivery.confirm('New aggregated delivery.')

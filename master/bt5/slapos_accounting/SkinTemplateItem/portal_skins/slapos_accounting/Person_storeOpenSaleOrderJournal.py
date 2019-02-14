@@ -35,11 +35,14 @@ def newOpenOrder(open_sale_order):
 def storeWorkflowComment(document, comment):
   portal.portal_workflow.doActionFor(document, 'edit_action', comment=comment)
 
-def calculateOpenOrderLineStopDate(open_order_line, hosting_subscription):
+def calculateOpenOrderLineStopDate(open_order_line, hosting_subscription, start_date_delta):
   end_date = hosting_subscription.HostingSubscription_calculateSubscriptionStopDate()
   if end_date is None:
     # Be sure that start date is different from stop date
-    next_stop_date = hosting_subscription.getNextPeriodicalDate(hosting_subscription.HostingSubscription_calculateSubscriptionStartDate())
+    # Consider the first period longer (delta), this allow us to change X days/months
+    # On a first invoice.
+    next_stop_date = hosting_subscription.getNextPeriodicalDate(
+      hosting_subscription.HostingSubscription_calculateSubscriptionStartDate() + start_date_delta)
     current_stop_date = next_stop_date
     while next_stop_date < now:
       # Return result should be < now, it order to provide stability in simulation (destruction if it happen should be >= now)
@@ -90,7 +93,7 @@ if open_sale_order is not None:
     assert current_start_date == hosting_subscription.HostingSubscription_calculateSubscriptionStartDate()
 
     # First check if the hosting subscription has been correctly simulated (this script may run only once per year...)
-    stop_date = calculateOpenOrderLineStopDate(open_order_line, hosting_subscription)
+    stop_date = calculateOpenOrderLineStopDate(open_order_line, hosting_subscription, start_date_delta=0)
     if current_stop_date != stop_date:
       # Bingo, new subscription to generate
       open_order_line.edit(
@@ -151,17 +154,24 @@ if (add_line_list):
 
     edit_kw = {}
     subscription_request = hosting_subscription.getAggregateRelatedValue(portal_type="Subscription Request")
+    # Define the start date of the period, this can variates with the time.
+    start_date_delta = 0
     if subscription_request is not None:
+      # Quantity is double because the first invoice has to
+      # charge for 2 months
       edit_kw['quantity'] = subscription_request.getQuantity()
       edit_kw['price'] = subscription_request.getPrice()
       edit_kw['price_currency'] = subscription_request.getPriceCurrency()
-      
-    
+      # While create move the start date to be at least 1 months
+      # So we can charge 3 months at once.
+      start_date_delta = 65
+
     open_sale_order_line.edit(
       activate_kw=activate_kw,
       title=hosting_subscription.getTitle(),
       start_date=start_date,
-      stop_date=calculateOpenOrderLineStopDate(open_sale_order_line, hosting_subscription),
+      stop_date=calculateOpenOrderLineStopDate(open_sale_order_line,
+              hosting_subscription, start_date_delta=start_date_delta),
       aggregate_value=hosting_subscription,
       **edit_kw
       )

@@ -6,7 +6,8 @@ isTransitionPossible = portal.portal_workflow.isTransitionPossible
 if context.getSimulationState() == 'started' \
   and len(context.checkConsistency()) == 0 \
   and context.getCausalityState() == 'solved' \
-  and context.getSpecialise() == portal.portal_preferences.getPreferredAggregatedSaleTradeCondition():
+  and context.getSpecialise() in [portal.portal_preferences.getPreferredAggregatedSaleTradeCondition(),
+                                  portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()]:
   comment = 'Delivered by alarm as all actions in started state are ready.'
   if isTransitionPossible(context, 'stop'):
     context.stop(comment=comment)

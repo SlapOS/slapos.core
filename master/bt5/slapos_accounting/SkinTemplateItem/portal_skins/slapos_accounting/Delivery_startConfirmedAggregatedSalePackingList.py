@@ -6,7 +6,9 @@ isTransitionPossible = portal.portal_workflow.isTransitionPossible
 if context.getSimulationState() == 'confirmed' \
   and len(context.checkConsistency()) == 0 \
   and context.getCausalityState() == 'solved' \
-  and context.getSpecialise() == portal.portal_preferences.getPreferredAggregatedSaleTradeCondition():
+  and context.getSpecialise() in [portal.portal_preferences.getPreferredAggregatedSaleTradeCondition(),
+                                  portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()]:
+
   comment = 'Start by alarm as all actions in confirmed state are ready.'
   date = DateTime().earliestTime()
   context.edit(start_date=date, stop_date=date)

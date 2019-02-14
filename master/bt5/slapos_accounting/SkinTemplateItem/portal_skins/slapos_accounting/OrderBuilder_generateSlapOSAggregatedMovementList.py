@@ -27,8 +27,8 @@ select_kw.update(
 movement_list = portal.portal_catalog(**select_kw)
 
 specialise = portal.portal_preferences.getPreferredAggregatedSaleTradeCondition()
+subscription_request_specialise = portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()
 temp_movement_list = []
-id = 1
 for movement in movement_list:
   if movement.getGroupingReference() is not None:
     continue
@@ -50,7 +50,11 @@ for movement in movement_list:
   else:
     temp_movement.edit(price=0.0)
 
+  hosting_subscription = movement.getAggregateValue(portal_type="Hosting Subscription")
+  if hosting_subscription is not None and \
+    hosting_subscription.getAggregateRelated(portal_type="Subscription Request"):
+    temp_movement.edit(specialise=subscription_request_specialise)
+
   temp_movement_list.append(temp_movement)
-  id += 1
 
 return temp_movement_list

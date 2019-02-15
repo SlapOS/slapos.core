@@ -18,7 +18,8 @@ for movement in movement_list:
         destination_section=movement.getDestination(),
         destination_decision=movement.getDestination(),
         specialise=movement.getSpecialise(),
-        price_currency=movement.getPriceCurrency()
+        price_currency=movement.getPriceCurrency(),
+        causality=movement.getCausality()
       )
       delivery.confirm('New aggregated delivery.')
       person.Person_setAggregatedDelivery(delivery)

@@ -51,9 +51,12 @@ for movement in movement_list:
     temp_movement.edit(price=0.0)
 
   hosting_subscription = movement.getAggregateValue(portal_type="Hosting Subscription")
-  if hosting_subscription is not None and \
-    hosting_subscription.getAggregateRelated(portal_type="Subscription Request"):
-    temp_movement.edit(specialise=subscription_request_specialise)
+  if hosting_subscription is not None:
+    subscription = hosting_subscription.getAggregateRelated(portal_type="Subscription Request")
+    if subscription is not None:
+      temp_movement.edit(
+        specialise=subscription_request_specialise,
+        causality=subscription)
 
   temp_movement_list.append(temp_movement)
 

@@ -69,9 +69,11 @@ def xml2dict(xml):
 
 def dict2xml(dictionary):
   instance = etree.Element('instance')
-  for parameter_id, parameter_value in six.iteritems(dictionary):
+  for k, v in six.iteritems(dictionary):
+    if not isinstance(v, six.string_types):
+      v = str(v)
     etree.SubElement(instance, "parameter",
-                     attrib={'id': parameter_id}).text = parameter_value
+                     attrib={'id': k}).text = v
   return bytes2str(etree.tostring(instance,
                         pretty_print=True,
                         xml_declaration=True,

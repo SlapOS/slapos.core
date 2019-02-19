@@ -1,10 +1,16 @@
 # If Hosting subscription is None, make the request
 
-context.SubscriptionRequest_processRequest()
+hosting_subscription = context.getAggregateValue()
 
-# Don't continue if instance wasnt there.
-if context.getAggregate() is None:
-  return
+# Don't request again if it is already requested.
+if hosting_subscription is None:
+  context.SubscriptionRequest_processRequest()
+  hosting_subscription = context.getAggregateValue()
 
-#if context.SubscriptionRequest_testPaymentBalance():
-# context.confirm()
+if hosting_subscription is not None:
+  instance = hosting_subscription.getPredecessorValue()
+  # This ensure that the user has a valid cloud contract
+  user_contract = instance.SoftwareInstance_requestValidationPayment()
+
+if context.SubscriptionRequest_testPaymentBalance():
+  context.confirm()

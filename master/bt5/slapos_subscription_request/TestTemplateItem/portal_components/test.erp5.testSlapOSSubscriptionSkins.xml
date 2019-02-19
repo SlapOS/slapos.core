@@ -46,10 +46,10 @@
             <key> <string>text_content_warning_message</string> </key>
             <value>
               <tuple>
-                <string>W:254,  4: Unused variable \'email\' (unused-variable)</string>
-                <string>W:255,  4: Unused variable \'name\' (unused-variable)</string>
-                <string>W:266,  4: Unused variable \'name\' (unused-variable)</string>
-                <string>W:275,  4: Unused variable \'name\' (unused-variable)</string>
+                <string>W:255,  4: Unused variable \'email\' (unused-variable)</string>
+                <string>W:256,  4: Unused variable \'name\' (unused-variable)</string>
+                <string>W:267,  4: Unused variable \'name\' (unused-variable)</string>
+                <string>W:276,  4: Unused variable \'name\' (unused-variable)</string>
               </tuple>
             </value>
         </item>

@@ -229,7 +229,7 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
         self.assertEqual(line.getQuantity(), quantity)
         self.assertEqual(round(line.getPrice(), 2), 20.83)
       if line.getResource() == "service_module/slapos_tax":
-        self.assertEqual(line.getQuantity(), 20.833333333333333*quantity)
+        self.assertEqual(round(line.getQuantity(), 2), round(20.833333333333333*quantity, 2))
         self.assertEqual(round(line.getTotalPrice(), 2), round(4.166666666666667*quantity, 2))
 
     self.assertEqual(round(invoice.getTotalPrice(), 2), 25.0*quantity)

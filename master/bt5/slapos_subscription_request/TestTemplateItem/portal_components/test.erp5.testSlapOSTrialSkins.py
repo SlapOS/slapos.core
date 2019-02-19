@@ -31,15 +31,20 @@ class TestTrialSkinsMixin(SlapOSTestCaseMixinWithAbort):
 
   def makeFreeTrialUser(self):
 
-    person = self.portal.portal_catalog.getResultValue(
-        portal_type="Person",
-        reference="free_trial_user")
-    if person:
-      return person
+    login = self.portal.portal_catalog.getResultValue(
+        portal_type="ERP5 Login",
+        reference="free_trial_user",
+        validation_state="validated")
+
+    if login:
+      return login.getParentValue()
 
     person = self.makePerson()
-    person.setReference("free_trial_user")
+    person.newContent(
+      portal_type="ERP5 Login",
+      reference="free_trial_user").validate()
     self.tic()
+
     return person
 
   def newTrialCondition(self):
@@ -235,12 +240,12 @@ class TestSlapOSTrialCondition_requestFreeTrialProxy(TestTrialSkinsMixin):
 class TestTrialRequest_processRequest(TestTrialSkinsMixin):
 
   def test_free_trial_use_dont_exist(self):
-    person_list = self.portal.portal_catalog(
-        portal_type="Person",
+    login_list = self.portal.portal_catalog(
+        portal_type="ERP5 Login",
         reference="free_trial_user")
 
-    for person in person_list:
-      person.setReference("XXXX")
+    for login in login_list:
+      login.setReference("%s_test_free_trial_use_dont_exist" % self.generateNewId())
     self.tic()
 
     try:
@@ -248,8 +253,8 @@ class TestTrialRequest_processRequest(TestTrialSkinsMixin):
       self.assertEqual(None, trial_request.TrialRequest_processRequest())
       self.assertEqual(None, trial_request.getAggregate())
     finally:
-      for person in person_list:
-        person.setReference("free_trial_user")
+      for login in login_list:
+        login.setReference("free_trial_user")
       self.tic()
 
   def test_already_validated(self):
@@ -299,20 +304,20 @@ class TestTrialRequest_processRequest(TestTrialSkinsMixin):
 class TestTrialRequest_processNotify(TestTrialSkinsMixin):
 
   def test_free_trial_use_dont_exist(self):
-    person_list = self.portal.portal_catalog(
-        portal_type="Person",
+    login_list = self.portal.portal_catalog(
+        portal_type="ERP5 Login",
         reference="free_trial_user")
 
-    for person in person_list:
-      person.setReference("XXXX")
+    for login in login_list:
+      login.setReference("%s_test_free_trial_use_dont_exist" % self.generateNewId())
     self.tic()
 
     try:
       trial_request = self.newTrialRequest()
       self.assertEqual("Free Trial Person not Found", trial_request.TrialRequest_processNotify())
     finally:
-      for person in person_list:
-        person.setReference("free_trial_user")
+      for login in login_list:
+        login.setReference("free_trial_user")
       self.tic()
 
   def test_already_validated(self):
@@ -464,12 +469,12 @@ class TestTrialRequest_sendMailMessage(TestTrialSkinsMixin):
 class TestTrialRequest_processDestroy(TestTrialSkinsMixin):
 
   def test_free_trial_use_dont_exist(self):
-    person_list = self.portal.portal_catalog(
-        portal_type="Person",
+    login_list = self.portal.portal_catalog(
+        portal_type="ERP5 Login",
         reference="free_trial_user")
 
-    for person in person_list:
-      person.setReference("XXXX")
+    for login in login_list:
+      login.setReference("%s_test_free_trial_use_dont_exist" % self.generateNewId())
     self.tic()
 
     try:
@@ -479,8 +484,8 @@ class TestTrialRequest_processDestroy(TestTrialSkinsMixin):
 
       self.assertEqual(None, trial_request.TrialRequest_processDestroy())
     finally:
-      for person in person_list:
-        person.setReference("free_trial_user")
+      for login in login_list:
+        login.setReference("free_trial_user")
       self.tic()
 
   def test_stop_date_didnt_arrive(self):

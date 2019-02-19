@@ -143,6 +143,15 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.tic()
 
   @changeSkin('RJS')
+  def setServerOpenSubscription(self, server):
+    server.edit(
+        allocation_scope='open/subscription')
+    self.assertEqual('open/subscription', server.getAllocationScope())
+    self.assertEqual('open', server.getCapacityScope())
+    server.edit(capacity_scope='open')
+    self.tic()
+
+  @changeSkin('RJS')
   def setServerOpenPersonal(self, server):
     server.edit(
         allocation_scope='open/personal', subject_list=[])

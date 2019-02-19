@@ -43,6 +43,7 @@
                 <string>source</string>
                 <string>source_section</string>
                 <string>specialise</string>
+                <string>causality</string>
               </tuple>
             </value>
         </item>

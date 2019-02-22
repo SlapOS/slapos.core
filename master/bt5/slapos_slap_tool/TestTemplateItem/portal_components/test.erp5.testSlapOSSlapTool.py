@@ -1441,8 +1441,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 </marshal>"""
     stored_xml = """<?xml version='1.0' encoding='utf-8'?>
 <instance>
-  <parameter id="p1é">v1é</parameter>
   <parameter id="p2é">v2é</parameter>
+  <parameter id="p1é">v1é</parameter>
 </instance>
 """
     self.login(self.start_requested_software_instance.getUserId())
@@ -1474,8 +1474,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 </marshal>"""
     stored_xml = """<?xml version='1.0' encoding='utf-8'?>
 <instance>
-  <parameter id="p1é">v1é</parameter>
   <parameter id="p2é">v2é</parameter>
+  <parameter id="p1é">v1é</parameter>
 </instance>
 """
     self.login(self.start_requested_software_instance.getUserId())

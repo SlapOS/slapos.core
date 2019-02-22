@@ -70,7 +70,11 @@ def xml2dict(xml):
 def dict2xml(dictionary):
   instance = etree.Element('instance')
   for k, v in six.iteritems(dictionary):
-    if not isinstance(v, six.string_types):
+    if isinstance(k, bytes):
+      k = k.decode('utf-8')
+    if isinstance(v, bytes):
+      v = v.decode('utf-8')
+    elif not isinstance(v, six.text_type):
       v = str(v)
     etree.SubElement(instance, "parameter",
                      attrib={'id': k}).text = v

@@ -45,10 +45,12 @@ import hashlib
 import time
 from Products.ERP5Type.tests.utils import DummyMailHostMixin
 try:
-  from slapos.slap.slap import Computer
-  from slapos.slap.slap import ComputerPartition as SlapComputerPartition
-  from slapos.slap.slap import SoftwareInstance
-  from slapos.slap.slap import SoftwareRelease
+  from slapos.slap.slap import (
+    Computer,
+    ComputerPartition as SlapComputerPartition,
+    SoftwareInstance,
+    SoftwareRelease)
+  from slapos.proxy.views import dict2xml
 except ImportError:
   # Do no prevent instance from starting
   # if libs are not installed
@@ -64,6 +66,8 @@ except ImportError:
   class SoftwareRelease:
     def __init__(self):
       raise ImportError
+  def dict2xml(dictionary):
+    raise ImportError
 
 from zLOG import LOG, INFO
 import xml_marshaller
@@ -1203,16 +1207,8 @@ class SlapTool(BaseTool):
         computer_id,
         computer_partition_id,
         slave_reference)
-    partition_parameter_kw = xml_marshaller.xml_marshaller.loads(
-                                              connection_xml)
-    instance = etree.Element('instance')
-    for parameter_id, parameter_value in partition_parameter_kw.iteritems():
-      if not isinstance(parameter_value, unicode):
-        parameter_value = str(parameter_value)
-      etree.SubElement(instance, "parameter",
-                       attrib={'id':parameter_id}).text = parameter_value
-    connection_xml = etree.tostring(instance, pretty_print=True,
-                                  xml_declaration=True, encoding='utf-8')
+    connection_xml = dict2xml(xml_marshaller.xml_marshaller.loads(
+                                              connection_xml))
     reference = software_instance.getReference()
     if self._getLastData(reference) != connection_xml:
       software_instance.updateConnection(

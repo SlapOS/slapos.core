@@ -37,6 +37,8 @@ import json
 import importlib
 import traceback
 import psutil
+import functools
+import signal
 from multiprocessing import Process, Queue as MQueue
 from six.moves import queue, reload_module
 from slapos.util import mkdir_p, chownDirectory
@@ -61,8 +63,7 @@ class PromiseProcess(Process):
   """
 
   def __init__(self, partition_folder, promise_name, promise_path, argument_dict,
-      logger, allow_bang=True, uid=None, gid=None, wrap=False, 
-      check_anomaly=False):
+      logger, queue, allow_bang=True, wrap=False, check_anomaly=False):
     """
       Initialise Promise Runner
 
@@ -84,8 +85,7 @@ class PromiseProcess(Process):
     self.allow_bang = allow_bang
     self.check_anomaly = check_anomaly
     self.argument_dict = argument_dict
-    self.uid = uid
-    self.gid = gid
+    self.argument_dict['queue'] = queue
     self.partition_folder = partition_folder
     self.wrap_promise = wrap
     self._periodicity = None
@@ -146,13 +146,9 @@ class PromiseProcess(Process):
     """
     try:
       os.chdir(self.partition_folder)
-      if self.uid and self.gid:
-        dropPrivileges(self.uid, self.gid, logger=self.logger)
-
       if self.wrap_promise:
         promise_instance = WrapPromise(self.argument_dict)
       else:
-        self._createInitFile()
         promise_module = self._loadPromiseModule()
         promise_instance = promise_module.RunPromise(self.argument_dict)
 
@@ -166,18 +162,6 @@ class PromiseProcess(Process):
     except Exception:
       self.logger.error(traceback.format_exc())
       raise
-
-  def _createInitFile(self):
-    promise_folder = os.path.dirname(self.promise_path)
-    # if there is no __init__ file, add it
-    init_file = os.path.join(promise_folder, '__init__.py')
-    if not os.path.exists(init_file):
-      with open(init_file, 'w') as f:
-        f.write("")
-      os.chmod(init_file, 0o644)
-    # add promise folder to sys.path so we can import promise script
-    if sys.path[0] != promise_folder:
-      sys.path[0:0] = [promise_folder]
 
   def _loadPromiseModule(self):
     """Load a promise from promises directory."""
@@ -203,7 +187,6 @@ class PromiseProcess(Process):
       promise_module = reload_module(promise_module)
     # load extra parameters
     self._loadPromiseParameterDict(promise_module)
-
     return promise_module
 
   def _loadPromiseParameterDict(self, promise_module):
@@ -217,6 +200,238 @@ class PromiseProcess(Process):
           raise ValueError("Extra parameter name %r cannot be used.\n%s" % (
                            key, extra_dict))
         self.argument_dict[key] = extra_dict[key]
+
+
+class PromiseWorker(Process):
+
+  def __init__(self, task_queue, done_queue, logger, plugin_folder, output_folder,
+      promise_timeout, check_anomaly, debug=False, force=False, dry_run=False,
+      uid=None, gid=None):
+    """
+      Launch the promise and send the result to queue.
+
+      If the promise periodicity doesn't match, the previous promise result is
+      checked.
+    """
+
+    Process.__init__(self)
+    self.logger = logger
+    self.force = force
+    # queue containing all task to run
+    self.task_queue = task_queue
+    # queue used to send promise result to main process
+    self.done_queue = done_queue
+    # queue used by promises to send result
+    self.queue_result = MQueue()
+    self.debug = debug
+    self.dry_run = dry_run
+    self.promise_timeout = promise_timeout
+    self.check_anomaly = check_anomaly
+    self.promise_output_dir = output_folder
+    self.plugin_folder = plugin_folder
+    self.uid = uid
+    self.gid = gid
+    self.bang_called = False
+    self.__close_queue = False
+
+  @staticmethod
+  def terminateProcess(pps, logger, signum, frame):
+    pps.__close_queue = True
+    if pps.current_process is None:
+      return
+    process = pps.current_process
+    if signum in [signal.SIGINT, signal.SIGTERM] and process.is_alive() is None:
+      process.terminate()
+      process.join(1)
+      if process.is_alive():
+        logger.info("Killing process %s..." % process.getPromiseTitle())
+        killProcessTree(process.pid, logger)
+
+  def _createInitFile(self):
+    # if there is no __init__ file, add it
+    init_file = os.path.join(self.plugin_folder, '__init__.py')
+    if os.path.exists(init_file):
+      with open(init_file, 'w') as f:
+        f.write("")
+      os.chmod(init_file, 0o644)
+    # add promise folder to sys.path so we can import promise script
+    if sys.path[0] != self.plugin_folder:
+      sys.path[0:0] = [self.plugin_folder]
+
+  def _emptyQueue(self):
+    """Remove all entries from queue until it's empty"""
+    while True:
+      try:
+        self.queue_result.get_nowait()
+      except queue.Empty:
+        return
+
+  def _generatePromiseResult(self, promise_process, promise_name, message):
+    if self.check_anomaly:
+      problem = False
+      promise_result = self._loadPromiseResult(promise_process.getPromiseTitle())
+      if promise_result is not None and (promise_result.item.hasFailed() or
+          'error:' in promise_result.item.message.lower()):
+        # generate failure if latest promise result was error
+        # If a promise timeout it will return failure if the timeout occur again
+        problem = True
+      result = AnomalyResult(problem=problem, message=message)
+    else:
+      result = TestResult(problem=True, message=message)
+    return PromiseQueueResult(
+      item=result,
+      path=promise_process.promise_path,
+      name=promise_name,
+      title=promise_process.getPromiseTitle()
+    )
+
+  def _loadPromiseResult(self, promise_title):
+    promise_output_file = os.path.join(
+      self.promise_output_dir,
+      "%s.status.json" % promise_title
+    )
+    result = None
+    if os.path.exists(promise_output_file):
+      with open(promise_output_file) as f:
+        try:
+          result = PromiseQueueResult()
+          result.load(json.loads(f.read()))
+        except ValueError as e:
+          result = None
+          self.logger.warn('Bad promise JSON result at %r: %s' % (
+            promise_output_file,
+            e
+          ))
+    return result
+
+  def proceedTask(self, promise_name, task_dict):
+    self.logger.info("Checking promise %s..." % promise_name)
+    try:
+      promise_process = PromiseProcess(
+        queue=self.queue_result,
+        allow_bang=not (self.bang_called or self.dry_run) and self.check_anomaly,
+        logger=self.logger,
+        **task_dict
+      )
+      self.current_process = promise_process
+
+      if not self.force and not promise_process.isPeriodicityMatch():
+        # we won't start the promise process, just get the latest result
+        result = self._loadPromiseResult(promise_process.getPromiseTitle())
+        if result is not None:
+          if result.item.hasFailed():
+            self.logger.error(result.item.message)
+          result.execution_time = -1
+          self.done_queue.put(result)
+        return
+      # we can do this because we run processes one by one
+      # we cleanup queue in case previous result was written by a killed process
+      self._emptyQueue()
+      promise_process.start()
+    except Exception:
+      # only print traceback to not prevent run other promises
+      self.logger.error(traceback.format_exc())
+      self.logger.warning("Promise %s skipped." % promise_name)
+      return
+
+    queue_item = None
+    sleep_time = 1
+    increment_limit = int(self.promise_timeout / sleep_time)
+    psutil_process = None
+    if self.debug:
+      try:
+        psutil_process = psutil.Process(promise_process.pid)
+        # reduce sleep time so psutil can collect resource usage
+        sleep_time = 0.1
+      except psutil.NoSuchProcess:
+        # process is gone
+        pass
+    start_time = time.time()
+    for current_increment in range(0, increment_limit):
+      try:
+        queue_item = self.queue_result.get(True, sleep_time)
+      except queue.Empty:
+        # no result found in process result Queue
+        if not promise_process.is_alive():
+          break
+      else:
+        break
+
+      if psutil_process is not None:
+        try:
+          io_counter = psutil_process.io_counters()
+          self.logger.debug(
+            "[t=%ss] CPU: %s%%, MEM: %s MB (%s%%), DISK: %s Read - %s Write" % (
+              (current_increment + 1) *sleep_time,
+              psutil_process.cpu_percent(),
+              psutil_process.memory_info().rss / float(2 ** 20),
+              round(psutil_process.memory_percent(), 4),
+              io_counter.read_count,
+              io_counter.write_count
+            )
+          )
+        except (psutil.AccessDenied, psutil.NoSuchProcess):
+          # defunct process will raise AccessDenied
+          pass
+    else:
+      promise_process.terminate()
+      promise_process.join(1) # wait for process to terminate
+      # if the process is still alive after 1 seconds, we kill it
+      if promise_process.is_alive():
+        self.logger.info("Killing process %s..." % promise_name)
+        killProcessTree(promise_process.pid, self.logger)
+
+      message = 'Error: Promise timed out after %s seconds' % self.promise_timeout
+      queue_item = self._generatePromiseResult(
+        promise_process,
+        promise_name=promise_name,
+        message=message
+      )
+
+    execution_time = round(time.time() - start_time, 2)
+    if queue_item is None:
+      queue_item = self._generatePromiseResult(
+        promise_process,
+        promise_name=promise_name,
+        message="Error: No output returned by the promise"
+      )
+    elif queue_item.item.type() == "Empty Result":
+      # no result collected (sense skipped)
+      skipped_method = "Anomaly" if self.check_anomaly else "Test"
+      self.logger.debug("Skipped, %s is disabled in promise %r. Execution" \
+        " time=%s second(s)." % (skipped_method, promise_name, execution_time))
+      self.done_queue.put(queue_item)
+      return
+    elif queue_item.item.hasFailed():
+      self.logger.error(queue_item.item.message)
+      if self.check_anomaly and isinstance(queue_item.item, AnomalyResult):
+        # stop to bang as it was called
+        self.bang_called = True
+
+    queue_item.execution_time = execution_time
+    if self.debug:
+      self.logger.debug("Finished promise %r in %s second(s)." % (
+                       promise_name, execution_time))
+
+    # Send result
+    self.done_queue.put(queue_item)
+
+  def run(self):
+    if self.uid and self.gid:
+      dropPrivileges(self.uid, self.gid, logger=self.logger)
+    self._createInitFile()
+    self.current_process = None
+    handler = functools.partial(self.terminateProcess, self, self.logger)
+    signal.signal(signal.SIGINT, handler)
+    signal.signal(signal.SIGTERM, handler)
+    while not self.__close_queue:
+      try:
+        promise_name, task_dict = self.task_queue.get(True, 1)
+      except queue.Empty:
+        # no more task
+        break
+      self.proceedTask(promise_name, task_dict)
+
 
 class PromiseLauncher(object):
 
@@ -309,7 +524,8 @@ class PromiseLauncher(object):
     else:
       self.logger = logger
 
-    self.queue_result = MQueue()
+    self.task_queue = MQueue()
+    self.done_queue = MQueue()
     self.bang_called = False
 
     self.promise_output_dir = os.path.join(
@@ -319,27 +535,6 @@ class PromiseLauncher(object):
     if not os.path.exists(self.promise_output_dir):
       mkdir_p(self.promise_output_dir)
       self._updateFolderOwner()
-
-  def _generatePromiseResult(self, promise_process, promise_name, promise_path,
-      message, execution_time=0):
-    if self.check_anomaly:
-      problem = False
-      promise_result = self._loadPromiseResult(promise_process.getPromiseTitle())
-      if promise_result is not None and (promise_result.item.hasFailed() or
-          'error:' in promise_result.item.message.lower()):
-        # generate failure if latest promise result was error
-        # If a promise timeout it will return failure if the timeout occur again
-        problem = True
-      result = AnomalyResult(problem=problem, message=message)
-    else:
-      result = TestResult(problem=True, message=message)
-    return PromiseQueueResult(
-      item=result,
-      path=promise_path,
-      name=promise_name,
-      title=promise_process.getPromiseTitle(),
-      execution_time=execution_time
-    )
 
   def _savePromiseResult(self, result):
     if not isinstance(result, PromiseQueueResult):
@@ -356,33 +551,6 @@ class PromiseLauncher(object):
       json.dump(result.serialize(), outputfile)
     os.rename(promise_tmp_file, promise_output_file)
 
-  def _loadPromiseResult(self, promise_title):
-    promise_output_file = os.path.join(
-      self.promise_output_dir,
-      "%s.status.json" % promise_title
-    )
-    result = None
-    if os.path.exists(promise_output_file):
-      with open(promise_output_file) as f:
-        try:
-          result = PromiseQueueResult()
-          result.load(json.loads(f.read()))
-        except ValueError as e:
-          result = None
-          self.logger.warn('Bad promise JSON result at %r: %s' % (
-            promise_output_file,
-            e
-          ))
-    return result
-
-  def _emptyQueue(self):
-    """Remove all entries from queue until it's empty"""
-    while True:
-      try:
-        self.queue_result.get_nowait()
-      except queue.Empty:
-        return
-
   def _updateFolderOwner(self, folder_path=None):
     stat_info = os.stat(self.partition_folder)
     if folder_path is None:
@@ -390,141 +558,46 @@ class PromiseLauncher(object):
                                  PROMISE_STATE_FOLDER_NAME)
     chownDirectory(folder_path, stat_info.st_uid, stat_info.st_gid)
 
-  def _launchPromise(self, promise_name, promise_path, argument_dict,
-      wrap_process=False):
-    """
-      Launch the promise and save the result. If promise_module is None,
-      the promise will be run with the promise process wap module.
-
-      If the promise periodicity doesn't match, the previous promise result is
-      checked.
-    """
-    self.logger.info("Checking promise %s..." % promise_name)
-    try:
-      promise_process = PromiseProcess(
-        self.partition_folder,
-        promise_name,
-        promise_path,
-        argument_dict,
-        logger=self.logger,
-        check_anomaly=self.check_anomaly,
-        allow_bang=not (self.bang_called or self.dry_run) and self.check_anomaly,
-        uid=self.uid,
-        gid=self.gid,
-        wrap=wrap_process,
-      )
-
-      if not self.force and not promise_process.isPeriodicityMatch():
-        # we won't start the promise process, just get the latest result
-        result = self._loadPromiseResult(promise_process.getPromiseTitle())
-        if result is not None:
-          if result.item.hasFailed():
-            self.logger.error(result.item.message)
-            return True
-        return False
-      # we can do this because we run processes one by one
-      # we cleanup queue in case previous result was written by a killed process
-      self._emptyQueue()
-      promise_process.start()
-    except Exception:
-      # only print traceback to not prevent run other promises
-      self.logger.error(traceback.format_exc())
-      self.logger.warning("Promise %s skipped." % promise_name)
-      return True
-
-    queue_item = None
-    sleep_time = 0.1
-    increment_limit = int(self.promise_timeout / sleep_time)
-    execution_time = self.promise_timeout
-    ps_profile = False
-    if self.debug:
+  def _launchPromiseWorker(self):
+    failed_promise_name = ""
+    promise_worker = PromiseWorker(
+      task_queue=self.task_queue,
+      done_queue=self.done_queue,
+      logger=self.logger,
+      output_folder=self.promise_output_dir,
+      debug=self.debug,
+      force=self.force,
+      uid=self.uid,
+      gid=self.gid,
+      plugin_folder=self.promise_folder,
+      promise_timeout=self.promise_timeout,
+      check_anomaly=self.check_anomaly,
+      dry_run=self.dry_run
+    )
+    promise_worker.start()
+    while promise_worker.is_alive():
       try:
-        psutil_process = psutil.Process(promise_process.pid)
-        ps_profile = True
-      except psutil.NoSuchProcess:
-        # process is gone
-        pass
-    for current_increment in range(0, increment_limit):
-      if not promise_process.is_alive():
-        try:
-          queue_item = self.queue_result.get(True, 1)
-        except queue.Empty:
-          # no result found in process result Queue
-          pass
-        else:
-          queue_item.execution_time = execution_time
+        promise_result = self.done_queue.get(True, 0.5)
+      except queue.Empty:
+        # no result Yet!
+        continue
+      except KeyboardInterrupt:
         break
+      if promise_result.item.type() == "Empty Result":
+        # Empty result, promise skipped
+        continue
+      elif not self.dry_run and promise_result.execution_time != -1:
+        self._savePromiseResult(promise_result)
+      if promise_result.item.hasFailed() and not failed_promise_name:
+        failed_promise_name = promise_result.name
 
-      if ps_profile:
-        try:
-          io_counter = psutil_process.io_counters()
-          self.logger.debug(
-            "[t=%ss] CPU: %s%%, MEM: %s MB (%s%%), DISK: %s Read - %s Write" % (
-              current_increment*sleep_time,
-              psutil_process.cpu_percent(),
-              psutil_process.memory_info().rss / float(2 ** 20),
-              round(psutil_process.memory_percent(), 4),
-              io_counter.read_count,
-              io_counter.write_count
-            )
-          )
-        except (psutil.AccessDenied, psutil.NoSuchProcess):
-          # defunct process will raise AccessDenied
-          pass
-      time.sleep(sleep_time)
-      execution_time = (current_increment + 1) * sleep_time
-    else:
-      promise_process.terminate()
-      promise_process.join(1) # wait for process to terminate
-      # if the process is still alive after 1 seconds, we kill it
-      if promise_process.is_alive():
-        self.logger.info("Killing process %s..." % promise_name)
-        killProcessTree(promise_process.pid, self.logger)
-
-      message = 'Error: Promise timed out after %s seconds' % self.promise_timeout
-      queue_item = self._generatePromiseResult(
-        promise_process,
-        promise_name=promise_name,
-        promise_path=promise_path,
-        message=message,
-        execution_time=execution_time
-      )
-
-    if queue_item is None:
-      queue_item = self._generatePromiseResult(
-        promise_process,
-        promise_name=promise_name,
-        promise_path=promise_path,
-        message="Error: No output returned by the promise",
-        execution_time=execution_time
-      )
-    elif queue_item.item.type() == "Empty Result":
-      # no result collected (sense skipped)
-      skipped_method = "Anomaly" if self.check_anomaly else "Test"
-      self.logger.debug("Skipped, %s is disabled in promise %r." % (
-        skipped_method, promise_name))
-      return False
-
-    if not self.dry_run:
-      self._savePromiseResult(queue_item)
-    if queue_item.item.hasFailed():
-      self.logger.error(queue_item.item.message)
-      if isinstance(queue_item.item, AnomalyResult) and self.check_anomaly:
-        # stop to bang as it was called
-        self.bang_called = True
-
-    if self.debug:
-      self.logger.debug("Finished promise %r in %s second(s)." % (
-                       promise_name, execution_time))
-
-    return queue_item.item.hasFailed()
+    if failed_promise_name:
+      raise PromiseError("Promise %r failed." % failed_promise_name)
 
   def run(self):
     """
       Run all promises
     """
-    promise_list = []
-    failed_promise_name = ""
     base_config = {
       'log-folder': self.log_folder,
       'partition-folder': self.partition_folder,
@@ -535,7 +608,6 @@ class PromiseLauncher(object):
       'partition-key': self.partition_key,
       'partition-id': self.partition_id,
       'computer-id': self.computer_id,
-      'queue': self.queue_result,
       'slapgrid-version': version,
     }
 
@@ -556,9 +628,14 @@ class PromiseLauncher(object):
         }
 
         config.update(base_config)
-        if self._launchPromise(promise_name, promise_path, config) and \
-            not failed_promise_name:
-          failed_promise_name = promise_name
+        self.task_queue.put((promise_name, dict(
+                              partition_folder=self.partition_folder,
+                              promise_name=promise_name,
+                              promise_path=promise_path,
+                              argument_dict=config,
+                              check_anomaly=self.check_anomaly,
+                              wrap=False,
+                            )))
 
     if not self.run_only_promise_list and os.path.exists(self.legacy_promise_folder) \
         and os.path.isdir(self.legacy_promise_folder):
@@ -576,14 +653,14 @@ class PromiseLauncher(object):
         }
         config.update(base_config)
         # We will use promise wrapper to run this
-        result_state = self._launchPromise(promise_name,
-                                           promise_path,
-                                           config,
-                                           wrap_process=True)
-        if result_state and not failed_promise_name:
-          failed_promise_name = promise_name
+        self.task_queue.put((promise_name, dict(
+                              partition_folder=self.partition_folder,
+                              promise_name=promise_name,
+                              promise_path=promise_path,
+                              argument_dict=config,
+                              check_anomaly=self.check_anomaly,
+                              wrap=True,
+                            )))
 
+    self._launchPromiseWorker()
     self._updateFolderOwner(self.promise_output_dir)
-
-    if failed_promise_name:
-      raise PromiseError("Promise %r failed." % failed_promise_name)

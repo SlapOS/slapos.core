@@ -121,6 +121,7 @@ class TestSlapOSPromiseMixin(unittest.TestCase):
       self.partition_dir,
       promise_name,
       promise_path,
+      queue=queue.Queue(),
       logger=logging.getLogger('slapos.test.promise'),
       argument_dict=self.genPromiseConfigDict(promise_name),
       check_anomaly=check_anomaly,
@@ -345,7 +346,6 @@ class RunPromise(GenericPromise):
   },
   "path": "%s/my_promise.py",
   "name": "my_promise.py",
-  "execution-time": 0.1,
   "title": "my_promise"
 }""" % self.plugin_dir
     state_file = os.path.join(self.partition_dir, PROMISE_RESULT_FOLDER_NAME, 'my_promise.status.json')
@@ -353,6 +353,7 @@ class RunPromise(GenericPromise):
     with open(state_file) as f:
       result_dict = json.loads(f.read())
       result_dict['result'].pop('date')
+      result_dict.pop('execution-time')
       self.assertEqual(json.loads(expected_result), result_dict)
 
   def test_runpromise_multiple(self):
@@ -376,7 +377,6 @@ class RunPromise(GenericPromise):
   },
   "path": "%(promise_dir)s/%(name)s.py",
   "name": "%(name)s.py",
-  "execution-time": 0.1,
   "title": "%(name)s"
 }"""
 
@@ -386,6 +386,7 @@ class RunPromise(GenericPromise):
     with open(state_file) as f:
       result_dict = json.loads(f.read())
       result_dict['result'].pop('date')
+      result_dict.pop('execution-time')
       expected_dict = expected_result % {'promise_dir': self.plugin_dir, 'name': 'my_promise'}
       self.assertEqual(json.loads(expected_dict), result_dict)
 
@@ -395,6 +396,7 @@ class RunPromise(GenericPromise):
     with open(state_file) as f:
       result_dict = json.loads(f.read())
       result_dict['result'].pop('date')
+      result_dict.pop('execution-time')
       expected_dict = expected_result % {'promise_dir': self.plugin_dir, 'name': 'my_second_promise'}
       self.assertEqual(json.loads(expected_dict), result_dict)
 
@@ -588,12 +590,12 @@ class RunPromise(GenericPromise):
     self.assertEqual(self.counter, 2)
 
     self.configureLauncher(save_method=test_method_one)
-    time.sleep(2)
+    time.sleep(1)
     self.counter = 0
     self.launcher.run() # only my_first_promise will run
     self.assertEqual(self.counter, 1)
 
-    time.sleep(3)
+    time.sleep(1)
     self.counter = 0
     self.configureLauncher(save_method=test_method_first)
     self.launcher.run()
@@ -612,8 +614,8 @@ class RunPromise(GenericPromise):
 
     self.configureLauncher(save_method=test_method)
     # ~2 seconds
-    self.generatePromiseScript(first_promise, success=True, periodicity=0.03)
-    self.generatePromiseScript(second_promise, success=True, periodicity=0.03)
+    self.generatePromiseScript(first_promise, success=True, periodicity=0.05)
+    self.generatePromiseScript(second_promise, success=True, periodicity=0.05)
 
     self.launcher.run()
     self.assertEqual(self.counter, 2)
@@ -660,10 +662,10 @@ class RunPromise(GenericPromise):
     second_date = second_result['result']['date']
 
     self.configureLauncher()
-    time.sleep(2)
+    time.sleep(1)
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run() # only my_first_promise will run but second_promise still failing
-    self.assertEqual(str(exc.exception), 'Promise %r failed.' % second_promise)
+    self.assertEqual(str(exc.exception), 'Promise u%r failed.' % second_promise)
 
     with open(first_state_file) as f:
       first_result = json.load(f)
@@ -673,7 +675,7 @@ class RunPromise(GenericPromise):
     self.assertEqual(second_result['result']['date'], second_date)
     first_date = first_result['result']['date']
 
-    time.sleep(3)
+    time.sleep(1)
     self.configureLauncher()
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run()
@@ -716,10 +718,10 @@ class RunPromise(GenericPromise):
     second_date = second_result['result']['date']
 
     self.configureLauncher()
-    time.sleep(2)
+    time.sleep(1)
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run() # only my_first_promise will run but second_promise still failing
-    self.assertEqual(str(exc.exception), 'Promise %r failed.' % second_promise)
+    self.assertEqual(str(exc.exception), 'Promise u%r failed.' % second_promise)
 
     with open(first_state_file) as f:
       first_result = json.load(f)
@@ -758,9 +760,9 @@ class RunPromise(GenericPromise):
       self.counter += 1
 
     self.configureLauncher(save_method=test_method)
-    # ~2 seconds
-    self.generatePromiseScript(first_promise, success=True, periodicity=0.03)
-    self.generatePromiseScript(second_promise, success=True, periodicity=0.03)
+    # ~3 seconds
+    self.generatePromiseScript(first_promise, success=True, periodicity=0.05)
+    self.generatePromiseScript(second_promise, success=True, periodicity=0.05)
 
     self.launcher.run()
     self.assertEqual(self.counter, 2)
@@ -1243,6 +1245,7 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
       self.partition_dir,
       self.promise_name,
       self.promise_path,
+      queue=self.queue,
       logger=logging.getLogger('slapos.test.promise'),
       argument_dict=self.promise_config,
       check_anomaly=check_anomaly,

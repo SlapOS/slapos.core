@@ -38,7 +38,20 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
     self.createNotificationMessage("subscription_request-confirmation-with-password")
     self.createNotificationMessage("subscription_request-confirmation-without-password",
                                text_content='${name} ${login_name}')
+    self.cleanUpSubscriptionRequest()
     self.tic()
+
+  def cleanUpSubscriptionRequest(self):
+    for subscription_request in self.portal.portal_catalog(
+      portal_type="Subscription Request",
+      simulation_state=["draft", "planned", "ordered"],
+      title="Test Subscription Request %"):
+      if subscription_request.getSimulationState() == "draft":
+        subscription_request.cancel()
+      if subscription_request.getSimulationState() == "planned":
+        subscription_request.order()
+      if subscription_request.getSimulationState() == "ordered":
+        subscription_request.confirm()
 
   def createNotificationMessage(self, reference,
       content_type='text/html', text_content='${name} ${login_name} ${login_password}'):
@@ -171,10 +184,13 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
     self.logout()
     self.login()
 
+    # 195 is the month payment
+    # 195*3 is the 3 months to pay upfront to use.
+    # 25 is the reservation fee deduction.
     data_kw = {
         'errorCode': '0',
         'transactionStatus': '6',
-        'authAmount': 58500*quantity,
+        'authAmount': (19500*3-2500)*quantity,
         'authDevise': '978',
       }
     payment.PaymentTransaction_createPayzenEvent().PayzenEvent_processUpdate(data_kw, True)
@@ -287,7 +303,8 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
     self.assertNotEqual(instance.getAggregate(), None)
 
   def checkAggregatedSalePackingList(self, subscription_request, sale_packing_list):
-    sale_packing_list_line = sale_packing_list.objectValues()[0]
+    sale_packing_list_line = [ i for i in sale_packing_list.objectValues()
+      if i.getResource() == "service_module/slapos_instance_subscription"][0]
 
     quantity = subscription_request.getQuantity()
     # The values are without tax
@@ -298,6 +315,17 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
     self.assertEqual(sale_packing_list.getCausality(),
                      subscription_request.getRelativeUrl())
 
+    sale_packing_list_line = [ i for i in sale_packing_list.objectValues()
+      if i.getResource() == "service_module/slapos_reservation_refund"][0]
+
+    quantity = subscription_request.getQuantity()
+    # The values are without tax
+    self.assertEqual(sale_packing_list_line.getQuantity(), 1)
+    self.assertEqual(sale_packing_list_line.getPrice(), -25*quantity)
+    self.assertEqual(sale_packing_list_line.getTotalPrice(), -25*quantity)
+
+    self.assertEqual(sale_packing_list.getCausality(),
+                     subscription_request.getRelativeUrl())
   @changeSkin('Hal')
   def _requestSubscription(self, **kw):
     return self.web_site.hateoas.SubscriptionRequestModule_requestSubscritption(**kw)

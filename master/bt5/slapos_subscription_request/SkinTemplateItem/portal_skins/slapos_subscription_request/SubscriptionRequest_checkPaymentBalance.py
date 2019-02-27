@@ -10,7 +10,10 @@ if hosting_subscription is None:
 if hosting_subscription is not None:
   instance = hosting_subscription.getPredecessorValue()
   # This ensure that the user has a valid cloud contract
-  user_contract = instance.SoftwareInstance_requestValidationPayment()
+  instance.SoftwareInstance_requestValidationPayment()
+
+  # create a Deduction for his fee
+  context.SubscriptionRequest_generateReservationRefoundSalePackingList()
 
 if context.SubscriptionRequest_testPaymentBalance():
   context.confirm()

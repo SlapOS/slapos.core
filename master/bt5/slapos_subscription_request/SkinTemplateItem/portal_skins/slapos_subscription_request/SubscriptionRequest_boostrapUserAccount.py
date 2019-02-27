@@ -24,7 +24,7 @@ role_list = ['member', 'subscriber']
 open_assignment_list = person.searchFolder(portal_type="Assignment",
                                               validation_state="open")
 
-#Initialisation
+# Initialisation
 assignment_duration = context.portal_preferences.getPreferredCredentialAssignmentDuration()
 today = DateTime()
 delay = today+assignment_duration

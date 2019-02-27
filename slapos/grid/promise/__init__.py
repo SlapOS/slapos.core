@@ -37,6 +37,7 @@ import json
 import importlib
 import traceback
 import psutil
+import inspect
 from multiprocessing import Process, Queue as MQueue
 from six.moves import queue, reload_module
 from slapos.util import mkdir_p, chownDirectory
@@ -46,10 +47,11 @@ from slapos.grid.promise.generic import (GenericPromise, PromiseQueueResult,
                                          AnomalyResult, TestResult,
                                          PROMISE_STATE_FOLDER_NAME,
                                          PROMISE_RESULT_FOLDER_NAME,
-                                         PROMISE_PARAMETER_NAME,
-                                         PROMISE_PERIOD_FILE_NAME)
+                                         PROMISE_PARAMETER_NAME)
 from slapos.grid.promise.wrapper import WrapPromise
 from slapos.version import version
+
+PROMISE_CACHE_FOLDER_NAME = '.slapgrid/promise/cache'
 
 class PromiseError(Exception):
   pass
@@ -69,6 +71,7 @@ class PromiseProcess(Process):
       @param promise_name: The name of the promise to run
       @param promise_path: path of the promise
       @param argument_dict: all promise parameters in a dictionary
+      @param queue: Queue used to send promise result
       @param allow_bang: Bolean saying if bang should be called in case of
         anomaly failure.
       @param check_anomaly: Bolean saying if promise anomaly should be run.
@@ -89,54 +92,66 @@ class PromiseProcess(Process):
     self.partition_folder = partition_folder
     self.wrap_promise = wrap
     self._periodicity = None
-    self._timestamp_file = os.path.join(partition_folder,
-                                        PROMISE_STATE_FOLDER_NAME,
-                                        '%s.timestamp' % promise_name)
-    periodicity_file = os.path.join(partition_folder,
+    self.cache_folder = os.path.join(self.partition_folder,
+                                     PROMISE_CACHE_FOLDER_NAME)
+    self.cache_file = os.path.join(self.cache_folder, self.getPromiseTitle())
+    # XXX - remove old files used to store promise timestamp and periodicity
+    self._cleanupDeprecated()
+
+  def _cleanupDeprecated(self):
+    timestamp_file = os.path.join(self.partition_folder,
+                                  PROMISE_STATE_FOLDER_NAME,
+                                  '%s.timestamp' % self.name)
+    periodicity_file = os.path.join(self.partition_folder,
                                     PROMISE_STATE_FOLDER_NAME,
-                                    PROMISE_PERIOD_FILE_NAME % promise_name)
-    if os.path.exists(periodicity_file) and os.stat(periodicity_file).st_size:
-      with open(periodicity_file) as f:
-        try:
-          self._periodicity = float(f.read())
-        except ValueError:
-          # set to None, run the promise and regenerate the file
-          pass
-
-  def isPeriodicityMatch(self):
-    """
-      Return True if promise should be run now, considering the promise
-        periodicity in minutes
-    """
-    if self._periodicity is not None and \
-        os.path.exists(self._timestamp_file) and \
-        os.stat(self._timestamp_file).st_size:
-      with open(self._timestamp_file) as f:
-        try:
-          latest_timestamp = float(f.read())
-          current_timediff = (time.time() - latest_timestamp) / 60.0
-          if current_timediff >= self._periodicity:
-            return True
-          #self.logger.debug("Skip Promise %r. periodicity=%s, time_diff=%s" % (
-          #    self.name, self._periodicity, current_timediff))
-        except ValueError:
-          # if the file is broken, run the promise and regenerate it
-          return True
-        else:
-          return False
-    return True
-
-  def setPromiseStartTimestamp(self):
-    """
-      Save the promise execution timestamp
-    """
-    state_directory = os.path.dirname(self._timestamp_file)
-    mkdir_p(state_directory)
-    with open(self._timestamp_file, 'w') as f:
-      f.write(str(time.time()))
+                                    '%s.periodicity' % self.name)
+    if os.path.exists(timestamp_file) and os.path.isfile(timestamp_file):
+      os.unlink(timestamp_file)
+    if os.path.exists(periodicity_file) and os.path.isfile(periodicity_file):
+      os.unlink(periodicity_file)
 
   def getPromiseTitle(self):
     return os.path.splitext(self.name)[0]
+
+  def updatePromiseCache(self, promise_class, promise_instance, started=True):
+    """
+      Cache some data from the promise that can be reused
+    """
+    py_file = '%s.py' % os.path.splitext(inspect.getfile(promise_class))[0]
+    stat = os.stat(py_file)
+    timestamp = time.time()
+    cache_dict = dict(
+      is_tested= not hasattr(promise_instance, 'isTested') or \
+          promise_instance.isTested(),
+      is_anomaly_detected=not hasattr(promise_instance, 'isAnomalyDetected') or \
+          promise_instance.isAnomalyDetected(),
+      periodicity=promise_instance.getPeriodicity(),
+      next_run_after=timestamp + (promise_instance.getPeriodicity() * 60.0),
+      timestamp=timestamp,
+      module_file=py_file,
+      module_file_mtime=stat.st_mtime,
+    )
+    if not started:
+      cache_dict['next_run_after'] = timestamp
+    with open(self.cache_file, 'w') as f:
+      f.write(json.dumps(cache_dict))
+
+  def loadPromiseCacheDict(self):
+    """
+      Load cached data for this promise.
+      If saved promise module file is not exists then invalidate cache.
+      Cache will be updated when promise run
+    """
+    if os.path.exists(self.cache_file):
+      try:
+        with open(self.cache_file) as f:
+          cache_dict = json.loads(f.read())
+          if not os.path.exists(cache_dict['module_file']):
+            # file not exists mean path was changed
+            return None
+          return cache_dict
+      except ValueError:
+        return None
 
   def run(self):
     """
@@ -146,9 +161,10 @@ class PromiseProcess(Process):
     """
     try:
       os.chdir(self.partition_folder)
+      promise_started = False
       if self.uid and self.gid:
         dropPrivileges(self.uid, self.gid, logger=self.logger)
-
+      mkdir_p(self.cache_folder)
       if self.wrap_promise:
         promise_instance = WrapPromise(self.argument_dict)
       else:
@@ -161,7 +177,11 @@ class PromiseProcess(Process):
           (promise_instance.isAnomalyDetected() and self.check_anomaly) or \
           (promise_instance.isTested() and not self.check_anomaly):
         # if the promise will run, we save execution timestamp
-        self.setPromiseStartTimestamp()
+        promise_started = True
+      self.updatePromiseCache(
+        WrapPromise if self.wrap_promise else promise_module.RunPromise,
+        promise_instance,
+        started=promise_started)
       promise_instance.run(self.check_anomaly, self.allow_bang)
     except Exception:
       self.logger.error(traceback.format_exc())
@@ -217,6 +237,7 @@ class PromiseProcess(Process):
           raise ValueError("Extra parameter name %r cannot be used.\n%s" % (
                            key, extra_dict))
         self.argument_dict[key] = extra_dict[key]
+
 
 class PromiseLauncher(object):
 
@@ -311,6 +332,7 @@ class PromiseLauncher(object):
 
     self.queue_result = MQueue()
     self.bang_called = False
+    self._skipped_amount = 0
 
     self.promise_output_dir = os.path.join(
       self.partition_folder,
@@ -375,6 +397,19 @@ class PromiseLauncher(object):
           ))
     return result
 
+  def _writePromiseResult(self, result_item):
+    if result_item.item.type() == "Empty Result":
+      # no result collected (sense skipped)
+      return
+    elif result_item.item.hasFailed():
+      self.logger.error(result_item.item.message)
+      if result_item.execution_time != -1 and \
+          isinstance(result_item.item, AnomalyResult) and self.check_anomaly:
+        # stop to bang as it was called
+        self.bang_called = True
+    # Send result
+    self._savePromiseResult(result_item)
+
   def _emptyQueue(self):
     """Remove all entries from queue until it's empty"""
     while True:
@@ -390,6 +425,11 @@ class PromiseLauncher(object):
                                  PROMISE_STATE_FOLDER_NAME)
     chownDirectory(folder_path, stat_info.st_uid, stat_info.st_gid)
 
+  def isPeriodicityMatch(self, next_timestamp):
+    if next_timestamp:
+      return time.time() >= next_timestamp
+    return True
+
   def _launchPromise(self, promise_name, promise_path, argument_dict,
       wrap_process=False):
     """
@@ -399,7 +439,6 @@ class PromiseLauncher(object):
       If the promise periodicity doesn't match, the previous promise result is
       checked.
     """
-    self.logger.info("Checking promise %s..." % promise_name)
     try:
       promise_process = PromiseProcess(
         self.partition_folder,
@@ -414,8 +453,18 @@ class PromiseLauncher(object):
         wrap=wrap_process,
       )
 
-      if not self.force and not promise_process.isPeriodicityMatch():
+      promise_cache_dict = promise_process.loadPromiseCacheDict()
+      if promise_cache_dict is not None:
+        if self.check_anomaly and not promise_cache_dict.get('is_anomaly_detected') \
+            or not self.check_anomaly and not promise_cache_dict.get('is_tested'):
+          # promise is skipped, send empty result
+          self._writePromiseResult(PromiseQueueResult())
+          self._skipped_amount += 1
+          return
+      if not self.force and (promise_cache_dict is not None and not
+          self.isPeriodicityMatch(promise_cache_dict.get('next_run_after'))):
         # we won't start the promise process, just get the latest result
+        self._skipped_amount += 1
         result = self._loadPromiseResult(promise_process.getPromiseTitle())
         if result is not None:
           if result.item.hasFailed():
@@ -432,6 +481,7 @@ class PromiseLauncher(object):
       self.logger.warning("Promise %s skipped." % promise_name)
       return True
 
+    self.logger.info("Checking promise %s..." % promise_name)
     queue_item = None
     sleep_time = 0.1
     increment_limit = int(self.promise_timeout / sleep_time)
@@ -498,21 +548,8 @@ class PromiseLauncher(object):
         message="Error: No output returned by the promise",
         execution_time=execution_time
       )
-    elif queue_item.item.type() == "Empty Result":
-      # no result collected (sense skipped)
-      skipped_method = "Anomaly" if self.check_anomaly else "Test"
-      self.logger.debug("Skipped, %s is disabled in promise %r." % (
-        skipped_method, promise_name))
-      return False
 
-    if not self.dry_run:
-      self._savePromiseResult(queue_item)
-    if queue_item.item.hasFailed():
-      self.logger.error(queue_item.item.message)
-      if isinstance(queue_item.item, AnomalyResult) and self.check_anomaly:
-        # stop to bang as it was called
-        self.bang_called = True
-
+    self._writePromiseResult(queue_item)
     if self.debug:
       self.logger.debug("Finished promise %r in %s second(s)." % (
                        promise_name, execution_time))
@@ -584,6 +621,8 @@ class PromiseLauncher(object):
           failed_promise_name = promise_name
 
     self._updateFolderOwner(self.promise_output_dir)
-
+    if self._skipped_amount > 0:
+      self.logger.info("%s promises didn't need to be checked." % \
+        self._skipped_amount)
     if failed_promise_name:
       raise PromiseError("Promise %r failed." % failed_promise_name)

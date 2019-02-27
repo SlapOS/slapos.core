@@ -321,8 +321,8 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
     quantity = subscription_request.getQuantity()
     # The values are without tax
     self.assertEqual(sale_packing_list_line.getQuantity(), 1)
-    self.assertEqual(sale_packing_list_line.getPrice(), -25*quantity)
-    self.assertEqual(sale_packing_list_line.getTotalPrice(), -25*quantity)
+    self.assertEqual(round(sale_packing_list_line.getPrice(), 2), -25*quantity)
+    self.assertEqual(round(sale_packing_list_line.getTotalPrice(), 2), -25*quantity)
 
     self.assertEqual(sale_packing_list.getCausality(),
                      subscription_request.getRelativeUrl())

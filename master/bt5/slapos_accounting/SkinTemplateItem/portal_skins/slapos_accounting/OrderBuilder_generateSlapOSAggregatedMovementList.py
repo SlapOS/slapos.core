@@ -7,13 +7,15 @@ portal = context.getPortalObject()
 
 business_process_uid_list = [
   portal.business_process_module.slapos_consumption_business_process.getUid(),
+  portal.business_process_module.slapos_reservation_refound_business_process.getUid(),
   portal.business_process_module.slapos_subscription_business_process.getUid()]
-specialise_uid_list = [q.getUid() for q in portal.portal_catalog(specialise_uid=business_process_uid_list,
-  portal_type='Sale Trade Condition')]
+
+specialise_uid_list = [q.getUid() for q in portal.portal_catalog(
+  specialise_uid=business_process_uid_list, portal_type='Sale Trade Condition')]
 select_dict= {'default_aggregate_portal_type': None}
 
 select_kw.update(
-  limit=50, # just take a bit
+  limit=10000, # just take a bit
   portal_type='Sale Packing List Line',
   simulation_state='delivered',
   parent_specialise_uid=specialise_uid_list,
@@ -47,6 +49,8 @@ for movement in movement_list:
   if movement.getResource() == 'service_module/slapos_instance_subscription':
     # reduce tax from there directly
     temp_movement.edit(price=movement.getPrice(0.0)/1.2)
+  elif movement.getResource() == 'service_module/slapos_reservation_refund':
+    temp_movement.edit(price=movement.getPrice(0.0))
   else:
     temp_movement.edit(price=0.0)
 
@@ -57,6 +61,11 @@ for movement in movement_list:
       temp_movement.edit(
         specialise=subscription_request_specialise,
         causality=subscription)
+
+  elif movement.getCausality(portal_type="Subscription Request") is not None:
+    temp_movement.edit(
+      specialise=subscription_request_specialise,
+      causality=movement.getCausality(portal_type="Subscription Request"))
 
   temp_movement_list.append(temp_movement)
 

@@ -236,8 +236,6 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
     if minute <= 0:
       raise ValueError("Cannot set promise periodicity to a value less than 1")
     self.__periodicity = minute
-    with open(self.__periodicity_file, 'w') as f:
-      f.write('%s' % minute)
 
   def getPeriodicity(self):
     return self.__periodicity

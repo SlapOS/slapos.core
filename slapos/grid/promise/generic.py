@@ -46,7 +46,6 @@ PROMISE_RESULT_FOLDER_NAME = '.slapgrid/promise/result'
 PROMISE_LOG_FOLDER_NAME = '.slapgrid/promise/log'
 
 PROMISE_PARAMETER_NAME = 'extra_config_dict'
-PROMISE_PERIOD_FILE_NAME = '%s.periodicity'
 
 LOGLINE_RE = r"(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s+\-?\s*(\w{4,7})\s+\-?\s+(\d+\-\d{3})\s+\-?\s*(.*)"
 matchLogStr = re.compile(LOGLINE_RE).match
@@ -159,10 +158,6 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
     self.__promise_path = self.__config.pop('path', None)
     self.__queue = self.__config.pop('queue', None)
     self.__logger_buffer = None
-    self.__periodicity_file = os.path.join(
-      self.__partition_folder,
-      PROMISE_STATE_FOLDER_NAME,
-      PROMISE_PERIOD_FILE_NAME % self.__name)
     self.setPeriodicity(self.__config.pop('periodicity', 2))
 
     self.__transaction_id = '%s-%s' % (int(time.time()), random.randint(100, 999))
@@ -236,8 +231,6 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
     if minute <= 0:
       raise ValueError("Cannot set promise periodicity to a value less than 1")
     self.__periodicity = minute
-    with open(self.__periodicity_file, 'w') as f:
-      f.write('%s' % minute)
 
   def getPeriodicity(self):
     return self.__periodicity

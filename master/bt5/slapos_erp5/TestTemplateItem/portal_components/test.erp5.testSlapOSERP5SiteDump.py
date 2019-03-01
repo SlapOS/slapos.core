@@ -19,22 +19,23 @@ class TestSlapOSDump(SlapOSTestCaseMixin):
 
   def test(self):
     issue_count = 0
-    for dump in [
-        'ERP5Site_dumpAlarmToolConfiguration',
-        'ERP5Site_dumpBuilderList',
-        'ERP5Site_dumpInstalledBusinessTemplateList',
-        'ERP5Site_dumpOrderBuilderList',
-        'ERP5Site_dumpPortalTypeActionList',
-        'ERP5Site_dumpPortalTypeList',
-        'ERP5Site_dumpPortalTypeRoleList',
-        'ERP5Site_dumpPropertySheetList',
-        'ERP5Site_dumpRuleTesterList',
-        'ERP5Site_dumpSkinProperty',
-        'ERP5Site_dumpWorkflowChain',
+    for dump, filename in [
+        ('ERP5Site_dumpAlarmToolConfiguration', 'expected_alarm_tool_dumped_configuration'),
+        ('ERP5Site_dumpBuilderList', 'expected_builder_dumped_configuration'),
+        ('ERP5Site_dumpInstalledBusinessTemplateList', 'expected_business_template_dumped_configuration'),
+        ('ERP5Site_dumpOrderBuilderList', 'expected_order_builder_dumped_configuration'),
+        ('ERP5Site_dumpPortalTypeActionList', 'expected_type_actions_dumped_configuration'),
+        ('ERP5Site_dumpPortalTypeList', 'expected_portal_type_dumped_configuration'),
+        ('ERP5Site_dumpPortalTypeRoleList', 'expected_role_dumped_configuration'),
+        ('ERP5Site_dumpPortalSkinsContent', 'expected_portal_skins_dumped_configuration'),
+        ('ERP5Site_dumpPropertySheetList', 'expected_property_sheet_dumped_configuration'),
+        ('ERP5Site_dumpRuleTesterList', 'expected_rule_dumped_configuration'),
+        ('ERP5Site_dumpSkinProperty', 'expected_skin_property_dumped_configuration'),
+        ('ERP5Site_dumpWorkflowChain', 'expected_workflow_dumped_configuration'),
       ]:
       ZopeTestCase._print('\n')
       try:
-        location = self.write('%s.txt' % dump, getattr(self.portal, dump)())
+        location = self.write('%s' % filename, getattr(self.portal, dump)())
       except Exception:
         ZopeTestCase._print('Problem with %s\n' % dump)
         issue_count += 1

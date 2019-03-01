@@ -1,0 +1,2286 @@
+Access Token Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Access Token Module
+  Title: Member
+  Roles: ['Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Account
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Account
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Account
+  Title: Person Shadow
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+Account Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Account Module
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Account Module
+  Title: Person Shadow
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+Accounting Period
+  Title: Company group
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Accounting Transaction
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Accounting Transaction Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Accounting Transaction Module
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Accounting Transaction Module
+  Title: Person Shadow
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+Acknowledgement
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getDestinationValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['destination']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Acknowledgement
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getSourceValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['source']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Acknowledgement
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Assignment
+  Title: Company group
+  Roles: ['Auditor', 'Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Balance Transaction
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Bank Account
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Business Process
+  Title: Group company
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Business Process
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Business Process Module
+  Title: Group company
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Business Process Module
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Campaign
+  Title: Company group
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Campaign Module
+  Title: Company group
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Cash Register
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Cloud Contract
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Cloud Contract Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Component
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Component Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Computer
+  Title: Allocation scope
+  Roles: ['Auditor']
+  Condition: python: here.getAllocationScope('').startswith('open')
+  Local Roles Group Id: shadow
+  Base Categories: ['aggregate']
+  Base Category Script: ComputerType_getSecurityCategoryFromAllocationScope
+  Categories: []
+
+Computer
+  Title: Computer Agent
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['source_administration']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Computer
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Computer
+  Title: Self Computer
+  Roles: ['Assignor']
+  Condition: python: context.getUserId("") != ""
+  Local Roles Group Id: computer
+  Base Categories: ['destination_decision']
+  Base Category Script: ERP5Type_getSecurityCategoryFromSelf
+  Categories: []
+
+Computer Consumption TioXML File
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Computer Model
+  Title: Computer Agent
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['source_administration']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Computer Model
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Computer Model Module
+  Title: Group Company
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Computer Model Module
+  Title: Member
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Computer Module
+  Title: Computer
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: computer
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/computer']
+
+Computer Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Computer Module
+  Title: Member
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Computer Module
+  Title: Person Shadow
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+Computer Network
+  Title: Computer Agent
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: computer
+  Base Categories: ['source_administration']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Computer Network
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Computer Network
+  Title: Person Owner
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['source']
+  Base Category Script: ERP5Type_acquireSecurityFromOwner
+  Categories: []
+
+Computer Network
+  Title: Person Shadow
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+Computer Network Module
+  Title: Group company
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Computer Network Module
+  Title: Member
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Computer Network Module
+  Title: Person Shadow
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+Computer Partition
+  Title: Customer of the partition
+  Roles: ['Auditor']
+  Condition: python: here.getSlapState() == "busy"
+  Local Roles Group Id: user
+  Base Categories: ['destination_section']
+  Base Category Script: PartitionType_getSecurityCategoryFromUser
+  Categories: []
+
+Computer Partition
+  Title: Software Instance group related to Computer Partition
+  Roles: ['Auditor']
+  Condition: python: here.getSlapState() == "busy"
+  Local Roles Group Id: subscription
+  Base Categories: ['aggregate']
+  Base Category Script: ERP5Type_getSecurityCategoryFromAggregateRelatedSoftwareInstanceHostingSubscription
+  Categories: []
+
+Consumption Document Module
+  Title: Computer reports consumption
+  Roles: ['Author']
+  Condition: None
+  Local Roles Group Id: None
+  Base Categories: []
+  Base Category Script: None
+  Categories: ['role/computer']
+
+Consumption Document Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Consumption Document Module
+  Title: Member
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Contribution Tool
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Contribution Tool
+  Title: Security for Shacache (Author)
+  Roles: ['Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: []
+  Base Category Script: None
+  Categories: ['role/member', 'role/computer', 'role/instance']
+
+Credential Update Module
+  Title: Group company
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Credential Update Module
+  Title: Member
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Credit Card
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Currency
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Currency
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Currency
+  Title: Person Shadow
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+Currency Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Currency Module
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Currency Module
+  Title: Person Shadow
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+Data Set
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Data Set
+  Title: Security for Shacache (Auditor)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: []
+  Base Category Script: None
+  Categories: ['role/member', 'role/computer', 'role/instance']
+
+Data Set Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Data Set Module
+  Title: Security for Shacache (Author)
+  Roles: ['Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: []
+  Base Category Script: None
+  Categories: ['role/member', 'role/computer', 'role/instance']
+
+Document Ingestion Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Document Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Document Module
+  Title: Security for Shacache (Author)
+  Roles: ['Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: []
+  Base Category Script: None
+  Categories: ['role/member', 'role/computer', 'role/instance']
+
+Drawing
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Drawing
+  Title: Security for Shacache
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: []
+  Base Category Script: None
+  Categories: ['role/member', 'role/computer', 'role/instance']
+
+ERP5 Login
+  Title: The User Himself
+  Roles: ['Assignee']
+  Condition: python: here.getParentValue().getPortalType() == "Person"
+  Local Roles Group Id: user
+  Base Categories: ['group']
+  Base Category Script: ERP5Type_getSecurityCategoryFromParent
+  Categories: []
+
+Event Module
+  Title: Group company
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Event Module
+  Title: Member
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Facebook Login
+  Title: The User Himself
+  Roles: ['Assignee']
+  Condition: python: here.getParentValue().getPortalType() == "Person"
+  Local Roles Group Id: user
+  Base Categories: ['group']
+  Base Category Script: ERP5Type_getSecurityCategoryFromParent
+  Categories: []
+
+Fax Message
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getDestinationValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['destination']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Fax Message
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getSourceValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['source']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Fax Message
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+File
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+File
+  Title: Shacache Security (Auditor)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: None
+  Base Categories: []
+  Base Category Script: None
+  Categories: ['role/computer', 'role/member', 'role/instance']
+
+Gadget
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Gadget Tool
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Google Login
+  Title: The User Himself
+  Roles: ['Assignee']
+  Condition: python: here.getParentValue().getPortalType() == "Person"
+  Local Roles Group Id: user
+  Base Categories: ['group']
+  Base Category Script: ERP5Type_getSecurityCategoryFromParent
+  Categories: []
+
+Hosting Subscription
+  Title: Customer of the Hosting Subscription
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['destination_section']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Hosting Subscription
+  Title: Group Company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Hosting Subscription
+  Title: Related Software Instance Group
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: subscription
+  Base Categories: ['aggregate']
+  Base Category Script: ERP5Type_getSecurityCategoryFromSelf
+  Categories: []
+
+Hosting Subscription Module
+  Title: Computer
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: None
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/computer']
+
+Hosting Subscription Module
+  Title: Group Company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Hosting Subscription Module
+  Title: Instance
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: None
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/instance']
+
+Hosting Subscription Module
+  Title: Member
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Image
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Image
+  Title: Security for Shacache (Auditor)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: []
+  Base Category Script: None
+  Categories: ['role/member', 'role/computer', 'role/instance']
+
+Image Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Image Module
+  Title: Security for Shacache (Author)
+  Roles: ['Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: []
+  Base Category Script: None
+  Categories: ['role/member', 'role/computer', 'role/instance']
+
+Integration Site
+  Title: Group Company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Integration Site
+  Title: Person Shadow
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+Integration Tool
+  Title: Group Company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Integration Tool
+  Title: Person Shadow
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+Inventory
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Inventory Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Knowledge Box
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Knowledge Pad
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Knowledge Pad Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Letter
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getDestinationValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['destination']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Letter
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getSourceValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['source']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Letter
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Mail Message
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getDestinationValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['destination']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Mail Message
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getSourceValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['source']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Mail Message
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Meeting
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Meeting Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Note
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getDestinationValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['destination']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Note
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getSourceValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['source']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Note
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Notification Message
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Notification Message Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+One Time Restricted Access Token
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Open Sale Order
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Open Sale Order Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Organisation
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Organisation
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: None
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Organisation
+  Title: Person Owner
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['source']
+  Base Category Script: ERP5Type_acquireSecurityFromOwner
+  Categories: []
+
+Organisation
+  Title: Person Shadow
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+Organisation Module
+  Title: Computer
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: None
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/computer']
+
+Organisation Module
+  Title: Customer
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Organisation Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Organisation Module
+  Title: Person Shadow
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+PDF
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+PDF
+  Title: Security for Shacache (Auditor)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: []
+  Base Category Script: None
+  Categories: ['role/member', 'role/computer', 'role/instance']
+
+Payment Transaction
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Payment Transaction
+  Title: Person Shadow
+  Roles: ['Assignee']
+  Condition: python: here.getDestinationSection('', portal_type='Person') == ""
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+Payment Transaction
+  Title: Shadow User
+  Roles: ['Auditor']
+  Condition: python: here.getDestinationSection('', portal_type='Person') != ''
+  Local Roles Group Id: shadow
+  Base Categories: ['aggregate']
+  Base Category Script: PaymentTransactionType_getSecurityCategoryFromUser
+  Categories: []
+
+Payment Transaction
+  Title: User
+  Roles: ['Auditor']
+  Condition: python: here.getDestinationSection('', portal_type='Person') != ''
+  Local Roles Group Id: user
+  Base Categories: ['destination_section']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Payzen Event
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Payzen Event
+  Title: Shadow User
+  Roles: ['Assignee']
+  Condition: python: here.getDestinationSection('', portal_type='Person') != ''
+  Local Roles Group Id: shadow
+  Base Categories: ['aggregate']
+  Base Category Script: PayzenEventType_getSecurityCategoryFromUser
+  Categories: []
+
+Person
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Person
+  Title: The Shadow User Himself
+  Roles: ['Auditor']
+  Condition: python: here.objectValues(portal_type=["ERP5 Login", "Google Login", "Facebook Login"])
+  Local Roles Group Id: shadow
+  Base Categories: ['group']
+  Base Category Script: PersonType_getSecurityCategoryFromSelfShadow
+  Categories: []
+
+Person
+  Title: The User Himself
+  Roles: ['Assignee']
+  Condition: python: here.objectValues(portal_type=["ERP5 Login", "Google Login", "Facebook Login"])
+  Local Roles Group Id: user
+  Base Categories: ['group']
+  Base Category Script: ERP5Type_getSecurityCategoryFromSelf
+  Categories: []
+
+Person Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Person Module
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Person Module
+  Title: Person Shadow
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+Phone Call
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getDestinationValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['destination']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Phone Call
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getSourceValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['source']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Phone Call
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Presentation
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Presentation
+  Title: Security for Shacache
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: []
+  Base Category Script: None
+  Categories: ['role/member', 'role/computer', 'role/instance']
+
+Product
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Product Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Project
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Project
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: None
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Project
+  Title: Person Owner
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['source']
+  Base Category Script: ERP5Type_acquireSecurityFromOwner
+  Categories: []
+
+Project
+  Title: Person Shadow
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+Project Module
+  Title: Computer
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: None
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/computer']
+
+Project Module
+  Title: Customer
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Project Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Project Module
+  Title: Person Shadow
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+Purchase Invoice Transaction
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Purchase Order
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Purchase Order Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Purchase Trade Condition
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Purchase Trade Condition Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Query
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Query Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Regularisation Request
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['destination_decision']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Regularisation Request
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Regularisation Request
+  Title: Member can see template
+  Roles: ['Auditor']
+  Condition: python: here.getRelativeUrl() == here.getPortalObject().portal_preferences.getPreferredRegularisationRequestTemplate()
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Regularisation Request Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Regularisation Request Module
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Restricted Access Token
+  Title: Agent as auditor
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['agent']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Restricted Access Token
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Sale Invoice Transaction
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Sale Invoice Transaction
+  Title: Person Shadow
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+Sale Invoice Transaction
+  Title: User
+  Roles: ['Auditor']
+  Condition: python: here.getDestinationSection('', portal_type='Person') != ''
+  Local Roles Group Id: user
+  Base Categories: ['destination_section']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Sale Opportunity
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Sale Opportunity Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Sale Order
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Sale Order Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Sale Packing List
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Sale Packing List
+  Title: Subscription Customer
+  Roles: ['Auditor']
+  Condition: python: here.getSpecialise() in ('sale_trade_condition_module/slapos_subscription_trade_condition', 'sale_trade_condition_module/slapos_aggregated_trade_condition')
+  Local Roles Group Id: user
+  Base Categories: ['destination_decision']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Sale Packing List Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Sale Packing List Module
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Sale Trade Condition
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Sale Trade Condition
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Sale Trade Condition Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Sale Trade Condition Module
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Service
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Service
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Service Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Service Module
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Short Message
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getDestinationValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['destination']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Short Message
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getSourceValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['source']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Short Message
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Site Message
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getDestinationValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['destination']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Site Message
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getSourceValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['source']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Site Message
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Slave Instance
+  Title: Computer
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: computer
+  Base Categories: ['aggregate']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContentParent
+  Categories: []
+
+Slave Instance
+  Title: Customer of the Instance
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['destination_section']
+  Base Category Script: InstanceType_getSecurityCategoryFromUser
+  Categories: []
+
+Slave Instance
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Slave Instance
+  Title: Instance related by Hosting Subscription
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: subscription
+  Base Categories: ['specialise']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Slave Instance
+  Title: Software Instance which provides this Slave Instance
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: None
+  Base Categories: ['aggregate']
+  Base Category Script: SlaveInstanceType_getSecurityCategoryFromSoftwareInstance
+  Categories: []
+
+Software Installation
+  Title: Computer
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: computer
+  Base Categories: ['aggregate']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Software Installation
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Software Installation
+  Title: Provider of the Installation
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['destination_section']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Software Installation Module
+  Title: Computer
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: computer
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/computer']
+
+Software Installation Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Software Installation Module
+  Title: Member
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Software Instance
+  Title: Computer
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: computer
+  Base Categories: ['aggregate']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContentParent
+  Categories: []
+
+Software Instance
+  Title: Customer of the Instance
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['destination_section']
+  Base Category Script: InstanceType_getSecurityCategoryFromUser
+  Categories: []
+
+Software Instance
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Software Instance
+  Title: Instance related by Hosting Subscription
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: subscription
+  Base Categories: ['specialise']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Software Instance Module
+  Title: Computer
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: None
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/computer']
+
+Software Instance Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Software Instance Module
+  Title: Instance
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: None
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/instance']
+
+Software Instance Module
+  Title: Member
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Software Product
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Software Product
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Software Product Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Software Product Module
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Software Release
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Software Release
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Software Release Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Software Release Module
+  Title: Member
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Spreadsheet
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Spreadsheet
+  Title: Security for Shacache (Auditor)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: []
+  Base Category Script: None
+  Categories: ['role/member', 'role/computer', 'role/instance']
+
+Support Request
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['destination_decision']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Support Request
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Support Request
+  Title: Member can see template
+  Roles: ['Auditor']
+  Condition: python: here.getRelativeUrl() == here.getPortalObject().portal_preferences.getPreferredSupportRequestTemplate()
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Support Request Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Support Request Module
+  Title: Member
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+System Event Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+System Event Module
+  Title: Person Shadow
+  Roles: ['Author']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+Text
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Text
+  Title: Security for Shacache
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: []
+  Base Category Script: None
+  Categories: ['role/member', 'role/computer', 'role/instance']
+
+Transformation
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Transformation Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Upgrade Decision
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Upgrade Decision
+  Title: User
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['destination_decision']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Upgrade Decision Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Upgrade Decision Module
+  Title: Member
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+User Consumption HTML File
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+User Consumption HTML File
+  Title: User
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['contributor']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Visit
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getDestinationValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['destination']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Visit
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getSourceValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['source']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Visit
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Web Message
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getDestinationValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['destination']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Web Message
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getSourceValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['source']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Web Message
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Web Message
+  Title: Member can see template
+  Roles: ['Auditor']
+  Condition: python: here.getRelativeUrl() == here.getPortalObject().portal_preferences.getPreferredWebMessageTemplate()
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Web Page
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Web Page Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+

@@ -632,7 +632,8 @@ class Computer(object):
               netmask_len = lenNetmaskIpv6(self.interface.getGlobalScopeAddressList()[0]['netmask']) + 16
               prefix = binFromIpv6(partition.tap.ipv6_addr)[:netmask_len]
               network_addr = ipv6FromBin(prefix)
-              partition.tap.ipv6_gateway = partition.tap.ipv6_addr
+              partition.tap.ipv6_gateway = "{}1".format(network_addr) # address network::1 will be inside the VM
+              partition.tap.ipv6_gateway = ipv6FromBin(binFromIpv6(partition.tap.ipv6_gateway)) # correctly format the IPv6
               partition.tap.ipv6_network = "{}/{}".format(network_addr, netmask_len)
             else:
               partition.tap.ipv6_addr = ''
@@ -910,10 +911,18 @@ class Tap(object):
 
     if self.ipv6_network:
       # Check if this route exits
+      code, result = callAndRead(['ip', '-6', 'route', 'show', self.ipv6_gateway],
+                                 raise_on_error=False)
+      if code != 0 or self.name not in result:
+        callAndRead(['ip', '-6', 'route', 'add', self.ipv6_gateway, 'dev', self.name])
+
       code, result = callAndRead(['ip', '-6', 'route', 'show', self.ipv6_network],
                                  raise_on_error=False)
-      if code != 0 or self.ipv6_network not in result or self.name not in result:
-        callAndRead(['ip', '-6', 'route', 'add', self.ipv6_network, 'dev', self.name])
+      if code != 0 or 'via {}'.format(self.ipv6_gateway) not in result or 'dev {}'.format(self.name) not in result:
+        if 'dev {}'.format(self.name) in result:
+          callAndRead(['ip', '-6', 'route', 'del', self.ipv6_network, 'dev', self.name]) # remove old route without the "via" option
+        callAndRead(['ip', '-6', 'route', 'add', self.ipv6_network, 'dev', self.name, 'via', self.ipv6_gateway])
+
 
 
 class Tun(Tap):

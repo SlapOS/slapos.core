@@ -124,8 +124,13 @@ class FakeCallAndRead:
     elif argument_list[:3] == ['ip', '-6', 'route']:
       retval = 0, 'OK'
       ip = argument_list[4]
-      netmask = int(ip.split('/')[1])
-      argument_list[4] = 'ip/%s' % netmask
+      if '/' in ip:
+        netmask = int(ip.split('/')[1])
+        argument_list[4] = 'ip/%s' % netmask
+      else:
+        argument_list[4] = 'ip'
+      if len(argument_list) > 7:
+        argument_list[8] = 'gateway'
     elif argument_list[:3] == ['route', 'add', '-host']:
       retval = 0, 'OK'
     self.external_command_list.append(' '.join(argument_list))
@@ -489,8 +494,10 @@ class TestComputer(SlapformatMixin):
         'ip -6 addr list tap',
         'ip route show 10.0.0.2',
         'ip route add 10.0.0.2 dev tap',
+        'ip -6 route show ip',
+        'ip -6 route add ip dev tap',
         'ip -6 route show ip/80',
-        'ip -6 route add ip/80 dev tap',
+        'ip -6 route add ip/80 dev tap via gateway',
         'ip addr add ip/255.255.255.255 dev myinterface',
         # 'ip addr list myinterface',
         'ip addr add ip/ffff:ffff:ffff:ffff:: dev myinterface',
@@ -544,8 +551,10 @@ class TestComputer(SlapformatMixin):
         'ip -6 addr list tap',
         'ip route show 10.8.0.2',
         'ip route add 10.8.0.2 dev tap',
+        'ip -6 route show ip',
+        'ip -6 route add ip dev tap',
         'ip -6 route show ip/96',
-        'ip -6 route add ip/96 dev tap',
+        'ip -6 route add ip/96 dev tap via gateway',
         'ip addr add ip/255.255.255.255 dev iface',
         'ip addr add ip/ffff:ffff:ffff:ffff:ffff:: dev iface',
         'ip -6 addr list iface'

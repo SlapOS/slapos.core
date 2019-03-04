@@ -95,7 +95,6 @@ class PromiseProcess(Process):
     self._periodicity = None
     self.cache_folder = os.path.join(self.partition_folder,
                                      PROMISE_CACHE_FOLDER_NAME)
-    mkdir_p(self.cache_folder)
     self.cache_file = os.path.join(self.cache_folder, self.getPromiseTitle())
     # XXX - remove old files used to store promise timestamp and periodicity
     self._cleanupDeprecated()
@@ -111,12 +110,6 @@ class PromiseProcess(Process):
       os.unlink(timestamp_file)
     if os.path.exists(periodicity_file) and os.path.isfile(periodicity_file):
       os.unlink(periodicity_file)
-
-  def getNextPromiseTime(self, periodicity):
-    """
-      Return the next promise execution timestamp from now
-    """
-    return time.time() + (periodicity * 60.0)
 
   def getPromiseTitle(self):
     return os.path.splitext(self.name)[0]
@@ -172,6 +165,7 @@ class PromiseProcess(Process):
       promise_started = False
       if self.uid and self.gid:
         dropPrivileges(self.uid, self.gid, logger=self.logger)
+      mkdir_p(self.cache_folder)
       if self.wrap_promise:
         promise_instance = WrapPromise(self.argument_dict)
       else:
@@ -339,6 +333,7 @@ class PromiseLauncher(object):
 
     self.queue_result = MQueue()
     self.bang_called = False
+    self._skipped_amount = 0
 
     self.promise_output_dir = os.path.join(
       self.partition_folder,
@@ -468,10 +463,12 @@ class PromiseLauncher(object):
             or not self.check_anomaly and not promise_cache_dict.get('is_tested'):
           # promise is skipped, send empty result
           self._writePromiseResult(PromiseQueueResult())
+          self._skipped_amount += 1
           return
       if not self.force and (promise_cache_dict is not None and not
           self.isPeriodicityMatch(promise_cache_dict.get('next_run_after'))):
         # we won't start the promise process, just get the latest result
+        self._skipped_amount += 1
         result = self._loadPromiseResult(promise_process.getPromiseTitle())
         if result is not None:
           if result.item.hasFailed():
@@ -628,6 +625,8 @@ class PromiseLauncher(object):
           failed_promise_name = promise_name
 
     self._updateFolderOwner(self.promise_output_dir)
-
+    if self._skipped_amount > 0:
+      self.logger.info("%s promises didn't need to be checked." % \
+        self._skipped_amount)
     if failed_promise_name:
       raise PromiseError("Promise %r failed." % failed_promise_name)

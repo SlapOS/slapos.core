@@ -36,7 +36,8 @@ import logging
 from datetime import datetime, timedelta
 import six
 from six.moves import queue
-from slapos.grid.promise import interface, PromiseLauncher, PromiseProcess, PromiseError
+from slapos.grid.promise import (interface, PromiseLauncher, PromiseProcess,
+                                 PromiseError, PROMISE_CACHE_FOLDER_NAME)
 from slapos.grid.promise.generic import (GenericPromise, TestResult, AnomalyResult,
                                          PromiseQueueResult, PROMISE_STATE_FOLDER_NAME,
                                          PROMISE_RESULT_FOLDER_NAME,
@@ -1212,6 +1213,147 @@ exit 1
       self.launcher.run()
     # no result returned by the promise
     self.assertTrue(self.called)
+
+  def test_promise_cache(self):
+    promise_name = 'my_promise.py'
+    promise_file = os.path.join(self.plugin_dir, promise_name)
+    self.configureLauncher(timeout=1, enable_anomaly=True)
+    self.generatePromiseScript(promise_name, success=True, periodicity=0.01,
+      with_anomaly=True, is_tested=False)
+
+    # run promise, no failure
+    self.launcher.run()
+    cache_folder = os.path.join(self.partition_dir, PROMISE_CACHE_FOLDER_NAME)
+    cache_file = os.path.join(cache_folder, 'my_promise')
+    self.assertTrue(os.path.exists(cache_folder))
+    self.assertTrue(os.path.exists(cache_file))
+    file_stat = os.stat(promise_file)
+    with open(cache_file) as f:
+      cache_dict = json.load(f)
+    timestamp = cache_dict.pop('timestamp')
+    info_dict = {
+      u'is_tested': False,
+      u'is_anomaly_detected': True,
+      u'periodicity': 0.01,
+      u'next_run_after' : (timestamp + 0.01 * 60.0),
+      u'module_file': u'%s' % promise_file,
+      u'module_file_mtime': file_stat.st_mtime,
+    }
+    # next run is in future
+    self.assertTrue(info_dict['next_run_after'] > time.time())
+    self.assertEqual(info_dict, cache_dict)
+
+  def test_promise_cache_expire_with_periodicity(self):
+    self.called = False
+    def test_method(result):
+      self.called = True
+
+    promise_name = 'my_promise.py'
+    promise_file = os.path.join(self.plugin_dir, promise_name)
+    self.configureLauncher(save_method=test_method, timeout=1, enable_anomaly=True)
+    self.generatePromiseScript(promise_name, success=True, periodicity=0.01,
+      with_anomaly=True, is_tested=False)
+
+    # run promise, no failure
+    self.launcher.run()
+    cache_folder = os.path.join(self.partition_dir, PROMISE_CACHE_FOLDER_NAME)
+    cache_file = os.path.join(cache_folder, 'my_promise')
+    self.assertTrue(os.path.exists(cache_folder))
+    self.assertTrue(os.path.exists(cache_file))
+    file_stat = os.stat(promise_file)
+    with open(cache_file) as f:
+      cache_dict = json.load(f)
+    timestamp = cache_dict.pop('timestamp')
+    info_dict = {
+      u'is_tested': False,
+      u'is_anomaly_detected': True,
+      u'periodicity': 0.01,
+      u'next_run_after' : (timestamp + 0.01 * 60.0),
+      u'module_file': u'%s' % promise_file,
+      u'module_file_mtime': file_stat.st_mtime,
+    }
+    self.assertEqual(info_dict, cache_dict)
+    self.assertTrue(self.called)
+    next_run_after = cache_dict['next_run_after']
+
+    # periodicity not match
+    self.called = False
+    self.configureLauncher(save_method=test_method, timeout=1, enable_anomaly=True)
+    self.launcher.run()
+    self.assertFalse(self.called)
+    with open(cache_file) as f:
+      cache_dict = json.load(f)
+    # no change!
+    current_timestamp = cache_dict.pop('timestamp')
+    self.assertEqual(current_timestamp, timestamp)
+    self.assertEqual(info_dict, cache_dict)
+
+    time.sleep(1)
+    # periodicity match
+    self.configureLauncher(save_method=test_method, timeout=1, enable_anomaly=True)
+    self.launcher.run()
+
+    # cached was updated
+    with open(cache_file) as f:
+      cache_dict = json.load(f)
+    new_timestamp = cache_dict.pop('timestamp')
+    info_dict = {
+      u'is_tested': False,
+      u'is_anomaly_detected': True,
+      u'periodicity': 0.01,
+      u'next_run_after' : (new_timestamp + 0.01 * 60.0),
+      u'module_file': u'%s' % promise_file,
+      u'module_file_mtime': file_stat.st_mtime,
+    }
+    self.assertTrue(new_timestamp > timestamp)
+    # next run is in future
+    self.assertTrue(cache_dict['next_run_after'] > next_run_after)
+    self.assertEqual(info_dict, cache_dict)
+
+  def test_promise_cache_invalidated_if_file_change(self):
+    promise_name = 'my_promise.py'
+    promise_file = os.path.join(self.plugin_dir, promise_name)
+    self.configureLauncher(timeout=1, enable_anomaly=True)
+    self.generatePromiseScript(promise_name, success=True, periodicity=1,
+      with_anomaly=False, is_tested=True)
+
+    # run promise, no failure
+    self.launcher.run()
+    cache_folder = os.path.join(self.partition_dir, PROMISE_CACHE_FOLDER_NAME)
+    cache_file = os.path.join(cache_folder, 'my_promise')
+    file_stat = os.stat(promise_file)
+
+    with open(cache_file) as f:
+      cache_dict = json.load(f)
+    timestamp = cache_dict.pop('timestamp')
+    info_dict = {
+      u'is_tested': True,
+      u'is_anomaly_detected': False,
+      u'periodicity': 1,
+      u'next_run_after' : timestamp,
+      u'module_file': u'%s' % promise_file,
+      u'module_file_mtime': file_stat.st_mtime,
+    }
+    self.assertEqual(info_dict, cache_dict)
+
+    # regenerate promise script, we will run anomaly now
+    self.generatePromiseScript(promise_name, success=True, periodicity=1,
+      with_anomaly=True, is_tested=True)
+    # allow reload module in a same process
+    os.system('rm %s/*.pyc' % self.plugin_dir)
+    file_stat = os.stat(promise_file)
+    self.assertNotEqual(file_stat.st_mtime, info_dict['module_file_mtime'])
+
+    self.configureLauncher(timeout=1, enable_anomaly=True)
+    self.launcher.run()
+    with open(cache_file) as f:
+      cache_dict = json.load(f)
+    timestamp = cache_dict.pop('timestamp')
+    info_dict['module_file_mtime'] = file_stat.st_mtime
+    info_dict['next_run_after'] = timestamp + 60.0
+    info_dict['is_anomaly_detected'] = True
+    # cache has changed
+    self.assertEqual(info_dict, cache_dict)
 
 class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
 

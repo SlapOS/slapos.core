@@ -1,6 +1,14 @@
 Changes
 =======
 
+1.4.19 (2019-03-06)
+-------------------
+
+ * format: Make sure routing is OK withVM inside VM
+ * grid.promise: cache some promise information to speedup testless and anomalyless checks
+ * slapproxy: fix support of non-string (e.g. int) values in requests
+ * slapproxy: Support keys with NULL in slave instance
+
 1.4.18 (2019-02-06)
 -------------------
 

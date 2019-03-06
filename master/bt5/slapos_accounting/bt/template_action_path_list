@@ -5,6 +5,7 @@ Computer Consumption TioXML File | view
 Computer | jump_to_consumption_report_view
 Consumption Document Module | view
 Hosting Subscription | periodicity
+Payment Transaction | related_payzen_event
 Person | jump_to_cloud_contract
 SlapOS Accounting Quantity Updating Order Builder | view
 SlapOS Accounting Quantity Updating Order Builder | view_predicate_group

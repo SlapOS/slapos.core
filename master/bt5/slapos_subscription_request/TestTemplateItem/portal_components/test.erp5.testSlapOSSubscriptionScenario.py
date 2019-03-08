@@ -7,11 +7,6 @@
 
 from erp5.component.test.SlapOSTestCaseDefaultScenarioMixin import DefaultScenarioMixin
 from erp5.component.test.SlapOSTestCaseMixin import changeSkin
-import re
-import json
-import xml_marshaller
-from AccessControl.SecurityManagement import getSecurityManager, \
-             setSecurityManager
 from DateTime import DateTime
 
 class TestSlapOSTrialScenario(DefaultScenarioMixin):
@@ -212,6 +207,8 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
         'authAmount': 2500*quantity,
         'authDevise': '978',
     }
+
+    # Payzen_processUpdate will mark payment as payed by stopping it.
     payment.PaymentTransaction_createPayzenEvent().PayzenEvent_processUpdate(data_kw, True)
     self.tic()
     self.assertEqual(payment.getSimulationState(), "stopped")

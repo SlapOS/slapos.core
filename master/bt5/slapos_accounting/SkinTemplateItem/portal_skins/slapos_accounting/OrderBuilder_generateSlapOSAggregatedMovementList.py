@@ -6,19 +6,23 @@ from Products.ZSQLCatalog.SQLCatalog import Query, NegatedQuery, ComplexQuery
 portal = context.getPortalObject()
 
 business_process_uid_list = [
-  portal.business_process_module.slapos_consumption_business_process.getUid(),
   portal.business_process_module.slapos_reservation_refound_business_process.getUid(),
   portal.business_process_module.slapos_subscription_business_process.getUid()]
 
 specialise_uid_list = [q.getUid() for q in portal.portal_catalog(
   specialise_uid=business_process_uid_list, portal_type='Sale Trade Condition')]
+
+consumption_specialise_uid_list = [q.getUid() for q in portal.portal_catalog(
+  specialise_uid=portal.business_process_module.slapos_consumption_business_process.getUid(),
+  portal_type='Sale Trade Condition')]
+
 select_dict= {'default_aggregate_portal_type': None}
 
 select_kw.update(
-  limit=10000, # just take a bit
+  limit=10, # just take a bit
   portal_type='Sale Packing List Line',
   simulation_state='delivered',
-  parent_specialise_uid=specialise_uid_list,
+  parent_specialise_uid=specialise_uid_list+consumption_specialise_uid_list,
   select_dict=select_dict,
   left_join_list=select_dict.keys(),
   default_aggregate_portal_type=ComplexQuery(NegatedQuery(Query(default_aggregate_portal_type='Computer')),
@@ -30,6 +34,8 @@ movement_list = portal.portal_catalog(**select_kw)
 
 specialise = portal.portal_preferences.getPreferredAggregatedSaleTradeCondition()
 subscription_request_specialise = portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()
+consumption_specialise = portal.portal_preferences.getPreferredAggregatedConsumptionSaleTradeCondition()
+
 temp_movement_list = []
 for movement in movement_list:
   if movement.getGroupingReference() is not None:
@@ -46,6 +52,8 @@ for movement in movement_list:
     specialise=specialise,
     price_currency=movement.getPriceCurrency()
   )
+
+  # XXX Shamefully hardcoded values
   if movement.getResource() == 'service_module/slapos_instance_subscription':
     # reduce tax from there directly
     temp_movement.edit(price=movement.getPrice(0.0)/1.2)
@@ -55,16 +63,21 @@ for movement in movement_list:
     temp_movement.edit(price=0.0)
 
   hosting_subscription = movement.getAggregateValue(portal_type="Hosting Subscription")
+
+  specialise_to_set = subscription_request_specialise
+  if movement.getSpecialiseUid() in consumption_specialise_uid_list:
+    specialise_to_set = consumption_specialise
+
   if hosting_subscription is not None:
     subscription = hosting_subscription.getAggregateRelated(portal_type="Subscription Request")
     if subscription is not None:
       temp_movement.edit(
-        specialise=subscription_request_specialise,
-        causality=subscription)
+          specialise=specialise_to_set,
+          causality=subscription)
 
   elif movement.getCausality(portal_type="Subscription Request") is not None:
     temp_movement.edit(
-      specialise=subscription_request_specialise,
+      specialise=specialise_to_set,
       causality=movement.getCausality(portal_type="Subscription Request"))
 
   temp_movement_list.append(temp_movement)

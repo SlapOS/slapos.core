@@ -82,6 +82,10 @@
             <value> <string>System Preference</string> </value>
         </item>
         <item>
+            <key> <string>preferred_aggregated_consumption_sale_trade_condition</string> </key>
+            <value> <string>sale_trade_condition_module/slapos_aggregated_consumption_trade_condition</string> </value>
+        </item>
+        <item>
             <key> <string>preferred_aggregated_sale_trade_condition</string> </key>
             <value> <string>sale_trade_condition_module/slapos_aggregated_trade_condition</string> </value>
         </item>
@@ -239,9 +243,7 @@
         </item>
         <item>
             <key> <string>preferred_slapos_web_site_url</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>http://foobar.org/</string> </value>
         </item>
         <item>
             <key> <string>preferred_subscription_assignment_category</string> </key>

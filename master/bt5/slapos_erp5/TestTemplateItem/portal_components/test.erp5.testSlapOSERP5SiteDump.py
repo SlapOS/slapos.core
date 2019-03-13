@@ -18,6 +18,15 @@ class TestSlapOSDump(SlapOSTestCaseMixin):
     return path
 
   def test(self):
+    #####
+    # Expected configuration to be found in production has some diffs compared to the latest
+    # test or a development instance. So the code bellow is to ajust the delta.
+
+    for alarm_id in ['slapos_crm_check_update_personal_allocation_scope',
+                     'slapos_crm_stop_hosting_subscription',
+                     'slapos_crm_delete_hosting_subscription']:
+      self.portal.portal_alarms[alarm_id].setEnabled(1)
+    #####
     issue_count = 0
     for dump, filename in [
         ('ERP5Site_dumpAlarmToolConfiguration', 'expected_alarm_tool_dumped_configuration'),

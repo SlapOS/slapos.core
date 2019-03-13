@@ -15802,6 +15802,21 @@ SlapOSAccountingSalePackingListLineConstraint
 
 SlapOSAccountingSystemPreference
   elementary_type: string
+  id: preferred_aggregated_consumption_sale_trade_condition_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: preferred_aggregated_consumption_sale_trade_condition
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Manage properties
+
+SlapOSAccountingSystemPreference
+  elementary_type: string
   id: preferred_aggregated_sale_trade_condition_property
   multivaluated: None
   portal_type: Standard Property

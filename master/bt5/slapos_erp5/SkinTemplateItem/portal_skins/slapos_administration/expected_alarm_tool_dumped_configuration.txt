@@ -15,7 +15,7 @@ portal_alarms/erp5_garbage_collect_one_time_restricted_access_token;1;None;Alarm
 portal_alarms/expired_password_alarm;0;None;Alarm_removeExpiredPasswordRequest;None;None;None;None;None;None;None;None;None;None;2007/01/01 00:00:00 GMT;None;None;None;None
 portal_alarms/fetch_incoming_web_message_list;1;None;Alarm_fetchIngestedWebMessageList;None;None;None;();1;(0,);None;();();None;2010/01/01 00:00:00 GMT;2020/01/01 00:00:00 GMT;();None;None
 portal_alarms/handle_confirmed_http_exchanges;1;None;Alarm_handleConfirmedHTTPExchanges;None;None;None;();None;();5;();();None;2014/05/01 00:00:00 GMT;None;();None;None
-portal_alarms/open_bugs_alarm;1;None;BugModule_sendOpenBugListReminder;None;None;None;(13,);None;(1,);None;();();None;2006/09/01 00:00:00 GMT+2;3000/01/01 00:00:00 GMT+1;();('Monday',);1
+portal_alarms/open_bugs_alarm;0;None;BugModule_sendOpenBugListReminder;None;None;None;(13,);None;(1,);None;();();None;2006/09/01 00:00:00 GMT+2;3000/01/01 00:00:00 GMT+1;();('Monday',);1
 portal_alarms/promise_check_upgrade;0;None;Alarm_runFullUpgrader;None;None;None;();None;();None;();();None;2013/11/14 10:00:00 GMT;None;();None;None
 portal_alarms/slapos_accounting_generate_packing_list_from_tioxml;1;None;Alarm_searchSubmittedConsumptionTioXMLFileList;None;None;1;(4,);None;(0,);None;();();None;1970/01/01 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_allocate_instance;1;None;Alarm_allocateInstance;None;None;None;();None;();1;();();None;2010/10/26 00:00:00 GMT;None;();None;None
@@ -30,7 +30,7 @@ portal_alarms/slapos_crm_check_instance_in_error;0;None;Alarm_checkHostingSubscr
 portal_alarms/slapos_crm_check_instance_on_closed_computer;0;None;Alarm_searchInstanceOnClosedComputer;None;None;None;(1,);None;(0,);None;();();None;None;None;();('Monday',);None
 portal_alarms/slapos_crm_check_software_installation_state;0;None;Computer_checkSoftwareInstallationState;None;None;None;();None;();30;();();None;2010/10/26 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_crm_check_update_allocation_scope;0;None;Alarm_checkAndUpdateComputerAllocationScope;None;None;None;();None;(5,);1;();();None;2014/05/07 00:00:00 GMT;None;();None;None
-portal_alarms/slapos_crm_check_update_personal_allocation_scope;0;None;Alarm_checkAndUpdatePersonalComputerAllocationScope;None;None;None;();None;(5,);1;();();None;2014/05/07 00:00:00 GMT;None;();None;None
+portal_alarms/slapos_crm_check_update_personal_allocation_scope;1;None;Alarm_checkAndUpdatePersonalComputerAllocationScope;None;None;None;();None;(5,);1;();();None;2014/05/07 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_crm_create_regularisation_request;0;None;Alarm_createRegularisationRequest;None;None;None;();2;();None;();();None;2010/10/26 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_crm_delete_hosting_subscription;1;None;Alarm_deleteHostingSubscriptionFromRegularisationRequest;None;None;None;();None;();30;();();None;2010/10/26 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_crm_invalidate_suspended_regularisation_request;0;None;Alarm_invalidateSuspendedRegularisationRequest;None;None;None;();1;();None;();();None;2010/10/26 00:00:00 GMT;None;();None;None

@@ -1135,7 +1135,7 @@ Computer
   Init Script: Computer_init
   Add Permission: None
   Acquire Local Roles: 0
-  Property Sheets: ['ComputerSlapOSMetadata', 'ERP5User', 'SlaposCapacity', 'SlaposComputerConstraint', 'Url']
+  Property Sheets: ['ComputerSlapOSMetadata', 'ERP5User', 'SlaposCapacity', 'SlaposComputerConstraint', 'Url', 'VariationRange']
   Base Categories: ['destination_section', 'monitor_scope', 'source_administration', 'specialise', 'subordination']
   Allowed Content Types: ['Computer Partition', 'ERP5 Login', 'Internet Protocol Address', 'Tcp Port Number']
   Hidden Content Types: []
@@ -2148,19 +2148,6 @@ Folder
   Class: Folder
   Init Script: 
   Add Permission: 
-  Acquire Local Roles: False
-  Property Sheets: []
-  Base Categories: []
-  Allowed Content Types: []
-  Hidden Content Types: []
-  Searchable Property: ['description', 'reference', 'short_title', 'title']
-  Searchable Method: []
-
-Form
-  Short Title: None
-  Class: ERP5Form
-  Init Script: None
-  Add Permission: None
   Acquire Local Roles: False
   Property Sheets: []
   Base Categories: []
@@ -3735,7 +3722,7 @@ Preference
   Init Script: None
   Add Permission: None
   Acquire Local Roles: 0
-  Property Sheets: ['AccountingPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSHypermediaSystemPreference', 'SlapOSPayzenSystemPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'VifibOAuthPreference', 'WebSitePreference']
+  Property Sheets: ['AccountingPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
   Base Categories: []
   Allowed Content Types: ['Accounting Transaction', 'Knowledge Pad', 'Payment Transaction', 'Purchase Invoice Transaction', 'Purchase Order', 'Sale Invoice Transaction', 'Sale Order', 'Support Request']
   Hidden Content Types: ['Accounting Transaction', 'Knowledge Pad', 'Payment Transaction', 'Purchase Invoice Transaction', 'Sale Invoice Transaction', 'Sale Order', 'Support Request']
@@ -3761,7 +3748,7 @@ Preference Tool
   Init Script: 
   Add Permission: 
   Acquire Local Roles: 1
-  Property Sheets: ['AccountingPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSHypermediaSystemPreference', 'SlapOSPayzenSystemPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'VifibOAuthPreference', 'WebSitePreference']
+  Property Sheets: ['AccountingPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
   Base Categories: []
   Allowed Content Types: ['Preference', 'System Preference']
   Hidden Content Types: []
@@ -5867,7 +5854,7 @@ System Preference
   Init Script: SystemPreference_init
   Add Permission: Manage portal
   Acquire Local Roles: 0
-  Property Sheets: ['AccountingPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSHypermediaSystemPreference', 'SlapOSPayzenSystemPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'VifibOAuthPreference', 'WebSitePreference']
+  Property Sheets: ['AccountingPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
   Base Categories: []
   Allowed Content Types: ['Knowledge Pad']
   Hidden Content Types: []

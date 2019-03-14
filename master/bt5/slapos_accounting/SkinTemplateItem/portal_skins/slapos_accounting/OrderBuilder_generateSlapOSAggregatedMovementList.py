@@ -19,7 +19,7 @@ consumption_specialise_uid_list = [q.getUid() for q in portal.portal_catalog(
 select_dict= {'default_aggregate_portal_type': None}
 
 select_kw.update(
-  limit=10, # just take a bit
+  limit=100, # just take a bit
   portal_type='Sale Packing List Line',
   simulation_state='delivered',
   parent_specialise_uid=specialise_uid_list+consumption_specialise_uid_list,
@@ -35,6 +35,15 @@ movement_list = portal.portal_catalog(**select_kw)
 specialise = portal.portal_preferences.getPreferredAggregatedSaleTradeCondition()
 subscription_request_specialise = portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()
 consumption_specialise = portal.portal_preferences.getPreferredAggregatedConsumptionSaleTradeCondition()
+
+if specialise is None:
+  raise ValueError("Preferred Aggregated Sale Trade Condition is not Defined, please check your preferences.")
+
+if subscription_request_specialise is None:
+  raise ValueError("Preferred Aggregated Subscription Sale Trade Condition is not Defined, please check your preferences.")
+
+if consumption_specialise is None:
+  raise ValueError("Preferred Aggregated Consumption Sale Trade Condition is not Defined, please check your preferences.")
 
 temp_movement_list = []
 for movement in movement_list:

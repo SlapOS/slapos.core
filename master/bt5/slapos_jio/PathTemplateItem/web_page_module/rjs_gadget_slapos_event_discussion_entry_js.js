@@ -11,7 +11,7 @@
     inline_html_event_source = gadget_klass.__template_element
                          .getElementById("inline-html-event-template")
                          .innerHTML,
-    inline_html_status_template = Handlebars.compile(inline_event_source);
+    inline_html_status_template = Handlebars.compile(inline_html_event_source);
 
 
   gadget_klass

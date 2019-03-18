@@ -1161,7 +1161,7 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     behaviours.
     """
     configuration = bytes2str(pkg_resources.resource_string(
-        'slapos.tests.test_slapproxy', 'slapos_multimaster.cfg.in'
+        'slapos.tests', os.path.join('test_slapproxy', 'slapos_multimaster.cfg.in')
     )) % {
         'tempdir': self._tempdir, 'proxyaddr': self.proxyaddr,
         'external_proxy_host': self.external_proxy_host,
@@ -1379,8 +1379,8 @@ class TestMigrateVersion10To12(TestInformation, TestRequest, TestSlaveRequest, T
   def setUp(self):
     super(TestMigrateVersion10To12, self).setUp()
     schema = bytes2str(pkg_resources.resource_string(
-      'slapos.tests.test_slapproxy',
-      'database_dump_version_10.sql'
+      'slapos.tests',
+      os.path.join('test_slapproxy', 'database_dump_version_10.sql')
     )) % dict(version='12')
     self.db = sqlite_connect(self.proxy_db)
     self.db.cursor().executescript(schema)

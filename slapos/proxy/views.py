@@ -31,6 +31,7 @@
 from lxml import etree
 import random
 import string
+from datetime import datetime
 from slapos.slap.slap import Computer, ComputerPartition, \
     SoftwareRelease, SoftwareInstance, NotFoundError
 from slapos.proxy.db_version import DB_VERSION
@@ -176,6 +177,22 @@ def _upgradeDatabaseIfNeeded():
   if current_schema_version == DB_VERSION:
     return
 
+  previous_table_list = _getTableList()
+  # first, make a backup of current database
+  if current_schema_version != '-1':
+    backup_file_name = "{}-backup-{}to{}-{}.sql".format(
+        app.config['DATABASE_URI'],
+        current_schema_version,
+        DB_VERSION,
+        datetime.now().isoformat())
+    app.logger.info(
+        'Old schema detected: Creating a backup of current tables at %s',
+        backup_file_name
+    )
+    with open(backup_file_name, 'w') as f:
+      for line in g.db.iterdump():
+          f.write('%s\n' % line)
+
   with app.open_resource('schema.sql', 'r') as f:
     schema = f.read() % dict(version=DB_VERSION, computer=app.config['computer_id'])
   g.db.cursor().executescript(schema)
@@ -186,14 +203,15 @@ def _upgradeDatabaseIfNeeded():
 
   # Migrate all data to new tables
   app.logger.info('Old schema detected: Migrating old tables...')
-  app.logger.info('Note that old tables are not alterated.')
   for table in ('software', 'computer', 'partition', 'slave', 'partition_network'):
     for row in execute_db(table, 'SELECT * from %s', db_version=current_schema_version):
       columns = ', '.join(row.keys())
       placeholders = ':'+', :'.join(row.keys())
       query = 'INSERT INTO %s (%s) VALUES (%s)' % ('%s', columns, placeholders)
       execute_db(table, query, row)
-
+  # then drop old tables
+  for previous_table in previous_table_list:
+    g.db.execute("DROP table %s" % previous_table)
   g.db.commit()
 
 is_schema_already_executed = False

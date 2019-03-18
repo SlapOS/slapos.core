@@ -42,6 +42,7 @@ import sys
 import tempfile
 import time
 import unittest
+import mock
 
 import slapos.proxy
 import slapos.proxy.views as views
@@ -1387,12 +1388,28 @@ class TestMigrateVersion10To12(TestInformation, TestRequest, TestSlaveRequest, T
     self.db.commit()
 
   def test_automatic_migration(self):
+    # create an old table, to assert it is properly removed.
+    self.db.execute("create table software9 (int a)")
+    self.db.commit()
+
     # Make sure that in the initial state we only have version 10 of the tables.
     table_list = self.db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
-    self.assertEqual(table_list, [('computer10', ), ('partition10', ), ('partition_network10', ), ('slave10', ), ('software10', )])
+    self.assertEqual(table_list, [('computer10', ), ('partition10', ), ('partition_network10', ), ('slave10', ), ('software10', ), ('software9', )])
 
     # Run a dummy request to cause migration
-    self.app.get('/getComputerInformation?computer_id=computer')
+    from slapos.proxy.views import app
+    with mock.patch.object(app.logger, 'info') as logger:
+      self.app.get('/getComputerInformation?computer_id=computer')
+
+    # This creates a backup dump
+    logger.assert_has_calls((
+        mock.call('Old schema detected: Creating a backup of current tables at %s', mock.ANY),
+        mock.call('Old schema detected: Migrating old tables...')))
+    backup_name = logger.call_args_list[0][0][1]
+    with open(backup_name, 'rt') as f:
+      dump = f.read()
+      self.assertIn("CREATE TABLE", dump)
+      self.assertIn('INSERT INTO', dump)
 
     # Check some partition parameters
     self.assertEqual(
@@ -1430,6 +1447,10 @@ class TestMigrateVersion10To12(TestInformation, TestRequest, TestSlaveRequest, T
         partition_network_list,
         [(u'slappart0', u'computer', u'slappart0', u'127.0.0.1', u'255.255.255.255'), (u'slappart0', u'computer', u'slappart0', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart1', u'computer', u'slappart1', u'127.0.0.1', u'255.255.255.255'), (u'slappart1', u'computer', u'slappart1', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart2', u'computer', u'slappart2', u'127.0.0.1', u'255.255.255.255'), (u'slappart2', u'computer', u'slappart2', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart3', u'computer', u'slappart3', u'127.0.0.1', u'255.255.255.255'), (u'slappart3', u'computer', u'slappart3', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart4', u'computer', u'slappart4', u'127.0.0.1', u'255.255.255.255'), (u'slappart4', u'computer', u'slappart4', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart5', u'computer', u'slappart5', u'127.0.0.1', u'255.255.255.255'), (u'slappart5', u'computer', u'slappart5', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart6', u'computer', u'slappart6', u'127.0.0.1', u'255.255.255.255'), (u'slappart6', u'computer', u'slappart6', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart7', u'computer', u'slappart7', u'127.0.0.1', u'255.255.255.255'), (u'slappart7', u'computer', u'slappart7', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart8', u'computer', u'slappart8', u'127.0.0.1', u'255.255.255.255'), (u'slappart8', u'computer', u'slappart8', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart9', u'computer', u'slappart9', u'127.0.0.1', u'255.255.255.255'), (u'slappart9', u'computer', u'slappart9', u'fc00::1', u'ffff:ffff:ffff::')]
     )
+
+    # Check that we only have new tables
+    table_list = self.db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
+    self.assertEqual(table_list, [('computer12', ), ('forwarded_partition_request12',), ('partition12', ), ('partition_network12', ), ('slave12', ), ('software12', )])
 
   # Override several tests that needs an empty database
   @unittest.skip("Not implemented")

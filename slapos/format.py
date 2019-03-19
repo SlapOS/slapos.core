@@ -607,9 +607,11 @@ class Computer(object):
             partition.tap.createWithOwner(owner)
 
             # add addresses and create route for this tap
+            # Pop IP from tap_address_list and attach to tap if has no ipv4 yet
+            next_ipv4_addr = '%s' % tap_address_list.pop(0)
+            # skip to set this IP to tap if already exits
             if not partition.tap.ipv4_addr:
               # define new ipv4 address for this tap
-              next_ipv4_addr = '%s' % tap_address_list.pop(0)
               partition.tap.ipv4_addr = next_ipv4_addr
               partition.tap.ipv4_netmask = gateway_addr_dict['netmask']
               partition.tap.ipv4_gateway = gateway_addr_dict['addr']

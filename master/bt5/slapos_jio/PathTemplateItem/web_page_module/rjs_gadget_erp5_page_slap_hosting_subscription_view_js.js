@@ -30,14 +30,16 @@
             if (1 || (result.data.rows[i].hasOwnProperty("id"))) {
               value = result.data.rows[i].id;
               result.data.rows[i].value.computer_monitoring_status = {
-                css_class: "",
-                description: "The Status",
-                hidden:  result.data.rows[i].value.portal_type === "Slave Instance",
-                "default": {jio_key: value},
-                key: "status",
-                url: "gadget_slapos_instance_status.html",
-                title: "Status",
-                type: "GadgetField"
+                field_gadget_param : {
+                  css_class: "",
+                  description: "The Status",
+                  hidden:  result.data.rows[i].value.portal_type === "Slave Instance",
+                  "default": {jio_key: value},
+                  key: "status",
+                  url: "gadget_slapos_instance_status.html",
+                  title: "Status",
+                  type: "GadgetField"
+                }
               };
               result.data.rows[i].value["listbox_uid:list"] = {
                 key: "listbox_uid:list",
@@ -47,23 +49,27 @@
             if (1 || (result.data.rows[i].value.hasOwnProperty("connection_key"))) {
               value = result.data.rows[i].value.connection_key;
               result.data.rows[i].value.connection_key = {
-                css_class: "",
-                "default": value,
-                key: "status",
-                editable: 1,
-                url: "gadget_slapos_label_listbox_field.html",
-                title: "Status",
-                type: "GadgetField"
+                field_gadget_param : {
+                  css_class: "",
+                  "default": value,
+                  key: "status",
+                  editable: 1,
+                  url: "gadget_slapos_label_listbox_field.html",
+                  title: "Status",
+                  type: "GadgetField"
+                }
               };
               value = result.data.rows[i].value.connection_value;
               result.data.rows[i].value.connection_value = {
-                css_class: "",
-                "default": value,
-                key: "status",
-                editable: 1,
-                url: "gadget_slapos_label_listbox_field.html",
-                title: "Status",
-                type: "GadgetField"
+                field_gadget_param : {
+                  css_class: "",
+                  "default": value,
+                  key: "status",
+                  editable: 1,
+                  url: "gadget_slapos_label_listbox_field.html",
+                  title: "Status",
+                  type: "GadgetField"
+                }
               };
               result.data.rows[i].value["listbox_uid:list"] = {
                 key: "listbox_uid:list",

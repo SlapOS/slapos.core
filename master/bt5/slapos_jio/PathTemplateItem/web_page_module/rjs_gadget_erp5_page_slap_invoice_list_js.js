@@ -48,24 +48,28 @@
             if (1 || (result.data.rows[i].hasOwnProperty("id"))) {
               value = result.data.rows[i].id;
               result.data.rows[i].value.translated_simulation_state_title = {
-                css_class: "",
-                description: "Payment State",
-                hidden: 0,
-                "default": {jio_key: value},
-                key: "translated_simulation_state_title",
-                url: "gadget_slapos_invoice_state.html",
-                title: "Payment State",
-                type: "GadgetField"
+                field_gadget_param : {
+                  css_class: "",
+                  description: "Payment State",
+                  hidden: 0,
+                  "default": {jio_key: value},
+                  key: "translated_simulation_state_title",
+                  url: "gadget_slapos_invoice_state.html",
+                  title: "Payment State",
+                  type: "GadgetField"
+                }
               };
               result.data.rows[i].value.download = {
-                css_class: "",
-                description: "Download Invoice",
-                hidden: 0,
-                "default": {jio_key: value},
-                key: "download",
-                url: "gadget_slapos_invoice_printout.html",
-                title: "Download",
-                type: "GadgetField"
+                field_gadget_param : {
+                  css_class: "",
+                  description: "Download Invoice",
+                  hidden: 0,
+                  "default": {jio_key: value},
+                  key: "download",
+                  url: "gadget_slapos_invoice_printout.html",
+                  title: "Download",
+                  type: "GadgetField"
+                }
               };
               result.data.rows[i].value["listbox_uid:list"] = {
                 key: "listbox_uid:list",

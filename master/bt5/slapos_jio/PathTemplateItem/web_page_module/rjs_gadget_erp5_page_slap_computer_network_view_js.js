@@ -30,14 +30,16 @@
             if (1 || (result.data.rows[i].hasOwnProperty("id"))) {
               value = result.data.rows[i].id;
               result.data.rows[i].value.computer_monitoring_status = {
-                css_class: "",
-                description: "The Status",
-                hidden: 0,
-                "default": {jio_key: value},
-                key: "status",
-                url: "gadget_slapos_computer_status.html",
-                title: "Status",
-                type: "GadgetField"
+                field_gadget_param : {
+                  css_class: "",
+                  description: "The Status",
+                  hidden: 0,
+                  "default": {jio_key: value},
+                  key: "status",
+                  url: "gadget_slapos_computer_status.html",
+                  title: "Status",
+                  type: "GadgetField"
+                }
               };
               result.data.rows[i].value["listbox_uid:list"] = {
                 //key: "listbox_uid:list",

@@ -31,23 +31,27 @@
             if (1 || (result.data.rows[i].value.hasOwnProperty("connection_key"))) {
               value = result.data.rows[i].value.connection_key;
               result.data.rows[i].value.connection_key = {
-                css_class: "",
-                "default": value,
-                key: "status",
-                editable: 1,
-                url: "gadget_slapos_label_listbox_field.html",
-                title: "Status",
-                type: "GadgetField"
+                field_gadget_param : {
+                  css_class: "",
+                  "default": value,
+                  key: "status",
+                  editable: 1,
+                  url: "gadget_slapos_label_listbox_field.html",
+                  title: "Status",
+                  type: "GadgetField"
+                }
               };
               value = result.data.rows[i].value.connection_value;
               result.data.rows[i].value.connection_value = {
-                css_class: "",
-                "default": value,
-                key: "status",
-                editable: 1,
-                url: "gadget_slapos_label_listbox_field.html",
-                title: "Status",
-                type: "GadgetField"
+                field_gadget_param : {
+                  css_class: "",
+                  "default": value,
+                  key: "status",
+                  editable: 1,
+                  url: "gadget_slapos_label_listbox_field.html",
+                  title: "Status",
+                  type: "GadgetField"
+                }
               };
               result.data.rows[i].value["listbox_uid:list"] = {
                 key: "listbox_uid:list",

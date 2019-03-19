@@ -22,15 +22,17 @@
               value = result.data.rows[i].id;
               news = result.data.rows[i].Project_getNewsDict;
               result.data.rows[i].value.Project_getNewsDict = {
-                css_class: "",
-                description: "The Status",
-                hidden: 0,
-                "default": {jio_key: value,
-                            result: news},
-                key: "status",
-                url: "gadget_slapos_project_status.html",
-                title: "Status",
-                type: "GadgetField"
+                field_gadget_param : {
+                  css_class: "",
+                  description: "The Status",
+                  hidden: 0,
+                  "default": {jio_key: value,
+                              result: news},
+                  key: "status",
+                  url: "gadget_slapos_project_status.html",
+                  title: "Status",
+                  type: "GadgetField"
+                }
               };
               result.data.rows[i].value["listbox_uid:list"] = {
                 key: "listbox_uid:list",

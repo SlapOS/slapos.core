@@ -71,4 +71,8 @@
   <type>Support Request</type>
   <workflow>slapos_erp5_interaction_workflow</workflow>
  </chain>
+ <chain>
+  <type>Web Message</type>
+  <workflow>slapos_erp5_interaction_workflow</workflow>
+ </chain>
 </workflow_chain>

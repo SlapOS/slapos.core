@@ -10,6 +10,8 @@ if ticket.getSpecialise() != "sale_trade_condition_module/slapos_ticket_trade_co
 if ticket.getSimulationState() != "draft":
   return
 
+ticket.validate()
+
 trade_condition = portal.sale_trade_condition_module.slapos_ticket_trade_condition
 
 web_message = context.Ticket_createInitialEvent()

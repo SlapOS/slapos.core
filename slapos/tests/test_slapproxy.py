@@ -1387,9 +1387,10 @@ class TestMigrateVersion10To12(TestInformation, TestRequest, TestSlaveRequest, T
     self.db.commit()
 
   def test_automatic_migration(self):
-    table_list = ('software12', 'computer12', 'partition12', 'slave12', 'partition_network12')
-    for table in table_list:
-      self.assertRaises(sqlite3.OperationalError, self.db.execute, "SELECT name FROM computer12")
+    # Make sure that in the initial state we only have version 10 of the tables.
+    table_list = self.db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
+    self.assertEqual(table_list, [('computer10', ), ('partition10', ), ('partition_network10', ), ('slave10', ), ('software10', )])
+
     # Run a dummy request to cause migration
     self.app.get('/getComputerInformation?computer_id=computer')
 

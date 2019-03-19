@@ -35,19 +35,21 @@
           for (i = 0; i < len; i += 1) {
             if (1 || (result.data.rows[i].value.hasOwnProperty("asStrippedHTML"))) {
               result.data.rows[i].value.text_content = {
-                css_class: "",
-                description: "The Status",
-                hidden: 0,
-                "default": {doc: {title: result.data.rows[i].value.title,
-                                  source: result.data.rows[i].value.source_title,
-                                  modification_date: result.data.rows[i].value.modification_date,
-                                  content_type: result.data.rows[i].value.content_type,
-                                  text_content: result.data.rows[i].value.asStrippedHTML}},
-                key: "status",
-                url: "gadget_slapos_event_discussion_entry.html",
-                title: "Status",
-                editable: 1,
-                type: "GadgetField"
+                field_gadget_param : {
+                  css_class: "",
+                  description: "The Status",
+                  hidden: 0,
+                  "default": {doc: {title: result.data.rows[i].value.title,
+                                    source: result.data.rows[i].value.source_title,
+                                    modification_date: result.data.rows[i].value.modification_date,
+                                    content_type: result.data.rows[i].value.content_type,
+                                    text_content: result.data.rows[i].value.asStrippedHTML}},
+                  key: "status",
+                  url: "gadget_slapos_event_discussion_entry.html",
+                  title: "Status",
+                  editable: 1,
+                  type: "GadgetField"
+                }
               };
               result.data.rows[i].value["listbox_uid:list"] = {
                 key: "listbox_uid:list",

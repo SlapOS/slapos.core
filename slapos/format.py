@@ -1212,6 +1212,11 @@ class Interface(object):
         raise AddressGenerationError(addr)
       netmask = ipv6FromBin('1'*128) # the netmask of the tap itself is always 128 bits
 
+    if '/' in netmask:
+      _addr_netmask, _ = netmask.split('/')
+    else:
+      _addr_netmask = netmask
+
     while try_num > 0:
       if tap:
         addr = ipv6FromBin(prefix
@@ -1221,11 +1226,11 @@ class Interface(object):
         addr = ':'.join(address_dict['addr'].split(':')[:-1] + ['%x' % (
           random.randint(1, 65000), )])
         socket.inet_pton(socket.AF_INET6, addr)
-      if (dict(addr=addr, netmask=netmask) not in
+      if (dict(addr=addr, netmask=_addr_netmask) not in
             self.getGlobalScopeAddressList(tap=tap)):
         # Checking the validity of the IPv6 address
-        if self._addSystemAddress(addr, netmask, tap=tap):
-          return dict(addr=addr, netmask=netmask)
+        if self._addSystemAddress(addr, _addr_netmask, tap=tap):
+          return dict(addr=addr, netmask=_addr_netmask)
         try_num -= 1
 
     raise AddressGenerationError(addr)

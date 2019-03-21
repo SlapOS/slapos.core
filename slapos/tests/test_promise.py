@@ -94,7 +94,7 @@ class TestSlapOSPromiseMixin(unittest.TestCase):
 
     self.launcher = PromiseLauncher(
       config=parameter_dict,
-      #logger=logging.getLogger('slapos.test.promise'),
+      logger=logging.getLogger('slapos.test.promise'),
       dry_run=dry_run
     )
     if save_method:

@@ -471,11 +471,11 @@ class TestComputer(SlapformatMixin):
     INTERFACE_DICT['myinterface'] = {
       socket.AF_INET: [{'addr': '192.168.242.77', 'broadcast': '127.0.0.1',
         'netmask': '255.255.255.0'}],
-      socket.AF_INET6: [{'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::'}]
+      socket.AF_INET6: [{'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::/64'}]
     }
 
     INTERFACE_DICT['tap'] = {
-      socket.AF_INET6: [{'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::'}]
+      socket.AF_INET6: [{'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::/64'}]
     }
 
     computer.format(alter_user=False)
@@ -524,7 +524,7 @@ class TestComputer(SlapformatMixin):
     INTERFACE_DICT['iface'] = {
       socket.AF_INET: [{'addr': '192.168.242.77', 'broadcast': '127.0.0.1',
         'netmask': '255.255.255.0'}],
-      socket.AF_INET6: [{'addr': '2a01:e35:2e27:3456:1357::e59c', 'netmask': 'ffff:ffff:ffff:ffff:ffff::'}]
+      socket.AF_INET6: [{'addr': '2a01:e35:2e27:3456:1357::e59c', 'netmask': 'ffff:ffff:ffff:ffff:ffff::/48'}]
     }
     INTERFACE_DICT['eth1'] = {
       socket.AF_INET: [{'addr': '10.8.0.1', 'broadcast': '10.8.0.254',
@@ -532,7 +532,7 @@ class TestComputer(SlapformatMixin):
     }
 
     INTERFACE_DICT['tap'] = {
-            socket.AF_INET6: [{'addr': '2a01:e35:2e27:3456:1357:7890:ffff:ffff', 'netmask': 'ffff:ffff:ffff:ffff:ffff:ffff:ffff'}]
+            socket.AF_INET6: [{'addr': '2a01:e35:2e27:3456:1357:7890:ffff:ffff', 'netmask': 'ffff:ffff:ffff:ffff:ffff:ffff:ffff/16'}]
     }
 
     computer.format(alter_user=False)
@@ -623,7 +623,7 @@ class TestComputer(SlapformatMixin):
     INTERFACE_DICT['myinterface'] = {
       socket.AF_INET: [{'addr': '192.168.242.77', 'broadcast': '127.0.0.1',
         'netmask': '255.255.255.0'}],
-      socket.AF_INET6: [{'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::'}]
+      socket.AF_INET6: [{'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::/64'}]
     }
 
     computer.format(alter_network=False, alter_user=False)
@@ -663,7 +663,7 @@ class TestComputer(SlapformatMixin):
     INTERFACE_DICT['myinterface'] = {
       socket.AF_INET: [{'addr': '192.168.242.77', 'broadcast': '127.0.0.1',
         'netmask': '255.255.255.0'}],
-      socket.AF_INET6: [{'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::'}]
+      socket.AF_INET6: [{'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::/64'}]
     }
 
     computer.format(use_unique_local_address_block=True, alter_user=False, create_tap=False)
@@ -725,7 +725,7 @@ class TestComputerWithCPUSet(SlapformatMixin):
       socket.AF_INET: [
         {'addr': '127.0.0.1', 'broadcast': '127.0.255.255', 'netmask': '255.255.0.0'}],
       socket.AF_INET6: [
-        {'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::'}]
+        {'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::/64'}]
     }
 
     from slapos.manager.cpuset import Manager

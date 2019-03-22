@@ -1,4 +1,4 @@
---version:12
+--version:13
 CREATE TABLE IF NOT EXISTS software%(version)s (
   url VARCHAR(255),
   computer_reference VARCHAR(255) DEFAULT '%(computer)s',

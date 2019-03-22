@@ -476,19 +476,19 @@ class TestRequest(MasterMixin):
     partition_parent = self.request('http://sr//', None, 'MyFirstInstance')
     parent_dict = partition_parent.__dict__
     partition_child = self.request('http://sr//', None, 'MySubInstance', parent_dict['_partition_id'])
-    
+
     self.assertEqual(partition_parent.getState(), 'started')
     self.assertEqual(partition_child.getState(), 'started')
 
     partition_parent = self.request('http://sr//', None, 'MyFirstInstance', state='stopped')
     partition_child = self.request('http://sr//', None, 'MySubInstance', parent_dict['_partition_id'])
-    
+
     self.assertEqual(partition_parent.getState(), 'stopped')
     self.assertEqual(partition_child.getState(), 'stopped')
 
     partition_parent = self.request('http://sr//', None, 'MyFirstInstance', state='started')
     partition_child = self.request('http://sr//', None, 'MySubInstance', parent_dict['_partition_id'])
-    
+
     self.assertEqual(partition_parent.getState(), 'started')
     self.assertEqual(partition_child.getState(), 'started')
 
@@ -500,13 +500,13 @@ class TestRequest(MasterMixin):
     partition_parent = self.request('http://sr//', None, 'MyFirstInstance')
     parent_dict = partition_parent.__dict__
     partition_child = self.request('http://sr//', None, 'MySubInstance', parent_dict['_partition_id'])
-    
+
     self.assertEqual(partition_parent.getState(), 'started')
     self.assertEqual(partition_child.getState(), 'started')
 
     partition_parent = self.request('http://sr//', None, 'MyFirstInstance')
     partition_child = self.request('http://sr//', None, 'MySubInstance', parent_dict['_partition_id'], state='stopped')
-    
+
     self.assertEqual(partition_parent.getState(), 'started')
     self.assertEqual(partition_child.getState(), 'stopped')
 
@@ -1370,31 +1370,33 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     )
 
 
-# XXX: when testing new schema version,
-# rename to "TestMigrateVersion10ToLatest" and test accordingly.
-# Of course, also test version 12 to latest (should be 13).
-class TestMigrateVersion10To12(TestInformation, TestRequest, TestSlaveRequest, TestMultiNodeSupport):
+
+class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMultiNodeSupport):
   """
   Test that old database version are automatically migrated without failure
   """
+  dump_filename = NotImplemented
+  initial_table_list = NotImplemented
+  current_version = '12'
+
   def setUp(self):
-    super(TestMigrateVersion10To12, self).setUp()
+    TestInformation.setUp(self)
     schema = bytes2str(pkg_resources.resource_string(
       'slapos.tests',
-      os.path.join('test_slapproxy', 'database_dump_version_10.sql')
-    )) % dict(version='12')
+      os.path.join('test_slapproxy', self.dump_filename)
+    ))
     self.db = sqlite_connect(self.proxy_db)
     self.db.cursor().executescript(schema)
     self.db.commit()
 
   def test_automatic_migration(self):
-    # create an old table, to assert it is properly removed.
+    # Make sure that in the initial state we only have current version of the tables.
+    table_list = self.db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
+    self.assertEqual([x[0] for x in table_list], self.initial_table_list)
+
+    # create an old table, to assert it is also properly removed.
     self.db.execute("create table software9 (int a)")
     self.db.commit()
-
-    # Make sure that in the initial state we only have version 10 of the tables.
-    table_list = self.db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
-    self.assertEqual(table_list, [('computer10', ), ('partition10', ), ('partition_network10', ), ('slave10', ), ('software10', ), ('software9', )])
 
     # Run a dummy request to cause migration
     from slapos.proxy.views import app
@@ -1418,31 +1420,31 @@ class TestMigrateVersion10To12(TestInformation, TestRequest, TestSlaveRequest, T
     )
 
     # Lower level tests
-    computer_list = self.db.execute("SELECT * FROM computer12").fetchall()
+    computer_list = self.db.execute("SELECT * FROM computer{}".format(self.current_version)).fetchall()
     self.assertEqual(
         computer_list,
         [(u'computer', u'127.0.0.1', u'255.255.255.255')]
     )
 
-    software_list = self.db.execute("SELECT * FROM software12").fetchall()
+    software_list = self.db.execute("SELECT * FROM software{}".format(self.current_version)).fetchall()
     self.assertEqual(
         software_list,
         [(u'/srv/slapgrid//srv//runner/project//slapos/software.cfg', u'computer', u'available')]
     )
 
-    partition_list = self.db.execute("select * from partition12").fetchall()
+    partition_list = self.db.execute("select * from partition{}".format(self.current_version)).fetchall()
     self.assertEqual(
         partition_list,
         [(u'slappart0', u'computer', u'busy', u'/srv/slapgrid//srv//runner/project//slapos/software.cfg', u'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="json">{\n  "site-id": "erp5"\n  }\n}</parameter>\n</instance>\n', None, None, u'production', u'slapos', None, u'started'), (u'slappart1', u'computer', u'busy', u'/srv/slapgrid//srv//runner/project//slapos/software.cfg', u"<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", u'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">mysql://127.0.0.1:45678/erp5</parameter>\n</instance>\n', None, u'mariadb', u'MariaDB DataBase', u'slappart0', u'started'), (u'slappart2', u'computer', u'busy', u'/srv/slapgrid//srv//runner/project//slapos/software.cfg', u'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="cloudooo-json"></parameter>\n</instance>\n', u'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">cloudooo://127.0.0.1:23000/</parameter>\n</instance>\n', None, u'cloudooo', u'Cloudooo', u'slappart0', u'started'), (u'slappart3', u'computer', u'busy', u'/srv/slapgrid//srv//runner/project//slapos/software.cfg', u"<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", u'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">memcached://127.0.0.1:11000/</parameter>\n</instance>\n', None, u'memcached', u'Memcached', u'slappart0', u'started'), (u'slappart4', u'computer', u'busy', u'/srv/slapgrid//srv//runner/project//slapos/software.cfg', u"<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n", u'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">memcached://127.0.0.1:13301/</parameter>\n</instance>\n', None, u'kumofs', u'KumoFS', u'slappart0', u'started'), (u'slappart5', u'computer', u'busy', u'/srv/slapgrid//srv//runner/project//slapos/software.cfg', u'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="kumofs-url">memcached://127.0.0.1:13301/</parameter>\n  <parameter id="memcached-url">memcached://127.0.0.1:11000/</parameter>\n  <parameter id="cloudooo-url">cloudooo://127.0.0.1:23000/</parameter>\n</instance>\n', u'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<instance>\n  <parameter id="url">https://[fc00::1]:10001</parameter>\n</instance>\n', None, u'tidstorage', u'TidStorage', u'slappart0', u'started'), (u'slappart6', u'computer', u'free', None, None, None, None, None, None, None, u'started'), (u'slappart7', u'computer', u'free', None, None, None, None, None, None, None, u'started'), (u'slappart8', u'computer', u'free', None, None, None, None, None, None, None, u'started'), (u'slappart9', u'computer', u'free', None, None, None, None, None, None, None, u'started')]
     )
 
-    slave_list = self.db.execute("select * from slave12").fetchall()
+    slave_list = self.db.execute("select * from slave{}".format(self.current_version)).fetchall()
     self.assertEqual(
         slave_list,
         []
     )
 
-    partition_network_list = self.db.execute("select * from partition_network12").fetchall()
+    partition_network_list = self.db.execute("select * from partition_network{}".format(self.current_version)).fetchall()
     self.assertEqual(
         partition_network_list,
         [(u'slappart0', u'computer', u'slappart0', u'127.0.0.1', u'255.255.255.255'), (u'slappart0', u'computer', u'slappart0', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart1', u'computer', u'slappart1', u'127.0.0.1', u'255.255.255.255'), (u'slappart1', u'computer', u'slappart1', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart2', u'computer', u'slappart2', u'127.0.0.1', u'255.255.255.255'), (u'slappart2', u'computer', u'slappart2', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart3', u'computer', u'slappart3', u'127.0.0.1', u'255.255.255.255'), (u'slappart3', u'computer', u'slappart3', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart4', u'computer', u'slappart4', u'127.0.0.1', u'255.255.255.255'), (u'slappart4', u'computer', u'slappart4', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart5', u'computer', u'slappart5', u'127.0.0.1', u'255.255.255.255'), (u'slappart5', u'computer', u'slappart5', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart6', u'computer', u'slappart6', u'127.0.0.1', u'255.255.255.255'), (u'slappart6', u'computer', u'slappart6', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart7', u'computer', u'slappart7', u'127.0.0.1', u'255.255.255.255'), (u'slappart7', u'computer', u'slappart7', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart8', u'computer', u'slappart8', u'127.0.0.1', u'255.255.255.255'), (u'slappart8', u'computer', u'slappart8', u'fc00::1', u'ffff:ffff:ffff::'), (u'slappart9', u'computer', u'slappart9', u'127.0.0.1', u'255.255.255.255'), (u'slappart9', u'computer', u'slappart9', u'fc00::1', u'ffff:ffff:ffff::')]
@@ -1450,7 +1452,14 @@ class TestMigrateVersion10To12(TestInformation, TestRequest, TestSlaveRequest, T
 
     # Check that we only have new tables
     table_list = self.db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
-    self.assertEqual(table_list, [('computer12', ), ('forwarded_partition_request12',), ('partition12', ), ('partition_network12', ), ('slave12', ), ('software12', )])
+    self.assertEqual([x[0] for x in table_list],
+       ['computer{}'.format(self.current_version),
+        'forwarded_partition_request{}'.format(self.current_version),
+        'partition{}'.format(self.current_version),
+        'partition_network{}'.format(self.current_version),
+        'slave{}'.format(self.current_version),
+        'software{}'.format(self.current_version),
+      ])
 
   # Override several tests that needs an empty database
   @unittest.skip("Not implemented")
@@ -1473,3 +1482,15 @@ class TestMigrateVersion10To12(TestInformation, TestRequest, TestSlaveRequest, T
   def test_request_consistent_parameters(self):
     pass
 
+
+class TestMigrateVersion10ToLatest(_MigrationTestCase):
+  dump_filename = 'database_dump_version_10.sql'
+  initial_table_list = ['computer10', 'partition10', 'partition_network10', 'slave10', 'software10', ]
+
+
+class TestMigrateVersion11ToLatest(_MigrationTestCase):
+  dump_filename = 'database_dump_version_11.sql'
+  initial_table_list = ['computer11', 'forwarded_partition_request11', 'partition11', 'partition_network11', 'slave11', 'software11', ]
+
+
+del _MigrationTestCase

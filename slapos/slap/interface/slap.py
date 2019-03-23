@@ -73,7 +73,8 @@ class IRequester(Interface):
   """
 
   def request(software_release, software_type, partition_reference,
-              shared=False, partition_parameter_kw=None, filter_kw=None):
+              shared=False, partition_parameter_kw=None, filter_kw=None,
+              state='available'):
     """
     Request software release instantiation to slapgrid server.
 
@@ -99,6 +100,10 @@ class IRequester(Interface):
       computer_guid - computer of the requested partition
       partition_type - virtio, slave, full, limited
       port - port provided by the requested partition
+
+    state -- state in which the partition should be requested ("available" or "destroyed").
+             The un-natural part of this API is that to delete a partition, you should request
+             again a partition with same partition_reference and state="destroyed".
 
     Example:
        request('http://example.com/foo/bar', 'typeA', 'mysql_1')

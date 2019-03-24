@@ -42,6 +42,7 @@ from slapos.util import loads, dumps
 
 import six
 from six.moves import range
+from six.moves.urllib.parse import urlparse
 
 app = Flask(__name__)
 
@@ -348,6 +349,26 @@ def supplySupply():
 @app.route('/requestComputerPartition', methods=['POST'])
 def requestComputerPartition():
   parsed_request_dict = parseRequestComputerPartitionForm(request.form)
+  # slapproxy cannot request frontends, but if client request a "simple" frontend for an URL
+  # we can tell this client to use the URL directly.
+  apache_frontend_sr_url_list = (
+      'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
+  )
+  if not isRequestToBeForwardedToExternalMaster(parsed_request_dict)\
+      and parsed_request_dict['software_release'] in apache_frontend_sr_url_list \
+      and parsed_request_dict.get('software_type', '') in ('', 'RootSoftwareInstance'):
+    url = parsed_request_dict['partition_parameter_kw'].get('url')
+    if url:
+      app.logger.warning("Bypassing frontend for %s => %s", parsed_request_dict, url)
+      partition = ComputerPartition('', 'Fake frontend for {}'.format(url))
+      partition.slap_computer_id = ''
+      partition.slap_computer_partition_id = ''
+      partition._parameter_dict = {}
+      partition._connection_dict = {
+        'secure_access': url,
+        'domain': urlparse(url).netloc,
+      }
+      return dumps(partition)
 
   # Is it a slave instance?
   slave = loads(request.form.get('shared_xml', EMPTY_DICT_XML).encode('utf-8'))

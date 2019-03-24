@@ -615,6 +615,22 @@ class TestRequest(MasterMixin):
                            partition_parameter_kw={'text': u'Привет Мир!'})
     self.assertIsInstance(request, slapos.slap.ComputerPartition)
 
+  def test_request_frontend(self):
+    # slapproxy tells client to bypass "simple" frontends by just using the URL.
+    request = self.request(
+        'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
+        None,
+        self.id(),
+        'slappart0',
+        shared=True,
+        partition_parameter_kw={'url': 'https://[::1]:123/', })
+    self.assertEqual(
+        'https://[::1]:123/',
+        request.getConnectionParameterDict()['secure_access'])
+    self.assertEqual(
+        '[::1]:123',
+        request.getConnectionParameterDict()['domain'])
+
 
 class TestSlaveRequest(MasterMixin):
   """

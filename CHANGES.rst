@@ -1,6 +1,13 @@
 Changes
 =======
 
+1.4.21 (2019-03-26)
+-------------------
+
+ * slapproxy: remove old tables when running migration. A backup is made as a separate sql file.
+ * slapproxy: update database version to 13, to force removal of old tables.
+ * format: fix creation of IPv4 for taps
+
 1.4.20 (2019-03-08)
 -------------------
 

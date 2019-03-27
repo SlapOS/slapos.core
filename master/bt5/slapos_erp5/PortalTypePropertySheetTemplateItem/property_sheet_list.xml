@@ -17,4 +17,7 @@
  <portal_type id="Web Site Module">
   <item>WebSiteModuleShacacheConstraint</item>
  </portal_type>
+ <portal_type id="Preference Tool">
+  <item>ShacacheSystemPreference</item>
+ </portal_type>
 </property_sheet_list>

@@ -8,13 +8,8 @@
 from DateTime import DateTime
 import json
 
-from Products.ERP5Type.DateUtils import addToDate
-
 if context.getSimulationState() == "invalidated":
   return "Closed Ticket"
-
-
-portal = context.getPortalObject()
 
 document = context.getAggregateValue()
 
@@ -39,6 +34,29 @@ if aggregate_portal_type == "Computer":
   except KeyError:
     return "No Contact Information"
 
+if aggregate_portal_type == "Software Installation":
+  computer_title = document.getAggregateTitle()
+  if document.getSlapState() not in ["start_requested", "stop_requested"]:
+    return "Software Installation is Destroyed."
+
+  try:
+    d = memcached_dict[document.getReference()]
+    d = json.loads(d)
+    last_contact = DateTime(d.get('created_at'))
+    if d.get("text").startswith("building"):
+      return "The software release %s is building for mode them 12 hours on %s, started on %s" % \
+              (document.getUrlString(), computer_title, document.getCreationDate())
+    elif d.get("text").startswith("#access"):
+      return "All OK, software built."
+    elif d.get("text").startswith("#error"):
+      return "The software release %s is failing to build for too long on %s, started on %s" % \
+        (document.getUrlString(), computer_title, document.getCreationDate())
+
+  except KeyError:
+    return "The software release %s did not started to build on %s since %s" % \
+        (document.getUrlString(), computer_title, document.getCreationDate())
+
+
 if aggregate_portal_type == "Hosting Subscription":
   message_list = []
   hosting_subscription = document
@@ -46,27 +64,22 @@ if aggregate_portal_type == "Hosting Subscription":
   software_instance_list = hosting_subscription.getSpecialiseRelatedValueList(
                  portal_type=["Software Instance", "Slave Instance"])
 
-  has_newest_allocated_instance = False
-  has_unallocated_instance = False
-  failing_instance = None
-
   # Check if at least one software Instance is Allocated
   for instance in software_instance_list:
     if instance.getSlapState() not in ["start_requested", "stop_requested"]:
       continue
 
     if instance.getAggregate() is not None:
-      has_newest_allocated_instance = True
       computer = instance.getAggregateValue().getParentValue()
       if instance.getPortalType() == "Software Instance" and \
           computer.getAllocationScope() in ["open/public", "open/friend"] and \
           instance.getSlapState() == "start_requested" and \
           instance.SoftwareInstance_hasReportedError():
-        message_list.append("%s has error (%s, %s at %s scope %s)" % (instance.getReference(), instance.getTitle(), 
+        message_list.append("%s has error (%s, %s at %s scope %s)" % (instance.getReference(), instance.getTitle(),
                                                                       instance.getUrlString(), computer.getReference(),
                                                                       computer.getAllocationScope()))
       if instance.getPortalType() == "Software Instance" and \
-          computer.getAllocationScope() in ["closed/outdated", "open/personal"]: 
+          computer.getAllocationScope() in ["closed/outdated", "open/personal"]:
         message_list.append("%s on a %s computer" % (instance, computer.getAllocationScope()) )
     else:
       message_list.append("%s is not allocated" % instance)

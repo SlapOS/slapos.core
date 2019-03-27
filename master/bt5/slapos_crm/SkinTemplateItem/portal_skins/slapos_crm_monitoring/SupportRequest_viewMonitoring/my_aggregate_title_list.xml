@@ -106,6 +106,10 @@
                           <string>Hosting Subscription</string>
                           <string>Hosting Subscription</string>
                         </tuple>
+                        <tuple>
+                          <string>Software Installation</string>
+                          <string>Software Installation</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

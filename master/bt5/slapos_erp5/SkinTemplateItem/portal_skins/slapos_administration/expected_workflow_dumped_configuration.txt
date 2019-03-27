@@ -935,6 +935,7 @@ Web Message,edit_workflow
 Web Message,event_interaction_workflow
 Web Message,event_simulation_workflow
 Web Message,pricing_interaction_workflow
+Web Message,slapos_erp5_interaction_workflow
 Web Page,document_conversion_interaction_workflow
 Web Page,document_publication_workflow
 Web Page,document_security_interaction_workflow

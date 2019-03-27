@@ -12899,6 +12899,16 @@ Slave Instance
   Index: 2.0
 
 Slave Instance
+  Reference: jump_to_hosting_subscription
+  Title: Hosting Subscription
+  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=specialise&portal_type:list=Hosting+Subscription
+  Icon: None
+  Permission: View
+  Action Type: object_jump
+  Visible: 1
+  Index: 21.0
+
+Slave Instance
   Reference: jump_to_software_instance
   Title: Software Instance
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=predecessor&portal_type=Software+Instance
@@ -13019,8 +13029,28 @@ Software Instance
   Index: 2.0
 
 Software Instance
+  Reference: jump_to_computer_partition
+  Title: Computer Partition
+  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=aggregate&portal_type:list=Computer+Partition
+  Icon: None
+  Permission: View
+  Action Type: object_jump
+  Visible: 1
+  Index: 21.0
+
+Software Instance
+  Reference: jump_to_hosting_subscription
+  Title: Hosting Subscription
+  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=specialise&portal_type:list=Hosting+Subscription
+  Icon: None
+  Permission: View
+  Action Type: object_jump
+  Visible: 1
+  Index: 21.0
+
+Software Instance
   Reference: jump_to_software_instance
-  Title: Requester
+  Title: Requester Instance
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=predecessor&portal_type:list=Software+Instance&portal_type:list=Hosting+Subscription
   Icon: None
   Permission: View

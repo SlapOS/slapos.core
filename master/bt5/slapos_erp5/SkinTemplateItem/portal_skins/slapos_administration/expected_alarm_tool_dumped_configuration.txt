@@ -28,7 +28,7 @@ portal_alarms/slapos_crm_cancel_invoice;1;None;Alarm_cancelInvoiceRelatedToSuspe
 portal_alarms/slapos_crm_check_computer_state;0;None;Alarm_checkComputerState;None;None;None;();None;();30;();();None;2010/10/26 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_crm_check_instance_in_error;0;None;Alarm_checkHostingSubscriptionState;None;None;None;(0,);None;(0,);30;();();None;2014/07/23 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_crm_check_instance_on_closed_computer;0;None;Alarm_searchInstanceOnClosedComputer;None;None;None;(1,);None;(0,);None;();();None;None;None;();('Monday',);None
-portal_alarms/slapos_crm_check_software_installation_state;0;None;Computer_checkSoftwareInstallationState;None;None;None;();None;();30;();();None;2010/10/26 00:00:00 GMT;None;();None;None
+portal_alarms/slapos_crm_check_software_installation_state;0;None;Alarm_checkSoftwareInstallationState;None;None;None;();None;();30;();();None;2010/10/26 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_crm_check_update_allocation_scope;0;None;Alarm_checkAndUpdateComputerAllocationScope;None;None;None;();None;(5,);1;();();None;2014/05/07 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_crm_check_update_personal_allocation_scope;1;None;Alarm_checkAndUpdatePersonalComputerAllocationScope;None;None;None;();None;(5,);1;();();None;2014/05/07 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_crm_create_regularisation_request;0;None;Alarm_createRegularisationRequest;None;None;None;();2;();None;();();None;2010/10/26 00:00:00 GMT;None;();None;None

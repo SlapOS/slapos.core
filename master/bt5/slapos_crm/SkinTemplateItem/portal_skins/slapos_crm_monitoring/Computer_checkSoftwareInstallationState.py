@@ -59,7 +59,7 @@ for software_installation in software_installation_list:
     support_request = context.Base_generateSupportRequestForSlapOS(
       ticket_title,
       description,
-      context.getRelativeUrl()
+      software_installation.getRelativeUrl()
     )
 
     person = context.getSourceAdministrationValue(portal_type="Person")

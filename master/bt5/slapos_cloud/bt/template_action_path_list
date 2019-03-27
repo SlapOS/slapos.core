@@ -15,6 +15,7 @@ Slave Instance | jump_to_software_instance
 Slave Instance | unfiltered_tracking_list
 Slave Instance | view
 Software Installation Module | view
+Software Installation | request_destroy
 Software Installation | view
 Software Instance Module | view
 Software Instance | jump_to_computer_partition

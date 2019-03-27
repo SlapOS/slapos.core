@@ -350,11 +350,14 @@ def loadComputerConfigurationFromXML():
   computer_dict = loads(xml.encode('utf-8'))
   execute_db('computer', 'INSERT OR REPLACE INTO %s values(:reference, :address, :netmask)',
              computer_dict)
+
+  # remove references to old partitions.
+  execute_db('partition', 'DELETE FROM %s WHERE computer_reference = :reference', computer_dict)
+  execute_db('partition_network', 'DELETE FROM %s WHERE computer_reference = :reference', computer_dict)
+
   for partition in computer_dict['partition_list']:
     partition['computer_reference'] = computer_dict['reference']
     execute_db('partition', 'INSERT OR IGNORE INTO %s (reference, computer_reference) values(:reference, :computer_reference)', partition)
-    execute_db('partition_network', 'DELETE FROM %s WHERE partition_reference = ? AND computer_reference = ?',
-               [partition['reference'], partition['computer_reference']])
     for address in partition['address_list']:
       address['reference'] = partition['tap']['name']
       address['partition_reference'] = partition['reference']

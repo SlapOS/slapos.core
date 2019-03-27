@@ -160,6 +160,47 @@ database_uri = %(tempdir)s/lib/proxy.db
     views.is_schema_already_executed = False
 
 
+class TestLoadComputerConfiguration(BasicMixin, unittest.TestCase):
+  """tests /loadComputerConfigurationFromXML the endpoint for format
+  """
+  def test_loadComputerConfigurationFromXML_remove_partitions(self):
+    computer_dict = {
+        'reference': self.computer_id,
+        'address': '12.34.56.78',
+        'netmask': '255.255.255.255',
+        'partition_list': [
+            {
+                'reference': 'slappart1',
+                'address_list': [
+                    {
+                        'addr': '1.2.3.4',
+                        'netmask': '255.255.255.255'
+                    },
+                ],
+                'tap': {'name': 'tap0'},
+            }
+        ],
+    }
+    rv = self.app.post('/loadComputerConfigurationFromXML', data={
+        'computer_id': self.computer_id,
+        'xml': dumps(computer_dict),
+    })
+    self.assertEqual(rv._status_code, 200)
+    # call again with different partition reference, old partition will be removed
+    # and a new partition will be used.
+    computer_dict['partition_list'][0]['reference'] = 'something else'
+    rv = self.app.post('/loadComputerConfigurationFromXML', data={
+        'computer_id': self.computer_id,
+        'xml': dumps(computer_dict),
+    })
+    self.assertEqual(rv._status_code, 200)
+    computer = loads(
+        self.app.get('/getFullComputerInformation', query_string={'computer_id': self.computer_id}).data)
+    self.assertEqual(
+        ['something else'],
+        [p.getId() for p in computer._computer_partition_list])
+
+
 class TestInformation(BasicMixin, unittest.TestCase):
   """
   Test Basic response of slapproxy

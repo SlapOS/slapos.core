@@ -909,7 +909,7 @@ class TestSlapOSCrmMonitoringCheckComputerSoftwareInstallation(SlapOSTestCaseMix
 portal_workflow.doActionFor(context, action='edit_action', comment='Visited by Computer_checkSoftwareInstallationState') """ )
     transaction.commit()
 
-  def _dropComputer_checkAndUpdateAllocationScope(self):
+  def _dropComputer_checkSoftwareInstallationState(self):
     script_name = 'Computer_checkSoftwareInstallationState'
     if script_name in self.portal.portal_skins.custom.objectIds():
       self.portal.portal_skins.custom.manage_delObjects(script_name)

@@ -2,9 +2,9 @@ from zExceptions import Unauthorized
 if REQUEST is not None:
   raise Unauthorized
 
-#if context.getSimulationState() not in ["draft", "planned"]:
+if context.getSimulationState() not in ["draft", "planned"]:
   # Don't modify it anymore
-#  return
+  return
 
 if subscription_condition_reference is not None:
   # It would be better use some clever API here.

@@ -105,6 +105,7 @@
                         <string>my_description</string>
                         <string>my_root_slave</string>
                         <string>my_monitor_scope</string>
+                        <string>my_connection_parameter_list</string>
                       </list>
                     </value>
                 </item>

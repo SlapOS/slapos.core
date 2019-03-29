@@ -25,7 +25,8 @@ if show_all or configuration == "builder":
 
 if show_all or configuration == "bt":
   expected_file = portal.expected_business_template_dumped_configuration
-  found = portal.ERP5Site_dumpInstalledBusinessTemplateList()
+  found = portal.ERP5Site_dumpInstalledBusinessTemplateList(
+    ignore_business_template_list=["rapid_space_web_site"])
   print resolveDiff("Business Template Configuration Diff", expected_file, found)
 
 if show_all or configuration == "order_builder":

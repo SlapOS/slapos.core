@@ -14,11 +14,10 @@ if relative_url == None:
   relative_url = context.getRelativeUrl()
 
 for k in sorted(connection_dict):
-  if type == 'info' and not k.endswith('_info'):
-    continue
-  elif not type and k.endswith('_info'):
-    continue
-  d = newTempDocument(portal, relative_url)
-  d.edit(connection_key=k, connection_value=connection_dict[k])
+  if raw:
+    d = {"connection_key": k, "connection_value": connection_dict[k]}
+  else:
+    d = newTempDocument(portal, relative_url)
+    d.edit(connection_key=k, connection_value=connection_dict[k])
   return_list.append(d)
 return return_list

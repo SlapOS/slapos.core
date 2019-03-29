@@ -214,11 +214,11 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       for software_release in slap_computer._software_release_list:
         if software_release._requested_state == 'destroyed':
           self.portal.portal_slap.destroyedSoftwareRelease(
-            software_release._software_release.encode("UTF-8"),
+            software_release._software_release,
 						computer.getReference())
         else:
           self.portal.portal_slap.availableSoftwareRelease(
-            software_release._software_release.encode("UTF-8"),
+            software_release._software_release,
 						computer.getReference())
     finally:
       setSecurityManager(sm)

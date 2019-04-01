@@ -36,6 +36,8 @@ __all__ = ["slap", "ComputerPartition", "Computer", "SoftwareRelease",
            "Supply", "OpenOrder", "NotFoundError",
            "ResourceNotReady", "ServerError", "ConnectionError"]
 
+import sys
+sys.path = ['/tmp/slaps/soft/33b60fea5b741eb2ca94edb0c4c182f1/eggs/zope.interface-4.3.3-py2.7-linux-x86_64.egg/'] + sys.path
 import os
 import json
 import logging

@@ -1,7 +1,7 @@
 portal = context.getPortalObject()
 kw['portal_type'] = ["Support Request", "Regularisation Request", "Upgrade Decision"]
 
-person = portal.ERP5Site_getAuthenticatedMemberPersonValue()
+person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 if person:
   kw['default_destination_decision_uid'] = person.getUid()
   kw['simulation_state'] = "NOT cancelled"

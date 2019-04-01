@@ -35,7 +35,7 @@ else:
       result = "Unpaid"
     else:
       # Check if mapping exists
-      person = portal.ERP5Site_getAuthenticatedMemberPersonValue()
+      person = portal.portal_membership.getAuthenticatedMember().getUserValue()
       payzen_id = person.Person_restrictMethodAsShadowUser(
         shadow_document=person,
         callable_object=payment.PaymentTransaction_getPayzenId,

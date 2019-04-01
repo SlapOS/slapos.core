@@ -1,9 +1,10 @@
 network = context
 
-# XXX - The use of current authenticated person will return always 'Close' if 
+# XXX - The use of current authenticated person will return always 'Close' if
 #       the person is administrator (such as 'zope' user) but not the owner of computer
-#       
-#       person = context.ERP5Site_getAuthenticatedMemberPersonValue()
+#
+#       person = portal.portal_membership.getAuthenticatedMember().getUserValue()
+
 allocation_state = 'Close'
 software_type = ''
 filter_kw = {}
@@ -15,7 +16,7 @@ for computer in network.getSubordinationRelatedValueList():
     isAllowed =  person.Person_restrictMethodAsShadowUser(shadow_document=person,
           callable_object=person.Person_findPartition,
           argument_list=[software_release_url, software_type, 'Software Instance',
-                         filter_kw], 
+                         filter_kw],
           argument_dict={'test_mode': True}
     )
     if isAllowed:

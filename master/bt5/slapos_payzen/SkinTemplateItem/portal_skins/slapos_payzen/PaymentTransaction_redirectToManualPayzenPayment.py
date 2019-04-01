@@ -1,6 +1,6 @@
 from zExceptions import Unauthorized
 portal = context.getPortalObject()
-person = portal.ERP5Site_getAuthenticatedMemberPersonValue()
+person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
 if getattr(context, "PaymentTransaction_getVADSUrlDict", None) is None:
   raise ValueError("PaymentTransaction_getVADSUrlDict is missing on this site")

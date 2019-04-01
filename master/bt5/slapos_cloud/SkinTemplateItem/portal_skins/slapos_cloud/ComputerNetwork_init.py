@@ -6,5 +6,5 @@ reference = "NET-%s" % portal.portal_ids.generateNewId(
 
 context.edit(reference=reference)
 
-#source_administration=context.ERP5Site_getAuthenticatedMemberPersonValue().getRelativeUrl()
+#source_administration=portal.portal_membership.getAuthenticatedMember().getUserValue().getRelativeUrl()
 #network.validate()

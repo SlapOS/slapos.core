@@ -1,6 +1,8 @@
 """ This script is required due the ValueError, should be more HTTP friendly.
 """
-person = context.ERP5Site_getAuthenticatedMemberPersonValue()
+portal = context.getPortalObject()
+person = portal.portal_membership.getAuthenticatedMember().getUserValue()
+
 request = context.REQUEST
 response = request.RESPONSE
 import json

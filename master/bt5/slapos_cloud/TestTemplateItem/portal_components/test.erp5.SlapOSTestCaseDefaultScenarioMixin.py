@@ -88,7 +88,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.assertNotEqual(None, welcome_message)
 
   def _getCurrentHostingSubscriptionList(self):
-    person = self.portal.ERP5Site_getAuthenticatedMemberPersonValue()
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     if person is not None:
       return self.portal.portal_catalog(

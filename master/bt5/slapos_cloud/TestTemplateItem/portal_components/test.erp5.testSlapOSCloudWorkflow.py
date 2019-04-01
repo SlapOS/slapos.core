@@ -390,7 +390,7 @@ class TestSlapOSCorePersonComputerSupply(SlapOSTestCaseMixin):
 
     # Login as new user
     self.login(person_user.getUserId())
-    new_person = self.getPortalObject().ERP5Site_getAuthenticatedMemberPersonValue()
+    new_person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
     self.assertEqual(person_user.getRelativeUrl(), new_person.getRelativeUrl())
 
   def beforeTearDown(self):
@@ -1919,14 +1919,14 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     # Login as new user
     self.login(person_user.getUserId())
 
-    new_person = self.getPortalObject().ERP5Site_getAuthenticatedMemberPersonValue()
+    new_person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
     self.assertEqual(person_user.getRelativeUrl(), new_person.getRelativeUrl())
 
   def beforeTearDown(self):
     pass
 
   def test_Person_requestSoftwareInstance_requiredParameter(self):
-    person = self.getPortalObject().ERP5Site_getAuthenticatedMemberPersonValue()
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     software_release = self.generateNewSoftwareReleaseUrl()
     software_title = "test"
@@ -2022,7 +2022,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     )
 
   def test_Person_requestSoftwareInstance_acceptedState(self):
-    person = self.getPortalObject().ERP5Site_getAuthenticatedMemberPersonValue()
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     software_release = self.generateNewSoftwareReleaseUrl()
     software_title = "test"
@@ -2082,7 +2082,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     self.assertEqual(None, hosting_subscription)
 
   def test_Person_requestSoftwareInstance_returnHostingSubscriptionUrl(self):
-    person = self.getPortalObject().ERP5Site_getAuthenticatedMemberPersonValue()
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     software_release = self.generateNewSoftwareReleaseUrl()
     software_title = "test"
@@ -2109,7 +2109,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
                       hosting_subscription.getPortalType())
 
   def test_Person_requestSoftwareInstance_createHostingSubscription(self):
-    person = self.getPortalObject().ERP5Site_getAuthenticatedMemberPersonValue()
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     software_release = self.generateNewSoftwareReleaseUrl()
     software_title = "test"
@@ -2149,7 +2149,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     self.assertEqual("validated", hosting_subscription.getValidationState())
 
   def test_Person_requestSoftwareInstance_HostingSubscriptionNotReindexed(self):
-    person = self.getPortalObject().ERP5Site_getAuthenticatedMemberPersonValue()
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     software_release = self.generateNewSoftwareReleaseUrl()
     software_title = "test"
@@ -2185,7 +2185,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
 
   @expectedFailure
   def test_Person_requestSoftwareInstance_updateHostingSubscription(self):
-    person = self.getPortalObject().ERP5Site_getAuthenticatedMemberPersonValue()
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     software_release = self.generateNewSoftwareReleaseUrl()
     software_title = "test"
@@ -2253,7 +2253,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     self.assertEqual("validated", hosting_subscription.getValidationState())
 
   def test_Person_requestSoftwareInstance_duplicatedHostingSubscription(self):
-    person = self.getPortalObject().ERP5Site_getAuthenticatedMemberPersonValue()
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     software_release = self.generateNewSoftwareReleaseUrl()
     software_title = "test"
@@ -2295,7 +2295,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     )
 
   def test_Person_requestSoftwareInstance_HostingSubscriptionNewTitle(self):
-    person = self.getPortalObject().ERP5Site_getAuthenticatedMemberPersonValue()
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     software_release = self.generateNewSoftwareReleaseUrl()
     software_title = "test"
@@ -2363,7 +2363,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     self.assertEqual("validated", hosting_subscription2.getValidationState())
 
   def test_Person_requestSoftwareInstance_deletedHostingSubscription(self):
-    person = self.getPortalObject().ERP5Site_getAuthenticatedMemberPersonValue()
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     software_release = self.generateNewSoftwareReleaseUrl()
     software_title = "test"
@@ -2402,7 +2402,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     self.assertEqual("destroy_requested", hosting_subscription.getSlapState())
 
   def test_Person_requestSoftwareInstance_noConflictWithDeletedHostingSubscription(self):
-    person = self.getPortalObject().ERP5Site_getAuthenticatedMemberPersonValue()
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     software_release = self.generateNewSoftwareReleaseUrl()
     software_title = "test"
@@ -2467,14 +2467,14 @@ class TestSlapOSCorePersonRequestComputer(SlapOSTestCaseMixin):
 
     # Login as new user
     self.login(person_user.getUserId())
-    new_person = portal.ERP5Site_getAuthenticatedMemberPersonValue()
+    new_person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
     self.assertEqual(person_user.getRelativeUrl(), new_person.getRelativeUrl())
 
   def beforeTearDown(self):
     pass
 
   def test_request_requiredParameter(self):
-    person = self.getPortalObject().ERP5Site_getAuthenticatedMemberPersonValue()
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     # computer_title is mandatory
     self.assertRaises(TypeError, person.requestComputer)
@@ -2484,7 +2484,7 @@ class TestSlapOSCorePersonRequestComputer(SlapOSTestCaseMixin):
     person.requestComputer(computer_title=computer_title)
 
   def test_request(self):
-    person = self.getPortalObject().ERP5Site_getAuthenticatedMemberPersonValue()
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     computer_title = self.generateNewComputerTitle()
     person.requestComputer(computer_title=computer_title)
@@ -2499,7 +2499,7 @@ class TestSlapOSCorePersonRequestComputer(SlapOSTestCaseMixin):
     self.assertNotEqual(None, computer_reference)
 
   def test_request_createdComputer(self):
-    person = self.getPortalObject().ERP5Site_getAuthenticatedMemberPersonValue()
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     previous_id = self.getPortalObject().portal_ids\
         .generateNewId(id_group='slap_computer_reference',
@@ -2530,7 +2530,7 @@ class TestSlapOSCorePersonRequestComputer(SlapOSTestCaseMixin):
     self.assertEqual('open', computer.getCapacityScope())
 
   def test_request_notReindexedCompute(self):
-    person = self.getPortalObject().ERP5Site_getAuthenticatedMemberPersonValue()
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     computer_title = self.generateNewComputerTitle()
     person.requestComputer(computer_title=computer_title)
@@ -2539,7 +2539,7 @@ class TestSlapOSCorePersonRequestComputer(SlapOSTestCaseMixin):
                       computer_title=computer_title)
 
   def test_multiple_request_createdComputer(self):
-    person = self.getPortalObject().ERP5Site_getAuthenticatedMemberPersonValue()
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     previous_id = self.getPortalObject().portal_ids\
         .generateNewId(id_group='slap_computer_reference',
@@ -2624,7 +2624,7 @@ class TestSlapOSCorePersonRequestComputer(SlapOSTestCaseMixin):
     self.assertEqual('open', computer2.getCapacityScope())
 
   def test_request_duplicatedComputer(self):
-    person = self.getPortalObject().ERP5Site_getAuthenticatedMemberPersonValue()
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     computer_title = self.generateNewComputerTitle()
     person.requestComputer(computer_title=computer_title)

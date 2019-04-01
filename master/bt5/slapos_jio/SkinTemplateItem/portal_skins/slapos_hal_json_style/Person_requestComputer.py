@@ -1,6 +1,6 @@
 import json
 portal = context.getPortalObject()
-person = portal.ERP5Site_getAuthenticatedMemberPersonValue()
+person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
 request = context.REQUEST
 response = request.RESPONSE

@@ -2,7 +2,7 @@
  anonymous pay their Payment Transactions before login.
 """
 portal = context.getPortalObject()
-person = portal.ERP5Site_getAuthenticatedMemberPersonValue()
+person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
 def wrapWithShadow(payment_transaction, web_site):
   return payment_transaction.PaymentTransaction_redirectToManualPayzenPayment(web_site)

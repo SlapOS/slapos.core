@@ -1,6 +1,6 @@
 computer = state_change['object']
 portal = computer.getPortalObject()
-person = portal.ERP5Site_getAuthenticatedMemberPersonValue()
+person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 computer.edit(
   allocation_scope='open/personal',
   source_administration_value=person,

@@ -26,7 +26,7 @@ if hosting_subscription is not None:
 # The URL should come from the URL Probably
 url = context.getUrlString()
 
-person = portal.ERP5Site_getAuthenticatedMemberPersonValue()
+person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
 if person is None:
   raise ValueError("You cannot request without been logged in as a user.")

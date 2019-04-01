@@ -1,4 +1,6 @@
-person = context.ERP5Site_getAuthenticatedMemberPersonValue()
+portal = context.getPortalObject()
+person = portal.portal_membership.getAuthenticatedMember().getUserValue()
+
 request = context.REQUEST
 response = request.RESPONSE
 

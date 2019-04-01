@@ -548,7 +548,7 @@ class SlapTool(BaseTool):
   @convertToREST
   def _requestComputer(self, computer_title):
     portal = self.getPortalObject()
-    person = portal.ERP5Site_getAuthenticatedMemberPersonValue()
+    person = portal.portal_membership.getAuthenticatedMember().getUserValue()
     person.requestComputer(computer_title=computer_title)
     computer = Computer(self.REQUEST.get('computer_reference').decode("UTF-8"))
     return xml_marshaller.xml_marshaller.dumps(computer)
@@ -1303,7 +1303,7 @@ class SlapTool(BaseTool):
           self._storeLastData(key, value)
     else:
       # requested as root, so done by human
-      person = portal.ERP5Site_getAuthenticatedMemberPersonValue()
+      person = portal.portal_membership.getAuthenticatedMember().getUserValue()
       kw = dict(software_release=software_release,
               software_type=software_type,
               software_title=partition_reference,

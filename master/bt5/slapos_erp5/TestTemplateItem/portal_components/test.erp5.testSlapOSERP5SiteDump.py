@@ -41,6 +41,7 @@ class TestSlapOSDump(SlapOSTestCaseMixin):
         ('ERP5Site_dumpPropertySheetList', 'expected_property_sheet_dumped_configuration', None),
         ('ERP5Site_dumpRuleTesterList', 'expected_rule_dumped_configuration', None),
         ('ERP5Site_dumpSkinProperty', 'expected_skin_property_dumped_configuration', None),
+        ('ERP5Site_dumpWebPageModuleContent', 'expected_web_page_module_configuration', None),
         ('ERP5Site_dumpWorkflowChain', 'expected_workflow_dumped_configuration', None),
       ]:
       ZopeTestCase._print('\n')

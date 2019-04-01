@@ -44,6 +44,12 @@ if show_all or configuration == "skins":
   found = portal.ERP5Site_dumpPortalSkinsContent()
   print resolveDiff("Skins Configuration Diff", expected_file, found)
 
+if show_all or configuration == "web_content":
+  expected_file = portal.expected_web_page_module_configuration
+  found = portal.ERP5Site_dumpWebPageModuleContent(
+    ignore_string_on_reference=["rapid_"])
+  print resolveDiff("Web Content Configuration Diff", expected_file, found)
+
 if show_all or configuration == "actions":
   expected_file = portal.expected_type_actions_dumped_configuration
   found = portal.ERP5Site_dumpPortalTypeActionList()

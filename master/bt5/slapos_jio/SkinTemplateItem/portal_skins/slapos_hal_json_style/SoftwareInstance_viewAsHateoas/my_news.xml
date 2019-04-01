@@ -126,7 +126,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: here.Base_getHateoasNews(here)</string> </value>
+            <value> <string>python: instance.Base_getNewsDict(here)</string> </value>
         </item>
       </dictionary>
     </pickle>

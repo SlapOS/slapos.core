@@ -25,16 +25,17 @@
       var gadget = this;
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
-          var i, value, len = result.data.total_rows;
+          var i, value, jio_key_value, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
             if (1 || (result.data.rows[i].value.SoftwareInstance_getNewsDict)) {
               value = result.data.rows[i].value.SoftwareInstance_getNewsDict;
+              jio_key_value = result.data.rows[i].id;
               result.data.rows[i].value.SoftwareInstance_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
                   description: "The Status",
                   hidden:  0,
-                  "default": {jio_key: value, result: value},
+                  "default": {jio_key: jio_key_value, result: value},
                   key: "status",
                   url: "gadget_slapos_instance_status.html",
                   title: "Status",

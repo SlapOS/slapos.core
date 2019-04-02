@@ -21,16 +21,16 @@
     if (options.news.text.startsWith("#access")) {
       return 'ui-btn-ok';
     } else {
-      if (options.no_data) {
+      if (options.news.no_data) {
         return 'ui-btn-no-data';
       }
-      else if (options.is_slave) {
+      else if (options.news.is_slave) {
         return 'ui-btn-is-slave';
       }
-      else if (options.is_stopped) {
+      else if (options.news.is_stopped) {
         return 'ui-btn-is-stopped';
       }
-      else if (options.is_destroyed) {
+      else if (options.news.is_destroyed) {
         return 'ui-btn-is-destroyed';
       }
       return 'ui-btn-error';
@@ -46,19 +46,19 @@
 
     monitor_url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type%3A%22Software%20Instance%22%20AND%20reference%3A%22' + result.reference + '%22';
     status_class = checkInstanceStatus(result);
-    if (status_class === 'ui-btn-no-data') {
-      status_style = "color: transparent !important;";
-    }
-    else if (status_class === 'ui-btn-is-slave') {
+    if (status_class === 'ui-btn-is-slave') {
       status_class = 'ui-btn-no-data';
+      status_style = "color: white !important;";
       status_title = 'Slave';
     }
     else if (status_class === 'ui-btn-is-stopped') {
       status_class = 'ui-btn-no-data';
+      status_style = "color: white !important;";
       status_title = 'Stopped';
     }
     else if (status_class === 'ui-btn-is-destroyed') {
       status_class = 'ui-btn-no-data';
+      status_style = "color: white !important;";
       status_title = 'Destroyed';
     }
 

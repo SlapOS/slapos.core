@@ -7,7 +7,12 @@
     inline_status_source = gadget_klass.__template_element
                          .getElementById("inline-status-template")
                          .innerHTML,
-    inline_status_template = Handlebars.compile(inline_status_source);
+    inline_status_template = Handlebars.compile(inline_status_source),
+    inline_status_no_link_source = gadget_klass.__template_element
+                         .getElementById("inline-status-no-link-template")
+                         .innerHTML,
+    inline_status_no_link_template = Handlebars
+                         .compile(inline_status_no_link_source);
 
   function checkInstanceStatus(options) {
     if ((!options) || (options && !options.news)) {
@@ -19,31 +24,68 @@
       if (options.no_data) {
         return 'ui-btn-no-data';
       }
+      else if (options.is_slave) {
+        return 'ui-btn-is-slave';
+      }
+      else if (options.is_stopped) {
+        return 'ui-btn-is-stopped';
+      }
+      else if (options.is_destroyed) {
+        return 'ui-btn-is-destroyed';
+      }
       return 'ui-btn-error';
     }
   }
 
-  function getStatus(gadget) {
-    return  new RSVP.Queue()
+  function getStatus(gadget, result) {
+    var status_class = 'ui-btn-no-data',
+        status_title = 'Instance',
+        status_style = "",
+        monitor_url,
+        template = inline_status_template;
+
+    monitor_url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type%3A%22Software%20Instance%22%20AND%20reference%3A%22' + result.reference + '%22';
+    status_class = checkInstanceStatus(result);
+    if (status_class === 'ui-btn-no-data') {
+      status_style = "color: transparent !important;";
+    }
+    else if (status_class === 'ui-btn-is-slave') {
+      status_class = 'ui-btn-no-data';
+      status_title = 'Slave';
+    }
+    else if (status_class === 'ui-btn-is-stopped') {
+      status_class = 'ui-btn-no-data';
+      status_title = 'Stopped';
+    }
+    else if (status_class === 'ui-btn-is-destroyed') {
+      status_class = 'ui-btn-no-data';
+      status_title = 'Destroyed';
+    }
+
+    if (status_class === 'ui-btn-no-data') {
+      gadget.element.innerHTML = inline_status_no_link_template({
+        status_class: status_class,
+        status_title: status_title,
+        status_style: status_style
+      });
+    } else {
+      gadget.element.innerHTML = inline_status_template({
+        monitor_url: monitor_url,
+        status_class: status_class,
+        status_title: status_title,
+        status_style: status_style
+      });
+    }
+    return gadget;
+  }
+
+  function getStatusLoop(gadget) {
+    return new RSVP.Queue()
       .push(function () {
         return gadget.jio_get(gadget.options.value.jio_key);
       })
       .push(function (result) {
-        var status_class = 'ui-btn-no-data',
-          status_title = 'Instance',
-          status_style = "";
-
-        status_class = checkInstanceStatus(result);
-        if (status_class === 'ui-btn-no-data') {
-          status_style = "color: transparent !important;";
-        }
-
-        gadget.element.innerHTML = inline_status_template({
-          status_class: status_class,
-          status_title: status_title,
-          status_style: status_style
-        });
-        return gadget;
+        return getStatus(gadget, result);
       });
   }
 
@@ -62,20 +104,20 @@
     .declareMethod("getContent", function () {
       return {};
     })
-    .declareJob("getStatus", function () {
+    .declareJob("getStatus", function (result) {
       var gadget = this;
-      return getStatus(gadget);
+      return getStatus(gadget, {news: result});
     })
     .onLoop(function () {
       var gadget = this;
-      return getStatus(gadget);
+      return getStatusLoop(gadget);
     }, 300000)
 
     .declareMethod("render", function (options) {
       var gadget = this;
       gadget.options = options;
       gadget.flag = options.value.jio_key;
-      return gadget.getStatus();
+      return gadget.getStatus(options.value.result);
     });
 
 }(window, rJS, RSVP, Handlebars));

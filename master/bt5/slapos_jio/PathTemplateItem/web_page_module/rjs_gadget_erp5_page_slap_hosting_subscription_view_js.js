@@ -27,14 +27,14 @@
         .push(function (result) {
           var i, value, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
-            if (1 || (result.data.rows[i].hasOwnProperty("id"))) {
-              value = result.data.rows[i].id;
-              result.data.rows[i].value.computer_monitoring_status = {
+            if (1 || (result.data.rows[i].value.SoftwareInstance_getNewsDict)) {
+              value = result.data.rows[i].value.SoftwareInstance_getNewsDict;
+              result.data.rows[i].value.SoftwareInstance_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
                   description: "The Status",
-                  hidden:  result.data.rows[i].value.portal_type === "Slave Instance",
-                  "default": {jio_key: value},
+                  hidden:  0,
+                  "default": {jio_key: value, result: value},
                   key: "status",
                   url: "gadget_slapos_instance_status.html",
                   title: "Status",
@@ -142,7 +142,7 @@
             ['title', 'Title'],
             ['reference', 'Reference'],
             ['portal_type', 'Type'],
-            ['computer_monitoring_status', 'Status']
+            ['SoftwareInstance_getNewsDict', 'Status']
           ], monitor_scope_list = [['', ''],
                                 ['Enabled', 'enable'],
                                 ['Disabled', 'disable']
@@ -267,7 +267,8 @@
                     "my_monitoring_status": {
                       "description": "",
                       "title": "Monitoring Status",
-                      "default": {jio_key: gadget.state.jio_key},
+                      "default": {jio_key: gadget.state.jio_key,
+                                  result: gadget.state.doc.news},
                       "css_class": "",
                       "required": 0,
                       "editable": 0,

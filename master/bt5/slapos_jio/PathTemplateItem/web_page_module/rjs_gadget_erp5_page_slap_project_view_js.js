@@ -26,16 +26,17 @@
       var gadget = this;
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
-          var i, value, len = result.data.total_rows;
+          var i, value, value_jio_key, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
-            if (1 || (result.data.rows[i].hasOwnProperty("id"))) {
-              value = result.data.rows[i].id;
-              result.data.rows[i].value.computer_monitoring_status = {
+            if (1 || (result.data.rows[i].value.hasOwnProperty("Computer_getNewsDict"))) {
+              value_jio_key = result.data.rows[i].id;
+              value = result.data.rows[i].value.Computer_getNewsDict;
+              result.data.rows[i].value.Computer_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
                   description: "The Status",
                   hidden: 0,
-                  "default": {jio_key: value},
+                  "default": {jio_key: value, result: value},
                   key: "status",
                   url: "gadget_slapos_computer_status.html",
                   title: "Status",
@@ -95,7 +96,7 @@
           var column_list = [
             ['title', 'Title'],
             ['reference', 'Reference'],
-            ['computer_monitoring_status', 'Status']
+            ['Computer_getNewsDict', 'Status']
           ];
           return result[0].render({
             erp5_document: {

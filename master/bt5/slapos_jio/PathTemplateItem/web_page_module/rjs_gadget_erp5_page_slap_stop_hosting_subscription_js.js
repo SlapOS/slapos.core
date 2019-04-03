@@ -12,6 +12,7 @@
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("redirect", "redirect")
     .declareAcquiredMethod("jio_post", "jio_post")
+    .declareAcquiredMethod("jio_get", "jio_get")
     .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
 
 
@@ -93,7 +94,7 @@
         })
         .push(function (url_list) {
           return gadget.updateHeader({
-            page_title: "Destroy Hosting Subscription: " + options.doc.title,
+            page_title: "Stop Hosting Subscription: " + options.doc.title,
             selection_url: url_list[0],
             submit_action: true
           });

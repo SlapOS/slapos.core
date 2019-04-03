@@ -68,8 +68,8 @@
     var previous_status = "START",
         status = 'ui-btn-no-data',
         i;
-    for (i in options.computer_news) {
-      status = checkComputerStatus(options.computer_news[i]);
+    for (i in options.news.computer) {
+      status = checkComputerStatus(options.news.computer[i]);
       if (previous_status === "START") {
         previous_status = status;
       }
@@ -92,9 +92,9 @@
     var computer_reference,
         status = 'ui-btn-no-data',
         previous_status = "START";
-    for (computer_reference in options.computer_partition_news) {
+    for (computer_reference in options.news.partition) {
       status = checkComputerPartitionStatus(
-        options.computer_partition_news[computer_reference]);
+        options.news.partition[computer_reference]);
       if (previous_status === "START") {
         previous_status = status;
       }
@@ -118,39 +118,39 @@
   }
 
 
-  function getStatus(gadget) {
+  function getStatus(gadget, result) {
+    var monitor_url,
+      status_class = 'ui-btn-no-data',
+      status_title = 'Computer',
+      right_title = 'Partitions',
+      right_class = 'ui-btn-no-data',
+      status_style = '',
+      right_style = '';
+
+    status_class = checkProjectStatus(result);
+    right_class = checkProjectPartitionStatus(result);
+
+    monitor_url = gadget.props.hateoas_url + gadget.options.value.jio_key + '/Base_redirectToMonitor';
+    gadget.element.innerHTML = inline_status_template({
+      monitor_url: monitor_url,
+      status_class: status_class,
+      status_title: status_title,
+      status_style: status_style,
+      right_class: right_class,
+      right_title: right_title,
+      right_style: right_style
+    });
+    return gadget;
+  }
+
+  function getStatusLoop(gadget) {
     return new RSVP.Queue()
       .push(function () {
         return gadget.jio_get(gadget.options.value.jio_key);
       })
       .push(function (result) {
-        var monitor_url,
-           status_class = 'ui-btn-no-data',
-           status_title = 'Computer',
-           right_title = 'Partitions',
-           right_class = 'ui-btn-no-data',
-           status_style = '',
-           right_style = '';
-
-       status_class = checkProjectStatus(result);
-       right_class = checkProjectPartitionStatus(result);
-
-        if (status_class === 'ui-btn-no-data') {
-          status_style = "color: transparent !important;";
-        }
-        monitor_url = gadget.props.hateoas_url + gadget.options.value.jio_key + '/Base_redirectToMonitor';
-        gadget.element.innerHTML = inline_status_template({
-          monitor_url: monitor_url,
-          status_class: status_class,
-          status_title: status_title,
-          status_style: status_style,
-          right_class: right_class,
-          right_title: right_title,
-          right_style: right_style
-        });
-        return gadget;
-      }
-    );
+        return getStatus(gadget, result);
+      });
   }
 
   gadget_klass
@@ -168,19 +168,19 @@
     .declareMethod("getContent", function () {
       return {};
     })
-    .declareJob("getStatus", function () {
+    .declareJob("getStatus", function (result) {
       var gadget = this;
-      return getStatus(gadget);
+      return getStatus(gadget, {news: result});
     })
     .onLoop(function () {
       var gadget = this;
-      return getStatus(gadget);
+      return getStatusLoop(gadget);
     }, 300000)
 
     .declareMethod("render", function (options) {
       var gadget = this;
       gadget.options = options;
       gadget.flag = options.value.jio_key;
-      return gadget.getStatus();
+      return gadget.getStatus(options.value.result);
     });
 }(window, rJS, RSVP, Handlebars));

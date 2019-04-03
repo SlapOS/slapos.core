@@ -36,7 +36,7 @@
                   css_class: "",
                   description: "The Status",
                   hidden: 0,
-                  "default": {jio_key: value, result: value},
+                  "default": {jio_key: value_jio_key, result: value},
                   key: "status",
                   url: "gadget_slapos_computer_status.html",
                   title: "Status",
@@ -137,7 +137,8 @@
                 "my_monitoring_status": {
                   "description": "",
                   "title": "Monitoring Status",
-                  "default": {jio_key: gadget.state.jio_key},
+                  "default": {jio_key: gadget.state.jio_key,
+                              result: gadget.state.doc.news},
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
@@ -178,7 +179,10 @@
             form_definition: {
               group_list: [[
                 "left",
-                [["my_title"], ["my_reference"], ["my_description"], ['my_monitoring_status']]
+                [["my_title"], ["my_reference"], ["my_description"]]
+              ], [
+                "right",
+                [['my_monitoring_status']]
               ], [
                 "bottom",
                 [["listbox"]]

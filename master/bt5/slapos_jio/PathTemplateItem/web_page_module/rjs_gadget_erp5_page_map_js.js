@@ -223,7 +223,8 @@
                   new_marker_list[index].openPopup();
                   return computer.render({value: {
                     jio_key : gadget.options.marker_list ? gadget.options.marker_list[index].jio_key : "",
-                    doc: gadget.options.marker_list ? gadget.options.marker_list[index].doc : ""
+                    doc: gadget.options.marker_list ? gadget.options.marker_list[index].doc : "",
+                    result: gadget.options.marker_list ? gadget.options.marker_list[index].doc.result : ""
                   }
                   });
                 });

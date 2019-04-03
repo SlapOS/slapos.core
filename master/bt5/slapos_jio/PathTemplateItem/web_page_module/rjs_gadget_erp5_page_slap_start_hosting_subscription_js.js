@@ -12,6 +12,7 @@
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("redirect", "redirect")
     .declareAcquiredMethod("jio_post", "jio_post")
+    .declareAcquiredMethod("jio_get", "jio_get")
     .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
 
 

@@ -20,14 +20,13 @@
           for (i = 0; i < len; i += 1) {
             if (1 || (result.data.rows[i].value.hasOwnProperty("Project_getNewsDict"))) {
               value = result.data.rows[i].id;
-              news = result.data.rows[i].Project_getNewsDict;
+              news = result.data.rows[i].value.Project_getNewsDict;
               result.data.rows[i].value.Project_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
                   description: "The Status",
                   hidden: 0,
-                  "default": {jio_key: value,
-                              result: news},
+                  "default": {jio_key: value, result: news},
                   key: "status",
                   url: "gadget_slapos_project_status.html",
                   title: "Status",

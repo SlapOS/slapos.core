@@ -149,8 +149,9 @@
                 },
                 "my_monitoring_status": {
                   "description": "",
-                  "title": "Map",
-                  "default": {jio_key: gadget.state.jio_key},
+                  "title": "Monitoring",
+                  "default": {jio_key: gadget.state.jio_key,
+                              result: gadget.state.doc.news},
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
@@ -162,11 +163,12 @@
                 },
                 "my_organisation_map": {
                   "description": "",
-                  "title": "Monitoring Status",
+                  "title": "Map",
                   "default": [
                     {"jio_key": gadget.state.jio_key,
                      "doc": {"title": gadget.state.doc.title,
                             "reference": gadget.state.doc.reference,
+                            "result": gadget.state.doc.news,
                             "latitude": gadget.state.doc.default_geographical_location_latitude,
                             "longitude": gadget.state.doc.default_geographical_location_longitude}
                     }

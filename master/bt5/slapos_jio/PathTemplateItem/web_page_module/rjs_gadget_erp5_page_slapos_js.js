@@ -34,16 +34,17 @@
       var gadget = this;
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
-          var i, value, date, len = result.data.total_rows;
+          var i, value, value_jio_key, date, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
             if (1 || (result.data.rows[i].hasOwnProperty("id"))) {
-              value = result.data.rows[i].id;
-              result.data.rows[i].value.monitoring_status = {
+              value_jio_key = result.data.rows[i].id;
+              value = result.data.rows[i].value.Organisation_getNewsDict;
+              result.data.rows[i].value.Organisation_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
                   description: "The Status",
                   hidden: 0,
-                  "default": {jio_key: value},
+                  "default": {jio_key: value_jio_key, result: value},
                   key: "status",
                   url: "gadget_slapos_site_status.html",
                   title: "Status",
@@ -110,7 +111,7 @@
             .push(function (result) {
               var i, destination_list, column_list = [
                 ['title', 'Title'],
-                ['monitoring_status', 'Status']
+                ['Organisation_getNewsDict', 'Status']
               ];
               gadget.me_dict = result[1];
               destination_list = "%22NULL%22%2C";
@@ -250,6 +251,7 @@
             query: "portal_type:Organisation AND role_title:Host AND relative_url:(" + destination_list + ")",
             select_list: ['title',
                           'reference',
+                          'Organisation_getNewsDict',
                           'default_geographical_location_longitude',
                           'default_geographical_location_latitude']
           });
@@ -261,6 +263,7 @@
               "jio_key": result.data.rows[idx].id,
               "doc": {"title": result.data.rows[idx].value.title,
                       "reference": result.data.rows[idx].value.reference,
+                      "result": result.data.rows[idx].value.Organisation_getNewsDict,
                       "latitude": result.data.rows[idx].value.default_geographical_location_latitude,
                       "longitude": result.data.rows[idx].value.default_geographical_location_longitude}
             });

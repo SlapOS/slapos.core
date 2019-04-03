@@ -98,8 +98,7 @@
                         <string>my_default_geographical_location_latitude</string>
                         <string>my_default_geographical_location_longitude</string>
                         <string>my_role</string>
-                        <string>my_computer_news</string>
-                        <string>my_computer_partition_news</string>
+                        <string>my_news</string>
                       </list>
                     </value>
                 </item>

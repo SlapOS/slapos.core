@@ -95,8 +95,7 @@
                       <list>
                         <string>my_title</string>
                         <string>my_reference</string>
-                        <string>my_computer_partition_news</string>
-                        <string>my_computer_news</string>
+                        <string>my_news</string>
                       </list>
                     </value>
                 </item>

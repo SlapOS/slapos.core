@@ -17,7 +17,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>my_computer_partition_news</string> </value>
+            <value> <string>my_news</string> </value>
         </item>
         <item>
             <key> <string>message_values</string> </key>
@@ -110,7 +110,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Message Computer Partitions</string> </value>
+                    <value> <string>Message</string> </value>
                 </item>
               </dictionary>
             </value>
@@ -126,7 +126,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: here.Project_getHateoasComputerPartitionNews()</string> </value>
+            <value> <string>here/Organisation_getNewsDict</string> </value>
         </item>
       </dictionary>
     </pickle>

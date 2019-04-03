@@ -97,8 +97,7 @@
                         <string>my_reference</string>
                         <string>my_description</string>
                         <string>my_destination_decision</string>
-                        <string>my_computer_news</string>
-                        <string>my_computer_partition_news</string>
+                        <string>my_news</string>
                       </list>
                     </value>
                 </item>

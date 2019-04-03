@@ -18,24 +18,23 @@
                                    "root_slave"];
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
-          var i, value, len = result.data.total_rows;
+          var i, value, news, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
-            if (1 || (result.data.rows[i].value.hasOwnProperty("root_slave"))) {
-              if (result.data.rows[i].value.root_slave !== 1) {
-                value = result.data.rows[i].id;
-                result.data.rows[i].value.monitoring_status = {
-                  field_gadget_param : {
-                    css_class: "",
-                    description: "The Status",
-                    hidden: 0,
-                    "default": {jio_key: value},
-                    key: "status",
-                    url: "gadget_slapos_hosting_subscription_status.html",
-                    title: "Status",
-                    type: "GadgetField"
-                  }
-                };
-              }
+            if (1 || (result.data.rows[i].value.hasOwnProperty("HostingSubscription_getNewsDict"))) {
+              value = result.data.rows[i].id;
+              news = result.data.rows[i].value.HostingSubscription_getNewsDict;
+              result.data.rows[i].value.HostingSubscription_getNewsDict = {
+                field_gadget_param : {
+                  css_class: "",
+                  description: "The Status",
+                  hidden: 0,
+                  "default": {jio_key: value, result: news},
+                  key: "status",
+                  url: "gadget_slapos_hosting_subscription_status.html",
+                  title: "Status",
+                  type: "GadgetField"
+                }
+              };
               result.data.rows[i].value["listbox_uid:list"] = {
                 key: "listbox_uid:list",
                 value: 2713
@@ -72,7 +71,7 @@
           var column_list = [
             ['title', 'Title'],
             ['short_title', 'Short Title'],
-            ['monitoring_status', 'Status']
+            ['HostingSubscription_getNewsDict', 'Status']
           ];
           return form_list.render({
             erp5_document: {

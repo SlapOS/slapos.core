@@ -276,7 +276,7 @@
                       "url": "gadget_slapos_hosting_subscription_status.html",
                       "sandbox": "",
                       "key": "monitoring_status",
-                      "hidden": gadget.state.doc.root_slave === 1,
+                      "hidden": 0,
                       "type": "GadgetField"
                     },
                     "my_monitor_scope": {

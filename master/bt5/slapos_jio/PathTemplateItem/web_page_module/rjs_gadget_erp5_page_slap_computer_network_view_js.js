@@ -124,7 +124,8 @@
                 "my_monitoring_status": {
                   "description": "",
                   "title": "Monitoring Status",
-                  "default": {jio_key: gadget.state.jio_key},
+                  "default": {jio_key: gadget.state.jio_key,
+                              result: gadget.state.doc.news},
                   "css_class": "",
                   "required": 1,
                   "editable": 0,

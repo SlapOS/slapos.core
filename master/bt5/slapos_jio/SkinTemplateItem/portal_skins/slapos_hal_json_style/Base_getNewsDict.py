@@ -6,7 +6,7 @@ memcached_dict = context.getPortalObject().portal_memcached.getMemcachedDict(
   plugin_path='portal_memcached/default_memcached_plugin')
 try:
   d = memcached_dict[document.getReference()]
-except KeyError:
+except (KeyError, TypeError):
   d = {
     "user": "SlapOS Master",
     "text": "#error no data found for %s" % document.getReference(),

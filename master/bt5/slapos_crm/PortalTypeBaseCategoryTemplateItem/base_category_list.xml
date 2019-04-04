@@ -1,9 +1,11 @@
 <base_category_list>
  <portal_type id="Computer">
   <item>monitor_scope</item>
+  <item>upgrade_scope</item>
  </portal_type>
  <portal_type id="Hosting Subscription">
   <item>monitor_scope</item>
+  <item>upgrade_scope</item>
  </portal_type>
  <portal_type id="Regularisation Request">
   <item>specialise</item>

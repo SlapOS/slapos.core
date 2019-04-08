@@ -90,6 +90,8 @@
                         <string>my_configuration_default_jio_document_page_gadget_url</string>
                         <string>my_configuration_stylesheet_url</string>
                         <string>my_configuration_payment_url_template</string>
+                        <string>my_configuration_slapos_master_api</string>
+                        <string>my_configuration_computer_install_command_line</string>
                       </list>
                     </value>
                 </item>

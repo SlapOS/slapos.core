@@ -80,6 +80,39 @@
                   "hidden": 1,
                   "type": "StringField"
                 },
+                "my_command_line": {
+                  "description": "",
+                  "title": "Command Line to Run",
+                  "default": options.command_line,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 0,
+                  "key": "command_line",
+                  "hidden": (options.access_token === undefined) ? 1: 0,
+                  "type": "StringField"
+                },
+                "my_slapos_master_api": {
+                  "description": "",
+                  "title": "SlapOS Master API",
+                  "default": options.slapos_master_api,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 0,
+                  "key": "slapos_master_api",
+                  "hidden": (options.access_token === undefined) ? 1: 0,
+                  "type": "StringField"
+                },
+                "my_slapos_master_web": {
+                  "description": "",
+                  "title": "SlapOS Master Web UI",
+                  "default": options.slapos_master_web,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 0,
+                  "key": "slapos_master_web",
+                  "hidden": (options.access_token === undefined) ? 1: 0,
+                  "type": "StringField"
+                },
                 "my_access_token": {
                   "description": "",
                   "title": "Your Token",
@@ -102,7 +135,7 @@
             form_definition: {
               group_list: [[
                 "center",
-                [["my_access_token"], ["my_relative_url"]]
+                [["my_command_line"], ["my_slapos_master_api"], ["my_slapos_master_web"], ["my_access_token"], ["my_relative_url"]]
               ]]
             }
           });

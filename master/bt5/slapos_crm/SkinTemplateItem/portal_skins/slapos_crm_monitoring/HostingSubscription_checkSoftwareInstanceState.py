@@ -18,8 +18,10 @@ if (date_check_limit - hosting_subscription.Base_getCachedCreationDate()) < 0:
   # Too early to check
   return
 
-software_instance_list = hosting_subscription.getSpecialiseRelatedValueList(
-                 portal_type=["Software Instance", "Slave Instance"])
+software_instance_list = context.portal_catalog(
+  portal_type=["Software Instance", "Slave Instance"],
+  specialise_uid=hosting_subscription.getUid(),
+  **{"slapos_item.slap_state": ["start_requested"]})
 
 has_newest_allocated_instance = False
 has_unallocated_instance = False
@@ -27,9 +29,6 @@ failing_instance = None
 
 # Check if at least one software Instance is Allocated
 for instance in software_instance_list:
-  if instance.getSlapState() not in ["start_requested", "stop_requested"]:
-    continue
-
   if (date_check_limit - instance.Base_getCachedCreationDate()) < 0:
     continue
 
@@ -37,8 +36,7 @@ for instance in software_instance_list:
   if computer_partition is not None:
     has_newest_allocated_instance = True
     if instance.getPortalType() == "Software Instance" and \
-        computer_partition.getParentValue().getAllocationScope() in ["open/friend", "open/public"] and \
-        instance.getSlapState() == "start_requested" and \
+        computer_partition.getParentValue().getMonitorScope() == "enabled" and \
         instance.SoftwareInstance_hasReportedError():
       return context.HostingSubscription_createSupportRequestEvent(
         instance, 'slapos-crm-hosting-subscription-instance-state.notification')

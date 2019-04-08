@@ -1,16 +1,14 @@
 from DateTime import DateTime
 import json
 
-from Products.ERP5Type.DateUtils import addToDate
-
 portal = context.getPortalObject()
 
 if context.getSimulationState() == "invalidated":
   return
 
-computer = context.getAggregateValue()
+computer = context.getAggregateValue(portal_type="Computer")
 
-if computer is not None and computer.getPortalType() == "Computer":
+if computer is not None:
   memcached_dict = context.getPortalObject().portal_memcached.getMemcachedDict(
     key_prefix='slap_tool',
     plugin_path='portal_memcached/default_memcached_plugin')

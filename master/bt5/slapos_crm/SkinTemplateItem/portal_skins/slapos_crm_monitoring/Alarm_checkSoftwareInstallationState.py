@@ -1,16 +1,17 @@
 portal = context.getPortalObject()
-public_category_uid = portal.restrictedTraverse(
-  "portal_categories/allocation_scope/open/public", None).getUid()
 
-friend_category_uid = portal.restrictedTraverse(
-  "portal_categories/allocation_scope/open/friend", None).getUid()
+if portal.ERP5Site_isSupportRequestCreationClosed():
+  # Stop process alarm if there are too many tickets
+  return
 
+monitor_enabled_category = portal.restrictedTraverse(
+  "portal_categories/monitor_scope/enabled", None)
 
-if None not in [friend_category_uid, public_category_uid]:
+if monitor_enabled_category is not None:
   portal.portal_catalog.searchAndActivate(
     portal_type = 'Computer',
     validation_state = 'validated',
-    default_allocation_scope_uid = [public_category_uid, friend_category_uid],
+    default_monitor_scope_uid = monitor_enabled_category.getUid(),
     method_id = 'Computer_checkSoftwareInstallationState',
     activate_kw = {'tag':tag}
   )

@@ -1,7 +1,7 @@
 # Copyright (c) 2013 Nexedi SA and Contributors. All Rights Reserved.
 import transaction
 from erp5.component.test.SlapOSTestCaseMixin import \
-  SlapOSTestCaseMixin
+  SlapOSTestCaseMixin, simulate
 from unittest import skip
 from DateTime import DateTime
 from Products.ERP5Type.tests.utils import createZODBPythonScript
@@ -764,8 +764,10 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
   def test_alarm_check_public_computer_state(self):
     self._makeComputer()
     self.computer.edit(allocation_scope='open/public')
-    
+    self.tic()
+    self.assertEqual(self.computer.getMonitorScope(), "enabled")
     self._simulateComputer_checkState()
+    self.tic()
 
     try:
       self.portal.portal_alarms.slapos_crm_check_computer_state.activeSense()
@@ -779,7 +781,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
   def test_alarm_check_friend_computer_state(self):
     self._makeComputer()
     self.computer.edit(allocation_scope='open/friend')
-    
+    self.tic()
     self._simulateComputer_checkState()
 
     try:
@@ -791,12 +793,30 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
     self.assertEqual('Visited by Computer_checkState',
       self.computer.workflow_history['edit_workflow'][-1]['comment'])
 
+  def test_alarm_check_personal_computer_state(self):
+    self._makeComputer()
+    self.computer.edit(allocation_scope='open/personal')
+    self.tic()
+    self._simulateComputer_checkState()
 
-  def _test_alarm_check_computer_state_not_selected(self, allocation_scope):
+    try:
+      self.portal.portal_alarms.slapos_crm_check_computer_state.activeSense()
+      self.tic()
+    finally:
+      self._dropComputer_checkState()
+
+    self.assertEqual('Visited by Computer_checkState',
+      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+
+  def _test_alarm_check_computer_state_not_selected(self, allocation_scope,
+                                                 monitor_scope=None):
     self._makeComputer()
     self.computer.edit(allocation_scope=allocation_scope)
-    
+    self.tic()
     self._simulateComputer_checkState()
+    if monitor_scope is not None:
+      self.computer.edit(monitor_scope=monitor_scope)
+      self.tic()
 
     try:
       self.portal.portal_alarms.slapos_crm_check_computer_state.activeSense()
@@ -807,9 +827,20 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
     self.assertNotEqual('Visited by Computer_checkState',
       self.computer.workflow_history['edit_workflow'][-1]['comment'])
 
-  def test_alarm_check_computer_state_no_public_computer(self):
+  def test_alarm_check_computer_state_on_public_computer_with_monitor_scope_disabled(self):
     self._test_alarm_check_computer_state_not_selected(
-      allocation_scope='open/personal')
+      allocation_scope='open/public',
+      monitor_scope="disabled")
+
+  def test_alarm_check_computer_state_on_friend_computer_with_monitor_scope_disabled(self):
+    self._test_alarm_check_computer_state_not_selected(
+      allocation_scope='open/friend',
+      monitor_scope="disabled")
+
+  def test_alarm_check_computer_state_on_personal_computer_with_monitor_scope_disabled(self):
+    self._test_alarm_check_computer_state_not_selected(
+      allocation_scope='open/personal',
+      monitor_scope="disabled")
 
   def test_alarm_check_computer_state_closed_forever_computer(self):
     self._test_alarm_check_computer_state_not_selected(
@@ -883,6 +914,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
 
     self._simulateComputer_checkAndUpdateAllocationScope()
 
+    self.tic()
     try:
       self.portal.portal_alarms.slapos_crm_check_update_allocation_scope.activeSense()
       self.tic()
@@ -945,9 +977,128 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
     self.assertEqual('Visited by Computer_checkSoftwareInstallationState',
       self.computer.workflow_history['edit_workflow'][-1]['comment'])
 
-  def test_alarm_not_run_on_open_personal(self):
+  def test_alarm_run_on_open_personal(self):
     self._makeComputer()
-    self.computer.edit(allocation_scope = 'open/personal')
+    self.computer.edit(allocation_scope = 'open/personal',
+                       monitor_scope="enabled")
+    self.tic()
+    self._simulateComputer_checkSoftwareInstallationState()
+
+    try:
+      self.portal.portal_alarms.slapos_crm_check_software_installation_state.activeSense()
+      self.tic()
+    finally:
+      self._dropComputer_checkSoftwareInstallationState()
+
+    self.assertEqual('Visited by Computer_checkSoftwareInstallationState',
+      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+
+
+  def test_alarm_dont_run_on_open_public_with_monitor_scope_disabled(self):
+    self._makeComputer()
+    self.computer.edit(allocation_scope = 'open/public')
+    self.tic()
+    self.computer.edit(monitor_scope = 'disabled')
+    self.tic()
+    self._simulateComputer_checkSoftwareInstallationState()
+
+    try:
+      self.portal.portal_alarms.slapos_crm_check_software_installation_state.activeSense()
+      self.tic()
+    finally:
+      self._dropComputer_checkSoftwareInstallationState()
+
+    self.assertNotEqual('Visited by Computer_checkSoftwareInstallationState',
+      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+
+  def test_alarm_dont_run_on_open_friend_with_monitor_scope_disabled(self):
+    self._makeComputer()
+    self.computer.edit(allocation_scope = 'open/friend')
+    self.tic()
+    self._simulateComputer_checkSoftwareInstallationState()
+    self.computer.edit(monitor_scope = 'disabled')
+    self.tic()
+
+    try:
+      self.portal.portal_alarms.slapos_crm_check_software_installation_state.activeSense()
+      self.tic()
+    finally:
+      self._dropComputer_checkSoftwareInstallationState()
+
+    self.assertNotEqual('Visited by Computer_checkSoftwareInstallationState',
+      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+
+  def test_alarm_dont_run_on_open_personal_with_monitor_scope_disabled(self):
+    self._makeComputer()
+    self.computer.edit(allocation_scope = 'open/personal',
+                       monitor_scope="enabled")
+    self.tic()
+    self._simulateComputer_checkSoftwareInstallationState()
+    self.computer.edit(monitor_scope = 'disabled')
+    self.tic()
+
+    try:
+      self.portal.portal_alarms.slapos_crm_check_software_installation_state.activeSense()
+      self.tic()
+    finally:
+      self._dropComputer_checkSoftwareInstallationState()
+
+    self.assertNotEqual('Visited by Computer_checkSoftwareInstallationState',
+      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+
+  def test_alarm_not_run_on_close_forever(self):
+    self._makeComputer()
+    self.computer.edit(allocation_scope = 'close/forever')
+    self.tic()
+
+    self._simulateComputer_checkSoftwareInstallationState()
+
+    try:
+      self.portal.portal_alarms.slapos_crm_check_software_installation_state.activeSense()
+      self.tic()
+    finally:
+      self._dropComputer_checkSoftwareInstallationState()
+
+    self.assertNotEqual('Visited by Computer_checkSoftwareInstallationState',
+      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+
+
+  def test_alarm_not_run_on_close_maintainence(self):
+    self._makeComputer()
+    self.computer.edit(allocation_scope = 'close/maintenence')
+    self.tic()
+
+    self._simulateComputer_checkSoftwareInstallationState()
+
+    try:
+      self.portal.portal_alarms.slapos_crm_check_software_installation_state.activeSense()
+      self.tic()
+    finally:
+      self._dropComputer_checkSoftwareInstallationState()
+
+    self.assertNotEqual('Visited by Computer_checkSoftwareInstallationState',
+      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+
+
+  def test_alarm_not_run_on_close_outdated(self):
+    self._makeComputer()
+    self.computer.edit(allocation_scope = 'close/outdated')
+    self.tic()
+
+    self._simulateComputer_checkSoftwareInstallationState()
+
+    try:
+      self.portal.portal_alarms.slapos_crm_check_software_installation_state.activeSense()
+      self.tic()
+    finally:
+      self._dropComputer_checkSoftwareInstallationState()
+
+    self.assertNotEqual('Visited by Computer_checkSoftwareInstallationState',
+      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+
+  def test_alarm_not_run_on_close_termination(self):
+    self._makeComputer()
+    self.computer.edit(allocation_scope = 'close/termination')
     self.tic()
 
     self._simulateComputer_checkSoftwareInstallationState()
@@ -997,6 +1148,8 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
     self._simulateComputer_checkAndUpdatePersonalAllocationScope()
     original_get_creation = Base.getCreationDate
     Base.getCreationDate = getCreationDate
+
+    self.tic()
 
     try:
       self.portal.portal_alarms.slapos_crm_check_update_personal_allocation_scope.activeSense()
@@ -1050,7 +1203,7 @@ class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixin):
 
   def beforeTearDown(self):
     transaction.abort()
-  
+
   def _makeHostingSubscription(self):
     person = self.portal.person_module.template_member\
          .Base_createCloneDocument(batch_mode=1)
@@ -1062,11 +1215,12 @@ class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixin):
     hosting_subscription.edit(
         title= "Test hosting sub ticket %s" % new_id,
         reference="TESTHST-%s" % new_id,
-        destination_section_value=person
+        destination_section_value=person,
+        monitor_scope="enabled"
     )
 
     return hosting_subscription
-    
+
   def _makeSoftwareInstance(self, hosting_subscription):
 
     kw = dict(
@@ -1101,6 +1255,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by H
 
   def test_alarm_check_instance_in_error_validated_hosting_subscription(self):
     host_sub = self._makeHostingSubscription()
+    self.tic()
 
     self._simulateHostingSubscription_checkSoftwareInstanceState()
 
@@ -1111,6 +1266,21 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by H
       self._dropHostingSubscription_checkSoftwareInstanceState()
 
     self.assertEqual('Visited by HostingSubscription_checkSoftwareInstanceState',
+      host_sub.workflow_history['edit_workflow'][-1]['comment'])
+
+  def test_alarm_check_instance_in_error_validated_hosting_subscription_with_monitor_disabled(self):
+    host_sub = self._makeHostingSubscription()
+    host_sub.edit(monitor_scope="disabled")
+    self.tic()
+    self._simulateHostingSubscription_checkSoftwareInstanceState()
+
+    try:
+      self.portal.portal_alarms.slapos_crm_check_instance_in_error.activeSense()
+      self.tic()
+    finally:
+      self._dropHostingSubscription_checkSoftwareInstanceState()
+
+    self.assertNotEqual('Visited by HostingSubscription_checkSoftwareInstanceState',
       host_sub.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_check_instance_in_error_archived_hosting_subscription(self):

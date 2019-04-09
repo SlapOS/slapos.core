@@ -1,17 +1,36 @@
 computer = state_object["object"]
 allocation_scope = computer.getAllocationScope()
 
+upgrade_scope = computer.getUpgradeScope()
+
 if allocation_scope == 'open/public':
   # Public computer capacity is handle by an alarm
   capacity_scope = 'close'
-elif allocation_scope.startswith('open'):
+  monitor_scope = 'enabled'
+  if upgrade_scope in [None, 'ask_confirmation']:
+    upgrade_scope = 'auto'
+
+elif allocation_scope == 'open/friend':
   # Capacity is not handled for 'private' computers
   capacity_scope = 'open'
+  monitor_scope = 'enabled'
+  if upgrade_scope in [None, 'ask_confirmation']:
+    upgrade_scope = 'auto'
+
+elif allocation_scope == 'open/personal':
+  capacity_scope = 'open'
+  # Keep the same.
+  monitor_scope = computer.getMonitorScope("disabled")
+  if upgrade_scope is None:
+    upgrade_scope = 'ask_confirmation'
 else:
+  monitor_scope = 'disabled'
   capacity_scope = 'close'
 
 edit_kw = {
   'capacity_scope': capacity_scope,
+  'monitor_scope': monitor_scope,
+  'upgrade_scope': upgrade_scope
 }
 
 self_person = computer.getSourceAdministrationValue(portal_type="Person")

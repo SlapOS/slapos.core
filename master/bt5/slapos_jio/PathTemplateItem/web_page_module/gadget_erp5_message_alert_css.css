@@ -1,0 +1,135 @@
+.message {
+  position: fixed;
+  top: 60pt;
+}
+
+.alert {
+  position: relative;
+  padding: .75rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: .25rem;
+}
+
+.alert-pointer {
+  cursor: pointer;
+}
+
+.alert-info {
+  color: #0c5460;
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+}
+
+.alert-warning {
+  color: #856404;
+  background-color: #fff3cd;
+  border-color: #ffeeba;
+}
+
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.alert-closable .close, .alert-closable .close {
+  position: relative;
+  top: -2px;
+  right: -15px;
+  color: inherit;
+}
+
+.close {
+  float: right;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1;
+  color: #000;
+  text-shadow: 0 1px 0 #fff;
+  filter: alpha(opacity=20);
+  opacity: .2;
+}
+
+.close:focus, .close:hover {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+  filter: alpha(opacity=50);
+  opacity: .5;
+}
+
+.alert > h2 {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.alert p {
+  white-space: pre-wrap;
+  display: block;
+  word-wrap: break-word;
+}
+
+.alert-question-btn {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.alert-question-btn button:first-child {
+  margin-right: 10px;
+}
+
+.alert-btn {
+  display: inline-block;
+  font-weight: 400;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: 0.275rem .75rem;
+  font-size: 1rem;
+  line-height: 1.1;
+  border-radius: .25rem;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.alert-btn-accept {
+  color: #28a745;
+  background-color: transparent;
+  background-image: none;
+  border-color: #28a745;
+}
+
+.alert-btn-accept:hover {
+  color: #fff;
+  background-color: #28a745;
+  background-image: none;
+  border-color: #28a745;
+  text-decoration: none;
+}
+
+.alert-btn-accept:focus {
+  box-shadow: 0 0 0 0.2rem rgba(40,167,69,.5);
+}
+
+.alert-btn-reject {
+  color: #dc3545;
+  background-color: transparent;
+  background-image: none;
+  border-color: #dc3545;
+}
+
+.alert-btn-reject:hover {
+  color: #fff;
+  background-color: #dc3545;
+  border-color: #dc3545;
+  text-decoration: none;
+}
+
+.alert-btn-reject:focus{
+  box-shadow: 0 0 0 0.2rem rgba(220,53,69,.5);
+}

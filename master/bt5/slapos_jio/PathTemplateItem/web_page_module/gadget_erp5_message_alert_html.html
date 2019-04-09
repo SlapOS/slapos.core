@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Message Alert</title>
+
+    <script src="rsvp.js"></script>
+    <script src="renderjs.js"></script>
+    <script src="handlebars.js"></script>
+    <script src="gadget_erp5_message_alert.js"></script>
+    <link href="gadget_erp5_message_alert.css" rel="stylesheet" type="text/css"/>
+
+    <script id="alert-message-template" type="text/x-handlebars-template">
+      <div class="alert alert-{{type}} {{#if clickable}}alert-pointer{{/if}} {{#if closable}}alert-closable{{/if}}">
+        {{#if closable}}
+        <span href="#" class="close">&times;</span>
+        {{/if}}
+        {{#if title}}
+        <h2>{{title}}</h2>
+        {{/if}}
+        <p>{{message}}</p>
+        {{#if question}}
+        <div class="alert-question-btn">
+          <button type="button" class="alert-btn alert-btn-accept">Accept</button>
+          <button type="button" class="alert-btn alert-btn-reject">Reject</button>
+        </div>
+        {{/if}}
+      </div>
+    </script>
+  </head>
+
+  <body>
+  </body>
+</html>

@@ -34,6 +34,8 @@ import shutil
 import hashlib
 import socket
 import errno
+import time
+import multiprocessing
 from contextlib import closing
 
 from slapos.slap.standalone import StandaloneSlapOS
@@ -337,3 +339,63 @@ class TestSlapOSStandaloneInstance(SlapOSStandaloneTestCase):
     self.standalone.waitForReport()
     self.assertFalse(
         os.path.exists(os.path.join(parition_directory, 'instance.check')))
+
+
+class TestAutoShutdown(unittest.TestCase):
+  def setUp(self):
+    checkPortIsFree()
+    self.working_dir = tempfile.mkdtemp(prefix=__name__)
+    self.addCleanup(shutil.rmtree, self.working_dir)
+
+    def f(working_dir, q):
+      """This process will start a StandaloneSlapOS and execute action put in q.
+      """
+      standalone = StandaloneSlapOS(
+          working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
+      standalone.format(1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
+      q.put("ready")
+      command = q.get()
+      if command == "detach":
+        standalone.detach()
+      for i in range(100):
+        time.sleep(.1)
+
+    self.q = multiprocessing.Queue()
+    # Start the subprocess and wait for it to start its StandaloneSlapOS.
+    self.p = multiprocessing.Process(target=f, args=(self.working_dir, self.q))
+    self.p.start()
+    self.assertEqual("ready", self.q.get())
+
+  def test_autoshutdown(self):
+    self.q.put("nothing")
+    # the slapos is usable
+    # TODO
+    import pdb
+    pdb.set_trace()
+
+    # terminate the process
+    self.p.terminate()
+    self.p.join()
+    self.assertFalse(self.p.is_alive())
+
+    # the slapos is terminated
+    # TODO
+
+  def test_detach(self):
+    self.q.put("detach")
+
+    # slapos instance is usable
+    # TODO
+
+    # terminate the process
+    self.p.terminate()
+    self.p.join()
+    self.assertFalse(self.p.is_alive())
+
+    # the slapos is not terminated
+    # TODO
+    # terminate it
+    # TODO
+
+  # TODO:
+  # test_reattach

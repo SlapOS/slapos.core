@@ -111,6 +111,7 @@ class SupervisorConfigWriter(ConfigWriter):
     """Iterator on parts of formatted config.
     """
     standalone_slapos = self._standalone_slapos
+    pid = os.getpid()
     yield textwrap.dedent(
         """
         [unix_http_server]
@@ -129,6 +130,11 @@ class SupervisorConfigWriter(ConfigWriter):
 
         [program:slapos-proxy]
         command = slapos proxy start --cfg {standalone_slapos._slapos_config} --verbose
+        startretries = 0
+        startsecs = 0
+
+        [program:standalone-auto-shutdown]
+        command = python {standalone_slapos._auto_shutdown_script} {pid} {standalone_slapos._supervisor_config}
         startretries = 0
         startsecs = 0
 
@@ -190,6 +196,46 @@ class SlapOSCommandWriter(ConfigWriter):
               exec slapos "$@"
       """.format(**locals())))
     os.chmod(path, 0o755)
+
+
+class AutoShutownScriptWriter(ConfigWriter):
+  """Write an etc/standalone_auto_shutdown.py script.
+  """
+
+  def writeConfig(self, path):
+    with open(path, 'w') as f:
+      f.write(
+          textwrap.dedent(
+              """\
+          #!/usr/bin/env python
+          from __future__ import print_function
+          import os
+          import sys
+          import time
+          import subprocess
+
+          monitored_pid = int(sys.argv[1])
+          config_file = sys.argv[2]
+
+          def isAlive(pid):
+            try:
+              os.kill(pid, 0)
+            except OSError:
+              return False
+            return True
+
+          print ("Watching PID", monitored_pid)
+          while True:
+            is_alive = isAlive(monitored_pid)
+            if not is_alive:
+              print ("Process is no longer alive, terminating")
+              subprocess.call([
+                    'supervisorctl', '-c', config_file,
+                    'start', 'slapos-node-shutdown-instance', ])
+              time.sleep(1)
+              subprocess.call(['supervisorctl', '-c', config_file, 'shutdown'])
+            time.sleep(1)
+          """))
 
 
 @zope.interface.implementer(ISupply, IRequester)
@@ -295,6 +341,7 @@ class StandaloneSlapOS(object):
     ensureDirectoryExists(etc_directory)
     self._supervisor_config = os.path.join(etc_directory, 'supervisord.conf')
     self._slapos_config = os.path.join(etc_directory, 'slapos.cfg')
+    self._auto_shutdown_script = os.path.join(etc_directory, 'standalone_auto_shutdown.py')
 
     var_directory = os.path.join(base_directory, 'var')
     ensureDirectoryExists(var_directory)
@@ -322,6 +369,7 @@ class StandaloneSlapOS(object):
     SupervisorConfigWriter(self).writeConfig(self._supervisor_config)
     SlapOSConfigWriter(self).writeConfig(self._slapos_config)
     SlapOSCommandWriter(self).writeConfig(self._slapos_bin)
+    AutoShutownScriptWriter(self).writeConfig(self._auto_shutdown_script)
 
     self.start()
 
@@ -540,6 +588,20 @@ class StandaloneSlapOS(object):
         return
       time.sleep(i * 0.01)
     raise RuntimeError("Shutdown failed")
+
+  def detach(self):
+    """By default, StandaloneSlapOS will automatically stop when the process which
+    started it is no longer alive, calling `detach` disable this behavior. After
+    detaching, the process will no longer be watched.
+    """
+    with self.system_supervisor_rpc as supervisor:
+      supervisor.stopProcess("standalone-auto-shutdown", True)
+
+  def reattach(self):
+    """Reattach a detached StandaloneSlapOS
+    """
+    # TODO: update command with new PID and restart
+    raise NotImplementedError()
 
   def waitForSoftware(self, max_retry=0, debug=False, error_lines=30):
     """Synchronously install or uninstall all softwares previously supplied/removed.

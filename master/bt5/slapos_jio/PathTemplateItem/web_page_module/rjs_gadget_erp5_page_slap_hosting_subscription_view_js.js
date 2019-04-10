@@ -147,6 +147,10 @@
           ], monitor_scope_list = [['', ''],
                                 ['Enabled', 'enable'],
                                 ['Disabled', 'disable']
+          ], upgrade_scope_list = [['', ''],
+                                ['Auto Upgrade', 'auto'],
+                                ['Ask Confirmation before Upgrade', 'ask_confirmation'],
+                                ['Never Upgrade', 'never']
           ], ticket_column_list = [
             ['title', 'Title'],
             ['reference', 'Reference'],
@@ -291,6 +295,18 @@
                       "hidden": 0,
                       "type": "ListField"
                     },
+                    "my_upgrade_scope": {
+                      "description": "",
+                      "title": "Upgrade",
+                      "default": gadget.state.doc.upgrade_scope,
+                      "css_class": "",
+                      "items": upgrade_scope_list,
+                      "required": 1,
+                      "editable": 1,
+                      "key": "upgrade_scope",
+                      "hidden": 0,
+                      "type": "ListField"
+                    },
                     "connection_listbox": {
                       "column_list": connection_column_list,
                       "show_anchor": 0,
@@ -374,7 +390,7 @@
 
                   ], [
                     "right",
-                    [["my_slap_state_title"],  ['my_monitoring_status'], ['my_monitor_scope']]
+                    [["my_slap_state_title"],  ['my_monitoring_status'], ['my_monitor_scope'], ['my_upgrade_scope']]
 
                   ], ["center",
                       [["my_source_reference"], ["my_url_string"]]

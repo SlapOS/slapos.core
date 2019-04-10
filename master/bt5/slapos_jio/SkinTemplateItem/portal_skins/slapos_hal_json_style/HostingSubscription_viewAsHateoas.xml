@@ -106,6 +106,7 @@
                         <string>my_root_slave</string>
                         <string>my_monitor_scope</string>
                         <string>my_connection_parameter_list</string>
+                        <string>my_upgrade_scope</string>
                       </list>
                     </value>
                 </item>

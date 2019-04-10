@@ -119,6 +119,10 @@
             monitor_scope_list = [['', ''],
                                 ['Enabled', 'enable'],
                                 ['Disabled', 'disable']],
+            upgrade_scope_list = [['', ''],
+                                ['Auto Upgrade', 'auto'],
+                                ['Ask Confirmation before Upgrade', 'ask_confirmation'],
+                                ['Never Upgrade', 'never']],
             allocation_scope_list = [['', ''],
                                 ['Closed for maintenance', 'close/maintenance'],
                                 ['Closed for termination', 'close/termination'],
@@ -209,6 +213,18 @@
                   "key": "subject_list",
                   "hidden": (gadget.state.doc.allocation_scope === "open/friend") ? 0 : 1,
                   "type": "LinesField"
+                },
+                "my_upgrade_scope": {
+                  "description": "",
+                  "title": "Upgrade",
+                  "default": gadget.state.doc.upgrade_scope,
+                  "css_class": "",
+                  "items": upgrade_scope_list,
+                  "required": 1,
+                  "editable": 1,
+                  "key": "upgrade_scope",
+                  "hidden": 0,
+                  "type": "ListField"
                 },
                 "my_source": {
                   "description": "The name of a document in ERP5",
@@ -301,7 +317,8 @@
               ], [
                 "right",
                 [["my_source"], ["my_source_project"], ["my_monitor_scope"],
-                 ["my_allocation_scope"], ["my_subject_list"]]
+                 ["my_upgrade_scope"], ["my_allocation_scope"],
+                 ["my_subject_list"]]
               ], [
                 "bottom",
                 [["ticket_listbox"], ["listbox"]]

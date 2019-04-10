@@ -25,4 +25,5 @@ access_token.validate()
 request = context.REQUEST
 response = request.RESPONSE
 response.setHeader('Content-Type', "application/json")
-return json.dumps({'access_token': access_token.getId()})
+return json.dumps({'access_token': access_token.getId(),
+                   'command_line': "slapos configure client"})

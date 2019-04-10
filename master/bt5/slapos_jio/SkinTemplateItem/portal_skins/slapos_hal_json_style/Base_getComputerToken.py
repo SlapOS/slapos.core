@@ -15,7 +15,18 @@ access_token = portal.access_token_module.newContent(
 )
 access_token.validate()
 
+
+slapos_master_api = web_site.getLayoutProperty(
+    "configuration_slapos_master_api", "https://slap.vifib.com")
+
+computer_install_command_line = web_site.getLayoutProperty(
+  "configuration_computer_install_command_line",
+  "wget https://deploy.erp5.net/slapos ; bash slapos")
+
 request = context.REQUEST
 response = request.RESPONSE
 response.setHeader('Content-Type', "application/json")
-return json.dumps({'access_token': access_token.getId()})
+return json.dumps({'access_token': access_token.getId(),
+                   'command_line': computer_install_command_line,
+                   'slapos_master_web': web_site.absolute_url(),
+                   'slapos_master_api': slapos_master_api})

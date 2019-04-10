@@ -21,6 +21,7 @@
     // Acquired methods
     /////////////////////////////////////////////////////////////////
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
+    .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("translateHtml", "translateHtml")
     .declareAcquiredMethod("redirect", "redirect")
     .declareAcquiredMethod("updateHeader", "updateHeader")
@@ -228,6 +229,11 @@
                 }
               });
             });
+        })
+        .push(function () {
+          return gadget.updatePanel({
+            jio_key: false
+          });
         })
         .push(function () {
           return gadget.updateHeader({

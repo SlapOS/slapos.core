@@ -5,6 +5,7 @@
 
   rJS(window)
     .declareAcquiredMethod("updateHeader", "updateHeader")
+    .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("redirect", "redirect")
     .declareAcquiredMethod("reload", "reload")
     .declareAcquiredMethod("getSetting", "getSetting")
@@ -115,6 +116,11 @@
                 [["listbox"]]
               ]]
             }
+          });
+        })
+        .push(function () {
+          return gadget.updatePanel({
+            jio_key: "computer_module"
           });
         })
         .push(function (result) {

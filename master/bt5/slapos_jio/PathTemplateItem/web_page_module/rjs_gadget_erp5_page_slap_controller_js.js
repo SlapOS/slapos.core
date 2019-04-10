@@ -10,6 +10,7 @@
     /////////////////////////////////////////////////////////////////
     .declareAcquiredMethod("jio_get", "jio_get")
     .declareAcquiredMethod("jio_put", "jio_put")
+    .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("redirect", "redirect")
 
     /////////////////////////////////////////////////////////////////
@@ -82,6 +83,9 @@
             doc: gadget.state.doc,
             editable: gadget.state.editable
           });
+        })
+        .push(function () {
+          return gadget.updatePanel({jio_key: gadget.state.jio_key});
         });
     });
 

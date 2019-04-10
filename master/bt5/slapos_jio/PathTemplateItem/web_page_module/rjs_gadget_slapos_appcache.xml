@@ -379,6 +379,9 @@ gadget_erp5_panel_shortcut.html\n
 gadget_erp5_panel_shortcut.js\n
 gadget_erp5_pt_form_slapos_index.html\n
 gadget_erp5_pt_form_slapos_index.js\n
+gadget_erp5_attention_point.html\n
+gadget_erp5_attention_point.css\n
+gadget_erp5_attention_point.js\n
 gadget_slapos_computer_map.html\n
 gadget_slapos_computer_map.js\n
 gadget_slapos_computer_status.css\n
@@ -555,7 +558,7 @@ NETWORK:\n
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>972.38681.356.33024</string> </value>
+                <value> <string>974.29171.1584.24746</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -573,7 +576,7 @@ NETWORK:\n
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1552960501.44</float>
+                        <float>1554923957.36</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

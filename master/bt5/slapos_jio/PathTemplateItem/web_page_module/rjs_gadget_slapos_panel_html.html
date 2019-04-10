@@ -24,6 +24,9 @@
       </div>
     </script>
 
+    <script id="panel-template-warning-link" type="text/x-handlebars-template">
+      <li><a href="#" id="attention-point-link" class="ui-btn-icon-notext ui-icon-warning attention-point-link">Warnings ({{amount}})</a></li>
+    </script>
     <script id="panel-template-body" type="text/x-handlebars-template">
       <div class="ui-content">
         <ul data-role="listview" class="ui-listview" data-enhanced="true">
@@ -47,6 +50,10 @@
         <div data-gadget-url="gadget_erp5_panel_shortcut.html"
                data-gadget-scope="erp5_panel_shortcut"
                data-gadget-sandbox="public"></div>
+        <dl></dl>
+        <ul data-role="listview" class="ui-listview ul-attention-point" data-enhanced="true">
+          <li></li>
+        </ul>
       </div>
     </script>
     <!-- custom script -->

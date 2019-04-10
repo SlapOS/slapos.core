@@ -14,6 +14,9 @@
                          .innerHTML),
     panel_template_body = Handlebars.compile(template_element
                          .getElementById("panel-template-body")
+                         .innerHTML),
+    panel_template_warning_link = Handlebars.compile(template_element
+                         .getElementById("panel-template-warning-link")
                          .innerHTML);
 
   gadget_klass
@@ -25,7 +28,10 @@
     // acquired method
     //////////////////////////////////////////////
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
+    .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("translateHtml", "translateHtml")
+    .declareAcquiredMethod("translate", "translate")
+    .declareAcquiredMethod("renderEditorPanel", "renderEditorPanel")
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("redirect", "redirect")
 
@@ -44,28 +50,10 @@
     })
 
     .declareMethod('render', function (options) {
-      var erp5_document = options.erp5_document,
-        workflow_list,
-        view_list;
-      if (erp5_document !== undefined) {
-        workflow_list = erp5_document._links.action_workflow || [];
-        view_list = erp5_document._links.action_object_view || [];
-        if (workflow_list.constructor !== Array) {
-          workflow_list = [workflow_list];
-        }
-        if (view_list.constructor !== Array) {
-          view_list = [view_list];
-        }
-        // Prevent has much as possible to modify the DOM panel
-        // stateChange prefer to compare strings
-        workflow_list = JSON.stringify(workflow_list);
-        view_list = JSON.stringify(view_list);
-      }
       return this.changeState({
-        workflow_list: workflow_list,
-        view_list: view_list,
         global: true,
-        editable: options.editable
+        editable: true,
+        jio_key: options.jio_key
       });
     })
 
@@ -73,6 +61,7 @@
       var context = this,
         gadget = this,
         queue = new RSVP.Queue(),
+        jio_key = modification_dict.jio_key,
         tmp_element;
 
       if (modification_dict.hasOwnProperty("visible")) {
@@ -139,70 +128,12 @@
             return context.listenResize();
           });
       }
-
-      if ((this.state.global === true) &&
-          (modification_dict.hasOwnProperty("desktop") ||
-          modification_dict.hasOwnProperty("editable") ||
-          modification_dict.hasOwnProperty("workflow_list") ||
-          modification_dict.hasOwnProperty("view_list"))) {
-        if (!(this.state.desktop && (this.state.view_list !== undefined))) {
-          queue
-            .push(function () {
-              gadget.element.querySelector("dl").textContent = '';
-            });
-        } else {
-          queue
-            .push(function () {
-              var i = 0,
-                promise_list = [],
-                workflow_list = JSON.parse(gadget.state.workflow_list),
-                view_list = JSON.parse(gadget.state.view_list);
-
-              for (i = 0; i < workflow_list.length; i += 1) {
-                promise_list.push(
-                  gadget.getUrlFor({
-                    command: 'change',
-                    options: {
-                      view: workflow_list[i].href,
-                      page: undefined
-                    }
-                  })
-                );
-              }
-              for (i = 0; i < view_list.length; i += 1) {
-                promise_list.push(
-                  gadget.getUrlFor({
-                    command: 'change',
-                    options: {
-                      view: view_list[i].href,
-                      page: undefined
-                    }
-                  })
-                );
-              }
-              return RSVP.all(promise_list);
-            })
-            .push(function (result_list) {
-              var i,
-                result_workflow_list = [],
-                result_view_list = [],
-                workflow_list = JSON.parse(gadget.state.workflow_list),
-                view_list = JSON.parse(gadget.state.view_list);
-
-              for (i = 0; i < workflow_list.length; i += 1) {
-                result_workflow_list.push({
-                  title: workflow_list[i].title,
-                  href: result_list[i]
-                });
-              }
-              for (i = 0; i < view_list.length; i += 1) {
-                result_view_list.push({
-                  title: view_list[i].title,
-                  href: result_list[i + workflow_list.length]
-                });
-              }
-            });
-        }
+      // Check for Alerts to pop
+      if (!(jio_key === undefined || jio_key === null)) {
+        queue
+          .push(function () {
+            return context.calculateMyAttentionPointList(jio_key, false);
+          });
       }
 
       return queue;
@@ -215,6 +146,10 @@
       if ((evt.target.nodeType === Node.ELEMENT_NODE) &&
           (evt.target.tagName === 'BUTTON')) {
         return this.toggle();
+      }
+      if (this.element.querySelector('a[id="attention-point-link"]') === evt.target) {
+        evt.preventDefault();
+        return this.calculateMyAttentionPointList(this.state.jio_key, true);
       }
     }, false, false)
 
@@ -246,34 +181,52 @@
       // Typing a search query should not modify the header status
       return;
     })
-    .onEvent('submit', function () {
-      var gadget = this;
 
-      return gadget.getDeclaredGadget("erp5_searchfield")
-        .push(function (search_gadget) {
-          return search_gadget.getContent();
+    .declareJob("calculateMyAttentionPointList", function (jio_key, force_open) {
+      var context = this,
+        queue = new RSVP.Queue(),
+        attention_point_ul = document.querySelector('ul.ul-attention-point'),
+        seen_attention_point_dict = JSON.parse(window.sessionStorage.getItem('seen_attention_point_dict') || "{}");
+      return queue
+        .push(function () {
+          return context.getSetting('hateoas_url');
         })
-        .push(function (data) {
-          var options = {
-            page: "search"
-          };
-          if (data.search) {
-            options.extended_search = data.search;
+        .push(function (hateoas_url) {
+          if (jio_key === false || jio_key === undefined || jio_key === null) {
+            return [[], 'No Alert'];
           }
-          // Remove focus from the search field
-          document.activeElement.blur();
-          return gadget.redirect({command: 'display', options: options});
+          return RSVP.all([context.jio_getAttachment(
+            jio_key,
+            hateoas_url + jio_key + '/Base_getAttentionPointList'
+          ),
+          context.translate('No Alert!')
+          ]);
+        })
+        .push(function (result_list) {
+          var attention_point_list = result_list[0],
+            no_alert_caption = result_list[1];
+          if (attention_point_list.length > 0) {
+            if (!Boolean(document.querySelector('#attention-point-link'))) {
+              attention_point_ul.innerHTML = panel_template_warning_link({
+                amount: attention_point_list.length
+              });
+            }
+            if (force_open || (JSON.stringify(seen_attention_point_dict[jio_key]) != JSON.stringify(attention_point_list))) {
+              seen_attention_point_dict[jio_key] = attention_point_list;
+              window.sessionStorage.setItem('seen_attention_point_dict', JSON.stringify(seen_attention_point_dict));
+              return context.renderEditorPanel("gadget_erp5_attention_point.html", {
+                attention_point_list: attention_point_list
+              });
+            }
+          } else {
+            attention_point_ul.innerHTML = "<li></li>";
+            if (force_open) {
+              return context.renderEditorPanel("gadget_erp5_attention_point.html", {
+                attention_point_list: [[no_alert_caption, 'no-alert']]
+              });
+            }
+          }
         });
-
-    }, false, true)
-
-    .onEvent('blur', function (evt) {
-      // XXX Horrible hack to clear the search when focus is lost
-      // This does not follow renderJS design, as a gadget should not touch
-      // another gadget content
-      if (evt.target.type === 'search') {
-        evt.target.value = "";
-      }
-    }, true, false);
+    });
 
 }(window, document, rJS, Handlebars, RSVP, Node, loopEventListener));

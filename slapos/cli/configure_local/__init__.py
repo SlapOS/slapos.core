@@ -246,13 +246,16 @@ def do_configure(args, fetch_config_func, logger):
     configp = fetch_config_func(args)
     conf = FormatConfig(logger=logger)
     conf.mergeConfig(args, configp)
+    # The First thing we have to do here is to generate slapproxy conf
+    # for supervisord, then supervisord certainly start slapproxy.
+    proxy_configuration_file = _generateSlaposProxyConfigurationFile(conf)
+    conf.proxy_configuration_file = proxy_configuration_file
+    _addProxyToSupervisor(conf)
+    # Do the rest
     slapgrid = create_slapgrid_object(conf.__dict__, logger)
     createPrivateDirectory(os.path.join(conf.slapos_buildout_directory, 'log'))
     _runFormat(conf.slapos_buildout_directory)
     slapgrid.checkEnvironmentAndCreateStructure()
-    proxy_configuration_file = _generateSlaposProxyConfigurationFile(conf)
-    conf.proxy_configuration_file = proxy_configuration_file
-    _addProxyToSupervisor(conf)
     home_folder_path = os.environ['HOME']
     createPrivateDirectory("%s/.slapos" % home_folder_path)
     slapos_client_cfg_path = '%s/.slapos/slapos-client.cfg' % home_folder_path

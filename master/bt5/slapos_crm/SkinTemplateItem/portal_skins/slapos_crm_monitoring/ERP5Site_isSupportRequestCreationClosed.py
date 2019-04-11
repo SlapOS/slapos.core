@@ -1,7 +1,7 @@
 # HARDCODED LIMIT TO BE MOVED TO GLOBAL PREFERENCES
-limit = 5
-
 portal = context.getPortalObject()
+
+limit = portal.portal_preferences.getPreferredSupportRequestCreationLimit(5)
 
 kw['limit'] = limit
 kw['portal_type'] = 'Support Request'

@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.4.22 (2019-04-11)
+-------------------
+
+ * slapproxy: make sure slapproxy starts after "slapos configure local"
+
 1.4.21 (2019-03-26)
 -------------------
 

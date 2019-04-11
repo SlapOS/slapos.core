@@ -3110,6 +3110,7 @@ class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
     )
     self.assertNotEqual(first_event, None)
 
+    self.tic()
     self.assertEqual(
       support_request.getFollowUpRelatedList(),
       [first_event.getRelativeUrl()])
@@ -3162,6 +3163,7 @@ class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
 
     self.assertNotEqual(another_first_event, None)
 
+    self.tic()
     self.assertEqual(
       another_support_request.getFollowUpRelatedList(),
       [another_first_event.getRelativeUrl()])

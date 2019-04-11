@@ -147,7 +147,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     server.edit(
         allocation_scope='open/subscription')
     self.assertEqual('open/subscription', server.getAllocationScope())
-    self.assertEqual('open', server.getCapacityScope())
+    self.assertEqual('close', server.getCapacityScope())
     server.edit(capacity_scope='open')
     self.tic()
 

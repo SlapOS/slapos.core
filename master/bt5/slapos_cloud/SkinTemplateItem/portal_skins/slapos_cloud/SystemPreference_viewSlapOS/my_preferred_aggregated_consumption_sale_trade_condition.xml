@@ -16,7 +16,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>my_preferred_aggregated_subscription_sale_trade_condition</string> </value>
+            <value> <string>my_preferred_aggregated_consumption_sale_trade_condition</string> </value>
         </item>
         <item>
             <key> <string>message_values</string> </key>
@@ -85,7 +85,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Preferred Aggregated Subscription Sale Trade Condition</string> </value>
+                    <value> <string>Preferred Aggregated Consumption Sale Trade Condition</string> </value>
                 </item>
               </dictionary>
             </value>

@@ -81,6 +81,9 @@
                     <key> <string>center</string> </key>
                     <value>
                       <list>
+                        <string>my_preferred_aggregated_sale_trade_condition</string>
+                        <string>my_preferred_aggregated_subscription_sale_trade_condition</string>
+                        <string>my_preferred_aggregated_consumption_sale_trade_condition</string>
                         <string>my_preferred_rest_api_token_server_url</string>
                       </list>
                     </value>
@@ -101,8 +104,6 @@
                         <string>my_preferred_instance_destroy_movement_template</string>
                         <string>my_preferred_instance_setup_movement_template</string>
                         <string>my_preferred_instance_delivery_template</string>
-                        <string>my_preferred_aggregated_sale_trade_condition</string>
-                        <string>my_preferred_aggregated_subscription_sale_trade_condition</string>
                         <string>my_preferred_hateoas_url</string>
                         <string>my_preferred_regularisation_request_resource</string>
                         <string>my_preferred_regularisation_request_template</string>

@@ -220,6 +220,8 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     try:
       cls.logger.debug("Starting")
       cls.slap.start()
+      cls.logger.debug("Formatting to remove old partitions XXX should not be needed because we delete ...")
+      cls.slap.format(0, cls._ipv4_address, cls._ipv6_address)
       cls.logger.debug("Formatting with %s partitions", cls.partition_count)
       cls.slap.format(
           cls.partition_count, cls._ipv4_address, cls._ipv6_address,
@@ -283,6 +285,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
         cp for cp in cls.slap.computer.getComputerPartitionList()
         if cp.getState() != 'destroyed'
     ]
+    # XXX how about shared instances ???
     cls.logger.critical(
         "The following partitions were not cleaned up: %s",
         [cp.getId() for cp in leaked_partitions])

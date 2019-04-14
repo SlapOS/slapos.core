@@ -132,12 +132,13 @@ class SupervisorConfigWriter(ConfigWriter):
         command = slapos proxy start --cfg {standalone_slapos._slapos_config} --verbose
         startretries = 0
         startsecs = 0
+        redirect_stderr = true
 
         [program:standalone-auto-shutdown]
-        command = python {standalone_slapos._auto_shutdown_script} {pid} {standalone_slapos._supervisor_config}
+        command = python {standalone_slapos._auto_shutdown_script} {pid} {standalone_slapos._slapos_config} {standalone_slapos._supervisor_config}
         startretries = 0
         startsecs = 0
-
+        redirect_stderr = true
         """.format(**locals()))
 
     for program, program_config in standalone_slapos._slapos_commands.items():
@@ -149,9 +150,18 @@ class SupervisorConfigWriter(ConfigWriter):
               'stdout_logfile', 'AUTO').format(self=standalone_slapos))
 
   def writeConfig(self, path):
-    with open(path, 'w') as f:
+    if os.path.exists(path):
+      os.remove(path)
+    tmp_path = "{}-{}".format(path, os.getpid())
+    with open(tmp_path, 'w') as f:
       for part in self._getSupervisorConfigParts():
         f.write(part)
+      # ensure this is written to disk, for "reattach" scenario where we tell
+      # supervisor to re-read its config.
+      f.flush()
+      os.fsync(f.fileno())
+    os.rename(tmp_path, path)
+    self._standalone_slapos._logger.debug("updated configfile %s !", os.getpid())
 
 
 class SlapOSConfigWriter(ConfigWriter):
@@ -200,6 +210,10 @@ class SlapOSCommandWriter(ConfigWriter):
 
 class AutoShutownScriptWriter(ConfigWriter):
   """Write an etc/standalone_auto_shutdown.py script.
+
+  This script is responisble for watching that the process to which this
+  StandaloneSlapOS is attached is still running. If process is no longer
+  running, this script stops the StandaloneSlapOS.
   """
 
   def writeConfig(self, path):
@@ -213,9 +227,17 @@ class AutoShutownScriptWriter(ConfigWriter):
           import sys
           import time
           import subprocess
+          from datetime import datetime
 
           monitored_pid = int(sys.argv[1])
-          config_file = sys.argv[2]
+          slapos_config_file = sys.argv[2]
+          supervisor_config_file = sys.argv[3]
+
+          import signal
+          def sigterm_handler(_signo, _stack_frame):
+              print (str(datetime.now()), os.getpid(), "Got signal", _signo)
+              sys.exit(0)
+          signal.signal(signal.SIGTERM, sigterm_handler)
 
           def isAlive(pid):
             try:
@@ -224,16 +246,16 @@ class AutoShutownScriptWriter(ConfigWriter):
               return False
             return True
 
-          print ("Watching PID", monitored_pid)
+          print (str(datetime.now()), os.getpid(), "Watching PID", monitored_pid)
           while True:
-            is_alive = isAlive(monitored_pid)
-            if not is_alive:
-              print ("Process is no longer alive, terminating")
-              subprocess.call([
-                    'supervisorctl', '-c', config_file,
-                    'start', 'slapos-node-shutdown-instance', ])
-              time.sleep(1)
-              subprocess.call(['supervisorctl', '-c', config_file, 'shutdown'])
+            print (str(datetime.now()), os.getpid(), "loop watching", monitored_pid)
+            if not isAlive(monitored_pid):
+              print (str(datetime.now()), os.getpid(), "Process is no longer alive, terminating")
+              subprocess.call(['slapos', 'node', 'stop', '--cfg', slapos_config_file, 'all'])
+              subprocess.call(['slapos', 'node', 'supervisorctl', '--cfg', slapos_config_file, 'shutdown'])
+              subprocess.call(['supervisorctl', '-c', supervisor_config_file, 'stop', 'all'])
+              subprocess.call(['supervisorctl', '-c', supervisor_config_file, 'shutdown'])
+              break
             time.sleep(1)
           """))
 
@@ -299,17 +321,13 @@ class StandaloneSlapOS(object):
                 'log_file':
                     '{self._log_directory}/slapos-node-report.log',
             },
-        'slapos-node-shutdown-instance':
-            {
-                'command':
-                    'slapos node supervisorctl --cfg {self._slapos_config} shutdown',
-            },
     }
     self._computer_id = computer_id
     self._slap = slap()
     self._slap.initializeConnection(self._master_url)
 
     self._initBaseDirectory()
+
 
   def _initBaseDirectory(self):
     """Create the directory after checking it's not too deep.
@@ -341,7 +359,8 @@ class StandaloneSlapOS(object):
     ensureDirectoryExists(etc_directory)
     self._supervisor_config = os.path.join(etc_directory, 'supervisord.conf')
     self._slapos_config = os.path.join(etc_directory, 'slapos.cfg')
-    self._auto_shutdown_script = os.path.join(etc_directory, 'standalone_auto_shutdown.py')
+    self._auto_shutdown_script = os.path.join(
+        etc_directory, 'standalone_auto_shutdown.py')
 
     var_directory = os.path.join(base_directory, 'var')
     ensureDirectoryExists(var_directory)
@@ -365,6 +384,18 @@ class StandaloneSlapOS(object):
     self._report_pid = os.path.join(run_directory, 'slapos-node-report.pid')
 
     self._supervisor_socket = os.path.join(run_directory, 'supervisord.sock')
+
+    # debug
+    handler = logging.FileHandler(
+        os.path.join(self._log_directory, 'standalone-%s.log' % os.getpid()))
+    handler.setFormatter(
+        logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    self._logger.addHandler(handler)
+    self._logger.setLevel(logging.DEBUG)
+
+    self._logger.propagate = True
+    self._logger.debug("Go !")
 
     SupervisorConfigWriter(self).writeConfig(self._supervisor_config)
     SlapOSConfigWriter(self).writeConfig(self._slapos_config)
@@ -553,8 +584,12 @@ class StandaloneSlapOS(object):
     If system was stopped, it will start partitions.
     If system was already running, this does not restart partitions.
     """
+    self._logger.debug("Starting StandaloneSlapOS in %s", self._base_directory)
     self._ensureSupervisordStarted()
     self._ensureSlapOSAvailable()
+    self._logger.info(
+        "Started StandaloneSlapOS in %s, attached to %s", self._base_directory,
+        os.getpid())
 
   def stop(self):
     """Stops all services.
@@ -562,32 +597,36 @@ class StandaloneSlapOS(object):
     This methods blocks until services are stopped or a timeout is reached.
 
     Error cases:
-      * `RuntimeError` when unexpected error occurs trying to stop supervisors.
+      * `Exception` when unexpected error occurs trying to stop supervisors.
     """
-    self._logger.debug("shutting down")
+    self._logger.info("shutting down")
 
     # shutdown slapos node instance supervisor, if it has been created.
+    instance_process_alive = []
     if os.path.exists(os.path.join(self._instance_root, 'etc',
                                    'supervisord.conf')):
       try:
-        self._runSlapOSCommand('slapos-node-shutdown-instance')
+        with self.instance_supervisor_rpc as instance_supervisor:
+          instance_supervisor_process = psutil.Process(
+              instance_supervisor.getPID())
+          instance_supervisor.stopAllProcesses()
+          instance_supervisor.shutdown()
+          # shutdown returns before process is completly stopped,
+          # so wait for process.
+          _, instance_process_alive = psutil.wait_procs(
+              [instance_supervisor_process], timeout=10)
       except BaseException as e:
-        self._logger.debug("Ignoring exception while stopping instances: %s", e)
+        self._logger.info("Ignoring exception while stopping instances: %s", e)
 
-    with self.system_supervisor_rpc as supervisor:
-      supervisor.shutdown()
-    # wait for slap proxy to be stopped
-    for i in range(2**8):
-      if self._isSlapOSAvailable():
-        time.sleep(i * 0.01)
-      else:
-        break
-    # wait for supervisor to remove its pid file
-    for i in range(2**8):
-      if not os.path.exists(self._supervisor_pid):
-        return
-      time.sleep(i * 0.01)
-    raise RuntimeError("Shutdown failed")
+    with self.system_supervisor_rpc as system_supervisor:
+      system_supervisor_process = psutil.Process(system_supervisor.getPID())
+      system_supervisor.stopAllProcesses()
+      system_supervisor.shutdown()
+    _, alive = psutil.wait_procs([system_supervisor_process], timeout=10)
+    if alive + instance_process_alive:
+      raise RuntimeError(
+          "Could not terminate some processes: {}".format(
+              alive + instance_process_alive))
 
   def detach(self):
     """By default, StandaloneSlapOS will automatically stop when the process which
@@ -595,13 +634,42 @@ class StandaloneSlapOS(object):
     detaching, the process will no longer be watched.
     """
     with self.system_supervisor_rpc as supervisor:
-      supervisor.stopProcess("standalone-auto-shutdown", True)
+      orig_state = state = supervisor.getProcessInfo('standalone-auto-shutdown')
+      self._logger.debug("detaching, standalone-auto-shutdown state: %s", state)
+      if state['statename'] in ('RUNNING', 'STARTING'):
+        self._logger.debug("stopping standalone-auto-shutdown")
+        supervisor.stopProcess('standalone-auto-shutdown')
+        state = supervisor.getProcessInfo('standalone-auto-shutdown')
+        self._logger.debug("after stop: standalone-auto-shutdown state: %s", state)
+        try:
+          proc =psutil.Process(orig_state['pid'])
+          self._logger.debug("ahah proc is %s", proc)
+        except:
+          self._logger.exception("psutil of standalone-auto-shutdown")
 
   def reattach(self):
     """Reattach a detached StandaloneSlapOS
     """
-    # TODO: update command with new PID and restart
-    raise NotImplementedError()
+    # standalone-auto-shutdown should have changed, because config file was re-generated
+    # for a new pid.
+    self._logger.info("reattaching to %s", os.getpid())
+    with self.system_supervisor_rpc as supervisor:
+      state = supervisor.getProcessInfo('standalone-auto-shutdown')
+      self._logger.debug(
+          "reattaching, standalone-auto-shutdown state: %s", state)
+      if state['statename'] in ('RUNNING', 'STARTING'):
+        self._logger.debug("stopping standalone-auto-shutdown")
+        supervisor.stopProcessGroup('standalone-auto-shutdown')
+
+      (added, changed, removed), = supervisor.reloadConfig()
+      assert not added
+      assert not removed
+      assert changed == ['standalone-auto-shutdown']
+      self._logger.debug("removing/adding standalone-auto-shutdown")
+      supervisor.removeProcessGroup('standalone-auto-shutdown')
+      supervisor.addProcessGroup('standalone-auto-shutdown')
+      self._logger.debug("starting standalone-auto-shutdown")
+      supervisor.startProcessGroup('standalone-auto-shutdown')
 
   def waitForSoftware(self, max_retry=0, debug=False, error_lines=30):
     """Synchronously install or uninstall all softwares previously supplied/removed.
@@ -676,7 +744,7 @@ class StandaloneSlapOS(object):
     with self.system_supervisor_rpc as supervisor:
       retry = 0
       while True:
-        self._logger.debug("retry %s: starting %s", retry, command)
+        self._logger.info("starting command %s (retry:%s)", command, retry)
         supervisor.startProcess(command, False)
 
         delay = 0.1

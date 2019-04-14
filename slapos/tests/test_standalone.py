@@ -38,6 +38,8 @@ import time
 import multiprocessing
 from contextlib import closing
 
+import psutil
+
 from slapos.slap.standalone import StandaloneSlapOS
 from slapos.slap.standalone import SlapOSNodeCommandError
 
@@ -164,13 +166,19 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
 
 
 class SlapOSStandaloneTestCase(unittest.TestCase):
+  # This test case takes care of stopping the standalone instance
+  # in a cleanup, but subclasses who needs to control shutdown
+  # can set this class attribute to False to prevent this behavior.
+  _auto_stop_standalone = True
+
   def setUp(self):
     checkPortIsFree()
     working_dir = tempfile.mkdtemp(prefix=__name__)
     self.addCleanup(shutil.rmtree, working_dir)
     self.standalone = StandaloneSlapOS(
         working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
-    self.addCleanup(self.standalone.stop)
+    if self._auto_stop_standalone:
+      self.addCleanup(self.standalone.stop)
     self.standalone.format(1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
 
 
@@ -242,6 +250,8 @@ class TestSlapOSStandaloneSoftware(SlapOSStandaloneTestCase):
 
 
 class TestSlapOSStandaloneInstance(SlapOSStandaloneTestCase):
+  _auto_stop_standalone = False # we stop explicitly
+
   def test_request_instance(self):
     with tempfile.NamedTemporaryFile(suffix="-%s.cfg" % self.id()) as f:
       # This is a minimal / super fast buildout that's compatible with slapos.
@@ -340,8 +350,54 @@ class TestSlapOSStandaloneInstance(SlapOSStandaloneTestCase):
     self.assertFalse(
         os.path.exists(os.path.join(parition_directory, 'instance.check')))
 
+    # check that stopping leaves no process
+    process_list = []
+    with self.standalone.instance_supervisor_rpc as instance_supervisor_rpc:
+      process_list.append(psutil.Process(instance_supervisor_rpc.getPID()))
+      process_list.extend(
+          [
+              psutil.Process(p['pid'])
+              for p in instance_supervisor_rpc.getAllProcessInfo()
+              if p['statename'] == 'RUNNING'
+          ])
+    with self.standalone.system_supervisor_rpc as system_supervisor_rpc:
+      process_list.append(psutil.Process(system_supervisor_rpc.getPID()))
+      process_list.extend(
+          [
+              psutil.Process(p['pid'])
+              for p in system_supervisor_rpc.getAllProcessInfo()
+              if p['statename'] == 'RUNNING'
+          ])
+    self.assertEqual(set([True]), set([p.is_running() for p in process_list]))
+    self.standalone.stop()
+    self.assertEqual(set([False]), set([p.is_running() for p in process_list]))
+
 
 class TestAutoShutdown(unittest.TestCase):
+  def assertSlapOSIsAvailable(self, max_retry=10):
+    for retry in range(1, max_retry + 1):
+      with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+        try:
+          s.connect((SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT))
+        except socket.error:
+          time.sleep(.2 * retry)
+          if retry == max_retry:
+            raise
+        else:
+          return
+
+  def assertSlapOSIsNotAvailable(self, max_retry=10):
+    for retry in range(1, max_retry + 1):
+      with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+        try:
+          s.connect((SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT))
+        except socket.error:
+          return
+        else:
+          time.sleep(.2 * retry)
+          if retry == max_retry:
+            self.fail("Slapos is still available")
+
   def setUp(self):
     checkPortIsFree()
     self.working_dir = tempfile.mkdtemp(prefix=__name__)
@@ -357,8 +413,9 @@ class TestAutoShutdown(unittest.TestCase):
       command = q.get()
       if command == "detach":
         standalone.detach()
-      for i in range(100):
-        time.sleep(.1)
+        q.put("detached")
+      for i in range(1000):
+        time.sleep(.5)
 
     self.q = multiprocessing.Queue()
     # Start the subprocess and wait for it to start its StandaloneSlapOS.
@@ -368,10 +425,7 @@ class TestAutoShutdown(unittest.TestCase):
 
   def test_autoshutdown(self):
     self.q.put("nothing")
-    # the slapos is usable
-    # TODO
-    import pdb
-    pdb.set_trace()
+    self.assertSlapOSIsAvailable()
 
     # terminate the process
     self.p.terminate()
@@ -379,13 +433,12 @@ class TestAutoShutdown(unittest.TestCase):
     self.assertFalse(self.p.is_alive())
 
     # the slapos is terminated
-    # TODO
+    self.assertSlapOSIsNotAvailable()
 
   def test_detach(self):
     self.q.put("detach")
-
-    # slapos instance is usable
-    # TODO
+    self.assertEqual("detached", self.q.get())
+    self.assertSlapOSIsAvailable()
 
     # terminate the process
     self.p.terminate()
@@ -393,9 +446,55 @@ class TestAutoShutdown(unittest.TestCase):
     self.assertFalse(self.p.is_alive())
 
     # the slapos is not terminated
-    # TODO
+    time.sleep(1)
+    self.assertSlapOSIsAvailable()
     # terminate it
-    # TODO
+    StandaloneSlapOS(self.working_dir, SLAPOS_TEST_IPV4,
+                     SLAPOS_TEST_PORT).stop()
+    self.assertSlapOSIsNotAvailable()
 
-  # TODO:
-  # test_reattach
+  def test_reattach(self):
+    #standalone = StandaloneSlapOS(
+    #self.working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
+    #standalone.reattach()
+    #standalone.detach()
+
+    self.q.put("detach")
+    self.assertEqual("detached", self.q.get())
+    self.assertSlapOSIsAvailable()
+
+    # terminate the first process, this does not stop the subsystem.
+    self.p.terminate()
+    self.p.join()
+    self.assertFalse(self.p.is_alive())
+    self.assertSlapOSIsAvailable()
+
+    # attach with current process, to exercice reattach in the main process
+    # and see errors if any.
+    standalone = StandaloneSlapOS(
+        self.working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
+    standalone.reattach()
+    standalone.detach()
+    self.assertSlapOSIsAvailable()
+
+    # spawn another process to reattach to that process and check that
+    # terminating this process terminate the subsystem.
+    def f(working_dir, q):
+      standalone = StandaloneSlapOS(
+          working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
+      standalone.reattach()
+      q.put("reattached")
+      for i in range(1000):
+        time.sleep(.5)
+
+    q = multiprocessing.Queue()
+    p = multiprocessing.Process(target=f, args=(self.working_dir, q))
+    p.start()
+    self.assertEqual("reattached", q.get())
+    self.assertSlapOSIsAvailable()
+    # terminate the second process
+    p.terminate()
+    p.join()
+    self.assertFalse(p.is_alive())
+    # this stops subsystem
+    self.assertSlapOSIsNotAvailable()

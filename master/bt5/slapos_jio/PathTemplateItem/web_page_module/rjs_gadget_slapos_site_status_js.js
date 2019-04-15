@@ -127,7 +127,12 @@
       right_style = '';
 
     status_class = checkSiteStatus(result);
-    right_class = checkSitePartitionStatus(result);
+    if ((status_class === 'ui-btn-error') ||
+          (status_class === 'ui-btn-no-data')) {
+      right_class = status_class;
+    } else {
+      right_class = checkSitePartitionStatus(result);
+    }
 
     monitor_url = gadget.props.hateoas_url + gadget.options.value.jio_key + '/Base_redirectToMonitor';
     gadget.element.innerHTML = inline_status_template({

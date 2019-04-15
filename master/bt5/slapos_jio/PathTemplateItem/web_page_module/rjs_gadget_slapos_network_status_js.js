@@ -124,7 +124,12 @@
       right_class = 'ui-btn-no-data';
 
     status_class = checkNetworkStatus(result);
-    right_class = checkNetworkPartitionStatus(result);
+    if ((status_class === 'ui-btn-error') ||
+          (status_class === 'ui-btn-no-data')) {
+      right_class = status_class;
+    } else {
+      right_class = checkNetworkPartitionStatus(result);
+    }
 
     gadget.element.innerHTML = inline_status_template({
       status_class: status_class,

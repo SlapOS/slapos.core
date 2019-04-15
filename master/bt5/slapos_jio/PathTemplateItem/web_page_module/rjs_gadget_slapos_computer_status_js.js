@@ -75,12 +75,15 @@
       right_style = '';
 
     status_class = checkComputerStatus({news: result.news.computer});
-    right_class = checkComputerPartitionStatus({computer_partition_news: result.news.partition});
+    if ((status_class === 'ui-btn-error') ||
+          (status_class === 'ui-btn-no-data')) {
+      right_class = status_class;
+    } else {
+      right_class = checkComputerPartitionStatus(
+        {computer_partition_news: result.news.partition});
+    }
 
     monitor_url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type%3A%22Software%20Instance%22%20AND%20aggregate_reference%3A%22' + result.reference + '%22';
-    if (status_class === 'ui-btn-no-data') {
-      status_style = "color: transparent !important;";
-    }
 
     gadget.element.innerHTML = inline_status_template({
       monitor_url: monitor_url,

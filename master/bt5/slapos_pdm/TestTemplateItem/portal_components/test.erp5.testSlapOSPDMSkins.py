@@ -1026,9 +1026,8 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
   
   def testComputer_checkAndCreateUpgradeDecision_personal_with_exist(self):
     person = self._makePerson()
-    computer = self._makeComputer()
-    computer.edit(source_administration_value=person,
-                  allocation_scope="open/personal")
+    computer = self._makeComputer(allocation_scope="open/personal")
+    computer.edit(source_administration_value=person)
     software_product = self._makeSoftwareProduct()
     software_release = self._requestSoftwareRelease(
                                     software_product.getRelativeUrl())
@@ -1037,6 +1036,7 @@ class TestSlapOSPDMSkins(SlapOSTestCaseMixin):
     self._requestSoftwareRelease(software_product.getRelativeUrl())
     self.tic()
     
+    self.assertEqual(computer.getUpgradeScope(), "ask_confirmation")
     upgrade_decision = computer.Computer_checkAndCreateUpgradeDecision()[0]
     self.assertEqual(upgrade_decision.getSimulationState(), 'planned')
     

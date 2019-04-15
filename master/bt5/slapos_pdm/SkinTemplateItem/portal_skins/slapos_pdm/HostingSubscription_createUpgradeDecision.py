@@ -2,22 +2,27 @@ from DateTime import DateTime
 portal = context.getPortalObject()
 
 hosting_subscription = context
+if context.getUpgradeScope() == "never":
+  return
+
+root_instance = hosting_subscription.getPredecessorValue(portal_type="Software Instance")
+if root_instance is None:
+  return
+
+if hosting_subscription.getSlapState() == "destroy_requested":
+  return
+
 tag = "%s_requestUpgradeDecisionCreation_inProgress" % hosting_subscription.getUid()
 activate_kw = {'tag': tag}
 if portal.portal_activities.countMessageWithTag(tag) > 0:
   # nothing to do
   return
 
-root_instance = hosting_subscription.getPredecessorValue()
-if root_instance is None or root_instance.getPortalType() == "Slave Instance":
-  return
-if hosting_subscription.getSlapState() == "destroy_requested":
-  return
 partition = root_instance.getAggregateValue(portal_type="Computer Partition")
 if partition is None:
   return
 
-if not partition.getParent().getAllocationScopeUid() in [category.getUid() \
+if not partition.getParentValue().getAllocationScopeUid() in [category.getUid() \
     for category in portal.portal_categories.allocation_scope.open.objectValues()]:
   return
 
@@ -42,6 +47,8 @@ upgrade_decision = newer_release.SoftwareRelease_createUpgradeDecision(
 with upgrade_decision.defaultActivateParameterDict(activate_kw):
   upgrade_decision.plan()
   upgrade_decision.setStartDate(DateTime())
+  if hosting_subscription.getUpgradeScope() == "auto":
+    upgrade_decision.start()
 
 # Prevent concurrent transaction to create 2 upgrade decision for the same hosting_subscription
 hosting_subscription.serialize()

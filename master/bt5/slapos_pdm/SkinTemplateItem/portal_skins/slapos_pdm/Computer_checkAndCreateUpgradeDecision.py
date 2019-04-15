@@ -2,8 +2,12 @@ from DateTime import DateTime
 computer = context
 portal = context.getPortalObject()
 
-full_software_release_list = [si.getUrlString() for si in
+if context.getUpgradeScope() == "never":
+  return
+
+full_software_release_list = [si.url_string for si in
               portal.portal_catalog(
+                select_dict = {"url_string": None},
                 portal_type='Software Installation',
                 default_aggregate_uid=computer.getUid(),
                 validation_state='validated'
@@ -45,9 +49,9 @@ for software_release in software_release_list:
         source_url=computer.getRelativeUrl(),
         title=title)
 
-    if context.getAllocationScope() in ["open/public", "open/friend", "open/subscription"]:
+    if context.getUpgradeScope() == "auto":
       upgrade_decision.start()
-    elif context.getAllocationScope() in ["open/personal"] and upgrade_decision.getSimulationState() != "planned":
+    elif context.getUpgradeScope() == "ask_confirmation" and upgrade_decision.getSimulationState() != "planned":
       upgrade_decision.plan()
 
     upgrade_decision.setStartDate(DateTime())

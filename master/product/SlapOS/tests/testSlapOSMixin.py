@@ -73,6 +73,9 @@ class testSlapOSMixin(ERP5TypeTestCase):
   def createCertificateAuthorityFile(self):
     """Sets up portal_certificate_authority"""
 
+    if 'TEST_CA_PATH' not in os.environ:
+      return
+
     ca_path = os.path.join(os.environ['TEST_CA_PATH'],
                            self.__class__.__name__)
 
@@ -184,6 +187,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
 
     config.product_config["initsite"] = initsite
 
+    self.createCertificateAuthorityFile() 
     if not getattr(self.portal, 'is_site_bootstrapped', 0):
       self.portal.is_site_bootstrapped = 1
       self.bootstrapSite()

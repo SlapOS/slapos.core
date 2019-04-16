@@ -83,12 +83,21 @@ class testSlapOSMixin(ERP5TypeTestCase):
     os.mkdir(os.path.join(ca_path, 'private'))
     os.mkdir(os.path.join(ca_path, 'crl'))
     os.mkdir(os.path.join(ca_path, 'certs'))
+    os.mkdir(os.path.join(ca_path, 'requests'))
+    os.mkdir(os.path.join(ca_path, 'newcerts'))
 
-    shutil.copy(os.path.join(os.environ['TEST_CA_PATH'], 'openssl.cnf'),
-            os.path.join(ca_path, 'openssl.cnf'))
+    original_openssl_cnf = open(
+      os.path.join(os.environ['TEST_CA_PATH'], 'openssl.cnf'), "r").read()
+
+    openssl_cnf = original_openssl_cnf.replace(os.environ['TEST_CA_PATH'], ca_path)
+    with open(os.path.join(ca_path, 'openssl.cnf'), "w") as f:
+      f.write(openssl_cnf)
 
     shutil.copy(os.path.join(os.environ['TEST_CA_PATH'], 'cacert.pem'),
             os.path.join(ca_path, 'cacert.pem'))
+
+    shutil.copy(os.path.join(os.environ['TEST_CA_PATH'], 'private', 'cakey.pem'),
+            os.path.join(ca_path, 'private', 'cakey.pem'))
 
     # reset test CA to have it always count from 0
     open(os.path.join(ca_path, 'serial'), 'w').write('01')
@@ -161,6 +170,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
       return
     self.portal.portal_caches.erp5_site_global_id = '%s' % random.random()
     self.portal.portal_caches._p_changed = 1
+    self.createCertificateAuthorityFile() 
     self.commit()
     self.portal.portal_caches.updateCache()
 
@@ -214,7 +224,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
 
   def bootstrapSite(self):
     self.setupPortalAlarms()
-    self.createCertificateAuthorityFile()
     self.getDefaultSystemPreference().setPreferredHateoasUrl("http://dummy/")
 
     self.clearCache()

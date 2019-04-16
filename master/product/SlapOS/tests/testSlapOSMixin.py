@@ -34,6 +34,7 @@ from Products.ERP5Type.tests.utils import DummyMailHost
 from Products.ERP5Type.Utils import convertToUpperCase
 import os
 import glob
+import shutil
 from AccessControl.SecurityManagement import getSecurityManager, \
     setSecurityManager
 from App.config import getConfiguration
@@ -71,28 +72,46 @@ class testSlapOSMixin(ERP5TypeTestCase):
 
   def createCertificateAuthorityFile(self):
     """Sets up portal_certificate_authority"""
+
+    ca_path = os.path.join(os.environ['TEST_CA_PATH'],
+                           self.__class__.__name__)
+
+    if os.path.exists(ca_path):
+      shutil.rmtree(ca_path)
+
+    os.mkdir(ca_path)
+    os.mkdir(os.path.join(ca_path, 'private'))
+    os.mkdir(os.path.join(ca_path, 'crl'))
+    os.mkdir(os.path.join(ca_path, 'certs'))
+
+    shutil.copy(os.path.join(os.environ['TEST_CA_PATH'], 'openssl.cnf'),
+            os.path.join(ca_path, 'openssl.cnf'))
+
+    shutil.copy(os.path.join(os.environ['TEST_CA_PATH'], 'cacert.pem'),
+            os.path.join(ca_path, 'cacert.pem'))
+
     # reset test CA to have it always count from 0
-    open(os.path.join(os.environ['TEST_CA_PATH'], 'serial'), 'w').write('01')
-    open(os.path.join(os.environ['TEST_CA_PATH'], 'crlnumber'), 'w').write(
-        '01')
-    open(os.path.join(os.environ['TEST_CA_PATH'], 'index.txt'), 'w').write('')
-    private_list = glob.glob('%s/*.key' % os.path.join(os.environ['TEST_CA_PATH'],
-                              'private'))
+    open(os.path.join(ca_path, 'serial'), 'w').write('01')
+    open(os.path.join(ca_path, 'crlnumber'), 'w').write('01')
+    open(os.path.join(ca_path, 'index.txt'), 'w').write('')
+    private_list = glob.glob('%s/*.key' % os.path.join(ca_path, 'private'))
     for private in private_list:
       os.remove(private)
-    crl_list = glob.glob('%s/*' % os.path.join(os.environ['TEST_CA_PATH'],
-                              'crl'))
+
+    crl_list = glob.glob('%s/*' % os.path.join(ca_path, 'crl'))
     for crl in crl_list:
       os.remove(crl)
-    certs_list = glob.glob('%s/*' % os.path.join(os.environ['TEST_CA_PATH'],
-                              'certs'))
+
+    certs_list = glob.glob('%s/*' % os.path.join(ca_path, 'certs'))
     for cert in certs_list:
       os.remove(cert)
-    newcerts_list = glob.glob('%s/*' % os.path.join(os.environ['TEST_CA_PATH'],
-                              'newcerts'))
+
+    newcerts_list = glob.glob('%s/*' % os.path.join(ca_path, 'newcerts'))
     for newcert in newcerts_list:
       os.remove(newcert)
 
+    self.portal.portal_certificate_authority.manage_editCertificateAuthorityTool(
+      certificate_authority_path=ca_path)
 
   def setupPortalAlarms(self):
     if not self.portal.portal_alarms.isSubscribed():

@@ -17,7 +17,15 @@
     <link rel="stylesheet" type="text/css" href="gadget_erp5_attention_point.css">
     <script id="attention_point-item-template" type="text/x-handlebars-template">
       {{#each option}}
-        <div class={{css_class}}>{{text}}</div>
+        <div class="attention-point">
+        {{#if link}}
+          <a href={{link}}>
+        {{/if}}
+        {{text}}
+        {{#if link}}
+          </a>
+        {{/if}}
+        </div>
       {{/each}}
     </script>
     <script id="attention_point-template" type="text/x-handlebars-template">

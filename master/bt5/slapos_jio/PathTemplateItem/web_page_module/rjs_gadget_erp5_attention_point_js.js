@@ -19,13 +19,28 @@
     }
     return options.fn(this);
   });
+
   function createAttentionPointTemplate(gadget, attention_point) {
-    return gadget.translateHtml(attention_point_item_template({
-      option: [{
-        text: attention_point[0],
-        css_class: attention_point[1]
-      }]
-    }));
+    if (attention_point.link) {
+      return gadget.getUrlFor({command: 'change',
+                       options: {jio_key: attention_point.link,
+                                 "page": "slap_controler"}})
+        .push(function (link) {
+          return gadget.translateHtml(attention_point_item_template({
+            option: [{
+              text: attention_point.text,
+              link: link
+            }]
+          }));
+        });
+    } else {
+      return gadget.translateHtml(attention_point_item_template({
+          option: [{
+            text: attention_point.text,
+            link: attention_point.link
+          }]
+        }));
+    }
   }
   gadget_klass
     //////////////////////////////////////////////
@@ -34,6 +49,7 @@
     .declareAcquiredMethod("translateHtml", "translateHtml")
     .declareAcquiredMethod("redirect", "redirect")
     .declareAcquiredMethod("trigger", "trigger")
+    .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .onStateChange(function onStateChange() {
       var gadget = this,
         div = document.createElement("div"),

@@ -37,7 +37,7 @@
         .push(function (result) {
           var i, value, value_jio_key, date, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
-            if (1 || (result.data.rows[i].hasOwnProperty("id"))) {
+            if (result.data.rows[i].value.hasOwnProperty("Organisation_getNewsDict")) {
               value_jio_key = result.data.rows[i].id;
               value = result.data.rows[i].value.Organisation_getNewsDict;
               result.data.rows[i].value.Organisation_getNewsDict = {
@@ -49,6 +49,27 @@
                   key: "status",
                   url: "gadget_slapos_site_status.html",
                   title: "Status",
+                  type: "GadgetField"
+                }
+              };
+              result.data.rows[i].value["listbox_uid:list"] = {
+                key: "listbox_uid:list",
+                value: 2713
+              };
+            }
+            if (result.data.rows[i].value.hasOwnProperty("Event_getAcknowledgementDict")) {
+              value_jio_key = result.data.rows[i].id;
+              value = result.data.rows[i].value.Event_getAcknowledgementDict;
+              result.data.rows[i].value.Event_getAcknowledgementDict = {
+                field_gadget_param : {
+                  editable: 1,
+                  css_class: "",
+                  description: "",
+                  hidden: 0,
+                  "default": value,
+                  key: "acknowledge_message",
+                  url: "gadget_slapos_alert_listbox_field.html",
+                  title: "Acknowledge Message",
                   type: "GadgetField"
                 }
               };
@@ -139,6 +160,59 @@
                       "sort_column_list": column_list,
                       "sort": [["title", "ascending"]],
                       "title": "Sites",
+                      "type": "ListBox"
+                    }
+                  }},
+                  "_links": {
+                    "type": {
+                      // form_list display portal_type in header
+                      name: ""
+                    }
+                  }
+                },
+                form_definition: {
+                  group_list: [[
+                    "bottom",
+                    [["listbox"]]
+                  ]]
+                }
+              });
+            });
+        })
+        .push(function () {
+          return new RSVP.Queue()
+            .push(function () {
+              return RSVP.all([
+                gadget.getDeclaredGadget('top'),
+                gadget.getSetting("hateoas_url")
+              ]);
+            })
+            .push(function (result) {
+              var column_list = [
+                ['Event_getAcknowledgementDict', ' ']
+              ];
+
+              return result[0].render({
+                erp5_document: {
+                  "_embedded": {"_view": {
+                    "listbox": {
+                      "column_list": column_list,
+                      "show_anchor": 0,
+                      "default_params": {},
+                      editable: 1,
+                      "editable_column_list": column_list,
+                      "key": "slap_acknowledgement_listbox",
+                      "lines": 5,
+                      "list_method": "AcknowledgementTool_getUserUnreadAcknowledgementValueList",
+                      "list_method_template": result[1] + "ERP5Document_getHateoas?mode=search&" +
+                        "list_method=AcknowledgementTool_getUserUnreadAcknowledgementValueList" +
+                        "{&query,select_list*,limit*,sort_on*,local_roles*}",
+                      "query": "urn:jio:allDocs?query=",
+                      "portal_type": [],
+                      "search_column_list": column_list,
+                      "sort_column_list": column_list,
+                      "sort": [["Event_getAcknowledgementDict", "ASC"]],
+                      "title": "Notifications",
                       "type": "ListBox"
                     }
                   }},

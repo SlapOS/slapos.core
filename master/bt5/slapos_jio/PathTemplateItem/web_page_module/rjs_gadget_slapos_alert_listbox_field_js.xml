@@ -16,7 +16,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -40,17 +39,6 @@
             </value>
         </item>
         <item>
-            <key> <string>_Copy_or_Move_Permission</string> </key>
-            <value>
-              <list>
-                <string>Manager</string>
-                <string>Authenticated</string>
-                <string>Developer</string>
-                <string>Owner</string>
-              </list>
-            </value>
-        </item>
-        <item>
             <key> <string>_Modify_portal_content_Permission</string> </key>
             <value>
               <tuple>
@@ -70,7 +58,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -81,8 +68,12 @@
             </value>
         </item>
         <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>application/javascript</string> </value>
+        </item>
+        <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_erp5_page_slapos.js</string> </value>
+            <value> <string>gadget_slapos_alert_listbox_field.js</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -92,7 +83,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_erp5_page_slapos_js</string> </value>
+            <value> <string>rjs_gadget_slapos_alert_listbox_field_js</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -110,11 +101,11 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget SlapOS Homepage JS</string> </value>
+            <value> <string>Gadget SlapOS Alert Listbox Field JS</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
-            <value> <string>002</string> </value>
+            <value> <string>001</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -196,7 +187,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1502376689.36</float>
+                        <float>1555536985.46</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -241,7 +232,7 @@
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>975.8014.50969.47940</string> </value>
+                <value> <string>975.18362.62231.64563</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -259,7 +250,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1555624052.83</float>
+                        <float>1556244632.21</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -282,7 +273,9 @@
           <dictionary>
             <item>
                 <key> <string>action</string> </key>
-                <value> <string>detect_converted_file</string> </value>
+                <value>
+                  <none/>
+                </value>
             </item>
             <item>
                 <key> <string>actor</string> </key>
@@ -298,7 +291,7 @@
             </item>
             <item>
                 <key> <string>external_processing_state</string> </key>
-                <value> <string>converted</string> </value>
+                <value> <string>empty</string> </value>
             </item>
             <item>
                 <key> <string>serial</string> </key>
@@ -316,7 +309,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1502376675.05</float>
+                        <float>1555536941.4</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

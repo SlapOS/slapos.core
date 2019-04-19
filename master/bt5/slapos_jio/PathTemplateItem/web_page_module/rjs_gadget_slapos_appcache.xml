@@ -108,7 +108,7 @@
             <value> <string encoding="cdata"><![CDATA[
 
 CACHE MANIFEST\n
-# generated on Tue, 19 Mars 2019 00:00:00 GMT+0200\n
+# generated on Fri, 26 Avril 2019 00:00:00 GMT+0200\n
 CACHE:\n
 favicon.ico\n
 font-awesome/font-awesome-webfont.eot?v=4.6.3\n
@@ -404,6 +404,9 @@ gadget_slapos_invoice_state.html\n
 gadget_slapos_invoice_state.js\n
 gadget_slapos_label_listbox_field.html\n
 gadget_slapos_label_listbox_field.js\n
+gadget_slapos_alert_listbox_field.js\n
+gadget_slapos_alert_listbox_field.css\n
+gadget_slapos_alert_listbox_field.html\n
 gadget_slapos_network_status.html\n
 gadget_slapos_network_status.js\n
 gadget_slapos_panel.html\n
@@ -558,7 +561,7 @@ NETWORK:\n
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>974.29171.1584.24746</string> </value>
+                <value> <string>975.9238.47958.47360</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -576,7 +579,7 @@ NETWORK:\n
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1554923957.36</float>
+                        <float>1556264848.5</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

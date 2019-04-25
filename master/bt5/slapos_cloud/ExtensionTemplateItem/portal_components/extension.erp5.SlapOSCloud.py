@@ -27,7 +27,9 @@
 
 from AccessControl.SecurityManagement import getSecurityManager, \
              setSecurityManager, newSecurityManager
-from Products import ERP5Security
+
+from Products.ERP5Type.UnrestrictedMethod import super_user
+
 
 def SoftwareInstance_bangAsSelf(self, relative_url=None, reference=None,
   comment=None):
@@ -37,21 +39,19 @@ def SoftwareInstance_bangAsSelf(self, relative_url=None, reference=None,
     raise TypeError('relative_url has to be defined')
   if reference is None:
     raise TypeError('reference has to be defined')
-  # micro security: can caller access software instance?
   software_instance = self.restrictedTraverse(relative_url)
-  sm = getSecurityManager()
   if (software_instance.getPortalType() == "Slave Instance") and \
     (software_instance.getReference() == reference):
     # XXX There is no account for Slave Instance
-    user_id = ERP5Security.SUPER_USER
-  else:
-    user_id = software_instance.getUserId()
+    with super_user():
+      software_instance.bang(bang_tree=True, comment=comment)
+    return
 
-  newSecurityManager(None, self.getPortalObject().acl_users.getUserById(
-    user_id))
+  sm = getSecurityManager()
+  user_id = software_instance.getUserId()
+  newSecurityManager(None, self.getPortalObject().acl_users.getUserById(user_id))
   try:
     software_instance.bang(bang_tree=True, comment=comment)
   finally:
     # Restore the original user.
     setSecurityManager(sm)
-

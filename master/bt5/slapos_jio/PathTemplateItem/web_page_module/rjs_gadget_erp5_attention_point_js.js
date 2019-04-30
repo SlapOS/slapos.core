@@ -24,7 +24,7 @@
     if (attention_point.link) {
       return gadget.getUrlFor({command: 'change',
                        options: {jio_key: attention_point.link,
-                                 "page": "slap_controler"}})
+                                 "page": "slap_controller"}})
         .push(function (link) {
           return gadget.translateHtml(attention_point_item_template({
             option: [{

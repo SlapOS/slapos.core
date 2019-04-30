@@ -5,7 +5,7 @@ kw = {}
 kw["portal_type"] = "Hosting Subscription"
 kw["validation_state"] = "validated"
 #kw["url_string"] = ["%%/software/slaprunner/software.cfg", "%%/software/kvm/software.cfg"]
-kw["select_list"] = "url_string, source_reference"
+kw["select_list"] = ["url_string", "source_reference"]
 
 def getIndex(hosting_subscription):
   if "software/slaprunner/software.cfg" in hosting_subscription.url_string:
@@ -32,8 +32,8 @@ for hosting_subscription in context.portal_catalog(**kw):
             "other_type": 0,
             "user_total": 0}
   index = getIndex(hosting_subscription)
-  l[u][index] = l[u][index] + 1 
-  l[u]["user_total"] = l[u]["user_total"] + 1 
+  l[u][index] = l[u][index] + 1
+  l[u]["user_total"] = l[u]["user_total"] + 1
 
 document_list = []
 for person_relative_url in l:

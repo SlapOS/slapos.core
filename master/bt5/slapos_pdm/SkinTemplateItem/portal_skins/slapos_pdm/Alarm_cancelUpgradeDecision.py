@@ -2,10 +2,10 @@ portal = context.getPortalObject()
 
 
 portal.portal_catalog.searchAndActivate(
-  portal_type="Upgrade Decision Line", 
+  portal_type="Upgrade Decision Line",
   simulation_state="confirmed",
-  method_id = 'UpgradeDecisionLine_cancelDestroyed',
+  method_id = 'UpgradeDecisionLine_cancel',
   activate_kw = {'tag':tag}
   )
-  
+
 context.activate(after_tag=tag).getId()

@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>active_sense_method_id</string> </key>
-            <value> <string>Alarm_cancelUpgradeDestroyedHostingSubscription</string> </value>
+            <value> <string>Alarm_cancelUpgradeDecision</string> </value>
         </item>
         <item>
             <key> <string>automatic_solve</string> </key>
@@ -16,7 +16,7 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Cancel Upgrade Decisions which are related to destroyed instances</string> </value>
+            <value> <string>Cancel Upgrade Decision which arent applicable anymore (Destroyed Hosting Subscriptions, Closed computers, already deployed softwares)</string> </value>
         </item>
         <item>
             <key> <string>enabled</string> </key>
@@ -24,7 +24,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_pdm_hosting_subscription_auto_cancel_upgrade_decision</string> </value>
+            <value> <string>slapos_pdm_auto_cancel_upgrade_decision</string> </value>
         </item>
         <item>
             <key> <string>periodicity_day_frequency</string> </key>
@@ -107,7 +107,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Auto Cancel Upgrade Decision for Destroyed Hosting Subscriptions</string> </value>
+            <value> <string>Auto Cancel Upgrade Decision when not applicable</string> </value>
         </item>
       </dictionary>
     </pickle>

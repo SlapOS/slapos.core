@@ -1,4 +1,5 @@
 test.erp5.testSlapOSCloudAlarm
+test.erp5.testSlapOSCloudAllocationAlarm
 test.erp5.testSlapOSCloudWorkflow
 test.erp5.testSlapOSCloudSecurityGroup
 test.erp5.testSlapOSCloudConstraint

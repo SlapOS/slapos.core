@@ -48,6 +48,10 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        invoking checkConsistency.
 
        Make sure PAS is well configured."""
+    # The certificate_authority_path is modified by the setup, invoke
+    # fixConsistency here to restore it like the originally expected.    
+    self.portal.portal_certificate_authority.fixConsistency()
+
     self.assertEqual(self.portal.portal_certificate_authority.checkConsistency(), [])
 
   def testConfiguredTemplateToolViaConstraint(self):
@@ -115,6 +119,10 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       # and it is only aims to verify if test environment is behaving as
       # expected, nothing else, and if alamrs were invoked.
       return
+
+    # The certificate_authority_path is modified by the setup, invoke
+    # fixConsistency here to restore it like the originally expected.
+    self.portal.portal_certificate_authority.fixConsistency()
 
     self.assertTrue(self.portal.hasObject('portal_certificate_authority'))
     self.assertEqual(os.environ['TEST_CA_PATH'],

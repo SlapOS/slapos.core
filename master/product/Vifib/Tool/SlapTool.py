@@ -257,9 +257,9 @@ class SlapTool(BaseTool):
           return self.REQUEST.response
       else:
         return self._getCacheComputerInformation(computer_id, user)
-#      return self._getCacheComputerInformation(computer_id, user)
     else:
       slap_computer._software_release_list = []
+
     if user_type == 'Software Instance':
       computer = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
         portal_type='Computer', reference=computer_id,
@@ -1537,6 +1537,7 @@ class SlapTool(BaseTool):
         default_aggregate_uid=computer_partition.getUid(),
         portal_type='Slave Instance',
         validation_state="validated",
+        **{"slapos_item.slap_state": "start_requested"}
       )
       for slave_instance in slave_instance_sql_list:
         slave_instance = _assertACI(slave_instance.getObject())

@@ -216,7 +216,6 @@ erp5_workflow
 erp5_xhtml_style
 external_method
 Images
-activity
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
 
@@ -327,7 +326,6 @@ erp5_web_widget_library
 erp5_workflow
 external_method
 Images
-activity
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
 
@@ -438,7 +436,6 @@ erp5_web_widget_library
 erp5_workflow
 external_method
 Images
-activity
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
 
@@ -549,7 +546,6 @@ erp5_workflow
 erp5_xhtml_style
 external_method
 Images
-activity
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
 
@@ -661,7 +657,6 @@ erp5_workflow
 erp5_xhtml_style
 external_method
 Images
-activity
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
 
@@ -770,7 +765,6 @@ erp5_web_widget_library
 erp5_workflow
 external_method
 Images
-activity
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
 
@@ -880,7 +874,6 @@ erp5_workflow
 erp5_xhtml_style
 external_method
 Images
-activity
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
 
@@ -989,7 +982,6 @@ erp5_web_widget_library
 erp5_workflow
 external_method
 Images
-activity
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
 
@@ -1098,7 +1090,6 @@ erp5_web_widget_library
 erp5_workflow
 external_method
 Images
-activity
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
 
@@ -1208,7 +1199,6 @@ erp5_web_widget_library
 erp5_workflow
 external_method
 Images
-activity
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
 
@@ -1319,7 +1309,6 @@ erp5_workflow
 erp5_xhtml_style
 external_method
 Images
-activity
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
 
@@ -1430,7 +1419,6 @@ erp5_workflow
 erp5_xhtml_style
 external_method
 Images
-activity
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
 
@@ -1540,7 +1528,6 @@ erp5_web_widget_library
 erp5_workflow
 external_method
 Images
-activity
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
 

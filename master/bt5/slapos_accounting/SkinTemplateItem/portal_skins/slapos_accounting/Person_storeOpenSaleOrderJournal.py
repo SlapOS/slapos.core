@@ -94,7 +94,7 @@ if open_sale_order is not None:
 
     # First check if the hosting subscription has been correctly simulated (this script may run only once per year...)
     stop_date = calculateOpenOrderLineStopDate(open_order_line, hosting_subscription, start_date_delta=0)
-    if current_stop_date != stop_date:
+    if current_stop_date < stop_date:
       # Bingo, new subscription to generate
       open_order_line.edit(
         stop_date=stop_date,
@@ -198,3 +198,8 @@ if (delete_line_list):
   open_order_explanation += "Removed %s." % str(delete_line_list)
 
   storeWorkflowComment(new_open_sale_order, open_order_explanation)
+
+if open_sale_order is not None:
+  if not len(open_sale_order.contentValues(
+                           portal_type='Open Sale Order Line')):
+    open_sale_order.archive()

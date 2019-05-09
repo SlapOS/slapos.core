@@ -3,7 +3,7 @@ allocation_scope = computer.getAllocationScope()
 
 upgrade_scope = computer.getUpgradeScope()
 
-if allocation_scope == 'open/public':
+if allocation_scope in ['open/public', 'open/subscription']:
   # Public computer capacity is handle by an alarm
   capacity_scope = 'close'
   monitor_scope = 'enabled'
@@ -39,7 +39,7 @@ if self_person is None:
   return
 
 self_email = self_person.getDefaultEmailCoordinateText()
-if allocation_scope == 'open/public':
+if allocation_scope in ['open/public', 'open/subscription']:
   # reset friends and update in place
   edit_kw['subject_list'] = ['']
   edit_kw['destination_section'] = None

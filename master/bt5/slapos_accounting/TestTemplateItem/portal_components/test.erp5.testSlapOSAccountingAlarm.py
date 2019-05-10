@@ -1359,10 +1359,11 @@ class TestSlapOSReindexOpenSaleOrder(SlapOSTestCaseMixin):
       raise ValueError('Precondition failed: %s exists in custom' % script_name)
     createZODBPythonScript(self.portal.portal_skins.custom,
                         script_name,
-                        '*args, **kwargs',
+                        'uid=None,*args, **kwargs',
                         '# Script body\n'
 """portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by OpenSaleOrder_reindexIfIndexedBeforeLine') """ )
+open_order = context.portal_catalog.getResultValue(uid=uid)
+portal_workflow.doActionFor(open_order, action='edit_action', comment='Visited by OpenSaleOrder_reindexIfIndexedBeforeLine') """ )
     transaction.commit()
 
   def _dropOpenSaleOrder_reindexIfIndexedBeforeLine(self):
@@ -1373,6 +1374,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by O
 
   def test_alarm(self):
     open_order = self.createOpenOrder()
+    self.tic()
     open_order.newContent(portal_type="Open Sale Order Line")
     self.tic()
     self._simulateOpenSaleOrder_reindexIfIndexedBeforeLine()

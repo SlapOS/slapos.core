@@ -2221,6 +2221,9 @@ class TestSlapOSisSupportRequestCreationClosed(TestCRMSkinsMixin):
     newSupportRequest()
     self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
     newSupportRequest()
+    # It hit cache
+    self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
+    self.clearCache() 
     self.assertTrue(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
 
     self.assertTrue(self.portal.ERP5Site_isSupportRequestCreationClosed())

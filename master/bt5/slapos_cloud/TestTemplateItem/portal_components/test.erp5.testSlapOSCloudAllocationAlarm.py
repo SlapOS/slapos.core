@@ -588,6 +588,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     hosting subscription.
     Test with 3 instances and 3 existing computers on 2 different networks.
     """
+    self.tic()
     sla_xml = """<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='mode'>unique_by_network</parameter>

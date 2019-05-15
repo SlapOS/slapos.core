@@ -1280,7 +1280,9 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by H
     finally:
       self._dropHostingSubscription_checkSoftwareInstanceState()
 
-    self.assertNotEqual('Visited by HostingSubscription_checkSoftwareInstanceState',
+    # This is an un-optimal case, as the query cannot be used in negated form
+    # on the searchAndActivate, so we end up callind the script in any situation.
+    self.assertEqual('Visited by HostingSubscription_checkSoftwareInstanceState',
       host_sub.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_check_instance_in_error_archived_hosting_subscription(self):

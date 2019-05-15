@@ -300,14 +300,14 @@ class TestSubscriptionRequest_createUser(TestSubscriptionSkinsMixin):
     self.assertEqual(erp5_login.getReference(), person.getUserId())
 
 
-class TestSubscriptionRequestModule_requestSubscritptionProxy(TestSubscriptionSkinsMixin):
+class Test0SubscriptionRequestModule_requestSubscritptionProxy(TestSubscriptionSkinsMixin):
 
-  def test_SubscriptionRequestModule_requestSubscritptionProxy_raises_unauthorized(self):
+  def test0SubscriptionRequestModule_requestSubscritptionProxy_raises_unauthorized(self):
     self.assertRaises(Unauthorized,
       self.portal.subscription_request_module.SubscriptionRequestModule_requestSubscritptionProxy,
       REQUEST="XXXXXXXXXXX", email="bb", subscription_reference="aa")
 
-  def test_SubscriptionRequestModule_requestSubscritptionProxy_redirect_to_confirmation(self):
+  def test0SubscriptionRequestModule_requestSubscritptionProxy_redirect_to_confirmation(self):
     email = "abc%s@nexedi.com" % self.new_id
     subscription_reference = "test_subscription_reference"
     user_input_dict = {'name': "Cous Cous %s" % self.new_id,

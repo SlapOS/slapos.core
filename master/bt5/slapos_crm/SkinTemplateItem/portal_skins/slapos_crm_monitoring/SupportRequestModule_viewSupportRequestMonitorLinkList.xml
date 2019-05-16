@@ -95,11 +95,11 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>ComputerModule_viewComputerRank</string> </value>
+            <value> <string>SupportRequestModule_viewSupportRequestMonitorLinkList</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>
-            <value> <string>form_dialog</string> </value>
+            <value> <string>report_view</string> </value>
         </item>
         <item>
             <key> <string>row_length</string> </key>
@@ -111,7 +111,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string></string> </value>
+            <value> <string>Monitoring Links</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

@@ -117,8 +117,8 @@
               ['translated_simulation_state_title', 'State']
             ],
             monitor_scope_list = [['', ''],
-                                ['Enabled', 'enable'],
-                                ['Disabled', 'disable']],
+                                ['Enabled', 'enabled'],
+                                ['Disabled', 'disabled']],
             upgrade_scope_list = [['', ''],
                                 ['Auto Upgrade', 'auto'],
                                 ['Ask Confirmation before Upgrade', 'ask_confirmation'],

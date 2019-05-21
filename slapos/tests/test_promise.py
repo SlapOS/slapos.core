@@ -346,7 +346,7 @@ class RunPromise(GenericPromise):
   },
   "path": "%s/my_promise.py",
   "name": "my_promise.py",
-  "execution-time": 0.1,
+  "execution-time": 0.05,
   "title": "my_promise"
 }""" % self.plugin_dir
     state_file = os.path.join(self.partition_dir, PROMISE_RESULT_FOLDER_NAME, 'my_promise.status.json')
@@ -377,7 +377,7 @@ class RunPromise(GenericPromise):
   },
   "path": "%(promise_dir)s/%(name)s.py",
   "name": "%(name)s.py",
-  "execution-time": 0.1,
+  "execution-time": 0.05,
   "title": "%(name)s"
 }"""
 
@@ -939,7 +939,7 @@ exit 0
   },
   "path": "%s/my_promise.py",
   "name": "my_promise.py",
-  "execution-time": 0.1,
+  "execution-time": 0.05,
   "title": "my_promise"
 }""" % (datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S+0000'), self.plugin_dir)
 
@@ -960,7 +960,7 @@ exit 0
   },
   "path": "%(folder)s/%(name)s",
   "name": "%(name)s",
-  "execution-time": 0.1,
+  "execution-time": 0.05,
   "title": "%(name)s"
 }""" % {'date': datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S+0000'),
         'folder': self.legacy_promise_dir,

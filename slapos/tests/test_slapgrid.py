@@ -98,7 +98,7 @@ mkdir -p etc/service &&
 echo "#!/bin/sh" > etc/service/daemon &&
 echo "sleep 1; touch launched
 if [ -f ./crashed ]; then
-while true; do echo Working; sleep 0.1; done
+while true; do echo Working; sleep 0.05; done
 else
 touch ./crashed; echo Failing; sleep 1; exit 111;
 fi" >> etc/service/daemon &&
@@ -1894,7 +1894,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
-      self.fake_waiting_time = 0.1
+      self.fake_waiting_time = 0.05
       worked_file = os.path.join(instance.partition_path, 'succeed_worked')
       succeed = textwrap.dedent("""\
               #!/usr/bin/env sh
@@ -1913,7 +1913,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       instance = computer.instance_list[0]
 
       instance.requested_state = 'started'
-      self.fake_waiting_time = 0.5
+      self.fake_waiting_time = 0.05
 
       promise_path = os.path.join(instance.partition_path, 'etc', 'promise')
       os.makedirs(promise_path)
@@ -1942,7 +1942,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       instance = computer.instance_list[0]
 
       instance.requested_state = 'started'
-      self.fake_waiting_time = 0.1
+      self.fake_waiting_time = 0.05
 
       promise_path = os.path.join(instance.partition_path, 'etc', 'promise')
       os.makedirs(promise_path)
@@ -1968,7 +1968,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
 
-      self.fake_waiting_time = 0.1
+      self.fake_waiting_time = 0.05
 
       for i in range(2):
         worked_file = os.path.join(instance.partition_path, 'succeed_%s_worked' % i)
@@ -1990,7 +1990,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
-      self.fake_waiting_time = 0.1
+      self.fake_waiting_time = 0.05
 
       for i in range(2):
         worked_file = os.path.join(instance.partition_path, 'promise_worked_%d' % i)
@@ -2019,7 +2019,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
-      self.fake_waiting_time = 0.1
+      self.fake_waiting_time = 0.05
       for i in range(2):
         worked_file = os.path.join(instance.partition_path, 'promise_worked_%d' % i)
         lockfile = os.path.join(instance.partition_path, 'lock')

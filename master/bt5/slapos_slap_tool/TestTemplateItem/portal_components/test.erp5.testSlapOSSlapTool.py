@@ -375,6 +375,8 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
           <dictionary id='i43'>
             <string>_computer_guid</string>
             <string>%(computer_id)s</string>
+            <string>_known_state</string>
+            <string>error</string>
             <string>_requested_state</string>
             <string>destroyed</string>
             <string>_software_instance_list</string>
@@ -391,6 +393,8 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
           <dictionary id='i46'>
             <string>_computer_guid</string>
             <string>%(computer_id)s</string>
+            <string>_known_state</string>
+            <string>error</string>
             <string>_requested_state</string>
             <string>available</string>
             <string>_software_instance_list</string>
@@ -742,7 +746,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     <string>created_at</string>
     <string>%(created_at)s</string>
     <string>text</string>
-    <string>building software release %(url_string)s</string>
+    <string>#building software release %(url_string)s</string>
     <string>user</string>
     <string>%(computer_id)s</string>
   </dictionary>

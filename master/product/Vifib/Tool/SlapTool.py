@@ -996,7 +996,7 @@ class SlapTool(BaseTool):
     user = self.getPortalObject().portal_membership.\
         getAuthenticatedMember().getUserName()
     self._logAccess(user, software_installation_reference,
-      'building software release %s' % url)
+      '#building software release %s' % url)
 
   @convertToREST
   def _availableSoftwareRelease(self, url, computer_id):
@@ -1596,6 +1596,15 @@ class SlapTool(BaseTool):
         software_release_response._requested_state = 'destroyed'
       else:
         software_release_response._requested_state = 'available'
+
+      known_state = self._getTextAccessStatus(software_installation.getReference())
+      if known_state.startswith("#access"):
+        software_release_response._known_state = 'available'
+      elif known_state.startswith("#building"):
+        software_release_response._known_state = 'building'
+      else:
+        software_release_response._known_state = 'error'
+
       software_release_list.append(software_release_response)
     return software_release_list
 

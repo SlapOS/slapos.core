@@ -158,14 +158,17 @@ class SoftwareRelease(SlapDocument):
       (logger or fallback_logger).exception('')
 
   def available(self):
-    self._connection_helper.POST('availableSoftwareRelease', data={
-      'url': self.getURI(),
-      'computer_id': self.getComputerId()})
+    if getattr(self, '_known_state', 'unknown') != "available":
+      # Not required to repost if not needed.
+      self._connection_helper.POST('availableSoftwareRelease', data={
+        'url': self.getURI(),
+        'computer_id': self.getComputerId()})
 
   def building(self):
-    self._connection_helper.POST('buildingSoftwareRelease', data={
-      'url': self.getURI(),
-      'computer_id': self.getComputerId()})
+    if getattr(self, '_known_state', 'unknown') != "building":
+      self._connection_helper.POST('buildingSoftwareRelease', data={
+        'url': self.getURI(),
+        'computer_id': self.getComputerId()})
 
   def destroyed(self):
     self._connection_helper.POST('destroyedSoftwareRelease', data={

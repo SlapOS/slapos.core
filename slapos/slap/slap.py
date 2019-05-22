@@ -63,6 +63,8 @@ requests.packages.urllib3.disable_warnings()
 urllib3_logger = logging.getLogger('requests.packages.urllib3')
 urllib3_logger.setLevel(logging.WARNING)
 
+from cachecontrol import CacheControl
+from cachecontrol.caches.file_cache import FileCache
 
 # XXX fallback_logger to be deprecated together with the old CLI entry points.
 fallback_logger = logging.getLogger(__name__)
@@ -703,6 +705,11 @@ class ConnectionHelper:
     self.master_ca_file = master_ca_file
     self.timeout = timeout
 
+    # self.session will handle requests using HTTP Cache Control rules.
+    self.uncached_session = requests.Session()
+    self.session = CacheControl(self.uncached_session),
+      cache=FileCache(os.path.expanduser("~/.slapos_cached_get"))
+
   def getComputerInformation(self, computer_id):
     xml = self.GET('getComputerInformation', params={'computer_id': computer_id})
     return loads(xml)
@@ -797,7 +804,7 @@ class ConnectionHelper:
     return req
 
   def GET(self, path, params=None, headers=None):
-    req = self.do_request(requests.get,
+    req = self.do_request(self.session.get,
                           path=path,
                           params=params,
                           headers=headers)

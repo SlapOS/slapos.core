@@ -877,6 +877,7 @@
 
         .fail(function (error) {
           var parameter_xml = '';
+          console.warn(error);
           console.log(error.stack);
           if (gadget.options.value.parameter.parameter_hash !== undefined) {
             parameter_xml = atob(gadget.options.value.parameter.parameter_hash);

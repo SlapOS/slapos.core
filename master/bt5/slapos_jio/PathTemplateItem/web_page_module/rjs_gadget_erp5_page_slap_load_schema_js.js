@@ -7,10 +7,8 @@
 
   function getJSON(url) {
     var protocol = URI(url).protocol();
-    if (protocol === "http" || protocol === "https") {
-      if (URI(window.location).protocol() !==  protocol) {
-        throw new Error("You cannot mixed http and https calls");
-      }
+    if (protocol === "http" && URI(window.location).protocol() == "https") {
+      throw new Error("You cannot load http JSON in https page");
     }
     return RSVP.Queue()
       .push(function () {

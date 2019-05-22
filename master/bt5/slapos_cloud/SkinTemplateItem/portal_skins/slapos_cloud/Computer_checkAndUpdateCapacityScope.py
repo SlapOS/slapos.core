@@ -62,8 +62,8 @@ if can_allocate:
   def getSoftwareReleaseCapacity(instance):
     software_release_url = instance.getUrlString()
     software_type = instance.getSourceReference()
-    if software_release_url in software_release_capacity_dict:
-      return software_release_capacity_dict[software_release_url]
+    if "%s-%s" % (software_release_url, software_type) in software_release_capacity_dict:
+      return software_release_capacity_dict["%s-%s" % (software_release_url, software_type)]
 
     software_release = portal.portal_catalog.getResultValue(
       portal_type='Software Release',
@@ -90,7 +90,7 @@ if can_allocate:
     if software_release_capacity is None:
       software_release_capacity = 1
 
-    software_release_capacity_dict[software_release_url] = software_release_capacity
+    software_release_capacity_dict["%s-%s" % (software_release_url, software_type)] = software_release_capacity
     return software_release_capacity
 
   if allocated_instance is not None:

@@ -47,6 +47,7 @@
       ['critical_url', 'Critical RSS', 'exclamation-triangle'],
       ['start_url', 'Start', 'play'],
       ['stop_url', 'Stop', 'stop'],
+      ['close_url', 'Close', 'stop'],
       ['destroy_url', 'Destroy', 'times'],
       ['supply_url', 'Supply', 'plus'],
       ['transfer_url', 'Transfer', 'exchange'],

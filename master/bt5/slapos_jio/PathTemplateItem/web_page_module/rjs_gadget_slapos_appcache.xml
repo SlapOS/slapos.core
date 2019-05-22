@@ -360,6 +360,8 @@ gadget_erp5_page_slap_support_request_view.html\n
 gadget_erp5_page_slap_ticket_list.html\n
 gadget_erp5_page_slap_ticket_list.js\n
 gadget_erp5_page_slap_ticket_view.js\n
+gadget_erp5_page_slap_close_ticket.js\n
+gadget_erp5_page_slap_close_ticket.html\n
 gadget_erp5_page_slap_transfer_computer.html\n
 gadget_erp5_page_slap_transfer_computer.js\n
 gadget_erp5_page_slap_trial_request_message.html\n
@@ -547,7 +549,7 @@ NETWORK:\n
             </item>
             <item>
                 <key> <string>actor</string> </key>
-                <value> <string>zope</string> </value>
+                <value> <string>ERP5TypeTestCase</string> </value>
             </item>
             <item>
                 <key> <string>comment</string> </key>
@@ -561,7 +563,7 @@ NETWORK:\n
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>975.9238.47958.47360</string> </value>
+                <value> <string>975.57226.29060.57429</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -579,7 +581,7 @@ NETWORK:\n
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1556264848.5</float>
+                        <float>1558489648.02</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

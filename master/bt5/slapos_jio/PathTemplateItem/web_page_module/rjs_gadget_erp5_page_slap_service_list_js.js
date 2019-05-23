@@ -119,7 +119,7 @@
         })
         .push(function (result) {
           return RSVP.all([
-            gadget.getUrlFor({command: "change", options: {"page": "slap_select_software_product"}}),
+            gadget.getUrlFor({command: "display_dialog_with_history", options: {"page": "slap_select_software_product"}}),
             gadget.getUrlFor({command: "change", options: {"page": "slapos"}})
 
           ]);

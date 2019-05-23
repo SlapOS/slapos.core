@@ -161,14 +161,13 @@
           })
           .push(function () {
             return RSVP.all([
-              gadget.getUrlFor({command: 'change', options: {page: "slap_select_software_release"}})
+              gadget.getUrlFor({command: 'cancel_dialog_with_history'})
             ]);
           })
           .push(function (url_list) {
             return gadget.updateHeader({
-              page_title: "Request Service: " + doc.title,
-              selection_url: url_list[0],
-              submit_action: true
+              page_title: "3/3 Request Service: " + doc.title,
+              cancel_url: url_list[0]
             });
           });
         });

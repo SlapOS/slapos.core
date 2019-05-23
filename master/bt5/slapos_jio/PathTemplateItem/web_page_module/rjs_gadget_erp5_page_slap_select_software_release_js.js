@@ -19,7 +19,7 @@
 
       var index, param_list, gadget = this;
       for (index in promise_list[0]) {
-        if ((promise_list[0][index].command === "index") && (promise_list[0][index].options.jio_key) &&
+        if ((promise_list[0][index].command === "display_with_history_and_cancel") && (promise_list[0][index].options.jio_key) &&
             (promise_list[0][index].options.jio_key.startsWith("software_release_module"))) {
           if (gadget.computer_jio_key !== undefined) {
             promise_list[0][index].options.page = "slap_add_software_installation";
@@ -63,6 +63,7 @@
                 erp5_document: {
                   "_embedded": {"_view": {
                     "listbox": {
+                      "command": 'display_with_history_and_cancel',
                       "column_list": column_list,
                       "show_anchor": 0,
                       "default_params": {},
@@ -108,13 +109,13 @@
         })
         .push(function () {
           return RSVP.all([
-            gadget.getUrlFor({command: 'change', options: {"page": "slap_select_software_product"}})
+            gadget.getUrlFor({command: 'cancel_dialog_with_history'})
           ]);
         })
         .push(function (url_list) {
           return gadget.updateHeader({
-            page_title: "Select one Release",
-            selection_url: url_list[0],
+            page_title: "2/3 Select one Release",
+            cancel_url: url_list[0],
             filter_action: true
           });
         });

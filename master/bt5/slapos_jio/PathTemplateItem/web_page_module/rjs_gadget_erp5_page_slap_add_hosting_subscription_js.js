@@ -17,8 +17,6 @@
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
 
-
-
     /////////////////////////////////////////////////////////////////
     // declared methods
     /////////////////////////////////////////////////////////////////
@@ -33,21 +31,30 @@
           return gadget.getDeclaredGadget('form_view');
         })
         .push(function (form_gadget) {
-          return form_gadget.getContent();
+          return form_gadget.checkValidity()
+            .push(function (is_valid) {
+              if (!is_valid) {
+                return null;
+              }
+              return form_gadget.getContent();
+            });
         })
         .push(function (doc) {
+          if (doc === null) {
+            return gadget.notifySubmitted({message: 'Please review the form.', status: 'error'});
+          }
           return gadget.getSetting("hateoas_url")
             .push(function (url) {
               return gadget.jio_putAttachment(doc.relative_url,
                 url + doc.relative_url + "/SoftwareRelease_requestHostingSubscription", doc);
-            });
-        })
-        .push(function (key) {
-          return gadget.notifySubmitted({message: 'New service created.', status: 'success'})
-            .push(function () {
-              // Workaround, find a way to open document without break gadget.
-              return gadget.redirect({"command": "change",
+            })
+           .push(function (key) {
+              return gadget.notifySubmitted({message: 'New service created.', status: 'success'})
+                .push(function () {
+                  // Workaround, find a way to open document without break gadget.
+                  return gadget.redirect({"command": "change",
                                     "options": {"jio_key": "/", "page": "slap_service_list"}});
+                });
             });
         });
     })
@@ -83,7 +90,7 @@
                   "title": "Software Release URL",
                   "default": doc.url_string,
                   "css_class": "",
-                  "required": 0,
+                  "required": 1,
                   "editable": 0,
                   "key": "url_string",
                   "hidden": 0,
@@ -94,7 +101,7 @@
                   "title": "Title",
                   "default": "",
                   "css_class": "",
-                  "required": 0,
+                  "required": 1,
                   "editable": 1,
                   "key": "title",
                   "hidden": 0,
@@ -119,7 +126,7 @@
                   "default": "",
                   "items": doc.computer_guid,
                   "css_class": "",
-                  "required": 1,
+                  "required": 0,
                   "editable": 1,
                   "key": "computer_guid",
                   "hidden": 0,

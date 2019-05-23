@@ -289,10 +289,10 @@
                       "default": gadget.state.doc.monitor_scope,
                       "css_class": "",
                       "items": monitor_scope_list,
-                      "required": 1,
+                      "required": 0,
                       "editable": 1,
                       "key": "monitor_scope",
-                      "hidden": 0,
+                      "hidden": gadget.state.doc.root_slave ? 1: 0,
                       "type": "ListField"
                     },
                     "my_upgrade_scope": {
@@ -301,10 +301,10 @@
                       "default": gadget.state.doc.upgrade_scope,
                       "css_class": "",
                       "items": upgrade_scope_list,
-                      "required": 1,
+                      "required": 0,
                       "editable": 1,
                       "key": "upgrade_scope",
-                      "hidden": 0,
+                      "hidden": gadget.state.doc.root_slave ? 1: 0,
                       "type": "ListField"
                     },
                     "connection_listbox": {

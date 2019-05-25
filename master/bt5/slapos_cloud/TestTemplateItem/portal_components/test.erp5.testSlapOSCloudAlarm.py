@@ -611,6 +611,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
     transaction.commit()
 
   def test_alarm(self):
+    self.tic()
     self._simulateComputer_checkAndUpdateCapacityScope()
     try:
       self.portal.portal_alarms.slapos_update_computer_capacity_scope.activeSense()

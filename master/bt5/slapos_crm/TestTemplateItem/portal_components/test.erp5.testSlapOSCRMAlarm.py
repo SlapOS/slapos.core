@@ -1342,6 +1342,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
 
   def test_alarm_update_support_request_state(self):
     support_request = self._makeSupportRequest()
+    self.tic()
 
     self._simulateSupportRequest_updateMonitoringState()
 

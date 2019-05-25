@@ -120,7 +120,8 @@ return %s
     computer2.edit(allocation_scope = 'open/personal')
     computer3 = self._makeComputer(self.generateNewId())
     computer3.edit(allocation_scope = 'open/friend')
-    
+    self.tic()
+
     self._simulateScript('Computer_checkAndCreateUpgradeDecision')
     try:
       self.portal.portal_alarms.slapos_pdm_computer_create_upgrade_decision.\
@@ -142,7 +143,9 @@ return %s
     hosting_subscription = self._makeHostingSubscription()
     hosting_subscription2 = self._makeHostingSubscription()
     hosting_subscription3 = self._makeHostingSubscription()
-    
+
+    self.tic()
+
     self._simulateScript('HostingSubscription_createUpgradeDecision')
     try:
       self.portal.portal_alarms.slapos_pdm_hosting_subscription_create_upgrade_decision.\
@@ -163,7 +166,8 @@ return %s
   def test_alarm_create_upgrade_decision_destroyed_hosting_subscription(self):
     hosting_subscription = self._makeHostingSubscription(slap_state="destroy_requested")
     hosting_subscription2 = self._makeHostingSubscription(slap_state="destroy_requested")
-    
+    self.tic()
+
     self._simulateScript('HostingSubscription_createUpgradeDecision')
     try:
       self.portal.portal_alarms.slapos_pdm_hosting_subscription_create_upgrade_decision.\
@@ -183,7 +187,8 @@ return %s
     computer.edit(allocation_scope = 'close/oudtated')
     computer2 = self._makeComputer(self.generateNewId())
     computer2.edit(allocation_scope = 'close/maintenance')
-    
+    self.tic()
+
     self._simulateScript('Computer_checkAndCreateUpgradeDecision')
     try:
       self.portal.portal_alarms.slapos_pdm_computer_create_upgrade_decision.\

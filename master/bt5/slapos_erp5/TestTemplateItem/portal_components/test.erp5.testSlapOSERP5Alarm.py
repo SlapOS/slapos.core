@@ -44,6 +44,7 @@ context.edit(description=description)""")
       )
     self.assertEqual(active_process.getCreationDate(), date)
 
+    self.tic()
     self._simulateActiveProcess_deleteSelf()
     try:
       self.portal.portal_alarms.slapos_erp5_cleanup_active_process.activeSense()

@@ -58,12 +58,12 @@
 
 <tr>
   <td>waitForElementPresent</td>
-  <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_string.html\')]//p[contains(text(), \'%s%s%s-\')]' % (DateTime().year(),DateTime().month(),DateTime().day())"></td>
+  <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_string.html\')]//p[contains(text(), \'%s%02d%02d-\')]' % (DateTime().year(),DateTime().month(),DateTime().day())"></td>
   <td></td>
 </tr>
 <tr>
   <td>assertElementPresent</td>
-  <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_string.html\')]//p[contains(text(), \'%s%s%s-\')]' % (DateTime().year(),DateTime().month(),DateTime().day())"></td>
+  <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_string.html\')]//p[contains(text(), \'%s%02d%02d-\')]' % (DateTime().year(),DateTime().month(),DateTime().day())"></td>
   <td></td>
 </tr>
 

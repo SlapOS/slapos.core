@@ -7,6 +7,9 @@ if portal.ERP5Site_isSupportRequestCreationClosed():
   # Stop ticket creation
   return
 
+if context.getMonitorScope() == "disabled":
+  return
+
 reference = context.getReference()
 computer_title = context.getTitle()
 ticket_title = "[MONITORING] Lost contact with computer %s" % reference

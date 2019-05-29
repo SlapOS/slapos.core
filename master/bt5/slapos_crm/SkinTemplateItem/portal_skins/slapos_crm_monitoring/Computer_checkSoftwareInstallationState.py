@@ -7,6 +7,10 @@ if portal.ERP5Site_isSupportRequestCreationClosed():
   # Stop ticket creation
   return
 
+if context.getMonitorScope() == "disabled":
+  return
+
+
 software_installation_list = portal.portal_catalog(
       portal_type='Software Installation',
       default_aggregate_uid=context.getUid(),

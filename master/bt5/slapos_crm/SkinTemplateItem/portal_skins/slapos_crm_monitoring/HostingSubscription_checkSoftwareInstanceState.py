@@ -4,7 +4,7 @@ from Products.ERP5Type.DateUtils import addToDate
 hosting_subscription = context
 portal = context.getPortalObject()
 
-if hosting_subscription.getMonitorScope() == "disable":
+if hosting_subscription.getMonitorScope() == "disabled":
   # Don't generate ticket if Monitor Scope is marked to disable
   return
 
@@ -30,6 +30,9 @@ failing_instance = None
 # Check if at least one software Instance is Allocated
 for instance in software_instance_list:
   if (date_check_limit - instance.Base_getCachedCreationDate()) < 0:
+    continue
+
+  if instance.getSlapState() != "start_requested":
     continue
 
   computer_partition = instance.getAggregateValue()

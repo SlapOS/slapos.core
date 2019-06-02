@@ -16,7 +16,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -70,7 +69,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -82,7 +80,7 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_erp5_page_slap_person_view.js</string> </value>
+            <value> <string>gadget_erp5_page_slap_person_add_erp5_login.js</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -92,7 +90,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_erp5_page_slap_person_view_js</string> </value>
+            <value> <string>rjs_gadget_erp5_page_slap_person_add_erp5_login_js</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -110,7 +108,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget SlapOS Person View</string> </value>
+            <value> <string>Gadget SlapOS Person Add ERP5 Login</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
@@ -196,7 +194,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1508422078.02</float>
+                        <float>1559202667.83</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -241,7 +239,7 @@
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>976.3552.39636.23859</string> </value>
+                <value> <string>976.5545.8476.36522</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -259,7 +257,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1559517473.11</float>
+                        <float>1559514750.72</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -316,7 +314,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1508421800.17</float>
+                        <float>1559201637.49</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

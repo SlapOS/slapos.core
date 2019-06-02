@@ -91,8 +91,7 @@
       var gadget = this,
         column_list = [
           ['reference', 'Reference'],
-          ['portal_type', 'Type'],
-          ['validation_state', 'Status']
+          ['portal_type', 'Type']
         ],
         data;
       return new RSVP.Queue()
@@ -149,7 +148,8 @@
                   "query": "urn:jio:allDocs?query=%28portal_type%3A%28%22" +
                     "ERP5 Login" + "%22%2C%20%22" +
                     "Google Login" + "%22%2C%20%22" +
-                    "Facebook Login" + "%22%29%29",
+                    "Facebook Login" + "%22%29%20AND%20" +
+                    "validation_state%3Avalidated%29",
                   "portal_type": [],
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
@@ -185,6 +185,7 @@
             gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_revoke_certificate"}}),
             gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_request_certificate"}}),
             gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_get_token"}}),
+            gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_add_erp5_login"}}),
             gadget.getUrlFor({command: "change", options: {page: "slapos"}})
           ]);
         })
@@ -195,7 +196,8 @@
             request_certificate_url: url_list[2],
             revoke_certificate_url: url_list[1],
             token_url: url_list[3],
-            selection_url: url_list[4]
+            add_url: url_list[4],
+            selection_url: url_list[5]
           };
           if (!gadget.state.editable) {
             header_dict.edit_content = url_list[0];

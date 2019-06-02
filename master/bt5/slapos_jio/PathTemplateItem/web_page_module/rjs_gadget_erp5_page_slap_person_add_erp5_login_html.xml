@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="Web Script" module="erp5.portal_type"/>
+      <global name="Web Page" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -16,7 +16,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -40,17 +39,6 @@
             </value>
         </item>
         <item>
-            <key> <string>_Copy_or_Move_Permission</string> </key>
-            <value>
-              <list>
-                <string>Manager</string>
-                <string>Authenticated</string>
-                <string>Developer</string>
-                <string>Owner</string>
-              </list>
-            </value>
-        </item>
-        <item>
             <key> <string>_Modify_portal_content_Permission</string> </key>
             <value>
               <tuple>
@@ -70,7 +58,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -81,8 +68,12 @@
             </value>
         </item>
         <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>text/html</string> </value>
+        </item>
+        <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_erp5_page_slap_person_view.js</string> </value>
+            <value> <string>gadget_erp5_page_slap_person_add_erp5_login.html</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -92,7 +83,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_erp5_page_slap_person_view_js</string> </value>
+            <value> <string>rjs_gadget_erp5_page_slap_person_add_erp5_login_html</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -100,7 +91,7 @@
         </item>
         <item>
             <key> <string>portal_type</string> </key>
-            <value> <string>Web Script</string> </value>
+            <value> <string>Web Page</string> </value>
         </item>
         <item>
             <key> <string>short_title</string> </key>
@@ -110,11 +101,11 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget SlapOS Person View</string> </value>
+            <value> <string>Gadget SlapOS  Person Add ERP5 Login</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
-            <value> <string>003</string> </value>
+            <value> <string>001</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -196,7 +187,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1508422078.02</float>
+                        <float>1559202678.18</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -241,7 +232,7 @@
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>976.3552.39636.23859</string> </value>
+                <value> <string>976.3557.5699.51524</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -259,7 +250,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1559517473.11</float>
+                        <float>1559201605.46</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -316,7 +307,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1508421800.17</float>
+                        <float>1559201559.4</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

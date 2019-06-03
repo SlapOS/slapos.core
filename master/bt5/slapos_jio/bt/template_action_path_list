@@ -1,4 +1,7 @@
+Accounting Transaction Module | slaposjs_view
 Category | slaposjs_view
+Computer Module | slaposjs_view
+Computer Network Module | slaposjs_view
 Computer Network | slaposjs_view
 Computer | get_hateoas_software_installation_list
 Computer | new_ticket
@@ -10,15 +13,18 @@ Computer | update_category
 ERP5 Login | slaposjs_view
 Facebook Login | slaposjs_view
 Google Login | slaposjs_view
+Hosting Subscription Module | slaposjs_view
 Hosting Subscription | get_hateoas_instance_list
 Hosting Subscription | get_hateoas_root_instance
 Hosting Subscription | slaposjs_view
+Organisation Module | slaposjs_view
 Organisation | slaposjs_view
 Person | get_hateoas_computer_list
 Person | get_hateoas_hosting_subscription_list
 Person | get_hateoas_information
 Person | request_hateoas_hosting_subscription
 Person | slaposjs_view
+Project Module | slaposjs_view
 Project | slaposjs_view
 Regularisation Request | slaposjs_view
 Sale Invoice Transaction | slaposjs_view
@@ -35,6 +41,7 @@ Software Instance | get_hateoas_related_hosting_subscription
 Software Instance | slaposjs_view
 Software Product | slaposjs_view
 Software Release | slaposjs_view
+Support Request Module | slaposjs_view
 Support Request | slaposjs_view
 Upgrade Decision | slaposjs_view
 Web Message | slaposjs_view

@@ -21,7 +21,7 @@
     })
     .allowPublicAcquisition('updateDocument', function (param_list) {
       var gadget = this, property,
-          content = param_list[0], doc = {};
+        content = param_list[0], doc = {};
       for (property in content) {
         if ((content.hasOwnProperty(property)) &&
             // Remove undefined keys added by Gadget fields
@@ -49,7 +49,21 @@
       return gadget.jio_get(options.jio_key)
         .push(function (result) {
 
-          if (result.portal_type !== undefined) {
+          if (result.portal_type === "Support Request Module") {
+            child_gadget_url = "gadget_erp5_page_slap_ticket_list.html";
+          } else if (result.portal_type === "Hosting Subscription Module") {
+            child_gadget_url = "gadget_erp5_page_slap_service_list.html";
+          } else if (result.portal_type === "Accounting Transaction Module") {
+            child_gadget_url = "gadget_erp5_page_slap_invoice_list.html";
+          } else if (result.portal_type === "Computer Module") {
+            child_gadget_url = "gadget_erp5_page_slap_computer_list.html";
+          } else if (result.portal_type === "Organisation Module") {
+            child_gadget_url = "gadget_erp5_page_slap_site_list.html";
+          } else if (result.portal_type === "Computer Network Module") {
+            child_gadget_url = "gadget_erp5_page_slap_network_list.html";
+          } else if (result.portal_type === "Project Module") {
+            child_gadget_url = "gadget_erp5_page_slap_project_list.html";
+          } else if (result.portal_type !== undefined) {
             child_gadget_url = 'gadget_erp5_page_slap_' +
               result.portal_type.replace(/ /g, '_').toLowerCase() +
               '_view.html';

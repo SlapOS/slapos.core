@@ -143,7 +143,7 @@ def getPublicIPv4Address():
     if ipv4 is not None:
       previous = ipv4
     try:
-      ipv4 = json.load(urlopen(test["url"]))[test["json_key"]]
+      ipv4 = json.load(urlopen(test["url"], timeout=15))[test["json_key"]]
     except:
       ipv4 = None
     if ipv4 is not None and ipv4 == previous:

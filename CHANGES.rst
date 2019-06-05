@@ -1,6 +1,13 @@
 Changes
 =======
 
+1.4.23 (2019-06-05)
+-------------------
+
+ * grid.promise: accelerate the promises.
+ * format: add timeout when getting public IPv4.
+ * slapos.slap: don't post information about software if not needed.
+
 1.4.22 (2019-04-11)
 -------------------
 

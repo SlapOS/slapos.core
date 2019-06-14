@@ -56,7 +56,18 @@
       return this.element.querySelector('button[type="submit"]').click();
     })
 
+    // prevent render from being called several times by using "onStateChange"
+    // which won't be called several times if options didn't change
+    // also use a declareJob to let the function finish immediately
+    // (gadget.redirect is actually waiting indefinitely) so that parent is
+    // happy and doesn't try to call render again
     .declareMethod("render", function (options) {
+      return this.changeState(options);
+    })
+    .onStateChange(function (options) {
+      this.deferRender(options);
+    })
+    .declareJob("deferRender", function (options) {
       var gadget = this;
       if (options.intent !== "request") {
         throw new Error("Intent not supported");

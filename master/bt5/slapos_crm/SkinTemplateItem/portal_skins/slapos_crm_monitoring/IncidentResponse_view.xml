@@ -83,7 +83,7 @@
                     <key> <string>center</string> </key>
                     <value>
                       <list>
-                        <string>my_monitoring_status</string>
+                        <string>my_description</string>
                       </list>
                     </value>
                 </item>
@@ -92,8 +92,6 @@
                     <value>
                       <list>
                         <string>listbox_delivery_start_date</string>
-                        <string>listbox_destination_title</string>
-                        <string>listbox_content</string>
                       </list>
                     </value>
                 </item>
@@ -103,7 +101,11 @@
                       <list>
                         <string>my_title</string>
                         <string>my_reference</string>
-                        <string>my_monitor_link</string>
+                        <string>my_resource</string>
+                        <string>my_destination_section_title</string>
+                        <string>my_source_decision_title</string>
+                        <string>my_source_title</string>
+                        <string>my_destination_title</string>
                       </list>
                     </value>
                 </item>
@@ -111,9 +113,10 @@
                     <key> <string>right</string> </key>
                     <value>
                       <list>
+                        <string>my_source_trade_title_list</string>
+                        <string>my_start_date</string>
+                        <string>my_stop_date</string>
                         <string>my_translated_simulation_state_title</string>
-                        <string>my_aggregate_title_list</string>
-                        <string>my_follow_up_title</string>
                       </list>
                     </value>
                 </item>
@@ -122,7 +125,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SupportRequest_viewMonitoring</string> </value>
+            <value> <string>IncidentResponse_view</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -130,7 +133,7 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>SupportRequest_view</string> </value>
+            <value> <string>IncidentResponse_view</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>
@@ -146,7 +149,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Support Request</string> </value>
+            <value> <string>Incident Response</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

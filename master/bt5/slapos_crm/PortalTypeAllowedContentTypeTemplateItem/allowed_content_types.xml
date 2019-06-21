@@ -1,4 +1,7 @@
 <allowed_content_type_list>
+ <portal_type id="Incident Response Module">
+  <item>Incident Response</item>
+ </portal_type>
  <portal_type id="Regularisation Request Module">
   <item>Regularisation Request</item>
  </portal_type>

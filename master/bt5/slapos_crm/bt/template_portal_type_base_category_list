@@ -2,6 +2,10 @@ Computer | monitor_scope
 Computer | upgrade_scope
 Hosting Subscription | monitor_scope
 Hosting Subscription | upgrade_scope
+Incident Response Module | business_application
+Incident Response | aggregate
+Incident Response | specialise
 Regularisation Request Module | business_application
 Regularisation Request | specialise
 Support Request | aggregate
+Support Request | follow_up

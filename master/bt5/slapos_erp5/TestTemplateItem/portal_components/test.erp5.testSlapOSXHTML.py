@@ -13,6 +13,7 @@ class TestSlapOSXHTML(SlapOSTestCaseMixin, testXHTML.TestXHTML):
                           'erp5_fckeditor', 'erp5_ui_test_core',
                           'erp5_jquery', 'erp5_jquery_ui',
                           'erp5_svg_editor', 'erp5_xinha_editor',
+                          'erp5_monaco_editor',
                           'erp5_web_renderjs')
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)

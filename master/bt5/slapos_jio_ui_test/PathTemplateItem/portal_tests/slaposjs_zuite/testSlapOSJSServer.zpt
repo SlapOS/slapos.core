@@ -113,7 +113,7 @@
    <td colspan="3"><b> Select a Software Product</b></td>
 </tr>
 
-<tal:block define="header python: 'Select one Software'; ">
+<tal:block define="header python: '1/3 Select one Software'; ">
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
@@ -145,7 +145,7 @@
    <td colspan="3"><b> Select a Software Release</b></td>
 </tr>
 
-<tal:block define="header python: 'Select one Release'; ">
+<tal:block define="header python: '2/3 Select one Release'; ">
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
 </tal:block>
 

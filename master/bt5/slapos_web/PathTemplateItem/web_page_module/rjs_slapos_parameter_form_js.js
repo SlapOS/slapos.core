@@ -291,7 +291,7 @@
           div.appendChild(label);
           div_input = document.createElement("div");
           div_input.setAttribute("class", "input");
-          input = render_field({"type": "string"}, default_dict[key]);
+          input = render_field({"type": "string", "textarea": true}, default_dict[key]);
           input.name = path + "/" + key;
           input.setAttribute("class", "slapos-parameter");
           div_input.appendChild(input);

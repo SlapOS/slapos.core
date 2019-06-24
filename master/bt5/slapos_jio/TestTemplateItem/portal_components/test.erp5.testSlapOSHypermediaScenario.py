@@ -401,6 +401,7 @@ class TestSlapOSHypermediaInstanceScenario(SlapOSTestCaseMixin):
   def generateNewSoftwareTitle(self):
     return 'Title %s' % self.generateNewId()
 
+  @skip("Hypermedia is not supported anymore.")
   def test(self):
     self._makeTree()
     instance = self.software_instance

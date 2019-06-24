@@ -167,7 +167,9 @@
           .push(function (url_list) {
             return gadget.updateHeader({
               page_title: "3/3 Request Service: " + doc.title,
-              cancel_url: url_list[0]
+              cancel_url: url_list[0],
+              submit_action: true
+
             });
           });
         });

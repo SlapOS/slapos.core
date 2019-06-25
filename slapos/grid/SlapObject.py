@@ -663,10 +663,10 @@ class Partition(object):
     self.supervisor_configuration_group = ""
     if os.path.exists(self.run_path):
       if os.path.isdir(self.run_path):
-        runner_list = os.listdir(self.run_path)
+        runner_list = sorted(os.listdir(self.run_path))
     if os.path.exists(self.service_path):
       if os.path.isdir(self.service_path):
-        service_list = os.listdir(self.service_path)
+        service_list = sorted(os.listdir(self.service_path))
     if len(runner_list) == 0 and len(service_list) == 0:
       self.logger.warning('No runners nor services found for partition %r' %
           self.partition_id)

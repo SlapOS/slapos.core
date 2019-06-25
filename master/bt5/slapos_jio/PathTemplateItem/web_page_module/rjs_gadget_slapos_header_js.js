@@ -40,6 +40,8 @@
       ['download_url', 'Download', 'download'],
       // Include SlapOS specific items
       ['ticket_url', 'Add Ticket', 'ticket'],
+      ['add_login_url', 'Add Login', 'plus'],
+      ['add_organisation_url', 'Add Organisation', 'plus'],
       ['token_url', 'Token', 'key'],
       ['request_certificate_url', 'Request Certificate', 'certificate'],
       ['revoke_certificate_url', 'Revoke Certificate', 'ban'],

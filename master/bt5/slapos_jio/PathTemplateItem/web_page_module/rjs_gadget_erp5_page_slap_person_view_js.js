@@ -89,9 +89,16 @@
 
     .onStateChange(function () {
       var gadget = this,
+        i, destination_list, 
         column_list = [
           ['reference', 'Reference'],
           ['portal_type', 'Type']
+        ],
+        organisation_column_list = [
+            ['title', 'Title'],
+            ['reference', 'Reference'],
+            ['default_address_region_title', 'Region'],
+            ['Organisation_getNewsDict', 'Status']
         ],
         data;
       return new RSVP.Queue()
@@ -99,7 +106,10 @@
           return gadget.getDeclaredGadget('form_view');
         })
         .push(function (form_gadget) {
-          var editable = gadget.state.editable;
+          destination_list = "%22NULL%22%2C";
+          for (i in gadget.state.doc.assignment_destination_list) {
+            destination_list += "%22" + gadget.state.doc.assignment_destination_list[i] + "%22%2C";
+          }
           return form_gadget.render({
             erp5_document: {
               "_embedded": {"_view": {
@@ -109,7 +119,7 @@
                   "default": gadget.state.doc.first_name,
                   "css_class": "",
                   "required": 1,
-                  "editable": editable,
+                  "editable": 1,
                   "key": "first_name",
                   "hidden": 0,
                   "type": "StringField"
@@ -120,7 +130,7 @@
                   "default": gadget.state.doc.last_name,
                   "css_class": "",
                   "required": 1,
-                  "editable": editable,
+                  "editable": 1,
                   "key": "last_name",
                   "hidden": 0,
                   "type": "StringField"
@@ -131,7 +141,7 @@
                   "default": gadget.state.doc.default_email_text,
                   "css_class": "",
                   "required": 1,
-                  "editable": editable,
+                  "editable": 1,
                   "key": "default_email_text",
                   "hidden": 0,
                   "type": "StringField"
@@ -156,6 +166,25 @@
                   "sort": [["reference", "ascending"]],
                   "title": "Logins",
                   "type": "ListBox"
+                },
+                "organisation_listbox": {
+                  "column_list": organisation_column_list,
+                  "show_anchor": 0,
+                  "default_params": {},
+                  "editable": 1,
+                  "editable_column_list": [],
+                  "key": "slap_person_organisation_listbox",
+                  "lines": 20,
+                  "list_method": "portal_catalog",
+                  "query": "urn:jio:allDocs?query=portal_type%3A%22" +
+                    "Organisation" + "%22%20AND%20role_title%3A%22Client%22%20AND%20" +
+                    "relative_url%3A(" + destination_list + ")",
+                  "portal_type": [],
+                  "search_column_list": column_list,
+                  "sort_column_list": column_list,
+                  "sort": [["reference", "ascending"]],
+                  "title": "Organisations",
+                  "type": "ListBox"
                 }
               }},
               "_links": {
@@ -171,7 +200,7 @@
                 [["my_first_name"], ["my_last_name"], ["my_default_email_text"]]
               ], [
                 "bottom",
-                [["listbox"]]
+                [["listbox"], ["organisation_listbox"]]
               ]]
             }
           });
@@ -186,6 +215,7 @@
             gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_request_certificate"}}),
             gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_get_token"}}),
             gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_add_erp5_login"}}),
+            gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_add_organisation"}}),
             gadget.getUrlFor({command: "change", options: {page: "slapos"}})
           ]);
         })
@@ -196,8 +226,9 @@
             request_certificate_url: url_list[2],
             revoke_certificate_url: url_list[1],
             token_url: url_list[3],
-            add_url: url_list[4],
-            selection_url: url_list[5]
+            add_login_url: url_list[4],
+            add_organisation_url: url_list[5],
+            selection_url: url_list[6]
           };
           if (!gadget.state.editable) {
             header_dict.edit_content = url_list[0];

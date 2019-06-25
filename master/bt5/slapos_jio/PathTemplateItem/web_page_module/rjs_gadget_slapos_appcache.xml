@@ -108,7 +108,7 @@
             <value> <string encoding="cdata"><![CDATA[
 
 CACHE MANIFEST\n
-# generated on Fri, 26 Avril 2019 00:00:00 GMT+0200\n
+# generated on Fri, 24 Jun 2019 00:00:00 GMT+0200\n
 CACHE:\n
 favicon.ico\n
 font-awesome/font-awesome-webfont.eot?v=4.6.3\n
@@ -321,6 +321,8 @@ gadget_erp5_page_slap_parameter_form.js\n
 gadget_erp5_page_slap_payment_result.html\n
 gadget_erp5_page_slap_person_get_token.html\n
 gadget_erp5_page_slap_person_get_token.js\n
+gadget_erp5_page_slap_person_add_organisation.js\n
+gadget_erp5_page_slap_person_add_organisation.html\n
 gadget_erp5_page_slap_person_request_certificate.html\n
 gadget_erp5_page_slap_person_request_certificate.js\n
 gadget_erp5_page_slap_person_revoke_certificate.html\n
@@ -565,7 +567,7 @@ NETWORK:\n
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>976.8845.38902.19200</string> </value>
+                <value> <string>976.40547.59496.46250</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -583,7 +585,7 @@ NETWORK:\n
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1559518993.22</float>
+                        <float>1561423738.11</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

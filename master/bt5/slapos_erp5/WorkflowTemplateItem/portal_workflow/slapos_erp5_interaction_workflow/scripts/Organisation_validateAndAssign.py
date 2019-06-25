@@ -4,13 +4,19 @@ portal = context.getPortalObject()
 if organisation.getValidationState() != "draft":
   return
 
-if organisation.getRole() != "host":
+role = organisation.getRole()
+if role not in ["host", "client"]:
   return
 
+if role == "host":
+  reference_prefix = "SITE"
+else:
+  reference_prefix = "O"
+
 if organisation.getReference() in [None, ""]:
-  reference = "SITE-%s" % portal.portal_ids.generateNewId(
+  reference = "%s-%s" % (reference_prefix, portal.portal_ids.generateNewId(
     id_group='slap_organisation_reference',
-    id_generator='uid')
+    id_generator='uid'))
 
   organisation.setReference(reference)
 

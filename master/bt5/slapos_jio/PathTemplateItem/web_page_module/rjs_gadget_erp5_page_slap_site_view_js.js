@@ -22,6 +22,37 @@
     // declared methods
     /////////////////////////////////////////////////////////////////
 
+    .allowPublicAcquisition("jio_allDocs", function (param_list) {
+      var gadget = this;
+      return gadget.jio_allDocs(param_list[0])
+        .push(function (result) {
+          var i, value, value_jio_key, len = result.data.total_rows;
+          for (i = 0; i < len; i += 1) {
+            if (1 || (result.data.rows[i].value.hasOwnProperty("Computer_getNewsDict"))) {
+              value_jio_key = result.data.rows[i].id;
+              value = result.data.rows[i].value.Computer_getNewsDict;
+              result.data.rows[i].value.Computer_getNewsDict = {
+                field_gadget_param : {
+                  css_class: "",
+                  description: "The Status",
+                  hidden: 0,
+                  "default": {jio_key: value, result: value},
+                  key: "status",
+                  url: "gadget_slapos_computer_status.html",
+                  title: "Status",
+                  type: "GadgetField"
+                }
+              };
+              result.data.rows[i].value["listbox_uid:list"] = {
+                key: "listbox_uid:list",
+                value: 2713
+              };
+            }
+          }
+          return result;
+        });
+    })
+
     .declareMethod("render", function (options) {
       return this.changeState({
         jio_key: options.jio_key,
@@ -61,8 +92,12 @@
           ]);
         })
         .push(function (result) {
-          var column_list = [],
-            editable = gadget.state.editable;
+          var editable = gadget.state.editable;
+          var column_list = [
+            ['title', 'Title'],
+            ['reference', 'Reference'],
+            ['Computer_getNewsDict', 'Status']
+          ];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
@@ -88,6 +123,65 @@
                   "hidden": 0,
                   "type": "StringField"
                 },
+
+                "my_default_geographical_location_longitude": {
+                  "description": "",
+                  "title": "Longitude",
+                  "default": gadget.state.doc.default_geographical_location_longitude,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 1,
+                  "key": "default_geographical_location_longitude",
+                  "hidden": 0,
+                  "type": "FloatField"
+                },
+
+                "my_default_geographical_location_latitude": {
+                  "description": "",
+                  "title": "Latitude",
+                  "default": gadget.state.doc.default_geographical_location_latitude,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 1,
+                  "key": "default_geographical_location_latitude",
+                  "hidden": 0,
+                  "type": "FloatField"
+                },
+                "my_monitoring_status": {
+                  "description": "",
+                  "title": "Monitoring",
+                  "default": {jio_key: gadget.state.jio_key,
+                              result: gadget.state.doc.news},
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 0,
+                  "url": "gadget_slapos_site_status.html",
+                  "sandbox": "",
+                  "key": "monitoring_status",
+                  "hidden": 0,
+                  "type": "GadgetField"
+                },
+                "my_organisation_map": {
+                  "description": "",
+                  "title": "Map",
+                  "default": [
+                    {"jio_key": gadget.state.jio_key,
+                     "doc": {"title": gadget.state.doc.title,
+                            "reference": gadget.state.doc.reference,
+                            "result": gadget.state.doc.news,
+                            "latitude": gadget.state.doc.default_geographical_location_latitude,
+                            "longitude": gadget.state.doc.default_geographical_location_longitude}
+                    }
+                  ],
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 0,
+                  "url": "gadget_slapos_computer_map.html",
+                  "sandbox": "",
+                  "key": "monitoring_status",
+                  "hidden": 0,
+                  "type": "GadgetField"
+                },
                 "listbox": {
                   "column_list": column_list,
                   "show_anchor": 0,
@@ -105,7 +199,7 @@
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
                   "sort": [["title", "ascending"]],
-                  "title": "Associated Persons",
+                  "title": "Associated Servers",
                   "type": "ListBox"
                 }
               }},

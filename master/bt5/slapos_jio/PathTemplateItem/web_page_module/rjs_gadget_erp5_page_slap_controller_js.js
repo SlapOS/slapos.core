@@ -63,6 +63,9 @@
             child_gadget_url = "gadget_erp5_page_slap_network_list.html";
           } else if (result.portal_type === "Project Module") {
             child_gadget_url = "gadget_erp5_page_slap_project_list.html";
+          } else if ((result.portal_type === "Organisation") &&
+                     result.role === "host") {
+            child_gadget_url = "gadget_erp5_page_slap_site_view.html";
           } else if (result.portal_type !== undefined) {
             child_gadget_url = 'gadget_erp5_page_slap_' +
               result.portal_type.replace(/ /g, '_').toLowerCase() +

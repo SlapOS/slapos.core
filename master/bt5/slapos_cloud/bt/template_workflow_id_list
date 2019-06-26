@@ -5,3 +5,4 @@ installation_slap_interface_workflow
 instance_slap_interface_workflow
 person_slap_interface_workflow
 slapos_cloud_interaction_workflow
+slapos_software_release_cleanup_workflow

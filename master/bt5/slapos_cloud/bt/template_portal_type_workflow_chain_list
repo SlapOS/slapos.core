@@ -17,3 +17,4 @@ Software Instance | edit_workflow
 Software Instance | instance_slap_interface_workflow
 Software Instance | item_workflow
 Software Instance | slapos_cloud_interaction_workflow
+Software Release | slapos_software_release_cleanup_workflow

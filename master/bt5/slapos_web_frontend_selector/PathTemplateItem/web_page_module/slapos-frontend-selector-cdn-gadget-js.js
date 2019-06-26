@@ -16,7 +16,16 @@
         redirect: "http://demoapp6.erp5.cn" + relative_url_path },
       { name : 'Canada-O',
         testurl: "http://demoapp8.erp5.cn/WebSite_getTestFrontendResponse",
-        redirect: "http://demoapp8.erp5.cn" + relative_url_path }
+        redirect: "http://demoapp8.erp5.cn" + relative_url_path },
+      { name : 'China-CT',
+        testurl: "http://demoapp26.erp5.cn/WebSite_getTestFrontendResponse",
+        redirect: "http://demoapp26.erp5.cn" + relative_url_path },
+      { name : 'China-CNC',
+        testurl: "http://demoapp27.erp5.cn/WebSite_getTestFrontendResponse",
+        redirect: "http://demoapp27.erp5.cn" + relative_url_path },
+      { name : 'China-CM',
+        testurl: "http://demoapp28.erp5.cn/WebSite_getTestFrontendResponse",
+        redirect: "http://demoapp28.erp5.cn" + relative_url_path }
     ];
 
   function ajax(param) {

@@ -43,6 +43,7 @@
       ['add_login_url', 'Add Login', 'plus'],
       ['add_organisation_url', 'Add Organisation', 'plus'],
       ['token_url', 'Token', 'key'],
+      ['invitation_url', 'Invite User', 'key'],
       ['request_certificate_url', 'Request Certificate', 'certificate'],
       ['revoke_certificate_url', 'Revoke Certificate', 'ban'],
       ['rss_url', 'RSS', 'rss'],

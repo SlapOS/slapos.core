@@ -30,6 +30,48 @@
       });
     })
 
+    .allowPublicAcquisition("jio_allDocs", function (param_list) {
+      var gadget = this;
+      return gadget.jio_allDocs(param_list[0])
+        .push(function (result) {
+          var i, value, jio_key_value, len = result.data.total_rows;
+          for (i = 0; i < len; i += 1) {
+            if (1 || (result.data.rows[i].value.hasOwnProperty("title"))) {
+              value = result.data.rows[i].value.title;
+              result.data.rows[i].value.title = {
+                field_gadget_param : {
+                  css_class: "",
+                  "default": value,
+                  key: "title",
+                  editable: 1,
+                  url: "gadget_slapos_label_listbox_field.html",
+                  title: "Title",
+                  type: "GadgetField"
+                }
+              };
+              value = result.data.rows[i].value.default_email_text;
+              result.data.rows[i].value.default_email_text = {
+                field_gadget_param : {
+                  css_class: "",
+                  "default": value,
+                  key: "default_email_text",
+                  editable: 1,
+                  url: "gadget_slapos_label_listbox_field.html",
+                  title: "Status",
+                  type: "GadgetField"
+                }
+              };
+              result.data.rows[i].value["listbox_uid:list"] = {
+                key: "listbox_uid:list",
+                value: 2713
+              };
+            }
+          }
+          return result;
+        });
+    })
+
+
     .onEvent('submit', function () {
       var gadget = this;
       return gadget.notifySubmitting()
@@ -61,7 +103,10 @@
           ]);
         })
         .push(function (result) {
-          var column_list = [],
+          var column_list = [
+                        ['title', 'Title'],
+                        ['default_email_text', 'Email']
+                             ],
             editable = gadget.state.editable;
           return result[0].render({
             erp5_document: {
@@ -92,13 +137,13 @@
                   "column_list": column_list,
                   "show_anchor": 0,
                   "default_params": {},
-                  "editable": 0,
+                  "editable": 1,
                   "editable_column_list": [],
                   "key": "slap_organisation_computer_listbox",
                   "lines": 10,
-                  "list_method": "Organisation_getComputerTrackingList",
+                  "list_method": "Organisation_getAssociatedPersonList",
                   "list_method_template": result[1] + "ERP5Document_getHateoas?mode=search&" +
-                            "list_method=Organisation_getComputerTrackingList&relative_url=" +
+                            "list_method=Organisation_getAssociatedPersonList&relative_url=" +
                             gadget.state.jio_key + "&default_param_json=eyJpZ25vcmVfdW5rbm93bl9jb2x1bW5zIjogdHJ1ZX0={&query,select_list*,limit*,sort_on*,local_roles*}",
                   "query": "urn:jio:allDocs?query=",
                   "portal_type": [],
@@ -119,12 +164,7 @@
             form_definition: {
               group_list: [[
                 "left",
-                [["my_title"], ["my_reference"], ['my_monitoring_status'],
-                 ["my_default_geographical_location_longitude"],
-                 ["my_default_geographical_location_latitude"]]
-              ], [
-                "right",
-                [['my_organisation_map']]
+                [["my_title"], ["my_reference"]]
               ], [
                 "bottom",
                 [["listbox"]]
@@ -135,15 +175,17 @@
         .push(function () {
           return RSVP.all([
             gadget.getUrlFor({command: "change", options: {editable: true}}),
-            gadget.getUrlFor({command: 'history_previous'}),
-            gadget.getUrlFor({command: "change", options: {page: "slap_delete_organisation"}})
+            gadget.getUrlFor({command: "change", options: {page: "slap_person_view"}}),
+            gadget.getUrlFor({command: "change", options: {page: "slap_delete_organisation"}}),
+            gadget.getUrlFor({command: "change", options: {page: "slap_organisation_get_invitation_link"}})
           ]);
         })
         .push(function (url_list) {
           var header_dict = {
             selection_url: url_list[1],
-            page_title: "Site : " + gadget.state.doc.title,
+            page_title: "Organisation : " + gadget.state.doc.title,
             delete_url: url_list[2],
+            invitation_url: url_list[3],
             save_action: true
           };
           if (!gadget.state.editable) {

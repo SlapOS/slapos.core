@@ -1,0 +1,9 @@
+<base_category_list>
+ <portal_type id="Invitation Token">
+  <item>destination</item>
+  <item>source</item>
+ </portal_type>
+ <portal_type id="Invitation Token Module">
+  <item>business_application</item>
+ </portal_type>
+</base_category_list>

@@ -1,5 +1,7 @@
 Certificate Authority Tool | CertificateAuthorityToolConsistencyConstraint
 Id Tool | SlapOSModuleIdGeneratorConstraint
+Invitation Token | Reference
+Invitation Token | Url
 Memcached Tool | MemcachedToolServerConstraint
 OAuth Tool | OAuthToolDefaultSlapOSConnector
 Organisation | GeographicOrganisation

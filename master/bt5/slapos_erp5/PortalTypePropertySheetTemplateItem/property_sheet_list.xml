@@ -5,6 +5,10 @@
  <portal_type id="Id Tool">
   <item>SlapOSModuleIdGeneratorConstraint</item>
  </portal_type>
+ <portal_type id="Invitation Token">
+  <item>Reference</item>
+  <item>Url</item>
+ </portal_type>
  <portal_type id="Memcached Tool">
   <item>MemcachedToolServerConstraint</item>
  </portal_type>
@@ -16,8 +20,5 @@
  </portal_type>
  <portal_type id="Web Site Module">
   <item>WebSiteModuleShacacheConstraint</item>
- </portal_type>
- <portal_type id="Preference Tool">
-  <item>ShacacheSystemPreference</item>
  </portal_type>
 </property_sheet_list>

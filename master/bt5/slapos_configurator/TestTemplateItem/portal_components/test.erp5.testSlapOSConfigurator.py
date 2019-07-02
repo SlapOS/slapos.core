@@ -169,6 +169,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'internal_trade_condition_module',
        'inventory_module',
        'inventory_report_module',
+       'invitation_token_module',
        'item_module',
        'knowledge_pad_module',
        'meeting_module',

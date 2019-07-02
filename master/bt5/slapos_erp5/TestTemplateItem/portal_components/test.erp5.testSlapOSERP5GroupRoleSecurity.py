@@ -2114,6 +2114,16 @@ class TestRegularisationRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertPermissionsOfRole(product, 'Auditor',
         ['Access contents information', 'View'])
 
+class TestInvitationTokenModule(TestSlapOSGroupRoleSecurityMixin):
+  def test(self):
+    module = self.portal.invitation_token_module
+    self.changeOwnership(module)
+    self.assertSecurityGroup(module,
+        ['G-COMPANY', 'R-MEMBER', self.user_id], False)
+    self.assertRoles(module, 'G-COMPANY', ['Auditor', 'Author'])
+    self.assertRoles(module, 'R-MEMBER', ['Author'])
+    self.assertRoles(module, self.user_id, ['Owner'])
+
 class TestAccessTokenModule(TestSlapOSGroupRoleSecurityMixin):
   def test(self):
     module = self.portal.access_token_module

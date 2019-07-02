@@ -130,6 +130,7 @@ slapos_subscription_request
 slapos_crm_monitoring
 slapos_accounting
 slapos_administration
+slapos_base
 slapos_cloud
 slapos_consumption
 slapos_core
@@ -242,6 +243,7 @@ slapos_subscription_request
 slapos_crm_monitoring
 slapos_accounting
 slapos_administration
+slapos_base
 slapos_cloud
 slapos_consumption
 slapos_core
@@ -354,6 +356,7 @@ slapos_subscription_request
 slapos_crm_monitoring
 slapos_accounting
 slapos_administration
+slapos_base
 slapos_cloud
 slapos_consumption
 slapos_core
@@ -462,6 +465,7 @@ slapos_subscription_request
 slapos_crm_monitoring
 slapos_accounting
 slapos_administration
+slapos_base
 slapos_cloud
 slapos_consumption
 slapos_core
@@ -573,6 +577,7 @@ slapos_subscription_request
 slapos_crm_monitoring
 slapos_accounting
 slapos_administration
+slapos_base
 slapos_cloud
 slapos_consumption
 slapos_core
@@ -685,6 +690,7 @@ slapos_subscription_request
 slapos_crm_monitoring
 slapos_accounting
 slapos_administration
+slapos_base
 slapos_cloud
 slapos_consumption
 slapos_core
@@ -794,6 +800,7 @@ slapos_subscription_request
 slapos_crm_monitoring
 slapos_accounting
 slapos_administration
+slapos_base
 slapos_cloud
 slapos_consumption
 slapos_core
@@ -904,6 +911,7 @@ slapos_subscription_request
 slapos_crm_monitoring
 slapos_accounting
 slapos_administration
+slapos_base
 slapos_cloud
 slapos_consumption
 slapos_core
@@ -1013,6 +1021,7 @@ slapos_subscription_request
 slapos_crm_monitoring
 slapos_accounting
 slapos_administration
+slapos_base
 slapos_cloud
 slapos_consumption
 slapos_core
@@ -1123,6 +1132,7 @@ slapos_subscription_request
 slapos_crm_monitoring
 slapos_accounting
 slapos_administration
+slapos_base
 slapos_cloud
 slapos_consumption
 slapos_core
@@ -1232,6 +1242,7 @@ slapos_subscription_request
 slapos_crm_monitoring
 slapos_accounting
 slapos_administration
+slapos_base
 slapos_cloud
 slapos_consumption
 slapos_core
@@ -1343,6 +1354,7 @@ slapos_subscription_request
 slapos_crm_monitoring
 slapos_accounting
 slapos_administration
+slapos_base
 slapos_cloud
 slapos_consumption
 slapos_core
@@ -1456,6 +1468,7 @@ slapos_subscription_request
 slapos_crm_monitoring
 slapos_accounting
 slapos_administration
+slapos_base
 slapos_cloud
 slapos_consumption
 slapos_core

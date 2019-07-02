@@ -259,6 +259,8 @@ gadget_erp5_page_slap_add_network.html\n
 gadget_erp5_page_slap_add_network.js\n
 gadget_erp5_page_slap_add_organisation.html\n
 gadget_erp5_page_slap_add_organisation.js\n
+gadget_erp5_page_slap_organisation_get_invitation_link.js\n
+gadget_erp5_page_slap_organisation_get_invitation_link.html\n
 gadget_erp5_page_slap_add_project.html\n
 gadget_erp5_page_slap_add_project.js\n
 gadget_erp5_page_slap_add_related_event.html\n
@@ -569,7 +571,7 @@ NETWORK:\n
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>976.40663.4126.24849</string> </value>
+                <value> <string>976.40666.4477.59699</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -587,7 +589,7 @@ NETWORK:\n
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1561428124.08</float>
+                        <float>1562033682.52</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

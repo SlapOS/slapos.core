@@ -4,7 +4,7 @@ portal = context.getPortalObject()
 if invitation_token is None:
   raise ValueError("Invitation Token is required")
 
-if context.getPortalType() != "Organisation":
+if context.getPortalType() != "Project":
   raise Unauthorized("Context is not an Organisation")
 
 person = portal.portal_membership.getAuthenticatedMember().getUserValue()
@@ -32,9 +32,9 @@ for assignment in person.objectValues(portal_type="Assignment"):
     return "Already had stuff"
 
 person.newContent(
-  title="Assigment for Organisation %s" % context.getTitle(),
+  title="Assigment for Project %s" % context.getTitle(),
   portal_type="Assignment",
-  destination_value=context).open()
+  destination_project_value=context).open()
 
 invitation_token.invalidate()
 

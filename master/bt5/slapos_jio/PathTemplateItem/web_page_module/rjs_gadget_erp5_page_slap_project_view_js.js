@@ -194,7 +194,8 @@
           return RSVP.all([
             gadget.getUrlFor({command: "change", options: {editable: true}}),
             gadget.getUrlFor({command: 'history_previous'}),
-            gadget.getUrlFor({command: "change", options: {page: "slap_delete_project"}})
+            gadget.getUrlFor({command: "change", options: {page: "slap_delete_project"}}),
+            gadget.getUrlFor({command: "change", options: {page: "slap_project_get_invitation_link"}})
           ]);
         })
         .push(function (url_list) {
@@ -202,6 +203,7 @@
             selection_url: url_list[1],
             page_title: "Project : " + gadget.state.doc.title,
             delete_url: url_list[2],
+            invitation_url: url_list[3],
             save_action: true
           };
           if (!gadget.state.editable) {

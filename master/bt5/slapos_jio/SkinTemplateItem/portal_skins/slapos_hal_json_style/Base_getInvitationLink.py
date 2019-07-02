@@ -4,13 +4,15 @@ from zExceptions import Unauthorized
 portal = context.getPortalObject()
 person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
-if context.getPortalType() != "Organisation":
+# Only Project and Organisation can generate an invitation
+if context.getPortalType() not in ["Organisation", "Project"]:
   raise Unauthorized
 
 web_site = context.getWebSiteValue()
 request_method = "POST"
+script_name = "%s_acceptInvitation" % context.getPortalType()
 
-request_url = "%s/%s/%s" % (web_site.absolute_url(), context.getRelativeUrl(), "Organisation_acceptInvitation")
+request_url = "%s/%s/%s" % (web_site.absolute_url(), context.getRelativeUrl(), script_name)
 
 # Maybe it would be better to use another portal_type 
 access_token = portal.invitation_token_module.newContent(

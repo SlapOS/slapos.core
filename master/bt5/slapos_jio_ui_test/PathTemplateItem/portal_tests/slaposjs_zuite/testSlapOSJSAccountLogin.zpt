@@ -29,7 +29,7 @@
    <td colspan="3"><b> Create another Login</b> </td>
 </tr>
 
-<tal:block define="menu_action python: 'Add'">
+<tal:block define="menu_action python: 'Add Login'">
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
 </tal:block>
 

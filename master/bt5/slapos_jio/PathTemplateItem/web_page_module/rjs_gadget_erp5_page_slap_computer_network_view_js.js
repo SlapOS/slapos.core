@@ -135,6 +135,17 @@
                   "hidden": 0,
                   "type": "GadgetField"
                 },
+                "my_source_project": {
+                  "description": "The name of a document in ERP5",
+                  "title": "Current Project",
+                  "default": gadget.state.doc.source_project_title,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 0,
+                  "key": "",
+                  "hidden": 0,
+                  "type": "StringField"
+                },
                 "listbox": {
                   "column_list": column_list,
                   "show_anchor": 0,
@@ -166,7 +177,10 @@
             form_definition: {
               group_list: [[
                 "left",
-                [["my_title"], ["my_reference"], ['my_monitoring_status']]
+                [["my_title"], ["my_reference"]]
+              ], [
+                "right",
+                [['my_monitoring_status'], ["my_source_project"]]
               ], [
                 "bottom",
                 [["listbox"]]
@@ -178,8 +192,8 @@
           return RSVP.all([
             gadget.getUrlFor({command: "change", options: {editable: true}}),
             gadget.getUrlFor({command: 'history_previous'}),
-            gadget.getUrlFor({command: "change", options: {page: "slap_delete_network"}})
-
+            gadget.getUrlFor({command: "change", options: {page: "slap_delete_network"}}),
+            gadget.getUrlFor({command: "change", options: {page: "slap_transfer_computer_network"}})
           ]);
         })
         .push(function (url_list) {
@@ -187,6 +201,7 @@
             selection_url: url_list[1],
             page_title: "Computer Network :" + gadget.state.doc.title,
             delete_url: url_list[2],
+            transfer_url: url_list[3],
             save_action: true
           };
           if (!gadget.state.editable) {

@@ -269,6 +269,17 @@
                       "hidden": 0,
                       "type": "GadgetField"
                     },
+                    "my_source_project": {
+                      "description": "The name of a document in ERP5",
+                      "title": "Current Project",
+                      "default": gadget.state.doc.source_project_title,
+                      "css_class": "",
+                      "required": 1,
+                      "editable": 0,
+                      "key": "source_project_title",
+                      "hidden": 0,
+                      "type": "StringField"
+                    },
                     "my_monitoring_status": {
                       "description": "",
                       "title": "Monitoring Status",
@@ -387,10 +398,9 @@
                   group_list: [[
                     "left",
                     [["my_title"], ["my_reference"], ["my_short_title"], ["my_description"]]
-
                   ], [
                     "right",
-                    [["my_slap_state_title"],  ['my_monitoring_status'], ['my_monitor_scope'], ['my_upgrade_scope']]
+                    [["my_slap_state_title"],  ['my_monitoring_status'], ['my_monitor_scope'], ['my_upgrade_scope'], ['my_source_project']]
 
                   ], ["center",
                       [["my_source_reference"], ["my_url_string"]]
@@ -410,7 +420,8 @@
             gadget.getUrlFor({command: "change", options: {"page": "slap_stop_hosting_subscription"}}),
             gadget.getUrlFor({command: "change", options: {"page": "slap_destroy_hosting_subscription"}}),
             gadget.getUrlFor({command: "change", options: {page: "slap_rss_ticket"}}),
-            gadget.getUrlFor({command: 'history_previous'})
+            gadget.getUrlFor({command: 'history_previous'}),
+            gadget.getUrlFor({command: "change", options: {page: "slap_transfer_hosting_subscription"}})
           ]);
         })
         .push(function (url_list) {
@@ -420,6 +431,7 @@
             destroy_url: url_list[4],
             rss_url: url_list[5],
             selection_url: url_list[6],
+            transfer_url: url_list[7],
             save_action: true
           };
           if (gadget.state.doc.slap_state === "start_requested") {

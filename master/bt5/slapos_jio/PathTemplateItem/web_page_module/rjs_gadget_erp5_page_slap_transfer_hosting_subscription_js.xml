@@ -16,7 +16,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -59,7 +58,14 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>categories</string> </key>
+            <value>
+              <tuple>
+                <string>contributor/person_module/1</string>
               </tuple>
             </value>
         </item>
@@ -70,8 +76,16 @@
             </value>
         </item>
         <item>
+            <key> <string>creators</string> </key>
+            <value>
+              <tuple>
+                <string>cedric.le.ninivin</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_erp5_page_slap_hosting_subscription_view.js</string> </value>
+            <value> <string>gadget_erp5_page_slap_transfer_hosting_subscription.js</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -81,11 +95,32 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_erp5_page_slap_hosting_subscription_view_js</string> </value>
+            <value> <string>rjs_gadget_erp5_page_slap_transfer_hosting_subscription_js</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
-            <value> <string>en</string> </value>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>modification_date</string> </key>
+            <value>
+              <object>
+                <klass>
+                  <global name="DateTime" module="DateTime.DateTime"/>
+                </klass>
+                <tuple>
+                  <none/>
+                </tuple>
+                <state>
+                  <tuple>
+                    <float>1455284351.49</float>
+                    <string>UTC</string>
+                  </tuple>
+                </state>
+              </object>
+            </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -99,11 +134,17 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget SlapOS Hosting Subscription View</string> </value>
+            <value> <string>SlapOS Transfer Hosting Subscriptions JS</string> </value>
+        </item>
+        <item>
+            <key> <string>url_string</string> </key>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>version</string> </key>
-            <value> <string>003</string> </value>
+            <value> <string>001</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -185,7 +226,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1508779428.24</float>
+                        <float>1562116214.69</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -230,7 +271,7 @@
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>976.53553.17660.802</string> </value>
+                <value> <string>976.53584.51820.61286</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -248,7 +289,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1562115464.51</float>
+                        <float>1562116965.21</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -305,7 +346,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1508779404.08</float>
+                        <float>1562115931.93</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

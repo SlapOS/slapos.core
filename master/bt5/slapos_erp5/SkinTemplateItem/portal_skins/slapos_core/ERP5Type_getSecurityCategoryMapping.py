@@ -10,7 +10,9 @@ return (
   # Person security
   ('ERP5Type_getSecurityCategoryFromAssignment', ['group']),
   ('ERP5Type_getSecurityCategoryFromAssignment', ['role']),
-
+  ('ERP5Type_getSecurityCategoryFromAssignment', ['destination_project']),
+  ('ERP5Type_getSecurityCategoryFromAssignment', ['destination']),
+  
   # Computer security
   ('ERP5Type_getComputerSecurityCategory', ['role']),
 

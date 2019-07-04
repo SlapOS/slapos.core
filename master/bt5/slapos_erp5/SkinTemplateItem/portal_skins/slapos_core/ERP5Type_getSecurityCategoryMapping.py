@@ -11,7 +11,7 @@ return (
   ('ERP5Type_getSecurityCategoryFromAssignment', ['group']),
   ('ERP5Type_getSecurityCategoryFromAssignment', ['role']),
   ('ERP5Type_getSecurityCategoryFromAssignment', ['destination_project']),
-  ('ERP5Type_getSecurityCategoryFromAssignment', ['destination']),
+  ('ERP5Type_getSecurityCategoryFromAssignmentDestinationClientOrganisation', ['destination']),
   
   # Computer security
   ('ERP5Type_getComputerSecurityCategory', ['role']),

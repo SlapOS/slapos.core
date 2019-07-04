@@ -62,7 +62,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Item_getSecurityCategoryFromMovementSourceProject</string> </value>
+            <value> <string>Item_getSecurityCategoryFromMovementDestinationSection</string> </value>
         </item>
       </dictionary>
     </pickle>

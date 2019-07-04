@@ -13,6 +13,12 @@
    <multi_property id='base_category'>group</multi_property>
   </role>
   <role id='Assignee'>
+   <property id='title'>Organisation Member</property>
+   <property id='base_category_script'>Item_getSecurityCategoryFromMovementDestinationSection</property>
+   <multi_property id='categories'>local_role_group/project</multi_property>
+   <multi_property id='base_category'>destination_section</multi_property>
+  </role>
+  <role id='Assignee'>
    <property id='title'>Person Owner</property>
    <property id='description'>XXX Review this</property>
    <property id='base_category_script'>ERP5Type_acquireSecurityFromOwner</property>
@@ -27,7 +33,7 @@
   </role>
   <role id='Assignee'>
    <property id='title'>Project Member</property>
-   <property id='base_category_script'>Item_getSecurityCategoryFromMovementSourceProject</property>
+   <property id='base_category_script'>Item_getSecurityCategoryFromMovementDestinationProject</property>
    <multi_property id='categories'>local_role_group/project</multi_property>
    <multi_property id='base_category'>destination_project</multi_property>
   </role>

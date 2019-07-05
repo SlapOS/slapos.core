@@ -31,7 +31,7 @@ if obj is None:
   return []
 
 # Object on this case can be Hosting Subscription, Computer, or Computer Network
-organisation = obj.Item_getCurrentSectionValue()
+organisation = obj.Item_getCurrentOwnerValue()
 if organisation is not None and \
   organisation.getPortalType() == "Organisation":
   category_list.append({'destination_section': [organisation.getRelativeUrl()]})

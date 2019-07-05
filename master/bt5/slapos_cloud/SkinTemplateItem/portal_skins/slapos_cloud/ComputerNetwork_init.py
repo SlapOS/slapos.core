@@ -5,6 +5,3 @@ reference = "NET-%s" % portal.portal_ids.generateNewId(
     id_generator='uid')
 
 context.edit(reference=reference)
-
-#source_administration=portal.portal_membership.getAuthenticatedMember().getUserValue().getRelativeUrl()
-#network.validate()

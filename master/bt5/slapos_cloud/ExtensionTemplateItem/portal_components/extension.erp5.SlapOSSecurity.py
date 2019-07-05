@@ -29,6 +29,7 @@ from Products.ERP5Security.ERP5GroupManager import ConsistencyError
 from AccessControl.SecurityManagement import getSecurityManager, \
              setSecurityManager, newSecurityManager
 from AccessControl import Unauthorized
+from DateTime import DateTime
 
 def getComputerSecurityCategory(self, base_category_list, user_name,
                                 object, portal_type):
@@ -125,3 +126,69 @@ def restrictMethodAsShadowUser(self, shadow_document=None, callable_object=None,
     finally:
       # Restore the original user.
       setSecurityManager(sm)
+
+
+def getSecurityCategoryFromAssignmentDestinationClientOrganisation(
+  self,
+  base_category_list,
+  user_name,
+  object,  # pylint: disable=redefined-builtin
+  portal_type,
+  child_category_list=None
+):
+  """
+  This script returns a list of dictionaries which represent
+  the security groups which a person is member of. It extracts
+  the categories from the current user assignment.
+  It is useful in the following cases:
+
+  - associate a document (ex. an accounting transaction)
+    to the division which the user was assigned to
+    at the time it was created
+
+  - calculate security membership of a user
+
+  The parameters are
+
+    base_category_list -- list of category values we need to retrieve
+    user_name          -- string obtained from getSecurityManager().getUser().getId()
+    object             -- object which we want to assign roles to
+    portal_type        -- portal type of object
+  """
+  category_list = []
+  if child_category_list is None:
+    child_category_list = []
+
+  user_path_set = {
+    x['path'] for x in self.acl_users.searchUsers(
+      id=user_name,
+      exact_match=True,
+    ) if 'path' in x
+  }
+  if not user_path_set:
+    # if a person_object was not found in the module, we do nothing more
+    # this happens for example when a manager with no associated person object
+    # creates a person_object for a new user
+    return []
+  user_path, = user_path_set
+  person_object = self.getPortalObject().unrestrictedTraverse(user_path)
+  now = DateTime()
+
+  # We look for every valid assignments of this user
+  for assignment in person_object.contentValues(filter={'portal_type': 'Assignment'}):
+    if assignment.getValidationState() == "open" and (
+      not assignment.hasStartDate() or assignment.getStartDate() <= now
+    ) and (
+      not assignment.hasStopDate() or assignment.getStopDate() >= now
+    ):
+      category_dict = {}
+      for base_category in base_category_list:
+        category_value_list = assignment.getAcquiredValueList(base_category)
+        if category_value_list:
+          for category_value in category_value_list:
+            if category_value.getPortalType() == "Organisation" and \
+              category_value.getRole() == "client":
+              category_dict.setdefault(base_category, []).append(category_value.getRelativeUrl())
+      category_list.append(category_dict)
+
+  return category_list

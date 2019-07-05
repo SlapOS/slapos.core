@@ -46,8 +46,8 @@
             <key> <string>text_content_warning_message</string> </key>
             <value>
               <tuple>
-                <string>W: 34, 32: Redefining built-in \'object\' (redefined-builtin)</string>
-                <string>W: 60, 32: Redefining built-in \'object\' (redefined-builtin)</string>
+                <string>W: 35, 32: Redefining built-in \'object\' (redefined-builtin)</string>
+                <string>W: 61, 32: Redefining built-in \'object\' (redefined-builtin)</string>
               </tuple>
             </value>
         </item>

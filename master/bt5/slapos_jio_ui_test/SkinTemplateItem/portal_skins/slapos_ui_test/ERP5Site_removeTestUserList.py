@@ -1,6 +1,6 @@
 portal = context.getPortalObject()
 
-for cr in portal.portal_catalog(reference=["testSlapOSJSSubscribeUser", "demo_functional_user"],
+for cr in portal.portal_catalog(reference=["testSlapOSJSSubscribeUser", "demo_functional_user", "another_demo_functional_user"],
                                portal_type="Credential Request"):
   related_person = cr.getDestinationDecisionValue()
   if related_person is not None:

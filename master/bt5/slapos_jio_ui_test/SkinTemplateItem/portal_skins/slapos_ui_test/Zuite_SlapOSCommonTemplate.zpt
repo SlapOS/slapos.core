@@ -111,6 +111,49 @@
     <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_app_loaded" />
   </tal:block>
 
+
+  <tal:block metal:define-macro="slapos_login_with_another_user">
+    <!-- Logout  -->
+    <tr>
+      <td>open</td>
+      <td>${base_url}/web_site_module/hostingjs/WebSite_logout</td>
+      <td></td>
+    </tr>
+    <!-- Initialize -->
+    <tr>
+      <td>open</td>
+      <td>${base_url}/web_site_module/hostingjs/</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>__ac_name</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>__ac_name</td>
+      <td>another_demo_functional_user</td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>__ac_password</td>
+      <td>another_demo_functional_user</td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//input[@value="Login"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>clickAndWait</td>
+      <td>//input[@value="Login"]</td>
+      <td></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_app_loaded" />
+  </tal:block>
+
+
   <tal:block metal:define-macro="slapos_wait_for_activities_and_front_page">
 
     <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />

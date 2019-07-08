@@ -12,4 +12,19 @@ context.WebSection_newCredentialRequest(
   batch_mode=1
 )
 
+context.WebSection_newCredentialRequest(
+  reference="another_demo_functional_user",
+  default_email_text="another_demo@nexedi.com",
+  first_name="Another Demo User",
+  last_name="Functional",
+  password="another_demo_functional_user",
+  default_telephone_text="12345678",
+  corporate_name="Nexedi",
+  default_address_city="Campos",
+  default_address_street_address="Av Pelinca",
+  default_address_zip_code="28480",
+  batch_mode=1
+)
+
+
 return "Done."

@@ -6,6 +6,7 @@ Computer | local_permission_slapos_interaction_workflow
 Computer | slapos_erp5_interaction_workflow
 Hosting Subscription | local_permission_slapos_interaction_workflow
 Integration Site | local_permission_slapos_interaction_workflow
+Internal Packing List Line | local_permission_slapos_interaction_workflow
 Invitation Token | edit_workflow
 Invitation Token | validation_workflow
 Organisation | slapos_erp5_interaction_workflow

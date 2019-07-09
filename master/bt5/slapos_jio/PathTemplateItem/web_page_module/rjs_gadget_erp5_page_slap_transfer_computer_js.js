@@ -207,10 +207,11 @@
           });
         })
         .push(function () {
-          return gadget.getSetting('document_title');
+          return gadget.getUrlFor({command: 'history_previous'});
         })
-        .push(function (document_title) {
+        .push(function (selection_url) {
           return gadget.updateHeader({
+            selection_url: selection_url,
             page_title: "Transfer Computer",
             submit_action: true
           });

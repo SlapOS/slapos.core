@@ -41,7 +41,7 @@
                 url + doc.relative_url + "/HostingSubscription_createMovement", doc);
             })
             .push(function () {
-              return gadget.notifySubmitted({message: 'Computer is transferred.', status: 'success'})
+              return gadget.notifySubmitted({message: 'Service is transferred.', status: 'success'})
                 .push(function () {
                   // Workaround, find a way to open document without break gadget.
                   return gadget.redirect({"command": "change",
@@ -186,11 +186,12 @@
           });
         })
         .push(function () {
-          return gadget.getSetting('document_title');
+          return gadget.getUrlFor({command: 'history_previous'});
         })
-        .push(function (document_title) {
+        .push(function (selection_url) {
           return gadget.updateHeader({
-            page_title: "Transfer Computer",
+            selection_url: selection_url,
+            page_title: "Transfer Service",
             submit_action: true
           });
         });

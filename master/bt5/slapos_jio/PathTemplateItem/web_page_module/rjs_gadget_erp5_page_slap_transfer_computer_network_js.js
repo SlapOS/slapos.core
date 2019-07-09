@@ -169,11 +169,12 @@
           });
         })
         .push(function () {
-          return gadget.getSetting('document_title');
+          return gadget.getUrlFor({command: 'history_previous'});
         })
-        .push(function (document_title) {
+        .push(function (selection_url) {
           return gadget.updateHeader({
             page_title: "Transfer Computer Network",
+            selection_url: selection_url,
             submit_action: true
           });
         });

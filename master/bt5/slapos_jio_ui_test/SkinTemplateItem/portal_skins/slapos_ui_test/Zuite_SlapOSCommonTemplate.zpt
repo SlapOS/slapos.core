@@ -342,7 +342,7 @@
   </tal:block>
 
   <tal:block metal:define-macro="add_simple_with_title">
-     <tr>
+    <tr>
       <td colspan="3"><b tal:content="python: 'Add an entry with title as %s' % title"> Menu Item </b></td>
     </tr>
     <tal:block tal:define="menu_action python: 'Add'">
@@ -677,4 +677,67 @@
       <td colspan="3"><p></p></td>
     </tr>
   </tal:block>
+
+
+  <tal:block metal:define-macro="create_simple_project">
+    <tr>
+      <td colspan="3"><p>Create Simple Project</p></td>
+    </tr>
+    <tal:block define="menu_item python: 'Projects'; header menu_item">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+    </tal:block>
+
+    <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+    </tal:block>
+
+    <tal:block define="title python: '%s' % document_title; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/add_simple_with_title" />
+    </tal:block>
+
+    <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                               'text': 'New Project created.'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+    </tal:block>
+    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
+
+    <tal:block define="header python: 'Project : %s' % document_title; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+    </tal:block>
+    <tr>
+      <td colspan="3"><p></p></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="create_simple_network">
+    <tr>
+      <td colspan="3"><p>Create Simple Network</p></td>
+    </tr>
+    <tal:block define="menu_item python: 'Networks'; header menu_item">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+    </tal:block>
+
+    <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+    </tal:block>
+
+    <tal:block define="title python: '%s' % document_title; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/add_simple_with_title" />
+    </tal:block>
+
+    <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                               'text': 'New Network created.'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+    </tal:block>
+
+    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
+
+    <tal:block define="header python: 'Computer Network :%s' % document_title; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+    </tal:block>
+    <tr>
+      <td colspan="3"><p></p></td>
+    </tr>
+  </tal:block>
+
 </tal:block>

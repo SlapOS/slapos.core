@@ -108,7 +108,7 @@
             <value> <string encoding="cdata"><![CDATA[
 
 CACHE MANIFEST\n
-# generated on Fri, 9 JuL 2019 10:00:00 GMT+0200\n
+# generated on Fri, 9 JuL 2019 10:00:07 GMT+0200\n
 CACHE:\n
 favicon.ico\n
 font-awesome/font-awesome-webfont.eot?v=4.6.3\n
@@ -371,11 +371,11 @@ gadget_erp5_page_slap_ticket_list.html\n
 gadget_erp5_page_slap_ticket_list.js\n
 gadget_erp5_page_slap_ticket_view.js\n
 gadget_erp5_page_slap_transfer_computer.html\n
-gadget_erp5_page_slap_transfer_computer.js\n
+#gadget_erp5_page_slap_transfer_computer.js\n
 gadget_erp5_page_slap_transfer_hosting_subscription.html\n
-gadget_erp5_page_slap_transfer_hosting_subscription.js\n
+#gadget_erp5_page_slap_transfer_hosting_subscription.js\n
 gadget_erp5_page_slap_transfer_computer_network.html\n
-gadget_erp5_page_slap_transfer_computer_network.js\n
+#gadget_erp5_page_slap_transfer_computer_network.js\n
 gadget_erp5_page_slap_trial_request_message.html\n
 gadget_erp5_page_slap_trial_request_message.js\n
 gadget_erp5_page_slap_upgrade_decision_view.html\n
@@ -579,7 +579,7 @@ NETWORK:\n
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>976.62292.13005.43588</string> </value>
+                <value> <string>976.63583.28202.43076</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -597,7 +597,7 @@ NETWORK:\n
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1562640407.16</float>
+                        <float>1562716840.37</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

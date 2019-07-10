@@ -76,7 +76,7 @@
             gadget.getDeclaredGadget('form_view'),
             gadget.jio_get(options.jio_key),
             gadget.jio_allDocs({
-              query: 'portal_type:"Organisation" AND relative_url:(' + destination_list + ')',
+              query: 'portal_type:"Organisation" AND role_title: "Client" AND relative_url:(' + destination_list + ')',
               sort_on: [['reference', 'ascending']],
               select_list: ['reference', 'title']
             }),
@@ -89,7 +89,7 @@
         })
         .push(function (result) {
           var doc = result[1],
-            site_list = [["", ""]],
+            organisation_list = [["", ""]],
             project_list = [["", ""]],
             i,
             value,
@@ -97,7 +97,7 @@
             site_len = result[2].data.total_rows;
 
           for (i = 0; i < site_len; i += 1) {
-            site_list.push([
+            organisation_list.push([
               result[2].data.rows[i].value.title ? result[2].data.rows[i].value.title : result[2].data.rows[i].value.reference,
               result[2].data.rows[i].id
             ]);
@@ -146,6 +146,29 @@
                   "hidden": 0,
                   "type": "StringField"
                 },
+                "my_destination": {
+                  "description": "The name of a document in ERP5",
+                  "title": "Future Organisation",
+                  "default": "",
+                  "items": organisation_list,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 1,
+                  "key": "destination",
+                  "hidden": 0,
+                  "type": "ListField"
+                },
+                "my_source": {
+                  "description": "The name of a document in ERP5",
+                  "title": "Current Organisation",
+                  "default": doc.source_title,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 0,
+                  "key": "source_title",
+                  "hidden": 0,
+                  "type": "StringField"
+                },
                 "my_destination_project": {
                   "description": "The name of a document in ERP5",
                   "title": "Future Project",
@@ -180,7 +203,8 @@
             form_definition: {
               group_list: [[
                 "left",
-                [["my_title"], ["my_reference"], ["my_source_project"], ["my_destination_project"], ["my_relative_url"]]
+                [["my_title"], ["my_reference"], ["my_source_project"], ["my_source"],
+                 ["my_destination_project"], ["my_destination"], ["my_relative_url"]]
               ]]
             }
           });

@@ -140,6 +140,17 @@
                   "title": "Current Project",
                   "default": gadget.state.doc.source_project_title,
                   "css_class": "",
+                  "required": 0,
+                  "editable": 0,
+                  "key": "",
+                  "hidden": 0,
+                  "type": "StringField"
+                },
+                "my_source_section": {
+                  "description": "The name of a document in ERP5",
+                  "title": "Current Organisation",
+                  "default": gadget.state.doc.source_section_title,
+                  "css_class": "",
                   "required": 1,
                   "editable": 0,
                   "key": "",
@@ -180,7 +191,7 @@
                 [["my_title"], ["my_reference"]]
               ], [
                 "right",
-                [['my_monitoring_status'], ["my_source_project"]]
+                [['my_monitoring_status'], ["my_source_project"], ["my_source_section"]]
               ], [
                 "bottom",
                 [["listbox"]]

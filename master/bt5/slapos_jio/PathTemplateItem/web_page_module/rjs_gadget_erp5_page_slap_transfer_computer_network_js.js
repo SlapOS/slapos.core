@@ -66,9 +66,12 @@
           return gadget.jio_get(setting);
         })
         .push(function (me) {
-          var i, destination_project_list = '"NULL",';
+          var i, destination_list = '"NULL",', destination_project_list = '"NULL",';
           for (i in me.assignment_destination_project_list) {
             destination_project_list += '"' + me.assignment_destination_project_list[i] + '",';
+          }
+          for (i in me.assignment_destination_list) {
+            destination_list += '"' + me.assignment_destination_list[i] + '",';
           }
           return RSVP.all([
               gadget.getDeclaredGadget('form_view'),
@@ -77,19 +80,32 @@
                 query: 'portal_type:"Project" AND validation_state:"validated" AND relative_url:(' + destination_project_list + ')',
                 sort_on: [['reference', 'ascending']],
                 select_list: ['reference', 'title']
-              })
+              }),
+              gadget.jio_allDocs({
+                query: 'portal_type:"Organisation" AND role_title: "Client" AND relative_url:(' + destination_list + ')',
+                sort_on: [['reference', 'ascending']],
+                select_list: ['reference', 'title']
+              })      
             ]);
         })
         .push(function (result) {
           var doc = result[1],
-              site_list = [["", ""]],
+              organisation_list = [["", ""]],
               project_list = [["", ""]],
-              i, value, project_len = result[2].data.total_rows;
+              i, value, project_len = result[2].data.total_rows,
+              organisation_len = result[3].data.total_rows;
 
           for (i = 0; i < project_len; i += 1) {
             project_list.push([
               result[2].data.rows[i].value.title ? result[2].data.rows[i].value.title : result[2].data.rows[i].value.reference,
               result[2].data.rows[i].id
+            ]);
+          }
+
+          for (i = 0; i < organisation_len; i += 1) {
+            organisation_list.push([
+              result[3].data.rows[i].value.title ? result[3].data.rows[i].value.title : result[3].data.rows[i].value.reference,
+              result[3].data.rows[i].id
             ]);
           }
 
@@ -141,6 +157,29 @@
                   "hidden": 0,
                   "type": "ListField"
                 },
+                "my_source_section": {
+                  "description": "The name of a document in ERP5",
+                  "title": "Current Organisation",
+                  "default": doc.source_section_title,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 0,
+                  "key": "source_section_title",
+                  "hidden": 0,
+                  "type": "StringField"
+                },
+                "my_destination_section": {
+                  "description": "The name of a document in ERP5",
+                  "title": "Future Organisation",
+                  "default": "",
+                  "items": organisation_list,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 1,
+                  "key": "destination_section",
+                  "hidden": 0,
+                  "type": "ListField"
+                },
                 "my_relative_url": {
                   "description": "",
                   "title": "Parent Relative Url",
@@ -163,7 +202,7 @@
             form_definition: {
               group_list: [[
                 "left",
-                [["my_title"], ["my_reference"], ["my_source_project"], ["my_destination_project"], ["my_relative_url"]]
+                [["my_title"], ["my_reference"], ["my_source_project"], ["my_source_section"], ["my_destination_project"], ["my_destination_section"], ["my_relative_url"]]
               ]]
             }
           });

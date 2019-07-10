@@ -280,6 +280,17 @@
                       "hidden": 0,
                       "type": "StringField"
                     },
+                    "my_source": {
+                      "description": "The name of a document in ERP5",
+                      "title": "Current Organisation",
+                      "default": gadget.state.doc.source_title,
+                      "css_class": "",
+                      "required": 0,
+                      "editable": 0,
+                      "key": "source_title",
+                      "hidden": 0,
+                      "type": "StringField"
+                    },
                     "my_monitoring_status": {
                       "description": "",
                       "title": "Monitoring Status",
@@ -400,7 +411,7 @@
                     [["my_title"], ["my_reference"], ["my_short_title"], ["my_description"]]
                   ], [
                     "right",
-                    [["my_slap_state_title"],  ['my_monitoring_status'], ['my_monitor_scope'], ['my_upgrade_scope'], ['my_source_project']]
+                    [["my_slap_state_title"],  ['my_monitoring_status'], ['my_monitor_scope'], ['my_upgrade_scope'], ['my_source_project'], ['my_source']]
 
                   ], ["center",
                       [["my_source_reference"], ["my_url_string"]]

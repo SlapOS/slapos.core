@@ -76,12 +76,17 @@
               gadget.getDeclaredGadget('form_view'),
               gadget.jio_get(options.jio_key),
               gadget.jio_allDocs({
-                query: 'portal_type:"Organisation" AND relative_url:(' + destination_list + ')',
+                query: 'portal_type:"Organisation" AND role_title: "Host" AND relative_url:(' + destination_list + ')',
                 sort_on: [['reference', 'ascending']],
                 select_list: ['reference', 'title']
               }),
               gadget.jio_allDocs({
                 query: 'portal_type:"Project" AND validation_state:"validated" AND relative_url:(' + destination_project_list + ')',
+                sort_on: [['reference', 'ascending']],
+                select_list: ['reference', 'title']
+              }),
+              gadget.jio_allDocs({
+                query: 'portal_type:"Organisation" AND role_title: "Client" AND relative_url:(' + destination_list + ')',
                 sort_on: [['reference', 'ascending']],
                 select_list: ['reference', 'title']
               })
@@ -91,8 +96,10 @@
           var doc = result[1],
               site_list = [["", ""]],
               project_list = [["", ""]],
+              organisation_list = [["", ""]],
               i, value, project_len = result[3].data.total_rows,
-              site_len = result[2].data.total_rows;
+              site_len = result[2].data.total_rows,
+              organisation_len = result[4].data.total_rows;
 
           for (i = 0; i < site_len; i += 1) {
             site_list.push([
@@ -105,6 +112,13 @@
             project_list.push([
               result[3].data.rows[i].value.title ? result[3].data.rows[i].value.title : result[3].data.rows[i].value.reference,
               result[3].data.rows[i].id
+            ]);
+          }
+
+          for (i = 0; i < organisation_len; i += 1) {
+            organisation_list.push([
+              result[4].data.rows[i].value.title ? result[4].data.rows[i].value.title : result[4].data.rows[i].value.reference,
+              result[4].data.rows[i].id
             ]);
           }
 
@@ -179,6 +193,29 @@
                   "hidden": 0,
                   "type": "ListField"
                 },
+                "my_source_section": {
+                  "description": "The name of a document in ERP5",
+                  "title": "Current Organisation",
+                  "default": doc.source_section_title,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 0,
+                  "key": "source_section_title",
+                  "hidden": 0,
+                  "type": "StringField"
+                },
+                "my_destination_section": {
+                  "description": "The name of a document in ERP5",
+                  "title": "Future Organisation",
+                  "default": "",
+                  "items": organisation_list,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 1,
+                  "key": "destination_section",
+                  "hidden": 0,
+                  "type": "ListField"
+                },
                 "my_relative_url": {
                   "description": "",
                   "title": "Parent Relative Url",
@@ -201,7 +238,8 @@
             form_definition: {
               group_list: [[
                 "left",
-                [["my_title"], ["my_reference"], ["my_source"], ["my_source_project"], ["my_destination"], ["my_destination_project"], ["my_relative_url"]]
+                [["my_title"], ["my_reference"], ["my_source_section"], ["my_source"], ["my_source_project"],
+                 ["my_destination"], ["my_destination_project"], ["my_destination_section"], ["my_relative_url"]]
               ]]
             }
           });

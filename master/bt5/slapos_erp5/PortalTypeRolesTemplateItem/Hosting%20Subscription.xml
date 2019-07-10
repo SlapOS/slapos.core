@@ -13,9 +13,9 @@
   </role>
   <role id='Assignee'>
    <property id='title'>Organisation Member</property>
-   <property id='base_category_script'>Item_getSecurityCategoryFromMovementDestinationSection</property>
-   <multi_property id='categories'>local_role_group/project</multi_property>
-   <multi_property id='base_category'>destination_section</multi_property>
+   <property id='base_category_script'>Item_getSecurityCategoryFromMovementDestination</property>
+   <multi_property id='categories'>local_role_group/organisation</multi_property>
+   <multi_property id='base_category'>destination</multi_property>
   </role>
   <role id='Assignee'>
    <property id='title'>Project Member</property>

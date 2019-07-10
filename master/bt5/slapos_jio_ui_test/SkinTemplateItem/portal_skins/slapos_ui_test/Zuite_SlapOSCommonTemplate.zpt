@@ -805,4 +805,50 @@
     </tal:block>
   </tal:block>
 
+  <tal:block metal:define-macro="create_user_organisation">
+
+    <tr>
+       <td colspan="3"><b> Create simple organisation </b> </td>
+    </tr>
+
+    <tal:block define="person_name python: 'Demo User Functional'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
+    </tal:block>
+
+    <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+    </tal:block>
+
+    <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+    </tal:block>
+
+    <tal:block define="menu_action python: 'Add Organisation'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+    </tal:block>
+
+    <tal:block define="header python: 'New Organisation'; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+    </tal:block>
+
+    <tr>
+      <td>type</td>
+      <td>//input[@name='title']</td>
+      <td tal:content="python: '%s' % (document_title)">DOCUMENT TITLE</td>
+    </tr>
+
+    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
+    <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                              'text': 'New Organisation created.'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+    </tal:block>
+
+    <tal:block define="header python: 'Organisation : %s' % (document_title); ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+    </tal:block>
+
+  </tal:block>
+
+
 </tal:block>

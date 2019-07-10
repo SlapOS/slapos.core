@@ -2,7 +2,6 @@
   Create an internal Packing List and attach the computer
 """
 from DateTime import DateTime
-from Products.ERP5Type.Message import translateString
 from zExceptions import Unauthorized
 
 user = context.getPortalObject().portal_membership.getAuthenticatedMember().getUserValue()
@@ -20,7 +19,8 @@ resource_value = context.Item_getResourceValue()
 if destination_project is None and source_project is not None:
   destination_project = source_project.getRelativeUrl()
 
-destination_section = context.getSourceAdministration()
+if destination_section is None:
+  destination_section = context.getSourceAdministration()
 
 if destination is None and source is not None:
   # We do not change location of the machine

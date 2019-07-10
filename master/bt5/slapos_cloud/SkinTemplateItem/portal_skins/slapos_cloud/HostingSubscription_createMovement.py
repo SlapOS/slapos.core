@@ -2,7 +2,6 @@
   Create an internal Packing List and attach the computer
 """
 from DateTime import DateTime
-from Products.ERP5Type.Message import translateString
 from zExceptions import Unauthorized
 
 user = context.getPortalObject().portal_membership.getAuthenticatedMember().getUserValue()
@@ -12,6 +11,7 @@ if user.getRelativeUrl() != context.getDestinationSection():
 
 portal_type = "Internal Packing List"
 
+source = context.Item_getCurrentSiteValue()
 source_project = context.Item_getCurrentProjectValue()
 source_section = context.Item_getCurrentOwnerValue()
 resource_value = context.Item_getResourceValue()
@@ -24,16 +24,19 @@ destination_section = context.getDestinationSection()
 if source_section is None:
   source_section = context.getDestinationSectionValue()
 
+if destination is None and source is not None:
+  destination = source.getRelativeUrl() 
+
 resource_value = context.product_module.computer
 
 module = context.getDefaultModule(portal_type=portal_type)
 line_portal_type = '%s Line' % portal_type
 
 delivery = module.newContent(title="Transfer %s to %s" % (context.getTitle(), destination_project),
-                             source_value=source_section,
+                             source_value=source,
                              source_section_value=source_section,
                              source_project_value=source_project,
-                             destination=destination_section,
+                             destination=destination,
                              destination_section=destination_section,
                              source_decision=destination_section,
                              destination_decision=destination_section,

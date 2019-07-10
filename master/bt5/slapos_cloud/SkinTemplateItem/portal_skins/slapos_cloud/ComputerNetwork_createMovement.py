@@ -18,10 +18,14 @@ resource_value = context.Item_getResourceValue()
 if destination_project is None and source_project is not None:
   destination_project = source_project.getRelativeUrl()
 
-destination_section = context.getSourceAdministration()
+if destination_section is None:
+  destination_section = source_section.getRelativeUrl()
 
 if source_section is None:
   source_section = context.getSourceAdministration()
+
+source = context.getSourceAdministration()
+destination = context.getSourceAdministration()
 
 resource_value = context.product_module.computer
 
@@ -29,10 +33,10 @@ module = context.getDefaultModule(portal_type=portal_type)
 line_portal_type = '%s Line' % portal_type
 
 delivery = module.newContent(title="Transfer %s to %s" % (context.getTitle(), destination_project),
-                             source_value=source_section,
+                             source=source,
                              source_section_value=source_section,
                              source_project_value=source_project,
-                             destination=destination_section,
+                             destination=destination,
                              destination_section=destination_section,
                              source_decision=destination_section,
                              destination_decision=destination_section,

@@ -40,6 +40,7 @@ from slapos.grid import networkcache
 from slapos.grid.distribution import distribution_tuple
 from slapos.cli.config import ConfigCommand
 
+FAILURE_EXIT_CODE = 10
 
 class CacheLookupCommand(ConfigCommand):
     """
@@ -61,8 +62,8 @@ class CacheLookupCommand(ConfigCommand):
     def take_action(self, args):
         configp = self.fetch_config(args)
         cache_dir = configp.get('networkcache', 'download-binary-dir-url')
-        do_lookup(self.app.log, cache_dir, args.software_url)
-
+        sys.exit(
+          do_lookup(self.app.log, cache_dir, args.software_url))
 
 def looks_like_md5(s):
     """
@@ -77,27 +78,26 @@ def do_lookup(logger, cache_dir, software_url):
         md5 = software_url
     else:
         md5 = hashlib.md5(software_url).hexdigest()
-
     try:
         url = '%s/%s' % (cache_dir, md5)
         logger.debug('Connecting to %s', url)
         req = requests.get(url, timeout=5)
     except (requests.Timeout, requests.ConnectionError):
         logger.critical('Cannot connect to cache server at %s', url)
-        sys.exit(10)
+        return FAILURE_EXIT_CODE
 
     if not req.ok:
         if req.status_code == 404:
             logger.critical('Object not in cache: %s', software_url)
         else:
             logger.critical('Error while looking object %s: %s', software_url, req.reason)
-        sys.exit(10)
+        return FAILURE_EXIT_CODE
 
     entries = req.json()
 
     if not entries:
         logger.info('Object found in cache, but has no binary entries.')
-        return
+        return 0
 
     ostable = sorted(ast.literal_eval(json.loads(entry[0])['os']) for entry in entries)
 
@@ -115,3 +115,5 @@ def do_lookup(logger, cache_dir, software_url):
 
     for line in pt.get_string(border=True, padding_width=0, vrules=prettytable.NONE).split('\n'):
         logger.info(line)
+
+    return 0

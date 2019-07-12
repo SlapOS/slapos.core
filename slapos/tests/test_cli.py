@@ -44,6 +44,7 @@ import slapos.cli.info
 import slapos.cli.list
 import slapos.cli.supervisorctl
 from slapos.cli.proxy_show import do_show, StringIO
+from slapos.cli.cache import do_lookup as cache_do_lookup
 from slapos.client import ClientConfig
 import slapos.grid.svcbackend
 import slapos.proxy
@@ -60,6 +61,45 @@ class CliMixin(unittest.TestCase):
     self.local = {'slap': slap}
     self.logger = create_autospec(logging.Logger)
     self.conf = create_autospec(ClientConfig)
+
+class TestCliCache(CliMixin):
+
+  test_url = "https://lab.nexedi.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg"
+  def test_cached_binary(self):
+    self.assertEquals(0, cache_do_lookup(
+        self.logger,
+        cache_dir="http://dir.shacache.org",
+        software_url=self.test_url))
+
+    self.logger.info.assert_any_call('Software URL: %s', 
+            u'https://lab.nexedi.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg')
+    self.logger.info.assert_any_call('MD5:          %s', 'cccdc51a07e8c575c880f2d70dd4d458')
+    self.logger.info.assert_any_call(u'------------------------------------------')
+    self.logger.info.assert_any_call(u' distribution version    id   compatible? ')
+    self.logger.info.assert_any_call(u'------------------------------------------')
+    self.logger.info.assert_any_call(u' CentOS Linux 7.5.1804  Core       no     ')
+    self.logger.info.assert_any_call(u'    Ubuntu     18.04   bionic      no     ')
+    # Omit some lines as it may fail depending of the OS
+    self.logger.info.assert_any_call(u'------------------------------------------')
+
+  def test_uncached_binary(self):
+    self.assertEquals(10, cache_do_lookup(
+        self.logger,
+        cache_dir="http://dir.shacache.org",
+        software_url="this_is_uncached_url"))
+
+    self.logger.critical.assert_any_call('Object not in cache: %s', 'this_is_uncached_url') 
+
+  def test_bad_cache_dir(self):
+    self.assertEquals(10, cache_do_lookup(
+        self.logger,
+        cache_dir="http://xxx.shacache.org",
+        software_url=self.test_url))
+
+    self.logger.critical.assert_any_call(
+      'Cannot connect to cache server at %s', 
+      'http://xxx.shacache.org/cccdc51a07e8c575c880f2d70dd4d458')
+
 
 
 class TestCliProxy(CliMixin):
@@ -86,7 +126,6 @@ product2 url2"""
         slapos.proxy._generateSoftwareProductListFromString(''),
         {}
     )
-
 
 class TestCliProxyShow(CliMixin):
   def setUp(self):

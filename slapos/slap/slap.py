@@ -708,7 +708,7 @@ class ConnectionHelper:
     # self.session will handle requests using HTTP Cache Control rules.
     self.uncached_session = requests.Session()
     self.session = CacheControl(self.uncached_session,
-      cache=FileCache(os.path.expanduser("~/.slapos_cached_get"))
+      cache=FileCache(os.path.expanduser("~/.slapos_cached_get")))
 
   def getComputerInformation(self, computer_id):
     xml = self.GET('getComputerInformation', params={'computer_id': computer_id})

@@ -55,8 +55,8 @@ fallback_handler = logging.StreamHandler()
 fallback_logger.setLevel(logging.INFO)
 fallback_logger.addHandler(fallback_handler)
 
-
-
+class TempDocument(object):
+  pass
 
 class ConnectionHelper:
   def __init__(self, master_url, key_file=None,
@@ -274,7 +274,7 @@ class SlapHateoasNavigator(HateoasNavigator):
     hosting_subscription_dict = {}
     for hosting_subscription_link in hosting_subscription_link_list:
       raw_information = self.getHostingSubscriptionRootSoftwareInstanceInformation(hosting_subscription_link['title'])
-      software_instance = SoftwareInstance()
+      software_instance = TempDocument()
       # XXX redefine SoftwareInstance to be more consistent
       for key, value in raw_information.iteritems():
         if key in ['_links']:
@@ -311,3 +311,66 @@ class SlapHateoasNavigator(HateoasNavigator):
     instance_url = self.hateoasGetLinkFromLinks(instance_list, reference)
     instance = self._hateoasGetInformation(instance_url)
     return instance
+
+  def _hateoas_getComputer(self, reference):
+    root_document = self.getRootDocument()
+    search_url = root_document["_links"]['raw_search']['href']
+    getter_link = expand(search_url, { 
+      "query": "reference:%s AND portal_type:Computer" % reference, 
+      "select_list": ["relative_url"], "limit": 1})
+
+    result = self.GET(getter_link)
+    content_list = json.loads(result)['_embedded']['contents']
+    if len(content_list) == 0:
+      raise Exception('No Computer found.')
+
+    computer_relative_url = content_list[0]["relative_url"]
+    getter_url = self.getDocumentAndHateoas(computer_relative_url)
+    return json.loads(self.GET(getter_url))
+
+  def getSoftwareInstallationList(self, computer_guid=None):
+    computer = self._hateoas_getComputer(computer_guid) \
+           if computer_guid else self._hateoas_getComputer(self.computer_guid)
+
+    action = computer['_links']['action_object_slap']
+    if action.get('title') == 'getHateoasSoftwareInstallationList':
+      getter_link = action['href']
+    else:
+      raise Exception('No Link found found.')
+    result = self.hateoas_navigator.GET(getter_link)
+    return json.loads(result)['_links']['content']
+
+  def getSoftwareInstallationNews(self, computer_guid=None):
+    getter_link = None
+    for si in self.getSoftwareInstallationList(computer_guid):
+      if si["title"] == self.url:
+        getter_link = si["href"]
+        break
+    # We could not find the document, so it is probably too soon.
+    if getter_link is None:
+      return ""
+
+    result = self.GET(getter_link)
+    action_object_slap_list = json.loads(result)['_links']['action_object_slap']
+    for action in action_object_slap_list:
+      if action.get('title') == 'getHateoasNews':
+        getter_link = action['href']
+        break
+    else:
+      raise Exception('getHateoasNews not found.')
+    result = self.GET(getter_link)
+    if len(json.loads(result)['news']) > 0:
+      return json.loads(result)['news'][0]["text"]
+    return ""
+
+  def getInstanceNews(self, url):
+    result = self.GET(url)
+    result = json.loads(result)
+    if result['_links'].get('action_object_slap', None) is None:
+      return None
+    object_link = self.hateoasGetLinkFromLinks(
+       result['_links']['action_object_slap'], 'getHateoasNews')
+
+    result = self.GET(object_link)
+    return json.loads(result)['news']
+

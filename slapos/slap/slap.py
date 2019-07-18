@@ -262,11 +262,19 @@ class OpenOrder(SlapRequester):
     raw_information = self._hateoas_navigator.getHostingSubscriptionRootSoftwareInstanceInformation(partition_reference)
     software_instance = SoftwareInstance()
     # XXX redefine SoftwareInstance to be more consistent
-    for key, value in six.iteritems(raw_information):
+    for key, value in six.iteritems(raw_information["data"]):
       if key in ['_links']:
         continue
       setattr(software_instance, '_%s' % key, value)
-    setattr(software_instance, '_software_release_url', raw_information['_links']['software_release'])
+
+    if raw_information["data"].get("text_content", None) is not None:
+      setattr(software_instance, '_parameter_dict', xml2dict(raw_information["data"]['text_content']))
+    else:
+      setattr(software_instance, '_parameter_dict', {})
+
+    setattr(software_instance, '_requested_state', raw_information["data"]['slap_state'])
+    setattr(software_instance, '_connection_dict', raw_information["data"]['connection_parameter_list'])
+    setattr(software_instance, '_software_release_url', raw_information["data"]['url_string'])
     return software_instance
 
   def requestComputer(self, computer_reference):
@@ -509,7 +517,7 @@ class ComputerPartition(SlapRequester):
       if key in ['_links']:
         continue
       setattr(software_instance, '_%s' % key, value)
-    setattr(software_instance, '_software_release_url', raw_information['_links']['software_release'])
+    setattr(software_instance, '_software_release_url', raw_information["_links"]["software_release"])
     return software_instance
 
 

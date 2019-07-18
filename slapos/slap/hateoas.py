@@ -55,6 +55,13 @@ fallback_handler = logging.StreamHandler()
 fallback_logger.setLevel(logging.INFO)
 fallback_logger.addHandler(fallback_handler)
 
+ALLOWED_JIO_FIELD_LIST = [
+  "StringField",
+  "EmailField",
+  "IntegerField",
+  "FloatField",
+  "TextAreaField"]
+
 class TempDocument(object):
   pass
 
@@ -171,8 +178,6 @@ class HateoasNavigator(object):
   Inspired by
   https://git.erp5.org/gitweb/jio.git/blob/HEAD:/src/jio.storage/erp5storage.js
   """
-  # XXX: needs to be designed for real. For now, just a non-maintainable prototype.
-  # XXX: export to a standalone library, independant from slap.
   def __init__(self, slapgrid_uri,
                key_file=None, cert_file=None,
                master_ca_file=None, timeout=60):
@@ -211,7 +216,6 @@ class HateoasNavigator(object):
     return json.loads(result)
 
   def getRootDocument(self):
-    # XXX what about cache?
     cached_root_document = getattr(self, 'root_document', None)
     if cached_root_document:
       return cached_root_document
@@ -220,6 +224,82 @@ class HateoasNavigator(object):
         headers={'Cache-Control': 'no-cache'}
     )
     return self.root_document
+
+  def _getSearchUrl(self):
+    root_document = self.getRootDocument()
+    return root_document["_links"]['raw_search']['href']
+
+  def _getTraverseUrl(self):
+    root_document = self.getRootDocument()
+    return root_document["_links"]['traverse']['href']
+
+  def _extractPropertyFromFormDict(self, form_dict):
+    """ Reimplemenation in python of extractPropertyFromFormJSON of jio.js """
+    form = form_dict["_embedded"]["_view"]
+    form_data_dict = {}
+    converted_dict = {
+      "portal_type" : form_dict["_links"]["type"]["name"]
+    }
+
+    
+    if "parent" in form_dict["_links"]:
+      converted_dict["parent_relative_url"] = \
+              "/".join(form_dict["_links"]["parent"]["href"].split("/")[-2:])
+
+    form_data_dict["form_id"] = {
+      "key": [form["form_id"]["key"]],
+      "default": form["form_id"]["default"]
+    }
+
+    for key in form:
+      field = form[key]
+      if key.startswith("my_"):
+        key = key[len("my_"):]
+      elif key.startswith("your_"):
+        key = key[len("your_"):]
+      else:
+        continue
+      
+      if field["type"] in ALLOWED_JIO_FIELD_LIST:
+        form_data_dict[key] = {
+          "default": field.get("default", None),
+          "key": field["key"]
+        }
+        converted_dict[key] = field.get("default", None)
+
+    return {
+      "data" : converted_dict,
+      "form_data": form_data_dict
+    }
+
+  def jio_allDocs(self, query):
+    search_url = self._getSearchUrl()
+    getter_link = expand(search_url, query)
+
+    catalog_json = self.GET(getter_link)
+    catalog_dict = json.loads(catalog_json)
+
+    # Return the same data structure from jio api:
+    return {'data': {
+        "rows": catalog_dict["_embedded"]["contents"],
+        "total_rows": len(catalog_dict["_embedded"]["contents"])
+      }
+    }
+
+  def jio_get(self, key):
+    traverse_url = self._getTraverseUrl()
+
+    # Hardcoded view, but it should come from a site configuration
+    view = "slaposjs_view"
+    getter_link = expand(traverse_url, {
+        "relative_url": key,
+        "view": view
+        })
+
+    document_json = self.GET(getter_link)
+    document_dict = json.loads(document_json)
+
+    return self._extractPropertyFromFormDict(document_dict)
 
   def getDocumentAndHateoas(self, relative_url, view='view'):
     site_document = self.getRootDocument()
@@ -235,18 +315,16 @@ class HateoasNavigator(object):
     return json.loads(self.GET(person_url))
 
 class SlapHateoasNavigator(HateoasNavigator):
-  def _hateoas_getHostingSubscriptionDict(self):
-    action_object_slap_list = self.getMeDocument()['_links']['action_object_slap']
-    for action in action_object_slap_list:
-      if action.get('title') == 'getHateoasHostingSubscriptionList':
-        getter_link = action['href']
-        break
-    else:
-      raise Exception('Hosting subscription not found.')
-    result = self.GET(getter_link)
-    return json.loads(result)['_links']['content']
+  def _getHostingSubscriptionList(self, title=None, select_list=["title", "url_string"]):
+    query_str = 'portal_type:"Hosting Subscription" AND validation_state:validated'
+    if title is not None:
+      query_str = 'portal_type:"Hosting Subscription" AND validation_state:validated AND title:="%s"' % title
 
-  # XXX rename me to blablaUrl(self)
+    result = self.jio_allDocs(
+      query={"query" : query_str, "select_list": select_list})
+
+    return result['data']['rows']
+
   def _hateoas_getRelatedHostingSubscription(self):
     action_object_slap_list = self.getMeDocument()['_links']['action_object_slap']
     getter_link = self.hateoasGetLinkFromLinks(action_object_slap_list, 'getHateoasRelatedHostingSubscription')
@@ -270,40 +348,36 @@ class SlapHateoasNavigator(HateoasNavigator):
     return instance_list['_links']['content']
 
   def getHostingSubscriptionDict(self):
-    hosting_subscription_link_list = self._hateoas_getHostingSubscriptionDict()
+    hosting_subscription_list = self._getHostingSubscriptionList()
     hosting_subscription_dict = {}
-    for hosting_subscription_link in hosting_subscription_link_list:
-      raw_information = self.getHostingSubscriptionRootSoftwareInstanceInformation(hosting_subscription_link['title'])
+    for hosting_subscription in hosting_subscription_list:
       software_instance = TempDocument()
-      # XXX redefine SoftwareInstance to be more consistent
-      for key, value in raw_information.iteritems():
-        if key in ['_links']:
+      for key, value in hosting_subscription.iteritems():
+        if key in ['_links', 'url_string']:
           continue
         setattr(software_instance, '_%s' % key, value)
-      setattr(software_instance, '_software_release_url', raw_information['_links']['software_release'])
+      setattr(software_instance, '_software_release_url', hosting_subscription["url_string"])
       hosting_subscription_dict[software_instance._title] = software_instance
 
     return hosting_subscription_dict
 
   def getHostingSubscriptionRootSoftwareInstanceInformation(self, reference):
-    hosting_subscription_list = self._hateoas_getHostingSubscriptionDict()
-    for hosting_subscription in hosting_subscription_list:
-      if hosting_subscription.get('title') == reference:
-        hosting_subscription_url = hosting_subscription['href']
+    hosting_subscription_list = self._getHostingSubscriptionList(title=reference,
+      select_list=["title", "relative_url"])
+
+    assert len(hosting_subscription_list) == 1, \
+      "There are more them one Hosting Subscription for this reference"
+
+    for hosting_subscription_candidate in hosting_subscription_list:
+      if hosting_subscription_candidate.get('title') == reference:
+        hosting_subscription_jio_key = hosting_subscription_candidate['relative_url']
         break
-    else:
+
+    if hosting_subscription_jio_key is None:
       raise NotFoundError('This document does not exist.')
 
-    hosting_subscription = json.loads(self.GET(hosting_subscription_url))
 
-    software_instance_url = self.hateoasGetLinkFromLinks(
-        hosting_subscription['_links']['action_object_slap'],
-        'getHateoasRootInstance'
-    )
-    response = self.GET(software_instance_url)
-    response = json.loads(response)
-    software_instance_url = response['_links']['content'][0]['href']
-    return self._hateoasGetInformation(software_instance_url)
+    return self.jio_get(hosting_subscription_jio_key)
 
   def getRelatedInstanceInformation(self, reference):
     related_hosting_subscription_url = self._hateoas_getRelatedHostingSubscription()
@@ -313,13 +387,6 @@ class SlapHateoasNavigator(HateoasNavigator):
     return instance
 
   def _hateoas_getComputer(self, reference):
-    root_document = self.getRootDocument()
-    search_url = root_document["_links"]['raw_search']['href']
-    getter_link = expand(search_url, { 
-      "query": "reference:%s AND portal_type:Computer" % reference, 
-      "select_list": ["relative_url"], "limit": 1})
-
-    result = self.GET(getter_link)
     content_list = json.loads(result)['_embedded']['contents']
     if len(content_list) == 0:
       raise Exception('No Computer found.')

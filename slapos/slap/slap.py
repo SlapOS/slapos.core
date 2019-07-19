@@ -33,7 +33,7 @@ Simple, easy to (un)marshall classes for slap client/server communication
 
 __all__ = ["slap", "ComputerPartition", "Computer", "SoftwareRelease",
            "SoftwareInstance", "SoftwareProductCollection",
-           "Supply", "OpenOrder", "NotFoundError",
+           "Supply", "OpenOrder", "NotFoundError", "Token",
            "ResourceNotReady", "ServerError", "ConnectionError"]
 
 import os

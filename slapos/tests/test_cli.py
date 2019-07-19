@@ -42,6 +42,9 @@ import slapos.cli.console
 import slapos.cli.entry
 import slapos.cli.info
 import slapos.cli.list
+import slapos.cli.computer_info
+import slapos.cli.computer_list
+import slapos.cli.computer_token
 import slapos.cli.supervisorctl
 from slapos.cli.proxy_show import do_show, StringIO
 from slapos.cli.cache import do_lookup as cache_do_lookup
@@ -393,6 +396,65 @@ class TestCliInfo(CliMixin):
 
     self.logger.warning.assert_called_once_with('Instance %s does not exist.', self.conf.reference)
 
+class TestCliComputerList(CliMixin):
+  def test_computer_list(self):
+    """
+    Test "slapos list" command output.
+    """
+    return_value = {
+      'computer1': slapos.slap.hateoas.TempDocument(title='computer1', _reference='COMP-1'),
+      'computer2': slapos.slap.hateoas.TempDocument(title='computer2', _reference='COMP-0'),
+    }
+    with patch.object(slapos.slap.slap, 'getComputerDict', return_value=return_value) as _:
+      slapos.cli.computer_list.do_list(self.logger, None, self.local)
+
+    self.logger.info.assert_any_call('%s %s', 'COMP-1', 'computer1')
+    self.logger.info.assert_any_call('%s %s', 'COMP-0', 'computer2')
+
+  def test_computer_emptyList(self):
+    with patch.object(slapos.slap.slap, 'getComputerDict', return_value={}) as _:
+      slapos.cli.computer_list.do_list(self.logger, None, self.local)
+
+    self.logger.info.assert_called_once_with('No existing computer.')
+
+@patch.object(slapos.slap.slap, 'registerComputer', return_value=slapos.slap.Computer("COMP-1"))
+class TestComputerCliInfo(CliMixin):
+  def test_computer_info(self, _):
+    """
+    Test "slapos computer info" command output.
+    """
+    setattr(self.conf, 'reference', 'COMP-1')
+    computer = slapos.slap.Computer("COMP-1")
+    computer._reference = "COMP-1"
+    computer._title = "computer1"
+    with patch.object(slapos.slap.Computer, 'getInformation', return_value=computer):
+      slapos.cli.computer_info.do_info(self.logger, self.conf, self.local)
+
+    self.logger.info.assert_any_call('Computer Reference: %s', computer._reference)
+    self.logger.info.assert_any_call('Computer Title    : %s', computer._title)
+
+  def test_computer_unknownReference(self, _):
+    """
+    Test "slapos info" command output in case reference
+    of service is not known.
+    """
+    setattr(self.conf, 'reference', 'COMP-0')
+    with patch.object(slapos.slap.Computer, 'getInformation', side_effect=raiseNotFoundError):
+      slapos.cli.computer_info.do_info(self.logger, self.conf, self.local)
+
+    self.logger.warning.assert_called_once_with('Computer %s does not exist.', self.conf.reference)
+
+@patch.object(slapos.slap.slap, 'registerToken', return_value=slapos.slap.Token())
+class TestComputerCliToken(CliMixin):
+  def test_computer_token(self, _):
+    """
+    Test "slapos computer token" command output.
+    """
+    token = "1234567-90"
+    with patch.object(slapos.slap.Token, 'request', return_value=token):
+      slapos.cli.computer_token.do_token(self.logger, self.conf, self.local)
+
+    self.logger.info.assert_any_call('Computer token: %s', "1234567-90")
 
 @patch.object(supervisor.supervisorctl, 'main')
 class TestCliSupervisorctl(CliMixin):

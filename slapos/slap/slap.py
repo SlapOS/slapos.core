@@ -362,6 +362,19 @@ class Computer(SlapDocument):
       'computer_id': self._computer_id})
     return loads(xml)
 
+  def getInformation(self):
+    if not getattr(self, '_hateoas_navigator', None):
+      raise Exception('SlapOS Master Hateoas API required for this operation is not availble.')
+    raw_information = self._hateoas_navigator._getComputer(reference=self._computer_id)
+    computer = Computer(self._computer_id) 
+    for key, value in six.iteritems(raw_information["data"]):
+      if key in ['_links']:
+        continue
+      setattr(computer, '_%s' % key, value)
+
+
+    return computer
+
 
 def parsed_error_message(status, body, path):
   m = re.search('(Error Value:\n.*)', body, re.MULTILINE)
@@ -796,3 +809,9 @@ class slap:
     if not getattr(self, '_hateoas_navigator', None):
       raise Exception('SlapOS Master Hateoas API required for this operation is not availble.')
     return self._hateoas_navigator.getHostingSubscriptionDict()
+
+  def getComputerDict(self): 
+    if not getattr(self, '_hateoas_navigator', None):
+      raise Exception('SlapOS Master Hateoas API required for this operation is not availble.')
+    return self._hateoas_navigator.getComputerDict()
+

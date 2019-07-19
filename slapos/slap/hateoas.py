@@ -301,18 +301,13 @@ class HateoasNavigator(object):
 
     return self._extractPropertyFromFormDict(document_dict)
 
-  def getDocumentAndHateoas(self, relative_url, view='view'):
-    site_document = self.getRootDocument()
-    return expand(
-        site_document['_links']['traverse']['href'],
-        dict(relative_url=relative_url, view=view)
-    )
+  def jio_getAttachment(self, key, action, options):
+    pass  
 
   def getMeDocument(self):
     person_relative_url = self.getRelativeUrlFromUrn(
         self.getRootDocument()['_links']['me']['href'])
-    person_url = self.getDocumentAndHateoas(person_relative_url)
-    return json.loads(self.GET(person_url))
+    return self.jio_get(person_relative_url)
 
 class SlapHateoasNavigator(HateoasNavigator):
   def _getHostingSubscriptionList(self, title=None, select_list=["title", "url_string"]):
@@ -324,6 +319,20 @@ class SlapHateoasNavigator(HateoasNavigator):
       query={"query" : query_str, "select_list": select_list})
 
     return result['data']['rows']
+
+  def _getComputerList(self, title=None, reference=None, select_list=["title", "reference"]):
+    query_str = 'portal_type:"Computer" AND validation_state:validated'
+    if title is not None:
+      query_str += ' AND title:="%s"' % title
+
+    if reference is not None:
+      query_str += ' AND reference:="%s"' % reference
+
+    result = self.jio_allDocs(
+      query={"query" : query_str, "select_list": select_list})
+
+    return result['data']['rows']
+
 
   def _hateoas_getRelatedHostingSubscription(self):
     action_object_slap_list = self.getMeDocument()['_links']['action_object_slap']
@@ -361,11 +370,24 @@ class SlapHateoasNavigator(HateoasNavigator):
 
     return hosting_subscription_dict
 
+  def getComputerDict(self):
+    computer_list = self._getComputerList()
+    computer_dict = {}
+    for computer_json  in computer_list:
+      computer = TempDocument()
+      for key, value in computer_json.iteritems():
+        if key in ['_links']:
+          continue
+        setattr(computer, '_%s' % key, value)
+      computer_dict[computer._title] = computer
+
+    return computer_dict
+
   def getHostingSubscriptionRootSoftwareInstanceInformation(self, reference):
     hosting_subscription_list = self._getHostingSubscriptionList(title=reference,
       select_list=["title", "relative_url"])
 
-    assert len(hosting_subscription_list) == 1, \
+    assert len(hosting_subscription_list) <= 1, \
       "There are more them one Hosting Subscription for this reference"
 
     for hosting_subscription_candidate in hosting_subscription_list:
@@ -376,7 +398,6 @@ class SlapHateoasNavigator(HateoasNavigator):
     if hosting_subscription_jio_key is None:
       raise NotFoundError('This document does not exist.')
 
-
     return self.jio_get(hosting_subscription_jio_key)
 
   def getRelatedInstanceInformation(self, reference):
@@ -386,14 +407,22 @@ class SlapHateoasNavigator(HateoasNavigator):
     instance = self._hateoasGetInformation(instance_url)
     return instance
 
-  def _hateoas_getComputer(self, reference):
-    content_list = json.loads(result)['_embedded']['contents']
-    if len(content_list) == 0:
-      raise Exception('No Computer found.')
+  def _getComputer(self, reference):
+    computer_list = self._getComputerList(reference=reference,
+      select_list=["reference", "relative_url"])
 
-    computer_relative_url = content_list[0]["relative_url"]
-    getter_url = self.getDocumentAndHateoas(computer_relative_url)
-    return json.loads(self.GET(getter_url))
+    assert len(computer_list) <= 1, \
+      "There are more them one Computer for this reference"
+
+    for computer_candidate in computer_list:
+      if computer_candidate.get("reference") == reference:
+        computer_jio_key = computer_candidate['relative_url']
+        break
+
+    if computer_jio_key is None:
+      raise NotFoundError('This computer does not exist.')
+
+    return self.jio_get(computer_jio_key)
 
   def getSoftwareInstallationList(self, computer_guid=None):
     computer = self._hateoas_getComputer(computer_guid) \

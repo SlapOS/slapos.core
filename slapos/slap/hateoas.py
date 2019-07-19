@@ -63,7 +63,11 @@ ALLOWED_JIO_FIELD_LIST = [
   "TextAreaField"]
 
 class TempDocument(object):
-  pass
+  def __init__(self, **kw):
+    """
+    Makes easy initialisation of class parameters
+    """
+    self.__dict__.update(kw)
 
 class ConnectionHelper:
   def __init__(self, master_url, key_file=None,

@@ -179,6 +179,13 @@ class ISoftwareProductCollection(Interface):
   """
 
 
+class IToken(Interface):
+  """
+  Classes which implement IToken are used by slap to represent
+  information about a Token.
+  """
+
+
 class ISoftwareInstance(Interface):
   """
   Classes which implement ISoftwareRelease are used by slap to represent
@@ -526,6 +533,11 @@ class slap(Interface):
     software_release -- URI of the software release definition
     """
 
+  def registerToken():
+    """
+    Instantiate an token in the slap library.
+    """
+
   def registerOpenOrder():
     """
     Instantiate an open order in the slap library.
@@ -545,4 +557,9 @@ class slap(Interface):
   def getOpenOrderDict():
     """
     Get the list of existing open orders (services) for the current user.
+    """
+
+  def getComputerDict():
+    """
+    Get the list of existing computer for the current user.
     """

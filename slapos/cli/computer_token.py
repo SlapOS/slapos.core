@@ -44,15 +44,11 @@ def resetLogger(logger):
     logger.parent.removeHandler(handler)
     logger.addHandler(logging.StreamHandler(sys.stdout))
 
-class InfoCommand(ClientConfigCommand):
-    """get information of an computer"""
+class TokenCommand(ClientConfigCommand):
+    """get token for setup a computer"""
 
     def get_parser(self, prog_name):
-        ap = super(InfoCommand, self).get_parser(prog_name)
-
-        ap.add_argument('reference',
-                        help='Your computer reference')
-
+        ap = super(TokenCommand, self).get_parser(prog_name)
         return ap
 
     def take_action(self, args):
@@ -60,15 +56,15 @@ class InfoCommand(ClientConfigCommand):
         conf = ClientConfig(args, configp)
 
         local = init(conf, self.app.log)
-        exit_code = do_info(self.app.log, conf, local)
+        exit_code = do_token(self.app.log, conf, local)
         if exit_code != 0:
           exit(exit_code)
 
 
-def do_info(logger, conf, local):
+def do_token(logger, conf, local):
     resetLogger(logger)
     try:
-        computer = local['slap'].registerComputer(conf.reference).getInformation()
+        token = local['slap'].registerToken().request()
     except ResourceNotReady:
         logger.warning('Computer does not exist or is not ready yet.')
         return(2)
@@ -76,6 +72,5 @@ def do_info(logger, conf, local):
         logger.warning('Computer %s does not exist.', conf.reference)
         return(2)
 
-    logger.info('Computer Reference: %s', computer._reference)
-    logger.info('Computer Title    : %s', computer._title)
+    logger.info('Computer token: %s', token)
 

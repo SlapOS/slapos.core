@@ -170,8 +170,6 @@ class ConnectionHelper:
                           headers={'Content-type': content_type})
     return req.text.encode('utf-8')
 
-
-
 class HateoasNavigator(object):
   """
   Navigator for HATEOAS-style APIs.
@@ -302,7 +300,25 @@ class HateoasNavigator(object):
     return self._extractPropertyFromFormDict(document_dict)
 
   def jio_getAttachment(self, key, action, options):
-    pass  
+    traverse_url = self._getTraverseUrl()
+
+    if action == "view":
+      view = "slaposjs_view"
+      getter_link = expand(traverse_url, {
+        "relative_url": key,
+        "view": view
+        })
+    elif action == "links":
+      raise NotImplementedError("links is not implemented for now")
+    elif action.startswith(self.slapos_master_hateoas_uri):
+      # This is a url, call it directly
+      getter_link = action
+
+    document_json = self.GET(getter_link)
+    document_dict = json.loads(document_json)
+
+    return document_dict
+
 
   def getMeDocument(self):
     person_relative_url = self.getRelativeUrlFromUrn(
@@ -382,6 +398,14 @@ class SlapHateoasNavigator(HateoasNavigator):
       computer_dict[computer._title] = computer
 
     return computer_dict
+
+  def getToken(self):
+    root_document = self.getRootDocument()
+    hateoas_url = root_document['_links']['self']['href']
+    token_json = self.jio_getAttachment(
+      "computer_module", hateoas_url +  "computer_module/Base_getComputerToken", {})
+
+    return token_json["access_token"]
 
   def getHostingSubscriptionRootSoftwareInstanceInformation(self, reference):
     hosting_subscription_list = self._getHostingSubscriptionList(title=reference,

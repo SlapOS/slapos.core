@@ -228,6 +228,10 @@ class Supply(SlapDocument):
       raise NotFoundError("Computer %s has not been found by SlapOS Master."
           % computer_guid)
 
+@implementer(interface.IToken)
+class Token(SlapDocument):
+  def request(self):
+    return self._hateoas_navigator.getToken()
 
 @implementer(interface.IOpenOrder)
 class OpenOrder(SlapRequester):
@@ -235,25 +239,34 @@ class OpenOrder(SlapRequester):
   def request(self, software_release, partition_reference,
               partition_parameter_kw=None, software_type=None,
               filter_kw=None, state=None, shared=False):
+
     if partition_parameter_kw is None:
       partition_parameter_kw = {}
+    elif not isinstance(partition_parameter_kw, dict):
+      raise ValueError("Unexpected type of partition_parameter_kw '%s'" %
+                       partition_parameter_kw)
+
     if filter_kw is None:
       filter_kw = {}
+    elif not isinstance(filter_kw, dict):
+      raise ValueError("Unexpected type of filter_kw '%s'" %
+                       filter_kw)
+
+    # Let enforce a default software type
+    if software_type is None:
+      software_type = DEFAULT_SOFTWARE_TYPE
+
     request_dict = {
         'software_release': software_release,
         'partition_reference': partition_reference,
         'partition_parameter_xml': dumps(partition_parameter_kw),
         'filter_xml': dumps(filter_kw),
+        'software_type': software_type,
         # XXX Cedric: Why state and shared are marshalled? First is a string
         #             And second is a boolean.
         'state': dumps(state),
         'shared_xml': dumps(shared),
     }
-    if software_type is not None:
-      request_dict['software_type'] = software_type
-    else:
-      # Let's enforce a default software type
-      request_dict['software_type'] = DEFAULT_SOFTWARE_TYPE
     return self._requestComputerPartition(request_dict)
 
   def getInformation(self, partition_reference):
@@ -371,8 +384,6 @@ class Computer(SlapDocument):
       if key in ['_links']:
         continue
       setattr(computer, '_%s' % key, value)
-
-
     return computer
 
 
@@ -532,7 +543,6 @@ class ComputerPartition(SlapRequester):
       setattr(software_instance, '_%s' % key, value)
     setattr(software_instance, '_software_release_url', raw_information["_links"]["software_release"])
     return software_instance
-
 
   def getId(self):
     if not getattr(self, '_partition_id', None):
@@ -740,6 +750,20 @@ class slap:
       connection_helper=self._connection_helper,
       hateoas_navigator=self._hateoas_navigator
     )
+
+  def registerToken(self):
+    """
+    Registers connected represenation of token and
+    return Token class object
+    """
+    if not getattr(self, '_hateoas_navigator', None):
+      raise Exception('SlapOS Master Hateoas API required for this operation is not availble.')
+
+    return Token(
+      connection_helper=self._connection_helper,
+      hateoas_navigator=self._hateoas_navigator
+    )
+
 
   def registerComputer(self, computer_guid):
     """

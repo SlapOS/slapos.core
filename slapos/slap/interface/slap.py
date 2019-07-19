@@ -449,6 +449,12 @@ class IComputer(Interface):
     Raise ValueError is there is not valid certificate.
     """
 
+  def getInformation():
+    """
+    Get information about current computer.
+    If it is called from a Computer, get information about itself.
+    """
+
 
 class IOpenOrder(IRequester):
   """

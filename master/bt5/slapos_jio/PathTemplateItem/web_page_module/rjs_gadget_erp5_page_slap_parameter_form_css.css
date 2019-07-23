@@ -39,7 +39,7 @@
   border-radius: 2px;
 }
 .bt_close:hover {
-  background: #81afab;
+  background: #c9c9c9;
   color: #fff;
 }
 
@@ -175,12 +175,12 @@ label.slapos-parameter-dict-key ~ div.input label {
 }
 .input .add-sub-form {
   position: absolute;
-  right: 0;
+  right: 10px;
   top: 0;
   bottom: 0;
   text-decoration: none;
   cursor: pointer;
-  color: #fff;
+  color: #000;
   margin: 0;
 }
 .add-sub-form:before {

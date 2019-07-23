@@ -184,6 +184,7 @@
       key,
       div,
       label,
+      close_span,
       input,
       default_value,
       default_used_list = [],
@@ -213,6 +214,8 @@
 
           input = document.createElement("input");
           input.type = "text";
+          // Name is only meaningfull to automate tests
+          input.name = "ADD" + path;
           div_input.appendChild(input);
 
           input = document.createElement("button");
@@ -220,7 +223,7 @@
           input.setAttribute("class", "add-sub-form");
           input.type = "button";
           input.name = path;
-          input.textContent = "Add";
+          input.textContent = "+";
           div_input.appendChild(input);
 
           div.appendChild(div_input);
@@ -234,6 +237,11 @@
             label = document.createElement("label");
             label.textContent = default_value;
             label.setAttribute("class", "slapos-parameter-dict-key");
+            close_span = document.createElement("span");
+            close_span.textContent = "×";
+            close_span.setAttribute("class", "bt_close");
+            close_span.setAttribute("title", "Remove this parameter section.");
+            label.appendChild(close_span);
             default_div.appendChild(label);
             default_div = render_subform(
               json_field.patternProperties['.*'],
@@ -262,7 +270,7 @@
         div_input = document.createElement("div");
         div_input.setAttribute("class", "input");
         if (json_field.properties[key].type === 'object') {
-          label.setAttribute("class", "slapos-parameter-dict-key");
+           label.setAttribute("class", "slapos-parameter-dict-key");
           div_input = render_subform(json_field.properties[key],
             default_dict[key],
             div_input,
@@ -290,7 +298,7 @@
     }
     for (key in default_dict) {
       if (default_dict.hasOwnProperty(key)) {
-        if (default_used_list.indexOf(key) < 0) {
+        if (default_used_list.indexOf(key) < 0 ) {
           div = document.createElement("div");
           div.title = key;
           if (restricted === true) {
@@ -308,7 +316,7 @@
             div.appendChild(label);
             div_input = document.createElement("div");
             div_input.setAttribute("class", "input");
-            input = render_field({"type": "string", "textarea": true}, default_dict[key]);
+            input = render_field({"type": "string"}, default_dict[key]);
             input.name = path + "/" + key;
             input.setAttribute("class", "slapos-parameter");
             input.setAttribute("placeholder", " ");
@@ -395,6 +403,11 @@
     return element;
   }
 
+  function removeSubParameter(element) {
+    $(element).parent().parent().remove();
+    return false;
+  }
+
   function addSubForm(element) {
     var subform_json = JSON.parse(atob(element.value)),
       input_text = element.parentNode.querySelector("input[type='text']"),
@@ -424,6 +437,7 @@
       field_list = g.element.querySelectorAll(".slapos-parameter"),
       button_list = g.element.querySelectorAll('button.add-sub-form'),
       label_list = g.element.querySelectorAll('label.slapos-parameter-dict-key'),
+      close_list = g.element.querySelectorAll(".bt_close"),
       i,
       promise_list = [];
 
@@ -451,6 +465,15 @@
         'click',
         false,
         collapseParameter.bind(g, label_list[i])
+      ));
+    }
+
+    for (i = 0; i < close_list.length; i = i + 1) {
+      promise_list.push(loopEventListener(
+        close_list[i],
+        'click',
+        false,
+        removeSubParameter.bind(g, close_list [i])
       ));
     }
 

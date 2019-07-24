@@ -239,7 +239,7 @@
             label.setAttribute("class", "slapos-parameter-dict-key");
             close_span = document.createElement("span");
             close_span.textContent = "×";
-            close_span.setAttribute("class", "bt_close");
+            close_span.setAttribute("class", "bt_close CLOSE" + path + "/" + default_value);
             close_span.setAttribute("title", "Remove this parameter section.");
             label.appendChild(close_span);
             default_div.appendChild(label);

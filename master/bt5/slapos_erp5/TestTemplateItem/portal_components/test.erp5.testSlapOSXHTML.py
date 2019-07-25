@@ -9,7 +9,7 @@ from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 class TestSlapOSXHTML(SlapOSTestCaseMixin, testXHTML.TestXHTML):
 
   # some forms have intentionally empty listbox selections like RSS generators
-  JSL_IGNORE_SKIN_LIST = ('erp5_ace_editor', 'erp5_code_mirror', 'erp5_ckeditor',
+  JSL_IGNORE_SKIN_LIST = ('erp5_code_mirror', 'erp5_ckeditor',
                           'erp5_fckeditor', 'erp5_ui_test_core',
                           'erp5_jquery', 'erp5_jquery_ui',
                           'erp5_svg_editor', 'erp5_xinha_editor',

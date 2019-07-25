@@ -153,7 +153,6 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
-erp5_ace_editor
 erp5_administration
 erp5_auto_logout
 erp5_base
@@ -265,7 +264,6 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
-erp5_ace_editor
 erp5_administration
 erp5_auto_logout
 erp5_base
@@ -378,7 +376,6 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
-erp5_ace_editor
 erp5_administration
 erp5_auto_logout
 erp5_base
@@ -487,7 +484,6 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
-erp5_ace_editor
 erp5_administration
 erp5_auto_logout
 erp5_base
@@ -600,7 +596,6 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
-erp5_ace_editor
 erp5_administration
 erp5_auto_logout
 erp5_base
@@ -713,7 +708,6 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
-erp5_ace_editor
 erp5_administration
 erp5_auto_logout
 erp5_base
@@ -823,7 +817,6 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
-erp5_ace_editor
 erp5_administration
 erp5_auto_logout
 erp5_base
@@ -934,7 +927,6 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
-erp5_ace_editor
 erp5_administration
 erp5_auto_logout
 erp5_base
@@ -1044,7 +1036,6 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
-erp5_ace_editor
 erp5_administration
 erp5_auto_logout
 erp5_base
@@ -1155,7 +1146,6 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
-erp5_ace_editor
 erp5_administration
 erp5_auto_logout
 erp5_base
@@ -1266,7 +1256,6 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
-erp5_ace_editor
 erp5_administration
 erp5_auto_logout
 erp5_base
@@ -1378,7 +1367,6 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
-erp5_ace_editor
 erp5_administration
 erp5_auto_logout
 erp5_base
@@ -1490,7 +1478,6 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
-erp5_ace_editor
 erp5_administration
 erp5_auto_logout
 erp5_base

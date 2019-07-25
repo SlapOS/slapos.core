@@ -1,7 +1,6 @@
 erp5_access_token
 erp5_accounting
 erp5_accounting_l10n_fr
-erp5_ace_editor
 erp5_administration
 erp5_base
 erp5_bearer_token

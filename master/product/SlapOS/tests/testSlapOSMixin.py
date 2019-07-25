@@ -295,7 +295,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
             'erp5_simplified_invoicing',
             'erp5_credential_oauth2',
             'erp5_accounting_l10n_fr',
-            'erp5_ace_editor',
             'erp5_code_mirror',
             'erp5_font',
             'erp5_hal_json_style',

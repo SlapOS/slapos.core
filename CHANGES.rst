@@ -1,6 +1,16 @@
 Changes
 =======
 
+1.4.24 (2019-07-25)
+-------------------
+
+  * slap: New API using hateoas
+  * slap: Use cachecontrol to be http cache friendly 
+  * New command: slapos cache source to check source cache
+  * New command: slapos computer [info|list|token]
+  * grid: Stabilize service list to prevent supervisord restart
+
+
 1.4.23 (2019-06-05)
 -------------------
 

@@ -39,6 +39,7 @@ import prettytable
 from slapos.grid import networkcache
 from slapos.grid.distribution import distribution_tuple
 from slapos.cli.config import ConfigCommand
+from slapos.util import str2bytes
 
 FAILURE_EXIT_CODE = 10
 
@@ -77,7 +78,7 @@ def do_lookup(logger, cache_dir, software_url):
     if looks_like_md5(software_url):
         md5 = software_url
     else:
-        md5 = hashlib.md5(software_url).hexdigest()
+        md5 = hashlib.md5(str2bytes(software_url)).hexdigest()
     try:
         url = '%s/%s' % (cache_dir, md5)
         logger.debug('Connecting to %s', url)

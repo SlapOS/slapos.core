@@ -39,6 +39,7 @@ import prettytable
 from slapos.grid import networkcache
 from slapos.cli.config import ConfigCommand
 from slapos.cli.list import resetLogger
+from slapos.util import str2bytes
 
 class CacheLookupCommand(ConfigCommand):
     """
@@ -63,7 +64,7 @@ class CacheLookupCommand(ConfigCommand):
         sys.exit(do_lookup(self.app.log, cache_dir, args.url))
 
 def do_lookup(logger, cache_dir, url):
-    md5 = hashlib.md5(url).hexdigest()
+    md5 = hashlib.md5(str2bytes(url)).hexdigest()
 
     try:
         cached_url = '%s/slapos-buildout-%s' % (cache_dir, md5)

@@ -43,6 +43,7 @@ import logging
 import json
 import shutil
 import six
+import errno
 
 if sys.version_info < (2, 6):
   warnings.warn('Used python version (%s) is old and has problems with'
@@ -966,10 +967,7 @@ stderr_logfile_backups=1
         COMPUTER_PARTITION_TIMESTAMP_FILENAME
     )
     parameter_dict = computer_partition.getInstanceParameterDict()
-    if 'timestamp' in parameter_dict:
-      timestamp = parameter_dict['timestamp']
-    else:
-      timestamp = None
+    timestamp = parameter_dict.get('timestamp')
 
     error_output_file = os.path.join(
         instance_path,
@@ -1031,18 +1029,23 @@ stderr_logfile_backups=1
     # If not: it's not worth processing this partition (nothing has
     # changed).
     if (computer_partition_id not in self.computer_partition_filter_list and
-          not self.develop and os.path.exists(timestamp_path)):
-      with open(timestamp_path) as f:
-        old_timestamp = f.read()
-      last_runtime = int(os.path.getmtime(timestamp_path))
-      if timestamp:
-        try:
-          if periodicity == 0:
-            os.remove(timestamp_path)
-          elif int(timestamp) <= int(old_timestamp):
+          not self.develop and timestamp and periodicity):
+      try:
+        last_runtime = os.path.getmtime(timestamp_path)
+      except OSError as e:
+        if e.errno != errno.ENOENT:
+          raise
+      else:
+        with open(timestamp_path) as f:
+          try:
+            old_timestamp = float(f.read())
+          except ValueError:
+            self.logger.exception('')
+            old_timestamp = 0
+        if float(timestamp) <= old_timestamp:
             # Check periodicity, i.e if periodicity is one day, partition
             # should be processed at least every day.
-            if int(time.time()) <= (last_runtime + periodicity) or periodicity < 0:
+            if time.time() <= last_runtime + periodicity or periodicity < 0:
               # check promises anomaly
               if computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
                 self.logger.debug('Partition already up-to-date.')
@@ -1055,13 +1058,7 @@ stderr_logfile_backups=1
                 manager.instanceTearDown(local_partition)
 
               return
-            else:
-              # Periodicity forced processing this partition. Removing
-              # the timestamp file in case it fails.
-              os.remove(timestamp_path)
-        except ValueError:
-          os.remove(timestamp_path)
-          self.logger.exception('')
+        os.remove(timestamp_path)
 
     # Include Partition Logging
     log_folder_path = "%s/.slapgrid/log" % instance_path
@@ -1168,7 +1165,7 @@ stderr_logfile_backups=1
     # If partition has been successfully processed, write timestamp
     if timestamp:
       with open(timestamp_path, 'w') as f:
-        f.write(timestamp)
+        f.write(str(timestamp))
 
   def FilterComputerPartitionList(self, computer_partition_list):
     """

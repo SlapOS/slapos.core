@@ -627,16 +627,16 @@ class ComputerPartition(SlapRequester):
 
   def getInstanceParameter(self, key):
     parameter_dict = getattr(self, '_parameter_dict', None) or {}
-    if key in parameter_dict:
+    try:
       return parameter_dict[key]
-    else:
+    except KeyError:
       raise NotFoundError("%s not found" % key)
 
   def getConnectionParameter(self, key):
     connection_dict = self.getConnectionParameterDict()
-    if key in connection_dict:
+    try:
       return connection_dict[key]
-    else:
+    except KeyError:
       raise NotFoundError("%s not found" % key)
 
   def setUsage(self, usage_log):

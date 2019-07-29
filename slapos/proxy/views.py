@@ -31,6 +31,7 @@
 from lxml import etree
 import random
 import string
+import time
 from datetime import datetime
 from slapos.slap.slap import Computer, ComputerPartition, \
     SoftwareRelease, SoftwareInstance, NotFoundError
@@ -91,7 +92,8 @@ def partitiondict2partition(partition):
   slap_partition._software_release_document = None
   slap_partition._requested_state = 'destroyed'
   slap_partition._need_modification = 0
-  slap_partition._instance_guid = '%s-%s' % (partition['computer_reference'], partition['reference'])
+  slap_partition._instance_guid = '%(computer_reference)s-%(reference)s' \
+    % partition
 
   root_partition = getRootPartition(partition['reference'])
 
@@ -118,6 +120,9 @@ def partitiondict2partition(partition):
           loads(partition['slave_instance_list'].encode('utf-8'))
     else:
       slap_partition._parameter_dict['slave_instance_list'] = []
+    timestamp = partition['timestamp']
+    if timestamp:
+      slap_partition._parameter_dict['timestamp'] = str(timestamp)
     slap_partition._connection_dict = xml2dict(partition['connection_xml'])
     slap_partition._software_release_document = SoftwareRelease(
       software_release=partition['software_release'],
@@ -267,12 +272,18 @@ def setComputerPartitionConnectionXml():
     query = 'UPDATE %s SET connection_xml=? WHERE reference=? AND computer_reference=?'
     argument_list = [connection_xml, computer_partition_id, computer_id]
     execute_db('partition', query, argument_list)
-    return 'done'
+    # Update timestamp of parent partition.
+    requested_by = execute_db('partition',
+      'SELECT requested_by FROM %s WHERE reference=? AND computer_reference=?',
+      (computer_partition_id, computer_id), one=True)['requested_by']
+    execute_db('partition',
+      "UPDATE %s SET timestamp=? WHERE reference=? AND computer_reference=?",
+      (time.time(), requested_by, computer_id))
   else:
     query = 'UPDATE %s SET connection_xml=? , hosted_by=? WHERE reference=?'
     argument_list = [connection_xml, computer_partition_id, slave_reference]
     execute_db('slave', query, argument_list)
-    return 'done'
+  return 'done'
 
 @app.route('/buildingSoftwareRelease', methods=['POST'])
 def buildingSoftwareRelease():
@@ -569,26 +580,23 @@ def getRootPartition(reference):
       reference, execute_db("partition", "select reference, requested_by from %s")))
     return None
 
-  parent_partition = execute_db('partition', p, [partition['requested_by']], one=True)
-  while (parent_partition is not None and
-         parent_partition['requested_by'] and
-         parent_partition['requested_by'] != reference):
+  while True:
+    requested_by = partition['requested_by']
+    if requested_by is None or requested_by == reference:
+      return partition
+    parent_partition = execute_db('partition', p, (requested_by,), one=True)
+    if parent_partition is None:
+      return partition
     partition = parent_partition
-    reference = parent_partition['requested_by']
-    parent_partition = execute_db('partition', p, [reference], one=True)
-
-  return partition
+    reference = requested_by
 
 def requestNotSlave(software_release, software_type, partition_reference, partition_id, partition_parameter_kw, filter_kw, requested_state):
   instance_xml = dict2xml(partition_parameter_kw)
   requested_computer_id = filter_kw['computer_guid']
 
-  args = []
-  a = args.append
-  q = 'SELECT * FROM %s WHERE partition_reference=?'
-  a(partition_reference)
-
-  partition = execute_db('partition', q, args, one=True)
+  partition = execute_db('partition',
+    'SELECT * FROM %s WHERE partition_reference=?',
+    (partition_reference,), one=True)
 
   args = []
   a = args.append
@@ -601,8 +609,6 @@ def requestNotSlave(software_release, software_type, partition_reference, partit
     if partition is None:
       app.logger.warning('No more free computer partition')
       abort(404)
-    q += ' ,software_release=?'
-    a(software_release)
     if partition_reference:
       q += ' ,partition_reference=?'
       a(partition_reference)
@@ -612,10 +618,6 @@ def requestNotSlave(software_release, software_type, partition_reference, partit
     if not software_type:
       software_type = 'RootSoftwareInstance'
   else:
-    # XXX Check if software_release should be updated
-    if partition['software_release'] != software_release:
-      q += ' ,software_release=?'
-      a(software_release)
     if partition['requested_by']:
       root_partition = getRootPartition(partition['requested_by'])
       if root_partition and root_partition['requested_state'] != "started":
@@ -623,49 +625,49 @@ def requestNotSlave(software_release, software_type, partition_reference, partit
         # child can be stopped or destroyed while parent is started
         requested_state = root_partition['requested_state']
 
-  if requested_state:
-    q += ', requested_state=?'
-    a(requested_state)
+  timestamp = partition['timestamp']
+  changed = timestamp is None
+  for k, v in (('requested_state', requested_state or
+                                   partition['requested_state']),
+               ('software_release', software_release),
+               ('software_type', software_type),
+               ('xml', instance_xml)):
+    if partition[k] != v:
+      q += ', %s=?' % k
+      a(v)
+      changed = True
 
-  #
-  # XXX change software_type when requested
-  #
-  if software_type:
-    q += ' ,software_type=?'
-    a(software_type)
+  if changed:
+    timestamp = time.time()
+    q += ', timestamp=?'
+    a(timestamp)
 
-  # Else: only update partition parameters
-  if instance_xml:
-    q += ' ,xml=?'
-    a(instance_xml)
   q += ' WHERE reference=? AND computer_reference=?'
   a(partition['reference'])
   a(partition['computer_reference'])
 
   execute_db('partition', q, args)
-  args = []
   partition = execute_db('partition', 'SELECT * FROM %s WHERE reference=? and computer_reference=?',
       [partition['reference'], partition['computer_reference']], one=True)
   address_list = []
   for address in execute_db('partition_network', 'SELECT * FROM %s WHERE partition_reference=?', [partition['reference']]):
     address_list.append((address['reference'], address['address']))
 
-  if not requested_state:
-    requested_state = 'started'
   # XXX it should be ComputerPartition, not a SoftwareInstance
-  software_instance = SoftwareInstance(_connection_dict=xml2dict(partition['connection_xml']),
-                                       _parameter_dict=xml2dict(partition['xml']),
-                                       connection_xml=partition['connection_xml'],
-                                       slap_computer_id=partition['computer_reference'],
-                                       slap_computer_partition_id=partition['reference'],
-                                       slap_software_release_url=partition['software_release'],
-                                       slap_server_url='slap_server_url',
-                                       slap_software_type=partition['software_type'],
-                                       _instance_guid='%s-%s' % (partition['computer_reference'], partition['reference']),
-                                       _requested_state=requested_state,
-                                       ip_list=address_list)
-  return software_instance
-
+  parameter_dict = xml2dict(partition['xml'])
+  parameter_dict['timestamp'] = str(partition['timestamp'])
+  return SoftwareInstance(
+    _connection_dict=xml2dict(partition['connection_xml']),
+    _parameter_dict=parameter_dict,
+    connection_xml=partition['connection_xml'],
+    slap_computer_id=partition['computer_reference'],
+    slap_computer_partition_id=partition['reference'],
+    slap_software_release_url=partition['software_release'],
+    slap_server_url='slap_server_url',
+    slap_software_type=partition['software_type'],
+    _instance_guid='%(computer_reference)s-%(reference)s' % partition,
+    _requested_state=requested_state or 'started',
+    ip_list=address_list)
 
 def requestSlave(software_release, software_type, partition_reference, partition_id, partition_parameter_kw, filter_kw, requested_state):
   """
@@ -737,7 +739,6 @@ def requestSlave(software_release, software_type, partition_reference, partition
   a(partition['reference'])
   a(requested_computer_id)
   execute_db('partition', q, args)
-  args = []
   partition = execute_db('partition', 'SELECT * FROM %s WHERE reference=? and computer_reference=?',
       [partition['reference'], requested_computer_id], one=True)
 
@@ -758,16 +759,15 @@ def requestSlave(software_release, software_type, partition_reference, partition
     address_list.append((address['reference'], address['address']))
 
   # XXX it should be ComputerPartition, not a SoftwareInstance
-  software_instance = SoftwareInstance(_connection_dict=xml2dict(slave['connection_xml']),
-                                       _parameter_dict=xml2dict(instance_xml),
-                                       slap_computer_id=partition['computer_reference'],
-                                       slap_computer_partition_id=slave['hosted_by'],
-                                       slap_software_release_url=partition['software_release'],
-                                       slap_server_url='slap_server_url',
-                                       slap_software_type=partition['software_type'],
-                                       ip_list=address_list)
-
-  return software_instance
+  return SoftwareInstance(
+    _connection_dict=xml2dict(slave['connection_xml']),
+    _parameter_dict=xml2dict(instance_xml),
+    slap_computer_id=partition['computer_reference'],
+    slap_computer_partition_id=slave['hosted_by'],
+    slap_software_release_url=partition['software_release'],
+    slap_server_url='slap_server_url',
+    slap_software_type=partition['software_type'],
+    ip_list=address_list)
 
 @app.route('/softwareInstanceRename', methods=['POST'])
 def softwareInstanceRename():

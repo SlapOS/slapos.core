@@ -7,7 +7,8 @@ portal = context.getPortalObject()
 catalog_kw = dict(
   portal_type='Software Installation',
   validation_state='validated',
-  url_string=context.getUrlString()
+  url_string=context.getUrlString(),
+  **{"slapos_item.slap_state": "start_requested"}
 )
 
 count = portal.portal_catalog.countResults(

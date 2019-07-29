@@ -1,4 +1,4 @@
---version:13
+--version:14
 CREATE TABLE IF NOT EXISTS software%(version)s (
   url VARCHAR(255),
   computer_reference VARCHAR(255) DEFAULT '%(computer)s',
@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS partition%(version)s (
   requested_by VARCHAR(255), -- only used for debugging,
                              -- slapproxy does not support proper scope
   requested_state VARCHAR(255) NOT NULL DEFAULT 'started',
+  timestamp REAL,
   CONSTRAINT uniq PRIMARY KEY (reference, computer_reference)
 );
 

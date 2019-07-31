@@ -258,7 +258,7 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
       Call bang if requested
     """
     if 'master-url' in self.__config and \
-       'partition-in' in self.__config and \
+       'partition-id' in self.__config and \
        'computer-id' in self.__config:
 
       slap = slapos.slap.slap()

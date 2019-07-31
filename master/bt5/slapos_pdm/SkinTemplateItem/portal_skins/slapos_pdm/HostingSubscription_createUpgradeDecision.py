@@ -2,12 +2,18 @@ from DateTime import DateTime
 portal = context.getPortalObject()
 
 hosting_subscription = context
-if context.getUpgradeScope() == "never":
+upgrade_scope = context.getUpgradeScope()
+if upgrade_scope == "never":
   return
 
-root_instance = hosting_subscription.getPredecessorValue(portal_type="Software Instance")
+root_instance = hosting_subscription.getPredecessorValue(portal_type=["Software Instance", "Slave Instance"])
 if root_instance is None:
   return
+
+slave_upgrade = False
+if root_instance.getPortalType() == 'Slave Instance':
+  slave_upgrade = True
+  upgrade_scope = "auto"
 
 if hosting_subscription.getSlapState() == "destroy_requested":
   return
@@ -22,12 +28,20 @@ partition = root_instance.getAggregateValue(portal_type="Computer Partition")
 if partition is None:
   return
 
-if not partition.getParentValue().getAllocationScopeUid() in [category.getUid() \
-    for category in portal.portal_categories.allocation_scope.open.objectValues()]:
-  return
-
 decision_title = 'A new upgrade is available for %s' % hosting_subscription.getTitle()
-newer_release = hosting_subscription.\
+newer_release = None
+
+if slave_upgrade:
+  software_instance = partition.getAggregateRelatedValue(portal_type='Software Instance')
+  if software_instance:
+    url_string = software_instance.getUrlString()
+    if url_string != hosting_subscription.getUrlString():
+      newer_release = context.portal_catalog.getResultValue(portal_type='Software Release', url_string=url_string)
+else:
+  if not partition.getParentValue().getAllocationScopeUid() in [category.getUid() \
+      for category in portal.portal_categories.allocation_scope.open.objectValues()]:
+    return
+  newer_release = hosting_subscription.\
                   HostingSubscription_getUpgradableSoftwareRelease()
 if newer_release is None:
   return
@@ -47,7 +61,7 @@ upgrade_decision = newer_release.SoftwareRelease_createUpgradeDecision(
 with upgrade_decision.defaultActivateParameterDict(activate_kw):
   upgrade_decision.plan()
   upgrade_decision.setStartDate(DateTime())
-  if hosting_subscription.getUpgradeScope() == "auto":
+  if upgrade_scope == "auto":
     upgrade_decision.start()
 
 # Prevent concurrent transaction to create 2 upgrade decision for the same hosting_subscription

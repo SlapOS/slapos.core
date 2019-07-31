@@ -311,7 +311,21 @@ def softwareInstanceError():
 
 @app.route('/softwareInstanceBang', methods=['POST'])
 def softwareInstanceBang():
-  return 'Ignored'
+  partition_list = [getRootPartition(
+    unicode2str(request.form['computer_partition_id']))['reference']]
+  # Now that we have the root partition, browse recursively
+  # to update the timestamp of all partitions in the instance.
+  now = time.time()
+  while True:
+    try:
+      partition_id = partition_list.pop()
+    except IndexError:
+      return 'OK'
+    execute_db('partition',
+      "UPDATE %s SET timestamp=? WHERE reference=?", (now, partition_id))
+    partition_list += (partition['reference'] for partition in execute_db(
+      'partition', "SELECT reference FROM %s WHERE requested_by=?",
+      (partition_id,)))
 
 @app.route('/startedComputerPartition', methods=['POST'])
 def startedComputerPartition():

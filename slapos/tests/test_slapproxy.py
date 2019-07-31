@@ -479,29 +479,57 @@ class TestRequest(MasterMixin):
     time.sleep(.1) # check timestamp does not change for an identical request
     self.assertEqual(partition.__dict__, do_request().__dict__)
 
+  def test_instance_bang(self):
+    """
+    Check that instance bang update the timestamps of all partitions in the
+    instance.
+    """
+    self.add_free_partition(3)
+    requested_at = time.time()
+    parent = self.request('http://sr//', None, 'MyFirstInstance')
+    child = self.request('http://sr//', None, 'MySubInstance',
+                         parent._partition_id)
+    other = self.request('http://sr//', None, 'AnotherInstance')
+    for partition in parent, child, other:
+      self.assertLessEqual(float(str(requested_at)),
+        float(partition._parameter_dict['timestamp']))
+    other_timestamp = other._parameter_dict['timestamp']
+    def getTimestamp(partition):
+      return self.getPartitionInformation(
+        partition._partition_id)._parameter_dict['timestamp']
+    for partition in parent, child:
+      time.sleep(.1)
+      bang_at = time.time()
+      self.app.post('/softwareInstanceBang', data={
+        'computer_id': self.computer_id,
+        'computer_partition_id': partition._partition_id,
+        'message': self.id()})
+      timestamp = getTimestamp(parent)
+      self.assertLessEqual(float(str(requested_at)), float(timestamp))
+      self.assertEqual(getTimestamp(child), timestamp)
+      self.assertEqual(getTimestamp(other), other_timestamp)
+
   def test_request_propagate_partition_state(self):
     """
     Request will return same partition for two equal requests
     """
     self.add_free_partition(2)
-    partition_parent = self.request('http://sr//', None, 'MyFirstInstance')
-    parent_dict = partition_parent.__dict__
-    partition_child = self.request('http://sr//', None, 'MySubInstance', parent_dict['_partition_id'])
+    def request_parent(**kw):
+      return self.request('http://sr//', None, 'MyFirstInstance', **kw)
+    def request_child():
+      return self.request('http://sr//', None, 'MySubInstance', parent_id)
 
-    self.assertEqual(partition_parent.getState(), 'started')
-    self.assertEqual(partition_child.getState(), 'started')
+    parent = request_parent()
+    parent_id = parent._partition_id
+    child = request_child()
+    self.assertEqual('started', parent.getState())
+    self.assertEqual('started', child.getState())
 
-    partition_parent = self.request('http://sr//', None, 'MyFirstInstance', state='stopped')
-    partition_child = self.request('http://sr//', None, 'MySubInstance', parent_dict['_partition_id'])
-
-    self.assertEqual(partition_parent.getState(), 'stopped')
-    self.assertEqual(partition_child.getState(), 'stopped')
-
-    partition_parent = self.request('http://sr//', None, 'MyFirstInstance', state='started')
-    partition_child = self.request('http://sr//', None, 'MySubInstance', parent_dict['_partition_id'])
-
-    self.assertEqual(partition_parent.getState(), 'started')
-    self.assertEqual(partition_child.getState(), 'started')
+    for state in 'stopped', 'started':
+      parent = request_parent(state=state)
+      child = request_child()
+      self.assertEqual(state, parent.getState())
+      self.assertEqual(state, child.getState())
 
   def test_request_parent_started_children_stopped(self):
     """

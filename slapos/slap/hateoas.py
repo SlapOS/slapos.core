@@ -407,7 +407,7 @@ class SlapHateoasNavigator(HateoasNavigator):
     root_document = self.getRootDocument()
     hateoas_url = root_document['_links']['self']['href']
     token_json = self.jio_getAttachment(
-      "computer_module", hateoas_url +  "computer_module/Base_getComputerToken", {})
+      "computer_module", hateoas_url +  "/computer_module/Base_getComputerToken", {})
 
     return token_json["access_token"]
 

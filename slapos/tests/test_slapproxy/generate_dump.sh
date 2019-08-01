@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/sh
+set -e
 
 # Update an old dump to current format. Useful to update tests date
 # when increasing database version number.
@@ -6,7 +7,7 @@
 # `computer` for slapos/tests/test_slapproxy/database_dump_version_??.sql
 # and `slaprunner` for slapos/tests/test_slapproxy/database_dump_version_current.sql
 
-if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3"]; then
+if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
     echo "Usage: $0 computer_id dump_before.sql dump_after.sql"
     exit 1;
 fi
@@ -16,7 +17,7 @@ DUMP_BEFORE=$2
 DUMP_AFTER=$3
 PORT=6123
 
-echo "Using slapos $(which slapos) : $(slapos --version)"
+echo "Using slapos $(which slapos) : $(slapos --version 2>&1)"
 
 TMPD=$(mktemp -d)
 if [ ! -e $TMPD ]; then
@@ -42,9 +43,9 @@ sqlite3 ${TMPD}/proxy.db < $DUMP_BEFORE
 slapos proxy start --cfg ${TMPD}/slapos.cfg &
 SLAPOS_PROXY_PID=$!
 
-curl --silent --retry-connrefuse --retry 3 http://127.0.0.1:${PORT}/getComputerInformation?computer_id=$COMPUTER_ID
+curl --silent --retry-connrefused --retry 3 http://127.0.0.1:${PORT}/getComputerInformation?computer_id=$COMPUTER_ID
 
-echo ".dump" | sqlite3 ${TMPD}/proxy.db > $DUMP_AFTER
+sqlite3 ${TMPD}/proxy.db .dump > $DUMP_AFTER
 
 kill $SLAPOS_PROXY_PID
 wait

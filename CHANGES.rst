@@ -1,6 +1,15 @@
 Changes
 =======
 
+1.4.25 (2019-08-02)
+-------------------
+
+  * slap/hateoas: Fix path for the hateaos API
+  * slapproxy: implement softwareInstanceBang
+  * slapproxy: skip instanciation if nothing has changed
+  * grid: fix typo in GenericPromise.__bang
+  * Fixes for Python 3 support
+
 1.4.24 (2019-07-25)
 -------------------
 

@@ -477,7 +477,8 @@ class SlapTool(BaseTool):
     return xml_marshaller.xml_marshaller.dumps(
       [software_release.getUrlString()
         for software_release in software_release_list
-          if software_release.getValidationState() == 'published'])
+          if software_release.getValidationState() in \
+                  ['published', 'published_alive']])
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'getHateoasUrl')

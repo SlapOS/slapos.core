@@ -184,6 +184,12 @@ class IToken(Interface):
   Classes which implement IToken are used by slap to represent
   information about a Token.
   """
+  def request():
+    """
+    Request a token document to slapgrid server.
+
+    Returns a new Token document.
+    """
 
 
 class ISoftwareInstance(Interface):

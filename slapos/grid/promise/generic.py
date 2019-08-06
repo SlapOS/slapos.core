@@ -47,9 +47,11 @@ PROMISE_LOG_FOLDER_NAME = '.slapgrid/promise/log'
 
 PROMISE_PARAMETER_NAME = 'extra_config_dict'
 
-LOGLINE_RE = r"(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s+\-?\s*(\w{4,7})\s+\-?\s+(\d+\-\d{3})\s+\-?\s*(.*)"
+LOGLINE_RE = r"(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s+\-?\s*(\w+)\s+\-?\s+(\d+\-\d{3})\s+\-?\s*(.*)"
 matchLogStr = re.compile(LOGLINE_RE).match
 matchLogBytes = re.compile(LOGLINE_RE.encode()).match if PY3 else matchLogStr
+
+ERROR_LEVEL = 'CRITICAL', 'ERROR'
 
 class BaseResult(object):
   def __init__(self, problem=False, message=None, date=None):
@@ -283,16 +285,16 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
         continue
       match = matchLogStr(line)
       if match is not None:
-        if not only_failure or (only_failure and match.groups()[1] == 'ERROR'):
+        date, level, tid, msg = match.groups()
+        if not only_failure or level in ERROR_LEVEL:
           result_list.append({
-            'date': datetime.strptime(match.groups()[0], '%Y-%m-%d %H:%M:%S'),
-            'status': match.groups()[1],
-            'message': (match.groups()[3] + line_part).strip(),
+            'date': datetime.strptime(date, '%Y-%m-%d %H:%M:%S'),
+            'status': level,
+            'message': (msg + line_part).strip(),
           })
         line_part = ""
       else:
         line_part += '\n' + line
-    result_list
 
     return [result_list]
 
@@ -358,7 +360,7 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
                 if transaction_count > result_count:
                   break
                 transaction_id = tid
-              if not only_failure or level == 'ERROR':
+              if not only_failure or level in ERROR_LEVEL:
                 line_list.insert(0, {
                   'date': datetime.strptime(date,
                                             '%Y-%m-%d %H:%M:%S'),
@@ -378,7 +380,7 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
     failed = False
     message = ""
     for result in result_list:
-      if result['status'] == 'ERROR':
+      if result['status'] in ERROR_LEVEL:
         failed = True
       message += "\n%s" % result['message']
     return failed, message.strip()
@@ -414,7 +416,7 @@ class GenericPromise(with_metaclass(ABCMeta, object)):
     failure_found = 1
     while i < result_size and failure_found < failure_amount:
       for result in latest_result_list[i]:
-        if result['status'] == 'ERROR':
+        if result['status'] in ERROR_LEVEL:
           failure_found += 1
           break
       i += 1

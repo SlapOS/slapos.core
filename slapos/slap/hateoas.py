@@ -323,13 +323,19 @@ class HateoasNavigator(object):
 
     return document_dict
 
+  def _getMeUrl(self):
+    return self.getRelativeUrlFromUrn(
+        self.getRootDocument()['_links']['me']['href'])
 
   def getMeDocument(self):
-    person_relative_url = self.getRelativeUrlFromUrn(
-        self.getRootDocument()['_links']['me']['href'])
-    return self.jio_get(person_relative_url)
+    # User can be a Person, Software Instance or Computer
+    return self.jio_get(self._getMeUrl())
 
 class SlapHateoasNavigator(HateoasNavigator):
+
+  ###############################################################
+  # API for Client as a Person
+  ###############################################################
   def _getHostingSubscriptionList(self, title=None, select_list=["title", "url_string"]):
     query_str = 'portal_type:"Hosting Subscription" AND validation_state:validated'
     if title is not None:
@@ -353,31 +359,17 @@ class SlapHateoasNavigator(HateoasNavigator):
 
     return result['data']['rows']
 
+  def getHostingSubscriptionInstanceList(self, title):
+    select_list=['uid', 'relative_url', 'portal_type', 'url_string', 'SoftwareInstance_getNewsDict']
+    query_str = 'portal_type:("Software Instance", "Slave Instance") AND validation_state:validated'
+    query_str += ' AND default_specialise_title:="%s"' % title
+    result = self.jio_allDocs(
+      query={"query" : query_str, "select_list": select_list})
 
-  def _hateoas_getRelatedHostingSubscription(self):
-    action_object_slap_list = self.getMeDocument()['_links']['action_object_slap']
-    getter_link = self.hateoasGetLinkFromLinks(action_object_slap_list, 'getHateoasRelatedHostingSubscription')
-    result = self.GET(getter_link)
-    return json.loads(result)['_links']['action_object_jump']['href']
+    return result['data']['rows']
 
-  def _hateoasGetInformation(self, url):
-    result = self.GET(url)
-    result = json.loads(result)
-    object_link = self.hateoasGetLinkFromLinks(
-      result['_links']['action_object_slap'],
-      'getHateoasInformation'
-    )
-    result = self.GET(object_link)
-    return json.loads(result)
-
-  def getHateoasInstanceList(self, hosting_subscription_url):
-    hosting_subscription = json.loads(self.GET(hosting_subscription_url))
-    instance_list_url = self.hateoasGetLinkFromLinks(hosting_subscription['_links']['action_object_slap'], 'getHateoasInstanceList')
-    instance_list = json.loads(self.GET(instance_list_url))
-    return instance_list['_links']['content']
-
-  def getHostingSubscriptionDict(self):
-    hosting_subscription_list = self._getHostingSubscriptionList()
+  def getHostingSubscriptionDict(self, title=None):
+    hosting_subscription_list = self._getHostingSubscriptionList(title=title)
     hosting_subscription_dict = {}
     for hosting_subscription in hosting_subscription_list:
       software_instance = TempDocument()
@@ -428,13 +420,6 @@ class SlapHateoasNavigator(HateoasNavigator):
 
     return self.jio_get(hosting_subscription_jio_key)
 
-  def getRelatedInstanceInformation(self, reference):
-    related_hosting_subscription_url = self._hateoas_getRelatedHostingSubscription()
-    instance_list = self.getHateoasInstanceList(related_hosting_subscription_url)
-    instance_url = self.hateoasGetLinkFromLinks(instance_list, reference)
-    instance = self._hateoasGetInformation(instance_url)
-    return instance
-
   def _getComputer(self, reference):
     computer_list = self._getComputerList(reference=reference,
       select_list=["reference", "relative_url"])
@@ -452,49 +437,42 @@ class SlapHateoasNavigator(HateoasNavigator):
 
     return self.jio_get(computer_jio_key)
 
-  def getSoftwareInstallationList(self, computer_guid=None):
-    computer = self._hateoas_getComputer(computer_guid) \
-           if computer_guid else self._hateoas_getComputer(self.computer_guid)
+  def getSoftwareInstallationList(self, computer_guid=None,
+          select_list=['uid', 'relative_url', 'url_string', 'SoftwareInstallation_getNewsDict']):
+    query_str = 'portal_type:"Software Installation" AND validation_state:validated'
+    if computer_guid is not None:
+      query_str += ' AND default_aggregate_reference:="%s"' % computer_guid
 
-    action = computer['_links']['action_object_slap']
-    if action.get('title') == 'getHateoasSoftwareInstallationList':
-      getter_link = action['href']
-    else:
-      raise Exception('No Link found found.')
-    result = self.hateoas_navigator.GET(getter_link)
-    return json.loads(result)['_links']['content']
+    result = self.jio_allDocs(
+      query={"query" : query_str, "select_list": select_list})
 
-  def getSoftwareInstallationNews(self, computer_guid=None):
-    getter_link = None
-    for si in self.getSoftwareInstallationList(computer_guid):
-      if si["title"] == self.url:
-        getter_link = si["href"]
-        break
-    # We could not find the document, so it is probably too soon.
-    if getter_link is None:
-      return ""
+    return result['data']['rows']
 
-    result = self.GET(getter_link)
-    action_object_slap_list = json.loads(result)['_links']['action_object_slap']
-    for action in action_object_slap_list:
-      if action.get('title') == 'getHateoasNews':
-        getter_link = action['href']
-        break
-    else:
-      raise Exception('getHateoasNews not found.')
-    result = self.GET(getter_link)
-    if len(json.loads(result)['news']) > 0:
-      return json.loads(result)['news'][0]["text"]
-    return ""
+  def _getRelatedHostingSubscriptionUrl(self, instance_url):
+    instance = self.jio_get(instance_url)
+    return instance["specialise_title"]
+
+  def getRelatedInstanceInformation(self, instance_url, title):
+    related_hosting_subscription_title = self._getRelatedHostingSubscription(instance_url)
+    instance_list = self.getHostingSubscriptionInstanceList(
+            related_hosting_subscription_title, instance_title)
+    return self.jio_get(instance_url)
 
   def getInstanceNews(self, url):
-    result = self.GET(url)
-    result = json.loads(result)
-    if result['_links'].get('action_object_slap', None) is None:
-      return None
-    object_link = self.hateoasGetLinkFromLinks(
-       result['_links']['action_object_slap'], 'getHateoasNews')
+    return self.jio_get(url)['news']
 
-    result = self.GET(object_link)
-    return json.loads(result)['news']
+  def getSoftwareInstallationNews(self, computer_guid=None, url=None):
+    for si in self.getSoftwareInstallationList(computer_guid):
+      if si["url_string"] == url:
+        return si['SoftwareInstallation_getNewsDict']['text']
+
+  def getComputerNews(self, computer_guid):
+    return self._getComputer(reference=computer_guid)['data']['news']['computer']['text']
+
+  def getComputerPartitionNews(self, computer_guid, partition_id):
+    try:
+      return self._getComputer(reference=computer_guid)['data']['news']['partition'][partition_id]['text']
+    except KeyError:
+      return "#error no data found"
+
 

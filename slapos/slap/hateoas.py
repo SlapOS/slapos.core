@@ -360,7 +360,9 @@ class SlapHateoasNavigator(HateoasNavigator):
     return result['data']['rows']
 
   def getHostingSubscriptionInstanceList(self, title):
-    select_list=['uid', 'relative_url', 'portal_type', 'url_string', 'SoftwareInstance_getNewsDict']
+    select_list = ['uid', 'title', 'relative_url', 'portal_type', 
+            'url_string', 'text_content', 'getConnectionXmlAsDict',
+            'SoftwareInstance_getNewsDict']
     query_str = 'portal_type:("Software Instance", "Slave Instance") AND validation_state:validated'
     query_str += ' AND default_specialise_title:="%s"' % title
     result = self.jio_allDocs(

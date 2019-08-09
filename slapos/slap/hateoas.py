@@ -467,6 +467,7 @@ class SlapHateoasNavigator(HateoasNavigator):
     for si in self.getSoftwareInstallationList(computer_guid):
       if si["url_string"] == url:
         return si['SoftwareInstallation_getNewsDict']['text']
+    return "#error no data found"
 
   def getComputerNews(self, computer_guid):
     return self._getComputer(reference=computer_guid)['data']['news']['computer']['text']

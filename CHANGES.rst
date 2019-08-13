@@ -1,6 +1,13 @@
 Changes
 =======
 
+1.4.26 (2019-08-13)
+-------------------
+
+  * slap/hateoas: Fixes and optimisations 
+  * slap/hateoas: Update remaining part of the API to be JIO Complaint
+  * slap/promise: treat CRITICAL like ERROR
+
 1.4.25 (2019-08-02)
 -------------------
 

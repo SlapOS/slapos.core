@@ -1,4 +1,25 @@
-# Copyright (c) 2012 Nexedi SA and Contributors. All Rights Reserved.
+# -*- coding: utf-8 -*-
+##############################################################################
+#
+# Copyright (C) 2012-2019  Nexedi SA and Contributors.
+#
+# This program is free software: you can Use, Study, Modify and Redistribute
+# it under the terms of the GNU General Public License version 3, or (at your
+# option) any later version, as published by the Free Software Foundation.
+#
+# You can also Link and Combine this program with other software covered by
+# the terms of any of the Free Software licenses or any of the Open Source
+# Initiative approved licenses and Convey the resulting work. Corresponding
+# source of such a combination shall include the source code for all other
+# software used.
+#
+# This program is distributed WITHOUT ANY WARRANTY; without even the implied
+# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# See COPYING file for full licensing terms.
+# See https://www.nexedi.com/licensing for rationale and options.
+#
+##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
 from AccessControl import getSecurityManager
 
@@ -533,11 +554,15 @@ class TestPerson(TestSlapOSGroupRoleSecurityMixin):
   def test_TheUserHimself_Google(self):
     self.test_TheUserHimself(login_portal_type="Google Login")
 
+  def test_TheUserHimself_Certificate(self):
+    self.test_TheUserHimself(login_portal_type="Certificate Login")
+
+
 class TestERP5Login(TestSlapOSGroupRoleSecurityMixin):
 
   login_portal_type = "ERP5 Login"
 
-  def test_TheUserHimself(self):
+  def test_PersonCanAccessLoginDocument(self):
     person = self.portal.person_module.newContent(portal_type='Person')
     login = person.newContent(portal_type=self.login_portal_type)
     person.updateLocalRolesOnSecurityGroups()
@@ -548,12 +573,51 @@ class TestERP5Login(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(login, person.getUserId(), ['Assignee'])
     self.assertRoles(login, self.user_id, ['Owner'])
 
+  def test_ComputerCanAccessLoginDocument(self):
+    computer = self.portal.computer_module.newContent(portal_type='Computer')
+    login = computer.newContent(portal_type=self.login_portal_type)
+    computer.updateLocalRolesOnSecurityGroups()
+    login.updateLocalRolesOnSecurityGroups()
+
+    self.assertSecurityGroup(login,
+        [self.user_id, computer.getUserId()], False)
+    self.assertRoles(login, computer.getUserId(), ['Assignee'])
+    self.assertRoles(login, self.user_id, ['Owner'])
+
+  def test_SoftwareInstanceCanAccessLoginDocument(self):
+    software_instance = self.portal.software_instance_module.newContent(portal_type='Software Instance')
+    login = software_instance.newContent(portal_type=self.login_portal_type)
+    software_instance.updateLocalRolesOnSecurityGroups()
+    login.updateLocalRolesOnSecurityGroups()
+
+    self.assertSecurityGroup(login,
+        [self.user_id, software_instance.getUserId()], False)
+    self.assertRoles(login, software_instance.getUserId(), ['Assignee'])
+    self.assertRoles(login, self.user_id, ['Owner'])
+
+class TestCertificateLogin(TestERP5Login):
+  login_portal_type = "Certificate Login"
+
 
 class TestGoogleLogin(TestERP5Login):
   login_portal_type = "Google Login"
+  def test_ComputerCanAccessLoginDocument(self):
+    # Not supported to add google login inside Computer
+    pass
+  
+  def test_SoftwareInstanceCanAccessLoginDocument(self):
+    # Not supported to add google login inside SoftwareInstance
+    pass
 
 class TestFacebookLogin(TestERP5Login):
   login_portal_type = "Facebook Login"
+  def test_ComputerCanAccessLoginDocument(self):
+    # Not supported to add google login inside Computer
+    pass
+  
+  def test_SoftwareInstanceCanAccessLoginDocument(self):
+    # Not supported to add google login inside SoftwareInstance
+    pass
 
 class TestPersonModule(TestSlapOSGroupRoleSecurityMixin):
   def test(self):

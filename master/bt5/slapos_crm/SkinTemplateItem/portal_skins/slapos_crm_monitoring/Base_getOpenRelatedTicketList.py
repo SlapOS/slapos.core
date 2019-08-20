@@ -24,7 +24,8 @@ if 'limit' not in kw:
 result_list = []
 for document in portal.portal_catalog(query=query, **kw):
   if document.getPortalType() == "Upgrade Decision Line":
-    result_list.append(document.getParentValue())
+    if document.getParentValue().getSimulationState() != 'cancelled':
+      result_list.append(document.getParentValue())
     continue
   result_list.append(document)
 return result_list

@@ -54,6 +54,53 @@ class TestCRMSkinsMixin(SlapOSTestCaseMixinWithAbort):
     assignment.open()
     return assignment
 
+  def _makeHostingSubscription(self):
+    person = self.portal.person_module.template_member\
+         .Base_createCloneDocument(batch_mode=1)
+    hosting_subscription = self.portal\
+      .hosting_subscription_module.template_hosting_subscription\
+      .Base_createCloneDocument(batch_mode=1)
+    hosting_subscription.validate()
+    new_id = self.generateNewId()
+    hosting_subscription.edit(
+        title= "Test hosting sub ticket %s" % new_id,
+        reference="TESTHST-%s" % new_id,
+        destination_section_value=person
+    )
+
+    return hosting_subscription
+
+  def _makeSoftwareInstance(self, hosting_subscription, software_url):
+
+    kw = dict(
+      software_release=software_url,
+      software_type=self.generateNewSoftwareType(),
+      instance_xml=self.generateSafeXml(),
+      sla_xml=self.generateSafeXml(),
+      shared=False,
+      software_title=hosting_subscription.getTitle(),
+      state='started'
+    )
+    hosting_subscription.requestStart(**kw)
+    hosting_subscription.requestInstance(**kw)
+
+
+  def _makeSoftwareInstallation(self):
+    self._makeComputer()
+    software_installation = self.portal\
+       .software_installation_module.template_software_installation\
+       .Base_createCloneDocument(batch_mode=1)
+    software_installation.edit(
+       url_string=self.generateNewSoftwareReleaseUrl(),
+       aggregate=self.computer.getRelativeUrl(),
+       reference='TESTSOFTINSTS-%s' % self.generateNewId(),
+       title='Start requested for %s' % self.computer.getUid()
+     )
+    software_installation.validate()
+    software_installation.requestStart()
+
+    return software_installation
+
 class TestSlapOSFolder_getOpenTicketList(TestCRMSkinsMixin):
 
   def _test_ticket(self, ticket, expected_amount):
@@ -165,6 +212,163 @@ class TestSlapOSFolder_getOpenTicketList(TestCRMSkinsMixin):
 
     ticket = newUpgradeDecision()
     self._test_upgrade_decision(ticket, 2)
+
+
+class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
+
+  def test_support_request_related_to_computer(self):
+    computer = self._makeComputer()[0]
+    ticket = self.portal.support_request_module.newContent(\
+                        title="Test Support Request %s" % self.new_id)
+
+    ticket.setAggregateValue(computer)
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    # Not indexed yet
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    self.tic()
+
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.submit()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.validate()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.suspend()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.invalidate()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+  def test_cancelled_support_request_related_to_computer(self):
+    computer = self._makeComputer()[0]
+    ticket = self.portal.support_request_module.newContent(\
+                        title="Test Support Request %s" % self.new_id)
+
+    ticket.setAggregateValue(computer)
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    # Not indexed yet
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    self.tic()
+
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.submit()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.cancel()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+  def test_upgrade_decision_related_to_computer(self):
+    computer = self._makeComputer()[0]
+
+    def newUpgradeDecision():
+      ticket = self.portal.upgrade_decision_module.newContent(
+        portal_type='Upgrade Decision',
+        title="Upgrade Decision Test %s" % self.new_id,
+        reference="TESTUD-%s" % self.new_id)
+
+      ticket.immediateReindexObject()
+      return ticket
+    ticket = newUpgradeDecision()
+
+    ticket.newContent(
+      portal_type="Upgrade Decision Line"
+    ).setAggregateValue(computer)
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    # Not indexed yet
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    self.tic()
+
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.plan()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.confirm()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.start()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.stop()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.deliver()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+
+  def test_cancelled_upgrade_decision_related_to_computer(self):
+    computer = self._makeComputer()[0]
+    def newUpgradeDecision():
+      ticket = self.portal.upgrade_decision_module.newContent(
+        portal_type='Upgrade Decision',
+        title="Upgrade Decision Test %s" % self.new_id,
+        reference="TESTUD-%s" % self.new_id)
+
+      ticket.immediateReindexObject()
+      return ticket
+    ticket = newUpgradeDecision()
+
+    ticket.newContent(
+      portal_type="Upgrade Decision Line"
+    ).setAggregateValue(computer)
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    # Not indexed yet
+    self.assertEqual(len(open_related_ticket_list), 0)
+
+    self.tic()
+
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    self.assertEqual(len(open_related_ticket_list), 1)
+    self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
+
+    ticket.cancel()
+    ticket.immediateReindexObject()
+    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    self.assertEqual(len(open_related_ticket_list), 0)
 
 class TestSlapOSTicketEvent(TestCRMSkinsMixin):
 
@@ -724,37 +928,6 @@ class TestSlapOSGenerateSupportRequestForSlapOS(TestCRMSkinsMixin):
     self.tic()
     self._cancelTestSupportRequestList()
 
-
-  def _makeHostingSubscription(self):
-    person = self.portal.person_module.template_member\
-         .Base_createCloneDocument(batch_mode=1)
-    hosting_subscription = self.portal\
-      .hosting_subscription_module.template_hosting_subscription\
-      .Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
-    new_id = self.generateNewId()
-    hosting_subscription.edit(
-        title= "Test hosting sub ticket %s" % new_id,
-        reference="TESTHST-%s" % new_id,
-        destination_section_value=person
-    )
-
-    return hosting_subscription
-
-  def _makeSoftwareInstance(self, hosting_subscription, software_url):
-
-    kw = dict(
-      software_release=software_url,
-      software_type=self.generateNewSoftwareType(),
-      instance_xml=self.generateSafeXml(),
-      sla_xml=self.generateSafeXml(),
-      shared=False,
-      software_title=hosting_subscription.getTitle(),
-      state='started'
-    )
-    hosting_subscription.requestStart(**kw)
-    hosting_subscription.requestInstance(**kw)
-
   def _makeComputer(self):
     SlapOSTestCaseMixin._makeComputer(self)
     # Clone computer document
@@ -762,22 +935,6 @@ class TestSlapOSGenerateSupportRequestForSlapOS(TestCRMSkinsMixin):
       source_administration_value=self.makePerson(user=0)
     )
     return self.computer
-
-  def _makeSoftwareInstallation(self):
-    self._makeComputer()
-    software_installation = self.portal\
-       .software_installation_module.template_software_installation\
-       .Base_createCloneDocument(batch_mode=1)
-    software_installation.edit(
-       url_string=self.generateNewSoftwareReleaseUrl(),
-       aggregate=self.computer.getRelativeUrl(),
-       reference='TESTSOFTINSTS-%s' % self.generateNewId(),
-       title='Start requested for %s' % self.computer.getUid()
-     )
-    software_installation.validate()
-    software_installation.requestStart()
-
-    return software_installation
 
   def test_computer_Base_generateSupportRequestForSlapOS(self):
     self._makeComputer()

@@ -7,7 +7,7 @@ computer.edit(
 )
 
 erp5_login = computer.newContent(
-  portal_type="ERP5 Login",
+  portal_type="Certificate Login",
   reference=computer.getReference()
 )
 erp5_login.validate()

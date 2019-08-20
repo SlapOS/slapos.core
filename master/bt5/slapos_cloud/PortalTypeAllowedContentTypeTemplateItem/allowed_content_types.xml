@@ -1,5 +1,6 @@
 <allowed_content_type_list>
  <portal_type id="Computer">
+  <item>Certificate Login</item>
   <item>ERP5 Login</item>
  </portal_type>
  <portal_type id="Hosting Subscription Module">
@@ -9,6 +10,7 @@
   <item>Software Installation</item>
  </portal_type>
  <portal_type id="Software Instance">
+  <item>Certificate Login</item>
   <item>ERP5 Login</item>
  </portal_type>
  <portal_type id="Software Instance Module">

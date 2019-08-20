@@ -100,11 +100,11 @@ if (request_software_instance is None):
     )
     request_software_instance.validate()
     if software_instance_portal_type == "Software Instance":
-      # Include ERP5 Login so Instance become a User
-      erp5_login = request_software_instance.newContent(
-        portal_type="ERP5 Login",
+      # Include Certificate Login so Instance become a User
+      certificate_login = request_software_instance.newContent(
+        portal_type="Certificate Login",
         reference=request_software_instance.getReference())
-      erp5_login = erp5_login.validate()
+      certificate_login.validate()
 
     graph[request_software_instance.getUid()] = []
 

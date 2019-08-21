@@ -216,76 +216,96 @@ class TestSlapOSFolder_getOpenTicketList(TestCRMSkinsMixin):
 
 class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
 
-  def test_support_request_related_to_computer(self):
-    computer = self._makeComputer()[0]
+  def test_getOpenRelatedTicketList_support_request_related_to_computer(self):
+    self._test_getOpenRelatedTicketList_support_request_related(
+      self._makeComputer()[0])
+
+  def test_getOpenRelatedTicketList_support_request_related_to_hosting_subscription(self):
+    self._test_getOpenRelatedTicketList_support_request_related(
+      self._makeHostingSubscription())
+
+  def _test_getOpenRelatedTicketList_support_request_related(self, document):
     ticket = self.portal.support_request_module.newContent(\
                         title="Test Support Request %s" % self.new_id)
 
-    ticket.setAggregateValue(computer)
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    ticket.setAggregateValue(document)
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     # Not indexed yet
     self.assertEqual(len(open_related_ticket_list), 0)
 
     self.tic()
 
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
 
     ticket.submit()
     ticket.immediateReindexObject()
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
 
     ticket.validate()
     ticket.immediateReindexObject()
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
 
     ticket.suspend()
     ticket.immediateReindexObject()
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
 
     ticket.invalidate()
     ticket.immediateReindexObject()
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
 
-  def test_cancelled_support_request_related_to_computer(self):
-    computer = self._makeComputer()[0]
+  def test_getOpenRelatedTicketList_cancelled_support_request_related_to_computer(self):
+    self._test_getOpenRelatedTicketList_cancelled_support_request_related(
+      self._makeComputer()[0])
+
+  def test_getOpenRelatedTicketList_cancelled_support_request_related_to_hosting_subscription(self):
+    self._test_getOpenRelatedTicketList_cancelled_support_request_related(
+      self._makeHostingSubscription())
+
+  def _test_getOpenRelatedTicketList_cancelled_support_request_related(self, document):
     ticket = self.portal.support_request_module.newContent(\
                         title="Test Support Request %s" % self.new_id)
 
-    ticket.setAggregateValue(computer)
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    ticket.setAggregateValue(document)
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     # Not indexed yet
     self.assertEqual(len(open_related_ticket_list), 0)
 
     self.tic()
 
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
 
     ticket.submit()
     ticket.immediateReindexObject()
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
 
     ticket.cancel()
     ticket.immediateReindexObject()
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     self.assertEqual(len(open_related_ticket_list), 0)
 
-  def test_upgrade_decision_related_to_computer(self):
-    computer = self._makeComputer()[0]
+  def test_getOpenRelatedTicketList_upgrade_decision_related_to_computer(self):
+    self._test_getOpenRelatedTicketList_upgrade_decision_related(
+      self._makeComputer()[0])
 
+  def test_getOpenRelatedTicketList_upgrade_decision_related_to_hosting_subscription(self):
+    self._test_getOpenRelatedTicketList_upgrade_decision_related(
+      self._makeHostingSubscription())
+
+  def _test_getOpenRelatedTicketList_upgrade_decision_related(self, document):
     def newUpgradeDecision():
       ticket = self.portal.upgrade_decision_module.newContent(
         portal_type='Upgrade Decision',
@@ -298,50 +318,56 @@ class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
 
     ticket.newContent(
       portal_type="Upgrade Decision Line"
-    ).setAggregateValue(computer)
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    ).setAggregateValue(document)
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     # Not indexed yet
     self.assertEqual(len(open_related_ticket_list), 0)
 
     self.tic()
 
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
 
     ticket.plan()
     ticket.immediateReindexObject()
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
 
     ticket.confirm()
     ticket.immediateReindexObject()
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
 
     ticket.start()
     ticket.immediateReindexObject()
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
 
     ticket.stop()
     ticket.immediateReindexObject()
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
 
     ticket.deliver()
     ticket.immediateReindexObject()
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
 
+  def test_getOpenRelatedTicketList_cancelled_upgrade_decision_related_to_computer(self):
+    self._test_getOpenRelatedTicketList_cancelled_upgrade_decision_related(
+      self._makeComputer()[0])
 
-  def test_cancelled_upgrade_decision_related_to_computer(self):
-    computer = self._makeComputer()[0]
+  def test_getOpenRelatedTicketList_cancelled_upgrade_decision_related_to_hosting_subscription(self):
+    self._test_getOpenRelatedTicketList_cancelled_upgrade_decision_related(
+      self._makeHostingSubscription())
+
+  def _test_getOpenRelatedTicketList_cancelled_upgrade_decision_related(self, document):
     def newUpgradeDecision():
       ticket = self.portal.upgrade_decision_module.newContent(
         portal_type='Upgrade Decision',
@@ -354,20 +380,20 @@ class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
 
     ticket.newContent(
       portal_type="Upgrade Decision Line"
-    ).setAggregateValue(computer)
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    ).setAggregateValue(document)
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     # Not indexed yet
     self.assertEqual(len(open_related_ticket_list), 0)
 
     self.tic()
 
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
 
     ticket.cancel()
     ticket.immediateReindexObject()
-    open_related_ticket_list = computer.Base_getOpenRelatedTicketList()
+    open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     self.assertEqual(len(open_related_ticket_list), 0)
 
 class TestSlapOSTicketEvent(TestCRMSkinsMixin):

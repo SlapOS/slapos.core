@@ -101,6 +101,60 @@ class TestCRMSkinsMixin(SlapOSTestCaseMixinWithAbort):
 
     return software_installation
 
+class TestSlapOSSupportRequestModule_getMonitoringUrlList(TestCRMSkinsMixin):
+
+  def test_SupportRequestModule_getMonitoringUrlList(self):
+    module = self.portal.support_request_module
+    # We assume here that several objects created by others tests don't influentiate
+    # this test.
+    self.assertEquals(module.SupportRequestModule_getMonitoringUrlList(), [])
+    hosting_subscription = self._makeHostingSubscription()
+    self._makeSoftwareInstance(hosting_subscription, "https://xxx/")
+    support_request = module.newContent(portal_type="Support Request")
+    self.tic()
+
+    self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])
+    support_request.setAggregateValue(hosting_subscription)
+    support_request.validate()
+    self.assertNotEqual(hosting_subscription.getPredecessorList(), [])
+
+    self.tic()
+    self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])
+    
+    instance = hosting_subscription.getPredecessorValue()
+    instance.setConnectionXml("""<?xml version='1.0' encoding='utf-8'?>
+<instance>
+  <parameter id="aa">xx</parameter>
+  <parameter id="bb">yy</parameter>
+</instance>
+    """)
+    self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])
+    instance.setConnectionXml("""<?xml version='1.0' encoding='utf-8'?>
+<instance>
+  <parameter id="monitor-setup-url">http</parameter>
+  <parameter id="bb">yy</parameter>
+</instance>
+    """)
+    self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])
+
+    self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])
+    instance.setConnectionXml("""<?xml version='1.0' encoding='utf-8'?>
+<instance>
+  <parameter id="monitor-setup-url">http://monitor.url/#/ABC</parameter>
+  <parameter id="bb">yy</parameter>
+</instance>
+    """)
+
+    monitor_url_temp_document_list = module.SupportRequestModule_getMonitoringUrlList()
+    self.assertEqual(len(monitor_url_temp_document_list), 1)
+    self.assertEqual(monitor_url_temp_document_list[0].getTitle(),
+                     hosting_subscription.getTitle())
+    self.assertEqual(monitor_url_temp_document_list[0].monitor_url,
+                     "http://monitor.url/#/ABC")
+    support_request.invalidate()
+    self.tic()
+    self.assertNotEqual(hosting_subscription.getPredecessorList(), [])
+
 class TestSlapOSFolder_getOpenTicketList(TestCRMSkinsMixin):
 
   def _test_ticket(self, ticket, expected_amount):

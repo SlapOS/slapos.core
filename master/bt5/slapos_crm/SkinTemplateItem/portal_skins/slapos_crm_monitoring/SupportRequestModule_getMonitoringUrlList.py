@@ -4,7 +4,7 @@ portal = context.getPortalObject()
 
 support_request_list = portal.portal_catalog(
                 portal_type="Support Request",
-                simulation_state=["validated", "Suspended"],
+                simulation_state=["validated", "suspended"],
                 )
 
 hosting_subscription_list = []
@@ -13,14 +13,6 @@ for support_request in support_request_list:
     support_request.getAggregateValue(portal_type="Hosting Subscription"))
 
 monitor_instance_list = []
-
-def getMonitorUrlFromUrlString(parameter_string):
-  if 'url=' in parameter_string:
-    param_list = parameter_string.split('&')
-    for param in param_list:
-      key, value = param.split('=')
-      if key == 'url':
-        return value
 
 for hosting_subscription in hosting_subscription_list:
 
@@ -32,9 +24,6 @@ for hosting_subscription in hosting_subscription_list:
 
   instance = hosting_subscription.getPredecessorValue()
   if instance is None or instance.getSlapState() in ('destroy_requested', 'stop_requested'):
-    o = newTempDocument(portal, "uid_%s" % instance.getId())
-    o.edit(title=instance.getTitle(), monitor_url=instance.getSlapState())
-    monitor_instance_list.append(o)
     continue
 
   parameter_dict = instance.getConnectionXmlAsDict()

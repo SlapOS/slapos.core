@@ -344,6 +344,13 @@ class testSlapOSMixin(ERP5TypeTestCase):
         self.getExpectedBusinessTemplateInstalledAfterConfiguration())
     return result
 
+  def _getSiteCreationParameterDict(self):
+    kw = super(testSlapOSMixin, self)._getSiteCreationParameterDict()
+    bt5_repository_path_list = self._getBusinessRepositoryPathList(
+                                    ['erp5_core'] + list(self.getBusinessTemplateList()))
+    kw["bt5_repository_url"] = " ".join(bt5_repository_path_list)
+    return kw
+
 class TestSlapOSDummy(testSlapOSMixin):
   run_all_test = 1
   def test(self):

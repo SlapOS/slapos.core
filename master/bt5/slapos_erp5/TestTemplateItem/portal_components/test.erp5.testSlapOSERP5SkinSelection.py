@@ -147,6 +147,7 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_certificate_authority
 erp5_item
 erp5_item_trade
 erp5_upgrader
@@ -157,6 +158,7 @@ erp5_administration
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_certificate_authority
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -258,6 +260,7 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_certificate_authority
 erp5_item
 erp5_item_trade
 erp5_upgrader
@@ -268,6 +271,7 @@ erp5_administration
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_certificate_authority
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -370,6 +374,7 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_certificate_authority
 erp5_item
 erp5_item_trade
 erp5_upgrader
@@ -380,6 +385,7 @@ erp5_administration
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_certificate_authority
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -478,6 +484,7 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_certificate_authority
 erp5_item
 erp5_item_trade
 erp5_upgrader
@@ -488,6 +495,7 @@ erp5_administration
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_certificate_authority
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -590,6 +598,7 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_certificate_authority
 erp5_item
 erp5_item_trade
 erp5_upgrader
@@ -600,6 +609,7 @@ erp5_administration
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_certificate_authority
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -702,6 +712,7 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_certificate_authority
 erp5_item
 erp5_item_trade
 erp5_upgrader
@@ -712,6 +723,7 @@ erp5_administration
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_certificate_authority
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -811,6 +823,7 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_certificate_authority
 erp5_item
 erp5_item_trade
 erp5_upgrader
@@ -821,6 +834,7 @@ erp5_administration
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_certificate_authority
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -921,6 +935,7 @@ erp5_dms_base
 erp5_dms_web
 erp5_ods_style
 erp5_accounting_l10n_fr
+erp5_certificate_authority
 erp5_item
 erp5_item_trade
 erp5_upgrader
@@ -931,6 +946,7 @@ erp5_administration
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_certificate_authority
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -1030,6 +1046,7 @@ erp5_dms_base
 erp5_dms_web
 erp5_odt_style
 erp5_accounting_l10n_fr
+erp5_certificate_authority
 erp5_item
 erp5_item_trade
 erp5_upgrader
@@ -1040,6 +1057,7 @@ erp5_administration
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_certificate_authority
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -1140,6 +1158,7 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_certificate_authority
 erp5_item
 erp5_item_trade
 erp5_upgrader
@@ -1150,6 +1169,7 @@ erp5_administration
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_certificate_authority
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -1250,6 +1270,7 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_certificate_authority
 erp5_item
 erp5_item_trade
 erp5_upgrader
@@ -1260,6 +1281,7 @@ erp5_administration
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_certificate_authority
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -1361,6 +1383,7 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_certificate_authority
 erp5_item
 erp5_item_trade
 erp5_upgrader
@@ -1371,6 +1394,7 @@ erp5_administration
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_certificate_authority
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -1472,6 +1496,7 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_certificate_authority
 erp5_item
 erp5_item_trade
 erp5_upgrader
@@ -1482,6 +1507,7 @@ erp5_administration
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_certificate_authority
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce

@@ -304,6 +304,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'slapos_l10n_zh',
       'slapos_subscription_request',
       'erp5_bearer_token',
+      'erp5_certificate_authority',
       'erp5_access_token',
       'erp5_project',
       'erp5_oauth',

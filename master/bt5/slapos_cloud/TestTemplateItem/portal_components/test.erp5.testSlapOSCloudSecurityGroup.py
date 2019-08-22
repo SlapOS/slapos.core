@@ -60,7 +60,7 @@ class TestSlapOSSecurityMixin(SlapOSTestCaseMixin):
     for _, plugin in uf._getOb('plugins').listPlugins(
                                 IAuthenticationPlugin ):
       if plugin.authenticateCredentials(
-                  {'login_portal_type': 'ERP5 Login',
+                  {'login_portal_type': ('ERP5 Login', 'Certificate Login'),
                    'external_login': login}) is not None:
         break
     else:
@@ -75,14 +75,14 @@ class TestSlapOSSecurityMixin(SlapOSTestCaseMixin):
     for plugin_name, plugin in uf._getOb('plugins').listPlugins(
                               IAuthenticationPlugin ):
       if plugin.authenticateCredentials(
-                {'login_portal_type': 'ERP5 Login',
+                {'login_portal_type': ('ERP5 Login', 'Certificate Login'),
                  'external_login': login}) is not None:
         self.fail(
            "Plugin %s should not have authenticated '%s' with password '%s'" %
            (plugin_name, login, password))
 
 class TestSlapOSComputerSecurity(TestSlapOSSecurityMixin):
-  def test_active(self):
+  def test_active(self, login_portal_type="Certificate Login"):
     user_id = self._generateRandomUniqueUserId('Computer')
     reference = self._generateRandomUniqueReference('Computer')
 
@@ -90,7 +90,7 @@ class TestSlapOSComputerSecurity(TestSlapOSSecurityMixin):
       portal_type='Computer', reference=reference)
     computer.setUserId(user_id)
     computer.validate()
-    computer.newContent(portal_type='ERP5 Login',
+    computer.newContent(portal_type=login_portal_type,
                       reference=reference).validate()
 
     self.tic()
@@ -103,22 +103,28 @@ class TestSlapOSComputerSecurity(TestSlapOSSecurityMixin):
     self.assertSameSet(['R-COMPUTER'],
       user.getGroups())
 
-  def test_inactive(self):
+  def test_inactive(self, login_portal_type="Certificate Login"):
     user_id = self._generateRandomUniqueUserId('Computer')
     reference = self._generateRandomUniqueReference('Computer')
 
     computer = self.portal.computer_module.newContent(
       portal_type='Computer', reference=reference)
     computer.setUserId(user_id)
-    computer.newContent(portal_type='ERP5 Login',
+    computer.newContent(portal_type=login_portal_type,
                       reference=reference)
     self.tic()
 
     self._assertUserDoesNotExists(user_id, reference, None)
 
+  def test_active_backward_compatibility_with_erp5_login(self):
+    self.test_active(login_portal_type="ERP5 Login")
+
+  def test_inactive_backward_compatibility_with_erp5_login(self):
+    self.test_inactive(login_portal_type="ERP5 Login")
+
 class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
   portal_type = 'Software Instance'
-  def test_active(self):
+  def test_active(self, login_portal_type="Certificate Login"):
     user_id = self._generateRandomUniqueUserId(self.portal_type)
     reference = self._generateRandomUniqueReference(self.portal_type)
 
@@ -126,7 +132,7 @@ class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
       .newContent(portal_type=self.portal_type, reference=reference)
     instance.setUserId(user_id)
     instance.validate()
-    instance.newContent(portal_type='ERP5 Login',
+    instance.newContent(portal_type=login_portal_type,
                       reference=reference).validate()
     self.tic()
 
@@ -157,7 +163,7 @@ class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
     self.assertSameSet(['R-INSTANCE', subscription_reference],
       user.getGroups())
 
-  def test_inactive(self):
+  def test_inactive(self, login_portal_type="Certificate Login"):
     user_id = self._generateRandomUniqueUserId(self.portal_type)
     reference = self._generateRandomUniqueReference(self.portal_type)
 
@@ -168,8 +174,14 @@ class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
 
     self._assertUserDoesNotExists(user_id, reference, None)
 
+  def test_active_backward_compatibility_with_erp5_login(self):
+    self.test_active(login_portal_type="ERP5 Login")
+
+  def test_inactive_backward_compatibility_with_erp5_login(self):
+    self.test_inactive(login_portal_type="ERP5 Login")
+
 class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
-  def test_active(self):
+  def test_active(self, login_portal_type="Certificate Login"):
     password = str(random.random())
     reference = self._generateRandomUniqueReference('Person')
     user_id = self._generateRandomUniqueUserId('Person')
@@ -180,7 +192,7 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
     person.setUserId(user_id)
 
     person.newContent(portal_type='Assignment').open()
-    person.newContent(portal_type='ERP5 Login',
+    person.newContent(portal_type=login_portal_type,
       reference=reference, password=password).validate()
 
     self.tic()
@@ -216,7 +228,7 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
     self.assertTrue('Authenticated' in user.getRoles())
     self.assertSameSet(['R-MEMBER', 'G-COMPANY'], user.getGroups())
 
-  def test_inactive(self):
+  def test_inactive(self, login_portal_type="Certificate Login"):
     password = str(random.random())
     reference = self._generateRandomUniqueReference('Person')
     user_id = self._generateRandomUniqueReference('Person')
@@ -227,6 +239,22 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
     self.tic()
 
     self._assertUserDoesNotExists(user_id, reference, password)
+
+    person.newContent(portal_type=login_portal_type,
+                      reference=reference).validate()
+
+    self.tic()
+
+    self._assertUserDoesNotExists(user_id, reference, password)
+
+  def test_active_erp5_login(self):
+    self.test_active(login_portal_type="ERP5 Login")
+
+  def test_inactive_erp5_login(self):
+    self.test_inactive(login_portal_type="ERP5 Login")
+
+  
+
 
 def test_suite():
   suite = unittest.TestSuite()

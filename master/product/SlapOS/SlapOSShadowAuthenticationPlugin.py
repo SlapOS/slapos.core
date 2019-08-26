@@ -4,10 +4,10 @@
 # Copyright (c) 2012 Vifib SA and Contributors. All Rights Reserved.
 #
 # WARNING: This program as such is intended to be used by professional
-# programmers who take the whole responsibility of assessing all potential
+# programmers who take the whole responsability of assessing all potential
 # consequences resulting from its eventual inadequacies and bugs
 # End users who are looking for a ready-to-use solution with commercial
-# guarantees and support are strongly adviced to contract a Free Software
+# garantees and support are strongly adviced to contract a Free Software
 # Service Company
 #
 # This program is Free Software; you can redistribute it and/or
@@ -17,12 +17,12 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 ##############################################################################
 from functools import partial
@@ -161,7 +161,6 @@ class SlapOSShadowAuthenticationPlugin(BasePlugin):
 
       if isinstance(id, str):
         id = (id, )
-
       # Short-cut "System Processes" as not being searchable by user_id.
       # This improves performance in proxy-role'd execution by avoiding an
       # sql query expected to find no user.
@@ -198,7 +197,6 @@ class SlapOSShadowAuthenticationPlugin(BasePlugin):
 
       if isinstance(login, str):
         login = (login, )
-
       login_list = []
       for user_login in login:
         if user_login in SPECIAL_USER_NAME_SET:

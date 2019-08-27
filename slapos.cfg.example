@@ -42,9 +42,9 @@ authorized_sources =
 
 [networkcache]
 # Define options for binary cache, used to download already compiled software.
-download-binary-cache-url = http://download.shacache.org/
-download-cache-url = https://www.shacache.org/shacache
-download-binary-dir-url = http://dir.shacache.org/
+download-binary-cache-url = http://shacache.nxdcdn.com
+download-cache-url = https://shacache.nxdcdn.com
+download-binary-dir-url = http://shadir.nxdcdn.com
 
 # Configuration to Upload Configuration for Binary cache
 #upload-binary-dir-url = https://www.shacache.org/shadir
@@ -55,8 +55,6 @@ download-binary-dir-url = http://dir.shacache.org/
 #shacache-ca-file = /etc/opt/slapos/shacache/ca.cert
 #shacache-cert-file = /etc/opt/slapos/shacache/shacache.cert
 #shacache-key-file = /etc/opt/slapos/shacache/shacache.key
-#upload-binary-dir-url = https://www.shacache.org/shadir
-#upload-binary-cache-url = https://www.shacache.org/shacache
 #upload-dir-url = https://www.shacache.org/shadir
 #shadir-ca-file = /etc/opt/slapos/shacache/ca.cert
 #shadir-cert-file = /etc/opt/slapos/shacache/shacache.cert

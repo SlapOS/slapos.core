@@ -3,7 +3,7 @@ slapos_plugin_dict = {
   'IExtractionPlugin': [
     'ERP5 Dumb HTTP Extraction Plugin',
     'ERP5 Facebook Extraction Plugin',
-    'SlapOS Machine Authentication Plugin',
+    'ERP5 Extenal Authentication Plugin',
     'ERP5 Access Token Extraction Plugin',
     'ERP5 Google Extraction Plugin',
     'ERP5 Facebook Extraction Plugin'

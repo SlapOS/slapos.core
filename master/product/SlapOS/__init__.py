@@ -38,7 +38,6 @@ content_constructors = ()
 portal_tools = ()
 from Products.PluggableAuthService.PluggableAuthService import registerMultiPlugin
 
-import SlapOSMachineAuthenticationPlugin
 import SlapOSShadowAuthenticationPlugin
 
 def initialize(context):
@@ -48,14 +47,6 @@ def initialize(context):
     portal_tools=portal_tools, content_constructors=content_constructors,
     content_classes=content_classes)
 
-  context.registerClass( SlapOSMachineAuthenticationPlugin.SlapOSMachineAuthenticationPlugin
-                         , permission=ManageUsers
-                         , constructors=(
-                            SlapOSMachineAuthenticationPlugin.manage_addSlapOSMachineAuthenticationPluginForm,
-                            SlapOSMachineAuthenticationPlugin.addSlapOSMachineAuthenticationPlugin, )
-                         , visibility=None
-                         , icon='www/portal.gif'
-                         )
   context.registerClass( SlapOSShadowAuthenticationPlugin.SlapOSShadowAuthenticationPlugin
                          , permission=ManageUsers
                          , constructors=(
@@ -66,5 +57,4 @@ def initialize(context):
                          )
 
 
-registerMultiPlugin(SlapOSMachineAuthenticationPlugin.SlapOSMachineAuthenticationPlugin.meta_type)
 registerMultiPlugin(SlapOSShadowAuthenticationPlugin.SlapOSShadowAuthenticationPlugin.meta_type)

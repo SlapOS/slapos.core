@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="SlapOSMachineAuthenticationPlugin" module="Products.SlapOS.SlapOSMachineAuthenticationPlugin"/>
+      <global name="ERP5ExternalAuthenticationPlugin" module="Products.ERP5Security.ERP5ExternalAuthenticationPlugin"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -11,8 +11,16 @@
             <value> <string>slapos_machine</string> </value>
         </item>
         <item>
+            <key> <string>login_portal_type_list</string> </key>
+            <value> <string>ERP5 Login,Certificate Login</string> </value>
+        </item>
+        <item>
             <key> <string>title</string> </key>
             <value> <string></string> </value>
+        </item>
+        <item>
+            <key> <string>user_id_key</string> </key>
+            <value> <string>Remote-User</string> </value>
         </item>
       </dictionary>
     </pickle>

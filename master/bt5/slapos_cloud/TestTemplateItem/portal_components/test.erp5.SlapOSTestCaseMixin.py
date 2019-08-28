@@ -83,6 +83,11 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     testSlapOSMixin.afterSetUp(self)
     self.new_id = self.generateNewId()
 
+    instance_template = self.portal.software_instance_module.template_software_instance
+    if len(instance_template.objectValues()):
+      instance_template.manage_delObjects(
+         ids=[i.getId() for i in instance_template.objectValues()])
+
   def makePerson(self, new_id=None, index=True, user=True):
 
     if new_id is None:

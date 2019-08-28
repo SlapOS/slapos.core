@@ -101,7 +101,7 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
 
 
     self.tic()
-
+    
     # first run touches software installation
     self.stepCallSlaposPdmDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm()
     self.tic()
@@ -114,20 +114,13 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     self.assertEqual('start_requested', archived_used_software_installation.getSlapState())
     self.assertEqual('validated', archived_used_software_installation.getValidationState())
 
+    self.assertEqual('draft', archived_software_release.getSimulationState())
+    self.assertEqual('draft', published_software_release.getSimulationState())
+    
     # second run, but it is still not reported that software installation is destroyed
     self.stepCallSlaposPdmDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm()
     self.tic()
-    self.assertEqual('draft', archived_software_release.getSimulationState())
-    self.assertEqual('draft', published_software_release.getSimulationState())
-    self.assertEqual('start_requested', published_software_installation.getSlapState())
-    self.assertEqual('validated', archived_used_software_installation.getValidationState())
-    self.assertEqual('start_requested', archived_used_software_installation.getSlapState())
-
-    # simulate the computer run
-    archived_software_installation.invalidate()
-    self.tic()
-    self.stepCallSlaposPdmDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm()
-    self.tic()
+    
     self.assertEqual('cleaned', archived_software_release.getSimulationState())
     self.assertEqual('draft', published_software_release.getSimulationState())
     self.assertEqual('start_requested', published_software_installation.getSlapState())
@@ -234,7 +227,7 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     v = 'Visited by SoftwareInstallation_destroyWithSoftwareReleaseArchived'
     self.assertTrue(v in
       [q['comment'] for q in software_installation_validated_request_start.workflow_history['edit_workflow']])
-    self.assertTrue(v in
+    self.assertFalse(v in
       [q['comment'] for q in software_installation_validated_request_destroy.workflow_history['edit_workflow']])
     self.assertFalse(v in
       [q['comment'] for q in software_installation_invalidated_request_destroy.workflow_history['edit_workflow']])

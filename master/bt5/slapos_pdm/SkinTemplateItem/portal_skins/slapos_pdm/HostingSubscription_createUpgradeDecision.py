@@ -3,7 +3,7 @@ portal = context.getPortalObject()
 
 hosting_subscription = context
 upgrade_scope = context.getUpgradeScope()
-if upgrade_scope == "never":
+if upgrade_scope in ["never", "disabled"]:
   return
 
 root_instance = hosting_subscription.getPredecessorValue(portal_type=["Software Instance", "Slave Instance"])

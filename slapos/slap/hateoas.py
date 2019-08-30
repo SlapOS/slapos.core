@@ -450,16 +450,6 @@ class SlapHateoasNavigator(HateoasNavigator):
 
     return result['data']['rows']
 
-  def _getRelatedHostingSubscriptionUrl(self, instance_url):
-    instance = self.jio_get(instance_url)
-    return instance["specialise_title"]
-
-  def getRelatedInstanceInformation(self, instance_url, title):
-    related_hosting_subscription_title = self._getRelatedHostingSubscription(instance_url)
-    instance_list = self.getHostingSubscriptionInstanceList(
-            related_hosting_subscription_title, instance_title)
-    return self.jio_get(instance_url)
-
   def getInstanceNews(self, url):
     return self.jio_get(url)['news']
 

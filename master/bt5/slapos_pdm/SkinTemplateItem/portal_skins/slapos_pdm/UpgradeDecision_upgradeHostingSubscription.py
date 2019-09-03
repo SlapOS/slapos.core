@@ -12,11 +12,14 @@ if software_release is None:
   return False 
 
 software_release_url = software_release.getUrlString()
-
 person = hosting_subscription.getDestinationSectionValue(portal_type="Person")
 
-status = hosting_subscription.getSlapState()
+# Test if the Software is available at the Computer.
+if not hosting_subscription.HostingSubscription_isUpgradePossible(
+  software_release_url=software_release_url):
+  return
 
+status = hosting_subscription.getSlapState()
 if status == "start_requested":
   state = "started"
 elif status == "stop_requested":

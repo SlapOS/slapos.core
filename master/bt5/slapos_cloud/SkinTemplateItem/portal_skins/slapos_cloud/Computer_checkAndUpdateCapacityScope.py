@@ -22,9 +22,7 @@ comment = ''
 
 if can_allocate:
   # Check if computer has error reported
-  memcached_dict = portal.portal_memcached.getMemcachedDict(
-    key_prefix='slap_tool',
-    plugin_path='portal_memcached/default_memcached_plugin')
+  memcached_dict = context.Base_getSlapToolMemcacheDict()
   try:
     d = memcached_dict[computer.getReference()]
   except KeyError:

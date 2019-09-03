@@ -1,11 +1,8 @@
 from DateTime import DateTime
-portal = context.getPortalObject()
 import json
 
 partition = context
-memcached_dict = context.getPortalObject().portal_memcached.getMemcachedDict(
-  key_prefix='slap_tool',
-  plugin_path='portal_memcached/default_memcached_plugin')
+memcached_dict = context.Base_getSlapToolMemcacheDict()
 
 result = ""
 date = None

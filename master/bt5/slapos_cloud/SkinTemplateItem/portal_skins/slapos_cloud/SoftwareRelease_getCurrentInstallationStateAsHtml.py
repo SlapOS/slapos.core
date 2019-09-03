@@ -2,10 +2,6 @@ from DateTime import DateTime
 portal = context.getPortalObject()
 import json
 
-memcached_dict = context.getPortalObject().portal_memcached.getMemcachedDict(
-  key_prefix='slap_tool',
-  plugin_path='portal_memcached/default_memcached_plugin')
-
 error_style = 'background-color: red; display: block; height: 2em; width: 2em; float: left; margin: 5px;'
 access_style = 'background-color: green; display: block; height: 2em; width: 2em; float: left; margin: 5px;'
 
@@ -18,6 +14,7 @@ software_installation = portal.portal_catalog.getResultValue(
 if not software_installation or software_installation.getSlapState() == "destroy_requested":
   return '<span" style="%s" title="Information not available"></a>' % error_style
 
+memcached_dict = context.Base_getSlapToolMemcacheDict()
 try:
   d = memcached_dict[software_installation.getReference()]
 except KeyError:

@@ -5,9 +5,7 @@ has_partition = context.getAggregate(portal_type="Computer Partition")
 result = 'Unable to calculate the status...'
 if has_partition:
   try:
-    memcached_dict = context.getPortalObject().portal_memcached.getMemcachedDict(
-      key_prefix='slap_tool',
-      plugin_path='portal_memcached/default_memcached_plugin')
+    memcached_dict = context.Base_getSlapToolMemcacheDict()
     try:
       d = memcached_dict[context.getReference()]
     except KeyError:

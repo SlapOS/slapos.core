@@ -275,6 +275,13 @@ class HateoasNavigator(object):
     }
 
   def jio_allDocs(self, query):
+    # by default search_url is a Python script (ERP5Document_getHateoas)
+    # which enforces a too low limit of what is to be returned (default = 10)
+    # as testnode uses this to introspect created ERP5 instance which usually has
+    # at least 18 sub instances this limit is too low thus we need to explicitly
+    # increase it. 40 is the de-facto default ERP5 preference for number of objects
+    # which are usually to be rendered in alistbox 'view' mode
+    query['limit'] = 40
     search_url = self._getSearchUrl()
     getter_link = expand(search_url, query)
 

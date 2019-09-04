@@ -189,12 +189,12 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     self.requested_software_instance.validate()
     self.tic()
 
-  def _makeComputer(self, owner=None, allocation_scope=None):
+  def _makeComputer(self, owner=None, allocation_scope='open/public'):
     self.computer = self.portal.computer_module.template_computer\
         .Base_createCloneDocument(batch_mode=1)
     reference = 'TESTCOMP-%s' % self.generateNewId()
     self.computer.edit(
-        allocation_scope='open/public',
+        allocation_scope=allocation_scope,
         reference=reference,
         title=reference
         )
@@ -216,8 +216,6 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       self.computer.edit(
         source_administration_value=owner,
       )
-    if allocation_scope is not None:
-      self.computer.edit(allocation_scope = allocation_scope)
 
     return self.computer, self.partition
 

@@ -464,8 +464,9 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     found_software_release = upgrade_decision.UpgradeDecision_getSoftwareRelease()
     self.assertEqual(None, found_software_release)
 
+  @simulate('HostingSubscription_isUpgradePossible',
+            'software_release_url', 'return 1')
   def testUpgradeDecision_upgradeHostingSubscription(self):
-
     person = self._makePerson()
     hosting_subscription = self._makeHostingSubscription()
     hosting_subscription.edit(
@@ -501,6 +502,8 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     self.assertEqual(slap_state, hosting_subscription.getSlapState())
     self.assertEqual('stopped', upgrade_decision.getSimulationState())
 
+  @simulate('HostingSubscription_isUpgradePossible',
+            'software_release_url', 'return 1')
   def testUpgradeDecision_processUpgradeeHostingSubscription(self):
     person = self._makePerson()
     hosting_subscription = self._makeHostingSubscription()

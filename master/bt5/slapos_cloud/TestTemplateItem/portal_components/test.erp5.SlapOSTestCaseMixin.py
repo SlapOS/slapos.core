@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 ##############################################################################
 #
 # Copyright (c) 2002-2018 Nexedi SA and Contributors. All Rights Reserved.
@@ -82,11 +83,11 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
   def afterSetUp(self):
     testSlapOSMixin.afterSetUp(self)
     self.new_id = self.generateNewId()
-
-    instance_template = self.portal.software_instance_module.template_software_instance
+    
+    instance_template = self.portal.software_instance_module.template_software_instance		 
     if len(instance_template.objectValues()):
-      instance_template.manage_delObjects(
-         ids=[i.getId() for i in instance_template.objectValues()])
+      instance_template.manage_delObjects(		 
+        ids=[i.getId() for i in instance_template.objectValues()])
 
   def makePerson(self, new_id=None, index=True, user=True):
 
@@ -188,7 +189,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     self.requested_software_instance.validate()
     self.tic()
 
-  def _makeComputer(self, owner=None):
+  def _makeComputer(self, owner=None, allocation_scope=None):
     self.computer = self.portal.computer_module.template_computer\
         .Base_createCloneDocument(batch_mode=1)
     reference = 'TESTCOMP-%s' % self.generateNewId()
@@ -215,6 +216,9 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       self.computer.edit(
         source_administration_value=owner,
       )
+    if allocation_scope is not None:
+      self.computer.edit(allocation_scope = allocation_scope)
+
     return self.computer, self.partition
 
   def _makeComputerNetwork(self):
@@ -421,7 +425,9 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       self.tic()
     self._cleaupREQUEST()
 
-  def _makeSoftwareProduct(self, new_id):
+  def _makeSoftwareProduct(self, new_id=None):
+    if new_id is None:
+      new_id = self.generateNewId()
     software_product = self.portal.software_product_module\
       .template_software_product.Base_createCloneDocument(batch_mode=1)
     software_product.edit(
@@ -431,7 +437,10 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     software_product.publish()
     return software_product
 
-  def _makeSoftwareRelease(self, new_id):
+  def _makeSoftwareRelease(self, new_id=None):
+    if new_id is None:
+      new_id = self.generateNewId()
+
     software_release = self.portal.software_release_module\
       .template_software_release.Base_createCloneDocument(batch_mode=1)
     software_release.edit(
@@ -440,6 +449,15 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       title='Start requested for %s' % new_id
     )
     software_release.release()
+    return software_release
+  
+  def _makeCustomSoftwareRelease(self, software_product_url, software_url):
+    software_release = self._makeSoftwareRelease()
+    software_release.edit(
+        aggregate_value=software_product_url,
+        url_string=software_url
+    )
+    software_release.publish()
     return software_release
 
   def generateNewSoftwareReleaseUrl(self):

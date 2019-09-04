@@ -7,7 +7,7 @@ if root_instance is not None and root_instance.getPortalType() == 'Slave Instanc
   return True
 
 # Get Computer List
-instance_list = context.getSpecialiseValueList(
+instance_list = context.getSpecialiseRelatedValueList(
   portal_type="Software Instance")
 
 computer_list = []
@@ -32,7 +32,8 @@ full_software_installation_list = [si for si in
             validation_state='validated'
           ) if si.getSlapState() == 'start_requested']
 
-if len(full_software_installation_list) == len(set(computer_list)):
+if len(full_software_installation_list) > 0 and \
+      len(full_software_installation_list) == len(set(computer_list)):
   # Software is available for the root instance
   software_installation = full_software_installation_list[0]
   message = software_installation.Base_getNewsDict()['text']

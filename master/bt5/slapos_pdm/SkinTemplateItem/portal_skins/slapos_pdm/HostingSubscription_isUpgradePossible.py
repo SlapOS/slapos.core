@@ -36,6 +36,6 @@ if len(full_software_installation_list) > 0 and \
       len(full_software_installation_list) == len(set(computer_list)):
   # Software is available for the root instance
   software_installation = full_software_installation_list[0]
-  message = software_installation.Base_getNewsDict()['text']
+  message = software_installation.Base_getNewsDict(software_installation)['text']
   if message.startswith("#access"):
     return True

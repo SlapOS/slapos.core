@@ -5,4 +5,4 @@ One exception is when a person object is installed from business template.
 """
 if context.getPortalType() != "Organisation":
   return
-context.Organisationk_init()
+context.Organisation_init()

@@ -51,7 +51,8 @@ for software_release in software_release_list:
 
     if context.getUpgradeScope() == "auto":
       upgrade_decision.start()
-    elif context.getUpgradeScope() == "ask_confirmation" and upgrade_decision.getSimulationState() != "planned":
+    elif context.getUpgradeScope("ask_confirmation") == "ask_confirmation" \
+      and upgrade_decision.getSimulationState() != "planned":
       upgrade_decision.plan()
 
     upgrade_decision.setStartDate(DateTime())

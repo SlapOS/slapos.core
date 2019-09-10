@@ -1,4 +1,25 @@
 # -*- coding: utf-8 -*-
+##############################################################################
+#
+# Copyright (C) 2013-2019  Nexedi SA and Contributors.
+#
+# This program is free software: you can Use, Study, Modify and Redistribute
+# it under the terms of the GNU General Public License version 3, or (at your
+# option) any later version, as published by the Free Software Foundation.
+#
+# You can also Link and Combine this program with other software covered by
+# the terms of any of the Free Software licenses or any of the Open Source
+# Initiative approved licenses and Convey the resulting work. Corresponding
+# source of such a combination shall include the source code for all other
+# software used.
+#
+# This program is distributed WITHOUT ANY WARRANTY; without even the implied
+# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# See COPYING file for full licensing terms.
+# See https://www.nexedi.com/licensing for rationale and options.
+#
+##############################################################################
 """Tests all forms.
 """
 import unittest
@@ -13,8 +34,8 @@ class TestSlapOSXHTML(SlapOSTestCaseMixin, testXHTML.TestXHTML):
                           'erp5_fckeditor', 'erp5_ui_test_core',
                           'erp5_jquery', 'erp5_jquery_ui',
                           'erp5_svg_editor', 'erp5_xinha_editor',
-                          'erp5_monaco_editor',
-                          'erp5_web_renderjs')
+                          'erp5_monaco_editor', 'erp5_slideshow_core',
+                          'erp5_run_my_doc', 'erp5_web_renderjs')
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     # Live tests all uses the same request. For now we remove cell from

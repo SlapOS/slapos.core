@@ -1,12 +1,12 @@
 """ Simple place for keep the list of business template to install on this project
 """
-
-
 bt5_update_catalog_list = ('erp5_ingestion_mysql_innodb_catalog',
                            'slapos_cloud', 'erp5_accounting',
                            'erp5_movement_table_catalog')
 
-bt5_installation_list = bt5_update_catalog_list + ('slapos_configurator', 'slapos_erp5')
+bt5_installation_list = bt5_update_catalog_list + \
+                  ('slapos_configurator', 'slapos_erp5',
+                   'erp5_slapos_tutorial')
 
 keep_bt5_id_list = ['erp5_ui_test',
                     'erp5_ui_test_core',

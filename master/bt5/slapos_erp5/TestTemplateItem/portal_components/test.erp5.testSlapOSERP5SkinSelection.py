@@ -4,13 +4,6 @@
 # Copyright (c) 2010 Nexedi SA and Contributors. All Rights Reserved.
 #                    Romain Courteaud <romain@nexedi.com>
 #
-# WARNING: This program as such is intended to be used by professional
-# programmers who take the whole responsibility of assessing all potential
-# consequences resulting from its eventual inadequacies and bugs
-# End users who are looking for a ready-to-use solution with commercial
-# guarantees and support are strongly advised to contract a Free Software
-# Service Company
-#
 # This program is Free Software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -72,6 +65,7 @@ class TestSlaposSkinSelection(SlapOSTestCaseMixin):
           'RedirectAssist',
           'SHACACHE',
           'SHADIR',
+          'SlideShow',
           'View'
         ]
     )
@@ -199,8 +193,10 @@ erp5_pdm
 erp5_project
 erp5_project_trade
 erp5_rss_core
+erp5_run_my_doc
 erp5_secure_payment
 erp5_simplified_invoicing
+erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
 erp5_system_event
@@ -312,8 +308,10 @@ erp5_pdm
 erp5_project
 erp5_project_trade
 erp5_rss_core
+erp5_run_my_doc
 erp5_secure_payment
 erp5_simplified_invoicing
+erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
 erp5_system_event
@@ -424,8 +422,10 @@ erp5_pdm
 erp5_project
 erp5_project_trade
 erp5_rss_core
+erp5_run_my_doc
 erp5_secure_payment
 erp5_simplified_invoicing
+erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
 erp5_system_event
@@ -535,8 +535,10 @@ erp5_pdm
 erp5_project
 erp5_project_trade
 erp5_rss_core
+erp5_run_my_doc
 erp5_secure_payment
 erp5_simplified_invoicing
+erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
 erp5_system_event
@@ -648,8 +650,10 @@ erp5_pdm
 erp5_project
 erp5_project_trade
 erp5_rss_core
+erp5_run_my_doc
 erp5_secure_payment
 erp5_simplified_invoicing
+erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
 erp5_system_event
@@ -759,8 +763,10 @@ erp5_pdm
 erp5_project
 erp5_project_trade
 erp5_rss_core
+erp5_run_my_doc
 erp5_secure_payment
 erp5_simplified_invoicing
+erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
 erp5_system_event
@@ -869,8 +875,10 @@ erp5_pdm
 erp5_project
 erp5_project_trade
 erp5_rss_core
+erp5_run_my_doc
 erp5_secure_payment
 erp5_simplified_invoicing
+erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
 erp5_system_event
@@ -980,8 +988,10 @@ erp5_pdm
 erp5_project
 erp5_project_trade
 erp5_rss_core
+erp5_run_my_doc
 erp5_secure_payment
 erp5_simplified_invoicing
+erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
 erp5_system_event
@@ -1090,8 +1100,10 @@ erp5_pdm
 erp5_project
 erp5_project_trade
 erp5_rss_core
+erp5_run_my_doc
 erp5_secure_payment
 erp5_simplified_invoicing
+erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
 erp5_system_event
@@ -1201,8 +1213,10 @@ erp5_pdm
 erp5_project
 erp5_project_trade
 erp5_rss_core
+erp5_run_my_doc
 erp5_secure_payment
 erp5_simplified_invoicing
+erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
 erp5_system_event
@@ -1312,8 +1326,10 @@ erp5_pdm
 erp5_project
 erp5_project_trade
 erp5_rss_core
+erp5_run_my_doc
 erp5_secure_payment
 erp5_simplified_invoicing
+erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
 erp5_system_event
@@ -1424,8 +1440,10 @@ erp5_pdm
 erp5_project
 erp5_project_trade
 erp5_rss_core
+erp5_run_my_doc
 erp5_secure_payment
 erp5_simplified_invoicing
+erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
 erp5_system_event
@@ -1536,8 +1554,10 @@ erp5_pdm
 erp5_project
 erp5_project_trade
 erp5_rss_core
+erp5_run_my_doc
 erp5_secure_payment
 erp5_simplified_invoicing
+erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
 erp5_system_event

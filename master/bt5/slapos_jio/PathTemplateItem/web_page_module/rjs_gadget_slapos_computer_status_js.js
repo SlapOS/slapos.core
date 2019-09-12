@@ -10,7 +10,7 @@
     inline_status_template = Handlebars.compile(inline_status_source);
 
   function checkComputerStatus(options) {
-    if ((!options) || (options && !options.news)) {
+    if (!options || !options.news || !options.news.text) {
       return 'ui-btn-no-data';
     }
     if (options.news.text.startsWith("#access")) {
@@ -21,37 +21,38 @@
         return 'ui-btn-warning';
       }
       return 'ui-btn-ok';
-
-    } else {
-      if (options.news.no_data) {
-        return 'ui-btn-no-data';
-      }
-      return 'ui-btn-error';
     }
+    if (options.news.no_data) {
+      return 'ui-btn-no-data';
+    }
+    return 'ui-btn-error';
   }
 
   function checkComputerPartitionStatus(options) {
     var message,
-        computer_partition,
-        partition_class = 'ui-btn-ok',
-        error_amount = 0,
-        total_amount = 0;
+      computer_partition,
+      partition_class = 'ui-btn-ok',
+      error_amount = 0,
+      total_amount = 0;
 
-    if ((!options) || (options && !options.computer_partition_news)) {
+    if (!options || !options.computer_partition_news) {
       return 'ui-btn-no-data';
     }
 
     for (computer_partition in options.computer_partition_news) {
-      message = options.computer_partition_news[computer_partition].text;
-      if (message.startsWith("#error")) {
-        partition_class = 'ui-btn-warning';
-        error_amount++;
-      }
-      total_amount++;
+      if (options.computer_partition_news.hasOwnProperty(computer_partition) &&
+          options.computer_partition_news[computer_partition].text) {
+        message = options.computer_partition_news[computer_partition].text;
+        if (message.startsWith("#error")) {
+          partition_class = 'ui-btn-warning';
+          error_amount += 1;
+        }
+        total_amount += 1;
 
-      if ((error_amount > 0) && (error_amount < total_amount)) {
-        // No need to continue the result will be a warnning
-        return partition_class;
+        if ((error_amount > 0) && (error_amount < total_amount)) {
+          // No need to continue the result will be a warnning
+          return partition_class;
+        }
       }
     }
     if (total_amount === 0) {
@@ -74,16 +75,23 @@
       status_style = '',
       right_style = '';
 
-    status_class = checkComputerStatus({news: result.news.computer});
+    if (result && result.news && result.news.computer) {
+      status_class = checkComputerStatus({news: result.news.computer});
+    }
     if ((status_class === 'ui-btn-error') ||
           (status_class === 'ui-btn-no-data')) {
       right_class = status_class;
     } else {
-      right_class = checkComputerPartitionStatus(
-        {computer_partition_news: result.news.partition});
+      if (result && result.news && result.news.partition) {
+        right_class = checkComputerPartitionStatus(
+          {computer_partition_news: result.news.partition}
+        );
+      }
     }
 
-    monitor_url = 'https://monitor.app.officejs.com/#/?page=ojsm_dispatch&query=portal_type%3A%22Software%20Instance%22%20AND%20aggregate_reference%3A%22' + result.reference + '%22';
+    monitor_url = 'https://monitor.app.officejs.com/#/' +
+      '?page=ojsm_dispatch&query=portal_type%3A%22Software%20Instance%22%20' +
+      'AND%20aggregate_reference%3A%22' + result.reference + '%22';
 
     gadget.element.innerHTML = inline_status_template({
       monitor_url: monitor_url,

@@ -1,5 +1,5 @@
 /*globals console, window, rJS, RSVP, loopEventListener, i18n, Handlebars, $*/
-/*jslint indent: 2, nomen: true, maxlen: 80*/
+/*jslint indent: 2, nomen: true, maxlen: 90*/
 
 (function (window, rJS, RSVP, Handlebars) {
   "use strict";
@@ -10,7 +10,7 @@
     inline_status_template = Handlebars.compile(inline_status_source);
 
   function checkComputerStatus(options) {
-    if (!options) {
+    if (!options || !options.text) {
       return 'ui-btn-no-data';
     }
     if (options.text.startsWith("#access")) {
@@ -21,37 +21,38 @@
         return 'ui-btn-warning';
       }
       return 'ui-btn-ok';
-
-    } else {
-      if (options.no_data) {
-        return 'ui-btn-no-data';
-      }
-      return 'ui-btn-error';
     }
+    if (options.no_data) {
+      return 'ui-btn-no-data';
+    }
+    return 'ui-btn-error';
   }
 
   function checkComputerPartitionStatus(options) {
     var message,
-        computer_partition,
-        partition_class = 'ui-btn-ok',
-        error_amount = 0,
-        total_amount = 0;
+      computer_partition,
+      partition_class = 'ui-btn-ok',
+      error_amount = 0,
+      total_amount = 0;
 
     if (!options) {
       return 'ui-btn-no-data';
     }
 
     for (computer_partition in options) {
-      message = options[computer_partition].text;
-      if (message.startsWith("#error")) {
-        partition_class = 'ui-btn-warning';
-        error_amount++;
-      }
-      total_amount++;
+      if (options.hasOwnProperty(computer_partition) &&
+          options[computer_partition].text) {
+        message = options[computer_partition].text;
+        if (message.startsWith("#error")) {
+          partition_class = 'ui-btn-warning';
+          error_amount += 1;
+        }
+        total_amount += 1;
 
-      if ((error_amount > 0) && (error_amount < total_amount)) {
-        // No need to continue the result will be a warnning
-        return partition_class;
+        if ((error_amount > 0) && (error_amount < total_amount)) {
+          // No need to continue the result will be a warnning
+          return partition_class;
+        }
       }
     }
     if (!total_amount) {
@@ -66,22 +67,27 @@
 
   function checkProjectStatus(options) {
     var previous_status = "START",
-        status = 'ui-btn-no-data',
-        i;
+      status = 'ui-btn-no-data',
+      i;
+    if (!options || !options.news || !options.news.computer) {
+      return status;
+    }
     for (i in options.news.computer) {
-      status = checkComputerStatus(options.news.computer[i]);
-      if (previous_status === "START") {
-        previous_status = status;
-      }
-      if (previous_status !== status) {
-        if ((previous_status === 'ui-btn-error') && (status === 'ui-btn-ok')) {
-          return 'ui-btn-warning';
+      if (options.news.computer.hasOwnProperty(i)) {
+        status = checkComputerStatus(options.news.computer[i]);
+        if (previous_status === "START") {
+          previous_status = status;
         }
-        if ((status === 'ui-btn-error') && (previous_status === 'ui-btn-ok')) {
-          return 'ui-btn-warning';
-        }
-        if (status === 'ui-btn-no-data') {
-          status = previous_status;
+        if (previous_status !== status) {
+          if ((previous_status === 'ui-btn-error') && (status === 'ui-btn-ok')) {
+            return 'ui-btn-warning';
+          }
+          if ((status === 'ui-btn-error') && (previous_status === 'ui-btn-ok')) {
+            return 'ui-btn-warning';
+          }
+          if (status === 'ui-btn-no-data') {
+            status = previous_status;
+          }
         }
       }
     }
@@ -90,27 +96,30 @@
 
   function checkProjectPartitionStatus(options) {
     var computer_reference,
-        status = 'ui-btn-no-data',
-        previous_status = "START";
+      status = 'ui-btn-no-data',
+      previous_status = "START";
     for (computer_reference in options.news.partition) {
-      status = checkComputerPartitionStatus(
-        options.news.partition[computer_reference]);
-      if (previous_status === "START") {
-        previous_status = status;
-      }
-      if (status === 'ui-btn-warning') {
-        // If status is warning, nothing after will change it.
-        return status;
-      }
-      if (previous_status !== status) {
-        if ((previous_status === 'ui-btn-error') && (status === 'ui-btn-ok')) {
-          return 'ui-btn-warning';
+      if (options.news.partition.hasOwnProperty(computer_reference)) {
+        status = checkComputerPartitionStatus(
+          options.news.partition[computer_reference]
+        );
+        if (previous_status === "START") {
+          previous_status = status;
         }
-        if ((status === 'ui-btn-error') && (previous_status === 'ui-btn-ok')) {
-          return 'ui-btn-warning';
+        if (status === 'ui-btn-warning') {
+          // If status is warning, nothing after will change it.
+          return status;
         }
-        if (status === 'ui-btn-no-data') {
-          status = previous_status;
+        if (previous_status !== status) {
+          if ((previous_status === 'ui-btn-error') && (status === 'ui-btn-ok')) {
+            return 'ui-btn-warning';
+          }
+          if ((status === 'ui-btn-error') && (previous_status === 'ui-btn-ok')) {
+            return 'ui-btn-warning';
+          }
+          if (status === 'ui-btn-no-data') {
+            status = previous_status;
+          }
         }
       }
     }
@@ -135,7 +144,8 @@
       right_class = checkProjectPartitionStatus(result);
     }
 
-    monitor_url = gadget.props.hateoas_url + gadget.options.value.jio_key + '/Base_redirectToMonitor';
+    monitor_url = gadget.props.hateoas_url +
+      gadget.options.value.jio_key + '/Base_redirectToMonitor';
     gadget.element.innerHTML = inline_status_template({
       monitor_url: monitor_url,
       status_class: status_class,

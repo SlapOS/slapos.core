@@ -32,10 +32,10 @@ for i in range(amount):
   else:
     json_parameter["kvm-partition-dict"]["KVM" + str(i)] = KVM0
 
-xml_paramerter = """
+xml_parameter = """
   <?xml version="1.0" encoding="utf-8"?>
 <instance>
     <parameter id="_">%s</parameter>
 </instance>""" % json.dumps(json_parameter, indent=2)
 
-return xml_paramerter
+return xml_parameter

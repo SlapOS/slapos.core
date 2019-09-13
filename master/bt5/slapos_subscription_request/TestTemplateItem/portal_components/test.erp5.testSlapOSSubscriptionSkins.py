@@ -179,39 +179,39 @@ class TestSubscriptionCondition_renderParameter(TestSubscriptionSkinsMixin):
     self.assertEqual(parameter_xml, subscription_condition.SubscriptionCondition_renderParameter(amount=1))
 
 
-class TestSubscriptionRequestModule_requestSubscritption(TestSubscriptionSkinsMixin):
+class TestSubscriptionRequestModule_requestSubscription(TestSubscriptionSkinsMixin):
 
-  @simulate('SubscriptionRequestModule_requestSubscritptionProxy', '*args, **kwargs','return args, kwargs')
-  def test_SubscriptionRequestModule_requestSubscritption(self):
+  @simulate('SubscriptionRequestModule_requestSubscriptionProxy', '*args, **kwargs','return args, kwargs')
+  def test_SubscriptionRequestModule_requestSubscription(self):
     module = self.portal.subscription_request_module
 
     # Request is None, so it can only be called via URL
-    self.assertRaises(Unauthorized, module.SubscriptionRequestModule_requestSubscritption, REQUEST=None)
+    self.assertRaises(Unauthorized, module.SubscriptionRequestModule_requestSubscription, REQUEST=None)
 
     # Method is not get
-    self.assertRaises(ValueError, module.SubscriptionRequestModule_requestSubscritption,
+    self.assertRaises(ValueError, module.SubscriptionRequestModule_requestSubscription,
                        REQUEST=self.portal.REQUEST)
 
     # Method is not get
     self.portal.REQUEST.other['method'] = "GET"
 
     # default_email_text not defined
-    self.assertRaises(ValueError, module.SubscriptionRequestModule_requestSubscritption,
+    self.assertRaises(ValueError, module.SubscriptionRequestModule_requestSubscription,
                        REQUEST=self.portal.REQUEST)
 
     # name not defined
-    self.assertRaises(ValueError, module.SubscriptionRequestModule_requestSubscritption,
+    self.assertRaises(ValueError, module.SubscriptionRequestModule_requestSubscription,
                        REQUEST=self.portal.REQUEST, default_email_text="123@nexedi.com")
 
     # subscription_reference not defined
-    self.assertRaises(ValueError, module.SubscriptionRequestModule_requestSubscritption,
+    self.assertRaises(ValueError, module.SubscriptionRequestModule_requestSubscription,
                        REQUEST=self.portal.REQUEST, default_email_text="123@nexedi.com",
                        name="couscous")
 
     expected_argument_tuple = (('123@nexedi.com', 'subscription_reference'),
       {'confirmation_required': True, 'user_input_dict': {'name': "couscous", 'amount': 0}, 'batch_mode': 0})
 
-    self.assertEqual(expected_argument_tuple, module.SubscriptionRequestModule_requestSubscritption(
+    self.assertEqual(expected_argument_tuple, module.SubscriptionRequestModule_requestSubscription(
                        REQUEST=self.portal.REQUEST, default_email_text="123@nexedi.com",
                        name="couscous", subscription_reference="subscription_reference"))
     self.tic()
@@ -300,14 +300,14 @@ class TestSubscriptionRequest_createUser(TestSubscriptionSkinsMixin):
     self.assertEqual(erp5_login.getReference(), person.getUserId())
 
 
-class Test0SubscriptionRequestModule_requestSubscritptionProxy(TestSubscriptionSkinsMixin):
+class Test0SubscriptionRequestModule_requestSubscriptionProxy(TestSubscriptionSkinsMixin):
 
-  def test0SubscriptionRequestModule_requestSubscritptionProxy_raises_unauthorized(self):
+  def test0SubscriptionRequestModule_requestSubscriptionProxy_raises_unauthorized(self):
     self.assertRaises(Unauthorized,
-      self.portal.subscription_request_module.SubscriptionRequestModule_requestSubscritptionProxy,
+      self.portal.subscription_request_module.SubscriptionRequestModule_requestSubscriptionProxy,
       REQUEST="XXXXXXXXXXX", email="bb", subscription_reference="aa")
 
-  def test0SubscriptionRequestModule_requestSubscritptionProxy_redirect_to_confirmation(self):
+  def test0SubscriptionRequestModule_requestSubscriptionProxy_redirect_to_confirmation(self):
     email = "abc%s@nexedi.com" % self.new_id
     subscription_reference = "test_subscription_reference"
     user_input_dict = {'name': "Cous Cous %s" % self.new_id,
@@ -317,7 +317,7 @@ class Test0SubscriptionRequestModule_requestSubscritptionProxy(TestSubscriptionS
     self.tic()
     module = self.portal.web_site_module.hostingjs.subscription_request_module
 
-    response = module.SubscriptionRequestModule_requestSubscritptionProxy(
+    response = module.SubscriptionRequestModule_requestSubscriptionProxy(
       email=email, subscription_reference=subscription_reference,
       confirmation_required=True, user_input_dict=user_input_dict)
 

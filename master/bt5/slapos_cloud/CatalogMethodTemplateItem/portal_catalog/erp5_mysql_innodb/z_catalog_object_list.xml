@@ -81,7 +81,9 @@ getModificationDate</string> </value>
         </item>
         <item>
             <key> <string>expression</string> </key>
-            <value> <string>python: context.getPortalType() not in (\'Software Instance\', \'Slave Instance\', \'Computer\', \'Computer Partition\', \'Sale Order\') </string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>expression_cache_key</string> </key>
@@ -91,7 +93,7 @@ getModificationDate</string> </value>
         </item>
         <item>
             <key> <string>filtered</string> </key>
-            <value> <int>1</int> </value>
+            <value> <int>0</int> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

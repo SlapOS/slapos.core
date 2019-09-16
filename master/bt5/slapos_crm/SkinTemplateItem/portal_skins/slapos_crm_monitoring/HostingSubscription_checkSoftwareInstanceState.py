@@ -14,7 +14,7 @@ if portal.ERP5Site_isSupportRequestCreationClosed():
 
 date_check_limit = addToDate(DateTime(), to_add={'hour': -1})
 
-if (date_check_limit - hosting_subscription.Base_getCachedCreationDate()) < 0:
+if (date_check_limit - hosting_subscription.getCreationDate()) < 0:
   # Too early to check
   return
 
@@ -29,7 +29,7 @@ failing_instance = None
 
 # Check if at least one software Instance is Allocated
 for instance in software_instance_list:
-  if (date_check_limit - instance.Base_getCachedCreationDate()) < 0:
+  if (date_check_limit - instance.getCreationDate()) < 0:
     continue
 
   if instance.getSlapState() != "start_requested":

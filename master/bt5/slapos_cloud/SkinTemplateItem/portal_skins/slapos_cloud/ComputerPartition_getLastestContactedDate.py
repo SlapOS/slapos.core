@@ -2,7 +2,7 @@ from DateTime import DateTime
 import json
 
 partition = context
-memcached_dict = context.Base_getSlapToolMemcacheDict()
+memcached_dict = context.Base_getSlapToolMemcachedDict()
 
 result = ""
 date = None

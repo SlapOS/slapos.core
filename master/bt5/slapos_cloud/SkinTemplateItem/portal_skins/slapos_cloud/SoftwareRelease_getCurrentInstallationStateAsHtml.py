@@ -14,7 +14,7 @@ software_installation = portal.portal_catalog.getResultValue(
 if not software_installation or software_installation.getSlapState() == "destroy_requested":
   return '<span" style="%s" title="Information not available"></a>' % error_style
 
-memcached_dict = context.Base_getSlapToolMemcacheDict()
+memcached_dict = context.Base_getSlapToolMemcachedDict()
 try:
   d = memcached_dict[software_installation.getReference()]
 except KeyError:

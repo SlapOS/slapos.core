@@ -22,7 +22,7 @@ comment = ''
 
 if can_allocate:
   # Check if computer has error reported
-  memcached_dict = context.Base_getSlapToolMemcacheDict()
+  memcached_dict = context.Base_getSlapToolMemcachedDict()
   try:
     d = memcached_dict[computer.getReference()]
   except KeyError:

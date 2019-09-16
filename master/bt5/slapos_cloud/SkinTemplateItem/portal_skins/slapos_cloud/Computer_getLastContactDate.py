@@ -1,7 +1,7 @@
 from DateTime import DateTime
 import json
 
-memcached_dict = context.Base_getSlapToolMemcacheDict()
+memcached_dict = context.Base_getSlapToolMemcachedDict()
 try:
   d = memcached_dict[context.getReference()]
 except KeyError:

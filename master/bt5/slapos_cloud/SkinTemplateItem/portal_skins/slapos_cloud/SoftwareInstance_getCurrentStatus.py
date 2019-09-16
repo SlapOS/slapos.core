@@ -5,7 +5,7 @@ has_partition = context.getAggregate(portal_type="Computer Partition")
 result = 'Unable to calculate the status...'
 if has_partition:
   try:
-    memcached_dict = context.Base_getSlapToolMemcacheDict()
+    memcached_dict = context.Base_getSlapToolMemcachedDict()
     try:
       d = memcached_dict[context.getReference()]
     except KeyError:

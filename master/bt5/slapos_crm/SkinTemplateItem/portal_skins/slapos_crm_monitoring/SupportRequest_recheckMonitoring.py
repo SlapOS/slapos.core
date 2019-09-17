@@ -17,10 +17,7 @@ if document is None:
   return True
 
 aggregate_portal_type = document.getPortalType()
-
-memcached_dict = context.getPortalObject().portal_memcached.getMemcachedDict(
-  key_prefix='slap_tool',
-  plugin_path='portal_memcached/default_memcached_plugin')
+memcached_dict = context.Base_getSlapToolMemcachedDict()
 
 if aggregate_portal_type == "Computer":
   try:

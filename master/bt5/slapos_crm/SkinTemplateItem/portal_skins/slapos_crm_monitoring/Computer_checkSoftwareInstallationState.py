@@ -10,7 +10,6 @@ if portal.ERP5Site_isSupportRequestCreationClosed():
 if context.getMonitorScope() == "disabled":
   return
 
-
 software_installation_list = portal.portal_catalog(
       portal_type='Software Installation',
       default_aggregate_uid=context.getUid(),
@@ -23,10 +22,7 @@ computer_reference = context.getReference()
 computer_title = context.getTitle()
 should_notify = True
 
-memcached_dict = context.getPortalObject().portal_memcached.getMemcachedDict(
-  key_prefix='slap_tool',
-  plugin_path='portal_memcached/default_memcached_plugin')
-
+memcached_dict = context.Base_getSlapToolMemcachedDict()
 tolerance = DateTime()-0.5
 for software_installation in software_installation_list:
   should_notify = False

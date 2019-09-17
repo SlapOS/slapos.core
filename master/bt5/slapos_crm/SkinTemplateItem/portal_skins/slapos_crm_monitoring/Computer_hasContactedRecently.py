@@ -7,10 +7,7 @@ if (now_date - computer.getCreationDate()) < maximum_days:
   # This computer was created recently skip
   return True
 
-memcached_dict = portal.portal_memcached.getMemcachedDict(
-  key_prefix='slap_tool',
-  plugin_path='portal_memcached/default_memcached_plugin')
-
+memcached_dict = context.Base_getSlapToolMemcachedDict()
 # Check if there is some information in memcached
 try:
   d = memcached_dict[computer.getReference()]

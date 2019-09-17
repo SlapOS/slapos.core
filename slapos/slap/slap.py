@@ -608,7 +608,14 @@ class ComputerPartition(SlapRequester):
       return self._software_release_document
 
   def setConnectionDict(self, connection_dict, slave_reference=None):
-    if self.getConnectionParameterDict() == connection_dict:
+    normalised_connection_dict = {}
+    for k,v in connection_dict.items():
+      if isinstance(k, unicode):
+        k = str(k)
+      if isinstance(v, unicode):
+        v = str(v)
+      normalised_connection_dict[k] = v
+    if self.getConnectionParameterDict() == normalised_connection_dict:
       return
 
     if slave_reference is not None:
@@ -625,7 +632,7 @@ class ComputerPartition(SlapRequester):
 
       # Skip as nothing changed for the slave
       if connection_parameter_hash is not None and \
-        connection_parameter_hash == hashlib.sha256(str(connection_dict)).hexdigest():
+        connection_parameter_hash == hashlib.sha256(str(normalised_connection_dict)).hexdigest():
         return
 
     self._connection_helper.POST('setComputerPartitionConnectionXml', data={

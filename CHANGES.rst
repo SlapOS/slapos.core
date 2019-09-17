@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.4.27 (2019-09-17)
+-------------------
+
+  * slap/hateoas: in jio_allDocs, increase query limit to 40 if not set
+  * slap/hateoas: cleanup, remove unused getRelatedInstanceInformation
+
 1.4.26 (2019-08-13)
 -------------------
 

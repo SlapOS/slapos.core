@@ -29,10 +29,14 @@ import logging
 import os
 import unittest
 from six.moves.urllib import parse
+from six import PY3
 import tempfile
 import logging
 
 import httmock
+
+import mock
+import hashlib
 
 import slapos.slap
 from slapos.util import dumps
@@ -957,6 +961,103 @@ class TestComputerPartition(SlapMixin):
           computer_guid, partition_id)
       # XXX: Interface does not define return value
       computer_partition.error('some error')
+
+  def _test_setConnectionDict(
+    self, connection_dict, slave_reference=None, connection_xml=None,
+    getConnectionParameterDict=None, connection_parameter_hash=None):
+    getInstanceParameter = []
+    if connection_parameter_hash is not None:
+      getInstanceParameter = [
+        {
+          'slave_reference': slave_reference,
+          'connection-parameter-hash': connection_parameter_hash
+        }
+      ]
+    with \
+        mock.patch.object(
+          slapos.slap.ComputerPartition, '__init__', return_value=None), \
+        mock.patch.object(
+          slapos.slap.ComputerPartition, 'getConnectionParameterDict',
+          return_value=getConnectionParameterDict or {}), \
+        mock.patch.object(
+          slapos.slap.ComputerPartition, 'getInstanceParameter',
+          return_value=getInstanceParameter):
+      partition = slapos.slap.ComputerPartition()
+      partition._connection_helper = mock.Mock()
+      partition._computer_id = 'COMP-0'
+      partition._partition_id = 'PART-0'
+      partition._connection_helper.POST = mock.Mock()
+      partition.setConnectionDict(
+        connection_dict, slave_reference=slave_reference)
+      if connection_xml:
+        connection_xml = connection_xml.encode() if PY3 else connection_xml
+        partition._connection_helper.POST.assert_called_with(
+          'setComputerPartitionConnectionXml',
+          data={
+            'slave_reference': slave_reference,
+            'connection_xml': connection_xml,
+            'computer_partition_id': 'PART-0',
+            'computer_id': 'COMP-0'})
+      else:
+        partition._connection_helper.POST.assert_not_called()
+
+  def test_setConnectionDict(self):
+    self._test_setConnectionDict(
+      {'a': 'b'},
+      connection_xml='<marshal><dictionary id="i2"><string>a</string>'
+                     '<string>b</string></dictionary></marshal>')
+
+  def test_setConnectionDict_optimised(self):
+    self._test_setConnectionDict(
+      {'a': 'b'},
+      getConnectionParameterDict={'a': 'b'},
+      connection_xml=False)
+
+  def test_setConnectionDict_optimised_tricky(self):
+    self._test_setConnectionDict(
+      {u'a': u'b', 'b': '', 'c': None},
+      getConnectionParameterDict={'a': 'b', 'b': None, 'c': 'None'},
+      connection_xml=False)
+
+  def test_setConnectionDict_update(self):
+    self._test_setConnectionDict(
+      {'a': 'b'},
+      getConnectionParameterDict={'b': 'b'},
+      connection_xml='<marshal><dictionary id="i2"><string>a</string>'
+                     '<string>b</string></dictionary></marshal>')
+
+  def test_setConnectionDict_slave(self):
+    self._test_setConnectionDict(
+      {'a': 'b'},
+      slave_reference='SLAVE-0',
+      connection_xml='<marshal><dictionary id="i2"><string>a</string>'
+                     '<string>b</string></dictionary></marshal>')
+
+  def test_setConnectionDict_slave_expired_hash(self):
+    self._test_setConnectionDict(
+      {'a': 'b'},
+      slave_reference='SLAVE-0',
+      connection_parameter_hash='mess',
+      connection_xml='<marshal><dictionary id="i2"><string>a</string>'
+                     '<string>b</string></dictionary></marshal>')
+
+  def calculate_hash(self, connection_dict):
+    return hashlib.sha256(str(connection_dict).encode()).hexdigest()
+
+  def test_setConnectionDict_slave_hash(self):
+    self._test_setConnectionDict(
+      {'a': 'b'},
+      slave_reference='SLAVE-0',
+      connection_parameter_hash=self.calculate_hash({'a': 'b'}),
+      connection_xml=False)
+
+  def test_setConnectionDict_slave_hash_tricky(self):
+    self._test_setConnectionDict(
+      {u'a': u'b', 'b': '', 'c': None},
+      slave_reference='SLAVE-0',
+      connection_parameter_hash=self.calculate_hash({
+        'a': 'b', 'b': None, 'c': 'None'}),
+      connection_xml=False)
 
 
 class TestSoftwareRelease(SlapMixin):

@@ -36,6 +36,8 @@ import sqlite3
 from xml_marshaller.xml_marshaller import dumps, loads
 from lxml import etree
 import six
+import hashlib
+import netaddr
 
 
 def mkdir_p(path, mode=0o700):
@@ -178,3 +180,12 @@ def xml2dict(xml):
         value = element.text
       result_dict[key] = value
   return result_dict
+
+
+def calculate_dict_hash(d):
+  return hashlib.sha256(
+    str2bytes(str(
+      sorted(
+        d.items()
+      )
+    ))).hexdigest()

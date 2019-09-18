@@ -120,5 +120,56 @@ class TestUtil(unittest.TestCase):
     for value in [True, False, 1, '1', 't', 'tru', 'truelle', 'f', 'fals', 'falsey']:
       self.assertRaises(ValueError, string_to_boolean, value)
 
+  xml2dict_xml = slapos.util.bytes2str(b"""<?xml version='1.0' encoding='utf-8'?>
+<instance>
+  <parameter id="badstr">\xc5\x81</parameter>
+  <parameter id="badu">\xc5\x81</parameter>
+  <parameter id="emptystr"></parameter>
+  <parameter id="int">1</parameter>
+  <parameter id="intstr">1</parameter>
+  <parameter id="key">str</parameter>
+  <parameter id="list">['one', 2]</parameter>
+  <parameter id="none">None</parameter>
+  <parameter id="ukey">ustr</parameter>
+</instance>
+""")
+
+  xml2dict_indict = {
+    u'ukey': u'ustr',
+    'key': 'str',
+    'int': 1,
+    'intstr': '1',
+    'emptystr': '',
+    'none': None,
+    'list': ['one', 2],
+    'badstr': u'\u0141'.encode('utf-8'),
+    'badu': u'\u0141'
+  }
+
+  xml2dict_outdict = {
+    'badstr': u'\u0141',
+    'badu': u'\u0141',
+    'emptystr': None,
+    'int': '1',
+    'intstr': '1',
+    'key': 'str',
+    'list': "['one', 2]",
+    'none': 'None',
+    'ukey': 'ustr'}
+
+  def test_xml2dict(self):
+    self.assertEqual(
+      self.xml2dict_outdict,
+      slapos.util.xml2dict(self.xml2dict_xml)
+    )
+
+  def test_dict2xml(self):
+    self.maxDiff = None
+    self.assertEqual(
+      self.xml2dict_xml,
+      slapos.util.dict2xml(self.xml2dict_indict)
+    )
+
+
 if __name__ == '__main__':
   unittest.main()

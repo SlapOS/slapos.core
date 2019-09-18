@@ -1,6 +1,41 @@
 from lxml import etree
-from six.moves.urllib import parse
+from six.moves.urllib import parse, iteritems, text_type
+from slapos.util import bytes2str
 import netaddr
+
+#from slapproxy
+#def xml2dict(xml):
+#  result_dict = {}
+#  if xml:
+#    tree = etree.fromstring(str2bytes(xml))
+#    for element in tree.iter(tag=etree.Element):
+#      if element.tag == 'parameter':
+#        key = element.get('id')
+#        value = result_dict.get(key, None)
+#        if value is not None:
+#          value = value + ' ' + element.text
+#        else:
+#          value = element.text
+#        result_dict[key] = value
+#  return result_dict
+
+
+def dict2xml(dictionary):
+  instance = etree.Element('instance')
+  for k, v in iteritems(dictionary):
+    if isinstance(k, bytes):
+      k = k.decode('utf-8')
+    if isinstance(v, bytes):
+      v = v.decode('utf-8')
+    elif not isinstance(v, text_type):
+      v = str(v)
+    etree.SubElement(instance, "parameter",
+                     attrib={'id': k}).text = v
+  return bytes2str(etree.tostring(instance,
+                        pretty_print=True,
+                        xml_declaration=True,
+                        encoding='utf-8'))
+
 
 def xml2dict(xml):
   result_dict = {}

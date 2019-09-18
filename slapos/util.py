@@ -144,3 +144,37 @@ else:
     return s.encode()
   def unicode2str(s):
     return s
+
+
+def dict2xml(dictionary):
+  instance = etree.Element('instance')
+  for k, v in iteritems(dictionary):
+    if isinstance(k, bytes):
+      k = k.decode('utf-8')
+    if isinstance(v, bytes):
+      v = v.decode('utf-8')
+    elif not isinstance(v, text_type):
+      v = str(v)
+    etree.SubElement(instance, "parameter",
+                     attrib={'id': k}).text = v
+  return bytes2str(etree.tostring(instance,
+                   pretty_print=True,
+                   xml_declaration=True,
+                   encoding='utf-8'))
+
+
+def xml2dict(xml):
+  result_dict = {}
+  if xml is not None and xml != '':
+    tree = etree.fromstring(str2bytes(xml))
+    for element in tree.findall('parameter'):
+      key = element.get('id')
+      value = result_dict.get(key, None)
+      if value is not None:
+        value = value + ' ' + element.text
+      else:
+        value = element.text
+      result_dict[key] = value
+  return result_dict
+
+

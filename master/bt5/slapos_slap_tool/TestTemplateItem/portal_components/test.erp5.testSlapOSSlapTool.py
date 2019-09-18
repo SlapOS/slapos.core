@@ -1247,7 +1247,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         <list id='i9'>
           <dictionary id='i10'>
             <string>connection-parameter-hash</string>
-            <string>44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a</string>
+            <string>4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945</string>
             <string>paramé</string>
             <string>%(slave_1_param)s</string>
             <string>slap_software_type</string>
@@ -1445,8 +1445,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 </marshal>"""
     stored_xml = """<?xml version='1.0' encoding='utf-8'?>
 <instance>
-  <parameter id="p2é">v2é</parameter>
   <parameter id="p1é">v1é</parameter>
+  <parameter id="p2é">v2é</parameter>
 </instance>
 """
     self.login(self.start_requested_software_instance.getUserId())
@@ -1478,8 +1478,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 </marshal>"""
     stored_xml = """<?xml version='1.0' encoding='utf-8'?>
 <instance>
-  <parameter id="p2é">v2é</parameter>
   <parameter id="p1é">v1é</parameter>
+  <parameter id="p2é">v2é</parameter>
 </instance>
 """
     self.login(self.start_requested_software_instance.getUserId())
@@ -2390,7 +2390,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         <list id='i9'>
           <dictionary id='i10'>
             <string>connection-parameter-hash</string>
-            <string>44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a</string>
+            <string>4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945</string>
             <string>paramé</string>
             <string>%(slave_1_param)s</string>
             <string>slap_software_type</string>

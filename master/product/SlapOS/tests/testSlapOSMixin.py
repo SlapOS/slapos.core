@@ -92,7 +92,13 @@ class testSlapOSMixin(ERP5TypeTestCase):
     original_openssl_cnf = open(
       os.path.join(os.environ['TEST_CA_PATH'], 'openssl.cnf'), "r").read()
 
-    openssl_cnf = original_openssl_cnf.replace(os.environ['TEST_CA_PATH'], ca_path)
+    openssl_cnf_with_updated_path = original_openssl_cnf.replace(
+            os.environ['TEST_CA_PATH'], ca_path)
+
+    # SlapOS Master requires unique subjects
+    openssl_cnf = openssl_cnf_with_updated_path.replace(
+            "unique_subject  = no", "unique_subject  = yes")
+
     with open(os.path.join(ca_path, 'openssl.cnf'), "w") as f:
       f.write(openssl_cnf)
 

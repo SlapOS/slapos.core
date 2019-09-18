@@ -62,7 +62,7 @@ def xml2dict(xml):
         value = value + ' ' + element.text
       else:
         value = element.text
-      result_dict[key] = value
+      result_dict[key] = value or ''
   return result_dict
 
 def _addIpv6Brackets(url):

@@ -50,7 +50,7 @@ try:
     ComputerPartition as SlapComputerPartition,
     SoftwareInstance,
     SoftwareRelease)
-  from slapos.proxy.views import dict2xml
+  from slapos.slap.util import dict2xml, xml2dict
 except ImportError:
   # Do no prevent instance from starting
   # if libs are not installed
@@ -67,6 +67,8 @@ except ImportError:
     def __init__(self):
       raise ImportError
   def dict2xml(dictionary):
+    raise ImportError
+  def xml2dict(dictionary):
     raise ImportError
 
 from zLOG import LOG, INFO
@@ -896,16 +898,7 @@ class SlapTool(BaseTool):
   def _instanceXmlToDict(self, xml):
     result_dict = {}
     try:
-      if xml is not None and xml != '':
-        tree = etree.fromstring(xml)
-        for element in tree.findall('parameter'):
-          key = element.get('id')
-          value = result_dict.get(key, None)
-          if value is not None:
-            value = value + ' ' + element.text
-          else:
-            value = element.text
-          result_dict[key] = value
+      result_dict = xml2dict(xml)
     except (etree.XMLSchemaError, etree.XMLSchemaParseError,
       etree.XMLSchemaValidateError, etree.XMLSyntaxError):
       LOG('SlapTool', INFO, 'Issue during parsing xml:', error=True)

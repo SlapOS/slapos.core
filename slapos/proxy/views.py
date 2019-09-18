@@ -36,7 +36,8 @@ from slapos.slap.slap import Computer, ComputerPartition, \
     SoftwareRelease, SoftwareInstance, NotFoundError
 from slapos.proxy.db_version import DB_VERSION
 import slapos.slap
-from slapos.util import bytes2str, unicode2str, sqlite_connect, xml2dict, dict2xml
+from slapos.slap.util import xml2dict, dict2xml
+from slapos.util import bytes2str, unicode2str, sqlite_connect
 
 from flask import g, Flask, request, abort
 from slapos.util import loads, dumps

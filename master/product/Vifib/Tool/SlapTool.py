@@ -41,7 +41,6 @@ from Products.ERP5Type import Permissions
 from Products.ERP5Type.Cache import DEFAULT_CACHE_SCOPE
 from Products.ERP5Type.Cache import CachingMethod
 from lxml import etree
-import hashlib
 import time
 from Products.ERP5Type.tests.utils import DummyMailHostMixin
 try:
@@ -50,7 +49,7 @@ try:
     ComputerPartition as SlapComputerPartition,
     SoftwareInstance,
     SoftwareRelease)
-  from slapos.proxy.views import dict2xml
+  from slapos.util import dict2xml, xml2dict, calculate_dict_hash
 except ImportError:
   # Do no prevent instance from starting
   # if libs are not installed
@@ -67,6 +66,8 @@ except ImportError:
     def __init__(self):
       raise ImportError
   def dict2xml(dictionary):
+    raise ImportError
+  def xml2dict(dictionary):
     raise ImportError
 
 from zLOG import LOG, INFO
@@ -833,7 +834,7 @@ class SlapTool(BaseTool):
             slave_instance_dict.pop("connection_xml"))
           slave_instance_dict.update(connection_dict)
           slave_instance_dict['connection-parameter-hash'] = \
-            hashlib.sha256(str(connection_dict)).hexdigest()
+            calculate_hash_dict(connection_dict)
         if slave_instance_dict.has_key("xml"):
           slave_instance_dict.update(self._instanceXmlToDict(
             slave_instance_dict.pop("xml")))
@@ -896,16 +897,7 @@ class SlapTool(BaseTool):
   def _instanceXmlToDict(self, xml):
     result_dict = {}
     try:
-      if xml is not None and xml != '':
-        tree = etree.fromstring(xml)
-        for element in tree.findall('parameter'):
-          key = element.get('id')
-          value = result_dict.get(key, None)
-          if value is not None:
-            value = value + ' ' + element.text
-          else:
-            value = element.text
-          result_dict[key] = value
+      result_dict = xml2dict(xml)
     except (etree.XMLSchemaError, etree.XMLSchemaParseError,
       etree.XMLSchemaValidateError, etree.XMLSyntaxError):
       LOG('SlapTool', INFO, 'Issue during parsing xml:', error=True)

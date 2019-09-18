@@ -28,7 +28,6 @@
 #
 ##############################################################################
 
-from lxml import etree
 import random
 import string
 import time
@@ -37,7 +36,7 @@ from slapos.slap.slap import Computer, ComputerPartition, \
     SoftwareRelease, SoftwareInstance, NotFoundError
 from slapos.proxy.db_version import DB_VERSION
 import slapos.slap
-from slapos.util import bytes2str, str2bytes, unicode2str, sqlite_connect
+from slapos.util import bytes2str, unicode2str, sqlite_connect, xml2dict, dict2xml
 
 from flask import g, Flask, request, abort
 from slapos.util import loads, dumps
@@ -51,39 +50,6 @@ EMPTY_DICT_XML = dumps({})
 
 class UnauthorizedError(Exception):
   pass
-
-
-def xml2dict(xml):
-  result_dict = {}
-  if xml:
-    tree = etree.fromstring(str2bytes(xml))
-    for element in tree.iter(tag=etree.Element):
-      if element.tag == 'parameter':
-        key = element.get('id')
-        value = result_dict.get(key, None)
-        if value is not None:
-          value = value + ' ' + element.text
-        else:
-          value = element.text
-        result_dict[key] = value
-  return result_dict
-
-
-def dict2xml(dictionary):
-  instance = etree.Element('instance')
-  for k, v in six.iteritems(dictionary):
-    if isinstance(k, bytes):
-      k = k.decode('utf-8')
-    if isinstance(v, bytes):
-      v = v.decode('utf-8')
-    elif not isinstance(v, six.text_type):
-      v = str(v)
-    etree.SubElement(instance, "parameter",
-                     attrib={'id': k}).text = v
-  return bytes2str(etree.tostring(instance,
-                        pretty_print=True,
-                        xml_declaration=True,
-                        encoding='utf-8'))
 
 
 def partitiondict2partition(partition):

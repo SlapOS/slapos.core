@@ -38,19 +38,31 @@ def dict2xml(dictionary):
                         encoding='utf-8'))
 
 
+#from slapos master
+#   def xml2dict
+#      if xml is not None and xml != '':
+#        tree = etree.fromstring(xml)
+#        for element in tree.findall('parameter'):
+#          key = element.get('id')
+#          value = result_dict.get(key, None)
+#          if value is not None:
+#            value = value + ' ' + element.text
+#          else:
+#            value = element.text
+#          result_dict[key] = value
+
 def xml2dict(xml):
   result_dict = {}
   if xml is not None and xml != '':
     tree = etree.fromstring(xml.encode('utf-8'))
-    for element in tree.iter(tag=etree.Element):
-      if element.tag == 'parameter':
-        key = element.get('id')
-        value = result_dict.get(key, None)
-        if value is not None:
-          value = value + ' ' + element.text
-        else:
-          value = element.text
-        result_dict[key] = value
+    for element in tree.findall('parameter'):
+      key = element.get('id')
+      value = result_dict.get(key, None)
+      if value is not None:
+        value = value + ' ' + element.text
+      else:
+        value = element.text
+      result_dict[key] = value
   return result_dict
 
 def _addIpv6Brackets(url):

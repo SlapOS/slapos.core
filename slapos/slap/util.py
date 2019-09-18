@@ -1,5 +1,6 @@
 from lxml import etree
-from six.moves.urllib import parse, iteritems, text_type
+from six.moves.urllib import parse
+from six import iteritems, text_type
 from slapos.util import bytes2str
 import netaddr
 

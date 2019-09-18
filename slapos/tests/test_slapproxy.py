@@ -129,8 +129,8 @@ database_uri = %(tempdir)s/lib/proxy.db
       computer_id = self.computer_id
     computer_dict = {
         'reference': computer_id,
-        'address': '123.456.789',
-        'netmask': 'fffffffff',
+        'address': '12.34.56.78',
+        'netmask': '255.255.255.255',
         'partition_list': [],
     }
     for i in range(partition_amount):
@@ -1221,8 +1221,8 @@ database_uri = %(tempdir)s/lib/external_proxy.db
       computer_id = self.external_computer_id
     computer_dict = {
         'reference': computer_id,
-        'address': '123.456.789',
-        'netmask': 'fffffffff',
+        'address': '12.34.56.78',
+        'netmask': '255.255.255.255',
         'partition_list': [],
     }
     for i in range(partition_amount):

@@ -41,7 +41,6 @@ from Products.ERP5Type import Permissions
 from Products.ERP5Type.Cache import DEFAULT_CACHE_SCOPE
 from Products.ERP5Type.Cache import CachingMethod
 from lxml import etree
-import hashlib
 import time
 from Products.ERP5Type.tests.utils import DummyMailHostMixin
 try:
@@ -50,7 +49,7 @@ try:
     ComputerPartition as SlapComputerPartition,
     SoftwareInstance,
     SoftwareRelease)
-  from slapos.slap.util import dict2xml, xml2dict
+  from slapos.slap.util import dict2xml, xml2dict, calculate_dict_hash
 except ImportError:
   # Do no prevent instance from starting
   # if libs are not installed
@@ -835,7 +834,7 @@ class SlapTool(BaseTool):
             slave_instance_dict.pop("connection_xml"))
           slave_instance_dict.update(connection_dict)
           slave_instance_dict['connection-parameter-hash'] = \
-            hashlib.sha256(str(connection_dict)).hexdigest()
+            calculate_hash_dict(connection_dict)
         if slave_instance_dict.has_key("xml"):
           slave_instance_dict.update(self._instanceXmlToDict(
             slave_instance_dict.pop("xml")))

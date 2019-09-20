@@ -43,9 +43,17 @@ payment = person.Person_restrictMethodAsShadowUser(
 if batch_mode:
   return {'subscription' : subscription_request.getRelativeUrl(), 'payment': payment.getRelativeUrl() }
 
+def wrapGetPriceWithShadow(payment):
+  return payment.PaymentTransaction_getTotalPayablePrice()
+
+price = person.Person_restrictMethodAsShadowUser(
+  shadow_document=person,
+  callable_object=wrapGetPriceWithShadow,
+  argument_list=[payment,])
+
 if payment_mode == "wechat":
   portal = context.getPortalObject()
-  code_url = portal.Base_getWechatCodeURL(subscription_request.getId(), payment.PaymentTransaction_getTotalPayablePrice(), user_input_dict["amount"])
+  code_url = portal.Base_getWechatCodeURL(subscription_request.getId(), price, user_input_dict["amount"])
   web_site = context.getWebSiteValue()
   base_url = web_site.absolute_url()
   return context.REQUEST.RESPONSE.redirect(

@@ -1,4 +1,5 @@
-import random, string, hashlib, urllib2
+import random, string, hashlib, urllib2, socket
+from urlparse import urlparse
 try:
   import xml.etree.cElementTree as ET
 except ImportError:
@@ -8,28 +9,16 @@ class WechatException(Exception):
   def __init__(self, msg):
     super(WechatException, self).__init__(msg)
 
-# RapidSpace Wechat acocunt configuration
-class Single(object):
-  _instance = None
-  PAYMENT_DONE = False
-  def __new__(cls, *args, **kw):
-    if cls._instance is None:
-      cls._instance = object.__new__(cls, *args, **kw)
-      return cls._instance
-  def __init__(self):
-    pass
 
-def finishThePayment(self):
-  self.APP_ID = "XXX"
-
-APP_ID = "wxadebca31430703b0"  # Wechat public account appid
-MCH_ID = ""  # Wechat merchant account ID
-API_KEY = ""  # Wechat merchant platform(pay.weixin.qq.com) -->账户设置 -->API安全 -->密钥设置
+APP_ID = "wx9f5e222240e92043"  # Wechat public account appid
+MCH_ID = "1555737971"  # Wechat merchant account ID
+API_KEY = "YSS6GK2d8FkxPAnsCmnuKtFpq6PRdkth"  # Wechat merchant platform(pay.weixin.qq.com) -->账户设置 -->API安全 -->密钥设置
 
 CREATE_IP = ""  # The IP address which request the order to Wechat, aka: instance IP
+# UFDODER_URL = "https://api.mch.weixin.qq.com/sandboxnew/pay/unifiedorder" # Wechat unified order API
 UFDODER_URL = "https://api.mch.weixin.qq.com/pay/unifiedorder" # Wechat unified order API
-NOTIFY_URL = "your IP: port/Method"  # Wechat payment callback method
-QUERY_URL = "https://api.mch.weixin.qq.com/pay/orderquery"
+
+QUERY_URL = "https://api.mch.weixin.qq.com/sandboxnew/pay/orderquery"
 
 
 def generateRandomStr(random_length=24):
@@ -90,16 +79,45 @@ def convert_dict_to_xml(dict_content):
   return xml
 
 
-def getWechatQRCodeURL(self, order_id, price, amount):
-  product_name = "Pre-order " + amount + " RapidSpace VM "
-  return
+def getSandboxKey():
+  SANDBOX_KEY_URL = "https://api.mch.weixin.qq.com/sandboxnew/pay/getsignkey"
+  params = {}
+  params['mch_id'] = MCH_ID
+  params['nonce_str'] = generateRandomStr()
+  params['sign'] = calculateSign(params, API_KEY)
+  # construct XML str
+  request_xml_str = '<xml>'
+  for key, value in params.items():
+    if isinstance(value, basestring):
+      request_xml_str = '%s<%s><![CDATA[%s]]></%s>' % (request_xml_str, key, value, key, )
+    else:
+      request_xml_str = '%s<%s>%s</%s>' % (request_xml_str, key, value, key, )
+  request_xml_str = '%s</xml>' % request_xml_str
+  result = urllib2.Request(SANDBOX_KEY_URL, data=request_xml_str)
+  result_data = urllib2.urlopen(result)
+  result_read = result_data.read()
+  result_dict_content = convert_xml_to_dict(result_read)
+  return_code = result_dict_content.get('return_code', '')
+  if return_code=="SUCCESS":
+    result_msg = result_dict_content['return_msg']
+    if result_msg=="ok":
+      sandbox_signkey = result_dict_content['sandbox_signkey']
+      return sandbox_signkey
+    raise Exception(result_dict_content['result_msg'].encode('utf-8'))
+  raise Exception("Get sanbox key failed: " + str(result_dict_content))
 
-  # TODO: waiting for the APP_ID
-  appid = APP_ID # XXXXXXXXXXXXXXXXXXXXXXXXXXxx
+def getWechatQRCodeURL(self, order_id, price, amount):
+  portal = self.getPortalObject()
+  base_url = portal.absolute_url()
+  NOTIFY_URL = base_url + "/Base_receiveWechatPaymentNotify"  # Wechat payment callback method
+  appid = APP_ID
   mch_id = MCH_ID
   key = API_KEY
+  # key = getSandboxKey() # API_KEY
   nonce_str = generateRandomStr()
-  spbill_create_ip = CREATE_IP
+
+  result = urlparse(base_url)
+  spbill_create_ip = socket.gethostbyname(result.netloc)
   notify_url = NOTIFY_URL
   trade_type = "NATIVE"
 
@@ -109,14 +127,15 @@ def getWechatQRCodeURL(self, order_id, price, amount):
   params['mch_id'] = mch_id
   params['nonce_str'] = nonce_str
   params['out_trade_no'] = order_id.encode('utf-8')
-  params['total_fee'] = amount * 100   # unit is Fen, 1 CHY = 100 Fen
+  # params['total_fee'] = 101 # int(-(price * 100))   # unit is Fen, 1 CHY = 100 Fen
+  params['total_fee'] = int(-(price * 100))   # unit is Fen, 1 CHY = 100 Fen
   params['spbill_create_ip'] = spbill_create_ip
   params['notify_url'] = notify_url
-  params['body'] = product_name.encode('utf-8')
+  params['body'] = "Rapid Space VM machine".encode('utf-8')
   params['trade_type'] = trade_type
 
   # generate signature
-  params['sign'] = calculateSign(params, API_KEY)
+  params['sign'] = calculateSign(params, key)
 
   # construct XML str
   request_xml_str = '<xml>'
@@ -137,11 +156,11 @@ def getWechatQRCodeURL(self, order_id, price, amount):
     result_code = result_dict_content['result_code']
     if result_code=="SUCCESS":
       code_url = result_dict_content['code_url']
-      return "weixin://wxpay/bizpayurl/up?pr=NwY5Mz9&groupid=00"
+      return code_url # "weixin://wxpay/bizpayurl/up?pr=NwY5Mz9&groupid=00"
     else:
-      print("Error description: {0}".format(result_dict_content.get("err_code_des")))
+      raise Exception("Error description: {0}".format(result_dict_content.get("err_code_des")))
   else:
-    print("Error description: {0}".format(result_dict_content.get("return_msg")))
+    raise Exception("Error description: {0}".format(result_dict_content.get("return_msg")))
 
 
 def receiveWechatPaymentNotify(self, request, *args, **kwargs):
@@ -167,6 +186,12 @@ def receiveWechatPaymentNotify(self, request, *args, **kwargs):
     <transaction_id><![CDATA[4200000031201712112434025551875]]></transaction_id>
   </xml>
   '''
+  return '''
+            <xml>
+            <return_code><![CDATA[SUCCESS]]></return_code>
+            <return_msg><![CDATA[OK]]></return_msg>
+            </xml>
+            '''
   params = convert_xml_to_dict(request.body)
   if params.get("return_code") == "SUCCESS":
     # Connection is ok
@@ -202,8 +227,7 @@ def queryWechatOrderStatus(self, dict_content):
     - transaction_id (str): wechat order number, use this in higher priority, it will return in the payment notify callback
     - out_trade_no(str): The order ID used inside ERP5, less than 32 characters, digits, alphabets, and "_-|*@", unique in ERP5
   '''
-  if APP_ID == "XXX":
-    return "SUCCESS"
+  return "XXXS"
   if "transaction_id" not in dict_content and "out_trade_no" not in dict_content:
     raise WechatException("transaction_id or out_trade_no is needed for query the Wechat Order")
 

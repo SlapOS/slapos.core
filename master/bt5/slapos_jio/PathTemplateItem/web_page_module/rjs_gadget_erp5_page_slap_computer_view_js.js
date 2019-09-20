@@ -63,8 +63,7 @@
         })
         .push(function (content) {
           return gadget.updateDocument(content)
-            .push(function () {
-              var ndoc = gadget.state.doc;
+            .push(function (ndoc) {
               ndoc.allocation_scope = content.allocation_scope;
               return gadget.render({
                 jio_key: gadget.state.jio_key,

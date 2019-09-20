@@ -33,7 +33,10 @@
           doc[property] = content[property];
         }
       }
-      return gadget.jio_put(gadget.state.jio_key, doc);
+      return gadget.jio_put(gadget.state.jio_key, doc)
+        .push(function () {
+          return doc;
+        });
     })
     .declareMethod('triggerSubmit', function () {
       return this.getDeclaredGadget('fg')

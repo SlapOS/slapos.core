@@ -1,6 +1,6 @@
-/*global window, rJS, RSVP, jIO, Blob */
+/*global window, rJS, RSVP */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP, jIO, Blob) {
+(function (window, rJS, RSVP) {
   "use strict";
 
   rJS(window)
@@ -43,9 +43,9 @@
               };
             }
             result.data.rows[i].value["listbox_uid:list"] = {
-                key: "listbox_uid:list",
-                value: 2713
-              };
+              key: "listbox_uid:list",
+              value: 2713
+            };
           }
           return result;
         });
@@ -82,7 +82,7 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this, data;
+      var gadget = this;
       // Follow up changeState API but it is requires to actually
       // re-render the form to hide allocation scope
       gadget.state = {
@@ -102,8 +102,7 @@
           ]);
         })
         .push(function (results) {
-          var editable = gadget.state.editable,
-            form_gadget = results[0],
+          var form_gadget = results[0],
             computer_network_list = [["", ""]],
             column_list = [
               ['SoftwareInstallation_getSoftwareReleaseInformation', 'Software Release'],
@@ -132,12 +131,13 @@
                                 ['Open for Personal use only', 'open/personal'],
                                 ['Open Public', 'open/public'],
                                 ['Open for Subscribers only', 'open/subscription']],
-            i, value, len = results[1].data.total_rows;
+            i,
+            len = results[1].data.total_rows;
 
 
           for (i = 0; i < len; i += 1) {
             computer_network_list.push([
-              results[1].data.rows[i].value.title ? results[1].data.rows[i].value.title : results[1].data.rows[i].value.reference,
+              results[1].data.rows[i].value.title || results[1].data.rows[i].value.reference,
               results[1].data.rows[i].id
             ]);
           }
@@ -313,12 +313,12 @@
               group_list: [[
                 "left",
                 [["my_title"], ["my_reference"], ["my_subordination"],
-                 ['my_monitoring_status']]
+                  ['my_monitoring_status']]
               ], [
                 "right",
                 [["my_source"], ["my_source_project"], ["my_monitor_scope"],
-                 ["my_upgrade_scope"], ["my_allocation_scope"],
-                 ["my_subject_list"]]
+                  ["my_upgrade_scope"], ["my_allocation_scope"],
+                  ["my_subject_list"]]
               ], [
                 "bottom",
                 [["ticket_listbox"], ["listbox"]]
@@ -356,4 +356,4 @@
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP, jIO, Blob));
+}(window, rJS, RSVP));

@@ -113,6 +113,7 @@ class BasicMixin(object):
     self._tempdir = tempfile.mkdtemp()
     self.manager_list = []
     self.software_root = os.path.join(self._tempdir, 'software')
+    self.shared_parts_root = os.path.join(self._tempdir, 'shared')
     self.instance_root = os.path.join(self._tempdir, 'instance')
     if 'SLAPGRID_INSTANCE_ROOT' in os.environ:
       del os.environ['SLAPGRID_INSTANCE_ROOT']
@@ -134,7 +135,8 @@ class BasicMixin(object):
                                   self.computer_id,
                                   self.buildout,
                                   develop=develop,
-                                  logger=logging.getLogger())
+                                  logger=logging.getLogger(),
+                                  shared_part_list=self.shared_parts_root)
     self.grid._manager_list = self.manager_list
     # monkey patch buildout bootstrap
 
@@ -1866,6 +1868,16 @@ echo %s; echo %s; exit 42""" % (line1, line2))
       self.assertIn(line1, software.error_log)
       self.assertIn(line2, software.error_log)
       self.assertIn('Failed to run buildout', software.error_log)
+
+  def test_software_install_generate_buildout_cfg_with_shared_part_list(self):
+    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
+    with httmock.HTTMock(computer.request_handler):
+      software = computer.software_list[0]
+      # examine the genrated buildout
+      software.setBuildout("""#!/bin/sh
+        cat buildout.cfg; exit 1""")
+      self.launchSlapgridSoftware()
+    self.assertIn('shared-part-list = %s' % self.shared_parts_root, software.error_log)
 
 
 class SlapgridInitialization(unittest.TestCase):

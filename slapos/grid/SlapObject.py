@@ -39,6 +39,7 @@ import tarfile
 import tempfile
 import time
 from six.moves import xmlrpc_client as xmlrpclib, range
+from six.moves.configparser import ConfigParser
 
 from supervisor import xmlrpc
 
@@ -112,7 +113,8 @@ class Software(object):
                download_from_binary_cache_url_blacklist=None,
                upload_to_binary_cache_url_blacklist=None,
                software_min_free_space=None,
-               buildout_debug=False,):
+               buildout_debug=False,
+               shared_part_list=''):
     """Initialisation of class parameters
     """
 
@@ -127,6 +129,7 @@ class Software(object):
     self.software_url_hash = md5digest(self.url)
     self.software_path = os.path.join(self.software_root,
                                       self.software_url_hash)
+    self.shared_part_list = shared_part_list
     self.buildout = buildout
     self.buildout_debug = buildout_debug
     self.logger = logger
@@ -260,7 +263,7 @@ class Software(object):
     try:
       buildout_cfg = os.path.join(self.software_path, 'buildout.cfg')
       if not os.path.exists(buildout_cfg):
-        self._create_buildout_profile(buildout_cfg, self.url)
+        self._create_buildout_profile(buildout_cfg, self.url, self.shared_part_list)
 
       additional_parameters = list(self._additional_buildout_parameters(extends_cache))
       additional_parameters.extend(['-c', buildout_cfg])
@@ -292,9 +295,16 @@ class Software(object):
       if f is not None:
         f.close()
 
-  def _create_buildout_profile(self, buildout_cfg, url):
+  def _create_buildout_profile(self, buildout_cfg, url, shared_part_list):
+    parser = ConfigParser()
+    parser.add_section('buildout')
+    parser.set('buildout', 'extends', url)
+    # Set shared-part-list for slapos.recipe.cmmi >= 0.10.
+    # slapos.recipe.cmmi was using shared-parts and expecting a single path.
+    # This is not supported.
+    parser.set('buildout', 'shared-part-list', shared_part_list)
     with open(buildout_cfg, 'w') as fout:
-      fout.write('[buildout]\nextends = ' + url + '\n')
+      parser.write(fout)
     self._set_ownership(buildout_cfg)
 
   def uploadSoftwareRelease(self, tarpath):

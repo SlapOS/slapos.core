@@ -241,6 +241,7 @@ def create_slapgrid_object(options, logger):
 
   return Slapgrid(software_root=op['software_root'],
                   instance_root=op['instance_root'],
+                  shared_part_list=op.get('shared_part_list', ''),
                   master_url=op['master_url'],
                   computer_id=op['computer_id'],
                   buildout=op.get('buildout'),
@@ -340,6 +341,7 @@ class Slapgrid(object):
                firewall_conf={},
                config=None,
                buildout_debug=False,
+               shared_part_list=''
                ):
     """Makes easy initialisation of class parameters"""
     # Parses arguments
@@ -405,6 +407,7 @@ class Slapgrid(object):
     self.firewall_conf = firewall_conf
     self.config = config
     self._manager_list = slapmanager.from_config(config)
+    self.shared_part_list = shared_part_list
 
   def _getWatchdogLine(self):
     invocation_list = [WATCHDOG_PATH]
@@ -562,7 +565,8 @@ stderr_logfile_backups=1
             shadir_ca_file=self.shadir_ca_file,
             shadir_cert_file=self.shadir_cert_file,
             shadir_key_file=self.shadir_key_file,
-            software_min_free_space=self.software_min_free_space)
+            software_min_free_space=self.software_min_free_space,
+            shared_part_list=self.shared_part_list)
 
         # call manager for every software release
         for manager in self._manager_list:

@@ -1,12 +1,21 @@
+<<<<<<< HEAD
+=======
+import sys
+>>>>>>> slapos_subscription_request: Wechat payment improvement
 import random, string, hashlib, urllib2
 try:
   import xml.etree.cElementTree as ET
 except ImportError:
   import xml.etree.ElementTree as ET
 
+<<<<<<< HEAD
 class WechatException(Exception):
   def __init__(self, msg):
     super(WechatException, self).__init__(msg)
+=======
+reload(sys)
+sys.setdefaultencoding('utf-8')
+>>>>>>> slapos_subscription_request: Wechat payment improvement
 
 # RapidSpace Wechat acocunt configuration
 class Single(object):
@@ -55,7 +64,43 @@ def calculateSign(dict_content, key):
   sign = md5.hexdigest().upper()
   return sign
 
+<<<<<<< HEAD
 
+=======
+APP_ID = ""  # Wechat public account appid
+MCH_ID = ""  # Wechat merchant account ID
+API_KEY = ""  # Wechat merchant platform(pay.weixin.qq.com) -->账户设置 -->API安全 -->密钥设置
+
+CREATE_IP = ""  # The IP address which request the order to Wechat, aka: instance IP
+UFDODER_URL = "https://api.mch.weixin.qq.com/pay/unifiedorder" # Wechat unified order API
+NOTIFY_URL = "your IP: port/Method"  # Wechat payment callback method
+
+
+def generateRandomStr(random_length=24):
+  alpha_num = string.ascii_letters + string.digits
+  random_str = ''.join(random.choice(alpha_num) for i in range(random_length))
+  return random_str
+
+
+def calculateSign(dict_content, key):
+  # Calculate the sign according to the data_dict
+  # The rule was defined by Wechat (Wrote in Chinese):
+  # https://pay.weixin.qq.com/wiki/doc/api/native.php?chapter=4_3
+
+  # 1. Sort it by dict order
+  params_list = sorted(dict_content.items(), key=lambda e: e[0], reverse=False)
+  # 2. Concatenate the list to a string
+  params_str = "&".join(u"{}={}".format(k, v) for k, v in params_list)
+  # 3. Add trade key in the end
+  params_str = params_str + '&key=' + key
+
+  md5 = hashlib.md5()  # Use MD5 mode
+  md5.update(params_str.encode('utf-8'))
+  sign = md5.hexdigest().upper()
+  return sign
+
+
+>>>>>>> slapos_subscription_request: Wechat payment improvement
 def convert_xml_to_dict(xml_content):
   '''
   The XML returned by Wechat is like:

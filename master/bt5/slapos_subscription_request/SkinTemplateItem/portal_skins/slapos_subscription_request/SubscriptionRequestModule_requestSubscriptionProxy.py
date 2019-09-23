@@ -3,12 +3,20 @@ from DateTime import DateTime
 if REQUEST is not None:
   raise Unauthorized
 
+
 # You always needs a user here
 person, person_is_new = context.SubscriptionRequest_createUser(email, user_input_dict['name'])
 
 web_site = context.getWebSiteValue()
 # Check if user is already exist, otherwise redirect to ask confirmation
-if confirmation_required and not person_is_new:
+
+# order.js seems use SubscriptionRequestModule_requestSubscriptionProxy abused...
+# In the first time, order.js call SubscriptionRequestModule_requestSubscriptionProxy
+# which the "payment_mode" is not selected yet.
+# which will use payzen by default
+# we should always let user confirm and select payment mode
+if confirmation_required:
+# if confirmation_required and not person_is_new:
   base_url = web_site.absolute_url()
 
   return context.REQUEST.RESPONSE.redirect(

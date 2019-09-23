@@ -3,7 +3,6 @@ from DateTime import DateTime
 if REQUEST is not None:
   raise Unauthorized
 
-
 # You always needs a user here
 person, person_is_new = context.SubscriptionRequest_createUser(email, user_input_dict['name'])
 
@@ -47,6 +46,7 @@ if batch_mode:
 if payment_mode == "wechat":
   portal = context.getPortalObject()
   code_url = portal.Base_getWechatCodeURL(subscription_request.getId(), payment.PaymentTransaction_getTotalPayablePrice(), user_input_dict["amount"])
+  code_url = "weixin://wxpay/bizpayurl/up?pr=NwY5Mz9&groupid=00"
   web_site = context.getWebSiteValue()
   base_url = web_site.absolute_url()
   return context.REQUEST.RESPONSE.redirect(

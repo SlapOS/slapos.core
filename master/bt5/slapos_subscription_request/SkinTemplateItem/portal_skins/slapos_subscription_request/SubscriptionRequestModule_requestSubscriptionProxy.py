@@ -3,27 +3,20 @@ from DateTime import DateTime
 if REQUEST is not None:
   raise Unauthorized
 
-
 # You always needs a user here
 person, person_is_new = context.SubscriptionRequest_createUser(email, user_input_dict['name'])
 
 web_site = context.getWebSiteValue()
-# Check if user is already exist, otherwise redirect to ask confirmation
 
-# order.js seems use SubscriptionRequestModule_requestSubscriptionProxy abused...
-# In the first time, order.js call SubscriptionRequestModule_requestSubscriptionProxy
-# which the "payment_mode" is not selected yet.
-# which will use payzen by default
-# we should always let user confirm and select payment mode
-if confirmation_required:
-# if confirmation_required and not person_is_new:
+# if payment mode not selected, ask user to confirm and select one.
+if not payment_mode:
   base_url = web_site.absolute_url()
 
   return context.REQUEST.RESPONSE.redirect(
     "%s/#order_confirmation?name=%s&email=%s&amount=%s&subscription_reference=%s" % (
        base_url,
        person.getTitle(),
-       person.getDefaultEmailText(),
+       email,
        user_input_dict["amount"],
        subscription_reference))
 
@@ -53,10 +46,11 @@ if batch_mode:
 if payment_mode == "wechat":
   portal = context.getPortalObject()
   code_url = portal.Base_getWechatCodeURL(subscription_request.getId(), payment.PaymentTransaction_getTotalPayablePrice(), user_input_dict["amount"])
+  code_url = "weixin://wxpay/bizpayurl/up?pr=NwY5Mz9&groupid=00"
   web_site = context.getWebSiteValue()
   base_url = web_site.absolute_url()
   return context.REQUEST.RESPONSE.redirect(
-    "%s/#wechat_payment?amount=%s" % (base_url, user_input_dict["amount"]))
+    "%s/#wechat_payment?amount=%s&code_url=%s" % (base_url, user_input_dict["amount"], code_url))
 
 def wrapRedirectWithShadow(payment_transaction, web_site):
   return payment_transaction.PaymentTransaction_redirectToManualPayzenPayment(web_site)

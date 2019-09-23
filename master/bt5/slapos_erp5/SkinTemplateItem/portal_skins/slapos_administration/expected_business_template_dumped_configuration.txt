@@ -4,6 +4,7 @@ erp5_accounting_l10n_fr
 erp5_administration
 erp5_base
 erp5_bearer_token
+erp5_certificate_authority
 erp5_code_mirror
 erp5_commerce
 erp5_computer_immobilisation
@@ -38,6 +39,7 @@ erp5_km
 erp5_knowledge_pad
 erp5_l10n_fr
 erp5_l10n_zh
+erp5_monaco_editor
 erp5_movement_table_catalog
 erp5_mysql_innodb_catalog
 erp5_oauth
@@ -52,16 +54,19 @@ erp5_pdm
 erp5_project
 erp5_property_sheets
 erp5_rss_style
+erp5_run_my_doc
 erp5_secure_payment
 erp5_security_uid_innodb_catalog
 erp5_simplified_invoicing
 erp5_simulation
+erp5_slapos_tutorial
+erp5_slapos_tutorial_data
+erp5_slideshow_style
 erp5_software_pdm
 erp5_svg_editor
 erp5_system_event
 erp5_tiosafe_core
 erp5_trade
-erp5_ui_test_core
 erp5_upgrader
 erp5_web
 erp5_web_download_theme

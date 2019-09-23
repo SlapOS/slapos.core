@@ -232,6 +232,15 @@ Cash Register
   Base Category Script: None
   Categories: ['group/company']
 
+Certificate Login
+  Title: The User Himself
+  Roles: ['Assignee']
+  Condition: python: here.getParentValue().getPortalType() in ("Person", "Software Instance", "Computer")
+  Local Roles Group Id: user
+  Base Categories: ['group']
+  Base Category Script: ERP5Type_getSecurityCategoryFromParent
+  Categories: []
+
 Cloud Contract
   Title: Group company
   Roles: ['Assignor']
@@ -294,6 +303,24 @@ Computer
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
+
+Computer
+  Title: Organisation Member
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination_section']
+  Base Category Script: Item_getSecurityCategoryFromMovementDestinationSection
+  Categories: []
+
+Computer
+  Title: Project Member
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: Item_getSecurityCategoryFromMovementDestinationProject
+  Categories: []
 
 Computer
   Title: Self Computer
@@ -404,6 +431,15 @@ Computer Network
   Categories: ['group/company']
 
 Computer Network
+  Title: Organisation Member
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination_section']
+  Base Category Script: Item_getSecurityCategoryFromMovementDestinationSection
+  Categories: []
+
+Computer Network
   Title: Person Owner
   Roles: ['Assignee']
   Condition: None
@@ -420,6 +456,15 @@ Computer Network
   Base Categories: ['role']
   Base Category Script: None
   Categories: ['role/shadow/person']
+
+Computer Network
+  Title: Project Member
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: Item_getSecurityCategoryFromMovementDestinationProject
+  Categories: []
 
 Computer Network Module
   Title: Group company
@@ -676,7 +721,7 @@ Drawing
 ERP5 Login
   Title: The User Himself
   Roles: ['Assignee']
-  Condition: python: here.getParentValue().getPortalType() == "Person"
+  Condition: python: here.getParentValue().getPortalType() in ("Person", "Software Instance", "Computer")
   Local Roles Group Id: user
   Base Categories: ['group']
   Base Category Script: ERP5Type_getSecurityCategoryFromParent
@@ -798,6 +843,24 @@ Hosting Subscription
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
+
+Hosting Subscription
+  Title: Organisation Member
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination']
+  Base Category Script: Item_getSecurityCategoryFromMovementDestination
+  Categories: []
+
+Hosting Subscription
+  Title: Project Member
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: Item_getSecurityCategoryFromMovementDestinationProject
+  Categories: []
 
 Hosting Subscription
   Title: Related Software Instance Group
@@ -933,6 +996,24 @@ Inventory Module
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
+
+Invitation Token Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Invitation Token Module
+  Title: Member
+  Roles: ['Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
 
 Knowledge Box
   Title: Group company
@@ -1261,7 +1342,7 @@ Person
 Person
   Title: The Shadow User Himself
   Roles: ['Auditor']
-  Condition: python: here.objectValues(portal_type=["ERP5 Login", "Google Login", "Facebook Login"])
+  Condition: python: here.objectValues(portal_type=["ERP5 Login", "Google Login", "Facebook Login", "Certificate Login"])
   Local Roles Group Id: shadow
   Base Categories: ['group']
   Base Category Script: PersonType_getSecurityCategoryFromSelfShadow
@@ -1270,7 +1351,7 @@ Person
 Person
   Title: The User Himself
   Roles: ['Assignee']
-  Condition: python: here.objectValues(portal_type=["ERP5 Login", "Google Login", "Facebook Login"])
+  Condition: python: here.objectValues(portal_type=["ERP5 Login", "Google Login", "Facebook Login", "Certificate Login"])
   Local Roles Group Id: user
   Base Categories: ['group']
   Base Category Script: ERP5Type_getSecurityCategoryFromSelf
@@ -1851,6 +1932,24 @@ Software Installation
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
+
+Software Installation
+  Title: Organisation Member
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination_section']
+  Base Category Script: Item_getSecurityCategoryFromMovementAggregateDestinationSection
+  Categories: []
+
+Software Installation
+  Title: Project Member
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: Item_getSecurityCategoryFromMovementAggregateDestinationProject
+  Categories: []
 
 Software Installation
   Title: Provider of the Installation

@@ -519,6 +519,16 @@ Accounting Transaction Module
   Index: 16.0
 
 Accounting Transaction Module
+  Reference: merge_delivery_list
+  Title: Merge Deliveries
+  Action: string:${object_url}/DeliveryModule_mergeDeliveryList
+  Icon: None
+  Permission: Add portal content
+  Action Type: object_action
+  Visible: 1
+  Index: 5.0
+
+Accounting Transaction Module
   Reference: profit_and_loss_report
   Title: Profit and Loss
   Action: string:${object_url}/AccountModule_viewProfitAndLossReportDialog
@@ -537,6 +547,16 @@ Accounting Transaction Module
   Action Type: object_search
   Visible: 1
   Index: 3.0
+
+Accounting Transaction Module
+  Reference: slaposjs_view
+  Title: View
+  Action: string:${object_url}/Base_viewDummyAsHateoas
+  Icon: None
+  Permission: View
+  Action Type: object_jio_view
+  Visible: 1
+  Index: 10.0
 
 Accounting Transaction Module
   Reference: third_parties_export
@@ -654,7 +674,7 @@ Activity Tool
   Action: string:${object_url}/ActivityTool_viewWatcher
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 2.0
 
@@ -2088,6 +2108,16 @@ Causality Movement Group
   Visible: 1
   Index: 1.0
 
+Certificate Login
+  Reference: view
+  Title: View
+  Action: string:${object_url}/CertificateLogin_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
 Chat Address
   Reference: view
   Title: View
@@ -2254,7 +2284,7 @@ Component Tool
   Action: string:${object_url}/ComponentTool_viewLiveTestDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 1.0
 
@@ -2295,16 +2325,6 @@ Computer
   Icon: None
   Permission: View
   Action Type: object_view
-  Visible: 1
-  Index: 50.0
-
-Computer
-  Reference: get_hateoas_software_installation_list
-  Title: getHateoasSoftwareInstallationList
-  Action: string:${object_url}/Computer_getHateoasSoftwareInstallationList
-  Icon: None
-  Permission: View
-  Action Type: object_slap
   Visible: 1
   Index: 50.0
 
@@ -2489,6 +2509,16 @@ Computer Module
   Index: 2.0
 
 Computer Module
+  Reference: slaposjs_view
+  Title: View
+  Action: string:${object_url}/Base_viewDummyAsHateoas
+  Icon: None
+  Permission: View
+  Action Type: object_jio_view
+  Visible: 1
+  Index: 10.0
+
+Computer Module
   Reference: view
   Title: View
   Action: string:${object_url}/ComputerModule_viewComputerList
@@ -2537,6 +2567,16 @@ Computer Network
   Action Type: object_view
   Visible: 1
   Index: 2.0
+
+Computer Network Module
+  Reference: slaposjs_view
+  Title: View
+  Action: string:${object_url}/Base_viewDummyAsHateoas
+  Icon: None
+  Permission: View
+  Action Type: object_jio_view
+  Visible: 1
+  Index: 10.0
 
 Computer Network Module
   Reference: view
@@ -4229,26 +4269,6 @@ HTTP Exchange
   Index: 1.0
 
 Hosting Subscription
-  Reference: get_hateoas_instance_list
-  Title: getHateoasInstanceList
-  Action: string:${object_url}/HostingSubscription_getHateoasInstanceList
-  Icon: None
-  Permission: View
-  Action Type: object_slap
-  Visible: 1
-  Index: 2.0
-
-Hosting Subscription
-  Reference: get_hateoas_root_instance
-  Title: getHateoasRootInstance
-  Action: string:${object_url}/HostingSubscription_getHateoasRootSoftwareInstance
-  Icon: None
-  Permission: View
-  Action Type: object_slap
-  Visible: 1
-  Index: 2.0
-
-Hosting Subscription
   Reference: hosting_subscription_consumption_report
   Title: View Consumption Report
   Action: string:${object_url}/HostingSubscription_viewConsumptionReport?reset=1
@@ -4257,6 +4277,36 @@ Hosting Subscription
   Action Type: object_report
   Visible: 1
   Index: 1.0
+
+Hosting Subscription
+  Reference: jump_to_related_open_order_line
+  Title: Related Open Order Line
+  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=aggregate&portal_type=Open%20%Sale%20Order%20%Line&validation_state=validated
+  Icon: None
+  Permission: View
+  Action Type: object_jump
+  Visible: 1
+  Index: 2.0
+
+Hosting Subscription
+  Reference: jump_to_related_subscription_request
+  Title: Related Subscription Request
+  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=aggregate&portal_type=Subscription%20Request
+  Icon: None
+  Permission: View
+  Action Type: object_jump
+  Visible: 1
+  Index: 1.0
+
+Hosting Subscription
+  Reference: jump_to_related_upgrade_decision_line
+  Title: Related Upgrade Decision Line
+  Action: string:${object_url}/Base_jumpToRelatedObjectList?base_category=aggregate&portal_type=Upgrade%20Decision%20%Line&simulation_state=confirmed
+  Icon: None
+  Permission: View
+  Action Type: object_jump
+  Visible: 1
+  Index: 3.2
 
 Hosting Subscription
   Reference: periodicity
@@ -4337,6 +4387,16 @@ Hosting Subscription Module
   Action Type: object_report
   Visible: 1
   Index: 3.0
+
+Hosting Subscription Module
+  Reference: slaposjs_view
+  Title: View
+  Action: string:${object_url}/Base_viewDummyAsHateoas
+  Icon: None
+  Permission: View
+  Action Type: object_jio_view
+  Visible: 1
+  Index: 10.0
 
 Hosting Subscription Module
   Reference: view
@@ -4588,6 +4648,26 @@ Implicit Item Movement Module
   Visible: 1
   Index: 1.0
 
+Incident Response
+  Reference: view
+  Title: View
+  Action: string:${object_url}/IncidentResponse_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Incident Response Module
+  Reference: view
+  Title: View
+  Action: string:${object_url}/IncidentResponseModule_viewIncidentResponseList
+  Icon: None
+  Permission: View
+  Action Type: object_list
+  Visible: 1
+  Index: 1.0
+
 Integration Base Category Mapping
   Reference: view
   Title: View
@@ -4772,6 +4852,16 @@ Integration Tool
   Reference: view
   Title: View
   Action: string:${object_url}/IntegrationTool_viewIntegrationSiteList
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Interface Component
+  Reference: view
+  Title: View
+  Action: string:${object_url}/ComponentMixin_view
   Icon: None
   Permission: View
   Action Type: object_view
@@ -5239,6 +5329,16 @@ Internal Packing List Module
   Index: 42.0
 
 Internal Packing List Module
+  Reference: merge_delivery_list
+  Title: Merge Internal Packing Lists
+  Action: string:${object_url}/DeliveryModule_mergeDeliveryList
+  Icon: None
+  Permission: View
+  Action Type: object_action
+  Visible: 1
+  Index: 1.0
+
+Internal Packing List Module
   Reference: view
   Title: View
   Action: string:${object_url}/InternalPackingListModule_viewInternalPackingListList
@@ -5607,6 +5707,66 @@ Inventory Module
   Action Type: object_report
   Visible: 1
   Index: 11.0
+
+Inventory Report
+  Reference: calculate_product_stock
+  Title: Calculate Product Stock
+  Action: string:${object_url}/InventoryReport_viewCalculateProductStockDialog
+  Icon: None
+  Permission: Add portal content
+  Action Type: object_action
+  Visible: 1
+  Index: 1.0
+
+Inventory Report
+  Reference: view
+  Title: View
+  Action: string:${object_url}/InventoryReport_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Inventory Report Line
+  Reference: view
+  Title: View
+  Action: string:${object_url}/InventoryReportLine_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Inventory Report Module
+  Reference: view
+  Title: View
+  Action: string:${object_url}/InventoryReportModule_viewInventoryReportList
+  Icon: None
+  Permission: View
+  Action Type: object_list
+  Visible: 1
+  Index: 1.0
+
+Invitation Token
+  Reference: view
+  Title: View
+  Action: string:${object_url}/InvitationToken_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Invitation Token Module
+  Reference: view
+  Title: View
+  Action: string:${object_url}/InvitationTokenModule_viewInvitationTokenList
+  Icon: None
+  Permission: View
+  Action Type: object_list
+  Visible: 1
+  Index: 1.0
 
 Invoice Line
   Reference: price
@@ -6092,6 +6252,16 @@ Missing Category Document Constraint
   Reference: view
   Title: View
   Action: string:${object_url}/Constraint_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Mixin Component
+  Reference: view
+  Title: View
+  Action: string:${object_url}/ComponentMixin_view
   Icon: None
   Permission: View
   Action Type: object_view
@@ -7029,6 +7199,16 @@ Organisation Configurator Item
   Index: 1.0
 
 Organisation Module
+  Reference: slaposjs_view
+  Title: View
+  Action: string:${object_url}/Base_viewDummyAsHateoas
+  Icon: None
+  Permission: View
+  Action Type: object_jio_view
+  Visible: 1
+  Index: 10.0
+
+Organisation Module
   Reference: view
   Title: View
   Action: string:${object_url}/OrganisationModule_viewOrganisationList
@@ -7207,16 +7387,6 @@ PDF
   Action Type: object_web_view
   Visible: 1
   Index: 0.9
-
-Parent Delivery Category Movement Group
-  Reference: view
-  Title: View
-  Action: string:${object_url}/PropertyMovementGroup_view
-  Icon: None
-  Permission: View
-  Action Type: object_view
-  Visible: 1
-  Index: 1.0
 
 Parent Delivery Property Movement Group
   Reference: view
@@ -7579,34 +7749,14 @@ Person
   Index: 2.0
 
 Person
-  Reference: get_hateoas_computer_list
-  Title: getHateoasComputerList
-  Action: string:${object_url}/Person_getHateoasComputerList
+  Reference: get_certificate
+  Title: Get Certificate
+  Action: string:${object_url}/Person_getCertificate
   Icon: None
-  Permission: View
-  Action Type: object_slap
+  Permission: Modify portal content
+  Action Type: object_action
   Visible: 1
-  Index: 15.0
-
-Person
-  Reference: get_hateoas_hosting_subscription_list
-  Title: getHateoasHostingSubscriptionList
-  Action: string:${object_url}/Person_getHateoasHostingSubscriptionList
-  Icon: None
-  Permission: View
-  Action Type: object_slap
-  Visible: 1
-  Index: 15.0
-
-Person
-  Reference: get_hateoas_information
-  Title: getHateoasInformation
-  Action: string:${object_url}/Person_getHateoasInformation
-  Icon: None
-  Permission: View
-  Action Type: object_slap
-  Visible: 1
-  Index: 15.0
+  Index: 10.0
 
 Person
   Reference: grouping_reference_fast_input
@@ -7757,6 +7907,16 @@ Person
   Action Type: object_slap_post
   Visible: 1
   Index: 15.0
+
+Person
+  Reference: revoke_certificate
+  Title: Revoke Certificate
+  Action: string:${object_url}/Person_revokeCertificate
+  Icon: None
+  Permission: Modify portal content
+  Action Type: object_action
+  Visible: 1
+  Index: 11.0
 
 Person
   Reference: slaposjs_view
@@ -8879,6 +9039,16 @@ Project Milestone
   Index: 1.0
 
 Project Module
+  Reference: slaposjs_view
+  Title: View
+  Action: string:${object_url}/Base_viewDummyAsHateoas
+  Icon: None
+  Permission: View
+  Action Type: object_jio_view
+  Visible: 1
+  Index: 10.0
+
+Project Module
   Reference: view
   Title: View
   Action: string:${object_url}/ProjectModule_viewProjectList
@@ -9667,6 +9837,16 @@ Purchase Packing List Module
   Action Type: object_exchange
   Visible: 1
   Index: 2.0
+
+Purchase Packing List Module
+  Reference: merge_delivery_list
+  Title: Merge Purchase Packing Lists
+  Action: string:${object_url}/DeliveryModule_mergeDeliveryList
+  Icon: None
+  Permission: View
+  Action Type: object_action
+  Visible: 1
+  Index: 1.0
 
 Purchase Packing List Module
   Reference: packing_list_export
@@ -11188,6 +11368,46 @@ Returned Sale Packing List Module
   Visible: 1
   Index: 8.0
 
+Review
+  Reference: import_page
+  Title: Import a Web Page
+  Action: string:${object_url}/Review_viewImportWebPageDialog
+  Icon: None
+  Permission: Modify portal content
+  Action Type: object_exchange
+  Visible: 1
+  Index: 1.1
+
+Review
+  Reference: view
+  Title: View
+  Action: string:${object_url}/Review_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Review
+  Reference: view_annotations
+  Title: View Annotations
+  Action: string:${object_url}/Review_viewAnnotationList
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 2.0
+
+Review Module
+  Reference: view
+  Title: View
+  Action: string:${object_url}/ReviewModule_viewReviewList
+  Icon: None
+  Permission: View
+  Action Type: object_list
+  Visible: 1
+  Index: 1.0
+
 Role Configurator Item
   Reference: view
   Title: View
@@ -12229,6 +12449,16 @@ Sale Packing List Module
   Index: 9.0
 
 Sale Packing List Module
+  Reference: merge_delivery_list
+  Title: Merge Sale Packing Lists
+  Action: string:${object_url}/DeliveryModule_mergeDeliveryList
+  Icon: None
+  Permission: View
+  Action Type: object_action
+  Visible: 1
+  Index: 1.0
+
+Sale Packing List Module
   Reference: packing_list_export
   Title: Packing List Report
   Action: string:${object_url}/PackingListModule_viewPackingListReportDialog?your_portal_skin=ODS&your_format=
@@ -12819,6 +13049,16 @@ Site Message
   Index: 30.0
 
 Site Message
+  Reference: update_destination_for_slapos
+  Title: Update Destination with all Slapos Users
+  Action: string:${object_url}/SiteMessage_setSlapOSUserSourceAndDestinatationList
+  Icon: None
+  Permission: View
+  Action Type: object_action
+  Visible: 1
+  Index: 5.0
+
+Site Message
   Reference: view
   Title: View
   Action: string:${object_url}/Event_view
@@ -12865,36 +13105,6 @@ SlapOS Accounting Quantity Updating Order Builder
   Icon: None
   Permission: View
   Action Type: object_view
-  Visible: 1
-  Index: 2.0
-
-Slave Instance
-  Reference: get_hateoas_information
-  Title: getHateoasInformation
-  Action: string:${object_url}/Instance_getHateoasInformation
-  Icon: None
-  Permission: View
-  Action Type: object_slap
-  Visible: 1
-  Index: 2.0
-
-Slave Instance
-  Reference: get_hateoas_news
-  Title: getHateoasNews
-  Action: string:${object_url}/Instance_getHateoasNews
-  Icon: None
-  Permission: View
-  Action Type: object_slap
-  Visible: 1
-  Index: 2.0
-
-Slave Instance
-  Reference: get_hateoas_related_hosting_subscription
-  Title: getHateoasRelatedHostingSubscription
-  Action: string:${object_url}/Instance_getHateoasRelatedHostingSubscription
-  Icon: None
-  Permission: View
-  Action Type: object_slap
   Visible: 1
   Index: 2.0
 
@@ -12949,24 +13159,14 @@ Slave Instance
   Index: 1.0
 
 Software Installation
-  Reference: get_hateoas_information
-  Title: getHateoasInformation
-  Action: string:${object_url}/SoftwareInstallation_getHateoasInformation
+  Reference: request_destroy
+  Title: Request Destroy
+  Action: string:${object_url}/SoftwareInstallation_viewRequestDestroy
   Icon: None
-  Permission: View
-  Action Type: object_slap
+  Permission: Manage properties
+  Action Type: object_action
   Visible: 1
-  Index: 2.0
-
-Software Installation
-  Reference: get_hateoas_news
-  Title: getHateoasNews
-  Action: string:${object_url}/SoftwareInstallation_getHateoasNews
-  Icon: None
-  Permission: View
-  Action Type: object_slap
-  Visible: 1
-  Index: 2.0
+  Index: 1.0
 
 Software Installation
   Reference: slaposjs_view
@@ -12997,36 +13197,6 @@ Software Installation Module
   Action Type: object_list
   Visible: 1
   Index: 1.0
-
-Software Instance
-  Reference: get_hateoas_information
-  Title: getHateoasInformation
-  Action: string:${object_url}/Instance_getHateoasInformation
-  Icon: None
-  Permission: View
-  Action Type: object_slap
-  Visible: 1
-  Index: 2.0
-
-Software Instance
-  Reference: get_hateoas_news
-  Title: getHateoasNews
-  Action: string:${object_url}/Instance_getHateoasNews
-  Icon: None
-  Permission: View
-  Action Type: object_slap
-  Visible: 1
-  Index: 2.0
-
-Software Instance
-  Reference: get_hateoas_related_hosting_subscription
-  Title: getHateoasRelatedHostingSubscription
-  Action: string:${object_url}/Instance_getHateoasRelatedHostingSubscription
-  Icon: None
-  Permission: View
-  Action Type: object_slap
-  Visible: 1
-  Index: 2.0
 
 Software Instance
   Reference: jump_to_computer_partition
@@ -13357,16 +13527,6 @@ Software Release
   Action Type: object_view
   Visible: 1
   Index: 20.0
-
-Software Release
-  Reference: detroy_on_computer_list
-  Title: Request Remove on Computers
-  Action: string:${object_url}/SoftwareRelease_viewUnusedComputerList
-  Icon: None
-  Permission: Modify portal content
-  Action Type: object_fast_input
-  Visible: 1
-  Index: 60.0
 
 Software Release
   Reference: slaposjs_view
@@ -14159,6 +14319,16 @@ Support Request
   Index: 14.0
 
 Support Request
+  Reference: jump_related_slapos_item
+  Title: Related Hosting Subscription, Computer or Software Installation
+  Action: string:${object_url}/Base_jumpToRelationObject?base_category=aggregate&portal_type:list=Hosting%20Subscription&portal_type:list=Computer&portal_type:list=Software%20Installation
+  Icon: None
+  Permission: View
+  Action Type: object_jump
+  Visible: 1
+  Index: 14.0
+
+Support Request
   Reference: new_bug
   Title: Create New Bug
   Action: string:${object_url}/Ticket_viewNewBugDialog
@@ -14214,7 +14384,7 @@ Support Request Module
   Action: string:${object_url}/Folder_viewOpenTicketList?portal_skin=RSS
   Icon: string:rss_feed_image
   Permission: View
-  Action Type: object_button
+  Action Type: object_jio_button
   Visible: 1
   Index: 30.0
 
@@ -14224,9 +14394,29 @@ Support Request Module
   Action: string:${object_url}/SupportRequestModule_viewTicketActivityReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 9.0
+
+Support Request Module
+  Reference: slapos_support_request_instance_message_report
+  Title: Support Request Instance Message Report
+  Action: string:${object_url}/SupportRequestModule_viewInstanceMessageList
+  Icon: None
+  Permission: View
+  Action Type: object_jio_report
+  Visible: 1
+  Index: 9.0
+
+Support Request Module
+  Reference: slaposjs_view
+  Title: View
+  Action: string:${object_url}/Base_viewDummyAsHateoas
+  Icon: None
+  Permission: View
+  Action Type: object_jio_view
+  Visible: 1
+  Index: 10.0
 
 Support Request Module
   Reference: support_request_detailed_report
@@ -14244,7 +14434,17 @@ Support Request Module
   Action: string:${object_url}/SupportRequestModule_viewSupportRequestMonitorLinkList
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
+  Visible: 1
+  Index: 10.0
+
+Support Request Module
+  Reference: support_request_monitor_opml_description_list
+  Title: Support Request Monitor OPML List
+  Action: string:${object_url}/SupportRequestModule_viewExportMonitorOPMLList
+  Icon: None
+  Permission: View
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 10.0
 
@@ -14889,6 +15089,16 @@ Template Tool
   Index: 1.0
 
 Test Component
+  Reference: run_live_test
+  Title: Run Live Tests
+  Action: string:${object_url}/TestComponent_viewLiveTestDialog
+  Icon: None
+  Permission: View
+  Action Type: object_jio_action
+  Visible: 1
+  Index: 10.0
+
+Test Component
   Reference: view
   Title: View
   Action: string:${object_url}/ComponentMixin_view
@@ -14897,6 +15107,226 @@ Test Component
   Action Type: object_view
   Visible: 1
   Index: 1.0
+
+Test Page
+  Reference: edit_test
+  Title: Edit Test
+  Action: string:${object_url}/TestPage_viewEditTest
+  Icon: None
+  Permission: Modify portal content
+  Action Type: object_view
+  Visible: 1
+  Index: 3.0
+
+Test Page
+  Reference: export_book
+  Title: Export as Book
+  Action: string:${object_url}/WebPage_viewExportBookDialog
+  Icon: None
+  Permission: View
+  Action Type: object_exchange
+  Visible: 1
+  Index: 21.0
+
+Test Page
+  Reference: export_chapter
+  Title: Export as Chapter
+  Action: string:${object_url}/WebPage_viewExportChapterDialog
+  Icon: None
+  Permission: View
+  Action Type: object_exchange
+  Visible: 1
+  Index: 20.0
+
+Test Page
+  Reference: export_report
+  Title: Download test report
+  Action: string:${object_url}/TestPage_viewExportTestReport
+  Icon: None
+  Permission: View
+  Action Type: object_report
+  Visible: 1
+  Index: 3.0
+
+Test Page
+  Reference: export_selenium_test
+  Title: Export Selenium Test
+  Action: string:${object_url}/TestPage_viewExportSeleniumTestDialog
+  Icon: None
+  Permission: View
+  Action Type: object_exchange
+  Visible: 1
+  Index: 22.0
+
+Test Page
+  Reference: launch
+  Title: Launch Test
+  Action: string: ${object_url}/TestPage_viewRunSeleniumTest
+  Icon: string:${object_url}/launch_icon.png
+  Permission: View
+  Action Type: object_button
+  Visible: 1
+  Index: 2.0
+
+Test Page
+  Reference: list
+  Title: Contents
+  Action: string:${object_url}/WebPage_viewContentList
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 5.0
+
+Test Page
+  Reference: local_permission
+  Title: Local Roles
+  Action: string:${object_url}/Base_viewLocalPermissionList
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 5.5
+
+Test Page
+  Reference: related
+  Title: Related Documents
+  Action: string:${object_url}/Document_viewRelated
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 4.0
+
+Test Page
+  Reference: send_email
+  Title: Send by Email
+  Action: string:${object_url}/WebPage_viewSendByEmailDialog
+  Icon: None
+  Permission: View
+  Action Type: object_action
+  Visible: 1
+  Index: 10.0
+
+Test Page
+  Reference: slideshow
+  Title: See slideshow
+  Action: string: ${object_url}/WebPage_viewAsWeb?portal_skin=SlideShow
+  Icon: string:${object_url}/slide_icon.png
+  Permission: View
+  Action Type: object_button
+  Visible: 1
+  Index: 1.0
+
+Test Page
+  Reference: update_report
+  Title: Update report from last run
+  Action: string:${object_url}/TestPage_viewUpdateReport
+  Icon: None
+  Permission: Modify portal content
+  Action Type: object_report
+  Visible: 1
+  Index: 2.0
+
+Test Page
+  Reference: verify_content
+  Title: Verify Content
+  Action: string:${object_url}/TestPage_validateHTML5Content
+  Icon: None
+  Permission: View
+  Action Type: object_action
+  Visible: 1
+  Index: 10.0
+
+Test Page
+  Reference: view
+  Title: View
+  Action: string:${object_url}/TestPage_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Test Page
+  Reference: view_editor
+  Title: Edit
+  Action: string:${object_url}/WebPage_viewEditor
+  Icon: None
+  Permission: Modify portal content
+  Action Type: object_view
+  Visible: 1
+  Index: 1.1
+
+Test Page
+  Reference: view_slideshow_editor
+  Title: Edit Slideshow
+  Action: string:${object_url}/TestPage_viewEditSlideShow
+  Icon: None
+  Permission: Modify portal content
+  Action Type: object_view
+  Visible: 1
+  Index: 1.5
+
+Test Page
+  Reference: view_test_report
+  Title: Test Report
+  Action: string:${object_url}/TestPage_viewTestReport
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.2
+
+Test Page
+  Reference: web_view
+  Title: Web View
+  Action: string:${object_url}/WebPage_viewAsWeb
+  Icon: None
+  Permission: View
+  Action Type: object_web_view
+  Visible: 1
+  Index: 0.9
+
+Test Page Module
+  Reference: convert_to_test_page
+  Title: Convert from Web Pages to Test Pages
+  Action: string:${object_url}/TestPageModule_viewConvertToTestPagesDialog
+  Icon: None
+  Permission: Add portal content
+  Action Type: object_exchange
+  Visible: 1
+  Index: 30.0
+
+Test Page Module
+  Reference: convert_to_web_page
+  Title: Convert to Web Pages
+  Action: string:${object_url}/TestPageModule_viewConvertToWebPagesDialog
+  Icon: None
+  Permission: Add portal content
+  Action Type: object_exchange
+  Visible: 1
+  Index: 20.0
+
+Test Page Module
+  Reference: page_fast_input
+  Title: Create Test Page
+  Action: string:${object_url}/TestPageModule_viewCreationWizard
+  Icon: None
+  Permission: Add portal content
+  Action Type: object_fast_input
+  Visible: 1
+  Index: 11.0
+
+Test Page Module
+  Reference: view
+  Title: View
+  Action: string:${object_url}/TestPageModule_viewTestPageList
+  Icon: None
+  Permission: View
+  Action Type: object_list
+  Visible: 1
+  Index: 10.0
 
 Text
   Reference: create_snapshot
@@ -15919,6 +16349,26 @@ Web Message
   Index: 15.0
 
 Web Page
+  Reference: export_book
+  Title: Export as Book
+  Action: string:${object_url}/WebPage_viewExportBookDialog
+  Icon: None
+  Permission: View
+  Action Type: object_exchange
+  Visible: 1
+  Index: 21.0
+
+Web Page
+  Reference: export_chapter
+  Title: Export as Chapter
+  Action: string:${object_url}/WebPage_viewExportChapterDialog
+  Icon: None
+  Permission: View
+  Action Type: object_exchange
+  Visible: 1
+  Index: 20.0
+
+Web Page
   Reference: list
   Title: Contents
   Action: string:${object_url}/WebPage_viewContentList
@@ -15959,6 +16409,26 @@ Web Page
   Index: 10.0
 
 Web Page
+  Reference: slideshow
+  Title: Slideshow
+  Action: string: ${object_url}/WebPage_viewAsWeb?portal_skin=SlideShow
+  Icon: string:${object_url}/slide_icon.png
+  Permission: View
+  Action Type: object_button
+  Visible: 1
+  Index: 22.0
+
+Web Page
+  Reference: verify_content
+  Title: Verify Content
+  Action: string:${object_url}/TestPage_validateHTML5Content
+  Icon: None
+  Permission: View
+  Action Type: object_action
+  Visible: 1
+  Index: 10.0
+
+Web Page
   Reference: version_view
   Title: Versions
   Action: string:${object_url}/Document_viewVersionList
@@ -15989,6 +16459,16 @@ Web Page
   Index: 1.1
 
 Web Page
+  Reference: view_slideshow_editor
+  Title: Edit Slideshow
+  Action: string:${object_url}/TestPage_viewEditSlideShow
+  Icon: None
+  Permission: Modify portal content
+  Action Type: object_view
+  Visible: 1
+  Index: 1.5
+
+Web Page
   Reference: web_view
   Title: Web View
   Action: string:${object_url}/WebPage_viewAsWeb
@@ -16007,6 +16487,16 @@ Web Page Module
   Action Type: object_ui
   Visible: 1
   Index: 20.0
+
+Web Page Module
+  Reference: page_fast_input
+  Title: Create Web Page
+  Action: string:${object_url}/TestPageModule_viewCreationWizard
+  Icon: None
+  Permission: Add portal content
+  Action Type: object_fast_input
+  Visible: 1
+  Index: 11.0
 
 Web Page Module
   Reference: sort_on

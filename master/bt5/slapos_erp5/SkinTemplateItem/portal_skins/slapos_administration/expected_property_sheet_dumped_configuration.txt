@@ -3941,6 +3941,21 @@ BusinessTemplate
 
 BusinessTemplate
   elementary_type: lines
+  id: template_interface_id_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: ()
+  range: False
+  read_permission: Access contents information
+  reference: template_interface_id
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+BusinessTemplate
+  elementary_type: lines
   id: template_keep_last_workflow_history_only_path_property
   multivaluated: None
   portal_type: Standard Property
@@ -4009,6 +4024,21 @@ BusinessTemplate
   range: False
   read_permission: Access contents information
   reference: template_message_translation
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+BusinessTemplate
+  elementary_type: lines
+  id: template_mixin_id_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: ()
+  range: False
+  read_permission: Access contents information
+  reference: template_mixin_id
   storage_id: None
   translatable: False
   translation_domain: None
@@ -5350,6 +5380,11 @@ CatalogTool
   translation_domain: None
   write_permission: Modify portal content
 
+CatalogToolNoneCreationDateConstraint
+  id: NoneCreationDate_existence_constraint
+  portal_type: Script Constraint
+  reference: NoneCreationDate_existence
+
 CategoryCore
   elementary_type: tokens
   id: categories_property
@@ -5669,11 +5704,6 @@ CertificateAuthorityToolConsistencyConstraint
   id: acl_users_check_slapos_pas_constraint
   portal_type: Script Constraint
   reference: acl_users_check_slapos_pas
-
-CertificateAuthorityToolConsistencyConstraint
-  id: acl_users_erp5_dumb_http_constraint
-  portal_type: Script Constraint
-  reference: acl_users_erp5_dumb_http
 
 CertificateAuthorityToolConsistencyConstraint
   id: acl_users_slapos_machine_constraint
@@ -7565,7 +7595,7 @@ DeliveryBuilder
   write_permission: Modify portal content
 
 DeliveryCausalityStateConstraint
-  expression: python: object.getCausalityState() in ("draft", "solved")
+  expression: python: object.getCausalityState() in ("draft", "solved") if getattr(object, "getCausalityState", None) is not None else True
   id: causality_state_constraint_constraint
   message_expression_error: Error while evaluating expression: ${error}
   message_expression_false: Causality State is not "Solved". Please wait or take action for causality state to reach "Solved".
@@ -10487,6 +10517,51 @@ InventoryMovement
   range: False
   read_permission: Access contents information
   reference: inventory
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+InventoryReport
+  elementary_type: date
+  id: at_date_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: at_date
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+InventoryReport
+  elementary_type: float
+  id: total_asset_price_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: 0
+  range: False
+  read_permission: Access contents information
+  reference: total_asset_price
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+InventoryReport
+  elementary_type: string
+  id: valuation_method_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: 'Fifo'
+  range: False
+  read_permission: Access contents information
+  reference: valuation_method
   storage_id: None
   translatable: False
   translation_domain: None
@@ -14891,6 +14966,21 @@ ResourceMeasuresConsistencyConstraint
   translation_domain: None
   write_permission: Modify portal content
 
+Review
+  elementary_type: string
+  id: annotation_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: ''
+  range: False
+  read_permission: Access contents information
+  reference: annotation
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
 RoleDefinition
   id: agent_category
   portal_type: Category Property
@@ -16020,6 +16110,21 @@ SlapOSCRMSystemPreference
   range: False
   read_permission: Access contents information
   reference: preferred_software_release_to_test_for_space
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Manage properties
+
+SlapOSCRMSystemPreference
+  elementary_type: string
+  id: preferred_support_request_creation_limit_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python:''
+  range: False
+  read_permission: Access contents information
+  reference: preferred_support_request_creation_limit
   storage_id: None
   translatable: False
   translation_domain: None
@@ -17779,6 +17884,11 @@ TemplateToolCategoryNameConstraint
   portal_type: Script Constraint
   reference: category_name_consistency
 
+TemplateToolERP5AccessTokenExtractionPluginConstraint
+  id: ERP5AccessTokenExtractionPlugin_existence_constraint
+  portal_type: Script Constraint
+  reference: ERP5AccessTokenExtractionPlugin_existence
+
 TemplateToolERP5FacebookExtractionPluginConstraint
   id: ERP5FacebookExtractionPlugin_existence_constraint
   portal_type: Script Constraint
@@ -17808,6 +17918,21 @@ TemplateToolWorkflowChainConsistencyConstraint
   id: workflow_chain_consistency_constraint
   portal_type: Script Constraint
   reference: workflow_chain_consistency
+
+TestPage
+  elementary_type: text
+  id: test_report_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: ""
+  range: False
+  read_permission: Access contents information
+  reference: test_report
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
 
 TextDocument
   elementary_type: text

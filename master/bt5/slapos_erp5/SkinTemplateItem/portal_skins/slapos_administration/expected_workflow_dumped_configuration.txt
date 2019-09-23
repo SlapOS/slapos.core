@@ -111,6 +111,8 @@ Category Tool,dynamic_class_generation_interaction_workflow
 Causality Assignment Movement Group,(Default)
 Causality Movement Group,(Default)
 Certificate Authority Tool,(Default)
+Certificate Login,edit_workflow
+Certificate Login,login_validation_workflow
 Chat Address,coordinate_interaction_workflow
 Chat Address,edit_workflow
 Chat Address,reachability_workflow
@@ -303,6 +305,9 @@ Implicit Item Movement,movement_resource_interaction_workflow
 Implicit Item Movement,pricing_interaction_workflow
 Implicit Item Movement,trade_matrix_workflow
 Implicit Item Movement Module,(Default)
+Incident Response,edit_workflow
+Incident Response,ticket_workflow
+Incident Response Module,(Default)
 Integration Base Category Mapping,(Default)
 Integration Base Property Mapping,(Default)
 Integration Category Mapping,(Default)
@@ -312,6 +317,9 @@ Integration Site,edit_workflow
 Integration Site,local_permission_slapos_interaction_workflow
 Integration Site,validation_workflow
 Integration Tool,(Default)
+Interface Component,component_validation_workflow
+Interface Component,dynamic_class_generation_interaction_workflow
+Interface Component,edit_workflow
 Internal Invoice Transaction,edit_workflow
 Internal Invoice Transaction,internal_invoice_transaction_simulation_workflow
 Internal Invoice Transaction Line,(Default)
@@ -336,6 +344,7 @@ Internal Packing List Cell,delivery_movement_causality_interaction_workflow
 Internal Packing List Cell,pricing_interaction_workflow
 Internal Packing List Line,delivery_movement_causality_interaction_workflow
 Internal Packing List Line,edit_workflow
+Internal Packing List Line,local_permission_slapos_interaction_workflow
 Internal Packing List Line,movement_resource_interaction_workflow
 Internal Packing List Line,pricing_interaction_workflow
 Internal Packing List Line,trade_matrix_workflow
@@ -359,6 +368,13 @@ Inventory Line,edit_workflow
 Inventory Line,pricing_interaction_workflow
 Inventory Line,trade_matrix_workflow
 Inventory Module,(Default)
+Inventory Report,edit_workflow
+Inventory Report,inventory_report_workflow
+Inventory Report Line,edit_workflow
+Inventory Report Module,(Default)
+Invitation Token,edit_workflow
+Invitation Token,validation_workflow
+Invitation Token Module,(Default)
 Invoice Cell,delivery_movement_causality_interaction_workflow
 Invoice Cell,edit_workflow
 Invoice Cell,pricing_interaction_workflow
@@ -408,6 +424,9 @@ Meeting Module,(Default)
 Memcached Plugin,memcached_plugin_interaction_workflow
 Memcached Tool,(Default)
 Missing Category Document Constraint,(Default)
+Mixin Component,component_validation_workflow
+Mixin Component,dynamic_class_generation_interaction_workflow
+Mixin Component,edit_workflow
 Monthly Range Movement Group,(Default)
 Movement,(Default)
 Nested Line Movement Group,(Default)
@@ -464,7 +483,6 @@ PDF,document_conversion_interaction_workflow
 PDF,document_publication_workflow
 PDF,document_security_interaction_workflow
 PDF,edit_workflow
-Parent Delivery Category Movement Group,(Default)
 Parent Delivery Property Movement Group,(Default)
 Parent Explanation Movement Group,(Default)
 Password Event,edit_workflow
@@ -664,6 +682,9 @@ Returned Sale Packing List Line,movement_resource_interaction_workflow
 Returned Sale Packing List Line,pricing_interaction_workflow
 Returned Sale Packing List Line,trade_matrix_workflow
 Returned Sale Packing List Module,(Default)
+Review,edit_workflow
+Review,review_workflow
+Review Module,(Default)
 Role Configurator Item,(Default)
 Role Definition,edit_workflow
 Role Definition,local_permission_interaction_workflow
@@ -792,6 +813,7 @@ Software Publication Line,(Default)
 Software Publication Module,(Default)
 Software Release,document_publication_workflow
 Software Release,edit_workflow
+Software Release,slapos_software_release_cleanup_workflow
 Software Release Module,(Default)
 Solver Configurator Item,(Default)
 Solver Decision,(Default)
@@ -862,6 +884,12 @@ Template Tool,(Default)
 Test Component,component_validation_workflow
 Test Component,dynamic_class_generation_interaction_workflow
 Test Component,edit_workflow
+Test Page,document_conversion_interaction_workflow
+Test Page,document_publication_workflow
+Test Page,document_security_interaction_workflow
+Test Page,edit_workflow
+Test Page,processing_status_workflow
+Test Page Module,(Default)
 Test Tool,(Default)
 Text,document_conversion_interaction_workflow
 Text,document_publication_workflow

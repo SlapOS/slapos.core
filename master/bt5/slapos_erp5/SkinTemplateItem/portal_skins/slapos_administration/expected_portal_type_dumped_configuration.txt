@@ -485,7 +485,7 @@ Bank Account
   Init Script: None
   Add Permission: None
   Acquire Local Roles: 0
-  Property Sheets: []
+  Property Sheets: ['Comment']
   Base Categories: []
   Allowed Content Types: ['Agent']
   Hidden Content Types: []
@@ -823,7 +823,7 @@ Catalog Tool
   Init Script: None
   Add Permission: None
   Acquire Local Roles: False
-  Property Sheets: ['CatalogTool']
+  Property Sheets: ['CatalogTool', 'CatalogToolNoneCreationDateConstraint']
   Base Categories: []
   Allowed Content Types: ['Catalog']
   Hidden Content Types: []
@@ -1038,6 +1038,19 @@ Certificate Authority Tool
   Searchable Property: []
   Searchable Method: []
 
+Certificate Login
+  Short Title: None
+  Class: Login
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: False
+  Property Sheets: []
+  Base Categories: []
+  Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['reference']
+  Searchable Method: []
+
 Chat Address
   Short Title: None
   Class: Url
@@ -1124,7 +1137,7 @@ Component Tool
   Acquire Local Roles: 0
   Property Sheets: []
   Base Categories: []
-  Allowed Content Types: ['Document Component', 'Extension Component', 'Test Component']
+  Allowed Content Types: ['Document Component', 'Extension Component', 'Interface Component', 'Mixin Component', 'Test Component']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -1136,8 +1149,8 @@ Computer
   Add Permission: None
   Acquire Local Roles: 0
   Property Sheets: ['ComputerSlapOSMetadata', 'ERP5User', 'SlaposCapacity', 'SlaposComputerConstraint', 'Url', 'VariationRange']
-  Base Categories: ['destination_section', 'monitor_scope', 'source_administration', 'specialise', 'subordination']
-  Allowed Content Types: ['Computer Partition', 'ERP5 Login', 'Internet Protocol Address', 'Tcp Port Number']
+  Base Categories: ['destination_section', 'monitor_scope', 'source_administration', 'specialise', 'subordination', 'upgrade_scope']
+  Allowed Content Types: ['Certificate Login', 'Computer Partition', 'ERP5 Login', 'Internet Protocol Address', 'Tcp Port Number']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -1618,7 +1631,7 @@ Delivery Builder
   Acquire Local Roles: 1
   Property Sheets: []
   Base Categories: []
-  Allowed Content Types: ['Base Variant Movement Group', 'Category Movement Group', 'Causality Assignment Movement Group', 'Causality Movement Group', 'Day Movement Group', 'Delivery Causality Assignment Movement Group', 'First Causality Movement Group', 'Invoice Movement Group', 'Monthly Range Movement Group', 'Nested Line Movement Group', 'Order Movement Group', 'Parent Delivery Category Movement Group', 'Parent Delivery Property Movement Group', 'Parent Explanation Movement Group', 'Predicate', 'Previous Causality Movement Group', 'Property Assignment Movement Group', 'Property Grouping Movement Group', 'Property Movement Group', 'Quantity Sign Movement Group', 'Requirement Movement Group', 'Root Applied Rule Causality Movement Group', 'Split Movement Group', 'Title Movement Group', 'Variant Movement Group', 'Variation Property Movement Group']
+  Allowed Content Types: ['Base Variant Movement Group', 'Category Movement Group', 'Causality Assignment Movement Group', 'Causality Movement Group', 'Day Movement Group', 'Delivery Causality Assignment Movement Group', 'First Causality Movement Group', 'Invoice Movement Group', 'Monthly Range Movement Group', 'Nested Line Movement Group', 'Order Movement Group', 'Parent Delivery Property Movement Group', 'Parent Explanation Movement Group', 'Predicate', 'Previous Causality Movement Group', 'Property Assignment Movement Group', 'Property Grouping Movement Group', 'Property Movement Group', 'Quantity Sign Movement Group', 'Requirement Movement Group', 'Root Applied Rule Causality Movement Group', 'Split Movement Group', 'Title Movement Group', 'Variant Movement Group', 'Variation Property Movement Group']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -2293,7 +2306,7 @@ Hosting Subscription
   Add Permission: None
   Acquire Local Roles: False
   Property Sheets: ['HostingSubscription', 'SlapOSAccountingHostingSubscriptionConstraint', 'SlaposHostingSubscriptionConstraint', 'SoftwareInstance', 'TextDocument', 'Url', 'VariationRange']
-  Base Categories: ['destination_section', 'monitor_scope']
+  Base Categories: ['destination_section', 'monitor_scope', 'upgrade_scope']
   Allowed Content Types: []
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
@@ -2373,6 +2386,32 @@ Implicit Item Movement Module
   Property Sheets: []
   Base Categories: ['business_application']
   Allowed Content Types: ['Implicit Item Movement']
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Incident Response
+  Short Title: None
+  Class: Ticket
+  Init Script: SupportRequest_init
+  Add Permission: None
+  Acquire Local Roles: False
+  Property Sheets: []
+  Base Categories: ['aggregate', 'specialise']
+  Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Incident Response Module
+  Short Title: None
+  Class: Folder
+  Init Script: 
+  Add Permission: 
+  Acquire Local Roles: False
+  Property Sheets: []
+  Base Categories: ['business_application']
+  Allowed Content Types: ['Incident Response']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -2465,6 +2504,19 @@ Integration Tool
   Base Categories: []
   Allowed Content Types: ['Integration Site']
   Hidden Content Types: ['Integration Site']
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Interface Component
+  Short Title: None
+  Class: InterfaceComponent
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: 0
+  Property Sheets: ['SortIndex']
+  Base Categories: []
+  Allowed Content Types: []
+  Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
@@ -2737,6 +2789,71 @@ Inventory Module
   Property Sheets: []
   Base Categories: ['business_application']
   Allowed Content Types: ['Inventory']
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Inventory Report
+  Short Title: None
+  Class: Item
+  Init Script: Delivery_generateReference
+  Add Permission: None
+  Acquire Local Roles: 0
+  Property Sheets: ['Arrow', 'InventoryReport']
+  Base Categories: []
+  Allowed Content Types: ['Inventory Report Line']
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Inventory Report Line
+  Short Title: None
+  Class: Item
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: 1
+  Property Sheets: []
+  Base Categories: []
+  Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'short_title', 'title']
+  Searchable Method: []
+
+Inventory Report Module
+  Short Title: None
+  Class: Folder
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: False
+  Property Sheets: []
+  Base Categories: ['business_application']
+  Allowed Content Types: ['Inventory Report']
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Invitation Token
+  Short Title: None
+  Class: XMLObject
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: False
+  Property Sheets: ['Reference', 'Url']
+  Base Categories: ['destination', 'source']
+  Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Invitation Token Module
+  Short Title: None
+  Class: Folder
+  Init Script: 
+  Add Permission: 
+  Acquire Local Roles: False
+  Property Sheets: []
+  Base Categories: ['business_application']
+  Allowed Content Types: ['Invitation Token']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -3034,6 +3151,19 @@ Missing Category Document Constraint
   Add Permission: None
   Acquire Local Roles: False
   Property Sheets: []
+  Base Categories: []
+  Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Mixin Component
+  Short Title: None
+  Class: MixinComponent
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: 0
+  Property Sheets: ['SortIndex']
   Base Categories: []
   Allowed Content Types: []
   Hidden Content Types: []
@@ -3360,7 +3490,7 @@ Order Builder
   Acquire Local Roles: 1
   Property Sheets: []
   Base Categories: []
-  Allowed Content Types: ['Base Variant Movement Group', 'Category Movement Group', 'Causality Assignment Movement Group', 'Causality Movement Group', 'Day Movement Group', 'Delivery Causality Assignment Movement Group', 'First Causality Movement Group', 'Invoice Movement Group', 'Monthly Range Movement Group', 'Nested Line Movement Group', 'Order Movement Group', 'Parent Delivery Category Movement Group', 'Parent Delivery Property Movement Group', 'Parent Explanation Movement Group', 'Predicate', 'Previous Causality Movement Group', 'Property Assignment Movement Group', 'Property Grouping Movement Group', 'Property Movement Group', 'Quantity Sign Movement Group', 'Requirement Movement Group', 'Root Applied Rule Causality Movement Group', 'Split Movement Group', 'Title Movement Group', 'Variant Movement Group', 'Variation Property Movement Group']
+  Allowed Content Types: ['Base Variant Movement Group', 'Category Movement Group', 'Causality Assignment Movement Group', 'Causality Movement Group', 'Day Movement Group', 'Delivery Causality Assignment Movement Group', 'First Causality Movement Group', 'Invoice Movement Group', 'Monthly Range Movement Group', 'Nested Line Movement Group', 'Order Movement Group', 'Parent Delivery Property Movement Group', 'Parent Explanation Movement Group', 'Predicate', 'Previous Causality Movement Group', 'Property Assignment Movement Group', 'Property Grouping Movement Group', 'Property Movement Group', 'Quantity Sign Movement Group', 'Requirement Movement Group', 'Root Applied Rule Causality Movement Group', 'Split Movement Group', 'Title Movement Group', 'Variant Movement Group', 'Variation Property Movement Group']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -3468,19 +3598,6 @@ PDF
   Hidden Content Types: []
   Searchable Property: ['description', 'filename', 'reference', 'short_title', 'subject_list', 'title', 'version']
   Searchable Method: ['asText']
-
-Parent Delivery Category Movement Group
-  Short Title: None
-  Class: ParentDeliveryCategoryMovementGroup
-  Init Script: 
-  Add Permission: 
-  Acquire Local Roles: 1
-  Property Sheets: []
-  Base Categories: []
-  Allowed Content Types: []
-  Hidden Content Types: []
-  Searchable Property: ['description', 'reference', 'short_title', 'title']
-  Searchable Method: []
 
 Parent Delivery Property Movement Group
   Short Title: None
@@ -3633,7 +3750,7 @@ Person
   Acquire Local Roles: 0
   Property Sheets: ['DefaultCredentialQuestion', 'DefaultImage', 'ERP5User', 'SlaposPersonConstraint']
   Base Categories: []
-  Allowed Content Types: ['Address', 'Assignment', 'Bank Account', 'Career', 'Chat Address', 'Credential Question', 'Credit Card', 'ERP5 Login', 'Email', 'Embedded File', 'External Identifier', 'Facebook Login', 'Fax', 'Google Login', 'Link', 'Telephone']
+  Allowed Content Types: ['Address', 'Assignment', 'Bank Account', 'Career', 'Certificate Login', 'Chat Address', 'Credential Question', 'Credit Card', 'ERP5 Login', 'Email', 'Embedded File', 'External Identifier', 'Facebook Login', 'Fax', 'Google Login', 'Link', 'Telephone']
   Hidden Content Types: ['Credential Question']
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -4665,6 +4782,32 @@ Returned Sale Packing List Module
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
+Review
+  Short Title: None
+  Class: TextDocument
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: False
+  Property Sheets: ['Review']
+  Base Categories: []
+  Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Review Module
+  Short Title: None
+  Class: Folder
+  Init Script: 
+  Add Permission: 
+  Acquire Local Roles: False
+  Property Sheets: []
+  Base Categories: ['business_application']
+  Allowed Content Types: ['Review']
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
 Role Configurator Item
   Short Title: None
   Class: RoleConfiguratorItem
@@ -5336,7 +5479,7 @@ Software Instance
   Acquire Local Roles: False
   Property Sheets: ['ERP5User', 'HostingSubscription', 'InstanceAccountingSynchronisation', 'Reference', 'SoftwareInstance', 'SoftwareInstanceConstraint', 'TextDocument', 'Url', 'VariationRange']
   Base Categories: ['aggregate', 'causality', 'specialise']
-  Allowed Content Types: ['ERP5 Login']
+  Allowed Content Types: ['Certificate Login', 'ERP5 Login']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -5803,7 +5946,7 @@ Support Request
   Add Permission: None
   Acquire Local Roles: 0
   Property Sheets: ['Codification']
-  Base Categories: ['aggregate', 'specialise']
+  Base Categories: ['aggregate', 'follow_up', 'specialise']
   Allowed Content Types: []
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
@@ -5997,7 +6140,7 @@ Template Tool
   Init Script: 
   Add Permission: 
   Acquire Local Roles: 1
-  Property Sheets: ['TemplateToolBusinessTemplateInstallationConstraint', 'TemplateToolCategoryNameConstraint', 'TemplateToolERP5FacebookExtractionPluginConstraint', 'TemplateToolERP5GoogleExtractionPluginConstraint', 'TemplateToolERP5LoginUserManagerConstraint', 'TemplateToolTableConsistencyConstraint', 'TemplateToolWorkflowChainConsistencyConstraint']
+  Property Sheets: ['TemplateToolBusinessTemplateInstallationConstraint', 'TemplateToolCategoryNameConstraint', 'TemplateToolERP5AccessTokenExtractionPluginConstraint', 'TemplateToolERP5FacebookExtractionPluginConstraint', 'TemplateToolERP5GoogleExtractionPluginConstraint', 'TemplateToolERP5LoginUserManagerConstraint', 'TemplateToolTableConsistencyConstraint', 'TemplateToolWorkflowChainConsistencyConstraint']
   Base Categories: []
   Allowed Content Types: ['Business Template']
   Hidden Content Types: []
@@ -6013,6 +6156,32 @@ Test Component
   Property Sheets: ['SortIndex']
   Base Categories: []
   Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Test Page
+  Short Title: None
+  Class: TextDocument
+  Init Script: WebPage_init
+  Add Permission: None
+  Acquire Local Roles: False
+  Property Sheets: ['SortIndex', 'TestPage']
+  Base Categories: ['follow_up', 'function', 'group', 'predecessor', 'publication_section', 'similar', 'site']
+  Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'filename', 'reference', 'short_title', 'subject_list', 'title', 'version']
+  Searchable Method: ['asText']
+
+Test Page Module
+  Short Title: None
+  Class: Folder
+  Init Script: 
+  Add Permission: 
+  Acquire Local Roles: False
+  Property Sheets: []
+  Base Categories: ['business_application']
+  Allowed Content Types: ['Test Page']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []

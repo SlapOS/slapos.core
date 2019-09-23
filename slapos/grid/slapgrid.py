@@ -1253,6 +1253,9 @@ stderr_logfile_backups=1
     computer_partition_list = self.FilterComputerPartitionList(
         self.getComputerPartitionList())
 
+    process_error_partition_list = []
+    promise_error_partition_list = []
+
     for computer_partition in computer_partition_list:
       # Nothing should raise outside of the current loop iteration, so that
       # even if something is terribly wrong while processing an instance, it
@@ -1271,6 +1274,7 @@ stderr_logfile_backups=1
         try:
           self.logger.error(exc)
           computer_partition.error(exc, logger=self.logger)
+          promise_error_partition_list.append((computer_partition, exc))
         except (SystemExit, KeyboardInterrupt):
           raise
         except Exception:
@@ -1284,12 +1288,30 @@ stderr_logfile_backups=1
           self.logger.exception('')
         try:
           computer_partition.error(exc, logger=self.logger)
+          process_error_partition_list.append((computer_partition, exc))
         except (SystemExit, KeyboardInterrupt):
           raise
         except Exception:
           self.logger.exception('Problem while reporting error, continuing:')
 
+    def getPartitionType(part):
+      """returns the partition type, if known at that point.
+      """
+      try:
+        return part.getType()
+      except slapos.slap.ResourceNotReady:
+        return '(not ready)'
+
     self.logger.info('Finished computer partitions.')
+    self.logger.info('=' * 80)
+    if process_error_partition_list:
+      self.logger.info('Error while processing the following partitions:')
+      for partition, exc in process_error_partition_list:
+        self.logger.info('  %s[%s]: %s', partition.getId(), getPartitionType(partition), exc)
+    if promise_error_partition_list:
+      self.logger.info('Error with promises for the following partitions:')
+      for partition, exc in promise_error_partition_list:
+        self.logger.info('  %s[%s]: %s', partition.getId(), getPartitionType(partition), exc)
 
     # Return success value
     if not clean_run:

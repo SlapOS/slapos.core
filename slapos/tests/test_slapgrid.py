@@ -1643,6 +1643,45 @@ echo %s; echo %s; exit 42""" % (line1, line2))
       self.assertIn(line2, instance.error_log)
       self.assertIn('Failed to run buildout', instance.error_log)
 
+  def test_processing_summary(self):
+    """At the end of instance processing, a summary of partition with errors is displayed.
+    """
+    computer = ComputerForTest(self.software_root, self.instance_root, 3, 3)
+    _, instance1, instance2 = computer.instance_list
+    # instance0 has no problem, it is not in summary
+
+    # instance 1 fails software
+    instance1 = computer.instance_list[1]
+    instance1.software = computer.software_list[1]
+    instance1.software.setBuildout("""#!/bin/sh
+        echo fake buildout error
+        exit 1""")
+
+    # instance 2 fails promises
+    instance2 = computer.instance_list[2]
+    instance2.requested_state = 'started'
+    instance2.setPromise("failing_promise", """#!/bin/sh
+        echo fake promise error
+        exit 1""")
+
+    with httmock.HTTMock(computer.request_handler), \
+        patch.object(self.grid.logger, 'info',) as dummyLogger:
+      self.launchSlapgrid()
+
+    # reconstruct the string like logger does
+    self.assertEqual(
+        dummyLogger.mock_calls[-4][1][0] % dummyLogger.mock_calls[-4][1][1:],
+        'Error while processing the following partitions:')
+    self.assertRegexpMatches(
+        dummyLogger.mock_calls[-3][1][0] % dummyLogger.mock_calls[-3][1][1:],
+        r"  1\[\(not ready\)\]: Failed to run buildout profile in directory '.*/instance/1':\nfake buildout error\n\n")
+    self.assertEqual(
+        dummyLogger.mock_calls[-2][1][0] % dummyLogger.mock_calls[-2][1][1:],
+        'Error with promises for the following partitions:')
+    self.assertEqual(
+        dummyLogger.mock_calls[-1][1][0] % dummyLogger.mock_calls[-1][1][1:],
+        "  2[(not ready)]: Promise 'failing_promise' failed.")
+
 
 class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
   """

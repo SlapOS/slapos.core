@@ -50,7 +50,7 @@ if payment_mode == "wechat":
   web_site = context.getWebSiteValue()
   base_url = web_site.absolute_url()
   return context.REQUEST.RESPONSE.redirect(
-    "%s/#wechat_payment?amount=%s&code_url=%s" % (base_url, user_input_dict["amount"], code_url))
+    "%s/#wechat_payment?amount=%s&trade_no=%s&code_url=%s" % (base_url, user_input_dict["amount"], subscription_request.getId(), code_url))
 
 def wrapRedirectWithShadow(payment_transaction, web_site):
   return payment_transaction.PaymentTransaction_redirectToManualPayzenPayment(web_site)

@@ -1,21 +1,13 @@
-<<<<<<< HEAD
-=======
 import sys
->>>>>>> slapos_subscription_request: Wechat payment improvement
 import random, string, hashlib, urllib2
 try:
   import xml.etree.cElementTree as ET
 except ImportError:
   import xml.etree.ElementTree as ET
 
-<<<<<<< HEAD
 class WechatException(Exception):
   def __init__(self, msg):
     super(WechatException, self).__init__(msg)
-=======
-reload(sys)
-sys.setdefaultencoding('utf-8')
->>>>>>> slapos_subscription_request: Wechat payment improvement
 
 # RapidSpace Wechat acocunt configuration
 class Single(object):
@@ -64,9 +56,7 @@ def calculateSign(dict_content, key):
   sign = md5.hexdigest().upper()
   return sign
 
-<<<<<<< HEAD
 
-=======
 APP_ID = ""  # Wechat public account appid
 MCH_ID = ""  # Wechat merchant account ID
 API_KEY = ""  # Wechat merchant platform(pay.weixin.qq.com) -->账户设置 -->API安全 -->密钥设置
@@ -74,6 +64,7 @@ API_KEY = ""  # Wechat merchant platform(pay.weixin.qq.com) -->账户设置 -->A
 CREATE_IP = ""  # The IP address which request the order to Wechat, aka: instance IP
 UFDODER_URL = "https://api.mch.weixin.qq.com/pay/unifiedorder" # Wechat unified order API
 NOTIFY_URL = "your IP: port/Method"  # Wechat payment callback method
+QUERY_URL = "https://api.mch.weixin.qq.com/pay/orderquery"
 
 
 def generateRandomStr(random_length=24):
@@ -100,7 +91,6 @@ def calculateSign(dict_content, key):
   return sign
 
 
->>>>>>> slapos_subscription_request: Wechat payment improvement
 def convert_xml_to_dict(xml_content):
   '''
   The XML returned by Wechat is like:

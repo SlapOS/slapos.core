@@ -46,16 +46,8 @@
             <key> <string>text_content_warning_message</string> </key>
             <value>
               <tuple>
-                <string>W:  9,  0: Cannot decode using encoding "ascii", unexpected byte at position 64 (invalid-encoded-data)</string>
-                <string>W: 13,  0: Cannot decode using encoding "ascii", unexpected byte at position 21 (invalid-encoded-data)</string>
-                <string>W: 24,  0: Cannot decode using encoding "ascii", unexpected byte at position 233 (invalid-encoded-data)</string>
-                <string>W:  7,  0: Unnecessary semicolon (unnecessary-semicolon)</string>
-                <string>W:  8,  0: Unnecessary semicolon (unnecessary-semicolon)</string>
-                <string>W:  9,  0: Unnecessary semicolon (unnecessary-semicolon)</string>
-                <string>W: 11,  0: Unnecessary semicolon (unnecessary-semicolon)</string>
-                <string>W: 12,  0: Unnecessary semicolon (unnecessary-semicolon)</string>
-                <string>W: 13,  0: Unnecessary semicolon (unnecessary-semicolon)</string>
-                <string>W: 21,  2: Unreachable code (unreachable)</string>
+                <string>W: 15,  0: Cannot decode using encoding "ascii", unexpected byte at position 63 (invalid-encoded-data)</string>
+                <string>W: 86,  2: Unreachable code (unreachable)</string>
               </tuple>
             </value>
         </item>

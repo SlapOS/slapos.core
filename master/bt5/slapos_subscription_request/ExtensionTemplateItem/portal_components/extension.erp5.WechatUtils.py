@@ -1,12 +1,12 @@
-import sys
 import random, string, hashlib, urllib2
 try:
   import xml.etree.cElementTree as ET
 except ImportError:
   import xml.etree.ElementTree as ET
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
+class WechatException(Exception):
+  def __init__(self, msg):
+    super(WechatException, self).__init__(msg)
 
 # RapidSpace Wechat acocunt configuration
 
@@ -17,6 +17,7 @@ API_KEY = ""  # Wechat merchant platform(pay.weixin.qq.com) -->账户设置 -->A
 CREATE_IP = ""  # The IP address which request the order to Wechat, aka: instance IP
 UFDODER_URL = "https://api.mch.weixin.qq.com/pay/unifiedorder" # Wechat unified order API
 NOTIFY_URL = "your IP: port/Method"  # Wechat payment callback method
+QUERY_URL = "https://api.mch.weixin.qq.com/pay/orderquery"
 
 
 def generateRandomStr(random_length=24):
@@ -161,20 +162,51 @@ def receiveWechatPaymentNotify(self, request, *args, **kwargs):
     recalcualted_sign = calculateSign(params, API_KEY)
     if recalcualted_sign == sign:
       if params.get("result_code", None) == "SUCCESS":  # payment is ok
+        pass
         # order number
         # out_trade_no = params.get("out_trade_no")
         # Wechat payment order ID
         # This is what we should use when we search the order in the wechat
         # transaction_id = params.get("out_trade_no")
+        # Save the wechat payment order ID in somewhere.
         # We recevied the payment...
         # Process something
         # XXX: display the page the payment received.
-
+        # container.REQUEST.RESPONSE.redirect("%s/#wechat_payment_confirmed")
         # We must tell Wechat we received the response. Otherwise wechat will keep send it within 24 hours
         # xml_str = convert_dict_to_xml({"return_code": "SUCCESS"})
-        return True # HttpResponse(xml_str)
+        # return container.REQUEST.RESPONSE(xml_str)
       else:
         print("{0}:{1}".format(params.get("err_code"), params.get("err_code_des")))
-    else:
-      # Error information
-      print(params.get("return_msg").encode("utf-8"))
+  else:
+    # Error information
+    print(params.get("return_msg").encode("utf-8"))
+
+def queryWechatOrderStatus(self, dict_content):
+  '''
+    query url: https://api.mch.weixin.qq.com/pay/orderquery
+    documentation(Chinese): https://pay.weixin.qq.com/wiki/doc/api/native.php?chapter=9_2
+    The dict_content atleast should contains one of following:
+    - transaction_id (str): wechat order number, use this in higher priority, it will return in the payment notify callback
+    - out_trade_no(str): The order ID used inside ERP5, less than 32 characters, digits, alphabets, and "_-|*@", unique in ERP5
+  '''
+  if "transaction_id" not in dict_content and "out_trade_no" not in dict_content:
+    raise WechatException("transaction_id or out_trade_no is needed for query the Wechat Order")
+
+  params = {
+    "appid": APP_ID,
+    "mch_id": MCH_ID,
+
+    "nonce_str": generateRandomStr(),
+    "transaction_id": dict_content.get("transaction_id", ""),
+    "out_trade_no": dict_content.get("out_trade_no", ""),
+  }
+  sign = calculateSign(params, API_KEY)
+  params["sign"] = sign
+  # xml_str = convert_dict_to_xml(params)
+  return "SUCCESS"
+  # result = urllib2.Request(QUERY_URL, data=xml_str)
+  # result_data = urllib2.urlopen(result)
+  # result_read = result_data.read()
+  #result_dict_content = convert_xml_to_dict(result_read)
+  # TBC

@@ -31,6 +31,7 @@ import tempfile
 import unittest
 import shutil
 from pwd import getpwnam
+import six
 
 class TestUtil(unittest.TestCase):
   """
@@ -157,12 +158,14 @@ class TestUtil(unittest.TestCase):
     'none': 'None',
     'ukey': 'ustr'}
 
+  @unittest.skipIf(six.PY3, 'just not checked on python 3')
   def test_xml2dict(self):
     self.assertEqual(
       self.xml2dict_outdict,
       slapos.util.xml2dict(self.xml2dict_xml)
     )
 
+  @unittest.skipIf(six.PY3, 'just not checked on python 3')
   def test_dict2xml(self):
     self.assertEqual(
       self.xml2dict_xml,

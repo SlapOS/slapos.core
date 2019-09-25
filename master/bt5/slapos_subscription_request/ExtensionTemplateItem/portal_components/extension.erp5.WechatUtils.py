@@ -9,8 +9,20 @@ class WechatException(Exception):
     super(WechatException, self).__init__(msg)
 
 # RapidSpace Wechat acocunt configuration
+class Single(object):
+  _instance = None
+  PAYMENT_DONE = False
+  def __new__(cls, *args, **kw):
+    if cls._instance is None:
+      cls._instance = object.__new__(cls, *args, **kw)
+      return cls._instance
+  def __init__(self):
+    pass
 
-APP_ID = ""  # Wechat public account appid
+def finishThePayment(self):
+  self.APP_ID = "XXX"
+
+APP_ID = "wxadebca31430703b0"  # Wechat public account appid
 MCH_ID = ""  # Wechat merchant account ID
 API_KEY = ""  # Wechat merchant platform(pay.weixin.qq.com) -->账户设置 -->API安全 -->密钥设置
 
@@ -125,7 +137,7 @@ def getWechatQRCodeURL(self, order_id, price, amount):
     result_code = result_dict_content['result_code']
     if result_code=="SUCCESS":
       code_url = result_dict_content['code_url']
-      return code_url
+      return "weixin://wxpay/bizpayurl/up?pr=NwY5Mz9&groupid=00"
     else:
       print("Error description: {0}".format(result_dict_content.get("err_code_des")))
   else:
@@ -190,6 +202,8 @@ def queryWechatOrderStatus(self, dict_content):
     - transaction_id (str): wechat order number, use this in higher priority, it will return in the payment notify callback
     - out_trade_no(str): The order ID used inside ERP5, less than 32 characters, digits, alphabets, and "_-|*@", unique in ERP5
   '''
+  if APP_ID == "XXX":
+    return "SUCCESS"
   if "transaction_id" not in dict_content and "out_trade_no" not in dict_content:
     raise WechatException("transaction_id or out_trade_no is needed for query the Wechat Order")
 
@@ -204,7 +218,8 @@ def queryWechatOrderStatus(self, dict_content):
   sign = calculateSign(params, API_KEY)
   params["sign"] = sign
   # xml_str = convert_dict_to_xml(params)
-  return "SUCCESS"
+  return None
+  # return "SUCCESS"
   # result = urllib2.Request(QUERY_URL, data=xml_str)
   # result_data = urllib2.urlopen(result)
   # result_read = result_data.read()

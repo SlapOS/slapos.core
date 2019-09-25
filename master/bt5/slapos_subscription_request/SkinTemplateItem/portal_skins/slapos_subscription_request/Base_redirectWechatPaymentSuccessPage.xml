@@ -49,12 +49,8 @@
             </value>
         </item>
         <item>
-            <key> <string>_params</string> </key>
-            <value> <string>code_url, trade_no</string> </value>
-        </item>
-        <item>
             <key> <string>id</string> </key>
-            <value> <string>Base_generateWechatQRCodeFromCodeURL</string> </value>
+            <value> <string>Base_redirectWechatPaymentSuccessPage</string> </value>
         </item>
       </dictionary>
     </pickle>

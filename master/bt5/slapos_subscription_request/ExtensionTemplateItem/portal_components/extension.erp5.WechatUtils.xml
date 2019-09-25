@@ -46,8 +46,9 @@
             <key> <string>text_content_warning_message</string> </key>
             <value>
               <tuple>
-                <string>W: 15,  0: Cannot decode using encoding "ascii", unexpected byte at position 63 (invalid-encoded-data)</string>
-                <string>W: 86,  2: Unreachable code (unreachable)</string>
+                <string>W: 27,  0: Cannot decode using encoding "ascii", unexpected byte at position 63 (invalid-encoded-data)</string>
+                <string>W: 98,  2: Unreachable code (unreachable)</string>
+                <string>W:139,  6: Unused variable \'code_url\' (unused-variable)</string>
               </tuple>
             </value>
         </item>

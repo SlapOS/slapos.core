@@ -50,11 +50,19 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>code_url, trade_no</string> </value>
+            <value> <string>trade_no</string> </value>
+        </item>
+        <item>
+            <key> <string>_proxy_roles</string> </key>
+            <value>
+              <tuple>
+                <string>Anonymous</string>
+              </tuple>
+            </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Base_generateWechatQRCodeFromCodeURL</string> </value>
+            <value> <string>Base_WechatPaymentSimulation</string> </value>
         </item>
       </dictionary>
     </pickle>

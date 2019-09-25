@@ -10,9 +10,9 @@ for packing_list in portal.portal_catalog(
   ):
   for invoice in packing_list.getCausalityRelatedValueList(
     portal_type="Sale Invoice Transaction"):
-    payment = invoice.getCausalityRelatedValue(
-      portal_type="Payment Transaction")
-    if payment is not None and payment.getSimulationState() in ["stopped", "delivered"]:
-      return True
+    for payment in invoice.getCausalityRelatedValueList(
+      portal_type=["Payment Transaction", "Sale Invoice Transaction"]):
+      if payment.getSimulationState() in ["stopped", "delivered"]:
+        return True
 
 return False

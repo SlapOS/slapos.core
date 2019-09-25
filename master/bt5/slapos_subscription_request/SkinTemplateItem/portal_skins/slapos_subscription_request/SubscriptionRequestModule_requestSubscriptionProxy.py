@@ -46,7 +46,6 @@ if batch_mode:
 if payment_mode == "wechat":
   portal = context.getPortalObject()
   code_url = portal.Base_getWechatCodeURL(subscription_request.getId(), payment.PaymentTransaction_getTotalPayablePrice(), user_input_dict["amount"])
-  code_url = "weixin://wxpay/bizpayurl/up?pr=NwY5Mz9&groupid=00"
   web_site = context.getWebSiteValue()
   base_url = web_site.absolute_url()
   return context.REQUEST.RESPONSE.redirect(

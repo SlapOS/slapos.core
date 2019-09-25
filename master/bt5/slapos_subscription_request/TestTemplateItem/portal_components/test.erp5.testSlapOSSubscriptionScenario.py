@@ -357,7 +357,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
                      subscription_request.getRelativeUrl())
   @changeSkin('Hal')
   def _requestSubscription(self, **kw):
-    return self.web_site.hateoas.SubscriptionRequestModule_requestSubscritption(**kw)
+    return self.web_site.hateoas.SubscriptionRequestModule_requestSubscription(**kw)
 
   def getAggregatedSalePackingList(self, subscription_request, specialise):
     person_uid = subscription_request.getDestinationSectionValue().getUid()

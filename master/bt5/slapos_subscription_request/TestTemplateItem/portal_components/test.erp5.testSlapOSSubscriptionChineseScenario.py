@@ -42,5 +42,8 @@ class TestSlapOSSubscriptionChineseScenario(TestSlapOSSubscriptionScenarioMixin)
   def test_subscription_with_3_vms_scenario(self):
     self._test_subscription_scenario(amount=3)
 
+  def test_subscription_scenario_with_reversal_transaction(self):
+    self._test_subscription_scenario_with_reversal_transaction(amount=1)
+
   def test_two_subscription_scenario(self):
     self._test_two_subscription_scenario(amount=1)

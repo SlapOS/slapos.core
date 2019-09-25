@@ -174,6 +174,24 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     invoice = subscription_request.getCausalityValue(portal_type="Sale Invoice Transaction")
     return invoice.getCausalityRelatedValue(portal_type="Payment Transaction")
 
+  def createReversalInvoiceAndCancelPayment(self, subscription_request):
+    self.login()
+    person = subscription_request.getDestinationSectionValue()
+    self.login(person.getUserId())
+
+    payment = self.portal.portal_catalog.getResultValue(
+      portal_type="Payment Transaction",
+      simulation_state="started")
+
+    sale_transaction_invoice = payment.getCausalityValue(
+      portal_type="Sale Invoice Transaction"
+    )
+
+    self.logout()
+    self.login()
+    sale_transaction_invoice.SaleInvoiceTransaction_createReversalPayzenTransaction()
+
+
   def checkAndPayFirstTreeMonth(self, subscription_request):
     self.login()
     person = subscription_request.getDestinationSectionValue()
@@ -203,7 +221,8 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
   def checkAndPaySubscriptionPayment(self, subscription_request):
     quantity = subscription_request.getQuantity()
-    invoice = subscription_request.getCausalityValue(portal_type="Sale Invoice Transaction")
+    invoice = subscription_request.getCausalityValue(
+      portal_type="Sale Invoice Transaction")
     self.assertEqual(invoice.getSimulationState(), "confirmed")
     self.assertEqual(invoice.getCausalityState(), "building")
 
@@ -319,7 +338,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.assertEqual(sale_packing_list_line.getQuantity(), 3*quantity)
     self.assertEqual(sale_packing_list_line.getPrice(),
       self.expected_individual_price_without_tax)
-    self.assertEqual(round(sale_packing_list_line.getTotalPrice()), 
+    self.assertEqual(round(sale_packing_list_line.getTotalPrice(), 2), 
       3*self.expected_individual_price_without_tax*quantity)
 
     self.assertEqual(sale_packing_list.getCausality(),
@@ -598,6 +617,173 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       # Re-check, now it should be allocated.
       self.checkAllocationOnRelatedInstance(subscription_request)
 
+  def checkSubscriptionDeploymentAndSimulationWithReversalTransaction(
+        self, default_email_text, subscription_server):
+
+    subscription_request_list = self.getSubscriptionRequestList(
+      default_email_text, self.subscription_condition)
+    for subscription_request in subscription_request_list:
+      # Check if instance was requested
+      self.checkRelatedInstance(subscription_request)
+
+    self.stepCallSlaposAllocateInstanceAlarm()
+    self.tic()
+
+    # now instantiate it on computer and set some nice connection dict
+    self.simulateSlapgridCP(subscription_server)
+    self.tic()
+
+    for subscription_request in subscription_request_list:
+      # Re-check, as instance shouldn't be allocated until
+      # the confirmation of the new Payment.
+      self.checkRelatedInstance(subscription_request)
+
+    # check the Open Sale Order coverage
+    self.stepCallSlaposRequestUpdateHostingSubscriptionOpenSaleOrderAlarm()
+    self.tic()
+
+    # generate simulation for open order
+    self.stepCallUpdateOpenOrderSimulationAlarm()
+    self.tic()
+
+    # build subscription packing list
+    self.stepCallSlaposTriggerBuildAlarm()
+    self.tic()
+
+    # stabilise build deliveries and expand them
+    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
+    self.tic()
+
+    # build aggregated packing list
+    self.stepCallSlaposTriggerAggregatedDeliveryOrderBuilderAlarm()
+    self.tic()
+
+    # stabilise aggregated deliveries and expand them
+    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
+    self.tic()
+
+    # check if Packing list is generated with the right trade condition
+    preference_tool = self.portal.portal_preferences
+    specialise_subscription_uid = preference_tool.getPreferredAggregatedSubscriptionSaleTradeCondition()
+    specialise_uid = preference_tool.getPreferredAggregatedSaleTradeCondition()
+
+    for subscription_request in subscription_request_list:
+      sale_packing_list_list = self.getAggregatedSalePackingList(
+        subscription_request, specialise_subscription_uid)
+      self.assertEqual(1, len(sale_packing_list_list))
+
+      self.checkAggregatedSalePackingList(subscription_request, sale_packing_list_list[0])
+
+      expected_sale_packing_list_amount = len(subscription_request_list) * 3
+      self.assertEqual(expected_sale_packing_list_amount, 
+        len(self.getSubscriptionSalePackingList(subscription_request)))
+
+      self.assertEqual(0, len(self.getAggregatedSalePackingList(
+        subscription_request, specialise_uid)))
+
+    # Call this alarm shouldn't affect the delivery
+    self.stepCallSlaposStartConfirmedAggregatedSalePackingListAlarm(
+        accounting_date=DateTime('2222/01/01'))
+    self.tic()
+
+    for subscription_request in subscription_request_list:
+      self.assertEqual(1, len(self.getAggregatedSalePackingList(
+        subscription_request, specialise_subscription_uid)))
+
+    # Call this alarm shouldn't affect the delivery
+    self.stepCallSlaposStartConfirmedAggregatedSubscriptionSalePackingListAlarm()
+    self.tic()
+
+    for subscription_request in subscription_request_list:
+      self.assertEqual(0, len(self.getAggregatedSalePackingList(
+        subscription_request, specialise_uid)))
+
+    # stabilise aggregated deliveries and expand them
+    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
+    self.tic()
+
+    # deliver aggregated deliveries
+    self.stepCallSlaposDeliverStartedAggregatedSalePackingListAlarm()
+    self.tic()
+
+    # stabilise aggregated deliveries and expand them
+    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
+    self.tic()
+
+    # build aggregated invoices
+    self.stepCallSlaposTriggerBuildAlarm()
+    self.tic()
+
+    # stabilise aggregated invoices and expand them
+    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
+    self.tic()
+
+    # update invoices with their tax & discount
+    self.stepCallSlaposTriggerBuildAlarm()
+    self.tic()
+    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
+    self.tic()
+
+    # update invoices with their tax & discount transaction lines
+    self.stepCallSlaposTriggerBuildAlarm()
+    self.tic()
+    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
+    self.tic()
+
+    # stop the invoices and solve them again
+    self.stepCallSlaposStopConfirmedAggregatedSaleInvoiceTransactionAlarm()
+    self.tic()
+    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
+    self.tic()
+
+    builder = self.portal.portal_orders.slapos_payment_transaction_builder
+    for _ in range(500):
+      # build the aggregated payment
+      self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
+      self.tic()
+      # If there is something unbuild recall alarm.
+      if len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
+        break
+
+    # start the payzen payment
+    self.stepCallSlaposPayzenUpdateConfirmedPaymentAlarm()
+    self.tic()
+
+    # stabilise the payment deliveries and expand them
+    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
+    self.tic()
+
+    # trigger the CRM interaction
+    self.stepCallSlaposCrmCreateRegularisationRequestAlarm()
+    self.tic()
+
+    for subscription_request in subscription_request_list:
+      self.createReversalInvoiceAndCancelPayment(subscription_request)
+      self.tic()
+
+    # After the payment re-call the Alarm in order to confirm the subscription
+    # Request.
+    self.stepCallSlaposSubscriptionRequestProcessOrderedAlarm()
+    self.tic()
+
+    for subscription_request in subscription_request_list:
+      # Check if instance was already allocated, in this case, it shouldn't
+      # until the allocation alarm kicks in.
+      self.checkRelatedInstance(subscription_request)
+
+    # Now really allocate the instance
+    self.stepCallSlaposAllocateInstanceAlarm()
+    self.tic()
+
+    # now instantiate it on computer and set some nice connection dict
+    self.simulateSlapgridCP(subscription_server)
+    self.tic()
+
+    for subscription_request in subscription_request_list:
+      # Re-check, now it should be allocated.
+      self.checkAllocationOnRelatedInstance(subscription_request)
+
+
   def _test_subscription_scenario(self, amount=1):
     """ The admin creates an computer, user can request instances on it"""
 
@@ -667,10 +853,29 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.checkSubscriptionDeploymentAndSimulation(
         default_email_text, subscription_server)
 
+
+  def _test_subscription_scenario_with_reversal_transaction(self, amount=1):
+    """ The admin creates an computer, user can request instances on it"""
+
+    subscription_server = self.createPublicServerForAdminUser()
+
+    # Call as anonymous... check response?
+    default_email_text = "abc%s@nexedi.com" % self.new_id
+    name="ABC %s" % self.new_id
+    self.requestAndCheckHostingSubscription(amount, name, default_email_text)
+
+    self.checkSubscriptionDeploymentAndSimulationWithReversalTransaction(
+        default_email_text, subscription_server)
+
+
+
 class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
   def test_subscription_scenario(self):
     self._test_subscription_scenario(amount=1)
+
+  def test_subscription_scenario_with_reversal_transaction(self):
+    self._test_subscription_scenario_with_reversal_transaction(amount=1)
 
   def test_subscription_with_3_vms_scenario(self):
     self._test_subscription_scenario(amount=3)

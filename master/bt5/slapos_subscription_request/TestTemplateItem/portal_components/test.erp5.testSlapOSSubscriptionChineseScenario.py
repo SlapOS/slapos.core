@@ -23,7 +23,7 @@ class TestSlapOSSubscriptionChineseScenario(TestSlapOSSubscriptionScenarioMixin)
       url_string=self.generateNewSoftwareReleaseUrl(),
       root_slave=slave,
       price=1888.00,
-        resource="currency_module/CNY",
+      resource="currency_module/RMB",
       default_source_reference="default",
       reference="rapidvm%s" % self.new_id,
       # Aggregate and Follow up to web pages for product description and

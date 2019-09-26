@@ -27,7 +27,7 @@
 
 from Products.ERP5Type.tests.ERP5TypeTestCase import ERP5TypeTestCase
 
-class TestERP5WechatSecurePaymentMixin(ERP5TypeTestCase):
+class TestERP5WechatSecurePayment(ERP5TypeTestCase):
   """
   An ERP5 Wechat Secure Payment test case
   """
@@ -36,14 +36,7 @@ class TestERP5WechatSecurePaymentMixin(ERP5TypeTestCase):
     return "ERP5 Wechat Secure Payment"
 
   def afterSetUp(self):
-    self.portal = self.getPortalObject()
-    if not self.portal.hasObject('portal_secure_payments'):
-      self.portal.manage_addProduct['ERP5SecurePayment'].manage_addTool(
-        'ERP5 Secure Payment Tool', None)
-      self.tic()
-    self.service = self.portal.portal_secure_payments.newContent(
-      portal_type='Wechat Service')
-    self.tic()
+    pass
 
   def test_submit_wechat_order(self):
     self.portal = self.getPortalObject()
@@ -64,5 +57,4 @@ class TestERP5WechatSecurePaymentMixin(ERP5TypeTestCase):
     # '20190925-226AD' is the trade number which submitted to the wechat server manually
     # Use this to check our query function
     return_code = self.portal.Base_queryWechatOrderStatusByTradeNo(trade_no='20190925-226AD')
-    self.tic()
     self.assertEqual(return_code, 'SUCCESS')

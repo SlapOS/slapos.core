@@ -50,20 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>email, subscription_reference, payment_mode=None, confirmation_required=False, user_input_dict={}, batch_mode=True, REQUEST=None</string> </value>
-        </item>
-        <item>
-            <key> <string>_proxy_roles</string> </key>
-            <value>
-              <tuple>
-                <string>Manager</string>
-                <string>Owner</string>
-              </tuple>
-            </value>
+            <value> <string>code_url</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SubscriptionRequestModule_requestSubscriptionProxy</string> </value>
+            <value> <string>Base_generateWechatQRCodeFromCodeURL</string> </value>
         </item>
       </dictionary>
     </pickle>

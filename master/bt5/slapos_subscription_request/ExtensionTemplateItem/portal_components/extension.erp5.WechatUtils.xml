@@ -14,7 +14,7 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>SlapOSCheckConsistency</string> </value>
+            <value> <string>WechatUtils</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -24,7 +24,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>extension.erp5.SlapOSCheckConsistency</string> </value>
+            <value> <string>extension.erp5.WechatUtils</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -117,6 +117,7 @@
             </item>
           </dictionary>
         </list>
+        <none/>
       </tuple>
     </pickle>
   </record>

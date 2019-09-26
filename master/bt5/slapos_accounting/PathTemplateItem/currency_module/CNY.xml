@@ -66,7 +66,7 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>RMB</string> </value>
+            <value> <string>CNY</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -76,7 +76,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>RMB</string> </value>
+            <value> <string>CNY</string> </value>
         </item>
         <item>
             <key> <string>index</string> </key>
@@ -96,11 +96,11 @@
         </item>
         <item>
             <key> <string>short_title</string> </key>
-            <value> <string>RMB</string> </value>
+            <value> <string>CNY</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>RMB</string> </value>
+            <value> <string>CNY</string> </value>
         </item>
       </dictionary>
     </pickle>

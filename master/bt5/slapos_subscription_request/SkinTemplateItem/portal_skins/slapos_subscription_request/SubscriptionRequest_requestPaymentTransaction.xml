@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>amount, tag, REQUEST=None</string> </value>
+            <value> <string>amount, tag, payment_mode=None, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>_proxy_roles</string> </key>

@@ -7,15 +7,16 @@ if REQUEST is not None:
 person, person_is_new = context.SubscriptionRequest_createUser(email, user_input_dict['name'])
 
 web_site = context.getWebSiteValue()
-# Check if user is already exist, otherwise redirect to ask confirmation
-if confirmation_required and not person_is_new:
+
+# if payment mode not selected, ask user to confirm and select one.
+if not payment_mode:
   base_url = web_site.absolute_url()
 
   return context.REQUEST.RESPONSE.redirect(
     "%s/#order_confirmation?name=%s&email=%s&amount=%s&subscription_reference=%s" % (
        base_url,
        person.getTitle(),
-       person.getDefaultEmailText(),
+       email,
        user_input_dict["amount"],
        subscription_reference))
 
@@ -27,20 +28,36 @@ subscription_request = context.subscription_request_module.newContent(
 
 subscription_request.setDefaultEmailText(email)
 
-def wrapWithShadow(subscription_request, amount, subscription_reference):
+def wrapWithShadow(subscription_request, amount, subscription_reference, payment_mode):
   subscription_request.activate(tag="subscription_condition_%s" % subscription_request.getId()
                              ).SubscriptionRequest_applyCondition(subscription_reference)
 
   return subscription_request.SubscriptionRequest_requestPaymentTransaction(amount=amount,
-                                                tag="subscription_%s" % subscription_request.getId())
+                                                tag="subscription_%s" % subscription_request.getId(), payment_mode=payment_mode)
 
 payment = person.Person_restrictMethodAsShadowUser(
   shadow_document=person,
   callable_object=wrapWithShadow,
-  argument_list=[subscription_request, user_input_dict["amount"], subscription_reference])
+  argument_list=[subscription_request, user_input_dict["amount"], subscription_reference, payment_mode])
 
 if batch_mode:
   return {'subscription' : subscription_request.getRelativeUrl(), 'payment': payment.getRelativeUrl() }
+
+def wrapGetPriceWithShadow(payment):
+  return payment.PaymentTransaction_getTotalPayablePrice()
+
+price = person.Person_restrictMethodAsShadowUser(
+  shadow_document=person,
+  callable_object=wrapGetPriceWithShadow,
+  argument_list=[payment,])
+
+if payment_mode == "wechat":
+  portal = context.getPortalObject()
+  code_url = portal.Base_getWechatCodeURL(subscription_request.getId(), price, user_input_dict["amount"])
+  web_site = context.getWebSiteValue()
+  base_url = web_site.absolute_url()
+  return context.REQUEST.RESPONSE.redirect(
+    "%s/#wechat_payment?amount=%s&trade_no=%s&code_url=%s" % (base_url, user_input_dict["amount"], subscription_request.getId(), code_url))
 
 def wrapRedirectWithShadow(payment_transaction, web_site):
   return payment_transaction.PaymentTransaction_redirectToManualPayzenPayment(web_site)

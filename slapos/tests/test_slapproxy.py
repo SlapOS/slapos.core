@@ -698,6 +698,28 @@ class TestRequest(MasterMixin):
         '[::1]:123',
         request.getConnectionParameterDict()['domain'])
 
+  def test_request_kvm_frontend(self):
+    # slapproxy tells client to bypass kvm vnc frontends by building an URL using the backend.
+    request = self.request(
+        'http://git.erp5.org/gitweb/slapos.git/blob_plain/refs/tags/slapos-0.92:/software/kvm/software.cfg',
+        'frontend',
+        self.id(),
+        'slappart0',
+        shared=True,
+        partition_parameter_kw={'host': '::1', 'port': '123'})
+    self.assertEqual(
+        'https://[::1]:123/',
+        request.getConnectionParameterDict()['url'])
+    self.assertEqual(
+        '[::1]',
+        request.getConnectionParameterDict()['domainname'])
+    self.assertEqual(
+        '123',
+        request.getConnectionParameterDict()['port'])
+    self.assertEqual(
+        '/',
+        request.getConnectionParameterDict()['path'])
+
 
 class TestSlaveRequest(MasterMixin):
   """

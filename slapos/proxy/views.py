@@ -397,26 +397,55 @@ def requestComputerPartition():
 
   # Check first if instance is already allocated
   if slave:
-    # slapproxy cannot request frontends, but if client request a "simple" frontend for an URL
-    # we can tell this client to use the URL directly.
-    apache_frontend_sr_url_list = (
-        'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
-    )
-    if not isRequestToBeForwardedToExternalMaster(parsed_request_dict)\
-        and parsed_request_dict['software_release'] in apache_frontend_sr_url_list \
+    # slapproxy cannot request frontends, but we can workaround common cases,
+    # so that during tests promises are succesful.
+    if not isRequestToBeForwardedToExternalMaster(parsed_request_dict):
+      # if client request a "simple" frontend for an URL, we can tell this
+      # client to use the URL directly.
+      apache_frontend_sr_url_list = (
+          'http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg',
+      )
+      if parsed_request_dict['software_release'] in apache_frontend_sr_url_list \
         and parsed_request_dict.get('software_type', '') in ('', 'RootSoftwareInstance', 'default'):
-      url = parsed_request_dict['partition_parameter_kw'].get('url')
-      if url:
-        app.logger.warning("Bypassing frontend for %s => %s", parsed_request_dict, url)
-        partition = ComputerPartition('', 'Fake frontend for {}'.format(url))
-        partition.slap_computer_id = ''
-        partition.slap_computer_partition_id = ''
-        partition._parameter_dict = {}
-        partition._connection_dict = {
-          'secure_access': url,
-          'domain': urlparse(url).netloc,
-        }
-        return dumps(partition)
+        url = parsed_request_dict['partition_parameter_kw'].get('url')
+        if url:
+          app.logger.warning("Bypassing frontend for %s => %s", parsed_request_dict, url)
+          partition = ComputerPartition('', 'Fake frontend for {}'.format(url))
+          partition.slap_computer_id = ''
+          partition.slap_computer_partition_id = ''
+          partition._parameter_dict = {}
+          partition._connection_dict = {
+            'secure_access': url,
+            'domain': urlparse(url).netloc,
+          }
+          return dumps(partition)
+      # another similar case is for KVM frontends. This is used in
+      # request-slave-frontend from software/kvm/instance-kvm.cfg.jinja2
+      # requested values by 'return' recipe are: url resource port domainname
+      kvm_frontend_sr_url_list = (
+          'http://git.erp5.org/gitweb/slapos.git/blob_plain/refs/tags/slapos-0.92:/software/kvm/software.cfg',
+      )
+      if parsed_request_dict['software_release'] in kvm_frontend_sr_url_list \
+          and parsed_request_dict.get('software_type') in ('frontend', ):
+        host = parsed_request_dict['partition_parameter_kw'].get('host')
+        port = parsed_request_dict['partition_parameter_kw'].get('port')
+        if host and port:
+          # host is supposed to be ipv6 without brackets.
+          if ':' in host and host[0] != '[':
+            host = '[%s]' % host
+          url = 'https://%s:%s/' % (host, port)
+          app.logger.warning("Bypassing KVM VNC frontend for %s => %s", parsed_request_dict, url)
+          partition = ComputerPartition('', 'Fake KVM VNC frontend for {}'.format(url))
+          partition.slap_computer_id = ''
+          partition.slap_computer_partition_id = ''
+          partition._parameter_dict = {}
+          partition._connection_dict = {
+            'url': url,
+            'domainname': host,
+            'port': port,
+            'path': '/'
+          }
+          return dumps(partition)
 
     # XXX: change schema to include a simple "partition_reference" which
     # is name of the instance. Then, no need to do complex search here.

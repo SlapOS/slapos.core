@@ -5,8 +5,8 @@ if REQUEST is not None:
 portal = context.getPortalObject()
 
 kw.update({
-  'portal_type': 'Payzen Event',
-  'source': portal.Base_getPayzenServiceRelativeUrl(),
+  'portal_type': 'Wechat Event',
+  'source': portal.Base_getWechatServiceRelativeUrl(),
   'destination_value': context,
 })
 

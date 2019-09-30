@@ -20,7 +20,6 @@ def wrapWithShadow(payment_transaction, web_site, person_relative_url):
     **vads_url_dict
   )
   '''
-
   return system_event.contentValues(
     portal_type="Wechat Event Message")[0].getTextContent()
 

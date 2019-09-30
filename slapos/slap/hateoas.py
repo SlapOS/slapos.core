@@ -35,7 +35,7 @@ from uritemplate import expand
 import os
 import logging
 
-from slapos.util import _addIpv6Brackets
+from ..util import _addIpv6Brackets
 from .exception import ResourceNotReady, NotFoundError, \
           AuthenticationError, ConnectionError
 

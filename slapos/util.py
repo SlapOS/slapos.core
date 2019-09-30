@@ -171,7 +171,7 @@ def dict2xml(dictionary):
 
 def xml2dict(xml):
   result_dict = {}
-  if xml is not None and xml != '':
+  if xml:
     tree = etree.fromstring(str2bytes(xml))
     for element in tree.findall('parameter'):
       key = element.get('id')

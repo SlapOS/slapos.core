@@ -120,7 +120,7 @@ class TestUtil(unittest.TestCase):
     for value in [True, False, 1, '1', 't', 'tru', 'truelle', 'f', 'fals', 'falsey']:
       self.assertRaises(ValueError, string_to_boolean, value)
 
-  xml2dict_xml = """<?xml version='1.0' encoding='utf-8'?>
+  xml2dict_xml = slapos.util.bytes2str(b"""<?xml version='1.0' encoding='utf-8'?>
 <instance>
   <parameter id="badstr">\xc5\x81</parameter>
   <parameter id="intstr">1</parameter>
@@ -132,7 +132,7 @@ class TestUtil(unittest.TestCase):
   <parameter id="none">None</parameter>
   <parameter id="badu">\xc5\x81</parameter>
 </instance>
-"""
+""")
 
   xml2dict_indict = {
     u'ukey': u'ustr',
@@ -164,6 +164,7 @@ class TestUtil(unittest.TestCase):
     )
 
   def test_dict2xml(self):
+    self.maxDiff = None
     self.assertEqual(
       self.xml2dict_xml,
       slapos.util.dict2xml(self.xml2dict_indict)

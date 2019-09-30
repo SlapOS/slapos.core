@@ -38,7 +38,6 @@ from lxml import etree
 import six
 from six.moves.urllib import parse
 import hashlib
-import collections
 import netaddr
 
 
@@ -187,10 +186,8 @@ def xml2dict(xml):
 def calculate_dict_hash(d):
   return hashlib.sha256(
     str2bytes(str(
-      collections.OrderedDict(
-        sorted(
-          d.items()
-        )
+      sorted(
+        d.items()
       )
     ))).hexdigest()
 

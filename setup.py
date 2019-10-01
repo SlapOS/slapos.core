@@ -104,6 +104,7 @@ setup(name=name,
           'node instance = slapos.cli.slapgrid:InstanceCommand',
           'node boot = slapos.cli.boot:BootCommand',
           'node collect = slapos.cli.collect:CollectCommand',
+          'node prune = slapos.cli.prune:PruneCommand',
           # SlapOS client commands
           'console = slapos.cli.console:ConsoleCommand',
           'configure local = slapos.cli.configure_local:ConfigureLocalCommand',

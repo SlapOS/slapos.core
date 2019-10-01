@@ -128,7 +128,7 @@ class TestUtil(unittest.TestCase):
   <parameter id="int">1</parameter>
   <parameter id="intstr">1</parameter>
   <parameter id="key">str</parameter>
-  <parameter id="list">[\'one\', 2]</parameter>
+  <parameter id="list">['one', 2]</parameter>
   <parameter id="none">None</parameter>
   <parameter id="ukey">ustr</parameter>
 </instance>

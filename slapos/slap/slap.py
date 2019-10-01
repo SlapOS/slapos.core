@@ -39,7 +39,6 @@ __all__ = ["slap", "ComputerPartition", "Computer", "SoftwareRelease",
 import os
 import logging
 import re
-import hashlib
 from functools import wraps
 
 import six

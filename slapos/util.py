@@ -153,7 +153,7 @@ else:
 
 def dict2xml(dictionary):
   instance = etree.Element('instance')
-  for k, v in six.iteritems(dictionary):
+  for k, v in sorted(six.iteritems(dictionary)):
     if isinstance(k, bytes):
       k = k.decode('utf-8')
     if isinstance(v, bytes):

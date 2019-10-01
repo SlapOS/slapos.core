@@ -1,6 +1,13 @@
 Changes
 =======
 
+1.4.28 (2019-10-01)
+-------------------
+
+ * slapos/slap: Stabilise connection_dict
+ * slapos: Synchronise xml2dict and dict2xml
+ * grid: report summary of partitions processing/promises
+
 1.4.27 (2019-09-17)
 -------------------
 

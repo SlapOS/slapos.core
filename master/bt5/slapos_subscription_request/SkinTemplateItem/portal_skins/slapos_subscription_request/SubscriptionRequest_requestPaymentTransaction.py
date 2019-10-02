@@ -9,7 +9,10 @@ current_payment = None
 
 if current_invoice is None:
   # Hardcoded value for reservation
-  if payment_mode == "wechat":
+  # currency = context.getSpecialiseValue().getPriceCurrency()
+  # XXX: Test for now
+  currency = "currency_module/CNY"
+  if currency == "currency_module/CNY": # Wechat payment
     payment_template = portal.restrictedTraverse("accounting_module/slapos_wechat_pre_payment_template")
     quantity = int(amount) * 188
   else:
@@ -43,6 +46,6 @@ if current_invoice is None:
   context.reindexObject(activate_kw={'tag': tag})
 
   context.activate(tag=tag).SubscriptionRequest_createRelatedSaleInvoiceTransaction(
-    amount, tag, current_payment.getRelativeUrl(), payment_mode)
+    amount, tag, current_payment.getRelativeUrl())
 
 return current_payment

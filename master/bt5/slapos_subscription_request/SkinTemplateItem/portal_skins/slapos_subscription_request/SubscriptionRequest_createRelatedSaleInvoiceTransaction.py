@@ -7,7 +7,10 @@ portal = context.getPortalObject()
 current_invoice = context.getCausalityValue()
 
 if current_invoice is None:
-  if payment_mode == "wechat":
+  # currency = context.getSpecialiseValue().getPriceCurrency()
+  # currency = "currency_module/EUR"
+  currency = "currency_module/CNY"
+  if currency == "currency_module/CNY": # Wechat payment
     invoice_template_path = "accounting_module/template_wechat_pre_payment_subscription_sale_invoice_transaction"
   else:
     invoice_template_path = "accounting_module/template_pre_payment_subscription_sale_invoice_transaction"

@@ -11,7 +11,7 @@ if subscription_condition_reference is not None:
   subscription_condition = context.portal_catalog.getResultValue(
     portal_type="Subscription Condition",
     reference=subscription_condition_reference,
-    validation_state="validated")
+    validation_state="published") # XXX Wechat workaround, validated?
 else:
   subscription_condition = context.getSpecialiseValue()
 
@@ -36,7 +36,7 @@ context.edit(
   root_slave=subscription_condition.getRootSlave(),
   specialise_value=subscription_condition,
   price=subscription_condition.getPrice(),
-  price_currency=subscription_condition.getPriceCurrency()
+  price_currency="currency_module/CNY", # For test!!! subscription_condition.getPriceCurrency()
 )
 
 context.setSourceReference(subscription_condition.getSourceReference())

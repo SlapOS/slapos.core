@@ -41,7 +41,8 @@ from slapos.collect.snapshot import ProcessSnapshot, ComputerSnapshot
 from slapos.collect.reporter import RawCSVDumper, \
                                     SystemCSVReporterDumper, \
                                     compressLogFolder, \
-                                    ConsumptionReport 
+                                    ConsumptionReport, \
+                                    PartitionReport
 
 from .entity import get_user_list, Computer
 
@@ -140,7 +141,7 @@ def do_collect(conf):
     RawCSVDumper(database).dump(log_directory)
     consumption_report = ConsumptionReport(
                       computer_id=conf.get("slapos", "computer_id"), 
-                      user_list=get_user_list(conf), 
+                      user_list=user_dict, 
                       database=database,
                       location=consumption_report_directory)
     
@@ -152,6 +153,11 @@ def do_collect(conf):
       if report_file is not None:
         shutil.copy(report_file, xml_report_directory)
 
+    partition_report = PartitionReport(
+            database=database,
+            user_list=user_dict)
+
+    partition_report.buildJSONMonitorReport()
     compressLogFolder(log_directory)
 
     # Drop older entries already reported

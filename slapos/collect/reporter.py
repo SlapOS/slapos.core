@@ -50,17 +50,26 @@ class Dumper(object):
     self.db = database
 
   def dump(self, folder):
-    raise NotImplemented("Implemented on Subclass")
+    raise NotImplementedError("Implemented on Subclass")
 
   def writeFile(self, **kw):
-    raise NotImplemented("Implemented on Subclass")
+    raise NotImplementedError("Implemented on Subclass")
+
+def withDB(function):
+  def wrap_db_open_close(self, *args, **kwargs):
+    self.db.connect()
+    try:
+      return function(self, *args, **kwargs)
+    finally:
+      self.db.close()
+  return wraps(function)(wrap_db_open_close)
 
 class SystemReporter(Dumper):
-  
+
+  @withDB
   def dump(self, folder):
     """ Dump data """
     _date = time.strftime("%Y-%m-%d")
-    self.db.connect()
     for item, collected_item_list in six.iteritems(self.db.exportSystemAsDict(_date)):
       self.writeFile(item, folder, collected_item_list)
 
@@ -69,7 +78,6 @@ class SystemReporter(Dumper):
       item = "memory_%s" % partition.split("-")[-1]
       self.writeFile("disk_%s_%s" % (item, partition_id), folder, collected_item_list)
 
-    self.db.close()
 
 class SystemJSONReporterDumper(SystemReporter):
 
@@ -93,9 +101,9 @@ class SystemCSVReporterDumper(SystemReporter):
 class RawDumper(Dumper):
   """ Dump raw data in a certain format
   """
+  @withDB(commit=1)
   def dump(self, folder):
     date = time.strftime("%Y-%m-%d")
-    self.db.connect()
     table_list = self.db.getTableList()
     for date_scope, amount in self.db.getDateScopeList(ignore_date=date):
       for table in table_list:
@@ -104,9 +112,6 @@ class RawDumper(Dumper):
 
       self.db.markDayAsReported(date_scope, 
                                 table_list=table_list)
-    self.db.commit()
-    self.db.close()
-
 class RawCSVDumper(RawDumper):
   
   def writeFile(self, name, folder, date_scope, rows):
@@ -134,8 +139,8 @@ class ConsumptionReportBase(object):
   def __init__(self, db):
     self.db = db
 
+  @withDB
   def getPartitionCPULoadAverage(self, partition_id, date_scope):
-    self.db.connect()
     (cpu_percent_sum,), = self.db.select("user", date_scope,
                        columns="SUM(cpu_percent)", 
                        where="partition = '%s'" % partition_id)
@@ -147,12 +152,10 @@ class ConsumptionReportBase(object):
                        columns="COUNT(DISTINCT time)", 
                        where="partition = '%s'" % partition_id)
 
-    self.db.close()
-
     return cpu_percent_sum/sample_amount
 
+  @withDB
   def getPartitionUsedMemoryAverage(self, partition_id, date_scope):
-    self.db.connect()
     (memory_sum,), = self.db.select("user", date_scope,
                        columns="SUM(memory_rss)", 
                        where="partition = '%s'" % partition_id)
@@ -164,12 +167,10 @@ class ConsumptionReportBase(object):
                        columns="COUNT(DISTINCT time)", 
                        where="partition = '%s'" % partition_id)
 
-    self.db.close()
-
     return memory_sum/sample_amount
 
+  @withDB
   def getPartitionDiskUsedAverage(self, partition_id, date_scope):
-    self.db.connect()
     (disk_used_sum,), = self.db.select("folder", date_scope,
                        columns="SUM(disk_used)", 
                        where="partition = '%s'" % partition_id)
@@ -180,16 +181,14 @@ class ConsumptionReportBase(object):
                        columns="COUNT(DISTINCT time)", 
                        where="partition = '%s'" % partition_id)
 
-    self.db.close()
-
     return disk_used_sum/collect_amount
 
+  @withDB
   def getPartitionProcessConsumptionList(self, partition_id, where="", date_scope=None,
                                     min_time=None, max_time=None):
     """
       Query collector db to get consumed resource for last minute
     """
-    self.db.connect()
     consumption_list = []
     if where != "":
       where = "and %s" % where
@@ -232,12 +231,11 @@ class ConsumptionReportBase(object):
         resource_dict['user'] = pprocess.username()
         resource_dict['date'] = datetime.fromtimestamp(pprocess.create_time()).strftime("%Y-%m-%d %H:%M:%S")
       consumption_list.append(resource_dict)
-    self.db.close()
     return consumption_list  
 
+  @withDB
   def getPartitionConsumptionStatusList(self, partition_id, where="", 
             date_scope=None, min_time=None, max_time=None):
-    self.db.connect()
     if where != "":
       where = " and %s" % where
     if not date_scope:
@@ -282,7 +280,6 @@ class ConsumptionReportBase(object):
       disk_used_sum, = disk_result_cursor.fetchone()
       if disk_used_sum is not None:
         io_dict['disk_used'] = round(disk_used_sum/1024, 2)
-    self.db.close()
     return (process_dict, memory_dict, io_dict)
 
 
@@ -390,27 +387,22 @@ class ConsumptionReport(ConsumptionReportBase):
   def _getAverageFromList(self, data_list):
     return sum(data_list)/len(data_list)
 
+  @withDB
   def _getCpuLoadAverageConsumption(self, date_scope):
-    self.db.connect()
     (cpu_load_percent_list,), = self.db.select("system", date_scope,
                        columns="SUM(cpu_percent)/COUNT(cpu_percent)")
-
-    self.db.close()
     return cpu_load_percent_list
 
+  @withDB
   def _getMemoryAverageConsumption(self, date_scope):
-    self.db.connect()
     (memory_used_list,), = self.db.select("system", date_scope,
                        columns="SUM(memory_used)/COUNT(memory_used)")
 
-    self.db.close()
     return memory_used_list
 
+  @withDB
   def _getZeroEmissionContribution(self):
-    self.db.connect()
-    zer = self.db.getLastZeroEmissionRatio()  
-    self.db.close()
-    return zer
+    return self.db.getLastZeroEmissionRatio()  
 
 class Journal(object):
 

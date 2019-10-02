@@ -169,13 +169,12 @@ class Database:
     return strftime("%Y-%m-d -- %H:%M:%S").split(" -- ")
 
   def has_table(self, name):
-    self.connect()
     check_result_cursor = self.select(
       table="sqlite_master",
       columns='name',
       where="type='table' AND name='%s'" % name)
     r = check_result_cursor.fetchone()
-    return r and r[0] is not None
+    return r 
 
   ###################
   # Insertion methods

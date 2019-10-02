@@ -286,6 +286,7 @@ class Database:
       if table not in self.preserve_table_list: 
         self._execute(delete_sql % (table, where_clause))
 
+    self._execute("VACUUM;")
     self.commit()
     self.close()
 

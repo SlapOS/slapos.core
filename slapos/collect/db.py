@@ -168,6 +168,15 @@ class Database:
   def _getInsertionDateTuple(self):
     return strftime("%Y-%m-d -- %H:%M:%S", gmtime()).split(" -- ")
 
+  def has_table(self, name):
+    self.connect()
+    check_result_cursor = self.select(
+      table="sqlite_master",
+      columns='name',
+      where="type='table' AND name='%s'" % name)
+    r = check_result_cursor.fetchone()
+    return r and r[0] is not None
+
   ###################
   # Insertion methods
   ###################

@@ -123,6 +123,9 @@ class Database:
 
   def __init__(self, directory = None, create = True, timeout=None):
     assert self.database_name is not None
+    if directory.endswith(self.database_name):
+      directory = directory[:-len(self.database_name)]
+    assert os.path.exists(directory)
     self.uri = os.path.join(directory, self.database_name)
     self.connection = None
     self.cursor = None

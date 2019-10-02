@@ -130,7 +130,6 @@ def compressLogFolder(log_directory):
     finally:
       os.chdir(initial_folder)
 
-
 class ConsumptionReportBase(object):
   def __init__(self, db):
     self.db = db
@@ -184,6 +183,108 @@ class ConsumptionReportBase(object):
     self.db.close()
 
     return disk_used_sum/collect_amount
+
+  def getPartitionProcessConsumptionList(self, partition_id, where="", date_scope=None,
+                                    min_time=None, max_time=None):
+    """
+      Query collector db to get consumed resource for last minute
+    """
+    self.db.connect()
+    consumption_list = []
+    if where != "":
+      where = "and %s" % where
+    if not date_scope:
+      date_scope = datetime.now().strftime('%Y-%m-%d')
+    if not min_time:
+      min_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:00')
+    if not max_time:
+      max_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:59')
+
+    columns = """count(pid), SUM(cpu_percent) as cpu_result, SUM(cpu_time),
+                MAX(cpu_num_threads), SUM(memory_percent), 
+                SUM(memory_rss), pid, SUM(io_rw_counter), 
+                SUM(io_cycles_counter)"""
+    query_result = self.db.select("user", date_scope, columns,
+                   where="partition = '%s'  and (time between '%s' and '%s') %s" % 
+                   (partition_id, min_time, max_time, where),
+                   group="pid", order="cpu_result desc")
+    for result in query_result:
+      count = int(result[0])
+      if not count > 0:
+        continue
+      resource_dict = {
+        'pid': result[6],
+        'cpu_percent': round(result[1]/count, 2),
+        'cpu_time': round((result[2] or 0)/(60), 2),
+        'cpu_num_threads': round(result[3]/count, 2),
+        'memory_percent': round(result[4]/count, 2),
+        'memory_rss': round((result[5] or 0)/(1024*1024), 2),
+        'io_rw_counter': round(result[7]/count, 2),
+        'io_cycles_counter': round(result[8]/count, 2)
+      }
+      try:
+        pprocess = psutil.Process(int(result[6]))
+      except psutil.NoSuchProcess:
+        pass
+      else:
+        resource_dict['name'] = pprocess.name()
+        resource_dict['command'] = pprocess.cmdline()
+        resource_dict['user'] = pprocess.username()
+        resource_dict['date'] = datetime.fromtimestamp(pprocess.create_time()).strftime("%Y-%m-%d %H:%M:%S")
+      consumption_list.append(resource_dict)
+    self.db.close()
+    return consumption_list  
+
+  def getPartitionConsumptionStatusList(self, partition_id, where="", 
+            date_scope=None, min_time=None, max_time=None):
+    self.db.connect()
+    if where != "":
+      where = " and %s" % where
+    if not date_scope:
+      date_scope = datetime.now().strftime('%Y-%m-%d')
+    if not min_time:
+      min_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:00')
+    if not max_time:
+      max_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:59') 
+
+    colums = """count(pid), SUM(cpu_percent), SUM(cpu_time),
+                SUM(cpu_num_threads), SUM(memory_percent), SUM(memory_rss), 
+                SUM(io_rw_counter), SUM(io_cycles_counter)"""  
+    query_result = self.db.select('user', date_scope, colums, 
+                                  where="partition='%s' and (time between '%s' and '%s') %s" % 
+                                  (partition_id, min_time, max_time, where))
+    result = query_result.fetchone()
+
+    process_dict = {'total_process': result[0],
+      'cpu_percent': round((result[1] or 0), 2),
+      'cpu_time': round((result[2] or 0)/(60), 2),
+      'cpu_num_threads': round((result[3] or 0), 2),
+      'date': '%s %s' % (date_scope, min_time)
+    }
+    memory_dict = {'memory_percent': round((result[4] or 0), 2),
+      'memory_rss': round((result[5] or 0)/(1024*1024), 2),
+      'date': '%s %s' % (date_scope, min_time)
+    }
+    io_dict = {'io_rw_counter': round((result[6] or 0), 2),
+      'io_cycles_counter': round((result[7] or 0), 2),
+      'disk_used': 0,
+      'date': '%s %s' % (date_scope, min_time)
+    }
+    if self.db.has_table('folder'):
+      disk_result_cursor = self.db.select(
+        "folder", date_scope,
+        columns="SUM(disk_used)",
+        where="partition='%s' and (time between '%s' and '%s') %s" % (
+          partition_id, min_time, max_time, where
+        )
+      )
+
+      disk_used_sum, = disk_result_cursor.fetchone()
+      if disk_used_sum is not None:
+        io_dict['disk_used'] = round(disk_used_sum/1024, 2)
+    self.db.close()
+    return (process_dict, memory_dict, io_dict)
+
 
 class ConsumptionReport(ConsumptionReportBase):
 

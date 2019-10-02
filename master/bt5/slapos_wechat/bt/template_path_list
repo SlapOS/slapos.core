@@ -1,3 +1,4 @@
+currency_module/CNY
 portal_alarms/slapos_wechat_update_confirmed_payment
 portal_alarms/slapos_wechat_update_started_payment
 portal_secure_payments/slapos_wechat_test

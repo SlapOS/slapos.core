@@ -95,6 +95,7 @@
                       <list>
                         <string>my_preferred_payzen_integration_site</string>
                         <string>my_preferred_payzen_payment_service_reference</string>
+                        <string>my_preferred_wechat_payment_service_reference</string>
                       </list>
                     </value>
                 </item>

@@ -1,0 +1,10 @@
+<base_category_list>
+ <portal_type id="Wechat Event">
+  <item>destination</item>
+  <item>destination_section</item>
+  <item>source</item>
+ </portal_type>
+ <portal_type id="Wechat Event Message">
+  <item>predecessor</item>
+ </portal_type>
+</base_category_list>

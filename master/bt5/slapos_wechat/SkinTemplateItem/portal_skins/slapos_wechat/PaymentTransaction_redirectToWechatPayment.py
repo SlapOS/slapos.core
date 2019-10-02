@@ -3,26 +3,27 @@ portal = context.getPortalObject()
 person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
 def wrapWithShadow(payment_transaction, web_site, person_relative_url):
-
-  # vads_url_dict = payment_transaction.PaymentTransaction_getVADSUrlDict(web_site)
+  vads_url_dict = payment_transaction.PaymentTransaction_getVADSUrlDict(web_site)
   # ???
+
   _ , transaction_id = payment_transaction.PaymentTransaction_getPayzenId()
   # vads_url_already_registered = vads_url_dict.pop('vads_url_already_registered')
   # if transaction_id is not None:
   #  return context.REQUEST.RESPONSE.redirect(vads_url_already_registered)
-
   system_event = payment_transaction.PaymentTransaction_createWechatEvent(
     title='User navigation script for %s' % payment_transaction.getTitle(),
     destination_section=person_relative_url,
   )
-  '''
-  system_event.generateManualPaymentPage(
+
+  # Why I need to login ???
+  system_event.generateWechatPaymentPage(
     **vads_url_dict
   )
-  '''
+
+'''
   return system_event.contentValues(
     portal_type="Wechat Event Message")[0].getTextContent()
-
+'''
 if person is None:
   if not portal.portal_membership.isAnonymousUser():
     return wrapWithShadow(context, web_site, context.getDestinationSection())

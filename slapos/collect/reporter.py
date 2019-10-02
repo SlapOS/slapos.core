@@ -50,10 +50,10 @@ class Dumper(object):
     self.db = database
 
   def dump(self, folder):
-    raise NotImplemented("Implemented on Subclass")
+    raise NotImplementedError("Implemented on Subclass")
 
   def writeFile(self, **kw):
-    raise NotImplemented("Implemented on Subclass")
+    raise NotImplementedError("Implemented on Subclass")
 
 def withDB(function, commit=1):
   def wrap_db_open_close(self, *args, **kwargs):

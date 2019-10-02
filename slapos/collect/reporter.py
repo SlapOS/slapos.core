@@ -27,6 +27,7 @@
 #
 ##############################################################################
 
+from __future__ import division
 from lxml import etree as ElementTree
 from slapos.util import mkdir_p
 
@@ -39,7 +40,8 @@ import shutil
 import tarfile
 import time
 import psutil
-
+from functools import wraps
+from datetime import datetime, timedelta
 import six
 
 log_file = False
@@ -101,7 +103,7 @@ class SystemCSVReporterDumper(SystemReporter):
 class RawDumper(Dumper):
   """ Dump raw data in a certain format
   """
-  @withDB(commit=1)
+  @withDB
   def dump(self, folder):
     date = time.strftime("%Y-%m-%d")
     table_list = self.db.getTableList()
@@ -112,6 +114,8 @@ class RawDumper(Dumper):
 
       self.db.markDayAsReported(date_scope, 
                                 table_list=table_list)
+    self.db.commit()
+
 class RawCSVDumper(RawDumper):
   
   def writeFile(self, name, folder, date_scope, rows):
@@ -190,7 +194,7 @@ class ConsumptionReportBase(object):
       Query collector db to get consumed resource for last minute
     """
     consumption_list = []
-    if where != "":
+    if where:
       where = "and %s" % where
     if not date_scope:
       date_scope = datetime.now().strftime('%Y-%m-%d')
@@ -209,7 +213,7 @@ class ConsumptionReportBase(object):
                    group="pid", order="cpu_result desc")
     for result in query_result:
       count = int(result[0])
-      if not count > 0:
+      if not count:
         continue
       resource_dict = {
         'pid': result[6],
@@ -236,7 +240,7 @@ class ConsumptionReportBase(object):
   @withDB
   def getPartitionConsumptionStatusList(self, partition_id, where="", 
             date_scope=None, min_time=None, max_time=None):
-    if where != "":
+    if where:
       where = " and %s" % where
     if not date_scope:
       date_scope = datetime.now().strftime('%Y-%m-%d')
@@ -282,15 +286,100 @@ class ConsumptionReportBase(object):
         io_dict['disk_used'] = round(disk_used_sum/1024, 2)
     return (process_dict, memory_dict, io_dict)
 
+class PartitionReport(ConsumptionReportBase):
+ 
+  # This should be queried probably
+  label_list = ['date', 'total_process', 'cpu_percent', 
+                'cpu_time', 'cpu_num_threads',
+                'memory_percent', 'memory_rss', 
+                'io_rw_counter', 'io_cycles_counter',
+                'disk_used']
+   
+  def __init__(self, database, user_list):
+    self.user_list = user_list
+    ConsumptionReportBase.__init__(self, db=database)
+
+  def _appendToJsonFile(self, file_path, content, stepback=2):
+    with open (file_path, mode="r+") as jfile:
+      jfile.seek(0, 2)
+      position = jfile.tell() - stepback
+      jfile.seek(position)
+      jfile.write('%s}' % ',"{}"]'.format(content))
+  
+  def _initDataFile(self, data_file, column_list):
+    if not os.path.exists(data_file) or \
+            os.stat(data_file).st_size == 0:
+      with open(data_file, 'w') as fdata:
+        json.dump({
+          "date": time.time(),
+          "data": column_list 
+        }, fdata)
+
+  def buildJSONMonitorReport(self):
+
+    for user in self.user_list.values():
+      location = os.path.join(user.path, ".slapgrid")
+      if not os.path.exists(location):
+        # Instance has nothing inside
+        continue
+
+      monitor_path = os.path.join(location, "monitor")      
+      mkdir_p(monitor_path, 0o755)
+      process_file = os.path.join(monitor_path, 
+         'monitor_resource_process.data.json')
+      mem_file = os.path.join(monitor_path, 
+         'monitor_resource_memory.data.json')
+      io_file = os.path.join(monitor_path, 
+         'monitor_resource_io.data.json')
+      resource_file = os.path.join(monitor_path, 
+         'monitor_process_resource.status.json')
+      status_file = os.path.join(monitor_path, 
+         'monitor_resource.status.json')
+  
+      self._initDataFile(process_file,
+          ["date, total process, CPU percent, CPU time, CPU threads"])
+      self._initDataFile(mem_file, 
+          ["date, memory used percent, memory used"])
+      self._initDataFile(io_file,
+          ["date, io rw counter, io cycles counter, disk used"])
+  
+      process_result, memory_result, io_result = \
+              self.getPartitionConsumptionStatusList(user.name)
+  
+      resource_status_dict = {}
+      if process_result and process_result['total_process']:
+        self._appendToJsonFile(process_file, ", ".join(
+          str(process_result[key]) for key in self.label_list if key in process_result)
+        )
+        resource_status_dict.update(process_result)
+  
+      if memory_result and memory_result['memory_rss']:
+        self._appendToJsonFile(mem_file, ", ".join(
+          str(memory_result[key]) for key in self.label_list if key in memory_result)
+        )
+        resource_status_dict.update(memory_result)
+      
+      if io_result and io_result['io_rw_counter']:
+        self._appendToJsonFile(io_file, ", ".join(
+          str(io_result[key]) for key in self.label_list if key in io_result)
+        )
+        resource_status_dict.update(io_result)
+  
+      with open(status_file, 'w') as fp:
+        json.dump(resource_status_dict, fp)
+  
+      resource_process_status_list = self.getPartitionProcessConsumptionList(user.name)
+      if resource_process_status_list:
+        with open(resource_file, 'w') as rf:
+          json.dump(resource_process_status_list, rf)
 
 class ConsumptionReport(ConsumptionReportBase):
 
   def __init__(self, database, computer_id, location, user_list):
     self.computer_id = computer_id
-    self.db = database
     self.user_list = user_list
     self.location = location
-    ConsumptionReportBase.__init__(self, self.db)
+    ConsumptionReportBase.__init__(self, database)
 
   def buildXMLReport(self, date_scope):
 

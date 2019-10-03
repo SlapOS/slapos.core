@@ -315,7 +315,7 @@ class PartitionReport(ConsumptionReportBase):
           "data": column_list 
         }, fdata)
 
-  def buildJSONMonitorReport(self):
+  def buildJSONMonitorReport(self, date_scope=None, min_time=None, max_time=None):
 
     for user in self.user_list.values():
       location = os.path.join(user.path, ".slapgrid")
@@ -344,7 +344,8 @@ class PartitionReport(ConsumptionReportBase):
           ["date, io rw counter, io cycles counter, disk used"])
   
       process_result, memory_result, io_result = \
-              self.getPartitionConsumptionStatusList(user.name)
+              self.getPartitionConsumptionStatusList(
+                user.name, date_scope=date_scope, min_time=min_time, max_time=max_time)
   
       resource_status_dict = {}
       if process_result and process_result['total_process']:
@@ -368,7 +369,9 @@ class PartitionReport(ConsumptionReportBase):
       with open(status_file, 'w') as fp:
         json.dump(resource_status_dict, fp)
   
-      resource_process_status_list = self.getPartitionProcessConsumptionList(user.name)
+      resource_process_status_list = self.getPartitionProcessConsumptionList(
+                user.name, date_scope=date_scope, min_time=min_time, max_time=max_time)
+
       if resource_process_status_list:
         with open(resource_file, 'w') as rf:
           json.dump(resource_process_status_list, rf)
@@ -474,6 +477,8 @@ class ConsumptionReport(ConsumptionReportBase):
      return xml_report_path
 
   def _getAverageFromList(self, data_list):
+    if not data_list:
+      return 0
     return sum(data_list)/len(data_list)
 
   @withDB

@@ -259,7 +259,7 @@ class Database:
     return [i[0] for i in self._execute(
            "SELECT name FROM sqlite_master WHERE type='table'")]
 
-  def _getGarbageCollectionDateList(self, days_to_preserve=3):
+  def _getGarbageCollectionDateList(self, days_to_preserve):
     """ Return the list of dates to Preserve when data collect
     """
     base = datetime.datetime.today()
@@ -268,11 +268,11 @@ class Database:
       date_list.append((base - datetime.timedelta(days=x)).strftime("%Y-%m-%d"))
     return date_list
 
-  def garbageCollect(self):
+  def garbageCollect(self, days_to_preserve=3):
     """ Garbase collect the database, by removing older records already
         reported.
     """
-    date_list = self._getGarbageCollectionDateList()
+    date_list = self._getGarbageCollectionDateList(days_to_preserve)
     where_clause = "reported = 1" 
     for _date in date_list:
       where_clause += " AND date != '%s' " % _date

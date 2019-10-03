@@ -36,8 +36,6 @@ from slapos.util import sqlite_connect
 class Database:
 
   database_name = "collector.db"
-  table_list = ["user", "computer", "system", "disk", \
-                 "temperature", "heating"]
   preserve_table_list = ["heating"]
 
   CREATE_USER_TABLE = "create table if not exists user " \
@@ -282,7 +280,7 @@ class Database:
     delete_sql = "DELETE FROM %s WHERE %s"
 
     self.connect()
-    for table in self.table_list:
+    for table in self.getTableList():
       if table not in self.preserve_table_list: 
         self._execute(delete_sql % (table, where_clause))
 

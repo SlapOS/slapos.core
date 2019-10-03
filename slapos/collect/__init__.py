@@ -89,7 +89,10 @@ def do_collect(conf):
           user_dict[snapshot.username].append(snapshot)
     except (KeyboardInterrupt, SystemExit, NoSuchProcess):
       raise
-      
+    
+    days_to_preserve = conf.get("slapos", "collect_cache")
+    if days_to_preserve is None:
+      days_to_preserve = 15
     log_directory = "%s/var/data-log" % conf.get("slapos", "instance_root")
     mkdir_p(log_directory, 0o755)
     
@@ -160,7 +163,7 @@ def do_collect(conf):
     compressLogFolder(log_directory)
 
     # Drop older entries already reported
-    database.garbageCollect()
+    database.garbageCollect(int(days_to_preserve)) 
 
   except AccessDenied:
     print("You HAVE TO execute this script with root permission.")

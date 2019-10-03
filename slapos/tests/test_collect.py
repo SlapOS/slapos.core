@@ -25,6 +25,12 @@
 #
 ##############################################################################
 
+from slapos.util import mkdir_p
+import csv
+import six
+import mock
+import json
+import time
 import os
 import glob
 import unittest
@@ -33,10 +39,15 @@ import tarfile
 import tempfile
 import slapos.slap
 import psutil
+import sqlite3
 from time import strftime
 from slapos.collect import entity, snapshot, db, reporter
 from slapos.cli.entry import SlapOSApp
 from six.moves.configparser import ConfigParser
+
+from lxml import etree as ElementTree
+import slapos.tests.data
+
 
 class FakeDatabase(object):
     def __init__(self):
@@ -231,18 +242,30 @@ class TestCollectDatabase(unittest.TestCase):
                  '/dev/sdx1', '10', '20', '/mnt', '1983-01-10', 'TIME')
         database.insertComputerSnapshot(
               '1', '0', '0', '100', '0', '/dev/sdx1', '1983-01-10', 'TIME')
+        database.insertUserSnapshot(
+             'fakeuser0', 10, '10-12345', '0.1', '10.0', '1',
+             '10.0', '10.0', '0.1', '0.1', '1983-01-10', 'TIME')
+        database.inserFolderSnapshot(
+             'fakeuser0', '0.1', '1983-01-10', 'TIME')
         database.commit()
         database.markDayAsReported(date_scope="1983-01-10", 
-                                       table_list=database.table_list)
+                                       table_list=database.getTableList())
         database.commit()
         self.assertEqual(len([x for x in database.select('system')]), 1)
+        self.assertEqual(len([x for x in database.select('folder')]), 1)
+        self.assertEqual(len([x for x in database.select('user')]), 1)
+        #self.assertEqual(len([x for x in database.select('heating')]), 1)
+        #self.assertEqual(len([x for x in database.select('temperature')]), 1)
         self.assertEqual(len([x for x in database.select('computer')]), 1)
         self.assertEqual(len([x for x in database.select('disk')]), 1)
         database.close()
 
         database.garbageCollect()
         database.connect()
-
+        self.assertEqual(len([x for x in database.select('folder')]), 0)
+        self.assertEqual(len([x for x in database.select('user')]), 0)
+        #self.assertEqual(len([x for x in database.select('heating')]), 0)
+        #self.assertEqual(len([x for x in database.select('temperature')]), 0)
         self.assertEqual(len([x for x in database.select('system')]), 0)
         self.assertEqual(len([x for x in database.select('computer')]), 0)
         self.assertEqual(len([x for x in database.select('disk')]), 0)
@@ -286,59 +309,135 @@ class TestCollectReport(unittest.TestCase):
         if os.path.exists(self.instance_root):
           shutil.rmtree(self.instance_root)
 
-    def test_raw_csv_report(self):
-
+    def getPopulatedDB(self, day='1983-01-10', amount=1):
         database = db.Database(self.instance_root)
         database.connect()
-        database.insertSystemSnapshot("0.1", '10.0', '100.0', '100.0', 
-                         '10.0', '1', '2', '12.0', '1', '1', '1983-01-10', 'TIME')
-        database.insertDiskPartitionSnapshot(
-                 '/dev/sdx1', '10', '20', '/mnt', '1983-01-10', 'TIME')
-        database.insertComputerSnapshot(
-              '1', '0', '0', '100', '0', '/dev/sdx1', '1983-01-10', 'TIME')
+        for i in range(0, amount):
+          database.insertSystemSnapshot("0.1", '10.0', '100.0', '100.0', 
+                           '10.0', '1', '2', '12.0', '1', '1', day, 'TIME')
+          database.insertDiskPartitionSnapshot(
+                   '/dev/sdx1', '10', '20', '/mnt', day, 'TIME')
+          database.insertComputerSnapshot(
+                '1', '0', '0', '100', '0', '/dev/sdx1', day, 'TIME')
+          database.insertUserSnapshot(
+               'fakeuser0', 10, '10-12345', '0.1', '10.0', '1',
+               '10.0', '10.0', '0.1', '0.1', day, 'TIME')
+          database.inserFolderSnapshot(
+               'fakeuser0', '0.1', day, 'TIME')
         database.commit()
         database.close()
+        return database
+
+    def _get_file_content(self, f_path):
+        with open(f_path, "r") as f:
+          return f.readlines()
+
+    def test_raw_csv_report(self):
+
+        database = self.getPopulatedDB(amount=1)
         reporter.RawCSVDumper(database).dump(self.instance_root)
         self.assertTrue(os.path.exists("%s/1983-01-10" % self.instance_root))
 
-        csv_path_list = ['%s/1983-01-10/dump_disk.csv' % self.instance_root,
-                         '%s/1983-01-10/dump_computer.csv' % self.instance_root,
-                         '%s/1983-01-10/dump_user.csv' % self.instance_root,
-                         '%s/1983-01-10/dump_folder.csv' % self.instance_root,
-                         '%s/1983-01-10/dump_heating.csv' % self.instance_root,
-                         '%s/1983-01-10/dump_temperature.csv' % self.instance_root,
-                         '%s/1983-01-10/dump_system.csv' % self.instance_root]
+        csv_path_dict = {
+          '%s/1983-01-10/dump_disk.csv' % self.instance_root : 
+            [['/dev/sdx1','10','20','/mnt','1983-01-10','TIME','0']],
+          '%s/1983-01-10/dump_computer.csv' % self.instance_root :
+            [['1.0','0.0','0','100.0','0','/dev/sdx1','1983-01-10','TIME','0']],
+          '%s/1983-01-10/dump_user.csv' % self.instance_root :
+            [['fakeuser0','10.0','10-12345','0.1','10.0','1.0','10.0','10.0','0.1','0.1','1983-01-10','TIME','0']],
+          '%s/1983-01-10/dump_folder.csv' % self.instance_root :
+            [['fakeuser0','0.1','1983-01-10','TIME','0']],
+          '%s/1983-01-10/dump_heating.csv' % self.instance_root : [],
+          '%s/1983-01-10/dump_temperature.csv' % self.instance_root : [],
+          '%s/1983-01-10/dump_system.csv' % self.instance_root :
+            [['0.1','10.0','100.0','100.0','10.0','1.0','2.0','12.0','1.0','1.0','1983-01-10','TIME','0']]}
 
         self.assertEqual(set(glob.glob("%s/1983-01-10/*.csv" % self.instance_root)),
-                          set(csv_path_list))
+                          set(csv_path_dict.keys()))
+
+        
+        for f_path in list(set(glob.glob("%s/1983-01-10/*.csv" % self.instance_root))):
+          with open(f_path, "r") as csv_file:
+            self.assertEqual([i for i in csv.reader(csv_file)], csv_path_dict[f_path])
+
+    def test_system_json_report(self):
+        database = self.getPopulatedDB(strftime("%Y-%m-%d"), amount=2)
+        reporter.SystemJSONReporterDumper(database).dump(self.instance_root)
+        date_to_test = strftime("%Y-%m-%d")
+        json_path_dict = {
+          '%s/system_memory_used.json' % self.instance_root: 
+            '[  {    "entry": 0.09765625,     "time": "%s TIME"  }]' % date_to_test,
+          '%s/system_cpu_percent.json' % self.instance_root: 
+            '[  {    "entry": 10.0,     "time": "%s TIME"  }]' % date_to_test,
+          '%s/system_net_out_bytes.json' % self.instance_root:
+            '[  {    "entry": 0.0,     "time": "%s TIME"  }]' % date_to_test,
+          '%s/system_net_in_bytes.json' % self.instance_root: 
+            '[  {    "entry": 0.0,     "time": "%s TIME"  }]' % date_to_test,
+          '%s/system_disk_memory_free__dev_sdx1.json' % self.instance_root:
+            '[  {    "entry": 0.01953125,     "time": "%s TIME"  }, '\
+             '  {    "entry": 0.01953125,     "time": "%s TIME"  }]' % (date_to_test, date_to_test),
+          '%s/system_net_out_errors.json' % self.instance_root: 
+            '[  {    "entry": 1.0,     "time": "%s TIME"  }]' % date_to_test,
+          '%s/system_disk_memory_used__dev_sdx1.json' % self.instance_root: 
+            '[  {    "entry": 0.009765625,     "time": "%s TIME"  },'\
+            '   {    "entry": 0.009765625,     "time": "%s TIME"  }]' % (date_to_test, date_to_test),
+          '%s/system_net_out_dropped.json' % self.instance_root: 
+            '[  {    "entry": 1.0,     "time": "%s TIME"  }]' % date_to_test,
+          '%s/system_memory_free.json' % self.instance_root:
+            '[  {    "entry": 0.09765625,     "time": "%s TIME"  }]' % date_to_test,
+          '%s/system_net_in_errors.json' % self.instance_root: 
+            '[  {    "entry": 1.0,     "time": "%s TIME"  }]' % date_to_test,
+          '%s/system_net_in_dropped.json' % self.instance_root: 
+            '[  {    "entry": 2.0,     "time": "%s TIME"  }]' % date_to_test,
+          '%s/system_loadavg.json' % self.instance_root: 
+            '[  {    "entry": 0.1,     "time": "%s TIME"  }]' % date_to_test}
+
+        self.assertEqual(set(glob.glob("%s/*.json" % self.instance_root)),
+                         set(json_path_dict)) 
+
+        for f_path in set(glob.glob("%s/*.json" % self.instance_root)):
+          with open(f_path, "r") as value:
+            self.assertEqual(json.load(value), json.loads(json_path_dict[f_path]))
+
 
     def test_system_csv_report(self):
-        database = db.Database(self.instance_root)
-        database.connect()
-        database.insertSystemSnapshot("0.1", '10.0', '100.0', '100.0', 
-                         '10.0', '1', '2', '12.0', '1', '1', strftime("%Y-%m-%d"), 'TIME')
-        database.insertDiskPartitionSnapshot(
-                 '/dev/sdx1', '10', '20', '/mnt', strftime("%Y-%m-%d"), 'TIME')
-        database.insertComputerSnapshot(
-              '1', '0', '0', '100', '0', '/dev/sdx1', strftime("%Y-%m-%d"), 'TIME')
-        database.commit()
-        database.close()
-
+        database = self.getPopulatedDB(strftime("%Y-%m-%d"), amount=2)
         reporter.SystemCSVReporterDumper(database).dump(self.instance_root)
-        csv_path_list = ['%s/system_memory_used.csv' % self.instance_root,
-                         '%s/system_cpu_percent.csv' % self.instance_root,
-                         '%s/system_net_out_bytes.csv' % self.instance_root,
-                         '%s/system_net_in_bytes.csv' % self.instance_root,
-                         '%s/system_disk_memory_free__dev_sdx1.csv' % self.instance_root,
-                         '%s/system_net_out_errors.csv' % self.instance_root,
-                         '%s/system_disk_memory_used__dev_sdx1.csv' % self.instance_root,
-                         '%s/system_net_out_dropped.csv' % self.instance_root,
-                         '%s/system_memory_free.csv' % self.instance_root,
-                         '%s/system_net_in_errors.csv' % self.instance_root,
-                         '%s/system_net_in_dropped.csv' % self.instance_root,
-                         '%s/system_loadavg.csv' % self.instance_root]
+        date_for_test = strftime("%Y-%m-%d")
+        csv_path_dict = {'%s/system_memory_used.csv' % self.instance_root:
+                           [['time','entry'], ['%s TIME' % date_for_test,'0.09765625']],
+                         '%s/system_cpu_percent.csv' % self.instance_root:
+                           [['time','entry'], ['%s TIME' % date_for_test,'10.0']],
+                         '%s/system_net_out_bytes.csv' % self.instance_root:
+                           [['time','entry'], ['%s TIME' % date_for_test,'0.0']],
+                         '%s/system_net_in_bytes.csv' % self.instance_root:
+                           [['time','entry'], ['%s TIME' % date_for_test,'0.0']],
+                         '%s/system_disk_memory_free__dev_sdx1.csv' % self.instance_root: 
+                           [['time','entry'], ['%s TIME' % date_for_test,'0.01953125'], 
+                            ['%s TIME' % date_for_test,'0.01953125']],
+                         '%s/system_net_out_errors.csv' % self.instance_root:
+                           [['time','entry'], ['%s TIME' % date_for_test,'1.0']],
+                         '%s/system_disk_memory_used__dev_sdx1.csv' % self.instance_root: 
+                           [['time','entry'], ['%s TIME' % date_for_test,'0.009765625'], 
+                             ['%s TIME' % date_for_test,'0.009765625']],
+                         '%s/system_net_out_dropped.csv' % self.instance_root: 
+                           [['time','entry'], ['%s TIME' % date_for_test,'1.0']],
+                         '%s/system_memory_free.csv' % self.instance_root:
+                           [['time','entry'], ['%s TIME' % date_for_test,'0.09765625']],
+                         '%s/system_net_in_errors.csv' % self.instance_root:
+                           [['time','entry'], ['%s TIME' % date_for_test,'1.0']],
+                         '%s/system_net_in_dropped.csv' % self.instance_root: 
+                           [['time','entry'], ['%s TIME' % date_for_test,'2.0']],
+                         '%s/system_loadavg.csv' % self.instance_root:
+                            [['time','entry'], ['%s TIME' % date_for_test,'0.1']]}
 
-        self.assertEqual(set(glob.glob("%s/*.csv" % self.instance_root)), set(csv_path_list)) 
+        self.assertEqual(set(glob.glob("%s/*.csv" % self.instance_root)),
+                    set(csv_path_dict.keys())) 
+
+        for f_path in list(set(glob.glob("%s/*.csv" % self.instance_root))):
+          with open(f_path, "r") as csv_file:
+            self.assertEqual([i for i in csv.reader(csv_file)], csv_path_dict[f_path])
+
 
     def test_compress_log_directory(self):
         log_directory = "%s/test_compress" % self.instance_root
@@ -365,6 +464,9 @@ class TestCollectReport(unittest.TestCase):
             self.assertEqual(tf.getmembers()[0].name, "1990-01-01")
             self.assertEqual(tf.getmembers()[1].name, "1990-01-01/test.txt")
             self.assertEqual(tf.extractfile(tf.getmembers()[1]).read(), b'hi')
+
+
+
 
 class TestCollectSnapshot(unittest.TestCase):
 
@@ -605,3 +707,222 @@ class TestCollectEntity(unittest.TestCase):
         self.assertEqual(database.invoked_method_list[-2], ("commit", ""))
         self.assertEqual(database.invoked_method_list[-1], ("close", ""))
 
+class TestJournal(unittest.TestCase):
+
+  def test_journal(self):
+    journal = reporter.Journal()
+
+    self.assertEqual(journal.getXML(),
+      b"<?xml version='1.0' encoding='utf-8'?><journal/>")
+
+    transaction = journal.newTransaction()
+    journal.setProperty(transaction, "title", "TestJournal")
+    journal.setProperty(transaction, "reference", "reference-of-testjournal")
+
+    arrow = ElementTree.SubElement(transaction, "arrow")
+    arrow.set("type", "Destination")
+
+    journal.newMovement(transaction,
+                        resource="ee",
+                        title="ZZ",
+                        quantity="10",
+                        reference="BB",
+                        category="")
+
+
+    self.assertEqual(journal.getXML(),
+      b'<?xml version=\'1.0\' encoding=\'utf-8\'?><journal><transaction type="Sale Packing List"><title>TestJournal</title><reference>reference-of-testjournal</reference><arrow type="Destination"/><movement><resource>ee</resource><title>ZZ</title><reference>BB</reference><quantity>10</quantity><price>0.0</price><VAT></VAT><category></category></movement></transaction></journal>')
+
+
+class TestConsumptionReportBase(unittest.TestCase):
+
+  base_path, = slapos.tests.data.__path__
+  maxDiff = None
+
+  def _get_file_content(self, f_path):
+    with open(f_path, "r") as f:
+      return f.readlines()
+    return []
+
+  def loadPredefinedDB(self):
+    # populate db
+    conn = sqlite3.connect(
+      os.path.join(self.instance_root, 'collector.db'))
+    with open(os.path.join(self.base_path, "monitor_collect.sql")) as f:
+      sql = f.read()
+    conn.executescript(sql)
+    conn.close() 
+
+  def get_fake_user_list(self, partition_amount=3):
+    config = ConfigParser()
+    config.add_section('slapformat')
+    config.set('slapformat', 'partition_amount', str(partition_amount))
+    config.set('slapformat', 'user_base_name', 'slapuser')
+    config.set('slapformat', 'partition_base_name', 'slappart')
+    config.add_section('slapos')
+    config.set('slapos', 'instance_root', self.instance_root)
+    
+    return entity.get_user_list(config)
+
+  def _getReport(self):
+    return reporter.ConsumptionReportBase(self.database)
+
+  def setUp(self):
+    self.instance_root = tempfile.mkdtemp()
+    # inititalise
+    self.loadPredefinedDB()
+    self.database = db.Database(self.instance_root)
+    self.temp_dir = tempfile.mkdtemp()
+    os.environ["HOME"] = self.temp_dir
+    self.software_root = tempfile.mkdtemp()
+
+    self.report = self._getReport() 
+
+  def test_getPartitionUsedMemoryAverage(self):
+    self.assertEqual(None,
+      self.report.getPartitionUsedMemoryAverage('slapuser19', '2019-10-04'))
+    self.assertEqual(None,
+      self.report.getPartitionUsedMemoryAverage('slapuser15', '2019-10-05'))
+    self.assertEqual(3868924121.87234,
+      self.report.getPartitionUsedMemoryAverage('slapuser19', '2019-10-05'))
+
+  def test_getPartitionCPULoadAverage(self):
+    self.assertEqual(7.08297872340419,
+      self.report.getPartitionCPULoadAverage('slapuser19', '2019-10-05'))
+    self.assertEqual(None,
+      self.report.getPartitionCPULoadAverage('slapuser15', '2019-10-05'))
+    self.assertEqual(None,
+      self.report.getPartitionCPULoadAverage('slapuser19', '2019-10-04'))
+
+
+  def test_getPartitionDiskUsedAverage(self):
+    self.assertEqual(7693240.0,
+      self.report.getPartitionDiskUsedAverage('slapuser19', '2019-10-05'))
+    self.assertEqual(None,
+      self.report.getPartitionDiskUsedAverage('slapuser99', '2019-10-05'))
+
+  def test_getPartitionProcessConsumptionList(self):
+    data = self.report.getPartitionProcessConsumptionList(
+            'slapuser19', date_scope='2019-10-05', 
+            min_time='00:01:00', max_time='00:13:00')
+    self.assertEqual(1784.02, data[-1]['cpu_time'])
+    self.assertEqual(56974.0, data[-1]['pid'])
+    self.assertEqual(102665369.0, data[-1]['io_cycles_counter'])
+    self.assertEqual(2.35, data[-1]['memory_rss'])
+    self.assertEqual(35299729408.0, data[-1]['io_rw_counter'])
+
+  def test_getPartitionConsumptionStatusList(self):
+    data = self.report.getPartitionConsumptionStatusList('slapuser19', date_scope='2019-10-05',
+                                         min_time='00:01:00', max_time='00:13:00')
+    self.assertEqual(14.6, data[0]['cpu_percent'])
+    self.assertEqual(2773721862147.0, data[2]['io_rw_counter'])
+
+class TestConsumptionReport(TestConsumptionReportBase):
+
+  def _getReport(self):
+    return reporter.ConsumptionReport(database=self.database,
+                                      computer_id="COMP-192938",
+                                      location=self.temp_dir,
+                                      user_list=self.get_fake_user_list(15))
+
+  def test_get_average_from_list(self):
+    self.assertEqual(2, self.report._getAverageFromList([2, 2]))
+    self.assertEqual(0, self.report._getAverageFromList([]))
+    self.assertEqual(10, self.report._getAverageFromList(range(1, 20)))
+
+  def test_getCpuLoadAverageConsumption(self):
+    self.assertEqual(self.report._getCpuLoadAverageConsumption('2019-10-05'), 74.44468085106385)
+    self.assertEqual(self.report._getCpuLoadAverageConsumption('2019-10-06'), 74.99183673469388)
+    self.assertEqual(self.report._getCpuLoadAverageConsumption('2019-10-07'), 76.43714285714287)
+    self.assertEqual(self.report._getCpuLoadAverageConsumption('2019-10-08'), None)
+    self.assertEqual(self.report._getCpuLoadAverageConsumption('2019-NO(d'), None)
+
+  def test_getMemoryAverageConsumption(self):
+    self.assertEqual(self.report._getMemoryAverageConsumption('2019-10-05'), 14185032159.319149)
+    self.assertEqual(self.report._getMemoryAverageConsumption('2019-10-06'), 14149247895.510204)
+    self.assertEqual(self.report._getMemoryAverageConsumption('2019-10-07'), 14211174517.028572)
+    self.assertEqual(self.report._getMemoryAverageConsumption('2019-10-08'), None)
+    self.assertEqual(self.report._getMemoryAverageConsumption('2019-NO(d'), None)
+
+
+  def test_buildXMLReport(self):
+    with open(os.path.join(self.temp_dir, "2019-10-07.xml.uploaded"), "w+") as f:
+      f.write("")
+    report_path = self.report.buildXMLReport('2019-10-07')
+    self.assertEqual(report_path, None)
+    os.unlink(os.path.join(self.temp_dir, "2019-10-07.xml.uploaded"))
+
+    report_path = self.report.buildXMLReport('2019-10-07')
+    self.assertEqual(report_path, os.path.join(self.temp_dir, "2019-10-07.xml"))
+    expected_file_path = "%s/%s" % (self.base_path, "2019-10-07.xml")
+    with open(report_path, "r") as report_file:
+      with open(expected_file_path, "r") as expected_file: 
+        self.assertEqual(slapos.util.xml2dict(report_file.read()),
+                         slapos.util.xml2dict(expected_file.read()))
+
+
+
+class TestPartitionReport(TestConsumptionReportBase):
+  def _getReport(self):
+    return reporter.PartitionReport(self.database,
+                                    user_list=self.get_fake_user_list(20))
+
+  def test_initDataFile(self):
+    now = time.time()
+    time.sleep(.1)
+    self.report._initDataFile(
+      os.path.join(self.temp_dir, "testfile.json"), ["my", "colums", "goes", "here"])
+    time.sleep(.1)
+    with open(os.path.join(self.temp_dir, "testfile.json")) as f:
+      _json = json.load(f)
+
+    self.assertLessEqual(_json["date"], time.time())
+    self.assertLessEqual(now , _json["date"])
+    self.assertEqual(["my", "colums", "goes", "here"], _json["data"])
+    self.assertEqual(["data", "date"], sorted(_json))
+
+  def test_buildJSONMonitorReport(self):
+    with mock.patch('time.time', return_value=1570495649.5):
+      self.report.buildJSONMonitorReport()
+      
+      for user in self.report.user_list.values():
+        location = os.path.join(user.path, ".slapgrid")
+        self.assertFalse(set(glob.glob("%s/*.json" % location))) 
+  
+      for user in self.report.user_list.values():
+        location = os.path.join(user.path, ".slapgrid")
+        if not os.path.exists(location):
+          if user.name in ["slapuser19", "slapuser12"]: 
+            mkdir_p(location, 0o755)
+        else:
+          if user.name not in ["slapuser19", "slapuser12"]: 
+            shutil.rmtree(location)
+      self.report.buildJSONMonitorReport(date_scope="2019-10-06",
+                                         min_time="00:00:00",
+                                         max_time="00:10:00")
+
+      for user in self.report.user_list.values():
+        if user.name not in ["slapuser19", "slapuser12"]:
+          continue
+        csv_path_list = [
+          '%s/.slapgrid/monitor/monitor_resource.status.json' % user.path, 
+          '%s/.slapgrid/monitor/monitor_resource_memory.data.json' % user.path,
+          '%s/.slapgrid/monitor/monitor_process_resource.status.json' % user.path,
+          '%s/.slapgrid/monitor/monitor_resource_process.data.json' % user.path,
+          '%s/.slapgrid/monitor/monitor_resource_io.data.json' % user.path] 
+  
+        self.assertEqual(set(glob.glob("%s/.slapgrid/monitor/*.json" % user.path)),
+                         set(csv_path_list)) 
+     
+        for f_path in set(glob.glob("%s/.slapgrid/monitor/*.json" % user.path)):
+          expected_file_path = os.path.join(self.base_path, user.name, os.path.basename(f_path))
+          #if six.PY2:
+          #  mkdir_p("%s/%s" % (self.base_path, user.name))
+          #  with open(f_path) as f:
+          #    with open(expected_file_path, "w") as z:
+          #      z.write(f.read())
+          with open(f_path, "r") as value:
+            with open(expected_file_path, "r") as expected:
+              json_value = json.load(value)
+              json_expected = json.load(expected)
+              self.assertEqual(json_value, json_expected) 

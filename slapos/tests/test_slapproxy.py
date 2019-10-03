@@ -361,6 +361,7 @@ class MasterMixin(BasicMixin, unittest.TestCase):
     Return response by server (a computer partition or an error)
     """
     rv = self._requestComputerPartition(*args, **kw)
+    time.sleep(0.01)
     requested_at = time.time()
     self.assertEqual(rv._status_code, 200)
     xml = rv.data

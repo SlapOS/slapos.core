@@ -214,7 +214,7 @@ class TestCollectDatabase(unittest.TestCase):
 
     def test_garbage_collection_date_list(self):
         database = db.Database(self.instance_root)
-        self.assertEqual(len(database._getGarbageCollectionDateList()), 3)
+        self.assertEqual(len(database._getGarbageCollectionDateList(3)), 3)
         self.assertEqual(len(database._getGarbageCollectionDateList(1)), 1)
         self.assertEqual(len(database._getGarbageCollectionDateList(0)), 0)
 

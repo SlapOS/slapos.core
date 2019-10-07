@@ -19,6 +19,8 @@ slapos_bt_list = [
     'slapos_configurator',
     'slapos_jio',
     'slapos_jio_ui_test'
+    'rapid_space_web_site',
+    'erp5_rapidspace_ui_test',
   ]
 
 class SlapOSCloud(SavedTestSuite, ProjectTestSuite):

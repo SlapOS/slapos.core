@@ -1,6 +1,18 @@
 Changes
 =======
 
+1.5.0 (2019-10-03)
+-------------------
+
+ * grid: new ``shared_part_list`` configuration file option to define
+   which paths can be used by ``slapos.recipe.cmmi`` for shared builds.
+ * proxy: bypass frontends requests for direct and KVM frontends, by
+   returning the original URL. This way instance promises are successful.
+ * slap: new ``StandaloneSlapOS`` class to easily embed slapos node in
+   applications.
+ * testing: new ``SlapOSInstanceTestCase`` test case useful for software
+   releases tests.
+
 1.4.28 (2019-10-01)
 -------------------
 

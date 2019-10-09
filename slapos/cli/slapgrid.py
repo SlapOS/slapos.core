@@ -173,3 +173,11 @@ class ReportCommand(SlapgridCommand):
     method_name = 'agregateAndSendUsage'
     default_pidfile = '/opt/slapos/slapgrid-ur.pid'
     pidfile_option_name = 'pidfile_report'
+
+class PromiseCommand(SlapgridCommand):
+   """run only promises to test the parition state"""
+
+   method_name = 'processPromiseList'
+   default_pidfile = '/opt/slapos/slapgrid-cp.pid'
+   pidfile_option_name = 'pidfile_instance'
+

@@ -102,7 +102,7 @@ class SupervisorConfigWriter(ConfigWriter):
         stdout_logfile_maxbytes = 5MB
         stdout_logfile_backups = 10
 
-    """.format(**locals()))
+    """).format(**locals())
 
   def _getSupervisorConfigParts(self):
     """Iterator on parts of formatted config.
@@ -129,7 +129,7 @@ class SupervisorConfigWriter(ConfigWriter):
         startretries = 0
         startsecs = 0
         redirect_stderr = true
-        """.format(**locals()))
+        """).format(**locals())
 
     for program, program_config in standalone_slapos._slapos_commands.items():
       yield self._getProgramConfig(
@@ -173,7 +173,7 @@ class SlapOSConfigWriter(ConfigWriter):
               host = {standalone_slapos._server_ip}
               port = {standalone_slapos._server_port}
               database_uri = {standalone_slapos._proxy_database}
-              """.format(**locals())))
+              """).format(**locals()))
 
 
 class SlapOSCommandWriter(ConfigWriter):
@@ -188,7 +188,7 @@ class SlapOSCommandWriter(ConfigWriter):
               SLAPOS_CONFIGURATION={self._standalone_slapos._slapos_config} \\
               SLAPOS_CLIENT_CONFIGURATION=$SLAPOS_CONFIGURATION \\
               exec slapos "$@"
-      """.format(**locals())))
+      """).format(**locals()))
     os.chmod(path, 0o755)
 
 

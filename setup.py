@@ -102,6 +102,7 @@ setup(name=name,
           'node report = slapos.cli.slapgrid:ReportCommand',
           'node software = slapos.cli.slapgrid:SoftwareCommand',
           'node instance = slapos.cli.slapgrid:InstanceCommand',
+          'node promise = slapos.cli.slapgrid:PromiseCommand',
           'node boot = slapos.cli.boot:BootCommand',
           'node collect = slapos.cli.collect:CollectCommand',
           # SlapOS client commands

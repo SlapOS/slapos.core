@@ -936,6 +936,72 @@ stderr_logfile_backups=1
       if partition_access_status is None or status_error:
         computer_partition.started()
 
+  def processPromise(self, computer_partition):
+    """
+    Process the promises from a given Computer Partition, depending on its state
+    """
+    computer_partition_id = computer_partition.getId()
+
+    # Sanity checks before processing
+    # Those values should not be None or empty string or any falsy value
+    if not computer_partition_id:
+      raise ValueError('Computer Partition id is empty.')
+
+    # Check if we defined explicit list of partitions to process.
+    # If so, if current partition not in this list, skip.
+    if len(self.computer_partition_filter_list) > 0 and \
+         (computer_partition_id not in self.computer_partition_filter_list):
+      return
+
+    instance_path = os.path.join(self.instance_root, computer_partition_id)
+    os.environ['SLAPGRID_INSTANCE_ROOT'] = self.instance_root
+    try:
+      software_url = computer_partition.getSoftwareRelease().getURI()
+    except NotFoundError:
+      # Problem with instance: SR URI not set.
+      # Try to process it anyway, it may need to be deleted.
+      software_url = None
+
+    try:
+      software_path = os.path.join(self.software_root, md5digest(software_url))
+    except TypeError:
+      # Problem with instance: SR URI not set.
+      # Try to process it anyway, it may need to be deleted.
+      software_path = None
+
+    computer_partition_state = computer_partition.getState()
+
+    local_partition = Partition(
+      software_path=software_path,
+      instance_path=instance_path,
+      supervisord_partition_configuration_path=os.path.join(
+        _getSupervisordConfigurationDirectory(self.instance_root),
+        computer_partition_id + '.conf'),
+      supervisord_socket=self.supervisord_socket,
+      computer_partition=computer_partition,
+      computer_id=self.computer_id,
+      partition_id=computer_partition_id,
+      server_url=self.master_url,
+      software_release_url=software_url,
+      certificate_repository_path=self.certificate_repository_path,
+      buildout=self.buildout,
+      buildout_debug=self.buildout_debug,
+      logger=self.logger,
+      retention_delay=getattr(computer_partition, '_filter_dict', {}).get('retention_delay', '0'),
+      instance_min_free_space=self.instance_min_free_space,
+      instance_storage_home=self.instance_storage_home,
+      ipv4_global_network=self.ipv4_global_network,
+    )
+
+    self.logger.info('Processing Promises for Computer Partition %s.', computer_partition_id)
+    self.logger.info('  Software URL: %s', software_url)
+    self.logger.info('  Software path: %s', software_path)
+    self.logger.info('  Instance path: %s', instance_path)
+
+    if computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
+      self._checkPromiseList(local_partition)
+      #self._checkPromiseAnomaly(local_partition, computer_partition)
+
   def processComputerPartition(self, computer_partition):
     """
     Process a Computer Partition, depending on its state
@@ -1323,6 +1389,54 @@ stderr_logfile_backups=1
     if not clean_run_promise:
       return SLAPGRID_PROMISE_FAIL
     return SLAPGRID_SUCCESS
+
+  def processPromiseList(self):
+    """
+    Will check and process promises for each Computer Partition.
+    """
+    self.logger.info('Processing promises...')
+    # Return success value
+    clean_run_promise = True
+    check_required_only_partitions([cp.getId() for cp in self.getComputerPartitionList()],
+                                   self.computer_partition_filter_list)
+
+    # Filter all dummy / empty partitions
+    computer_partition_list = self.FilterComputerPartitionList(
+        self.getComputerPartitionList())
+
+    promise_error_partition_list = []
+    for computer_partition in computer_partition_list:
+      try:
+        # Process the partition itself
+        self.processPromise(computer_partition)
+      except PromiseError as exc:
+        clean_run_promise = False
+        self.logger.error(exc)
+        promise_error_partition_list.append((computer_partition, exc))
+      except Exception as exc:
+        clean_run_promise = False
+        self.logger.exception('Problem while reporting error, continuing:')
+        promise_error_partition_list.append((computer_partition, exc))
+
+    def getPartitionType(part):
+      """returns the partition type, if known at that point.
+      """
+      try:
+        return part.getType()
+      except slapos.slap.ResourceNotReady:
+        return '(not ready)'
+
+    if promise_error_partition_list:
+      self.logger.info('Finished computer partitions.')
+      for partition, exc in promise_error_partition_list:
+        self.logger.info('  %s[%s]: %s', partition.getId(), getPartitionType(partition), exc)
+
+    # Return success value
+    if not clean_run_promise:
+      return SLAPGRID_PROMISE_FAIL
+    return SLAPGRID_SUCCESS
+
+
 
   def _checkWaitProcessList(self, partition, state_list):
     wait_file = os.path.join(partition.instance_path,

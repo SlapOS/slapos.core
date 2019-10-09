@@ -55,6 +55,7 @@ from slapos.grid import SlapObject
 from slapos.grid.SlapObject import WATCHDOG_MARK
 from slapos.manager.interface import IManager
 from slapos.slap.slap import COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME
+from slapos.slap.exception import ConnectionError
 import slapos.grid.SlapObject
 from slapos import manager as slapmanager
 from slapos.util import dumps
@@ -106,7 +107,32 @@ chmod 755 etc/service/daemon &&
 touch worked
 """
 
+PROMISE_CONTENT_TEMPLATE = """
+from zope.interface import implementer
+from slapos.grid.promise import interface
+from slapos.grid.promise import GenericPromise
 
+@implementer(interface.IPromise)
+class RunPromise(GenericPromise):
+
+  def __init__(self, config):
+    super(RunPromise, self).__init__(config)
+    self.setPeriodicity(minute=%(periodicity)s)
+ 
+  def sense(self):
+    %(content)s
+ 
+    if not %(success)s:
+      self.logger.error("failed")
+    else:
+      self.logger.info("success")
+
+  def anomaly(self):
+    return self._anomaly(result_count=2, failure_amount=%(failure_amount)s)
+
+  def test(self):
+    return self._test(result_count=1, failure_amount=%(failure_amount)s)
+""" 
 
 class BasicMixin(object):
   def setUp(self):
@@ -248,11 +274,10 @@ class TestBasicSlapgridCP(BasicMixin, unittest.TestCase):
     os.mkdir(self.software_root)
     self.assertRaises(OSError, self.grid.processComputerPartitionList)
 
-  @unittest.skip('which request handler here?')
   def test_no_master(self):
     os.mkdir(self.software_root)
     os.mkdir(self.instance_root)
-    self.assertRaises(socket.error, self.grid.processComputerPartitionList)
+    self.assertRaises(ConnectionError, self.grid.processComputerPartitionList)
 
 
 class MasterMixin(BasicMixin):
@@ -385,9 +410,6 @@ class ComputerForTest(object):
     else:
       return {'status_code': 500}
 
-
-
-
   def setSoftwares(self):
     """
     Will set requested amount of software
@@ -491,6 +513,24 @@ class InstanceForTest(object):
       f.write(promise_content)
     os.chmod(promise, 0o777)
 
+  def setPluginPromise(self, promise_name, success=True, failure_count=1, 
+      promise_content="", periodicity=0.03):
+    """
+    This function will set plugin promise and return its path
+    """
+    promise_dir = os.path.join(self.partition_path, 'etc', 'plugin')
+    if not os.path.isdir(promise_dir):
+      os.makedirs(promise_dir)
+    _promise_content = PROMISE_CONTENT_TEMPLATE % \
+         {'success': success, 
+          'content': promise_content, 
+          'failure_amount': failure_count,
+          'periodicity': periodicity}
+ 
+    with open(os.path.join(promise_dir, promise_name), 'w') as f:
+      f.write(_promise_content)
+    return os.path.join(promise_dir, promise_name)
+
   def setCertificate(self, certificate_repository_path):
     if not os.path.exists(certificate_repository_path):
       os.mkdir(certificate_repository_path)
@@ -504,7 +544,6 @@ class InstanceForTest(object):
     self.key = str(random.random())
     with open(self.key_file, 'w') as f:
       f.write(self.key)
-
 
 class SoftwareForTest(object):
   """
@@ -1848,6 +1887,8 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
 
 
 class TestSlapgridSoftwareRelease(MasterMixin, unittest.TestCase):
+
+  fake_waiting_time = 0.05
   def test_one_software_buildout_fail_is_correctly_logged(self):
     """
     1. We set up a software using a corrupted buildout
@@ -1945,7 +1986,6 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
-      self.fake_waiting_time = 0.05
       worked_file = os.path.join(instance.partition_path, 'succeed_worked')
       succeed = textwrap.dedent("""\
               #!/usr/bin/env sh
@@ -1964,7 +2004,6 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       instance = computer.instance_list[0]
 
       instance.requested_state = 'started'
-      self.fake_waiting_time = 0.05
 
       promise_path = os.path.join(instance.partition_path, 'etc', 'promise')
       os.makedirs(promise_path)
@@ -1991,9 +2030,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
     computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
-
       instance.requested_state = 'started'
-      self.fake_waiting_time = 0.05
 
       promise_path = os.path.join(instance.partition_path, 'etc', 'promise')
       os.makedirs(promise_path)
@@ -2019,8 +2056,6 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
 
-      self.fake_waiting_time = 0.05
-
       for i in range(2):
         worked_file = os.path.join(instance.partition_path, 'succeed_%s_worked' % i)
         succeed = textwrap.dedent("""\
@@ -2041,7 +2076,6 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
-      self.fake_waiting_time = 0.05
 
       for i in range(2):
         worked_file = os.path.join(instance.partition_path, 'promise_worked_%d' % i)
@@ -2070,7 +2104,6 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
-      self.fake_waiting_time = 0.05
       for i in range(2):
         worked_file = os.path.join(instance.partition_path, 'promise_worked_%d' % i)
         lockfile = os.path.join(instance.partition_path, 'lock')
@@ -3088,4 +3121,381 @@ exit 1
 
       self.assertEqual(self.manager.sequence,
                        ['software'])
+
+class TestBasicSlapgridPromise(BasicMixin, unittest.TestCase):
+  def test_no_software_root(self):
+    self.assertRaises(ConnectionError, self.grid.processPromiseList)
+
+  def test_no_instance_root(self):
+    os.mkdir(self.software_root)
+    self.assertRaises(ConnectionError, self.grid.processPromiseList)
+
+  def test_no_master(self):
+    os.mkdir(self.software_root)
+    os.mkdir(self.instance_root)
+    self.assertRaises(ConnectionError, self.grid.processPromiseList)
+
+
+class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
+
+  fake_waiting_time = 0.05
+  def test_one_failing_promise(self):
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'started'
+      worked_file = os.path.join(instance.partition_path, 'fail_worked')
+      fail = textwrap.dedent("""\
+              #!/usr/bin/env sh
+              touch "%s"
+              exit 127""" % worked_file)
+      instance.setPromise('fail', fail)
+      self.assertEqual(self.grid.processPromiseList(),
+                       slapos.grid.slapgrid.SLAPGRID_PROMISE_FAIL)
+      self.assertTrue(os.path.isfile(worked_file))
+
+  def test_one_failing_plugin_promise(self):
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'started'
+      worked_file = os.path.join(instance.partition_path, 'fail_worked_plugin')
+      fail = """import os
+    with open("%s", 'a'):
+      os.utime("%s", None)""" % (worked_file, worked_file)
+      instance.setPluginPromise(promise_name='fail.py', success=False, promise_content=fail)
+      self.assertEqual(self.grid.processPromiseList(),
+                       slapos.grid.slapgrid.SLAPGRID_PROMISE_FAIL)
+      self.assertTrue(os.path.isfile(worked_file))
+      with open(os.path.join(instance.partition_path,
+                ".slapgrid/promise/result/fail.status.json"), "r") as f:
+        result = json.loads(f.read())
+      self.assertEqual('failed', result["result"]["message"])
+
+  def test_one_succeeding_promise(self):
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'started'
+      worked_file = os.path.join(instance.partition_path, 'succeed_worked')
+      succeed = textwrap.dedent("""\
+              #!/usr/bin/env sh
+              touch "%s"
+              exit 0""" % worked_file)
+      instance.setPromise('succeed', succeed)
+      self.assertEqual(self.grid.processPromiseList(), slapgrid.SLAPGRID_SUCCESS)
+      self.assertTrue(os.path.isfile(worked_file))
+
+  def test_one_succeeding_plugin_promise(self):
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'started'
+      worked_file = os.path.join(instance.partition_path, 'succeed_worked_plugin')
+      succeed = """import os
+    with open("%s", 'a'):
+      os.utime("%s", None)""" % (worked_file, worked_file)
+      instance.setPluginPromise(promise_name='succeeding.py',
+                                success=True, promise_content=succeed)
+      self.assertEqual(self.grid.processPromiseList(),
+                       slapgrid.SLAPGRID_SUCCESS)
+      self.assertTrue(os.path.isfile(worked_file))
+      with open(os.path.join(instance.partition_path, ".slapgrid/promise/result/succeeding.status.json"), "r") as f:
+        result = json.loads(f.read())
+
+      self.assertEqual('success',
+                       result["result"]["message"])
+
+  def test_stderr_has_been_sent(self):
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'started'
+
+      promise_path = os.path.join(instance.partition_path, 'etc', 'promise')
+      os.makedirs(promise_path)
+      succeed = os.path.join(promise_path, 'stderr_writer')
+      worked_file = os.path.join(instance.partition_path, 'stderr_worked')
+      with open(succeed, 'w') as f:
+        f.write(textwrap.dedent("""\
+              #!/usr/bin/env sh
+              touch "%s"
+              echo 'Error Promise 254554802' 1>&2
+              exit 127""" % worked_file))
+      os.chmod(succeed, 0o777)
+      self.assertEqual(self.grid.processPromiseList(),
+                       slapos.grid.slapgrid.SLAPGRID_PROMISE_FAIL)
+      self.assertTrue(os.path.isfile(worked_file))
+
+  def test_stderr_has_been_sent_plugin(self):
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'started'
+      worked_file = os.path.join(instance.partition_path, 'stderr_worked_plugin')
+      fail = """import os
+    with open("%s", 'a'):
+      os.utime("%s", None)
+    raise ValueError("FAILED 254554802")""" % (worked_file, worked_file)
+      instance.setPluginPromise(promise_name='stderr_fail.py', success=False, promise_content=fail)
+      self.assertEqual(self.grid.processPromiseList(),
+                       slapos.grid.slapgrid.SLAPGRID_PROMISE_FAIL)
+      self.assertTrue(os.path.isfile(worked_file))
+      with open(os.path.join(instance.partition_path, ".slapgrid/promise/result/stderr_fail.status.json"), "r") as f:
+        result = json.loads(f.read())
+
+      self.assertEqual('FAILED 254554802', result["result"]["message"])
+
+  def test_timeout_works(self):
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+
+      instance.requested_state = 'started'
+
+      promise_path = os.path.join(instance.partition_path, 'etc', 'promise')
+      os.makedirs(promise_path)
+      succeed = os.path.join(promise_path, 'timed_out_promise')
+      worked_file = os.path.join(instance.partition_path, 'timed_out_worked')
+      with open(succeed, 'w') as f:
+        f.write(textwrap.dedent("""\
+              #!/usr/bin/env sh
+              touch "%s"
+              sleep 5
+              exit 0""" % worked_file))
+      os.chmod(succeed, 0o777)
+      self.assertEqual(self.grid.processPromiseList(),
+                       slapos.grid.slapgrid.SLAPGRID_PROMISE_FAIL)
+      self.assertTrue(os.path.isfile(worked_file))
+
+  def test_timeout_works_plugin(self):
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'started'
+      worked_file = os.path.join(instance.partition_path, 'timed_out_worked_plugin')
+      fail = """import os
+    with open("%s", 'a'):
+      os.utime("%s", None)
+    import time
+    time.sleep(7)""" % (worked_file, worked_file)
+      instance.setPluginPromise(promise_name='timeout_fail.py', success=True, promise_content=fail)
+      self.assertEqual(self.grid.processPromiseList(),
+                       slapos.grid.slapgrid.SLAPGRID_PROMISE_FAIL)
+      self.assertTrue(os.path.isfile(worked_file))
+      with open(os.path.join(instance.partition_path, ".slapgrid/promise/result/timeout_fail.status.json"), "r") as f:
+        result = json.loads(f.read())
+
+      self.assertEqual('Error: Promise timed out after 3 seconds',
+                       result["result"]["message"])
+
+  def test_two_succeeding_promises(self):
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'started'
+
+      for i in range(2):
+        worked_file = os.path.join(instance.partition_path, 'succeed_%s_worked' % i)
+        succeed = textwrap.dedent("""\
+              #!/usr/bin/env sh
+              touch "%s"
+              exit 0""" % worked_file)
+        instance.setPromise('succeed_%s' % i, succeed)
+
+      self.assertEqual(self.grid.processPromiseList(), slapgrid.SLAPGRID_SUCCESS)
+      for i in range(2):
+        worked_file = os.path.join(instance.partition_path, 'succeed_%s_worked' % i)
+        self.assertTrue(os.path.isfile(worked_file))
+
+  def test_two_succeeding_plugin_promise(self):
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'started'
+      worked_file = os.path.join(instance.partition_path, 'succeed_worked_plugin')
+      succeed = """import os
+    with open("%s", 'a'):
+      os.utime("%s", None)""" % (worked_file, worked_file)
+      instance.setPluginPromise(promise_name='succeeding.py',
+                                success=True, promise_content=succeed)
+
+      worked2_file = os.path.join(instance.partition_path, 'succeed_worked2_plugin')
+      succeed = """import os
+    with open("%s", 'a'):
+      os.utime("%s", None)""" % (worked2_file, worked2_file)
+
+      instance.setPluginPromise(promise_name='succeeding2.py',
+                                success=True, promise_content=succeed)
+      self.assertEqual(self.grid.processPromiseList(),
+                       slapgrid.SLAPGRID_SUCCESS)
+      self.assertTrue(os.path.isfile(worked_file))
+      self.assertTrue(os.path.isfile(worked2_file))
+
+      with open(os.path.join(instance.partition_path, ".slapgrid/promise/result/succeeding2.status.json"), "r") as f:
+        result = json.loads(f.read())
+      
+      self.assertEqual('success',
+                       result["result"]["message"])
+
+      with open(os.path.join(instance.partition_path, ".slapgrid/promise/result/succeeding.status.json"), "r") as f:
+        result = json.loads(f.read())
+
+      self.assertEqual('success',
+                       result["result"]["message"])
+
+
+  def test_one_succeeding_one_failing_promises(self):
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'started'
+
+      for i in range(2):
+        worked_file = os.path.join(instance.partition_path, 'promise_worked_%d' % i)
+        lockfile = os.path.join(instance.partition_path, 'lock')
+        promise = textwrap.dedent("""\
+                  #!/usr/bin/env sh
+                  touch "%(worked_file)s"
+                  if [ ! -f %(lockfile)s ]
+                  then
+                    touch "%(lockfile)s"
+                    exit 0
+                  else
+                    exit 127
+                  fi""" % {
+            'worked_file': worked_file,
+            'lockfile': lockfile
+        })
+        instance.setPromise('promise_%s' % i, promise)
+      self.assertEqual(self.grid.processPromiseList(),
+                       slapos.grid.slapgrid.SLAPGRID_PROMISE_FAIL)
+
+  def test_one_succeeding_one_failing_promises_plugin(self):
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'started'
+      worked_file = os.path.join(instance.partition_path, 'succeed_worked_plugin')
+      succeed = """import os
+    with open("%s", 'a'):
+      os.utime("%s", None)""" % (worked_file, worked_file)
+      instance.setPluginPromise(promise_name='succeeding.py',
+                                success=True, promise_content=succeed)
+
+      fail_file = os.path.join(instance.partition_path, 'fail_worked_plugin')
+      fail = """import os
+    with open("%s", 'a'):
+      os.utime("%s", None)""" % (fail_file, fail_file)
+      instance.setPluginPromise(promise_name='fail.py', success=False, promise_content=fail)
+
+      self.assertEqual(self.grid.processPromiseList(),
+                       slapgrid.SLAPGRID_PROMISE_FAIL)
+      self.assertTrue(os.path.isfile(worked_file))
+      self.assertTrue(os.path.isfile(fail_file))
+
+      with open(os.path.join(instance.partition_path,
+                ".slapgrid/promise/result/fail.status.json"), "r") as f:
+        result = json.loads(f.read())
+      self.assertEqual('failed', result["result"]["message"])
+
+      with open(os.path.join(instance.partition_path, ".slapgrid/promise/result/succeeding.status.json"), "r") as f:
+        result = json.loads(f.read())
+
+      self.assertEqual('success', result["result"]["message"])
+
+
+
+
+  def test_one_succeeding_one_timing_out_promises(self):
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'started'
+      for i in range(2):
+        worked_file = os.path.join(instance.partition_path, 'promise_worked_%d' % i)
+        lockfile = os.path.join(instance.partition_path, 'lock')
+        promise = textwrap.dedent("""\
+                  #!/usr/bin/env sh
+                  touch "%(worked_file)s"
+                  if [ ! -f %(lockfile)s ]
+                  then
+                    touch "%(lockfile)s"
+                  else
+                    sleep 5
+                  fi
+                  exit 0""" % {
+            'worked_file': worked_file,
+            'lockfile': lockfile}
+        )
+        instance.setPromise('promise_%d' % i, promise)
+
+      self.assertEqual(self.grid.processPromiseList(),
+                       slapos.grid.slapgrid.SLAPGRID_PROMISE_FAIL)
+
+  def test_one_succeeding_one_failing_promises_plugin(self):
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'started'
+      worked_file = os.path.join(instance.partition_path, 'succeed_worked_plugin')
+      succeed = """import os
+    with open("%s", 'a'):
+      os.utime("%s", None)""" % (worked_file, worked_file)
+      instance.setPluginPromise(promise_name='succeeding.py',
+                                success=True, promise_content=succeed)
+
+      timeout_file = os.path.join(instance.partition_path, 'timed_out_worked_plugin')
+      fail = """import os
+    with open("%s", 'a'):
+      os.utime("%s", None)
+    import time
+    time.sleep(7)""" % (timeout_file, timeout_file)
+      instance.setPluginPromise(promise_name='timeout_fail.py', success=True, promise_content=fail)
+ 
+      self.assertEqual(self.grid.processPromiseList(),
+                       slapgrid.SLAPGRID_PROMISE_FAIL)
+      self.assertTrue(os.path.isfile(worked_file))
+      self.assertTrue(os.path.isfile(timeout_file))
+      with open(os.path.join(instance.partition_path, ".slapgrid/promise/result/succeeding.status.json"), "r") as f:
+        result = json.loads(f.read())
+
+      self.assertEqual('success', result["result"]["message"])
+
+      with open(os.path.join(instance.partition_path, ".slapgrid/promise/result/timeout_fail.status.json"), "r") as f:
+        result = json.loads(f.read())
+
+      self.assertEqual('Error: Promise timed out after 3 seconds',
+                       result["result"]["message"])
+
+  def test_promise_notrun_if_partition_stopped(self):
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'stopped'
+      promise_file = os.path.join(instance.partition_path, 'promise_ran')
+      promise = textwrap.dedent("""\
+              #!/usr/bin/env sh
+              touch "%s"
+              exit 127""" % promise_file)
+      instance.setPromise('promise_script', promise)
+      self.assertEqual(self.grid.processPromiseList(),
+                       slapos.grid.slapgrid.SLAPGRID_SUCCESS)
+      self.assertFalse(os.path.exists(promise_file))
+
+  def test_promise_notrun_if_partition_stopped_plugin(self):
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'stopped'
+      worked_file = os.path.join(instance.partition_path, 'fail_worked_plugin')
+      fail = """import os
+    with open("%s", 'a'):
+      os.utime("%s", None)""" % (worked_file, worked_file)
+      instance.setPluginPromise(promise_name='fail.py', success=False, promise_content=fail)
+      self.assertEqual(self.grid.processPromiseList(),
+                       slapos.grid.slapgrid.SLAPGRID_SUCCESS)
+      self.assertFalse(os.path.isfile(worked_file))
+      self.assertFalse(os.path.isfile(os.path.join(instance.partition_path,
+                ".slapgrid/promise/result/fail.status.json")))
 

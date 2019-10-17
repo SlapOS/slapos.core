@@ -28,8 +28,6 @@ try:
 except ImportError:
   additional_install_requires.append('argparse')
 
-if sys.version_info[0] < 3:
-  additional_install_requires.append('subprocess32')
 
 setup(name=name,
       version=version,
@@ -63,6 +61,7 @@ setup(name=name,
           'cachecontrol',
           'lockfile',
           'uritemplate', # used by hateoas navigator
+          'subprocess32; python_version<"3"'
         ] + additional_install_requires,
       extras_require={
       'docs': (

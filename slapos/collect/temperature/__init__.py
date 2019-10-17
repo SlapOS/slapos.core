@@ -1,10 +1,18 @@
 from __future__ import print_function
 
 from multiprocessing import Process, active_children, cpu_count, Pipe
-try:
-  import subprocess32 as subprocess
-except ImportError:
+
+# When we run slapos node on python3 and install some software using python2,
+# subprocess32 will be installed, because the working set is generated for
+# the buildout python and not the python running slapos node instance.
+# To workaround this, we don't check the presence of subprocess32 egg, but
+# the fact that we run on python3.
+import six
+if six.PY2:
+  import subprocess32 as subprocess #  pylint: disable=import-error
+else:
   import subprocess
+
 import os
 import signal
 import sys

@@ -131,9 +131,9 @@ class SystemSnapshot(_Snapshot):
 
     memory = psutil.virtual_memory()
     net_io = psutil.net_io_counters()
-    
-    self.memory_used = memory.used
-    self.memory_free = memory.free
+
+    self.memory_free = available = memory.available
+    self.memory_used = memory.total - available
     self.memory_percent = memory.percent
     #self.cpu_percent = psutil.cpu_percent()
     self.cpu_percent = load_percent

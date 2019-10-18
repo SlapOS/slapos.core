@@ -50,6 +50,7 @@ import psutil
 from .interface.slap import IException
 from .interface.slap import ISupply
 from .interface.slap import IRequester
+from ..grid.slapgrid import SLAPGRID_PROMISE_FAIL
 
 from .slap import slap
 from ..grid.svcbackend import getSupervisorRPC
@@ -630,9 +631,14 @@ class StandaloneSlapOS(object):
       prog = self._slapos_commands[command]
       # used in format(**locals()) below
       debug_args = prog.get('debug_args', '')  # pylint: disable=unused-variable
-      return subprocess.check_call(
-          prog['command'].format(**locals()), shell=True)
-
+      command = prog['command'].format(**locals())
+      try:
+        return subprocess.check_call(command, shell=True)
+      except subprocess.CalledProcessError as e:
+        if e.returncode == SLAPGRID_PROMISE_FAIL:
+          self._logger.exception('Promise error when running %s', command)
+          import pdb; pdb.post_mortem()
+        raise
     with self.system_supervisor_rpc as supervisor:
       retry = 0
       while True:

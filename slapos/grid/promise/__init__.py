@@ -469,7 +469,7 @@ class PromiseLauncher(object):
         if result is not None:
           if result.item.hasFailed():
             self.logger.error(result.item.message)
-            return True
+            return result.item
         return False
       # we can do this because we run processes one by one
       # we cleanup queue in case previous result was written by a killed process
@@ -479,7 +479,7 @@ class PromiseLauncher(object):
       # only print traceback to not prevent run other promises
       self.logger.error(traceback.format_exc())
       self.logger.warning("Promise %s skipped." % promise_name)
-      return True
+      return TestResult(problem=True, message=traceback.format_exc())
 
     self.logger.info("Checking promise %s..." % promise_name)
     queue_item = None
@@ -554,7 +554,7 @@ class PromiseLauncher(object):
       self.logger.debug("Finished promise %r in %s second(s)." % (
                        promise_name, execution_time))
 
-    return queue_item.item.hasFailed()
+    return queue_item.item
 
   def run(self):
     """
@@ -562,6 +562,7 @@ class PromiseLauncher(object):
     """
     promise_list = []
     failed_promise_name = ""
+    failed_promise_output = ""
     base_config = {
       'log-folder': self.log_folder,
       'partition-folder': self.partition_folder,
@@ -593,9 +594,10 @@ class PromiseLauncher(object):
         }
 
         config.update(base_config)
-        if self._launchPromise(promise_name, promise_path, config) and \
-            not failed_promise_name:
+        promise_result = self._launchPromise(promise_name, promise_path, config)
+        if promise_result and promise_result.hasFailed() and not failed_promise_name:
           failed_promise_name = promise_name
+          failed_promise_output = promise_result.message
 
     if not self.run_only_promise_list and os.path.exists(self.legacy_promise_folder) \
         and os.path.isdir(self.legacy_promise_folder):
@@ -613,16 +615,19 @@ class PromiseLauncher(object):
         }
         config.update(base_config)
         # We will use promise wrapper to run this
-        result_state = self._launchPromise(promise_name,
+        promise_result = self._launchPromise(promise_name,
                                            promise_path,
                                            config,
                                            wrap_process=True)
-        if result_state and not failed_promise_name:
+        if promise_result.hasFailed() and not failed_promise_name:
           failed_promise_name = promise_name
+          failed_promise_output = promise_result.message
 
     self._updateFolderOwner(self.promise_output_dir)
     if self._skipped_amount > 0:
       self.logger.info("%s promises didn't need to be checked." % \
         self._skipped_amount)
     if failed_promise_name:
-      raise PromiseError("Promise %r failed." % failed_promise_name)
+      raise PromiseError("Promise %r failed with output: %s" % (
+          failed_promise_name,
+          failed_promise_output))

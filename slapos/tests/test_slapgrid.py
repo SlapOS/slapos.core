@@ -1682,7 +1682,7 @@ echo %s; echo %s; exit 42""" % (line1, line2))
         'Error with promises for the following partitions:')
     self.assertEqual(
         dummyLogger.mock_calls[-1][1][0] % dummyLogger.mock_calls[-1][1][1:],
-        "  2[(not ready)]: Promise 'failing_promise' failed.")
+        "  2[(not ready)]: Promise 'failing_promise' failed with output: fake promise error")
 
 
 class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):

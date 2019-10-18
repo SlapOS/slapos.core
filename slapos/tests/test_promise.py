@@ -544,7 +544,7 @@ class RunPromise(GenericPromise):
     # run promise will fail when promise fail (usefull for slapgrid)
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run()
-    self.assertEqual(str(exc.exception), 'Promise %r failed.' % second_promise)
+    self.assertEqual(str(exc.exception), 'Promise %r failed with output: failed' % second_promise)
 
     # force to reload the module without rerun python
     os.system('rm %s/*.pyc' % self.plugin_dir)
@@ -647,7 +647,7 @@ class RunPromise(GenericPromise):
 
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run()
-    self.assertEqual(str(exc.exception), 'Promise %r failed.' % second_promise)
+    self.assertEqual(str(exc.exception), 'Promise %r failed with output: failed' % second_promise)
 
     self.assertTrue(os.path.exists(first_state_file))
     self.assertTrue(os.path.exists(second_state_file))
@@ -664,7 +664,7 @@ class RunPromise(GenericPromise):
     time.sleep(2)
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run() # only my_first_promise will run but second_promise still failing
-    self.assertEqual(str(exc.exception), 'Promise %r failed.' % second_promise)
+    self.assertEqual(str(exc.exception), 'Promise %r failed with output: failed' % second_promise)
 
     with open(first_state_file) as f:
       first_result = json.load(f)
@@ -678,7 +678,7 @@ class RunPromise(GenericPromise):
     self.configureLauncher()
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run()
-    self.assertEqual(str(exc.exception), 'Promise %r failed.' % second_promise)
+    self.assertEqual(str(exc.exception), 'Promise %r failed with output: failed' % second_promise)
 
     with open(first_state_file) as f:
       first_result = json.load(f)
@@ -703,7 +703,7 @@ class RunPromise(GenericPromise):
 
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run()
-    self.assertEqual(str(exc.exception), 'Promise %r failed.' % second_promise)
+    self.assertEqual(str(exc.exception), 'Promise %r failed with output: failed' % second_promise)
 
     self.assertTrue(os.path.exists(first_state_file))
     self.assertTrue(os.path.exists(second_state_file))
@@ -720,7 +720,7 @@ class RunPromise(GenericPromise):
     time.sleep(2)
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run() # only my_first_promise will run but second_promise still failing
-    self.assertEqual(str(exc.exception), 'Promise %r failed.' % second_promise)
+    self.assertEqual(str(exc.exception), 'Promise %r failed with output: failed' % second_promise)
 
     with open(first_state_file) as f:
       first_result = json.load(f)
@@ -832,7 +832,7 @@ exit 1
     state_file = os.path.join(self.partition_dir, PROMISE_STATE_FOLDER_NAME)
     with self.assertRaises(PromiseError) as exc:
       self.launcher.run()
-    self.assertEqual(str(exc.exception), 'Promise %r failed.' % promise_name)
+    self.assertEqual(str(exc.exception), 'Promise %r failed with output: This promise failed' % promise_name)
 
   def test_runpromise_wrapped_mixed(self):
     self.called = 0

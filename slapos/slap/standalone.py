@@ -61,10 +61,12 @@ class SlapOSNodeCommandError(Exception):
   """Exception raised when running a SlapOS Node command failed.
   """
   def __str__(self):
+    # This is a false positive in pylint https://github.com/PyCQA/pylint/issues/1498
+    called_process_error = self.args[0] #  pylint: disable=unsubscriptable-object
     return "{} exitstatus: {} output:\n{}".format(
         self.__class__.__name__,
-        self.args[0]['exitstatus'],
-        self.args[0]['output'],
+        called_process_error['exitstatus'],
+        called_process_error['output'],
     )
 
 

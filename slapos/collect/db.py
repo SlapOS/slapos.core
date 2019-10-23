@@ -28,7 +28,7 @@
 ##############################################################################
 
 import os
-from time import strftime
+from time import strftime, gmtime
 import datetime
 
 from slapos.util import sqlite_connect
@@ -162,7 +162,7 @@ class Database:
     self.close()
 
   def _getInsertionDateTuple(self):
-    return strftime("%Y-%m-d -- %H:%M:%S").split(" -- ")
+    return strftime("%Y-%m-d -- %H:%M:%S", gmtime()).split(" -- ")
 
   ###################
   # Insertion methods
@@ -252,7 +252,7 @@ class Database:
   def _getGarbageCollectionDateList(self, days_to_preserve=3):
     """ Return the list of dates to Preserve when data collect
     """
-    base = datetime.datetime.today()
+    base = datetime.datetime.utcnow().date()
     date_list = []
     for x in range(0, days_to_preserve):
       date_list.append((base - datetime.timedelta(days=x)).strftime("%Y-%m-%d"))
@@ -419,7 +419,7 @@ class Database:
     select_sql = "SELECT date, time FROM heating ORDER BY date, time DESC LIMIT 1"
     for __date, __time in self._execute(select_sql):
        _date = datetime.datetime.strptime("%s %s" % (__date, __time), "%Y-%m-%d %H:%M:%S")
-       return datetime.datetime.now() - _date
+       return datetime.datetime.utcnow() - _date
     return datetime.timedelta(weeks=520)
 
   def getLastZeroEmissionRatio(self):

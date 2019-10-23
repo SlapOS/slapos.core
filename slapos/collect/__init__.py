@@ -29,7 +29,7 @@
 
 from __future__ import print_function
 from psutil import process_iter, NoSuchProcess, AccessDenied
-from time import strftime
+from time import strftime, gmtime
 import shutil
 import datetime
 from slapos.collect.db import Database
@@ -46,7 +46,7 @@ from slapos.collect.reporter import RawCSVDumper, \
 from .entity import get_user_list, Computer
 
 def _get_time():
-  return strftime("%Y-%m-%d -- %H:%M:%S").split(" -- ")
+  return strftime("%Y-%m-%d -- %H:%M:%S", gmtime()).split(" -- ")
 
 def build_snapshot(proc):
   try:
@@ -144,10 +144,10 @@ def do_collect(conf):
                       database=database,
                       location=consumption_report_directory)
     
-    base = datetime.datetime.today()
+    base = datetime.datetime.utcnow().date()
     for x in range(1, 3):
       report_file = consumption_report.buildXMLReport(
-          (base - datetime.timedelta(days=x)).strftime("%Y-%m-%d"))
+          (base - datetime.timedelta(days=x)).strftime("%Y-%m-%d"), gmtime())
 
       if report_file is not None:
         shutil.copy(report_file, xml_report_directory)

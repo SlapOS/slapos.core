@@ -79,7 +79,7 @@ class User(object):
                                     where="partition='%s'" % self.name):
           latest_date = datetime.strptime('%s %s' % date_time,
                                           "%Y-%m-%d %H:%M:%S")
-          if (datetime.now() - latest_date).seconds < time_cycle:
+          if (datetime.utcnow() - latest_date).seconds < time_cycle:
             # wait the time cycle
             return
           break

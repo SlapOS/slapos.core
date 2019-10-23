@@ -59,7 +59,7 @@ class SystemReporter(Dumper):
   
   def dump(self, folder):
     """ Dump data """
-    _date = time.strftime("%Y-%m-%d")
+    _date = time.strftime("%Y-%m-%d", time.gmtime())
     self.db.connect()
     for item, collected_item_list in six.iteritems(self.db.exportSystemAsDict(_date)):
       self.writeFile(item, folder, collected_item_list)
@@ -94,7 +94,7 @@ class RawDumper(Dumper):
   """ Dump raw data in a certain format
   """
   def dump(self, folder):
-    date = time.strftime("%Y-%m-%d")
+    date = time.strftime("%Y-%m-%d", time.gmtime())
     self.db.connect()
     table_list = self.db.getTableList()
     for date_scope, amount in self.db.getDateScopeList(ignore_date=date):

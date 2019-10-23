@@ -50,6 +50,7 @@ import psutil
 from .interface.slap import IException
 from .interface.slap import ISupply
 from .interface.slap import IRequester
+from ..grid.slapgrid import SLAPGRID_PROMISE_FAIL
 
 from .slap import slap
 from ..grid.svcbackend import getSupervisorRPC
@@ -60,10 +61,12 @@ class SlapOSNodeCommandError(Exception):
   """Exception raised when running a SlapOS Node command failed.
   """
   def __str__(self):
+    # This is a false positive in pylint https://github.com/PyCQA/pylint/issues/1498
+    called_process_error = self.args[0] #  pylint: disable=unsubscriptable-object
     return "{} exitstatus: {} output:\n{}".format(
         self.__class__.__name__,
-        self.args[0]['exitstatus'],
-        self.args[0]['output'],
+        called_process_error['exitstatus'],
+        called_process_error['output'],
     )
 
 
@@ -471,7 +474,19 @@ class StandaloneSlapOS(object):
     for part in unknown_partition_set:
       self._logger.debug(
           "removing partition no longer part of format spec %s", part)
+      # remove partition directory
       shutil.rmtree(part)
+      # remove partition supervisor config, if it was not removed cleanly
+      supervisor_conf = os.path.join(
+          self._instance_root,
+          'etc',
+          'supervisord.conf.d',
+          '%s.conf' % os.path.basename(part))
+      if os.path.exists(supervisor_conf):
+        self._logger.info(
+          "removing leftover supervisor config from destroyed partition at %s",
+          supervisor_conf)
+        os.unlink(supervisor_conf)
 
   def supply(self, software_url, computer_guid=None, state="available"):
     """Supply a software, see ISupply.supply
@@ -630,9 +645,14 @@ class StandaloneSlapOS(object):
       prog = self._slapos_commands[command]
       # used in format(**locals()) below
       debug_args = prog.get('debug_args', '')  # pylint: disable=unused-variable
-      return subprocess.check_call(
-          prog['command'].format(**locals()), shell=True)
-
+      command = prog['command'].format(**locals())
+      try:
+        return subprocess.check_call(command, shell=True)
+      except subprocess.CalledProcessError as e:
+        if e.returncode == SLAPGRID_PROMISE_FAIL:
+          self._logger.exception('Promise error when running %s', command)
+          import pdb; pdb.post_mortem()
+        raise
     with self.system_supervisor_rpc as supervisor:
       retry = 0
       while True:

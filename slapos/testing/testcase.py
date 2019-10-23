@@ -30,6 +30,8 @@ import unittest
 import os
 import glob
 import logging
+import shutil
+import enum
 
 try:
   import subprocess32 as subprocess
@@ -43,6 +45,7 @@ from ..slap.standalone import StandaloneSlapOS
 from ..slap.standalone import SlapOSNodeCommandError
 from ..slap.standalone import PathTooDeepError
 from ..grid.utils import md5digest
+from ..util import mkdir_p
 
 try:
   from typing import Iterable, Tuple, Callable, Type
@@ -59,6 +62,7 @@ def makeModuleSetUpAndTestCaseClass(
     verbose=bool(int(os.environ.get('SLAPOS_TEST_VERBOSE', 0))),
     shared_part_list=os.environ.get('SLAPOS_TEST_SHARED_PART_LIST',
                                     '').split(os.pathsep),
+    snapshot_directory=os.environ.get('SLAPOS_TEST_LOG_DIRECTORY')
 ):
   # type: (str, str, str, str, bool, bool, List[str]) -> Tuple[Callable[[], None], Type[SlapOSInstanceTestCase]]
   """Create a setup module function and a testcase for testing `software_url`.
@@ -116,6 +120,8 @@ def makeModuleSetUpAndTestCaseClass(
         'base directory ( {} ) is too deep, try setting '
         'SLAPOS_TEST_WORKING_DIR to a shallow enough directory'.format(
             base_directory))
+  if not snapshot_directory:
+    snapshot_directory = os.path.join(base_directory, "snapshots")
 
   cls = type(
       'SlapOSInstanceTestCase for {}'.format(software_url),
@@ -125,7 +131,9 @@ def makeModuleSetUpAndTestCaseClass(
           '_debug': debug,
           '_verbose': verbose,
           '_ipv4_address': ipv4_address,
-          '_ipv6_address': ipv6_address
+          '_ipv6_address': ipv6_address,
+          '_base_directory': base_directory,
+          '_test_file_snapshot_directory': snapshot_directory
       })
 
   class SlapOSInstanceTestCase_(cls, SlapOSInstanceTestCase):
@@ -230,6 +238,10 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=2, debug=False):
     cls._cleanup()
     raise e
 
+class SnapshotMode(enum.Enum):
+  Copy = 1
+  Link = 2
+
 
 class SlapOSInstanceTestCase(unittest.TestCase):
   """Install one slapos instance.
@@ -273,6 +285,14 @@ class SlapOSInstanceTestCase(unittest.TestCase):
   slap = None  # type: StandaloneSlapOS
   _ipv4_address = ""
   _ipv6_address = ""
+  _base_directory = ""  # base directory for standalone
+  _test_file_snapshot_directory = ""  # directory to save snapshot files for inspections
+  # patterns of files to save for inspection, relative to instance directory
+  _save_instance_file_pattern_list = (
+      '*/etc/*',
+      '*/var/log/*',
+      '*/.*log',
+  )
 
   # Methods to be defined by subclasses.
   @classmethod
@@ -360,6 +380,43 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     """Tear down class, stop the processes and destroy instance.
     """
     cls._cleanup()
+
+  def tearDown(self):
+    # copy log files from standalone ( we don't link as these logs can be rotated )
+    for standalone_log in glob.glob(os.path.join(
+          self._base_directory, 'var', 'log', '*')):
+      self._snapshot_instance_file(standalone_log, SnapshotMode.Copy)
+
+    # link config and log files from partitions
+    for pattern in self._save_instance_file_pattern_list:
+      for f in glob.glob(os.path.join(self.slap.instance_directory, pattern)):
+        self._snapshot_instance_file(f, SnapshotMode.Link)
+
+  def _snapshot_instance_file(self, source_file_name, mode):
+    """Save a file for later inspection.
+
+    The path are made relative to slap's instance root directory and
+    we keep the same directory structure.
+    """
+    # we cannot use os.path.commonpath on python2, so implement something similar
+    common_path = os.path.commonprefix((source_file_name, self._base_directory))
+    if not os.path.isdir(common_path):
+      common_path = os.path.dirname(common_path)
+
+    relative_path = source_file_name[len(common_path):]
+    if relative_path[0] == os.sep:
+      relative_path = relative_path[1:]
+    destination = os.path.join(self._test_file_snapshot_directory, self.id(), relative_path)
+    destination_dirname = os.path.dirname(destination)
+    mkdir_p(destination_dirname)
+    if os.path.isfile(source_file_name):
+      if mode == SnapshotMode.Link:
+        self.logger.debug("link %s as %s", source_file_name, destination)
+        os.link(source_file_name, destination)
+      else:
+        assert mode == SnapshotMode.Copy
+        self.logger.debug("copy %s as %s", source_file_name, destination)
+        shutil.copy(source_file_name, destination)
 
   # implementation methods
   @classmethod

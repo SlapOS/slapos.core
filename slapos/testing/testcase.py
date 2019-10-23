@@ -136,8 +136,8 @@ def makeModuleSetUpAndTestCaseClass(
     # type: () -> None
     if debug:
       unittest.installHandler()
-    if verbose or debug:
-      logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(
+        level=logging.DEBUG if (verbose or debug) else logging.WARNING)
     installSoftwareUrlList(cls, [software_url], debug=debug)
 
   return setUpModule, SlapOSInstanceTestCase_

@@ -168,6 +168,10 @@
                           <string>group</string>
                           <string>Group</string>
                         </tuple>
+                        <tuple>
+                          <string>allocation_scope</string>
+                          <string>Allocation Scope</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

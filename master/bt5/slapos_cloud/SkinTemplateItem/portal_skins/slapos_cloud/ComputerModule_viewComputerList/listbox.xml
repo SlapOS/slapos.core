@@ -110,6 +110,14 @@
                           <string>os_type</string>
                           <string>OS Type</string>
                         </tuple>
+                        <tuple>
+                          <string>capacity_quantity</string>
+                          <string>Capacity Quantity</string>
+                        </tuple>
+                        <tuple>
+                          <string>Computer_getFreeComputerPartitionCount</string>
+                          <string>Free Computer Partition</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

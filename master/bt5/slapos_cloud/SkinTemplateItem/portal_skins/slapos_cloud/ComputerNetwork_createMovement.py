@@ -18,11 +18,11 @@ resource_value = context.Item_getResourceValue()
 if destination_project is None and source_project is not None:
   destination_project = source_project.getRelativeUrl()
 
-if destination_section is None:
-  destination_section = source_section.getRelativeUrl()
-
 if source_section is None:
   source_section = context.getSourceAdministration()
+
+if destination_section is None:
+  destination_section = source_section
 
 source = context.getSourceAdministration()
 destination = context.getSourceAdministration()
@@ -45,10 +45,10 @@ delivery = module.newContent(title="Transfer %s to %s" % (context.getTitle(), de
                              stop_date=DateTime(),
                              portal_type=portal_type)
 
+raise Exception(context.getReference(), context.getQuantityUnit())
 delivery_line = delivery.newContent(
                     portal_type=line_portal_type,
                     title=context.getReference(),
-                    quantity_unit=context.getQuantityUnit(),
                     resource_value=resource_value)
 
 delivery_line.edit(

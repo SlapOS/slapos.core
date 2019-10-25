@@ -442,25 +442,30 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       cls.logger.critical(
           "The following partitions were not cleaned up: %s",
           [cp.getId() for cp in leaked_partitions])
-    for cp in leaked_partitions:
+      for cp in leaked_partitions:
+        try:
+          cls.slap.request(
+              software_release=cp.getSoftwareRelease().getURI(),
+              # software_type=cp.getType(), # TODO
+              # XXX is this really the reference ?
+              partition_reference=cp.getInstanceParameterDict()['instance_title'],
+              state="destroyed")
+        except:
+          cls.logger.exception(
+              "Error during request destruction of leaked partition")
       try:
-        cls.slap.request(
-            software_release=cp.getSoftwareRelease().getURI(),
-            # software_type=cp.getType(), # TODO
-            # XXX is this really the reference ?
-            partition_reference=cp.getInstanceParameterDict()['instance_title'],
-            state="destroyed")
+        cls.slap.waitForReport(max_retry=cls.report_max_retry, debug=cls._debug)
       except:
-        cls.logger.exception(
-            "Error during request destruction of leaked partition")
-    try:
-      cls.slap.waitForReport(max_retry=cls.report_max_retry, debug=cls._debug)
-    except:
-      cls.logger.exception("Error during leaked partitions actual destruction")
+        cls.logger.exception("Error during leaked partitions actual destruction")
     try:
       cls.slap.stop()
     except:
       cls.logger.exception("Error during stop")
+    leaked_supervisor_configs = glob.glob(
+        os.path.join(cls.slap.instance_directory, 'etc', 'supervisord.conf.d', '*.conf'))
+    if leaked_supervisor_configs:
+      [os.unlink(config) for config in leaked_supervisor_configs]
+      raise AssertionError("Test leaked supervisor configurations: %s" % leaked_supervisor_configs)
 
   @classmethod
   def requestDefaultInstance(cls, state='started'):

@@ -474,7 +474,19 @@ class StandaloneSlapOS(object):
     for part in unknown_partition_set:
       self._logger.debug(
           "removing partition no longer part of format spec %s", part)
+      # remove partition directory
       shutil.rmtree(part)
+      # remove partition supervisor config, if it was not removed cleanly
+      supervisor_conf = os.path.join(
+          self._instance_root,
+          'etc',
+          'supervisord.conf.d',
+          '%s.conf' % os.path.basename(part))
+      if os.path.exists(supervisor_conf):
+        self._logger.info(
+          "removing leftover supervisor config from destroyed partition at %s",
+          supervisor_conf)
+        os.unlink(supervisor_conf)
 
   def supply(self, software_url, computer_guid=None, state="available"):
     """Supply a software, see ISupply.supply

@@ -197,11 +197,11 @@ class ConsumptionReportBase(object):
     if where:
       where = "and %s" % where
     if not date_scope:
-      date_scope = datetime.now().strftime('%Y-%m-%d')
+      date_scope = datetime.utcnow().strftime('%Y-%m-%d')
     if not min_time:
-      min_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:00')
+      min_time = (datetime.utcnow() - timedelta(minutes=1)).strftime('%H:%M:00')
     if not max_time:
-      max_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:59')
+      max_time = (datetime.utcnow() - timedelta(minutes=1)).strftime('%H:%M:59')
 
     columns = """count(pid), SUM(cpu_percent) as cpu_result, SUM(cpu_time),
                 MAX(cpu_num_threads), SUM(memory_percent), 
@@ -243,11 +243,11 @@ class ConsumptionReportBase(object):
     if where:
       where = " and %s" % where
     if not date_scope:
-      date_scope = datetime.now().strftime('%Y-%m-%d')
+      date_scope = datetime.utcnow().strftime('%Y-%m-%d')
     if not min_time:
-      min_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:00')
+      min_time = (datetime.utcnow() - timedelta(minutes=1)).strftime('%H:%M:00')
     if not max_time:
-      max_time = (datetime.now() - timedelta(minutes=1)).strftime('%H:%M:59') 
+      max_time = (datetime.utcnow() - timedelta(minutes=1)).strftime('%H:%M:59') 
 
     colums = """count(pid), SUM(cpu_percent), SUM(cpu_time),
                 SUM(cpu_num_threads), SUM(memory_percent), SUM(memory_rss), 

@@ -417,11 +417,11 @@ class Database:
         collected_entry_dict[partition_free] = []
 
       collected_entry_dict[partition_used].append(
-        {'entry': int(used)/1024, 
+        {'entry': float(used)/1024,
          'time': "%s %s" % (__date, str(__time))})
 
       collected_entry_dict[partition_free].append(
-        {'entry': int(free)/1024, 
+        {'entry': float(free)/1024,
          'time': "%s %s" % (__date, str(__time))})
 
     return collected_entry_dict

@@ -475,11 +475,6 @@ class ConsumptionReport(ConsumptionReportBase):
 
      return xml_report_path
 
-  def _getAverageFromList(self, data_list):
-    if not data_list:
-      return 0
-    return sum(data_list)/len(data_list)
-
   @withDB
   def _getCpuLoadAverageConsumption(self, date_scope):
     (cpu_load_percent_list,), = self.db.select("system", date_scope,

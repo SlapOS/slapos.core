@@ -742,7 +742,6 @@ class TestConsumptionReportBase(unittest.TestCase):
   def _get_file_content(self, f_path):
     with open(f_path, "r") as f:
       return f.readlines()
-    return []
 
   def loadPredefinedDB(self):
     # populate db
@@ -824,11 +823,6 @@ class TestConsumptionReport(TestConsumptionReportBase):
                                       computer_id="COMP-192938",
                                       location=self.temp_dir,
                                       user_list=self.get_fake_user_list(15))
-
-  def test_get_average_from_list(self):
-    self.assertEqual(2, self.report._getAverageFromList([2, 2]))
-    self.assertEqual(0, self.report._getAverageFromList([]))
-    self.assertEqual(10, self.report._getAverageFromList(range(1, 20)))
 
   def test_getCpuLoadAverageConsumption(self):
     self.assertEqual(self.report._getCpuLoadAverageConsumption('2019-10-05'), 74.44468085106385)

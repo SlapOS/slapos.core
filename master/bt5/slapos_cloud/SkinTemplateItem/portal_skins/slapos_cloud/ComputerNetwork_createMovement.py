@@ -45,7 +45,6 @@ delivery = module.newContent(title="Transfer %s to %s" % (context.getTitle(), de
                              stop_date=DateTime(),
                              portal_type=portal_type)
 
-raise Exception(context.getReference(), context.getQuantityUnit())
 delivery_line = delivery.newContent(
                     portal_type=line_portal_type,
                     title=context.getReference(),

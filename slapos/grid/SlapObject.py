@@ -251,10 +251,14 @@ class Software(object):
     root_stat = os.stat(self.software_root)
     os.environ = getCleanEnvironment(logger=self.logger,
                                      home_path=pwd.getpwuid(root_stat.st_uid).pw_dir)
-    if not os.path.isdir(self.software_path):
+    try:
       os.mkdir(self.software_path)
-      self._set_ownership(self.software_path)
+    except OSError as e:
+      if e.errno != errno.EEXIST:
+        raise
+    else:
       os.chmod(self.software_path, 0o755)
+    self._set_ownership(self.software_path)
 
     extends_cache = tempfile.mkdtemp()
     self._set_ownership(extends_cache)

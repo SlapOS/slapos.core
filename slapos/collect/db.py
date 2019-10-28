@@ -286,6 +286,7 @@ class Database:
 
     self._execute("VACUUM;")
     self.commit()
+    self._execute("VACUUM;")
     self.close()
 
   def getDateScopeList(self, ignore_date=None, reported=0):

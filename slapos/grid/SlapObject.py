@@ -260,11 +260,11 @@ class Software(object):
       os.chmod(self.software_path, 0o755)
     self._set_ownership(self.software_path)
 
-    extends_cache = tempfile.mkdtemp()
-    self._set_ownership(extends_cache)
-
     f = None
+    extends_cache = tempfile.mkdtemp()
     try:
+      self._set_ownership(extends_cache)
+
       buildout_cfg = os.path.join(self.software_path, 'buildout.cfg')
       if not os.path.exists(buildout_cfg):
         self._create_buildout_profile(buildout_cfg, self.url, self.shared_part_list)

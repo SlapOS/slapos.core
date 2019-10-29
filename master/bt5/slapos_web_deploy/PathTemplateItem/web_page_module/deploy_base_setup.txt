@@ -242,6 +242,8 @@ class CallbackModule(baseModule):
 
 EOF
 
+ansible localhost -m pip -a name=setuptools --connection=local
+ansible localhost -m pip -a name=wheel --connection=local
 ansible localhost -m pip -a name=slapcache --connection=local
 ansible localhost -m pip -a name=requests --connection=local
 

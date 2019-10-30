@@ -1,6 +1,25 @@
 Changes
 =======
 
+1.5.1 (2019-10-30)
+------------------
+
+ * Add new commands ``slapos node promise`` and ``slapos node prune``
+ * promise: include promise output in PromiseError
+ * grid: remove temporary directory if an exception happens while setting its ownership
+ * grid: always check ownership of software path before building
+ * slapos/collect: Use UTC time for collector.db time queries
+ * collect: what matters is available memory (contrary to unused memory)
+ * slapos/collect: Preserve entries at the database for 15 days
+ * slapos/collect: Add PartitionReport to replace slapos.toolbox collect code
+ * slapos/collect: Call VACUUM to clean up the sql database size.
+ * standalone: also cleanup supervisor configuration
+ * standalone: Only include 30 lines of error in waitForInstance
+ * testcase: improve leaked partitions detection and cleanup
+ * testcase: keep generated files and log files between tests
+ * testcase: retry ``slapos node report``
+ * testcase: enable logging even when in non verbose
+
 1.5.0 (2019-10-03)
 -------------------
 

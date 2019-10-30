@@ -374,6 +374,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
 
     except BaseException:
       cls.logger.exception("Error during setUpClass")
+      cls._storeSnapshot("{}.setUpClass".format(cls.__name__))
       cls._cleanup()
       cls.setUp = lambda self: self.fail('Setup Class failed.')
       raise
@@ -384,25 +385,30 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     """
     cls._cleanup()
 
-  def tearDown(self):
+  @classmethod
+  def _storeSnapshot(cls, name):
     # copy log files from standalone
     for standalone_log in glob.glob(os.path.join(
-          self._base_directory, 'var', 'log', '*')):
-      self._snapshot_instance_file(standalone_log)
+          cls._base_directory, 'var', 'log', '*')):
+      cls._snapshot_instance_file(standalone_log, name)
 
     # copy config and log files from partitions
-    for pattern in self._save_instance_file_pattern_list:
-      for f in glob.glob(os.path.join(self.slap.instance_directory, pattern)):
-        self._snapshot_instance_file(f)
+    for pattern in cls._save_instance_file_pattern_list:
+      for f in glob.glob(os.path.join(cls.slap.instance_directory, pattern)):
+        cls._snapshot_instance_file(f, name)
 
-  def _snapshot_instance_file(self, source_file_name):
+  def tearDown(self):
+    self._storeSnapshot(self.id())
+
+  @classmethod
+  def _snapshot_instance_file(cls, source_file_name, name):
     """Save a file for later inspection.
 
     The path are made relative to slapos root directory and
     we keep the same directory structure.
     """
     # we cannot use os.path.commonpath on python2, so implement something similar
-    common_path = os.path.commonprefix((source_file_name, self._base_directory))
+    common_path = os.path.commonprefix((source_file_name, cls._base_directory))
     if not os.path.isdir(common_path):
       common_path = os.path.dirname(common_path)
 
@@ -410,14 +416,14 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     if relative_path[0] == os.sep:
       relative_path = relative_path[1:]
     destination = os.path.join(
-        self._test_file_snapshot_directory,
-        self.software_id,
-        self.id(),
+        cls._test_file_snapshot_directory,
+        cls.software_id,
+        name,
         relative_path)
     destination_dirname = os.path.dirname(destination)
     mkdir_p(destination_dirname)
     if os.path.isfile(source_file_name):
-      self.logger.debug("copy %s as %s", source_file_name, destination)
+      cls.logger.debug("copy %s as %s", source_file_name, destination)
       shutil.copy(source_file_name, destination)
 
   # implementation methods

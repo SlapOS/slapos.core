@@ -89,8 +89,10 @@ def do_collect(conf):
           user_dict[snapshot.username].append(snapshot)
     except (KeyboardInterrupt, SystemExit, NoSuchProcess):
       raise
-    
-    days_to_preserve = conf.getint("slapos", "collect_cache", 15)
+    days_to_preserve =  15
+   
+    if conf.has_option("slapos", "collect_cache"):
+      days_to_preserve = conf.getint("slapos", "collect_cache")
     log_directory = "%s/var/data-log" % conf.get("slapos", "instance_root")
     mkdir_p(log_directory, 0o755)
     
@@ -149,7 +151,7 @@ def do_collect(conf):
     base = datetime.datetime.utcnow().date()
     for x in range(1, 3):
       report_file = consumption_report.buildXMLReport(
-          (base - datetime.timedelta(days=x)).strftime("%Y-%m-%d"), gmtime())
+          (base - datetime.timedelta(days=x)).strftime("%Y-%m-%d"))
 
       if report_file is not None:
         shutil.copy(report_file, xml_report_directory)
@@ -162,7 +164,7 @@ def do_collect(conf):
     compressLogFolder(log_directory)
 
     # Drop older entries already reported
-    database.garbageCollect(int(days_to_preserve)) 
+    database.garbageCollect(days_to_preserve)
 
   except AccessDenied:
     print("You HAVE TO execute this script with root permission.")

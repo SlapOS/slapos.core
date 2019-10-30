@@ -593,16 +593,12 @@ class StandaloneSlapOS(object):
         error_lines=error_lines,
     )
 
-  def waitForInstance(self, max_retry=0, debug=False, error_lines=500):
+  def waitForInstance(self, max_retry=0, debug=False, error_lines=30):
     """Instantiate all partitions previously requested for start.
 
     This method retries on errors. If after `max_retry` times there's
     still an error, the error is raised, containing `error_lines` of output
     from the buildout command.
-
-    With instance with multiple partition, the failing partition is not
-    always the last processed one, so by default we include more lines of
-    output.
 
     If `debug` is true, buildout is executed in the foreground, with flags to
     drop in a debugger session if error occurs.

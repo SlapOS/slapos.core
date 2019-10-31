@@ -374,7 +374,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
 
     except BaseException:
       cls.logger.exception("Error during setUpClass")
-      cls._storeSnapshot()
+      cls._storeSnapshot("{}.setUpClass".format(cls.__name__))
       cls._cleanup()
       cls.setUp = lambda self: self.fail('Setup Class failed.')
       raise
@@ -386,22 +386,22 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     cls._cleanup()
 
   @classmethod
-  def _storeSnapshot(cls):
+  def _storeSnapshot(cls, name):
     # copy log files from standalone
     for standalone_log in glob.glob(os.path.join(
           cls._base_directory, 'var', 'log', '*')):
-      cls._snapshot_instance_file(standalone_log)
+      cls._snapshot_instance_file(standalone_log, name)
 
     # copy config and log files from partitions
     for pattern in cls._save_instance_file_pattern_list:
       for f in glob.glob(os.path.join(cls.slap.instance_directory, pattern)):
-        cls._snapshot_instance_file(f)
+        cls._snapshot_instance_file(f, name)
 
   def tearDown(self):
-    self._storeSnapshot()
+    self._storeSnapshot(self.id())
 
   @classmethod
-  def _snapshot_instance_file(cls, source_file_name):
+  def _snapshot_instance_file(cls, source_file_name, name):
     """Save a file for later inspection.
 
     The path are made relative to slapos root directory and
@@ -418,7 +418,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     destination = os.path.join(
         cls._test_file_snapshot_directory,
         cls.software_id,
-        cls.id(),
+        name,
         relative_path)
     destination_dirname = os.path.dirname(destination)
     mkdir_p(destination_dirname)

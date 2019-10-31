@@ -244,9 +244,6 @@ def setComputerPartitionConnectionXml():
     requested_by = execute_db('partition',
       'SELECT requested_by FROM %s WHERE reference=? AND computer_reference=?',
       (computer_partition_id, computer_id), one=True)['requested_by']
-    execute_db('partition',
-      "UPDATE %s SET timestamp=? WHERE reference=? AND computer_reference=?",
-      (time.time(), requested_by, computer_id))
   else:
     query = 'UPDATE %s SET connection_xml=? , hosted_by=? WHERE reference=?'
     argument_list = [connection_xml, computer_partition_id, slave_reference]

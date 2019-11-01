@@ -40,6 +40,7 @@ from slapos.grid.promise import (interface, PromiseLauncher, PromiseProcess,
                                  PromiseError, PROMISE_CACHE_FOLDER_NAME)
 from slapos.grid.promise.generic import (GenericPromise, TestResult, AnomalyResult,
                                          PromiseQueueResult, PROMISE_STATE_FOLDER_NAME,
+                                         PROMISE_HISTORY_RESULT_FOLDER_NAME,
                                          PROMISE_RESULT_FOLDER_NAME,
                                          PROMISE_PARAMETER_NAME)
 
@@ -170,6 +171,73 @@ class RunPromise(GenericPromise):
     with open(os.path.join(self.plugin_dir, name), 'w') as f:
       f.write(promise_content)
 
+  def assertSuccessResult(self, name):
+    expected_result = """{
+  "result": {
+    "failed": false,
+    "message": "success",
+    "type": "Test Result"
+  },
+  "path": "%(promise_dir)s/%(name)s.py",
+  "name": "%(name)s.py",
+  "execution-time": 0.05,
+  "title": "%(name)s"
+}"""
+
+    # first promise
+    state_file = os.path.join(self.partition_dir, PROMISE_RESULT_FOLDER_NAME, '%s.status.json' % name)
+    self.assertTrue(os.path.exists(state_file))
+    with open(state_file) as f:
+      result_dict = json.loads(f.read())
+      result_dict['result'].pop('date')
+      expected_dict = expected_result % {'promise_dir': self.plugin_dir, 'name': name}
+      self.assertEqual(json.loads(expected_dict), result_dict)
+
+
+  def assertSuccessHistoryResult(self, name, expected_history=None):
+    if not expected_history:
+      expected_history = """{
+	"data": [{
+		"execution-time": 0.05,
+		"failed": false,
+		"message": "success",
+		"name": "%(name)s.py",
+		"status": "OK",
+		"title": "%(name)s"
+	}]
+}"""
+    
+    history_file = os.path.join(self.partition_dir, PROMISE_HISTORY_RESULT_FOLDER_NAME, '%s.history.json' % name)
+    self.assertTrue(os.path.exists(history_file))
+    with open(history_file) as f:
+      result_dict = json.loads(f.read())
+      result_dict.pop('date')
+      for entry in result_dict["data"]:
+        d = entry.pop("date")
+        self.assertEqual(d, entry.pop("change-date"))
+
+      expected_dict = expected_history % {'name': name}
+      self.assertEqual(json.loads(expected_dict), result_dict)
+
+  def assertSuccessStatsResult(self, success=1, error=0, expected_stats=None):
+    if not expected_stats:
+      expected_stats = """{
+	"data": ["Date, Success, Error, Warning",
+                "__DATE__, %(success)s, %(error)s, "
+	]
+}"""
+
+    stats_file = os.path.join(self.partition_dir, PROMISE_STATE_FOLDER_NAME, 'promise_stats.json')
+    self.assertTrue(os.path.exists(stats_file))
+    with open(stats_file) as f:
+      result_dict = json.loads(f.read())
+      result_dict.pop('date')
+      expected_dict = expected_stats % {'success': success, "error": error}
+      copy = result_dict["data"]
+      for nline in range(1, len(result_dict["data"])):
+        line = result_dict["data"][nline]
+        result_dict["data"][nline] = "__DATE__,%s" % ",".join(line.split(',')[1:])
+      self.assertEqual(json.loads(expected_dict), result_dict)
 
 class TestSlapOSPromiseLauncher(TestSlapOSPromiseMixin):
 
@@ -337,24 +405,10 @@ class RunPromise(GenericPromise):
     self.launcher.run()
     self.assertTrue(os.path.exists(state_folder))
     self.assertTrue(os.path.exists(os.path.join(self.log_dir, 'my_promise.log')))
-
-    expected_result = """{
-  "result": {
-    "failed": false,
-    "message": "success",
-    "type": "Test Result"
-  },
-  "path": "%s/my_promise.py",
-  "name": "my_promise.py",
-  "execution-time": 0.05,
-  "title": "my_promise"
-}""" % self.plugin_dir
-    state_file = os.path.join(self.partition_dir, PROMISE_RESULT_FOLDER_NAME, 'my_promise.status.json')
-    self.assertTrue(os.path.exists(state_file))
-    with open(state_file) as f:
-      result_dict = json.loads(f.read())
-      result_dict['result'].pop('date')
-      self.assertEqual(json.loads(expected_result), result_dict)
+    
+    self.assertSuccessResult("my_promise")
+    self.assertSuccessHistoryResult("my_promise")
+    self.assertSuccessStatsResult(1)
 
   def test_runpromise_multiple(self):
     promise_name = 'my_promise.py'
@@ -369,35 +423,146 @@ class RunPromise(GenericPromise):
     self.assertTrue(os.path.exists(state_folder))
     self.assertTrue(os.path.exists(os.path.join(self.log_dir, 'my_promise.log')))
 
-    expected_result = """{
-  "result": {
-    "failed": false,
-    "message": "success",
-    "type": "Test Result"
-  },
-  "path": "%(promise_dir)s/%(name)s.py",
-  "name": "%(name)s.py",
-  "execution-time": 0.05,
-  "title": "%(name)s"
-}"""
+    self.assertSuccessResult("my_promise")
+    self.assertSuccessResult("my_second_promise")
 
-    # first promise
-    state_file = os.path.join(self.partition_dir, PROMISE_RESULT_FOLDER_NAME, 'my_promise.status.json')
-    self.assertTrue(os.path.exists(state_file))
-    with open(state_file) as f:
-      result_dict = json.loads(f.read())
-      result_dict['result'].pop('date')
-      expected_dict = expected_result % {'promise_dir': self.plugin_dir, 'name': 'my_promise'}
-      self.assertEqual(json.loads(expected_dict), result_dict)
+    self.assertSuccessHistoryResult("my_promise")
+    self.assertSuccessHistoryResult("my_second_promise")
+    self.assertSuccessStatsResult(2)
 
-    # second promise
-    state_file = os.path.join(self.partition_dir, PROMISE_RESULT_FOLDER_NAME, 'my_second_promise.status.json')
-    self.assertTrue(os.path.exists(state_file))
-    with open(state_file) as f:
-      result_dict = json.loads(f.read())
-      result_dict['result'].pop('date')
-      expected_dict = expected_result % {'promise_dir': self.plugin_dir, 'name': 'my_second_promise'}
-      self.assertEqual(json.loads(expected_dict), result_dict)
+  def test_runpromise_multiple_times_same_promise(self):
+    promise_name = 'my_promise.py'
+    self.configureLauncher()
+    self.generatePromiseScript(promise_name, success=True)
+    state_folder = os.path.join(self.partition_dir, PROMISE_STATE_FOLDER_NAME)
+
+    # run promise will not fail
+    self.launcher.run()
+    time.sleep(1)
+    self.launcher.run()
+    time.sleep(1)
+    self.launcher.run()
+    time.sleep(1)
+    self.assertTrue(os.path.exists(state_folder))
+    self.assertTrue(os.path.exists(os.path.join(self.log_dir, 'my_promise.log')))
+
+    self.assertSuccessResult("my_promise")
+    self.assertSuccessHistoryResult("my_promise", expected_history = """{
+        "data": [{
+                "execution-time": 0.05,
+                "failed": false,
+                "message": "success",
+                "name": "%(name)s.py",
+                "status": "OK",
+                "title": "%(name)s"
+        },{
+                "execution-time": 0.05,
+                "failed": false,
+                "message": "success",
+                "status": "OK"
+        }]
+}""")
+
+    self.assertSuccessStatsResult(1, expected_stats = """{
+        "data": ["Date, Success, Error, Warning",
+                "__DATE__, %(success)s, %(error)s, ",
+                "__DATE__, %(success)s, %(error)s, ",
+                "__DATE__, %(success)s, %(error)s, "
+        ]
+}""")
+
+  def test_runpromise_multiple_times_same_promise_with_failure(self):
+    promise_name = 'my_promise.py'
+    self.configureLauncher()
+    self.generatePromiseScript(promise_name, success=True)
+    state_folder = os.path.join(self.partition_dir, PROMISE_STATE_FOLDER_NAME)
+
+    # run promise will not fail
+    self.launcher.run()
+    time.sleep(1)
+    self.generatePromiseScript(promise_name, success=False)
+    time.sleep(1)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    time.sleep(1)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    time.sleep(1)
+    self.assertTrue(os.path.exists(state_folder))
+    self.assertTrue(os.path.exists(os.path.join(self.log_dir, 'my_promise.log')))
+
+    self.assertSuccessHistoryResult("my_promise", expected_history = """{
+        "data": [{
+                "execution-time": 0.05,
+                "failed": false,
+                "message": "success",
+                "name": "%(name)s.py",
+                "status": "OK",
+                "title": "%(name)s"
+        },{
+                "execution-time": 0.05,
+                "failed": true,
+                "message": "failed",
+                "status": "ERROR"
+        }]
+}""")
+    self.assertSuccessStatsResult(1, expected_stats = """{
+        "data": ["Date, Success, Error, Warning",
+                "__DATE__, %(success)s, %(error)s, ",
+                "__DATE__, 0, 1, ",
+                "__DATE__, 0, 1, "
+        ]
+}""")
+
+  def test_runpromise_multiple_times_same_promise_with_flaky_failures(self):
+    promise_name = 'my_promise.py'
+    self.configureLauncher()
+    self.generatePromiseScript(promise_name, success=True)
+    state_folder = os.path.join(self.partition_dir, PROMISE_STATE_FOLDER_NAME)
+
+    # run promise will not fail
+    self.launcher.run()
+    time.sleep(1)
+    self.generatePromiseScript(promise_name, success=False)
+    time.sleep(1)
+    with self.assertRaises(PromiseError):
+      self.launcher.run()
+    time.sleep(1)
+    self.generatePromiseScript(promise_name, success=True)
+    time.sleep(1)
+    self.launcher.run()
+    self.assertTrue(os.path.exists(state_folder))
+    self.assertTrue(os.path.exists(os.path.join(self.log_dir, 'my_promise.log')))
+    self.maxDiff = None
+    self.assertSuccessHistoryResult("my_promise", expected_history = """{
+        "data": [{
+                "execution-time": 0.05,
+                "failed": false,
+                "message": "success",
+                "name": "%(name)s.py",
+                "status": "OK",
+                "title": "%(name)s"
+        },{
+                "execution-time": 0.05,
+                "failed": true,
+                "message": "failed",
+                "status": "ERROR"
+        },{
+                "execution-time": 0.05,
+                "failed": false,
+                "message": "success",
+                "status": "OK"
+        }]
+}""")
+    self.assertSuccessStatsResult(1, expected_stats = """{
+        "data": ["Date, Success, Error, Warning",
+                "__DATE__, %(success)s, %(error)s, ",
+                "__DATE__, 0, 1, ",
+                "__DATE__, %(success)s, %(error)s, "
+        ]
+}""")
+
+
 
   def test_runpromise_no_logdir(self):
     promise_name = 'my_promise.py'
@@ -410,6 +575,8 @@ class RunPromise(GenericPromise):
     self.launcher.run()
     self.assertTrue(os.path.exists(state_file))
     self.assertFalse(os.path.exists(os.path.join(self.log_dir, 'my_promise.log')))
+    self.assertSuccessHistoryResult("my_promise")
+    self.assertSuccessStatsResult(1)
 
   def test_runpromise_savemethod(self):
     promise_name = 'my_promise.py'
@@ -433,6 +600,9 @@ class RunPromise(GenericPromise):
     self.assertTrue(os.path.exists(state_file))
     self.assertTrue(os.path.exists(os.path.join(self.log_dir, 'my_promise.log')))
 
+    self.assertSuccessHistoryResult("my_promise")
+    self.assertSuccessStatsResult(1)
+
   def test_runpromise_savemethod_no_logdir(self):
     promise_name = 'my_promise.py'
     def test_method(result):
@@ -455,6 +625,9 @@ class RunPromise(GenericPromise):
     self.launcher.run()
     self.assertTrue(os.path.exists(state_file))
     self.assertFalse(os.path.exists(os.path.join(self.log_dir, 'my_promise.log')))
+    self.assertSuccessHistoryResult("my_promise")
+    self.assertSuccessStatsResult(1)
+
 
   def test_runpromise_savemethod_anomaly(self):
     promise_name = 'my_promise.py'
@@ -477,6 +650,9 @@ class RunPromise(GenericPromise):
     self.launcher.run()
     self.assertTrue(os.path.exists(state_file))
     self.assertTrue(os.path.exists(os.path.join(self.log_dir, 'my_promise.log')))
+    self.assertSuccessHistoryResult("my_promise")
+    self.assertSuccessStatsResult(1)
+
 
   def test_runpromise_savemethod_multiple(self):
     promise_name = 'my_promise.py'
@@ -506,6 +682,19 @@ class RunPromise(GenericPromise):
     self.assertTrue(os.path.exists(os.path.join(self.log_dir, 'my_promise.log')))
     self.assertTrue(os.path.exists(os.path.join(self.log_dir, 'my_failed_promise.log')))
 
+    self.assertSuccessHistoryResult("my_promise")
+    self.assertSuccessHistoryResult("my_failed_promise", expected_history = """{
+        "data": [{
+                "execution-time": 0.05,
+                "failed": true,
+                "message": "failed",
+                "name": "%(name)s.py",
+                "status": "ERROR",
+                "title": "%(name)s"
+        }]
+}""")
+    self.assertSuccessStatsResult(success=1, error=1)
+
   def test_runpromise_savemethod_multiple_success(self):
     first_promise = 'my_first_promise.py'
     second_promise = 'my_second_promise.py'
@@ -532,6 +721,12 @@ class RunPromise(GenericPromise):
     self.assertTrue(os.path.exists(os.path.join(self.log_dir, 'my_first_promise.log')))
     self.assertTrue(os.path.exists(os.path.join(self.log_dir, 'my_second_promise.log')))
     self.assertTrue(os.path.exists(os.path.join(self.log_dir, 'my_third_promise.log')))
+
+    self.assertSuccessHistoryResult("my_first_promise")
+    self.assertSuccessHistoryResult("my_second_promise")
+    self.assertSuccessHistoryResult("my_third_promise")
+
+    self.assertSuccessStatsResult(3)
 
   def test_runpromise_fail_and_success(self):
     first_promise = 'my_first_promise.py'
@@ -561,6 +756,12 @@ class RunPromise(GenericPromise):
       line = f.readline()
       self.assertTrue('success' in line, line)
 
+    self.assertSuccessStatsResult(expected_stats = """{
+        "data": ["Date, Success, Error, Warning",
+                "__DATE__, 1, 1, ",
+                "__DATE__, 2, 0, "
+        ]
+}""")
 
   def test_runpromise_with_periodicity(self):
     first_promise = 'my_first_promise.py'

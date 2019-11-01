@@ -38,15 +38,18 @@ import importlib
 import traceback
 import psutil
 import inspect
+import hashlib
+from datetime import datetime
 from multiprocessing import Process, Queue as MQueue
 from six.moves import queue, reload_module
-from slapos.util import mkdir_p, chownDirectory
+from slapos.util import str2bytes, mkdir_p, chownDirectory
 from slapos.grid.utils import dropPrivileges, killProcessTree
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import (GenericPromise, PromiseQueueResult,
                                          AnomalyResult, TestResult,
                                          PROMISE_STATE_FOLDER_NAME,
                                          PROMISE_RESULT_FOLDER_NAME,
+                                         PROMISE_HISTORY_RESULT_FOLDER_NAME,
                                          PROMISE_PARAMETER_NAME)
 from slapos.grid.promise.wrapper import WrapPromise
 from slapos.version import version
@@ -342,6 +345,14 @@ class PromiseLauncher(object):
       mkdir_p(self.promise_output_dir)
       self._updateFolderOwner()
 
+    self.promise_history_output_dir = os.path.join(
+      self.partition_folder,
+      PROMISE_HISTORY_RESULT_FOLDER_NAME
+    )
+    if not os.path.exists(self.promise_history_output_dir):
+      mkdir_p(self.promise_history_output_dir)
+      self._updateFolderOwner()
+
   def _generatePromiseResult(self, promise_process, promise_name, promise_path,
       message, execution_time=0):
     if self.check_anomaly:
@@ -378,6 +389,81 @@ class PromiseLauncher(object):
       json.dump(result.serialize(), outputfile)
     os.rename(promise_tmp_file, promise_output_file)
 
+  def _savePromiseHistoryResult(self, result):
+    state_dict = result.serialize()
+    previous_state_dict = {}
+    promise_status_file = os.path.join(PROMISE_STATE_FOLDER_NAME,
+                                       'promise_status.json')
+
+    if os.path.exists(promise_status_file):
+      with open(promise_status_file) as f:
+        try:
+          previous_state_dict = json.load(f)
+        except ValueError:
+          pass
+
+    history_file = os.path.join(
+      self.promise_history_output_dir,
+      '%s.history.json' % result.title
+    )
+
+    # Remove useless informations
+    result_dict = state_dict.pop('result')
+    result_dict["change-date"] = result_dict["date"]
+    state_dict.update(result_dict)
+    state_dict.pop('path', '')
+    state_dict.pop('type', '')
+    state_dict["status"] = "ERROR" if result.item.hasFailed() else "OK"
+
+    if not os.path.exists(history_file) or not os.stat(history_file).st_size:
+      with open(history_file, 'w') as f:
+        data_dict = {
+          "date": time.time(),
+          "data": [state_dict]
+        }
+        json.dump(data_dict, f)
+    else:
+      previous_state_list = previous_state_dict.get(result.name, None)
+      if previous_state_list is not None:
+        _, change_date, checksum = previous_state_list
+        current_sum = hashlib.md5(str2bytes(state_dict.get('message', ''))).hexdigest()
+        if state_dict['change-date'] == change_date and \
+            current_sum == checksum:
+          # Only save the changes and not the same info
+          return
+  
+      state_dict.pop('title', '')
+      state_dict.pop('name', '')
+      with open (history_file, mode="r+") as f:
+        f.seek(0,2)
+        f.seek(f.tell() -2)
+        f.write('%s}' % ',{}]'.format(json.dumps(state_dict)))
+
+  def _saveStatisticsData(self, stat_file_path, date, success, error):
+    # csv-like document for success/error statictics
+    if not os.path.exists(stat_file_path) or os.stat(stat_file_path).st_size == 0:
+      with open(stat_file_path, 'w') as fstat:
+        data_dict = {
+          "date": time.time(),
+          "data": ["Date, Success, Error, Warning"]
+        }
+        fstat.write(json.dumps(data_dict))
+  
+    current_state = '%s, %s, %s, %s' % (
+        date,
+        success,
+        error,
+        '')
+  
+    # append to file
+    # XXX this is bad, it is getting everywhere.
+    if current_state:
+      with open (stat_file_path, mode="r+") as fstat:
+        fstat.seek(0,2)
+        position = fstat.tell() -2
+        fstat.seek(position)
+        fstat.write('%s}' % ',"{}"]'.format(current_state))
+
   def _loadPromiseResult(self, promise_title):
     promise_output_file = os.path.join(
       self.promise_output_dir,
@@ -409,6 +495,7 @@ class PromiseLauncher(object):
         self.bang_called = True
     # Send result
     self._savePromiseResult(result_item)
+    self._savePromiseHistoryResult(result_item)
 
   def _emptyQueue(self):
     """Remove all entries from queue until it's empty"""
@@ -565,6 +652,29 @@ class PromiseLauncher(object):
     promise_list = []
     failed_promise_name = ""
     failed_promise_output = ""
+    previous_state_dict = {}
+    new_state_dict = {}
+    report_date = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S+0000')
+    promise_status_file = os.path.join(self.partition_folder,
+                     PROMISE_STATE_FOLDER_NAME,
+                     'promise_status.json')
+
+    promise_result_file = os.path.join(self.partition_folder,
+                     PROMISE_STATE_FOLDER_NAME,
+                     'promise_result.json')
+
+    promise_stats_file = os.path.join(self.partition_folder,
+                     PROMISE_STATE_FOLDER_NAME,
+                     'promise_stats.json')
+
+    if os.path.exists(promise_status_file):
+      with open(promise_status_file) as f:
+        try:
+          previous_state_dict = json.load(f)
+        except ValueError:
+          pass
+
+    new_state_dict = previous_state_dict.copy()
     base_config = {
       'log-folder': self.log_folder,
       'partition-folder': self.partition_folder,
@@ -578,7 +688,8 @@ class PromiseLauncher(object):
       'queue': self.queue_result,
       'slapgrid-version': version,
     }
-
+    error = 0
+    success = 0
     if os.path.exists(self.promise_folder) and os.path.isdir(self.promise_folder):
       for promise_name in os.listdir(self.promise_folder):
         if promise_name.startswith('__init__') or \
@@ -597,9 +708,36 @@ class PromiseLauncher(object):
 
         config.update(base_config)
         promise_result = self._launchPromise(promise_name, promise_path, config)
-        if promise_result and promise_result.hasFailed() and not failed_promise_name:
-          failed_promise_name = promise_name
-          failed_promise_output = promise_result.message
+        if promise_result:
+          change_date = promise_result.date.strftime('%Y-%m-%dT%H:%M:%S+0000')
+          if promise_result.hasFailed():
+            promise_status = 'FAILED'
+            error += 1
+          else:
+            promise_status = "OK"
+            success += 1
+          if promise_name in previous_state_dict:
+            status, previous_change_date, _ = previous_state_dict[promise_name]
+            if promise_status == status:
+              change_date = previous_change_date
+
+          message = promise_result.message if promise_result.message else ""
+          new_state_dict[promise_name] = [
+            promise_status,
+            change_date,
+            hashlib.md5(str2bytes(message)).hexdigest()]
+      
+          if promise_result.hasFailed() and not failed_promise_name:
+            failed_promise_name = promise_name
+            failed_promise_output = promise_result.message
+        else:
+          # The promise was skip, so for statistic point of view we preserve
+          # the previous result
+          if promise_name in new_state_dict:
+            if new_state_dict[promise_name][0] == "FAILED":
+              error += 1
+            else:
+              success += 1
 
     if not self.run_only_promise_list and os.path.exists(self.legacy_promise_folder) \
         and os.path.isdir(self.legacy_promise_folder):
@@ -621,11 +759,46 @@ class PromiseLauncher(object):
                                            promise_path,
                                            config,
                                            wrap_process=True)
-        if promise_result and promise_result.hasFailed() and not failed_promise_name:
-          failed_promise_name = promise_name
-          failed_promise_output = promise_result.message
+        if promise_result:
+          change_date = promise_result.date.strftime('%Y-%m-%dT%H:%M:%S+0000')
+          if promise_result.hasFailed():
+            promise_status = 'FAILED'
+            error += 1
+          else:
+            promise_status = "OK"
+            success += 1
+          if promise_name in previous_state_dict:
+            status, previous_change_date, _ = previous_state_dict[promise_name]
+            if promise_status == status:
+              change_date = previous_change_date
+
+          message = promise_result.message if promise_result.message else ""
+          new_state_dict[promise_name] = [
+            promise_status,
+            change_date,
+            hashlib.md5(str2bytes(message)).hexdigest()]
+
+          if promise_result.hasFailed() and not failed_promise_name:
+            failed_promise_name = promise_name
+            failed_promise_output = promise_result.message
+        else:
+          # The promise was skip, so for statistic point of view we preserve
+          # the previous result
+          if promise_name in new_state_dict:
+            if new_state_dict[promise_name][0] == "FAILED":
+              error += 1
+            else:
+              success += 1
 
     self._updateFolderOwner(self.promise_output_dir)
+
+    # Save Global State
+    with open(promise_status_file, "w") as f:
+      json.dump(new_state_dict, f)
+
+    self._saveStatisticsData(promise_stats_file,
+                         report_date, success, error)
+
     if self._skipped_amount > 0:
       self.logger.info("%s promises didn't need to be checked." % \
         self._skipped_amount)
@@ -633,3 +806,4 @@ class PromiseLauncher(object):
       raise PromiseError("Promise %r failed with output: %s" % (
           failed_promise_name,
           failed_promise_output))
+

@@ -44,7 +44,7 @@ from datetime import datetime, timedelta
 PROMISE_STATE_FOLDER_NAME = '.slapgrid/promise'
 PROMISE_RESULT_FOLDER_NAME = '.slapgrid/promise/result'
 PROMISE_LOG_FOLDER_NAME = '.slapgrid/promise/log'
-
+PROMISE_HISTORY_RESULT_FOLDER_NAME = '.slapgrid/promise/history'
 PROMISE_PARAMETER_NAME = 'extra_config_dict'
 
 LOGLINE_RE = r"(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s+\-?\s*(\w+)\s+\-?\s+(\d+\-\d{3})\s+\-?\s*(.*)"

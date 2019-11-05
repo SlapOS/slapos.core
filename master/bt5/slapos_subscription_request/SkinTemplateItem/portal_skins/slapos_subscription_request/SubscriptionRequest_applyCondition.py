@@ -2,12 +2,18 @@ from zExceptions import Unauthorized
 if REQUEST is not None:
   raise Unauthorized
 
+# Set AcceptLanguage in the REQUEST so that getDefaultLanguage() can work
+if target_language and context.REQUEST.get('AcceptLanguage'):
+  context.REQUEST['AcceptLanguage'].set(target_language, 10)
+
 if context.getSimulationState() not in ["draft", "planned"]:
   # Don't modify it anymore
   return
 
 if subscription_condition_reference is not None:
   # It would be better use some clever API here.
+  if target_language == "zh":
+    subscription_condition_reference += "_zh"
   subscription_condition = context.portal_catalog.getResultValue(
     portal_type="Subscription Condition",
     reference=subscription_condition_reference,

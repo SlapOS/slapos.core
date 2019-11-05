@@ -1,0 +1,10 @@
+<workflow_chain>
+ <chain>
+  <type>Wechat Event</type>
+  <workflow>edit_workflow, system_event_workflow, wechat_interface_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Wechat Event Message</type>
+  <workflow>edit_workflow</workflow>
+ </chain>
+</workflow_chain>

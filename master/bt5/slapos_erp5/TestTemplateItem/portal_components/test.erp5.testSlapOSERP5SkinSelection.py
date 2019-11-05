@@ -133,6 +133,7 @@ slapos_payzen
 slapos_pdm
 slapos_simulation
 slapos_slap_tool
+slapos_wechat
 slapos_configurator
 erp5_web_redirect_assist
 erp5_km
@@ -210,6 +211,7 @@ erp5_web_minimal_theme
 erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
+erp5_wechat_secure_payment
 erp5_workflow
 erp5_xhtml_style
 external_method
@@ -248,6 +250,7 @@ slapos_payzen
 slapos_pdm
 slapos_simulation
 slapos_slap_tool
+slapos_wechat
 slapos_configurator
 erp5_km
 erp5_knowledge_pad
@@ -325,6 +328,7 @@ erp5_web_minimal_theme
 erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
+erp5_wechat_secure_payment
 erp5_workflow
 external_method
 Images
@@ -363,6 +367,7 @@ slapos_payzen
 slapos_pdm
 slapos_simulation
 slapos_slap_tool
+slapos_wechat
 slapos_configurator
 erp5_km
 erp5_knowledge_pad
@@ -439,6 +444,7 @@ erp5_web_minimal_theme
 erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
+erp5_wechat_secure_payment
 erp5_workflow
 external_method
 Images
@@ -474,6 +480,7 @@ slapos_payzen
 slapos_pdm
 slapos_simulation
 slapos_slap_tool
+slapos_wechat
 slapos_configurator
 erp5_km
 erp5_knowledge_pad
@@ -552,6 +559,7 @@ erp5_web_minimal_theme
 erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
+erp5_wechat_secure_payment
 erp5_workflow
 erp5_xhtml_style
 external_method
@@ -588,6 +596,7 @@ slapos_payzen
 slapos_pdm
 slapos_simulation
 slapos_slap_tool
+slapos_wechat
 slapos_configurator
 erp5_km
 erp5_km_theme
@@ -667,6 +676,7 @@ erp5_web_minimal_theme
 erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
+erp5_wechat_secure_payment
 erp5_workflow
 erp5_xhtml_style
 external_method
@@ -703,6 +713,7 @@ slapos_payzen
 slapos_pdm
 slapos_simulation
 slapos_slap_tool
+slapos_wechat
 slapos_configurator
 erp5_commerce_multiflex_layout
 erp5_km
@@ -780,6 +791,7 @@ erp5_web_minimal_theme
 erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
+erp5_wechat_secure_payment
 erp5_workflow
 external_method
 Images
@@ -815,6 +827,7 @@ slapos_payzen
 slapos_pdm
 slapos_simulation
 slapos_slap_tool
+slapos_wechat
 slapos_configurator
 erp5_km
 erp5_web_download_theme
@@ -892,6 +905,7 @@ erp5_web_minimal_theme
 erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
+erp5_wechat_secure_payment
 erp5_workflow
 erp5_xhtml_style
 external_method
@@ -928,6 +942,7 @@ slapos_payzen
 slapos_pdm
 slapos_simulation
 slapos_slap_tool
+slapos_wechat
 slapos_configurator
 erp5_km
 erp5_knowledge_pad
@@ -1005,6 +1020,7 @@ erp5_web_minimal_theme
 erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
+erp5_wechat_secure_payment
 erp5_workflow
 external_method
 Images
@@ -1040,6 +1056,7 @@ slapos_payzen
 slapos_pdm
 slapos_simulation
 slapos_slap_tool
+slapos_wechat
 slapos_configurator
 erp5_km
 erp5_knowledge_pad
@@ -1117,6 +1134,7 @@ erp5_web_minimal_theme
 erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
+erp5_wechat_secure_payment
 erp5_workflow
 external_method
 Images
@@ -1153,6 +1171,7 @@ slapos_payzen
 slapos_pdm
 slapos_simulation
 slapos_slap_tool
+slapos_wechat
 slapos_configurator
 erp5_rss_style
 erp5_km
@@ -1230,6 +1249,7 @@ erp5_web_minimal_theme
 erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
+erp5_wechat_secure_payment
 erp5_workflow
 external_method
 Images
@@ -1265,6 +1285,7 @@ slapos_payzen
 slapos_pdm
 slapos_simulation
 slapos_slap_tool
+slapos_wechat
 slapos_configurator
 erp5_web_shacache
 erp5_km
@@ -1343,6 +1364,7 @@ erp5_web_minimal_theme
 erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
+erp5_wechat_secure_payment
 erp5_workflow
 erp5_xhtml_style
 external_method
@@ -1379,6 +1401,7 @@ slapos_payzen
 slapos_pdm
 slapos_simulation
 slapos_slap_tool
+slapos_wechat
 slapos_configurator
 erp5_web_shadir
 erp5_km
@@ -1457,6 +1480,7 @@ erp5_web_minimal_theme
 erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
+erp5_wechat_secure_payment
 erp5_workflow
 erp5_xhtml_style
 external_method
@@ -1495,6 +1519,7 @@ slapos_payzen
 slapos_pdm
 slapos_simulation
 slapos_slap_tool
+slapos_wechat
 slapos_configurator
 erp5_km
 erp5_knowledge_pad
@@ -1571,6 +1596,7 @@ erp5_web_minimal_theme
 erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
+erp5_wechat_secure_payment
 erp5_workflow
 external_method
 Images

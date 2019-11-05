@@ -252,9 +252,6 @@ class TestSubscriptionRequest_saveTransactionalUser(TestSubscriptionSkinsMixin):
 class TestSubscriptionRequest_createUser(TestSubscriptionSkinsMixin):
 
   def test_SubscriptionRequest_createUser_raises_unauthorized(self):
-    email = "abc%s@nexedi.com" % self.new_id
-    name = "Cous Cous %s" % self.new_id
-
     self.assertRaises(Unauthorized, self.portal.SubscriptionRequest_createUser, name="a", email="b", REQUEST=self.portal.REQUEST)
 
   def test_SubscriptionRequest_createUser_already_logged_in(self):
@@ -264,7 +261,6 @@ class TestSubscriptionRequest_createUser(TestSubscriptionSkinsMixin):
 
   def test_SubscriptionRequest_createUser_existing_person(self):
     email = "abc%s@nexedi.com" % self.new_id
-    name = "Cous Cous %s" % self.new_id
     person = self.makePerson()
     person.setDefaultEmailText(email)
     self.tic()
@@ -273,7 +269,6 @@ class TestSubscriptionRequest_createUser(TestSubscriptionSkinsMixin):
 
   def test_SubscriptionRequest_createUser_existing_login(self):
     email = "abc%s@nexedi.com" % self.new_id
-    name = "Cous Cous %s" % self.new_id
 
     person = self.makePerson()
     erp5_login = [i for i in person.searchFolder(portal_type="ERP5 Login")][0]
@@ -455,8 +450,6 @@ class TestSubscriptionRequest_requestPaymentTransaction(TestSubscriptionSkinsMix
 
     subscription_request = self.newSubscriptionRequest(
       quantity=1, destination_section_value=person,
-      price=195.5,
-      price_currency="currency_module/EUR",
       default_email_text="abc%s@nexedi.com" % self.new_id)
 
     invoice_template_path = "accounting_module/template_pre_payment_subscription_sale_invoice_transaction"
@@ -466,7 +459,7 @@ class TestSubscriptionRequest_requestPaymentTransaction(TestSubscriptionSkinsMix
     subscription_request.edit(causality_value=current_invoice)
 
     self.assertEqual(None,
-      subscription_request.SubscriptionRequest_requestPaymentTransaction("1", "xx"))
+      subscription_request.SubscriptionRequest_requestPaymentTransaction("1", "xx", "en"))
 
   def _test_request_payment_transaction(self, quantity):
     email = "abc%s@nexedi.com" % self.new_id
@@ -477,11 +470,9 @@ class TestSubscriptionRequest_requestPaymentTransaction(TestSubscriptionSkinsMix
 
     subscription_request = self.newSubscriptionRequest(
       quantity=quantity, destination_section_value=person,
-      price=195.5,
-      price_currency="currency_module/EUR",
       default_email_text="abc%s@nexedi.com" % self.new_id)
 
-    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction(quantity, "TAG")
+    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction(quantity, "TAG", "en")
     self.tic()
     self.assertNotEqual(None, current_payment)
     self.assertEqual(current_payment.getTitle(), "Payment for Reservation Fee")
@@ -500,26 +491,75 @@ class TestSubscriptionRequest_requestPaymentTransaction(TestSubscriptionSkinsMix
       if line.getSource() == "account_module/receivable":
         self.assertEqual(line.getQuantity(), 25*quantity)
 
-  @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'amount, tag, payment, REQUEST=None',"""assert REQUEST == None
+  def _test_request_payment_transaction_chinese(self, quantity):
+    email = "abc%s@nexedi.com" % self.new_id
+    name = "Cous Cous %s" % self.new_id
+
+    person, _ = self.portal.SubscriptionRequest_createUser(name=name, email=email)
+    self.tic()
+
+    subscription_request = self.newSubscriptionRequest(
+      quantity=quantity, destination_section_value=person,
+      default_email_text="abc%s@nexedi.com" % self.new_id)
+
+    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction(quantity, "TAG", "zh")
+    self.tic()
+    self.assertNotEqual(None, current_payment)
+    self.assertEqual(current_payment.getTitle(), "Payment for Reservation Fee")
+    self.assertEqual(current_payment.getSourceValue(), person)
+    self.assertEqual(current_payment.getDestinationValue(), person)
+    self.assertEqual(current_payment.getDestinationSectionValue(), person)
+    self.assertEqual(current_payment.getDestinationDecisionValue(), person)
+    self.assertEqual(current_payment.getDestinationDecisionValue(), person)
+    self.assertNotEqual(current_payment.getStartDate(), None)
+    self.assertNotEqual(current_payment.getStopDate(), None)
+    self.assertEqual(current_payment.getSimulationState(), "started")
+
+    for line in current_payment.contentValues():
+      if line.getSource() == "account_module/bank":
+        self.assertEqual(line.getQuantity(), -188*quantity)
+      if line.getSource() == "account_module/receivable":
+        self.assertEqual(line.getQuantity(), 188*quantity)
+
+  @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'amount, tag, payment, target_language, REQUEST=None',"""assert REQUEST == None
 assert payment
 assert amount == 1
-assert tag == 'TAG'""")
+assert tag == 'TAG'
+assert target_language == 'en'""")
   def test_request_payment_transaction_q1(self):
     self._test_request_payment_transaction(quantity=1)
 
-  @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'amount, tag, payment, REQUEST=None',"""assert REQUEST == None
+  @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'amount, tag, payment, target_language, REQUEST=None',"""assert REQUEST == None
 assert payment
 assert amount == 2
-assert tag == 'TAG'""")
+assert tag == 'TAG'
+assert target_language == 'en'""")
   def test_request_payment_transaction_q2(self):
     self._test_request_payment_transaction(quantity=2)
 
-  @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'amount, tag, payment, REQUEST=None',"""assert REQUEST == None
+  @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'amount, tag, payment, target_language, REQUEST=None',"""assert REQUEST == None
 assert payment
 assert amount == 10
-assert tag == 'TAG'""")
+assert tag == 'TAG'
+assert target_language == 'en'""")
   def test_request_payment_transaction_q10(self):
     self._test_request_payment_transaction(quantity=10)
+
+  @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'amount, tag, payment, target_language, REQUEST=None',"""assert REQUEST == None
+assert payment
+assert amount == 1
+assert tag == 'TAG'
+assert target_language == 'zh'""")
+  def test_request_payment_transaction_chinese_q1(self):
+    self._test_request_payment_transaction_chinese(quantity=1)
+
+  @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'amount, tag, payment, target_language, REQUEST=None',"""assert REQUEST == None
+assert payment
+assert amount == 10
+assert tag == 'TAG'
+assert target_language == 'zh'""")
+  def test_request_payment_transaction_chinese_q10(self):
+    self._test_request_payment_transaction_chinese(quantity=10)
 
 class TestSubscriptionRequest_createRelatedSaleInvoiceTransaction(TestSubscriptionSkinsMixin):
 
@@ -532,8 +572,6 @@ class TestSubscriptionRequest_createRelatedSaleInvoiceTransaction(TestSubscripti
 
     subscription_request = self.newSubscriptionRequest(
       quantity=1, destination_section_value=person,
-      price=195.5,
-      price_currency="currency_module/EUR",
       default_email_text="abc%s@nexedi.com" % self.new_id)
 
     invoice_template_path = "accounting_module/template_pre_payment_subscription_sale_invoice_transaction"
@@ -543,7 +581,7 @@ class TestSubscriptionRequest_createRelatedSaleInvoiceTransaction(TestSubscripti
     subscription_request.edit(causality_value=current_invoice)
 
     self.assertEqual(current_invoice,
-      subscription_request.SubscriptionRequest_createRelatedSaleInvoiceTransaction(1, "xx", "___payment__"))
+      subscription_request.SubscriptionRequest_createRelatedSaleInvoiceTransaction(1, "xx", "___payment__", "en"))
 
 
   def _test_creation_of_related_sale_invoice_transaction(self, quantity):
@@ -555,13 +593,11 @@ class TestSubscriptionRequest_createRelatedSaleInvoiceTransaction(TestSubscripti
 
     subscription_request = self.newSubscriptionRequest(
       quantity=quantity, destination_section_value=person,
-      price=195.5,
-      price_currency="currency_module/EUR",
       default_email_text="abc%s@nexedi.com" % self.new_id)
 
     # The SubscriptionRequest_createRelatedSaleInvoiceTransaction is invoked up, as it proven on
     # test TestSubscriptionRequest_requestPaymentTransaction, so let's keep it simple, and just reinvoke
-    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction(quantity, "TAG")
+    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction(quantity, "TAG", "en")
 
     self.tic()
 
@@ -612,8 +648,6 @@ class SubscriptionRequest_processRequest(TestSubscriptionSkinsMixin):
   <parameter id="zz">yy</parameter>
 </instance>""",
     root_slave=False,
-    price=99.9,
-    price_currency="currency_module/EUR",
     source_reference="test_for_test_123")
     subscription_request.plan()
     subscription_request.order()
@@ -637,8 +671,6 @@ class SubscriptionRequest_processRequest(TestSubscriptionSkinsMixin):
   <parameter id="zz">yy</parameter>
 </instance>""",
     root_slave=False,
-    price=99.9,
-    price_currency="currency_module/EUR",
     source_reference="test_for_test_123")
 
     self.tic()

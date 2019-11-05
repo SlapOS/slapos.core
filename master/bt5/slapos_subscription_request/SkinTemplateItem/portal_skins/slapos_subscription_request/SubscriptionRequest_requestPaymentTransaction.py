@@ -8,8 +8,12 @@ current_invoice = context.getCausalityValue()
 current_payment = None
 
 if current_invoice is None:
-
-  payment_template = portal.restrictedTraverse("accounting_module/slapos_pre_payment_template")
+  if target_language == "zh": # Wechat payment, reservation fee is 188 CNY
+    payment_template = portal.restrictedTraverse("accounting_module/slapos_wechat_pre_payment_template")
+    quantity = int(amount) * 188
+  else: # Payzen payment, reservation fee is 25 EUR
+    payment_template = portal.restrictedTraverse("accounting_module/slapos_pre_payment_template")
+    quantity = int(amount) * 25
   current_payment = payment_template.Base_createCloneDocument(batch_mode=1)
 
   current_payment.edit(
@@ -22,8 +26,7 @@ if current_invoice is None:
         stop_date=DateTime()
       )
 
-  # Hardcoded value for reservation
-  quantity = int(amount)*25
+
   for line in current_payment.contentValues():
     if line.getSource() == "account_module/bank":
       line.setQuantity(-1*quantity)
@@ -39,6 +42,6 @@ if current_invoice is None:
   context.reindexObject(activate_kw={'tag': tag})
 
   context.activate(tag=tag).SubscriptionRequest_createRelatedSaleInvoiceTransaction(
-    amount, tag, current_payment.getRelativeUrl())
+    amount, tag, current_payment.getRelativeUrl(), target_language)
 
 return current_payment

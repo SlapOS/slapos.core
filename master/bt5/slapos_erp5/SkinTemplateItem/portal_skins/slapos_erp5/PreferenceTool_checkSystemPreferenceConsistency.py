@@ -13,8 +13,10 @@ error_list = []
 
 preference_method_list = [
   "getPreferredHateoasUrl",
-   "getPreferredPayzenPaymentServiceReference",
-   "getPreferredPayzenIntegrationSite"
+  "getPreferredPayzenPaymentServiceReference",
+  "getPreferredPayzenIntegrationSite",
+  "getPreferredWechatPaymentServiceReference",
+  "getPreferredWechatIntegrationSite"
   ]
 
 for method_id in preference_method_list:

@@ -264,6 +264,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
             'erp5_secure_payment',
             'erp5_security_uid_innodb_catalog',
             'erp5_payzen_secure_payment',
+            'erp5_wechat_secure_payment',
             'erp5_ooo_import',
             'erp5_odt_style',
             'erp5_ods_style',
@@ -327,6 +328,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
             'slapos_web',
             'slapos_web_deploy',
             'slapos_erp5',
+            'slapos_wechat',
             ]
  
   def getBusinessTemplateList(self):

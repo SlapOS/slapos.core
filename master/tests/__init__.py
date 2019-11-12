@@ -16,6 +16,7 @@ slapos_bt_list = [
     'slapos_web',
     'slapos_crm',
     'slapos_payzen',
+    'slapos_wechat',
     'slapos_configurator',
     'slapos_jio',
     'slapos_jio_ui_test'

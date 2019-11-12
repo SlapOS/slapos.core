@@ -193,9 +193,26 @@ class Software(object):
       else:
         self._install_from_buildout()
         # Upload to binary cache if possible and allowed
-        if all([self.software_root, self.url, self.software_url_hash,
-                self.upload_binary_cache_url, self.upload_binary_dir_url,
-                not os.path.exists(os.path.join(self.software_path, '.shared'))]):
+        upload_allowed = all([
+          self.software_root, self.url, self.software_url_hash,
+          self.upload_binary_cache_url, self.upload_binary_dir_url])
+        if upload_allowed:
+          shared_used = False
+          if os.path.exists(installed_cfg):
+            with open(installed_cfg, 'r') as installed_h:
+              installed = installed_h.read()
+              for part_list_directory in self.shared_part_list.split():
+                part_list_directory = part_list_directory.split()
+                if part_list_directory and part_list_directory in installed:
+                  shared_used = True
+                  break
+          if shared_used or os.path.exists(
+              os.path.join(self.software_path, '.shared')):
+            upload_allowed = False
+            self.logger.info(
+              "Will not upload to binary cache, as shared parts are used.")
+        installed_cfg = os.path.join(self.software_path, '.installed.cfg')
+        if upload_allowed:
           blacklisted = False
           for url in self.upload_to_binary_cache_url_blacklist:
             if self.url.startswith(url):

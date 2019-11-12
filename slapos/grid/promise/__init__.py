@@ -389,10 +389,53 @@ class PromiseLauncher(object):
       json.dump(result.serialize(), outputfile)
     os.rename(promise_tmp_file, promise_output_file)
 
+  def _saveGlobalState(self, state_dict, config, report_date, success, error):
+    promise_status_file = os.path.join(self.partition_folder,
+                                       PROMISE_STATE_FOLDER_NAME,
+                                       'promise_status.json')
+    global_file = os.path.join(self.partition_folder,
+                               PROMISE_STATE_FOLDER_NAME,
+                               'global.json')
+    public_file = os.path.join(self.partition_folder,
+                               PROMISE_STATE_FOLDER_NAME,
+                               'public.json')
+    global_state_dict = dict(
+      status="ERROR" if error else "OK",
+      state={"error": error, "success": success},
+      type='global',
+      portal_type='Software Instance',
+      title='Instance Monitoring',
+      date=report_date,
+      _links={}, # To be filled by the instance
+      data={'state': 'monitor_state.data',
+            'process_state': 'monitor_process_resource.status',
+            'process_resource': 'monitor_resource_process.data',
+            'memory_resource': 'monitor_resource_memory.data',
+            'io_resource': 'monitor_resource_io.data',
+            'monitor_process_state': 'monitor_resource.status'},
+      aggregate_reference=config.get('computer-id'),
+      partition_id=config.get('partition-id')
+      )
+
+    public_state_dict = dict(
+      status=global_state_dict["status"],
+      date=report_date,
+      _links={}
+    )
+    with open(promise_status_file, "w") as f:
+      json.dump(state_dict, f)
+
+    with open(global_file, "w") as f:
+      json.dump(global_state_dict, f)
+
+    with open(public_file, "w") as f:
+      json.dump(public_state_dict, f)
+
   def _savePromiseHistoryResult(self, result):
     state_dict = result.serialize()
     previous_state_dict = {}
-    promise_status_file = os.path.join(PROMISE_STATE_FOLDER_NAME,
+    promise_status_file = os.path.join(self.partition_folder,
+                                       PROMISE_STATE_FOLDER_NAME,
                                        'promise_status.json')
 
     if os.path.exists(promise_status_file):
@@ -417,11 +460,9 @@ class PromiseLauncher(object):
 
     if not os.path.exists(history_file) or not os.stat(history_file).st_size:
       with open(history_file, 'w') as f:
-        data_dict = {
-          "date": time.time(),
-          "data": [state_dict]
-        }
-        json.dump(data_dict, f)
+        f.write("""{
+          "date": %s,
+          "data": %s}""" % (time.time(), json.dumps([state_dict])))
     else:
       previous_state_list = previous_state_dict.get(result.name, None)
       if previous_state_list is not None:
@@ -443,11 +484,9 @@ class PromiseLauncher(object):
     # csv-like document for success/error statictics
     if not os.path.exists(stat_file_path) or os.stat(stat_file_path).st_size == 0:
       with open(stat_file_path, 'w') as fstat:
-        data_dict = {
-          "date": time.time(),
-          "data": ["Date, Success, Error, Warning"]
-        }
-        fstat.write(json.dumps(data_dict))
+        fstat.write("""{
+          "date": %s,
+          "data": ["Date, Success, Error, Warning"]}""" % time.time())
   
     current_state = '%s, %s, %s, %s' % (
         date,
@@ -705,7 +744,6 @@ class PromiseLauncher(object):
           'path': promise_path,
           'name': promise_name
         }
-
         config.update(base_config)
         promise_result = self._launchPromise(promise_name, promise_path, config)
         if promise_result:
@@ -792,12 +830,11 @@ class PromiseLauncher(object):
 
     self._updateFolderOwner(self.promise_output_dir)
 
-    # Save Global State
-    with open(promise_status_file, "w") as f:
-      json.dump(new_state_dict, f)
-
     self._saveStatisticsData(promise_stats_file,
                          report_date, success, error)
+
+    self._saveGlobalState(new_state_dict, base_config, report_date, 
+                          success, error) 
 
     if self._skipped_amount > 0:
       self.logger.info("%s promises didn't need to be checked." % \

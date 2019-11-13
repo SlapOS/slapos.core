@@ -202,7 +202,7 @@ class Software(object):
             with open(installed_cfg, 'r') as installed_h:
               installed = installed_h.read()
               for part_list_directory in self.shared_part_list.split():
-                part_list_directory = part_list_directory.split()
+                part_list_directory = part_list_directory.strip()
                 if part_list_directory and part_list_directory in installed:
                   shared_used = True
                   break

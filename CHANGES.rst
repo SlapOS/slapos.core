@@ -1,6 +1,16 @@
 Changes
 =======
 
+1.5.2 (2019-11-13)
+-------------------
+
+  * slapos/grid/promise: Save global and public states
+  * slapos/grid/promise: Extend promise system to generate history and stats
+  * testcase: Snapshot on setUpClass failure
+  * slapos/collect: getint don't support fallback
+  * slapos/proxy: setComputerPartitionConnectionXml don't update timestamp
+
+
 1.5.1 (2019-10-30)
 ------------------
 

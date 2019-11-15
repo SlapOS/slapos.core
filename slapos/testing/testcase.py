@@ -551,3 +551,65 @@ class SlapOSInstanceUpgradeTestCase(BaseSlapOSInstanceTestCase):
     cls.requestDefaultInstance()
 
 
+
+class ExampleERP5UpgradeTestCase(SlapOSInstanceUpgradeTestCase):
+  @classmethod
+  def getOldSoftwareUrl(cls):
+    # an old version, we don't change this URL often (maybe never ?)
+    return 'https://lab.nexedi.com/nexedi/slapos/blob/1.0.124/software/erp5/software.cfg'
+  @classmethod
+  def getNewSoftwareUrl(cls):
+    return os.path.join('..', '..', 'software.cfg') # we are in slapos git repository
+
+  @classmethod
+  def _getERP5XMLRPCClient(cls):
+    param_dict = json.loads(
+        cls.computer_partition.getConnectionParameterDict()['_'])
+    url = urlparse.urljoin(param_dict['family-default'], param_dict['site-id'])
+    # TODO credentials in url
+    return xmlrpclib.ServerProxy(url)
+
+  @classmethod
+  def prepareOldInstance(cls):
+    erp5 = cls._getERP5XMLRPCClient()
+    erp5.portal_configurator.configure...
+
+  def test(self):
+    erp5 = this._getERP5XMLRPCClient()
+
+    repo_bt_list = "TODO: paths of repositories from new software"
+
+    # update repository
+    try:
+      erp5.portal_templates.updateRepositoryBusinessTemplateList(repo_bt_list)
+    except xmlrpclib.ProtocolError as e:
+      if e.errcode != 302 and not "business templates updated successfully" in e.headers['location']:
+        raise
+    repo_bt_list = erp5.portal_templates.getRepositoryList()
+    self.logger.info('Updated repository to %s', repo_bt_list)
+
+    try:
+      erp5.portal_templates.download('/'.join([erp5_bt_repo, 'erp5_upgrader']))
+    except xmlrpclib.ProtocolError as e:
+      if e.errcode != 302 and not "Business templates downloaded successfully" in e.headers['Location']:
+        raise
+    bt = e.headers['Location'].split('?')[0].split('/')[-1]
+    getattr(erp5.portal_templates, bt).install()
+    self.assertEqual("installed", getattr(erp5.portal_templates, bt).getInstallationState())
+    self.logger.info("Installed erp5_upgrader as %s", bt)
+
+
+    erp5.portal_alarms.promise_check_upgrade.activeSense()
+    self.logger.info("Running promise_check_upgrade active sense")
+
+    for i in range(100):
+      time.sleep(i)
+      if erp5.portal_alarms.promise_check_upgrade.hasActivity():
+        # TODO: this breaks too early this check is not correct.
+        # TODO: maybe check portal_activities has activity instead ?
+        break
+    else:
+      self.fail("Error, promise_check_upgrade is still running")
+
+    self.assertEqual('looks good', erp5.inspectState())
+

@@ -2040,7 +2040,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
         f.write(textwrap.dedent("""\
               #!/usr/bin/env sh
               touch "%s"
-              sleep 5
+              sleep 25
               exit 0""" % worked_file))
       os.chmod(succeed, 0o777)
       self.assertEqual(self.grid.processComputerPartitionList(),
@@ -2114,7 +2114,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
                   then
                     touch "%(lockfile)s"
                   else
-                    sleep 5
+                    sleep 25
                   fi
                   exit 0""" % {
             'worked_file': worked_file,
@@ -3261,7 +3261,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
         f.write(textwrap.dedent("""\
               #!/usr/bin/env sh
               touch "%s"
-              sleep 5
+              sleep 25
               exit 0""" % worked_file))
       os.chmod(succeed, 0o777)
       self.assertEqual(self.grid.processPromiseList(),
@@ -3278,7 +3278,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
     with open("%s", 'a'):
       os.utime("%s", None)
     import time
-    time.sleep(7)""" % (worked_file, worked_file)
+    time.sleep(27)""" % (worked_file, worked_file)
       instance.setPluginPromise(promise_name='timeout_fail.py', success=True, promise_content=fail)
       self.assertEqual(self.grid.processPromiseList(),
                        slapos.grid.slapgrid.SLAPGRID_PROMISE_FAIL)
@@ -3286,7 +3286,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       with open(os.path.join(instance.partition_path, ".slapgrid/promise/result/timeout_fail.status.json"), "r") as f:
         result = json.loads(f.read())
 
-      self.assertEqual('Error: Promise timed out after 3 seconds',
+      self.assertEqual('Error: Promise timed out after 20 seconds',
                        result["result"]["message"])
 
   def test_two_succeeding_promises(self):
@@ -3422,7 +3422,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
                   then
                     touch "%(lockfile)s"
                   else
-                    sleep 5
+                    sleep 25
                   fi
                   exit 0""" % {
             'worked_file': worked_file,
@@ -3450,7 +3450,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
     with open("%s", 'a'):
       os.utime("%s", None)
     import time
-    time.sleep(7)""" % (timeout_file, timeout_file)
+    time.sleep(27)""" % (timeout_file, timeout_file)
       instance.setPluginPromise(promise_name='timeout_fail.py', success=True, promise_content=fail)
  
       self.assertEqual(self.grid.processPromiseList(),
@@ -3465,7 +3465,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       with open(os.path.join(instance.partition_path, ".slapgrid/promise/result/timeout_fail.status.json"), "r") as f:
         result = json.loads(f.read())
 
-      self.assertEqual('Error: Promise timed out after 3 seconds',
+      self.assertEqual('Error: Promise timed out after 20 seconds',
                        result["result"]["message"])
 
   def test_promise_notrun_if_partition_stopped(self):

@@ -323,7 +323,7 @@ class Slapgrid(object):
                upload_dir_url=None,
                master_ca_file=None,
                certificate_repository_path=None,
-               promise_timeout=None,
+               promise_timeout=3,
                shacache_ca_file=None,
                shacache_cert_file=None,
                shacache_key_file=None,

@@ -241,27 +241,8 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=2, debug=False):
     raise e
 
 
-class SlapOSInstanceTestCase(unittest.TestCase):
-  """Install one slapos instance.
-
-  This test case install software(s) and request one instance
-  during `setUpClass` and destroy that instance during `tearDownClass`.
-
-  Software Release URL, Instance Software Type and Instance Parameters
-  can be defined on the class.
-
-  All tests from the test class will run with the same instance.
-
-  The following class attributes are available:
-
-    * `computer_partition`:  the `slapos.slap.slap.ComputerPartition`
-      computer partition instance.
-
-    * `computer_partition_root_path`: the path of the instance root
-      directory.
-
-  This class is not supposed to be imported directly, but needs to be setup by
-  calling makeModuleSetUpAndTestCaseClass.
+class BaseSlapOSInstanceTestCase(unittest.TestCase):
+  """TODO: docs
   """
   # can set this to true to enable debugging utilities
   _debug = False
@@ -283,6 +264,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
   slap = None  # type: StandaloneSlapOS
   _ipv4_address = ""
   _ipv6_address = ""
+  _software_url = "" # the "current" software URL
 
   # a short name of that software URL.
   # eg. helloworld instead of
@@ -325,11 +307,8 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     """
     return ""
 
-  # Unittest methods
   @classmethod
   def setUpClass(cls):
-    """Request an instance.
-    """
     cls._instance_parameter_dict = cls.getInstanceParameterDict()
 
     try:
@@ -345,7 +324,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
           getattr(cls, '__partition_reference__', '{}-'.format(cls.__name__)))
 
       # request
-      cls.requestDefaultInstance()
+      cls.requestDefaultInstance(cls._software_url)
 
       # slapos node instance
       cls.logger.debug("Waiting for instance")
@@ -365,7 +344,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
 
       # expose some class attributes so that tests can use them:
       # the main ComputerPartition instance, to use getInstanceParameterDict
-      cls.computer_partition = cls.requestDefaultInstance()
+      cls.computer_partition = cls.requestDefaultInstance(cls._software_url)
 
       # the path of the instance on the filesystem, for low level inspection
       cls.computer_partition_root_path = os.path.join(
@@ -475,15 +454,100 @@ class SlapOSInstanceTestCase(unittest.TestCase):
 
   @classmethod
   def requestDefaultInstance(cls, state='started'):
-    software_url = cls.getSoftwareURL()
     software_type = cls.getInstanceSoftwareType()
     cls.logger.debug(
         'requesting "%s" software:%s type:%s state:%s parameters:%s',
-        cls.default_partition_reference, software_url, software_type, state,
+        cls.default_partition_reference, cls._software_url, software_type, state,
         cls._instance_parameter_dict)
     return cls.slap.request(
-        software_release=software_url,
+        software_release=cls._software_url,
         software_type=software_type,
         partition_reference=cls.default_partition_reference,
         partition_parameter_kw=cls._instance_parameter_dict,
         state=state)
+
+
+class SlapOSInstanceTestCase(BaseSlapOSInstanceTestCase):
+  """Install one slapos instance.
+
+  This test case install software(s) and request one instance
+  during `setUpClass` and destroy that instance during `tearDownClass`.
+
+  Software Release URL, Instance Software Type and Instance Parameters
+  can be defined on the class.
+
+  All tests from the test class will run with the same instance.
+
+  The following class attributes are available:
+
+    * `computer_partition`:  the `slapos.slap.slap.ComputerPartition`
+      computer partition instance.
+
+    * `computer_partition_root_path`: the path of the instance root
+      directory.
+
+  This class is not supposed to be imported directly, but needs to be setup by
+  calling makeModuleSetUpAndTestCaseClass.
+  """
+
+  # Methods to be defined by subclasses.
+  @classmethod
+  def getSoftwareURL(cls):
+    """Return URL of software release to request instance.
+
+    This method will be defined when initialising the class
+    with makeModuleSetUpAndTestCaseClass.
+    """
+    raise NotImplementedError()
+
+  # Unittest methods
+  @classmethod
+  def setUpClass(cls):
+    """Request an instance.
+    """
+    cls._software_url = cls.getSoftwareURL()
+    super(SlapOSInstanceTestCase).setUpClass()
+
+
+class SlapOSInstanceUpgradeTestCase(BaseSlapOSInstanceTestCase):
+  """SlapOSInstanceTestCase for upgrades.
+
+  This provides a starting point for the typical scenario:
+    - install old software
+    - create an instance
+    - create some data in instance
+    - install new software
+    - update the instance to use new software
+  and check that the instance is in correct state after upgrade.
+  """
+  # Methods to be defined by subclasses.
+  @classmethod
+  def getOldSoftwareUrl(cls):
+    """Software URL before upgrade
+    """
+    raise NotImplementedError()
+
+  @classmethod
+  def getNewSoftwareUrl(cls):
+    """Software URL after upgrade
+    """
+    raise NotImplementedError()
+
+  # hooks
+  @classmethod
+  def prepareOldInstance(cls):
+    """Prepare the instance before upgrade process.
+
+    This can be used also to create some initial data.
+    """
+
+  # unittest methods
+  @classmethod
+  def setUpClass(cls):
+    cls._software_url = cls.getOldSoftwareUrl()
+    super(SlapOSInstanceUpgradeTestCase, cls).setUpClass()
+    cls.prepareOldInstance()
+    cls._software_url = cls.getNewSoftwareUrl()
+    cls.requestDefaultInstance()
+
+

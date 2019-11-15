@@ -32,7 +32,7 @@ from slapos.cli.config import ConfigCommand
 
 from slapos.grid.utils import setRunning, setFinished
 from slapos.grid.slapgrid import (merged_options, check_missing_parameters, check_missing_files,
-                                  random_delay, create_slapgrid_object)
+                                  random_delay, create_slapgrid_object, PROMISE_TIMEOUT)
 
 from slapos.util import string_to_boolean
 
@@ -81,7 +81,7 @@ class SlapgridCommand(ConfigCommand):
                         type=int,
                         help='Periodicity at which buildout should be run in instance.')
         ap.add_argument('--promise-timeout',
-                        default=3,
+                        default=PROMISE_TIMEOUT,
                         type=int,
                         help='Promise timeout in seconds'
                              ' (default: %(default)s)')

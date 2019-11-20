@@ -297,6 +297,8 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       '*/etc/*',
       '*/var/log/*',
       '*/.*log',
+      '*/.*cfg',
+      '*/*cfg',
   )
 
   # Methods to be defined by subclasses.

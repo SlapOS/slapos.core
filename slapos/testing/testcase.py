@@ -394,19 +394,19 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     # copy log files from standalone
     for standalone_log in glob.glob(os.path.join(
           cls._base_directory, 'var', 'log', '*')):
-      cls._snapshot_instance_file(standalone_log, name)
+      cls._copySnapshot(standalone_log, name)
 
     # copy config and log files from partitions
     for pattern in cls._save_instance_file_pattern_list:
       for f in glob.glob(os.path.join(cls.slap.instance_directory, pattern)):
-        cls._snapshot_instance_file(f, name)
+        cls._copySnapshot(f, name)
 
   def tearDown(self):
     self._storeSnapshot(self.id())
 
   @classmethod
-  def _snapshot_instance_file(cls, source_file_name, name):
-    """Save a file for later inspection.
+  def _copySnapshot(cls, source_file_name, name):
+    """Save a file, symbolic link or directory for later inspection.
 
     The path are made relative to slapos root directory and
     we keep the same directory structure.
@@ -423,12 +423,24 @@ class SlapOSInstanceTestCase(unittest.TestCase):
         cls._test_file_snapshot_directory,
         cls.software_id,
         name,
-        relative_path)
+        relative_path,
+    )
     destination_dirname = os.path.dirname(destination)
     mkdir_p(destination_dirname)
-    if os.path.isfile(source_file_name):
+    if os.path.islink(
+        source_file_name) and not os.path.exists(source_file_name):
+      cls.logger.debug(
+          "copy broken symlink %s as %s", source_file_name, destination)
+      with open(destination, 'w') as f:
+        f.write('broken symink to {}\n'.format(os.readlink(source_file_name)))
+    elif os.path.isfile(source_file_name):
       cls.logger.debug("copy %s as %s", source_file_name, destination)
       shutil.copy(source_file_name, destination)
+    elif os.path.isdir(source_file_name):
+      cls.logger.debug("copy directory %s as %s", source_file_name, destination)
+      # we copy symlinks as symlinks, so that this does not fail when
+      # we copy a directory containing broken symlinks.
+      shutil.copytree(source_file_name, destination, symlinks=True)
 
   # implementation methods
   @classmethod

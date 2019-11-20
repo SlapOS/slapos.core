@@ -294,6 +294,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
   _save_instance_file_pattern_list = (
       'etc/supervisord.conf',
       'etc/supervisord.conf.d/*',
+      '*/bin/*',
       '*/etc/*',
       '*/var/log/*',
       '*/.*log',

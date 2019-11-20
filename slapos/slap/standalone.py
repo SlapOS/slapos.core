@@ -103,7 +103,7 @@ class SupervisorConfigWriter(ConfigWriter):
         redirect_stderr = true
         stdout_logfile = {stdout_logfile}
         stdout_logfile_maxbytes = 5MB
-        stdout_logfile_backups = 10
+        stdout_logfile_backups = 0
 
     """).format(**locals())
 

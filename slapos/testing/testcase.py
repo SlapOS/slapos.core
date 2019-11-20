@@ -28,6 +28,7 @@
 
 import unittest
 import os
+import fnmatch
 import glob
 import logging
 import shutil
@@ -217,12 +218,22 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=2, debug=False):
 
   This also check softwares with `checkSoftware`
   """
+  def _storeSoftwareLogSnapshot(name):
+    for standalone_log in glob.glob(os.path.join(
+        cls._base_directory,
+        'var',
+        'log',
+        '*',
+    )):
+      cls._copySnapshot(standalone_log, name)
+
   try:
     for software_url in software_url_list:
       cls.logger.debug("Supplying %s", software_url)
       cls.slap.supply(software_url)
     cls.logger.debug("Waiting for slapos node software to build")
     cls.slap.waitForSoftware(max_retry=max_retry, debug=debug)
+    _storeSoftwareLogSnapshot('setupModule')
     for software_url in software_url_list:
       checkSoftware(cls.slap, software_url)
   except BaseException as e:
@@ -236,8 +247,8 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=2, debug=False):
         cls.slap.waitForSoftware(max_retry=max_retry, debug=debug)
       except BaseException:
         cls.logger.exception("Error removing software")
-        pass
-    cls._cleanup()
+        _storeSoftwareLogSnapshot('setupModule removing software')
+    cls._cleanup('setupModule')
     raise e
 
 
@@ -292,13 +303,13 @@ class SlapOSInstanceTestCase(unittest.TestCase):
   _test_file_snapshot_directory = ""  # directory to save snapshot files for inspections
   # patterns of files to save for inspection, relative to instance directory
   _save_instance_file_pattern_list = (
-      'etc/supervisord.conf',
-      'etc/supervisord.conf.d/*',
+      '*/bin/*',
       '*/etc/*',
-      '*/etc/service/*',
-      '*/etc/run/*',
       '*/var/log/*',
       '*/.*log',
+      '*/.*cfg',
+      '*/*cfg',
+      'etc/',
   )
 
   # Methods to be defined by subclasses.
@@ -335,6 +346,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     """Request an instance.
     """
     cls._instance_parameter_dict = cls.getInstanceParameterDict()
+    snapshot_name = "{}.{}.setUpClass".format(cls.__module__, cls.__name__)
 
     try:
       cls.logger.debug("Starting")
@@ -375,38 +387,75 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       cls.computer_partition_root_path = os.path.join(
           cls.slap._instance_root, cls.computer_partition.getId())
       cls.logger.debug("setUpClass done")
-
     except BaseException:
       cls.logger.exception("Error during setUpClass")
-      cls._storeSnapshot("{}.setUpClass".format(cls.__name__))
-      cls._cleanup()
+      cls._storeSystemSnapshot(snapshot_name)
+      cls._cleanup(snapshot_name)
       cls.setUp = lambda self: self.fail('Setup Class failed.')
       raise
+    else:
+      cls._storeSystemSnapshot(snapshot_name)
 
   @classmethod
   def tearDownClass(cls):
     """Tear down class, stop the processes and destroy instance.
     """
-    cls._cleanup()
+    cls._cleanup("{}.{}.tearDownClass".format(cls.__module__, cls.__name__))
+    if not cls._debug:
+      cls.logger.debug("cleaning up slapos log files in %s", cls.slap._log_directory)
+      for log_file in glob.glob(os.path.join(cls.slap._log_directory, '*')):
+        os.unlink(log_file)
 
   @classmethod
-  def _storeSnapshot(cls, name):
+  def _storePartitionSnapshot(cls, name):
+    """Store snapshot of partitions.
+
+    This uses the definition from class attribute `_save_instance_file_pattern_list`
+    """
+    # copy config and log files from partitions
+    for (dirpath, dirnames, filenames) in os.walk(cls.slap.instance_directory):
+      for dirname in list(dirnames):
+        dirabspath = os.path.join(dirpath, dirname)
+        if any(fnmatch.fnmatch(
+            dirabspath,
+            pattern,
+        ) for pattern in cls._save_instance_file_pattern_list):
+          cls._copySnapshot(dirabspath, name)
+          # don't recurse, since _copySnapshot is already recursive
+          dirnames.remove(dirname)
+      for filename in filenames:
+        fileabspath = os.path.join(dirpath, filename)
+        if any(fnmatch.fnmatch(
+            fileabspath,
+            pattern,
+        ) for pattern in cls._save_instance_file_pattern_list):
+          cls._copySnapshot(fileabspath, name)
+
+  @classmethod
+  def _storeSystemSnapshot(cls, name):
+    """Store a snapshot of standalone slapos
+
+    Does not include software log, because this is stored at the end of software
+    installation and software log is large.
+    """
     # copy log files from standalone
     for standalone_log in glob.glob(os.path.join(
-          cls._base_directory, 'var', 'log', '*')):
-      cls._snapshot_instance_file(standalone_log, name)
-
-    # copy config and log files from partitions
-    for pattern in cls._save_instance_file_pattern_list:
-      for f in glob.glob(os.path.join(cls.slap.instance_directory, pattern)):
-        cls._snapshot_instance_file(f, name)
+        cls._base_directory,
+        'var',
+        'log',
+        '*',
+    )):
+      if not standalone_log.startswith('slapos-node-software.log'):
+        cls._copySnapshot(standalone_log, name)
+    # store slapproxy database
+    cls._copySnapshot(cls.slap._proxy_database, name)
 
   def tearDown(self):
-    self._storeSnapshot(self.id())
+    self._storePartitionSnapshot(self.id())
 
   @classmethod
-  def _snapshot_instance_file(cls, source_file_name, name):
-    """Save a file for later inspection.
+  def _copySnapshot(cls, source_file_name, name):
+    """Save a file, symbolic link or directory for later inspection.
 
     The path are made relative to slapos root directory and
     we keep the same directory structure.
@@ -423,27 +472,44 @@ class SlapOSInstanceTestCase(unittest.TestCase):
         cls._test_file_snapshot_directory,
         cls.software_id,
         name,
-        relative_path)
+        relative_path,
+    )
     destination_dirname = os.path.dirname(destination)
     mkdir_p(destination_dirname)
-    if os.path.isfile(source_file_name):
+    if os.path.islink(
+        source_file_name) and not os.path.exists(source_file_name):
+      cls.logger.debug(
+          "copy broken symlink %s as %s", source_file_name, destination)
+      with open(destination, 'w') as f:
+        f.write('broken symink to {}\n'.format(os.readlink(source_file_name)))
+    elif os.path.isfile(source_file_name):
       cls.logger.debug("copy %s as %s", source_file_name, destination)
       shutil.copy(source_file_name, destination)
+    elif os.path.isdir(source_file_name):
+      cls.logger.debug("copy directory %s as %s", source_file_name, destination)
+      # we copy symlinks as symlinks, so that this does not fail when
+      # we copy a directory containing broken symlinks.
+      shutil.copytree(source_file_name, destination, symlinks=True)
 
   # implementation methods
   @classmethod
-  def _cleanup(cls):
+  def _cleanup(cls, snapshot_name):
+    # type: (str) -> None
     """Destroy all instances and stop subsystem.
-    Catches and log all exceptions.
+    Catches and log all exceptions and take snapshot named `snapshot_name` + the failing step.
     """
     try:
       cls.requestDefaultInstance(state='destroyed')
     except:
       cls.logger.exception("Error during request destruction")
+      cls._storeSystemSnapshot(
+          "{}._cleanup request destroy".format(snapshot_name))
     try:
       cls.slap.waitForReport(max_retry=cls.report_max_retry, debug=cls._debug)
     except:
       cls.logger.exception("Error during actual destruction")
+      cls._storeSystemSnapshot(
+          "{}._cleanup waitForReport".format(snapshot_name))
     leaked_partitions = [
         cp for cp in cls.slap.computer.getComputerPartitionList()
         if cp.getState() != 'destroyed'
@@ -452,6 +518,8 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       cls.logger.critical(
           "The following partitions were not cleaned up: %s",
           [cp.getId() for cp in leaked_partitions])
+      cls._storeSystemSnapshot(
+          "{}._cleanup leaked_partitions".format(snapshot_name))
       for cp in leaked_partitions:
         try:
           cls.slap.request(
@@ -463,14 +531,21 @@ class SlapOSInstanceTestCase(unittest.TestCase):
         except:
           cls.logger.exception(
               "Error during request destruction of leaked partition")
+          cls._storeSystemSnapshot(
+              "{}._cleanup leaked_partitions request destruction".format(
+                  snapshot_name))
       try:
         cls.slap.waitForReport(max_retry=cls.report_max_retry, debug=cls._debug)
       except:
-        cls.logger.exception("Error during leaked partitions actual destruction")
+        cls.logger.exception(
+            "Error during leaked partitions actual destruction")
+        cls._storeSystemSnapshot(
+            "{}._cleanup leaked_partitions waitForReport".format(snapshot_name))
     try:
       cls.slap.stop()
     except:
       cls.logger.exception("Error during stop")
+      cls._storeSystemSnapshot("{}._cleanup stop".format(snapshot_name))
     leaked_supervisor_configs = glob.glob(
         os.path.join(cls.slap.instance_directory, 'etc', 'supervisord.conf.d', '*.conf'))
     if leaked_supervisor_configs:

@@ -59,7 +59,7 @@ class RegisterCommand(Command):
         ap = super(RegisterCommand, self).get_parser(prog_name)
 
         ap.add_argument('node_name',
-                        help='Name of the node')
+                        help='Chosen title for the node')
 
         ap.add_argument('--interface-name',
                         default='eth0',

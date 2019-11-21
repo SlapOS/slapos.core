@@ -172,11 +172,15 @@ def netmaskToPrefixIPv4(netmask):
   return netaddr.strategy.ipv4.netmask_to_prefix[
           netaddr.strategy.ipv4.str_to_int(netmask)]
 
-
 def netmaskToPrefixIPv6(netmask):
   """Convert string represented netmask to its integer prefix"""
-  return netaddr.strategy.ipv6.netmask_to_prefix[
-          netaddr.strategy.ipv6.str_to_int(netmask)]
+  # Since version 0.10.7 of netifaces, the netmask is something like "ffff::/16",
+  # (it used to be "ffff::"). For old versions of netifaces, interpret the netmask
+  # as an address and return its netmask, but for newer versions returns the prefixlen.
+  try:
+    return netaddr.IPAddress(netmask).netmask_bits()
+  except ValueError:
+    return netaddr.IPNetwork(netmask).prefixlen
 
 def getIfaceAddressIPv4(iface):
   """return dict containing ipv4 address netmask, network and broadcast address

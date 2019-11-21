@@ -59,7 +59,7 @@ class ConfigureClientCommand(ClientConfigCommand):
 
         ap.add_argument('--token',
                         help="SlapOS 'credential security' authentication token "
-                             "(use '--token ask' for interactive prompt)")
+                             "(if this parameter is omitted, the token will be prompted during configuration)")
 
         return ap
 

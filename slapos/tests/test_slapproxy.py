@@ -163,8 +163,9 @@ database_uri = %(tempdir)s/lib/proxy.db
 class TestLoadComputerConfiguration(BasicMixin, unittest.TestCase):
   """tests /loadComputerConfigurationFromXML the endpoint for format
   """
-  def test_loadComputerConfigurationFromXML_remove_partitions(self):
-    computer_dict = {
+  def setUp(self):
+    super(TestLoadComputerConfiguration, self).setUp()
+    self.computer_dict = {
         'reference': self.computer_id,
         'address': '12.34.56.78',
         'netmask': '255.255.255.255',
@@ -178,20 +179,72 @@ class TestLoadComputerConfiguration(BasicMixin, unittest.TestCase):
                     },
                 ],
                 'tap': {'name': 'tap0'},
+            },
+            {
+                'reference': 'slappart2',
+                'address_list': [
+                    {
+                        'addr': '5.6.7.8',
+                        'netmask': '255.255.255.255'
+                    },
+                ],
+                'tap': {'name': 'tap1'},
             }
         ],
     }
+    return
+
+  def test_loadComputerConfigurationFromXML_keep_partitions(self):
     rv = self.app.post('/loadComputerConfigurationFromXML', data={
         'computer_id': self.computer_id,
-        'xml': dumps(computer_dict),
+        'xml': dumps(self.computer_dict),
     })
     self.assertEqual(rv._status_code, 200)
-    # call again with different partition reference, old partition will be removed
-    # and a new partition will be used.
-    computer_dict['partition_list'][0]['reference'] = 'something else'
+
+    self.app.post('/requestComputerPartition', data={
+      'computer_id': self.computer_id,
+      'software_release': 'https://example.com/software.cfg',
+      'software_type': 'default',
+      'computer_partition_id': 'slappart1',
+      'state': dumps('started'),
+      'partition_parameter_xml': dumps({'foo': 'bar'}),
+      'filter_xml': dumps({}),
+      'shared_xml': dumps({})
+    })
+
+    computer = loads(
+        self.app.get('/getFullComputerInformation', query_string={'computer_id': self.computer_id}).data)
+    self.assertEqual(
+        ['https://example.com/software.cfg'],
+        [p.getSoftwareRelease().getURI() for p in computer._computer_partition_list if p.getId() == 'slappart1'])
+
+    # load configuration from XML again
     rv = self.app.post('/loadComputerConfigurationFromXML', data={
         'computer_id': self.computer_id,
-        'xml': dumps(computer_dict),
+        'xml': dumps(self.computer_dict),
+    })
+    self.assertEqual(rv._status_code, 200)
+
+    # partition is kept
+    computer = loads(
+        self.app.get('/getFullComputerInformation', query_string={'computer_id': self.computer_id}).data)
+    self.assertEqual(
+        ['https://example.com/software.cfg'],
+        [p.getSoftwareRelease().getURI() for p in computer._computer_partition_list if p.getId() == 'slappart1'])
+
+  def test_loadComputerConfigurationFromXML_remove_partitions(self):
+    rv = self.app.post('/loadComputerConfigurationFromXML', data={
+        'computer_id': self.computer_id,
+        'xml': dumps(self.computer_dict),
+    })
+    self.assertEqual(rv._status_code, 200)
+    # call again with one less partition reference, old partition will be removed
+    # and a new partition will be used.
+    self.computer_dict['partition_list'] = [self.computer_dict['partition_list'][0]]
+    self.computer_dict['partition_list'][0]['reference'] = 'something else'
+    rv = self.app.post('/loadComputerConfigurationFromXML', data={
+        'computer_id': self.computer_id,
+        'xml': dumps(self.computer_dict),
     })
     self.assertEqual(rv._status_code, 200)
     computer = loads(

@@ -316,7 +316,14 @@ def loadComputerConfigurationFromXML():
              computer_dict)
 
   # remove references to old partitions.
-  execute_db('partition', 'DELETE FROM %s WHERE computer_reference = :reference', computer_dict)
+  execute_db(
+    'partition',
+    'DELETE FROM %s WHERE computer_reference = ? and reference not in ({})'.format(
+      ','.join('?' * len(computer_dict['partition_list'])) # Create as many placeholder as partitions requested
+    ),
+    # Prepare arguments : first is for computer_reference, followed by the same of the partitions
+    [computer_dict['reference']] + [x['reference'] for x in computer_dict['partition_list']]
+  )
   execute_db('partition_network', 'DELETE FROM %s WHERE computer_reference = :reference', computer_dict)
 
   for partition in computer_dict['partition_list']:

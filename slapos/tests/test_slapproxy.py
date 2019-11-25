@@ -120,7 +120,7 @@ database_uri = %(tempdir)s/lib/proxy.db
     self.app_config = views.app.config
     self.app = views.app.test_client()
 
-  def add_free_partition(self, partition_amount, computer_id=None):
+  def format_for_number_of_partitions(self, partition_amount, computer_id=None):
     """
     Will simulate a slapformat first run
     and create "partition_amount" partitions
@@ -133,6 +133,16 @@ database_uri = %(tempdir)s/lib/proxy.db
         'netmask': '255.255.255.255',
         'partition_list': [],
     }
+
+    # Remove the existing partitions from the db
+    request_dict = {
+        'computer_id': self.computer_id,
+        'xml': dumps(computer_dict),
+    }
+    rv = self.app.post('/loadComputerConfigurationFromXML',
+                  data=request_dict)
+
+    # Register the partitions
     for i in range(partition_amount):
       partition_example = {
           'reference': 'slappart%s' % i,
@@ -292,7 +302,7 @@ class TestInformation(BasicMixin, unittest.TestCase):
     """
     Test that empty partition are empty :)
     """
-    self.add_free_partition(10)
+    self.format_for_number_of_partitions(10)
     rv = self.app.get('/getFullComputerInformation?computer_id=%s' % self.computer_id)
     computer = loads(rv.data)
     for slap_partition in computer._computer_partition_list:
@@ -528,7 +538,7 @@ class TestRequest(MasterMixin):
     """
     Check that all different parameters related to requests (like instance_guid, state) are set and consistent
     """
-    self.add_free_partition(1)
+    self.format_for_number_of_partitions(1)
     partition = self.request('http://sr//', None, 'MyFirstInstance', 'slappart0')
     self.assertEqual(partition.getState(), 'started')
     self.assertEqual(partition.getInstanceGuid(), 'computer-slappart0')
@@ -538,7 +548,7 @@ class TestRequest(MasterMixin):
     Since slapproxy does not implement scope, providing two partition_id
     values will still succeed, even if only one partition is available.
     """
-    self.add_free_partition(1)
+    self.format_for_number_of_partitions(1)
     self.assertIsInstance(self.request('http://sr//', None,
                                        'MyFirstInstance', 'slappart2'),
                           slapos.slap.ComputerPartition)
@@ -551,7 +561,7 @@ class TestRequest(MasterMixin):
     If two requests are made with two available partition
     both will succeed
     """
-    self.add_free_partition(2)
+    self.format_for_number_of_partitions(2)
     self.assertIsInstance(self.request('http://sr//', None,
                                        'MyFirstInstance', 'slappart2'),
                           slapos.slap.ComputerPartition)
@@ -563,7 +573,7 @@ class TestRequest(MasterMixin):
     """
     Request will return same partition for two equal requests
     """
-    self.add_free_partition(2)
+    self.format_for_number_of_partitions(2)
     def do_request():
       return self.request('http://sr//', None, 'MyFirstInstance', 'slappart2')
     requested_at = time.time()
@@ -578,7 +588,7 @@ class TestRequest(MasterMixin):
     Check that instance bang update the timestamps of all partitions in the
     instance.
     """
-    self.add_free_partition(3)
+    self.format_for_number_of_partitions(3)
     requested_at = time.time()
     parent = self.request('http://sr//', None, 'MyFirstInstance')
     child = self.request('http://sr//', None, 'MySubInstance',
@@ -607,7 +617,7 @@ class TestRequest(MasterMixin):
     """
     Request will return same partition for two equal requests
     """
-    self.add_free_partition(2)
+    self.format_for_number_of_partitions(2)
     def request_parent(**kw):
       return self.request('http://sr//', None, 'MyFirstInstance', **kw)
     def request_child():
@@ -629,7 +639,7 @@ class TestRequest(MasterMixin):
     """
     Request will return same partition for two equal requests
     """
-    self.add_free_partition(2)
+    self.format_for_number_of_partitions(2)
     partition_parent = self.request('http://sr//', None, 'MyFirstInstance')
     parent_dict = partition_parent.__dict__
     partition_child = self.request('http://sr//', None, 'MySubInstance', parent_dict['_partition_id'])
@@ -648,7 +658,7 @@ class TestRequest(MasterMixin):
     Request will return same partition for two different requests but will
     only update parameters
     """
-    self.add_free_partition(2)
+    self.format_for_number_of_partitions(2)
     wanted_domain1 = 'fou.org'
     wanted_domain2 = 'carzy.org'
 
@@ -687,7 +697,7 @@ class TestRequest(MasterMixin):
     Request will return same partition for two different requests but will
     only update parameters
     """
-    self.add_free_partition(2)
+    self.format_for_number_of_partitions(2)
     wanted_domain1 = 'fou.org'
     wanted_domain2 = 'carzy.org'
 
@@ -727,7 +737,7 @@ class TestRequest(MasterMixin):
     Since slapproxy does not implement scope, two request with
     different partition_id will still return the same partition.
     """
-    self.add_free_partition(2)
+    self.format_for_number_of_partitions(2)
     self.assertEqual(
         self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').__dict__,
         self.request('http://sr//', None, 'MyFirstInstance', 'slappart3').__dict__)
@@ -737,7 +747,7 @@ class TestRequest(MasterMixin):
     Two different request from same partition
     will return two different partitions
     """
-    self.add_free_partition(2)
+    self.format_for_number_of_partitions(2)
     self.assertNotEqual(
         self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').__dict__,
         self.request('http://sr//', None, 'frontend', 'slappart2').__dict__)
@@ -746,7 +756,7 @@ class TestRequest(MasterMixin):
     """
     Verify that request with non-ascii parameters is correctly accepted
     """
-    self.add_free_partition(1)
+    self.format_for_number_of_partitions(1)
     request = self.request('http://sr//', None, 'myinstance', 'slappart0',
                            partition_parameter_kw={'text': u'Привет Мир!'})
     self.assertIsInstance(request, slapos.slap.ComputerPartition)
@@ -755,7 +765,7 @@ class TestRequest(MasterMixin):
     """
     Verify that request with int parameters is correctly accepted
     """
-    self.add_free_partition(1)
+    self.format_for_number_of_partitions(1)
     request = self.request('http://sr//', None, 'myinstance', 'slappart0',
                            partition_parameter_kw={'int': 1})
     self.assertIsInstance(request, slapos.slap.ComputerPartition)
@@ -764,7 +774,7 @@ class TestRequest(MasterMixin):
     """
     Verify that request int works in connection parameters
     """
-    self.add_free_partition(1)
+    self.format_for_number_of_partitions(1)
     partition_id = self.request('http://sr//', None, 'myinstance', 'slappart0')._partition_id
     # Set connection parameter
     partition = self.getPartitionInformation(partition_id)
@@ -823,7 +833,7 @@ class TestSlaveRequest(MasterMixin):
     """
     Slave instance request will fail if no corresponding are found
     """
-    self.add_free_partition(2)
+    self.format_for_number_of_partitions(2)
     rv = self._requestComputerPartition('http://sr//', None, 'MyFirstInstance', 'slappart2', shared=True)
     self.assertEqual(rv._status_code, 404)
 
@@ -835,7 +845,7 @@ class TestSlaveRequest(MasterMixin):
     2. We check parameters are in the dictionnary defining slave in
         slave master slave_instance_list
     """
-    self.add_free_partition(6)
+    self.format_for_number_of_partitions(6)
     # Provide partition
     master_partition_id = self.request('http://sr//', None,
                                        'MyFirstInstance', 'slappart4')._partition_id
@@ -854,7 +864,7 @@ class TestSlaveRequest(MasterMixin):
     Test that a master instance with no requested slave
     has an empty slave_instance_list parameter.
     """
-    self.add_free_partition(6)
+    self.format_for_number_of_partitions(6)
     # Provide partition
     master_partition_id = self.request('http://sr//', None, 'MyMasterInstance', 'slappart4')._partition_id
     master_partition = self.getPartitionInformation(master_partition_id)
@@ -871,7 +881,7 @@ class TestSlaveRequest(MasterMixin):
     4. We check parameters are in the dictionnary defining slave in
         slave master slave_instance_list have changed
     """
-    self.add_free_partition(6)
+    self.format_for_number_of_partitions(6)
     # Provide partition
     master_partition_id = self.request('http://sr//', None,
                                        'MyFirstInstance', 'slappart4')._partition_id
@@ -902,7 +912,7 @@ class TestSlaveRequest(MasterMixin):
     2. We set connection parameters for this slave instance
     2. We check parameter is present when we do request() for the slave.
     """
-    self.add_free_partition(6)
+    self.format_for_number_of_partitions(6)
     # Provide partition
     master_partition_id = self.request('http://sr//', None, 'MyMasterInstance', 'slappart4')._partition_id
     # First request of slave instance
@@ -929,7 +939,7 @@ class TestSlaveRequest(MasterMixin):
     5. Ask for slave instance is successfull and return a computer instance
         with connection information
     """
-    self.add_free_partition(6)
+    self.format_for_number_of_partitions(6)
     # Provide partition
     master_partition_id = self.request('http://sr//', None,
                                        'MyFirstInstance', 'slappart4')._partition_id
@@ -959,7 +969,7 @@ class TestSlaveRequest(MasterMixin):
     Warning: proxy doesn't gives unique id of instance, but gives instead unique id
     of partition.
     """
-    self.add_free_partition(1)
+    self.format_for_number_of_partitions(1)
     partition = self.request('http://sr//', None, 'MyInstance', 'slappart1')
     slave = self.request('http://sr//', None, 'MySlaveInstance', 'slappart1',
          shared=True, filter_kw=dict(instance_guid=partition._instance_guid))
@@ -972,8 +982,8 @@ class TestMultiNodeSupport(MasterMixin):
     Test that two different registered computers have their own
     Software Release list.
     """
-    self.add_free_partition(6, computer_id='COMP-0')
-    self.add_free_partition(6, computer_id='COMP-1')
+    self.format_for_number_of_partitions(6, computer_id='COMP-0')
+    self.format_for_number_of_partitions(6, computer_id='COMP-1')
     software_release_1_url = 'http://sr1'
     software_release_2_url = 'http://sr2'
     software_release_3_url = 'http://sr3'
@@ -1031,8 +1041,8 @@ class TestMultiNodeSupport(MasterMixin):
     affect other computer
     """
     software_release_url = 'http://sr'
-    self.add_free_partition(6, computer_id='COMP-0')
-    self.add_free_partition(6, computer_id='COMP-1')
+    self.format_for_number_of_partitions(6, computer_id='COMP-0')
+    self.format_for_number_of_partitions(6, computer_id='COMP-1')
     self.supply(software_release_url, 'COMP-0')
     self.supply(software_release_url, 'COMP-1')
     self.supply(software_release_url, 'COMP-0', state='destroyed')
@@ -1074,8 +1084,8 @@ class TestMultiNodeSupport(MasterMixin):
     software_release_url = 'http://sr'
     computer_0_id = 'COMP-0'
     computer_1_id = 'COMP-1'
-    self.add_free_partition(6, computer_id=computer_0_id)
-    self.add_free_partition(6, computer_id=computer_1_id)
+    self.format_for_number_of_partitions(6, computer_id=computer_0_id)
+    self.format_for_number_of_partitions(6, computer_id=computer_1_id)
 
     # Request without SLA -> goes to default computer only.
     # It should fail if we didn't registered partitions for default computer
@@ -1088,7 +1098,7 @@ class TestMultiNodeSupport(MasterMixin):
     self.assertEqual(rv._status_code, 404)
 
     # Register default computer: deployment works
-    self.add_free_partition(1)
+    self.format_for_number_of_partitions(1)
     self.request('http://sr//', None, 'MyFirstInstance', 'slappart0')
     computer_default = loads(self.app.get(
         '/getFullComputerInformation?computer_id=%s' % self.computer_id).data)
@@ -1110,14 +1120,14 @@ class TestMultiNodeSupport(MasterMixin):
     software_release_1 = 'http://sr//'
     software_release_2 = 'http://othersr//'
 
-    self.add_free_partition(2, computer_id=computer_1_id)
+    self.format_for_number_of_partitions(2, computer_id=computer_1_id)
 
     # Deploy to first non-default computer using SLA
     # It should fail since computer is not registered
     rv = self._requestComputerPartition(software_release_1, None, 'MyFirstInstance', 'slappart2', filter_kw={'computer_guid':computer_0_id})
     self.assertEqual(rv._status_code, 404)
 
-    self.add_free_partition(2, computer_id=computer_0_id)
+    self.format_for_number_of_partitions(2, computer_id=computer_0_id)
 
     # Deploy to first non-default computer using SLA
     partition = self.request(software_release_1, None, 'MyFirstInstance', 'slappart0', filter_kw={'computer_guid':computer_0_id})
@@ -1153,8 +1163,8 @@ class TestMultiNodeSupport(MasterMixin):
     software_release_url = 'http://sr'
     computer_0_id = 'COMP-0'
     computer_1_id = 'COMP-1'
-    self.add_free_partition(6, computer_id=computer_0_id)
-    self.add_free_partition(6, computer_id=computer_1_id)
+    self.format_for_number_of_partitions(6, computer_id=computer_0_id)
+    self.format_for_number_of_partitions(6, computer_id=computer_1_id)
     partition_first = self.request('http://sr//', None, 'MyFirstInstance', 'slappart0', filter_kw={'computer_guid':computer_0_id})
     partition_second = self.request('http://sr//', None, 'MySecondInstance', 'slappart0', filter_kw={'computer_guid':computer_1_id})
 
@@ -1176,8 +1186,8 @@ class TestMultiNodeSupport(MasterMixin):
     software_release_url = 'http://sr'
     computer_0_id = 'COMP-0'
     computer_1_id = 'COMP-1'
-    self.add_free_partition(2, computer_id=computer_0_id)
-    self.add_free_partition(2, computer_id=computer_1_id)
+    self.format_for_number_of_partitions(2, computer_id=computer_0_id)
+    self.format_for_number_of_partitions(2, computer_id=computer_1_id)
     partition = self.request('http://sr//', None, 'MyFirstInstance', 'slappart0', filter_kw={'computer_guid':computer_0_id})
     partition = self.request('http://sr//', None, 'MyFirstInstance', 'slappart0', filter_kw={'computer_guid':computer_1_id})
 
@@ -1195,9 +1205,9 @@ class TestMultiNodeSupport(MasterMixin):
     """
     computer_0_id = 'COMP-0'
     computer_1_id = 'COMP-1'
-    self.add_free_partition(2, computer_id=computer_0_id)
-    self.add_free_partition(2, computer_id=computer_1_id)
-    self.add_free_partition(2)
+    self.format_for_number_of_partitions(2, computer_id=computer_0_id)
+    self.format_for_number_of_partitions(2, computer_id=computer_1_id)
+    self.format_for_number_of_partitions(2)
     self.request('http://sr2//', None, 'MyFirstInstance', 'slappart0', filter_kw={'computer_guid':computer_0_id})
     self.request('http://sr//', None, 'MyOtherInstance', 'slappart0', filter_kw={'computer_guid':computer_1_id})
 
@@ -1221,9 +1231,9 @@ class TestMultiNodeSupport(MasterMixin):
     """
     computer_0_id = 'COMP-0'
     computer_1_id = 'COMP-1'
-    self.add_free_partition(2, computer_id=computer_0_id)
-    self.add_free_partition(2, computer_id=computer_1_id)
-    self.add_free_partition(2)
+    self.format_for_number_of_partitions(2, computer_id=computer_0_id)
+    self.format_for_number_of_partitions(2, computer_id=computer_1_id)
+    self.format_for_number_of_partitions(2)
     partition_computer_0 = self.request('http://sr2//', None, 'MyFirstInstance', 'slappart0', filter_kw={'computer_guid':computer_0_id})
     partition_computer_1 = self.request('http://sr//', None, 'MyOtherInstance', 'slappart0', filter_kw={'computer_guid':computer_1_id})
     partition_computer_default = self.request('http://sr//', None, 'MyThirdInstance', 'slappart0')
@@ -1248,7 +1258,7 @@ class TestMultiNodeSupport(MasterMixin):
     except slapos.slap.NotFoundError:
       self.fail('Could not fetch informations for default computer.')
 
-    self.add_free_partition(1, computer_id=new_computer_id)
+    self.format_for_number_of_partitions(1, computer_id=new_computer_id)
     try:
       self.app.get('/getComputerInformation?computer_id=%s' % new_computer_id)
     except slapos.slap.NotFoundError:
@@ -1344,7 +1354,7 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     with open(self.slapos_cfg, 'w') as f:
       f.write(configuration)
 
-  def external_proxy_add_free_partition(self, partition_amount, computer_id=None):
+  def external_proxy_format_for_number_of_partitions(self, partition_amount, computer_id=None):
     """
     Will simulate a slapformat first run
     and create "partition_amount" partitions
@@ -1454,8 +1464,8 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     """
     dummy_parameter_dict = {'foo': 'bar'}
     instance_reference = 'MyFirstInstance'
-    self.add_free_partition(1)
-    self.external_proxy_add_free_partition(1)
+    self.format_for_number_of_partitions(1)
+    self.external_proxy_format_for_number_of_partitions(1)
 
     filter_kw = {'master_url': self.external_master_url}
     partition = self.request(self.software_release_not_in_list, None, instance_reference, 'slappart0',
@@ -1472,8 +1482,8 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     Test that explicitely asking a master_url in SLA causes
     proxy to refuse to forward if this master_url is not whitelisted
     """
-    self.add_free_partition(1)
-    self.external_proxy_add_free_partition(1)
+    self.format_for_number_of_partitions(1)
+    self.external_proxy_format_for_number_of_partitions(1)
 
     filter_kw = {'master_url': self.external_master_url + 'bad'}
     rv = self._requestComputerPartition(self.software_release_not_in_list, None, 'MyFirstInstance', 'slappart0', filter_kw=filter_kw)
@@ -1486,8 +1496,8 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     """
     dummy_parameter_dict = {'foo': 'bar'}
     instance_reference = 'MyFirstInstance'
-    self.add_free_partition(1)
-    self.external_proxy_add_free_partition(1)
+    self.format_for_number_of_partitions(1)
+    self.external_proxy_format_for_number_of_partitions(1)
 
     partition = self.request(self.external_software_release, None, instance_reference, 'slappart0',
                              partition_parameter_kw=dummy_parameter_dict)
@@ -1498,8 +1508,8 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     """
     Explicitely ask deployment of an instance to current master
     """
-    self.add_free_partition(1)
-    self.external_proxy_add_free_partition(1)
+    self.format_for_number_of_partitions(1)
+    self.external_proxy_format_for_number_of_partitions(1)
     instance_reference = 'MyFirstInstance'
 
     dummy_parameter_dict = {'foo': 'bar'}

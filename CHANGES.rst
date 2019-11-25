@@ -1,6 +1,14 @@
 Changes
 =======
 
+1.5.3 (2019-11-25)
+-------------------
+
+  * slapos/grid/promise: increase default promise timeout from 3 to 20 seconds
+  * slapos/proxy: fix loadComputerConfigurationFromXML
+  * slapos/cli: minor improvements in commands' help messages
+
+
 1.5.2 (2019-11-13)
 -------------------
 

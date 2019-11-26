@@ -66,6 +66,26 @@ class CacheLookupCommand(ConfigCommand):
         sys.exit(
           do_lookup(self.app.log, cache_dir, args.software_url))
 
+class CacheReportCommand(ConfigCommand):
+    """
+    perform a report for given list of software relases against
+    given distribution
+    """
+
+    def get_parser(self, prog_name):
+        ap = super(CacheReportCommand, self).get_parser(prog_name)
+        ap.add_argument('--distribution',
+                        help='Distribution in a form <name> <version>, like debian 9')
+        ap.add_argument('software_url', nargs='+',
+                        help='Your software url or MD5 hash')
+        return ap
+
+    def take_action(self, args):
+        configp = self.fetch_config(args)
+        cache_dir = configp.get('networkcache', 'download-binary-dir-url')
+        sys.exit(
+          do_report(self.app.log, cache_dir, args.software_url, args.distribution))
+
 def looks_like_md5(s):
     """
     Return True if the parameter looks like an hashed value.
@@ -118,3 +138,50 @@ def do_lookup(logger, cache_dir, software_url):
         logger.info(line)
 
     return 0
+
+def do_report(logger, cache_dir, software_url_list, distribution):
+    if distribution:
+        linux_distribution = distribution.split()
+        linux_distribution.append('')
+    else:
+        linux_distribution = distribution_tuple()
+    for software_url in software_url_list:
+        status = ''
+        if looks_like_md5(software_url):
+            md5 = software_url
+        else:
+            md5 = hashlib.md5(str2bytes(software_url)).hexdigest()
+        try:
+            url = '%s/%s' % (cache_dir, md5)
+            logger.debug('Connecting to %s', url)
+            req = requests.get(url, timeout=5)
+        except (requests.Timeout, requests.ConnectionError):
+            status = 'cannot connect to cache server %s' % (url,)
+        else:
+            if not req.ok:
+                if req.status_code == 404:
+                    status = "not in cache"
+                else:
+                    status = "error while looking up"
+            else:
+                entries = req.json()
+
+                if not entries:
+                    status = "no binary in cache"
+
+            is_compatible = False
+            if status == '':
+                ostable = sorted(ast.literal_eval(json.loads(entry[0])['os']) for entry in entries)
+
+                meta = json.loads(entries[0][0])
+                for os in ostable:
+                    if networkcache.os_matches(os, linux_distribution):
+                        is_compatible = True
+                        break
+                if is_compatible:
+                    msg = "%s available for %s is compatible with %s." % (software_url, ' '.join(os[:3]), ' '.join(linux_distribution),)
+                else:
+                    msg = "%s compatible with %s NOT found." % (software_url, ' '.join(linux_distribution),)
+            else:
+                msg = "%s is NOT available because of %s" % (software_url, status)
+        logger.info(msg)

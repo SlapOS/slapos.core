@@ -48,6 +48,7 @@ import slapos.cli.computer_token
 import slapos.cli.supervisorctl
 from slapos.cli.proxy_show import do_show, StringIO
 from slapos.cli.cache import do_lookup as cache_do_lookup
+from slapos.cli.cache import do_report
 from slapos.cli.cache_source import do_lookup as cache_source_do_lookup
 from slapos.client import ClientConfig
 import slapos.grid.svcbackend
@@ -103,6 +104,40 @@ class TestCliCache(CliMixin):
     self.logger.critical.assert_any_call(
       'Cannot connect to cache server at %s', 
       'http://xxx.shacache.org/cccdc51a07e8c575c880f2d70dd4d458')
+
+
+class TestCliCacheReport(CliMixin):
+
+  test_url = "https://lab.nexedi.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg"
+  def test_cached_binary(self):
+    do_report(
+        self.logger,
+        cache_dir="http://dir.shacache.org",
+        software_url_list=[self.test_url],
+        distribution='debian 8')
+
+    self.logger.info.assert_any_call(
+        "'https://lab.nexedi.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg' available for 'debian 8.10' is compatible with 'debian 8'.")
+
+  def test_uncached_binary(self):
+    do_report(
+        self.logger,
+        cache_dir="http://dir.shacache.org",
+        software_url_list=["this_is_uncached_url"],
+        distribution='debian 8')
+
+    self.logger.info.assert_any_call(
+        "'this_is_uncached_url' is NOT available because of not in cache")
+
+  def test_bad_cache_dir(self):
+    do_report(
+        self.logger,
+        cache_dir="http://xxx.shacache.org",
+        software_url_list=[self.test_url],
+        distribution='debian 8')
+
+    self.logger.info.assert_any_call(
+        'Cannot connect to cache server http://xxx.shacache.org/cccdc51a07e8c575c880f2d70dd4d458')
 
 
 class TestCliCacheSource(CliMixin):

@@ -49,11 +49,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
     self.portal.portal_caches.clearAllCache()
     self.portal.portal_workflow.refreshWorklistCache()
 
-  #def getDefaultSitePreferenceId(self):
-  #  """Default id, usefull method to override
-  #  """
-  #  return "slapos_default_system_preference"
-
   def createAlarmStep(self):
     def makeCallAlarm(alarm):
       def callAlarm(*args, **kwargs):
@@ -138,7 +133,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
 
   def isLiveTest(self):
     #return 'ERP5TypeLiveTestCase' in [q.__name__ for q in self.__class__.mro()]
-    # XXX - What is the better way to no if we are in live test mode ?
+    # XXX - What is the better way to know if we are in live test mode ?
     return not os.environ.has_key('TEST_CA_PATH')
 
   def _setUpDummyMailHost(self):
@@ -163,7 +158,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
     """
     return getattr(self.getPortal(), 'acl_users', None)
 
-  def setUpOnce(self):
+  def setUpConfiguratorOnce(self):
     self.commit()
     self.portal.portal_templates.updateRepositoryBusinessTemplateList(
        repository_list=self.portal.portal_templates.getRepositoryList())
@@ -177,25 +172,26 @@ class testSlapOSMixin(ERP5TypeTestCase):
     if self.isLiveTest():
       self.setUpPersistentDummyMailHost()
       return
-    self.portal.portal_caches.erp5_site_global_id = '%s' % random.random()
-    self.portal.portal_caches._p_changed = 1
-    self.createCertificateAuthorityFile() 
-    self.commit()
-    self.portal.portal_caches.updateCache()
 
-    try:
-      initsite = config.product_config["initsite"]
-    except KeyError:
-      initsite = {}
+    # Execute the business configuration if not installed
+    business_configuration = self.getBusinessConfiguration()
+    if (business_configuration.getSimulationState() != 'installed'):
+      self.portal.portal_caches.erp5_site_global_id = '%s' % random.random()
+      self.portal.portal_caches._p_changed = 1
+      self.createCertificateAuthorityFile() 
+      self.commit()
+      self.portal.portal_caches.updateCache()
 
-    if initsite.get("cloudooo_url", None) is None:
-      initsite["cloudooo_url"] = "https://cloudooo.erp5.net" 
+      try:
+        initsite = config.product_config["initsite"]
+      except KeyError:
+        initsite = {}
 
-    config.product_config["initsite"] = initsite
+      if initsite.get("cloudooo_url", None) is None:
+        initsite["cloudooo_url"] = "https://cloudooo.erp5.net" 
 
-    self.createCertificateAuthorityFile() 
-    if not getattr(self.portal, 'is_site_bootstrapped', 0):
-      self.portal.is_site_bootstrapped = 1
+      config.product_config["initsite"] = initsite
+
       self.bootstrapSite()
       self.portal._p_changed = 1
       self.commit()
@@ -219,6 +215,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
                           "slapos_master_configuration_workflow"]
 
   def launchConfigurator(self):
+    self.logMessage('SlapOS launchConfigurator')
     self.login()
     # Create new Configuration 
     business_configuration  = self.getBusinessConfiguration()
@@ -233,10 +230,13 @@ class testSlapOSMixin(ERP5TypeTestCase):
                  business_configuration,REQUEST=self.portal.REQUEST)
 
   def bootstrapSite(self):
+    self.logMessage('SlapOS bootstrapSite')
     self.setupPortalAlarms()
     self.getDefaultSystemPreference().setPreferredHateoasUrl("http://dummy/")
 
     self.clearCache()
+    self.tic()
+    self.setUpConfiguratorOnce()
     self.tic()
 
   def getExpectedBusinessTemplateInstalledAfterConfiguration(self):
@@ -340,6 +340,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
       'erp5_full_text_myisam_catalog',
       'erp5_core_proxy_field_legacy',
       'erp5_base',
+      'erp5_accounting',
       'erp5_workflow',
       'erp5_configurator',
       'slapos_configurator',
@@ -361,7 +362,8 @@ class TestSlapOSDummy(testSlapOSMixin):
   run_all_test = 1
   def test(self):
     """Dummy test in order to fire up Business Template testing"""
-    self.assertTrue(True)
+    bt5_list = self.portal.portal_templates.getInstalledBusinessTemplateTitleList()
+    self.assertTrue('slapos_erp5' in bt5_list, bt5_list)
 
   def getTitle(self):
     return "Dummy tests in order to have tests from BT5 run"

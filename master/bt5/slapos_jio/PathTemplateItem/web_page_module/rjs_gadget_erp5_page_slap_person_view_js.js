@@ -10,6 +10,7 @@
     .declareAcquiredMethod("updateHeader", "updateHeader")
     .declareAcquiredMethod("getUrlParameter", "getUrlParameter")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
+    .declareAcquiredMethod("redirect", "redirect")
     .declareAcquiredMethod("jio_get", "jio_get")
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("updateDocument", "updateDocument")
@@ -45,7 +46,7 @@
 
       return new RSVP.Queue()
         .push(function () {
-          return gadget.getSetting("me");
+          return window.getSettingMe(gadget);
         })
         .push(function (me) {
           jio_key = me;
@@ -206,7 +207,7 @@
           });
         })
         .push(function () {
-          return gadget.getSetting("me");
+          return window.getSettingMe(gadget);
         })
         .push(function (me) {
           return RSVP.all([

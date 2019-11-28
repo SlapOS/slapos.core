@@ -30,6 +30,7 @@
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
     .declareAcquiredMethod("jio_get", "jio_get")
+    .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
 
     .allowPublicAcquisition("jio_allDocs", function (param_list) {
       var gadget = this;
@@ -119,7 +120,7 @@
             .push(function () {
               return RSVP.all([
                 gadget.getSetting("listbox_lines_limit", 100),
-                gadget.getSetting("me"),
+                window.getSettingMe(gadget),
                 gadget.jio_getAttachment('acl_users', 'links')
               ]);
             })
@@ -317,7 +318,7 @@
     })
     .declareService(function () {
       var destination_list, gadget = this;
-      return gadget.getSetting("me")
+      return window.getSettingMe(gadget)
         .push(function (me) {
           return gadget.jio_get(me);
         })

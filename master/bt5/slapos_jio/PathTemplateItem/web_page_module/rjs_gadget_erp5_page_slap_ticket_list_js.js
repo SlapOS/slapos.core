@@ -13,6 +13,7 @@
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
     .declareAcquiredMethod("jio_get", "jio_get")
+    .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
 
 
     /////////////////////////////////////////////////////////////////
@@ -33,7 +34,7 @@
         .push(function () {
           return RSVP.all([
             gadget.getSetting("listbox_lines_limit", 20),
-            gadget.getSetting("me")
+            window.getSettingMe(gadget)
           ]);
         })
         .push(function (setting) {

@@ -435,6 +435,7 @@ gadget_slapos_project_status.html\n
 gadget_slapos_project_status.js\n
 gadget_slapos_site_status.html\n
 gadget_slapos_site_status.js\n
+gadget_slapos_utils.js\n
 gadget_trial_panel.html\n
 gadget_trial_panel.js\n
 leaflet.css\n
@@ -547,6 +548,7 @@ NETWORK:\n
             </item>
           </dictionary>
         </list>
+        <none/>
       </tuple>
     </pickle>
   </record>
@@ -579,7 +581,7 @@ NETWORK:\n
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>977.18251.18616.53179</string> </value>
+                <value> <string>980.6847.33689.14199</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -597,7 +599,7 @@ NETWORK:\n
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1563930501.84</float>
+                        <float>1575034735.39</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -606,6 +608,7 @@ NETWORK:\n
             </item>
           </dictionary>
         </list>
+        <none/>
       </tuple>
     </pickle>
   </record>
@@ -663,6 +666,7 @@ NETWORK:\n
             </item>
           </dictionary>
         </list>
+        <none/>
       </tuple>
     </pickle>
   </record>

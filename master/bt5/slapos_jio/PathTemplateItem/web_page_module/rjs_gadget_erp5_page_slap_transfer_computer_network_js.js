@@ -16,6 +16,7 @@
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -60,10 +61,10 @@
       var gadget = this;
       return RSVP.Queue()
         .push(function () {
-          return gadget.getSetting("me");
+          return window.getSettingMe(gadget);
         })
-        .push(function (setting) {
-          return gadget.jio_get(setting);
+        .push(function (me) {
+          return gadget.jio_get(me);
         })
         .push(function (me) {
           var i, destination_list = '"NULL",', destination_project_list = '"NULL",';

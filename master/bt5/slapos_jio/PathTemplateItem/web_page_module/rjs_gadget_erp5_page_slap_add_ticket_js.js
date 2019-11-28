@@ -71,7 +71,7 @@
             gadget.getDeclaredGadget('form_view'),
             gadget.jio_getAttachment("ticket_resource_list",
                hateoas_url + "Ticket_getResourceItemListAsJSON"),
-            gadget.getSetting("me")
+            window.getSettingMe(gadget)
           ]);
         })
         .push(function (result) {

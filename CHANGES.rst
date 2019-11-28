@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.5.4 (2019-11-28)
+-------------------
+
+  * slapos/format: fix for newer version of netifaces
+
+
 1.5.3 (2019-11-25)
 -------------------
 

@@ -172,16 +172,6 @@ def netmaskToPrefixIPv4(netmask):
   return netaddr.strategy.ipv4.netmask_to_prefix[
           netaddr.strategy.ipv4.str_to_int(netmask)]
 
-def netmaskToPrefixIPv6(netmask):
-  """Convert string represented netmask to its integer prefix"""
-  # Since version 0.10.7 of netifaces, the netmask is something like "ffff::/16",
-  # (it used to be "ffff::"). For old versions of netifaces, interpret the netmask
-  # as an address and return its netmask, but for newer versions returns the prefixlen.
-  try:
-    return netaddr.IPAddress(netmask).netmask_bits()
-  except ValueError:
-    return netaddr.IPNetwork(netmask).prefixlen
-
 def getIfaceAddressIPv4(iface):
   """return dict containing ipv4 address netmask, network and broadcast address
   of interface"""
@@ -498,7 +488,7 @@ class Computer(object):
       try:
         for address in partition.address_list:
           try:
-            netmask = netmaskToPrefixIPv6(address['netmask'])
+            netmask = lenNetmaskIpv6(address['netmask'])
           except:
             continue
           callAndRead(['ip', 'addr', 'add',
@@ -1059,7 +1049,7 @@ class Interface(object):
     """
 
     if ipv6:
-      address_string = '%s/%s' % (address, netmaskToPrefixIPv6(netmask))
+      address_string = '%s/%s' % (address, lenNetmaskIpv6(netmask))
       af = socket.AF_INET6
       interface_name = self.ipv6_interface or self.name
     else:
@@ -1188,9 +1178,9 @@ class Interface(object):
          (tap and lenNetmaskIpv6(netmask) == 128):
         # same netmask, so there is a chance to add good one
         interface_network = netaddr.ip.IPNetwork('%s/%s' % (address_dict['addr'],
-          netmaskToPrefixIPv6(address_dict['netmask'])))
+          lenNetmaskIpv6(address_dict['netmask'])))
         requested_network = netaddr.ip.IPNetwork('%s/%s' % (addr,
-          netmaskToPrefixIPv6(address_dict['netmask'])))
+          lenNetmaskIpv6(address_dict['netmask'])))
         if interface_network.network == requested_network.network:
           # same network, try to add
           if self._addSystemAddress(addr, netmask, tap=tap):

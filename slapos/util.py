@@ -135,7 +135,14 @@ def ipv6FromBin(ip, suffix=''):
     struct.pack('>QQ', int(ip[:64], 2), int(ip[64:], 2)))
 
 def lenNetmaskIpv6(netmask):
-  return len(binFromIpv6(netmask).rstrip('0'))
+  """Convert string represented netmask to its integer prefix"""
+  # Since version 0.10.7 of netifaces, the netmask is something like "ffff::/16",
+  # (it used to be "ffff::"). For old versions of netifaces, interpret the netmask
+  # as an address and return its netmask, but for newer versions returns the prefixlen.
+  try:
+    return netaddr.IPAddress(netmask).netmask_bits()
+  except ValueError:
+    return netaddr.IPNetwork(netmask).prefixlen
 
 # Used for Python 2-3 compatibility
 if str is bytes:

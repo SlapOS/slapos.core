@@ -66,7 +66,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       default_address_zip_code="28480",
     )
 
-    self.assertTrue('Thanks for your registration. You will be receive an email to activate your account.' in request, request)
+    self.assertTrue('Thank you for your registration. You will receive an email to activate your account.' in request, request)
 
     self.tic()
 

@@ -1,19 +1,29 @@
 /*jslint nomen: true, maxlen: 200, indent: 2*/
-/*global window, rJS, console, RSVP, jQuery, jIO, tv4, URI, JSON, $ */
-(function (window, rJS, $, RSVP) {
+/*global window, rJS, console, RSVP, jQuery, jIO, tv4, URI, JSON, $, btoa */
+(function (window, rJS, $, RSVP, btoa) {
   "use strict";
 
   var gk = rJS(window);
 
   function getJSON(url) {
-    var protocol = URI(url).protocol();
+    var uri = URI(url),
+        headers = {},
+        protocol = uri.protocol();
     if (protocol === "http" && URI(window.location).protocol() == "https") {
       throw new Error("You cannot load http JSON in https page");
+    }
+    if (protocol === "http" || protocol === "https") {
+      if (uri.username() !== "" && uri.password() !== "") {
+        headers = {
+          Authorization: "Basic " + btoa(uri.username() + ":" + uri.password())
+        };
+      }
     }
     return RSVP.Queue()
       .push(function () {
         return jIO.util.ajax({
-          url: url
+          url: url,
+          headers: headers
         })
         .then(function (evt) {
           return evt.target.responseText;
@@ -239,4 +249,4 @@
             });
         });
     });
-}(window, rJS, $, RSVP));
+}(window, rJS, $, RSVP, btoa));

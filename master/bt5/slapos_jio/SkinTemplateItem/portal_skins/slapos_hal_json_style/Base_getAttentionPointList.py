@@ -4,7 +4,7 @@ attention_point_list = []
 
 # For now keep the logic here hardcoded.
 if context.getPortalType() == "Hosting Subscription":
-  simulation_state = ["suspended", "confirmed"]
+  simulation_state = ["confirmed"]
   for ticket in context.Base_getOpenRelatedTicketList(
    limit=3, simulation_state=simulation_state):
     if ticket.getPortalType() == "Support Request":

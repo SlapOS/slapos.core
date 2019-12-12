@@ -605,7 +605,7 @@ class TestSlapOSPayzenAccountingTransaction_getPaymentState(
     invoice =  self.createPayzenSaleInvoiceTransaction(
       destination_section=person.getRelativeUrl())
     self.tic()
-    payment = invoice.SaleInvoiceTransaction_getPayzenPaymentRelatedValue()
+    payment = invoice.SaleInvoiceTransaction_getSlapOSPaymentRelatedValue()
     payment.PaymentTransaction_generatePayzenId()
     self.login(person.getUserId())
     self.assertEqual("Waiting for payment confirmation",
@@ -667,7 +667,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     invoice =  self.createPayzenSaleInvoiceTransaction(
       destination_section=person.getRelativeUrl())
     self.tic()
-    payment = invoice.SaleInvoiceTransaction_getPayzenPaymentRelatedValue()
+    payment = invoice.SaleInvoiceTransaction_getSlapOSPaymentRelatedValue()
     payment.setResourceValue(self.portal.currency_module.EUR)
     self.tic()
     self.login(person.getUserId())
@@ -701,7 +701,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     invoice =  self.createPayzenSaleInvoiceTransaction(
       destination_section=person.getRelativeUrl())
     self.tic()
-    payment = invoice.SaleInvoiceTransaction_getPayzenPaymentRelatedValue()
+    payment = invoice.SaleInvoiceTransaction_getSlapOSPaymentRelatedValue()
     payment.setResourceValue(self.portal.currency_module.EUR)
     payment.PaymentTransaction_generatePayzenId()
     self.tic()
@@ -715,13 +715,13 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.assertEqual("%s/already_registered" % payment.getRelativeUrl(),
                       redirect)
 
-class TestSlapOSPayzenSaleInvoiceTransaction_getPayzenPaymentRelatedValue(
+class TestSlapOSPayzenSaleInvoiceTransaction_getSlapOSPaymentRelatedValue(
                                                     SlapOSTestCaseMixinWithAbort):
 
-  def test_SaleInvoiceTransaction_getPayzenPaymentRelatedValue(self):
+  def test_SaleInvoiceTransaction_getSlapOSPaymentRelatedValue(self):
     invoice =  self.createPayzenSaleInvoiceTransaction()
     self.tic()
-    payment = invoice.SaleInvoiceTransaction_getPayzenPaymentRelatedValue()
+    payment = invoice.SaleInvoiceTransaction_getSlapOSPaymentRelatedValue()
     self.assertNotEqual(None, payment)
     self.assertEqual(payment.getSimulationState(), "started")
     self.assertEqual(payment.getCausalityValue(), invoice)
@@ -731,7 +731,7 @@ class TestSlapOSPayzenSaleInvoiceTransaction_getPayzenPaymentRelatedValue(
     payment.setStartDate(DateTime())
     payment.stop()
     payment.immediateReindexObject()
-    payment = invoice.SaleInvoiceTransaction_getPayzenPaymentRelatedValue()
+    payment = invoice.SaleInvoiceTransaction_getSlapOSPaymentRelatedValue()
     self.assertEqual(None, payment)
 
 class TestSlapOSPayzenSaleInvoiceTransaction_createReversalPayzenTransaction(

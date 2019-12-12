@@ -10,6 +10,7 @@ if hosting_subscription is None:
 person = hosting_subscription.getDestinationSectionValue(portal_type='Person')
 if person is None:
   return
+
 payment_portal_type = "Payment Transaction"
 contract_portal_type = "Cloud Contract"
 

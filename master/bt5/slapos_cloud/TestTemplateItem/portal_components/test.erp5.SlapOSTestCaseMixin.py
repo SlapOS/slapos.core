@@ -505,8 +505,12 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         portal_type='Payzen Event',
         reference='PAY-%s' % self.generateNewId())
 
+  def createWechatEvent(self):
+    return self.portal.system_event_module.newContent(
+        portal_type='Wechat Event',
+        reference='PAY-%s' % self.generateNewId())
 
-  def createPayzenSaleInvoiceTransaction(self, destination_section=None, price=2):
+  def createPayzenSaleInvoiceTransaction(self, destination_section=None, price=2, payment_mode="payzen"):
     new_title = self.generateNewId()
     new_reference = self.generateNewId()
     new_source_reference = self.generateNewId()
@@ -519,7 +523,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       source_reference=new_source_reference,
       destination_reference=new_destination_reference,
       destination_section=destination_section,
-      payment_mode="payzen",
+      payment_mode=payment_mode,
       specialise="sale_trade_condition_module/slapos_aggregated_trade_condition",
       created_by_builder=1 # to prevent init script to create lines
     )
@@ -538,13 +542,19 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
 
     payment = self.portal.accounting_module.newContent(
       portal_type="Payment Transaction",
-      payment_mode="payzen",
+      payment_mode=payment_mode,
       causality_value=invoice,
       destination_section=destination_section,
       created_by_builder=1 # to prevent init script to create lines
     )
     self.portal.portal_workflow._jumpToStateFor(payment, 'started')
     return invoice
+
+
+  def createWechatSaleInvoiceTransaction(self, destination_section=None, price=2):
+    return self.createPayzenSaleInvoiceTransaction(destination_section=destination_section,
+                                                   price=price,
+                                                   payment_mode='wechat')
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()

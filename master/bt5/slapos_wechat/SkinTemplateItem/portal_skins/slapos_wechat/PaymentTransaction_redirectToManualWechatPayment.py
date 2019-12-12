@@ -2,6 +2,9 @@ from zExceptions import Unauthorized
 portal = context.getPortalObject()
 person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
+if getattr(context, "PaymentTransaction_getVADSUrlDict", None) is None:
+  raise ValueError("PaymentTransaction_getVADSUrlDict is missing on this site")
+
 def wrapWithShadow(payment_transaction, web_site, person_relative_url):
 
   vads_url_dict = payment_transaction.PaymentTransaction_getVADSUrlDict(web_site)

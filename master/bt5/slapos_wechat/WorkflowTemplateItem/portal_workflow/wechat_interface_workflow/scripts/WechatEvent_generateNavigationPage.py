@@ -24,15 +24,11 @@ transaction_date, transaction_id = payment_transaction.PaymentTransaction_genera
 if transaction_id is None:
   raise ValueError, "Transaction already registered"
 
-today = now.toZone('UTC').asdatetime().strftime('%Y%m%d')
 wechat_dict = {
   'out_trade_no': payment_transaction.getRelativeUrl().split('/')[1].encode('utf-8'),
-  'total_fee': 1, #str(int(round((payment_transaction.PaymentTransaction_getTotalPayablePrice() * -100), 0))),
-  'fee_type': "CNY", #payment_transaction.getResourceValue().Currency_getIntegrationMapping(),
+  'total_fee': str(int(round((payment_transaction.PaymentTransaction_getTotalPayablePrice() * -100), 0))),
+  'fee_type': payment_transaction.getResourceValue().Currency_getIntegrationMapping(),
   'body': "Rapid Space Virtual Machine".encode('utf-8')
-  #'vads_trans_date': now.toZone('UTC').asdatetime().strftime('%Y%m%d%H%M%S'),
-  #'vads_trans_id': transaction_id,
-  # TODO
 }
 
 html_document = context.WechatEvent_callWechatServiceNavigation(state_change, wechat_dict)

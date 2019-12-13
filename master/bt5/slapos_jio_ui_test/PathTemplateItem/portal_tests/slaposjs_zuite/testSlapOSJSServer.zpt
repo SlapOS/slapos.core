@@ -480,7 +480,7 @@
 <tr>
   <td>select</td>
   <td>//select[@id="allocation_scope"]</td>
-  <td>Close Forever</td>
+  <td>Closed forever</td>
 </tr>
 
 <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/save" />

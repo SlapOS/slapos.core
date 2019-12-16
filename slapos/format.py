@@ -301,7 +301,16 @@ class Computer(object):
         if netaddr.valid_ipv6(address['addr']):
           computer_partition_address_list.append(address['addr'])
     # Going through addresses of the computer's interface
-    for address_dict in self.interface.getGlobalScopeAddressList():
+    available_address_list = self.interface.getGlobalScopeAddressList()
+    # First scan: prefer the existing address, as the available_address_list
+    #             might be sorted differently
+    for address_dict in available_address_list:
+      if self.address == address_dict['addr']:
+        if self.address not in computer_partition_address_list:
+          return address_dict
+
+    # Second scan: take first not occupied address
+    for address_dict in available_address_list:
       # Comparing with computer's partition addresses
       if address_dict['addr'] not in computer_partition_address_list:
         return address_dict

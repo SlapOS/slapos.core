@@ -41,4 +41,13 @@
         return redirectToLoginPage(gadget);
       });
   };
+  window.getValidDocument = function getValidDocument(gadget, jio_key) {
+    return new RSVP.Queue()
+      .push(function () {
+        return gadget.jio_get(jio_key);
+      })
+      .push(undefined, function (error) {
+        return {"portal_type": "access_denied"};
+      });
+  };
 }(window, RSVP, UriTemplate));

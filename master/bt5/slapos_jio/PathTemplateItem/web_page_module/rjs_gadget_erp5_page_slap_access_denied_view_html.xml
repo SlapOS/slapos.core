@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="Web Script" module="erp5.portal_type"/>
+      <global name="Web Page" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -16,7 +16,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -59,7 +58,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -70,8 +68,12 @@
             </value>
         </item>
         <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>text/html</string> </value>
+        </item>
+        <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_erp5_page_slap_controller.js</string> </value>
+            <value> <string>gadget_erp5_page_slap_access_denied_view.html</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -81,7 +83,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_erp5_page_slap_controller_js</string> </value>
+            <value> <string>rjs_gadget_erp5_page_slap_access_denied_view_html</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -89,7 +91,7 @@
         </item>
         <item>
             <key> <string>portal_type</string> </key>
-            <value> <string>Web Script</string> </value>
+            <value> <string>Web Page</string> </value>
         </item>
         <item>
             <key> <string>short_title</string> </key>
@@ -99,11 +101,11 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget SlapOS Controller JS</string> </value>
+            <value> <string>Gadget SlapOS Access Denied View</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
-            <value> <string>001</string> </value>
+            <value> <string>003</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -185,7 +187,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1508424182.72</float>
+                        <float>1576492033.13</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -231,7 +233,7 @@
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>980.35642.57629.14574</string> </value>
+                <value> <string>980.35642.6560.23603</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -249,7 +251,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1576597179.41</float>
+                        <float>1576596139.36</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -307,7 +309,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1508424127.17</float>
+                        <float>1576491929.3</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

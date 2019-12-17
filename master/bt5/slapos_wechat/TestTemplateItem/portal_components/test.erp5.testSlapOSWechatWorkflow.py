@@ -23,6 +23,7 @@ from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
 from DateTime import DateTime
 from Products.ERP5Type.tests.utils import createZODBPythonScript
 import difflib
+import transaction
 
 HARDCODED_PRICE = 99.6
 
@@ -82,12 +83,21 @@ class TestSlapOSWechatInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
       source="portal_secure_payments/slapos_wechat_test",
     )
 
+    payment_transaction_id = payment.getId().encode('utf-8')
     before_date = DateTime()
     self._simulatePaymentTransaction_getTotalPayablePrice()
     try:
-      event.generateManualPaymentPage()
+      def mock_absolute_url():
+        return "http://example.org"
+      original_method = self.portal.absolute_url
+      self.portal.absolute_url = mock_absolute_url
+      try:
+        event.generateManualPaymentPage()
+      finally:
+        self.portal.absolute_url = original_method
     finally:
       self._dropPaymentTransaction_getTotalPayablePrice()
+
     after_date = DateTime()
 
     # Payment start date is modified
@@ -102,58 +112,16 @@ class TestSlapOSWechatInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
 
     # Event state
     self.assertEqual(event.getValidationState(), "acknowledged")
-
-    data_dict = {
-      'out_trade_no': payment.getId().encode('utf-8'),
-      'total_fee': 1, #str(int(round((payment_transaction.PaymentTransaction_getTotalPayablePrice() * -100), 0))),
-      'fee_type': 'CNY',
-      'body': "Rapid Space Virtual Machine".encode('utf-8')
-    }
-    # Calculate the signature...
-    self.portal.portal_secure_payments.slapos_wechat_test._getFieldList(data_dict)
-    data_dict['action'] = 'https://secure.wechat.eu/vads-payment/'
-
-    expected_html_page = \
-      '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w'\
-      '3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n<html xmlns="http://www.w3.or'\
-      'g/1999/xhtml" xml:lang="en" lang="en">\n<head>\n  <meta http-equiv="Co'\
-      'ntent-Type" content="text/html; charset=utf-8" />\n  <meta http-equiv='\
-      '"Content-Script-Type" content="text/javascript" />\n  <meta http-equiv'\
-      '="Content-Style-Type" content="text/css" />\n  <title>title</title>\n<'\
-      '/head>\n<body onload="document.payment.submit();">\n<form method="POST'\
-      '" id="payment" name="payment"\n      action="%(action)s">\n\n  <input '\
-      'type="hidden" name="vads_url_return"\n         value="'\
-      '%(vads_url_return)s">\n\n\n  <input type="hidden" name="vads_site_id" '\
-      'value="%(vads_site_id)s">\n\n\n  <input type="hidden" name="vads_url_e'\
-      'rror"\n         value="%(vads_url_error)s">\n\n\n  <input type="hidden'\
-      '" name="vads_trans_id" value="%(vads_trans_id)s">\n\n\n  <input type="'\
-      'hidden" name="vads_action_mode"\n         value="INTERACTIVE">\n\n\n  '\
-      '<input type="hidden" name="vads_url_success"\n         value="'\
-      '%(vads_url_success)s">\n\n\n  <input type="hidden" name="vads_url_refe'\
-      'rral"\n         value="%(vads_url_referral)s">\n\n\n  <input type="hid'\
-      'den" name="vads_page_action"\n         value="PAYMENT">\n\n\n  <input '\
-      'type="hidden" name="vads_trans_date"\n         value="'\
-      '%(vads_trans_date)s">\n\n\n  <input type="hidden" name="vads_url_refus'\
-      'ed"\n         value="%(vads_url_refused)s">\n\n\n  <input type="hidden'\
-      '" name="vads_url_cancel"\n         value="%(vads_url_cancel)s">\n\n\n '\
-      ' <input type="hidden" name="vads_ctx_mode" value="TEST">\n\n\n  <input '\
-      'type="hidden" name="vads_payment_config"\n         value="SINGLE">\n\n'\
-      '\n  <input type="hidden" name="vads_contrib" value="ERP5">\n\n\n  <inp'\
-      'ut type="hidden" name="signature"\n         value="%(signature)s">\n\n'\
-      '\n  <input type="hidden" name="vads_language" value="%(vads_language)s">\n\n\n  <inpu'\
-      't type="hidden" name="vads_currency" value="%(vads_currency)s">\n\n\n '\
-      ' <input type="hidden" name="vads_amount" value="%(vads_amount)s">\n\n\n'\
-      '  <input type="hidden" name="vads_version" value="V2">\n\n<input type="s'\
-      'ubmit" value="Click to pay">\n</form>\n</body>\n</html>' % data_dict
+    expected_url = "http://example.org/#wechat_payment?trade_no=%s&price=1&payment_url=" % (payment_transaction_id)
 
     # Event message state
     event_message_list = event.contentValues(portal_type="Wechat Event Message")
     self.assertEqual(len(event_message_list), 1)
     message = event_message_list[0]
     self.assertEqual(message.getTitle(), 'Shown Page')
-    self.assertEqual(message.getTextContent(), expected_html_page,
-      '\n'.join([q for q in difflib.unified_diff(expected_html_page.split('\n'),
-        message.getTextContent().split('\n'))]))
+    self.assertTrue(expected_url in message.getTextContent())
+
+    transaction.abort()
 
   def test_updateStatus_noAccountingTransaction(self):
     event = self.createWechatEvent()
@@ -176,17 +144,16 @@ class TestSlapOSWechatInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     _ , _ = payment.PaymentTransaction_generateWechatId()
     self.assertRaises(AttributeError, event.updateStatus)
 
-  def mockSoapGetInfo(self, method_to_call, expected_args, result_tuple):
+  def mockQueryWechatOrderStatus(self, method_to_call, expected_args, result_dict):
     payment_service = self.portal.portal_secure_payments.slapos_wechat_test
-    def mocksoad_getInfo(arg1, arg2):
-      self.assertEqual(arg1, expected_args[0])
-      self.assertEqual(arg2, expected_args[1])
-      return result_tuple
-    setattr(payment_service, 'soap_getInfo', mocksoad_getInfo)
+    def mock_QueryWechatOrderStatus(arg1):
+      self.assertEqual(arg1, expected_args)
+      return result_dict
+    setattr(payment_service, 'queryWechatOrderStatus', mock_QueryWechatOrderStatus)
     try:
       return method_to_call()
     finally:
-      del payment_service.soap_getInfo
+      del payment_service.queryWechatOrderStatus
 
   def _simulateWechatEvent_processUpdate(self):
     script_name = 'WechatEvent_processUpdate'
@@ -213,20 +180,17 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by W
       destination_value=payment,
       source="portal_secure_payments/slapos_wechat_test",
     )
-    transaction_date, transaction_id = \
+    _, transaction_id = \
       payment.PaymentTransaction_generateWechatId()
 
     mocked_data_kw = 'mocked_data_kw'
-    mocked_signature = 'mocked_signature'
-    mocked_sent_text = 'mocked_sent_text'
-    mocked_received_text = 'mocked_received_text'
 
     self._simulateWechatEvent_processUpdate()
     try:
-      self.mockSoapGetInfo(
+      self.mockQueryWechatOrderStatus(
         event.updateStatus,
-        (transaction_date.toZone('UTC').asdatetime(), transaction_id),
-        (mocked_data_kw, mocked_signature, mocked_sent_text, mocked_received_text),
+        {'out_trade_no': transaction_id},
+        mocked_data_kw
       )
     finally:
       self._dropWechatEvent_processUpdate()
@@ -236,13 +200,13 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by W
 
     sent_message = [x for x in event_message_list \
                     if x.getTitle() == 'Query Order Status'][0]
-    self.assertEqual(sent_message.getTextContent(), mocked_sent_text)
+    self.assertEqual(sent_message.getTextContent(), str({'out_trade_no': transaction_id}))
 
     received_message = [x for x in event_message_list \
                         if x.getTitle() == 'Received Order Status'][0]
     self.assertEqual(received_message.getPredecessor(), 
                       sent_message.getRelativeUrl())
-    self.assertEqual(received_message.getTextContent(), mocked_received_text)
+    self.assertEqual(received_message.getTextContent(), mocked_data_kw)
 
     self.assertEqual(
         'Visited by WechatEvent_processUpdate',

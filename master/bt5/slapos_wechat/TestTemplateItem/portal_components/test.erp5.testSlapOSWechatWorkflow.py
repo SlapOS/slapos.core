@@ -1,4 +1,23 @@
-# Copyright (c) 2002-2012 Nexedi SA and Contributors. All Rights Reserved.
+# -*- coding:utf-8 -*-
+##############################################################################
+#
+# Copyright (c) 2002-2018 Nexedi SA and Contributors. All Rights Reserved.
+#
+# This program is Free Software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
 
 from DateTime import DateTime
@@ -6,13 +25,6 @@ from Products.ERP5Type.tests.utils import createZODBPythonScript
 import difflib
 
 HARDCODED_PRICE = 99.6
-
-vads_url_cancel = 'http://example.org/cancel'
-vads_url_error = 'http://example.org/error'
-vads_url_referral = 'http://example.org/referral'
-vads_url_refused = 'http://example.org/refused'
-vads_url_success = 'http://example.org/success'
-vads_url_return = 'http://example.org/return'
 
 class TestSlapOSWechatInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
 
@@ -30,116 +42,40 @@ class TestSlapOSWechatInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     if script_name in self.portal.portal_skins.custom.objectIds():
       self.portal.portal_skins.custom.manage_delObjects(script_name)
 
-  def test_generateManualPaymentPage_mandatoryParameters(self):
-    event = self.createWechatEvent()
-    # vads_url_cancel
-    self.assertRaises(TypeError, event.generateManualPaymentPage,
-      vads_url_error=vads_url_error,
-      vads_url_referral=vads_url_referral,
-      vads_url_refused=vads_url_refused,
-      vads_url_success=vads_url_success,
-      vads_url_return=vads_url_return,
-    )
-    # vads_url_error
-    self.assertRaises(TypeError, event.generateManualPaymentPage,
-      vads_url_cancel=vads_url_cancel,
-      vads_url_referral=vads_url_referral,
-      vads_url_refused=vads_url_refused,
-      vads_url_success=vads_url_success,
-      vads_url_return=vads_url_return,
-    )
-    # vads_url_referral
-    self.assertRaises(TypeError, event.generateManualPaymentPage,
-      vads_url_cancel=vads_url_cancel,
-      vads_url_error=vads_url_error,
-      vads_url_refused=vads_url_refused,
-      vads_url_success=vads_url_success,
-      vads_url_return=vads_url_return,
-    )
-    # vads_url_refused
-    self.assertRaises(TypeError, event.generateManualPaymentPage,
-      vads_url_cancel=vads_url_cancel,
-      vads_url_error=vads_url_error,
-      vads_url_referral=vads_url_referral,
-      vads_url_success=vads_url_success,
-      vads_url_return=vads_url_return,
-    )
-    # vads_url_success
-    self.assertRaises(TypeError, event.generateManualPaymentPage,
-      vads_url_cancel=vads_url_cancel,
-      vads_url_error=vads_url_error,
-      vads_url_referral=vads_url_referral,
-      vads_url_refused=vads_url_refused,
-      vads_url_return=vads_url_return,
-    )
-    # vads_url_return
-    self.assertRaises(TypeError, event.generateManualPaymentPage,
-      vads_url_cancel=vads_url_cancel,
-      vads_url_error=vads_url_error,
-      vads_url_referral=vads_url_referral,
-      vads_url_refused=vads_url_refused,
-      vads_url_success=vads_url_success,
-    )
-
   def test_generateManualPaymentPage_noAccountingTransaction(self):
     event = self.createWechatEvent()
-    self.assertRaises(AttributeError, event.generateManualPaymentPage,
-      vads_url_cancel=vads_url_cancel,
-      vads_url_error=vads_url_error,
-      vads_url_referral=vads_url_referral,
-      vads_url_refused=vads_url_refused,
-      vads_url_success=vads_url_success,
-      vads_url_return=vads_url_return,
-    )
+    self.assertRaises(AttributeError, event.generateManualPaymentPage)
 
   def test_generateManualPaymentPage_registeredTransaction(self):
     event = self.createWechatEvent()
     payment = self.createPaymentTransaction()
     event.edit(destination_value=payment)
     _ , _ = payment.PaymentTransaction_generateWechatId()
-    self.assertRaises(ValueError, event.generateManualPaymentPage,
-      vads_url_cancel=vads_url_cancel,
-      vads_url_error=vads_url_error,
-      vads_url_referral=vads_url_referral,
-      vads_url_refused=vads_url_refused,
-      vads_url_success=vads_url_success,
-      vads_url_return=vads_url_return,
-    )
+    self.assertRaises(ValueError, event.generateManualPaymentPage)
 
   def test_generateManualPaymentPage_noPaymentService(self):
     event = self.createWechatEvent()
     payment = self.createPaymentTransaction()
     event.edit(destination_value=payment)
-    self.assertRaises(AttributeError, event.generateManualPaymentPage,
-      vads_url_cancel=vads_url_cancel,
-      vads_url_error=vads_url_error,
-      vads_url_referral=vads_url_referral,
-      vads_url_refused=vads_url_refused,
-      vads_url_success=vads_url_success,
-      vads_url_return=vads_url_return,
-    )
+    self.assertRaises(AttributeError, event.generateManualPaymentPage)
 
   def test_generateManualPaymentPage_noCurrency(self):
     event = self.createWechatEvent()
     payment = self.createPaymentTransaction()
+    payment.edit(
+      resource_value=None
+    )
     event.edit(
       destination_value=payment,
       source="portal_secure_payments/slapos_wechat_test",
     )
-    self.assertRaises(AttributeError, event.generateManualPaymentPage,
-      vads_url_cancel=vads_url_cancel,
-      vads_url_error=vads_url_error,
-      vads_url_referral=vads_url_referral,
-      vads_url_refused=vads_url_refused,
-      vads_url_success=vads_url_success,
-      vads_url_return=vads_url_return,
-    )
+    self.assertRaises(AttributeError, event.generateManualPaymentPage)
 
   def test_generateManualPaymentPage_defaultUseCase(self):
     event = self.createWechatEvent()
     payment = self.createPaymentTransaction()
     payment.edit(
-      resource="currency_module/EUR",
+      resource="currency_module/CNY",
     )
     event.edit(
       destination_value=payment,
@@ -149,14 +85,7 @@ class TestSlapOSWechatInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     before_date = DateTime()
     self._simulatePaymentTransaction_getTotalPayablePrice()
     try:
-      event.generateManualPaymentPage(
-        vads_url_cancel=vads_url_cancel,
-        vads_url_error=vads_url_error,
-        vads_url_referral=vads_url_referral,
-        vads_url_refused=vads_url_refused,
-        vads_url_success=vads_url_success,
-        vads_url_return=vads_url_return,
-      )
+      event.generateManualPaymentPage()
     finally:
       self._dropPaymentTransaction_getTotalPayablePrice()
     after_date = DateTime()
@@ -175,19 +104,10 @@ class TestSlapOSWechatInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     self.assertEqual(event.getValidationState(), "acknowledged")
 
     data_dict = {
-      'vads_language': 'en',
-      'vads_url_cancel': vads_url_cancel,
-      'vads_url_error': vads_url_error,
-      'vads_url_referral': vads_url_referral,
-      'vads_url_refused': vads_url_refused,
-      'vads_url_success': vads_url_success,
-      'vads_url_return': vads_url_return,
-      'vads_trans_date': payment.getStartDate().toZone('UTC')\
-                           .asdatetime().strftime('%Y%m%d%H%M%S'),
-      'vads_amount': str(int(HARDCODED_PRICE * -100)),
-      'vads_currency': 978,
-      'vads_trans_id': transaction_id,
-      'vads_site_id': 'foo',
+      'out_trade_no': payment.getId().encode('utf-8'),
+      'total_fee': 1, #str(int(round((payment_transaction.PaymentTransaction_getTotalPayablePrice() * -100), 0))),
+      'fee_type': 'CNY',
+      'body': "Rapid Space Virtual Machine".encode('utf-8')
     }
     # Calculate the signature...
     self.portal.portal_secure_payments.slapos_wechat_test._getFieldList(data_dict)
@@ -315,11 +235,11 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by W
     self.assertEqual(len(event_message_list), 2)
 
     sent_message = [x for x in event_message_list \
-                    if x.getTitle() == 'Sent SOAP'][0]
+                    if x.getTitle() == 'Query Order Status'][0]
     self.assertEqual(sent_message.getTextContent(), mocked_sent_text)
 
     received_message = [x for x in event_message_list \
-                        if x.getTitle() == 'Received SOAP'][0]
+                        if x.getTitle() == 'Received Order Status'][0]
     self.assertEqual(received_message.getPredecessor(), 
                       sent_message.getRelativeUrl())
     self.assertEqual(received_message.getTextContent(), mocked_received_text)

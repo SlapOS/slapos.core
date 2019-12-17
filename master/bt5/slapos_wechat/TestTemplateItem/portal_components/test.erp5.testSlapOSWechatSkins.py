@@ -1,8 +1,28 @@
-# Copyright (c) 2002-2012 Nexedi SA and Contributors. All Rights Reserved.
+# -*- coding:utf-8 -*-
+##############################################################################
+#
+# Copyright (c) 2019 Nexedi SA and Contributors. All Rights Reserved.
+#
+# This program is Free Software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
 
 from DateTime import DateTime
 from zExceptions import Unauthorized
+import transaction
 from Products.ERP5Type.tests.utils import createZODBPythonScript
 
 class TestSlapOSCurrency_getIntegrationMapping(SlapOSTestCaseMixinWithAbort):
@@ -644,27 +664,23 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.login(person.getUserId())
     self._simulatePaymentTransaction_getVADSUrlDict()
     try:
-      text_content = payment.PaymentTransaction_redirectToManualWechatPayment()
+      def mock_absolute_url():
+        return "http://example.org"
+      original_method = self.portal.absolute_url
+      self.portal.absolute_url = mock_absolute_url
+      try:
+        redirected_url = payment.PaymentTransaction_redirectToManualWechatPayment()
+      finally:
+        self.portal.absolute_url = original_method
     finally:
       self._dropPaymentTransaction_getVADSUrlDict()
 
-    payment_transaction_url = payment.getRelativeUrl()
-    for item in ["vads_site_id",
-                 payment_transaction_url,
-                 "vads_url_cancel",
-                 "%s/cancel" % (payment_transaction_url),
-                 "vads_url_error",
-                 "%s/error" % (payment_transaction_url),
-                 "vads_url_referral",
-                 "%s/referral" % (payment_transaction_url),
-                 "vads_url_refused",
-                 "%s/refused" % (payment_transaction_url),
-                 "vads_url_success",
-                 "%s/success" % (payment_transaction_url),
-                 "vads_url_return",
-                 "%s/return" % (payment_transaction_url)]:
-      self.assertTrue(item in text_content,
-        "%s not in %s" % (item, text_content))
+
+    payment_transaction_id = payment.getId()
+    expected = "http://example.org/#wechat_payment?trade_no=%s&price=1&payment_url=weixin://wxpay/bizpayurl?pr=" % payment_transaction_id
+    self.assertTrue(redirected_url.startswith(expected),
+        "%s do not start with %s" % (redirected_url, expected))
+    transaction.abort()
 
 
   def test_PaymentTransaction_redirectToManualWechatPayment_already_registered(self):

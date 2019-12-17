@@ -282,6 +282,14 @@
             <value> <string>event_module/slapos_crm_web_message_template</string> </value>
         </item>
         <item>
+            <key> <string>preferred_wechat_integration_site</string> </key>
+            <value> <string>portal_integrations/slapos_wechat_test_integration</string> </value>
+        </item>
+        <item>
+            <key> <string>preferred_wechat_payment_service_reference</string> </key>
+            <value> <string>PSERV-Wechat-Test</string> </value>
+        </item>
+        <item>
             <key> <string>priority</string> </key>
             <value> <int>1</int> </value>
         </item>

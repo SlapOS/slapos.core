@@ -113,7 +113,6 @@ class TestSlapOSWechatInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     # Event state
     self.assertEqual(event.getValidationState(), "acknowledged")
     expected_url = "http://example.org/#wechat_payment?trade_no=%s&price=1&payment_url=" % (payment_transaction_id)
-
     # Event message state
     event_message_list = event.contentValues(portal_type="Wechat Event Message")
     self.assertEqual(len(event_message_list), 1)

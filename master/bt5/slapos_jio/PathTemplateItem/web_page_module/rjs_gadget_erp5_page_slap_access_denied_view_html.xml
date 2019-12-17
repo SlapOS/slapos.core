@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="Web Script" module="erp5.portal_type"/>
+      <global name="Web Page" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -68,8 +68,12 @@
             </value>
         </item>
         <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>text/html</string> </value>
+        </item>
+        <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_erp5_page_slap_improper_access_view.js</string> </value>
+            <value> <string>gadget_erp5_page_slap_access_denied_view.html</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -79,7 +83,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_erp5_page_slap_improper_access_view_js</string> </value>
+            <value> <string>rjs_gadget_erp5_page_slap_access_denied_view_html</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -87,7 +91,7 @@
         </item>
         <item>
             <key> <string>portal_type</string> </key>
-            <value> <string>Web Script</string> </value>
+            <value> <string>Web Page</string> </value>
         </item>
         <item>
             <key> <string>short_title</string> </key>
@@ -97,7 +101,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget SlapOS Improper Access View</string> </value>
+            <value> <string>Gadget SlapOS Access Denied View</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
@@ -183,7 +187,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1576492288.33</float>
+                        <float>1576492033.13</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -229,7 +233,7 @@
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>980.34110.26641.52753</string> </value>
+                <value> <string>980.35642.6560.23603</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -247,7 +251,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1576504230.67</float>
+                        <float>1576596139.36</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -305,7 +309,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1576492220.61</float>
+                        <float>1576491929.3</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

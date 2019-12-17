@@ -47,7 +47,7 @@
         return gadget.jio_get(jio_key);
       })
       .push(undefined, function (error) {
-        return {"portal_type": "improper_access"};
+        return {"portal_type": "access_denied"};
       });
   };
 }(window, RSVP, UriTemplate));

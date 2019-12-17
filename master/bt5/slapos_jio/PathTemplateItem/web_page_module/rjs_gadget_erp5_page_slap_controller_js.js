@@ -77,7 +77,7 @@
             throw new Error('Can not display document: ' + options.jio_key);
           }
 
-          if (child_gadget_url === 'gadget_erp5_page_slap_improper_access_view.html') {
+          if (child_gadget_url === 'gadget_erp5_page_slap_access_denied_view.html') {
             // if user try to access a document without correct permission
             // user will be redirected to this page, in this case, set the jio_key
             // to null to avoid some further processing.

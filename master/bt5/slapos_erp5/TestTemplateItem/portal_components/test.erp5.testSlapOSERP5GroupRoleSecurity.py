@@ -2068,30 +2068,57 @@ class TestSystemEventModule(TestSlapOSGroupRoleSecurityMixin):
 
 class TestPayzenEvent(TestSlapOSGroupRoleSecurityMixin):
   def test_GroupCompany(self):
-    product = self.portal.system_event_module.newContent(
+    event = self.portal.system_event_module.newContent(
         portal_type='Payzen Event')
-    product.updateLocalRolesOnSecurityGroups()
-    self.assertSecurityGroup(product,
+    event.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(event,
         ['G-COMPANY', self.user_id], False)
-    self.assertRoles(product, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(product, self.user_id, ['Owner'])
+    self.assertRoles(event, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(event, self.user_id, ['Owner'])
 
   def test_ShadowUser(self):
     reference = 'TESTPERSON-%s' % self.generateNewId()
     person = self.portal.person_module.newContent(portal_type='Person',
         reference=reference)
-    product = self.portal.system_event_module.newContent(
+    event = self.portal.system_event_module.newContent(
         portal_type='Payzen Event')
-    product.edit(
+    event.edit(
         destination_section_value=person,
         )
-    product.updateLocalRolesOnSecurityGroups()
+    event.updateLocalRolesOnSecurityGroups()
     shadow_user_id = 'SHADOW-%s' % person.getUserId()
-    self.assertSecurityGroup(product,
+    self.assertSecurityGroup(event,
         ['G-COMPANY', self.user_id, shadow_user_id], False)
-    self.assertRoles(product, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(product, shadow_user_id, ['Assignee'])
-    self.assertRoles(product, self.user_id, ['Owner'])
+    self.assertRoles(event, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(event, shadow_user_id, ['Assignee'])
+    self.assertRoles(event, self.user_id, ['Owner'])
+
+class TestWechatEvent(TestSlapOSGroupRoleSecurityMixin):
+  def test_GroupCompany(self):
+    event = self.portal.system_event_module.newContent(
+        portal_type='Wechat Event')
+    event.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(event,
+        ['G-COMPANY', self.user_id], False)
+    self.assertRoles(event, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(event, self.user_id, ['Owner'])
+
+  def test_ShadowUser(self):
+    reference = 'TESTPERSON-%s' % self.generateNewId()
+    person = self.portal.person_module.newContent(portal_type='Person',
+        reference=reference)
+    event = self.portal.system_event_module.newContent(
+        portal_type='Wechat Event')
+    event.edit(
+        destination_section_value=person,
+        )
+    event.updateLocalRolesOnSecurityGroups()
+    shadow_user_id = 'SHADOW-%s' % person.getUserId()
+    self.assertSecurityGroup(event,
+        ['G-COMPANY', self.user_id, shadow_user_id], False)
+    self.assertRoles(event, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(event, shadow_user_id, ['Assignee'])
+    self.assertRoles(event, self.user_id, ['Owner'])
 
 class TestSecurePaymentTool(TestSlapOSGroupRoleSecurityMixin):
   def test_no_permissions_for_users(self):

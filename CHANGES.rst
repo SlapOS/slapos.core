@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.5.5 (2019-12-17)
+------------------
+
+  * slapos/format: minimise IPv6 addresses changes
+
 1.5.4 (2019-11-28)
 -------------------
 

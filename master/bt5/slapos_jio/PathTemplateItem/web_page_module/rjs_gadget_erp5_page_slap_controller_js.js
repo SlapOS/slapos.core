@@ -49,7 +49,7 @@
       var gadget = this,
         child_gadget_url;
 
-      return window.checkDocumentPermission(gadget, options.jio_key)
+      return window.getValidDocument(gadget, options.jio_key)
         .push(function (result) {
 
           if (result.portal_type === "Support Request Module") {

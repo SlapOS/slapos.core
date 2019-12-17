@@ -41,7 +41,7 @@
         return redirectToLoginPage(gadget);
       });
   };
-  window.checkDocumentPermission = function checkDocumentPermission(gadget, jio_key) {
+  window.getValidDocument = function getValidDocument(gadget, jio_key) {
     return new RSVP.Queue()
       .push(function () {
         return gadget.jio_get(jio_key);

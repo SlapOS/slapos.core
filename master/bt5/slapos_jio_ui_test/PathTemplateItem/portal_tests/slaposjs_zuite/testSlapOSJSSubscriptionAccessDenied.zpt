@@ -315,6 +315,16 @@
   <td>You are not allowed to access this content</td>
   <td></td>
 </tr>
+<tr>
+  <td>clickAndWait</td>
+  <td>//input[@value="Logout"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//input[@value="Login"]</td>
+  <td></td>
+</tr>
 </tbody></table>
 </body>
 </html>

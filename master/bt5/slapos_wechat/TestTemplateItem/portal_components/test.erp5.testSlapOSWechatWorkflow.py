@@ -22,7 +22,6 @@ from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
 
 from DateTime import DateTime
 from Products.ERP5Type.tests.utils import createZODBPythonScript
-import difflib
 import transaction
 
 HARDCODED_PRICE = 99.6
@@ -84,6 +83,7 @@ class TestSlapOSWechatInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     )
 
     payment_transaction_id = payment.getId().encode('utf-8')
+    total_fee = int(HARDCODED_PRICE * 100)
     before_date = DateTime()
     self._simulatePaymentTransaction_getTotalPayablePrice()
     try:
@@ -112,13 +112,16 @@ class TestSlapOSWechatInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
 
     # Event state
     self.assertEqual(event.getValidationState(), "acknowledged")
-    expected_url = "http://example.org/#wechat_payment?trade_no=%s&price=1&payment_url=" % (payment_transaction_id)
+    expected_url = "http://example.org/#wechat_payment?trade_no=%s&price=%s&payment_url=" %\
+       (payment_transaction_id, total_fee)
+
     # Event message state
     event_message_list = event.contentValues(portal_type="Wechat Event Message")
     self.assertEqual(len(event_message_list), 1)
     message = event_message_list[0]
     self.assertEqual(message.getTitle(), 'Shown Page')
-    self.assertTrue(expected_url in message.getTextContent())
+    self.assertTrue(expected_url in message.getTextContent(), 
+      "%s not in %s" % (expected_url, message.getTextContent()))
 
     transaction.abort()
 

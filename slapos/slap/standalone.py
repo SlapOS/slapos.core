@@ -704,7 +704,7 @@ class StandaloneSlapOS(object):
           self._logger.debug("Supervisor pid file seem stale")
     # start new supervisord
     output = subprocess.check_output(
-        ['supervisord'],
+        ['supervisord', '--configuration', self._supervisor_config],
         cwd=self._base_directory,
     )
     self._logger.debug("Started new supervisor: %s", output)

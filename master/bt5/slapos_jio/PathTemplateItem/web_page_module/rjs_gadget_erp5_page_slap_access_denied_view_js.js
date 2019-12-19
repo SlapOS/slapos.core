@@ -26,7 +26,8 @@
         .push(function () {
           return RSVP.all([
             gadget.getUrlForList([{command: 'display'}]),
-            gadget.getDeclaredGadget("erp5_form")
+            gadget.getDeclaredGadget("erp5_form"),
+            gadget.translate("You are not allowed to access this content, please login with an user which has the right permission")
           ]);
         })
         .push(function (result_list) {
@@ -43,7 +44,7 @@
             result_list[1].render({
               erp5_document: {"_embedded": {"_view": {
                 'Message': {
-                  "default": "You are not allowed to access this content, please login with an user which has the right permission",
+                  "default": result_list[2],
                   "editable": 0,
                   "key": "field_message",
                   "title": "",

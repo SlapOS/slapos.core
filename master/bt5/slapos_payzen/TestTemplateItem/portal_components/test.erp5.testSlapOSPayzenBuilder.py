@@ -7,7 +7,8 @@
 
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 
-class TestSlapOSPaymentTransactionOrderBuilder(SlapOSTestCaseMixin):
+class TestSlapOSPaymentTransactionOrderBuilderMixin(SlapOSTestCaseMixin):
+  
   def sumReceivable(self, payment_transaction):
     quantity = .0
     default_source_uid = self.portal.restrictedTraverse(
@@ -32,7 +33,7 @@ class TestSlapOSPaymentTransactionOrderBuilder(SlapOSTestCaseMixin):
       'price_currency/%s' % invoice.getPriceCurrency(),
       'resource/%s' % invoice.getResource(),
       'source_payment/organisation_module/slapos/bank_account',
-      'payment_mode/payzen',
+      'payment_mode/%s' % self.payment_mode,
       'source_section/%s' % invoice.getSourceSection(),
     ]
     self.assertSameSet(expected_set, payment.getCategoryList())
@@ -76,12 +77,13 @@ class TestSlapOSPaymentTransactionOrderBuilder(SlapOSTestCaseMixin):
     return self.portal.portal_orders.slapos_payment_transaction_builder.build(
         **kw)
 
-  def test(self):
+  def _test(self):
     person = self.portal.person_module.template_member\
         .Base_createCloneDocument(batch_mode=1)
     invoice = self.portal.accounting_module.template_sale_invoice_transaction\
         .Base_createCloneDocument(batch_mode=1)
-    invoice.edit(destination_section=person.getRelativeUrl())
+    invoice.edit(destination_section=person.getRelativeUrl(),
+                 payment_mode=self.payment_mode)
     invoice.confirm()
     invoice.stop()
     self.tic()
@@ -93,12 +95,13 @@ class TestSlapOSPaymentTransactionOrderBuilder(SlapOSTestCaseMixin):
     payment = payment_list[0].getObject()
     self.assertPayment(payment, invoice)
 
-  def test_twice(self):
+  def _test_twice(self):
     person = self.portal.person_module.template_member\
         .Base_createCloneDocument(batch_mode=1)
     invoice = self.portal.accounting_module.template_sale_invoice_transaction\
         .Base_createCloneDocument(batch_mode=1)
-    invoice.edit(destination_section=person.getRelativeUrl())
+    invoice.edit(destination_section=person.getRelativeUrl(),
+                 payment_mode=self.payment_mode)
     invoice.confirm()
     invoice.stop()
     self.tic()
@@ -111,12 +114,13 @@ class TestSlapOSPaymentTransactionOrderBuilder(SlapOSTestCaseMixin):
     payment = payment_list[0].getObject()
     self.assertPayment(payment, invoice)
 
-  def test_twice_transaction(self):
+  def _test_twice_transaction(self):
     person = self.portal.person_module.template_member\
         .Base_createCloneDocument(batch_mode=1)
     invoice = self.portal.accounting_module.template_sale_invoice_transaction\
         .Base_createCloneDocument(batch_mode=1)
-    invoice.edit(destination_section=person.getRelativeUrl())
+    invoice.edit(destination_section=person.getRelativeUrl(),
+                 payment_mode=self.payment_mode)
     invoice.confirm()
     invoice.stop()
     self.tic()
@@ -129,12 +133,13 @@ class TestSlapOSPaymentTransactionOrderBuilder(SlapOSTestCaseMixin):
     payment = payment_list[0].getObject()
     self.assertPayment(payment, invoice)
 
-  def test_twice_indexation(self):
+  def _test_twice_indexation(self):
     person = self.portal.person_module.template_member\
         .Base_createCloneDocument(batch_mode=1)
     invoice = self.portal.accounting_module.template_sale_invoice_transaction\
         .Base_createCloneDocument(batch_mode=1)
-    invoice.edit(destination_section=person.getRelativeUrl())
+    invoice.edit(destination_section=person.getRelativeUrl(),
+                 payment_mode=self.payment_mode)
     invoice.confirm()
     invoice.stop()
     self.tic()
@@ -150,12 +155,13 @@ class TestSlapOSPaymentTransactionOrderBuilder(SlapOSTestCaseMixin):
     payment = payment_list[0].getObject()
     self.assertPayment(payment, invoice)
 
-  def test_cancelled_payment(self):
+  def _test_cancelled_payment(self):
     person = self.portal.person_module.template_member\
         .Base_createCloneDocument(batch_mode=1)
     invoice = self.portal.accounting_module.template_sale_invoice_transaction\
         .Base_createCloneDocument(batch_mode=1)
-    invoice.edit(destination_section=person.getRelativeUrl())
+    invoice.edit(destination_section=person.getRelativeUrl(),
+                 payment_mode=self.payment_mode)
     invoice.confirm()
     invoice.stop()
     self.tic()
@@ -173,17 +179,19 @@ class TestSlapOSPaymentTransactionOrderBuilder(SlapOSTestCaseMixin):
     payment = payment_list[0].getObject()
     self.assertPayment(payment, invoice)
 
-  def test_two_invoices(self):
+  def _test_two_invoices(self):
     person = self.portal.person_module.template_member\
         .Base_createCloneDocument(batch_mode=1)
     invoice_1 = self.portal.accounting_module.template_sale_invoice_transaction\
         .Base_createCloneDocument(batch_mode=1)
-    invoice_1.edit(destination_section=person.getRelativeUrl())
+    invoice_1.edit(destination_section=person.getRelativeUrl(),
+                 payment_mode=self.payment_mode)
     invoice_1.confirm()
     invoice_1.stop()
     invoice_2 = self.portal.accounting_module.template_sale_invoice_transaction\
         .Base_createCloneDocument(batch_mode=1)
-    invoice_2.edit(destination_section=person.getRelativeUrl())
+    invoice_2.edit(destination_section=person.getRelativeUrl(),
+                 payment_mode=self.payment_mode)
     invoice_2.confirm()
     invoice_2.stop()
     self.tic()
@@ -203,12 +211,13 @@ class TestSlapOSPaymentTransactionOrderBuilder(SlapOSTestCaseMixin):
     self.assertPayment(payment_1, invoice_1)
     self.assertPayment(payment_2, invoice_2)
 
-  def test_two_lines(self):
+  def _test_two_lines(self):
     person = self.portal.person_module.template_member\
         .Base_createCloneDocument(batch_mode=1)
     invoice = self.portal.accounting_module.template_sale_invoice_transaction\
         .Base_createCloneDocument(batch_mode=1)
-    invoice.edit(destination_section=person.getRelativeUrl())
+    invoice.edit(destination_section=person.getRelativeUrl(),
+                 payment_mode=self.payment_mode)
     self.tic()
     default_source_uid = self.portal.restrictedTraverse(
         'account_module/receivable').getUid()
@@ -235,3 +244,13 @@ class TestSlapOSPaymentTransactionOrderBuilder(SlapOSTestCaseMixin):
     payment = payment_list[0].getObject()
     self.assertPayment(payment, invoice)
 
+class TestSlapOSPaymentTransactionOrderBuilder(TestSlapOSPaymentTransactionOrderBuilderMixin):
+  payment_mode = "payzen"
+
+  test = TestSlapOSPaymentTransactionOrderBuilderMixin._test
+  test_twice = TestSlapOSPaymentTransactionOrderBuilderMixin._test_twice
+  test_twice_transaction = TestSlapOSPaymentTransactionOrderBuilderMixin._test_twice_transaction
+  test_twice_indexation = TestSlapOSPaymentTransactionOrderBuilderMixin._test_twice_indexation
+  test_cancelled_payment = TestSlapOSPaymentTransactionOrderBuilderMixin._test_cancelled_payment
+  test_two_invoices = TestSlapOSPaymentTransactionOrderBuilderMixin._test_two_invoices
+  test_two_lines = TestSlapOSPaymentTransactionOrderBuilderMixin._test_two_lines

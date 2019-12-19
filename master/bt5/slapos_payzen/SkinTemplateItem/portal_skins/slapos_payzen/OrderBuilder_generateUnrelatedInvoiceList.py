@@ -12,7 +12,8 @@ select_kw.pop('delivery_relative_url_list', None)
 select_kw.update(
   portal_type='Sale Invoice Transaction',
   simulation_state='stopped',
-  default_payment_mode_uid=portal.portal_categories.payment_mode.payzen.getUid(),
+  default_payment_mode_uid=(portal.portal_categories.payment_mode.payzen.getUid(),
+                            portal.portal_categories.payment_mode.wechat.getUid()),
   limit=10, # do only some in one shot
   select_dict=select_dict,
   left_join_list=select_dict.keys(),

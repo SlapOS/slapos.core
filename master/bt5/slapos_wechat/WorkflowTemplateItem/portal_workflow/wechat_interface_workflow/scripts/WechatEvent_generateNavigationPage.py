@@ -11,7 +11,7 @@ if transaction_id is None:
 
 wechat_dict = {
   'out_trade_no': payment_transaction.getId().encode('utf-8'),
-  'total_fee': str(int(round((payment_transaction.PaymentTransaction_getTotalPayablePrice() * 100), 0))),
+  'total_fee': int(round((payment_transaction.PaymentTransaction_getTotalPayablePrice() * -100), 0)),
   'fee_type': payment_transaction.getResourceValue().Currency_getIntegrationMapping(),
   'body': "Rapid Space Virtual Machine".encode('utf-8')
 }

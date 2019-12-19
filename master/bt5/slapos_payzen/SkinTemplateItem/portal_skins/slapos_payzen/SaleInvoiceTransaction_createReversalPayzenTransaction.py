@@ -10,7 +10,8 @@ assert context.getPortalType() == 'Sale Invoice Transaction'
 assert context.getPaymentMode() == 'payzen'
 assert context.getSimulationState() == 'stopped'
 assert context.getTotalPrice() != 0
-assert context.getSpecialise() == "sale_trade_condition_module/slapos_aggregated_trade_condition"
+assert context.getSpecialise() in ("sale_trade_condition_module/slapos_aggregated_trade_condition",
+                                   "sale_trade_condition_module/slapos_aggregated_subscription_trade_condition")
 
 paid = True
 for line in context.getMovementList(portal.getPortalAccountingMovementTypeList()):

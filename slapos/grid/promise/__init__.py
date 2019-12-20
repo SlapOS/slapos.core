@@ -289,7 +289,6 @@ class PromiseLauncher(object):
         force
           Set to True if force run promises without check their periodicity
     """
-
     self.dry_run = dry_run
     self.__config = {
       'promise-timeout': 20,
@@ -731,6 +730,17 @@ class PromiseLauncher(object):
     success = 0
     if os.path.exists(self.promise_folder) and os.path.isdir(self.promise_folder):
       for promise_name in os.listdir(self.promise_folder):
+        for suffix in ['.pyc', '.pyo']:
+          if promise_name.endswith(suffix):
+            promise_path = os.path.join(self.promise_folder, promise_name)
+            if not os.path.exists(promise_path[:-1]):
+              try:
+                os.unlink(promise_path)
+              except Exception as e:
+                self.logger.warning('Failed to remove %r because of %s', promise_path, e)
+              else:
+                self.logger.debug('Removed stale %r', promise_path)
+
         if promise_name.startswith('__init__') or \
             not promise_name.endswith('.py'):
           continue

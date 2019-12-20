@@ -1576,6 +1576,18 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     self.assertEqual(result.item.hasFailed(), False)
     self.assertTrue(isinstance(result.item.date, datetime))
 
+  def test_promise_cleanup_plugin_dir(self):
+    stale_pyc = os.path.join(self.plugin_dir, 'stale.pyc')
+    with open(stale_pyc, 'w') as fh:
+     fh.write('')
+    stale_pyo = os.path.join(self.plugin_dir, 'stale.pyo')
+    with open(stale_pyo, 'w') as fh:
+     fh.write('')
+    self.initialisePromise()
+    self.launcher.run()
+    self.assertFalse(os.path.exists(stale_pyc))
+    self.assertFalse(os.path.exists(stale_pyo))
+
   def test_promise_anomaly_disabled(self):
     self.initialisePromise()
     promise_process = self.createPromiseProcess()

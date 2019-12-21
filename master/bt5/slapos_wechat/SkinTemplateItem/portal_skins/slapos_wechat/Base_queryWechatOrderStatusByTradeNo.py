@@ -2,10 +2,22 @@ if not trade_no:
   raise Exception("You need to provide a trade number")
 
 portal = context.getPortalObject()
+person = portal.portal_membership.getAuthenticatedMember().getUserValue()
+
+def wrapWithShadow(payment_transaction):
+  payment_transaction.PaymentTransaction_updateWechatPaymentStatus()
+  return payment.getSimulationState()
+
 payment = portal.accounting_module[trade_no]
 
-if not payment:
-  raise Exception("The payment with reference %s was not found" % trade_no)
+if person is None:
+  if portal.portal_membership.isAnonymousUser():
+    invoice = payment.getCausalityValue()
+    if invoice is not None and invoice.getCausalityRelated(portal_type="Subscription Request"):
+      person = payment.getDestinationSectionValue()
 
-payment.PaymentTransaction_updateWechatPaymentStatus()
-return payment.getSimulationState()
+
+return person.Person_restrictMethodAsShadowUser(
+  shadow_document=person,
+  callable_object=wrapWithShadow,
+  argument_list=[payment])

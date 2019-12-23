@@ -45,6 +45,15 @@
           status_style: status_style
         });
         return gadget;
+      })
+      .push(undefined, function (error) {
+        gadget.element.innerHTML = inline_status_template({
+          monitor_url: undefined,
+          status_class: 'ui-btn-error',
+          status_title: 'Status Unknown',
+          status_style: ""
+        });
+        return gadget;
       });
   }
 

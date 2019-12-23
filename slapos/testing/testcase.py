@@ -292,7 +292,11 @@ class SlapOSInstanceTestCase(unittest.TestCase):
   _test_file_snapshot_directory = ""  # directory to save snapshot files for inspections
   # patterns of files to save for inspection, relative to instance directory
   _save_instance_file_pattern_list = (
+      'etc/supervisord.conf',
+      'etc/supervisord.conf.d/*',
       '*/etc/*',
+      '*/etc/service/*',
+      '*/etc/run/*',
       '*/var/log/*',
       '*/.*log',
   )

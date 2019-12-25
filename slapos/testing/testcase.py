@@ -218,12 +218,22 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=2, debug=False):
 
   This also check softwares with `checkSoftware`
   """
+  def _storeSoftwareLogSnapshot(name):
+    for standalone_log in glob.glob(os.path.join(
+        cls._base_directory,
+        'var',
+        'log',
+        '*',
+    )):
+      cls._copySnapshot(standalone_log, name)
+
   try:
     for software_url in software_url_list:
       cls.logger.debug("Supplying %s", software_url)
       cls.slap.supply(software_url)
     cls.logger.debug("Waiting for slapos node software to build")
     cls.slap.waitForSoftware(max_retry=max_retry, debug=debug)
+    _storeSoftwareLogSnapshot('setupModule')
     for software_url in software_url_list:
       checkSoftware(cls.slap, software_url)
   except BaseException as e:
@@ -237,8 +247,8 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=2, debug=False):
         cls.slap.waitForSoftware(max_retry=max_retry, debug=debug)
       except BaseException:
         cls.logger.exception("Error removing software")
-        pass
-    cls._cleanup()
+        _storeSoftwareLogSnapshot('setupModule removing software')
+    cls._cleanup('setupModule')
     raise e
 
 
@@ -336,6 +346,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     """Request an instance.
     """
     cls._instance_parameter_dict = cls.getInstanceParameterDict()
+    snapshot_name = "{}.{}.setUpClass".format(cls.__module__, cls.__name__)
 
     try:
       cls.logger.debug("Starting")
@@ -376,27 +387,27 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       cls.computer_partition_root_path = os.path.join(
           cls.slap._instance_root, cls.computer_partition.getId())
       cls.logger.debug("setUpClass done")
-
     except BaseException:
       cls.logger.exception("Error during setUpClass")
-      cls._storeSnapshot("{}.setUpClass".format(cls.__name__))
-      cls._cleanup()
+      cls._storeSystemSnapshot(snapshot_name)
+      cls._cleanup(snapshot_name)
       cls.setUp = lambda self: self.fail('Setup Class failed.')
       raise
+    else:
+      cls._storeSystemSnapshot(snapshot_name)
 
   @classmethod
   def tearDownClass(cls):
     """Tear down class, stop the processes and destroy instance.
     """
-    cls._cleanup()
+    cls._cleanup("{}.{}.tearDownClass".format(cls.__module__, cls.__name__))
 
   @classmethod
-  def _storeSnapshot(cls, name):
-    # copy log files from standalone
-    for standalone_log in glob.glob(os.path.join(
-          cls._base_directory, 'var', 'log', '*')):
-      cls._copySnapshot(standalone_log, name)
+  def _storePartitionSnapshot(cls, name):
+    """Store snapshot of partitions.
 
+    This uses the definition from class attribute `_save_instance_file_pattern_list`
+    """
     # copy config and log files from partitions
     for (dirpath, dirnames, filenames) in os.walk(cls.slap.instance_directory):
       for dirname in list(dirnames):
@@ -416,8 +427,27 @@ class SlapOSInstanceTestCase(unittest.TestCase):
         ) for pattern in cls._save_instance_file_pattern_list):
           cls._copySnapshot(fileabspath, name)
 
+  @classmethod
+  def _storeSystemSnapshot(cls, name):
+    """Store a snapshot of standalone slapos
+
+    Does not include software log, because this is stored at the end of software
+    installation and software log is large.
+    """
+    # copy log files from standalone
+    for standalone_log in glob.glob(os.path.join(
+        cls._base_directory,
+        'var',
+        'log',
+        '*',
+    )):
+      if not standalone_log.startswith('slapos-node-software.log'):
+        cls._copySnapshot(standalone_log, name)
+    # store slapproxy database
+    cls._copySnapshot(cls.slap._proxy_database, name)
+
   def tearDown(self):
-    self._storeSnapshot(self.id())
+    self._storePartitionSnapshot(self.id())
 
   @classmethod
   def _copySnapshot(cls, source_file_name, name):
@@ -459,18 +489,23 @@ class SlapOSInstanceTestCase(unittest.TestCase):
 
   # implementation methods
   @classmethod
-  def _cleanup(cls):
+  def _cleanup(cls, snapshot_name):
+    # type: (str) -> None
     """Destroy all instances and stop subsystem.
-    Catches and log all exceptions.
+    Catches and log all exceptions and take snapshot named `snapshot_name` + the failing step.
     """
     try:
       cls.requestDefaultInstance(state='destroyed')
     except:
       cls.logger.exception("Error during request destruction")
+      cls._storeSystemSnapshot(
+          "{}._cleanup request destroy".format(snapshot_name))
     try:
       cls.slap.waitForReport(max_retry=cls.report_max_retry, debug=cls._debug)
     except:
       cls.logger.exception("Error during actual destruction")
+      cls._storeSystemSnapshot(
+          "{}._cleanup waitForReport".format(snapshot_name))
     leaked_partitions = [
         cp for cp in cls.slap.computer.getComputerPartitionList()
         if cp.getState() != 'destroyed'
@@ -479,6 +514,8 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       cls.logger.critical(
           "The following partitions were not cleaned up: %s",
           [cp.getId() for cp in leaked_partitions])
+      cls._storeSystemSnapshot(
+          "{}._cleanup leaked_partitions".format(snapshot_name))
       for cp in leaked_partitions:
         try:
           cls.slap.request(
@@ -490,14 +527,21 @@ class SlapOSInstanceTestCase(unittest.TestCase):
         except:
           cls.logger.exception(
               "Error during request destruction of leaked partition")
+          cls._storeSystemSnapshot(
+              "{}._cleanup leaked_partitions request destruction".format(
+                  snapshot_name))
       try:
         cls.slap.waitForReport(max_retry=cls.report_max_retry, debug=cls._debug)
       except:
-        cls.logger.exception("Error during leaked partitions actual destruction")
+        cls.logger.exception(
+            "Error during leaked partitions actual destruction")
+        cls._storeSystemSnapshot(
+            "{}._cleanup leaked_partitions waitForReport".format(snapshot_name))
     try:
       cls.slap.stop()
     except:
       cls.logger.exception("Error during stop")
+      cls._storeSystemSnapshot("{}._cleanup stop".format(snapshot_name))
     leaked_supervisor_configs = glob.glob(
         os.path.join(cls.slap.instance_directory, 'etc', 'supervisord.conf.d', '*.conf'))
     if leaked_supervisor_configs:

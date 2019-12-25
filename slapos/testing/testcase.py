@@ -29,6 +29,7 @@
 import unittest
 import os
 import fnmatch
+import re
 import glob
 import logging
 import shutil
@@ -162,43 +163,139 @@ def checkSoftware(slap, software_url):
   This perform a few basic static checks for common problems
   with software installations.
   """
-  software_hash = md5digest(software_url)
 
-  error_list = []
   # Check that all components set rpath correctly and we don't have miss linking any libraries.
-  for path in (os.path.join(slap.software_directory,
-                            software_hash), slap.shared_directory):
-    if not glob.glob(os.path.join(path, '*')):
-      # shared might be empty (when using a slapos command that does not support shared yet).
-      continue
-    out = ''
+  # Also check that they are not linked against system libraries, except a white list of core
+  # system libraries.
+  system_lib_white_list = set((
+      'libc',
+      'libcrypt',
+      'libdl',
+      'libgcc_s',
+      'libgomp',
+      'libm',
+      'libnsl',
+      'libpthread',
+      'libresolv',
+      'librt',
+      'libstdc++',
+      'libutil',
+  ))
+
+  # we also ignore a few patterns for part that are known to be binary distributions,
+  # for which we generate LD_LIBRARY_PATH wrappers or we don't use directly.
+  ignored_file_patterns = set((
+      '*/parts/java-re*/*',
+      '*/parts/firefox-*/*',
+      '*/parts/chromium-*/*',
+      '*/parts/chromedriver*/*',
+      # nss is not a binary distribution, but for some reason it has invalid rpath, but it does
+      # not seem to be a problem in our use cases.
+      '*/parts/nss/*',
+      '*/node_modules/phantomjs-prebuilt/*',
+      '*/parts/renderjs-repository.git/node_modules/*',
+      '*/grafana/tools/phantomjs/*',
+  ))
+
+  software_hash = md5digest(software_url)
+  error_list = []
+
+  ldd_so_resolved_re = re.compile(
+      r'\t(?P<library_name>.*) => (?P<library_path>.*) \(0x')
+  ldd_already_loaded_re = re.compile(r'\t(?P<library_name>.*) \(0x')
+  ldd_not_found_re = re.compile(r'.*not found.*')
+
+  class DynamicLibraryNotFound(Exception):
+    """Exception raised when ldd cannot resolve a library.
+    """
+  def getLddOutput(path):
+    # type: (str) -> Dict[str, str]
+    """Parse ldd output on executable as `path` and returns a mapping
+    of library paths or None when library is not found, keyed by library so name.
+
+    Raises a `DynamicLibraryNotFound` if any dynamic library is not found.
+
+    Special entries, like VDSO ( linux-vdso.so.1 ) or ELF interpreter
+    ( /lib64/ld-linux-x86-64.so.2 ) are ignored.
+    """
+    libraries = {}  # type: Dict[str, str]
     try:
-      out = subprocess.check_output(
-          "find . -type f -executable "
-
-          # We ignore parts that are binary distributions.
-          "| egrep -v /parts/java-re.*/ "
-          "| egrep -v /parts/firefox-.*/ "
-          "| egrep -v /parts/chromium-.*/ "
-          "| egrep -v /parts/chromedriver-.*/ "
-          "| egrep -v /parts/renderjs-repository.git/node_modules/.* "
-
-          # nss has no valid rpath. It does not seem to be a problem in our case.
-          "| egrep -v /parts/nss/ "
-          "| xargs ldd "
-          r"| egrep '(^\S|not found)' "
-          "| grep -B1 'not found'",
-          shell=True,
+      ldd_output = subprocess.check_output(
+          ('ldd', path),
           stderr=subprocess.STDOUT,
-          cwd=path,
+          universal_newlines=True,
       )
     except subprocess.CalledProcessError as e:
-      # The "good case" is when grep does not match anything, but in
-      # that case, it exists with exit code 1, so we accept this case.
-      if e.returncode != 1 or e.output:
-        error_list.append(e.output)
-    if out:
-      error_list.append(out)
+      if e.output not in ('\tnot a dynamic executable\n',):
+        raise
+      return libraries
+    if ldd_output == '\tstatically linked\n':
+      return libraries
+
+    not_found = []
+    for line in ldd_output.splitlines():
+      resolved_so_match = ldd_so_resolved_re.match(line)
+      ldd_already_loaded_match = ldd_already_loaded_re.match(line)
+      not_found_match = ldd_not_found_re.match(line)
+      if resolved_so_match:
+        libraries[resolved_so_match.group(
+            'library_name')] = resolved_so_match.group('library_path')
+      elif ldd_already_loaded_match:
+        # VDSO or ELF, ignore . See https://stackoverflow.com/a/35805410/7294664 for more about this
+        pass
+      elif not_found_match:
+        not_found.append(line)
+      else:
+        raise RuntimeError('Unknown ldd line %s for %s.' % (line, path))
+    if not_found:
+      not_found_text = '\n'.join(not_found)
+      raise DynamicLibraryNotFound(
+          '{path} has some not found libraries:\n{not_found_text}'.format(
+              **locals()))
+    return libraries
+
+  def checkExecutableLink(paths_to_check, valid_paths_for_libs):
+    # type: (Iterable[str], Iterable[str]) -> List[str]
+    """Check shared libraries linked with executables in `paths_to_check`.
+    Only libraries from `valid_paths_for_libs` are accepted.
+    Returns a list of error messages.
+    """
+    executable_link_error_list = []
+    for path in paths_to_check:
+      for root, dirs, files in os.walk(path):
+        for f in files:
+          f = os.path.join(root, f)
+          if any(fnmatch.fnmatch(f, ignored_pattern)
+                 for ignored_pattern in ignored_file_patterns):
+            continue
+          if os.access(f, os.X_OK):
+            try:
+              libs = getLddOutput(f)
+            except DynamicLibraryNotFound as e:
+              executable_link_error_list.append(str(e))
+            else:
+              for lib, lib_path in libs.items():
+                if lib.split('.')[0] in system_lib_white_list:
+                  continue
+                # dynamically linked programs can only be linked with libraries
+                # present in software or in shared parts repository.
+                if any(lib_path.startswith(valid_path)
+                       for valid_path in valid_paths_for_libs):
+                  continue
+                executable_link_error_list.append(
+                    '{f} uses system library {lib_path} for {lib}'.format(
+                        **locals()))
+    return executable_link_error_list
+
+  paths_to_check = (
+      os.path.join(slap.software_directory, software_hash),
+      slap.shared_directory,
+  )
+  error_list.extend(
+      checkExecutableLink(
+          paths_to_check,
+          paths_to_check + tuple(slap._shared_part_list),
+      ))
 
   # check this software is not referenced in any shared parts.
   for signature_file in glob.glob(os.path.join(slap.shared_directory, '*', '*',

@@ -37,7 +37,7 @@ from six.moves.urllib.parse import urlparse
 try:
   import subprocess32 as subprocess
 except ImportError:
-  import subprocess
+  import subprocess  # type: ignore
   subprocess  # pyflakes
 
 from .utils import getPortFromPath
@@ -49,7 +49,7 @@ from ..grid.utils import md5digest
 from ..util import mkdir_p
 
 try:
-  from typing import Iterable, Tuple, Callable, Type
+  from typing import Iterable, Tuple, Callable, Type, Dict, List, Optional
 except ImportError:
   pass
 
@@ -63,9 +63,9 @@ def makeModuleSetUpAndTestCaseClass(
     verbose=bool(int(os.environ.get('SLAPOS_TEST_VERBOSE', 0))),
     shared_part_list=os.environ.get('SLAPOS_TEST_SHARED_PART_LIST',
                                     '').split(os.pathsep),
-    snapshot_directory=os.environ.get('SLAPOS_TEST_LOG_DIRECTORY')
+    snapshot_directory=os.environ.get('SLAPOS_TEST_LOG_DIRECTORY'),
 ):
-  # type: (str, str, str, str, bool, bool, List[str]) -> Tuple[Callable[[], None], Type[SlapOSInstanceTestCase]]
+  # type: (str, str, str, str, bool, bool, Iterable[str], Optional[str]) -> Tuple[Callable[[], None], Type[SlapOSInstanceTestCase]]
   """Create a setup module function and a testcase for testing `software_url`.
 
   This function returns a tuple of two arguments:
@@ -124,7 +124,6 @@ def makeModuleSetUpAndTestCaseClass(
   if not snapshot_directory:
     snapshot_directory = os.path.join(base_directory, "snapshots")
 
-
   cls = type(
       'SlapOSInstanceTestCase for {}'.format(software_url),
       (SlapOSInstanceTestCase,), {
@@ -139,7 +138,9 @@ def makeModuleSetUpAndTestCaseClass(
           '_test_file_snapshot_directory': snapshot_directory
       })
 
-  class SlapOSInstanceTestCase_(cls, SlapOSInstanceTestCase):
+  class SlapOSInstanceTestCase_(
+      cls,  # type: ignore # https://github.com/python/mypy/issues/2813
+      SlapOSInstanceTestCase):
     # useless intermediate class so that editors provide completion anyway.
     pass
 
@@ -204,10 +205,10 @@ def checkSoftware(slap, software_url):
                                                '.*slapos.*.signature')):
     with open(signature_file) as f:
       signature_content = f.read()
-      if software_hash in signature_content:
-        error_list.append(
-            "Software hash present in signature {}\n{}\n".format(
-                signature_file, signature_content))
+    if software_hash in signature_content:
+      error_list.append(
+          "Software hash present in signature {}\n{}\n".format(
+              signature_file, signature_content))
 
   if error_list:
     raise RuntimeError('\n'.join(error_list))
@@ -403,7 +404,8 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     """
     cls._cleanup("{}.{}.tearDownClass".format(cls.__module__, cls.__name__))
     if not cls._debug:
-      cls.logger.debug("cleaning up slapos log files in %s", cls.slap._log_directory)
+      cls.logger.debug(
+          "cleaning up slapos log files in %s", cls.slap._log_directory)
       for log_file in glob.glob(os.path.join(cls.slap._log_directory, '*')):
         os.unlink(log_file)
 
@@ -524,11 +526,12 @@ class SlapOSInstanceTestCase(unittest.TestCase):
           "{}._cleanup leaked_partitions".format(snapshot_name))
       for cp in leaked_partitions:
         try:
+          # XXX is this really the reference ?
+          partition_reference = cp.getInstanceParameterDict()['instance_title']
           cls.slap.request(
               software_release=cp.getSoftwareRelease().getURI(),
               # software_type=cp.getType(), # TODO
-              # XXX is this really the reference ?
-              partition_reference=cp.getInstanceParameterDict()['instance_title'],
+              partition_reference=partition_reference,
               state="destroyed")
         except:
           cls.logger.exception(
@@ -549,10 +552,14 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       cls.logger.exception("Error during stop")
       cls._storeSystemSnapshot("{}._cleanup stop".format(snapshot_name))
     leaked_supervisor_configs = glob.glob(
-        os.path.join(cls.slap.instance_directory, 'etc', 'supervisord.conf.d', '*.conf'))
+        os.path.join(
+            cls.slap.instance_directory, 'etc', 'supervisord.conf.d', '*.conf'))
     if leaked_supervisor_configs:
-      [os.unlink(config) for config in leaked_supervisor_configs]
-      raise AssertionError("Test leaked supervisor configurations: %s" % leaked_supervisor_configs)
+      for config in leaked_supervisor_configs:
+        os.unlink(config)
+      raise AssertionError(
+          "Test leaked supervisor configurations: %s" %
+          leaked_supervisor_configs)
 
   @classmethod
   def requestDefaultInstance(cls, state='started'):

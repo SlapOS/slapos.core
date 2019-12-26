@@ -1321,6 +1321,22 @@ class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixin):
 
     return support_request
 
+  def _makeHostingSubscription(self):
+    person = self.portal.person_module.template_member\
+         .Base_createCloneDocument(batch_mode=1)
+    hosting_subscription = self.portal\
+      .hosting_subscription_module.template_hosting_subscription\
+      .Base_createCloneDocument(batch_mode=1)
+    hosting_subscription.validate()
+    new_id = self.generateNewId()
+    hosting_subscription.edit(
+        title= "Test hosting sub ticket %s" % new_id,
+        reference="TESTHST-%s" % new_id,
+        destination_section_value=person,
+        monitor_scope="enabled"
+    )
+
+    return hosting_subscription
 
   def _simulateSupportRequest_updateMonitoringState(self):
     script_name = 'SupportRequest_updateMonitoringState'
@@ -1342,6 +1358,8 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
 
   def test_alarm_update_support_request_state(self):
     support_request = self._makeSupportRequest()
+    hs = self._makeHostingSubscription()
+    support_request.setAggregateValue(hs)
     self.tic()
 
     self._simulateSupportRequest_updateMonitoringState()

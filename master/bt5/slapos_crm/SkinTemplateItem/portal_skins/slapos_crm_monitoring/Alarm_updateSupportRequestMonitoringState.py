@@ -7,6 +7,7 @@ portal.portal_catalog.searchAndActivate(
     portal_type='Support Request',
     simulation_state='validated',
     default_resource_uid=default_resource_uid,
+    default_aggregate_portal_type=["Hosting Subscription"],
     method_id='SupportRequest_updateMonitoringState',
     activate_kw = {'tag':tag}
   )

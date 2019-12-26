@@ -917,6 +917,7 @@ class TestSlapOSisSupportRequestCreationClosed(TestCRMSkinsMixin):
   def afterSetUp(self):
     TestCRMSkinsMixin.afterSetUp(self)
     self._cancelTestSupportRequestList()
+    self.clearCache()
 
   def test_ERP5Site_isSupportRequestCreationClosed(self):
 
@@ -1891,14 +1892,6 @@ class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
 
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
-  @simulate('SupportRequest_updateMonitoringComputerState',
-            "",
-    'return "Visited by SupportRequest_updateMonitoringComputerState ' \
-    '%s" % (context.getRelativeUrl(),)')
-  @simulate('SupportRequest_updateMonitoringHostingSubscriptionState',
-            "",
-    'return "Visited by SupportRequest_updateMonitoringHostingSubscriptionState '\
-    '%s" % (context.getRelativeUrl(),)')
   @simulate('SupportRequest_updateMonitoringDestroyRequestedState',
             "",
     'return "Visited by SupportRequest_updateMonitoringDestroyRequestedState '\
@@ -1910,21 +1903,11 @@ class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
     support_request.validate()
     self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringState())
-    # Now try to go to set a computer...
-    support_request.setAggregateValue(self._makeComputer())
-    self.assertEqual(
-      "Visited by SupportRequest_updateMonitoringComputerState %s" % \
-        support_request.getRelativeUrl(),
-      support_request.SupportRequest_updateMonitoringState())
-
+    
     hs = self._makeHostingSubscription()
     support_request.setAggregateValue(hs)
-    self.assertEqual(
-      "Visited by SupportRequest_updateMonitoringHostingSubscriptionState %s" %\
-        support_request.getRelativeUrl(),
-      support_request.SupportRequest_updateMonitoringState())
-
     hs.getSlapState = getFakeSlapState
+
     self.assertEqual(
       "Visited by SupportRequest_updateMonitoringDestroyRequestedState %s" %\
         support_request.getRelativeUrl(),
@@ -1934,69 +1917,7 @@ class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
     self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringState())
 
-  @simulate('SupportRequest_trySendNotificationMessage',
-            "message_title, message, source_relative_url",
-     'return "Visited by SupportRequest_trySendNotificationMessage '\
-  '%s %s %s" % (message_title, message, source_relative_url)')
-  def testSupportRequest_updateMonitoringComputerState(self):
-    support_request = self._makeSupportRequest()
-    self.assertEqual(None,
-      support_request.SupportRequest_updateMonitoringComputerState())
-    support_request.validate()
-    self.assertEqual(None,
-      support_request.SupportRequest_updateMonitoringComputerState())
-    support_request.setAggregateValue(self._makeHostingSubscription())
-    self.assertEqual(None,
-      support_request.SupportRequest_updateMonitoringComputerState())
-
-    support_request.setAggregateValue(self._makeComputer())
-    memcached_dict = self.portal.portal_memcached.getMemcachedDict(
-        key_prefix='slap_tool',
-        plugin_path='portal_memcached/default_memcached_plugin')
-
-    memcached_dict[support_request.getAggregateValue().getReference()] = json.dumps({
-      "created_at": DateTime().strftime("%Y/%m/%d %H:%M")
-    })
-    # W/o destination decision the ticket is not notified.
-    self.assertEqual(None,
-      support_request.SupportRequest_updateMonitoringComputerState())
-
-    support_request.setDestinationDecisionValue(self.makePerson(user=0))
-    expected_text = """Visited by SupportRequest_trySendNotificationMessage Computer is contacting again  Suspending this ticket as the computer contacted again.  %s""" % support_request.getDestinationDecision()
-    self.assertEqual(expected_text,
-      support_request.SupportRequest_updateMonitoringComputerState())
-    self.assertEqual(support_request.getSimulationState(), "suspended")
-
-  @simulate('SupportRequest_trySendNotificationMessage',
-            "message_title, message, source_relative_url",
-     'return "Visited by SupportRequest_trySendNotificationMessage '\
-  '%s %s %s" % (message_title, message, source_relative_url)')
-  def testSupportRequest_updateMonitoringHostingSubscriptionState(self):
-    support_request = self._makeSupportRequest()
-    self.assertEqual(None,
-      support_request.SupportRequest_updateMonitoringHostingSubscriptionState())
-    support_request.validate()
-    self.assertEqual(None,
-      support_request.SupportRequest_updateMonitoringHostingSubscriptionState())
-
-    support_request.setAggregateValue(self._makeComputer())
-    self.assertEqual(None,
-      support_request.SupportRequest_updateMonitoringHostingSubscriptionState())
-
-    support_request.setAggregateValue(self._makeHostingSubscription())
-    self.assertEqual(None,
-      support_request.SupportRequest_updateMonitoringHostingSubscriptionState())
-
-    support_request.setDestinationDecisionValue(self.makePerson(user=0))
-
-    self.assertEqual("Visited by SupportRequest_trySendNotificationMessage Suspending this ticket as the problem is not present anymore  Suspending this ticket as the problem is not present anymore.  %s" % \
-    support_request.getDestinationDecision(),
-      support_request.SupportRequest_updateMonitoringHostingSubscriptionState())
-
-    self.assertEqual("suspended",
-      support_request.getSimulationState())
-
-
+  @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
   @simulate('SupportRequest_trySendNotificationMessage',
             "message_title, message, source_relative_url",
      'return "Visited by SupportRequest_trySendNotificationMessage '\

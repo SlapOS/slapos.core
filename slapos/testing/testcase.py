@@ -401,6 +401,10 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     """Tear down class, stop the processes and destroy instance.
     """
     cls._cleanup("{}.{}.tearDownClass".format(cls.__module__, cls.__name__))
+    if not cls._debug:
+      cls.logger.debug("cleaning up slapos log files in %s", cls.slap._log_directory)
+      for log_file in glob.glob(os.path.join(cls.slap._log_directory, '*')):
+        os.unlink(log_file)
 
   @classmethod
   def _storePartitionSnapshot(cls, name):

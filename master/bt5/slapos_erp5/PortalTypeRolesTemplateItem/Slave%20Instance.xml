@@ -23,6 +23,18 @@
    <multi_property id='categories'>local_role_group/subscription</multi_property>
    <multi_property id='base_category'>specialise</multi_property>
   </role>
+  <role id='Assignee'>
+   <property id='title'>Organisation Member</property>
+   <property id='base_category_script'>Instance_getSecurityCategoryFromMovementSpecialiseDestination</property>
+   <multi_property id='categories'>local_role_group/organisation</multi_property>
+   <multi_property id='base_category'>destination</multi_property>
+  </role>
+  <role id='Assignee'>
+   <property id='title'>Project Member</property>
+   <property id='base_category_script'>Instance_getSecurityCategoryFromMovementSpecialiseDestinationProject</property>
+   <multi_property id='categories'>local_role_group/project</multi_property>
+   <multi_property id='base_category'>destination_project</multi_property>
+  </role>
   <role id='Assignor'>
    <property id='title'>Software Instance which provides this Slave Instance</property>
    <property id='base_category_script'>SlaveInstanceType_getSecurityCategoryFromSoftwareInstance</property>

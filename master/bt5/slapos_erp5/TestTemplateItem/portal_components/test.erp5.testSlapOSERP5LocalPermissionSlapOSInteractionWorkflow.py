@@ -1,5 +1,25 @@
-# Copyright (c) 2002-2012 Nexedi SA and Contributors. All Rights Reserved.
+# -*- coding: utf-8 -*-
+##############################################################################
+#
+# Copyright (c) 2012 Nexedi SA and Contributors. All Rights Reserved.
+#
+# This program is Free Software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#
+##############################################################################
 from erp5.component.test.testSlapOSERP5GroupRoleSecurity import TestSlapOSGroupRoleSecurityMixin
+from DateTime import DateTime
 
 class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
     TestSlapOSGroupRoleSecurityMixin):
@@ -295,17 +315,33 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
 
   def test_PayzenEvent_setDestinationSection(self):
     self._makePerson()
-    payment_transaction = self.portal.system_event_module.newContent(
+    event = self.portal.system_event_module.newContent(
         portal_type='Payzen Event')
-    self.assertSecurityGroup(payment_transaction, [self.user_id,
+    self.assertSecurityGroup(event, [self.user_id,
         'G-COMPANY'],
         False)
 
-    payment_transaction.edit(
+    event.edit(
         destination_section=self.person_user.getRelativeUrl())
     self.commit()
 
-    self.assertSecurityGroup(payment_transaction, [self.user_id,
+    self.assertSecurityGroup(event, [self.user_id,
+        'G-COMPANY', 'SHADOW-%s' % self.person_user.getUserId()],
+        False)
+
+  def test_WechatEvent_setDestinationSection(self):
+    self._makePerson()
+    event = self.portal.system_event_module.newContent(
+        portal_type='Payzen Event')
+    self.assertSecurityGroup(event, [self.user_id,
+        'G-COMPANY'],
+        False)
+
+    event.edit(
+        destination_section=self.person_user.getRelativeUrl())
+    self.commit()
+
+    self.assertSecurityGroup(event, [self.user_id,
         'G-COMPANY', 'SHADOW-%s' % self.person_user.getUserId()],
         False)
 
@@ -641,3 +677,165 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
 
     self.assertSecurityGroup(sale_packing_list, ['G-COMPANY', self.user_id,
         self.person_user_id], False)
+
+
+  def test_RestrictedAccessToken_setAgent(self):
+    self._makePerson()
+    token = self.portal.access_token_module.newContent(
+        portal_type='Restricted Access Token')
+
+    self.assertSecurityGroup(token, [self.user_id,
+        'G-COMPANY'],
+        False)
+
+    token.edit(
+        agent=self.person_user.getRelativeUrl())
+    self.commit()
+
+    self.assertSecurityGroup(token, [self.user_id,
+        'G-COMPANY', self.person_user.getUserId()],
+        False)
+
+
+  def test_InternalPackingListLine_setAggregate_hosting_subscription(self):
+    self._makePerson()
+    
+    project = self.portal.project_module.newContent(
+      portal_type="Project",
+    )
+
+    hosting_subscription = self.portal.hosting_subscription_module.newContent(
+        portal_type='Hosting Subscription',
+        reference='TESTHS-%s' % self.generateNewId())
+    
+    internal_packing_list = self.portal.internal_packing_list_module.newContent(
+        portal_type='Internal Packing List')
+
+    internal_packing_list_line = internal_packing_list.newContent(
+        portal_type='Internal Packing List Line')
+
+    internal_packing_list.edit(source_value=self.person_user,
+                               source_section_value=self.person_user,
+                             source_project_value=project,
+                             destination=self.person_user.getRelativeUrl(),
+                             destination_section=self.person_user.getRelativeUrl(),
+                             source_decision=self.person_user.getRelativeUrl(),
+                             destination_decision=self.person_user.getRelativeUrl(),
+                             destination_project_value=project,
+                             start_date=DateTime()-1,
+                             stop_date=DateTime()-1)
+
+    internal_packing_list.confirm()
+    internal_packing_list.stop()
+    internal_packing_list.deliver()
+
+    software_instance = self.portal.software_instance_module.newContent(
+        portal_type='Software Instance')
+    software_instance.edit(specialise=hosting_subscription.getRelativeUrl())
+
+    slave_instance = self.portal.software_instance_module.newContent(
+        portal_type='Slave Instance')
+    slave_instance.edit(specialise=hosting_subscription.getRelativeUrl())
+    self.tic()
+
+    self.assertSecurityGroup(internal_packing_list, [self.user_id,],
+        False)
+
+    self.assertSecurityGroup(hosting_subscription, [self.user_id, 'G-COMPANY', 
+        hosting_subscription.getReference()],
+        False)
+
+    self.assertSecurityGroup(software_instance, [self.user_id, 'G-COMPANY',
+        hosting_subscription.getReference()], False)
+
+    self.assertSecurityGroup(slave_instance, [self.user_id, 'G-COMPANY',
+        hosting_subscription.getReference()], False)
+
+    internal_packing_list_line.edit(
+        #quantity_unit="unit",
+        resource_value=self.portal.product_module.computer,
+        price=0.0,
+        quantity=1.0,
+        aggregate_value=hosting_subscription)
+    self.tic()
+
+    self.assertSecurityGroup(internal_packing_list, [self.user_id,],
+        False)
+
+    self.assertSecurityGroup(hosting_subscription, [self.user_id, 'G-COMPANY', 
+        project.getReference(),
+        hosting_subscription.getReference()],
+        False)
+
+    self.assertSecurityGroup(software_instance, [self.user_id, 'G-COMPANY',
+        project.getReference(),
+        hosting_subscription.getReference()], False)
+
+    self.assertSecurityGroup(slave_instance, [self.user_id, 'G-COMPANY',
+        project.getReference(),
+        hosting_subscription.getReference()], False)
+
+  def test_InternalPackingListLine_setAggregate_computer(self):
+    self._makePerson()
+    
+    project = self.portal.project_module.newContent(
+      portal_type="Project",
+    )
+    
+    computer = self.portal.computer_module.newContent(
+        portal_type='Computer',
+        reference='TESTCOMP-%s' % self.generateNewId())
+    
+    internal_packing_list = self.portal.internal_packing_list_module.newContent(
+        portal_type='Internal Packing List')
+
+    internal_packing_list_line = internal_packing_list.newContent(
+        portal_type='Internal Packing List Line')
+
+    internal_packing_list.edit(source_value=self.person_user,
+                               source_section_value=self.person_user,
+                             source_project_value=project,
+                             destination=self.person_user.getRelativeUrl(),
+                             destination_section=self.person_user.getRelativeUrl(),
+                             source_decision=self.person_user.getRelativeUrl(),
+                             destination_decision=self.person_user.getRelativeUrl(),
+                             destination_project_value=project,
+                             start_date=DateTime()-1,
+                             stop_date=DateTime()-1)
+
+    internal_packing_list.confirm()
+    internal_packing_list.stop()
+    internal_packing_list.deliver()
+
+    installation = self.portal.software_installation_module.newContent(
+        portal_type='Software Installation')
+    installation.edit(aggregate=computer.getRelativeUrl())
+    self.tic()
+
+    self.assertSecurityGroup(internal_packing_list, [self.user_id,],
+        False)
+
+    self.assertSecurityGroup(computer, [self.user_id, 'G-COMPANY',
+        computer.getUserId()],
+        False)
+    
+    self.assertSecurityGroup(installation, [self.user_id, 'G-COMPANY',
+        computer.getUserId()], False)
+
+    internal_packing_list_line.edit(
+        #quantity_unit="unit",
+        resource_value=self.portal.product_module.computer,
+        price=0.0,
+        quantity=1.0,
+        aggregate_value=computer)
+    self.tic()
+
+    self.assertSecurityGroup(internal_packing_list, [self.user_id,],
+        False)
+
+    self.assertSecurityGroup(computer, [self.user_id, 'G-COMPANY',
+        project.getReference(), computer.getUserId()],
+        False)
+
+    self.assertSecurityGroup(installation, [self.user_id, 'G-COMPANY',
+        project.getReference(), computer.getUserId()], False)

@@ -112,6 +112,7 @@ class Software(object):
                download_binary_dir_url=None, upload_binary_dir_url=None,
                download_from_binary_cache_url_blacklist=None,
                upload_to_binary_cache_url_blacklist=None,
+               download_from_binary_cache_force_url_list=None,
                software_min_free_space=None,
                buildout_debug=False,
                shared_part_list=''):
@@ -123,6 +124,9 @@ class Software(object):
 
     if upload_to_binary_cache_url_blacklist is None:
       upload_to_binary_cache_url_blacklist = []
+
+    if download_from_binary_cache_force_url_list is None:
+      download_from_binary_cache_force_url_list = []
 
     self.url = url
     self.software_root = software_root
@@ -151,6 +155,8 @@ class Software(object):
         download_from_binary_cache_url_blacklist
     self.upload_to_binary_cache_url_blacklist = \
         upload_to_binary_cache_url_blacklist
+    self.download_from_binary_cache_force_url_list = \
+        download_from_binary_cache_force_url_list
     self.software_min_free_space = software_min_free_space
 
   def check_free_space(self):
@@ -175,6 +181,12 @@ class Software(object):
     try:
       tarpath = os.path.join(cache_dir, self.software_url_hash)
       # Check if we can download from cache
+      force_binary_cache = False
+      for url_match in self.download_from_binary_cache_force_url_list:
+        if self.url.startswith(url_match):
+          force_binary_cache = True
+          self.logger.info('Binary cache forced for %r', self.url)
+          break
       if (not os.path.exists(self.software_path)) \
           and download_network_cached(
               self.download_binary_cache_url,
@@ -190,6 +202,8 @@ class Software(object):
           tar.extractall(path=self.software_root)
         finally:
           tar.close()
+      elif force_binary_cache:
+        self.logger.error('Binary cache forced for %r, but failed to download, will retry again', self.url)
       else:
         self._install_from_buildout()
         # Upload to binary cache if possible and allowed

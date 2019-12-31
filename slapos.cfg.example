@@ -162,3 +162,7 @@ upload-to-binary-cache-url-blacklist =
   http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD
   http://git.erp5.org/gitweb/slapos.git/blob_plain/refs/heads
   /
+
+# List of URL(s) which are forced to be downloaded from binary cache
+#download-from-binary-cache-force-url-list =
+#  https://lab.node.vifib.com/nexedi/slapos/raw/1.0.

@@ -188,6 +188,9 @@ def merged_options(args, configp):
   options["upload-to-binary-cache-url-blacklist"] = [
       url.strip() for url in options.get(
           "upload-to-binary-cache-url-blacklist", "").split('\n') if url]
+  options["download-from-binary-cache-force-url-list"] = [
+      url.strip() for url in options.get(
+          "download-from-binary-cache-force-url-list", "").split('\n') if url]
 
   options['firewall'] = {}
   if configp.has_section('firewall'):
@@ -259,6 +262,8 @@ def create_slapgrid_object(options, logger):
                       op.get('download-from-binary-cache-url-blacklist', []),
                   upload_to_binary_cache_url_blacklist=
                       op.get('upload-to-binary-cache-url-blacklist', []),
+                  download_from_binary_cache_force_url_list=
+                      op.get('download-from-binary-cache-force-url-list', []),
                   upload_cache_url=op.get('upload-cache-url'),
                   download_binary_dir_url=op.get('download-binary-dir-url'),
                   upload_binary_dir_url=op.get('upload-binary-dir-url'),
@@ -317,6 +322,7 @@ class Slapgrid(object):
                upload_binary_cache_url=None,
                download_from_binary_cache_url_blacklist=None,
                upload_to_binary_cache_url_blacklist=None,
+               download_from_binary_cache_force_url_list=None,
                upload_cache_url=None,
                download_binary_dir_url=None,
                upload_binary_dir_url=None,
@@ -362,6 +368,8 @@ class Slapgrid(object):
         download_from_binary_cache_url_blacklist
     self.upload_to_binary_cache_url_blacklist = \
         upload_to_binary_cache_url_blacklist
+    self.download_from_binary_cache_force_url_list = \
+        download_from_binary_cache_force_url_list
     self.upload_cache_url = upload_cache_url
     self.download_binary_dir_url = download_binary_dir_url
     self.upload_binary_dir_url = upload_binary_dir_url
@@ -555,6 +563,8 @@ stderr_logfile_backups=1
                 self.download_from_binary_cache_url_blacklist,
             upload_to_binary_cache_url_blacklist=
                 self.upload_to_binary_cache_url_blacklist,
+            download_from_binary_cache_force_url_list=
+                self.download_from_binary_cache_force_url_list,
             upload_cache_url=self.upload_cache_url,
             download_binary_dir_url=self.download_binary_dir_url,
             upload_binary_dir_url=self.upload_binary_dir_url,

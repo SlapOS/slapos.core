@@ -16,15 +16,15 @@
         </item>
         <item>
             <key> <string>actbox_name</string> </key>
-            <value> <string>Order</string> </value>
+            <value> <string>Stop</string> </value>
         </item>
         <item>
             <key> <string>actbox_url</string> </key>
-            <value> <string>%(content_url)s/Base_viewWorkflowActionDialog?workflow_action=order_action</string> </value>
+            <value> <string>%(content_url)s/Base_viewWorkflowActionDialog?workflow_action=stop_action</string> </value>
         </item>
         <item>
             <key> <string>after_script_name</string> </key>
-            <value> <string>order</string> </value>
+            <value> <string>stop</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -38,7 +38,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>order_action</string> </value>
+            <value> <string>stop_action</string> </value>
         </item>
         <item>
             <key> <string>new_state_id</string> </key>
@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Order Action</string> </value>
+            <value> <string>Stop Action</string> </value>
         </item>
         <item>
             <key> <string>trigger_type</string> </key>

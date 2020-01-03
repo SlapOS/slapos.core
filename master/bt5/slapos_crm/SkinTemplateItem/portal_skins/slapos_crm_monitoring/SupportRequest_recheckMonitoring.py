@@ -16,10 +16,13 @@ document = context.getAggregateValue()
 if document is None:
   return True
 
+
 aggregate_portal_type = document.getPortalType()
 memcached_dict = context.Base_getSlapToolMemcachedDict()
 
 if aggregate_portal_type == "Computer":
+  if document.getMonitorScope() == "disabled":
+    return "Monitor is disabled to the related %s." % document.getPortalType()
   try:
     d = memcached_dict[document.getReference()]
     d = json.loads(d)
@@ -33,6 +36,9 @@ if aggregate_portal_type == "Computer":
 
 if aggregate_portal_type == "Software Installation":
   computer_title = document.getAggregateTitle()
+  if document.getAggregateValue().getMonitorScope() == "disabled":
+    return "Monitor is disabled to the related %s." % document.getPortalType()
+
   if document.getSlapState() not in ["start_requested", "stop_requested"]:
     return "Software Installation is Destroyed."
 
@@ -55,6 +61,9 @@ if aggregate_portal_type == "Software Installation":
 
 
 if aggregate_portal_type == "Hosting Subscription":
+  if document.getMonitorScope() == "disabled":
+    return "Monitor is disabled to the related %s." % document.getPortalType()
+
   message_list = []
   hosting_subscription = document
 
@@ -69,17 +78,19 @@ if aggregate_portal_type == "Hosting Subscription":
     if instance.getAggregate() is not None:
       computer = instance.getAggregateValue().getParentValue()
       if instance.getPortalType() == "Software Instance" and \
-          computer.getAllocationScope() in ["open/public", "open/friend"] and \
+          computer.getAllocationScope() in ["open/public", "open/friend", "open/subscription"] and \
           instance.getSlapState() == "start_requested" and \
           instance.SoftwareInstance_hasReportedError():
         message_list.append("%s has error (%s, %s at %s scope %s)" % (instance.getReference(), instance.getTitle(),
                                                                       instance.getUrlString(), computer.getReference(),
                                                                       computer.getAllocationScope()))
       if instance.getPortalType() == "Software Instance" and \
-          computer.getAllocationScope() in ["closed/outdated", "open/personal"]:
-        message_list.append("%s on a %s computer" % (instance, computer.getAllocationScope()) )
+          computer.getAllocationScope() in ["closed/outdated", "open/personal"] and \
+          instance.getSlapState() == "start_requested" and \
+          instance.SoftwareInstance_hasReportedError():
+        message_list.append("%s on a %s computer" % (instance.getReference(), computer.getAllocationScope()) )
     else:
-      message_list.append("%s is not allocated" % instance)
+      message_list.append("%s is not allocated" % instance.getReference())
   return ",".join(message_list)
 
 return None

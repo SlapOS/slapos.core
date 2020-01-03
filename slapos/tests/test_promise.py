@@ -1588,6 +1588,67 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
     self.assertFalse(os.path.exists(stale_pyc))
     self.assertFalse(os.path.exists(stale_pyo))
 
+  def test_promise_cleanup_output_history(self):
+    promise_name = 'dummy.py'
+    promise_content = """from zope.interface import implementer
+from slapos.grid.promise import interface
+from slapos.grid.promise import GenericPromise
+
+@implementer(interface.IPromise)
+class RunPromise(GenericPromise):
+
+  def sense(self):
+    self.logger.info("success")
+
+  def anomaly(self):
+    return self._anomaly()
+
+  def test(self):
+    return self._test()
+"""
+
+    promise_path = os.path.join(self.plugin_dir, promise_name)
+    self.writeFile(promise_path, promise_content)
+    self.writeInit()
+
+    # output .slapgrid/promise/result
+    # history .slapgrid/promise/history'
+    result_dir = os.path.join(self.partition_dir, '.slapgrid', 'promise', 'result')
+    history_dir = os.path.join(self.partition_dir, '.slapgrid', 'promise', 'history')
+    os.makedirs(result_dir)
+    os.makedirs(history_dir)
+
+    def createFile(path, name):
+      filepath = os.path.join(path, name)
+      with open(filepath, 'w') as fh:
+        fh.write('')
+      return filepath
+
+    dummy_result = createFile(result_dir, 'dummy.status.json')
+    dummy_history = createFile(history_dir, 'dummy.history.json')
+    dummy_history_old = createFile(history_dir, 'dummy.history.old.json')
+
+    stale_result = createFile(result_dir, 'stale.status.json')
+    stale_history = createFile(history_dir, 'stale.history.json')
+    stale_history_old = createFile(history_dir, 'stale.history.old.json')
+
+    def assertPathExists(path):
+      self.assertTrue(os.path.exists(path))
+
+    def assertPathNotExists(path):
+      self.assertFalse(os.path.exists(path))
+
+    self.initialisePromise()
+    self.launcher.run()
+
+    assertPathExists(dummy_result)
+    assertPathExists(dummy_history)
+    assertPathExists(dummy_history_old)
+
+    assertPathNotExists(stale_result)
+    assertPathNotExists(stale_history)
+    assertPathNotExists(stale_history_old)
+
   def test_promise_anomaly_disabled(self):
     self.initialisePromise()
     promise_process = self.createPromiseProcess()

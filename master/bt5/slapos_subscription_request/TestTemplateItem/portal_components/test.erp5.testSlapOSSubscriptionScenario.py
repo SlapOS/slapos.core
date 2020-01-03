@@ -33,6 +33,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.portal.portal_alarms.slapos_subscription_request_process_draft.setEnabled(True)
     self.portal.portal_alarms.slapos_subscription_request_process_ordered.setEnabled(True)
     self.portal.portal_alarms.slapos_subscription_request_process_planned.setEnabled(True)
+    self.portal.portal_alarms.slapos_subscription_request_process_confirmed.setEnabled(True)
 
     DefaultScenarioMixin.afterSetUp(self)
 

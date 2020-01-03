@@ -838,6 +838,70 @@ class TestSubscriptionRequest_sendAcceptedNotification(TestSubscriptionSkinsMixi
       event.getTextContent(),'%s %s password' % (person.getTitle(), person.getUserId()))
 
 
+class TestSubscriptionRequest_notifyInstanceIsReady(TestSubscriptionSkinsMixin):
+
+  def _makeNotificationMessage(self, reference,
+      content_type='text/html', text_content="${name} ${subscription_title} ${hosting_subscription_relative_url}"):
+
+    notification_message = self.portal.notification_message_module.newContent(
+      portal_type="Notification Message",
+      text_content_substitution_mapping_method_id='NotificationMessage_getSubstitutionMappingDictFromArgument',
+      title='TestSubscriptionSkins Notification Message %s' % reference,
+      text_content=text_content,
+      content_type=content_type,
+      reference=reference,
+      version=999,
+      language="en"
+      )
+    notification_message.validate()
+    return notification_message
+
+  @simulate('SoftwareInstance_hasReportedError', '*args, **kwargs','return')
+  def test_send_notification_instance_is_ready(self):
+    email = "abc%s@nexedi.com" % self.new_id
+    name = "Cous Cous %s" % self.new_id
+
+    self._makeNotificationMessage(reference='subscription_request-instance-is-ready',
+                                  text_content="${name} ${subscription_title} ${hosting_subscription_relative_url}")
+    person, _ = self.portal.SubscriptionRequest_createUser(name=name, email=email)
+    person.setDefaultEmailText(email)
+
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+    price=195.5,
+    price_currency="currency_module/EUR",
+    default_email_text="abc%s@nexedi.com" % self.new_id)
+    self._makeTree()
+    _, p1 = self._makeComputer()
+    _, p2 = self._makeComputer()
+
+    self.person_user = person
+    self.hosting_subscription.setDestinationSection(self.person_user.getRelativeUrl())
+    subscription_request.setAggregateValue(self.hosting_subscription)
+    self.software_instance.setAggregateValue(p1)
+    self.requested_software_instance.setAggregateValue(p2)
+    
+    self.tic()
+    subscription_request.plan()
+    subscription_request.order()
+    subscription_request.confirm()
+
+    self.tic()
+    subscription_request.SubscriptionRequest_notifyInstanceIsReady()
+
+    self.tic()
+    event = subscription_request.getFollowUpRelatedValue(portal_type="Mail Message")
+
+    self.assertEqual(event.getTitle(),
+      'TestSubscriptionSkins Notification Message subscription_request-instance-is-ready')
+    self.assertEqual(event.getContentType(),'text/html')
+
+    self.assertEqual(
+      event.getTextContent(),'%s %s %s' % (person.getTitle(), subscription_request.getTitle(),
+        self.hosting_subscription.getRelativeUrl()))
+
+
+
 #class SubscriptionRequest_checkPaymentBalance(TestSubscriptionSkinsMixin):
 #  def test(self):
 #    raise

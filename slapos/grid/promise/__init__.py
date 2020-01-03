@@ -29,6 +29,8 @@
 ##############################################################################
 
 import os
+import glob
+import fnmatch
 import sys
 import logging
 import time
@@ -728,6 +730,7 @@ class PromiseLauncher(object):
     }
     error = 0
     success = 0
+    promise_name_list = []
     if os.path.exists(self.promise_folder) and os.path.isdir(self.promise_folder):
       for promise_name in os.listdir(self.promise_folder):
         for suffix in ['.pyc', '.pyo']:
@@ -745,6 +748,7 @@ class PromiseLauncher(object):
             not promise_name.endswith('.py'):
           continue
 
+        promise_name_list.append(promise_name)
         if self.run_only_promise_list is not None and not \
             promise_name in self.run_only_promise_list:
           continue
@@ -786,6 +790,31 @@ class PromiseLauncher(object):
               error += 1
             else:
               success += 1
+
+    if not self.run_only_promise_list and len(promise_name_list) > 0:
+      # cleanup stale json files
+      promise_output_dir_content = glob.glob(os.path.join(self.promise_output_dir, '*.status.json'))
+      promise_history_output_dir_content = glob.glob(os.path.join(self.promise_history_output_dir, '*.history*.json'))
+      for promise_file_name in promise_name_list:
+        promise_name = promise_file_name[:-3]
+        promise_status_json_name = promise_name + '.status.json'
+        promise_history_json_match = promise_name + '.history*.json'
+        promise_output_dir_content = [q for q in promise_output_dir_content if os.path.basename(q) != promise_status_json_name]
+        promise_history_output_dir_content = [q for q in promise_history_output_dir_content if not fnmatch.fnmatch(os.path.basename(q), promise_history_json_match)]
+
+      promise_output_dir_cleanup = [os.path.join(self.promise_output_dir, q) for q in promise_output_dir_content]
+      promise_history_output_dir_cleanup = [os.path.join(self.promise_history_output_dir, q) for q in promise_history_output_dir_content]
+      for path in promise_output_dir_cleanup + promise_history_output_dir_cleanup:
+        try:
+          os.unlink(path)
+        except Exception:
+          self.logger.exception('Problem while removing stale file %s', path)
+        else:
+          self.logger.info('Removed stale file %s', path)
+      # drop old promises from new_state_dict
+      for key in new_state_dict.keys():
+        if key not in promise_name_list:
+          new_state_dict.pop(key, None)
 
     if not self.run_only_promise_list and os.path.exists(self.legacy_promise_folder) \
         and os.path.isdir(self.legacy_promise_folder):

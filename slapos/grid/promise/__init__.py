@@ -728,6 +728,7 @@ class PromiseLauncher(object):
     }
     error = 0
     success = 0
+    promise_name_list = []
     if os.path.exists(self.promise_folder) and os.path.isdir(self.promise_folder):
       for promise_name in os.listdir(self.promise_folder):
         for suffix in ['.pyc', '.pyo']:
@@ -745,6 +746,7 @@ class PromiseLauncher(object):
             not promise_name.endswith('.py'):
           continue
 
+        promise_name_list.append(promise_name)
         if self.run_only_promise_list is not None and not \
             promise_name in self.run_only_promise_list:
           continue
@@ -787,6 +789,13 @@ class PromiseLauncher(object):
             else:
               success += 1
 
+    if not self.run_only_promise_list:
+      # use promise_name_list to build the filenames to clean
+      # for each directory where there might be some names generated
+      # remove files which do not match the required pattern
+      # inspect _savePromiseResult and similar to find how the names
+      # of files in paths are generated...or not?
+      pass
     if not self.run_only_promise_list and os.path.exists(self.legacy_promise_folder) \
         and os.path.isdir(self.legacy_promise_folder):
       # run legacy promise styles

@@ -14,8 +14,9 @@ def isSupportRequestCreationClosed(destination_decision=None):
                             destination_decision).getUid()
 
   support_request_amount = context.portal_catalog.countResults(**kw)[0][0]
-  return support_request_amount >= limit
+  return support_request_amount >= int(limit)
 
 
 return CachingMethod(isSupportRequestCreationClosed,
-         "isSupportRequestCreationClosed")(destination_decision=destination_decision)
+         "isSupportRequestCreationClosed",
+         cache_factory="erp5_content_short")(destination_decision=destination_decision)

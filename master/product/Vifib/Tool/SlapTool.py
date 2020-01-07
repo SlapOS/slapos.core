@@ -863,10 +863,22 @@ class SlapTool(BaseTool):
 
   def _logAccess(self, user_reference, context_reference, text):
     memcached_dict = self.Base_getSlapToolMemcachedDict()
+
+    previous = self._getCachedAccessInfo(context_reference)
+    created_at = rfc1123_date(DateTime())
+    since = created_at
+    if previous is not None:
+      previous_json = json.loads(previous)
+      if text.split(" ")[0] == previous_json.get("text", "").split(" ")[0]:
+        since = previous_json.get("since",
+          previous_json.get("created_at", rfc1123_date(DateTime())))
+
+
     value = json.dumps({
       'user': '%s' % user_reference,
-      'created_at': '%s' % rfc1123_date(DateTime()),
+      'created_at': '%s' % created_at,
       'text': '%s' % text,
+      'since': '%s' % since
     })
     memcached_dict[context_reference] = value
 
@@ -1098,17 +1110,20 @@ class SlapTool(BaseTool):
 
   def _getAccessStatus(self, context_reference):
     d = self._getCachedAccessInfo(context_reference)
+    last_modified = rfc1123_date(DateTime())
     if d is None:
       if context_reference is None:
         d = {
           "user": "SlapOS Master",
-          'created_at': '%s' % rfc1123_date(DateTime()),
+          'created_at': '%s' % last_modified,
+          'since': '%s' % last_modified,
           "text": "#error no data found"
         }
       else:
         d = {
           "user": "SlapOS Master",
-          'created_at': '%s' % rfc1123_date(DateTime()),
+          'created_at': '%s' % last_modified,
+          'since': '%s' % last_modified,
           "text": "#error no data found for %s" % context_reference
         }
       # Prepare for xml marshalling
@@ -1123,7 +1138,7 @@ class SlapTool(BaseTool):
                                     'public, max-age=60, stale-if-error=604800')
     self.REQUEST.response.setHeader('Vary',
                                     'REMOTE_USER')
-    self.REQUEST.response.setHeader('Last-Modified', rfc1123_date(DateTime()))
+    self.REQUEST.response.setHeader('Last-Modified', last_modified)
     self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
     self.REQUEST.response.setBody(xml_marshaller.xml_marshaller.dumps(d))
     return self.REQUEST.response

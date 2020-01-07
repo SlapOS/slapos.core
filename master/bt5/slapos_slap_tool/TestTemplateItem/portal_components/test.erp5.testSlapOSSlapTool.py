@@ -13,7 +13,6 @@ import xml.dom.ext.reader.Sax
 import xml.dom.ext
 import StringIO
 import difflib
-import transaction
 from OFS.Traversable import NotFound
 
 class Simulator:
@@ -451,6 +450,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
   def test_not_accessed_getComputerStatus(self):
     self.login(self.computer_user_id)
     created_at = rfc1123_date(DateTime())
+    since = created_at
     response = self.portal_slap.getComputerStatus(self.computer_id)
     self.assertEqual(200, response.status)
     self.assertEqual('public, max-age=60, stale-if-error=604800',
@@ -474,6 +474,8 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#error no data found for %(computer_id)s</string>
     <string>user</string>
@@ -482,6 +484,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
   created_at=created_at,
+  since=since,
   computer_id=self.computer_id
 )
     self.assertEqual(expected_xml, got_xml,
@@ -492,6 +495,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
 
     self.portal_slap.getFullComputerInformation(self.computer_id)
     created_at = rfc1123_date(DateTime())
+    since = created_at
     response = self.portal_slap.getComputerStatus(self.computer_id)
     self.assertEqual(200, response.status)
     self.assertEqual('public, max-age=60, stale-if-error=604800',
@@ -516,6 +520,8 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#access %(computer_id)s</string>
     <string>user</string>
@@ -524,6 +530,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
   created_at=created_at,
+  since=since,
   computer_id=self.computer_id
 )
     self.assertEqual(expected_xml, got_xml,
@@ -549,6 +556,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
         error_log)
       self.assertEqual('None', response)
       created_at = rfc1123_date(DateTime())
+      since = created_at
       response = self.portal_slap.getComputerStatus(self.computer_id)
       # check returned XML
       xml_fp = StringIO.StringIO()
@@ -563,6 +571,8 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#error bang</string>
     <string>user</string>
@@ -571,6 +581,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
     created_at=created_at,
+    since=since,
     computer_id=self.computer_id,
   )
       self.assertEqual(expected_xml, got_xml,
@@ -618,6 +629,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     self.computer_bang_simulator = tempfile.mkstemp()[1]
     self.login(self.computer_user_id)
     created_at = rfc1123_date(DateTime())
+    since = created_at
     software_installation = self.start_requested_software_installation
     url_string = software_installation.getUrlString()
     response = self.portal_slap.getSoftwareInstallationStatus(url_string,
@@ -644,6 +656,8 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#error no data found for %(reference)s</string>
     <string>user</string>
@@ -652,6 +666,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
   created_at=created_at,
+  since=since,
   reference=software_installation.getReference()
 )
     self.assertEqual(expected_xml, got_xml,
@@ -691,6 +706,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
                   url_string, self.computer_id)
     self.assertEqual('None', response)
     created_at = rfc1123_date(DateTime())
+    since = created_at
     response = self.portal_slap.getSoftwareInstallationStatus(
                       url_string, self.computer_id)
     # check returned XML
@@ -706,6 +722,8 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#access software release %(url_string)s available</string>
     <string>user</string>
@@ -714,6 +732,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
     created_at=created_at,
+    since=since,
     url_string=url_string,
     computer_id=self.computer_id,
   )
@@ -730,6 +749,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
                   url_string, self.computer_id)
     self.assertEqual('None', response)
     created_at = rfc1123_date(DateTime())
+    since = created_at
     response = self.portal_slap.getSoftwareInstallationStatus(
                       url_string, self.computer_id)
     # check returned XML
@@ -745,6 +765,8 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#building software release %(url_string)s</string>
     <string>user</string>
@@ -753,6 +775,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
     created_at=created_at,
+    since=since,
     url_string=url_string,
     computer_id=self.computer_id,
   )
@@ -769,6 +792,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
                   url_string, self.computer_id, 'error log')
     self.assertEqual('None', response)
     created_at = rfc1123_date(DateTime())
+    since = created_at
     response = self.portal_slap.getSoftwareInstallationStatus(
                       url_string, self.computer_id)
     # check returned XML
@@ -784,6 +808,8 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#error while installing %(url_string)s</string>
     <string>user</string>
@@ -792,6 +818,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
     created_at=created_at,
+    since=since,
     url_string=url_string,
     computer_id=self.computer_id,
   )
@@ -1091,6 +1118,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     partition_id = self.start_requested_software_instance.getAggregateValue(
         portal_type='Computer Partition').getReference()
     created_at = rfc1123_date(DateTime())
+    since = created_at
     self.login(self.start_requested_software_instance.getUserId())
     response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
       partition_id)
@@ -1115,6 +1143,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#error no data found for %(instance_guid)s</string>
     <string>user</string>
@@ -1123,6 +1153,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
   created_at=created_at,
+  since=since,
   instance_guid=self.start_requested_software_instance.getReference(),
 )
     self.assertEqual(expected_xml, got_xml,
@@ -1133,6 +1164,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     partition_id = self.start_requested_software_instance.getAggregateValue(
         portal_type='Computer Partition').getReference()
     created_at = rfc1123_date(DateTime())
+    since = created_at
     self.login(self.start_requested_software_instance.getUserId())
     self.portal_slap.registerComputerPartition(self.computer_id, partition_id)
     response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
@@ -1158,6 +1190,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#error no data found for %(instance_guid)s</string>
     <string>user</string>
@@ -1166,6 +1200,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
   created_at=created_at,
+  since=since,
   instance_guid=self.start_requested_software_instance.getReference(),
   computer_id=self.computer_id,
   partition_id=partition_id
@@ -1507,6 +1542,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       partition_id, error_log)
     self.assertEqual('None', response)
     created_at = rfc1123_date(DateTime())
+    since = created_at
     response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
       partition_id)
     # check returned XML
@@ -1522,6 +1558,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#error while instanciating: The error</string>
     <string>user</string>
@@ -1530,6 +1568,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
   created_at=created_at,
+  since = since,
   instance_guid=self.start_requested_software_instance.getReference(),
 )
     self.assertEqual(expected_xml, got_xml,
@@ -1557,6 +1596,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         partition_id, error_log)
       self.assertEqual('OK', response)
       created_at = rfc1123_date(DateTime())
+      since = created_at
       response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
         partition_id)
       # check returned XML
@@ -1572,6 +1612,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#error bang called</string>
     <string>user</string>
@@ -1580,6 +1622,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
     created_at=created_at,
+    since=since,
     instance_guid=self.start_requested_software_instance.getReference(),
   )
       self.assertEqual(expected_xml, got_xml,
@@ -1832,6 +1875,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       partition_id)
     self.assertEqual('None', response)
     created_at = rfc1123_date(DateTime())
+    since = created_at
     response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
       partition_id)
     # check returned XML
@@ -1847,6 +1891,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#access Instance correctly stopped</string>
     <string>user</string>
@@ -1855,6 +1901,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
   created_at=created_at,
+  since=since,
   instance_guid=self.start_requested_software_instance.getReference(),
 )
     self.assertEqual(expected_xml, got_xml,
@@ -1869,6 +1916,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       partition_id)
     self.assertEqual('None', response)
     created_at = rfc1123_date(DateTime())
+    since = created_at
     response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
       partition_id)
     # check returned XML
@@ -1884,6 +1932,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#access Instance correctly started</string>
     <string>user</string>
@@ -1892,6 +1942,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
   created_at=created_at,
+  since=since,
   instance_guid=self.start_requested_software_instance.getReference(),
 )
     self.assertEqual(expected_xml, got_xml,
@@ -2098,6 +2149,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   def test_not_accessed_getComputerStatus(self):
     self.login(self.person_user_id)
     created_at = rfc1123_date(DateTime())
+    since = created_at
     response = self.portal_slap.getComputerStatus(self.computer_id)
     self.assertEqual(200, response.status)
     self.assertEqual('public, max-age=60, stale-if-error=604800',
@@ -2121,6 +2173,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#error no data found for %(computer_id)s</string>
     <string>user</string>
@@ -2129,6 +2183,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
   created_at=created_at,
+  since=since,
   computer_id=self.computer_id
 )
     self.assertEqual(expected_xml, got_xml,
@@ -2139,6 +2194,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     self.portal_slap.getFullComputerInformation(self.computer_id)
     self.login(self.person_user_id)
     created_at = rfc1123_date(DateTime())
+    since = created_at
     response = self.portal_slap.getComputerStatus(self.computer_id)
     self.assertEqual(200, response.status)
     self.assertEqual('public, max-age=60, stale-if-error=604800',
@@ -2163,6 +2219,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#access %(computer_id)s</string>
     <string>user</string>
@@ -2171,6 +2229,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
   created_at=created_at,
+  since=since,
   computer_id=self.computer_id
 )
     self.assertEqual(expected_xml, got_xml,
@@ -2195,6 +2254,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         error_log)
       self.assertEqual('None', response)
       created_at = rfc1123_date(DateTime())
+      since = created_at
       response = self.portal_slap.getComputerStatus(self.computer_id)
       # check returned XML
       xml_fp = StringIO.StringIO()
@@ -2209,6 +2269,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#error bang</string>
     <string>user</string>
@@ -2217,6 +2279,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
     created_at=created_at,
+    since=since,
     person_reference=self.person_reference,
   )
       self.assertEqual(expected_xml, got_xml,
@@ -2232,6 +2295,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     partition_id = self.start_requested_software_instance.getAggregateValue(
         portal_type='Computer Partition').getReference()
     created_at = rfc1123_date(DateTime())
+    since = created_at
     self.login(self.start_requested_software_instance.getUserId())
     response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
       partition_id)
@@ -2256,6 +2320,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#error no data found for %(instance_guid)s</string>
     <string>user</string>
@@ -2264,6 +2330,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
   created_at=created_at,
+  since=since,
   instance_guid=self.start_requested_software_instance.getReference(),
 )
     self.assertEqual(expected_xml, got_xml,
@@ -2275,6 +2342,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     partition_id = self.start_requested_software_instance.getAggregateValue(
         portal_type='Computer Partition').getReference()
     created_at = rfc1123_date(DateTime())
+    since = created_at
     self.login(self.start_requested_software_instance.getUserId())
     self.portal_slap.registerComputerPartition(self.computer_id, partition_id)
     self.login(self.person_user_id)
@@ -2301,6 +2369,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#error no data found for %(instance_guid)s</string>
     <string>user</string>
@@ -2309,6 +2379,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
   created_at=created_at,
+  since=since,
   instance_guid=self.start_requested_software_instance.getReference(),
   computer_id=self.computer_id,
   partition_id=partition_id
@@ -2587,6 +2658,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         partition_id, error_log)
       self.assertEqual('OK', response)
       created_at = rfc1123_date(DateTime())
+      since = created_at
       response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
         partition_id)
       # check returned XML
@@ -2602,6 +2674,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
     <string>text</string>
     <string>#error bang called</string>
     <string>user</string>
@@ -2610,6 +2684,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
     created_at=created_at,
+    since=since,
     person_reference=self.person_reference,
   )
       self.assertEqual(expected_xml, got_xml,

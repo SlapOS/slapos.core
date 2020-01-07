@@ -860,13 +860,9 @@ class SlapTool(BaseTool):
   # Internal methods
   ####################################################
 
-  def _getMemcachedDict(self):
-    return self.getPortalObject().portal_memcached.getMemcachedDict(
-      key_prefix='slap_tool',
-      plugin_path='portal_memcached/default_memcached_plugin')
 
   def _logAccess(self, user_reference, context_reference, text):
-    memcached_dict = self._getMemcachedDict()
+    memcached_dict = self.Base_getSlapToolMemcachedDict()
     value = json.dumps({
       'user': '%s' % user_reference,
       'created_at': '%s' % rfc1123_date(DateTime()),
@@ -1080,7 +1076,7 @@ class SlapTool(BaseTool):
     return "OK"
 
   def _getCachedAccessInfo(self, context_reference):
-    memcached_dict = self._getMemcachedDict()
+    memcached_dict = self.Base_getSlapToolMemcachedDict()
     try:
       if context_reference is None:
         raise KeyError

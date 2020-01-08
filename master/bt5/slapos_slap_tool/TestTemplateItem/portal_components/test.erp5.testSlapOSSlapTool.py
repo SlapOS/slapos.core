@@ -7,6 +7,7 @@ from App.Common import rfc1123_date
 
 import os
 import tempfile
+import time
 
 # blurb to make nice XML comparisions
 import xml.dom.ext.reader.Sax
@@ -1568,6 +1569,92 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 </marshal>
 """ % dict(
   created_at=created_at,
+  since = since,
+  instance_guid=self.start_requested_software_instance.getReference(),
+)
+    self.assertEqual(expected_xml, got_xml,
+        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+
+  def test_softwareInstanceError_twice(self):
+    self._makeComplexComputer()
+    partition_id = self.start_requested_software_instance.getAggregateValue(
+        portal_type='Computer Partition').getReference()
+    self.login(self.start_requested_software_instance.getUserId())
+    error_log = 'The error'
+    response = self.portal_slap.softwareInstanceError(self.computer_id,
+      partition_id, error_log)
+    self.assertEqual('None', response)
+    created_at = rfc1123_date(DateTime())
+    since = created_at
+    response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
+      partition_id)
+    # check returned XML
+    xml_fp = StringIO.StringIO()
+
+    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
+        stream=xml_fp)
+    xml_fp.seek(0)
+    got_xml = xml_fp.read()
+    expected_xml = """\
+<?xml version='1.0' encoding='UTF-8'?>
+<marshal>
+  <dictionary id='i2'>
+    <string>created_at</string>
+    <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
+    <string>text</string>
+    <string>#error while instanciating: The error</string>
+    <string>user</string>
+    <string>%(instance_guid)s</string>
+  </dictionary>
+</marshal>
+""" % dict(
+  created_at=created_at,
+  since = since,
+  instance_guid=self.start_requested_software_instance.getReference(),
+)
+    self.assertEqual(expected_xml, got_xml,
+        '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+
+    self.unpinDateTime()
+    time.sleep(1)
+    self.pinDateTime(DateTime())
+
+    response = self.portal_slap.softwareInstanceError(self.computer_id,
+      partition_id, error_log)
+    self.assertEqual('None', response)
+    ncreated_at = rfc1123_date(DateTime())
+    response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
+      partition_id)
+    # check returned XML
+    xml_fp = StringIO.StringIO()
+
+    xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
+        stream=xml_fp)
+    xml_fp.seek(0)
+    got_xml = xml_fp.read()
+
+    self.assertNotEquals(created_at, ncreated_at)
+    self.assertNotEquals(since, ncreated_at)
+    self.assertEquals(since, created_at)
+    
+    expected_xml = """\
+<?xml version='1.0' encoding='UTF-8'?>
+<marshal>
+  <dictionary id='i2'>
+    <string>created_at</string>
+    <string>%(created_at)s</string>
+    <string>since</string>
+    <string>%(since)s</string>
+    <string>text</string>
+    <string>#error while instanciating: The error</string>
+    <string>user</string>
+    <string>%(instance_guid)s</string>
+  </dictionary>
+</marshal>
+""" % dict(
+  created_at=ncreated_at,
   since = since,
   instance_guid=self.start_requested_software_instance.getReference(),
 )

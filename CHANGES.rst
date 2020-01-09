@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.5.6 (2020-01-09)
+------------------
+
+ * slapos/grid/promise: Cleanup plugin folder from removed promises and also stale json files for those
+ * slapos/grid: Provide download-from-binary-cache-force-url-list option support in slapos.cfg
+
 1.5.5 (2019-12-17)
 ------------------
 

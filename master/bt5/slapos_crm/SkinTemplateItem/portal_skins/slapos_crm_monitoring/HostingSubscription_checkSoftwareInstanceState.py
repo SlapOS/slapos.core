@@ -40,7 +40,7 @@ for instance in software_instance_list:
     has_newest_allocated_instance = True
     if instance.getPortalType() == "Software Instance" and \
         computer_partition.getParentValue().getMonitorScope() == "enabled" and \
-        instance.SoftwareInstance_hasReportedError():
+        instance.SoftwareInstance_hasReportedError(tolerance=30):
       return context.HostingSubscription_createSupportRequestEvent(
         instance, 'slapos-crm-hosting-subscription-instance-state.notification')
   else:

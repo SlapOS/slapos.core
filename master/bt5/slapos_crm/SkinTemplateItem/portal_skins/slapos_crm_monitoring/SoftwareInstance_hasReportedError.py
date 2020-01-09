@@ -13,18 +13,23 @@ if context.getAggregateValue(portal_type="Computer Partition") is not None:
   d = json.loads(d)
   result = d['text']
   last_contact = DateTime(d.get('created_at'))
+  since = DateTime(d.get('since'))
 
   # Optimise by checking memcache information first.
   if result.startswith('#error '):
-    if include_created_at:
-      return result, last_contact
-    return result
+    if ((DateTime()-since)*24*60) > tolerance:
+      if include_created_at and not include_since:
+        return result, last_contact
+      elif include_created_at and include_since:
+        return result, last_contact, since
+      return result
 
   # XXX time limit of 48 hours for run at least once.
-  if include_message and include_created_at:
+  if include_message and include_created_at and not include_since:
     return result, last_contact
-
-  if include_message and not include_created_at:
+  elif include_message and include_created_at and include_since:
+    return result, last_contact, since
+  elif include_message and not include_created_at:
     return result
 
 return None

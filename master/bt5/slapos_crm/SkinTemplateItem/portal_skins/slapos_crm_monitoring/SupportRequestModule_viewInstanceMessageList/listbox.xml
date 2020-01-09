@@ -417,6 +417,14 @@
                           <string>message</string>
                           <string>Error Message</string>
                         </tuple>
+                        <tuple>
+                          <string>created_at</string>
+                          <string>Date</string>
+                        </tuple>
+                        <tuple>
+                          <string>age</string>
+                          <string>Age</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

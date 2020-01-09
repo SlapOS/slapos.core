@@ -33,6 +33,9 @@ if aggregate_portal_type == "Hosting Subscription":
       if instance.getPortalType() == "Software Instance" and \
           instance.getSlapState() == "start_requested" and \
           instance.SoftwareInstance_hasReportedError():
+        m, create_at, since = instance.SoftwareInstance_hasReportedError(include_message=True,
+                                                                  include_created_at=True,
+                                                                  include_since=True)
         message_list.append(newTempDocument(
           document, instance.getRelativeUrl(), **{
             "uid": instance.getUid(),
@@ -41,12 +44,15 @@ if aggregate_portal_type == "Hosting Subscription":
             "software_release": instance.getUrlString(),
             "computer_reference": computer.getReference(),
             "allocation_scope": computer.getAllocationScope(),
-            "message" : instance.SoftwareInstance_hasReportedError(include_message=True)}))
+            "message" : m,
+            "created_at": create_at,
+            "since": since,
+            "age": "%s m ago" % (int((DateTime()-DateTime(since))*24*60))}))
     else:
       message_list.append(newTempDocument(
         document, instance.getRelativeUrl(), **{
           "uid": instance.getUid(),
-          "title": instance.title(),
+          "title": instance.getTitle(),
           "specialise_title": hosting_subscription.getTitle(),
           "software_release": instance.getUrlString(),
           "computer_reference": "",

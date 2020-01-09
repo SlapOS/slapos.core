@@ -41,7 +41,7 @@ def checkForError(reference):
 
 for computer in portal.portal_catalog(
   default_allocation_scope_uid = [personal_category_uid, public_category_uid, friend_category_uid],
-  select_list="reference",
+  select_list={"reference": None},
   **kw):
 
   uid_list = [computer.getUid()]
@@ -52,7 +52,7 @@ for computer in portal.portal_catalog(
   if computer_partition_uid_list:
     for instance in portal.portal_catalog(
         portal_type="Software Instance",
-        select_list="specialise_uid, reference",
+        select_list={"specialise_uid" : None, "reference": None},
         default_aggregate_uid=computer_partition_uid_list):
       instance_count += 1
       if instance.specialise_uid is not None:

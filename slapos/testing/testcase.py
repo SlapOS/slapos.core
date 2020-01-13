@@ -180,6 +180,7 @@ def checkSoftware(slap, software_url):
           "| egrep -v /parts/firefox-.*/ "
           "| egrep -v /parts/chromium-.*/ "
           "| egrep -v /parts/chromedriver-.*/ "
+          "| egrep -v /parts/renderjs-repository.git/node_modules/.* "
 
           # nss has no valid rpath. It does not seem to be a problem in our case.
           "| egrep -v /parts/nss/ "

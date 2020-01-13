@@ -210,7 +210,8 @@
                       "editable": 1,
                       "editable_column_list": [],
                       "key": "slap_connection_listbox",
-                      "lines": 10,
+                      // XXXX this listbox doesn't handle pagination correctly. Let's hope we will never have more than 100 connection parameters.
+                      "lines": 100,
                       "list_method": "SoftwareInstance_getConnectionParameterList",
                       "list_method_template": url_list[1] + "ERP5Document_getHateoas?mode=search&" +
                         "list_method=SoftwareInstance_getConnectionParameterList&relative_url=" +

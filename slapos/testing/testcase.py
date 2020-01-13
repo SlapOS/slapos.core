@@ -433,7 +433,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
 
   @classmethod
   def _storeSystemSnapshot(cls, name):
-    """Store a snapshot of standalone slapos
+    """Store a snapshot of standalone slapos and partitions.
 
     Does not include software log, because this is stored at the end of software
     installation and software log is large.
@@ -449,6 +449,8 @@ class SlapOSInstanceTestCase(unittest.TestCase):
         cls._copySnapshot(standalone_log, name)
     # store slapproxy database
     cls._copySnapshot(cls.slap._proxy_database, name)
+    if include_partitions:
+      cls._storePartitionSnapshot(name)
 
   def tearDown(self):
     self._storePartitionSnapshot(self.id())

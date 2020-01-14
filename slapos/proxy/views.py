@@ -756,23 +756,35 @@ def requestSlave(software_release, software_type, partition_reference, partition
     new_slave[key] = partition_parameter_kw[key]
 
   # Add slave to partition slave_list if not present else replace information
+  slave_updated_or_added = False
   slave_instance_list = partition['slave_instance_list']
   if slave_instance_list:
     slave_instance_list = loads(slave_instance_list.encode('utf-8'))
     for i, x in enumerate(slave_instance_list):
       if x['slave_reference'] == slave_reference:
-        slave_instance_list[i] = new_slave
+        if slave_instance_list[i] != new_slave:
+          slave_instance_list[i] = new_slave
+          slave_updated_or_added = True
         break
     else:
       slave_instance_list.append(new_slave)
+      slave_updated_or_added = True
   else:
     slave_instance_list = [new_slave]
+    slave_updated_or_added = True
 
+  q += ' WHERE reference=? AND computer_reference=?'
+  a(partition['reference'])
+  a(partition['computer_reference'])
   # Update slave_instance_list in database
   args = []
   a = args.append
   q = 'UPDATE %s SET slave_instance_list=?'
   a(bytes2str(dumps(slave_instance_list)))
+  if slave_updated_or_added:
+    timestamp = time.time()
+    q += ', timestamp=?'
+    a(timestamp)
   q += ' WHERE reference=? and computer_reference=?'
   a(partition['reference'])
   a(requested_computer_id)

@@ -870,6 +870,53 @@ class TestSlaveRequest(MasterMixin):
     master_partition = self.getPartitionInformation(master_partition_id)
     self.assertEqual(len(master_partition._parameter_dict['slave_instance_list']), 0)
 
+  def test_slave_request_updates_timestamp(self):
+    self.format_for_number_of_partitions(1)
+    # Provide partition
+    master_partition = self.request('http://sr//', None, 'MyMasterInstance', 'slappart4')
+
+    def getPartition():
+      return self.getFullComputerInformation()._computer_partition_list[0]
+
+    def getTimestamp(partition):
+      return float(partition._parameter_dict['timestamp'])
+
+    before = getPartition()
+    before_timestamp = getTimestamp(before)
+    self.assertEqual(len(before._parameter_dict['slave_instance_list']), 0)
+    time.sleep(0.1)
+
+    self.request('http://sr//', None, 'MyFirstSlave', shared=True)
+    after = getPartition()
+    after_timestamp = getTimestamp(after)
+    self.assertEqual(len(after._parameter_dict['slave_instance_list']), 1)
+    self.assertLess(before_timestamp, after_timestamp, 'Adding first slave shall change the timestamp')
+
+    before_timestamp = after_timestamp
+    time.sleep(0.1)
+    self.request('http://sr//', None, 'MySecondSlave', shared=True)
+    after = getPartition()
+    after_timestamp = getTimestamp(after)
+    self.assertEqual(len(after._parameter_dict['slave_instance_list']), 2)
+    self.assertLess(before_timestamp, after_timestamp, 'Adding second slave shall change the timestamp')
+
+    before_timestamp = after_timestamp
+    time.sleep(0.1)
+    self.request('http://sr//', None, 'MySecondSlave', shared=True, partition_parameter_kw={'a':'b'})
+    after = getPartition()
+    after_timestamp = getTimestamp(after)
+    self.assertEqual(len(after._parameter_dict['slave_instance_list']), 2)
+    self.assertLess(before_timestamp, after_timestamp, 'Updating any slave shall change the timestamp')
+
+    before_timestamp = after_timestamp
+    time.sleep(0.1)
+    self.request('http://sr//', None, 'MySecondSlave', shared=True, partition_parameter_kw={'a':'b'})
+    after = getPartition()
+    after_timestamp = getTimestamp(after)
+    self.assertEqual(len(after._parameter_dict['slave_instance_list']), 2)
+    self.assertEqual(before_timestamp, after_timestamp, 'No-op change of the slave shall not change the timestamp')
+
+
   def test_slave_request_set_parameters_are_updated(self):
     """
     Parameters sent in slave request must be put in slave master

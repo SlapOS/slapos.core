@@ -870,6 +870,46 @@ class TestSlaveRequest(MasterMixin):
     master_partition = self.getPartitionInformation(master_partition_id)
     self.assertEqual(len(master_partition._parameter_dict['slave_instance_list']), 0)
 
+  def test_slave_request_updates_timestamp(self):
+    self.format_for_number_of_partitions(1)
+    # Provide partition
+    master_partition = self.request('http://sr//', None, 'MyMasterInstance', 'slappart4')
+
+    def getPartition():
+      return self.getFullComputerInformation()._computer_partition_list[0]
+
+    def getTimestamp(partition):
+      return float(partition._parameter_dict['timestamp'])
+
+    pre_partition = getPartition()
+    pre_timestamp = getTimestamp(pre_partition)
+    self.assertEqual(len(pre_partition._parameter_dict['slave_instance_list']), 0)
+    time.sleep(0.1)
+    # 1st slave
+    self.request('http://sr//', None, 'MyFirstSlave', shared=True)
+
+    post_partition = getPartition()
+    post_timestamp = getTimestamp(post_partition)
+    self.assertEqual(len(post_partition._parameter_dict['slave_instance_list']), 1)
+
+    self.assertLess(pre_timestamp, post_timestamp)
+
+    # second slave
+    time.sleep(0.1)
+    self.request('http://sr//', None, 'MySecondSlave', shared=True)
+    post_second_partition = getPartition()
+    post_second_timestamp = getTimestamp(post_second_partition)
+    self.assertEqual(len(post_second_partition._parameter_dict['slave_instance_list']), 2)
+    self.assertLess(post_timestamp, post_second_timestamp)
+
+    # updated second slave
+    time.sleep(0.1)
+    self.request('http://sr//', None, 'MySecondSlave', shared=True, partition_parameter_kw={'a':'b'})
+    post_second_up_partition = getPartition()
+    post_second_up_timestamp = getTimestamp(post_second_up_partition)
+    self.assertEqual(len(post_second_up_partition._parameter_dict['slave_instance_list']), 2)
+    self.assertLess(post_second_timestamp, post_second_up_timestamp)
+
   def test_slave_request_set_parameters_are_updated(self):
     """
     Parameters sent in slave request must be put in slave master

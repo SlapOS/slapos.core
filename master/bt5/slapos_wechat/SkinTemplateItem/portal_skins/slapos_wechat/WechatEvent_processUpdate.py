@@ -54,6 +54,11 @@ elif error_code == 'SUCCESS':
     if isTransitionPossible(transaction, 'confirm'):
       transaction.confirm(comment='Confirmed as really saw in WeChat.')
 
+    transaction_date, _ = transaction.PaymentTransaction_getWechatId()
+    if transaction_status == "NOTPAY" and int(DateTime()) - int(transaction_date) > 86400:
+      if isTransitionPossible(transaction, 'cancel'):
+        transaction.cancel(comment='Aborting failing wechat payment.')
+
   elif transaction_status in continue_transaction_id_list:
     # Check authAmount and authDevise and if match, stop transaction
     auth_amount = int(data_kw['total_fee'])

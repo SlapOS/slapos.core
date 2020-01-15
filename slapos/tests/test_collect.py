@@ -804,11 +804,11 @@ class TestConsumptionReportBase(unittest.TestCase):
     data = self.report.getPartitionProcessConsumptionList(
             'slapuser19', date_scope='2019-10-05', 
             min_time='00:01:00', max_time='00:13:00')
-    self.assertEqual(1784.02, data[-1]['cpu_time'])
-    self.assertEqual(56974.0, data[-1]['pid'])
-    self.assertEqual(102665369.0, data[-1]['io_cycles_counter'])
-    self.assertEqual(2.35, data[-1]['memory_rss'])
-    self.assertEqual(35299729408.0, data[-1]['io_rw_counter'])
+    self.assertEqual(0.02, data[-1]['cpu_time'])
+    self.assertEqual(1363.0, data[-1]['pid'])
+    self.assertEqual(193206.0, data[-1]['io_cycles_counter'])
+    self.assertEqual(5.16, data[-1]['memory_rss'])
+    self.assertEqual(2916352.0, data[-1]['io_rw_counter'])
 
   def test_getPartitionConsumptionStatusList(self):
     data = self.report.getPartitionConsumptionStatusList('slapuser19', date_scope='2019-10-05',

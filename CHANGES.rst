@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.5.7 (2020-01-15)
+------------------
+
+ * slapos/proxy: Update timestamp partition on slave changes, fixes issues with slaves with slapproxy
+
 1.5.6 (2020-01-09)
 ------------------
 

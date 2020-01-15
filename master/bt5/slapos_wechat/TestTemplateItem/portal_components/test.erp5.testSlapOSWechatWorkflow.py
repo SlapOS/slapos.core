@@ -19,6 +19,8 @@
 #
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
+from erp5.component.document.WechatService import WechatService
+
 
 from DateTime import DateTime
 from Products.ERP5Type.tests.utils import createZODBPythonScript
@@ -35,7 +37,7 @@ class TestSlapOSWechatInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     createZODBPythonScript(self.portal.portal_skins.custom,
                         script_name,
                         '*args, **kwargs',
-                        '# Script body\nreturn %f' % HARDCODED_PRICE)
+                        '# Script body\nreturn -%f' % HARDCODED_PRICE)
 
   def _dropPaymentTransaction_getTotalPayablePrice(self):
     script_name = 'PaymentTransaction_getTotalPayablePrice'
@@ -89,12 +91,19 @@ class TestSlapOSWechatInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     try:
       def mock_absolute_url():
         return "http://example.org"
+
+      def callFakeWechatApi(self, URL, wechat_dict):
+        return {"result_code": 'SUCCESS', "code_url": 'weixin://wxpay/bizpayurl?pr=AAAAA' }
       original_method = self.portal.absolute_url
+      original_callWechatApi = WechatService.callWechatApi
       self.portal.absolute_url = mock_absolute_url
+      WechatService.callWechatApi = callFakeWechatApi
       try:
         event.generateManualPaymentPage()
       finally:
         self.portal.absolute_url = original_method
+        WechatService.callWechatApi = original_callWechatApi
+
     finally:
       self._dropPaymentTransaction_getTotalPayablePrice()
 

@@ -19,6 +19,8 @@
 #
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
+from erp5.component.document.WechatService import WechatService
+
 
 from DateTime import DateTime
 from zExceptions import Unauthorized
@@ -660,24 +662,31 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.tic()
     payment = invoice.SaleInvoiceTransaction_getWechatPaymentRelatedValue()
     payment.setResourceValue(self.portal.currency_module.EUR)
+    payment_transaction_id = payment.getId()
+
     self.tic()
     self.login(person.getUserId())
     self._simulatePaymentTransaction_getVADSUrlDict()
     try:
       def mock_absolute_url():
         return "http://example.org"
+      def callFakeWechatApi(self, URL, wechat_dict):
+        return {"result_code": 'SUCCESS', "code_url": 'weixin://wxpay/bizpayurl?pr=AAAAA' }
       original_method = self.portal.absolute_url
+      original_callWechatApi = WechatService.callWechatApi
       self.portal.absolute_url = mock_absolute_url
+      WechatService.callWechatApi = callFakeWechatApi
+
       try:
         redirected_url = payment.PaymentTransaction_redirectToManualWechatPayment()
       finally:
         self.portal.absolute_url = original_method
+        WechatService.callWechatApi = original_callWechatApi
     finally:
       self._dropPaymentTransaction_getVADSUrlDict()
 
-
-    payment_transaction_id = payment.getId()
-    expected = "http://example.org/#wechat_payment?trade_no=%s&price=1&payment_url=weixin://wxpay/bizpayurl?pr=" % payment_transaction_id
+    self.assertEqual(payment.PaymentTransaction_getTotalPayablePrice(), 0)
+    expected = "http://example.org/#wechat_payment?trade_no=%s&price=0&payment_url=weixin://wxpay/bizpayurl?pr=" % payment_transaction_id
     self.assertTrue(redirected_url.startswith(expected),
         "%s do not start with %s" % (redirected_url, expected))
     transaction.abort()

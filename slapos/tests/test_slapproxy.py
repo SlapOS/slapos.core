@@ -916,6 +916,29 @@ class TestSlaveRequest(MasterMixin):
     self.assertEqual(len(after._parameter_dict['slave_instance_list']), 2)
     self.assertEqual(before_timestamp, after_timestamp, 'No-op change of the slave shall not change the timestamp')
 
+  def test_slave_request_destroyed(self):
+    self.format_for_number_of_partitions(1)
+    # Provide partition
+    master_partition = self.request('http://sr//', None, 'MyMasterInstance', 'slappart4')
+    def getPartition():
+      return self.getFullComputerInformation()._computer_partition_list[0]
+    def getTimestamp(partition):
+      return float(partition._parameter_dict['timestamp'])
+
+    self.request('http://sr//', None, 'MyFirstSlave', shared=True)
+    self.request('http://sr//', None, 'MySecondSlave', shared=True)
+    after = getPartition()
+    self.assertEqual(len(after._parameter_dict['slave_instance_list']), 2)
+    before_timestamp = getTimestamp(after)
+
+    time.sleep(.1)
+    self.request('http://sr//', None, 'MyFirstSlave', shared=True, state='destroyed')
+    after = getPartition()
+    after_timestamp = getTimestamp(after)
+    self.assertEqual(len(after._parameter_dict['slave_instance_list']), 1)
+    self.assertLess(before_timestamp, after_timestamp, 'Slave destroy shall result with timestamp update')
+    self.assertEqual(after._parameter_dict['slave_instance_list'][0]['slave_reference'], '_MySecondSlave')
+
 
   def test_slave_request_set_parameters_are_updated(self):
     """

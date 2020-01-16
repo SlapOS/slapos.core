@@ -379,7 +379,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
   # maximum retries for `slapos node instance`
   instance_max_retry = 10
   # maximum retries for `slapos node report`
-  report_max_retry = 2
+  report_max_retry = 10
   # number of partitions needed for this instance
   partition_count = 10
   # reference of the default requested partition

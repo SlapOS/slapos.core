@@ -1641,7 +1641,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
       error_date = DateTime()
       memcached_dict[instance.getReference()] = json.dumps(
-        {"created_at":"%s" % error_date, "text": "#error "}
+        {"created_at":"%s" % error_date, "text": "#error ", "since": "%s" % (error_date - 2)}
       )
 
       self.assertEqual(
@@ -1657,6 +1657,55 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
       self.assertEqual(None,
         hosting_subscription.HostingSubscription_checkSoftwareInstanceState())
 
+
+    finally:
+      Base.getCreationDate = original_get_creation
+
+      self.portal.portal_types.resetDynamicDocumentsOnceAtTransactionBoundary()
+      transaction.commit()
+
+
+  @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
+  @simulate('HostingSubscription_createSupportRequestEvent',
+            'instance, notification_message_reference',
+  'return "Visited by HostingSubscription_createSupportRequestEvent ' \
+  '%s %s" % (instance.getUid(), notification_message_reference)')
+  def testHostingSubscription_checkSoftwareInstanceState_tolerance(self):
+    date = DateTime()
+    def getCreationDate(*args, **kwargs):
+      return date - 2
+
+    from Products.ERP5Type.Base import Base
+
+    original_get_creation = Base.getCreationDate
+    Base.getCreationDate = getCreationDate
+    try:
+      hosting_subscription = self._makeHostingSubscription()
+
+      self.assertEqual(hosting_subscription.getCreationDate(), date - 2)
+
+      self._makeSoftwareInstance(hosting_subscription,
+          self.generateNewSoftwareReleaseUrl())
+      instance = hosting_subscription.getPredecessorValue()
+
+      self.assertEqual(instance.getCreationDate(), date - 2)
+
+      self._makeComputer()
+      self._makeComputerPartitionList()
+      instance.setAggregateValue(self.computer.partition1)
+
+      memcached_dict = self.portal.portal_memcached.getMemcachedDict(
+        key_prefix='slap_tool',
+        plugin_path='portal_memcached/default_memcached_plugin')
+
+      error_date = DateTime()
+      memcached_dict[instance.getReference()] = json.dumps(
+        {"created_at":"%s" % error_date, "text": "#error ", "since": "%s" % error_date}
+      )
+
+      # With tolerance of 30 min this should create SupportRequests immediately
+      self.assertEqual(None,
+        hosting_subscription.HostingSubscription_checkSoftwareInstanceState())
 
     finally:
       Base.getCreationDate = original_get_creation

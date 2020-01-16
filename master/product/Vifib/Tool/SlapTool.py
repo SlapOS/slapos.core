@@ -861,7 +861,7 @@ class SlapTool(BaseTool):
   ####################################################
 
 
-  def _logAccess(self, user_reference, context_reference, text):
+  def _logAccess(self, user_reference, context_reference, text, state=""):
     memcached_dict = self.Base_getSlapToolMemcachedDict()
 
     previous = self._getCachedAccessInfo(context_reference)
@@ -872,13 +872,16 @@ class SlapTool(BaseTool):
       if text.split(" ")[0] == previous_json.get("text", "").split(" ")[0]:
         since = previous_json.get("since",
           previous_json.get("created_at", rfc1123_date(DateTime())))
+      if state == "":
+        state = previous_json.get("state", "")
 
 
     value = json.dumps({
       'user': '%s' % user_reference,
       'created_at': '%s' % created_at,
       'text': '%s' % text,
-      'since': '%s' % since
+      'since': '%s' % since,
+      'state': state
     })
     memcached_dict[context_reference] = value
 
@@ -999,7 +1002,7 @@ class SlapTool(BaseTool):
     user = self.getPortalObject().portal_membership.\
         getAuthenticatedMember().getUserName()
     self._logAccess(user, software_installation_reference,
-      '#building software release %s' % url)
+      '#building software release %s' % url, "building")
 
   @convertToREST
   def _availableSoftwareRelease(self, url, computer_id):
@@ -1012,7 +1015,7 @@ class SlapTool(BaseTool):
     user = self.getPortalObject().portal_membership.\
         getAuthenticatedMember().getUserName()
     self._logAccess(user, software_installation_reference,
-        '#access software release %s available' % url)
+        '#access software release %s available' % url, "available")
 
   @convertToREST
   def _destroyedSoftwareRelease(self, url, computer_id):
@@ -1117,6 +1120,7 @@ class SlapTool(BaseTool):
           "user": "SlapOS Master",
           'created_at': '%s' % last_modified,
           'since': '%s' % last_modified,
+          'state': "",
           "text": "#error no data found"
         }
       else:
@@ -1124,6 +1128,7 @@ class SlapTool(BaseTool):
           "user": "SlapOS Master",
           'created_at': '%s' % last_modified,
           'since': '%s' % last_modified,
+          'state': "",
           "text": "#error no data found for %s" % context_reference
         }
       # Prepare for xml marshalling
@@ -1154,7 +1159,7 @@ class SlapTool(BaseTool):
     user = self.getPortalObject().portal_membership.getAuthenticatedMember()\
                                                    .getUserName()
     self._logAccess(user, instance.getReference(),
-                    '#access Instance correctly started')
+                    '#access Instance correctly started', "started")
 
   @convertToREST
   def _stoppedComputerPartition(self, computer_id, computer_partition_id):
@@ -1167,7 +1172,7 @@ class SlapTool(BaseTool):
     user = self.getPortalObject().portal_membership.getAuthenticatedMember()\
                                                    .getUserName()
     self._logAccess(user, instance.getReference(),
-                    '#access Instance correctly stopped')
+                    '#access Instance correctly stopped', "stopped")
 
   @convertToREST
   def _destroyedComputerPartition(self, computer_id, computer_partition_id):

@@ -477,6 +477,8 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string/>
     <string>text</string>
     <string>#error no data found for %(computer_id)s</string>
     <string>user</string>
@@ -523,6 +525,8 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string/>
     <string>text</string>
     <string>#access %(computer_id)s</string>
     <string>user</string>
@@ -574,6 +578,8 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string/>
     <string>text</string>
     <string>#error bang</string>
     <string>user</string>
@@ -659,6 +665,8 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string/>
     <string>text</string>
     <string>#error no data found for %(reference)s</string>
     <string>user</string>
@@ -725,6 +733,8 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string>available</string>
     <string>text</string>
     <string>#access software release %(url_string)s available</string>
     <string>user</string>
@@ -768,6 +778,8 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string>building</string>
     <string>text</string>
     <string>#building software release %(url_string)s</string>
     <string>user</string>
@@ -811,6 +823,8 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string/>
     <string>text</string>
     <string>#error while installing %(url_string)s</string>
     <string>user</string>
@@ -1146,6 +1160,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string/>
     <string>text</string>
     <string>#error no data found for %(instance_guid)s</string>
     <string>user</string>
@@ -1193,6 +1209,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string/>
     <string>text</string>
     <string>#error no data found for %(instance_guid)s</string>
     <string>user</string>
@@ -1561,6 +1579,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string/>
     <string>text</string>
     <string>#error while instanciating: The error</string>
     <string>user</string>
@@ -1603,6 +1623,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string/>
     <string>text</string>
     <string>#error while instanciating: The error</string>
     <string>user</string>
@@ -1647,6 +1669,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string/>
     <string>text</string>
     <string>#error while instanciating: The error</string>
     <string>user</string>
@@ -1701,6 +1725,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string/>
     <string>text</string>
     <string>#error bang called</string>
     <string>user</string>
@@ -1980,6 +2006,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string>stopped</string>
     <string>text</string>
     <string>#access Instance correctly stopped</string>
     <string>user</string>
@@ -2021,6 +2049,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string>started</string>
     <string>text</string>
     <string>#access Instance correctly started</string>
     <string>user</string>
@@ -2262,6 +2292,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string/>
     <string>text</string>
     <string>#error no data found for %(computer_id)s</string>
     <string>user</string>
@@ -2308,6 +2340,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string/>
     <string>text</string>
     <string>#access %(computer_id)s</string>
     <string>user</string>
@@ -2358,6 +2392,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string/>
     <string>text</string>
     <string>#error bang</string>
     <string>user</string>
@@ -2409,6 +2445,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string/>
     <string>text</string>
     <string>#error no data found for %(instance_guid)s</string>
     <string>user</string>
@@ -2458,6 +2496,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string/>
     <string>text</string>
     <string>#error no data found for %(instance_guid)s</string>
     <string>user</string>
@@ -2763,6 +2803,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>since</string>
     <string>%(since)s</string>
+    <string>state</string>
+    <string/>
     <string>text</string>
     <string>#error bang called</string>
     <string>user</string>

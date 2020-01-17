@@ -611,6 +611,10 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     self.assertEqual(None, self.software_instance.getAggregateValue(
         portal_type='Computer Partition'))
 
+    self.assertEqual(None, self.requested_software_instance.getAggregateValue(
+        portal_type='Computer Partition'))
+
+
     self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='mode'>unique_by_network</parameter>
@@ -635,7 +639,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     )
     self.portal.portal_workflow._jumpToStateFor(software_instance2, 'start_requested')
     software_instance2.validate()
-    self.tic()
+    self.commit()
     software_instance2.SoftwareInstance_tryToAllocatePartition()
     self.assertEqual(
         software_instance2.getAggregate(portal_type='Computer Partition'),

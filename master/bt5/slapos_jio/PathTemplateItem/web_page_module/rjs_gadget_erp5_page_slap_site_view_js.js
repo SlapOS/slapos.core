@@ -123,19 +123,6 @@
                   "hidden": 0,
                   "type": "StringField"
                 },
-
-                "my_default_geographical_location_longitude": {
-                  "description": "",
-                  "title": "Longitude",
-                  "default": gadget.state.doc.default_geographical_location_longitude,
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "default_geographical_location_longitude",
-                  "hidden": 0,
-                  "type": "FloatField"
-                },
-
                 "my_default_geographical_location_latitude": {
                   "description": "",
                   "title": "Latitude",
@@ -144,6 +131,17 @@
                   "required": 1,
                   "editable": 1,
                   "key": "default_geographical_location_latitude",
+                  "hidden": 0,
+                  "type": "FloatField"
+                },
+                "my_default_geographical_location_longitude": {
+                  "description": "",
+                  "title": "Longitude",
+                  "default": gadget.state.doc.default_geographical_location_longitude,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 1,
+                  "key": "default_geographical_location_longitude",
                   "hidden": 0,
                   "type": "FloatField"
                 },
@@ -214,8 +212,8 @@
               group_list: [[
                 "left",
                 [["my_title"], ["my_reference"], ['my_monitoring_status'],
-                 ["my_default_geographical_location_longitude"],
-                 ["my_default_geographical_location_latitude"]]
+                 ["my_default_geographical_location_latitude"],
+                 ["my_default_geographical_location_longitude"]]
               ], [
                 "right",
                 [['my_organisation_map']]

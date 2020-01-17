@@ -198,7 +198,6 @@ class RunPromise(GenericPromise):
     if not expected_history:
       expected_history = """{
 	"data": [{
-		"execution-time": 0.05,
 		"failed": false,
 		"message": "success",
 		"name": "%(name)s.py",
@@ -215,6 +214,10 @@ class RunPromise(GenericPromise):
       for entry in result_dict["data"]:
         d = entry.pop("date")
         self.assertEqual(d, entry.pop("change-date"))
+        # execution time of a promise can vary from 0.05 to 0.2 in a busy test machine
+        # it makes no sense to test it
+        execution_time = entry.pop("execution-time")
+        self.assertTrue(execution_time > 0.0 and execution_time <=1.0)
 
       expected_dict = expected_history % {'name': name}
       self.assertEqual(json.loads(expected_dict), result_dict)
@@ -449,14 +452,12 @@ class RunPromise(GenericPromise):
     self.assertSuccessResult("my_promise")
     self.assertSuccessHistoryResult("my_promise", expected_history = """{
         "data": [{
-                "execution-time": 0.05,
                 "failed": false,
                 "message": "success",
                 "name": "%(name)s.py",
                 "status": "OK",
                 "title": "%(name)s"
         },{
-                "execution-time": 0.05,
                 "failed": false,
                 "message": "success",
                 "status": "OK"
@@ -493,14 +494,12 @@ class RunPromise(GenericPromise):
 
     self.assertSuccessHistoryResult("my_promise", expected_history = """{
         "data": [{
-                "execution-time": 0.05,
                 "failed": false,
                 "message": "success",
                 "name": "%(name)s.py",
                 "status": "OK",
                 "title": "%(name)s"
         },{
-                "execution-time": 0.05,
                 "failed": true,
                 "message": "failed",
                 "status": "ERROR"
@@ -536,19 +535,16 @@ class RunPromise(GenericPromise):
     self.maxDiff = None
     self.assertSuccessHistoryResult("my_promise", expected_history = """{
         "data": [{
-                "execution-time": 0.05,
                 "failed": false,
                 "message": "success",
                 "name": "%(name)s.py",
                 "status": "OK",
                 "title": "%(name)s"
         },{
-                "execution-time": 0.05,
                 "failed": true,
                 "message": "failed",
                 "status": "ERROR"
         },{
-                "execution-time": 0.05,
                 "failed": false,
                 "message": "success",
                 "status": "OK"
@@ -685,7 +681,6 @@ class RunPromise(GenericPromise):
     self.assertSuccessHistoryResult("my_promise")
     self.assertSuccessHistoryResult("my_failed_promise", expected_history = """{
         "data": [{
-                "execution-time": 0.05,
                 "failed": true,
                 "message": "failed",
                 "name": "%(name)s.py",

@@ -1,3 +1,7 @@
+from zExceptions import UnauthorizedError
+if REQUEST is not None:
+  raise UnauthorizedError
+
 from DateTime import DateTime
 import json
 
@@ -5,7 +9,7 @@ slap_state = context.getSlapState()
 
 _translate = context.Base_translateString
 
-NOT_ALLOCATED = _translate("Searching Partition")
+NOT_ALLOCATED = _translate("Searching for partition")
 STARTING = _translate("Starting")
 STARTED = _translate("Started")
 STOPPING = _translate("Stopping")
@@ -18,11 +22,15 @@ UNKNOWN = _translate("Waiting contact from the instance")
 
 computer_partition = context.getAggregateValue(portal_type="Computer Partition")
 if computer_partition is not None:
-  memcached_dict = context.Base_getSlapToolMemcachedDict()
+  instance = context
+  if instance.getPortalType() == "Slave Instance":
+    instance = computer_partition.getAggregateRelatedValue(portal_type="Software Instance")
+
+  memcached_dict = instance.Base_getSlapToolMemcachedDict()
   try:
-    d = memcached_dict[context.getReference()]
+    d = memcached_dict[instance.getReference()]
   except KeyError:
-    return _translate(context.getSlapStateTitle())
+    return _translate(instance.getSlapStateTitle())
 
   d = json.loads(d)
   result = d['text']
@@ -32,7 +40,6 @@ if computer_partition is not None:
 
   if slap_state == "destroy_requested":
     return DESTROYING
-
 
   if reported_state == "stopped":
     if slap_state == "start_requested":
@@ -51,7 +58,7 @@ if computer_partition is not None:
         return FAILING_STOP
       return STOPPING
 
-  raise ValueError("%s %s %s Unknown State" % (context.getRelativeUrl(), result, slap_state))
+  raise ValueError("%s %s %s Unknown State" % (instance.getRelativeUrl(), result, slap_state))
 
 
 if slap_state == "destroy_requested":

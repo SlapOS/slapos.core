@@ -143,6 +143,7 @@
             ['title', 'Title'],
             ['reference', 'Reference'],
             ['portal_type', 'Type'],
+            ['SoftwareInstance_getReportedState', 'State'],
             ['SoftwareInstance_getNewsDict', 'Status']
           ], monitor_scope_list = [['', ''],
                                 ['Enabled', 'enabled'],

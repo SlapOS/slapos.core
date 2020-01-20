@@ -209,7 +209,7 @@ def checkSoftware(slap, software_url):
     """
   def getLddOutput(path):
     # type: (str) -> Dict[str, str]
-    """Parse ldd output on executable as `path` and returns a mapping
+    """Parse ldd output on shared object/executable as `path` and returns a mapping
     of library paths or None when library is not found, keyed by library so name.
 
     Raises a `DynamicLibraryNotFound` if any dynamic library is not found.
@@ -267,7 +267,7 @@ def checkSoftware(slap, software_url):
           if any(fnmatch.fnmatch(f, ignored_pattern)
                  for ignored_pattern in ignored_file_patterns):
             continue
-          if os.access(f, os.X_OK):
+          if os.access(f, os.X_OK) or fnmatch.fnmatch('*.so', f):
             try:
               libs = getLddOutput(f)
             except DynamicLibraryNotFound as e:

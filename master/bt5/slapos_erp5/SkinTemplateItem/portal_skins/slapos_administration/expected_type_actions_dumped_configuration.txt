@@ -4269,16 +4269,6 @@ HTTP Exchange
   Index: 1.0
 
 Hosting Subscription
-  Reference: hosting_subscription_consumption_report
-  Title: View Consumption Report
-  Action: string:${object_url}/HostingSubscription_viewConsumptionReport?reset=1
-  Icon: None
-  Permission: View
-  Action Type: object_report
-  Visible: 1
-  Index: 1.0
-
-Hosting Subscription
   Reference: jump_to_related_open_order_line
   Title: Related Open Order Line
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=aggregate&portal_type=Open%20%Sale%20Order%20%Line&validation_state=validated
@@ -7887,16 +7877,6 @@ Person
   Action Type: object_jio_report
   Visible: 0
   Index: 23.0
-
-Person
-  Reference: person_resource_consumption
-  Title: Person Resource Consumption
-  Action: string:${object_url}/Person_viewResourceConsumptionReport?reset=1
-  Icon: None
-  Permission: View
-  Action Type: object_report
-  Visible: 1
-  Index: 1.0
 
 Person
   Reference: request_hateoas_hosting_subscription
@@ -14609,6 +14589,16 @@ System Preference
   Index: 10.0
 
 System Preference
+  Reference: slapos_wechat_system_preference
+  Title: SlapOS Wechat
+  Action: string:${object_url}/SystemPreference_viewSlapOSWechat
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 10.0
+
+System Preference
   Reference: trade_preference
   Title: Trade
   Action: string:${object_url}/SystemPreference_viewTrade
@@ -17007,6 +16997,36 @@ Web Table
   Action Type: object_web_view
   Visible: 1
   Index: 2.0
+
+Wechat Event
+  Reference: view
+  Title: View
+  Action: string:${object_url}/WechatEvent_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Wechat Event Message
+  Reference: view
+  Title: View
+  Action: string:${object_url}/WechatEventMessage_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Wechat Service
+  Reference: view
+  Title: View
+  Action: string:${object_url}/WechatService_view
+  Icon: None
+  Permission: View
+  Action Type: None
+  Visible: 1
+  Index: 1.0
 
 Workflow
   Reference: configurator_settings

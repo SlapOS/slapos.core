@@ -65,6 +65,7 @@ portal_alarms/slapos_start_confirmed_aggregated_sale_packing_list;1;None;Alarm_s
 portal_alarms/slapos_start_confirmed_aggregated_subscription_sale_packing_list;1;None;Alarm_startConfirmedAggregatedSubscriptionSalePackingList;None;None;None;();None;();1;();();None;1970/01/01 01:01:00 GMT;None;();None;None
 portal_alarms/slapos_stop_collect_instance;1;None;Alarm_stopCollectInstance;None;None;None;();6;();None;();();None;1983/11/07 07:00:00 GMT;None;();None;None
 portal_alarms/slapos_stop_confirmed_aggregated_sale_invoice_transaction;1;None;Alarm_stopConfirmedAggregatedSaleInvoiceTransaction;None;None;None;();None;();1;();();None;1970/01/01 01:01:00 GMT;None;();None;None
+portal_alarms/slapos_subscription_request_process_confirmed;1;None;Alarm_processConfirmedSubscriptionRequest;None;None;None;();None;();10;();();None;2013/01/01 01:01:00 GMT;None;();None;None
 portal_alarms/slapos_subscription_request_process_draft;1;None;Alarm_processDraftSubscriptionRequest;None;None;None;();None;();1;();();None;2013/01/01 01:01:00 GMT;None;();None;None
 portal_alarms/slapos_subscription_request_process_ordered;1;None;Alarm_processOrderedSubscriptionRequest;None;None;None;();None;();10;();();None;2013/01/01 01:01:00 GMT;None;();None;None
 portal_alarms/slapos_subscription_request_process_planned;1;None;Alarm_processPlannedSubscriptionRequest;None;None;None;();None;();10;();();None;2013/01/01 01:01:00 GMT;None;();None;None
@@ -76,6 +77,8 @@ portal_alarms/slapos_trigger_build;1;None;Alarm_buildSlapOSPath;None;None;None;(
 portal_alarms/slapos_trigger_payment_transaction_order_builder;1;None;Alarm_triggerPaymentTransactionOrderBuilder;None;None;None;();None;();1;();();None;1987/05/24 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_update_computer_capacity_scope;1;None;Alarm_managePublicComputerCapacityScope;None;None;None;();None;();5;();();None;1970/01/01 01:01:00 GMT;None;();None;None
 portal_alarms/slapos_update_open_sale_order_period;1;None;Alarm_requestUpdateOpenSaleOrderPeriod;None;None;1;(4,);None;(4,);None;();();None;1815/12/10 00:00:00 GMT;None;();None;None
+portal_alarms/slapos_wechat_update_confirmed_payment;1;None;Alarm_updateWechatConfirmedPaymentTransaction;None;None;None;();None;();5;();();None;2010/10/26 00:00:00 GMT;None;();None;None
+portal_alarms/slapos_wechat_update_started_payment;1;None;Alarm_updateWechatStartedPaymentTransaction;None;None;None;();8;();None;();();None;2010/10/26 00:00:00 GMT;None;();None;None
 portal_alarms/update_open_order_simulation;1;None;Alarm_updateOpenOrderSimulation;None;None;None;();None;();3;();();None;1970/01/01 00:00:00 GMT;None;();None;None
 portal_alarms/upgrader_check_post_upgrade;0;None;Alarm_runPostUpgrade;None;None;None;();None;();None;();();None;2013/11/14 10:00:00 GMT;None;();None;None
 portal_alarms/upgrader_check_pre_upgrade;0;None;Alarm_runPreUpgrade;None;None;None;();None;();None;();();None;2013/11/14 10:00:00 GMT;None;();None;None

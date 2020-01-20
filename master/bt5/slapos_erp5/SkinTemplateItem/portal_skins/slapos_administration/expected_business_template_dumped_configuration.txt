@@ -74,6 +74,7 @@ erp5_web_renderjs_ui
 erp5_web_service
 erp5_web_shacache
 erp5_web_shadir
+erp5_wechat_secure_payment
 erp5_workflow
 erp5_xhtml_style
 slapos_accounting
@@ -93,3 +94,4 @@ slapos_subscription_request
 slapos_upgrader
 slapos_web
 slapos_web_deploy
+slapos_wechat

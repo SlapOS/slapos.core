@@ -3839,7 +3839,7 @@ Preference
   Init Script: None
   Add Permission: None
   Acquire Local Roles: 0
-  Property Sheets: ['AccountingPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
+  Property Sheets: ['AccountingPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'SlapOSWechatSystemPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
   Base Categories: []
   Allowed Content Types: ['Accounting Transaction', 'Knowledge Pad', 'Payment Transaction', 'Purchase Invoice Transaction', 'Purchase Order', 'Sale Invoice Transaction', 'Sale Order', 'Support Request']
   Hidden Content Types: ['Accounting Transaction', 'Knowledge Pad', 'Payment Transaction', 'Purchase Invoice Transaction', 'Sale Invoice Transaction', 'Sale Order', 'Support Request']
@@ -3865,7 +3865,7 @@ Preference Tool
   Init Script: 
   Add Permission: 
   Acquire Local Roles: 1
-  Property Sheets: ['AccountingPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
+  Property Sheets: ['AccountingPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'SlapOSWechatSystemPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
   Base Categories: []
   Allowed Content Types: ['Preference', 'System Preference']
   Hidden Content Types: []
@@ -5219,7 +5219,7 @@ Secure Payment Tool
   Acquire Local Roles: False
   Property Sheets: []
   Base Categories: []
-  Allowed Content Types: ['Payzen Service']
+  Allowed Content Types: ['Payzen Service', 'Wechat Service']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -5986,7 +5986,7 @@ System Event Module
   Acquire Local Roles: False
   Property Sheets: []
   Base Categories: ['business_application']
-  Allowed Content Types: ['Authentication Event', 'HTTP Exchange', 'Password Event', 'Payzen Event']
+  Allowed Content Types: ['Authentication Event', 'HTTP Exchange', 'Password Event', 'Payzen Event', 'Wechat Event']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -5997,7 +5997,7 @@ System Preference
   Init Script: SystemPreference_init
   Add Permission: Manage portal
   Acquire Local Roles: 0
-  Property Sheets: ['AccountingPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
+  Property Sheets: ['AccountingPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'SlapOSWechatSystemPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
   Base Categories: []
   Allowed Content Types: ['Knowledge Pad']
   Hidden Content Types: []
@@ -6845,6 +6845,45 @@ Web Table
   Property Sheets: ['Reference', 'SortIndex']
   Base Categories: ['follow_up', 'function', 'group', 'predecessor', 'publication_section', 'similar', 'site', 'successor']
   Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Wechat Event
+  Short Title: None
+  Class: XMLObject
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: 0
+  Property Sheets: []
+  Base Categories: ['destination', 'destination_section', 'source']
+  Allowed Content Types: ['Wechat Event Message']
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Wechat Event Message
+  Short Title: None
+  Class: XMLObject
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: 1
+  Property Sheets: ['TextDocument']
+  Base Categories: ['predecessor']
+  Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Wechat Service
+  Short Title: None
+  Class: WechatService
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: False
+  Property Sheets: ['PaymentService', 'WechatService']
+  Base Categories: []
+  Allowed Content Types: ['Link']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []

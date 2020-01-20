@@ -18,6 +18,7 @@ Deferred,slapos_payzen
 Deferred,slapos_pdm
 Deferred,slapos_simulation
 Deferred,slapos_slap_tool
+Deferred,slapos_wechat
 Deferred,slapos_configurator
 Deferred,erp5_km
 Deferred,erp5_knowledge_pad
@@ -95,6 +96,7 @@ Deferred,erp5_web_minimal_theme
 Deferred,erp5_web_renderjs
 Deferred,erp5_web_service
 Deferred,erp5_web_widget_library
+Deferred,erp5_wechat_secure_payment
 Deferred,erp5_workflow
 Deferred,external_method
 Deferred,Images
@@ -120,6 +122,7 @@ Deploy,slapos_payzen
 Deploy,slapos_pdm
 Deploy,slapos_simulation
 Deploy,slapos_slap_tool
+Deploy,slapos_wechat
 Deploy,slapos_configurator
 Deploy,erp5_km
 Deploy,erp5_knowledge_pad
@@ -196,6 +199,7 @@ Deploy,erp5_web_minimal_theme
 Deploy,erp5_web_renderjs
 Deploy,erp5_web_service
 Deploy,erp5_web_widget_library
+Deploy,erp5_wechat_secure_payment
 Deploy,erp5_workflow
 Deploy,external_method
 Deploy,Images
@@ -219,6 +223,7 @@ Download,slapos_payzen
 Download,slapos_pdm
 Download,slapos_simulation
 Download,slapos_slap_tool
+Download,slapos_wechat
 Download,slapos_configurator
 Download,erp5_km
 Download,erp5_web_download_theme
@@ -296,6 +301,7 @@ Download,erp5_web_minimal_theme
 Download,erp5_web_renderjs
 Download,erp5_web_service
 Download,erp5_web_widget_library
+Download,erp5_wechat_secure_payment
 Download,erp5_workflow
 Download,erp5_xhtml_style
 Download,external_method
@@ -322,6 +328,7 @@ Hal,slapos_payzen
 Hal,slapos_pdm
 Hal,slapos_simulation
 Hal,slapos_slap_tool
+Hal,slapos_wechat
 Hal,slapos_configurator
 Hal,erp5_km
 Hal,erp5_knowledge_pad
@@ -398,6 +405,7 @@ Hal,erp5_web_minimal_theme
 Hal,erp5_web_renderjs
 Hal,erp5_web_service
 Hal,erp5_web_widget_library
+Hal,erp5_wechat_secure_payment
 Hal,erp5_workflow
 Hal,erp5_xhtml_style
 Hal,external_method
@@ -425,6 +433,7 @@ HalRestricted,slapos_payzen
 HalRestricted,slapos_pdm
 HalRestricted,slapos_simulation
 HalRestricted,slapos_slap_tool
+HalRestricted,slapos_wechat
 HalRestricted,slapos_configurator
 HalRestricted,erp5_km
 HalRestricted,erp5_knowledge_pad
@@ -501,6 +510,7 @@ HalRestricted,erp5_web_minimal_theme
 HalRestricted,erp5_web_renderjs
 HalRestricted,erp5_web_service
 HalRestricted,erp5_web_widget_library
+HalRestricted,erp5_wechat_secure_payment
 HalRestricted,erp5_workflow
 HalRestricted,erp5_xhtml_style
 HalRestricted,external_method
@@ -525,6 +535,7 @@ KM,slapos_payzen
 KM,slapos_pdm
 KM,slapos_simulation
 KM,slapos_slap_tool
+KM,slapos_wechat
 KM,slapos_configurator
 KM,erp5_km
 KM,erp5_km_theme
@@ -604,6 +615,7 @@ KM,erp5_web_minimal_theme
 KM,erp5_web_renderjs
 KM,erp5_web_service
 KM,erp5_web_widget_library
+KM,erp5_wechat_secure_payment
 KM,erp5_workflow
 KM,erp5_xhtml_style
 KM,external_method
@@ -628,6 +640,7 @@ Multiflex,slapos_payzen
 Multiflex,slapos_pdm
 Multiflex,slapos_simulation
 Multiflex,slapos_slap_tool
+Multiflex,slapos_wechat
 Multiflex,slapos_configurator
 Multiflex,erp5_commerce_multiflex_layout
 Multiflex,erp5_km
@@ -705,6 +718,7 @@ Multiflex,erp5_web_minimal_theme
 Multiflex,erp5_web_renderjs
 Multiflex,erp5_web_service
 Multiflex,erp5_web_widget_library
+Multiflex,erp5_wechat_secure_payment
 Multiflex,erp5_workflow
 Multiflex,external_method
 Multiflex,Images
@@ -728,6 +742,7 @@ ODS,slapos_payzen
 ODS,slapos_pdm
 ODS,slapos_simulation
 ODS,slapos_slap_tool
+ODS,slapos_wechat
 ODS,slapos_configurator
 ODS,erp5_km
 ODS,erp5_knowledge_pad
@@ -805,6 +820,7 @@ ODS,erp5_web_minimal_theme
 ODS,erp5_web_renderjs
 ODS,erp5_web_service
 ODS,erp5_web_widget_library
+ODS,erp5_wechat_secure_payment
 ODS,erp5_workflow
 ODS,external_method
 ODS,Images
@@ -828,6 +844,7 @@ ODT,slapos_payzen
 ODT,slapos_pdm
 ODT,slapos_simulation
 ODT,slapos_slap_tool
+ODT,slapos_wechat
 ODT,slapos_configurator
 ODT,erp5_km
 ODT,erp5_knowledge_pad
@@ -905,6 +922,7 @@ ODT,erp5_web_minimal_theme
 ODT,erp5_web_renderjs
 ODT,erp5_web_service
 ODT,erp5_web_widget_library
+ODT,erp5_wechat_secure_payment
 ODT,erp5_workflow
 ODT,external_method
 ODT,Images
@@ -930,6 +948,7 @@ RJS,slapos_payzen
 RJS,slapos_pdm
 RJS,slapos_simulation
 RJS,slapos_slap_tool
+RJS,slapos_wechat
 RJS,slapos_configurator
 RJS,erp5_km
 RJS,erp5_knowledge_pad
@@ -1006,6 +1025,7 @@ RJS,erp5_web_minimal_theme
 RJS,erp5_web_renderjs
 RJS,erp5_web_service
 RJS,erp5_web_widget_library
+RJS,erp5_wechat_secure_payment
 RJS,erp5_workflow
 RJS,external_method
 RJS,Images
@@ -1030,6 +1050,7 @@ RSS,slapos_payzen
 RSS,slapos_pdm
 RSS,slapos_simulation
 RSS,slapos_slap_tool
+RSS,slapos_wechat
 RSS,slapos_configurator
 RSS,erp5_rss_style
 RSS,erp5_km
@@ -1107,6 +1128,7 @@ RSS,erp5_web_minimal_theme
 RSS,erp5_web_renderjs
 RSS,erp5_web_service
 RSS,erp5_web_widget_library
+RSS,erp5_wechat_secure_payment
 RSS,erp5_workflow
 RSS,external_method
 RSS,Images
@@ -1130,6 +1152,7 @@ RedirectAssist,slapos_payzen
 RedirectAssist,slapos_pdm
 RedirectAssist,slapos_simulation
 RedirectAssist,slapos_slap_tool
+RedirectAssist,slapos_wechat
 RedirectAssist,slapos_configurator
 RedirectAssist,erp5_web_redirect_assist
 RedirectAssist,erp5_km
@@ -1207,6 +1230,7 @@ RedirectAssist,erp5_web_minimal_theme
 RedirectAssist,erp5_web_renderjs
 RedirectAssist,erp5_web_service
 RedirectAssist,erp5_web_widget_library
+RedirectAssist,erp5_wechat_secure_payment
 RedirectAssist,erp5_workflow
 RedirectAssist,erp5_xhtml_style
 RedirectAssist,external_method
@@ -1231,6 +1255,7 @@ SHACACHE,slapos_payzen
 SHACACHE,slapos_pdm
 SHACACHE,slapos_simulation
 SHACACHE,slapos_slap_tool
+SHACACHE,slapos_wechat
 SHACACHE,slapos_configurator
 SHACACHE,erp5_web_shacache
 SHACACHE,erp5_km
@@ -1309,6 +1334,7 @@ SHACACHE,erp5_web_minimal_theme
 SHACACHE,erp5_web_renderjs
 SHACACHE,erp5_web_service
 SHACACHE,erp5_web_widget_library
+SHACACHE,erp5_wechat_secure_payment
 SHACACHE,erp5_workflow
 SHACACHE,erp5_xhtml_style
 SHACACHE,external_method
@@ -1333,6 +1359,7 @@ SHADIR,slapos_payzen
 SHADIR,slapos_pdm
 SHADIR,slapos_simulation
 SHADIR,slapos_slap_tool
+SHADIR,slapos_wechat
 SHADIR,slapos_configurator
 SHADIR,erp5_web_shadir
 SHADIR,erp5_km
@@ -1411,6 +1438,7 @@ SHADIR,erp5_web_minimal_theme
 SHADIR,erp5_web_renderjs
 SHADIR,erp5_web_service
 SHADIR,erp5_web_widget_library
+SHADIR,erp5_wechat_secure_payment
 SHADIR,erp5_workflow
 SHADIR,erp5_xhtml_style
 SHADIR,external_method
@@ -1435,6 +1463,7 @@ SlideShow,slapos_payzen
 SlideShow,slapos_pdm
 SlideShow,slapos_simulation
 SlideShow,slapos_slap_tool
+SlideShow,slapos_wechat
 SlideShow,erp5_slideshow_style
 SlideShow,slapos_configurator
 SlideShow,erp5_km
@@ -1512,6 +1541,7 @@ SlideShow,erp5_web_minimal_theme
 SlideShow,erp5_web_renderjs
 SlideShow,erp5_web_service
 SlideShow,erp5_web_widget_library
+SlideShow,erp5_wechat_secure_payment
 SlideShow,erp5_workflow
 SlideShow,erp5_xhtml_style
 SlideShow,external_method
@@ -1536,6 +1566,7 @@ View,slapos_payzen
 View,slapos_pdm
 View,slapos_simulation
 View,slapos_slap_tool
+View,slapos_wechat
 View,slapos_configurator
 View,erp5_km
 View,erp5_knowledge_pad
@@ -1614,6 +1645,7 @@ View,erp5_web_minimal_theme
 View,erp5_web_renderjs
 View,erp5_web_service
 View,erp5_web_widget_library
+View,erp5_wechat_secure_payment
 View,erp5_workflow
 View,erp5_xhtml_style
 View,external_method

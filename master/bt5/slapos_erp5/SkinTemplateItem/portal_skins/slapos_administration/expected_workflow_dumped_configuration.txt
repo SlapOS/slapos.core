@@ -994,6 +994,12 @@ Web Table,document_publication_workflow
 Web Table,document_security_interaction_workflow
 Web Table,edit_workflow
 Web Table,processing_status_workflow
+Wechat Event,edit_workflow
+Wechat Event,local_permission_slapos_interaction_workflow
+Wechat Event,system_event_workflow
+Wechat Event,wechat_interface_workflow
+Wechat Event Message,edit_workflow
+Wechat Service,(Default)
 Workflow,(Default)
 Workflow Module,(Default)
 Workflow Security Configurator Item,(Default)

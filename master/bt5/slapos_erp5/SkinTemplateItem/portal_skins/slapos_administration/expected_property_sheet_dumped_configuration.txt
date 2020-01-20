@@ -16301,6 +16301,36 @@ SlapOSSubscriptionCondition
   translation_domain: None
   write_permission: Modify portal content
 
+SlapOSWechatSystemPreference
+  elementary_type: string
+  id: preferred_wechat_integration_site_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: ''
+  range: False
+  read_permission: Access contents information
+  reference: preferred_wechat_integration_site
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Manage properties
+
+SlapOSWechatSystemPreference
+  elementary_type: string
+  id: preferred_wechat_payment_service_reference_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: ''
+  range: False
+  read_permission: Access contents information
+  reference: preferred_wechat_payment_service_reference
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Manage properties
+
 SlaposAssignmentConstraint
   constraint_base_category_list: None
   id: person_state_constraint
@@ -19635,6 +19665,114 @@ WebSitePreference
   range: False
   read_permission: Access contents information
   reference: user_allowed_request_password_reset
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+WechatService
+  constraint_portal_type: python: ('Link',)
+  id: default_link_constraint
+  message_no_subobject: The document does not contain any subobject
+  message_no_subobject_portal_type: The document does not contain any subobject of portal portal type ${portal_type}
+  portal_type: Content Existence Constraint
+  reference: default_link
+
+WechatService
+  id: link_url_string_constraint
+  message_attribute_not_match: Wechat URL has to be set.
+  message_no_such_property: Wechat URL has to be set.
+  message_property_not_set: Payzen URL have to be set
+  portal_type: String Attribute Match Constraint
+  reference: link_url_string
+
+WechatService
+  id: service_api_key_constraint
+  message_attribute_not_match: api_key has to be set.
+  message_no_such_property: api_key has to be set.
+  message_property_not_set: vads_site_id have to be set
+  portal_type: String Attribute Match Constraint
+  reference: service_api_key
+
+WechatService
+  elementary_type: string
+  id: service_api_key_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Manage portal
+  reference: service_api_key
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+WechatService
+  id: service_appid_constraint
+  message_attribute_not_match: APP ID has to be set.
+  message_no_such_property: APP ID has to be set.
+  message_property_not_set: Certificate has to be set.
+  portal_type: String Attribute Match Constraint
+  reference: service_appid
+
+WechatService
+  elementary_type: string
+  id: service_appid_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: service_appid
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+WechatService
+  id: service_mch_id_constraint
+  message_attribute_not_match: mch_id has to be set.
+  message_no_such_property: mch_id has to be set.
+  message_property_not_set: vads_site_id have to be set
+  portal_type: String Attribute Match Constraint
+  reference: service_mch_id
+
+WechatService
+  elementary_type: string
+  id: service_mch_id_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: service_mch_id
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+WechatService
+  id: wechat_mode_constraint
+  message_attribute_not_match: Wechat mode has to be SANDBOX or PRODUCTION.
+  message_no_such_property: Wechat mode has to be SANDBOX or PRODUCTION.
+  message_property_not_set: Payzen vads_ctx_mode have to be TEST or PRODUCTION
+  portal_type: String Attribute Match Constraint
+  reference: wechat_mode
+
+WechatService
+  elementary_type: string
+  id: wechat_mode_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: wechat_mode
   storage_id: None
   translatable: False
   translation_domain: None

@@ -1907,6 +1907,24 @@ Slave Instance
   Categories: []
 
 Slave Instance
+  Title: Organisation Member
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination']
+  Base Category Script: Instance_getSecurityCategoryFromMovementSpecialiseDestination
+  Categories: []
+
+Slave Instance
+  Title: Project Member
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: Instance_getSecurityCategoryFromMovementSpecialiseDestinationProject
+  Categories: []
+
+Slave Instance
   Title: Software Instance which provides this Slave Instance
   Roles: ['Assignor']
   Condition: None
@@ -2021,6 +2039,24 @@ Software Instance
   Local Roles Group Id: subscription
   Base Categories: ['specialise']
   Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Software Instance
+  Title: Organisation Member
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination']
+  Base Category Script: Instance_getSecurityCategoryFromMovementSpecialiseDestination
+  Categories: []
+
+Software Instance
+  Title: Project Member
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: Instance_getSecurityCategoryFromMovementSpecialiseDestinationProject
   Categories: []
 
 Software Instance Module
@@ -2382,4 +2418,22 @@ Web Page Module
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
+
+Wechat Event
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Wechat Event
+  Title: Shadow User
+  Roles: ['Assignee']
+  Condition: python: here.getDestinationSection('', portal_type='Person') != ''
+  Local Roles Group Id: shadow
+  Base Categories: ['aggregate']
+  Base Category Script: PayzenEventType_getSecurityCategoryFromUser
+  Categories: []
 

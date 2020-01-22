@@ -180,7 +180,6 @@ class RunPromise(GenericPromise):
   },
   "path": "%(promise_dir)s/%(name)s.py",
   "name": "%(name)s.py",
-  "execution-time": 0.05,
   "title": "%(name)s"
 }"""
 
@@ -190,6 +189,10 @@ class RunPromise(GenericPromise):
     with open(state_file) as f:
       result_dict = json.loads(f.read())
       result_dict['result'].pop('date')
+      # execution time of a promise can vary from 0.05 to 0.2 in a busy test machine
+      # it makes no sense to test it
+      execution_time = result_dict.pop('execution-time')
+      self.assertTrue(execution_time > 0.0 and execution_time <=1.0)
       expected_dict = expected_result % {'promise_dir': self.plugin_dir, 'name': name}
       self.assertEqual(json.loads(expected_dict), result_dict)
 

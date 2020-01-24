@@ -4,7 +4,7 @@
 # Copyright (c) 2012 Nexedi SA and Contributors. All Rights Reserved.
 #
 ##############################################################################
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbort
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbort, simulate
 
 from zExceptions import Unauthorized
 from DateTime import DateTime
@@ -192,3 +192,42 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       Unauthorized,
       self.portal.OpenSaleOrder_reindexIfIndexedBeforeLine,
       REQUEST={})
+
+
+  @simulate("SaleInvoiceTransaction_createReversalPayzenTransaction", 
+            "*args, **kwargs",  """context.portal_workflow.doActionFor(context, action='edit_action', comment='Visited by SaleInvoiceTransaction_createReversalPayzenTransaction')
+return context.getParentValue()""")
+  def test_SaleInvoiceTransaction_createSlapOSReversalTransaction_payzen(self):
+    sale_invoice_transaction = self.portal.accounting_module.newContent(portal_type="Sale Invoice Transaction")
+    sale_invoice_transaction.edit(payment_mode="payzen")
+
+    redirect = sale_invoice_transaction.SaleInvoiceTransaction_createSlapOSReversalTransaction()
+    self.assertTrue(redirect.endswith('accounting_module?portal_status_message=Reversal%20Transaction%20created.'), 
+      "%s doesn't end with sale_invoice_transaction.SaleInvoiceTransaction_createSlapOSReversalTransaction()" % redirect)
+    self.assertEqual(
+        'Visited by SaleInvoiceTransaction_createReversalPayzenTransaction',
+        sale_invoice_transaction.workflow_history['edit_workflow'][-1]['comment'])
+
+  @simulate("SaleInvoiceTransaction_createReversalWechatTransaction", 
+            "*args, **kwargs",  """context.portal_workflow.doActionFor(context, action='edit_action', comment='Visited by SaleInvoiceTransaction_createReversalWechatTransaction')
+return context.getParentValue()""")
+  def test_SaleInvoiceTransaction_createSlapOSReversalTransaction_wechat(self):
+    sale_invoice_transaction = self.portal.accounting_module.newContent(portal_type="Sale Invoice Transaction")
+    sale_invoice_transaction.edit(payment_mode="wechat")
+
+    redirect = sale_invoice_transaction.SaleInvoiceTransaction_createSlapOSReversalTransaction()
+    self.assertTrue(redirect.endswith('accounting_module?portal_status_message=Reversal%20Transaction%20created.'), 
+      "%s doesn't end with sale_invoice_transaction.SaleInvoiceTransaction_createSlapOSReversalTransaction()" % redirect)
+    self.assertEqual(
+        'Visited by SaleInvoiceTransaction_createReversalWechatTransaction',
+        sale_invoice_transaction.workflow_history['edit_workflow'][-1]['comment'])
+
+  def test_SaleInvoiceTransaction_createSlapOSReversalTransaction_unknown(self):
+    sale_invoice_transaction = self.portal.accounting_module.newContent(portal_type="Sale Invoice Transaction")
+    sale_invoice_transaction.edit(payment_mode="unknown")
+
+    redirect = sale_invoice_transaction.SaleInvoiceTransaction_createSlapOSReversalTransaction()
+
+    self.assertTrue(redirect.endswith('%s?portal_status_message=The%%20payment%%20mode%%20is%%20unsupported.' % sale_invoice_transaction.getRelativeUrl()), 
+      "%s doesn't end with %s?portal_status_message=The%%20payment%%20mode%%20is%%20unsupported." % (redirect, sale_invoice_transaction.getRelativeUrl()))
+

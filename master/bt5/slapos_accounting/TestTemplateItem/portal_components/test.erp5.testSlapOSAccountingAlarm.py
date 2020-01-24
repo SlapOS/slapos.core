@@ -6,6 +6,7 @@
 ##############################################################################
 
 import transaction
+import time
 from functools import wraps
 from Products.ERP5Type.tests.utils import createZODBPythonScript
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbort
@@ -1375,6 +1376,8 @@ portal_workflow.doActionFor(open_order, action='edit_action', comment='Visited b
   def test_alarm(self):
     open_order = self.createOpenOrder()
     self.tic()
+    # Jut wait a bit so the line has a different timestamp > 1 sec.
+    time.sleep(1)
     open_order.newContent(portal_type="Open Sale Order Line")
     self.tic()
     self._simulateOpenSaleOrder_reindexIfIndexedBeforeLine()

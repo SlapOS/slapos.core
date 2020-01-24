@@ -68,7 +68,7 @@ if not open_assignment_list and person.getUserId() == login_list[0].getReference
   login.setReference(person.getDefaultEmailText())
   reference = person.getDefaultEmailText()
   # Update password of the user
-  password = person.Person_generatePassword(alpha=5, numeric=3)
+  password = person.Person_generatePassword()
   login.setPassword(password)
   login.validate()
 

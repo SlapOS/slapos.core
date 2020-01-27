@@ -131,6 +131,8 @@ if ! is_ubuntu || [[ $DISTRO = wheezy || $DISTRO == jessie || $DISTRO == stretch
 else
   # Ansible is using python3 now
   is_package_installed python3-pip || install_package python3-pip
+  # XXXX install python2 until we can properly set ansible python interpreter
+  is_package_installed python || install_package python
 fi
 
 if is_fedora && [[ $DISTRO == "f26" ]]; then

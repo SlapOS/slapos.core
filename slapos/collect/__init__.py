@@ -108,7 +108,7 @@ def do_collect(conf):
     if stat.S_IMODE(os.stat(log_directory).st_mode) != 0o755:
       os.chmod(log_directory, 0o755)    
 
-    database = Database(log_directory)
+    database = Database(log_directory, create=True)
 
     if conf.has_option("slapformat", "computer_model_id"):
       computer_model_id = conf.get("slapformat", 

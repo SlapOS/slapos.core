@@ -100,7 +100,7 @@ class TestCollectDatabase(unittest.TestCase):
     def test_database_bootstrap(self):
         self.assertFalse(os.path.exists(
                   "%s/collector.db" % self.instance_root ))
-        database = db.Database(self.instance_root)
+        database = db.Database(self.instance_root, create=True)
         database.connect()
         try:
           self.assertEqual(
@@ -112,10 +112,25 @@ class TestCollectDatabase(unittest.TestCase):
         self.assertTrue(os.path.exists(
                   "%s/collector.db" % self.instance_root ))
 
+    def test_database_not_bootstrap(self):
+        self.assertFalse(os.path.exists(
+                  "%s/collector.db" % self.instance_root ))
+        database = db.Database(self.instance_root)
+        database.connect()
+        try:
+          self.assertNotEqual(
+              [u'user', u'folder', u'computer', u'system', u'disk', u'temperature', u'heating'],
+              database.getTableList())
+        finally:
+          database.close()
+
+        self.assertTrue(os.path.exists(
+                  "%s/collector.db" % self.instance_root ))
+
     def test_database_select(self):
       def _fake_execute(sql): return sql
 
-      database = db.Database(self.instance_root)
+      database = db.Database(self.instance_root, create=True)
       database.connect()
       original_execute = database._execute
       try:
@@ -133,7 +148,7 @@ class TestCollectDatabase(unittest.TestCase):
 
     def test_insert_user_snapshot(self):
 
-        database = db.Database(self.instance_root)
+        database = db.Database(self.instance_root, create=True)
         database.connect()
         try:
             database.insertUserSnapshot(
@@ -148,7 +163,7 @@ class TestCollectDatabase(unittest.TestCase):
 
     def test_insert_folder_snapshot(self):
 
-        database = db.Database(self.instance_root)
+        database = db.Database(self.instance_root, create=True)
         database.connect()
         try:
             database.inserFolderSnapshot(
@@ -161,7 +176,7 @@ class TestCollectDatabase(unittest.TestCase):
 
     def test_insert_computer_snapshot(self):
 
-        database = db.Database(self.instance_root)
+        database = db.Database(self.instance_root, create=True)
         database.connect()
         try:
             database.insertComputerSnapshot(
@@ -174,7 +189,7 @@ class TestCollectDatabase(unittest.TestCase):
 
     def test_insert_disk_partition_snapshot(self):
 
-        database = db.Database(self.instance_root)
+        database = db.Database(self.instance_root, create=True)
         database.connect()
         try:
             database.insertDiskPartitionSnapshot(
@@ -187,7 +202,7 @@ class TestCollectDatabase(unittest.TestCase):
 
     def test_insert_system_snapshot(self):
 
-        database = db.Database(self.instance_root)
+        database = db.Database(self.instance_root, create=True)
         database.connect()
         try:
             database.insertSystemSnapshot("0.1", '10.0', '100.0', '100.0', 
@@ -202,7 +217,7 @@ class TestCollectDatabase(unittest.TestCase):
 
     def test_date_scope(self):
 
-        database = db.Database(self.instance_root)
+        database = db.Database(self.instance_root, create=True)
         database.connect()
         try:
             database.insertSystemSnapshot("0.1", '10.0', '100.0', '100.0', 
@@ -224,7 +239,7 @@ class TestCollectDatabase(unittest.TestCase):
           database.close()
 
     def test_garbage_collection_date_list(self):
-        database = db.Database(self.instance_root)
+        database = db.Database(self.instance_root, create=True)
         self.assertEqual(len(database._getGarbageCollectionDateList(3)), 3)
         self.assertEqual(len(database._getGarbageCollectionDateList(1)), 1)
         self.assertEqual(len(database._getGarbageCollectionDateList(0)), 0)
@@ -234,7 +249,7 @@ class TestCollectDatabase(unittest.TestCase):
 
     def test_garbage(self):
 
-        database = db.Database(self.instance_root)
+        database = db.Database(self.instance_root, create=True)
         database.connect()
         database.insertSystemSnapshot("0.1", '10.0', '100.0', '100.0', 
                          '10.0', '1', '2', '12.0', '1', '1', '1983-01-10', 'TIME')
@@ -272,7 +287,7 @@ class TestCollectDatabase(unittest.TestCase):
 
     def test_mark_day_as_reported(self):
 
-        database = db.Database(self.instance_root)
+        database = db.Database(self.instance_root, create=True)
         database.connect()
         try:
             database.insertSystemSnapshot("0.1", '10.0', '100.0', '100.0', 
@@ -310,7 +325,7 @@ class TestCollectReport(unittest.TestCase):
           shutil.rmtree(self.instance_root)
 
     def getPopulatedDB(self, day='1983-01-10', amount=1):
-        database = db.Database(self.instance_root)
+        database = db.Database(self.instance_root, create=True)
         database.connect()
         for i in range(0, amount):
           database.insertSystemSnapshot("0.1", '10.0', '100.0', '100.0', 
@@ -770,7 +785,7 @@ class TestConsumptionReportBase(unittest.TestCase):
     self.instance_root = tempfile.mkdtemp()
     # inititalise
     self.loadPredefinedDB()
-    self.database = db.Database(self.instance_root)
+    self.database = db.Database(self.instance_root, create=True)
     self.temp_dir = tempfile.mkdtemp()
     os.environ["HOME"] = self.temp_dir
     self.software_root = tempfile.mkdtemp()

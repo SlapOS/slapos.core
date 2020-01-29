@@ -119,7 +119,7 @@ class Database:
             " date, time) values "\
             "( '%s', '%s', %s, %s, %s, %s, '%s', '%s' )"
 
-  def __init__(self, directory = None, create = True, timeout=None):
+  def __init__(self, directory=None, create=False, timeout=None):
     assert self.database_name is not None
     if directory.endswith(self.database_name):
       directory = directory[:-len(self.database_name)]

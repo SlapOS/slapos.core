@@ -38,6 +38,7 @@ class Database:
   database_name = "collector.db"
   preserve_table_list = ["heating"]
 
+  SET_PRAGMA_MODE = "pragma journal_mode=wal"
   CREATE_USER_TABLE = "create table if not exists user " \
                         "(partition text, pid real, process text, " \
                         " cpu_percent real, cpu_time real, " \
@@ -152,6 +153,7 @@ class Database:
   def _bootstrap(self):
     assert self.CREATE_USER_TABLE is not None
     self.connect()
+    self._execute(self.SET_PRAGMA_MODE)
     self._execute(self.CREATE_USER_TABLE)
     self._execute(self.CREATE_USER_PARTITION_DATE_TIME_INDEX)
     self._execute(self.CREATE_FOLDER_TABLE)

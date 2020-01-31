@@ -52,6 +52,9 @@ class Database:
   CREATE_USER_PARTITION_DATE_TIME_INDEX = "CREATE INDEX IF NOT EXISTS user_partition_date_time ON"\
                                           " user (partition, date, time)"
 
+  CREATE_GC_DATE_REPORTED_INDEX = "CREATE INDEX IF NOT EXISTS %s_date_reported_index ON"\
+                                          " %s (date, reported)"
+
   CREATE_FOLDER_TABLE = "create table if not exists folder "\
                           "(partition text, disk_used real, date text, " \
                           " time text, reported integer NULL DEFAULT 0)" 
@@ -166,6 +169,9 @@ class Database:
     self._execute(self.CREATE_DISK_PARTITION)
     self._execute(self.CREATE_TEMPERATURE_TABLE)
     self._execute(self.CREATE_HEATING_TABLE)
+    self.commit()
+    for table in self.getTableList():
+      self._execute(self.CREATE_GC_DATE_REPORTED_INDEX % (table, table))
     self.commit()
     self.close()
 
@@ -282,15 +288,20 @@ class Database:
     where_clause = "reported = 1" 
     for _date in date_list:
       where_clause += " AND date != '%s' " % _date
-    
+
+    vacuum = 0 
     delete_sql = "DELETE FROM %s WHERE %s"
+    select_sql = "SELECT date FROM %s WHERE %s LIMIT 1"
 
     self.connect()
     for table in self.getTableList():
-      if table not in self.preserve_table_list: 
-        self._execute(delete_sql % (table, where_clause))
+      if table not in self.preserve_table_list:
+        if self._execute(select_sql % (table, where_clause)).fetchone() is not None:
+          self._execute(delete_sql % (table, where_clause))
+          vacuum = 1
 
-    self._execute("VACUUM;")
+    if vacuum:
+      self._execute("VACUUM;")
     self.commit()
     self.close()
 

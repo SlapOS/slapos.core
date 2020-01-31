@@ -643,7 +643,11 @@ class StandaloneSlapOS(object):
       debug_args = prog.get('debug_args', '')  # pylint: disable=unused-variable
       command = prog['command'].format(**locals())
       try:
-        return subprocess.check_call(command, shell=True)
+        return subprocess.check_call(
+            command,
+            shell=True,
+            env=self._getSubprocessEnvironment(),
+        )
       except subprocess.CalledProcessError as e:
         if e.returncode == SLAPGRID_PROMISE_FAIL:
           self._logger.exception('Promise error when running %s', command)
@@ -706,6 +710,7 @@ class StandaloneSlapOS(object):
     output = subprocess.check_output(
         ['supervisord', '--configuration', self._supervisor_config],
         cwd=self._base_directory,
+        env=self._getSubprocessEnvironment(),
     )
     self._logger.debug("Started new supervisor: %s", output)
 
@@ -736,3 +741,12 @@ class StandaloneSlapOS(object):
         return
       time.sleep(i * .01)
     raise RuntimeError("SlapOS not started")
+
+  def _getSubprocessEnvironment(self):
+    # Running tests with `python setup.py test` sets a PYTHONPATH that
+    # is suitable for current python, but problematic when this process
+    # runs another version of python in subprocess.
+    if 'PYTHONPATH' in os.environ:
+      self._logger.warning("Removing $PYTHONPATH from environment for subprocess")
+      return {k:v for k, v in os.environ.items() if k != 'PYTHONPATH'}
+    return None

@@ -63,19 +63,8 @@ setup(name=name,
           'uritemplate', # used by hateoas navigator
           'subprocess32; python_version<"3"'
         ] + additional_install_requires,
-      extras_require={
-      'docs': (
-        'Sphinx',
-        'repoze.sphinx.autointerface',
-        'sphinxcontrib.programoutput'
-      ),
-      'ipython_console': ('ipython',),
-      'bpython_console': ('bpython',)},
-      tests_require=[
-          'pyflakes',
-          'mock',
-          'httmock',
-      ],
+      extras_require=extras_require,
+      tests_require=extras_require['test'],
       zip_safe=False, # proxy depends on Flask, which has issues with
                       # accessing templates
       entry_points={

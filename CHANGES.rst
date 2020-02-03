@@ -1,6 +1,16 @@
 Changes
 =======
 
+1.5.8 (2020-02-03)
+-------------------
+
+  * slapos/collect: Create index for speed up garbage collection
+  * slapos/collect: use memory based journal for accelerate response
+  * slapos/collect: set auto-commit
+  * slapos/collect: Don't invoke create database by default
+  * proxy: Support slave removal
+  * Extend tests to detect shared libraries using system libraries
+
 1.5.7 (2020-01-15)
 ------------------
 

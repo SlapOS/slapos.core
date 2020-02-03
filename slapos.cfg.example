@@ -165,4 +165,5 @@ upload-to-binary-cache-url-blacklist =
 
 # List of URL(s) which are forced to be downloaded from binary cache
 #download-from-binary-cache-force-url-list =
+#  https://lab.nexedi.com/nexedi/slapos/raw/1.0.
 #  https://lab.node.vifib.com/nexedi/slapos/raw/1.0.

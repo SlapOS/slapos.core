@@ -301,7 +301,16 @@
         if (default_used_list.indexOf(key) < 0) {
           div = document.createElement("div");
           div.title = key;
-          if (restricted === true) {
+          if (typeof default_dict[key] === 'object') {	
+            div_input = document.createElement("div");	
+            div_input.setAttribute("class", "input");	
+            label.setAttribute("class", "slapos-parameter-dict-key");	
+            div_input = render_subform({},	
+              default_dict[key],	
+              div_input,	
+              path + "/" + key,	
+              restricted);	
+          } else if (restricted === true) {
             div_input = document.createElement("div");
             div_input.setAttribute("class", "input");
             input = render_field({"type": "hidden"}, default_dict[key]);

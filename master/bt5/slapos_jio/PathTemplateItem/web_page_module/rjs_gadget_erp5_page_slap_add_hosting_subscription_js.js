@@ -82,6 +82,15 @@
                 'restricted_softwaretype': false
               }
             };
+          if (options.software_type) {
+            parameter_dict["parameter"]['restricted_softwaretype'] = true;
+            parameter_dict["parameter"]['softwaretype'] = options.software_type;
+            
+          }
+          if (options.shared) {
+            parameter_dict["parameter"]['shared'] = true;            
+          }
+
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
@@ -129,8 +138,19 @@
                   "required": 0,
                   "editable": 1,
                   "key": "computer_guid",
-                  "hidden": 0,
+                  "hidden": options.sla_xml !== undefined ? 1 : 0,
                   "type": "ListField"
+                },
+                "your_sla_xml": {
+                  "description": "The name of a document in ERP5",
+                  "title": "SLA",
+                  "default": options.sla_xml,
+                  "css_class": "",
+                  "required": 0,
+                  "editable": 0,
+                  "key": "sla_xml",
+                  "hidden": options.sla_xml !== undefined ? 0 : 1,
+                  "type": "StringField"
                 },
                 "my_relative_url": {
                   "description": "",
@@ -155,7 +175,7 @@
               group_list: [[
                 "center",
                 [["my_url_string"], ["your_title"], ["your_text_content"],
-                 ["your_computer_guid"], ["my_portal_type"], ["my_relative_url"]]
+                 ["your_computer_guid"],["your_sla_xml"], ["my_portal_type"], ["my_relative_url"]]
               ]]
             }
           })

@@ -29,6 +29,9 @@ import logging
 import pprint
 import unittest
 import tempfile
+import shutil
+import socket
+import textwrap
 import sys
 import os
 import pkg_resources
@@ -280,6 +283,66 @@ class TestCliProxyShow(CliMixin):
     # our pager was set to output to this temporary file
     with open(tmp.name, 'r') as f:
       self.assertIn('287375f0cba269902ba1bc50242839d7', f.read())
+
+
+class TestCliBoot(CliMixin):
+  def test_node_boot(self):
+    # initialize instance root, with a timestamp in a partition
+    temp_dir = tempfile.mkdtemp()
+    self.addCleanup(shutil.rmtree, temp_dir)
+    instance_root = os.path.join(temp_dir, 'instance')
+    partition_base_name = 'partition'
+    os.mkdir(instance_root)
+    os.mkdir(os.path.join(instance_root, partition_base_name + '1'))
+    timestamp = os.path.join(
+        instance_root, partition_base_name + '1', '.timestamp')
+    with open(timestamp, 'w') as f:
+      f.write("1578552471")
+
+    # make a config file using this instance root
+    with tempfile.NamedTemporaryFile(mode='w') as slapos_conf:
+      slapos_conf.write(
+          textwrap.dedent(
+              """\
+              [slapos]
+              instance_root = {instance_root}
+              master_url = https://slap.vifib.com/
+
+              [slapformat]
+              partition_base_name = {partition_base_name}
+              interface_name = interface_name_from_config
+              """).format(**locals()))
+      slapos_conf.flush()
+
+      # run slapos node boot
+      app = slapos.cli.entry.SlapOSApp()
+      with patch('slapos.cli.command.check_root_user', return_value=True) as check_root_user,\
+          patch('slapos.cli.boot.SlapOSApp') as SlapOSApp,\
+          patch('slapos.cli.boot.ConfigCommand.config_path', return_value=slapos_conf.name), \
+          patch(
+              'slapos.cli.boot.netifaces.ifaddresses',
+              return_value={socket.AF_INET6: ({'addr': '2000::1'},),},) as ifaddresses,\
+          patch('slapos.cli.boot._ping_hostname', return_value=1) as _ping_hostname:
+        app.run(('node', 'boot'))
+
+      # boot command runs as root
+      check_root_user.assert_called_once()
+      # it waits for interface to have an IPv6 address
+      ifaddresses.assert_called_once_with('interface_name_from_config')
+      # then ping master hostname to wait for connectivity
+      _ping_hostname.assert_called_once_with('slap.vifib.com')
+      # then format and bang
+      self.assertEqual(
+          [
+              mock.call(['node', 'format', '--now', '--verbose']),
+              mock.call().__eq__(1),
+              mock.call(['node', 'bang', '-m', 'Reboot']),
+              mock.call().__eq__(1),
+          ],
+          SlapOSApp().run.mock_calls,
+      )
+      # timestamp files have been removed
+      self.assertFalse(os.path.exists(timestamp))
 
 
 class TestCliNode(CliMixin):

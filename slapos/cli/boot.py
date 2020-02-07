@@ -42,11 +42,14 @@ from slapos.cli.entry import SlapOSApp
 from slapos.cli.config import ConfigCommand
 from slapos.format import isGlobalScopeAddress
 
-def _removeTimestamp(instancehome):
+def _removeTimestamp(instancehome, partition_base_name):
     """
       Remove .timestamp from all partitions
     """
-    timestamp_glob_path = "%s/slappart*/.timestamp" % instancehome
+    timestamp_glob_path = os.path.join(
+        instancehome,
+        "%s*" % partition_base_name,
+        ".timestamp")
     for timestamp_path in glob.glob(timestamp_glob_path):
        print("Removing %s" % timestamp_path)
        os.remove(timestamp_path)
@@ -157,6 +160,7 @@ class BootCommand(ConfigCommand):
     def take_action(self, args):
         configp = self.fetch_config(args)
         instance_root = configp.get('slapos','instance_root')
+        partition_base_name = configp.get('slapformat', 'partition_base_name')
         master_url = urlparse(configp.get('slapos','master_url'))
         master_hostname = master_url.hostname
 
@@ -187,4 +191,4 @@ class BootCommand(ConfigCommand):
             print("[BOOT] [ERROR] Fail to bang, try again in 15 seconds...")
             sleep(15)
 
-        _removeTimestamp(instance_root)
+        _removeTimestamp(instance_root, partition_base_name)

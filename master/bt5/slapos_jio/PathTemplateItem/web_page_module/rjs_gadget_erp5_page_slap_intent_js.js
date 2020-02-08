@@ -72,7 +72,7 @@
       if (options.intent !== "request") {
         throw new Error("Intent not supported");
       }
-      return RSVP.Queue()
+      return new RSVP.Queue()
         .push(function () {
           return gadget.updateHeader({
             page_title: "Requesting a service..."

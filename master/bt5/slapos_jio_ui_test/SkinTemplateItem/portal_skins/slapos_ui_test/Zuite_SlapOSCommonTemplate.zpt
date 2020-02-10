@@ -1,7 +1,52 @@
 <tal:block xmlns:tal="http://xml.zope.org/namespaces/tal"
            xmlns:metal="http://xml.zope.org/namespaces/metal">
 
+
   <tal:block metal:define-macro="slapos_init">
+    <tal:block tal:define="web_site_id python: 'hostingjs'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init_base" />
+    </tal:block>
+  </tal:block>
+
+
+  <tal:block metal:define-macro="slapos_login">
+    <tal:block tal:define="web_site_id python: 'hostingjs'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login_base" />
+    </tal:block>
+  </tal:block>
+
+
+  <tal:block metal:define-macro="slapos_login_with_another_user">
+    <tal:block tal:define="web_site_id python: 'hostingjs'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login_with_another_user_base" />
+    </tal:block>
+  </tal:block>
+
+
+  <tal:block metal:define-macro="slapos_wait_for_activities_and_front_page">
+    <tal:block tal:define="web_site_id python: 'hostingjs'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page_base" />
+    </tal:block>
+  </tal:block>
+
+
+  <tal:block metal:define-macro="access_menu_item">
+    <tal:block tal:define="panel_gadget_id python: 'gadget_slapos_panel.html'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_base" />
+    </tal:block>
+  </tal:block>
+
+  <tal:block metal:define-macro="access_menu_item_account">
+    <tal:block tal:define="panel_gadget_id python: 'gadget_slapos_panel.html'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account_base" />
+    </tal:block>
+  </tal:block>
+
+
+
+
+  <tal:block metal:define-macro="slapos_init_base">
+
     <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/init" />
 
     <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
@@ -51,7 +96,7 @@
     </tr>
     <tr>
       <td>open</td>
-      <td>${base_url}/web_site_module/hostingjs/ERP5Site_createTestUserList</td>
+      <td tal:content="python:'${base_url}/web_site_module/%s/ERP5Site_createTestUserList' % web_site_id">.../ERP5Site_createTestUserList</td>
       <td></td>
     </tr>
     <tr>
@@ -70,17 +115,17 @@
 
   </tal:block>
 
-  <tal:block metal:define-macro="slapos_login">
+  <tal:block metal:define-macro="slapos_login_base">
     <!-- Logout  -->
     <tr>
       <td>open</td>
-      <td>${base_url}/web_site_module/hostingjs/WebSite_logout</td>
+      <td tal:content="python:'${base_url}/web_site_module/%s/WebSite_logout' % web_site_id">.../WebSite_logout</td>
       <td></td>
     </tr>
     <!-- Initialize -->
     <tr>
       <td>open</td>
-      <td>${base_url}/web_site_module/hostingjs/</td>
+      <td tal:content="python:'${base_url}/web_site_module/%s/' % web_site_id"></td>
       <td></td>
     </tr>
     <tr>
@@ -112,17 +157,17 @@
   </tal:block>
 
 
-  <tal:block metal:define-macro="slapos_login_with_another_user">
+  <tal:block metal:define-macro="slapos_login_with_another_user_base">
     <!-- Logout  -->
     <tr>
       <td>open</td>
-      <td>${base_url}/web_site_module/hostingjs/WebSite_logout</td>
+      <td tal:content="python:'${base_url}/web_site_module/%s/WebSite_logout' % web_site_id"></td>
       <td></td>
     </tr>
     <!-- Initialize -->
     <tr>
       <td>open</td>
-      <td>${base_url}/web_site_module/hostingjs/</td>
+      <td tal:content="python:'${base_url}/web_site_module/%s/' % web_site_id"></td>
       <td></td>
     </tr>
     <tr>
@@ -154,7 +199,7 @@
   </tal:block>
 
 
-  <tal:block metal:define-macro="slapos_wait_for_activities_and_front_page">
+  <tal:block metal:define-macro="slapos_wait_for_activities_and_front_page_base">
 
     <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
 
@@ -165,7 +210,7 @@
     </tr>
     <tr>
       <td>open</td>
-      <td>${base_url}/web_site_module/hostingjs/</td>
+      <td tal:content="python:'${base_url}/web_site_module/%s/' % web_site_id"></td>
       <td></td>
     </tr>
     <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
@@ -237,7 +282,7 @@
     </tr>
   </tal:block>
 
-  <tal:block metal:define-macro="access_menu_item">
+  <tal:block metal:define-macro="access_menu_item_base">
      <tr>
       <td colspan="3"><b tal:content="python: 'Access Entry on the Menu for : %s' % menu_item"> Menu Item </b></td>
     </tr>
@@ -253,7 +298,7 @@
     </tr>
     <tr>
       <td>click</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_panel.html\')]//a[@data-i18n=\'%s\']' % menu_item"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[@data-i18n=\'%s\']' % (panel_gadget_id, menu_item)"></td>
       <td></td>
     </tr>
     <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
@@ -303,7 +348,7 @@
   </tal:block>
 
 
-  <tal:block metal:define-macro="access_menu_item_account">
+  <tal:block metal:define-macro="access_menu_item_account_base">
      <tr>
       <td colspan="3"><b tal:content="python: 'Access Entry on the Menu for Account'"> Menu Item </b></td>
     </tr>
@@ -319,7 +364,7 @@
     </tr>
     <tr>
       <td>click</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_panel.html\')]//a[@data-i18n=\'Account\']'"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[@data-i18n=\'Account\']' % panel_gadget_id"></td>
       <td></td>
     </tr>
     <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />

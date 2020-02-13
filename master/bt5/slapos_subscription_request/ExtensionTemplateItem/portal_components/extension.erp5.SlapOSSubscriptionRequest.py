@@ -54,5 +54,5 @@ def SubscriptionRequest_searchExistingUserByEmail(self, email, REQUEST=None):
     validation_state="validated")
 
   if len(person_list):
-    return person_list[0]
+    return person_list[0].getObject()
 

@@ -19,6 +19,7 @@
     .declareAcquiredMethod("jio_put", "jio_put")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("translate", "translate")
     /////////////////////////////////////////////////////////////////
     // declared methods
     /////////////////////////////////////////////////////////////////
@@ -69,18 +70,25 @@
           return gadget.getDeclaredGadget('form_view');
         })
         .push(function (form_gadget) {
-          return form_gadget.getContent();
+          return RSVP.all([
+            form_gadget.getContent(),
+            gadget.translate("Your Account")
+          ]);
         })
-        .push(function (content) {
+        .push(function (result) {
+          var content = result[0];
           return gadget.updateDocument(content)
             .push(function () {
               return gadget.updateHeader({
-                page_title: "Your Account : " + content.first_name + " " + content.last_name
+                page_title: result[1] + " : " + content.first_name + " " + content.last_name
               });
             });
         })
         .push(function () {
-          return gadget.notifySubmitted({message: 'Data updated.', status: 'success'});
+          return gadget.translate("Data updated");
+        })
+        .push(function (result) {
+          return gadget.notifySubmitted({message: result, status: 'success'});
         });
     })
 
@@ -89,24 +97,39 @@
     })
 
     .onStateChange(function () {
-      var gadget = this,
-        i, destination_list, 
-        column_list = [
-          ['reference', 'Reference'],
-          ['portal_type', 'Type']
-        ],
-        organisation_column_list = [
-            ['title', 'Title'],
-            ['reference', 'Reference'],
-            ['default_address_region_title', 'Region'],
-            ['Organisation_getNewsDict', 'Status']
-        ],
-        data;
+      var gadget = this;
       return new RSVP.Queue()
         .push(function () {
-          return gadget.getDeclaredGadget('form_view');
+          return RSVP.all([
+            gadget.getDeclaredGadget('form_view'),
+            // XXXX use getTranslationList when ERP5 will be upgraded
+            gadget.translate("Reference"),
+            gadget.translate("Type"),
+            gadget.translate("Title"),
+            gadget.translate("Region"),
+            gadget.translate("Status"),
+            gadget.translate("First Name"),
+            gadget.translate("Last Name"),
+            gadget.translate("Email"),
+            gadget.translate("Logins"),
+            gadget.translate("Organisations")
+          ]);
         })
-        .push(function (form_gadget) {
+        .push(function (result) {
+          var form_gadget = result[0],
+            i,
+            destination_list,
+            column_list = [
+              ['reference', result[1]],
+              ['portal_type', result[2]]
+            ],
+            organisation_column_list = [
+                ['title', result[3]],
+                ['reference', result[1]],
+                ['default_address_region_title', result[4]],
+                ['Organisation_getNewsDict', result[5]]
+            ],
+            data;
           destination_list = "%22NULL%22%2C";
           for (i in gadget.state.doc.assignment_destination_list) {
             destination_list += "%22" + gadget.state.doc.assignment_destination_list[i] + "%22%2C";
@@ -116,7 +139,7 @@
               "_embedded": {"_view": {
                 "my_first_name": {
                   "description": "",
-                  "title": "First Name",
+                  "title": result[6],
                   "default": gadget.state.doc.first_name,
                   "css_class": "",
                   "required": 1,
@@ -127,7 +150,7 @@
                 },
                 "my_last_name": {
                   "description": "",
-                  "title": "Last Name",
+                  "title": result[7],
                   "default": gadget.state.doc.last_name,
                   "css_class": "",
                   "required": 1,
@@ -138,7 +161,7 @@
                 },
                 "my_default_email_text": {
                   "description": "",
-                  "title": "Email",
+                  "title": result[8],
                   "default": gadget.state.doc.default_email_text,
                   "css_class": "",
                   "required": 1,
@@ -165,7 +188,7 @@
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
                   "sort": [["reference", "ascending"]],
-                  "title": "Logins",
+                  "title": result[9],
                   "type": "ListBox"
                 },
                 "organisation_listbox": {
@@ -184,7 +207,7 @@
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
                   "sort": [["reference", "ascending"]],
-                  "title": "Organisations",
+                  "title": result[10],
                   "type": "ListBox"
                 }
               }},
@@ -217,22 +240,23 @@
             gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_get_token"}}),
             gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_add_erp5_login"}}),
             gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_add_organisation"}}),
-            gadget.getUrlFor({command: "change", options: {page: "slapos"}})
+            gadget.getUrlFor({command: "change", options: {page: "slapos"}}),
+            gadget.translate("Your Account")
           ]);
         })
-        .push(function (url_list) {
+        .push(function (result) {
           var header_dict = {
-            page_title: "Your Account : " + gadget.state.doc.first_name + " " + gadget.state.doc.last_name,
+            page_title: result[7] + " : " + gadget.state.doc.first_name + " " + gadget.state.doc.last_name,
             save_action: true,
-            request_certificate_url: url_list[2],
-            revoke_certificate_url: url_list[1],
-            token_url: url_list[3],
-            add_login_url: url_list[4],
-            add_organisation_url: url_list[5],
-            selection_url: url_list[6]
+            request_certificate_url: result[2],
+            revoke_certificate_url: result[1],
+            token_url: result[3],
+            add_login_url: result[4],
+            add_organisation_url: result[5],
+            selection_url: result[6]
           };
           if (!gadget.state.editable) {
-            header_dict.edit_content = url_list[0];
+            header_dict.edit_content = result[0];
           }
           return gadget.updateHeader(header_dict);
         });

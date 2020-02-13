@@ -13,16 +13,7 @@ if person is not None:
   return person, False
 
 # Already has login with this.
-erp5_login = portal.portal_catalog.getResultValue(portal_type="ERP5 Login",
-               reference=email, validation_state="validated")
-if erp5_login is not None:
-  return erp5_login.getParentValue(), False
-
-# Already has login with this.
-person = portal.portal_catalog.getResultValue(
-    portal_type="Person",
-    default_email_text=email,
-    validation_state="validated")
+person = context.SubscriptionRequest_searchExistingUserByEmail(email)
 
 if person is not None:
   return person, False
@@ -41,6 +32,7 @@ login = person.newContent(
   password=''.join(random.choice(chars) for i in range(13)))
 
 login.validate()
+
 
 # The rest of the information will be used later.
 person.SubscriptionRequest_saveTransactionalUser(person)

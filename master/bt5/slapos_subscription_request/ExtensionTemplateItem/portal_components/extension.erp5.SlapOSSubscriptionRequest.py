@@ -1,5 +1,7 @@
 from Products.ERP5Type.TransactionalVariable import getTransactionalVariable
 from lxml import etree
+from zExceptions import Unauthorized
+
 from zLOG import LOG, INFO
 
 def SubscriptionRequest_saveTransactionalUser(self, person=None):
@@ -31,4 +33,26 @@ def SubscriptionCondition_renderParameter(self, amount=0, **kw):
     return getattr(self, method_id)(amount=amount, **kw)
 
   return self.getTextContent()
+
+def SubscriptionRequest_searchExistingUserByEmail(self, email, REQUEST=None):
+  if REQUEST is not None:
+    raise Unauthorized
+  portal = self.getPortalObject()
+
+  erp5_login_list = portal.portal_catalog.unrestrictedSearchResults(
+    portal_type="ERP5 Login",
+    reference=email,
+    validation_state="validated")
+
+  if len(erp5_login_list):
+    return erp5_login_list[0].getParentValue()
+
+  # Already has login with this.
+  person_list = portal.portal_catalog.unrestrictedSearchResults(
+    portal_type="Person",
+    default_email_text=email,
+    validation_state="validated")
+
+  if len(person_list):
+    return person_list[0]
 

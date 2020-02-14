@@ -12,6 +12,7 @@
     .declareAcquiredMethod("setSetting", "setSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+    .declareAcquiredMethod("translate", "translate")
 
     .allowPublicAcquisition("jio_allDocs", function (param_list) {
       var gadget = this;
@@ -92,26 +93,35 @@
           return gadget.triggerSubmit.apply(gadget, argument_list);
         });
     })
-    .declareMethod("render", function (options) {
+    .declareMethod("render", function () {
       var gadget = this,
-        lines_limit;
+        lines_limit,
+        invoices_translation;
 
       return new RSVP.Queue()
         .push(function () {
-          return gadget.getSetting("listbox_lines_limit", 20);
+          return RSVP.all([
+            gadget.getDeclaredGadget('form_list'),
+            gadget.getSetting("listbox_lines_limit", 20),
+            gadget.translate("Date"),
+            gadget.translate("Price"),
+            gadget.translate("Currency"),
+            gadget.translate("Payment"),
+            gadget.translate("Download"),
+            gadget.translate("Invoices")
+          ]);
         })
-        .push(function (listbox_lines_limit) {
-          lines_limit = listbox_lines_limit;
-          return gadget.getDeclaredGadget('form_list');
-        })
-        .push(function (form_list) {
+        .push(function (result) {
           var column_list = [
-            ['start_date', 'Date'],
-            ['total_price', 'Price'],
-            ['resource_reference', 'Currency'],
-            ['translated_simulation_state_title', 'Payment'],
-            ['download', 'Download']
-          ];
+            ['start_date', result[2]],
+            ['total_price', result[3]],
+            ['resource_reference', result[4]],
+            ['translated_simulation_state_title', result[5]],
+            ['download', result[6]]
+          ],
+            form_list = result[0];
+          lines_limit = result[1];
+          invoices_translation = result[7];
           return form_list.render({
             erp5_document: {
               "_embedded": {"_view": {
@@ -130,7 +140,7 @@
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
                   "sort": [["creation_date", "descending"]],
-                  "title": "Invoices",
+                  "title": invoices_translation,
                   "type": "ListBox"
                 }
               }},
@@ -154,14 +164,14 @@
             jio_key: "accounting_module"
           });
         })
-        .push(function (result) {
+        .push(function () {
           return RSVP.all([
             gadget.getUrlFor({command: "change", options: {"page": "slapos"}})
           ]);
         })
         .push(function (result) {
           return gadget.updateHeader({
-            page_title: "Invoices",
+            page_title: invoices_translation,
             selection_url: result[0],
             filter_action: true
           });

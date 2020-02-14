@@ -239,9 +239,9 @@ gadget_html5_select.js\n
 gadget_erp5_global.js\n
 gadget_jio.html\n
 gadget_jio.js\n
-gadget_translation.html\n
+gadget_slapos_translation.html\n
 gadget_translation.js\n
-gadget_translation_data.js\n
+gadget_slapos_translation_data.js\n
 handlebars.js\n
 jiodev.js\n
 renderjs.js\n
@@ -318,7 +318,7 @@ gadget_erp5_page_slap_load_schema.js\n
 gadget_erp5_page_slap_network_list.html\n
 gadget_erp5_page_slap_network_list.js\n
 gadget_erp5_page_slap_organisation_view.html\n
-gadget_erp5_page_slap_organisation_view.js\n
+#gadget_erp5_page_slap_organisation_view.js\n
 gadget_erp5_page_slap_site_view.html\n
 gadget_erp5_page_slap_site_view.js\n
 gadget_erp5_page_slap_parameter_form.css\n
@@ -388,7 +388,7 @@ gadget_erp5_page_slap_notify_and_redirect.html\n
 gadget_erp5_page_slap_notify_and_redirect.js\n
 gadget_erp5_page_slapos.css\n
 gadget_erp5_page_slapos.html\n
-gadget_erp5_page_slapos.js\n
+#gadget_erp5_page_slapos.js\n
 gadget_erp5_page_slapos_request_form.html\n
 gadget_erp5_page_trial.css\n
 gadget_erp5_page_trial.html\n
@@ -581,7 +581,7 @@ NETWORK:\n
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>981.14498.3807.21930</string> </value>
+                <value> <string>981.54984.55898.16640</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -599,7 +599,7 @@ NETWORK:\n
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1579259797.54</float>
+                        <float>1581689221.25</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

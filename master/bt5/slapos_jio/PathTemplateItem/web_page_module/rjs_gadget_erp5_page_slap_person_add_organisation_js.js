@@ -20,6 +20,7 @@
     .declareAcquiredMethod("jio_post", "jio_post")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("translate", "translate")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -41,14 +42,17 @@
           if (content_type.hasOwnProperty(doc.portal_type)) {
             doc.content_type = content_type[doc.portal_type];
           }
-          return gadget.jio_post(doc);
+          return RSVP.all([
+            gadget.jio_post(doc),
+            gadget.translate("New organisation created")
+          ]);
         })
-        .push(function (key) {
-          return gadget.notifySubmitted({message: 'New Organisation created.', status: 'success'})
+        .push(function (result) {
+          return gadget.notifySubmitted({message: result[1], status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
               return gadget.redirect({"command": "change",
-                                    "options": {"jio_key": key, "page": "slap_controller"}});
+                                    "options": {"jio_key": result[0], "page": "slap_controller"}});
             });
         });
     })
@@ -58,20 +62,24 @@
     })
 
     .declareMethod("render", function () {
-      var gadget = this;
+      var gadget = this,
+        page_title_translation;
       return RSVP.Queue()
         .push(function () {
           return RSVP.all([
-            gadget.getDeclaredGadget('form_view')
+            gadget.getDeclaredGadget('form_view'),
+            gadget.translate("Title"),
+            gadget.translate("New Organisation")
           ]);
         })
         .push(function (result) {
+          page_title_translation = result[2];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_title": {
                   "description": "The name of a document in ERP5",
-                  "title": "Title",
+                  "title": result[1],
                   "default": "",
                   "css_class": "",
                   "required": 0,
@@ -129,14 +137,14 @@
             }
           });
         })
-        .push(function (result) {
+        .push(function () {
           return RSVP.all([
             gadget.getUrlFor({command: 'change', options: {page: "slap_person_view"}})
           ]);
         })
         .push(function (url_list) {
           return gadget.updateHeader({
-            page_title: "New Organisation",
+            page_title: page_title_translation,
             selection_url: url_list[0],
             submit_action: true
           });

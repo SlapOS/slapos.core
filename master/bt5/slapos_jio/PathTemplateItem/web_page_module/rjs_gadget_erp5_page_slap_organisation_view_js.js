@@ -1,6 +1,6 @@
-/*global window, rJS, RSVP, jIO, Blob */
+/*global window, rJS, RSVP */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP, jIO, Blob) {
+(function (window, rJS, RSVP) {
   "use strict";
 
   rJS(window)
@@ -17,6 +17,7 @@
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+    .declareAcquiredMethod("translate", "translate")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -34,7 +35,7 @@
       var gadget = this;
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
-          var i, value, jio_key_value, len = result.data.total_rows;
+          var i, value, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
             if (1 || (result.data.rows[i].value.hasOwnProperty("title"))) {
               value = result.data.rows[i].value.title;
@@ -85,7 +86,10 @@
           return gadget.updateDocument(content);
         })
         .push(function () {
-          return gadget.notifySubmitted({message: 'Data updated.', status: 'success'});
+          return gadget.translate('Data updated');
+        })
+        .push(function (result) {
+          return gadget.notifySubmitted({message: result, status: 'success'});
         });
     })
 
@@ -94,26 +98,33 @@
     })
 
     .onStateChange(function () {
-      var gadget = this, data;
+      var gadget = this,
+        organisation_translation;
       return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
-            gadget.getSetting("hateoas_url")
+            gadget.getSetting("hateoas_url"),
+            gadget.translate("Title"),
+            gadget.translate("Email"),
+            gadget.translate("Reference"),
+            gadget.translate("Associated Persons"),
+            gadget.translate("Organisation")
           ]);
         })
         .push(function (result) {
           var column_list = [
-                        ['title', 'Title'],
-                        ['default_email_text', 'Email']
-                             ],
+            ['title', result[2]],
+            ['default_email_text', result[3]]
+          ],
             editable = gadget.state.editable;
+          organisation_translation = result[6];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_title": {
                   "description": "",
-                  "title": "Title",
+                  "title": result[2],
                   "default": gadget.state.doc.title,
                   "css_class": "",
                   "required": 1,
@@ -124,7 +135,7 @@
                 },
                 "my_reference": {
                   "description": "",
-                  "title": "Reference",
+                  "title": result[4],
                   "default": gadget.state.doc.reference,
                   "css_class": "",
                   "required": 1,
@@ -150,7 +161,7 @@
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
                   "sort": [["title", "ascending"]],
-                  "title": "Associated Persons",
+                  "title": result[5],
                   "type": "ListBox"
                 }
               }},
@@ -183,7 +194,7 @@
         .push(function (url_list) {
           var header_dict = {
             selection_url: url_list[1],
-            page_title: "Organisation : " + gadget.state.doc.title,
+            page_title: organisation_translation + ": " + gadget.state.doc.title,
             delete_url: url_list[2],
             invitation_url: url_list[3],
             save_action: true
@@ -194,4 +205,4 @@
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP, jIO, Blob));
+}(window, rJS, RSVP));

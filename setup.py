@@ -28,8 +28,20 @@ try:
 except ImportError:
   additional_install_requires.append('argparse')
 
-if sys.version_info[0] < 3:
-  additional_install_requires.append('subprocess32')
+extras_require = {
+    'docs': (
+        'Sphinx',
+        'repoze.sphinx.autointerface',
+        'sphinxcontrib.programoutput',
+    ),
+    'ipython_console': ('ipython',),
+    'bpython_console': ('bpython',),
+    'test': (
+        'pyflakes',
+        'mock',
+        'httmock',
+    ),
+}
 
 setup(name=name,
       version=version,
@@ -63,20 +75,10 @@ setup(name=name,
           'cachecontrol',
           'lockfile',
           'uritemplate', # used by hateoas navigator
+          'subprocess32; python_version<"3"'
         ] + additional_install_requires,
-      extras_require={
-      'docs': (
-        'Sphinx',
-        'repoze.sphinx.autointerface',
-        'sphinxcontrib.programoutput'
-      ),
-      'ipython_console': ('ipython',),
-      'bpython_console': ('bpython',)},
-      tests_require=[
-          'pyflakes',
-          'mock',
-          'httmock',
-      ],
+      extras_require=extras_require,
+      tests_require=extras_require['test'],
       zip_safe=False, # proxy depends on Flask, which has issues with
                       # accessing templates
       entry_points={

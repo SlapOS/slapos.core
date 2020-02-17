@@ -300,9 +300,9 @@ class Database:
           self._execute(delete_sql % (table, where_clause))
           vacuum = 1
 
-    if vacuum:
-      self._execute("VACUUM;")
     self.commit()
+    if vacuum:
+      self._execute("VACUUM")
     self.close()
 
   def getDateScopeList(self, ignore_date=None, reported=0):

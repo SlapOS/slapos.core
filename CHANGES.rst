@@ -1,8 +1,14 @@
 Changes
 =======
 
+1.5.9 (2020-02-17)
+------------------
+
+* Fixes for Python 3.6
+* cli/boot: read partition base name from config
+
 1.5.8 (2020-02-03)
--------------------
+------------------
 
   * slapos/collect: Create index for speed up garbage collection
   * slapos/collect: use memory based journal for accelerate response

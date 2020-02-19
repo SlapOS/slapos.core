@@ -43,24 +43,20 @@ from slapos.util import str2bytes
 
 class CacheLookupCommand(ConfigCommand):
     """
-    perform a query to the networkcache
-    You can provide either a complete URL to the software release,
-    or a corresponding MD5 hash value.
+    perform a query to the networkcache.
 
-    The command will report which OS distribution/version have a binary
-    cache of the software release, and which ones are compatible
-    with the OS you are currently running.
+    Check if source URL is available to be downloaded from cache.
     """
 
     def get_parser(self, prog_name):
         ap = super(CacheLookupCommand, self).get_parser(prog_name)
         ap.add_argument('url',
-                        help='Wanted url for testing')
+                        help='URL to query')
         return ap
 
     def take_action(self, args):
         configp = self.fetch_config(args)
-        cache_dir = configp.get('networkcache', 'download-binary-dir-url')
+        cache_dir = configp.get('networkcache', 'download-cache-url')
         sys.exit(do_lookup(self.app.log, cache_dir, args.url))
 
 def do_lookup(logger, cache_dir, url):

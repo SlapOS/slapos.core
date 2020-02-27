@@ -22,6 +22,7 @@ from erp5.component.test.SlapOSTestCaseMixin import \
   SlapOSTestCaseMixinWithAbort, simulate
 from zExceptions import Unauthorized
 from Products.ERP5Type.TransactionalVariable import getTransactionalVariable
+from DateTime import  DateTime
 
 class TestSubscriptionSkinsMixin(SlapOSTestCaseMixinWithAbort):
 
@@ -435,7 +436,6 @@ assert password""")
     self.assertNotEqual(subscriber_role.getStartDate(), None)
     self.assertNotEqual(member_role.getStopDate(), None)
 
-    from DateTime import DateTime
     self.assertTrue(subscriber_role.getStartDate() < DateTime())
     self.assertTrue(member_role.getStopDate() > DateTime() + 365*5)
     self.assertTrue(subscriber_role.getStartDate() < DateTime())
@@ -906,7 +906,167 @@ class TestSubscriptionRequest_notifyInstanceIsReady(TestSubscriptionSkinsMixin):
 #  def test(self):
 #    raise
 
+class TestSubscriptionRequest_verifyPaymentTransaction(TestSubscriptionSkinsMixin):
 
-#class SubscriptionRequest_verifyPaymentTransaction(TestSubscriptionSkinsMixin):
-#  def test_not_implemented(self):
-#    raise
+  def test_no_sale_invoice(self):
+    person = self.makePerson()
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person)
+    
+    # Too early to cancel
+    self.assertEqual(subscription_request.SubscriptionRequest_verifyPaymentTransaction(),
+      None)
+    self.assertEqual(subscription_request.getSimulationState(),
+      "draft")
+
+    def getCreationDate(self):
+      return DateTime() - 1.1
+
+    from Products.ERP5Type.Base import Base
+    original_get_creation = Base.getCreationDate
+    Base.getCreationDate = getCreationDate
+
+    try:
+      self.assertEqual(subscription_request.SubscriptionRequest_verifyPaymentTransaction(),
+          None)
+    finally:
+      Base.getCreationDate = original_get_creation
+    
+    self.assertEqual(subscription_request.getSimulationState(),
+      "cancelled")
+    
+  def _test_cancel_due_payment_state(self, state="draft"):
+    email = "abc%s@nexedi.com" % self.new_id
+    name = "Cous Cous %s" % self.new_id
+    person, _ = self.portal.SubscriptionRequest_createUser(name=name, email=email)
+    self.tic()
+
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      default_email_text="abc%s@nexedi.com" % self.new_id)
+
+    invoice_template_path = "accounting_module/template_pre_payment_subscription_sale_invoice_transaction"
+    invoice_template = self.portal.restrictedTraverse(invoice_template_path)
+    payment_template = self.portal.restrictedTraverse("accounting_module/slapos_pre_payment_template")
+
+    # Too early to cancel
+    self.assertEqual(subscription_request.SubscriptionRequest_verifyPaymentTransaction(), None)
+    self.assertEqual(subscription_request.getSimulationState(), "draft")
+
+    current_invoice = invoice_template.Base_createCloneDocument(batch_mode=1)
+    current_payment = payment_template.Base_createCloneDocument(batch_mode=1)
+
+    current_invoice.start()
+    subscription_request.edit(causality_value=current_invoice)
+    current_payment.setCausalityValue(current_invoice)  
+    
+    if state == "cancelled":
+      current_payment.cancel()
+    elif state == "deleted":
+      current_payment.delete()
+  
+    self.tic()
+    self.assertEqual(subscription_request.SubscriptionRequest_verifyPaymentTransaction(),
+      None)
+
+    self.assertEqual(current_invoice.getSimulationState(), "cancelled")
+    self.assertEqual(subscription_request.getSimulationState(),
+      "cancelled")
+
+  def test_draft_payment_state(self):
+    self._test_cancel_due_payment_state()
+
+  def test_cancelled_payment_state(self):
+    self._test_cancel_due_payment_state(state="cancelled")
+
+  def test_deleted_payment_state(self):
+    self._test_cancel_due_payment_state(state="deleted")
+
+  def test_stopped_payment_state(self, state="draft"):
+    email = "abc%s@nexedi.com" % self.new_id
+    name = "Cous Cous %s" % self.new_id
+    person, _ = self.portal.SubscriptionRequest_createUser(name=name, email=email)
+    self.tic()
+
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      default_email_text="abc%s@nexedi.com" % self.new_id)
+
+    invoice_template_path = "accounting_module/template_pre_payment_subscription_sale_invoice_transaction"
+    invoice_template = self.portal.restrictedTraverse(invoice_template_path)
+    payment_template = self.portal.restrictedTraverse("accounting_module/slapos_pre_payment_template")
+
+    # Too early to cancel
+    self.assertEqual(subscription_request.SubscriptionRequest_verifyPaymentTransaction(), None)
+    self.assertEqual(subscription_request.getSimulationState(), "draft")
+
+    current_invoice = invoice_template.Base_createCloneDocument(batch_mode=1)
+    current_payment = payment_template.Base_createCloneDocument(batch_mode=1)
+
+    current_invoice.confirm()
+    current_invoice.start()
+    current_invoice.stop()
+    
+    subscription_request.edit(causality_value=current_invoice)
+    current_payment.setCausalityValue(current_invoice)  
+    
+    current_payment.confirm()
+    current_payment.start()
+    
+    self.tic()
+    self.assertEqual(subscription_request.SubscriptionRequest_verifyPaymentTransaction(),
+      None)
+    self.assertEqual(subscription_request.getSimulationState(),
+      "draft")
+
+    current_payment.stop()
+
+    self.assertEqual(subscription_request.SubscriptionRequest_verifyPaymentTransaction(),
+      None)
+    self.assertEqual(subscription_request.getSimulationState(),
+      "planned")
+
+  def _test_cancel_due_sale_invoice_state(self, state="draft"):
+    email = "abc%s@nexedi.com" % self.new_id
+    name = "Cous Cous %s" % self.new_id
+
+    person, _ = self.portal.SubscriptionRequest_createUser(name=name, email=email)
+    self.tic()
+
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      default_email_text="abc%s@nexedi.com" % self.new_id)
+
+    invoice_template_path = "accounting_module/template_pre_payment_subscription_sale_invoice_transaction"
+    invoice_template = self.portal.restrictedTraverse(invoice_template_path)
+
+    # Too early to cancel
+    self.assertEqual(subscription_request.SubscriptionRequest_verifyPaymentTransaction(),
+      None)
+    self.assertEqual(subscription_request.getSimulationState(),
+      "draft")
+
+    current_invoice = invoice_template.Base_createCloneDocument(batch_mode=1)
+    subscription_request.edit(causality_value=current_invoice)
+    
+    if state == "cancelled":
+      current_invoice.cancel()
+    elif state == "deleted":
+      current_invoice.delete()
+  
+    self.assertEqual(subscription_request.SubscriptionRequest_verifyPaymentTransaction(),
+      None)
+    self.assertEqual(subscription_request.getSimulationState(),
+      "cancelled")
+
+  def test_draft_sale_invoice_state(self):
+    self._test_cancel_due_sale_invoice_state()
+
+  def test_cancelled_sale_invoice_state(self):
+    self._test_cancel_due_sale_invoice_state(state="cancelled")
+
+  def test_deleted_sale_invoice_state(self):
+    self._test_cancel_due_sale_invoice_state(state="deleted")
+
+
+  

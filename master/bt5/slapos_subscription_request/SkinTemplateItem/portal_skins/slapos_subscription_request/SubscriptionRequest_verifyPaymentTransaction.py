@@ -1,3 +1,5 @@
+from DateTime import DateTime
+
 if context.getSimulationState() != "draft":
   return
 
@@ -5,7 +7,8 @@ sale_invoice_transaction = context.getCausalityValue(
   portal_type="Sale Invoice Transaction")
 
 if sale_invoice_transaction is None:
-  context.cancel(comment="No sale invoice transaction attached, so subscription is cancelled")
+  if context.getCreationDate() < DateTime() - 1:
+    context.cancel(comment="No sale invoice transaction attached, so subscription is cancelled")
   return
 
 if sale_invoice_transaction.getSimulationState() in ["draft", "cancelled", "deleted"]:

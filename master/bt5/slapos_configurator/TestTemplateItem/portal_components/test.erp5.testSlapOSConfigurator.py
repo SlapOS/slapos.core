@@ -163,6 +163,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'hosting_subscription_module',
        'image_module',
        'implicit_item_movement_module',
+       'incident_response_module',
        'internal_order_module',
        'internal_packing_list_module',
        'internal_supply_module',

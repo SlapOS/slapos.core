@@ -55,6 +55,14 @@
                   return gadget.redirect({"command": "change",
                                     "options": {"jio_key": "/", "page": "slap_service_list"}});
                 });
+            }, function (error) {
+              if (error.target.status === 409) {
+                return gadget.notifySubmitted({message: 'A service with this title already exists.', status: 'error'});
+              }
+              if (error.target.status === 400) {
+                return gadget.notifySubmitted({message: 'Service Title is mandatory.', status: 'error'});
+              }
+              
             });
         });
     })
@@ -65,7 +73,7 @@
 
     .declareMethod("render", function (options) {
       var gadget = this;
-      return RSVP.Queue()
+      return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),

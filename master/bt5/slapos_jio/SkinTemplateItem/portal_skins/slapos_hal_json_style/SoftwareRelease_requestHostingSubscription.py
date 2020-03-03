@@ -1,5 +1,12 @@
+from zExceptions import Unauthorized
+if REQUEST is None:
+  raise Unauthorized
+
 import json
 portal = context.getPortalObject()
+
+response = REQUEST.RESPONSE
+
 
 if shared in ["true", "1", 1]:
   shared = True
@@ -8,7 +15,8 @@ if shared in ["false", "", 0, "0", None]:
   shared = False
 
 if not title:
-  raise ValueError("Service Title is mandatory!")
+  response.setStatus(400)
+  return "Service Title is mandatory!"
 
 if "{uid}" in title:
   uid_ = portal.portal_ids.generateNewId(id_group=("vifib", "kvm"), default=1)
@@ -21,7 +29,8 @@ hosting_subscription = portal.portal_catalog.getResultValue(
   )
 
 if hosting_subscription is not None:
-  raise ValueError("Instance with this name already exists")
+  response.setStatus(409)
+  return "Instance with this name already exists"
 
 # The URL should come from the URL Probably
 url = context.getUrlString()
@@ -29,7 +38,7 @@ url = context.getUrlString()
 person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
 if person is None:
-  raise ValueError("You cannot request without been logged in as a user.")
+  raise Unauthorized("You cannot request without been logged in as a user.")
 
 if software_type in [None, ""]:
   software_type = "RootSoftwareInstance"
@@ -63,5 +72,4 @@ if sla_xml:
 </instance>""" % sla_xml
 
 person.requestSoftwareInstance(**request_kw)
-
 return json.dumps(context.REQUEST.get('request_hosting_subscription').getRelativeUrl())

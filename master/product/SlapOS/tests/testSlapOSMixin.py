@@ -126,11 +126,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
     self.portal.portal_certificate_authority.manage_editCertificateAuthorityTool(
       certificate_authority_path=ca_path)
 
-  def setupPortalAlarms(self):
-    if not self.portal.portal_alarms.isSubscribed():
-      self.portal.portal_alarms.subscribe()
-    self.assertTrue(self.portal.portal_alarms.isSubscribed())
-
   def isLiveTest(self):
     #return 'ERP5TypeLiveTestCase' in [q.__name__ for q in self.__class__.mro()]
     # XXX - What is the better way to know if we are in live test mode ?
@@ -230,7 +225,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
 
   def bootstrapSite(self):
     self.logMessage('SlapOS bootstrapSite')
-    self.setupPortalAlarms()
     self.getDefaultSystemPreference().setPreferredHateoasUrl("http://dummy/")
 
     self.clearCache()

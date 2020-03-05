@@ -9,3 +9,6 @@ with context.portal_activities.defaultActivateParameterDict({}, placeless=True):
 context.ERP5Site_checkUpgraderConsistency(fixit=1,
   active_process=active_process,
   filter_dict={"constraint_type": "post_upgrade"})
+
+if not context.portal_alarms.isSubscribed():
+  context.portal_alarms.subscribe()

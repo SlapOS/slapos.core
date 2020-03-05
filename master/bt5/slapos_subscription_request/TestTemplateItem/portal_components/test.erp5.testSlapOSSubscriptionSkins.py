@@ -900,12 +900,6 @@ class TestSubscriptionRequest_notifyInstanceIsReady(TestSubscriptionSkinsMixin):
       event.getTextContent(),'%s %s %s' % (person.getTitle(), subscription_request.getTitle(),
         self.hosting_subscription.getRelativeUrl()))
 
-
-
-#class SubscriptionRequest_checkPaymentBalance(TestSubscriptionSkinsMixin):
-#  def test(self):
-#    raise
-
 class TestSubscriptionRequest_verifyPaymentTransaction(TestSubscriptionSkinsMixin):
 
   def test_no_sale_invoice(self):
@@ -1068,5 +1062,147 @@ class TestSubscriptionRequest_verifyPaymentTransaction(TestSubscriptionSkinsMixi
   def test_deleted_sale_invoice_state(self):
     self._test_cancel_due_sale_invoice_state(state="deleted")
 
+class TestSubscriptionRequest_checkPaymentBalance(TestSubscriptionSkinsMixin):
 
-  
+  def test_no_sale_invoice(self):
+    person = self.makePerson()
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      url_string="https://%s/software.cfg" % self.new_id,
+      sla_xml="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="oi">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    text_content="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="xx">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    root_slave=False,
+    source_reference="test_for_test_123")
+
+    self.tic()
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_checkPaymentBalance(), None)
+    self.tic()
+
+    hosting_subscription = subscription_request.getAggregateValue(portal_type="Hosting Subscription")
+    self.assertNotEqual(hosting_subscription, None)
+
+    instance = hosting_subscription.getPredecessorValue()
+    self.assertNotEqual(instance, None)
+
+    contract = self.portal.portal_catalog.getResultValue(
+      portal_type=["Cloud Contract"],
+      default_destination_section_uid=person.getUid(),
+      validation_state=['invalidated', 'validated'],
+    )
+
+    self.assertNotEqual(contract, None)
+    
+    # here the Reservation fee invoice wasn't generated to the user
+    # don't get cloud contact approved
+    self.assertEqual(contract.getValidationState(), "invalidated")
+
+    # Check if refundable invoice wasn't generated as causality is None anyway...
+    invoice = subscription_request.getCausalityValue(
+      portal_type="Sale Invoice Transaction")
+    
+    self.assertEqual(None, invoice)
+    
+    self.assertEqual(
+      subscription_request.getSimulationState(),
+      "draft"
+    )
+
+  def test_with_reservation_fee(self):
+    person = self.makePerson()
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      url_string="https://%s/software.cfg" % self.new_id,
+      sla_xml="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="oi">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    text_content="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="xx">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    root_slave=False,
+    source_reference="test_for_test_123")
+    self.tic()
+
+
+    # The SubscriptionRequest_createRelatedSaleInvoiceTransaction is invoked up, as it proven on
+    # test TestSubscriptionRequest_requestPaymentTransaction, so let's keep it simple, and just reinvoke
+    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction(1, "TAG", "en")
+    self.assertNotEqual(current_payment, None)
+
+    self.tic()
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_checkPaymentBalance(), None)
+    self.tic()
+
+    hosting_subscription = subscription_request.getAggregateValue(portal_type="Hosting Subscription")
+    self.assertNotEqual(hosting_subscription, None)
+
+    instance = hosting_subscription.getPredecessorValue()
+    self.assertNotEqual(instance, None)
+
+    contract = self.portal.portal_catalog.getResultValue(
+      portal_type=["Cloud Contract"],
+      default_destination_section_uid=person.getUid(),
+      validation_state=['invalidated', 'validated'],
+    )
+
+    self.assertNotEqual(contract, None)
+    
+    # here the Reservation fee invoice wasn't generated to the user
+    # don't get cloud contact approved
+    self.assertEqual(contract.getValidationState(), "invalidated")
+
+    # Check if refundable invoice wasn't generated as causality is None anyway...
+    invoice = subscription_request.getCausalityValue(
+      portal_type="Sale Invoice Transaction")
+    
+    self.assertNotEqual(None, invoice)
+
+    self.assertEqual(
+      subscription_request.getSimulationState(),
+      "draft"
+    )
+
+  @simulate('SubscriptionRequest_testPaymentBalance', '*args, **kwargs','return True')
+  def test_confirmed(self):
+    person = self.makePerson()
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      url_string="https://%s/software.cfg" % self.new_id,
+      sla_xml="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="oi">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    text_content="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="xx">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    root_slave=False,
+    source_reference="test_for_test_123")
+    subscription_request.plan()
+    subscription_request.order()
+    
+    self.tic()
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_checkPaymentBalance(), None)
+    self.tic()
+
+
+    self.assertEqual(
+      subscription_request.getSimulationState(),
+      "confirmed"
+    )

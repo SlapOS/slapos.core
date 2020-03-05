@@ -1,7 +1,23 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-# Copyright (c) 2012 Nexedi SA and Contributors. All Rights Reserved.
+# Copyright (C) 2013-2019  Nexedi SA and Contributors.
+#
+# This program is free software: you can Use, Study, Modify and Redistribute
+# it under the terms of the GNU General Public License version 3, or (at your
+# option) any later version, as published by the Free Software Foundation.
+#
+# You can also Link and Combine this program with other software covered by
+# the terms of any of the Free Software licenses or any of the Open Source
+# Initiative approved licenses and Convey the resulting work. Corresponding
+# source of such a combination shall include the source code for all other
+# software used.
+#
+# This program is distributed WITHOUT ANY WARRANTY; without even the implied
+# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# See COPYING file for full licensing terms.
+# See https://www.nexedi.com/licensing for rationale and options.
 #
 ##############################################################################
 
@@ -127,6 +143,10 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     self.assertTrue(self.portal.hasObject('portal_certificate_authority'))
     self.assertEqual(os.environ['TEST_CA_PATH'],
           self.portal.portal_certificate_authority.certificate_authority_path)
+
+  def testAlarmIsSubscribed(self):
+    """ Make sure portal_alarms is subscribed. """
+    self.assertTrue(self.portal.portal_alarms.isSubscribed())
 
   def testModuleHasIdGeneratorByDay(self):
     """ Ensure the Constraint sets appropriate id generator on all modules.

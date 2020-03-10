@@ -276,6 +276,7 @@ def checkSoftware(slap, software_url):
               for lib, lib_path in libs.items():
                 if lib.split('.')[0] in system_lib_white_list:
                   continue
+                lib_path = os.path.realpath(lib_path)
                 # dynamically linked programs can only be linked with libraries
                 # present in software or in shared parts repository.
                 if any(lib_path.startswith(valid_path)

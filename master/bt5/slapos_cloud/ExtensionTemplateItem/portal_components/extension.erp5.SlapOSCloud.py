@@ -29,6 +29,8 @@ from AccessControl.SecurityManagement import getSecurityManager, \
              setSecurityManager, newSecurityManager
 
 from Products.ERP5Type.UnrestrictedMethod import super_user
+from zExceptions import Unauthorized
+from DateTime import DateTime
 
 
 def SoftwareInstance_bangAsSelf(self, relative_url=None, reference=None,
@@ -55,3 +57,32 @@ def SoftwareInstance_bangAsSelf(self, relative_url=None, reference=None,
   finally:
     # Restore the original user.
     setSecurityManager(sm)
+
+def SoftwareInstance_renameAndRequestDestroy(self, REQUEST=None):
+  if REQUEST is not None:
+    raise Unauthorized
+
+  assert self.getPortalType() in ["Software Instance", "Slave Instance"]  
+  title = self.getTitle()
+  new_title = title + "_renamed_and_destroyed_%s" % (DateTime().strftime("%Y%m%d_%H%M%S"))
+  self.rename(new_name=new_title,
+    comment="Rename %s into %s" % (title, new_title))
+
+  # Change desired state
+  promise_kw = {
+      'instance_xml': self.getTextContent(),
+      'software_type': self.getSourceReference(),
+      'sla_xml': self.getSlaXml(),
+      'software_release': self.getUrlString(),
+      'shared': self.getPortalType()=="Slave Instance",
+  }
+
+  self.REQUEST.set('request_instance', self)
+  self.requestDestroy(**promise_kw)
+  self.REQUEST.set('request_instance', None)
+
+  hosting_subscription = self.getSpecialise()
+  for name in [title, new_title]:
+    # reset request cache
+    key = '_'.join([hosting_subscription, name])
+    self.getPortalObject().portal_slap._storeLastData(key, {})

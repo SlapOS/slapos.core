@@ -23,6 +23,8 @@ Software Instance | jump_to_hosting_subscription
 Software Instance | jump_to_software_instance
 Software Instance | unfiltered_tracking_list
 Software Instance | view
+Software Instance | view_request_destroy
+Software Instance | view_request_destroy
 Software Release | usable_computer
 Software Release | usable_network
 Software Release | view_capacity

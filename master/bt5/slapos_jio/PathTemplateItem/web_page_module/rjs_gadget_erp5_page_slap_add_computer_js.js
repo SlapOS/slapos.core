@@ -14,6 +14,8 @@
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("translate", "translate")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -40,7 +42,7 @@
             });
         })
         .push(function (result) {
-          return gadget.notifySubmitted({message: 'New Computer created.', status: 'success'})
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
             .push(function () {
               return gadget.render(result);
             });
@@ -52,34 +54,48 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
-      return RSVP.Queue()
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "New Computer created.",
+          "The name of a document in ERP5",
+          "Title",
+          "Reference",
+          "Link to the Computer",
+          "Your Certificate",
+          "Your Key",
+          "Parent Relative Url",
+          "New Computer"
+        ];
+      return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
             gadget.getUrlFor({command: "change",
-                              options: { jio_key: options.relative_url, page: "slap_controller"}})
-
+                              options: { jio_key: options.relative_url, page: "slap_controller"}}),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
+          gadget.message_translation = result[2][0];
+          page_title_translation = result[2][8];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_title": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Title",
+                  "description": result[2][1],
+                  "title": result[2][2],
                   "default": "",
                   "css_class": "",
                   "required": 1,
                   "editable": 1,
                   "key": "title",
-                  "hidden": (options.certificate === undefined) ? 0: 1,
+                  "hidden": (options.certificate === undefined) ? 0 : 1,
                   "type": "StringField"
                 },
                 "my_reference": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Reference",
+                  "description": result[2][1],
+                  "title": result[2][3],
                   "default": options.reference,
                   "css_class": "",
                   "required": 1,
@@ -90,7 +106,7 @@
                 },
                 "my_computer_url": {
                   "description": "",
-                  "title": "Link to the Computer",
+                  "title": result[2][4],
                   "default": "<a href=" + result[1] + "> Click here to access your computer </a>",
                   "css_class": "",
                   "required": 1,
@@ -101,7 +117,7 @@
                 },
                 "my_certificate": {
                   "description": "",
-                  "title": "Your Certificate",
+                  "title": result[2][5],
                   "default": options.certificate,
                   "css_class": "",
                   "required": 1,
@@ -112,7 +128,7 @@
                 },
                 "my_key": {
                   "description": "",
-                  "title": "Your Key",
+                  "title": result[2][6],
                   "default": options.key,
                   "css_class": "",
                   "required": 1,
@@ -123,7 +139,7 @@
                 },
                 "my_parent_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[2][7],
                   "default": "computer_module",
                   "css_class": "",
                   "required": 1,
@@ -161,7 +177,7 @@
         })
         .push(function (url_list) {
           return gadget.updateHeader({
-            page_title: "New Computer",
+            page_title: page_title_translation,
             selection_url: url_list[0],
             submit_action: true
           });

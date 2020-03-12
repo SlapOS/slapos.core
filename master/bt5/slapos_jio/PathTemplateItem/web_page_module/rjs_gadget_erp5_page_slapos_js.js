@@ -23,6 +23,7 @@
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("translateHtml", "translateHtml")
+    .declareAcquiredMethod("translate", "translate")
     .declareAcquiredMethod("redirect", "redirect")
     .declareAcquiredMethod("updateHeader", "updateHeader")
     .declareAcquiredMethod("updateConfiguration", "updateConfiguration")
@@ -114,7 +115,7 @@
       var gadget = this;
       return new RSVP.Queue()
         .push(function () {
-          var lines_limit, logout_url_template;
+          var lines_limit;
 
           return new RSVP.Queue()
             .push(function () {
@@ -128,18 +129,24 @@
               lines_limit = settings[0];
               return RSVP.all([
                 gadget.getDeclaredGadget('right'),
-                gadget.jio_get(settings[1])
+                gadget.jio_get(settings[1]),
+                // XXXX Use getTranslationList when we upgrade ERP5
+                gadget.translate("Title"),
+                gadget.translate("Status"),
+                gadget.translate("Sites")
               ]);
             })
             .push(function (result) {
               var i, destination_list, column_list = [
-                ['title', 'Title'],
-                ['Organisation_getNewsDict', 'Status']
+                ['title', result[2]],
+                ['Organisation_getNewsDict', result[3]]
               ];
               gadget.me_dict = result[1];
               destination_list = "%22NULL%22%2C";
               for (i in result[1].assignment_destination_list) {
-                destination_list += "%22" + result[1].assignment_destination_list[i] + "%22%2C";
+                if (result[1].assignment_destination_list.hasOwnProperty(i)) {
+                  destination_list += "%22" + result[1].assignment_destination_list[i] + "%22%2C";
+                }
               }
               return result[0].render({
                 erp5_document: {
@@ -160,7 +167,7 @@
                       "search_column_list": column_list,
                       "sort_column_list": column_list,
                       "sort": [["title", "ascending"]],
-                      "title": "Sites",
+                      "title": result[4],
                       "type": "ListBox"
                     }
                   }},
@@ -238,31 +245,40 @@
           return new RSVP.Queue()
             .push(function () {
               return RSVP.all([
-                gadget.getDeclaredGadget('last'),
                 gadget.getUrlFor({command: 'change', options: {page: "slap_ticket_list"}}),
                 gadget.getUrlFor({command: 'change', options: {page: "slap_rss_ticket"}}),
                 gadget.getUrlFor({command: 'change', options: {page: "slap_rss_critical_ticket"}})
               ]);
             })
             .push(function (result) {
+              return RSVP.all([
+                gadget.getDeclaredGadget('last'),
+                gadget.translateHtml(ticket_control_template({
+                  show_all_url: result[0],
+                  rss_all_url: result[1],
+                  rss_critical_url: result[2]
+                })),
+                //XXX use getTranslationList when we upgrade ERP5 code
+                gadget.translate("Title"),
+                gadget.translate("Modification Date"),
+                gadget.translate("State"),
+                gadget.translate("Pending Tickets to Process")
+              ]);
+            })
+            .push(function (result) {
               var form_list = result[0],
-                  column_list = [
-                ['title', 'Title'],
-                ['modification_date', 'Modification Date'],
-                ['translated_simulation_state_title', 'State']
-              ];
-
+                column_list = [
+                  ['title', result[2]],
+                  ['modification_date', result[3]],
+                  ['translated_simulation_state_title', result[4]]
+                ];
               return form_list.render({
                 erp5_document: {
                   "_embedded": {"_view": {
                     "control": {
                       "description": "",
                       "title": "Link Control",
-                      "default": ticket_control_template({
-                        show_all_url: result[1],
-                        rss_all_url: result[2],
-                        rss_critical_url: result[3]
-                      }),
+                      "default": result[1],
                       "css_class": "",
                       "required": 1,
                       "editable": 0,
@@ -285,7 +301,7 @@
                       "search_column_list": column_list,
                       "sort_column_list": column_list,
                       "sort": [["modification_date", "Descending"]],
-                      "title": "Pending Tickets to Process",
+                      "title": result[5],
                       "type": "ListBox"
                     }
                   }},
@@ -311,8 +327,11 @@
           });
         })
         .push(function () {
+          return gadget.translate("Dashboard");
+        })
+        .push(function (result) {
           return gadget.updateHeader({
-            page_title: 'Dashboard'
+            page_title: result[0]
           });
         });
     })
@@ -326,7 +345,9 @@
           var i;
           destination_list = '"NULL"';
           for (i in person_doc.assignment_destination_list) {
-            destination_list += ' ,"' + person_doc.assignment_destination_list[i] + '"';
+            if (person_doc.assignment_destination_list.hasOwnProperty(i)) {
+              destination_list += ' ,"' + person_doc.assignment_destination_list[i] + '"';
+            }
           }
           return gadget.jio_allDocs({
             query: "portal_type:Organisation AND role_title:Host AND relative_url:(" + destination_list + ")",
@@ -340,14 +361,16 @@
         .push(function (result) {
           var idx, marker_list = [];
           for (idx in result.data.rows) {
-            marker_list.push({
-              "jio_key": result.data.rows[idx].id,
-              "doc": {"title": result.data.rows[idx].value.title,
-                      "reference": result.data.rows[idx].value.reference,
-                      "result": result.data.rows[idx].value.Organisation_getNewsDict,
-                      "latitude": result.data.rows[idx].value.default_geographical_location_latitude,
-                      "longitude": result.data.rows[idx].value.default_geographical_location_longitude}
-            });
+            if (result.data.rows.hasOwnProperty(idx)) {
+              marker_list.push({
+                "jio_key": result.data.rows[idx].id,
+                "doc": {"title": result.data.rows[idx].value.title,
+                        "reference": result.data.rows[idx].value.reference,
+                        "result": result.data.rows[idx].value.Organisation_getNewsDict,
+                        "latitude": result.data.rows[idx].value.default_geographical_location_latitude,
+                        "longitude": result.data.rows[idx].value.default_geographical_location_longitude}
+              });
+            }
           }
           return gadget.getElement()
             .push(function (element) {

@@ -31,10 +31,6 @@
           ]);
         })
         .push(function (result_list) {
-          var user,
-            key,
-            list_item = [];
-
           return RSVP.all([
             gadget.updateHeader({
               page_title: 'Error page',
@@ -57,14 +53,14 @@
                   }
                 }
                 },
-                form_definition: {
-                  group_list: [[
-                    "left",
-                    [["Message"]]
-                  ]]
-                }
-              })
-            ]);
+              form_definition: {
+                group_list: [[
+                  "left",
+                  [["Message"]]
+                ]]
+              }
+            })
+          ]);
         })
         .push(function () {
           return gadget.translate('Logout');
@@ -74,10 +70,10 @@
         });
     })
       .onEvent('submit', function () {
-        var gadget = this,
-          logout_url_template;
+      var gadget = this,
+        logout_url_template;
 
-        return gadget.jio_getAttachment('acl_users', 'links')
+      return gadget.jio_getAttachment('acl_users', 'links')
         .push(function (links) {
           logout_url_template = links._links.logout.href;
           return gadget.getUrlFor({
@@ -94,7 +90,7 @@
             }
           });
         });
-      })
+    })
     .declareMethod("triggerSubmit", function () {
       return;
     });

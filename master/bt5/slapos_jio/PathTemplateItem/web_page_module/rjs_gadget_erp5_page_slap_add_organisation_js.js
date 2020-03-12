@@ -20,6 +20,7 @@
     .declareAcquiredMethod("jio_post", "jio_post")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -44,7 +45,7 @@
           return gadget.jio_post(doc);
         })
         .push(function (key) {
-          return gadget.notifySubmitted({message: 'New Site created.', status: 'success'})
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
               return gadget.redirect({"command": "change",
@@ -58,20 +59,35 @@
     })
 
     .declareMethod("render", function () {
-      var gadget = this;
-      return RSVP.Queue()
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "New Site created.",
+          "The name of a document in ERP5",
+          "Title",
+          "Role Definition",
+          "Role",
+          "Portal Type",
+          "Organisation",
+          "Parent Relative Url",
+          "New Site"
+        ];
+      return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
-            gadget.getDeclaredGadget('form_view')
+            gadget.getDeclaredGadget('form_view'),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
+          gadget.message_translation = result[1][0];
+          page_title_translation = result[1][8];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_title": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Title",
+                  "description": result[1][1],
+                  "title": result[1][2],
                   "default": "",
                   "css_class": "",
                   "required": 0,
@@ -81,8 +97,8 @@
                   "type": "StringField"
                 },
                 "my_role": {
-                  "description": "Role Definition",
-                  "title": "Role",
+                  "description": result[1][3],
+                  "title": result[1][4],
                   "default": "host",
                   "css_class": "",
                   "required": 0,
@@ -92,8 +108,8 @@
                   "type": "StringField"
                 },
                 "my_portal_type": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Portal Type",
+                  "description": result[1][1],
+                  "title": result[1][5],
                   "default": "Organisation",
                   "css_class": "",
                   "required": 1,
@@ -104,7 +120,7 @@
                 },
                 "my_parent_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[1][7],
                   "default": "organisation_module",
                   "css_class": "",
                   "required": 1,
@@ -129,14 +145,14 @@
             }
           });
         })
-        .push(function (result) {
+        .push(function () {
           return RSVP.all([
             gadget.getUrlFor({command: 'change', options: {page: "slap_site_list"}})
           ]);
         })
         .push(function (url_list) {
           return gadget.updateHeader({
-            page_title: "New Site",
+            page_title: page_title_translation,
             selection_url: url_list[0],
             submit_action: true
           });

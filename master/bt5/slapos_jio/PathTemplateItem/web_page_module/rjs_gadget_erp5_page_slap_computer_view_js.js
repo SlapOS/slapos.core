@@ -16,6 +16,7 @@
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -72,7 +73,7 @@
             });
         })
         .push(function () {
-          return gadget.notifySubmitted({message: 'Data updated.', status: 'success'});
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'});
         });
     })
 
@@ -81,7 +82,43 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Data updated.",
+          "Software Release",
+          "Url",
+          "Status",
+          "Title",
+          "Reference",
+          "Modification Date",
+          "State",
+          "Enabled",
+          "Disabled",
+          "Auto Upgrade",
+          "Ask Confirmation before Upgrade",
+          "Never Upgrade",
+          "Closed for maintenance",
+          "Closed for termination",
+          "Closed forever",
+          "Closed outdated",
+          "Open for Friends only",
+          "Open for Personal use only",
+          "Open Public",
+          "Open for Subscribers only",
+          "Network",
+          "Allocation Scope",
+          "Monitoring",
+          "Your Friends email",
+          "Upgrade",
+          "The name of a document in ERP5",
+          "Current Site",
+          "Current Project",
+          "Monitoring Status",
+          "Supplied Softwares",
+          "Computer:"
+        ];
+
       // Follow up changeState API but it is requires to actually
       // re-render the form to hide allocation scope
       gadget.state = {
@@ -97,39 +134,42 @@
               query: '(portal_type:"Computer Network")',
               sort_on: [['reference', 'ascending']],
               select_list: ['reference', 'title']
-            })
+            }),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (results) {
+          gadget.message_translation = results[2][0];
+          page_title_translation = results[2][31];
           var form_gadget = results[0],
             computer_network_list = [["", ""]],
             column_list = [
-              ['SoftwareInstallation_getSoftwareReleaseInformation', 'Software Release'],
-              ['url_string', 'Url'],
-              ['SoftwareInstallation_getNewsDict', 'Status']
+              ['SoftwareInstallation_getSoftwareReleaseInformation', results[2][1]],
+              ['url_string', results[2][2]],
+              ['SoftwareInstallation_getNewsDict', results[2][3]]
             ],
             ticket_column_list = [
-              ['title', 'Title'],
-              ['reference', 'Reference'],
-              ['modification_date', 'Modification Date'],
-              ['translated_simulation_state_title', 'State']
+              ['title', results[2][4]],
+              ['reference', results[2][5]],
+              ['modification_date', results[2][6]],
+              ['translated_simulation_state_title', results[2][7]]
             ],
             monitor_scope_list = [['', ''],
-                                ['Enabled', 'enabled'],
-                                ['Disabled', 'disabled']],
+                                [results[2][8], 'enabled'],
+                                [results[2][9], 'disabled']],
             upgrade_scope_list = [['', ''],
-                                ['Auto Upgrade', 'auto'],
-                                ['Ask Confirmation before Upgrade', 'ask_confirmation'],
-                                ['Never Upgrade', 'never']],
+                                [results[2][10], 'auto'],
+                                [results[2][11], 'ask_confirmation'],
+                                [results[2][12], 'never']],
             allocation_scope_list = [['', ''],
-                                ['Closed for maintenance', 'close/maintenance'],
-                                ['Closed for termination', 'close/termination'],
-                                ['Closed forever', 'close/forever'],
-                                ['Closed oudated', 'close/outdated'],
-                                ['Open for Friends only', 'open/friend'],
-                                ['Open for Personal use only', 'open/personal'],
-                                ['Open Public', 'open/public'],
-                                ['Open for Subscribers only', 'open/subscription']],
+                                [results[2][13], 'close/maintenance'],
+                                [results[2][14], 'close/termination'],
+                                [results[2][15], 'close/forever'],
+                                [results[2][16], 'close/outdated'],
+                                [results[2][17], 'open/friend'],
+                                [results[2][18], 'open/personal'],
+                                [results[2][19], 'open/public'],
+                                [results[2][20], 'open/subscription']],
             i,
             len = results[1].data.total_rows;
 
@@ -146,7 +186,7 @@
               "_embedded": {"_view": {
                 "my_title": {
                   "description": "",
-                  "title": "Title",
+                  "title": results[2][4],
                   "default": gadget.state.doc.title,
                   "css_class": "",
                   "required": 1,
@@ -157,7 +197,7 @@
                 },
                 "my_reference": {
                   "description": "",
-                  "title": "Reference",
+                  "title": results[2][5],
                   "default": gadget.state.doc.reference,
                   "css_class": "",
                   "required": 1,
@@ -168,7 +208,7 @@
                 },
                 "my_subordination": {
                   "description": "",
-                  "title": "Network",
+                  "title": results[2][21],
                   "default": gadget.state.doc.subordination,
                   "css_class": "",
                   "items": computer_network_list,
@@ -180,7 +220,7 @@
                 },
                 "my_allocation_scope": {
                   "description": "",
-                  "title": "Allocation Scope",
+                  "title": results[2][22],
                   "default": gadget.state.doc.allocation_scope,
                   "css_class": "",
                   "items": allocation_scope_list,
@@ -192,7 +232,7 @@
                 },
                 "my_monitor_scope": {
                   "description": "",
-                  "title": "Monitoring",
+                  "title": results[2][23],
                   "default": gadget.state.doc.monitor_scope,
                   "css_class": "",
                   "items": monitor_scope_list,
@@ -204,7 +244,7 @@
                 },
                 "my_subject_list": {
                   "description": "",
-                  "title": "Your Friends email",
+                  "title": results[2][24],
                   "default": gadget.state.doc.subject_list,
                   "css_class": "",
                   "required": 1,
@@ -215,7 +255,7 @@
                 },
                 "my_upgrade_scope": {
                   "description": "",
-                  "title": "Upgrade",
+                  "title": results[2][25],
                   "default": gadget.state.doc.upgrade_scope,
                   "css_class": "",
                   "items": upgrade_scope_list,
@@ -226,8 +266,8 @@
                   "type": "ListField"
                 },
                 "my_source": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Current Site",
+                  "description": results[2][26],
+                  "title": results[2][27],
                   "default": gadget.state.doc.source_title,
                   "css_class": "",
                   "required": 1,
@@ -237,8 +277,8 @@
                   "type": "StringField"
                 },
                 "my_source_project": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Current Project",
+                  "description": results[2][26],
+                  "title": results[2][28],
                   "default": gadget.state.doc.source_project_title,
                   "css_class": "",
                   "required": 1,
@@ -249,7 +289,7 @@
                 },
                 "my_monitoring_status": {
                   "description": "",
-                  "title": "Monitoring Status",
+                  "title": results[2][29],
                   "default": {jio_key: gadget.state.jio_key,
                               result: gadget.state.doc.news},
                   "css_class": "",
@@ -277,7 +317,7 @@
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
                   "sort": [["title", "ascending"]],
-                  "title": "Supplied Softwares",
+                  "title":  results[2][30],
                   "type": "ListBox"
                 },
                 "ticket_listbox": {
@@ -339,7 +379,7 @@
         })
         .push(function (url_list) {
           var header_dict = {
-            page_title: "Computer: " + gadget.state.doc.title,
+            page_title: page_title_translation + " " + gadget.state.doc.title,
             ticket_url: url_list[1],
             supply_url: url_list[2],
             request_certificate_url: url_list[3],

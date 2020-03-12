@@ -1,6 +1,6 @@
 /*global window, rJS, RSVP, jIO, Blob */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP, jIO, Blob) {
+(function (window, rJS, RSVP) {
   "use strict";
 
   rJS(window)
@@ -16,6 +16,7 @@
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+     .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -42,7 +43,7 @@
           return gadget.updateDocument(content);
         })
         .push(function () {
-          return gadget.notifySubmitted({message: 'Data updated.', status: 'success'});
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'});
         });
     })
 
@@ -51,14 +52,32 @@
     })
 
     .onStateChange(function () {
-      var gadget = this, data;
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "The Date",
+          "Date",
+          "Reference",
+          "Total",
+          "Currency",
+          "Payment State",
+          "Download",
+          "Invoice:",
+          "Data updated."
+        ];
       return new RSVP.Queue()
         .push(function () {
-          return gadget.getDeclaredGadget('form_view');
+          return RSVP.all([
+            gadget.getDeclaredGadget('form_view'),
+            gadget.getTranslationList(translation_list)
+          ]);
         })
-        .push(function (form_gadget) {
-          var start_date = new Date(gadget.state.doc.start_date),
-              total_price = window.parseFloat(gadget.state.doc.total_price).toFixed(2);
+        .push(function (result) {
+          gadget.message_translation = result[1][8];
+          page_title_translation = result[1][7];
+          var form_gadget = result[0],
+            start_date = new Date(gadget.state.doc.start_date),
+            total_price = window.parseFloat(gadget.state.doc.total_price).toFixed(2);
           return form_gadget.render({
             erp5_document: {
               "_embedded": {"_view": {
@@ -67,7 +86,7 @@
                   "ampm_time_style": 0,
                   "css_class": "date_field",
                   "date_only": 1,
-                  "description": "The Date",
+                  "description": result[1][0],
                   "editable": 0,
                   "hidden": 0,
                   "hidden_day_is_last_day": 0,
@@ -75,12 +94,12 @@
                   "key": "date",
                   "required": 0,
                   "timezone_style": 0,
-                  "title": "Date",
+                  "title": result[1][1],
                   "type": "DateTimeField"
                 },
                 "my_reference": {
                   "description": "",
-                  "title": "Reference",
+                  "title": result[1][2],
                   "default": gadget.state.doc.reference,
                   "css_class": "",
                   "required": 1,
@@ -91,7 +110,7 @@
                 },
                 "my_total_price": {
                   "description": "",
-                  "title": "Total",
+                  "title": result[1][3],
                   "default": total_price,
                   "css_class": "",
                   "required": 1,
@@ -102,7 +121,7 @@
                 },
                 "my_resource_title": {
                   "description": "",
-                  "title": "Currency",
+                  "title": result[1][4],
                   "default": gadget.state.doc.resource_title,
                   "css_class": "",
                   "required": 1,
@@ -113,7 +132,7 @@
                 },
                 "my_payment_state": {
                   "description": "",
-                  "title": "Payment State",
+                  "title": result[1][5],
                   "default": {jio_key: gadget.state.jio_key},
                   "css_class": "",
                   "required": 1,
@@ -126,7 +145,7 @@
                 },
                 "my_download": {
                   "description": "",
-                  "title": "Download",
+                  "title": result[1][6],
                   "default": {jio_key: gadget.state.jio_key},
                   "css_class": "",
                   "required": 1,
@@ -149,7 +168,7 @@
               group_list: [[
                 "left",
                 [["my_start_date"], ["my_reference"], ["my_total_price"],
-                 ["my_resource_title"], ['my_payment_state'], ["my_download"]]
+                  ["my_resource_title"], ['my_payment_state'], ["my_download"]]
               ]]
             }
           });
@@ -164,7 +183,7 @@
           var start_date = new Date(gadget.state.doc.start_date),
             header_dict = {
               selection_url: url_list[1],
-              page_title: "Invoice : " + start_date.toUTCString()
+              page_title: page_title_translation + start_date.toUTCString()
             };
           if (!gadget.state.editable) {
             header_dict.edit_content = url_list[0];
@@ -172,4 +191,4 @@
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP, jIO, Blob));
+}(window, rJS, RSVP));

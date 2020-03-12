@@ -12,6 +12,7 @@
     .declareAcquiredMethod("setSetting", "setSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     .allowPublicAcquisition("jio_allDocs", function (param_list) {
       var gadget = this;
@@ -27,12 +28,12 @@
               result.data.rows[i].value.HostingSubscription_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
-                  description: "The Status",
+                  description: gadget.description_translation,
                   hidden: 0,
                   "default": {jio_key: value, result: news},
                   key: "status",
                   url: "gadget_slapos_hosting_subscription_status.html",
-                  title: "Status",
+                  title: gadget.title_translation,
                   type: "GadgetField"
                 }
               };
@@ -56,24 +57,37 @@
           return gadget.triggerSubmit.apply(gadget, argument_list);
         });
     })
-    .declareMethod("render", function (options) {
+    .declareMethod("render", function () {
       var gadget = this,
-        lines_limit;
+        lines_limit,
+        services_translation,
+        translation_list = [
+          "Title",
+          "Short Title",
+          "Status",
+          "Services",
+          "The Status"
+        ];
 
       return new RSVP.Queue()
         .push(function () {
-          return gadget.getSetting("listbox_lines_limit", 20);
+          return RSVP.all([
+            gadget.getDeclaredGadget('form_list'),
+            gadget.getSetting("listbox_lines_limit", 20),
+            gadget.getTranslationList(translation_list)
+          ]);
         })
-        .push(function (listbox_lines_limit) {
-          lines_limit = listbox_lines_limit;
-          return gadget.getDeclaredGadget('form_list');
-        })
-        .push(function (form_list) {
+        .push(function (result) {
+          gadget.title_translation = result[2][2];
+          gadget.description_translation = result[2][4];
           var column_list = [
-            ['title', 'Title'],
-            ['short_title', 'Short Title'],
-            ['HostingSubscription_getNewsDict', 'Status']
-          ];
+            ['title', result[2][0]],
+            ['short_title', result[2][1]],
+            ['HostingSubscription_getNewsDict', result[2][2]]
+          ],
+            form_list = result[0];
+          lines_limit = result[1];
+          services_translation = result[2][3];
           return form_list.render({
             erp5_document: {
               "_embedded": {"_view": {
@@ -93,7 +107,7 @@
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
                   "sort": [["title", "ascending"]],
-                  "title": "Services",
+                  "title": services_translation,
                   "type": "ListBox"
                 }
               }},
@@ -117,7 +131,7 @@
             jio_key: "hosting_subscription_module"
           });
         })
-        .push(function (result) {
+        .push(function () {
           return RSVP.all([
             gadget.getUrlFor({command: "display_dialog_with_history", options: {"page": "slap_select_software_product"}}),
             gadget.getUrlFor({command: "change", options: {"page": "slapos"}})
@@ -126,7 +140,7 @@
         })
         .push(function (result) {
           return gadget.updateHeader({
-            page_title: "Services",
+            page_title: services_translation,
             filter_action: true,
             add_url: result[0],
             selection_url: result[1]

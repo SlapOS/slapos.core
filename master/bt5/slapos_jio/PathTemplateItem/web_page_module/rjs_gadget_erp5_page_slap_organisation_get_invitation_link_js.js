@@ -15,6 +15,7 @@
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -39,7 +40,7 @@
                 url + doc.relative_url + "/Base_getInvitationLink");
             })
             .push(function (result) {
-              return gadget.notifySubmitted({message: "New Invitation link generated.", status: 'success'})
+              return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
                 .push(function () {
                   // Workaround, find a way to open document without break gadget.
                   result.jio_key = doc.relative_url;
@@ -54,20 +55,30 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
-      return RSVP.Queue()
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "New Invitation link generated.",
+          "Parent Relative Url",
+          "Your Invitation Link",
+          "Generate New Invitation Link"
+        ];
+      return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
-            gadget.getDeclaredGadget('form_view')
+            gadget.getDeclaredGadget('form_view'),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
+          gadget.message_translation = result[1][0];
+          page_title_translation = result[1][3];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[1][1],
                   "default": options.jio_key,
                   "css_class": "",
                   "required": 1,
@@ -78,13 +89,13 @@
                 },
                 "my_invitation_link": {
                   "description": "",
-                  "title": "Your Invitation Link",
+                  "title": result[1][2],
                   "default": options.invitation_link,
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
                   "key": "invitation_link",
-                  "hidden": (options.invitation_link === undefined) ? 1: 0,
+                  "hidden": (options.invitation_link === undefined) ? 1 : 0,
                   "type": "StringField"
                 }
               }},
@@ -110,7 +121,7 @@
         })
         .push(function (url_list) {
           var header_dict = {
-            page_title: "Generate New Invitation Link",
+            page_title: page_title_translation,
             submit_action: true,
             selection_url: url_list[0]
           };

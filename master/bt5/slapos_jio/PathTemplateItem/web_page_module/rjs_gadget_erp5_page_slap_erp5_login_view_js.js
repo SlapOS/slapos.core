@@ -1,6 +1,6 @@
 /*global window, rJS, RSVP, jIO, Blob */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP, jIO, Blob) {
+(function (window, rJS, RSVP) {
   "use strict";
 
   rJS(window)
@@ -17,6 +17,7 @@
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -33,7 +34,7 @@
 
     .onEvent('submit', function () {
       var gadget = this,
-          doc = {};
+        doc = {};
       return gadget.notifySubmitting()
         .push(function () {
           return gadget.getDeclaredGadget('form_view');
@@ -44,12 +45,14 @@
         .push(function (content) {
           var k;
           for (k in content) {
-            if (k !== "password_confirmation") {
-              doc[k] = content[k];
-            }
-            if ((k === "password_confirmation") &&
-                (content.password !== content.password_confirmation)) {
-              return gadget.notifySubmitted({message: 'Password is different from confirmation', status: 'error'});
+            if (content.hasOwnProperty(k)) {
+              if (k !== "password_confirmation") {
+                doc[k] = content[k];
+              }
+              if ((k === "password_confirmation") &&
+                  (content.password !== content.password_confirmation)) {
+                return gadget.notifySubmitted({message: gadget.message1_translation, status: 'error'});
+              }
             }
           }
           return gadget.getSetting("hateoas_url")
@@ -57,8 +60,8 @@
               return gadget.jio_putAttachment(gadget.state.jio_key,
                 hateoas_url + gadget.state.jio_key + "/Login_edit", doc)
                   .push(function () {
-                    return gadget.notifySubmitted({message: 'Data updated.', status: 'success'});
-                  });
+                  return gadget.notifySubmitted({message: gadget.message2_translation, status: 'success'});
+                });
             });
         });
     })
@@ -68,22 +71,34 @@
     })
 
     .onStateChange(function () {
-      var gadget = this, data;
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Password is different from confirmation",
+          "Data updated.",
+          "Reference",
+          "Password",
+          "Confirm your Password",
+          "Login"
+        ];
       return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
-            gadget.getSetting("hateoas_url")
+            gadget.getSetting("hateoas_url"),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
-          var editable = gadget.state.editable;
+          gadget.message1_translation = result[2][0];
+          gadget.message2_translation = result[2][1];
+          page_title_translation = result[2][5];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_reference": {
                   "description": "",
-                  "title": "Reference",
+                  "title": result[2][2],
                   "default": gadget.state.doc.reference,
                   "css_class": "",
                   "required": 1,
@@ -94,7 +109,7 @@
                 },
                 "my_new_password": {
                   "description": "",
-                  "title": "Password",
+                  "title": result[2][3],
                   "default": "",
                   "css_class": "",
                   "required": 1,
@@ -105,7 +120,7 @@
                 },
                 "my_confirmation_password": {
                   "description": "",
-                  "title": "Confirm your Password",
+                  "title": result[2][4],
                   "default": "",
                   "css_class": "",
                   "required": 1,
@@ -140,7 +155,7 @@
         .push(function (url_list) {
           var header_dict = {
             selection_url: url_list[1],
-            page_title: "Login : " + gadget.state.doc.reference,
+            page_title: page_title_translation + " : " + gadget.state.doc.reference,
             delete_url: url_list[2],
             save_action: true
           };
@@ -150,4 +165,4 @@
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP, jIO, Blob));
+}(window, rJS, RSVP));

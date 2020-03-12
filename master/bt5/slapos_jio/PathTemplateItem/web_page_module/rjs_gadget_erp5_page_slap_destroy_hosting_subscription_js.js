@@ -16,6 +16,7 @@
     .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -41,7 +42,7 @@
             });
         })
         .push(function () {
-          return gadget.notifySubmitted({message: 'Service is Destroyed.', status: 'success'})
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
               return gadget.redirect({"command": "change",
@@ -55,22 +56,32 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
-      return RSVP.Queue()
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Service is Destroyed.",
+          "Instance to be removed:",
+          "Parent Relative Url",
+          "Destroy Hosting Subscription:"
+        ];
+      return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
-            gadget.jio_get(options.jio_key)
+            gadget.jio_get(options.jio_key),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
           options.doc = result[1];
+          gadget.message_translation = result[2][0];
+          page_title_translation = result[2][3];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_title": {
                   "description": "",
-                  "title": "Instance to be removed: ",
+                  "title": result[2][1] + " ",
                   "default": options.doc.title,
                   "css_class": "",
                   "required": 1,
@@ -81,7 +92,7 @@
                 },
                 "my_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[2][2],
                   "default": options.jio_key,
                   "css_class": "",
                   "required": 1,
@@ -116,7 +127,7 @@
         })
         .push(function (url_list) {
           return gadget.updateHeader({
-            page_title: "Destroy Hosting Subscription: " + options.doc.title,
+            page_title: page_title_translation + " " + options.doc.title,
             selection_url: url_list[0],
             submit_action: true
           });

@@ -1,6 +1,6 @@
 /*global window, rJS, RSVP, jIO, Blob */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP, jIO, Blob) {
+(function (window, rJS, RSVP) {
   "use strict";
 
   rJS(window)
@@ -17,6 +17,7 @@
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+     .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -37,7 +38,7 @@
               result.data.rows[i].value.text_content = {
                 field_gadget_param : {
                   css_class: "",
-                  description: "Entry",
+                  description: gadget.description_translation,
                   hidden: 0,
                   "default": {doc: {title: result.data.rows[i].value.title,
                                     source: result.data.rows[i].value.source_title,
@@ -82,7 +83,7 @@
           return gadget.updateDocument(content);
         })
         .push(function () {
-          return gadget.notifySubmitted({message: 'Data updated.', status: 'success'});
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'});
         });
     })
 
@@ -91,32 +92,47 @@
     })
 
     .onStateChange(function () {
-      var gadget = this, data;
+      var gadget = this,
+        page_title_translation,
+        text_content_translation,
+        translation_list = [
+          "Title",
+          "Reference",
+          "The name of a document in ERP5",
+          "Ticket Type",
+          "Related Computer or Service",
+          "State",
+          "Support Request",
+          "Entry",
+          "Data updated.",
+          "Comments"
+        ];
       return new RSVP.Queue()
         .push(function () {
           return gadget.getDeclaredGadget('form_view');
         })
         .push(function (form_gadget) {
-          var editable = gadget.state.editable;
           var column_list = [
-            ['text_content', 'Comments']
+            ['text_content', text_content_translation]
           ];
           return new RSVP.Queue()
             .push(function () {
-              return gadget.getSetting("hateoas_url");
-            })
-           .push(function (hateoas_url) {
               return RSVP.all([
-                gadget.getUrlFor({command: "change", options: {jio_key: gadget.state.doc.aggregate }})
+                gadget.getUrlFor({command: "change", options: {jio_key: gadget.state.doc.aggregate }}),
+                gadget.getTranslationList(translation_list)
               ]);
             })
             .push(function (result) {
+              page_title_translation = result[1][6];
+              gadget.description_translation = result[1][7];
+              gadget.message_translation = result[1][8];
+              text_content_translation = result[1][9];
               return form_gadget.render({
                 erp5_document: {
                   "_embedded": {"_view": {
                     "my_title": {
                       "description": "",
-                      "title": "Title",
+                      "title": result[1][0],
                       "default": gadget.state.doc.title,
                       "css_class": "",
                       "required": 1,
@@ -127,7 +143,7 @@
                     },
                     "my_reference": {
                       "description": "",
-                      "title": "Reference",
+                      "title": result[1][1],
                       "default": gadget.state.doc.reference,
                       "css_class": "",
                       "required": 1,
@@ -137,8 +153,8 @@
                       "type": "StringField"
                     },
                     "my_resource": {
-                      "description": "The name of a document in ERP5",
-                      "title": "Ticket Type",
+                      "description": result[1][2],
+                      "title": result[1][3],
                       "default": gadget.state.doc.resource_title,
                       "css_class": "",
                       "required": 1,
@@ -149,7 +165,7 @@
                     },
                     "my_aggregate_title": {
                       "description": "",
-                      "title": "Related Computer or Service",
+                      "title": result[1][4],
                       "default":
                         "<a href=" + result[0] + ">" +
                         gadget.state.doc.aggregate_title + "</a>",
@@ -162,7 +178,7 @@
                     },
                     "my_simulation_state": {
                       "description": "",
-                      "title": "State",
+                      "title": result[1][5],
                       "default": gadget.state.doc.simulation_state_title,
                       "css_class": "",
                       "required": 1,
@@ -223,14 +239,14 @@
         })
         .push(function (url_list) {
           var header_dict = {
-            page_title: "Support Request : " + gadget.state.doc.title,
+            page_title: page_title_translation + " : " + gadget.state.doc.title,
             add_url: url_list[1],
             selection_url: url_list[3]
           };
-          if (gadget.state.doc.simulation_state_title != "Closed") {
+          if (gadget.state.doc.simulation_state_title !== "Closed") {
             header_dict.close_url = url_list[2];
           }
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP, jIO, Blob));
+}(window, rJS, RSVP));

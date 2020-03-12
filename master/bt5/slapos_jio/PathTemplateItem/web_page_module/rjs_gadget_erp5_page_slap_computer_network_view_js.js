@@ -1,6 +1,6 @@
 /*global window, rJS, RSVP, jIO, Blob */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP, jIO, Blob) {
+(function (window, rJS, RSVP) {
   "use strict";
 
   rJS(window)
@@ -16,6 +16,7 @@
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -25,10 +26,9 @@
       var gadget = this;
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
-          var i, value, value_jio_key, len = result.data.total_rows;
+          var i, value, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
             if (1 || (result.data.rows[i].value.hasOwnProperty("Computer_getNewsDict"))) {
-              value_jio_key = result.data.rows[i].id;
               value = result.data.rows[i].value.Computer_getNewsDict;
               result.data.rows[i].value.Computer_getNewsDict = {
                 field_gadget_param : {
@@ -38,7 +38,7 @@
                   "default": {jio_key: value, result: value},
                   key: "status",
                   url: "gadget_slapos_computer_status.html",
-                  title: "Status",
+                  title: gadget.title_translation,
                   type: "GadgetField"
                 }
               };
@@ -73,7 +73,7 @@
           return gadget.updateDocument(content);
         })
         .push(function () {
-          return gadget.notifySubmitted({message: 'Data updated.', status: 'success'});
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'});
         });
     })
 
@@ -82,25 +82,45 @@
     })
 
     .onStateChange(function () {
-      var gadget = this, data;
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Data updated.",
+          "Title",
+          "Reference",
+          "Allocation Scope",
+          "Status",
+          "Monitoring Status",
+          "The name of a document in ERP5",
+          "Current Project",
+          "Current Organisation",
+          "Associated Servers",
+          "Computer Network"
+        ];
       return new RSVP.Queue()
         .push(function () {
-          return gadget.getDeclaredGadget('form_view');
+          return RSVP.all([
+            gadget.getDeclaredGadget('form_view'),
+            gadget.getTranslationList(translation_list)
+          ]);
         })
-        .push(function (form_gadget) {
-          var editable = gadget.state.editable;
-          var column_list = [
-            ['title', 'Title'],
-            ['reference', 'Reference'],
-            ['allocation_scope_translated_title', 'Allocation Scope'],
-            ['Computer_getNewsDict', 'Status']
-          ];
-          return form_gadget.render({
+        .push(function (result) {
+          gadget.title_translation = result[1][4];
+          gadget.message_translation = result[1][0];
+          page_title_translation = result[1][10];
+          var editable = gadget.state.editable,
+            column_list = [
+              ['title', result[1][1]],
+              ['reference', result[1][2]],
+              ['allocation_scope_translated_title', result[1][3]],
+              ['Computer_getNewsDict', result[1][4]]
+            ];
+          return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_title": {
                   "description": "",
-                  "title": "Title",
+                  "title": result[1][1],
                   "default": gadget.state.doc.title,
                   "css_class": "",
                   "required": 1,
@@ -111,7 +131,7 @@
                 },
                 "my_reference": {
                   "description": "",
-                  "title": "Reference",
+                  "title": result[1][2],
                   "default": gadget.state.doc.reference,
                   "css_class": "",
                   "required": 1,
@@ -123,7 +143,7 @@
 
                 "my_monitoring_status": {
                   "description": "",
-                  "title": "Monitoring Status",
+                  "title": result[1][5],
                   "default": {jio_key: gadget.state.jio_key,
                               result: gadget.state.doc.news},
                   "css_class": "",
@@ -136,8 +156,8 @@
                   "type": "GadgetField"
                 },
                 "my_source_project": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Current Project",
+                  "description": result[1][6],
+                  "title": result[1][7],
                   "default": gadget.state.doc.source_project_title,
                   "css_class": "",
                   "required": 0,
@@ -147,8 +167,8 @@
                   "type": "StringField"
                 },
                 "my_source_section": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Current Organisation",
+                  "description": result[1][6],
+                  "title": result[1][8],
                   "default": gadget.state.doc.source_section_title,
                   "css_class": "",
                   "required": 1,
@@ -174,7 +194,7 @@
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
                   "sort": [["title", "ascending"]],
-                  "title": "Associated Servers",
+                  "title": result[1][9],
                   "type": "ListBox"
                 }
               }},
@@ -210,7 +230,7 @@
         .push(function (url_list) {
           var header_dict = {
             selection_url: url_list[1],
-            page_title: "Computer Network :" + gadget.state.doc.title,
+            page_title: page_title_translation + " :" + gadget.state.doc.title,
             delete_url: url_list[2],
             transfer_url: url_list[3],
             save_action: true
@@ -221,4 +241,4 @@
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP, jIO, Blob));
+}(window, rJS, RSVP));

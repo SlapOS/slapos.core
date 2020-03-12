@@ -17,6 +17,7 @@
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -57,7 +58,18 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
+      var gadget = this,
+        translation_list = [
+          "The name of a document in ERP5",
+          "Title",
+          "Reference",
+          "Current Project",
+          "Future Organisation",
+          "Current Organisation",
+          "Future Project",
+          "Parent Relative Url",
+          "Transfer Service"
+        ];
       return new RSVP.Queue()
         .push(function () {
           return window.getSettingMe(gadget);
@@ -68,10 +80,14 @@
         .push(function (me) {
           var i, destination_list = '"NULL",', destination_project_list = '"NULL",';
           for (i in me.assignment_destination_project_list) {
-            destination_project_list += '"' + me.assignment_destination_project_list[i] + '",';
+            if (me.assignment_destination_project_list.hasOwnProperty(i)) {
+              destination_project_list += '"' + me.assignment_destination_project_list[i] + '",';
+            }
           }
           for (i in me.assignment_destination_list) {
-            destination_list += '"' + me.assignment_destination_list[i] + '",';
+            if (me.assignment_destination_list.hasOwnProperty(i)) {
+              destination_list += '"' + me.assignment_destination_list[i] + '",';
+            }
           }
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
@@ -85,28 +101,29 @@
               query: 'portal_type:"Project" AND validation_state:"validated" AND relative_url:(' + destination_project_list + ')',
               sort_on: [['reference', 'ascending']],
               select_list: ['reference', 'title']
-            })
+            }),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
+          gadget.page_title_translation = result[4][8];
           var doc = result[1],
             organisation_list = [["", ""]],
             project_list = [["", ""]],
             i,
-            value,
             project_len = result[3].data.total_rows,
             site_len = result[2].data.total_rows;
 
           for (i = 0; i < site_len; i += 1) {
             organisation_list.push([
-              result[2].data.rows[i].value.title ? result[2].data.rows[i].value.title : result[2].data.rows[i].value.reference,
+              result[2].data.rows[i].value.title || result[2].data.rows[i].value.reference,
               result[2].data.rows[i].id
             ]);
           }
 
           for (i = 0; i < project_len; i += 1) {
             project_list.push([
-              result[3].data.rows[i].value.title ? result[3].data.rows[i].value.title : result[3].data.rows[i].value.reference,
+              result[3].data.rows[i].value.title || result[3].data.rows[i].value.reference,
               result[3].data.rows[i].id
             ]);
           }
@@ -115,8 +132,8 @@
             erp5_document: {
               "_embedded": {"_view": {
                 "my_title": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Title",
+                  "description": result[4][0],
+                  "title": result[4][1],
                   "default": doc.title,
                   "css_class": "",
                   "required": 1,
@@ -126,8 +143,8 @@
                   "type": "StringField"
                 },
                 "my_reference": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Reference",
+                  "description": result[4][0],
+                  "title": result[4][2],
                   "default": doc.reference,
                   "css_class": "",
                   "required": 1,
@@ -137,8 +154,8 @@
                   "type": "StringField"
                 },
                 "my_source_project": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Current Project",
+                  "description": result[4][0],
+                  "title": result[4][3],
                   "default": doc.source_project_title,
                   "css_class": "",
                   "required": 1,
@@ -148,8 +165,8 @@
                   "type": "StringField"
                 },
                 "my_destination": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Future Organisation",
+                  "description": result[4][0],
+                  "title": result[4][4],
                   "default": "",
                   "items": organisation_list,
                   "css_class": "",
@@ -160,8 +177,8 @@
                   "type": "ListField"
                 },
                 "my_source": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Current Organisation",
+                  "description": result[4][0],
+                  "title": result[4][5],
                   "default": doc.source_title,
                   "css_class": "",
                   "required": 1,
@@ -171,8 +188,8 @@
                   "type": "StringField"
                 },
                 "my_destination_project": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Future Project",
+                  "description": result[4][0],
+                  "title": result[4][6],
                   "default": "",
                   "items": project_list,
                   "css_class": "",
@@ -184,7 +201,7 @@
                 },
                 "my_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[4][7],
                   "default": options.jio_key,
                   "css_class": "",
                   "required": 1,
@@ -205,7 +222,7 @@
               group_list: [[
                 "left",
                 [["my_title"], ["my_reference"], ["my_source_project"], ["my_source"],
-                 ["my_destination_project"], ["my_destination"], ["my_relative_url"]]
+                  ["my_destination_project"], ["my_destination"], ["my_relative_url"]]
               ]]
             }
           });
@@ -216,7 +233,7 @@
         .push(function (selection_url) {
           return gadget.updateHeader({
             selection_url: selection_url,
-            page_title: "Transfer Service",
+            page_title: gadget.page_title_translation,
             submit_action: true
           });
         });

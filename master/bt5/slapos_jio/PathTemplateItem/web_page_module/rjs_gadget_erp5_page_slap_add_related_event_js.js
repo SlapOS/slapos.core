@@ -14,7 +14,7 @@
     .declareAcquiredMethod("jio_post", "jio_post")
     .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
     .declareAcquiredMethod("jio_get", "jio_get")
-
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -44,24 +44,39 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "The name of a document in ERP5",
+          "Title",
+          "Include your message",
+          "Your Message",
+          "Source",
+          "Follow up",
+          "Portal Type",
+          "Web Message",
+          "Parent Relative Url",
+          "New Message"
+        ];
       gadget.state.jio_key = options.jio_key;
 
-      return RSVP.Queue()
+      return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
             gadget.getSetting('me'),
-            gadget.jio_get(gadget.state.jio_key)
+            gadget.jio_get(gadget.state.jio_key),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
+          page_title_translation = result[3][9];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_title": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Title",
+                  "description": result[3][0],
+                  "title": result[3][1],
                   "default": "Re: " + result[2].title,
                   "css_class": "",
                   "required": 1,
@@ -71,8 +86,8 @@
                   "type": "StringField"
                 },
                 "my_text_content": {
-                  "description": "Include your message",
-                  "title": "Your Message",
+                  "description": result[3][2],
+                  "title": result[3][3],
                   "default": "",
                   "css_class": "",
                   "required": 1,
@@ -83,7 +98,7 @@
                 },
                 "my_source": {
                   "description": "",
-                  "title": "Source",
+                  "title": result[3][4],
                   "default": result[1],
                   "css_class": "",
                   "required": 1,
@@ -94,7 +109,7 @@
                 },
                 "my_follow_up": {
                   "description": "",
-                  "title": "Follow up",
+                  "title": result[3][5],
                   "default": gadget.state.jio_key,
                   "css_class": "",
                   "required": 1,
@@ -104,8 +119,8 @@
                   "type": "StringField"
                 },
                 "my_portal_type": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Portal Type",
+                  "description": result[3][0],
+                  "title": result[3][6],
                   "default": "Web Message",
                   "css_class": "",
                   "required": 1,
@@ -116,7 +131,7 @@
                 },
                 "my_parent_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[3][8],
                   "default": "event_module",
                   "css_class": "",
                   "required": 1,
@@ -137,20 +152,20 @@
               group_list: [[
                 "center",
                 [["my_title"], ["my_text_content"], ["my_follow_up"],
-                 ["my_portal_type"], ["my_parent_relative_url"],
-                 ["my_follow_up"], ["my_source"]]
+                  ["my_portal_type"], ["my_parent_relative_url"],
+                  ["my_follow_up"], ["my_source"]]
               ]]
             }
           });
         })
-       .push(function () {
+        .push(function () {
           return RSVP.all([
             gadget.getUrlFor({command: 'history_previous'})
           ]);
         })
         .push(function (url_list) {
           return gadget.updateHeader({
-            page_title: "New Message",
+            page_title: page_title_translation,
             selection_url: url_list[0],
             submit_action: true
           });

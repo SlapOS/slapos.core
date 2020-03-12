@@ -1,5 +1,5 @@
 /*global window, rJS, RSVP, btoa */
-/*jslint nomen: true, indent: 2, maxerr: 3 */
+/*jslint nomen: true, indent: 2, maxerr: 3, sub:true */
 (function (window, rJS, RSVP) {
   "use strict";
 
@@ -16,6 +16,7 @@
     .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -41,15 +42,15 @@
         })
         .push(function (doc) {
           if (doc === null) {
-            return gadget.notifySubmitted({message: 'Please review the form.', status: 'error'});
+            return gadget.notifySubmitted({message: gadget.message1_translation, status: 'error'});
           }
           return gadget.getSetting("hateoas_url")
             .push(function (url) {
               return gadget.jio_putAttachment(doc.relative_url,
                 url + doc.relative_url + "/SoftwareRelease_requestHostingSubscription", doc);
             })
-           .push(function (key) {
-              return gadget.notifySubmitted({message: 'New service created.', status: 'success'})
+            .push(function () {
+              return gadget.notifySubmitted({message: gadget.message2_translation, status: 'success'})
                 .push(function () {
                   // Workaround, find a way to open document without break gadget.
                   return gadget.redirect({"command": "change",
@@ -57,12 +58,11 @@
                 });
             }, function (error) {
               if (error.target.status === 409) {
-                return gadget.notifySubmitted({message: 'A service with this title already exists.', status: 'error'});
+                return gadget.notifySubmitted({message: gadget.message3_translation, status: 'error'});
               }
               if (error.target.status === 400) {
-                return gadget.notifySubmitted({message: 'Service Title is mandatory.', status: 'error'});
+                return gadget.notifySubmitted({message: gadget.message4_translation, status: 'error'});
               }
-              
             });
         });
     })
@@ -72,15 +72,36 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Please review the form.",
+          "New service created.",
+          "The name of a document in ERP5",
+          "Software Release URL",
+          "Title",
+          "Instance Parameter",
+          "Computer",
+          "SLA",
+          "Parent Relative Url",
+          "3/3 Request Service:",
+          "A service with this title already exists.",
+          "Service Title is mandatory."
+        ];
       return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
-            gadget.jio_get(options.jio_key)
+            gadget.jio_get(options.jio_key),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
+          gadget.message1_translation = result[2][0];
+          gadget.message2_translation = result[2][1];
+          gadget.message3_translation = result[2][10];
+          gadget.message4_translation = result[2][11];
+          page_title_translation = result[2][9];
           var doc = result[1],
             parameter_dict = {
               'parameter' : {
@@ -93,18 +114,17 @@
           if (options.software_type) {
             parameter_dict["parameter"]['restricted_softwaretype'] = true;
             parameter_dict["parameter"]['softwaretype'] = options.software_type;
-            
           }
           if (options.shared) {
-            parameter_dict["parameter"]['shared'] = true;            
+            parameter_dict["parameter"]['shared'] = true;
           }
 
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_url_string": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Software Release URL",
+                  "description": result[2][2],
+                  "title": result[2][3],
                   "default": doc.url_string,
                   "css_class": "",
                   "required": 1,
@@ -114,8 +134,8 @@
                   "type": "StringField"
                 },
                 "your_title": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Title",
+                  "description": result[2][2],
+                  "title": result[2][4],
                   "default": "",
                   "css_class": "",
                   "required": 1,
@@ -126,7 +146,7 @@
                 },
                 "your_text_content": {
                   "description": "",
-                  "title": "Instance Parameter",
+                  "title": result[2][5],
                   "default": parameter_dict,
                   "css_class": "",
                   "required": 1,
@@ -138,8 +158,8 @@
                   "type": "GadgetField"
                 },
                 "your_computer_guid": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Computer",
+                  "description": result[2][2],
+                  "title": result[2][6],
                   "default": "",
                   "items": doc.computer_guid,
                   "css_class": "",
@@ -150,8 +170,8 @@
                   "type": "ListField"
                 },
                 "your_sla_xml": {
-                  "description": "The name of a document in ERP5",
-                  "title": "SLA",
+                  "description": result[2][2],
+                  "title": result[2][7],
                   "default": options.sla_xml,
                   "css_class": "",
                   "required": 0,
@@ -162,7 +182,7 @@
                 },
                 "my_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[2][8],
                   "default": options.jio_key,
                   "css_class": "",
                   "required": 1,
@@ -183,23 +203,22 @@
               group_list: [[
                 "center",
                 [["my_url_string"], ["your_title"], ["your_text_content"],
-                 ["your_computer_guid"],["your_sla_xml"], ["my_portal_type"], ["my_relative_url"]]
+                  ["your_computer_guid"], ["your_sla_xml"], ["my_portal_type"], ["my_relative_url"]]
               ]]
             }
           })
-          .push(function () {
-            return RSVP.all([
-              gadget.getUrlFor({command: 'cancel_dialog_with_history'})
-            ]);
-          })
-          .push(function (url_list) {
-            return gadget.updateHeader({
-              page_title: "3/3 Request Service: " + doc.title,
-              cancel_url: url_list[0],
-              submit_action: true
-
+            .push(function () {
+              return RSVP.all([
+                gadget.getUrlFor({command: 'cancel_dialog_with_history'})
+              ]);
+            })
+            .push(function (url_list) {
+              return gadget.updateHeader({
+                page_title: page_title_translation + " " + doc.title,
+                cancel_url: url_list[0],
+                submit_action: true
+              });
             });
-          });
         });
     });
 }(window, rJS, RSVP));

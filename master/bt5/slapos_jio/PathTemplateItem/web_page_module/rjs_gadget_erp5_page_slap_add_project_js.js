@@ -14,6 +14,7 @@
     .declareAcquiredMethod("jio_post", "jio_post")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -35,7 +36,7 @@
           return gadget.jio_post(doc);
         })
         .push(function (key) {
-          return gadget.notifySubmitted({message: 'New Project created.', status: 'success'})
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
               return gadget.redirect({"command": "change",
@@ -49,21 +50,36 @@
     })
 
     .declareMethod("render", function () {
-      var gadget = this;
-      return RSVP.Queue()
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "New Project created.",
+          "The name of a document in ERP5",
+          "Title",
+          "Description",
+          "Destination Decision",
+          "Portal Type",
+          "Project",
+          "Parent Relative Url",
+          "New Project"
+        ];
+      return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
-            gadget.getSetting('me')
+            gadget.getSetting('me'),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
+          gadget.message_translation = result[2][0];
+          page_title_translation = result[2][8];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_title": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Title",
+                  "description": result[2][1],
+                  "title": result[2][2],
                   "default": "",
                   "css_class": "",
                   "required": 1,
@@ -73,8 +89,8 @@
                   "type": "StringField"
                 },
                 "my_description": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Description",
+                  "description": result[2][1],
+                  "title": result[2][3],
                   "default": "",
                   "css_class": "",
                   "required": 0,
@@ -85,7 +101,7 @@
                 },
                 "my_destination_decision": {
                   "description": "",
-                  "title": "Destination Decision",
+                  "title": result[2][4],
                   "default": result[1],
                   "css_class": "",
                   "required": 1,
@@ -95,8 +111,8 @@
                   "type": "StringField"
                 },
                 "my_portal_type": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Portal Type",
+                  "description": result[2][1],
+                  "title": result[2][5],
                   "default": "Project",
                   "css_class": "",
                   "required": 1,
@@ -107,7 +123,7 @@
                 },
                 "my_parent_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[2][7],
                   "default": "project_module",
                   "css_class": "",
                   "required": 1,
@@ -134,7 +150,7 @@
         })
         .push(function () {
           return gadget.updateHeader({
-            page_title: "New Project",
+            page_title: page_title_translation,
             submit_action: true
           });
         });

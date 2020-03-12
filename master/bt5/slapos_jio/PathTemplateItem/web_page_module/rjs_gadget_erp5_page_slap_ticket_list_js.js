@@ -14,7 +14,7 @@
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
     .declareAcquiredMethod("jio_get", "jio_get")
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
-
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -26,9 +26,16 @@
           return gadget.triggerSubmit.apply(gadget, argument_list);
         });
     })
-    .declareMethod("render", function (options) {
+    .declareMethod("render", function () {
       var gadget = this,
-        lines_limit;
+        lines_limit,
+        tickets_translation,
+        translation_list = [
+          "Title",
+          "Reference",
+          "State",
+          "Tickets"
+        ];
 
       return new RSVP.Queue()
         .push(function () {
@@ -41,15 +48,17 @@
           lines_limit = setting[0];
           return RSVP.all([
             gadget.getDeclaredGadget('form_list'),
-            gadget.jio_get(setting[1])
+            gadget.jio_get(setting[1]),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
           var column_list = [
-            ['title', 'Title'],
-            ['reference', 'Reference'],
-            ['translated_simulation_state_title', 'State']
+            ['title', result[2][0]],
+            ['reference', result[2][1]],
+            ['translated_simulation_state_title', result[2][2]]
           ];
+          tickets_translation = result[2][3];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
@@ -67,7 +76,7 @@
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
                   "sort": [["modification_date", "Descending"]],
-                  "title": "Tickets",
+                  "title": tickets_translation,
                   "type": "ListBox"
                 }
               }},
@@ -91,7 +100,7 @@
             jio_key: "support_request_module"
           });
         })
-        .push(function (result) {
+        .push(function () {
           return RSVP.all([
             gadget.getUrlFor({command: "change", options: {"page": "slap_add_ticket"}}),
             gadget.getUrlFor({command: "change", options: {"page": "slap_rss_ticket"}}),
@@ -101,7 +110,7 @@
         })
         .push(function (result) {
           return gadget.updateHeader({
-            page_title: "Tickets",
+            page_title: tickets_translation,
             filter_action: true,
             selection_url: result[2],
             add_url: result[0],

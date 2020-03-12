@@ -15,6 +15,8 @@
     .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("translate", "translate")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -31,17 +33,24 @@
           return gadget.getDeclaredGadget('form_view');
         })
         .push(function (form_gadget) {
-          return form_gadget.getContent();
+          return RSVP.all([
+            form_gadget.getContent(),
+            gadget.translate("Password is different from confirmation"),
+            gadget.translate("New User Login created")
+          ]);
         })
-        .push(function (content) {
-          var k;
+        .push(function (result) {
+          var k,
+            content = result[0];
           for (k in content) {
-            if (k !== "password_confirmation") {
-              doc[k] = content[k];
-            }
-            if ((k === "password_confirmation") &&
-                (content.password !== content.password_confirmation)) {
-              return gadget.notifySubmitted({message: 'Password is different from confirmation', status: 'error'});
+            if (content.hasOwnProperty(k)) {
+              if (k !== "password_confirmation") {
+                doc[k] = content[k];
+              }
+              if ((k === "password_confirmation") &&
+                  (content.password !== content.password_confirmation)) {
+                return gadget.notifySubmitted({message: result[1], status: 'error'});
+              }
             }
           }
           return gadget.getSetting("hateoas_url")
@@ -49,7 +58,7 @@
               return gadget.jio_putAttachment(content.parent_relative_url,
                 hateoas_url + gadget.state.jio_key + "/Person_newLogin", doc)
                 .push(function () {
-                  return gadget.notifySubmitted({message: 'New User Login created.', status: 'success'});
+                  return gadget.notifySubmitted({message: result[2], status: 'success'});
                 })
                 .push(function () {
                   return gadget.redirect({"command": "change",
@@ -63,22 +72,34 @@
       return this.element.querySelector('button[type="submit"]').click();
     })
     .declareMethod("render", function (options) {
-      var gadget = this;
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Login Name",
+          "Password",
+          "Confirm your Password",
+          "Add New User Login",
+          "The name of a document in ERP5",
+          "Portal Type",
+          "Parent Relative Url"
+        ];
       gadget.state.jio_key = options.jio_key;
 
       return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
-            gadget.getDeclaredGadget('form_view')
+            gadget.getDeclaredGadget('form_view'),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
+          page_title_translation = result[1][3];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_reference": {
                   "description": "",
-                  "title": "Login Name",
+                  "title": result[1][0],
                   "default": "",
                   "css_class": "",
                   "required": 1,
@@ -89,7 +110,7 @@
                 },
                 "my_new_password": {
                   "description": "",
-                  "title": "Password",
+                  "title": result[1][1],
                   "default": "",
                   "css_class": "",
                   "required": 1,
@@ -100,7 +121,7 @@
                 },
                 "my_confirmation_password": {
                   "description": "",
-                  "title": "Confirm your Password",
+                  "title": result[1][2],
                   "default": "",
                   "css_class": "",
                   "required": 1,
@@ -110,8 +131,8 @@
                   "type": "PasswordField"
                 },
                 "my_portal_type": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Portal Type",
+                  "description": result[1][4],
+                  "title": result[1][5],
                   "default": "ERP5 Login",
                   "css_class": "",
                   "required": 1,
@@ -122,7 +143,7 @@
                 },
                 "my_parent_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[1][6],
                   "default": gadget.state.jio_key,
                   "css_class": "",
                   "required": 1,
@@ -154,7 +175,7 @@
         })
         .push(function (url_list) {
           return gadget.updateHeader({
-            page_title: "Add New User Login",
+            page_title: page_title_translation,
             selection_url: url_list[0],
             submit_action: true
           });

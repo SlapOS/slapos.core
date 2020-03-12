@@ -14,7 +14,7 @@
     .declareAcquiredMethod("jio_post", "jio_post")
     .declareAcquiredMethod("jio_get", "jio_get")
     .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
-
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -47,22 +47,29 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
-      return RSVP.Queue()
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Parent Relative Url",
+          "Start Hosting Subscription:"
+        ];
+      return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
-            gadget.jio_get(options.jio_key)
+            gadget.jio_get(options.jio_key),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
           options.doc = result[1];
+          page_title_translation = result[2][1];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[2][0],
                   "default": options.jio_key,
                   "css_class": "",
                   "required": 1,
@@ -94,7 +101,7 @@
         })
         .push(function (url_list) {
           return gadget.updateHeader({
-            page_title: "Start Hosting Subscription: " + options.doc.title,
+            page_title: page_title_translation + options.doc.title,
             selection_url: url_list[0],
             submit_action: true
           });

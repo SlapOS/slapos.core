@@ -15,7 +15,7 @@
     .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
-
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -41,7 +41,7 @@
             });
         })
         .push(function () {
-          return gadget.notifySubmitted({message: 'You sucessfully request destruction.', status: 'success'})
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
               return gadget.redirect({"command": "change",
@@ -55,20 +55,29 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
-      return RSVP.Queue()
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "You sucessfully request destruction.",
+          "Parent Relative Url",
+          "Destroy Software Installation"
+        ];
+      return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
-            gadget.getDeclaredGadget('form_view')
+            gadget.getDeclaredGadget('form_view'),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
+          gadget.message_translation = result[1][0];
+          page_title_translation = result[1][2];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[1][1],
                   "default": options.jio_key,
                   "css_class": "",
                   "required": 1,
@@ -100,7 +109,7 @@
         })
         .push(function (url_list) {
           return gadget.updateHeader({
-            page_title: "Destroy Software Installation",
+            page_title: page_title_translation,
             selection_url: url_list[0],
             submit_action: true
           });

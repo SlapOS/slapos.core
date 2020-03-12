@@ -16,7 +16,7 @@
     .declareAcquiredMethod("jio_get", "jio_get")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
-
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -49,7 +49,7 @@
           return gadget.jio_post(doc);
         })
         .push(function (key) {
-          return gadget.notifySubmitted({message: 'New Ticket created.', status: 'success'})
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
               return gadget.redirect({"command": "change",
@@ -62,10 +62,25 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "New Ticket created.",
+          "The name of a document in ERP5",
+          "Subject",
+          "Message",
+          "Ticket Type",
+          "Current User",
+          "Trade Condition",
+          "Aggregate",
+          "Portal Type",
+          "Support Request",
+          "Parent Relative Url",
+          "New Ticket related to"
+        ];
       gadget.state.jio_key = options.jio_key;
 
-      return RSVP.Queue()
+      return new RSVP.Queue()
         .push(function () {
           return gadget.getSetting("hateoas_url");
         })
@@ -74,16 +89,19 @@
             gadget.getDeclaredGadget('form_view'),
             gadget.jio_getAttachment("ticket_resource_list",
                hateoas_url + "Ticket_getResourceItemListAsJSON"),
-            window.getSettingMe(gadget)
+            window.getSettingMe(gadget),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
+          gadget.message_translation = result[3][0];
+          page_title_translation = result[3][11];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_title": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Subject",
+                  "description": result[3][1],
+                  "title": result[3][2],
                   "default": "",
                   "css_class": "",
                   "required": 1,
@@ -93,8 +111,8 @@
                   "type": "StringField"
                 },
                 "my_description": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Message",
+                  "description": result[3][1],
+                  "title": result[3][3],
                   "default": "",
                   "css_class": "",
                   "required": 1,
@@ -104,8 +122,8 @@
                   "type": "TextAreaField"
                 },
                 "my_resource": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Ticket Type",
+                  "description": result[3][1],
+                  "title": result[3][4],
                   "default": "",
                   "items": result[1],
                   "css_class": "",
@@ -116,8 +134,8 @@
                   "type": "ListField"
                 },
                 "my_destination_decision": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Current User",
+                  "description": result[3][1],
+                  "title": result[3][5],
                   "default": result[2],
                   "css_class": "",
                   "required": 1,
@@ -128,7 +146,7 @@
                 },
                 "my_specialise": {
                   "description": "",
-                  "title": "Trade Condition",
+                  "title": result[3][6],
                   // Auto Set a hardcoded trade Condition
                   // Please replace it by a getSetting.
                   "default": "sale_trade_condition_module/slapos_ticket_trade_condition",
@@ -141,7 +159,7 @@
                 },
                 "my_aggregate": {
                   "description": "",
-                  "title": "Aggregate",
+                  "title": result[3][7],
                   "default": gadget.state.jio_key,
                   "css_class": "",
                   "required": 1,
@@ -151,8 +169,8 @@
                   "type": "StringField"
                 },
                 "my_portal_type": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Portal Type",
+                  "description": result[3][1],
+                  "title": result[3][8],
                   "default": "Support Request",
                   "css_class": "",
                   "required": 1,
@@ -163,7 +181,7 @@
                 },
                 "my_parent_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[3][10],
                   "default": "support_request_module",
                   "css_class": "",
                   "required": 1,
@@ -190,21 +208,21 @@
               ]]
             }
           })
-          .push(function () {
-            return RSVP.all([
-              gadget.getUrlFor({command: 'history_previous'})
-            ]);
-          })
-          .push(function (url_list) {
-            return gadget.jio_get(gadget.state.jio_key)
-              .push(function (doc) {
-                gadget.updateHeader({
-                  page_title: "New Ticket related to " + doc.title,
-                  selection_url: url_list[0],
-                  submit_action: true
+            .push(function () {
+              return RSVP.all([
+                gadget.getUrlFor({command: 'history_previous'})
+              ]);
+            })
+            .push(function (url_list) {
+              return gadget.jio_get(gadget.state.jio_key)
+                .push(function (doc) {
+                  gadget.updateHeader({
+                    page_title: page_title_translation + " " + doc.title,
+                    selection_url: url_list[0],
+                    submit_action: true
+                  });
                 });
-              });
-          });
+            });
         });
     });
 }(window, rJS, RSVP));

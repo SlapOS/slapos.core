@@ -14,6 +14,7 @@
     .declareAcquiredMethod("jio_post", "jio_post")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -35,7 +36,7 @@
           return gadget.jio_post(doc);
         })
         .push(function (key) {
-          return gadget.notifySubmitted({message: 'New Network created.', status: 'success'})
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
               return gadget.redirect({"command": "change",
@@ -49,20 +50,31 @@
     })
 
     .declareMethod("render", function () {
-      var gadget = this;
-      return RSVP.Queue()
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Title",
+          "Portal Type",
+          "Parent Relative Url",
+          "New Network",
+          "New Network created."
+        ];
+      return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
-            gadget.getDeclaredGadget('form_view')
+            gadget.getDeclaredGadget('form_view'),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
+          page_title_translation = result[1][3];
+          gadget.message_translation = result[1][4];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_title": {
                   "description": "The name of a document in ERP5",
-                  "title": "Title",
+                  "title": result[1][0],
                   "default": "",
                   "css_class": "",
                   "required": 0,
@@ -73,7 +85,7 @@
                 },
                 "my_portal_type": {
                   "description": "The name of a document in ERP5",
-                  "title": "Portal Type",
+                  "title": result[1][1],
                   "default": "Computer Network",
                   "css_class": "",
                   "required": 1,
@@ -84,7 +96,7 @@
                 },
                 "my_parent_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[1][2],
                   "default": "computer_network_module",
                   "css_class": "",
                   "required": 1,
@@ -116,7 +128,7 @@
         })
         .push(function (url_list) {
           return gadget.updateHeader({
-            page_title: "New Network",
+            page_title: page_title_translation,
             selection_url: url_list[0],
             submit_action: true
           });

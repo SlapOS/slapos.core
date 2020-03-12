@@ -16,7 +16,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -59,7 +58,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -71,7 +69,7 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_translation_data.js</string> </value>
+            <value> <string>gadget_slapos_translation_data.js</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -81,7 +79,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_translation_data_js</string> </value>
+            <value> <string>rjs_gadget_slapos_translation_data_js</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -101,7 +99,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget Translation Data JS</string> </value>
+            <value> <string>Gadget SlapOS Translation Data JS</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
@@ -167,7 +165,7 @@
             </item>
             <item>
                 <key> <string>actor</string> </key>
-                <value> <string>cedric.le.ninivin</string> </value>
+                <value> <string>zope</string> </value>
             </item>
             <item>
                 <key> <string>comment</string> </key>
@@ -189,7 +187,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1438012175.94</float>
+                        <float>1581585903.15</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -202,6 +200,7 @@
             </item>
           </dictionary>
         </list>
+        <none/>
       </tuple>
     </pickle>
   </record>
@@ -234,7 +233,7 @@
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>972.31995.48177.21845</string> </value>
+                <value> <string>983.13242.30278.32426</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -252,7 +251,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1552957380.36</float>
+                        <float>1586962878.51</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -261,6 +260,7 @@
             </item>
           </dictionary>
         </list>
+        <none/>
       </tuple>
     </pickle>
   </record>
@@ -279,7 +279,7 @@
             </item>
             <item>
                 <key> <string>actor</string> </key>
-                <value> <string>cedric.le.ninivin</string> </value>
+                <value> <string>zope</string> </value>
             </item>
             <item>
                 <key> <string>comment</string> </key>
@@ -309,7 +309,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1438012143.53</float>
+                        <float>1581585795.07</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -318,6 +318,7 @@
             </item>
           </dictionary>
         </list>
+        <none/>
       </tuple>
     </pickle>
   </record>

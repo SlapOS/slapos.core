@@ -1,18 +1,13 @@
 /*global window, rJS, RSVP, Handlebars, UriTemplate */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP, Handlebars, UriTemplate) {
+(function (window, rJS, RSVP, UriTemplate) {
   "use strict";
-  var gadget_klass = rJS(window),
-    dialog_button_source = gadget_klass.__template_element
-                         .getElementById("dialog-button-template")
-                         .innerHTML,
-    dialog_button_template = Handlebars.compile(dialog_button_source);
-
+  var gadget_klass = rJS(window);
   gadget_klass
     .declareAcquiredMethod("getUrlForList", "getUrlForList")
     .declareAcquiredMethod("updateHeader", "updateHeader")
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
-    .declareAcquiredMethod("translate", "translate")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("redirect", "redirect")
 
@@ -20,31 +15,34 @@
     // declared methods
     /////////////////////////////////////////////////////////////////
     .declareMethod("render", function () {
-      var gadget = this;
+      var gadget = this,
+        logout_translation,
+        translation_list = [
+          "You are not allowed to access this content, please login with an user which has the right permission",
+          "Error page",
+          "Logout"
+        ];
 
       return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getUrlForList([{command: 'display'}]),
             gadget.getDeclaredGadget("erp5_form"),
-            gadget.translate("You are not allowed to access this content, please login with an user which has the right permission")
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result_list) {
-          var user,
-            key,
-            list_item = [];
-
+          logout_translation = result_list[2][2];
           return RSVP.all([
             gadget.updateHeader({
-              page_title: 'Error page',
+              page_title: result_list[2][1],
               front_url: result_list[0][0]
             }),
 
             result_list[1].render({
               erp5_document: {"_embedded": {"_view": {
                 'Message': {
-                  "default": result_list[2],
+                  "default": result_list[2][0],
                   "editable": 0,
                   "key": "field_message",
                   "title": "",
@@ -57,27 +55,27 @@
                   }
                 }
                 },
-                form_definition: {
-                  group_list: [[
-                    "left",
-                    [["Message"]]
-                  ]]
-                }
-              })
-            ]);
+              form_definition: {
+                group_list: [[
+                  "left",
+                  [["Message"]]
+                ]]
+              }
+            })
+          ]);
         })
-        .push(function () {
-          return gadget.translate('Logout');
-        })
-        .push(function (translated_text) {
-          gadget.element.querySelector('input').value = translated_text;
+         .push(function () {
+//          return gadget.translate('Logout');
+//        })
+//        .push(function (translated_text) {
+          gadget.element.querySelector('input').value = logout_translation;
         });
     })
       .onEvent('submit', function () {
-        var gadget = this,
-          logout_url_template;
+      var gadget = this,
+        logout_url_template;
 
-        return gadget.jio_getAttachment('acl_users', 'links')
+      return gadget.jio_getAttachment('acl_users', 'links')
         .push(function (links) {
           logout_url_template = links._links.logout.href;
           return gadget.getUrlFor({
@@ -94,8 +92,8 @@
             }
           });
         });
-      })
+    })
     .declareMethod("triggerSubmit", function () {
       return;
     });
-}(window, rJS, RSVP, Handlebars, UriTemplate));
+}(window, rJS, RSVP, UriTemplate));

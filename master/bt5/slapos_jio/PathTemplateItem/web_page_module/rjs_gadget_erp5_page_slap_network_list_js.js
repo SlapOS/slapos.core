@@ -12,6 +12,7 @@
     .declareAcquiredMethod("setSetting", "setSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     .allowPublicAcquisition("jio_allDocs", function (param_list) {
       var gadget = this;
@@ -55,24 +56,34 @@
           return gadget.triggerSubmit.apply(gadget, argument_list);
         });
     })
-    .declareMethod("render", function (options) {
+    .declareMethod("render", function () {
       var gadget = this,
-        lines_limit;
+        lines_limit,
+        networks_translation,
+        translation_list = [
+          "Title",
+          "Reference",
+          "Status",
+          "Networks"
+        ];
 
       return new RSVP.Queue()
         .push(function () {
-          return gadget.getSetting("listbox_lines_limit", 20);
+          return RSVP.all([
+            gadget.getDeclaredGadget('form_list'),
+            gadget.getSetting("listbox_lines_limit", 20),
+            gadget.getTranslationList(translation_list)
+          ]);
         })
-        .push(function (listbox_lines_limit) {
-          lines_limit = listbox_lines_limit;
-          return gadget.getDeclaredGadget('form_list');
-        })
-        .push(function (form_list) {
+        .push(function (result) {
           var column_list = [
-            ['title', 'Title'],
-            ['reference', 'Reference'],
-            ['ComputerNetwork_getNewsDict', 'Status']
-          ];
+            ['title', result[2][0]],
+            ['reference', result[2][1]],
+            ['ComputerNetwork_getNewsDict', result[2][2]]
+          ],
+            form_list = result[0];
+          lines_limit = result[1];
+          networks_translation = result[2][3];
           return form_list.render({
             erp5_document: {
               "_embedded": {"_view": {
@@ -92,7 +103,7 @@
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
                   "sort": [["reference", "ascending"]],
-                  "title": "Networks",
+                  "title": networks_translation,
                   "type": "ListBox"
                 }
               }},
@@ -116,7 +127,7 @@
             jio_key: "computer_network_module"
           });
         })
-        .push(function (result) {
+        .push(function () {
           return RSVP.all([
             gadget.getUrlFor({command: "change", options: {"page": "slap_add_network"}}),
             gadget.getUrlFor({command: "change", options: {"page": "slapos"}})
@@ -124,7 +135,7 @@
         })
         .push(function (result) {
           return gadget.updateHeader({
-            page_title: "Networks",
+            page_title: networks_translation,
             filter_action: true,
             selection_url: result[1],
             add_url: result[0]

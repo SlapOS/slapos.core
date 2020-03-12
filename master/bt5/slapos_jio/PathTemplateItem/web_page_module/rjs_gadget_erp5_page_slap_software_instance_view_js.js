@@ -1,6 +1,6 @@
 /*global window, rJS, RSVP, jIO, Blob */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP, jIO, Blob) {
+(function (window, rJS, RSVP) {
   "use strict";
 
   rJS(window)
@@ -17,12 +17,13 @@
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
     /////////////////////////////////////////////////////////////////
 
-   .allowPublicAcquisition("jio_allDocs", function (param_list) {
+    .allowPublicAcquisition("jio_allDocs", function (param_list) {
       var gadget = this;
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
@@ -37,7 +38,7 @@
                   key: "status",
                   editable: 1,
                   url: "gadget_slapos_label_listbox_field.html",
-                  title: "Status",
+                  title: gadget.title_translation,
                   type: "GadgetField"
                 }
               };
@@ -49,7 +50,7 @@
                   key: "status",
                   editable: 1,
                   url: "gadget_slapos_label_listbox_field.html",
-                  title: "Status",
+                  title: gadget.title_translation,
                   type: "GadgetField"
                 }
               };
@@ -84,7 +85,7 @@
           return gadget.updateDocument(content);
         })
         .push(function () {
-          return gadget.notifySubmitted({message: 'Data updated.', status: 'success'});
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'});
         });
     })
 
@@ -93,36 +94,51 @@
     })
 
     .onStateChange(function () {
-      var gadget = this, data;
+      var gadget = this,
+        connection_key_translation,
+        connection_value_translatin,
+        translation_list = [
+          "Title",
+          "Reference",
+          "Monitoring Status",
+          "Software Release",
+          "Hosting Subscription",
+          "Software Type",
+          "Instance Parameters",
+          "Connection Parameters",
+          "Parameter",
+          "Value",
+          "Status",
+          "Data updated."
+        ];
       return new RSVP.Queue()
         .push(function () {
           return gadget.getDeclaredGadget('form_view');
         })
         .push(function (form_gadget) {
-          var editable = gadget.state.editable;
-          var column_list = [
-            ['title', 'Title'],
-            ['reference', 'Reference'],
-            ['computer_monitoring_status', 'Status']
-          ],
-            connection_column_list = [
-              ['connection_key', 'Parameter'],
-              ['connection_value', 'Value']
+          var connection_column_list = [
+              ['connection_key', connection_key_translation],
+              ['connection_value', connection_value_translatin]
             ];
           return new RSVP.Queue()
-           .push(function () {
+            .push(function () {
               return RSVP.all([
                 gadget.getUrlFor({command: "change", options: {jio_key: gadget.state.doc.specialise }}),
-                gadget.getSetting("hateoas_url")
+                gadget.getSetting("hateoas_url"),
+                gadget.getTranslationList(translation_list)
               ]);
             })
-            .push(function (url_list) {
+            .push(function (result) {
+              connection_key_translation = result[2][8];
+              connection_value_translatin = result[2][9];
+              gadget.title_translation = result[2][10];
+              gadget.message_translation = result[2][11];
               return form_gadget.render({
                 erp5_document: {
                   "_embedded": {"_view": {
                     "my_title": {
                       "description": "",
-                      "title": "Title",
+                      "title": result[2][0],
                       "default": gadget.state.doc.title,
                       "css_class": "",
                       "required": 1,
@@ -133,7 +149,7 @@
                     },
                     "my_reference": {
                       "description": "",
-                      "title": "Reference",
+                      "title": result[2][1],
                       "default": gadget.state.doc.reference,
                       "css_class": "",
                       "required": 1,
@@ -144,7 +160,7 @@
                     },
                     "my_monitoring_status": {
                       "description": "",
-                      "title": "Monitoring Status",
+                      "title": result[2][2],
                       "default": {jio_key: gadget.state.jio_key},
                       "css_class": "",
                       "required": 1,
@@ -157,7 +173,7 @@
                     },
                     "my_url_string": {
                       "description": "",
-                      "title": "Software Release",
+                      "title": result[2][3],
                       "default":
                         "<a target=_blank href=" + gadget.state.doc.url_string + ">" +
                         gadget.state.doc.url_string + "</a>",
@@ -170,9 +186,9 @@
                     },
                     "my_specialise_title": {
                       "description": "",
-                      "title": "Hosting Subscription",
+                      "title": result[2][4],
                       "default":
-                        "<a href=" + url_list[0] + ">" +
+                        "<a href=" + result[0] + ">" +
                         gadget.state.doc.specialise_title + "</a>",
                       "css_class": "",
                       "required": 1,
@@ -183,7 +199,7 @@
                     },
                     "my_source_reference": {
                       "description": "",
-                      "title": "Software Type",
+                      "title": result[2][5],
                       "default": gadget.state.doc.source_reference,
                       "css_class": "",
                       "required": 1,
@@ -194,7 +210,7 @@
                     },
                     "my_text_content": {
                       "description": "",
-                      "title": "Instance Parameters",
+                      "title": result[2][6],
                       "default": gadget.state.doc.text_content,
                       "css_class": "",
                       "required": 1,
@@ -213,7 +229,7 @@
                       // XXXX this listbox doesn't handle pagination correctly. Let's hope we will never have more than 100 connection parameters.
                       "lines": 100,
                       "list_method": "SoftwareInstance_getConnectionParameterList",
-                      "list_method_template": url_list[1] + "ERP5Document_getHateoas?mode=search&" +
+                      "list_method_template": result[1] + "ERP5Document_getHateoas?mode=search&" +
                         "list_method=SoftwareInstance_getConnectionParameterList&relative_url=" +
                         gadget.state.jio_key + "&default_param_json=eyJpZ25vcmVfdW5rbm93bl9jb2x1bW5zIjogdHJ1ZX0={&query,select_list*,limit*,sort_on*,local_roles*}",
                       "query": "urn:jio:allDocs?query=",
@@ -221,7 +237,7 @@
                       "search_column_list": connection_column_list,
                       "sort_column_list": connection_column_list,
                       "sort": [["connection_key", "ascending"]],
-                      "title": "Connection Parameters",
+                      "title": result[2][7],
                       "type": "ListBox"
                     }
                   }},
@@ -268,4 +284,4 @@
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP, jIO, Blob));
+}(window, rJS, RSVP));

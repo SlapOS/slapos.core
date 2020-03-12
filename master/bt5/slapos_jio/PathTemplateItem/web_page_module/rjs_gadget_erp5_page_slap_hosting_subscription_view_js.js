@@ -1,6 +1,6 @@
 /*global window, rJS, RSVP, jIO, Blob, btoa */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP, jIO, Blob, btoa) {
+(function (window, rJS, RSVP, btoa) {
   "use strict";
 
   rJS(window)
@@ -16,6 +16,7 @@
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("jio_allDocs", 'jio_allDocs')
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -33,12 +34,12 @@
               result.data.rows[i].value.SoftwareInstance_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
-                  description: "The Status",
+                  description: gadget.description_translation,
                   hidden:  0,
                   "default": {jio_key: jio_key_value, result: value},
                   key: "status",
                   url: "gadget_slapos_instance_status.html",
-                  title: "Status",
+                  title: gadget.title_translation,
                   type: "GadgetField"
                 }
               };
@@ -56,7 +57,7 @@
                   key: "status",
                   editable: 1,
                   url: "gadget_slapos_label_listbox_field.html",
-                  title: "Status",
+                  title: gadget.title_translation,
                   type: "GadgetField"
                 }
               };
@@ -68,7 +69,7 @@
                   key: "status",
                   editable: 1,
                   url: "gadget_slapos_label_listbox_field.html",
-                  title: "Status",
+                  title: gadget.title_translation,
                   type: "GadgetField"
                 }
               };
@@ -84,7 +85,7 @@
 
     .declareMethod('updateDocument', function (param_list) {
       var gadget = this, property,
-          content = param_list, doc = {};
+        content = param_list, doc = {};
       for (property in content) {
         if ((content.hasOwnProperty(property)) &&
             // Remove undefined keys added by Gadget fields
@@ -123,7 +124,7 @@
           return gadget.updateDocument(content);
         })
         .push(function () {
-          return gadget.notifySubmitted({message: 'Data updated.', status: 'success'});
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'});
         });
     })
 
@@ -132,39 +133,84 @@
     })
 
     .onStateChange(function () {
-      var gadget = this, data;
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "The Status",
+          "Status",
+          "Data updated.",
+          "Title",
+          "Reference",
+          "Type",
+          "Enabled",
+          "Disabled",
+          "Auto Upgrade",
+          "Ask Confirmation before Upgrade",
+          "Never Upgrade",
+          "State",
+          "Modification Date",
+          "Parameter",
+          "Value",
+          "Short Title",
+          "Description",
+          "Software Type",
+          "Software Release",
+          "Configuration Parameter",
+          "The name of a document in ERP5",
+          "Current Project",
+          "Current Organisation",
+          "Monitoring Status",
+          "Monitoring",
+          "Upgrade",
+          "Connection Parameters",
+          "Associated Tickets",
+          "Instances",
+          "Hosting Subscription:"
+        ];
       return new RSVP.Queue()
         .push(function () {
-          return gadget.getDeclaredGadget('form_view');
+          return RSVP.all([
+            gadget.getDeclaredGadget('form_view'),
+            gadget.getTranslationList(translation_list)
+          ]);
         })
-        .push(function (form_gadget) {
-          var editable = gadget.state.editable;
-          var column_list = [
-            ['title', 'Title'],
-            ['reference', 'Reference'],
-            ['portal_type', 'Type'],
-            ['SoftwareInstance_getReportedState', 'State'],
-            ['SoftwareInstance_getNewsDict', 'Status']
-          ], monitor_scope_list = [['', ''],
-                                ['Enabled', 'enabled'],
-                                ['Disabled', 'disabled']
-          ], upgrade_scope_list = [['', ''],
-                                ['Auto Upgrade', 'auto'],
-                                ['Ask Confirmation before Upgrade', 'ask_confirmation'],
-                                ['Never Upgrade', 'never']
-          ], ticket_column_list = [
-            ['title', 'Title'],
-            ['reference', 'Reference'],
-            ['modification_date', 'Modification Date'],
-            ['translated_simulation_state_title', 'State']
-          ], connection_column_list = [
-              ['connection_key', 'Parameter'],
-              ['connection_value', 'Value']
-            ], parameter_dict = {
+        .push(function (result) {
+          gadget.description_translation = result[1][0];
+          gadget.title_translation = result[1][1];
+          gadget.message_translation = result[1][2];
+          page_title_translation = result[1][29];
+          var form_gadget = result[0],
+            column_list = [
+              ['title', result[1][3]],
+              ['reference', result[1][4]],
+              ['portal_type', result[1][5]],
+              ['SoftwareInstance_getReportedState', result[1][11]],
+              ['SoftwareInstance_getNewsDict', result[1][1]]
+            ],
+            monitor_scope_list = [['', ''],
+                                [result[1][6], 'enabled'],
+                                [result[1][7], 'disabled']
+              ],
+            upgrade_scope_list = [['', ''],
+                                [result[1][8], 'auto'],
+                                [result[1][9], 'ask_confirmation'],
+                                [result[1][10], 'never']
+              ],
+            ticket_column_list = [
+              ['title', result[1][1]],
+              ['reference', result[1][4]],
+              ['modification_date', result[1][12]],
+              ['translated_simulation_state_title', result[1][11]]
+            ],
+            connection_column_list = [
+              ['connection_key', result[1][13]],
+              ['connection_value', result[1][14]]
+            ],
+            parameter_dict = {
               'parameter' : {
                 'json_url': gadget.state.doc.url_string + ".json",
                 'softwaretype': gadget.state.doc.source_reference,
-                'shared': gadget.state.doc.root_slave ? 1: 0,
+                'shared': gadget.state.doc.root_slave ? 1 : 0,
                 //'json_url': "https://lab.node.vifib.com/nexedi/slapos/raw/master/software/kvm/software.cfg.json",
                 'parameter_hash': btoa('<?xml version="1.0" encoding="utf-8" ?><instance></instance>'),
                 'restricted_softwaretype': true
@@ -180,7 +226,7 @@
                   "_embedded": {"_view": {
                     "my_title": {
                       "description": "",
-                      "title": "Title",
+                      "title": result[1][3],
                       "default": gadget.state.doc.title,
                       "css_class": "",
                       "required": 1,
@@ -191,7 +237,7 @@
                     },
                     "my_short_title": {
                       "description": "",
-                      "title": "Short Title",
+                      "title": result[1][15],
                       "default": gadget.state.doc.short_title,
                       "css_class": "",
                       "required": 1,
@@ -202,7 +248,7 @@
                     },
                     "my_description": {
                       "description": "",
-                      "title": "Description",
+                      "title": result[1][16],
                       "default": gadget.state.doc.description,
                       "css_class": "",
                       "required": 1,
@@ -213,7 +259,7 @@
                     },
                     "my_reference": {
                       "description": "",
-                      "title": "Reference",
+                      "title": result[1][4],
                       "default": gadget.state.doc.reference,
                       "css_class": "",
                       "required": 1,
@@ -224,7 +270,7 @@
                     },
                     "my_slap_state_title": {
                       "description": "",
-                      "title": "State",
+                      "title": result[1][11],
                       "default": gadget.state.doc.slap_state_title,
                       "css_class": "",
                       "required": 1,
@@ -235,7 +281,7 @@
                     },
                     "my_source_reference": {
                       "description": "",
-                      "title": "Software Type",
+                      "title": result[1][17],
                       "default": gadget.state.doc.source_reference,
                       "css_class": "",
                       "required": 1,
@@ -246,7 +292,7 @@
                     },
                     "my_url_string": {
                       "description": "",
-                      "title": "Software Release",
+                      "title": result[1][18],
                       "default":
                         "<a target=_blank href=" + gadget.state.doc.url_string + ">" +
                         gadget.state.doc.url_string + "</a>",
@@ -259,7 +305,7 @@
                     },
                     "my_text_content": {
                       "description": "",
-                      "title": "Configuration Parameter",
+                      "title": result[1][19],
                       "default": parameter_dict,
                       "css_class": "",
                       "required": 1,
@@ -271,8 +317,8 @@
                       "type": "GadgetField"
                     },
                     "my_source_project": {
-                      "description": "The name of a document in ERP5",
-                      "title": "Current Project",
+                      "description": result[1][19],
+                      "title": result[1][20],
                       "default": gadget.state.doc.source_project_title,
                       "css_class": "",
                       "required": 1,
@@ -282,8 +328,8 @@
                       "type": "StringField"
                     },
                     "my_source": {
-                      "description": "The name of a document in ERP5",
-                      "title": "Current Organisation",
+                      "description": result[1][19],
+                      "title": result[1][21],
                       "default": gadget.state.doc.source_title,
                       "css_class": "",
                       "required": 0,
@@ -294,7 +340,7 @@
                     },
                     "my_monitoring_status": {
                       "description": "",
-                      "title": "Monitoring Status",
+                      "title": result[1][22],
                       "default": {jio_key: gadget.state.jio_key,
                                   result: gadget.state.doc.news},
                       "css_class": "",
@@ -308,26 +354,26 @@
                     },
                     "my_monitor_scope": {
                       "description": "",
-                      "title": "Monitoring",
+                      "title": result[1][23],
                       "default": gadget.state.doc.monitor_scope,
                       "css_class": "",
                       "items": monitor_scope_list,
                       "required": 0,
                       "editable": 1,
                       "key": "monitor_scope",
-                      "hidden": gadget.state.doc.root_slave ? 1: 0,
+                      "hidden": gadget.state.doc.root_slave ? 1 : 0,
                       "type": "ListField"
                     },
                     "my_upgrade_scope": {
                       "description": "",
-                      "title": "Upgrade",
+                      "title": result[1][24],
                       "default": gadget.state.doc.upgrade_scope,
                       "css_class": "",
                       "items": upgrade_scope_list,
                       "required": 0,
                       "editable": 1,
                       "key": "upgrade_scope",
-                      "hidden": gadget.state.doc.root_slave ? 1: 0,
+                      "hidden": gadget.state.doc.root_slave ? 1 : 0,
                       "type": "ListField"
                     },
                     "connection_listbox": {
@@ -347,7 +393,7 @@
                       "search_column_list": connection_column_list,
                       "sort_column_list": connection_column_list,
                       "sort": [["connection_key", "ascending"]],
-                      "title": "Connection Parameters",
+                      "title": result[1][25],
                       "type": "ListBox"
                     },
                     "ticket_listbox": {
@@ -373,7 +419,7 @@
                       "search_column_list": ticket_column_list,
                       "sort_column_list": ticket_column_list,
                       "sort": [["modification_date", "descending"]],
-                      "title": "Associated Tickets",
+                      "title": result[1][26],
                       "type": "ListBox"
                     },
                     "listbox": {
@@ -395,7 +441,7 @@
                       "search_column_list": column_list,
                       "sort_column_list": column_list,
                       "sort": [["title", "ascending"]],
-                      "title": "Instances",
+                      "title": result[1][27],
                       "type": "ListBox"
                     }
                   }},
@@ -416,7 +462,7 @@
 
                   ], ["center",
                       [["my_source_reference"], ["my_url_string"]]
-                  ], [
+                    ], [
                     "bottom",
                     [["ticket_listbox"], ["connection_listbox"], ["my_text_content"], ["listbox"]]
                   ]]
@@ -438,7 +484,7 @@
         })
         .push(function (url_list) {
           var header_dict = {
-            page_title: "Hosting Subscription: " + gadget.state.doc.title,
+            page_title: page_title_translation + " " + gadget.state.doc.title,
             ticket_url: url_list[1],
             destroy_url: url_list[4],
             rss_url: url_list[5],
@@ -458,4 +504,4 @@
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP, jIO, Blob, btoa));
+}(window, rJS, RSVP, btoa));

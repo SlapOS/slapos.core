@@ -7,9 +7,9 @@
 
   function getJSON(url) {
     var uri = URI(url),
-        headers = {},
-        protocol = uri.protocol();
-    if (protocol === "http" && URI(window.location).protocol() == "https") {
+      headers = {},
+      protocol = uri.protocol();
+    if (protocol === "http" && URI(window.location).protocol() === "https") {
       throw new Error("You cannot load http JSON in https page");
     }
     if (protocol === "http" || protocol === "https") {
@@ -19,15 +19,15 @@
         };
       }
     }
-    return RSVP.Queue()
+    return new RSVP.Queue()
       .push(function () {
         return jIO.util.ajax({
           url: url,
           headers: headers
         })
-        .then(function (evt) {
-          return evt.target.responseText;
-        });
+          .then(function (evt) {
+            return evt.target.responseText;
+          });
       });
   }
 
@@ -51,7 +51,7 @@
       ref = partial_schema.$ref;
 
     if (ref === undefined) {
-      return RSVP.Queue().push(function () {
+      return new RSVP.Queue().push(function () {
         return partial_schema;
       });
     }
@@ -244,7 +244,7 @@
         .push(function (json) {
           var schema = JSON.parse(json);
           return expandSchema(schema, schema, base_url)
-           .push(function (loaded_json) {
+            .push(function (loaded_json) {
               return tv4.validateMultiple(generated_json, loaded_json);
             });
         });

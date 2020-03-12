@@ -1,6 +1,6 @@
 /*global window, rJS, RSVP, jIO, Blob */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP, jIO, Blob) {
+(function (window, rJS, RSVP) {
   "use strict";
 
   rJS(window)
@@ -17,6 +17,7 @@
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -44,7 +45,7 @@
           return gadget.updateDocument(content);
         })
         .push(function () {
-          return gadget.notifySubmitted({message: 'Data updated.', status: 'success'});
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'});
         });
     })
 
@@ -53,22 +54,32 @@
     })
 
     .onStateChange(function () {
-      var gadget = this, data;
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Data updated.",
+          "Reference",
+          "Info",
+          "Password is managed by Google, so you can't change password for this login at this site.",
+          "Google Login:"
+        ];
       return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
-            gadget.getSetting("hateoas_url")
+            gadget.getSetting("hateoas_url"),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
-          var editable = gadget.state.editable;
+          gadget.message_translation = result[2][0];
+          page_title_translation = result[2][4];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_reference": {
                   "description": "",
-                  "title": "Reference",
+                  "title": result[2][1],
                   "default": gadget.state.doc.reference,
                   "css_class": "",
                   "required": 1,
@@ -79,8 +90,8 @@
                 },
                 "note": {
                   "description": "",
-                  "title": "Info",
-                  "default": "Password is managed by Google, so you can't change password for this login at this site.",
+                  "title": result[2][2],
+                  "default": result[2][3],
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
@@ -100,7 +111,7 @@
               group_list: [[
                 "left",
                 [["my_reference"]]
-              ],[
+              ], [
                 "bottom",
                 [["note"]]
               ]]
@@ -117,7 +128,7 @@
         .push(function (url_list) {
           var header_dict = {
             selection_url: url_list[1],
-            page_title: "Google Login : " + gadget.state.doc.reference,
+            page_title: page_title_translation + " " + gadget.state.doc.reference,
             delete_url: url_list[2]
           };
           if (!gadget.state.editable) {
@@ -126,4 +137,4 @@
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP, jIO, Blob));
+}(window, rJS, RSVP));

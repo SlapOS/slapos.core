@@ -1,6 +1,6 @@
 /*global window, rJS, RSVP, jIO, Blob */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP, jIO, Blob) {
+(function (window, rJS, RSVP) {
   "use strict";
 
   rJS(window)
@@ -19,6 +19,8 @@
     .declareAcquiredMethod("jio_put", "jio_put")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
+
     /////////////////////////////////////////////////////////////////
     // declared methods
     /////////////////////////////////////////////////////////////////
@@ -69,18 +71,25 @@
           return gadget.getDeclaredGadget('form_view');
         })
         .push(function (form_gadget) {
-          return form_gadget.getContent();
+          return RSVP.all([
+            form_gadget.getContent(),
+            gadget.account_translation
+          ]);
         })
-        .push(function (content) {
+        .push(function (result) {
+          var content = result[0];
           return gadget.updateDocument(content)
             .push(function () {
               return gadget.updateHeader({
-                page_title: "Your Account : " + content.first_name + " " + content.last_name
+                page_title: result[1] + " : " + content.first_name + " " + content.last_name
               });
             });
         })
         .push(function () {
-          return gadget.notifySubmitted({message: 'Data updated.', status: 'success'});
+          return gadget.message_translation;
+        })
+        .push(function (result) {
+          return gadget.notifySubmitted({message: result, status: 'success'});
         });
     })
 
@@ -90,33 +99,55 @@
 
     .onStateChange(function () {
       var gadget = this,
-        i, destination_list, 
-        column_list = [
-          ['reference', 'Reference'],
-          ['portal_type', 'Type']
-        ],
-        organisation_column_list = [
-            ['title', 'Title'],
-            ['reference', 'Reference'],
-            ['default_address_region_title', 'Region'],
-            ['Organisation_getNewsDict', 'Status']
-        ],
-        data;
+        translation_list = [
+          "Reference",
+          "Type",
+          "Title",
+          "Region",
+          "Status",
+          "First Name",
+          "Last Name",
+          "Email",
+          "Logins",
+          "Organisations",
+          "Your Account",
+          "Data updated."
+        ];
       return new RSVP.Queue()
         .push(function () {
-          return gadget.getDeclaredGadget('form_view');
+          return RSVP.all([
+            gadget.getDeclaredGadget('form_view'),
+            gadget.getTranslationList(translation_list)
+          ]);
         })
-        .push(function (form_gadget) {
+        .push(function (result) {
+          gadget.account_translation = result[1][10];
+          gadget.message_translation = result[1][11];
+          var form_gadget = result[0],
+            i,
+            destination_list,
+            column_list = [
+              ['reference', result[1][0]],
+              ['portal_type', result[1][1]]
+            ],
+            organisation_column_list = [
+              ['title', result[1][2]],
+              ['reference', result[1][0]],
+              ['default_address_region_title', result[1][3]],
+              ['Organisation_getNewsDict', result[1][4]]
+            ];
           destination_list = "%22NULL%22%2C";
           for (i in gadget.state.doc.assignment_destination_list) {
-            destination_list += "%22" + gadget.state.doc.assignment_destination_list[i] + "%22%2C";
+            if (gadget.state.doc.assignment_destination_list.hasOwnProperty(i)) {
+              destination_list += "%22" + gadget.state.doc.assignment_destination_list[i] + "%22%2C";
+            }
           }
           return form_gadget.render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_first_name": {
                   "description": "",
-                  "title": "First Name",
+                  "title": result[1][5],
                   "default": gadget.state.doc.first_name,
                   "css_class": "",
                   "required": 1,
@@ -127,7 +158,7 @@
                 },
                 "my_last_name": {
                   "description": "",
-                  "title": "Last Name",
+                  "title": result[1][6],
                   "default": gadget.state.doc.last_name,
                   "css_class": "",
                   "required": 1,
@@ -138,7 +169,7 @@
                 },
                 "my_default_email_text": {
                   "description": "",
-                  "title": "Email",
+                  "title": result[1][7],
                   "default": gadget.state.doc.default_email_text,
                   "css_class": "",
                   "required": 1,
@@ -165,7 +196,7 @@
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
                   "sort": [["reference", "ascending"]],
-                  "title": "Logins",
+                  "title": result[1][8],
                   "type": "ListBox"
                 },
                 "organisation_listbox": {
@@ -184,7 +215,7 @@
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
                   "sort": [["reference", "ascending"]],
-                  "title": "Organisations",
+                  "title": result[1][9],
                   "type": "ListBox"
                 }
               }},
@@ -220,21 +251,21 @@
             gadget.getUrlFor({command: "change", options: {page: "slapos"}})
           ]);
         })
-        .push(function (url_list) {
+        .push(function (result) {
           var header_dict = {
-            page_title: "Your Account : " + gadget.state.doc.first_name + " " + gadget.state.doc.last_name,
+            page_title: gadget.account_translation + " : " + gadget.state.doc.first_name + " " + gadget.state.doc.last_name,
             save_action: true,
-            request_certificate_url: url_list[2],
-            revoke_certificate_url: url_list[1],
-            token_url: url_list[3],
-            add_login_url: url_list[4],
-            add_organisation_url: url_list[5],
-            selection_url: url_list[6]
+            request_certificate_url: result[2],
+            revoke_certificate_url: result[1],
+            token_url: result[3],
+            add_login_url: result[4],
+            add_organisation_url: result[5],
+            selection_url: result[6]
           };
           if (!gadget.state.editable) {
-            header_dict.edit_content = url_list[0];
+            header_dict.edit_content = result[0];
           }
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP, jIO, Blob));
+}(window, rJS, RSVP));

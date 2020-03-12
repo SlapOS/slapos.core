@@ -13,6 +13,7 @@
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
     .declareAcquiredMethod("jio_get", "jio_get")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     .allowPublicAcquisition("jio_allDocs", function (param_list) {
       var gadget = this;
@@ -57,30 +58,39 @@
           return gadget.triggerSubmit.apply(gadget, argument_list);
         });
     })
-    .declareMethod("render", function (options) {
+    .declareMethod("render", function () {
       var gadget = this,
         default_strict_allocation_scope_uid,
-        lines_limit;
+        lines_limit,
+        servers_translation,
+        translation_list = [
+          "Title",
+          "Reference",
+          "Allocation Scope",
+          "Status",
+          "Servers"
+        ];
 
       return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
+            gadget.getDeclaredGadget('form_list'),
             gadget.getSetting("listbox_lines_limit", 20),
-            gadget.jio_get("portal_categories/allocation_scope/close/forever")
+            gadget.jio_get("portal_categories/allocation_scope/close/forever"),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
-          lines_limit = result[0];
-          default_strict_allocation_scope_uid = result[1].uid;
-          return gadget.getDeclaredGadget('form_list');
-        })
-        .push(function (form_list) {
           var column_list = [
-            ['title', 'Title'],
-            ['reference', 'Reference'],
-            ['allocation_scope_title', 'Allocation Scope'],
-            ['Computer_getNewsDict', 'Status']
-          ];
+            ['title', result[3][0]],
+            ['reference', result[3][1]],
+            ['allocation_scope_title', result[3][2]],
+            ['Computer_getNewsDict', result[3][3]]
+          ],
+            form_list = result[0];
+          lines_limit = result[1];
+          default_strict_allocation_scope_uid = result[2].uid;
+          servers_translation = result[3][4];
           return form_list.render({
             erp5_document: {
               "_embedded": {"_view": {
@@ -99,7 +109,7 @@
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
                   "sort": [["title", "ascending"]],
-                  "title": "Servers",
+                  "title": servers_translation,
                   "type": "ListBox"
                 }
               }},
@@ -123,7 +133,7 @@
             jio_key: "computer_module"
           });
         })
-        .push(function (result) {
+        .push(function () {
           return RSVP.all([
             gadget.getUrlFor({command: "change", options: {"page": "slap_add_computer"}}),
             gadget.getUrlFor({command: "change", options: {page: "slap_computer_get_token"}}),
@@ -133,7 +143,7 @@
         })
         .push(function (result) {
           return gadget.updateHeader({
-            page_title: "Servers",
+            page_title: servers_translation,
             token_url: result[1],
             selection_url: result[2],
             filter_action: true,

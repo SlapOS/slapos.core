@@ -17,8 +17,7 @@
     .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
-
-
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -59,8 +58,16 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
-      return RSVP.Queue()
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "The name of a document in ERP5",
+          "Your Email",
+          "Terms of Service",
+          "Parent Relative Url",
+          "Request a Trial for"
+        ];
+      return new RSVP.Queue()
         .push(function () {
           return gadget.getSetting("hateoas_url");
         })
@@ -68,13 +75,16 @@
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
             gadget.jio_getAttachment("/",
-              hateoas_url + "/ERP5Site_getTrialConfigurationAsJSON")
+              hateoas_url + "/ERP5Site_getTrialConfigurationAsJSON"),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
+          page_title_translation = result[2][4];
           var i, doc;
           for (i in result[1]) {
-            if (result[1][i].url === options.jio_key) {
+            if ((result[1].hasOwnProperty(i)) &&
+                (result[1][i].url === options.jio_key)) {
               doc = result[1][i];
               break;
             }
@@ -83,7 +93,7 @@
             erp5_document: {
               "_embedded": {"_view": {
                 "your_product_description": {
-                  "description": "The name of a document in ERP5",
+                  "description": result[2][0],
                   "title": "",
                   "default": doc.product_description,
                   "css_class": "",
@@ -94,8 +104,8 @@
                   "type": "EditorField"
                 },
                 "your_email": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Your Email",
+                  "description": result[2][0],
+                  "title": result[2][1],
                   "default": "",
                   "css_class": "",
                   "required": 1,
@@ -105,7 +115,7 @@
                   "type": "EmailField"
                 },
                 "your_input0": {
-                  "description": "The name of a document in ERP5",
+                  "description": result[2][0],
                   "title": doc.input_list.length > 0 ? doc.input_list[0] : "",
                   "default": "",
                   "css_class": "",
@@ -116,7 +126,7 @@
                   "type": "StringField"
                 },
                 "your_input1": {
-                  "description": "The name of a document in ERP5",
+                  "description": result[2][0],
                   "title": doc.input_list.length > 1 ? doc.input_list[1] : "",
                   "default": "",
                   "css_class": "",
@@ -128,7 +138,7 @@
                 },
                 "your_terms_of_service": {
                   "default": doc.terms_of_service,
-                  "title": "Terms of Service",
+                  "title": result[2][2],
                   "css_class": "",
                   "required": 0,
                   "editable": 0,
@@ -140,7 +150,7 @@
                 },
                 "my_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[2][3],
                   "default": options.jio_key,
                   "css_class": "",
                   "required": 1,
@@ -161,17 +171,17 @@
               group_list: [[
                 "center",
                 [["your_product_description"], ["your_email"],
-                 ["your_input0"], ["your_input1"],
-                 ["your_terms_of_service"], ["my_relative_url"]]
+                  ["your_input0"], ["your_input1"],
+                  ["your_terms_of_service"], ["my_relative_url"]]
               ]]
             }
           })
-          .push(function () {
-            return gadget.updateHeader({
-              page_title: "Request a Trial for " + doc.name,
-              submit_action: true
+            .push(function () {
+              return gadget.updateHeader({
+                page_title: page_title_translation + " " + doc.name,
+                submit_action: true
+              });
             });
-          });
         });
     });
 }(window, rJS, RSVP));

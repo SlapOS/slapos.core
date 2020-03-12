@@ -15,6 +15,7 @@
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -42,9 +43,9 @@
         .push(function (result) {
           var msg;
           if (result) {
-            msg = 'Certificate is Revoked.';
+            msg = gadget.msg1_translation;
           } else {
-            msg = 'This person has no certificate to revoke.';
+            msg = gadget.msg2_translation;
           }
           return gadget.notifySubmitted({message: msg, status: 'success'})
             .push(function () {
@@ -60,20 +61,31 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
-      return RSVP.Queue()
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Certificate is Revoked.",
+          "This person has no certificate to revoke.",
+          "Parent Relative Url",
+          "Revoke Person Certificate"
+        ];
+      return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
-            gadget.getDeclaredGadget('form_view')
+            gadget.getDeclaredGadget('form_view'),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
+          page_title_translation = result[1][3];
+          gadget.msg1_translation = result[1][0];
+          gadget.msg2_translation = result[1][1];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[1][2],
                   "default": options.jio_key,
                   "css_class": "",
                   "required": 1,
@@ -98,14 +110,14 @@
             }
           });
         })
-        .push(function (result) {
+        .push(function () {
           return RSVP.all([
             gadget.getUrlFor({command: 'change', options: {page: 'slap_person_view'}})
           ]);
         })
         .push(function (url_list) {
           var header_dict = {
-            page_title: "Revoke Person Certificate",
+            page_title: page_title_translation,
             submit_action: true,
             selection_url: url_list[0]
           };

@@ -13,6 +13,7 @@
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     .allowPublicAcquisition("jio_allDocs", function (param_list) {
       var gadget = this;
@@ -55,9 +56,16 @@
           return gadget.triggerSubmit.apply(gadget, argument_list);
         });
     })
-    .declareMethod("render", function (options) {
+    .declareMethod("render", function () {
       var gadget = this,
-        lines_limit, destination_project_list;
+        lines_limit,
+        projects_translation,
+        translation_list = [
+          "Title",
+          "Reference",
+          "Status",
+          "Projects"
+        ];
 
       return new RSVP.Queue()
         .push(function () {
@@ -70,19 +78,23 @@
           lines_limit = settings[0];
           return RSVP.all([
             gadget.getDeclaredGadget('form_list'),
-            gadget.jio_get(settings[1])
+            gadget.jio_get(settings[1]),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
           var destination_project_list, i,
-              column_list = [
-            ['title', 'Title'],
-            ['reference', 'Reference'],
-            ['Project_getNewsDict', 'Status']
-          ];
+            column_list = [
+              ['title', result[2][0]],
+              ['reference', result[2][1]],
+              ['Project_getNewsDict', result[2][2]]
+            ];
+          projects_translation = result[2][3];
           destination_project_list = "%22NULL%22%2C";
           for (i in result[1].assignment_destination_project_list) {
-            destination_project_list += "%22" + result[1].assignment_destination_project_list[i] + "%22%2C";
+            if (result[1].assignment_destination_project_list.hasOwnProperty(i)) {
+              destination_project_list += "%22" + result[1].assignment_destination_project_list[i] + "%22%2C";
+            }
           }
           return result[0].render({
             erp5_document: {
@@ -104,7 +116,7 @@
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
                   "sort": [["title", "ascending"]],
-                  "title": "Projects",
+                  "title": projects_translation,
                   "type": "ListBox"
                 }
               }},
@@ -128,7 +140,7 @@
             jio_key: "project_module"
           });
         })
-        .push(function (result) {
+        .push(function () {
           return RSVP.all([
             gadget.getUrlFor({command: "change", options: {"page": "slap_add_project"}}),
             gadget.getUrlFor({command: "change", options: {"page": "slapos"}})
@@ -136,7 +148,7 @@
         })
         .push(function (result) {
           return gadget.updateHeader({
-            page_title: "Projects",
+            page_title: projects_translation,
             filter_action: true,
             selection_url: result[1],
             add_url: result[0]

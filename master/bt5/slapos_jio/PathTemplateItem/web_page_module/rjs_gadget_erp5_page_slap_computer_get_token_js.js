@@ -15,6 +15,7 @@
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -41,7 +42,7 @@
             .push(function (result) {
               var msg;
               if (result) {
-                msg = 'Token is Requested.';
+                msg = gadget.msg_translation;
               }
               return gadget.notifySubmitted({message: msg, status: 'success'})
                 .push(function () {
@@ -58,20 +59,33 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
-      return RSVP.Queue()
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Parent Relative Url",
+          "Command Line to Run",
+          "SlapOS Master API",
+          "SlapOS Master Web UI",
+          "Your Token",
+          "Request New Token",
+          "Token is Requested."
+        ];
+      return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
-            gadget.getDeclaredGadget('form_view')
+            gadget.getDeclaredGadget('form_view'),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
+          page_title_translation = result[1][5];
+          gadget.msg_translation = result[1][6];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[1][0],
                   "default": "computer_module",
                   "css_class": "",
                   "required": 1,
@@ -82,46 +96,46 @@
                 },
                 "my_command_line": {
                   "description": "",
-                  "title": "Command Line to Run",
+                  "title": result[1][1],
                   "default": options.command_line,
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
                   "key": "command_line",
-                  "hidden": (options.access_token === undefined) ? 1: 0,
+                  "hidden": (options.access_token === undefined) ? 1 : 0,
                   "type": "StringField"
                 },
                 "my_slapos_master_api": {
                   "description": "",
-                  "title": "SlapOS Master API",
+                  "title": result[1][2],
                   "default": options.slapos_master_api,
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
                   "key": "slapos_master_api",
-                  "hidden": (options.access_token === undefined) ? 1: 0,
+                  "hidden": (options.access_token === undefined) ? 1 : 0,
                   "type": "StringField"
                 },
                 "my_slapos_master_web": {
                   "description": "",
-                  "title": "SlapOS Master Web UI",
+                  "title": result[1][3],
                   "default": options.slapos_master_web,
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
                   "key": "slapos_master_web",
-                  "hidden": (options.access_token === undefined) ? 1: 0,
+                  "hidden": (options.access_token === undefined) ? 1 : 0,
                   "type": "StringField"
                 },
                 "my_access_token": {
                   "description": "",
-                  "title": "Your Token",
+                  "title": result[1][4],
                   "default": options.access_token,
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
                   "key": "certificate",
-                  "hidden": (options.access_token === undefined) ? 1: 0,
+                  "hidden": (options.access_token === undefined) ? 1 : 0,
                   "type": "StringField"
                 }
               }},
@@ -147,7 +161,7 @@
         })
         .push(function (url_list) {
           var header_dict = {
-            page_title: "Request New Token",
+            page_title: page_title_translation,
             submit_action: true,
             selection_url: url_list[0]
           };

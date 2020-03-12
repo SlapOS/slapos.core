@@ -13,13 +13,14 @@
     .declareAcquiredMethod("getUrlForList", "getUrlForList")
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
     .declareAcquiredMethod("jio_get", "jio_get")
-
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     .allowPublicAcquisition("getUrlForList", function (promise_list) {
 
-      var index, param_list, gadget = this;
+      var index, gadget = this;
       for (index in promise_list[0]) {
-        if ((promise_list[0][index].command === "display_with_history_and_cancel") && (promise_list[0][index].options.jio_key) &&
+        if ((promise_list[0].hasOwnProperty(index)) &&
+            (promise_list[0][index].command === "display_with_history_and_cancel") && (promise_list[0][index].options.jio_key) &&
             (promise_list[0][index].options.jio_key.startsWith("software_release_module"))) {
           if (gadget.computer_jio_key !== undefined) {
             promise_list[0][index].options.page = "slap_add_software_installation";
@@ -44,21 +45,35 @@
     })
     .declareMethod("render", function (options) {
       var gadget = this,
-        lines_limit;
+        page_title_translation,
+        translation_list = [
+          "Title",
+          "Version",
+          "Description",
+          "Software Releases",
+          "2/3 Select one Release"
+        ];
 
       if (options.computer_jio_key !== undefined) {
         gadget.computer_jio_key = options.computer_jio_key;
       }
-
       return gadget.jio_get(options.jio_key)
         .push(function (doc) {
-          return gadget.getDeclaredGadget('form_list')
-            .push(function (form_list) {
-              var column_list = [
-                ['title', 'Title'],
-                ['version', 'Version'],
-                ['description', 'Description']
-              ];
+          return new RSVP.Queue()
+            .push(function () {
+              return RSVP.all([
+                gadget.getDeclaredGadget('form_list'),
+                gadget.getTranslationList(translation_list)
+              ]);
+            })
+            .push(function (result) {
+              var form_list = result[0],
+                column_list = [
+                  ['title', result[1][0]],
+                  ['version', result[1][1]],
+                  ['description', result[1][2]]
+                ];
+              page_title_translation = result[1][4];
               return form_list.render({
                 erp5_document: {
                   "_embedded": {"_view": {
@@ -87,7 +102,7 @@
                       "search_column_list": column_list,
                       "sort_column_list": column_list,
                       "sort": [["title", "ascending"]],
-                      "title": "Software Releases",
+                      "title": result[1][3],
                       "type": "ListBox"
                     }
                   }},
@@ -114,7 +129,7 @@
         })
         .push(function (url_list) {
           return gadget.updateHeader({
-            page_title: "2/3 Select one Release",
+            page_title: page_title_translation,
             cancel_url: url_list[0],
             filter_action: true
           });

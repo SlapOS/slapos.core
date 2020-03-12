@@ -1,6 +1,6 @@
 /*global window, rJS, RSVP, jIO, Blob */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP, jIO, Blob) {
+(function (window, rJS, RSVP) {
   "use strict";
 
   rJS(window)
@@ -17,6 +17,7 @@
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -34,12 +35,12 @@
               result.data.rows[i].value.Computer_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
-                  description: "The Status",
+                  description: gadget.description_translation,
                   hidden: 0,
                   "default": {jio_key: value_jio_key, result: value},
                   key: "status",
                   url: "gadget_slapos_computer_status.html",
-                  title: "Status",
+                  title: gadget.title_translation,
                   type: "GadgetField"
                 }
               };
@@ -74,7 +75,7 @@
           return gadget.updateDocument(content);
         })
         .push(function () {
-          return gadget.notifySubmitted({message: 'Data updated.', status: 'success'});
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'});
         });
     })
 
@@ -83,27 +84,45 @@
     })
 
     .onStateChange(function () {
-      var gadget = this, data;
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Title",
+          "Reference",
+          "The name of a document in ERP5",
+          "Description",
+          "Monitoring Status",
+          "Associated Servers",
+          "Project",
+          "The Status",
+          "Status",
+          "Data updated."
+        ];
       return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
-            gadget.getSetting("hateoas_url")
+            gadget.getSetting("hateoas_url"),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
-          var editable = gadget.state.editable;
-          var column_list = [
-            ['title', 'Title'],
-            ['reference', 'Reference'],
-            ['Computer_getNewsDict', 'Status']
-          ];
+          page_title_translation = result[2][6];
+          gadget.description_translation = result[2][7];
+          gadget.title_translation = result[2][8];
+          gadget.message_translation = result[2][9];
+          var editable = gadget.state.editable,
+            column_list = [
+              ['title', result[2][0]],
+              ['reference', result[2][1]],
+              ['Computer_getNewsDict', result[2][8]]
+            ];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_title": {
                   "description": "",
-                  "title": "Title",
+                  "title": result[2][0],
                   "default": gadget.state.doc.title,
                   "css_class": "",
                   "required": 1,
@@ -114,7 +133,7 @@
                 },
                 "my_reference": {
                   "description": "",
-                  "title": "Reference",
+                  "title": result[2][1],
                   "default": gadget.state.doc.reference,
                   "css_class": "",
                   "required": 1,
@@ -124,8 +143,8 @@
                   "type": "StringField"
                 },
                 "my_description": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Description",
+                  "description": result[2][2],
+                  "title": result[2][3],
                   "default": "",
                   "css_class": "",
                   "required": 1,
@@ -136,7 +155,7 @@
                 },
                 "my_monitoring_status": {
                   "description": "",
-                  "title": "Monitoring Status",
+                  "title": result[2][4],
                   "default": {jio_key: gadget.state.jio_key,
                               result: gadget.state.doc.news},
                   "css_class": "",
@@ -165,7 +184,7 @@
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
                   "sort": [["title", "ascending"]],
-                  "title": "Associated Servers",
+                  "title": result[2][7],
                   "type": "ListBox"
                 }
               }},
@@ -201,7 +220,7 @@
         .push(function (url_list) {
           var header_dict = {
             selection_url: url_list[1],
-            page_title: "Project : " + gadget.state.doc.title,
+            page_title: page_title_translation + " : " + gadget.state.doc.title,
             delete_url: url_list[2],
             invitation_url: url_list[3],
             save_action: true
@@ -212,4 +231,4 @@
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP, jIO, Blob));
+}(window, rJS, RSVP));

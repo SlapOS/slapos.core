@@ -12,12 +12,14 @@
     .declareAcquiredMethod("getUrlForList", "getUrlForList")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     .allowPublicAcquisition("getUrlForList", function (promise_list) {
 
-      var index, param_list, gadget = this;
+      var index, gadget = this;
       for (index in promise_list[0]) {
-        if ((promise_list[0][index].command === "display_with_history_and_cancel") && (promise_list[0][index].options.jio_key) &&
+        if ((promise_list[0].hasOwnProperty(index)) &&
+            (promise_list[0][index].command === "display_with_history_and_cancel") && (promise_list[0][index].options.jio_key) &&
             (promise_list[0][index].options.jio_key.startsWith("software_product_module"))) {
           promise_list[0][index].options.page = "slap_select_software_release";
           if (gadget.computer_jio_key !== undefined) {
@@ -40,7 +42,14 @@
     })
     .declareMethod("render", function (options) {
       var gadget = this,
-        lines_limit;
+        lines_limit,
+        page_title_translation,
+        translation_list = [
+          "Title",
+          "Description",
+          "Software Products",
+          "1/3 Select one Software"
+        ];
 
       if (options.computer_jio_key !== undefined) {
         gadget.computer_jio_key = options.computer_jio_key;
@@ -48,17 +57,20 @@
 
       return new RSVP.Queue()
         .push(function () {
-          return gadget.getSetting("listbox_lines_limit", 100);
+          return RSVP.all([
+            gadget.getDeclaredGadget('form_list'),
+            gadget.getSetting("listbox_lines_limit", 100),
+            gadget.getTranslationList(translation_list)
+          ]);
         })
-        .push(function (listbox_lines_limit) {
-          lines_limit = listbox_lines_limit;
-          return gadget.getDeclaredGadget('form_list');
-        })
-        .push(function (form_list) {
-          var column_list = [
-            ['title', 'Title'],
-            ['description', 'Description']
-          ];
+        .push(function (result) {
+          var form_list = result[0],
+            column_list = [
+              ['title', result[2][0]],
+              ['description', result[2][1]]
+            ];
+          lines_limit = result[1];
+          page_title_translation = result[2][3];
           return form_list.render({
             erp5_document: {
               "_embedded": {"_view": {
@@ -78,7 +90,7 @@
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
                   "sort": [["title", "ascending"]],
-                  "title": "Software Products",
+                  "title": result[2][2],
                   "type": "ListBox"
                 }
               }},
@@ -104,7 +116,7 @@
         })
         .push(function (url_list) {
           return gadget.updateHeader({
-            page_title: "1/3 Select one Software",
+            page_title: page_title_translation,
             cancel_url: url_list[0],
             filter_action: true
           });

@@ -17,6 +17,7 @@
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -56,25 +57,37 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
-      return RSVP.Queue()
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Login is Disabled.",
+          "Login to be disabled:",
+          "Warning",
+          "Ensure you have another login configured, else you will not be able to login anymore.",
+          "Parent Relative Url",
+          "Disable Login"
+        ];
+      return new RSVP.Queue()
         .push(function () {
           return gadget.getSetting("hateoas_url")
-            .push(function (url) {
+            .push(function () {
               return RSVP.all([
                 gadget.getDeclaredGadget('form_view'),
-                gadget.jio_get(options.jio_key)
+                gadget.jio_get(options.jio_key),
+                gadget.getTranslationList(translation_list)
               ]);
             });
         })
         .push(function (result) {
           options.doc = result[1];
+          gadget.message_translation = result[2][0];
+          page_title_translation = result[2][5];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_title": {
                   "description": "",
-                  "title": "Login to be disabled: ",
+                  "title": result[2][1] + " ",
                   "default": options.doc.reference,
                   "css_class": "",
                   "required": 1,
@@ -85,8 +98,8 @@
                 },
                 "message": {
                   "description": "",
-                  "title": "Warning",
-                  "default": "Ensure you have another login configured, else you won't be able to login anymore.",
+                  "title": result[2][2],
+                  "default": result[2][3],
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
@@ -97,7 +110,7 @@
 
                 "my_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[2][4],
                   "default": options.jio_key,
                   "css_class": "",
                   "required": 1,
@@ -134,7 +147,7 @@
         .push(function (result) {
           var header_dict = {
             selection_url: result[1],
-            page_title: "Disable Login: " + options.doc.reference
+            page_title: page_title_translation + ": " + options.doc.reference
           };
           header_dict.submit_action = true;
           return gadget.updateHeader(header_dict);

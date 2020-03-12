@@ -2,6 +2,12 @@
 <html>
 <!--
   data-i18n=Slapos
+  data-i18n=Sites
+  data-i18n=Title
+  data-i18n=Modification Date
+  data-i18n=State
+  data-i18n=Pending Tickets to Process
+  data-i18n=Dashboard
 -->
   <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
@@ -21,9 +27,9 @@
     <script id="ticket-link-control-template" type="text/x-handlebars-template">
         <div class="slapos-control-front">
           <center>
-            <a class="ui-btn ui-first-child ui-btn-white-front  ui-btn-icon-left ui-icon-sort-alpha-asc" href={{ show_all_url }} data-i18n="Show All Tickets" > Show All Tickets</a>
-            <a class="ui-btn ui-first-child ui-btn-white-front  ui-btn-icon-left ui-icon-rss" href={{ rss_all_url }} data-i18n="RSS (all)" > RSS </a>
-            <a class="ui-btn ui-first-child ui-btn-white-front  ui-btn-icon-left ui-icon-rss" href={{ rss_critical_url }} data-i18n="RSS Critical" > Critical </a>
+            <a class="ui-btn ui-first-child ui-btn-white-front  ui-btn-icon-left ui-icon-sort-alpha-asc" href="{{ show_all_url }}" data-i18n="Show All Tickets" > Show All Tickets</a>
+            <a class="ui-btn ui-first-child ui-btn-white-front  ui-btn-icon-left ui-icon-rss" href="{{ rss_all_url }}" data-i18n="RSS (all)" > RSS </a>
+            <a class="ui-btn ui-first-child ui-btn-white-front  ui-btn-icon-left ui-icon-rss" href="{{ rss_critical_url }}" data-i18n="RSS Critical" > Critical </a>
           </center>
         </div>
     </script>

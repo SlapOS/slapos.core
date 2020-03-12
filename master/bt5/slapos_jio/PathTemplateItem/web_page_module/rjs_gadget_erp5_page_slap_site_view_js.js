@@ -1,6 +1,6 @@
 /*global window, rJS, RSVP, jIO, Blob */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP, jIO, Blob) {
+(function (window, rJS, RSVP) {
   "use strict";
 
   rJS(window)
@@ -17,6 +17,7 @@
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -34,12 +35,12 @@
               result.data.rows[i].value.Computer_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
-                  description: "The Status",
+                  description: gadget.description_translation,
                   hidden: 0,
-                  "default": {jio_key: value, result: value},
+                  "default": {jio_key: value_jio_key, result: value},
                   key: "status",
                   url: "gadget_slapos_computer_status.html",
-                  title: "Status",
+                  title: gadget.title_translation,
                   type: "GadgetField"
                 }
               };
@@ -74,7 +75,7 @@
           return gadget.updateDocument(content);
         })
         .push(function () {
-          return gadget.notifySubmitted({message: 'Data updated.', status: 'success'});
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'});
         });
     })
 
@@ -83,27 +84,46 @@
     })
 
     .onStateChange(function () {
-      var gadget = this, data;
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Title",
+          "Reference",
+          "Latitude",
+          "Longitude",
+          "Monitoring",
+          "Map",
+          "Associated Servers",
+          "Site",
+          "The Status",
+          "Status",
+          "Data updated."
+        ];
       return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
-            gadget.getSetting("hateoas_url")
+            gadget.getSetting("hateoas_url"),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
-          var editable = gadget.state.editable;
-          var column_list = [
-            ['title', 'Title'],
-            ['reference', 'Reference'],
-            ['Computer_getNewsDict', 'Status']
-          ];
+          page_title_translation = result[2][7];
+          gadget.description_translation = result[2][8];
+          gadget.title_translation = result[2][9];
+          gadget.message_translation = result[2][10];
+          var editable = gadget.state.editable,
+            column_list = [
+              ['title', result[2][0]],
+              ['reference', result[2][1]],
+              ['Computer_getNewsDict', result[2][9]]
+            ];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_title": {
                   "description": "",
-                  "title": "Title",
+                  "title": result[2][0],
                   "default": gadget.state.doc.title,
                   "css_class": "",
                   "required": 1,
@@ -114,7 +134,7 @@
                 },
                 "my_reference": {
                   "description": "",
-                  "title": "Reference",
+                  "title": result[2][1],
                   "default": gadget.state.doc.reference,
                   "css_class": "",
                   "required": 1,
@@ -125,7 +145,7 @@
                 },
                 "my_default_geographical_location_latitude": {
                   "description": "",
-                  "title": "Latitude",
+                  "title": result[2][2],
                   "default": gadget.state.doc.default_geographical_location_latitude,
                   "css_class": "",
                   "required": 1,
@@ -136,7 +156,7 @@
                 },
                 "my_default_geographical_location_longitude": {
                   "description": "",
-                  "title": "Longitude",
+                  "title": result[2][3],
                   "default": gadget.state.doc.default_geographical_location_longitude,
                   "css_class": "",
                   "required": 1,
@@ -147,7 +167,7 @@
                 },
                 "my_monitoring_status": {
                   "description": "",
-                  "title": "Monitoring",
+                  "title": result[2][4],
                   "default": {jio_key: gadget.state.jio_key,
                               result: gadget.state.doc.news},
                   "css_class": "",
@@ -161,15 +181,15 @@
                 },
                 "my_organisation_map": {
                   "description": "",
-                  "title": "Map",
+                  "title": result[2][5],
                   "default": [
                     {"jio_key": gadget.state.jio_key,
-                     "doc": {"title": gadget.state.doc.title,
+                      "doc": {"title": gadget.state.doc.title,
                             "reference": gadget.state.doc.reference,
                             "result": gadget.state.doc.news,
                             "latitude": gadget.state.doc.default_geographical_location_latitude,
                             "longitude": gadget.state.doc.default_geographical_location_longitude}
-                    }
+                      }
                   ],
                   "css_class": "",
                   "required": 1,
@@ -197,7 +217,7 @@
                   "search_column_list": column_list,
                   "sort_column_list": column_list,
                   "sort": [["title", "ascending"]],
-                  "title": "Associated Servers",
+                  "title": result[2][6],
                   "type": "ListBox"
                 }
               }},
@@ -212,8 +232,8 @@
               group_list: [[
                 "left",
                 [["my_title"], ["my_reference"], ['my_monitoring_status'],
-                 ["my_default_geographical_location_latitude"],
-                 ["my_default_geographical_location_longitude"]]
+                  ["my_default_geographical_location_latitude"],
+                  ["my_default_geographical_location_longitude"]]
               ], [
                 "right",
                 [['my_organisation_map']]
@@ -234,7 +254,7 @@
         .push(function (url_list) {
           var header_dict = {
             selection_url: url_list[1],
-            page_title: "Site : " + gadget.state.doc.title,
+            page_title: page_title_translation + " : " + gadget.state.doc.title,
             delete_url: url_list[2],
             save_action: true
           };
@@ -244,4 +264,4 @@
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP, jIO, Blob));
+}(window, rJS, RSVP));

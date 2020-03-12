@@ -63,7 +63,7 @@
       }
       cancelResolver();
     }
-    function itsANonResolvableTrap(resolve, reject) {
+    function itsANonResolvableTrap(reject) {
       var result;
       handle_event_callback = function (evt) {
         if (prevent_default) {
@@ -122,7 +122,7 @@
     return input;
   }
 
-  function render_textarea(json_field, default_value, data_format) {
+  function render_textarea(default_value, data_format) {
     var input = document.createElement("textarea");
     if (default_value !== undefined) {
       if (default_value instanceof Array) {
@@ -248,7 +248,8 @@
               default_dict[default_value],
               default_div,
               path + "/" + default_value,
-              restricted);
+              restricted
+            );
             div.appendChild(default_div);
           }
         }
@@ -301,15 +302,15 @@
         if (default_used_list.indexOf(key) < 0) {
           div = document.createElement("div");
           div.title = key;
-          if (typeof default_dict[key] === 'object') {	
-            div_input = document.createElement("div");	
-            div_input.setAttribute("class", "input");	
-            label.setAttribute("class", "slapos-parameter-dict-key");	
-            div_input = render_subform({},	
-              default_dict[key],	
-              div_input,	
-              path + "/" + key,	
-              restricted);	
+          if (typeof default_dict[key] === 'object') {
+            div_input = document.createElement("div");
+            div_input.setAttribute("class", "input");
+            label.setAttribute("class", "slapos-parameter-dict-key");
+            div_input = render_subform({},
+              default_dict[key],
+              div_input,
+              path + "/" + key,
+              restricted);
           } else if (restricted === true) {
             div_input = document.createElement("div");
             div_input.setAttribute("class", "input");
@@ -351,7 +352,7 @@
     var json_dict = {},
       entry,
       multi_level_dict = {};
-    $(element.querySelectorAll(".slapos-parameter")).each(function (key, input) {
+    $(element.querySelectorAll(".slapos-parameter")).each(function (input) {
       if (input.value !== "") {
         if (input.type === 'number') {
           json_dict[input.name] = parseInt(input.value, 10);
@@ -482,7 +483,7 @@
         close_list[i],
         'click',
         false,
-        removeSubParameter.bind(g, close_list [i])
+        removeSubParameter.bind(g, close_list[i])
       ));
     }
 
@@ -507,7 +508,6 @@
     return "";
   }
 
-
   function getSchemaUrlFromForm(element) {
     var input = element.querySelector(".parameter_schema_url");
 
@@ -518,11 +518,11 @@
   }
 
   gk.declareMethod("loadJSONSchema", function (url) {
-      return this.getDeclaredGadget('loadschema')
-        .push(function (gadget) {
-          return gadget.loadJSONSchema(url);
-        });
-    })
+    return this.getDeclaredGadget('loadschema')
+      .push(function (gadget) {
+        return gadget.loadJSONSchema(url);
+      });
+  })
 
     .declareMethod("validateJSON", function (base_url, schema_url, generated_json) {
       return this.getDeclaredGadget('loadschema')
@@ -548,7 +548,7 @@
       var g = this,
         software_type = getSoftwareTypeFromForm(g.element),
         json_dict = getFormValuesAsJSONDict(g.element),
-        schema_url = getSchemaUrlFromForm(g.element),
+        //schema_url = getSchemaUrlFromForm(g.element),
         serialisation_type = getSerialisationTypeFromForm(g.element);
 
       if (software_type === "") {
@@ -572,11 +572,11 @@
             missing_field_name,
             xml_output;
 
-          $(g.element.querySelectorAll("span.error")).each(function (i, span) {
+          $(g.element.querySelectorAll("span.error")).each(function (span) {
             span.textContent = "";
           });
 
-          $(g.element.querySelectorAll("div.error-input")).each(function (i, div) {
+          $(g.element.querySelectorAll("div.error-input")).each(function (div) {
             div.setAttribute("class", "");
           });
           if (serialisation_type === "json-in-xml") {
@@ -624,7 +624,7 @@
         });
     })
 
-    .declareMethod('renderFailoverTextArea', function (content, error) {
+    .declareMethod('renderFailoverTextArea', function (content) {
       var g = this,
         div = document.createElement("div"),
         div_error = document.createElement("div"),
@@ -797,8 +797,8 @@
                 option['data-shared'] = json['software-type'][option_index].shared;
 
                 if ((option_selected_index === undefined) &&
-                  (option.value === option_selected) &&
-                  (options.value.parameter.shared == json['software-type'][option_index].shared)) {
+                    (option.value === option_selected) &&
+                    (options.value.parameter.shared === json['software-type'][option_index].shared)) {
                   option.selected = "selected";
                   option_selected_index = option_index;
                   if (json['software-type'][option_index].shared === true) {
@@ -810,7 +810,7 @@
 
                 if (restricted_softwaretype === true) {
                   if (option.value === options.value.parameter.softwaretype) {
-                    if (options.value.parameter.shared == json['software-type'][option_index].shared) {
+                    if (options.value.parameter.shared === json['software-type'][option_index].shared) {
                       selection_option_list.push(option);
                     }
                   }
@@ -826,7 +826,9 @@
           });
 
           for (option_index in selection_option_list) {
-            input.appendChild(selection_option_list[option_index]);
+            if (selection_option_list.hasOwnProperty(option_index)) {
+              input.appendChild(selection_option_list[option_index]);
+            }
           }
 
           if (softwaretype === undefined) {
@@ -870,7 +872,7 @@
             } else {
               $(jQuery.parseXML(options.value.parameter.parameter_xml)
                 .querySelectorAll("parameter"))
-                  .each(function (key, p) {
+                  .each(function (p) {
                   parameter_dict[p.id] = p.textContent;
                 });
             }
@@ -930,7 +932,7 @@
         return true;
       }
 
-      function updateParameterForm(evt) {
+      function updateParameterForm() {
         var e = g.element.getElementsByTagName('select')[0],
           parameter_shared = g.element.querySelector('input.parameter_shared');
 
@@ -962,7 +964,7 @@
         return true;
       }
 
-      function showRawParameter(evt) {
+      function showRawParameter() {
         var e = g.element.querySelector("button.slapos-show-raw-parameter"),
           to_show = g.element.querySelector("button.slapos-show-form"),
           parameter_xml;
@@ -992,7 +994,7 @@
       var g = this,
         element = g.element.querySelector("button.slapos-show-form");
 
-      function showParameterForm(evt) {
+      function showParameterForm() {
         var e = g.element.getElementsByTagName('select')[0],
           to_hide = g.element.querySelector("button.slapos-show-form"),
           to_show = g.element.querySelector("button.slapos-show-raw-parameter");
@@ -1028,12 +1030,12 @@
 
     .declareMethod('getContent', function () {
       var gadget = this,
-          content_dict = {};
+        content_dict = {};
       return gadget.getElement()
         .push(function (element) {
           var text_content = element.querySelector('textarea[name=text_content]'),
-              software_type = element.querySelector('select[name=software_type]'),
-              shared = element.querySelector('input[name=shared]');
+            software_type = element.querySelector('select[name=software_type]'),
+            shared = element.querySelector('input[name=shared]');
           if (software_type !== null) {
             content_dict.software_type = software_type.value;
           }
@@ -1049,7 +1051,7 @@
           content_dict.text_content = xml_result;
           return content_dict;
         })
-        .fail(function (e) {
+        .fail(function () {
           return {};
         });
     });

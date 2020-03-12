@@ -1,4 +1,4 @@
-/*globals console, window, rJS, RSVP, loopEventListener, i18n, Handlebars $*/
+/*globals console, window, rJS, RSVP, loopEventListener, i18n, Handlebars*/
 /*jslint indent: 2, nomen: true, maxlen: 80*/
 
 (function (window, rJS, RSVP, Handlebars) {
@@ -24,37 +24,45 @@
     .declareAcquiredMethod("translateHtml", "translateHtml")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("updateHeader", "updateHeader")
-
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     .declareMethod("getContent", function () {
       return {};
     })
     .declareMethod("render", function (options) {
-      var gadget = this;
+      var gadget = this,
+        translation_list = [
+          "Already Requested",
+          "Thank You",
+          "Limit Exceed",
+          "Unknown action to take:"
+        ];
       return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getElement(),
             gadget.getUrlFor({command: 'change',
-                     options: {jio_key: "/", page: "trial", "result": ""}})
+                     options: {jio_key: "/", page: "trial", "result": ""}}),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
           var return_url = result[1],
-              element = result[0],
-              template, page_title;
+            element = result[0],
+            template,
+            page_title;
 
           if (options.result === "already-requested") {
             template = already_requested_template;
-            page_title = "Already Requested";
+            page_title = result[2][0];
           } else if (options.result === "thank-you") {
             template = thank_you_template;
-            page_title = "Thank You";
+            page_title = result[2][1];
           } else if (options.result === "exceed-limit") {
             template = exceed_limit_template;
-            page_title = "Limit Exceed";
+            page_title = result[1][2];
           } else {
-            throw new Error("Unknown action to take: " + options.result);
+            throw new Error(result[2][3] + options.result);
           }
           element.innerHTML = template({
             return_url: return_url

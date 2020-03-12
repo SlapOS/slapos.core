@@ -16,8 +16,7 @@
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
-
-
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -43,7 +42,7 @@
             });
         })
         .push(function (key) {
-          return gadget.notifySubmitted({message: 'New Software Installation created.', status: 'success'})
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
               return gadget.redirect({"command": "change",
@@ -58,24 +57,38 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
-      return RSVP.Queue()
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "New Software Installation created.",
+          "The name of a document in ERP5",
+          "Software Release to be Installed",
+          "Target Computer Title",
+          "Target Computer Reference",
+          "Computer",
+          "Parent Relative Url",
+          "Proceed to Supply Software"
+        ];
+      return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
             gadget.jio_get(options.jio_key),
-            gadget.jio_get(options.computer_jio_key)
+            gadget.jio_get(options.computer_jio_key),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
+          gadget.message_translation = result[3][0];
+          page_title_translation = result[3][7];
           var doc = result[1],
-              computer = result[2];
+            computer = result[2];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_url_string": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Software Release to be Installed",
+                  "description": result[3][1],
+                  "title": result[3][2],
                   "default": doc.url_string,
                   "css_class": "",
                   "required": 0,
@@ -85,8 +98,8 @@
                   "type": "StringField"
                 },
                 "your_computer_title": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Target Computer Title",
+                  "description": result[3][1],
+                  "title": result[3][3],
                   "default": computer.title,
                   "css_class": "",
                   "required": 0,
@@ -96,8 +109,8 @@
                   "type": "StringField"
                 },
                 "your_computer_reference": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Target Computer Reference",
+                  "description": result[3][1],
+                  "title": result[3][4],
                   "default": computer.reference,
                   "css_class": "",
                   "required": 0,
@@ -107,8 +120,8 @@
                   "type": "StringField"
                 },
                 "your_computer": {
-                  "description": "Computer",
-                  "title": "Computer",
+                  "description": result[3][5],
+                  "title": result[3][5],
                   "default": options.computer_jio_key,
                   "css_class": "",
                   "required": 1,
@@ -119,7 +132,7 @@
                 },
                 "my_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[3][6],
                   "default": options.jio_key,
                   "css_class": "",
                   "required": 1,
@@ -140,22 +153,22 @@
               group_list: [[
                 "center",
                 [["my_url_string"], ["your_computer_title"], ["your_computer_reference"],
-                 ["your_computer"], ["my_relative_url"]]
+                  ["your_computer"], ["my_relative_url"]]
               ]]
             }
           })
-         .push(function () {
-            return RSVP.all([
-              gadget.getUrlFor({command: 'change', options: {"page": "slap_select_software_release"}})
-            ]);
-          })
-          .push(function (url_list) {
-            return gadget.updateHeader({
-              page_title: "Proceed to Supply Software  " + doc.title + " on " +  computer.reference,
-              selection_url: url_list[0],
-              submit_action: true
+            .push(function () {
+              return RSVP.all([
+                gadget.getUrlFor({command: 'change', options: {"page": "slap_select_software_release"}})
+              ]);
+            })
+            .push(function (url_list) {
+              return gadget.updateHeader({
+                page_title: page_title_translation + " " + doc.title + " on " +  computer.reference,
+                selection_url: url_list[0],
+                submit_action: true
+              });
             });
-          });
         });
     });
 }(window, rJS, RSVP));

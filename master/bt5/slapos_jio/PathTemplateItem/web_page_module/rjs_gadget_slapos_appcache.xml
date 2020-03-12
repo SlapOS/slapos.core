@@ -239,9 +239,9 @@ gadget_html5_select.js\n
 gadget_erp5_global.js\n
 gadget_jio.html\n
 gadget_jio.js\n
-gadget_translation.html\n
+gadget_slapos_translation.html\n
 gadget_translation.js\n
-gadget_translation_data.js\n
+gadget_slapos_translation_data.js\n
 handlebars.js\n
 jiodev.js\n
 renderjs.js\n
@@ -581,7 +581,7 @@ NETWORK:\n
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>981.14498.3807.21930</string> </value>
+                <value> <string>982.16656.9604.44475</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -599,7 +599,7 @@ NETWORK:\n
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1579259797.54</float>
+                        <float>1584095553.4</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

@@ -1,6 +1,6 @@
 /*global window, rJS, RSVP, jIO, Blob */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP, jIO, Blob) {
+(function (window, rJS, RSVP) {
   "use strict";
 
   rJS(window)
@@ -16,6 +16,7 @@
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -29,24 +30,38 @@
     })
 
     .onStateChange(function () {
-      var gadget = this, data;
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Software Release",
+          "Software Release Version",
+          "Computer Reference",
+          "Computer",
+          "Reference",
+          "State",
+          "Usage",
+          "Software Release URL",
+          "Monitoring Status",
+          "Software Installation"
+        ];
       return new RSVP.Queue()
         .push(function () {
-              return RSVP.all([
-                gadget.getDeclaredGadget('form_view'),
-                gadget.getUrlFor({command: "change", options: {jio_key: gadget.state.doc.aggregate }})
-              ]);
-            })
+          return RSVP.all([
+            gadget.getDeclaredGadget('form_view'),
+            gadget.getUrlFor({command: "change", options: {jio_key: gadget.state.doc.aggregate }}),
+            gadget.getTranslationList(translation_list)
+          ]);
+        })
         .push(function (result) {
+          page_title_translation = result[2][9];
           var form_gadget = result[0],
-              computer_url = result[1],
-              editable = gadget.state.editable;
+            computer_url = result[1];
           return form_gadget.render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_software_release_title": {
                   "description": "",
-                  "title": "Software Relase",
+                  "title": result[2][0],
                   "default": gadget.state.doc.software_release_title,
                   "css_class": "",
                   "required": 1,
@@ -57,7 +72,7 @@
                 },
                 "my_software_release_version": {
                   "description": "",
-                  "title": "Software Relase Version",
+                  "title": result[2][1],
                   "default": gadget.state.doc.software_release_version,
                   "css_class": "",
                   "required": 1,
@@ -68,7 +83,7 @@
                 },
                 "my_aggregate_reference": {
                   "description": "",
-                  "title": "Computer Reference",
+                  "title": result[2][2],
                   "default": "<a href=" + computer_url + ">" +
                         gadget.state.doc.aggregate_reference + "</a>",
                   "css_class": "",
@@ -80,7 +95,7 @@
                 },
                 "my_aggregate_title": {
                   "description": "",
-                  "title": "Computer",
+                  "title": result[2][3],
                   "default": "<a href=" + computer_url + ">" +
                     gadget.state.doc.aggregate_title + "</a>",
                   "css_class": "",
@@ -92,7 +107,7 @@
                 },
                 "my_reference": {
                   "description": "",
-                  "title": "Reference",
+                  "title": result[2][4],
                   "default": gadget.state.doc.reference,
                   "css_class": "",
                   "required": 1,
@@ -103,7 +118,7 @@
                 },
                 "my_state": {
                   "description": "",
-                  "title": "State",
+                  "title": result[2][5],
                   "default": gadget.state.doc.state,
                   "css_class": "",
                   "required": 1,
@@ -114,7 +129,7 @@
                 },
                 "my_usage": {
                   "description": "",
-                  "title": "Usage",
+                  "title": result[2][6],
                   "default": gadget.state.doc.usage,
                   "css_class": "",
                   "required": 1,
@@ -125,7 +140,7 @@
                 },
                 "my_url_string": {
                   "description": "",
-                  "title": "Software Release URL",
+                  "title": result[2][7],
                   "default": gadget.state.doc.url_string,
                   "css_class": "",
                   "required": 1,
@@ -136,7 +151,7 @@
                 },
                 "my_monitoring_status": {
                   "description": "",
-                  "title": "Monitoring Status",
+                  "title": result[2][8],
                   "default": {jio_key: gadget.state.jio_key},
                   "css_class": "",
                   "required": 1,
@@ -159,8 +174,8 @@
               group_list: [[
                 "left",
                 [["my_software_release_title"], ["my_software_release_version"],
-                 ["my_reference"]
-                 ]
+                  ["my_reference"]
+                  ]
               ], [
                 "right",
                 [["my_aggregate_title"], ["my_aggregate_reference"], ["my_state"], ["my_usage"]]
@@ -180,10 +195,10 @@
         .push(function (url_list) {
           var header_dict = {
             selection_url: url_list[1],
-            page_title: "Software Installation : " + gadget.state.doc.software_release_title,
+            page_title: page_title_translation + " : " + gadget.state.doc.software_release_title,
             destroy_url: url_list[0]
           };
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP, jIO, Blob));
+}(window, rJS, RSVP));

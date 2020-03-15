@@ -56,6 +56,13 @@
                   return gadget.redirect({"command": "change",
                                     "options": {"jio_key": "/", "page": "slap_service_list"}});
                 });
+            }, function (error) {
+              if (error.target.status === 409) {
+                return gadget.notifySubmitted({message: gadget.message3_translation, status: 'error'});
+              }
+              if (error.target.status === 400) {
+                return gadget.notifySubmitted({message: gadget.message4_translation, status: 'error'});
+              }
             });
         });
     })
@@ -77,7 +84,9 @@
           "Computer",
           "SLA",
           "Parent Relative Url",
-          "3/3 Request Service:"
+          "3/3 Request Service:",
+          "A service with this title already exists.",
+          "Service Title is mandatory."
         ];
       return new RSVP.Queue()
         .push(function () {
@@ -90,6 +99,8 @@
         .push(function (result) {
           gadget.message1_translation = result[2][0];
           gadget.message2_translation = result[2][1];
+          gadget.message3_translation = result[2][10];
+          gadget.message4_translation = result[2][11];
           page_title_translation = result[2][9];
           var doc = result[1],
             parameter_dict = {

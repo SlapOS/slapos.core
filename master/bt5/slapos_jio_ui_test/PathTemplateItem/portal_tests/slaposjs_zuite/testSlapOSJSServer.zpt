@@ -137,7 +137,7 @@
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
 </tal:block>
 
-<tal:block define="header python: 'Software Installation : Frontend'; ">
+<tal:block define="header python: 'Proceed to Supply Software Frontend on COMP-0'; ">
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
@@ -210,7 +210,7 @@
   <td>//td/a[contains(text(), "Frontend (0.1)")]</td>
   <td></td>
 </tr>
-<tal:block define="header python: 'Software Installation : Frontend'; ">
+<tal:block define="header python: 'Proceed to Supply Software Frontend on COMP-0'; ">
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
 </tal:block>
 

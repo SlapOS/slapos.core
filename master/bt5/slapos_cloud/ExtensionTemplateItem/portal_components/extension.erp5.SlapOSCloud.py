@@ -62,7 +62,7 @@ def SoftwareInstance_renameAndRequestDestroy(self, REQUEST=None):
   if REQUEST is not None:
     raise Unauthorized
 
-  assert self.getPortalType() in ["Software Instance", "Slave Instance"]  
+  assert self.getPortalType() in ["Software Instance", "Slave Instance"]
   title = self.getTitle()
   new_title = title + "_renamed_and_destroyed_%s" % (DateTime().strftime("%Y%m%d_%H%M%S"))
   self.rename(new_name=new_title,
@@ -86,3 +86,11 @@ def SoftwareInstance_renameAndRequestDestroy(self, REQUEST=None):
     # reset request cache
     key = '_'.join([hosting_subscription, name])
     self.getPortalObject().portal_slap._storeLastData(key, {})
+
+  # Them call bang to enforce tree to reprocess.
+  timestamp = str(int(self.getModificationDate()))
+  key = "%s_bangstamp" % self.getReference()
+
+  if (self.portal_slap._getLastData(key) != timestamp):
+    self.bang(bang_tree=True, comment="Instance was destroyed.")
+  self.portal_slap._storeLastData(key, str(int(self.getModificationDate())))

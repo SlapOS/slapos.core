@@ -1,5 +1,5 @@
-/*global window, rJS, RSVP, btoa */
-/*jslint nomen: true, indent: 2, maxerr: 3, sub:true */
+/*global window, rJS, RSVP */
+/*jslint nomen: true, indent: 2, maxerr: 3 */
 (function (window, rJS, RSVP) {
   "use strict";
 
@@ -13,10 +13,11 @@
     .declareAcquiredMethod("redirect", "redirect")
     .declareAcquiredMethod("jio_post", "jio_post")
     .declareAcquiredMethod("jio_get", "jio_get")
-    .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
+    .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
-    .declareAcquiredMethod("getTranslationList", "getTranslationList")
+
+
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -32,157 +33,93 @@
           return gadget.getDeclaredGadget('form_view');
         })
         .push(function (form_gadget) {
-          return form_gadget.checkValidity()
-            .push(function (is_valid) {
-              if (!is_valid) {
-                return null;
-              }
-              return form_gadget.getContent();
-            });
+          return form_gadget.getContent();
         })
         .push(function (doc) {
-          if (doc === null) {
-            return gadget.notifySubmitted({message: gadget.message1_translation, status: 'error'});
-          }
           return gadget.getSetting("hateoas_url")
             .push(function (url) {
-              return gadget.jio_putAttachment(doc.relative_url,
-                url + doc.relative_url + "/SoftwareRelease_requestHostingSubscription", doc);
-            })
+              return gadget.jio_getAttachment(doc.relative_url,
+                url + doc.relative_url + "/SoftwareRelease_requestSoftwareInstallation?computer=" + doc.computer);
+            });
+        })
+        .push(function (key) {
+          return gadget.notifySubmitted({message: 'New Software Installation created.', status: 'success'})
             .push(function () {
-              return gadget.notifySubmitted({message: gadget.message2_translation, status: 'success'})
-                .push(function () {
-                  // Workaround, find a way to open document without break gadget.
-                  return gadget.redirect({"command": "change",
-                                    "options": {"jio_key": "/", "page": "slap_service_list"}});
-                });
-            }, function (error) {
-              if (error.target.status === 409) {
-                return gadget.notifySubmitted({message: gadget.message3_translation, status: 'error'});
-              }
-              if (error.target.status === 400) {
-                return gadget.notifySubmitted({message: gadget.message4_translation, status: 'error'});
-              }
+              // Workaround, find a way to open document without break gadget.
+              return gadget.redirect({"command": "change",
+                                    "options": {"jio_key": key, "page": "slap_controller"}});
             });
         });
     })
+
 
     .declareMethod("triggerSubmit", function () {
       return this.element.querySelector('button[type="submit"]').click();
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this,
-        page_title_translation,
-        translation_list = [
-          "Please review the form.",
-          "New service created.",
-          "The name of a document in ERP5",
-          "Software Release URL",
-          "Title",
-          "Instance Parameter",
-          "Computer",
-          "SLA",
-          "Parent Relative Url",
-          "3/3 Request Service:",
-          "A service with this title already exists.",
-          "Service Title is mandatory."
-        ];
-      return new RSVP.Queue()
+      var gadget = this;
+      return RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
             gadget.jio_get(options.jio_key),
-            gadget.getTranslationList(translation_list)
+            gadget.jio_get(options.computer_jio_key)
           ]);
         })
         .push(function (result) {
-          gadget.message1_translation = result[2][0];
-          gadget.message2_translation = result[2][1];
-          gadget.message3_translation = result[2][10];
-          gadget.message4_translation = result[2][11];
-          page_title_translation = result[2][9];
           var doc = result[1],
-            parameter_dict = {
-              'parameter' : {
-                'json_url':  doc.url_string + ".json",
-                //'json_url': "https://lab.node.vifib.com/nexedi/slapos/raw/master/software/kvm/software.cfg.json",
-                'parameter_hash': btoa('<?xml version="1.0" encoding="utf-8" ?><instance></instance>'),
-                'restricted_softwaretype': false
-              }
-            };
-          if (options.software_type) {
-            parameter_dict["parameter"]['restricted_softwaretype'] = true;
-            parameter_dict["parameter"]['softwaretype'] = options.software_type;
-          }
-          if (options.shared) {
-            parameter_dict["parameter"]['shared'] = true;
-          }
-
+              computer = result[2];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_url_string": {
-                  "description": result[2][2],
-                  "title": result[2][3],
+                  "description": "The name of a document in ERP5",
+                  "title": "Software Release to be Installed",
                   "default": doc.url_string,
                   "css_class": "",
-                  "required": 1,
+                  "required": 0,
                   "editable": 0,
-                  "key": "url_string",
-                  "hidden": 0,
-                  "type": "StringField"
-                },
-                "your_title": {
-                  "description": result[2][2],
-                  "title": result[2][4],
-                  "default": "",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
                   "key": "title",
                   "hidden": 0,
                   "type": "StringField"
                 },
-                "your_text_content": {
-                  "description": "",
-                  "title": result[2][5],
-                  "default": parameter_dict,
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "url": "gadget_erp5_page_slap_parameter_form.html",
-                  "sandbox": "",
-                  "key": "text_content",
-                  "hidden": 0,
-                  "type": "GadgetField"
-                },
-                "your_computer_guid": {
-                  "description": result[2][2],
-                  "title": result[2][6],
-                  "default": "",
-                  "items": doc.computer_guid,
-                  "css_class": "",
-                  "required": 0,
-                  "editable": 1,
-                  "key": "computer_guid",
-                  "hidden": options.sla_xml !== undefined ? 1 : 0,
-                  "type": "ListField"
-                },
-                "your_sla_xml": {
-                  "description": result[2][2],
-                  "title": result[2][7],
-                  "default": options.sla_xml,
+                "your_computer_title": {
+                  "description": "The name of a document in ERP5",
+                  "title": "Target Computer Title",
+                  "default": computer.title,
                   "css_class": "",
                   "required": 0,
                   "editable": 0,
-                  "key": "sla_xml",
-                  "hidden": options.sla_xml !== undefined ? 0 : 1,
+                  "key": "title",
+                  "hidden": 0,
+                  "type": "StringField"
+                },
+                "your_computer_reference": {
+                  "description": "The name of a document in ERP5",
+                  "title": "Target Computer Reference",
+                  "default": computer.reference,
+                  "css_class": "",
+                  "required": 0,
+                  "editable": 0,
+                  "key": "computer_reference",
+                  "hidden": 0,
+                  "type": "StringField"
+                },
+                "your_computer": {
+                  "description": "Computer",
+                  "title": "Computer",
+                  "default": options.computer_jio_key,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 1,
+                  "key": "computer",
+                  "hidden": 1,
                   "type": "StringField"
                 },
                 "my_relative_url": {
                   "description": "",
-                  "title": result[2][8],
+                  "title": "Parent Relative Url",
                   "default": options.jio_key,
                   "css_class": "",
                   "required": 1,
@@ -202,23 +139,23 @@
             form_definition: {
               group_list: [[
                 "center",
-                [["my_url_string"], ["your_title"], ["your_text_content"],
-                  ["your_computer_guid"], ["your_sla_xml"], ["my_portal_type"], ["my_relative_url"]]
+                [["my_url_string"], ["your_computer_title"], ["your_computer_reference"],
+                 ["your_computer"], ["my_relative_url"]]
               ]]
             }
           })
-            .push(function () {
-              return RSVP.all([
-                gadget.getUrlFor({command: 'cancel_dialog_with_history'})
-              ]);
-            })
-            .push(function (url_list) {
-              return gadget.updateHeader({
-                page_title: page_title_translation + " " + doc.title,
-                cancel_url: url_list[0],
-                submit_action: true
-              });
+         .push(function () {
+            return RSVP.all([
+              gadget.getUrlFor({command: 'change', options: {"page": "slap_select_software_release"}})
+            ]);
+          })
+          .push(function (url_list) {
+            return gadget.updateHeader({
+              page_title: "Proceed to Supply Software  " + doc.title + " on " +  computer.reference,
+              selection_url: url_list[0],
+              submit_action: true
             });
+          });
         });
     });
 }(window, rJS, RSVP));

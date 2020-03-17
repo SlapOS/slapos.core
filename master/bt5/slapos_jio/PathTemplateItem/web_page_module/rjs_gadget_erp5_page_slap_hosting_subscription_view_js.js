@@ -134,6 +134,7 @@
 
     .onStateChange(function () {
       var gadget = this,
+        url,
         page_title_translation,
         translation_list = [
           "The Status",
@@ -171,7 +172,8 @@
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
-            gadget.getTranslationList(translation_list)
+            gadget.getTranslationList(translation_list),
+            gadget.getSetting("hateoas_url")
           ]);
         })
         .push(function (result) {
@@ -179,6 +181,7 @@
           gadget.title_translation = result[1][1];
           gadget.message_translation = result[1][2];
           page_title_translation = result[1][29];
+          url = result[2];
           var form_gadget = result[0],
             column_list = [
               ['title', result[1][3]],
@@ -219,256 +222,257 @@
           if (gadget.state.doc.text_content !== undefined) {
             parameter_dict.parameter.parameter_hash = btoa(gadget.state.doc.text_content);
           }
-          return gadget.getSetting("hateoas_url")
-            .push(function (url) {
-              return form_gadget.render({
-                erp5_document: {
-                  "_embedded": {"_view": {
-                    "my_title": {
-                      "description": "",
-                      "title": result[1][3],
-                      "default": gadget.state.doc.title,
-                      "css_class": "",
-                      "required": 1,
-                      "editable": 0,
-                      "key": "title",
-                      "hidden": 0,
-                      "type": "StringField"
-                    },
-                    "my_short_title": {
-                      "description": "",
-                      "title": result[1][15],
-                      "default": gadget.state.doc.short_title,
-                      "css_class": "",
-                      "required": 1,
-                      "editable": 1,
-                      "key": "short_title",
-                      "hidden": 0,
-                      "type": "StringField"
-                    },
-                    "my_description": {
-                      "description": "",
-                      "title": result[1][16],
-                      "default": gadget.state.doc.description,
-                      "css_class": "",
-                      "required": 1,
-                      "editable": 1,
-                      "key": "description",
-                      "hidden": 0,
-                      "type": "TextAreaField"
-                    },
-                    "my_reference": {
-                      "description": "",
-                      "title": result[1][4],
-                      "default": gadget.state.doc.reference,
-                      "css_class": "",
-                      "required": 1,
-                      "editable": 0,
-                      "key": "reference",
-                      "hidden": 0,
-                      "type": "StringField"
-                    },
-                    "my_slap_state_title": {
-                      "description": "",
-                      "title": result[1][11],
-                      "default": gadget.state.doc.slap_state_title,
-                      "css_class": "",
-                      "required": 1,
-                      "editable": 0,
-                      "key": "slap_state_title",
-                      "hidden": 0,
-                      "type": "StringField"
-                    },
-                    "my_source_reference": {
-                      "description": "",
-                      "title": result[1][17],
-                      "default": gadget.state.doc.source_reference,
-                      "css_class": "",
-                      "required": 1,
-                      "editable": 0,
-                      "key": "source_reference",
-                      "hidden": 0,
-                      "type": "StringField"
-                    },
-                    "my_url_string": {
-                      "description": "",
-                      "title": result[1][18],
-                      "default":
-                        "<a target=_blank href=" + gadget.state.doc.url_string + ">" +
-                        gadget.state.doc.url_string + "</a>",
-                      "css_class": "",
-                      "required": 1,
-                      "editable": 0,
-                      "key": "url_string",
-                      "hidden": 0,
-                      "type": "EditorField"
-                    },
-                    "my_text_content": {
-                      "description": "",
-                      "title": result[1][19],
-                      "default": parameter_dict,
-                      "css_class": "",
-                      "required": 1,
-                      "editable": 1,
-                      "url": "gadget_erp5_page_slap_parameter_form.html",
-                      "sandbox": "",
-                      "key": "text_content",
-                      "hidden": 0,
-                      "type": "GadgetField"
-                    },
-                    "my_source_project": {
-                      "description": result[1][19],
-                      "title": result[1][20],
-                      "default": gadget.state.doc.source_project_title,
-                      "css_class": "",
-                      "required": 1,
-                      "editable": 0,
-                      "key": "source_project_title",
-                      "hidden": 0,
-                      "type": "StringField"
-                    },
-                    "my_source": {
-                      "description": result[1][19],
-                      "title": result[1][21],
-                      "default": gadget.state.doc.source_title,
-                      "css_class": "",
-                      "required": 0,
-                      "editable": 0,
-                      "key": "source_title",
-                      "hidden": 0,
-                      "type": "StringField"
-                    },
-                    "my_monitoring_status": {
-                      "description": "",
-                      "title": result[1][22],
-                      "default": {jio_key: gadget.state.jio_key,
-                                  result: gadget.state.doc.news},
-                      "css_class": "",
-                      "required": 0,
-                      "editable": 0,
-                      "url": "gadget_slapos_hosting_subscription_status.html",
-                      "sandbox": "",
-                      "key": "monitoring_status",
-                      "hidden": 0,
-                      "type": "GadgetField"
-                    },
-                    "my_monitor_scope": {
-                      "description": "",
-                      "title": result[1][23],
-                      "default": gadget.state.doc.monitor_scope,
-                      "css_class": "",
-                      "items": monitor_scope_list,
-                      "required": 0,
-                      "editable": 1,
-                      "key": "monitor_scope",
-                      "hidden": gadget.state.doc.root_slave ? 1 : 0,
-                      "type": "ListField"
-                    },
-                    "my_upgrade_scope": {
-                      "description": "",
-                      "title": result[1][24],
-                      "default": gadget.state.doc.upgrade_scope,
-                      "css_class": "",
-                      "items": upgrade_scope_list,
-                      "required": 0,
-                      "editable": 1,
-                      "key": "upgrade_scope",
-                      "hidden": gadget.state.doc.root_slave ? 1 : 0,
-                      "type": "ListField"
-                    },
-                    "connection_listbox": {
-                      "column_list": connection_column_list,
-                      "show_anchor": 0,
-                      "default_params": {},
-                      "editable": 1,
-                      "editable_column_list": [],
-                      "key": "slap_connection_listbox",
-                      "lines": 30,
-                      "list_method": "HostingSubscription_getConnectionParameterList",
-                      "list_method_template": url + "ERP5Document_getHateoas?mode=search&" +
-                            "list_method=HostingSubscription_getConnectionParameterList&relative_url=" +
-                            gadget.state.jio_key + "&default_param_json=eyJpZ25vcmVfdW5rbm93bl9jb2x1bW5zIjogdHJ1ZX0={&query,select_list*,limit*,sort_on*,local_roles*}",
-                      "query": "urn:jio:allDocs?query=",
-                      "portal_type": [],
-                      "search_column_list": connection_column_list,
-                      "sort_column_list": connection_column_list,
-                      "sort": [["connection_key", "ascending"]],
-                      "title": result[1][25],
-                      "type": "ListBox"
-                    },
-                    "ticket_listbox": {
-                      "column_list": ticket_column_list,
-                      "show_anchor": 0,
-                      "default_params": {},
-                      "editable": 1,
-                      "editable_column_list": [],
-                      "key": "slap_ticket_listbox",
-                      "lines": 10,
-                      relative_url: gadget.state.jio_key,
-                      "list_method": "portal_catalog",
-                      "query": "urn:jio:allDocs?query=portal_type%3A%20%28%20%22" +
-                        "Support Request" + "%22%2C%20%22" +
-                        "Upgrade Decision" + "%22%29%20AND%20" +
-                        "default_or_child_aggregate_reference" +
-                        "%3A%22" + gadget.state.doc.reference + "%22%20AND%20" +
-                        "simulation_state" + "%3A%28%22" +
-                        "validated" + "%22%2C%22" + "suspended" +
-                        "%22%2C%22" + "confirmed" + "%22%2C%22" +
-                        "started" + "%22%2C%22" + "stopped" + "%22%29",
-                      "portal_type": [],
-                      "search_column_list": ticket_column_list,
-                      "sort_column_list": ticket_column_list,
-                      "sort": [["modification_date", "descending"]],
-                      "title": result[1][26],
-                      "type": "ListBox"
-                    },
-                    "listbox": {
-                      "column_list": column_list,
-                      "show_anchor": 0,
-                      "default_params": {},
-                      "editable": 1,
-                      "editable_column_list": [],
-                      "key": "slap_project_computer_listbox",
-                      "lines": 20,
-                      "list_method": "portal_catalog",
-                      "query": "urn:jio:allDocs?query=%28portal_type%3A%28%22" +
-                        "Slave Instance" + "%22%2C%20%22" +
-                        "Software Instance" + "%22%29%20AND%20%28" +
-                        "default_specialise_reference%3A%22" +
-                        gadget.state.doc.reference + "%22%29%20AND%20%28" +
-                        "validation_state%3A%22validated%22%29%29",
-                      "portal_type": [],
-                      "search_column_list": column_list,
-                      "sort_column_list": column_list,
-                      "sort": [["title", "ascending"]],
-                      "title": result[1][27],
-                      "type": "ListBox"
-                    }
-                  }},
-                  "_links": {
-                    "type": {
-                      // form_list display portal_type in header
-                      name: ""
-                    }
-                  }
+//          return gadget.getSetting("hateoas_url")
+//            .push(function (url) {
+          return form_gadget.render({
+            erp5_document: {
+              "_embedded": {"_view": {
+                "my_title": {
+                  "description": "",
+                  "title": result[1][3],
+                  "default": gadget.state.doc.title,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 0,
+                  "key": "title",
+                  "hidden": 0,
+                  "type": "StringField"
                 },
-                form_definition: {
-                  group_list: [[
-                    "left",
-                    [["my_title"], ["my_reference"], ["my_short_title"], ["my_description"]]
-                  ], [
-                    "right",
-                    [["my_slap_state_title"],  ['my_monitoring_status'], ['my_monitor_scope'], ['my_upgrade_scope'], ['my_source_project'], ['my_source']]
-
-                  ], ["center",
-                      [["my_source_reference"], ["my_url_string"]]
-                    ], [
-                    "bottom",
-                    [["ticket_listbox"], ["connection_listbox"], ["my_text_content"], ["listbox"]]
-                  ]]
+                "my_short_title": {
+                  "description": "",
+                  "title": result[1][15],
+                  "default": gadget.state.doc.short_title,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 1,
+                  "key": "short_title",
+                  "hidden": 0,
+                  "type": "StringField"
+                },
+                "my_description": {
+                  "description": "",
+                  "title": result[1][16],
+                  "default": gadget.state.doc.description,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 1,
+                  "key": "description",
+                  "hidden": 0,
+                  "type": "TextAreaField"
+                },
+                "my_reference": {
+                  "description": "",
+                  "title": result[1][4],
+                  "default": gadget.state.doc.reference,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 0,
+                  "key": "reference",
+                  "hidden": 0,
+                  "type": "StringField"
+                },
+                "my_slap_state_title": {
+                  "description": "",
+                  "title": result[1][11],
+                  "default": gadget.state.doc.slap_state_title,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 0,
+                  "key": "slap_state_title",
+                  "hidden": 0,
+                  "type": "StringField"
+                },
+                "my_source_reference": {
+                  "description": "",
+                  "title": result[1][17],
+                  "default": gadget.state.doc.source_reference,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 0,
+                  "key": "source_reference",
+                  "hidden": 0,
+                  "type": "StringField"
+                },
+                "my_url_string": {
+                  "description": "",
+                  "title": result[1][18],
+                  "default":
+                    "<a target=_blank href=" + gadget.state.doc.url_string + ">" +
+                    gadget.state.doc.url_string + "</a>",
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 0,
+                  "key": "url_string",
+                  "hidden": 0,
+                  "type": "EditorField"
+                },
+                "my_text_content": {
+                  "description": "",
+                  "title": result[1][19],
+                  "default": parameter_dict,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 1,
+                  "url": "gadget_erp5_page_slap_parameter_form.html",
+                  "sandbox": "",
+                  "key": "text_content",
+                  "hidden": 0,
+                  "type": "GadgetField"
+                },
+                "my_source_project": {
+                  "description": result[1][19],
+                  "title": result[1][20],
+                  "default": gadget.state.doc.source_project_title,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 0,
+                  "key": "source_project_title",
+                  "hidden": 0,
+                  "type": "StringField"
+                },
+                "my_source": {
+                  "description": result[1][19],
+                  "title": result[1][21],
+                  "default": gadget.state.doc.source_title,
+                  "css_class": "",
+                  "required": 0,
+                  "editable": 0,
+                  "key": "source_title",
+                  "hidden": 0,
+                  "type": "StringField"
+                },
+                "my_monitoring_status": {
+                  "description": "",
+                  "title": result[1][22],
+                  "default": {jio_key: gadget.state.jio_key,
+                              result: gadget.state.doc.news},
+                  "css_class": "",
+                  "required": 0,
+                  "editable": 0,
+                  "url": "gadget_slapos_hosting_subscription_status.html",
+                  "sandbox": "",
+                  "key": "monitoring_status",
+                  "hidden": 0,
+                  "type": "GadgetField"
+                },
+                "my_monitor_scope": {
+                  "description": "",
+                  "title": result[1][23],
+                  "default": gadget.state.doc.monitor_scope,
+                  "css_class": "",
+                  "items": monitor_scope_list,
+                  "required": 0,
+                  "editable": 1,
+                  "key": "monitor_scope",
+                  "hidden": gadget.state.doc.root_slave ? 1 : 0,
+                  "type": "ListField"
+                },
+                "my_upgrade_scope": {
+                  "description": "",
+                  "title": result[1][24],
+                  "default": gadget.state.doc.upgrade_scope,
+                  "css_class": "",
+                  "items": upgrade_scope_list,
+                  "required": 0,
+                  "editable": 1,
+                  "key": "upgrade_scope",
+                  "hidden": gadget.state.doc.root_slave ? 1 : 0,
+                  "type": "ListField"
+                },
+                "connection_listbox": {
+                  "column_list": connection_column_list,
+                  "show_anchor": 0,
+                  "default_params": {},
+                  "editable": 1,
+                  "editable_column_list": [],
+                  "key": "slap_connection_listbox",
+                  "lines": 30,
+                  "list_method": "HostingSubscription_getConnectionParameterList",
+                  "list_method_template": url + "ERP5Document_getHateoas?mode=search&" +
+                        "list_method=HostingSubscription_getConnectionParameterList&relative_url=" +
+                        gadget.state.jio_key + "&default_param_json=eyJpZ25vcmVfdW5rbm93bl9jb2x1bW5zIjogdHJ1ZX0={&query,select_list*,limit*,sort_on*,local_roles*}",
+                  "query": "urn:jio:allDocs?query=",
+                  "portal_type": [],
+                  "search_column_list": connection_column_list,
+                  "sort_column_list": connection_column_list,
+                  "sort": [["connection_key", "ascending"]],
+                  "title": result[1][25],
+                  "type": "ListBox"
+                },
+                "ticket_listbox": {
+                  "column_list": ticket_column_list,
+                  "show_anchor": 0,
+                  "default_params": {},
+                  "editable": 1,
+                  "editable_column_list": [],
+                  "key": "slap_ticket_listbox",
+                  "lines": 10,
+                  relative_url: gadget.state.jio_key,
+                  "list_method": "portal_catalog",
+                  "query": "urn:jio:allDocs?query=portal_type%3A%20%28%20%22" +
+                    "Support Request" + "%22%2C%20%22" +
+                    "Upgrade Decision" + "%22%29%20AND%20" +
+                    "default_or_child_aggregate_reference" +
+                    "%3A%22" + gadget.state.doc.reference + "%22%20AND%20" +
+                    "simulation_state" + "%3A%28%22" +
+                    "validated" + "%22%2C%22" + "suspended" +
+                    "%22%2C%22" + "confirmed" + "%22%2C%22" +
+                    "started" + "%22%2C%22" + "stopped" + "%22%29",
+                  "portal_type": [],
+                  "search_column_list": ticket_column_list,
+                  "sort_column_list": ticket_column_list,
+                  "sort": [["modification_date", "descending"]],
+                  "title": result[1][26],
+                  "type": "ListBox"
+                },
+                "listbox": {
+                  "column_list": column_list,
+                  "show_anchor": 0,
+                  "default_params": {},
+                  "editable": 1,
+                  "editable_column_list": [],
+                  "key": "slap_project_computer_listbox",
+                  "lines": 20,
+                  "list_method": "portal_catalog",
+                  "query": "urn:jio:allDocs?query=%28portal_type%3A%28%22" +
+                    "Slave Instance" + "%22%2C%20%22" +
+                    "Software Instance" + "%22%29%20AND%20%28" +
+                    "default_specialise_reference%3A%22" +
+                    gadget.state.doc.reference + "%22%29%20AND%20%28" +
+                    "validation_state%3A%22validated%22%29%29",
+                  "portal_type": [],
+                  "search_column_list": column_list,
+                  "sort_column_list": column_list,
+                  "sort": [["title", "ascending"]],
+                  "title": result[1][27],
+                  "type": "ListBox"
                 }
-              });
-            });
+              }},
+              "_links": {
+                "type": {
+                  // form_list display portal_type in header
+                  name: ""
+                }
+              }
+            },
+            form_definition: {
+              group_list: [
+                [
+                  "left",
+                  [["my_title"], ["my_reference"], ["my_short_title"], ["my_description"]]
+                ], [
+                  "right",
+                  [["my_slap_state_title"],  ['my_monitoring_status'], ['my_monitor_scope'], ['my_upgrade_scope'], ['my_source_project'], ['my_source']]
+                ], [
+                  "center",
+                  [["my_source_reference"], ["my_url_string"]]
+                ], [
+                  "bottom",
+                  [["ticket_listbox"], ["connection_listbox"], ["my_text_content"], ["listbox"]]
+                ]]
+            }
+          });
+//            });
         })
         .push(function () {
           return RSVP.all([

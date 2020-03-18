@@ -66,7 +66,7 @@
         page_title_translation,
         translation_list = [
           "Certificate is Revoked.",
-          "This computer already has one certificate, please revoke it before request a new one.",
+          "This computer already has one certificate, please revoke it before request a new one..",
           "Parent Relative Url",
           "Your Certificate",
           "Your Key",

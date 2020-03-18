@@ -110,6 +110,20 @@ class TestPrune(unittest.TestCase):
     self.logger.warning.assert_called_with(
         'Unusued shared parts at %s%s', not_used, ' ... removed')
 
+  def test_shared_part_used_in_buildout_script(self):
+    not_used = self._createSharedPart('not_used')
+    used_in_script = self._createSharedPart('used_in_script')
+    fake_software_path = self._createFakeSoftware(self.id())
+    os.mkdir(os.path.join(fake_software_path, 'bin'))
+    script = os.path.join(fake_software_path, 'bin', 'buildout')
+    with open(script, 'w') as f:
+      f.write('#!{}'.format(used_in_script))
+    do_prune(self.logger, self.config, False)
+    self.assertTrue(os.path.exists(used_in_script))
+    self.assertFalse(os.path.exists(not_used))
+    self.logger.warning.assert_called_with(
+        'Unusued shared parts at %s%s', not_used, ' ... removed')
+
   def test_shared_part_used_in_recursive_instance(self):
     used_in_software_from_instance = self._createSharedPart('used_in_software_from_instance')
     used_in_shared_part_from_instance = self._createSharedPart('used_in_shared_part_from_instance')

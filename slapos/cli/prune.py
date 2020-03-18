@@ -149,6 +149,9 @@ def getUsageSignatureFromSoftwareAndSharedPart(
                                               '.installed.cfg')):
     with open(installed_cfg) as f:
       signatures[installed_cfg] = f.read()
+  for script in glob.glob(os.path.join(software_root, '*', 'bin', '*')):
+    with open(script) as f:
+      signatures[script] = f.read()
   if shared_root:
     for shared_signature in glob.glob(os.path.join(shared_root, '*', '*',
                                                   '.*signature')):

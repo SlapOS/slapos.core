@@ -59,7 +59,7 @@ function redirect us to the login page -->
 
 <tr>
   <td>waitForElementPresent</td>
-  <td>//a[@data-i18n="Account"]</td>
+  <td>//a[@data-i18n="Login Account"]</td>
   <td></td>
 </tr>
 
@@ -78,7 +78,7 @@ function redirect us to the login page -->
 <!-- Account Tab -->
 <tr>
   <td>click</td>
-  <td>//a[@data-i18n="Account"]</td>
+  <td>//a[@data-i18n="Login Account"]</td>
   <td></td>
 </tr>
 

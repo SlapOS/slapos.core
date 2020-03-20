@@ -6,7 +6,7 @@ if REQUEST is not None:
 
 portal = context.getPortalObject()
 
-if context.getValidationState() != "validated":
+if context.getValidationState() not in ["validated", "published"]:
   raise ValueError("This Trial Condition isn't validated.")
 
 trial_configuration = {

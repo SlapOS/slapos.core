@@ -189,6 +189,7 @@ def checkSoftware(slap, software_url):
       '*/parts/firefox*/*',
       '*/parts/chromium-*/*',
       '*/parts/chromedriver*/*',
+      '*/parts/libreoffice-bin/*',
       # nss is not a binary distribution, but for some reason it has invalid rpath, but it does
       # not seem to be a problem in our use cases.
       '*/parts/nss/*',

@@ -331,6 +331,8 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=2, debug=False):
       cls._copySnapshot(standalone_log, name)
 
   try:
+    cls.logger.debug("Starting")
+    cls.slap.start()
     for software_url in software_url_list:
       cls.logger.debug("Supplying %s", software_url)
       cls.slap.supply(software_url)

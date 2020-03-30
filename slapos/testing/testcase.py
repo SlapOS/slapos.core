@@ -62,8 +62,10 @@ def makeModuleSetUpAndTestCaseClass(
     ipv6_address=os.environ['SLAPOS_TEST_IPV6'],
     debug=bool(int(os.environ.get('SLAPOS_TEST_DEBUG', 0))),
     verbose=bool(int(os.environ.get('SLAPOS_TEST_VERBOSE', 0))),
-    shared_part_list=os.environ.get('SLAPOS_TEST_SHARED_PART_LIST',
-                                    '').split(os.pathsep),
+    shared_part_list=[
+        os.path.expanduser(p) for p in os.environ.get(
+            'SLAPOS_TEST_SHARED_PART_LIST', '').split(os.pathsep)
+    ],
     snapshot_directory=os.environ.get('SLAPOS_TEST_LOG_DIRECTORY'),
 ):
   # type: (str, str, str, str, bool, bool, Iterable[str], Optional[str]) -> Tuple[Callable[[], None], Type[SlapOSInstanceTestCase]]

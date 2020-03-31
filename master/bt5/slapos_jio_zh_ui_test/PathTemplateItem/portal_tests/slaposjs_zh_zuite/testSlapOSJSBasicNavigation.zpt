@@ -1,0 +1,256 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Test SlapJS UI</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">Test SlapOS JS Basic Navigation</td></tr>
+</thead><tbody>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_init" />
+
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_login" />
+
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
+
+
+<!-- Access Menu -->
+<tr>
+  <td>click</td>
+  <td>//button[@data-i18n='Menu']</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//button[@data-i18n='Menu']</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[@data-i18n='Home']</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[@data-i18n='Login Account']</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[@data-i18n='Tickets']</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[@data-i18n='Sites']</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[@data-i18n='Projects']</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[@data-i18n='Invoices']</td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[@data-i18n='Services']</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[@data-i18n='Servers']</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[@data-i18n='Networks']</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[@data-i18n='Logout']</td>
+  <td></td>
+</tr>
+
+
+<tal:block define="menu_item python: '工单'; header menu_item; menu_item_data python: 'Tickets'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_page_header" /> 
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" /> 
+</tal:block>
+
+<tal:block define="menu_item python: '站点'; header menu_item; menu_item_data python:'Sites'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_page_header" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
+</tal:block>
+
+<tal:block define="menu_item python: '项目'; header menu_item; menu_item_data python: 'Projects'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_page_header" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
+</tal:block>
+
+<tal:block define="menu_item python: '账单'; header menu_item; menu_item_data python: 'Invoices'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_page_header" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
+</tal:block>
+
+<tal:block define="menu_item python: '服务'; header menu_item; menu_item_data python: 'Services'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_page_header" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
+</tal:block>
+
+<tal:block define="menu_item python: '服务器'; header menu_item; menu_item_data python: 'Servers'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_page_header" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
+</tal:block>
+
+<tal:block define="menu_item python: '网络'; header menu_item; menu_item_data python:'Networks'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_page_header" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
+</tal:block>
+
+<tr>
+   <td colspan="3"><b>Access modules and verify the redirect</b></td>
+</tr>
+<tr>
+  <td>openAndWait</td>
+  <td>${base_url}/</td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>open</td>
+  <td>${base_url}/web_site_module/hostingjs/zh/#/support_request_module</td>
+  <td></td>
+</tr>
+
+<tal:block define="menu_item python: '工单'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tr>
+  <td>openAndWait</td>
+  <td>${base_url}/</td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>open</td>
+  <td>${base_url}/web_site_module/hostingjs/zh/#/hosting_subscription_module</td>
+  <td></td>
+</tr>
+
+<tal:block define="menu_item python: '服务'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tr>
+  <td>openAndWait</td>
+  <td>${base_url}/</td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>open</td>
+  <td>${base_url}/web_site_module/hostingjs/zh/#/computer_module</td>
+  <td></td>
+</tr>
+
+<tal:block define="menu_item python: '服务器'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tr>
+  <td>openAndWait</td>
+  <td>${base_url}/</td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>open</td>
+  <td>${base_url}/web_site_module/hostingjs/zh/#/accounting_module</td>
+  <td></td>
+</tr>
+
+<tal:block define="menu_item python: '账单'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tr>
+  <td>openAndWait</td>
+  <td>${base_url}/</td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>open</td>
+  <td>${base_url}/web_site_module/hostingjs/zh/#/project_module</td>
+  <td></td>
+</tr>
+
+<tal:block define="menu_item python: '项目'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tr>
+  <td>openAndWait</td>
+  <td>${base_url}/</td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>open</td>
+  <td>${base_url}/web_site_module/hostingjs/zh/#/computer_network_module</td>
+  <td></td>
+</tr>
+
+<tal:block define="menu_item python: '网络'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tr>
+  <td>openAndWait</td>
+  <td>${base_url}/</td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>open</td>
+  <td>${base_url}/web_site_module/hostingjs/zh/#/organisation_module</td>
+  <td></td>
+</tr>
+
+<tal:block define="menu_item python: '站点'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+
+<tal:block define="person_name python: 'Demo User Functional'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_account" />
+</tal:block>
+
+<tal:block define="header python: '您的登录账号 : Demo User Functional';">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_page_header" />
+</tal:block>
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
+
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_logout" />
+
+
+</tbody></table>
+</body>
+</html>

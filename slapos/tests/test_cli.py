@@ -402,7 +402,7 @@ class TestCliNode(CliMixin):
 class TestCliList(CliMixin):
   def test_list(self):
     """
-    Test "slapos list" command output.
+    Test "slapos service list" command output.
     """
     return_value = {
       'instance1': slapos.slap.SoftwareInstance(_title='instance1', _software_release_url='SR1'),
@@ -424,7 +424,7 @@ class TestCliList(CliMixin):
 class TestCliInfo(CliMixin):
   def test_info(self, _):
     """
-    Test "slapos info" command output.
+    Test "slapos service info" command output.
     """
     setattr(self.conf, 'reference', 'instance1')
     instance = slapos.slap.SoftwareInstance(
@@ -444,7 +444,7 @@ class TestCliInfo(CliMixin):
 
   def test_unknownReference(self, _):
     """
-    Test "slapos info" command output in case reference
+    Test "slapos service info" command output in case reference
     of service is not known.
     """
     setattr(self.conf, 'reference', 'instance1')
@@ -456,7 +456,7 @@ class TestCliInfo(CliMixin):
 class TestCliComputerList(CliMixin):
   def test_computer_list(self):
     """
-    Test "slapos list" command output.
+    Test "slapos computer list" command output.
     """
     return_value = {
       'computer1': slapos.slap.hateoas.TempDocument(title='computer1', _reference='COMP-1'),
@@ -492,8 +492,8 @@ class TestComputerCliInfo(CliMixin):
 
   def test_computer_unknownReference(self, _):
     """
-    Test "slapos info" command output in case reference
-    of service is not known.
+    Test "slapos computer info" command output in case reference
+    of computer is not known.
     """
     setattr(self.conf, 'reference', 'COMP-0')
     with patch.object(slapos.slap.Computer, 'getInformation', side_effect=raiseNotFoundError):

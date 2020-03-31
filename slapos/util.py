@@ -33,6 +33,7 @@ import socket
 import struct
 import subprocess
 import sqlite3
+import ast
 from xml_marshaller.xml_marshaller import dumps, loads
 from lxml import etree
 import six
@@ -189,6 +190,8 @@ def xml2dict(xml):
       else:
         value = element.text
       result_dict[key] = value
+  if len(result_dict) == 1 and '_' in result_dict:
+    result_dict['_'] = ast.literal_eval(result_dict['_'])
   return result_dict
 
 

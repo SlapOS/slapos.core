@@ -46,7 +46,7 @@ import six
 from .exception import ResourceNotReady, ServerError, NotFoundError, \
           ConnectionError
 from .hateoas import SlapHateoasNavigator, ConnectionHelper
-from slapos.util import loads, dumps, bytes2str, xml2dict, dict2xml, calculate_dict_hash
+from slapos.util import loads, dumps, bytes2str, unicode2str, xml2dict, dict2xml, calculate_dict_hash
 
 from xml.sax import saxutils
 from zope.interface import implementer
@@ -279,7 +279,7 @@ class OpenOrder(SlapRequester):
       setattr(software_instance, '_%s' % key, value)
 
     if raw_information["data"].get("text_content", None) is not None:
-      setattr(software_instance, '_parameter_dict', xml2dict(raw_information["data"]['text_content']))
+      setattr(software_instance, '_parameter_dict', xml2dict(unicode2str(raw_information["data"]['text_content'])))
     else:
       setattr(software_instance, '_parameter_dict', {})
 

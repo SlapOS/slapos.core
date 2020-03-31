@@ -26,7 +26,7 @@
 ##############################################################################
 import os
 import slapos.util
-from slapos.util import string_to_boolean
+from slapos.util import string_to_boolean, unicode2str
 import tempfile
 import unittest
 import shutil
@@ -120,7 +120,7 @@ class TestUtil(unittest.TestCase):
     for value in [True, False, 1, '1', 't', 'tru', 'truelle', 'f', 'fals', 'falsey']:
       self.assertRaises(ValueError, string_to_boolean, value)
 
-  xml2dict_xml = slapos.util.bytes2str(b"""<?xml version='1.0' encoding='utf-8'?>
+  xml2dict0_xml = slapos.util.bytes2str(b"""<?xml version='1.0' encoding='utf-8'?>
 <instance>
   <parameter id="badstr">\xc5\x81</parameter>
   <parameter id="badu">\xc5\x81</parameter>
@@ -134,7 +134,7 @@ class TestUtil(unittest.TestCase):
 </instance>
 """)
 
-  xml2dict_indict = {
+  xml2dict0_indict = {
     u'ukey': u'ustr',
     'key': 'str',
     'int': 1,
@@ -146,7 +146,7 @@ class TestUtil(unittest.TestCase):
     'badu': u'\u0141'
   }
 
-  xml2dict_outdict = {
+  xml2dict0_outdict = {
     'badstr': u'\u0141',
     'badu': u'\u0141',
     'emptystr': None,
@@ -157,17 +157,52 @@ class TestUtil(unittest.TestCase):
     'none': 'None',
     'ukey': 'ustr'}
 
-  def test_xml2dict(self):
+  def test_xml2dict0(self):
     self.assertEqual(
-      self.xml2dict_outdict,
-      slapos.util.xml2dict(self.xml2dict_xml)
+      dict,
+      type(slapos.util.xml2dict(self.xml2dict0_xml))
+    )
+    self.assertEqual(
+      self.xml2dict0_outdict,
+      slapos.util.xml2dict(self.xml2dict0_xml)
     )
 
-  def test_dict2xml(self):
+  def test_dict2xml0(self):
     self.maxDiff = None
     self.assertEqual(
-      self.xml2dict_xml,
-      slapos.util.dict2xml(self.xml2dict_indict)
+      self.xml2dict0_xml,
+      slapos.util.dict2xml(self.xml2dict0_indict)
+    )
+
+
+  xml2dict1_xml = u"""<?xml version='1.0' encoding='utf-8'?>
+<instance>
+  <parameter id="_">{
+    "param1": "value1",
+    "param2_dict": {
+        "param2_param1": "",
+        "param2_param2_dict": {},
+        "param2_param3_dict": {"param": "value"}
+    }
+}</parameter>
+</instance>
+"""
+
+  xml2dict1_outdict = {
+    "_": {
+      "param1": "value1",
+      "param2_dict": {
+          "param2_param1": "",
+          "param2_param2_dict": {},
+          "param2_param3_dict": {"param": "value"}
+      }
+    }
+  }
+
+  def test_xml2dict1(self):
+    self.assertEqual(
+      self.xml2dict1_outdict,
+      slapos.util.xml2dict(unicode2str(self.xml2dict1_xml))
     )
 
 

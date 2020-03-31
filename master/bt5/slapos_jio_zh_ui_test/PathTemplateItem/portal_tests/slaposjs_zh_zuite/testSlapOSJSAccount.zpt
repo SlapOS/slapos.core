@@ -1,0 +1,79 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Test SlapJS UI</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">Test RenderJS UI</td></tr>
+</thead><tbody>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init" />
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login" />
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
+
+
+<tal:block define="person_name python: 'Demo User Functional'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
+</tal:block>
+
+<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+</tal:block>
+
+
+<tr>
+  <td>assertElementPresent</td>
+  <td>//label[text()="First Name"]</td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>assertElementPresent</td>
+  <td>//label[text()="Last Name"]</td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>assertElementPresent</td>
+  <td>//label[text()="Email"]</td>
+  <td></td>
+</tr>
+
+<tr>
+  <td colspan="3"><b> Rename user to DEMO A </b></td>
+</tr>
+
+<tr>
+  <td>type</td>
+  <td>//input[@id="first_name"]</td>
+  <td>DEMO A</td>
+</tr>
+
+<tr>
+  <td>type</td>
+  <td>//input[@id="last_name"]</td>
+  <td>DEMO B</td>
+</tr>
+
+<tr>
+  <td>type</td>
+  <td>//input[@id="default_email_text"]</td>
+  <td>demoA@nexedi.com</td>
+</tr>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/save" />
+
+<tal:block define="person_name python: 'DEMO A DEMO B'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
+</tal:block>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_logout" />
+
+</tbody></table>
+</body>
+</html>

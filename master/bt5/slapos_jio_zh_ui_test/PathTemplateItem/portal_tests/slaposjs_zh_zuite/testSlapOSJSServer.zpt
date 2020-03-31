@@ -1,0 +1,507 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Test SlapJS UI</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">Test RenderJS UI</td></tr>
+</thead><tbody>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init" />
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login" />
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
+
+<tal:block define="document_title python: 'TEST-SLAPOSJS-COMPUTER 0';">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/create_simple_computer" />
+</tal:block>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
+
+
+<tal:block define="menu_item python: 'Servers'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+</tal:block>
+
+<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+</tal:block>
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>click</td>
+  <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
+  <td></td>
+</tr>
+
+<tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tr>
+   <td colspan="3"><b> Supply a Software </b></td>
+</tr>
+
+<tal:block define="menu_action python: 'Supply'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+</tal:block>
+
+<tr>
+   <td colspan="3"><b> Select a Software Product</b></td>
+</tr>
+
+<tal:block define="header python: '1/3 Select one Software'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), 'Software Products')]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>assertElementPresent</td>
+  <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), 'Software Products')]</td>
+  <td></td>
+</tr>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_listbox_loaded" />
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//td/a[text()="Frontend"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>click</td>
+  <td>//td/a[text()="Frontend"]</td>
+  <td></td>
+</tr>
+
+<tr>
+   <td colspan="3"><b> Select a Software Release</b></td>
+</tr>
+
+<tal:block define="header python: '2/3 Select one Release'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), 'Software Releases')]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>assertElementPresent</td>
+  <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), 'Software Releases')]</td>
+  <td></td>
+</tr>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_listbox_loaded" />
+
+<tr>
+  <td>click</td>
+  <td>//td/a[text()="Frontend"]</td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//label[text()="Software Release to be Installed"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//label[text()="Target Computer Title"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//p[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
+  <td></td>
+</tr>
+
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
+<tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                           'text': 'New Software Installation created.'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+</tal:block>
+
+<tal:block define="header python: 'Software Installation : Frontend'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>click</td>
+  <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>pause</td>
+	<td>5000</td>
+ 	<td>5000</td>
+</tr>
+
+<tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
+
+
+<tal:block define="menu_item python: 'Servers'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+</tal:block>
+
+<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+</tal:block>
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>click</td>
+  <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
+  <td></td>
+</tr>
+
+<tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tr>
+  <td>click</td>
+  <td>//th/a[text()="Software Release"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//td/a[contains(text(), "Frontend (0.1)")]</td>
+ 	<td></td>
+</tr>
+<tr>
+  <td>assertElementPresent</td>
+  <td>//td/a[contains(text(), "Frontend (0.1)")]</td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>click</td>
+  <td>//td/a[contains(text(), "Frontend (0.1)")]</td>
+  <td></td>
+</tr>
+<tal:block define="header python: 'Software Installation : Frontend'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tal:block define="menu_action python: 'Destroy'">
+   <tr>
+      <td colspan="3"><b tal:content="python: 'Click on %s' % menu_action"> Menu Item </b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr>
+</tal:block>
+
+<tal:block define="header python: 'Destroy Software Installation'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
+<tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                           'text': 'You sucessfully request destruction.'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+</tal:block>
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>click</td>
+  <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
+  <td></td>
+</tr>
+
+
+
+<tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tr>
+   <td colspan="3"><b>Try to request a new Certificate</b></td>
+</tr>
+
+
+<tal:block define="menu_action python: 'Request Certificate'">
+   <tr>
+      <td colspan="3"><b tal:content="python: 'Click on %s' % menu_action"> Menu Item </b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr>
+</tal:block>
+
+<tal:block define="header python: 'Request New Certificate'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
+<tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                           'text': 'This computer already has one certificate, please revoke it before request a new one..'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+</tal:block>
+
+<tal:block define="header python: 'Request New Certificate'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
+</tal:block>
+
+<tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tr>
+   <td colspan="3"><b> Revoke Certificate</b></td>
+</tr>
+
+<tal:block define="menu_action python: 'Revoke Certificate'">
+   <tr>
+      <td colspan="3"><b tal:content="python: 'Click on %s' % menu_action"> Menu Item </b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr></tal:block>
+
+<tal:block define="header python: 'Revoke Computer Certificate'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
+<tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                           'text': 'Certificate is Revoked.'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+</tal:block>
+
+<tr>
+   <td colspan="3"><b> Try again Request Certificate</b></td>
+</tr>
+
+
+<tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tal:block define="menu_action python: 'Request Certificate'">
+<tr>
+      <td colspan="3"><b tal:content="python: 'Click on %s' % menu_action"> Menu Item </b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr>
+</tal:block>
+
+<tal:block define="header python: 'Request New Certificate'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
+<tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                           'text': 'Certificate is Requested.'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+</tal:block>
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//textarea[@name="certificate"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//textarea[@name="key"]</td>
+  <td></td>
+</tr>
+
+<tal:block define="header python: 'Request New Certificate'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
+</tal:block>
+
+<tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tr>
+   <td colspan="3"><b> Update Allocation Scope</b></td>
+</tr>
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//select[@id="allocation_scope"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>select</td>
+  <td>//select[@id="allocation_scope"]</td>
+  <td>Open for Friends only</td>
+</tr>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/save" />
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//textarea[@id="subject_list"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>type</td>
+  <td>//textarea[@id="subject_list"]</td>
+  <td>demo@user.com</td>
+</tr>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/save" />
+
+<tr>
+  <td>assertValue</td>
+  <td>//textarea[@id="subject_list"]</td>
+  <td>demo@user.com</td>
+</tr>
+
+<tal:block define="menu_item python: 'Servers'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+</tal:block>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
+
+<tal:block define="menu_item python: 'Servers'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+</tal:block>
+
+<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+</tal:block>
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>click</td>
+  <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
+  <td></td>
+</tr>
+
+<tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+</tal:block>
+
+<tr>
+   <td colspan="3"><b> Update Allocation Scope</b></td>
+</tr>
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//select[@id="allocation_scope"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>select</td>
+  <td>//select[@id="allocation_scope"]</td>
+  <td>Closed forever</td>
+</tr>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/save" />
+
+<tal:block define="menu_item python: 'Servers'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+</tal:block>
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
+
+<tal:block define="menu_item python: 'Servers'; header menu_item">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+</tal:block>
+
+<tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+</tal:block>
+
+
+<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_logout" />
+
+</tbody></table>
+</body>
+</html>

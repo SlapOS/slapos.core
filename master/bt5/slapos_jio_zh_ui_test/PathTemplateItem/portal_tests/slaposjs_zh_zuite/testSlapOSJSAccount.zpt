@@ -28,19 +28,19 @@
 
 <tr>
   <td>assertElementPresent</td>
-  <td>//label[text()="First Name"]</td>
+  <td>//label[text()="名"]</td>
   <td></td>
 </tr>
 
 <tr>
   <td>assertElementPresent</td>
-  <td>//label[text()="Last Name"]</td>
+  <td>//label[text()="姓"]</td>
   <td></td>
 </tr>
 
 <tr>
   <td>assertElementPresent</td>
-  <td>//label[text()="Email"]</td>
+  <td>//label[text()="电子邮件"]</td>
   <td></td>
 </tr>
 

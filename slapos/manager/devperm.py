@@ -4,14 +4,13 @@ import logging
 import os
 import pwd
 import grp
-from .interface import IManager
-from zope import interface
+from zope.interface import implementer
+from slapos.manager import interface
 
 logger = logging.getLogger(__name__)
 
+@implementer(interface.IManager)
 class Manager(object):
-  interface.implements(IManager)
-
   disk_device_filename = '.slapos-disk-permission'
 
   def __init__(self, config):

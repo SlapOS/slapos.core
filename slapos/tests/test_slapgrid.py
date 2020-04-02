@@ -42,6 +42,7 @@ import six
 from six.moves.urllib import parse
 import json
 import re
+import grp
 
 from mock import patch
 from zope.interface import implementer
@@ -3062,6 +3063,115 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       partition_supervisord_config = self._read_instance_supervisord_config()
       self.assertNotIn('socat-htcpcp-1234', partition_supervisord_config)
       self.assertNotIn('socat HTCPCP4-LISTEN:1234,fork HTCPCP4:127.0.0.1:4321', partition_supervisord_config)
+
+
+class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
+
+  def setUp(self):
+    self.os_chown_call_list = []
+    MasterMixin.setUp(self)
+    manager_list = slapmanager.from_config({'manager_list': 'devperm'})
+    self.grid._manager_list = manager_list
+
+    self.computer = ComputerForTest(self.software_root, self.instance_root)
+    self.partition = self.computer.instance_list[0]
+    self.instance_supervisord_config_path = os.path.join(
+      self.instance_root, 'etc/supervisord.conf.d/0.conf')
+
+    self.disk_device_filename = os.path.join(
+      self.partition.partition_path,
+      slapmanager.devperm.Manager.disk_device_filename)
+
+  def _mock_requests(self):
+    return httmock.HTTMock(self.computer.request_handler)
+
+  def os_path_exists(self, path, original=os.path.exists):
+    if path in ['/dev/tst', '/dev/toolong']:
+      return True
+    elif path == '/dev/non':
+      return False
+    else:
+      return original(path)
+
+  def os_stat(self, path, original=os.stat):
+    if path == '/dev/tst':
+      class dummy():
+        pass
+      mocked = dummy()
+      mocked.st_uid = original(os.environ['HOME']).st_uid + 1
+      return mocked
+    else:
+      return original(path)
+
+  def os_chown(self, path, uid, gid, original=os.chown):
+    if path.startswith('/dev/tst'):
+      self.os_chown_call_list.append([path, uid, gid])
+      return
+    else:
+      original(path, uid, gid)
+
+  def test(self):
+    with self._mock_requests():
+      with open(self.disk_device_filename, 'w+') as f:
+        json.dump([{'disk': '/dev/tst'}], f)
+
+      self.partition.requested_state = 'started'
+      self.partition.software.setBuildout(WRAPPER_CONTENT)
+
+      with \
+          patch.object(os.path, 'exists', new=self.os_path_exists), \
+          patch.object(os, 'stat', new=self.os_stat), \
+          patch.object(os, 'chown', new=self.os_chown):
+        self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+
+      gid = grp.getgrnam("disk").gr_gid
+      uid = os.stat(os.environ['HOME']).st_uid
+      self.assertEqual(
+        self.os_chown_call_list,
+        [
+          ['/dev/tst', uid, gid],
+          ['/dev/tst', uid, gid],
+        ]
+      )
+
+  def test_long(self):
+    with self._mock_requests():
+      with open(self.disk_device_filename, 'w+') as f:
+        json.dump([{'disk': '/dev/toolong'}], f)
+
+      self.partition.requested_state = 'started'
+      self.partition.software.setBuildout(WRAPPER_CONTENT)
+
+      with \
+          patch.object(os.path, 'exists', new=self.os_path_exists), \
+          patch.object(os, 'stat', new=self.os_stat), \
+          patch.object(os, 'chown', new=self.os_chown):
+        self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+
+      self.assertEqual(
+        self.os_chown_call_list,
+        []
+      )
+
+  def test_not_existing(self):
+    with self._mock_requests():
+      with open(self.disk_device_filename, 'w+') as f:
+        json.dump([{'disk': '/dev/non'}], f)
+
+      self.partition.requested_state = 'started'
+      self.partition.software.setBuildout(WRAPPER_CONTENT)
+
+      with \
+          patch.object(os.path, 'exists', new=self.os_path_exists), \
+          patch.object(os, 'stat', new=self.os_stat), \
+          patch.object(os, 'chown', new=self.os_chown):
+        self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+
+      self.assertEqual(
+        self.os_chown_call_list,
+        []
+      )
+
 
 class TestSlapgridManagerLifecycle(MasterMixin, unittest.TestCase):
 

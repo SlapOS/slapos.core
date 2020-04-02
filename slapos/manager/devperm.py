@@ -73,6 +73,14 @@ class Manager(object):
         logger.warning("Disk is None: %s " % disk_list, exc_info=True)
         continue
 
+      original = disk
+      try:
+        while os.path.islink(disk):
+          disk = os.readlink(disk)
+      except OSError:
+        logger.warning("Problem resolving link: %s " % original, exc_info=True)
+        continue
+
       if not str(disk).startswith("/dev/"):
         logger.warning("Bad disk definition: %s " % disk_list, exc_info=True)
         continue

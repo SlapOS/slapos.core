@@ -3110,6 +3110,20 @@ class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
     else:
       original(path, uid, gid)
 
+  def os_readlink(self, path, original=os.readlink):
+    if path == 'some_link':
+      return '/dev/tst'
+    elif path == 'bad_link':
+      return '/dev/non'
+    else:
+      return original(path)
+
+  def os_path_islink(self, path, original=os.path.islink):
+    if path in ['some_link', 'bad_link']:
+      return True
+    else:
+      return original(path)
+
   def test(self):
     with self._mock_requests():
       with open(self.disk_device_filename, 'w+') as f:
@@ -3132,6 +3146,55 @@ class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
           ['/dev/tst', uid, gid],
           ['/dev/tst', uid, gid],
         ]
+      )
+
+  def test_link(self):
+    with self._mock_requests():
+      with open(self.disk_device_filename, 'w+') as f:
+        json.dump([{'disk': 'some_link'}], f)
+
+      self.partition.requested_state = 'started'
+      self.partition.software.setBuildout(WRAPPER_CONTENT)
+
+      with \
+          patch.object(os.path, 'exists', new=self.os_path_exists), \
+          patch.object(os, 'stat', new=self.os_stat), \
+          patch.object(os, 'chown', new=self.os_chown), \
+          patch.object(os, 'readlink', new=self.os_readlink), \
+          patch.object(os.path, 'islink', new=self.os_path_islink):
+        self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+
+      gid = grp.getgrnam("disk").gr_gid
+      uid = os.stat(os.environ['HOME']).st_uid
+      self.assertEqual(
+        self.os_chown_call_list,
+        [
+          ['/dev/tst', uid, gid],
+          ['/dev/tst', uid, gid],
+        ]
+      )
+
+  def test_bad_link(self):
+    with self._mock_requests():
+      with open(self.disk_device_filename, 'w+') as f:
+        json.dump([{'disk': 'bad_link'}], f)
+
+      self.partition.requested_state = 'started'
+      self.partition.software.setBuildout(WRAPPER_CONTENT)
+
+      with \
+          patch.object(os.path, 'exists', new=self.os_path_exists), \
+          patch.object(os, 'stat', new=self.os_stat), \
+          patch.object(os, 'chown', new=self.os_chown), \
+          patch.object(os, 'readlink', new=self.os_readlink), \
+          patch.object(os.path, 'islink', new=self.os_path_islink):
+        self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+
+      gid = grp.getgrnam("disk").gr_gid
+      uid = os.stat(os.environ['HOME']).st_uid
+      self.assertEqual(
+        self.os_chown_call_list,
+        []
       )
 
   def test_long(self):

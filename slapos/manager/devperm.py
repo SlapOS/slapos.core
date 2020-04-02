@@ -9,6 +9,7 @@ from slapos.manager import interface
 
 logger = logging.getLogger(__name__)
 
+
 @implementer(interface.IManager)
 class Manager(object):
   disk_device_filename = '.slapos-disk-permission'
@@ -22,7 +23,8 @@ class Manager(object):
       if 'devperm' in config['manager']:
         if 'allowed-disk-for-vm' in config['manager']['devperm']:
           self.allowed_disk_for_vm = []
-          for line in config['manager']['devperm']['allowed-disk-for-vm'].splitlines():
+          for line in config[
+            'manager']['devperm']['allowed-disk-for-vm'].splitlines():
             line = line.strip()
             if line:
               self.allowed_disk_for_vm.append(line)
@@ -71,7 +73,7 @@ class Manager(object):
     with open(disk_dev_path) as f:
       try:
         disk_list = json.load(f)
-      except:
+      except Exception:
         logger.warning('Bad disk configuration file', exc_info=True)
         return
 
@@ -112,7 +114,7 @@ class Manager(object):
         continue
 
       logger.warning("Transfer ownership of %s to %s" % (disk, pwd.getpwuid(uid).pw_name))
-      os.chown(disk, uid, grp.getgrnam("disk").gr_gid) 
+      os.chown(disk, uid, grp.getgrnam("disk").gr_gid)
 
   def report(self, partition):
     """Method called at `slapos node report` phase.

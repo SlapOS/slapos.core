@@ -1,6 +1,13 @@
 Changes
 =======
 
+1.5.10 (2020-04-02)
+-------------------
+
+* prune: fix detection of parts used in scripts
+* manager: Support manager:devperm allowed-disk-for-vm
+* manager: Follow links in devperm
+
 1.5.9 (2020-02-17)
 ------------------
 

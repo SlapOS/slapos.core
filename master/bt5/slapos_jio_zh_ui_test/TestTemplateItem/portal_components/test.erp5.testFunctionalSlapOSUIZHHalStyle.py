@@ -29,7 +29,7 @@ import unittest
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 from Products.ERP5Type.tests.ERP5TypeFunctionalTestCase import ERP5TypeFunctionalTestCase
 
-class TestSlapOSUIHalStyle(SlapOSTestCaseMixin, ERP5TypeFunctionalTestCase):
+class TestSlapOSUIZHHalStyle(SlapOSTestCaseMixin, ERP5TypeFunctionalTestCase):
   foreground = 0
   run_only = "slaposjs_zh_zuite"
 
@@ -39,5 +39,5 @@ class TestSlapOSUIHalStyle(SlapOSTestCaseMixin, ERP5TypeFunctionalTestCase):
 
 def test_suite():
   suite = unittest.TestSuite()
-  suite.addTest(unittest.makeSuite(TestSlapOSUIHalStyle))
+  suite.addTest(unittest.makeSuite(TestSlapOSUIZHHalStyle))
   return suite

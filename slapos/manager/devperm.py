@@ -18,6 +18,15 @@ class Manager(object):
     """Manager needs to know config for its functioning.
     """
     self.config = config
+    self.allowed_disk_for_vm = None
+    if 'manager' in config:
+      if 'devperm' in config['manager']:
+        if 'allowed-disk-for-vm' in config['manager']['devperm']:
+          self.allowed_disk_for_vm = []
+          for line in config['manager']['devperm']['allowed-disk-for-vm'].splitlines():
+            line = line.strip()
+            if line:
+              self.allowed_disk_for_vm.append(line)
 
   def format(self, computer):
     """Method called at `slapos node format` phase.
@@ -73,6 +82,7 @@ class Manager(object):
         logger.warning("Disk is None: %s " % disk_list, exc_info=True)
         continue
 
+      disk = str(disk)
       original = disk
       try:
         while os.path.islink(disk):
@@ -81,7 +91,12 @@ class Manager(object):
         logger.warning("Problem resolving link: %s " % original, exc_info=True)
         continue
 
-      if not str(disk).startswith("/dev/"):
+      if self.allowed_disk_for_vm is not None:
+        if disk not in self.allowed_disk_for_vm:
+          logger.warning('Disk %s not in allowed disk list %s', disk, ', '.join(self.allowed_disk_for_vm))
+          continue
+
+      if not disk.startswith("/dev/"):
         logger.warning("Bad disk definition: %s " % disk_list, exc_info=True)
         continue
 

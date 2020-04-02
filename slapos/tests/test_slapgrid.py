@@ -3066,11 +3066,25 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
 
 
 class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
+  config = {'manager_list': 'devperm'}
+
+  def setUpExpected(self):
+    gid = grp.getgrnam("disk").gr_gid
+    uid = os.stat(os.environ['HOME']).st_uid
+    self.test_os_chown_call_list = [
+      ['/dev/tst', uid, gid],
+      ['/dev/tst', uid, gid],
+    ]
+    self.test_link_os_chown_call_list = [
+      ['/dev/tst', uid, gid],
+      ['/dev/tst', uid, gid],
+    ]
 
   def setUp(self):
+    self.setUpExpected()
     self.os_chown_call_list = []
     MasterMixin.setUp(self)
-    manager_list = slapmanager.from_config({'manager_list': 'devperm'})
+    manager_list = slapmanager.from_config(self.config)
     self.grid._manager_list = manager_list
 
     self.computer = ComputerForTest(self.software_root, self.instance_root)
@@ -3138,14 +3152,9 @@ class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
           patch.object(os, 'chown', new=self.os_chown):
         self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
-      gid = grp.getgrnam("disk").gr_gid
-      uid = os.stat(os.environ['HOME']).st_uid
       self.assertEqual(
         self.os_chown_call_list,
-        [
-          ['/dev/tst', uid, gid],
-          ['/dev/tst', uid, gid],
-        ]
+        self.test_os_chown_call_list
       )
 
   def test_link(self):
@@ -3164,14 +3173,9 @@ class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
           patch.object(os.path, 'islink', new=self.os_path_islink):
         self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
-      gid = grp.getgrnam("disk").gr_gid
-      uid = os.stat(os.environ['HOME']).st_uid
       self.assertEqual(
         self.os_chown_call_list,
-        [
-          ['/dev/tst', uid, gid],
-          ['/dev/tst', uid, gid],
-        ]
+        self.test_link_os_chown_call_list
       )
 
   def test_bad_link(self):
@@ -3190,8 +3194,6 @@ class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
           patch.object(os.path, 'islink', new=self.os_path_islink):
         self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
-      gid = grp.getgrnam("disk").gr_gid
-      uid = os.stat(os.environ['HOME']).st_uid
       self.assertEqual(
         self.os_chown_call_list,
         []
@@ -3234,6 +3236,44 @@ class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
         self.os_chown_call_list,
         []
       )
+
+
+class TestSlapgridWithDevPermManagerDevPermEmpty(TestSlapgridWithDevPerm):
+  config = {
+    'manager_list': 'devperm',
+    'manager': {'devperm': {}}
+  }
+
+
+class TestSlapgridWithDevPermManagerDevPermListEmpty(TestSlapgridWithDevPerm):
+  config = {
+    'manager_list': 'devperm',
+    'manager': {'devperm': {'allowed-disk-for-vm': ''}}
+  }
+  def setUpExpected(self):
+    self.test_os_chown_call_list = [
+    ]
+    self.test_link_os_chown_call_list = [
+    ]
+
+
+class TestSlapgridWithDevPermManagerDevPermDisallow(TestSlapgridWithDevPerm):
+  config = {
+    'manager_list': 'devperm',
+    'manager': {'devperm': {'allowed-disk-for-vm': '/dev/quo'}}
+  }
+  def setUpExpected(self):
+    self.test_os_chown_call_list = [
+    ]
+    self.test_link_os_chown_call_list = [
+    ]
+
+
+class TestSlapgridWithDevPermManagerDevPermAllow(TestSlapgridWithDevPerm):
+  config = {
+    'manager_list': 'devperm',
+    'manager': {'devperm': {'allowed-disk-for-vm': '/dev/tst'}}
+  }
 
 
 class TestSlapgridManagerLifecycle(MasterMixin, unittest.TestCase):

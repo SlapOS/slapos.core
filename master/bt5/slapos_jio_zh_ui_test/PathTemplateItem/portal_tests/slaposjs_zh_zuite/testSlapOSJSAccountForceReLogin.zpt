@@ -8,13 +8,13 @@
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">Test RapidSpace Console Account Page Check</td></tr>
+<tr><td rowspan="1" colspan="3">Test SlapOS JS Account Force ReLogin</td></tr>
 </thead><tbody>
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_init" />
 
 <tr>
   <td>open</td>
-  <td>${base_url}/web_site_module/hostingjs/</td>
+  <td>${base_url}/web_site_module/hostingjs/zh/</td>
   <td></td>
 </tr>
 <!--
@@ -27,7 +27,7 @@ have the correct "me" setting, so we just let the getSettingMe
 function redirect us to the login page -->
 <tr>
   <td>waitForElementPresent</td>
-  <td>//label[contains(text(), "Login")]</td>
+  <td>//label[contains(text(), "登录")]</td>
   <td></td>
 </tr>
 <tr>
@@ -75,17 +75,12 @@ function redirect us to the login page -->
   <td></td>
 </tr>
 
-<!-- Account Tab -->
-<tal:block tal:define="click_configuration python: {'text': 'Login Account'}">
-  <tal:block metal:use-macro="here/Zuite_CommonTemplateForRenderjsUi/macros/click_on_panel_link" />
-</tal:block>
-<!--
+ <!-- Account Tab -->
 <tr>
   <td>click</td>
   <td>//a[@data-i18n="Login Account"]</td>
   <td></td>
 </tr>
--->
 
 <tr>
   <td>waitForElementPresent</td>
@@ -119,17 +114,17 @@ function redirect us to the login page -->
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//label[contains(text(), "First Name")]</td>
+  <td>//label[contains(text(), "名")]</td>
   <td></td>
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//label[contains(text(), "Last Name")]</td>
+  <td>//label[contains(text(), "姓")]</td>
   <td></td>
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//label[contains(text(), "Email")]</td>
+  <td>//label[contains(text(), "电子邮件")]</td>
   <td></td>
 </tr>
 <tr>
@@ -149,42 +144,42 @@ function redirect us to the login page -->
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//h1[contains(text(), "Logins")]</td>
+  <td>//h1[contains(text(), "登录账号")]</td>
   <td></td>
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//a[contains(text(), "Reference")]</td>
+  <td>//a[contains(text(), "编号")]</td>
   <td></td>
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//a[contains(text(), "Type")]</td>
+  <td>//a[contains(text(), "类别")]</td>
   <td></td>
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//h1[contains(text(), "Organisation")]</td>
+  <td>//h1[contains(text(), "组织")]</td>
   <td></td>
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//th[contains(text(), "Title")]</td>
+  <td>//th[contains(text(), "标题")]</td>
   <td></td>
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//a[contains(text(), "Reference")]</td>
+  <td>//a[contains(text(), "编号")]</td>
   <td></td>
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//th[contains(text(), "Region")]</td>
+  <td>//th[contains(text(), "区域")]</td>
   <td></td>
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//th[contains(text(), "Status")]</td>
+  <td>//th[contains(text(), "状态")]</td>
   <td></td>
 </tr>
 </tbody></table>

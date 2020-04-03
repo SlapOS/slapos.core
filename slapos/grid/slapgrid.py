@@ -208,11 +208,11 @@ def merged_options(args, configp):
             "reload_config_cmd",
             "slapos node restart firewall")
 
-  key = 'manager:'
+  key = 'manager'
   options[key] = {}
   for section in configp.sections():
     if section.startswith(key):
-      manager = section[len(key):]
+      manager = section[len(key)+1:]
       options[key][manager] = dict(configp.items(section))
   return options
 

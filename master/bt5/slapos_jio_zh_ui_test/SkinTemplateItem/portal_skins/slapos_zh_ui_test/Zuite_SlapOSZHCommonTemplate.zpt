@@ -4,41 +4,47 @@
 
   <tal:block metal:define-macro="slapos_init">
     <tal:block tal:define="web_site_id python: 'hostingjs'">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init_base" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_init_base" />
     </tal:block>
   </tal:block>
 
 
   <tal:block metal:define-macro="slapos_login">
     <tal:block tal:define="web_site_id python: 'hostingjs'">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login_base" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_login_base" />
     </tal:block>
   </tal:block>
 
 
   <tal:block metal:define-macro="slapos_login_with_another_user">
     <tal:block tal:define="web_site_id python: 'hostingjs'">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login_with_another_user_base" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_login_with_another_user_base" />
     </tal:block>
   </tal:block>
 
 
   <tal:block metal:define-macro="slapos_wait_for_activities_and_front_page">
     <tal:block tal:define="web_site_id python: 'hostingjs'">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page_base" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_activities_and_front_page_base" />
     </tal:block>
   </tal:block>
 
 
   <tal:block metal:define-macro="access_menu_item">
     <tal:block tal:define="panel_gadget_id python: 'gadget_slapos_panel.html'">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_base" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_base" />
+    </tal:block>
+  </tal:block>
+
+  <tal:block metal:define-macro="access_menu_item_zh">
+    <tal:block tal:define="panel_gadget_id python: 'gadget_slapos_panel.html'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_base_zh" />
     </tal:block>
   </tal:block>
 
   <tal:block metal:define-macro="access_menu_item_account">
     <tal:block tal:define="panel_gadget_id python: 'gadget_slapos_panel.html'">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account_base" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_account_base" />
     </tal:block>
   </tal:block>
 
@@ -70,7 +76,6 @@
       <td>openAndWait</td>
       <td>${base_url}/ERP5Site_setupDummyMailHost</td>
       <td></td>
-    </tr>
     <tr>
       <td>assertTextPresent</td>
       <td>True</td>
@@ -125,7 +130,7 @@
     <!-- Initialize -->
     <tr>
       <td>open</td>
-      <td tal:content="python:'${base_url}/web_site_module/%s/' % web_site_id"></td>
+      <td tal:content="python:'${base_url}/web_site_module/%s/zh/' % web_site_id"></td>
       <td></td>
     </tr>
     <tr>
@@ -145,15 +150,15 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//input[@value="Login"]</td>
+      <td>//input[@value="登录"]</td>
       <td></td>
     </tr>
     <tr>
       <td>clickAndWait</td>
-      <td>//input[@value="Login"]</td>
+      <td>//input[@value="登录"]</td>
       <td></td>
     </tr>
-    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_app_loaded" />
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_app_loaded" />
   </tal:block>
 
 
@@ -167,7 +172,7 @@
     <!-- Initialize -->
     <tr>
       <td>open</td>
-      <td tal:content="python:'${base_url}/web_site_module/%s/' % web_site_id"></td>
+      <td tal:content="python:'${base_url}/web_site_module/%s/zh/' % web_site_id"></td>
       <td></td>
     </tr>
     <tr>
@@ -187,15 +192,15 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//input[@value="Login"]</td>
+      <td>//input[@value="登录"]</td>
       <td></td>
     </tr>
     <tr>
       <td>clickAndWait</td>
-      <td>//input[@value="Login"]</td>
+      <td>//input[@value="登录"]</td>
       <td></td>
     </tr>
-    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_app_loaded" />
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_app_loaded" />
   </tal:block>
 
 
@@ -210,10 +215,10 @@
     </tr>
     <tr>
       <td>open</td>
-      <td tal:content="python:'${base_url}/web_site_module/%s/' % web_site_id"></td>
+      <td tal:content="python:'${base_url}/web_site_module/%s/zh/' % web_site_id"></td>
       <td></td>
     </tr>
-    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
   </tal:block>
 
   <tal:block metal:define-macro="slapos_wait_for_front_page">
@@ -223,7 +228,7 @@
     <!-- Dashboard -->
     <tr>
       <td>waitForElementPresent</td>
-      <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//span[@data-i18n='Dashboard']</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//span[@data-i18n='仪表板']</td>
       <td></td>
     </tr>
     <tr>
@@ -234,12 +239,12 @@
 
     <tr>
       <td>waitForElementPresent</td>
-      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), "Sites")]</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), "站点")]</td>
       <td></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), "Pending Tickets to Process")]</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), "待处理工单")]</td>
       <td></td>
     </tr>
     <!-- Check if map is ok -->
@@ -266,18 +271,18 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//input[@value='Confirm']</td>
+      <td>//input[@value='确认']</td>
       <td></td>
     </tr>
     <tr>
       <td>click</td>
-      <td>//input[@value='Confirm']</td>
+      <td>//input[@value='确认']</td>
       <td></td>
     </tr>
 
     <tr>
       <td>waitForElementPresent</td>
-      <td>//input[@value='Login']</td>
+      <td>//input[@value='登录']</td>
       <td></td>
     </tr>
   </tal:block>
@@ -301,7 +306,7 @@
       <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[@data-i18n=\'%s\']' % (panel_gadget_id, menu_item)"></td>
       <td></td>
     </tr>
-    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_content_loaded" />
 
     <tr>
       <td>assertElementPresent</td>
@@ -320,6 +325,43 @@
     </tr>
   </tal:block>
 
+  <tal:block metal:define-macro="access_menu_item_base_zh">
+     <tr>
+      <td colspan="3"><b tal:content="python: 'Access Entry on the Menu for : %s' % menu_item"> Menu Item </b></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td>//button[@data-i18n='Menu']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//button[@data-i18n='Menu']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[@data-i18n=\'%s\']' % (panel_gadget_id, menu_item_data)"></td>
+      <td></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_content_loaded" />
+
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_item"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % menu_item"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % menu_item"></td>
+      <td></td>
+    </tr>
+  </tal:block>
 
   <tal:block metal:define-macro="assert_page_header">
     <tr>
@@ -364,24 +406,24 @@
     </tr>
     <tr>
       <td>click</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[contains(text(), \'Account\')]' % panel_gadget_id"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[contains(text(), \'登录账号\')]' % panel_gadget_id"></td>
       <td></td>
     </tr>
-    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_content_loaded" />
 
     <tr>
       <td>assertElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'Your Account : %s\']' % person_name"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'您的登录账号 : %s\']' % person_name"></td>
       <td></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'Logins\')]'"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'登录账号\')]'"></td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'Logins\')]'"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'登录账号\')]'"></td>
       <td></td>
     </tr>
   </tal:block>
@@ -391,7 +433,7 @@
       <td colspan="3"><b tal:content="python: 'Add an entry with title as %s' % title"> Menu Item </b></td>
     </tr>
     <tal:block tal:define="menu_action python: 'Add'">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_submenu_action" />
     </tal:block>
 
     <tr>
@@ -404,7 +446,7 @@
       <td>//input[@id="title"]</td>
       <td tal:content="title"></td>
     </tr>
-    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_proceed" />
   </tal:block>
 
   <tal:block metal:define-macro="click_submenu_action">
@@ -426,7 +468,7 @@
       <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
       <td></td>
     </tr>
-    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_content_loaded" />
   </tal:block>
 
   <tal:block metal:define-macro="click_proceed">
@@ -479,7 +521,7 @@
       <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//a[@data-i18n="Delete"]</td>
       <td></td>
     </tr>
-    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_content_loaded" />
     <tr>
       <td>waitForElementPresent</td>
       <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % delete_configuration['header_title']"></td>
@@ -502,7 +544,7 @@
     </tr>
     <tal:block tal:define="notification_configuration python: {'class': 'success',
                                                                'text': delete_configuration['notification_text']}">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
     </tal:block>
   </tal:block>
 
@@ -665,7 +707,7 @@
 
   <tal:block metal:define-macro="save">
     <!-- Macro copied from renderjs tests, which is bad but it can be dropped later -->
-    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_save" />
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_save" />
     <tr>
       <td colspan="3"><b>Save</b></td>
     </tr>
@@ -687,8 +729,8 @@
       <td></td>
     </tr>
     <tal:block tal:define="notification_configuration python: {'class': 'success',
-                                                               'text': 'Data updated.'}">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+                                                               'text': '数据已更新。'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
     </tal:block>
     <tr>
       <td>verifyElementPresent</td>
@@ -728,26 +770,26 @@
     <tr>
       <td colspan="3"><p>Create Simple Project</p></td>
     </tr>
-    <tal:block define="menu_item python: 'Projects'; header menu_item">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+    <tal:block define="menu_item python: '项目'; header menu_item; menu_item_data python:'Projects'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
     </tal:block>
 
-    <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+    <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': '没有记录'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
     </tal:block>
 
     <tal:block define="title python: '%s' % document_title; ">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/add_simple_with_title" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/add_simple_with_title" />
     </tal:block>
 
     <tal:block tal:define="notification_configuration python: {'class': 'success',
-                                                               'text': 'New Project created.'}">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+                                                               'text': '新的项目已创建。'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
     </tal:block>
-    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_content_loaded" />
 
-    <tal:block define="header python: 'Project : %s' % document_title; ">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+    <tal:block define="header python: '项目 : %s' % document_title; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
     </tal:block>
     <tr>
       <td colspan="3"><p></p></td>
@@ -758,27 +800,27 @@
     <tr>
       <td colspan="3"><p>Create Simple Network</p></td>
     </tr>
-    <tal:block define="menu_item python: 'Networks'; header menu_item">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+    <tal:block define="menu_item python: '网络'; header menu_item; menu_item_data python:'Networks'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
     </tal:block>
 
-    <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+    <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': '没有记录'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
     </tal:block>
 
     <tal:block define="title python: '%s' % document_title; ">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/add_simple_with_title" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/add_simple_with_title" />
     </tal:block>
 
     <tal:block tal:define="notification_configuration python: {'class': 'success',
-                                                               'text': 'New Network created.'}">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+                                                               'text': '已创建新的网络。'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
     </tal:block>
 
-    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_content_loaded" />
 
     <tal:block define="header python: 'Computer Network :%s' % document_title; ">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
     </tal:block>
     <tr>
       <td colspan="3"><p></p></td>
@@ -790,20 +832,20 @@
       <td colspan="3"><p>Create Simple Computer</p></td>
     </tr>
 
-    <tal:block define="menu_item python: 'Servers'; header menu_item">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+    <tal:block define="menu_item python: '服务器'; header menu_item; menu_item_data python: 'Servers'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
     </tal:block>
 
-    <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+    <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': '没有记录'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
     </tal:block>
 
     <tal:block define="menu_action python: 'Add'">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_submenu_action" />
     </tal:block>
 
-    <tal:block define="header python: 'New Computer'; ">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+    <tal:block define="header python: '新的计算机'; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
     </tal:block>
 
     <tr>
@@ -817,11 +859,11 @@
       <td tal:content="python: '%s' % document_title">TEST-SLAPOSJS-COMPUTER 0</td>
     </tr>
 
-    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_proceed" />
 
     <tal:block tal:define="notification_configuration python: {'class': 'success',
-                                                           'text': 'New Computer created.'}">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+                                                           'text': '新的计算机已创建。'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
     </tal:block>
 
     <tr>
@@ -846,7 +888,7 @@
     </tr>
 
     <tal:block define="header python: 'Computer: %s' % document_title; ">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
     </tal:block>
   </tal:block>
 
@@ -857,23 +899,23 @@
     </tr>
 
     <tal:block define="person_name python: 'Demo User Functional'">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_account" />
     </tal:block>
 
-    <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+    <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 记录'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
     </tal:block>
 
-    <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+    <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': '没有记录'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
     </tal:block>
 
     <tal:block define="menu_action python: 'Add Organisation'">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_submenu_action" />
     </tal:block>
 
-    <tal:block define="header python: 'New Organisation'; ">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+    <tal:block define="header python: '新组织'; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
     </tal:block>
 
     <tr>
@@ -882,15 +924,15 @@
       <td tal:content="python: '%s' % (document_title)">DOCUMENT TITLE</td>
     </tr>
 
-    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_proceed" />
 
     <tal:block tal:define="notification_configuration python: {'class': 'success',
-                                                              'text': 'New Organisation created.'}">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+                                                              'text': '新的组织已创建。'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
     </tal:block>
 
-    <tal:block define="header python: 'Organisation : %s' % (document_title); ">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+    <tal:block define="header python: '组织 : %s' % (document_title); ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
     </tal:block>
 
   </tal:block>
@@ -900,22 +942,22 @@
       <td colspan="3"><b> Select a Software Product</b></td>
     </tr>
 
-    <tal:block define="header python: '1/3 Select one Software'; ">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+    <tal:block define="header python: '1/3 选择一个软件'; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
     </tal:block>
 
     <tr>
       <td>waitForElementPresent</td>
-      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), 'Software Products')]</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), '软件产品')]</td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), 'Software Products')]</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), '软件产品')]</td>
       <td></td>
     </tr>
 
-    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_listbox_loaded" />
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_listbox_loaded" />
 
     <tr>
       <td>waitForElementPresent</td>
@@ -935,22 +977,22 @@
       <td colspan="3"><b> Select a Software Release</b></td>
     </tr>
 
-    <tal:block define="header python: '2/3 Select one Release'; ">
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+    <tal:block define="header python: '2/3 选择一个发布'; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
     </tal:block>
 
     <tr>
       <td>waitForElementPresent</td>
-      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), 'Software Releases')]</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), '软件发布')]</td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), 'Software Releases')]</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), '软件发布')]</td>
       <td></td>
     </tr>
 
-    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_listbox_loaded" />
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_listbox_loaded" />
 
     <tr>
       <td>click</td>

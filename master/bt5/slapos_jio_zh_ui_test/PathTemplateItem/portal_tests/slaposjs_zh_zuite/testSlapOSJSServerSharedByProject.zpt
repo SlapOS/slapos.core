@@ -10,20 +10,20 @@
 <tr><td rowspan="1" colspan="3">Test RenderJS UI</td></tr>
 </thead><tbody>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_init" />
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_login" />
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
 
 <tal:block define="document_title python: 'TEST-SLAPOSJS-PROJECT-TO-SHARE-COMPUTER 0';">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/create_simple_project" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/create_simple_project" />
 </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
 
 <tal:block define="document_title python: 'TEST-SLAPOSJS-COMPUTER-SHARED-BY-PROJECT 0';">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/create_simple_computer" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/create_simple_computer" />
 </tal:block>
 
 <tr>
@@ -31,11 +31,11 @@
 </tr>
 
 <tal:block tal:define="menu_action python: 'Transfer'">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_submenu_action" />
 </tal:block>
 
-<tal:block define="header python: 'Transfer Computer'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+<tal:block define="header python: '转移计算机'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
 <tr>
@@ -50,21 +50,21 @@
   <td>TEST-SLAPOSJS-PROJECT-TO-SHARE-COMPUTER 0</td>
 </tr>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_proceed" />
 
 <tal:block tal:define="notification_configuration python: {'class': 'success',
-                                                           'text': 'Computer is transferred.'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+                                                           'text': '计算机已转移。'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
 </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
 
-<tal:block define="menu_item python: 'Servers'; header menu_item">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+<tal:block define="menu_item python: '服务器'; header menu_item; menu_item_data python: 'Servers'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
 </tal:block>
 
-<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 记录'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
 </tal:block>
 
 <tr>
@@ -79,7 +79,7 @@
 </tr>
 
 <tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER-SHARED-BY-PROJECT 0'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
 <tr>
@@ -88,12 +88,12 @@
   <td></td>
 </tr>
 
-<tal:block define="menu_item python: 'Projects'; header menu_item">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+<tal:block define="menu_item python: '项目'; header menu_item; menu_item_data python: 'Projects'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
 </tal:block>
 
-<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 记录'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
 </tal:block>
 
 <tr>
@@ -107,8 +107,8 @@
   <td></td>
 </tr>
 
-<tal:block define="header python: 'Project : TEST-SLAPOSJS-PROJECT-TO-SHARE-COMPUTER 0'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+<tal:block define="header python: '项目 : TEST-SLAPOSJS-PROJECT-TO-SHARE-COMPUTER 0'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
 
@@ -117,22 +117,22 @@
 </tr>
 
 <tal:block define="menu_action python: 'Invite User'">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_submenu_action" />
 </tal:block>
 
-<tal:block define="header python: 'Generate New Invitation Link'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+<tal:block define="header python: '生成新的邀请链接'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_proceed" />
 
-<tal:block define="header python: 'Generate New Invitation Link'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+<tal:block define="header python: '生成新的邀请链接'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
 <tal:block tal:define="notification_configuration python: {'class': 'success',
-                                                           'text': 'New Invitation link generated.'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+                                                           'text': '新的邀请链接已生成。'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
 </tal:block>
 
 <tr>
@@ -147,16 +147,16 @@
     <td>invitation_link</td>
 </tr>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login_with_another_user" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_login_with_another_user" />
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
 
-<tal:block define="menu_item python: 'Projects'; header menu_item">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+<tal:block define="menu_item python: '项目'; header menu_item; menu_item_data python: 'Projects'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
 </tal:block>
 
-<tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+<tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': '没有记录'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
 </tal:block>
 
 <tr>
@@ -165,7 +165,7 @@
     <td></td>
 </tr>
 
-<tal:block define="header python: 'Success...'; ">
+<tal:block define="header python: '成功...'; ">
     <tr>
       <td>waitForElementPresent</td>
       <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//span[@data-i18n=\'%s\']' % header"></td>
@@ -191,14 +191,14 @@
   <td></td>
 </tr>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
 
-<tal:block define="menu_item python: 'Projects'; header menu_item">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+<tal:block define="menu_item python: '项目'; header menu_item; menu_item_data python: 'Projects'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
 </tal:block>
 
-<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 记录'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
 </tal:block>
 
 <tr>
@@ -207,12 +207,12 @@
   <td></td>
 </tr>
 
-<tal:block define="menu_item python: 'Servers'; header menu_item">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+<tal:block define="menu_item python: '服务器'; header menu_item; menu_item_data python: 'Servers'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
 </tal:block>
 
-<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 记录'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
 </tal:block>
 
 
@@ -228,10 +228,10 @@
 </tr>
 
 <tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER-SHARED-BY-PROJECT 0'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_logout" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_logout" />
 
 </tbody></table>
 </body>

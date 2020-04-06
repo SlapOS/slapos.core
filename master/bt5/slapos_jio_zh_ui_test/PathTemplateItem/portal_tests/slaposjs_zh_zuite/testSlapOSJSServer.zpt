@@ -50,7 +50,7 @@
    <td colspan="3"><b> Supply a Software </b></td>
 </tr>
 
-<tal:block define="menu_action python: '供应'">
+<tal:block define="menu_action python: 'Supply'">
   <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_submenu_action" />
 </tal:block>
 
@@ -210,11 +210,11 @@
   <td>//td/a[contains(text(), "Frontend (0.1)")]</td>
   <td></td>
 </tr>
-<tal:block define="header python: '软件安装: Frontend'; ">
+<tal:block define="header python: 'Software Installation : Frontend'; ">
   <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
-<tal:block define="menu_action python: '销毁'">
+<tal:block define="menu_action python: 'Destroy'">
    <tr>
       <td colspan="3"><b tal:content="python: 'Click on %s' % menu_action"> Menu Item </b></td>
     </tr>
@@ -267,7 +267,7 @@
 </tr>
 
 
-<tal:block define="menu_action python: '申请证书'">
+<tal:block define="menu_action python: 'Request Certificate'">
    <tr>
       <td colspan="3"><b tal:content="python: 'Click on %s' % menu_action"> Menu Item </b></td>
     </tr>
@@ -311,7 +311,7 @@
    <td colspan="3"><b> Revoke Certificate</b></td>
 </tr>
 
-<tal:block define="menu_action python: '吊销证书'">
+<tal:block define="menu_action python: 'Revoke Certificate'">
    <tr>
       <td colspan="3"><b tal:content="python: 'Click on %s' % menu_action"> Menu Item </b></td>
     </tr>
@@ -351,7 +351,7 @@
   <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
-<tal:block define="menu_action python: '申请证书'">
+<tal:block define="menu_action python: 'Request Certificate'">
 <tr>
       <td colspan="3"><b tal:content="python: 'Click on %s' % menu_action"> Menu Item </b></td>
     </tr>

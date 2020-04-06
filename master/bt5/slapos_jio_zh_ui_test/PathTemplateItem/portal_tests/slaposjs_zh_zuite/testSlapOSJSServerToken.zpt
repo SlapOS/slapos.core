@@ -7,22 +7,22 @@
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">Test RenderJS UI</td></tr>
+<tr><td rowspan="1" colspan="3">Test SlapOS JS Server Token</td></tr>
 </thead><tbody>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_init" />
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_login" />
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
 
 
-<tal:block define="menu_item python: 'Servers'; header menu_item">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+<tal:block define="menu_item python: '服务器'; header menu_item; menu_item_data python: 'Servers'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
 </tal:block>
 
-<tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+<tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': '没有记录'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
 </tal:block>
 
 
@@ -31,28 +31,28 @@
 </tr>
 
 <tal:block define="menu_action python: 'Token'">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_submenu_action" />
 </tal:block>
 
-<tal:block define="header python: 'Request New Token'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+<tal:block define="header python: '请求新令牌'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_proceed" />
 
 <tal:block tal:define="notification_configuration python: {'class': 'success',
-                                                           'text': 'Token is Requested.'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+                                                           'text': '令牌已请求。'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
 </tal:block>
 
 <tr>
   <td>waitForElementPresent</td>
-  <td>//label[text()="Your Token"]</td>
+  <td>//label[text()="您的令牌"]</td>
   <td></td>
 </tr>
 <tr>
   <td>assertElementPresent</td>
-  <td>//label[text()="Your Token"]</td>
+  <td>//label[text()="您的令牌"]</td>
   <td></td>
 </tr>
 
@@ -68,27 +68,27 @@
 </tr>
 
   
-<tal:block define="header python: 'Request New Token'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
+<tal:block define="header python: '请求新令牌'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_page_header" />
 </tal:block>
 
 <tr>
   <td>waitForElementPresent</td>
-  <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'Servers\')]'"></td>
+  <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'服务器\')]'"></td>
   <td></td>
 </tr>
 <tr>
   <td>assertElementPresent</td>
-  <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'Servers\')]'"></td>
+  <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'服务器\')]'"></td>
   <td></td>
 </tr>
 
-<tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+<tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': '没有记录'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
 </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_logout" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_logout" />
 
 </tbody></table>
 </body>

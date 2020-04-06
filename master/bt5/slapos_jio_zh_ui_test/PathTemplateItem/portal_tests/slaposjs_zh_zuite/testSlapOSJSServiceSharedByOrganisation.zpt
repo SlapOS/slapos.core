@@ -188,7 +188,7 @@
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//a[@data-i18n="Hosting Subscription: TEST-SLAPOSJS-SERVICE-SHARED-BY-ORGANISATION 0"]</td>
+  <td>//a[@data-i18n="托管订阅： TEST-SLAPOSJS-SERVICE-SHARED-BY-ORGANISATION 0"]</td>
   <td></td>
 </tr>
 

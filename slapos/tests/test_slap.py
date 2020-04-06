@@ -196,11 +196,10 @@ class TestSlap(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition'
-            and qs == {
+      if url.path == '/registerComputerPartition' and qs == {
                 'computer_reference': [computer_guid],
                 'computer_partition_reference': [partition_id]
-                }):
+                }:
         partition = slapos.slap.ComputerPartition(computer_guid, partition_id)
         return {
                 'status_code': 200,
@@ -237,11 +236,10 @@ class TestSlap(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition'
-            and qs == {
-                'computer_reference': [computer_guid],
-                'computer_partition_reference': [partition_id]
-                }):
+      if url.path == '/registerComputerPartition' and qs == {
+              'computer_reference': [computer_guid],
+              'computer_partition_reference': [partition_id]
+              }:
         return {'status_code': 404}
       else:
         return {'status_code': 0}
@@ -329,8 +327,9 @@ class TestSlap(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/getSoftwareReleaseListFromSoftwareProduct'
-            and qs == {'software_product_reference': [software_product_reference]}):
+      if url.path == '/getSoftwareReleaseListFromSoftwareProduct' and qs == {
+              'software_product_reference': [software_product_reference]
+              }:
         return {
                 'status_code': 200,
                 'content': dumps(software_release_url_list)
@@ -355,8 +354,9 @@ class TestSlap(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/getSoftwareReleaseListFromSoftwareProduct'
-         and qs == {'software_release_url': [software_release_url]}):
+      if url.path == '/getSoftwareReleaseListFromSoftwareProduct' and qs == {
+              'software_release_url': [software_release_url]
+              }:
         return {
                 'status_code': 200,
                 'content': dumps(software_release_url_list)
@@ -396,7 +396,7 @@ class TestSlap(SlapMixin):
     hateoas_url = 'foo'
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/getHateoasUrl'):
+      if url.path == '/getHateoasUrl':
         return {
                 'status_code': 200,
                 'content': hateoas_url
@@ -417,7 +417,7 @@ class TestSlap(SlapMixin):
     hateoas_url = 'foo'
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/getHateoasUrl'):
+      if url.path == '/getHateoasUrl':
         self.fail('slap should not have contacted master to get Hateoas URL.')
 
     with httmock.HTTMock(handler):
@@ -435,7 +435,7 @@ class TestSlap(SlapMixin):
     hateoas_url = 'foo'
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/getHateoasUrl'):
+      if url.path == '/getHateoasUrl':
         return {
                 'status_code': 404,
                 }
@@ -461,9 +461,9 @@ class TestComputer(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition'
-              and 'computer_reference' in qs
-              and 'computer_partition_reference' in qs):
+      if url.path == '/registerComputerPartition' and \
+          'computer_reference' in qs and \
+          'computer_partition_reference' in qs:
         slap_partition = slapos.slap.ComputerPartition(
             qs['computer_reference'][0],
             qs['computer_partition_reference'][0])
@@ -471,8 +471,7 @@ class TestComputer(SlapMixin):
                 'status_code': 200,
                 'content': dumps(slap_partition)
                 }
-      elif (url.path == '/getFullComputerInformation'
-              and 'computer_id' in qs):
+      elif url.path == '/getFullComputerInformation' and 'computer_id' in qs:
         slap_computer = slapos.slap.Computer(qs['computer_id'][0])
         slap_computer._software_release_list = []
         slap_computer._computer_partition_list = []
@@ -531,18 +530,16 @@ class TestComputer(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition'
-            and qs == {
+      if url.path == '/registerComputerPartition' and qs == {
                 'computer_reference': [self.computer_guid],
                 'computer_partition_reference': [partition_id]
-                }):
+                }:
         partition = slapos.slap.ComputerPartition(self.computer_guid, partition_id)
         return {
                 'status_code': 200,
                 'content': dumps(partition)
                 }
-      elif (url.path == '/getFullComputerInformation'
-              and 'computer_id' in qs):
+      elif url.path == '/getFullComputerInformation' and 'computer_id' in qs:
         slap_computer = slapos.slap.Computer(qs['computer_id'][0])
         slap_computer._computer_partition_list = []
         return {
@@ -613,9 +610,9 @@ class TestComputerPartition(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition'
-              and 'computer_reference' in qs
-              and 'computer_partition_reference' in qs):
+      if url.path == '/registerComputerPartition' and \
+          'computer_reference' in qs and \
+          'computer_partition_reference' in qs:
         slap_partition = slapos.slap.ComputerPartition(
             qs['computer_reference'][0],
             qs['computer_partition_reference'][0])
@@ -623,8 +620,7 @@ class TestComputerPartition(SlapMixin):
                 'status_code': 200,
                 'content': dumps(slap_partition)
                 }
-      elif (url.path == '/getComputerInformation'
-              and 'computer_id' in qs):
+      elif url.path == '/getComputerInformation' and 'computer_id' in qs:
         slap_computer = slapos.slap.Computer(qs['computer_id'][0])
         slap_computer._software_release_list = []
         slap_partition = slapos.slap.ComputerPartition(
@@ -658,9 +654,9 @@ class TestComputerPartition(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition'
-              and 'computer_reference' in qs
-              and 'computer_partition_reference' in qs):
+      if url.path == '/registerComputerPartition' and \
+          'computer_reference' in qs and \
+          'computer_partition_reference' in qs:
         slap_partition = slapos.slap.ComputerPartition(
             qs['computer_reference'][0],
             qs['computer_partition_reference'][0])
@@ -668,8 +664,7 @@ class TestComputerPartition(SlapMixin):
                 'status_code': 200,
                 'content': dumps(slap_partition)
                 }
-      elif (url.path == '/getComputerInformation'
-              and 'computer_id' in qs):
+      elif url.path == '/getComputerInformation' and 'computer_id' in qs:
         slap_computer = slapos.slap.Computer(qs['computer_id'][0])
         slap_computer._software_release_list = []
         slap_partition = slapos.slap.ComputerPartition(
@@ -702,9 +697,9 @@ class TestComputerPartition(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition' and
-              'computer_reference' in qs and
-              'computer_partition_reference' in qs):
+      if url.path == '/registerComputerPartition' and \
+              'computer_reference' in qs and \
+              'computer_partition_reference' in qs:
         slap_partition = slapos.slap.ComputerPartition(
             qs['computer_reference'][0],
             qs['computer_partition_reference'][0])
@@ -712,8 +707,7 @@ class TestComputerPartition(SlapMixin):
                 'status_code': 200,
                 'content': dumps(slap_partition)
                 }
-      elif (url.path == '/getComputerInformation'
-              and 'computer_id' in qs):
+      elif url.path == '/getComputerInformation' and 'computer_id' in qs:
         slap_computer = slapos.slap.Computer(qs['computer_id'][0])
         slap_computer._software_release_list = []
         slap_partition = slapos.slap.ComputerPartition(
@@ -751,9 +745,9 @@ class TestComputerPartition(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition' and
-              'computer_reference' in qs and
-              'computer_partition_reference' in qs):
+      if url.path == '/registerComputerPartition' and \
+              'computer_reference' in qs and \
+              'computer_partition_reference' in qs:
         slap_partition = slapos.slap.ComputerPartition(
             qs['computer_reference'][0],
             qs['computer_partition_reference'][0])
@@ -761,7 +755,7 @@ class TestComputerPartition(SlapMixin):
                 'status_code': 200,
                 'content': dumps(slap_partition)
                 }
-      elif (url.path == '/getComputerInformation' and 'computer_id' in qs):
+      elif url.path == '/getComputerInformation' and 'computer_id' in qs:
         slap_computer = slapos.slap.Computer(qs['computer_id'][0])
         slap_computer._software_release_list = []
         slap_partition = slapos.slap.ComputerPartition(
@@ -812,9 +806,9 @@ class TestComputerPartition(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition'
-              and 'computer_reference' in qs
-              and 'computer_partition_reference' in qs):
+      if url.path == '/registerComputerPartition' and \
+           'computer_reference' in qs and \
+           'computer_partition_reference' in qs:
         slap_partition = slapos.slap.ComputerPartition(
             qs['computer_reference'][0],
             qs['computer_partition_reference'][0])
@@ -822,8 +816,7 @@ class TestComputerPartition(SlapMixin):
                 'status_code': 200,
                 'content': dumps(slap_partition)
                 }
-      elif (url.path == '/getComputerInformation'
-              and 'computer_id' in qs):
+      elif url.path == '/getComputerInformation' and 'computer_id' in qs:
         slap_computer = slapos.slap.Computer(qs['computer_id'][0])
         slap_computer._software_release_list = []
         slap_partition = slapos.slap.ComputerPartition(
@@ -890,9 +883,9 @@ class TestComputerPartition(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition' and
-              qs['computer_reference'][0] == computer_guid and
-              qs['computer_partition_reference'][0] == partition_id):
+      if url.path == '/registerComputerPartition' and \
+              qs['computer_reference'][0] == computer_guid and \
+              qs['computer_partition_reference'][0] == partition_id:
         partition = slapos.slap.ComputerPartition(
             computer_guid, partition_id)
         return {
@@ -934,9 +927,9 @@ class TestComputerPartition(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition' and
-              qs['computer_reference'][0] == computer_guid and
-              qs['computer_partition_reference'][0] == partition_id):
+      if url.path == '/registerComputerPartition' and \
+              qs['computer_reference'][0] == computer_guid and \
+              qs['computer_partition_reference'][0] == partition_id:
         partition = slapos.slap.ComputerPartition(
             computer_guid, partition_id)
         return {
@@ -948,8 +941,8 @@ class TestComputerPartition(SlapMixin):
         # XXX: why do we have computer_id and not computer_reference?
         # XXX: why do we have computer_partition_id and not
         # computer_partition_reference?
-        if (parsed_qs_body['computer_id'][0] == computer_guid and
-                parsed_qs_body['computer_partition_id'][0] == partition_id and
+        if (parsed_qs_body['computer_id'][0] == computer_guid and \
+                parsed_qs_body['computer_partition_id'][0] == partition_id and \
                 parsed_qs_body['error_log'][0] == 'some error'):
           return {'status_code': 200}
 
@@ -1100,10 +1093,10 @@ class TestSoftwareRelease(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(req.body)
-      if (url.path == '/softwareReleaseError' and
-              qs['computer_id'][0] == computer_guid and
-              qs['url'][0] == software_release_uri and
-              qs['error_log'][0] == 'some error'):
+      if url.path == '/softwareReleaseError' and \
+              qs['computer_id'][0] == computer_guid and \
+              qs['url'][0] == software_release_uri and \
+              qs['error_log'][0] == 'some error':
         return {
                 'status_code': 200
                 }
@@ -1361,12 +1354,12 @@ class TestOpenOrder(SlapMixin):
     hateoas_url = "/custom_hateoas_url"
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/getHateoasUrl'):
+      if url.path == '/getHateoasUrl':
         return {
             'status_code': 200,
             'content': "http://localhost" + hateoas_url
             }
-      elif (url.path == hateoas_url):
+      elif url.path == hateoas_url:
         return {
             'status_code': 200,
             'content': {
@@ -1387,7 +1380,7 @@ class TestOpenOrder(SlapMixin):
               "title": "Hateoas"
               }
             }
-      elif (url.path == '/SLAPTEST_getHateoas'):
+      elif url.path == '/SLAPTEST_getHateoas':
         if ("mode=search" in url.query):
           return {
               'status_code': 200,

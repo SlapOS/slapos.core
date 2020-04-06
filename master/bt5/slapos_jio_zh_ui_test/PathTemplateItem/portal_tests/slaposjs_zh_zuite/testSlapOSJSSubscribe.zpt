@@ -7,9 +7,9 @@
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">Test RenderJS UI</td></tr>
+<tr><td rowspan="1" colspan="3">Test SlapOS JS Subscribe</td></tr>
 </thead><tbody>
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_init" />
 
 <tr>
   <td>assertTextPresent</td>
@@ -42,12 +42,12 @@
 <!-- Initialize -->
 <tr>
   <td>open</td>
-  <td>${base_url}/web_site_module/hostingjs/</td>
+  <td>${base_url}/web_site_module/hostingjs/zh/</td>
   <td></td>
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//input[@value='Login']</td>
+  <td>//input[@value='登录']</td>
   <td></td>
 </tr>
 <tr>
@@ -152,7 +152,7 @@
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//input[@value='Login']</td>
+  <td>//input[@value='登录']</td>
   <td></td>
 </tr>
 <tr>
@@ -173,7 +173,7 @@
 <!-- Initialize -->
 <tr>
   <td>open</td>
-  <td>${base_url}/web_site_module/hostingjs/</td>
+  <td>${base_url}/web_site_module/hostingjs/zh/</td>
   <td></td>
 </tr>
 <tr>
@@ -193,12 +193,12 @@
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//input[@value="Login"]</td>
+  <td>//input[@value="登录"]</td>
   <td></td>
 </tr>
 <tr>
   <td>clickAndWait</td>
-  <td>//input[@value="Login"]</td>
+  <td>//input[@value="登录"]</td>
   <td></td>
 </tr>
 
@@ -206,38 +206,38 @@
 
 <tr>
   <td>waitForElementPresent</td>
-  <td>//button[@data-i18n='Menu']</td>
+  <td>//button[@data-i18n='菜单']</td>
   <td></td>
 </tr>
 <tr>
   <td>click</td>
-  <td>//button[@data-i18n='Menu']</td>
+  <td>//button[@data-i18n='菜单']</td>
   <td></td>
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//a[@data-i18n='Logout']</td>
+  <td>//a[@data-i18n='退出']</td>
   <td></td>
 </tr>
 <tr>
   <td>click</td>
-  <td>//a[@data-i18n='Logout']</td>
+  <td>//a[@data-i18n='退出']</td>
   <td></td>
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//input[@value='Confirm']</td>
+  <td>//input[@value='确认']</td>
   <td></td>
 </tr>
 <tr>
   <td>click</td>
-  <td>//input[@value='Confirm']</td>
+  <td>//input[@value='确认']</td>
   <td></td>
 </tr>
 
 <tr>
   <td>waitForElementPresent</td>
-  <td>//input[@value='Login']</td>
+  <td>//input[@value='登录']</td>
   <td></td>
 </tr>
 

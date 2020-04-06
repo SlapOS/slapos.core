@@ -7,21 +7,21 @@
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">Test RenderJS UI</td></tr>
+<tr><td rowspan="1" colspan="3">Test SlapOS JS Ticket</td></tr>
 </thead><tbody>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_init" />
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_login" />
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
 
-<tal:block define="menu_item python: 'Tickets'; header menu_item">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+<tal:block define="menu_item python: '工单'; header menu_item; menu_item_data python: 'Tickets'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
 </tal:block>
 
-<tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+<tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': '没有记录'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
 </tal:block>
 
 <tr>
@@ -29,7 +29,7 @@
 </tr>
 
 <tal:block define="menu_action python: 'Add'">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_submenu_action" />
 </tal:block>
 
 <tr>
@@ -66,17 +66,17 @@
   <td>Complaint</td>
 </tr>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_proceed" />
 
 <tal:block tal:define="notification_configuration python: {'class': 'success',
-                                                           'text': 'New Ticket created.'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+                                                           'text': '新的集合已创建。'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
 </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_content_loaded" />
 
-<tal:block define="header python: 'Support Request : TEST-SLAPOSJS-SUPPORT-REQUEST 0'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+<tal:block define="header python: '客户支持请求 : TEST-SLAPOSJS-SUPPORT-REQUEST 0'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
 <tr>
@@ -85,15 +85,15 @@
   <td></td>
 </tr>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
 
 
-<tal:block define="menu_item python: 'Tickets'; header menu_item">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+<tal:block define="menu_item python: '工单'; header menu_item; menu_item_data python: 'Tickets'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
 </tal:block>
 
-<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 记录'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
 </tal:block>
 
 <tr>
@@ -107,11 +107,11 @@
   <td></td>
 </tr>
 
-<tal:block define="header python: 'Support Request : TEST-SLAPOSJS-SUPPORT-REQUEST 0'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+<tal:block define="header python: '客户支持请求 : TEST-SLAPOSJS-SUPPORT-REQUEST 0'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
-<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 记录'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
 </tal:block>
 <tr>
   <td>verifyTextPresent</td>
@@ -131,11 +131,11 @@
 </tr>
 
 <tal:block tal:define="menu_action python: 'Add'">
-   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+   <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_submenu_action" />
 </tal:block>
 
-<tal:block tal:define="header python: 'New Message'">
-   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+<tal:block tal:define="header python: '新的信息'">
+   <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
 <tr>
@@ -149,21 +149,21 @@
   <td>TEST-SLAPOSJS-SUPPORT-REQUEST NEW MESSAGE</td>
 </tr>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_proceed" />
 
 
 <tal:block tal:define="header python: 'Support Request : TEST-SLAPOSJS-SUPPORT-REQUEST 0'">
-   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+   <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
 
-<tal:block define="menu_item python: 'Tickets'; header menu_item">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+<tal:block define="menu_item python: '工单'; header menu_item; menu_item_data python: 'Tickets'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
 </tal:block>
 
-<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 记录'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
 </tal:block>
 
 <tr>
@@ -177,12 +177,12 @@
   <td></td>
 </tr>
 
-<tal:block define="header python: 'Support Request : TEST-SLAPOSJS-SUPPORT-REQUEST 0'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+<tal:block define="header python: '客户支持请求 : TEST-SLAPOSJS-SUPPORT-REQUEST 0'; ">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
-<tal:block tal:define="pagination_configuration python: {'header': '(2)', 'footer': '2 Records'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+<tal:block tal:define="pagination_configuration python: {'header': '(2)', 'footer': '2 记录'}">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
 </tal:block>
 
 <tr>
@@ -190,7 +190,7 @@
   <td>TEST-SLAPOSJS-SUPPORT-REQUEST NEW MESSAGE</td>
   <td></td>
 </tr>
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_logout" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_logout" />
 
 </tbody></table>
 </body>

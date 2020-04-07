@@ -195,6 +195,8 @@ def checkSoftware(slap, software_url):
       '*/parts/wkhtmltopdf/*',
       # R uses wrappers to relocate symbols
       '*/r-language/lib*/R/*',
+      # pulp is a git checkout with some executables
+      '*/pulp-repository.git/src/pulp/solverdir/cbc*',
       # nss is not a binary distribution, but for some reason it has invalid rpath, but it does
       # not seem to be a problem in our use cases.
       '*/parts/nss/*',

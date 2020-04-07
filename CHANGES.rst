@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.5.12 (2020-04-07)
+-------------------
+
+* slapos/slap: fix "slapos service info" when parameter dict is in JSON format
+
 1.5.11 (2020-04-03)
 -------------------
 

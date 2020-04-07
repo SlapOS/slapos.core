@@ -39,7 +39,7 @@ import httmock
 import mock
 
 import slapos.slap
-from slapos.util import dumps, calculate_dict_hash
+from slapos.util import dumps, calculate_dict_hash, dict2xml
 
 
 class UndefinedYetException(Exception):
@@ -196,11 +196,10 @@ class TestSlap(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition'
-            and qs == {
+      if url.path == '/registerComputerPartition' and qs == {
                 'computer_reference': [computer_guid],
                 'computer_partition_reference': [partition_id]
-                }):
+                }:
         partition = slapos.slap.ComputerPartition(computer_guid, partition_id)
         return {
                 'status_code': 200,
@@ -237,11 +236,10 @@ class TestSlap(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition'
-            and qs == {
-                'computer_reference': [computer_guid],
-                'computer_partition_reference': [partition_id]
-                }):
+      if url.path == '/registerComputerPartition' and qs == {
+              'computer_reference': [computer_guid],
+              'computer_partition_reference': [partition_id]
+              }:
         return {'status_code': 404}
       else:
         return {'status_code': 0}
@@ -329,8 +327,9 @@ class TestSlap(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/getSoftwareReleaseListFromSoftwareProduct'
-            and qs == {'software_product_reference': [software_product_reference]}):
+      if url.path == '/getSoftwareReleaseListFromSoftwareProduct' and qs == {
+              'software_product_reference': [software_product_reference]
+              }:
         return {
                 'status_code': 200,
                 'content': dumps(software_release_url_list)
@@ -355,8 +354,9 @@ class TestSlap(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/getSoftwareReleaseListFromSoftwareProduct'
-         and qs == {'software_release_url': [software_release_url]}):
+      if url.path == '/getSoftwareReleaseListFromSoftwareProduct' and qs == {
+              'software_release_url': [software_release_url]
+              }:
         return {
                 'status_code': 200,
                 'content': dumps(software_release_url_list)
@@ -396,7 +396,7 @@ class TestSlap(SlapMixin):
     hateoas_url = 'foo'
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/getHateoasUrl'):
+      if url.path == '/getHateoasUrl':
         return {
                 'status_code': 200,
                 'content': hateoas_url
@@ -417,7 +417,7 @@ class TestSlap(SlapMixin):
     hateoas_url = 'foo'
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/getHateoasUrl'):
+      if url.path == '/getHateoasUrl':
         self.fail('slap should not have contacted master to get Hateoas URL.')
 
     with httmock.HTTMock(handler):
@@ -435,7 +435,7 @@ class TestSlap(SlapMixin):
     hateoas_url = 'foo'
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/getHateoasUrl'):
+      if url.path == '/getHateoasUrl':
         return {
                 'status_code': 404,
                 }
@@ -461,9 +461,9 @@ class TestComputer(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition'
-              and 'computer_reference' in qs
-              and 'computer_partition_reference' in qs):
+      if url.path == '/registerComputerPartition' and \
+          'computer_reference' in qs and \
+          'computer_partition_reference' in qs:
         slap_partition = slapos.slap.ComputerPartition(
             qs['computer_reference'][0],
             qs['computer_partition_reference'][0])
@@ -471,8 +471,7 @@ class TestComputer(SlapMixin):
                 'status_code': 200,
                 'content': dumps(slap_partition)
                 }
-      elif (url.path == '/getFullComputerInformation'
-              and 'computer_id' in qs):
+      elif url.path == '/getFullComputerInformation' and 'computer_id' in qs:
         slap_computer = slapos.slap.Computer(qs['computer_id'][0])
         slap_computer._software_release_list = []
         slap_computer._computer_partition_list = []
@@ -531,18 +530,16 @@ class TestComputer(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition'
-            and qs == {
+      if url.path == '/registerComputerPartition' and qs == {
                 'computer_reference': [self.computer_guid],
                 'computer_partition_reference': [partition_id]
-                }):
+                }:
         partition = slapos.slap.ComputerPartition(self.computer_guid, partition_id)
         return {
                 'status_code': 200,
                 'content': dumps(partition)
                 }
-      elif (url.path == '/getFullComputerInformation'
-              and 'computer_id' in qs):
+      elif url.path == '/getFullComputerInformation' and 'computer_id' in qs:
         slap_computer = slapos.slap.Computer(qs['computer_id'][0])
         slap_computer._computer_partition_list = []
         return {
@@ -613,9 +610,9 @@ class TestComputerPartition(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition'
-              and 'computer_reference' in qs
-              and 'computer_partition_reference' in qs):
+      if url.path == '/registerComputerPartition' and \
+          'computer_reference' in qs and \
+          'computer_partition_reference' in qs:
         slap_partition = slapos.slap.ComputerPartition(
             qs['computer_reference'][0],
             qs['computer_partition_reference'][0])
@@ -623,8 +620,7 @@ class TestComputerPartition(SlapMixin):
                 'status_code': 200,
                 'content': dumps(slap_partition)
                 }
-      elif (url.path == '/getComputerInformation'
-              and 'computer_id' in qs):
+      elif url.path == '/getComputerInformation' and 'computer_id' in qs:
         slap_computer = slapos.slap.Computer(qs['computer_id'][0])
         slap_computer._software_release_list = []
         slap_partition = slapos.slap.ComputerPartition(
@@ -658,9 +654,9 @@ class TestComputerPartition(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition'
-              and 'computer_reference' in qs
-              and 'computer_partition_reference' in qs):
+      if url.path == '/registerComputerPartition' and \
+          'computer_reference' in qs and \
+          'computer_partition_reference' in qs:
         slap_partition = slapos.slap.ComputerPartition(
             qs['computer_reference'][0],
             qs['computer_partition_reference'][0])
@@ -668,8 +664,7 @@ class TestComputerPartition(SlapMixin):
                 'status_code': 200,
                 'content': dumps(slap_partition)
                 }
-      elif (url.path == '/getComputerInformation'
-              and 'computer_id' in qs):
+      elif url.path == '/getComputerInformation' and 'computer_id' in qs:
         slap_computer = slapos.slap.Computer(qs['computer_id'][0])
         slap_computer._software_release_list = []
         slap_partition = slapos.slap.ComputerPartition(
@@ -702,9 +697,9 @@ class TestComputerPartition(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition' and
-              'computer_reference' in qs and
-              'computer_partition_reference' in qs):
+      if url.path == '/registerComputerPartition' and \
+              'computer_reference' in qs and \
+              'computer_partition_reference' in qs:
         slap_partition = slapos.slap.ComputerPartition(
             qs['computer_reference'][0],
             qs['computer_partition_reference'][0])
@@ -712,8 +707,7 @@ class TestComputerPartition(SlapMixin):
                 'status_code': 200,
                 'content': dumps(slap_partition)
                 }
-      elif (url.path == '/getComputerInformation'
-              and 'computer_id' in qs):
+      elif url.path == '/getComputerInformation' and 'computer_id' in qs:
         slap_computer = slapos.slap.Computer(qs['computer_id'][0])
         slap_computer._software_release_list = []
         slap_partition = slapos.slap.ComputerPartition(
@@ -751,9 +745,9 @@ class TestComputerPartition(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition' and
-              'computer_reference' in qs and
-              'computer_partition_reference' in qs):
+      if url.path == '/registerComputerPartition' and \
+              'computer_reference' in qs and \
+              'computer_partition_reference' in qs:
         slap_partition = slapos.slap.ComputerPartition(
             qs['computer_reference'][0],
             qs['computer_partition_reference'][0])
@@ -761,7 +755,7 @@ class TestComputerPartition(SlapMixin):
                 'status_code': 200,
                 'content': dumps(slap_partition)
                 }
-      elif (url.path == '/getComputerInformation' and 'computer_id' in qs):
+      elif url.path == '/getComputerInformation' and 'computer_id' in qs:
         slap_computer = slapos.slap.Computer(qs['computer_id'][0])
         slap_computer._software_release_list = []
         slap_partition = slapos.slap.ComputerPartition(
@@ -812,9 +806,9 @@ class TestComputerPartition(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition'
-              and 'computer_reference' in qs
-              and 'computer_partition_reference' in qs):
+      if url.path == '/registerComputerPartition' and \
+           'computer_reference' in qs and \
+           'computer_partition_reference' in qs:
         slap_partition = slapos.slap.ComputerPartition(
             qs['computer_reference'][0],
             qs['computer_partition_reference'][0])
@@ -822,8 +816,7 @@ class TestComputerPartition(SlapMixin):
                 'status_code': 200,
                 'content': dumps(slap_partition)
                 }
-      elif (url.path == '/getComputerInformation'
-              and 'computer_id' in qs):
+      elif url.path == '/getComputerInformation' and 'computer_id' in qs:
         slap_computer = slapos.slap.Computer(qs['computer_id'][0])
         slap_computer._software_release_list = []
         slap_partition = slapos.slap.ComputerPartition(
@@ -890,9 +883,9 @@ class TestComputerPartition(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition' and
-              qs['computer_reference'][0] == computer_guid and
-              qs['computer_partition_reference'][0] == partition_id):
+      if url.path == '/registerComputerPartition' and \
+              qs['computer_reference'][0] == computer_guid and \
+              qs['computer_partition_reference'][0] == partition_id:
         partition = slapos.slap.ComputerPartition(
             computer_guid, partition_id)
         return {
@@ -934,9 +927,9 @@ class TestComputerPartition(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(url.query)
-      if (url.path == '/registerComputerPartition' and
-              qs['computer_reference'][0] == computer_guid and
-              qs['computer_partition_reference'][0] == partition_id):
+      if url.path == '/registerComputerPartition' and \
+              qs['computer_reference'][0] == computer_guid and \
+              qs['computer_partition_reference'][0] == partition_id:
         partition = slapos.slap.ComputerPartition(
             computer_guid, partition_id)
         return {
@@ -948,8 +941,8 @@ class TestComputerPartition(SlapMixin):
         # XXX: why do we have computer_id and not computer_reference?
         # XXX: why do we have computer_partition_id and not
         # computer_partition_reference?
-        if (parsed_qs_body['computer_id'][0] == computer_guid and
-                parsed_qs_body['computer_partition_id'][0] == partition_id and
+        if (parsed_qs_body['computer_id'][0] == computer_guid and \
+                parsed_qs_body['computer_partition_id'][0] == partition_id and \
                 parsed_qs_body['error_log'][0] == 'some error'):
           return {'status_code': 200}
 
@@ -1100,10 +1093,10 @@ class TestSoftwareRelease(SlapMixin):
 
     def handler(url, req):
       qs = parse.parse_qs(req.body)
-      if (url.path == '/softwareReleaseError' and
-              qs['computer_id'][0] == computer_guid and
-              qs['url'][0] == software_release_uri and
-              qs['error_log'][0] == 'some error'):
+      if url.path == '/softwareReleaseError' and \
+              qs['computer_id'][0] == computer_guid and \
+              qs['url'][0] == software_release_uri and \
+              qs['error_log'][0] == 'some error':
         return {
                 'status_code': 200
                 }
@@ -1252,6 +1245,213 @@ class TestOpenOrder(SlapMixin):
       self.assertEqual(requested_partition_id, computer_partition.getId())
       self.assertEqual("URL_CONNECTION_PARAMETER",
                        computer_partition.getConnectionParameter('url'))
+
+  def test_getInformation(self):
+    self.slap = slapos.slap.slap()
+    parameter_dict = {
+      "_": {
+        "param1": "value1",
+        "param2_dict": {
+          "param2_param1": "",
+          "param2_param2_dict": {},
+          "param2_param3_dict": {"param": "value"}
+          }
+        }
+      }
+
+    link_keys = {
+        "type": {
+          "href": "urn:jio:get:portal_types/Hosting Subscription",
+          "name": "Hosting Subscription"
+          },
+        }
+    hosting_subscription_info_dict = {
+        "connection_parameter_list": {
+          "title": "my_connection_parameter_dict",
+          "default": [
+            {
+              "connection_key": "key1",
+              "connection_value": "value1"
+              },
+            {
+              "connection_key": "key2",
+              "connection_value": "value2"
+              },
+            ],
+          "key": "field_my_connection_parameter_list",
+          "type": "StringField"
+          },
+        "title": {
+            "title": "Title",
+            "default": "myrefe",
+            "key": "field_my_title",
+            "type": "StringField"
+            },
+        "text_content": {
+            "title": "Parameter XML",
+            "default": dict2xml(parameter_dict),
+            "key": "field_my_text_content",
+            "type": "TextAreaField"
+            },
+        "slap_state": {
+            "title": "Slap State",
+            "default": "stop_requested",
+            "key": "field_my_slap_state",
+            "type": "StringField"
+            },
+        "source_title": {
+            "title": "Current Organisation",
+            "default": "",
+            "key": "field_my_source_title",
+            "type": "StringField"
+            },
+        "url_string": {
+            "title": "Url String",
+            "default": "https://lab.nexedi.com/nexedi/slapos/raw/1.0.115/software/kvm/software.cfg",
+            "key": "field_my_url_string",
+            "type": "StringField"
+            }
+        }
+    view_dict = {}
+    for k in hosting_subscription_info_dict:
+      view_dict["my_%s" % k] = hosting_subscription_info_dict[k]
+    view_dict["_embedded"] = {
+        "form_definition": {
+          "update_action_title": "",
+          "_debug": "traverse",
+          "pt": "form_view_editable",
+          "title": "HostingSubscription_viewAsHateoas",
+          "_links": {
+            "portal": {
+                "href": "urn:jio:get:erp5",
+                "name": "ERP5"
+                },
+            },
+          "action": "HostingSubscription_editWebMode",
+          "update_action": ""
+        }
+      }
+    view_dict["form_id"] = {
+        "title": "form_id",
+        "default": "HostingSubscription_viewAsHateoas",
+        "key": "form_id",
+        "type": "StringField"
+        }
+    view_dict["_links"] = {
+        "traversed_document": {
+          "href": "urn:jio:get:hosting_subscription_module/my_refe_id",
+          "name": "hosting_subscription_module/my_refe_id",
+          "title": "myrefe"
+          },
+        "self": {
+          "href": "https://localhost/hosting_subscription_module/my_refe_id/HostingSubscription_viewAsHateoas"
+          },
+        "form_definition": {
+          "href": "urn:jio:get:portal_skins/slapos_hal_json_style/HostingSubscription_viewAsHateoas",
+          "name": "HostingSubscription_viewAsHateoas"
+          }
+        }
+    hateoas_url = "/custom_hateoas_url"
+    def handler(url, req):
+      qs = parse.parse_qs(url.query)
+      if url.path == '/getHateoasUrl':
+        return {
+            'status_code': 200,
+            'content': "http://localhost" + hateoas_url
+            }
+      elif url.path == hateoas_url:
+        return {
+            'status_code': 200,
+            'content': {
+              "default_view": "view",
+              "_links": {
+                "traverse": {
+                  "href": "https://localhost/SLAPTEST_getHateoas?mode=traverse{&relative_url,view}",
+                  "name": "Traverse",
+                  "templated": True
+                  },
+                "raw_search": {
+                  "href": "https://localhost/SLAPTEST_getHateoas?mode=search{&query,select_list*,limit*,group_by*,sort_on*,local_roles*,selection_domain*}",
+                  "name": "Raw Search",
+                  "templated": True
+                  },
+                },
+              "_debug": "root",
+              "title": "Hateoas"
+              }
+            }
+      elif url.path == '/SLAPTEST_getHateoas':
+        if ("mode=search" in url.query):
+          return {
+              'status_code': 200,
+              'content': {
+                "_sort_on": "",
+                "_embedded": {
+                  "contents": [
+                    {
+                      "_links": {
+                        "self": {
+                          "href": "urn:jio:get:hosting_subscription_module/my_refe_id"
+                          }
+                        },
+                      "relative_url": "hosting_subscription_module/my_refe_id",
+                      "title": "myrefe"
+                      }
+                    ]
+                  },
+                "_debug": "search",
+                "_limit": "200",
+                "_local_roles": "",
+                "_query": "portal_type:\"Hosting Subscription\" AND validation_state:validated AND title:=\"myrefe\"",
+                "_select_list": [
+                  "title",
+                  "relative_url"
+                  ],
+                "_links": {
+                  "self": {
+                    "href": "https://localhost/SLAPTEST_getHateoas"
+                    },
+                  "portal": {
+                    "href": "urn:jio:get:erp5",
+                    "name": "ERP5"
+                    },
+                  "site_root": {
+                    "href": "urn:jio:get:web_site_module/hateoas",
+                    "name": "Hateoas"
+                    }
+                  },
+                "_group_by": "",
+                "_selection_domain": ""
+                }
+              }
+
+        elif ("mode=traverse" in url.query):
+          return {
+              'status_code': 200,
+              'content': {
+                "_embedded": {
+                  "_view": view_dict
+                  },
+                "_links": link_keys,
+                "_debug": "traverse",
+                "title": "myrefe"
+                }
+              }
+
+    with httmock.HTTMock(handler):
+      self.slap.initializeConnection('http://%s' % self.id())
+      open_order = self.slap.registerOpenOrder()
+      computer_guid = self._getTestComputerId()
+      requested_partition_id = self.id()
+      software_instance = open_order.getInformation('myrefe')
+      self.assertIsInstance(software_instance, slapos.slap.SoftwareInstance)
+      for key in hosting_subscription_info_dict:
+        if key not in link_keys:
+          self.assertEqual(getattr(software_instance, '_' + key), hosting_subscription_info_dict[key]["default"])
+      self.assertEqual(software_instance._parameter_dict, parameter_dict)
+      self.assertEqual(software_instance._requested_state, hosting_subscription_info_dict['slap_state']["default"])
+      self.assertEqual(software_instance._connection_dict, hosting_subscription_info_dict['connection_parameter_list']["default"])
+      self.assertEqual(software_instance._software_release_url, hosting_subscription_info_dict['url_string']["default"])
 
 
 class TestSoftwareProductCollection(SlapMixin):

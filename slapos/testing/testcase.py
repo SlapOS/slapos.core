@@ -202,6 +202,7 @@ def checkSoftware(slap, software_url):
       '*/parts/nss/*',
       '*/node_modules/phantomjs*/*',
       '*/grafana/tools/phantomjs/*',
+      '*/node_modules/puppeteer/*'
   ))
 
   software_hash = md5digest(software_url)

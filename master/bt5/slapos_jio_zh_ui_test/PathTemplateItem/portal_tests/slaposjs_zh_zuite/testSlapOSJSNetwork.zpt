@@ -86,7 +86,7 @@
 </tal:block>
 
 
-<tal:block tal:define="delete_configuration python: {'header_title': 'Computer Network :TEST-SLAPOSJS-NETWORK 1',
+<tal:block tal:define="delete_configuration python: {'header_title': '删除网络:  TEST-SLAPOSJS-NETWORK 1',
                                                          'notification_text': '网络已删除。'}">
   <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/delete_simple" />
 </tal:block>

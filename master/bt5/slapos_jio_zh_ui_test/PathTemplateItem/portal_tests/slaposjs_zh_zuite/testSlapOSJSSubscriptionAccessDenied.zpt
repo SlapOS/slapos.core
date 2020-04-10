@@ -128,7 +128,7 @@
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//a[@data-i18n="Hosting Subscription: TEST-SLAPOSJS-SERVICE-FRONTEND 0"]</td>
+  <td>//a[@data-i18n="托管订阅： TEST-SLAPOSJS-SERVICE-FRONTEND 0"]</td>
   <td></td>
 </tr>
 <tr>
@@ -257,7 +257,7 @@
 </tr>
 <tr>
   <td>waitForElementPresent</td>
-  <td>//input[@value='Login']</td>
+  <td>//input[@value='登录']</td>
   <td></td>
 </tr>
 <tr>

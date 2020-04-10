@@ -800,8 +800,8 @@
     <tr>
       <td colspan="3"><p>Create Simple Network</p></td>
     </tr>
-    <tal:block define="menu_item python: '网络'; header menu_item">
-      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item" />
+    <tal:block define="menu_item python: '网络'; header menu_item; menu_item_data python:'Networks'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
     </tal:block>
 
     <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': '没有记录'}">

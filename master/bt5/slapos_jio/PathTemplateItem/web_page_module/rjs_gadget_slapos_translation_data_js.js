@@ -323,7 +323,7 @@
       "Access Monitor": "Access Monitor",
       "submit": "submit",
       "Hosting Subscription:": "Hosting Subscription:",
-      "Computer Network:": "计算机网络：",
+      "Computer Network:": "Computer Network:",
       "Slapos": "Slapos",
       "Start Hosting Subscription": "Start Hosting Subscription",
       "Closed for termination": "Closed for termination",

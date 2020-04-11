@@ -113,7 +113,7 @@
                 "my_portal_type": {
                   "description": result[2][1],
                   "title": result[2][5],
-                  "default": result[2][6],
+                  "default": "Project",
                   "css_class": "",
                   "required": 1,
                   "editable": 1,

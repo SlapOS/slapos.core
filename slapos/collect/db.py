@@ -285,11 +285,12 @@ class Database:
         reported.
     """
     date_list = self._getGarbageCollectionDateList(days_to_preserve)
-    where_clause = "reported = 1" 
-    for _date in date_list:
-      where_clause += " AND date != '%s' " % _date
+    where_clause = "reported = 1"
+    if date_list:
+      where_clause += " AND (date < '%s' " % min(date_list)
+      where_clause += " OR date > '%s') " % max(date_list)
 
-    vacuum = 0 
+    vacuum = False
     delete_sql = "DELETE FROM %s WHERE %s"
     select_sql = "SELECT date FROM %s WHERE %s LIMIT 1"
 
@@ -298,7 +299,7 @@ class Database:
       if table not in self.preserve_table_list:
         if self._execute(select_sql % (table, where_clause)).fetchone() is not None:
           self._execute(delete_sql % (table, where_clause))
-          vacuum = 1
+          vacuum = True
 
     self.commit()
     if vacuum:

@@ -44,6 +44,7 @@ if aggregate_portal_type == "Hosting Subscription":
             "software_release": instance.getUrlString(),
             "computer_reference": computer.getReference(),
             "allocation_scope": computer.getAllocationScope(),
+            "follow_up_title": context.getFollowUpTitle(),
             "message" : m,
             "created_at": create_at,
             "since": since,
@@ -55,6 +56,7 @@ if aggregate_portal_type == "Hosting Subscription":
           "title": instance.getTitle(),
           "specialise_title": hosting_subscription.getTitle(),
           "software_release": instance.getUrlString(),
+          "follow_up_title": context.getFollowUpTitle(),
           "computer_reference": "",
           "allocation_scope": "",
           "message" : "Instance isn't allocated"}))

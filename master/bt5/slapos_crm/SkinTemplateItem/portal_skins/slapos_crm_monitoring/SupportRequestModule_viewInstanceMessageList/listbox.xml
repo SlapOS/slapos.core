@@ -425,6 +425,10 @@
                           <string>age</string>
                           <string>Age</string>
                         </tuple>
+                        <tuple>
+                          <string>follow_up_title</string>
+                          <string>Incident</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

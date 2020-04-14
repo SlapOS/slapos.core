@@ -64,7 +64,7 @@ def makeModuleSetUpAndTestCaseClass(
     verbose=bool(int(os.environ.get('SLAPOS_TEST_VERBOSE', 0))),
     shared_part_list=[
         os.path.expanduser(p) for p in os.environ.get(
-            'SLAPOS_TEST_SHARED_PART_LIST', '').split(os.pathsep)
+            'SLAPOS_TEST_SHARED_PART_LIST', '').split(os.pathsep) if p
     ],
     snapshot_directory=os.environ.get('SLAPOS_TEST_LOG_DIRECTORY'),
 ):

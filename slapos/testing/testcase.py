@@ -611,7 +611,8 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     Catches and log all exceptions and take snapshot named `snapshot_name` + the failing step.
     """
     try:
-      cls.requestDefaultInstance(state='destroyed')
+      if hasattr(cls, '_instance_parameter_dict'):
+        cls.requestDefaultInstance(state='destroyed')
     except:
       cls.logger.exception("Error during request destruction")
       cls._storeSystemSnapshot(

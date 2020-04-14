@@ -268,7 +268,6 @@ def checkSoftware(slap, software_url):
     Only libraries from `valid_paths_for_libs` are accepted.
     Returns a list of error messages.
     """
-    valid_paths_for_libs = [os.path.realpath(x) for x in valid_paths_for_libs]
     executable_link_error_list = []
     for path in paths_to_check:
       for root, dirs, files in os.walk(path):

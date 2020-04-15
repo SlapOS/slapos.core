@@ -113,13 +113,20 @@ else:
   # Update the predecessor category of the previous requester
   predecessor = request_software_instance.getPredecessorRelatedValue(portal_type="Software Instance")
   if (predecessor is None):
-    if (requester_instance.getPortalType() != "Hosting Subscription"):
+    # Check if the precessor is a Hosting Subscription
+    hosting_subscription_precessesor = request_software_instance.getPredecessorRelatedValue(portal_type="Hosting Subscription")
+    if (requester_instance.getPortalType() != "Hosting Subscription" and hosting_subscription_precessesor is not None):
       raise ValueError('It is disallowed to request root software instance %s' % request_software_instance.getRelativeUrl())
     else:
       predecessor = requester_instance
+      # It was a loose node, so check if it ok:
+      if request_software_instance.getUid() not in graph:
+        graph[request_software_instance.getUid()] = request_software_instance.getPredecessorUidList()
+
   predecessor_uid_list = predecessor.getPredecessorUidList()
-  predecessor_uid_list.remove(request_software_instance.getUid())
-  predecessor.edit(predecessor_uid_list=predecessor_uid_list)
+  if request_software_instance.getUid() in predecessor_uid_list:
+    predecessor_uid_list.remove(request_software_instance.getUid())
+    predecessor.edit(predecessor_uid_list=predecessor_uid_list)
   graph[predecessor.getUid()] = predecessor_uid_list
 
 if instance_found:

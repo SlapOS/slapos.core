@@ -64,7 +64,7 @@ def makeModuleSetUpAndTestCaseClass(
     verbose=bool(int(os.environ.get('SLAPOS_TEST_VERBOSE', 0))),
     shared_part_list=[
         os.path.expanduser(p) for p in os.environ.get(
-            'SLAPOS_TEST_SHARED_PART_LIST', '').split(os.pathsep)
+            'SLAPOS_TEST_SHARED_PART_LIST', '').split(os.pathsep) if p
     ],
     snapshot_directory=os.environ.get('SLAPOS_TEST_LOG_DIRECTORY'),
 ):
@@ -202,7 +202,9 @@ def checkSoftware(slap, software_url):
       '*/parts/nss/*',
       '*/node_modules/phantomjs*/*',
       '*/grafana/tools/phantomjs/*',
-      '*/node_modules/puppeteer/*'
+      '*/node_modules/puppeteer/*',
+      # left over of compilation failures
+      '*/*__compile__/*',
   ))
 
   software_hash = md5digest(software_url)
@@ -268,6 +270,7 @@ def checkSoftware(slap, software_url):
     Only libraries from `valid_paths_for_libs` are accepted.
     Returns a list of error messages.
     """
+    valid_paths_for_libs = [os.path.realpath(x) for x in valid_paths_for_libs]
     executable_link_error_list = []
     for path in paths_to_check:
       for root, dirs, files in os.walk(path):
@@ -611,7 +614,8 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     Catches and log all exceptions and take snapshot named `snapshot_name` + the failing step.
     """
     try:
-      cls.requestDefaultInstance(state='destroyed')
+      if hasattr(cls, '_instance_parameter_dict'):
+        cls.requestDefaultInstance(state='destroyed')
     except:
       cls.logger.exception("Error during request destruction")
       cls._storeSystemSnapshot(

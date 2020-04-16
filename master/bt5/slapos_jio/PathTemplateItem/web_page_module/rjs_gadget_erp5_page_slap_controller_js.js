@@ -76,6 +76,10 @@
             child_gadget_url = 'gadget_erp5_page_slap_' +
               result.portal_type.replace(/ /g, '_').toLowerCase() +
               '_view.html';
+          } else if (result.portal_type === "Hosting Subscription") {
+            child_gadget_url = 'gadget_erp5_page_slap_' +
+              result.portal_type.replace(/ /g, '_').toLowerCase() +
+              '_view.html';
           } else if (result.portal_type !== undefined) {
             child_gadget_url = 'gadget_erp5_page_slap_' +
               result.parent_relative_url.replace(/_module/g, '').toLowerCase() +

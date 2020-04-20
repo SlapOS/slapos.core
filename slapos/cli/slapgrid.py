@@ -104,10 +104,6 @@ class SlapgridCommand(ConfigCommand):
         check_missing_parameters(options)
         check_missing_files(options)
 
-        random_delay(options, logger=self.app.log)
-
-        slapgrid_object = create_slapgrid_object(options, logger=self.app.log)
-
         pidfile = ( options.get(self.pidfile_option_name) or
             options.get('pidfile') or # for compatibility we also read pidfile from option `pidfile`
             self.default_pidfile )
@@ -115,6 +111,8 @@ class SlapgridCommand(ConfigCommand):
         if pidfile:
             setRunning(logger=self.app.log, pidfile=pidfile)
         try:
+            random_delay(options, logger=self.app.log)
+            slapgrid_object = create_slapgrid_object(options, logger=self.app.log)
             return getattr(slapgrid_object, self.method_name)()
         finally:
             if pidfile:

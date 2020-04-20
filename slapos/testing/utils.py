@@ -28,7 +28,15 @@
 
 import socket
 import hashlib
+import unittest
 from contextlib import closing
+
+try:
+  import typing
+  if typing.TYPE_CHECKING:
+    from PIL import Image # pylint:disable=unused-import
+except ImportError:
+  pass
 
 
 # Utility functions
@@ -50,3 +58,29 @@ def getPortFromPath(path):
   return 1024 + int(
       hashlib.md5(path.encode('utf-8', 'backslashreplace')).hexdigest(),
       16) % (65535 - 1024)
+
+
+class ImageComparisonTestCase(unittest.TestCase):
+  """TestCase with utility method to compare images.
+
+  The images must be passed as instances of `PIL.Image`
+  """
+  def assertImagesSimilar(self, i1, i2, tolerance=5):
+    # type: (Image, Image, float) -> None
+    """Assert images difference between images is less than `tolerance` %.
+    taken from https://rosettacode.org/wiki/Percentage_difference_between_images
+    """
+    pairs = zip(i1.getdata(), i2.getdata())
+    if len(i1.getbands()) == 1:
+      # for gray-scale jpegs
+      dif = sum(abs(p1 - p2) for p1, p2 in pairs)
+    else:
+      dif = sum(abs(c1 - c2) for p1, p2 in pairs for c1, c2 in zip(p1, p2))
+
+    ncomponents = i1.size[0] * i1.size[1] * 3
+    self.assertLessEqual((dif / 255.0 * 100) / ncomponents, tolerance)
+
+  def assertImagesSame(self, i1, i2):
+    # type: (Image, Image) -> None
+    """Assert images are exactly same."""
+    self.assertImagesSimilar(i1, i2, 0)

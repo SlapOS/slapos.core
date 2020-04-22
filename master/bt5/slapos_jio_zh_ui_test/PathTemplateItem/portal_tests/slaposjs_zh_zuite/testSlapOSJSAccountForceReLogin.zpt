@@ -1,0 +1,187 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Test RapidSpace Console Account Page Check</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">Test SlapOS JS Account Force ReLogin</td></tr>
+</thead><tbody>
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_init" />
+
+<tr>
+  <td>open</td>
+  <td>${base_url}/web_site_module/hostingjs/zh/</td>
+  <td></td>
+</tr>
+<!--
+In testSlapOSJSAccountLogin, after visit hostingjs website,
+the default user is "zope", so in that test we need to call
+hostingjs/WebSite_logout to logout first.
+
+Here we don't call it manually, due to the zope user doesn't
+have the correct "me" setting, so we just let the getSettingMe
+function redirect us to the login page -->
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//label[contains(text(), "登录")]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//input[@name="__ac_name"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//input[@name="__ac_password"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>type</td>
+  <td>__ac_name</td>
+  <td>demo_functional_user</td>
+</tr>
+<tr>
+  <td>type</td>
+  <td>__ac_password</td>
+  <td>demo_functional_user</td>
+</tr>
+
+<tr>
+	<td>clickAndWait</td>
+	<td>WebSite_login:method</td>
+	<td></td>
+</tr>
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[@data-i18n="Login Account"]</td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[@data-i18n="Tickets"]</td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[@data-i18n="Invoices"]</td>
+  <td></td>
+</tr>
+
+ <!-- Account Tab -->
+<tr>
+  <td>click</td>
+  <td>//a[@data-i18n="Login Account"]</td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//button[@data-i18n="Save"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[@data-i18n="Add Login"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[@data-i18n="Add Organisation"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[@data-i18n="Token"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[@data-i18n="Request Certificate"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[@data-i18n="Revoke Certificate"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//label[contains(text(), "名")]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//label[contains(text(), "姓")]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//label[contains(text(), "电子邮件")]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//input[@value="Demo User"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//input[@value="Functional"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//input[@value="demo@nexedi.com"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//h1[contains(text(), "登录账号")]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[contains(text(), "编号")]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[contains(text(), "类别")]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//h1[contains(text(), "组织")]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//th[contains(text(), "标题")]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//a[contains(text(), "编号")]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//th[contains(text(), "区域")]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>//th[contains(text(), "状态")]</td>
+  <td></td>
+</tr>
+</tbody></table>
+</body>
+</html>

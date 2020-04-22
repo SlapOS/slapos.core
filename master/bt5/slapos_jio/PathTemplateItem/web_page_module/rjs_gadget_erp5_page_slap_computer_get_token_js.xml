@@ -241,6 +241,7 @@
             </item>
           </dictionary>
         </list>
+        <none/>
       </tuple>
     </pickle>
   </record>
@@ -273,7 +274,7 @@
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>974.58677.26168.43776</string> </value>
+                <value> <string>982.32516.46874.3959</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -291,7 +292,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1554731260.74</float>
+                        <float>1584114795.11</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -300,6 +301,7 @@
             </item>
           </dictionary>
         </list>
+        <none/>
       </tuple>
     </pickle>
   </record>
@@ -357,6 +359,7 @@
             </item>
           </dictionary>
         </list>
+        <none/>
       </tuple>
     </pickle>
   </record>

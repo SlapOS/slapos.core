@@ -15,6 +15,7 @@
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -41,9 +42,9 @@
             .push(function (result) {
               var msg;
               if (result) {
-                msg = 'Certificate is Requested.';
+                msg = gadget.msg1_translation;
               } else {
-                msg = 'This computer already has one certificate, please revoke it before request a new one..';
+                msg = gadget.msg2_translation;
                 result = {};
               }
               return gadget.notifySubmitted({message: msg, status: 'success'})
@@ -61,20 +62,33 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
-      return RSVP.Queue()
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Certificate is Requested.",
+          "This computer already has one certificate, please revoke it before request a new one..",
+          "Parent Relative Url",
+          "Your Certificate",
+          "Your Key",
+          "Request New Certificate"
+        ];
+      return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
-            gadget.getDeclaredGadget('form_view')
+            gadget.getDeclaredGadget('form_view'),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
+          gadget.msg1_translation = result[1][0];
+          gadget.msg2_translation = result[1][1];
+          page_title_translation = result[1][5];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[1][2],
                   "default": options.jio_key,
                   "css_class": "",
                   "required": 1,
@@ -85,24 +99,24 @@
                 },
                 "my_certificate": {
                   "description": "",
-                  "title": "Your Certificate",
+                  "title": result[1][3],
                   "default": options.certificate,
                   "css_class": "",
                   "required": 1,
                   "editable": 1,
                   "key": "certificate",
-                  "hidden": (options.certificate === undefined) ? 1: 0,
+                  "hidden": (options.certificate === undefined) ? 1 : 0,
                   "type": "TextAreaField"
                 },
                 "my_key": {
                   "description": "",
-                  "title": "Your Key",
+                  "title": result[1][4],
                   "default": options.key,
                   "css_class": "",
                   "required": 1,
                   "editable": 1,
                   "key": "key",
-                  "hidden": (options.key === undefined) ? 1: 0,
+                  "hidden": (options.key === undefined) ? 1 : 0,
                   "type": "TextAreaField"
                 }
               }},
@@ -121,14 +135,14 @@
             }
           });
         })
-        .push(function (result) {
+        .push(function () {
           return RSVP.all([
             gadget.getUrlFor({command: 'change', options: {page: "slap_controller"}})
           ]);
         })
         .push(function (url_list) {
           var header_dict = {
-            page_title: "Request New Certificate",
+            page_title: page_title_translation,
             submit_action: true,
             selection_url: url_list[0]
           };

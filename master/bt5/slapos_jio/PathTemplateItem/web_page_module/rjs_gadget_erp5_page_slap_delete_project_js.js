@@ -17,6 +17,7 @@
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -42,7 +43,7 @@
             });
         })
         .push(function () {
-          return gadget.notifySubmitted({message: 'Project is Deleted.', status: 'success'})
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
               return gadget.redirect({"command": "change",
@@ -56,8 +57,17 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
-      return RSVP.Queue()
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Project is Deleted.",
+          "Project to be removed:",
+          "Warning",
+          "You cannot delete this object because you have associated Computers and/or services.",
+          "Parent Relative Url",
+          "Delete Project:"
+        ];
+      return new RSVP.Queue()
         .push(function () {
           return gadget.getSetting("hateoas_url")
             .push(function (url) {
@@ -65,19 +75,22 @@
                 gadget.getDeclaredGadget('form_view'),
                 gadget.jio_get(options.jio_key),
                 gadget.jio_getAttachment(options.jio_key,
-                  url + options.jio_key + "/Project_hasItem")
+                  url + options.jio_key + "/Project_hasItem"),
+                gadget.getTranslationList(translation_list)
               ]);
             });
         })
         .push(function (result) {
           options.doc = result[1];
-          options.can_delete = result[2] ? 0: 1;
+          options.can_delete = result[2] ? 0 : 1;
+          gadget.message_translation = result[3][0];
+          page_title_translation = result[3][5];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_title": {
                   "description": "",
-                  "title": "Project to be removed: ",
+                  "title": result[3][1] + " ",
                   "default": options.doc.title,
                   "css_class": "",
                   "required": 1,
@@ -88,8 +101,8 @@
                 },
                 "message": {
                   "description": "",
-                  "title": "Warning",
-                  "default": "You cannot delete this object because you have associated Computers and/or services.",
+                  "title": result[3][2],
+                  "default": result[3][3],
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
@@ -99,7 +112,7 @@
                 },
                 "my_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[3][4],
                   "default": options.jio_key,
                   "css_class": "",
                   "required": 1,
@@ -136,7 +149,7 @@
         .push(function (result) {
           var header_dict = {
             selection_url: result[1],
-            page_title: "Delete Project: " + options.doc.title
+            page_title: page_title_translation + " " + options.doc.title
           };
           if (options.can_delete) {
             header_dict.submit_action = true;

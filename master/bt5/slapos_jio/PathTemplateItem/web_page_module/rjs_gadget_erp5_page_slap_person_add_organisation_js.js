@@ -20,6 +20,7 @@
     .declareAcquiredMethod("jio_post", "jio_post")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -41,14 +42,17 @@
           if (content_type.hasOwnProperty(doc.portal_type)) {
             doc.content_type = content_type[doc.portal_type];
           }
-          return gadget.jio_post(doc);
+          return RSVP.all([
+            gadget.jio_post(doc),
+            gadget.message_translation
+          ]);
         })
-        .push(function (key) {
-          return gadget.notifySubmitted({message: 'New Organisation created.', status: 'success'})
+        .push(function (result) {
+          return gadget.notifySubmitted({message: result[1], status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
               return gadget.redirect({"command": "change",
-                                    "options": {"jio_key": key, "page": "slap_controller"}});
+                                    "options": {"jio_key": result[0], "page": "slap_controller"}});
             });
         });
     })
@@ -58,20 +62,34 @@
     })
 
     .declareMethod("render", function () {
-      var gadget = this;
-      return RSVP.Queue()
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Title",
+          "New Organisation",
+          "The name of a document in ERP5",
+          "Role Definition",
+          "Role",
+          "Portal Type",
+          "Parent Relative Url",
+          "New Organisation created."
+        ];
+      return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
-            gadget.getDeclaredGadget('form_view')
+            gadget.getDeclaredGadget('form_view'),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
+          gadget.message_translation = result[1][7];
+          page_title_translation = result[1][1];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_title": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Title",
+                  "description": result[1][2],
+                  "title": result[1][0],
                   "default": "",
                   "css_class": "",
                   "required": 0,
@@ -81,8 +99,8 @@
                   "type": "StringField"
                 },
                 "my_role": {
-                  "description": "Role Definition",
-                  "title": "Role",
+                  "description": result[1][3],
+                  "title": result[1][4],
                   "default": "client",
                   "css_class": "",
                   "required": 0,
@@ -92,8 +110,8 @@
                   "type": "StringField"
                 },
                 "my_portal_type": {
-                  "description": "The name of a document in ERP5",
-                  "title": "Portal Type",
+                  "description": result[1][2],
+                  "title": result[1][5],
                   "default": "Organisation",
                   "css_class": "",
                   "required": 1,
@@ -104,7 +122,7 @@
                 },
                 "my_parent_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[1][6],
                   "default": "organisation_module",
                   "css_class": "",
                   "required": 1,
@@ -129,14 +147,14 @@
             }
           });
         })
-        .push(function (result) {
+        .push(function () {
           return RSVP.all([
             gadget.getUrlFor({command: 'change', options: {page: "slap_person_view"}})
           ]);
         })
         .push(function (url_list) {
           return gadget.updateHeader({
-            page_title: "New Organisation",
+            page_title: page_title_translation,
             selection_url: url_list[0],
             submit_action: true
           });

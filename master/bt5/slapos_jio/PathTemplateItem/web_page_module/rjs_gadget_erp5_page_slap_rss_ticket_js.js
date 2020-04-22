@@ -15,6 +15,7 @@
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -28,11 +29,17 @@
     })
 
     .declareMethod("render", function (options) {
-      var gadget = this;
+      var gadget = this,
+        page_title_translation,
+        translation_list = [
+          "Parent Relative Url",
+          "Your RSS URL",
+          "Your RSS Feed Link"
+        ];
       if (options.jio_key === undefined) {
         options.jio_key = "/";
       }
-      return RSVP.Queue()
+      return new RSVP.Queue()
         .push(function () {
           return gadget.getSetting("hateoas_url");
         })
@@ -40,16 +47,18 @@
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
             gadget.jio_getAttachment(options.jio_key,
-                url + options.jio_key + "/Base_getFeedUrl")
+                url + options.jio_key + "/Base_getFeedUrl"),
+            gadget.getTranslationList(translation_list)
           ]);
         })
         .push(function (result) {
+          page_title_translation = result[2][2];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_relative_url": {
                   "description": "",
-                  "title": "Parent Relative Url",
+                  "title": result[2][0],
                   "default": options.jio_key,
                   "css_class": "",
                   "required": 1,
@@ -60,7 +69,7 @@
                 },
                 "my_rss_link": {
                   "description": "",
-                  "title": "Your RSS URL",
+                  "title": result[2][1],
                   // I hope romain don't see this, please replace by a LinkField
                   "default": "<a target=_blank href=" + result[1].restricted_access_url + "> Link </a>",
                   "css_class": "",
@@ -93,7 +102,7 @@
         })
         .push(function (url_list) {
           var header_dict = {
-            page_title: "Your RSS Feed Link",
+            page_title: page_title_translation,
             selection_url: url_list[0]
           };
           return gadget.updateHeader(header_dict);

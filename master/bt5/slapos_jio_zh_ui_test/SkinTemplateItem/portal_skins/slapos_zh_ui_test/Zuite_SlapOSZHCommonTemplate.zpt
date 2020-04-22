@@ -1,0 +1,1005 @@
+<tal:block xmlns:tal="http://xml.zope.org/namespaces/tal"
+           xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+
+  <tal:block metal:define-macro="slapos_init">
+    <tal:block tal:define="web_site_id python: 'hostingjs'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_init_base" />
+    </tal:block>
+  </tal:block>
+
+
+  <tal:block metal:define-macro="slapos_login">
+    <tal:block tal:define="web_site_id python: 'hostingjs'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_login_base" />
+    </tal:block>
+  </tal:block>
+
+
+  <tal:block metal:define-macro="slapos_login_with_another_user">
+    <tal:block tal:define="web_site_id python: 'hostingjs'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_login_with_another_user_base" />
+    </tal:block>
+  </tal:block>
+
+
+  <tal:block metal:define-macro="slapos_wait_for_activities_and_front_page">
+    <tal:block tal:define="web_site_id python: 'hostingjs'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_activities_and_front_page_base" />
+    </tal:block>
+  </tal:block>
+
+
+  <tal:block metal:define-macro="access_menu_item">
+    <tal:block tal:define="panel_gadget_id python: 'gadget_slapos_panel.html'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_base" />
+    </tal:block>
+  </tal:block>
+
+  <tal:block metal:define-macro="access_menu_item_zh">
+    <tal:block tal:define="panel_gadget_id python: 'gadget_slapos_panel.html'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_base_zh" />
+    </tal:block>
+  </tal:block>
+
+  <tal:block metal:define-macro="access_menu_item_account">
+    <tal:block tal:define="panel_gadget_id python: 'gadget_slapos_panel.html'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_account_base" />
+    </tal:block>
+  </tal:block>
+
+
+
+
+  <tal:block metal:define-macro="slapos_init_base">
+
+    <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/init" />
+
+    <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
+
+    <tr>
+      <td>assertTextPresent</td>
+      <td>Done.</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>openAndWait</td>
+      <td>${base_url}/ERP5Site_initSlapOSUITest</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertTextPresent</td>
+      <td>Done.</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>openAndWait</td>
+      <td>${base_url}/ERP5Site_setupDummyMailHost</td>
+      <td></td>
+    <tr>
+      <td>assertTextPresent</td>
+      <td>True</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>open</td>
+      <td>${base_url}/ERP5Site_removeTestUserList</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertTextPresent</td>
+      <td>Done.</td>
+      <td></td>
+    </tr>
+
+    <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
+
+    <tr>
+      <td>assertTextPresent</td>
+      <td>Done.</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>open</td>
+      <td tal:content="python:'${base_url}/web_site_module/%s/ERP5Site_createTestUserList' % web_site_id">.../ERP5Site_createTestUserList</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertTextPresent</td>
+      <td>Done.</td>
+      <td></td>
+    </tr>
+
+    <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
+
+    <tr>
+      <td>assertTextPresent</td>
+      <td>Done.</td>
+      <td></td>
+    </tr>
+
+  </tal:block>
+
+  <tal:block metal:define-macro="slapos_login_base">
+    <!-- Logout  -->
+    <tr>
+      <td>open</td>
+      <td tal:content="python:'${base_url}/web_site_module/%s/WebSite_logout' % web_site_id">.../WebSite_logout</td>
+      <td></td>
+    </tr>
+    <!-- Initialize -->
+    <tr>
+      <td>open</td>
+      <td tal:content="python:'${base_url}/web_site_module/%s/zh/' % web_site_id"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>__ac_name</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>__ac_name</td>
+      <td>demo_functional_user</td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>__ac_password</td>
+      <td>demo_functional_user</td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//input[@value="登录"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>clickAndWait</td>
+      <td>//input[@value="登录"]</td>
+      <td></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_app_loaded" />
+  </tal:block>
+
+
+  <tal:block metal:define-macro="slapos_login_with_another_user_base">
+    <!-- Logout  -->
+    <tr>
+      <td>open</td>
+      <td tal:content="python:'${base_url}/web_site_module/%s/WebSite_logout' % web_site_id"></td>
+      <td></td>
+    </tr>
+    <!-- Initialize -->
+    <tr>
+      <td>open</td>
+      <td tal:content="python:'${base_url}/web_site_module/%s/zh/' % web_site_id"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>__ac_name</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>__ac_name</td>
+      <td>another_demo_functional_user</td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>__ac_password</td>
+      <td>another_demo_functional_user</td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//input[@value="登录"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>clickAndWait</td>
+      <td>//input[@value="登录"]</td>
+      <td></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_app_loaded" />
+  </tal:block>
+
+
+  <tal:block metal:define-macro="slapos_wait_for_activities_and_front_page_base">
+
+    <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/wait_for_activities" />
+
+    <tr>
+      <td>assertTextPresent</td>
+      <td>Done.</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>open</td>
+      <td tal:content="python:'${base_url}/web_site_module/%s/zh/' % web_site_id"></td>
+      <td></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
+  </tal:block>
+
+  <tal:block metal:define-macro="slapos_wait_for_front_page">
+    <tr>
+      <td colspan="3"><b>Wait for Dashboard on header and front page elements</b></td>
+    </tr>
+    <!-- Dashboard -->
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//span[@data-i18n='仪表板']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementNotPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1//span[contains(@class, "ui-icon-spinner")]</td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), "站点")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), "待处理工单")]</td>
+      <td></td>
+    </tr>
+    <!-- Check if map is ok -->
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//a[@class='leaflet-control-zoom-out']</td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="slapos_logout">
+    <tr>
+      <td colspan="3"><b>Logout the website</b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//a[@data-i18n='Logout']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td>//a[@data-i18n='Logout']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//input[@value='确认']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td>//input[@value='确认']</td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//input[@value='登录']</td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="access_menu_item_base">
+     <tr>
+      <td colspan="3"><b tal:content="python: 'Access Entry on the Menu for : %s' % menu_item"> Menu Item </b></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td>//button[@data-i18n='Menu']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//button[@data-i18n='Menu']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[@data-i18n=\'%s\']' % (panel_gadget_id, menu_item)"></td>
+      <td></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_content_loaded" />
+
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_item"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % menu_item"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % menu_item"></td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="access_menu_item_base_zh">
+     <tr>
+      <td colspan="3"><b tal:content="python: 'Access Entry on the Menu for : %s' % menu_item"> Menu Item </b></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td>//button[@data-i18n='Menu']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//button[@data-i18n='Menu']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[@data-i18n=\'%s\']' % (panel_gadget_id, menu_item_data)"></td>
+      <td></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_content_loaded" />
+
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_item"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % menu_item"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % menu_item"></td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="assert_page_header">
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % header"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % header"></td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="click_page_header">
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % header"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % header"></td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+
+  <tal:block metal:define-macro="access_menu_item_account_base">
+     <tr>
+      <td colspan="3"><b tal:content="python: 'Access Entry on the Menu for Account'"> Menu Item </b></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td>//button[@data-i18n='Menu']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//button[@data-i18n='Menu']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[contains(text(), \'登录账号\')]' % panel_gadget_id"></td>
+      <td></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_content_loaded" />
+
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'您的登录账号 : %s\']' % person_name"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'登录账号\')]'"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'登录账号\')]'"></td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="add_simple_with_title">
+    <tr>
+      <td colspan="3"><b tal:content="python: 'Add an entry with title as %s' % title"> Menu Item </b></td>
+    </tr>
+    <tal:block tal:define="menu_action python: 'Add'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_submenu_action" />
+    </tal:block>
+
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//input[@id="title"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>//input[@id="title"]</td>
+      <td tal:content="title"></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_proceed" />
+  </tal:block>
+
+  <tal:block metal:define-macro="click_submenu_action">
+     <tr>
+      <td colspan="3"><b tal:content="python: 'Click on %s' % menu_action"> Menu Item </b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
+      <td></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_content_loaded" />
+  </tal:block>
+
+  <tal:block metal:define-macro="click_proceed">
+    <tr>
+      <td colspan="3"><b>Click on Proceed</b></td>
+    </tr>
+    <tr>
+     <td>waitForElementPresent</td>
+     <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//button[@data-i18n='Proceed']</td>
+     <td></td>
+    </tr>
+    <tr>
+     <td>assertElementPresent</td>
+     <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//button[@data-i18n='Proceed']</td>
+     <td></td>
+    </tr>
+    <tr>
+     <td>waitForElementNotPresent</td>
+     <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//button[@data-i18n='Proceed'][contains(@class, "ui-disabled")]</td>
+     <td></td>
+    </tr>
+    <tr>
+     <td>assertElementNotPresent</td>
+     <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//button[@data-i18n='Proceed'][contains(@class, "ui-disabled")]</td>
+     <td></td>
+    </tr>
+    <tr>
+     <td>assertElementPresent</td>
+     <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//button[@data-i18n='Proceed']</td>
+     <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//button[@data-i18n="Proceed"]</td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="delete_simple">
+     <tr>
+      <td colspan="3"><b tal:content="python: 'Delete an entry with header %(header_title)s and notification as %(notification_text)s' % delete_configuration"> Menu Item </b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//a[@data-i18n="Delete"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//a[@data-i18n="Delete"]</td>
+      <td></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_content_loaded" />
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % delete_configuration['header_title']"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % delete_configuration['header_title']"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//button[@data-i18n="Proceed"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//button[@data-i18n="Proceed"]</td>
+      <td></td>
+    </tr>
+    <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                               'text': delete_configuration['notification_text']}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
+    </tal:block>
+  </tal:block>
+
+  <tal:block metal:define-macro="wait_for_content_loaded">
+     <!--  Macro copied from renderjs tests but with gadget_slapos_header -->
+     <tr>
+      <td colspan="3"><b>Wait for the content to be loaded</b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//h1//*[contains(@class, "ui-icon-spinner")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementNotPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//h1//*[contains(@class, "ui-icon-spinner")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td colspan="3"><p></p></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="wait_for_app_loaded">
+     <!-- Macro copied from renderjs tests, which is bad but it can be dropped later -->
+    <tr>
+      <td colspan="3"><b>Wait for the application to be loaded</b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[@class="ui-icon-spinner ui-btn-icon-notext first-loader"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//div[@class="ui-icon-spinner ui-btn-icon-notext first-loader"]</td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>waitForElementNotPresent</td>
+      <td>//div[@class="ui-icon-spinner ui-btn-icon-notext first-loader"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementNotPresent</td>
+      <td>//div[@class="ui-icon-spinner ui-btn-icon-notext first-loader"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[@data-gadget-scope='header' and not(@data-gadget-async-url)]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//div[@data-gadget-scope='header' and not(@data-gadget-async-url)]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[@data-gadget-scope='panel' and not(@data-gadget-async-url)]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//div[@data-gadget-scope='panel' and not(@data-gadget-async-url)]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td colspan="3"><p></p></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="check_listbox_pagination_text">
+    <!-- Macro copied from renderjs tests, which is bad but it can be dropped later -->
+    <tr>
+      <td colspan="3"><b tal:content="python: 'Check the listbox pagination text: %s' % pagination_configuration"></b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1//span[@class=\'listboxloader\' and text()=\'%(header)s\']' % pagination_configuration"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1//span[@class=\'listboxloader\' and text()=\'%(header)s\']' % pagination_configuration"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//nav//span[@class=\'ui-disabled\' and text()=\'%(footer)s\']' % pagination_configuration"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//nav//span[@class=\'ui-disabled\' and text()=\'%(footer)s\']' % pagination_configuration"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td colspan="3"><p></p></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="wait_for_notification">
+    <tr>
+      <td colspan="3"><b>Wait for the notification message</b></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[@data-gadget-scope=\'notification\' and @class=\'visible\']//button[@class=\'%(class)s\' and text()=\'%(text)s\']' % notification_configuration"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[@data-gadget-scope=\'notification\' and @class=\'visible\']//button[@class=\'%(class)s\' and text()=\'%(text)s\']' % notification_configuration"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td colspan="3"><p></p></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="click_save">
+    <!-- Macro copied from renderjs tests, which is bad but it can be dropped later -->
+    <tr>
+      <td colspan="3"><b>Click on Save</b></td>
+    </tr>
+    <tr>
+     <td>waitForElementPresent</td>
+     <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//button[@data-i18n='Save']</td>
+     <td></td>
+    </tr>
+    <tr>
+     <td>assertElementPresent</td>
+     <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//button[@data-i18n='Save']</td>
+     <td></td>
+    </tr>
+    <tr>
+     <td>waitForElementNotPresent</td>
+     <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//button[@data-i18n='Save'][contains(@class, "ui-disabled")]</td>
+     <td></td>
+    </tr>
+    <tr>
+     <td>assertElementNotPresent</td>
+     <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//button[@data-i18n='Save'][contains(@class, "ui-disabled")]</td>
+     <td></td>
+    </tr>
+    <tr>
+     <td>assertElementPresent</td>
+     <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//button[@data-i18n='Save']</td>
+     <td></td>
+    </tr>
+    <tr>
+     <td>click</td>
+     <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//button[@data-i18n='Save']</td>
+     <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="save">
+    <!-- Macro copied from renderjs tests, which is bad but it can be dropped later -->
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_save" />
+    <tr>
+      <td colspan="3"><b>Save</b></td>
+    </tr>
+    <!-- First loader while calling Base_edit, we assert it is not present, because response is very fast. -->
+    <tr>
+      <td>waitForElementNotPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//h1//*[contains(@class, "ui-icon-spinner")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementNotPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//h1//*[contains(@class, "ui-icon-spinner")]</td>
+      <td></td>
+    </tr>
+    <!-- Save Button is disabledn but it is sooo fast that selenium don't arrive on time.  -->
+    <tr>
+      <td>verifyElementNotPresent</td>
+      <td>//button[@data-i18n="Save"][contains(@class, "ui-disabled")]</td>
+      <td></td>
+    </tr>
+    <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                               'text': '数据已更新。'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
+    </tal:block>
+    <tr>
+      <td>verifyElementPresent</td>
+      <td>//button[@data-i18n="Save"][contains(@class, "ui-icon-check")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td colspan="3"><p></p></td>
+    </tr>
+  </tal:block>
+  <tal:block metal:define-macro="wait_for_listbox_loaded">
+    <tr>
+      <td colspan="3"><b>Wait for the listbox to be loaded</b></td>
+    </tr>
+    <tr>
+      <td>waitForElementNotPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1//span[contains(@class, "ui-icon-spinner")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//nav//span[@class="ui-disabled"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//nav//span[@class="ui-disabled"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td colspan="3"><p></p></td>
+    </tr>
+  </tal:block>
+
+
+  <tal:block metal:define-macro="create_simple_project">
+    <tr>
+      <td colspan="3"><p>Create Simple Project</p></td>
+    </tr>
+    <tal:block define="menu_item python: '项目'; header menu_item; menu_item_data python:'Projects'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
+    </tal:block>
+
+    <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': '没有记录'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
+    </tal:block>
+
+    <tal:block define="title python: '%s' % document_title; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/add_simple_with_title" />
+    </tal:block>
+
+    <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                               'text': '新的项目已创建。'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
+    </tal:block>
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_content_loaded" />
+
+    <tal:block define="header python: '项目 : %s' % document_title; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
+    </tal:block>
+    <tr>
+      <td colspan="3"><p></p></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="create_simple_network">
+    <tr>
+      <td colspan="3"><p>Create Simple Network</p></td>
+    </tr>
+    <tal:block define="menu_item python: '网络'; header menu_item; menu_item_data python:'Networks'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
+    </tal:block>
+
+    <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': '没有记录'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
+    </tal:block>
+
+    <tal:block define="title python: '%s' % document_title; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/add_simple_with_title" />
+    </tal:block>
+
+    <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                               'text': '已创建新的网络。'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
+    </tal:block>
+
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_content_loaded" />
+
+    <tal:block define="header python: 'Computer Network :%s' % document_title; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
+    </tal:block>
+    <tr>
+      <td colspan="3"><p></p></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="create_simple_computer">
+    <tr>
+      <td colspan="3"><p>Create Simple Computer</p></td>
+    </tr>
+
+    <tal:block define="menu_item python: '服务器'; header menu_item; menu_item_data python: 'Servers'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
+    </tal:block>
+
+    <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': '没有记录'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
+    </tal:block>
+
+    <tal:block define="menu_action python: 'Add'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_submenu_action" />
+    </tal:block>
+
+    <tal:block define="header python: '新的计算机'; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
+    </tal:block>
+
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//input[@id="title"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>type</td>
+      <td>//input[@id="title"]</td>
+      <td tal:content="python: '%s' % document_title">TEST-SLAPOSJS-COMPUTER 0</td>
+    </tr>
+
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_proceed" />
+
+    <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                           'text': '新的计算机已创建。'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
+    </tal:block>
+
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//a[text()=" Click here to access your computer "]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//textarea[@name="certificate"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//textarea[@name="key"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td>//a[text()=" Click here to access your computer "]</td>
+      <td></td>
+    </tr>
+
+    <tal:block define="header python: 'Computer: %s' % document_title; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
+    </tal:block>
+  </tal:block>
+
+  <tal:block metal:define-macro="create_user_organisation">
+
+    <tr>
+       <td colspan="3"><b> Create simple organisation </b> </td>
+    </tr>
+
+    <tal:block define="person_name python: 'Demo User Functional'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_account" />
+    </tal:block>
+
+    <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 记录'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
+    </tal:block>
+
+    <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': '没有记录'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
+    </tal:block>
+
+    <tal:block define="menu_action python: 'Add Organisation'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_submenu_action" />
+    </tal:block>
+
+    <tal:block define="header python: '新组织'; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
+    </tal:block>
+
+    <tr>
+      <td>type</td>
+      <td>//input[@name='title']</td>
+      <td tal:content="python: '%s' % (document_title)">DOCUMENT TITLE</td>
+    </tr>
+
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_proceed" />
+
+    <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                              'text': '新的组织已创建。'}">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
+    </tal:block>
+
+    <tal:block define="header python: '组织 : %s' % (document_title); ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
+    </tal:block>
+
+  </tal:block>
+
+  <tal:block metal:define-macro="select_software_product">
+    <tr>
+      <td colspan="3"><b> Select a Software Product</b></td>
+    </tr>
+
+    <tal:block define="header python: '1/3 选择一个软件'; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
+    </tal:block>
+
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), '软件产品')]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), '软件产品')]</td>
+      <td></td>
+    </tr>
+
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_listbox_loaded" />
+
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//td/a[text()=\'%s\']' % software_product"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//td/a[text()=\'%s\']' % software_product"></td>
+      <td></td>
+    </tr>
+
+  </tal:block>
+
+  <tal:block metal:define-macro="select_software_release">
+    <tr>
+      <td colspan="3"><b> Select a Software Release</b></td>
+    </tr>
+
+    <tal:block define="header python: '2/3 选择一个发布'; ">
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
+    </tal:block>
+
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), '软件发布')]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), '软件发布')]</td>
+      <td></td>
+    </tr>
+
+    <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_listbox_loaded" />
+
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//td/a[text()=\'%s\']' % software_release"></td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+
+</tal:block>

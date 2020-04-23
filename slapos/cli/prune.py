@@ -68,29 +68,50 @@ class PruneCommand(ConfigCommand):
     sys.exit(do_prune(self.app.log, options, args.dry_run))
 
 
+def _prune(logger, shared_root, software_root, instance_root, ignored_shared_parts, dry_run):
+  signatures = getUsageSignatureFromSoftwareAndSharedPart(
+      logger, software_root, shared_root, ignored_shared_parts)
+
+  # recursively look in instance
+  signatures.update(getUsageSignaturesFromSubInstance(logger, instance_root))
+
+  for shared_part in glob.glob(os.path.join(shared_root, '*', '*')):
+    if shared_part not in ignored_shared_parts:
+      logger.debug("checking shared part %s", shared_part)
+      h = os.path.basename(shared_part)
+      for soft, installed_cfg in signatures.items():
+        if h in installed_cfg:
+          logger.debug("It is used in %s", soft)
+          break
+      else:
+        if not dry_run:
+          rmtree(shared_part)
+        logger.warning(
+            'Unusued shared parts at %s%s', shared_part,
+            '' if dry_run else ' ... removed')
+        yield shared_part
+
+
+def _prune_loop(logger, shared_root, software_root, instance_root, dry_run):
+  ignored_shared_parts = set([])
+  while True:
+    pruned = list(
+        _prune(logger, shared_root, software_root, instance_root, ignored_shared_parts, dry_run))
+    ignored_shared_parts.update(pruned)
+    if not pruned:
+      break
+
+
 def do_prune(logger, options, dry_run):
   shared_root = options['shared_part_list'].splitlines()[-1].strip()
   logger.warning("Pruning shared directories at %s", shared_root)
-
-  signatures = getUsageSignatureFromSoftwareAndSharedPart(
-      logger, options['software_root'], shared_root)
-
-  # recursively look in instance
-  signatures.update(getUsageSignaturesFromSubInstance(logger, options['instance_root']))
-
-  for shared_part in glob.glob(os.path.join(shared_root, '*', '*')):
-    logger.debug("checking shared part %s", shared_part)
-    h = os.path.basename(shared_part)
-    for soft, installed_cfg in signatures.items():
-      if h in installed_cfg:
-        logger.debug("It is used in %s", soft)
-        break
-    else:
-      if not dry_run:
-        rmtree(shared_part)
-      logger.warning(
-          'Unusued shared parts at %s%s', shared_part,
-          '' if dry_run else ' ... removed')
+  if dry_run:
+    logger.warning(
+        "dry-run only report the level iteration of dependencies, actual deletion might"
+    )
+  _prune_loop(
+      logger, shared_root, options['software_root'], options['instance_root'],
+      dry_run)
 
 
 def getUsageSignaturesFromSubInstance(logger, instance_root):
@@ -110,8 +131,7 @@ def getUsageSignaturesFromSubInstance(logger, instance_root):
         getUsageSignatureFromSoftwareAndSharedPart(
             logger, cfg['software_root'], shared_root))
     signatures.update(
-        getUsageSignaturesFromSubInstance(logger, cfg['instance_root'])
-    )
+        getUsageSignaturesFromSubInstance(logger, cfg['instance_root']))
   return signatures
 
 
@@ -140,10 +160,14 @@ def readSlaposCfg(logger, path):
 
 
 def getUsageSignatureFromSoftwareAndSharedPart(
-    logger, software_root, shared_root):
+    logger, software_root, shared_root, ignored_shared_parts=None):
   """Look in all softwares and shared parts to collect the signatures
   that are used.
+  `ignored_shared_parts` is useful during dry-run, we want to ignore
+  already the parts that we are about to delete.
   """
+  if ignored_shared_parts is None:
+    ignored_shared_parts = set([])
   signatures = {}
   for installed_cfg in glob.glob(os.path.join(software_root, '*',
                                               '.installed.cfg')):
@@ -154,11 +178,11 @@ def getUsageSignatureFromSoftwareAndSharedPart(
       signatures[script] = f.read()
   if shared_root:
     for shared_signature in glob.glob(os.path.join(shared_root, '*', '*',
-                                                  '.*signature')):
-      with open(shared_signature) as f:
-        signatures[shared_signature] = f.read()
+                                                   '.*signature')):
+      if not any(shared_signature.startswith(ignored_shared_part) for ignored_shared_part in ignored_shared_parts):
+        with open(shared_signature) as f:
+          signatures[shared_signature] = f.read()
   return signatures
-
 
 
 # XXX copied from https://lab.nexedi.com/nexedi/erp5/blob/31804f683fd36322fb38aeb9654bee70cebe4fdb/erp5/util/testnode/Utils.py

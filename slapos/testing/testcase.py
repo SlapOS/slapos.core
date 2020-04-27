@@ -200,9 +200,12 @@ def checkSoftware(slap, software_url):
       # nss is not a binary distribution, but for some reason it has invalid rpath, but it does
       # not seem to be a problem in our use cases.
       '*/parts/nss/*',
+      # npm packages containing binaries
       '*/node_modules/phantomjs*/*',
       '*/grafana/tools/phantomjs/*',
       '*/node_modules/puppeteer/*',
+      # gcc's gfortran runtime is linked against libz and ignores rpath
+      '*/libgfortran.so*',
       # left over of compilation failures
       '*/*__compile__/*',
   ))

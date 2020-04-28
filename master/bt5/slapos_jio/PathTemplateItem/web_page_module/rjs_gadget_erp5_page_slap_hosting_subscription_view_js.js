@@ -317,8 +317,8 @@
                       "type": "GadgetField"
                     },
                     "my_source_project": {
-                      "description": result[1][19],
-                      "title": result[1][20],
+                      "description": result[1][20],
+                      "title": result[1][21],
                       "default": gadget.state.doc.source_project_title,
                       "css_class": "",
                       "required": 1,
@@ -328,8 +328,8 @@
                       "type": "StringField"
                     },
                     "my_source": {
-                      "description": result[1][19],
-                      "title": result[1][21],
+                      "description": result[1][20],
+                      "title": result[1][22],
                       "default": gadget.state.doc.source_title,
                       "css_class": "",
                       "required": 0,
@@ -340,7 +340,7 @@
                     },
                     "my_monitoring_status": {
                       "description": "",
-                      "title": result[1][22],
+                      "title": result[1][23],
                       "default": {jio_key: gadget.state.jio_key,
                                   result: gadget.state.doc.news},
                       "css_class": "",
@@ -354,7 +354,7 @@
                     },
                     "my_monitor_scope": {
                       "description": "",
-                      "title": result[1][23],
+                      "title": result[1][24],
                       "default": gadget.state.doc.monitor_scope,
                       "css_class": "",
                       "items": monitor_scope_list,
@@ -366,7 +366,7 @@
                     },
                     "my_upgrade_scope": {
                       "description": "",
-                      "title": result[1][24],
+                      "title": result[1][25],
                       "default": gadget.state.doc.upgrade_scope,
                       "css_class": "",
                       "items": upgrade_scope_list,
@@ -393,7 +393,7 @@
                       "search_column_list": connection_column_list,
                       "sort_column_list": connection_column_list,
                       "sort": [["connection_key", "ascending"]],
-                      "title": result[1][25],
+                      "title": result[1][26],
                       "type": "ListBox"
                     },
                     "ticket_listbox": {
@@ -419,7 +419,7 @@
                       "search_column_list": ticket_column_list,
                       "sort_column_list": ticket_column_list,
                       "sort": [["modification_date", "descending"]],
-                      "title": result[1][26],
+                      "title": result[1][27],
                       "type": "ListBox"
                     },
                     "listbox": {
@@ -441,7 +441,7 @@
                       "search_column_list": column_list,
                       "sort_column_list": column_list,
                       "sort": [["title", "ascending"]],
-                      "title": result[1][27],
+                      "title": result[1][28],
                       "type": "ListBox"
                     }
                   }},

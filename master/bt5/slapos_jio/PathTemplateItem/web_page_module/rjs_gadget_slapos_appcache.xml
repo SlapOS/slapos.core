@@ -108,7 +108,7 @@
             <value> <string encoding="cdata"><![CDATA[
 
 CACHE MANIFEST\n
-# generated on Fri, 17 Jan 2020 11:00:13 GMT+0200\n
+# generated on Tue, 28 Apr 2020 11:00:13 GMT+0200\n
 CACHE:\n
 favicon.ico\n
 font-awesome/font-awesome-webfont.eot?v=4.6.3\n
@@ -581,7 +581,7 @@ NETWORK:\n
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>982.16656.9604.44475</string> </value>
+                <value> <string>983.32442.18214.26265</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -599,7 +599,7 @@ NETWORK:\n
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1584095553.4</float>
+                        <float>1588113814.6</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

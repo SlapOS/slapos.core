@@ -1,6 +1,4 @@
-
 /*globals window*/
-
 /*jslint indent: 2, nomen: true, maxlen: 80*/
 
 (function (window) {
@@ -8,7 +6,7 @@
   "use strict";
 
   window.translation_data = {
-   "en": {
+    "en": {
       "Title": "Title",
       "Login Account": "Login Account",
       "Intent not supported": "Intent not supported",
@@ -354,9 +352,14 @@
       "Hosting Subscription": "Hosting Subscription",
       "Accept": "Accept",
       "Generate New Invitation Link": "Generate New Invitation Link",
-      "Revoke Computer Certificate": "Revoke Computer Certificate"
-   },
-   "zh": {
+      "Revoke Computer Certificate": "Revoke Computer Certificate",
+      "Country": "Country",
+      "Telephone": "Telephone",
+      "Address": "Address",
+      "Postal Code": "Postal Code",
+      "City": "City"
+    },
+    "zh": {
       "Title": "标题",
       "Login Account": "登录账号",
       "Intent not supported": "不支持该意图。",
@@ -702,7 +705,12 @@
       "Hosting Subscription": "托管订阅",
       "Accept": "接受",
       "Generate New Invitation Link": "生成新的邀请链接",
-      "Revoke Computer Certificate": "吊销计算机证书"
+      "Revoke Computer Certificate": "吊销计算机证书",
+      "Country": "国家",
+      "Telephone": "电话号码",
+      "Address": "地址",
+      "Postal Code": "邮编",
+      "City": "城市"
    }
 };
 }(window));

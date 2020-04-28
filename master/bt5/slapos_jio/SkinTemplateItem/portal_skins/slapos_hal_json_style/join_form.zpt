@@ -86,7 +86,15 @@
             </div><br/>
             <div class="ui-field-contain">
               <label i18n:domain="ui" i18n:translate="" >Country</label>
-              <div><input type="text" name="default_address_country" value="" required=""></div>
+              <div>
+                <select name="default_address_region" required="">
+                  <tal:block tal:repeat="item python: context.portal_categories.region.getCategoryChildTranslatedCompactTitleItemList(sort_id='translated_short_title', checked_permission='View', filter_node=1)">
+                    <option tal:attributes="value python: item[1]">
+                      <tal:block tal:replace="python: item[0]"> Title </tal:block>
+                    </option>
+                  </tal:block>
+                </select>
+              </div>
             </div><br/>
             </div>
             <div class="bottom">

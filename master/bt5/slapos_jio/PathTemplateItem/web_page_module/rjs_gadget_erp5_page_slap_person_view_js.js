@@ -111,13 +111,21 @@
           "Logins",
           "Organisations",
           "Your Account",
-          "Data updated."
+          "Data updated.",
+          "Address",
+          "Postal Code",
+          "Telephone",
+          "City",
+          "Country"
         ];
-      return new RSVP.Queue()
-        .push(function () {
+      return gadget.getSetting("hateoas_url")
+        .push(function (url) {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
-            gadget.getTranslationList(translation_list)
+            gadget.getTranslationList(translation_list),
+            gadget.jio_getAttachment("portal_categories/region",
+                url + "/portal_categories/region/Category_getCategoryChildTranslatedCompactTitleItemListAsJSON")
+
           ]);
         })
         .push(function (result) {
@@ -125,6 +133,7 @@
           gadget.message_translation = result[1][11];
           var form_gadget = result[0],
             i,
+            region_list = result[2],
             destination_list,
             column_list = [
               ['reference', result[1][0]],
@@ -217,6 +226,62 @@
                   "sort": [["reference", "ascending"]],
                   "title": result[1][9],
                   "type": "ListBox"
+                },
+                "my_default_telephone_coordinate_text": {
+                  "description": "",
+                  "title": result[1][14],
+                  "default": gadget.state.doc.default_telephone_coordinate_text,
+                  "css_class": "",
+                  "required": 0,
+                  "editable": 1,
+                  "key": "default_telephone_coordinate_text",
+                  "hidden": 0,
+                  "type": "StringField"
+                },
+                "my_default_address_street_address": {
+                  "description": "",
+                  "title": result[1][12],
+                  "default": gadget.state.doc.default_address_street_address,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 1,
+                  "key": "default_address_street_address",
+                  "hidden": 0,
+                  "type": "TextAreaField"
+                },
+                "my_default_address_zip_code": {
+                  "description": "",
+                  "title": result[1][13],
+                  "default": gadget.state.doc.default_address_zip_code,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 1,
+                  "key": "default_address_zip_code",
+                  "hidden": 0,
+                  "type": "StringField"
+                },
+                "my_default_address_city": {
+                  "description": "",
+                  "title": result[1][15],
+                  "default": gadget.state.doc.default_address_city,
+                  "css_class": "",
+                  "required": 1,
+                  "editable": 1,
+                  "key": "default_address_city",
+                  "hidden": 0,
+                  "type": "StringField"
+                },
+                "my_default_address_region": {
+                  "description": "",
+                  "title": result[1][16],
+                  "default": gadget.state.doc.default_address_region,
+                  "css_class": "",
+                  "items": region_list,
+                  "required": 0,
+                  "editable": 1,
+                  "key": "default_address_region",
+                  "hidden": 0,
+                  "type": "ListField"
                 }
               }},
               "_links": {
@@ -229,7 +294,10 @@
             form_definition: {
               group_list: [[
                 "left",
-                [["my_first_name"], ["my_last_name"], ["my_default_email_text"]]
+                [["my_first_name"], ["my_last_name"], ["my_default_email_text"], ['my_default_telephone_coordinate_text']]
+              ], [
+                "right",
+                  [["my_default_address_street_address"], ["my_default_address_zip_code"], ["my_default_address_city"], ["my_default_address_region"]]
               ], [
                 "bottom",
                 [["listbox"], ["organisation_listbox"]]

@@ -70,9 +70,9 @@ article h2:after {
   font-size: 1em;
 }
 
-article address { float: left; font-size: 120%; }
+article address { float: left; font-size: 100%; }
 article h2 { margin-bottom: 10px; }
-article address p { margin-bottom: 5px; letter-spacing: 1px;}
+article address p { margin-bottom: 5px; letter-spacing: 1px}
 
 /* table meta & balance */
 

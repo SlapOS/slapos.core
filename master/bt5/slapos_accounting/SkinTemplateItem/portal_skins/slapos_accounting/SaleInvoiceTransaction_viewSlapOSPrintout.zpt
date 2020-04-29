@@ -54,6 +54,13 @@
           <p tal:condition="python: destination_section_organisation is not None">
             <tal:block tal:content="python: destination_section_organisation.getDefaultEmailText('')"></tal:block>
           </p>
+
+          <p tal:condition="python: destination_section_organisation is not None">
+            <tal:block tal:repeat="line python: destination_section_organisation.getDefaultAddressText('').split('\n')">
+              <span style="display:block" tal:content="line"></span>
+            </tal:block>
+            <tal:block tal:content="python: destination_section_organisation.getDefaultRegionTitle()"></tal:block>
+          </p>
         </tal:block>
       </address>
       <table class="meta">

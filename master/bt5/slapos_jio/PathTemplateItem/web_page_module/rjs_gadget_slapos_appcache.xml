@@ -393,6 +393,14 @@ gadget_erp5_page_slapos_request_form.html\n
 gadget_erp5_page_trial.css\n
 gadget_erp5_page_trial.html\n
 gadget_erp5_page_trial.js\n
+gadget_erp5_page_slap_rapid_hosting_subscription_view.html\n
+gadget_erp5_page_slap_rapid_hosting_subscription_view.js\n
+gadget_erp5_page_slap_rapid_service_list.html\n
+gadget_erp5_page_slap_rapid_service_list.js\n
+gadget_erp5_page_slap_rapid_invoice_list.html\n
+gadget_erp5_page_slap_rapid_invoice_list.js\n
+gadget_erp5_page_slap_rapid_controller.html\n
+gadget_erp5_page_slap_rapid_controller.js\n
 gadget_erp5_panel_shortcut.html\n
 gadget_erp5_panel_shortcut.js\n
 gadget_erp5_pt_form_slapos_index.html\n
@@ -581,7 +589,7 @@ NETWORK:\n
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>982.16656.9604.44475</string> </value>
+                <value> <string>983.27828.46373.63744</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -599,7 +607,7 @@ NETWORK:\n
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1584095553.4</float>
+                        <float>1588166624.0</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

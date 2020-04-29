@@ -430,6 +430,7 @@ gadget_slapos_network_status.js\n
 gadget_slapos_panel.html\n
 gadget_slapos_panel.js\n
 gadget_slapos_panel.png?format=\n
+gadget_slapos_invoice_logo.png?format=\n
 gadget_slapos_payment_result.js\n
 gadget_slapos_project_status.html\n
 gadget_slapos_project_status.js\n
@@ -581,7 +582,7 @@ NETWORK:\n
             </item>
             <item>
                 <key> <string>serial</string> </key>
-                <value> <string>983.32442.18214.26265</string> </value>
+                <value> <string>983.33875.37805.24183</string> </value>
             </item>
             <item>
                 <key> <string>state</string> </key>
@@ -599,7 +600,7 @@ NETWORK:\n
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1588113814.6</float>
+                        <float>1588166780.77</float>
                         <string>UTC</string>
                       </tuple>
                     </state>

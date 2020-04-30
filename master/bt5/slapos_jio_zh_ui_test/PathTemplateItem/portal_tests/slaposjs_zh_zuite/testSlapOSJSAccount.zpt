@@ -99,7 +99,7 @@
 </tr>
 
 <!-- Perform an intermediate save to ensure we can edit partial values -->
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/save" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/save" />
 
 <tr>
   <td>type</td>
@@ -131,15 +131,15 @@
   <td>Brazil</td>
 </tr>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/save" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/save" />
 
 <!-- access somewhere else -->
-<tal:block define="menu_item python: 'Sites'; header menu_item">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+<tal:block define="menu_item python: '站点'; header menu_item; menu_item_data python:'Sites'">
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
 </tal:block>
 
 <tal:block define="person_name python: 'DEMO A DEMO B'">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
+  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_account" />
 </tal:block>
 
 <tr>
@@ -178,7 +178,7 @@
   <td></td>
 </tr>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_logout" />
+<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_logout" />
 
 </tbody></table>
 </body>

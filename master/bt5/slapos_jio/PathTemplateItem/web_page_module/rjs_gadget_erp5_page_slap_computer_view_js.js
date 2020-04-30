@@ -116,7 +116,8 @@
           "Current Project",
           "Monitoring Status",
           "Supplied Softwares",
-          "Computer:"
+          "Computer:",
+          "Associated Tickets"
         ];
 
       // Follow up changeState API but it is requires to actually
@@ -337,7 +338,7 @@
                   "search_column_list": ticket_column_list,
                   "sort_column_list": ticket_column_list,
                   "sort": [["title", "ascending"]],
-                  "title": "Associated Tickets",
+                  "title": results[2][32],
                   "type": "ListBox"
                 }
               }},

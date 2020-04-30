@@ -15,9 +15,9 @@
     .declareAcquiredMethod("jio_get", "jio_get")
     .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
-    .declareAcquiredMethod("translate", "translate")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -43,7 +43,7 @@
             });
         })
         .push(function () {
-          return gadget.notifySubmitted({message: 'New service created.', status: 'success'})
+          return gadget.notifySubmitted({message: gadget.message_tranlation, status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
               return gadget.redirect({"command": "change",
@@ -62,7 +62,24 @@
     // (gadget.redirect is actually waiting indefinitely) so that parent is
     // happy and doesn't try to call render again
     .declareMethod("render", function (options) {
-      return this.changeState(options);
+      var gadget = this,
+        translation_list = [
+          "New service created.",
+          "Intent not supported",
+          "Requesting a service…",
+          "Instance"
+        ];
+      return new RSVP.Queue()
+        .push(function () {
+          gadget.change.changeState(options);
+          gadget.getTranslationList(translation_list);
+        })
+        .push(function (result) {
+          gadget.message_tranlation = result[1][0];
+          gadget.error_translation = result[1][1];
+          gadget.page_title_translation = result[1][2];
+          gadget.software_title_translation = result[1][3];
+        });
     })
     .onStateChange(function (options) {
       this.deferRender(options);
@@ -70,12 +87,12 @@
     .declareJob("deferRender", function (options) {
       var gadget = this;
       if (options.intent !== "request") {
-        throw new Error(gadget.translate("Intent not supported"));
+        throw new Error(gadget.error_translation);
       }
       return new RSVP.Queue()
         .push(function () {
           return gadget.updateHeader({
-            page_title: gadget.translate("Requesting a service...")
+            page_title: gadget.page_title_translation
           });
         })
         .push(function () {
@@ -107,7 +124,7 @@
             url = result[2],
             doc = {
               url_string: software_release.url_string,
-              title: options.software_title || "Instance {uid}",
+              title: options.software_title ? options.software_title: gadget.software_title_translation + "{uid}",
               relative_url: options.jio_key
             };
           if (options.software_type) {
@@ -143,7 +160,7 @@
                 url + doc.relative_url + "/SoftwareRelease_requestHostingSubscription?" + query.join("&"));
             })
             .push(function (key) {
-              return gadget.notifySubmitted({message: gadget.translate("New service created."), status: 'success'})
+              return gadget.notifySubmitted({message: gadget.message_tranlation, status: 'success'})
                 .push(function () {
                   // Workaround, find a way to open document without break gadget.
                   return gadget.redirect({"command": "change",

@@ -236,8 +236,8 @@
   <td>Paris</td>
 </tr>
 <tr>
-  <td>type</td>
-  <td>//input[@name='default_address_country']</td>
+  <td>select</td>
+  <td>//select[@name='default_address_region']</td>
   <td>France</td>
 </tr>
 <tr>

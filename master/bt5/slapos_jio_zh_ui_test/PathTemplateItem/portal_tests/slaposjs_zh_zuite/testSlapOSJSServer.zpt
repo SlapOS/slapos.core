@@ -42,7 +42,7 @@
   <td></td>
 </tr>
 
-<tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+<tal:block define="header python: '计算机: TEST-SLAPOSJS-COMPUTER 0'; ">
   <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
@@ -158,7 +158,7 @@
  	<td>5000</td>
 </tr>
 
-<tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+<tal:block define="header python: '计算机: TEST-SLAPOSJS-COMPUTER 0'; ">
   <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
@@ -185,7 +185,7 @@
   <td></td>
 </tr>
 
-<tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+<tal:block define="header python: '计算机: TEST-SLAPOSJS-COMPUTER 0'; ">
   <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
@@ -258,7 +258,7 @@
 
 
 
-<tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+<tal:block define="header python: '计算机: TEST-SLAPOSJS-COMPUTER 0'; ">
   <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
@@ -347,7 +347,7 @@
 </tr>
 
 
-<tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+<tal:block define="header python: '计算机: TEST-SLAPOSJS-COMPUTER 0'; ">
   <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
@@ -399,7 +399,7 @@
   <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_page_header" />
 </tal:block>
 
-<tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+<tal:block define="header python: '计算机: TEST-SLAPOSJS-COMPUTER 0'; ">
   <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 
@@ -464,7 +464,7 @@
   <td></td>
 </tr>
 
-<tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+<tal:block define="header python: '计算机: TEST-SLAPOSJS-COMPUTER 0'; ">
   <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
 </tal:block>
 

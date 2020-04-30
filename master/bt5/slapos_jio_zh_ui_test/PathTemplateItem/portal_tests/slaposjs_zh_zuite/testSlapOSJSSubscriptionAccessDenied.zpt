@@ -236,8 +236,8 @@
   <td>Paris</td>
 </tr>
 <tr>
-  <td>type</td>
-  <td>//input[@name='default_address_country']</td>
+  <td>select</td>
+  <td>//select[@name='default_address_region']</td>
   <td>France</td>
 </tr>
 <tr>
@@ -312,7 +312,7 @@
 </tr>
 <tr>
   <td>waitForTextPresent</td>
-  <td>You are not allowed to access this content</td>
+  <td>您没有权限查看此内容</td>
   <td></td>
 </tr>
 <tr>

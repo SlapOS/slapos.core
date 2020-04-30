@@ -138,14 +138,38 @@ def getUsageSignaturesFromSubInstance(logger, instance_root):
   signatures = {}
   for slapos_cfg in getInstanceSlaposCfgList(logger, instance_root):
     cfg = readSlaposCfg(logger, slapos_cfg)
+    if not cfg:
+      return {}
     shared_root = None
     if cfg['shared_part_list']:
       shared_root = cfg['shared_part_list'][-1]
-    signatures.update(
-        getUsageSignatureFromSoftwareAndSharedPart(
-            logger, cfg['software_root'], shared_root))
-    signatures.update(
-        getUsageSignaturesFromSubInstance(logger, cfg['instance_root']))
+      if not os.path.exists(shared_root):
+        logger.debug(
+            "Ignoring non existant shared root %s from %s",
+            shared_root,
+            slapos_cfg,
+        )
+        shared_root = None
+
+    if not os.path.exists(cfg['software_root']):
+      logger.debug(
+          "Ignoring non existant software root %s from %s",
+          cfg['software_root'],
+          slapos_cfg,
+      )
+    else:
+      signatures.update(
+          getUsageSignatureFromSoftwareAndSharedPart(
+              logger, cfg['software_root'], shared_root))
+    if not os.path.exists(cfg['instance_root']):
+      logger.debug(
+          "Ignoring non existant instance root %s from %s",
+          cfg['instance_root'],
+          slapos_cfg,
+      )
+    else:
+      signatures.update(
+          getUsageSignaturesFromSubInstance(logger, cfg['instance_root']))
   return signatures
 
 
@@ -163,12 +187,16 @@ def readSlaposCfg(logger, path):
   """
   logger.debug('Reading config at %s', path)
   parser = configparser.ConfigParser({'shared_part_list': ''})
-  parser.read([path])
-  cfg = {
+  try:
+    parser.read([path])
+    cfg = {
       'software_root': parser.get('slapos', 'software_root'),
       'instance_root': parser.get('slapos', 'instance_root'),
       'shared_part_list': parser.get('slapos', 'shared_part_list').splitlines()
-  }
+    }
+  except configparser.Error:
+    logger.debug('Ignored config at %s because of error', path, exc_info=True)
+    return None
   logger.debug('Read config: %s', cfg)
   return cfg
 

@@ -197,3 +197,52 @@ shared_part_list =
 
     self.logger.warning.assert_called_with(
         'Unusued shared parts at %s%s', not_used, ' ... removed')
+
+  def test_recursive_instance_broken_slapos_cfg(self):
+    instance = os.path.join(self.instance_root, 'slappart0')
+    instance_etc = os.path.join(instance, 'etc')
+    os.makedirs(instance_etc)
+    instance_slapos_cfg = os.path.join(instance_etc, 'slapos.cfg')
+
+    # slapos.cfg might be not valid .ini file
+    with open(instance_slapos_cfg, 'w') as f:
+      f.write('this is not an actual slapos.cfg')
+    do_prune(self.logger, self.config, False)
+    self.logger.debug.assert_any_call(
+        'Ignored config at %s because of error', instance_slapos_cfg, exc_info=True)
+
+    # ... or an ini file without [slapos] section
+    with open(instance_slapos_cfg, 'w') as f:
+      f.write('[something]')
+    do_prune(self.logger, self.config, False)
+    self.logger.debug.assert_any_call(
+        'Ignored config at %s because of error', instance_slapos_cfg, exc_info=True)
+
+    # ... or referencing non existant paths
+    with open(instance_slapos_cfg, 'w') as f:
+      f.write('''
+[slapos]
+software_root = NOT EXIST SOFTWARE
+instance_root = NOT EXIST INSTSTANCE
+shared_part_list = NOT EXIST SHARED PART
+''')
+    do_prune(self.logger, self.config, False)
+    self.assertIn(
+        mock.call(
+            'Ignoring non existant software root %s from %s',
+            'NOT EXIST SOFTWARE',
+            instance_slapos_cfg),
+        self.logger.debug.mock_calls)
+    self.assertIn(
+        mock.call(
+            'Ignoring non existant instance root %s from %s',
+            'NOT EXIST INSTSTANCE',
+            instance_slapos_cfg),
+        self.logger.debug.mock_calls)
+
+    self.assertIn(
+        mock.call(
+            'Ignoring non existant shared root %s from %s',
+            'NOT EXIST SHARED PART',
+            instance_slapos_cfg),
+        self.logger.debug.mock_calls)

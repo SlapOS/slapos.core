@@ -330,14 +330,27 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=2, debug=False):
 
   This also check softwares with `checkSoftware`
   """
-  def _storeSoftwareLogSnapshot(name):
-    for standalone_log in glob.glob(os.path.join(
+  def _storeSoftwareSnapshot(name):
+    for path in glob.glob(os.path.join(
         cls._base_directory,
         'var',
         'log',
         '*',
+    )) + glob.glob(os.path.join(
+        cls.slap.software_directory,
+        '*',
+        '*.cfg',
+    )) + glob.glob(os.path.join(
+        cls.slap.software_directory,
+        '*',
+        '.installed.cfg',
+    )) + glob.glob(os.path.join(
+        cls.slap.shared_directory,
+        '*',
+        '*',
+        '.slapos.recipe.cmmi.signature',
     )):
-      cls._copySnapshot(standalone_log, name)
+      cls._copySnapshot(path, name)
 
   try:
     cls.logger.debug("Starting")
@@ -347,7 +360,7 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=2, debug=False):
       cls.slap.supply(software_url)
     cls.logger.debug("Waiting for slapos node software to build")
     cls.slap.waitForSoftware(max_retry=max_retry, debug=debug)
-    _storeSoftwareLogSnapshot('setupModule')
+    _storeSoftwareSnapshot('setupModule')
     for software_url in software_url_list:
       checkSoftware(cls.slap, software_url)
   except BaseException as e:
@@ -361,7 +374,7 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=2, debug=False):
         cls.slap.waitForSoftware(max_retry=max_retry, debug=debug)
       except BaseException:
         cls.logger.exception("Error removing software")
-        _storeSoftwareLogSnapshot('setupModule removing software')
+        _storeSoftwareSnapshot('setupModule removing software')
     cls._cleanup('setupModule')
     raise e
 

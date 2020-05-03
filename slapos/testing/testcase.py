@@ -152,7 +152,14 @@ def makeModuleSetUpAndTestCaseClass(
     if debug:
       unittest.installHandler()
     logging.basicConfig(
-        level=logging.DEBUG if (verbose or debug) else logging.WARNING)
+        level=logging.DEBUG,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        filename=os.path.join(slap._base_directory, 'var', 'log', 'test.log'))
+    logger = logging.getLogger()
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(
+        logging.DEBUG if (verbose or debug) else logging.WARNING)
+    logger.addHandler(console_handler)
     installSoftwareUrlList(cls, [software_url], debug=debug)
 
   return setUpModule, SlapOSInstanceTestCase_
@@ -362,7 +369,9 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=2, debug=False):
     cls.slap.waitForSoftware(max_retry=max_retry, debug=debug)
     _storeSoftwareSnapshot('setupModule')
     for software_url in software_url_list:
+      cls.logger.debug("Checking software %s", software_url)
       checkSoftware(cls.slap, software_url)
+      cls.logger.debug("Done checking software %s", software_url)
   except BaseException as e:
     if not debug:
       cls.logger.exception("Error building software, removing")

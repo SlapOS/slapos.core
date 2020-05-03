@@ -151,7 +151,15 @@ def makeModuleSetUpAndTestCaseClass(
     if debug:
       unittest.installHandler()
     logging.basicConfig(
-        level=logging.DEBUG if (verbose or debug) else logging.WARNING)
+        level=logging.DEBUG,
+        format='%(asctime)s - {} - %(name)s - %(levelname)s - %(message)s'.format(cls.software_id),
+        filename=os.path.join(snapshot_directory or base_directory, 'testcase.log'),
+    )
+    logger = logging.getLogger()
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(
+        logging.DEBUG if (verbose or debug) else logging.WARNING)
+    logger.addHandler(console_handler)
     installSoftwareUrlList(cls, [software_url], debug=debug)
 
   return setUpModule, SlapOSInstanceTestCase_
@@ -361,7 +369,9 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=10, debug=False):
     cls.slap.waitForSoftware(max_retry=max_retry, debug=debug)
     _storeSoftwareSnapshot('setupModule')
     for software_url in software_url_list:
+      cls.logger.debug("Checking software %s", software_url)
       checkSoftware(cls.slap, software_url)
+      cls.logger.debug("Done checking software %s", software_url)
   except BaseException as e:
     if not debug:
       cls.logger.exception("Error building software, removing")
@@ -614,10 +624,8 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       with open(destination, 'w') as f:
         f.write('broken symink to {}\n'.format(os.readlink(source_file_name)))
     elif os.path.isfile(source_file_name):
-      cls.logger.debug("copy %s as %s", source_file_name, destination)
       shutil.copy(source_file_name, destination)
     elif os.path.isdir(source_file_name):
-      cls.logger.debug("copy directory %s as %s", source_file_name, destination)
       # we copy symlinks as symlinks, so that this does not fail when
       # we copy a directory containing broken symlinks.
       shutil.copytree(source_file_name, destination, symlinks=True)

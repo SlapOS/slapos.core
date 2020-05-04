@@ -33,6 +33,7 @@ import re
 import glob
 import logging
 import shutil
+import warnings
 from six.moves.urllib.parse import urlparse
 
 try:
@@ -124,8 +125,6 @@ def makeModuleSetUpAndTestCaseClass(
         'base directory ( {} ) is too deep, try setting '
         'SLAPOS_TEST_WORKING_DIR to a shallow enough directory'.format(
             base_directory))
-  if not snapshot_directory:
-    snapshot_directory = os.path.join(base_directory, "snapshots")
 
   cls = type(
       'SlapOSInstanceTestCase for {}'.format(software_url),
@@ -589,6 +588,9 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     The path are made relative to slapos root directory and
     we keep the same directory structure.
     """
+    if not cls._test_file_snapshot_directory:
+      warnings.warn("No snapshot directory configured, skipping snapshot")
+      return
     # we cannot use os.path.commonpath on python2, so implement something similar
     common_path = os.path.commonprefix((source_file_name, cls._base_directory))
     if not os.path.isdir(common_path):

@@ -27,10 +27,10 @@
 #
 ##############################################################################
 
-
-from slapos.cli.command import must_be_root
 from slapos.cli.config import ConfigCommand
 from slapos.bang import do_bang
+from slapos.util import string_to_boolean
+from slapos.cli.command import check_root_user
 
 
 class BangCommand(ConfigCommand):
@@ -41,11 +41,17 @@ class BangCommand(ConfigCommand):
 
     def get_parser(self, prog_name):
         ap = super(BangCommand, self).get_parser(prog_name)
-        ap.add_argument('-m', '--message',
-                        help='Message for bang')
+        ap.add_argument('-m', '--message', help='Message for bang')
         return ap
 
-    @must_be_root
     def take_action(self, args):
         configp = self.fetch_config(args)
+
+        root_check = True
+        if configp.has_option('slapos', 'root_check'):
+          root_check = configp.getboolean('slapos', 'root_check')
+
+        if root_check:
+          check_root_user(self)
+
         do_bang(configp, args.message)

@@ -204,8 +204,6 @@ def checkSoftware(slap, software_url):
       '*/node_modules/phantomjs*/*',
       '*/grafana/tools/phantomjs/*',
       '*/node_modules/puppeteer/*',
-      # gcc's gfortran runtime is linked against libz and ignores rpath
-      '*/libgfortran.so*',
       # left over of compilation failures
       '*/*__compile__/*',
   ))

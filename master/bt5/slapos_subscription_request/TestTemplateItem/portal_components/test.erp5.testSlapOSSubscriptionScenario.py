@@ -223,9 +223,9 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.login()
 
     # 195 is the month payment
-    # 195*3 is the 3 months to pay upfront to use.
+    # 195*1 is the 1 months to pay upfront to use.
     # 25 is the reservation fee deduction.
-    authAmount = (int(self.expected_individual_price_with_tax*100)*3-2500)*quantity
+    authAmount = (int(self.expected_individual_price_with_tax*100)*1-2500)*quantity
     data_kw = {
         'errorCode': '0',
         'transactionStatus': '6',
@@ -350,11 +350,11 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
     quantity = subscription_request.getQuantity()
     # The values are without tax
-    self.assertEqual(sale_packing_list_line.getQuantity(), 3*quantity)
-    self.assertEqual(sale_packing_list_line.getPrice(),
-      self.expected_individual_price_without_tax)
+    self.assertEqual(sale_packing_list_line.getQuantity(), 1*quantity)
+    self.assertEqual(round(sale_packing_list_line.getPrice(), 2),
+      round(self.expected_individual_price_without_tax, 2))
     self.assertEqual(round(sale_packing_list_line.getTotalPrice(), 2), 
-      3*self.expected_individual_price_without_tax*quantity)
+      round(1*self.expected_individual_price_without_tax*quantity, 2))
 
     self.assertEqual(sale_packing_list.getCausality(),
                      subscription_request.getRelativeUrl())
@@ -523,7 +523,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
       self.checkAggregatedSalePackingList(subscription_request, sale_packing_list_list[0])
 
-      expected_sale_packing_list_amount = len(subscription_request_list) * 3
+      expected_sale_packing_list_amount = len(subscription_request_list) * 1
       self.assertEqual(expected_sale_packing_list_amount, 
         len(self.getSubscriptionSalePackingList(subscription_request)))
 
@@ -689,7 +689,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
       self.checkAggregatedSalePackingList(subscription_request, sale_packing_list_list[0])
 
-      expected_sale_packing_list_amount = len(subscription_request_list) * 3
+      expected_sale_packing_list_amount = len(subscription_request_list) * 1
       self.assertEqual(expected_sale_packing_list_amount, 
         len(self.getSubscriptionSalePackingList(subscription_request)))
 

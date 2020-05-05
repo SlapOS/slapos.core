@@ -163,8 +163,11 @@ if (add_line_list):
       edit_kw['price'] = subscription_request.getPrice()
       edit_kw['price_currency'] = subscription_request.getPriceCurrency()
       # While create move the start date to be at least 1 months
-      # So we can charge 3 months at once.
-      start_date_delta = 65
+      # So we can charge 3 months at once
+      # You can increase 65 days to generate 3 months
+      # You can increase 32 days to generate 2 months
+      # You can increase 0 days to keep generating one month only
+      start_date_delta = 0
 
     open_sale_order_line.edit(
       activate_kw=activate_kw,

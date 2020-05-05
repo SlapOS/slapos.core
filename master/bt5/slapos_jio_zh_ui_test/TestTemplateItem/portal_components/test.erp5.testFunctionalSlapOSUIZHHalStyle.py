@@ -37,6 +37,14 @@ class TestSlapOSUIZHHalStyle(SlapOSTestCaseMixin, ERP5TypeFunctionalTestCase):
     ERP5TypeFunctionalTestCase.afterSetUp(self)
     SlapOSTestCaseMixin.afterSetUp(self)
 
+  def getBusinessTemplateList(self):
+    bt5_list = SlapOSTestCaseMixin.getBusinessTemplateList(self)
+    bt5_list.extend(
+      'slapos_jio_ui_test',
+      'slapos_jio_zh_ui_test'
+    )
+    return bt5_list
+
 def test_suite():
   suite = unittest.TestSuite()
   suite.addTest(unittest.makeSuite(TestSlapOSUIZHHalStyle))

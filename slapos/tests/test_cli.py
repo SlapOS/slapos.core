@@ -336,7 +336,8 @@ class TestCliBoot(CliMixin):
       SlapOSApp().run.assert_any_call(['node', 'bang', '-m', 'Reboot'])
 
       # timestamp files have been removed
-      self.assertFalse(os.path.exists(timestamp))
+      self.assertFalse(os.path.exists(timestamp),
+              timestamp)
 
 
 class TestCliNode(CliMixin):

@@ -15,9 +15,9 @@
     .declareAcquiredMethod("jio_get", "jio_get")
     .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
+
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
-    .declareAcquiredMethod("translate", "translate")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -42,7 +42,7 @@
                 url + doc.relative_url + "/SoftwareRelease_requestHostingSubscription", doc);
             });
         })
-        .push(function () {
+        .push(function (key) {
           return gadget.notifySubmitted({message: 'New service created.', status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
@@ -70,12 +70,12 @@
     .declareJob("deferRender", function (options) {
       var gadget = this;
       if (options.intent !== "request") {
-        throw new Error(gadget.translate("Intent not supported"));
+        throw new Error("Intent not supported");
       }
       return new RSVP.Queue()
         .push(function () {
           return gadget.updateHeader({
-            page_title: gadget.translate("Requesting a service...")
+            page_title: "Requesting a service..."
           });
         })
         .push(function () {
@@ -107,7 +107,7 @@
             url = result[2],
             doc = {
               url_string: software_release.url_string,
-              title: options.software_title || "Instance {uid}",
+              title: options.software_title ? options.software_title: "Instance {uid}",
               relative_url: options.jio_key
             };
           if (options.software_type) {
@@ -143,7 +143,7 @@
                 url + doc.relative_url + "/SoftwareRelease_requestHostingSubscription?" + query.join("&"));
             })
             .push(function (key) {
-              return gadget.notifySubmitted({message: gadget.translate("New service created."), status: 'success'})
+              return gadget.notifySubmitted({message: 'New service created.', status: 'success'})
                 .push(function () {
                   // Workaround, find a way to open document without break gadget.
                   return gadget.redirect({"command": "change",

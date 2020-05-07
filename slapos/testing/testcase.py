@@ -376,7 +376,7 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=10, debug=False):
         cls.logger.exception("Error removing software")
         _storeSoftwareSnapshot('setupModule removing software')
     cls._cleanup('setupModule')
-    raise e
+    raise
 
 
 class SlapOSInstanceTestCase(unittest.TestCase):

@@ -1,187 +1,201 @@
-<html xmlns:tal="http://xml.zope.org/namespaces/tal"
-      xmlns:metal="http://xml.zope.org/namespaces/metal">
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Test SlapJS UI</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test SlapOS UI Account Certificate</title>
 </head>
+
 <body>
-<table cellpadding="1" cellspacing="1" border="1">
-<thead>
-<tr><td rowspan="1" colspan="3">Test SlapOS UI Account Certificate</td></tr>
-</thead><tbody>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test SlapOS UI Account Certificate</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_init" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_login" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
 
-<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_init" />
+      <tal:block define="person_name python: 'Demo User Functional'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_account" />
+      </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_login" />
-
-<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
-
-
-<tal:block define="person_name python: 'Demo User Functional'">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_account" />
-</tal:block>
-
-<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 记录'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
-</tal:block>
+      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 记录'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+      </tal:block>
 
 
-<tr>
-   <td colspan="3"><b> Request User Certificate</b> </td>
-</tr>
+      <tr>
+        <td colspan="3"><b> Request User Certificate</b> </td>
+      </tr>
 
-<tal:block define="menu_action python: 'Request Certificate'">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_submenu_action" />
-</tal:block>
+      <tal:block define="menu_action python: 'Request Certificate'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+      </tal:block>
 
-<tal:block define="header python: '请求新的证书'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
-</tal:block>
+      <tal:block define="header python: '请求新的证书'; ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_proceed" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
-<tal:block tal:define="notification_configuration python: {'class': 'success',
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
                                                            'text': '证书已请求。'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
-</tal:block>
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+      </tal:block>
 
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//textarea[@name="certificate"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//textarea[@name="key"]</td>
-  <td></td>
-</tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="certificate"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="key"]</td>
+        <td></td>
+      </tr>
 
-<tal:block define="header python: '请求新的证书'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_page_header" />
-</tal:block>
+      <tal:block define="header python: '请求新的证书'; ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
+      </tal:block>
 
-<tr>
-   <td colspan="3"><b> Request User Certificate</b> </td>
-</tr>
+      <tr>
+        <td colspan="3"><b> Request User Certificate</b> </td>
+      </tr>
 
-<tal:block define="menu_action python: 'Request Certificate'">
-   <tr>
-      <td colspan="3"><b tal:content="python: 'Click on %s' % menu_action"> Menu Item </b></td>
-    </tr>
-    <tr>
-      <td>waitForElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>assertElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>click</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
-      <td></td>
-    </tr>
-  </tal:block>
+      <tal:block define="menu_action python: 'Request Certificate'">
+        <tr>
+          <td colspan="3"><b tal:content="python: 'Click on %s' % menu_action"> Menu Item </b></td>
+        </tr>
+        <tr>
+          <td>waitForElementPresent</td>
+          <td
+            tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action">
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>assertElementPresent</td>
+          <td
+            tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action">
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>click</td>
+          <td
+            tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action">
+          </td>
+          <td></td>
+        </tr>
+      </tal:block>
 
-<tal:block define="header python: '请求新的证书'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
-</tal:block>
+      <tal:block define="header python: '请求新的证书'; ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_proceed" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
-<tal:block tal:define="notification_configuration python: {'class': 'success',
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
                                                            'text': '该用户已拥有一个证书，请在请求新的证书之前吊销已有证书。'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
-</tal:block>
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+      </tal:block>
 
 
-<tal:block define="header python: '请求新的证书'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_page_header" />
-</tal:block>
+      <tal:block define="header python: '请求新的证书'; ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
+      </tal:block>
 
-<tr>
-   <td colspan="3"><b> Revoke Certificate</b></td>
-</tr>
+      <tr>
+        <td colspan="3"><b> Revoke Certificate</b></td>
+      </tr>
 
-<tal:block define="menu_action python: 'Revoke Certificate'">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_submenu_action" />
-</tal:block>
+      <tal:block define="menu_action python: 'Revoke Certificate'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+      </tal:block>
 
-<tal:block define="header python: '吊销用户证书'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
-</tal:block>
+      <tal:block define="header python: '吊销用户证书'; ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_proceed" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
-<tal:block tal:define="notification_configuration python: {'class': 'success',
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
                                                            'text': '证书已吊销。'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
-</tal:block>
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+      </tal:block>
 
-<tal:block define="header python: '您的登录账号 : Demo User Functional'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
-</tal:block>
+      <tal:block define="header python: '您的登录账号 : Demo User Functional'; ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      </tal:block>
 
 
-<tr>
-   <td colspan="3"><b> Request User Certificate again</b> </td>
-</tr>
+      <tr>
+        <td colspan="3"><b> Request User Certificate again</b> </td>
+      </tr>
 
-<tal:block define="menu_action python: 'Request Certificate'">
-     <tr>
-      <td colspan="3"><b tal:content="python: 'Click on %s' % menu_action"> Menu Item </b></td>
-    </tr>
-    <tr>
-      <td>waitForElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>assertElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>click</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action"></td>
-      <td></td>
-    </tr>
-</tal:block>
+      <tal:block define="menu_action python: 'Request Certificate'">
+        <tr>
+          <td colspan="3"><b tal:content="python: 'Click on %s' % menu_action"> Menu Item </b></td>
+        </tr>
+        <tr>
+          <td>waitForElementPresent</td>
+          <td
+            tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action">
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>assertElementPresent</td>
+          <td
+            tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action">
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>click</td>
+          <td
+            tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_action">
+          </td>
+          <td></td>
+        </tr>
+      </tal:block>
 
-<tal:block define="header python: '请求新的证书'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
-</tal:block>
+      <tal:block define="header python: '请求新的证书'; ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_proceed" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
-<tal:block tal:define="notification_configuration python: {'class': 'success',
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
                                                            'text': '证书已请求。'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
-</tal:block>
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+      </tal:block>
 
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//textarea[@name="certificate"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//textarea[@name="key"]</td>
-  <td></td>
-</tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="certificate"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="key"]</td>
+        <td></td>
+      </tr>
 
-<tal:block define="header python: '请求新的证书'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/click_page_header" />
-</tal:block>
+      <tal:block define="header python: '请求新的证书'; ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
+      </tal:block>
 
 
-<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_logout" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_logout" />
 
-</tbody></table>
+    </tbody>
+  </table>
 </body>
+
 </html>

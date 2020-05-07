@@ -1,36 +1,37 @@
-<html xmlns:tal="http://xml.zope.org/namespaces/tal"
-      xmlns:metal="http://xml.zope.org/namespaces/metal">
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Test SlapJS UI</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test SlapOS JS Project</title>
 </head>
+
 <body>
-<table cellpadding="1" cellspacing="1" border="1">
-<thead>
-<tr><td rowspan="1" colspan="3">Test RenderJS UI</td></tr>
-</thead><tbody>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test SlapOS JS Project</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init" />
+      <tal:block define="document_title python: 'TEST-SLAPOSJS-PROJECT 0';">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/create_simple_project" />
+      </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login" />
+      <tr>
+        <td>type</td>
+        <td>//textarea[@id="description"]</td>
+        <td>TEST-SLAPOSJS-PROJECT DESCRIPTION</td>
+      </tr>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/save" />
 
-<tal:block define="document_title python: 'TEST-SLAPOSJS-PROJECT 0';">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/create_simple_project" />
-</tal:block>
+      <!-- check site -->
 
-<tr>
-  <td>type</td>
-  <td>//textarea[@id="description"]</td>
-  <td>TEST-SLAPOSJS-PROJECT DESCRIPTION</td>
-</tr>
-
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/save" />
-
-<!-- check site -->
-
-<!--  Broken history to return
+      <!--  Broken history to return
 <tr>
   <td>click</td>
   <td>//a[@data-i18n="Project : TEST-SLAPOSJS-PROJECT 0"]</td>
@@ -38,50 +39,52 @@
 </tr>
 -->
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
 
 
-<tal:block define="menu_item python: 'Projects'; header menu_item">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
-</tal:block>
+      <tal:block define="menu_item python: 'Projects'; header menu_item">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+      </tal:block>
 
-<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
-</tal:block>
+      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+      </tal:block>
 
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//a[text()="TEST-SLAPOSJS-PROJECT 0"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>click</td>
-  <td>//a[text()="TEST-SLAPOSJS-PROJECT 0"]</td>
-  <td></td>
-</tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-PROJECT 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>click</td>
+        <td>//a[text()="TEST-SLAPOSJS-PROJECT 0"]</td>
+        <td></td>
+      </tr>
 
 
-<tal:block define="header python: 'Project : TEST-SLAPOSJS-PROJECT 0'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
-</tal:block>
+      <tal:block define="header python: 'Project : TEST-SLAPOSJS-PROJECT 0'; ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      </tal:block>
 
-<tal:block tal:define="delete_configuration python: {'header_title': 'Delete Project: TEST-SLAPOSJS-PROJECT 0',
+      <tal:block tal:define="delete_configuration python: {'header_title': 'Delete Project: TEST-SLAPOSJS-PROJECT 0',
                                                          'notification_text': 'Project is Deleted.'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/delete_simple" />
-</tal:block>
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/delete_simple" />
+      </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
 
-<tal:block define="menu_item python: 'Projects'; header menu_item">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
-</tal:block>
+      <tal:block define="menu_item python: 'Projects'; header menu_item">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+      </tal:block>
 
-<tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
-</tal:block>
+      <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+      </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_logout" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_logout" />
 
-</tbody></table>
+    </tbody>
+  </table>
 </body>
+
 </html>

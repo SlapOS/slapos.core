@@ -364,7 +364,7 @@
     </tr>
     <tr>
       <td>click</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[contains(text(), \'Account\')]' % panel_gadget_id"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[contains(text(), \'Login Account\')]' % panel_gadget_id"></td>
       <td></td>
     </tr>
     <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />

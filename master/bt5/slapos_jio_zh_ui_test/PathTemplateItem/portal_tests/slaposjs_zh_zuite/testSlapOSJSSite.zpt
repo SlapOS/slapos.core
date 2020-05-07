@@ -1,61 +1,62 @@
-<html xmlns:tal="http://xml.zope.org/namespaces/tal"
-      xmlns:metal="http://xml.zope.org/namespaces/metal">
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Test SlapJS UI</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test SlapOS JS Site</title>
 </head>
+
 <body>
-<table cellpadding="1" cellspacing="1" border="1">
-<thead>
-<tr><td rowspan="1" colspan="3">Test SlapOS JS Site</td></tr>
-</thead><tbody>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">Test SlapOS JS Site</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_init" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_login" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
 
-<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_init" />
 
-<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_login" />
+      <tal:block define="menu_item python: '站点'; header menu_item; menu_item_data python:'Sites'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
+      </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
+      <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': '没有记录'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+      </tal:block>
 
+      <tal:block define="title python: 'TEST-SLAPOSJS-SET 0'; ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/add_simple_with_title" />
+      </tal:block>
 
-<tal:block define="menu_item python: '站点'; header menu_item; menu_item_data python:'Sites'">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
-</tal:block>
-
-<tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': '没有记录'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
-</tal:block>
-
-<tal:block define="title python: 'TEST-SLAPOSJS-SET 0'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/add_simple_with_title" />
-</tal:block>
-
-<tal:block tal:define="notification_configuration python: {'class': 'success',
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
                                                            'text': '新的站点已创建。'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_notification" />
-</tal:block>
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+      </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/wait_for_content_loaded" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
 
-<tal:block define="header python: 'Site : TEST-SLAPOSJS-SET 0'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
-</tal:block>
+      <tal:block define="header python: 'Site : TEST-SLAPOSJS-SET 0'; ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      </tal:block>
 
-<tr>
-  <td>type</td>
-  <td>//input[@id="default_geographical_location_longitude"]</td>
-  <td>3.077475</td>
-</tr>
-<tr>
-  <td>type</td>
-  <td>//input[@id="default_geographical_location_latitude"]</td>
-  <td>50.644353</td>
-</tr>
+      <tr>
+        <td>type</td>
+        <td>//input[@id="default_geographical_location_longitude"]</td>
+        <td>3.077475</td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//input[@id="default_geographical_location_latitude"]</td>
+        <td>50.644353</td>
+      </tr>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/save" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/save" />
 
-<!-- check site -->
+      <!-- check site -->
 
-<!--  Broken history to return
+      <!--  Broken history to return
 <tr>
   <td>click</td>
   <td>//a[@data-i18n="Site : TEST-SLAPOSJS-SET 0"]</td>
@@ -63,50 +64,52 @@
 </tr>
 -->
 
-<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
 
 
-<tal:block define="menu_item python: '站点'; header menu_item; menu_item_data python:'Sites'">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
-</tal:block>
+      <tal:block define="menu_item python: '站点'; header menu_item; menu_item_data python:'Sites'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
+      </tal:block>
 
-<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 记录'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
-</tal:block>
+      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 记录'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+      </tal:block>
 
-<tr>
-  <td>waitForElementPresent</td>
-  <td>//a[text()="TEST-SLAPOSJS-SET 0"]</td>
-  <td></td>
-</tr>
-<tr>
-  <td>click</td>
-  <td>//a[text()="TEST-SLAPOSJS-SET 0"]</td>
-  <td></td>
-</tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-SET 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>click</td>
+        <td>//a[text()="TEST-SLAPOSJS-SET 0"]</td>
+        <td></td>
+      </tr>
 
 
-<tal:block define="header python: 'Site : TEST-SLAPOSJS-SET 0'; ">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/assert_page_header" />
-</tal:block>
+      <tal:block define="header python: 'Site : TEST-SLAPOSJS-SET 0'; ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      </tal:block>
 
-<tal:block tal:define="delete_configuration python: {'header_title': '删除站点： TEST-SLAPOSJS-SET 0',
+      <tal:block tal:define="delete_configuration python: {'header_title': '删除站点： TEST-SLAPOSJS-SET 0',
                                                          'notification_text': '站点已删除。'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/delete_simple" />
-</tal:block>
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/delete_simple" />
+      </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
 
-<tal:block define="menu_item python: '站点'; header menu_item; menu_item_data python:'Sites'">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
-</tal:block>
+      <tal:block define="menu_item python: '站点'; header menu_item; menu_item_data python:'Sites'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_zh" />
+      </tal:block>
 
-<tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': '没有记录'}">
-  <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/check_listbox_pagination_text" />
-</tal:block>
+      <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': '没有记录'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+      </tal:block>
 
-<tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_logout" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_logout" />
 
-</tbody></table>
+    </tbody>
+  </table>
 </body>
+
 </html>

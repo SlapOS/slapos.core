@@ -49,15 +49,16 @@ import platform
 import re
 
 
-def _debianize(os):
+def _debianize(os_):
     """
     keep only the major release number in case of debian, otherwise
     minor releases would be seen as not compatible to each other.
     """
-    distname, version, id_ = os
-    distname = distname.lower()
-    if distname == 'debian' and '.' in version:
+    distname, version, id_ = os_
+    distname_lower = distname.lower()
+    if distname_lower == 'debian' and '.' in version:
         version = version.split('.')[0]
+        distname = distname_lower
     return distname, version, id_
 
 
@@ -65,9 +66,9 @@ def os_matches(os1, os2):
     return _debianize(os1) == _debianize(os2)
 
 
-_distributor_id_file_re = re.compile("(?:DISTRIB_ID\s*=)\s*(.*)", re.I)
-_release_file_re = re.compile("(?:DISTRIB_RELEASE\s*=)\s*(.*)", re.I)
-_codename_file_re = re.compile("(?:DISTRIB_CODENAME\s*=)\s*(.*)", re.I)
+_distributor_id_file_re = re.compile(r"(?:DISTRIB_ID\s*=)\s*(.*)", re.I)
+_release_file_re = re.compile(r"(?:DISTRIB_RELEASE\s*=)\s*(.*)", re.I)
+_codename_file_re = re.compile(r"(?:DISTRIB_CODENAME\s*=)\s*(.*)", re.I)
 
 
 def patched_linux_distribution(distname='', version='', id='',
@@ -90,7 +91,7 @@ def patched_linux_distribution(distname='', version='', id='',
         if _u_distname and _u_version:
             return (_u_distname, _u_version, _u_id)
     except (EnvironmentError, UnboundLocalError):
-            pass
+        pass
 
     return platform.linux_distribution(distname, version, id, supported_dists, full_distribution_name)
 

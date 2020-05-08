@@ -38,14 +38,14 @@ def get_user_list(config):
   instance_root = config.get("slapos", "instance_root")
   # By default, enable disk snapshot,
   # and set time_cycle to 24hours after the first disk snapshot run
-  disk_snapshot_params = {'enable': True, 'time_cycle': 86400}
+  disk_snapshot_params = {'enable': False, 'time_cycle': 86400}
   if config.has_section('collect'):
     collect_section = dict(config.items("collect"))
     disk_snapshot_params = dict(
-      enable=eval(collect_section.get("report_disk_usage", "True")),
+      enable=collect_section.get("report_disk_usage", "False").lower() in ('true', 'on', '1'),
       pid_folder=collect_section.get("disk_snapshot_process_pid_foder", None),
       time_cycle=int(collect_section.get("disk_snapshot_time_cycle", 86400)),
-      use_quota=eval(collect_section.get("disk_snapshot_use_quota", "True"))
+      use_quota=collect_section.get("disk_snapshot_use_quota", "True").lower() in ('true', 'on', '1'),
     )
   user_dict = {name: User(name, path, disk_snapshot_params)
       for name, path in [

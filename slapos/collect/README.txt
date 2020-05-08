@@ -21,7 +21,7 @@ Collect command search for all process launched by all users related to the
 slapos [1]. After this, for each process it uses psutil (or similars tools) to 
 collect all available information for every process pid [2].
 
-Once Collected, every Process information is stored on sqllite3 [3], in other 
+Once Collected, every Process information is stored on sqlite3 [3], in other 
 words, we have 1 line per pid for a giving time. It's used pid number and 
 process creation date for create a UID for the process, and it is omitted the 
 command name in order to annonymalize the data (so the risk of information 
@@ -46,15 +46,15 @@ We use 3 types of snapshots for determinate the load and the available resources
   - Computer Snapshot [6]: It collects for now number of CPU cores and available 
                            memory, however we wish to collect more details.
                            
-  - Disk Snapshot [7]: It collects the informations related to the a disk 
+  - Disk Snapshot [7]: It collects information related to the a disk 
                         (1 snapshot per disk), which contains total, usage and 
-                        io informations.
+                        io information.
                         
                         
 "Real-time" Partial dump (Dygraph)
 ===================================
 
-On every run, we dump data from the current day on csv [8] (2 axes), in order to
+On every run, we dump data from the current day on csv (2 axes), in order to
 plot easily with dygraph, so there will be few files available like this:
 
  - system_cpu_percent.csv
@@ -91,7 +91,7 @@ Data Structure
   
 The header of the CSVs are not included on the dumped file (it is probably a 
 mistake), but it corresponds to (same as columns on the sqllite) which can be
-easily described like bellow [11]:
+easily described like below [11]:
 
   - user
       partition (text)

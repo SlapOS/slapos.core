@@ -49,10 +49,12 @@ import slapos.cli.computer_info
 import slapos.cli.computer_list
 import slapos.cli.computer_token
 import slapos.cli.supervisorctl
+import slapos.cli.request
 from slapos.cli.proxy_show import do_show, StringIO
 from slapos.cli.cache import do_lookup as cache_do_lookup
 from slapos.cli.cache_source import do_lookup as cache_source_do_lookup
 from slapos.client import ClientConfig
+from slapos.slap import SoftwareProductCollection
 import slapos.grid.svcbackend
 import slapos.proxy
 import slapos.slap
@@ -65,8 +67,8 @@ def raiseNotFoundError(*args, **kwargs):
 class CliMixin(unittest.TestCase):
   def setUp(self):
     slap = slapos.slap.slap()
-    self.local = {'slap': slap}
     self.logger = create_autospec(logging.Logger)
+    self.local = {'slap': slap, 'product': SoftwareProductCollection(self.logger, slap)}
     self.conf = create_autospec(ClientConfig)
 
 class TestCliCache(CliMixin):
@@ -567,3 +569,50 @@ print(request('software_release', 'instance').getInstanceParameterDict()['parame
       script.write(self.script)
       script.flush()
       app.run(('console', '--cfg', config_file, script.name))
+
+
+@patch.object(slapos.slap.slap, 'registerOpenOrder', return_value=mock.create_autospec(slapos.slap.OpenOrder))
+class TestCliRequest(CliMixin):
+  def test_parse_option_dict(self, _):
+    parse_option_dict = slapos.cli.request.parse_option_dict
+
+    self.assertEqual({'foo': 'bar', 'a': 'b'}, parse_option_dict(['foo=bar', 'a=b']))
+    # malformed option = assignment
+    self.assertRaises(ValueError, parse_option_dict, ['a'])
+    # duplicated key
+    self.assertRaises(ValueError, parse_option_dict, ['a=b', 'a=c'])
+    # @file syntax
+    with tempfile.NamedTemporaryFile(mode='w') as f:
+      f.write("file content")
+      f.flush()
+      self.assertEqual({'_': 'file content'}, parse_option_dict(['_=@' + f.name]))
+    # corner cases
+    self.assertEqual({'a': 'a=b'}, parse_option_dict(['a=a=b']))
+    self.assertEqual({}, parse_option_dict([]))
+    self.assertEqual({'_': '@file'}, parse_option_dict(['_=@file']))
+
+  def test_request(self, _):
+    self.conf.reference = 'instance reference'
+    self.conf.software_url = 'software URL'
+    self.conf.parameters = {'key': 'value'}
+    self.conf.node = {'computer_guid': 'COMP-1234'}
+    self.conf.type = None
+    self.conf.state = None
+    self.conf.slave = False
+
+    slapos.cli.request.do_request(self.logger, self.conf, self.local)
+
+    self.logger.info.assert_any_call(
+        'Requesting %s as instance of %s...',
+        'instance reference',
+        'software URL',
+    )
+    self.local['slap'].registerOpenOrder().request.assert_called_once_with(
+        software_release='software URL',
+        partition_reference='instance reference',
+        partition_parameter_kw={'key': 'value'},
+        software_type=None,
+        filter_kw={'computer_guid': 'COMP-1234'},
+        state=None,
+        shared=False,
+    )

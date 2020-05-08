@@ -28,11 +28,11 @@
 ##############################################################################
 
 import pprint
+import os.path
 
 from slapos.cli.config import ClientConfigCommand
 from slapos.client import init, ClientConfig, _getSoftwareReleaseFromSoftwareString
 from slapos.slap import ResourceNotReady
-
 
 
 def parse_option_dict(options):
@@ -45,6 +45,11 @@ def parse_option_dict(options):
         key, value = option_pair.split('=', 1)
         if key in ret:
             raise ValueError("Multiple values provided for the same key '%s'" % key)
+        if value.startswith('@'):
+            file_path = os.path.expanduser(value[1:])
+            if os.path.exists(file_path):
+                with open(file_path, "r") as f:
+                    value = f.read()
         ret[key] = value
     return ret
 
@@ -80,7 +85,8 @@ class RequestCommand(ClientConfigCommand):
 
         ap.add_argument('--parameters',
                         nargs='+',
-                        help="Give your configuration 'option1=value1 option2=value2'")
+                        help="Instance parameters, in the form 'option1=value1 option2=value2'.\n"
+                        "The content of a file can also be passed as option=@filename")
 
         return ap
 

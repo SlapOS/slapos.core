@@ -55,9 +55,10 @@ def _debianize(os):
     minor releases would be seen as not compatible to each other.
     """
     distname, version, id_ = os
-    distname = distname.lower()
-    if distname == 'debian' and '.' in version:
+    distname_lower = distname.lower()
+    if distname_lower == 'debian' and '.' in version:
         version = version.split('.')[0]
+        distname = distname_lower
     return distname, version, id_
 
 

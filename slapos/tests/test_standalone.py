@@ -37,11 +37,14 @@ import errno
 import time
 import multiprocessing
 from contextlib import closing
+from six.moves.configparser import ConfigParser
 
 import psutil
 
 from slapos.slap.standalone import StandaloneSlapOS
 from slapos.slap.standalone import SlapOSNodeCommandError
+from slapos.slap.standalone import PartitionForwardConfiguration
+from slapos.slap.standalone import PartitionForwardAsPartitionConfiguration
 
 SLAPOS_TEST_IPV4 = os.environ['SLAPOS_TEST_IPV4']
 SLAPOS_TEST_IPV6 = os.environ['SLAPOS_TEST_IPV6']
@@ -164,6 +167,89 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
       standalone1.supply("https://example.com/software.cfg")
     with self.assertRaises(BaseException):
       standalone1.stop()
+
+  def test_partition_forward(self):
+    # type: () -> None
+    working_dir = tempfile.mkdtemp(prefix=__name__)
+    self.addCleanup(shutil.rmtree, working_dir)
+    partition_forward_config = [
+        PartitionForwardConfiguration(
+            'https://slapos1.example.com',
+            'path/to/cert',
+            'path/to/key',
+            software_release_list=('https://example.com/software-1.cfg', ),
+        ),
+        PartitionForwardConfiguration(
+            'https://slapos2.example.com',
+            software_release_list=('https://example.com/software-2.cfg', ),
+        ),
+        PartitionForwardAsPartitionConfiguration(
+            'https://slapos3.example.com',
+            'computer',
+            'partition',
+            'path/to/cert',
+            'path/to/key',
+            software_release_list=('https://example.com/software-3.cfg', ),
+        ),
+        PartitionForwardAsPartitionConfiguration(
+            'https://slapos4.example.com',
+            'computer',
+            'partition',
+            software_release_list=('https://example.com/software-4.cfg', ),
+        ),
+    ]
+    standalone = StandaloneSlapOS(
+        working_dir,
+        SLAPOS_TEST_IPV4,
+        SLAPOS_TEST_PORT,
+        partition_forward_configuration=partition_forward_config,
+    )
+    self.addCleanup(standalone.stop)
+
+    config_parser = ConfigParser()
+    config_parser.read([os.path.join(working_dir, 'etc', 'slapos.cfg')])
+    self.assertTrue(
+        config_parser.has_section('multimaster/https://slapos1.example.com'))
+    self.assertEqual(
+        'path/to/cert',
+        config_parser.get('multimaster/https://slapos1.example.com', 'cert'))
+    self.assertEqual(
+        'path/to/key',
+        config_parser.get('multimaster/https://slapos1.example.com', 'key'))
+    self.assertEqual(
+        'https://example.com/software-1.cfg',
+        config_parser.get(
+            'multimaster/https://slapos1.example.com',
+            'software_release_list').strip())
+    self.assertFalse(
+        config_parser.has_option(
+            'multimaster/https://slapos2.example.com', 'computer'))
+    self.assertFalse(
+        config_parser.has_option(
+            'multimaster/https://slapos2.example.com', 'partition'))
+
+    self.assertTrue(
+        config_parser.has_section('multimaster/https://slapos2.example.com'))
+    self.assertFalse(
+        config_parser.has_option(
+            'multimaster/https://slapos2.example.com', 'cert'))
+    self.assertFalse(
+        config_parser.has_option(
+            'multimaster/https://slapos2.example.com', 'key'))
+
+    self.assertTrue(
+        config_parser.has_section('multimaster/https://slapos3.example.com'))
+    self.assertEqual(
+        'computer',
+        config_parser.get(
+            'multimaster/https://slapos3.example.com', 'computer'))
+    self.assertEqual(
+        'partition',
+        config_parser.get(
+            'multimaster/https://slapos3.example.com', 'partition'))
+
+    self.assertTrue(
+        config_parser.has_section('multimaster/https://slapos4.example.com'))
 
 
 class SlapOSStandaloneTestCase(unittest.TestCase):

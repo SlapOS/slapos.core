@@ -34,6 +34,7 @@ import time
 import errno
 import socket
 import shutil
+import collections
 
 from six.moves import urllib
 from six.moves import http_client
@@ -42,6 +43,13 @@ try:
   import subprocess32 as subprocess
 except ImportError:
   import subprocess
+
+try:
+  from typing import TYPE_CHECKING, Optional, Iterable, Dict, Union
+  if TYPE_CHECKING:
+    import subprocess
+except ImportError: # XXX to be removed once we depend on typing
+  pass
 
 import xml_marshaller
 import zope.interface
@@ -151,10 +159,27 @@ class SupervisorConfigWriter(ConfigWriter):
 class SlapOSConfigWriter(ConfigWriter):
   """Write slapos configuration at etc/slapos.cfg
   """
+  def _getPartitionForwardConfiguration(self):
+    # type: () -> Iterable[str]
+    for pfc in self._standalone_slapos._partition_forward_configuration:
+      software_release_list = '\n  '.join(pfc.software_release_list)
+      config = '[multimaster/{pfc.master_url}]\n'.format(pfc=pfc)
+      if pfc.cert:
+        config += 'cert = {pfc.cert}\n'.format(pfc=pfc)
+      if pfc.key:
+        config += 'key = {pfc.key}\n'.format(pfc=pfc)
+      config += 'software_release_list =\n  {}\n'.format('\n  '.join(pfc.software_release_list))
+      if isinstance(pfc, PartitionForwardAsPartitionConfiguration):
+        config += "computer = {pfc.computer}\n".format(pfc=pfc)
+        config += "partition = {pfc.partition}\n".format(pfc=pfc)
+      yield config
+
   def writeConfig(self, path):
-    standalone_slapos = self._standalone_slapos  # type: StandaloneSlapOS
+    # type: (str) -> None
+    standalone_slapos = self._standalone_slapos
     read_only_shared_part_list = '\n  '.join( #  pylint: disable=unused-variable; used in format()
         standalone_slapos._shared_part_list)
+    partition_forward_configuration = '\n'.join(self._getPartitionForwardConfiguration())
     with open(path, 'w') as f:
       f.write(
           textwrap.dedent(
@@ -176,6 +201,8 @@ class SlapOSConfigWriter(ConfigWriter):
               host = {standalone_slapos._server_ip}
               port = {standalone_slapos._server_port}
               database_uri = {standalone_slapos._proxy_database}
+
+              {partition_forward_configuration}
               """).format(**locals()))
 
 
@@ -193,6 +220,46 @@ class SlapOSCommandWriter(ConfigWriter):
               exec slapos "$@"
       """).format(**locals()))
     os.chmod(path, 0o755)
+
+
+class PartitionForwardConfiguration:
+  """Specification of request forwarding to another master, requested as user.
+  """
+  def __init__(
+      self,
+      master_url,
+      cert=None,
+      key=None,
+      software_release_list=(),
+  ):
+    # type: (str, Optional[str], Optional[str], Iterable[str]) -> None
+    self.master_url = master_url
+    self.cert = cert
+    self.key = key
+    self.software_release_list = list(software_release_list)
+
+
+class PartitionForwardAsPartitionConfiguration(PartitionForwardConfiguration):
+  """Specification of request forwarding to another master, requested as partition.
+  """
+  def __init__(
+      self,
+      master_url,
+      computer,
+      partition,
+      cert=None,
+      key=None,
+      software_release_list=(),
+  ):
+    # type: (str, str, str, Optional[str], Optional[str], Iterable[str]) -> None
+    super(PartitionForwardAsPartitionConfiguration, self).__init__(
+        master_url,
+        cert,
+        key,
+        software_release_list,
+    )
+    self.computer = computer
+    self.partition = partition
 
 
 @zope.interface.implementer(ISupply, IRequester)
@@ -215,7 +282,10 @@ class StandaloneSlapOS(object):
       shared_part_list=(),
       software_root=None,
       instance_root=None,
-      shared_part_root=None):
+      shared_part_root=None,
+      partition_forward_configuration=(),
+    ):
+    # type: (str, str, int, str, Iterable[str], Optional[str], Optional[str], Optional[str], Iterable[Union[PartitionForwardConfiguration, PartitionForwardAsPartitionConfiguration]]) -> None
     """Constructor, creates a standalone slapos in `base_directory`.
 
     Arguments:
@@ -226,6 +296,7 @@ class StandaloneSlapOS(object):
       * `software_root` -- directory to install software, default to "soft" in `base_directory`
       * `instance_root` -- directory to create instances, default to "inst" in `base_directory`
       * `shared_part_root` -- directory to hold shared parts software, default to "shared" in `base_directory`.
+      * `multi_master_config` -- configuration of multi master.
 
     Error cases:
       * `PathTooDeepError` when `base_directory` is too deep. Because of limitation
@@ -241,6 +312,7 @@ class StandaloneSlapOS(object):
 
     self._base_directory = base_directory
     self._shared_part_list = list(shared_part_list)
+    self._partition_forward_configuration = list(partition_forward_configuration)
 
     self._slapos_commands = {
         'slapos-node-software': {

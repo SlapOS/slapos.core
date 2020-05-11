@@ -38,7 +38,8 @@ import subprocess
 import tarfile
 import tempfile
 import time
-from six.moves import xmlrpc_client as xmlrpclib, range
+from six.moves import xmlrpc_client as xmlrpclib # type: ignore
+from six.moves import range
 from six.moves.configparser import ConfigParser
 
 from supervisor import xmlrpc

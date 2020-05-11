@@ -49,6 +49,10 @@ if sys.version_info < (2, 6):
   warnings.warn('Used python version (%s) is old and has problems with'
       ' IPv6 connections' % sys.version.split('\n')[0])
 
+from typing import List, Tuple, Sequence, TYPE_CHECKING
+if TYPE_CHECKING:
+  from ..slap.slap import ComputerPartition
+
 from lxml import etree
 
 from slapos import manager as slapmanager
@@ -537,6 +541,7 @@ stderr_logfile_backups=1
       launchSupervisord(instance_root=self.instance_root, logger=self.logger)
 
   def getComputerPartitionList(self):
+    # type: () -> Sequence[ComputerPartition]
     try:
       return self.computer.getComputerPartitionList()
     except socket.error as exc:
@@ -789,7 +794,7 @@ stderr_logfile_backups=1
       reload_process = FPopen(reload_cmd, universal_newlines=True)
       stdout, stderr = reload_process.communicate()
       if reload_process.returncode != 0:
-        raise Exception("Failed to load firewalld rules with command %s.\n%" % (
+        raise Exception("Failed to load firewalld rules with command %s.\n%s" % (
                         stderr, reload_cmd))
 
       with open(firewall_rules_path, 'w') as frules:
@@ -1254,6 +1259,7 @@ stderr_logfile_backups=1
         f.write(str(timestamp))
 
   def FilterComputerPartitionList(self, computer_partition_list):
+    # type: (Sequence[ComputerPartition]) -> List[ComputerPartition]
     """
     Try to filter valid partitions to be processed from free partitions.
     """
@@ -1392,12 +1398,12 @@ stderr_logfile_backups=1
     self.logger.info('=' * 80)
     if process_error_partition_list:
       self.logger.info('Error while processing the following partitions:')
-      for partition, exc in process_error_partition_list:
-        self.logger.info('  %s[%s]: %s', partition.getId(), getPartitionType(partition), exc)
+      for partition, error in process_error_partition_list:
+        self.logger.info('  %s[%s]: %s', partition.getId(), getPartitionType(partition), error)
     if promise_error_partition_list:
       self.logger.info('Error with promises for the following partitions:')
-      for partition, exc in promise_error_partition_list:
-        self.logger.info('  %s[%s]: %s', partition.getId(), getPartitionType(partition), exc)
+      for partition, error in promise_error_partition_list:
+        self.logger.info('  %s[%s]: %s', partition.getId(), getPartitionType(partition), error)
 
     # Return success value
     if not clean_run:
@@ -1420,7 +1426,7 @@ stderr_logfile_backups=1
     computer_partition_list = self.FilterComputerPartitionList(
         self.getComputerPartitionList())
 
-    promise_error_partition_list = []
+    promise_error_partition_list = [] # type: List[Tuple[ComputerPartition, Union[PromiseError, Exception]]]
     for computer_partition in computer_partition_list:
       try:
         # Process the partition itself
@@ -1444,8 +1450,8 @@ stderr_logfile_backups=1
 
     if promise_error_partition_list:
       self.logger.info('Finished computer partitions.')
-      for partition, exc in promise_error_partition_list:
-        self.logger.info('  %s[%s]: %s', partition.getId(), getPartitionType(partition), exc)
+      for partition, error in promise_error_partition_list:
+        self.logger.info('  %s[%s]: %s', partition.getId(), getPartitionType(partition), error)
 
     # Return success value
     if not clean_run_promise:

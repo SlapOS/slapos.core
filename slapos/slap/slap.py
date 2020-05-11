@@ -42,6 +42,7 @@ import re
 from functools import wraps
 
 import six
+from typing import Any, Dict, Tuple, List, Optional, Union
 
 from .exception import ResourceNotReady, ServerError, NotFoundError, \
           ConnectionError
@@ -67,6 +68,17 @@ fallback_handler = logging.StreamHandler()
 fallback_logger.setLevel(logging.INFO)
 fallback_logger.addHandler(fallback_handler)
 
+SoftwareState = str
+InstanceState = str
+
+PartitionParameters = Dict[str, str]
+FilterParameters = Dict[str, str]
+
+# XXX better types if typing supports it ?
+import typing
+if typing.TYPE_CHECKING and hasattr(typing, 'Literal'):
+  SoftwareState = typing.Literal["available", "destroyed"] # type: ignore
+  InstanceState = typing.Literal["available", "destroyed"] # type: ignore
 
 DEFAULT_SOFTWARE_TYPE = 'RootSoftwareInstance'
 COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME = '.slapos-request-transaction-%s'
@@ -133,12 +145,14 @@ class SoftwareRelease(SlapDocument):
     return (self._software_release, self._computer_guid, )
 
   def getComputerId(self):
+    # type: () -> str
     if not self._computer_guid:
       raise NameError('computer_guid has not been defined.')
     else:
       return self._computer_guid
 
   def getURI(self):
+    # type: () -> str
     if not self._software_release:
       raise NameError('software_release has not been defined.')
     else:
@@ -155,6 +169,7 @@ class SoftwareRelease(SlapDocument):
       (logger or fallback_logger).exception('')
 
   def available(self):
+    # type: () -> None
     if getattr(self, '_known_state', 'unknown') != "available":
       # Not required to repost if not needed.
       self._connection_helper.POST('availableSoftwareRelease', data={
@@ -162,17 +177,20 @@ class SoftwareRelease(SlapDocument):
         'computer_id': self.getComputerId()})
 
   def building(self):
+    # type: () -> None
     if getattr(self, '_known_state', 'unknown') != "building":
       self._connection_helper.POST('buildingSoftwareRelease', data={
         'url': self.getURI(),
         'computer_id': self.getComputerId()})
 
   def destroyed(self):
+    # type: () -> None
     self._connection_helper.POST('destroyedSoftwareRelease', data={
       'url': self.getURI(),
       'computer_id': self.getComputerId()})
 
   def getState(self):
+    # type: () -> SoftwareState
     return getattr(self, '_requested_state', 'available')
 
 
@@ -217,6 +235,7 @@ class SoftwareInstance(SlapDocument):
 class Supply(SlapDocument):
 
   def supply(self, software_release, computer_guid=None, state='available'):
+    # type: (str, Optional[str], SoftwareState) -> None
     try:
       self._connection_helper.POST('supplySupply', data={
         'url': software_release,
@@ -229,6 +248,7 @@ class Supply(SlapDocument):
 @implementer(interface.IToken)
 class Token(SlapDocument):
   def request(self):
+    # type: () -> Token
     return self._hateoas_navigator.getToken()
 
 @implementer(interface.IOpenOrder)
@@ -237,7 +257,7 @@ class OpenOrder(SlapRequester):
   def request(self, software_release, partition_reference,
               partition_parameter_kw=None, software_type=None,
               filter_kw=None, state=None, shared=False):
-
+    # type: (str, str, Optional[PartitionParameters], Optional[str], Optional[FilterParameters], Optional[InstanceState], bool) -> ComputerPartition
     if partition_parameter_kw is None:
       partition_parameter_kw = {}
     elif not isinstance(partition_parameter_kw, dict):
@@ -321,12 +341,15 @@ class Computer(SlapDocument):
   def __init__(self, computer_id, connection_helper=None, hateoas_navigator=None):
     SlapDocument.__init__(self, connection_helper, hateoas_navigator)
     self._computer_id = computer_id
+    self._software_release_list = None # type: List[SoftwareRelease]
+    self._computer_partition_list = None # type: List[ComputerPartition]
 
   def __getinitargs__(self):
     return (self._computer_id, )
 
   @_syncComputerInformation
   def getSoftwareReleaseList(self):
+    # type: () -> List[SoftwareRelease]
     """
     Returns the list of software release which has to be supplied by the
     computer.
@@ -340,6 +363,7 @@ class Computer(SlapDocument):
 
   @_syncComputerInformation
   def getComputerPartitionList(self):
+    # type: () -> List[ComputerPartition]
     for computer_partition in self._computer_partition_list:
       computer_partition._connection_helper = self._connection_helper
       computer_partition._hateoas_navigator = self._hateoas_navigator
@@ -356,6 +380,7 @@ class Computer(SlapDocument):
     return self._connection_helper.POST('loadComputerConfigurationFromXML', data={'xml': xml})
 
   def bang(self, message):
+    # type: (str) -> None
     self._connection_helper.POST('computerBang', data={
       'computer_id': self._computer_id,
       'message': message})
@@ -365,10 +390,12 @@ class Computer(SlapDocument):
     return loads(xml)
 
   def revokeCertificate(self):
+    # type: () -> None
     self._connection_helper.POST('revokeComputerCertificate', data={
       'computer_id': self._computer_id})
 
   def generateCertificate(self):
+    # type: () -> str
     xml = self._connection_helper.POST('generateComputerCertificate', data={
       'computer_id': self._computer_id})
     return loads(xml)
@@ -451,6 +478,7 @@ class ComputerPartition(SlapRequester):
   def request(self, software_release, software_type, partition_reference,
               shared=False, partition_parameter_kw=None, filter_kw=None,
               state=None):
+    # type: (str, str, str, bool, Optional[PartitionParameters], Optional[FilterParameters], Optional[InstanceState]) -> ComputerPartition
     if partition_parameter_kw is None:
       partition_parameter_kw = {}
     elif not isinstance(partition_parameter_kw, dict):
@@ -482,18 +510,21 @@ class ComputerPartition(SlapRequester):
     return self._requestComputerPartition(request_dict)
 
   def destroyed(self):
+    # type: () -> None
     self._connection_helper.POST('destroyedComputerPartition', data={
       'computer_id': self._computer_id,
       'computer_partition_id': self.getId(),
       })
 
   def started(self):
+    # type: () -> None
     self._connection_helper.POST('startedComputerPartition', data={
       'computer_id': self._computer_id,
       'computer_partition_id': self.getId(),
       })
 
   def stopped(self):
+    # type: () -> None
     self._connection_helper.POST('stoppedComputerPartition', data={
       'computer_id': self._computer_id,
       'computer_partition_id': self.getId(),
@@ -509,6 +540,7 @@ class ComputerPartition(SlapRequester):
       (logger or fallback_logger).exception('')
 
   def bang(self, message):
+    # type: (str) -> None
     self._connection_helper.POST('softwareInstanceBang', data={
       'computer_id': self._computer_id,
       'computer_partition_id': self.getId(),
@@ -552,17 +584,20 @@ class ComputerPartition(SlapRequester):
     return software_instance
 
   def getId(self):
+    # type: () -> str
     if not getattr(self, '_partition_id', None):
       raise ResourceNotReady()
     return self._partition_id
 
   def getInstanceGuid(self):
+    # type: () -> str
     """Return instance_guid. Raise ResourceNotReady if it doesn't exist."""
     if not getattr(self, '_instance_guid', None):
       raise ResourceNotReady()
     return self._instance_guid
 
   def getState(self):
+    # type: () -> str
     """return _requested_state. Raise ResourceNotReady if it doesn't exist."""
     if not getattr(self, '_requested_state', None):
       raise ResourceNotReady()
@@ -573,6 +608,7 @@ class ComputerPartition(SlapRequester):
     return getattr(self, '_access_status', None)
 
   def getType(self):
+    # type: () -> str
     """
     return the Software Type of the instance.
     Raise RessourceNotReady if not present.
@@ -585,9 +621,11 @@ class ComputerPartition(SlapRequester):
     return software_type
 
   def getInstanceParameterDict(self):
+    # type: () -> Dict
     return getattr(self, '_parameter_dict', None) or {}
 
   def getConnectionParameterDict(self):
+    # type: () -> Dict
     connection_dict = getattr(self, '_connection_dict', None)
     if connection_dict is None:
       # XXX Backward compatibility for older slapproxy (<= 1.0.0)
@@ -635,6 +673,7 @@ class ComputerPartition(SlapRequester):
           'slave_reference': slave_reference})
 
   def getInstanceParameter(self, key):
+    # type: (str) -> str
     parameter_dict = getattr(self, '_parameter_dict', None) or {}
     try:
       return parameter_dict[key]
@@ -642,6 +681,7 @@ class ComputerPartition(SlapRequester):
       raise NotFoundError("%s not found" % key)
 
   def getConnectionParameter(self, key):
+    # type: (str) -> str
     connection_dict = self.getConnectionParameterDict()
     try:
       return connection_dict[key]
@@ -653,6 +693,7 @@ class ComputerPartition(SlapRequester):
     self.usage = usage_log
 
   def getCertificate(self):
+    # type: () -> Dict
     xml = self._connection_helper.GET('getComputerPartitionCertificate',
             params={
                 'computer_id': self._computer_id,
@@ -691,10 +732,12 @@ class ComputerPartition(SlapRequester):
 class SlapConnectionHelper(ConnectionHelper):
 
   def getComputerInformation(self, computer_id):
+    # type: (str) -> Computer
     xml = self.GET('getComputerInformation', params={'computer_id': computer_id})
     return loads(xml)
 
   def getFullComputerInformation(self, computer_id):
+    # type: (str) -> Computer
     """
     Retrieve from SlapOS Master Computer instance containing all needed
     informations (Software Releases, Computer Partitions, ...).
@@ -713,7 +756,7 @@ class SlapConnectionHelper(ConnectionHelper):
 
     return loads(xml)
 
-getHateoasUrl_cache = {}
+getHateoasUrl_cache = {} # type: Dict[Tuple[str, Optional[str], Optional[str], Optional[str], int], str]
 @implementer(interface.slap)
 class slap:
 
@@ -722,6 +765,7 @@ class slap:
                            master_ca_file=None,
                            timeout=60,
                            slapgrid_rest_uri=None):
+    # type: (str, Optional[str], Optional[str], Optional[str], int, Optional[str]) -> None
     if master_ca_file:
       raise NotImplementedError('Master certificate not verified in this version: %s' % master_ca_file)
 
@@ -740,17 +784,17 @@ class slap:
           bytes2str(self._connection_helper.GET('getHateoasUrl'))
       except:
         pass
+    self._hateoas_navigator = None  # type: Optional[SlapHateoasNavigator]
     if slapgrid_rest_uri:
       self._hateoas_navigator = SlapHateoasNavigator(
           slapgrid_rest_uri,
           key_file, cert_file,
           master_ca_file, timeout
       )
-    else:
-      self._hateoas_navigator = None
 
   # XXX-Cedric: this method is never used and thus should be removed.
   def registerSoftwareRelease(self, software_release):
+    # type: (str) -> SoftwareRelease
     """
     Registers connected representation of software release and
     returns SoftwareRelease class object
@@ -761,6 +805,7 @@ class slap:
     )
 
   def registerToken(self):
+    # type: () -> Token
     """
     Registers connected represenation of token and
     return Token class object
@@ -773,8 +818,8 @@ class slap:
       hateoas_navigator=self._hateoas_navigator
     )
 
-
   def registerComputer(self, computer_guid):
+    # type: (str) -> Computer
     """
     Registers connected representation of computer and
     returns Computer class object
@@ -785,6 +830,7 @@ class slap:
     )
 
   def registerComputerPartition(self, computer_guid, partition_id):
+    # type: (str, str) -> ComputerPartition
     """
     Registers connected representation of computer partition and
     returns Computer Partition class object
@@ -807,12 +853,14 @@ class slap:
     return result
 
   def registerOpenOrder(self):
+    # type: () -> OpenOrder
     return OpenOrder(
       connection_helper=self._connection_helper,
       hateoas_navigator=self._hateoas_navigator
   )
 
   def registerSupply(self):
+    # type: () -> Supply
     return Supply(
       connection_helper=self._connection_helper,
       hateoas_navigator=self._hateoas_navigator
@@ -820,6 +868,7 @@ class slap:
 
   def getSoftwareReleaseListFromSoftwareProduct(self,
       software_product_reference=None, software_release_url=None):
+    # type: (Optional[str], Optional[str]) -> List[SoftwareRelease]
     url = 'getSoftwareReleaseListFromSoftwareProduct'
     params = {}
     if software_product_reference:
@@ -839,11 +888,13 @@ class slap:
     return result
 
   def getOpenOrderDict(self):
+    # XXX type: () -> Dict[str, str]
     if not getattr(self, '_hateoas_navigator', None):
       raise Exception('SlapOS Master Hateoas API required for this operation is not availble.')
     return self._hateoas_navigator.getHostingSubscriptionDict()
 
-  def getComputerDict(self): 
+  def getComputerDict(self):
+    # XXX type: () -> Dict[str, str]
     if not getattr(self, '_hateoas_navigator', None):
       raise Exception('SlapOS Master Hateoas API required for this operation is not availble.')
     return self._hateoas_navigator.getComputerDict()

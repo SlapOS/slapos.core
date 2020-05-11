@@ -75,7 +75,8 @@ setup(name=name,
           'cachecontrol',
           'lockfile',
           'uritemplate', # used by hateoas navigator
-          'subprocess32; python_version<"3"'
+          'subprocess32; python_version<"3"',
+          'typing; python_version<"3"',
         ] + additional_install_requires,
       extras_require=extras_require,
       tests_require=extras_require['test'],

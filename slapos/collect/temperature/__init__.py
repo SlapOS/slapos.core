@@ -1,10 +1,14 @@
 from __future__ import print_function
 
 from multiprocessing import Process, active_children, cpu_count, Pipe
-try:
-  import subprocess32 as subprocess
-except ImportError:
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
   import subprocess
+else:
+  try:
+    import subprocess32 as subprocess
+  except ImportError:
+    import subprocess
 import os
 import signal
 import sys

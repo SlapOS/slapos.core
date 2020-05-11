@@ -44,7 +44,7 @@ from slapos.proxy import ProxyConfig
 from slapos.proxy.db_version import DB_VERSION
 from slapos.util import sqlite_connect, str2bytes
 
-if bytes is str:
+if sys.version_info[0] == 3:
   from io import BytesIO
   class StringIO(BytesIO):
     # Something between strict io.BytesIO and laxist/slow StringIO.StringIO

@@ -38,10 +38,16 @@ import shutil
 from six.moves import urllib
 from six.moves import http_client
 
-try:
-  import subprocess32 as subprocess
-except ImportError:
+from typing import TYPE_CHECKING, Optional, Iterable, Dict
+if TYPE_CHECKING:
   import subprocess
+  from ..slap.slap import Computer, ComputerPartition, SoftwareState, InstanceState, PartitionParameters, FilterParameters
+
+else:
+  try:
+    import subprocess32 as subprocess
+  except ImportError:
+    import subprocess
 
 import xml_marshaller
 import zope.interface
@@ -80,9 +86,11 @@ class ConfigWriter(object):
   """Base class for an object writing a config file or wrapper script.
   """
   def __init__(self, standalone_slapos):
+    # type: (StandaloneSlapOS) -> None
     self._standalone_slapos = standalone_slapos
 
   def writeConfig(self, path):
+    # type: (str) -> None
     NotImplemented
 
 
@@ -90,6 +98,7 @@ class SupervisorConfigWriter(ConfigWriter):
   """Write supervisor configuration at etc/supervisor.conf
   """
   def _getProgramConfig(self, program_name, command, stdout_logfile):
+    # type: (str, str, str) -> str
     """Format a supervisor program block.
     """
     return textwrap.dedent(
@@ -108,6 +117,7 @@ class SupervisorConfigWriter(ConfigWriter):
     """).format(**locals())
 
   def _getSupervisorConfigParts(self):
+    # type: () -> Iterable[str]
     """Iterator on parts of formatted config.
     """
     standalone_slapos = self._standalone_slapos
@@ -143,6 +153,7 @@ class SupervisorConfigWriter(ConfigWriter):
               'stdout_logfile', 'AUTO').format(self=standalone_slapos))
 
   def writeConfig(self, path):
+    # type: (str) -> None
     with open(path, 'w') as f:
       for part in self._getSupervisorConfigParts():
         f.write(part)
@@ -151,8 +162,10 @@ class SupervisorConfigWriter(ConfigWriter):
 class SlapOSConfigWriter(ConfigWriter):
   """Write slapos configuration at etc/slapos.cfg
   """
+
   def writeConfig(self, path):
-    standalone_slapos = self._standalone_slapos  # type: StandaloneSlapOS
+    # type: (str) -> None
+    standalone_slapos = self._standalone_slapos
     read_only_shared_part_list = '\n  '.join( #  pylint: disable=unused-variable; used in format()
         standalone_slapos._shared_part_list)
     with open(path, 'w') as f:
@@ -183,6 +196,7 @@ class SlapOSCommandWriter(ConfigWriter):
   """Write a bin/slapos wrapper.
   """
   def writeConfig(self, path):
+    # type: (str) -> None
     with open(path, 'w') as f:
       f.write(
           textwrap.dedent(
@@ -215,7 +229,9 @@ class StandaloneSlapOS(object):
       shared_part_list=(),
       software_root=None,
       instance_root=None,
-      shared_part_root=None):
+      shared_part_root=None,
+  ):
+    # type: (str, str, int, str, Iterable[str], Optional[str], Optional[str], Optional[str]) -> None
     """Constructor, creates a standalone slapos in `base_directory`.
 
     Arguments:
@@ -273,6 +289,7 @@ class StandaloneSlapOS(object):
     self._initBaseDirectory(software_root, instance_root, shared_part_root)
 
   def _initBaseDirectory(self, software_root, instance_root, shared_part_root):
+    # type: (Optional[str], Optional[str], Optional[str]) -> None
     """Create the directory after checking it's not too deep.
     """
     base_directory = self._base_directory
@@ -337,6 +354,7 @@ class StandaloneSlapOS(object):
 
   @property
   def computer(self):
+    # type: () -> Computer
     """Access the computer.
     """
     return self._slap.registerComputer(self._computer_id)
@@ -391,6 +409,7 @@ class StandaloneSlapOS(object):
       ipv4_address,
       ipv6_address,
       partition_base_name="slappart"):
+    # type: (int, str, str, str) -> None
     """Creates `partition_count` partitions.
 
     All partitions have the same `ipv4_address` and `ipv6_address` and
@@ -489,6 +508,7 @@ class StandaloneSlapOS(object):
         os.unlink(supervisor_conf)
 
   def supply(self, software_url, computer_guid=None, state="available"):
+    # type: (str, Optional[str], SoftwareState) -> None
     """Supply a software, see ISupply.supply
 
     Software can only be supplied on this embedded computer.
@@ -510,6 +530,7 @@ class StandaloneSlapOS(object):
       partition_parameter_kw=None,
       filter_kw=None,
       state=None):
+    # type: (str, str, Optional[str], bool, Optional[PartitionParameters], Optional[FilterParameters], Optional[InstanceState]) -> ComputerPartition
     """Request an instance, see IRequester.request
 
     Instance can only be requested on this embedded computer.
@@ -526,6 +547,7 @@ class StandaloneSlapOS(object):
         state=state)
 
   def start(self):
+    # type: () -> None
     """Start the system.
 
     If system was stopped, it will start partitions.
@@ -536,6 +558,7 @@ class StandaloneSlapOS(object):
     self._ensureSlapOSAvailable()
 
   def stop(self):
+    # type: () -> None
     """Stops all services.
 
     This methods blocks until services are stopped or a timeout is reached.
@@ -573,6 +596,7 @@ class StandaloneSlapOS(object):
               alive + instance_process_alive))
 
   def waitForSoftware(self, max_retry=0, debug=False, error_lines=30):
+    # type: (int, bool, int) -> None
     """Synchronously install or uninstall all softwares previously supplied/removed.
 
     This method retries on errors. If after `max_retry` times there's
@@ -594,6 +618,7 @@ class StandaloneSlapOS(object):
     )
 
   def waitForInstance(self, max_retry=0, debug=False, error_lines=30):
+    # type: (int, bool, int) -> None
     """Instantiate all partitions previously requested for start.
 
     This method retries on errors. If after `max_retry` times there's
@@ -615,6 +640,7 @@ class StandaloneSlapOS(object):
     )
 
   def waitForReport(self, max_retry=0, debug=False, error_lines=30):
+    # type: (int, bool, int) -> None
     """Destroy all partitions previously requested for destruction.
 
     This method retries on errors. If after `max_retry` times there's
@@ -637,17 +663,19 @@ class StandaloneSlapOS(object):
 
   def _runSlapOSCommand(
       self, command, max_retry=0, debug=False, error_lines=30):
+    # type: (str, int, bool, int) -> None
     if debug:
       prog = self._slapos_commands[command]
       # used in format(**locals()) below
       debug_args = prog.get('debug_args', '')  # pylint: disable=unused-variable
       command = prog['command'].format(**locals())
       try:
-        return subprocess.check_call(
+        subprocess.check_call(
             command,
             shell=True,
             env=self._getSubprocessEnvironment(),
         )
+        return
       except subprocess.CalledProcessError as e:
         if e.returncode == SLAPGRID_PROMISE_FAIL:
           self._logger.exception('Promise error when running %s', command)
@@ -687,6 +715,7 @@ class StandaloneSlapOS(object):
         retry += 1
 
   def _ensureSupervisordStarted(self):
+    # type: () -> None
     if os.path.exists(self._supervisor_pid):
       with open(self._supervisor_pid, 'r') as f:
         try:
@@ -715,6 +744,7 @@ class StandaloneSlapOS(object):
     self._logger.debug("Started new supervisor: %s", output)
 
   def _isSlapOSAvailable(self):
+    # type: () -> bool
     try:
       urllib.request.urlopen(self._master_url).close()
     except urllib.error.HTTPError as e:
@@ -723,6 +753,7 @@ class StandaloneSlapOS(object):
         return True
       raise
     except urllib.error.URLError as e:
+      assert isinstance(e.reason, OSError)
       if e.reason.errno == errno.ECONNREFUSED:
         return False
       raise
@@ -735,6 +766,7 @@ class StandaloneSlapOS(object):
     return True  # (if / becomes 200 OK)
 
   def _ensureSlapOSAvailable(self):
+    # type: () -> None
     # Wait for proxy to accept connections
     for i in range(2**8):
       if self._isSlapOSAvailable():
@@ -743,12 +775,14 @@ class StandaloneSlapOS(object):
     raise RuntimeError("SlapOS not started")
 
   def _getSubprocessEnvironment(self):
+    # type: () -> Optional[Dict[str, str]]
     # Running tests with `python setup.py test` sets a PYTHONPATH that
     # is suitable for current python, but problematic when this process
     # runs another version of python in subprocess.
     if 'PYTHONPATH' in os.environ:
       self._logger.warning(
-        "Removing $PYTHONPATH from environment for subprocess")
+          "Removing $PYTHONPATH from environment for subprocess")
       env = os.environ.copy()
       del env['PYTHONPATH']
       return env
+    return None

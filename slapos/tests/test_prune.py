@@ -32,10 +32,11 @@ import shutil
 import unittest
 import slapos.client
 
-try:
-  import mock
-except ImportError:
+import sys
+if sys.version_info[0] == 3:
   from unittest import mock
+else:
+  import mock
 
 from slapos.cli.prune import do_prune
 

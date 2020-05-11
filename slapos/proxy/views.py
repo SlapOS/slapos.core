@@ -53,8 +53,11 @@ EMPTY_DICT_XML = dumps({})
 class UnauthorizedError(Exception):
   pass
 
+from typing import Dict, Union, no_type_check
 
+@no_type_check
 def partitiondict2partition(partition):
+  # type: (Dict[str, str]) -> ComputerPartition
   slap_partition = ComputerPartition(partition['computer_reference'],
       partition['reference'])
   slap_partition._software_release_document = None
@@ -365,6 +368,7 @@ def supplySupply():
 
 @app.route('/requestComputerPartition', methods=['POST'])
 def requestComputerPartition():
+  # type: () -> str
   parsed_request_dict = parseRequestComputerPartitionForm(request.form)
   # Is it a slave instance?
   slave = loads(request.form.get('shared_xml', EMPTY_DICT_XML).encode('utf-8'))
@@ -457,6 +461,7 @@ def requestComputerPartition():
   return dumps(software_instance)
 
 def parseRequestComputerPartitionForm(form):
+  # type: (Dict) -> Dict
   """
   Parse without intelligence a form from a request(), return it.
   """
@@ -469,7 +474,7 @@ def parseRequestComputerPartitionForm(form):
     'filter_kw': loads(form.get('filter_xml', EMPTY_DICT_XML).encode('utf-8')),
     # Note: currently ignored for slave instance (slave instances
     # are always started).
-    'requested_state': loads(form.get('state').encode('utf-8')),
+    'requested_state': loads(form['state'].encode('utf-8')),
   }
 
   return parsed_dict
@@ -543,10 +548,11 @@ def isRequestToBeForwardedToExternalMaster(parsed_request_dict):
     return None
 
 def forwardRequestToExternalMaster(master_url, request_form):
+  # type: (str, Dict) -> str
   """
   Forward instance request to external SlapOS Master.
   """
-  master_entry = app.config.get('multimaster').get(master_url, {})
+  master_entry = app.config['multimaster'].get(master_url, {})
   key_file = master_entry.get('key')
   cert_file = master_entry.get('cert')
   if master_url.startswith('https') and (not key_file or not cert_file):
@@ -568,7 +574,7 @@ def forwardRequestToExternalMaster(master_url, request_form):
              {'partition_reference':partition_reference, 'master_url': master_url})
 
   new_request_form = request_form.copy()
-  filter_kw = loads(new_request_form['filter_xml'].encode('utf-8'))
+  filter_kw = loads(request_form['filter_xml'].encode('utf-8'))
   filter_kw['source_instance_id'] = partition_reference
   new_request_form['filter_xml'] = dumps(filter_kw)
 
@@ -576,7 +582,7 @@ def forwardRequestToExternalMaster(master_url, request_form):
   partition = loads(xml)
 
   # XXX move to other end
-  partition._master_url = master_url
+  partition._master_url = master_url # type: ignore
 
   return dumps(partition)
 

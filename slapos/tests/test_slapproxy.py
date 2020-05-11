@@ -34,10 +34,15 @@ import os
 import logging
 import shutil
 import socket
-try:
-  import subprocess32 as subprocess
-except ImportError:
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
   import subprocess
+else:
+  try:
+    import subprocess32 as subprocess
+  except ImportError:
+    import subprocess
+
 import sys
 import tempfile
 import time

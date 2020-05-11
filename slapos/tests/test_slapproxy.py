@@ -1574,6 +1574,12 @@ database_uri = %(tempdir)s/lib/external_proxy.db
 
     self._checkInstanceIsFowarded(instance_reference, dummy_parameter_dict, self.external_software_release)
 
+    instance_parameter_dict = partition.getInstanceParameterDict()
+    instance_parameter_dict.pop('timestamp')
+    self.assertEqual(dummy_parameter_dict, instance_parameter_dict)
+    self.assertEqual(self.external_software_release, partition.getSoftwareRelease())
+    self.assertEqual({}, partition.getConnectionParameterDict())
+
   def testRequestToCurrentMaster(self):
     """
     Explicitely ask deployment of an instance to current master

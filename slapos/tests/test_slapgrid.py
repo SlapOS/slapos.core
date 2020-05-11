@@ -142,8 +142,6 @@ class BasicMixin(object):
     self.software_root = os.path.join(self._tempdir, 'software')
     self.shared_parts_root = os.path.join(self._tempdir, 'shared')
     self.instance_root = os.path.join(self._tempdir, 'instance')
-    if 'SLAPGRID_INSTANCE_ROOT' in os.environ:
-      del os.environ['SLAPGRID_INSTANCE_ROOT']
     logging.basicConfig(level=logging.DEBUG)
     self.setSlapgrid()
 

@@ -62,7 +62,6 @@ class SlapMixin(unittest.TestCase):
     logger.debug('Testing against SLAP server %r', self.server_url)
     self.slap = slapos.slap.slap()
     self.partition_id = self.id()
-    os.environ.pop('SLAPGRID_INSTANCE_ROOT', None)
 
   def tearDown(self):
     pass
@@ -801,6 +800,7 @@ class TestComputerPartition(SlapMixin):
     partition_root = os.path.join(instance_root, partition_id)
     os.mkdir(partition_root)
     os.environ['SLAPGRID_INSTANCE_ROOT'] = instance_root
+    self.addCleanup(os.environ.pop, 'SLAPGRID_INSTANCE_ROOT', None)
     transaction_file_name = COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME % partition_id
     transaction_file_path = os.path.join(partition_root, transaction_file_name)
 

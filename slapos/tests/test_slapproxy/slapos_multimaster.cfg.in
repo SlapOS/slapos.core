@@ -27,3 +27,19 @@ software_release_list =
 software_release_list =
   http://mywebsite.me/exteral_software_release.cfg
 
+# Request as a computer partition, so that requested partitions are linked
+# to the partition requesting them.
+[multimaster/https://slap.example.com]
+key = /path/to/cert.key
+cert = /path/to/cert.cert
+computer = COMP-12345
+partition = slappart1
+software_release_list =
+  https://example.com/software.cfg
+
+[multimaster/http://%(external_proxy_host)s:%(external_proxy_port)s/]
+# No certificate here: it is http.
+computer = external_computer
+partition = slappart0
+software_release_list =
+  https://example.com/request/from/partition/software.cfg

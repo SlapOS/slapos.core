@@ -570,14 +570,21 @@ def forwardRequestToExternalMaster(master_url, request_form):
   new_request_form = request_form.copy()
   filter_kw = loads(new_request_form['filter_xml'].encode('utf-8'))
   filter_kw['source_instance_id'] = partition_reference
-  new_request_form['filter_xml'] = dumps(filter_kw)
 
-  xml = slap._connection_helper.POST('/requestComputerPartition', data=new_request_form)
-  partition = loads(xml)
+  partition = slap.registerOpenOrder().request(
+      software_release=request_form['software_release'],
+      partition_reference=request_form['partition_reference'],
+      partition_parameter_kw=loads(request_form['partition_parameter_xml'].encode('utf-8')),
+      software_type=request_form.get('software_type', ''),
+      filter_kw=filter_kw,
+      state=loads(request_form['state'].encode('utf-8')),
+      shared=loads(request_form['shared_xml'].encode('utf-8')),
+  )
 
   # XXX move to other end
-  partition._master_url = master_url
-
+  partition._master_url = master_url # type: ignore
+  partition._connection_helper = None
+  partition._software_release_document = request_form['software_release'] # type: ignore
   return dumps(partition)
 
 def getAllocatedInstance(partition_reference):

@@ -44,6 +44,7 @@ import json
 import shutil
 import six
 import errno
+import contextlib
 
 if sys.version_info < (2, 6):
   warnings.warn('Used python version (%s) is old and has problems with'
@@ -970,7 +971,6 @@ stderr_logfile_backups=1
       return
 
     instance_path = os.path.join(self.instance_root, computer_partition_id)
-    os.environ['SLAPGRID_INSTANCE_ROOT'] = self.instance_root
     try:
       software_url = computer_partition.getSoftwareRelease().getURI()
     except NotFoundError:
@@ -1038,7 +1038,15 @@ stderr_logfile_backups=1
     self.logger.debug('Check if %s requires processing...' % computer_partition_id)
 
     instance_path = os.path.join(self.instance_root, computer_partition_id)
-    os.environ['SLAPGRID_INSTANCE_ROOT'] = self.instance_root
+
+    @contextlib.contextmanager
+    def SLAPGRID_INSTANCE_ROOT_in_environ():
+      """set SLAPGRID_INSTANCE_ROOT in environment, so that child process know which
+      instance is being processed.
+      """
+      os.environ['SLAPGRID_INSTANCE_ROOT'] = self.instance_root
+      yield
+      os.environ.pop('SLAPGRID_INSTANCE_ROOT', None)
 
     # Check if transaction file of this partition exists, if the file was created,
     # remove it so it will be generate with this new transaction
@@ -1183,8 +1191,9 @@ stderr_logfile_backups=1
                                                             'full_ip_list', [])
 
       if computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
-        local_partition.install()
-        local_partition.start()
+        with SLAPGRID_INSTANCE_ROOT_in_environ():
+          local_partition.install()
+          local_partition.start()
         if self.firewall_conf:
           self._setupComputerPartitionFirewall(computer_partition,
                                               partition_ip_list)
@@ -1195,7 +1204,8 @@ stderr_logfile_backups=1
         try:
           # We want to process the partition, even if stopped, because it should
           # propagate the state to children if any.
-          local_partition.install()
+          with SLAPGRID_INSTANCE_ROOT_in_environ():
+            local_partition.install()
           if self.firewall_conf:
             self._setupComputerPartitionFirewall(computer_partition,
                                                 partition_ip_list)

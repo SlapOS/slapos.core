@@ -446,6 +446,14 @@ class ComputerPartition(SlapRequester):
     # Just create an empty file (for nothing requested yet)
     self._updateTransactionFile(partition_reference=None)
 
+    self.slap_computer_id = ''
+    self.slap_computer_partition_id = ''
+    self._parameter_dict = {}
+    self._connection_dict = {}
+    self._instance_guid = None
+    self._requested_state = None
+
+
   def __getinitargs__(self):
     return (self._computer_id, self._partition_id, )
 

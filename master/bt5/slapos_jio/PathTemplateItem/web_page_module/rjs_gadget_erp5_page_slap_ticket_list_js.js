@@ -1,4 +1,4 @@
-/*global window, rJS, RSVP */
+/*global window, rJS, RSVP, document */
 /*jslint nomen: true, indent: 2, maxerr: 3*/
 (function (window, rJS, RSVP) {
   "use strict";
@@ -24,6 +24,15 @@
       return this.getDeclaredGadget('form_list')
         .push(function (gadget) {
           return gadget.triggerSubmit.apply(gadget, argument_list);
+        });
+    })
+    .declareService(function () {
+      var helptext = document.getElementById("pagehelp").innerText;
+      return this.getDeclaredGadget("pagehelp")
+        .push(function (gadget) {
+          return gadget.changeState({
+            helptext: helptext
+          });
         });
     })
     .declareMethod("render", function () {
@@ -119,4 +128,4 @@
           });
         });
     });
-}(window, rJS, RSVP));
+}(window, rJS, RSVP, document));

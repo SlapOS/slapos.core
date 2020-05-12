@@ -51,6 +51,11 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.createNotificationMessage("subscription_request-confirmation-with-password")
     self.createNotificationMessage("subscription_request-confirmation-without-password",
                                text_content='${name} ${login_name}')
+    self.createNotificationMessage("subscription_request-instance-is-ready", 
+      text_content='${name} ${subscription_title} ${hosting_subscription_relative_url}')
+    self.createNotificationMessage("subscription_request-payment-is-ready",
+      text_content='${name} ${subscription_title} ${payment_relative_relative_url}')
+    
     self.cleanUpSubscriptionRequest()
     self.tic()
     
@@ -185,6 +190,21 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.checkBootstrapUser(subscription_request)
     self.checkEmailNotification(subscription_request, notification_message)
 
+  def checkConfirmedSubscriptionRequest(self, subscription_request, email, subscription_condition, slave=0,
+                                        notification_message="subscription_request-payment-is-ready"):
+    self.checkSubscriptionRequest(subscription_request, email, subscription_condition, slave=slave)
+    payment = subscription_request.SubscriptionRequest_verifyPaymentBalanceIsReady()
+    self.assertNotEqual(payment, None)
+    self.assertEqual(payment.getSimulationState(), 'started')
+    self.assertEqual(subscription_request.getSimulationState(), "confirmed")
+    self.checkEmailPaymentNotification(subscription_request, notification_message)
+
+  def checkStartedSubscriptionRequest(self, subscription_request, email, subscription_condition, slave=0,
+                                        notification_message="subscription_request-instance-is-ready"):
+    self.checkSubscriptionRequest(subscription_request, email, subscription_condition, slave=slave)
+    self.assertEqual(subscription_request.getSimulationState(), "started")
+    self.checkEmailInstanceNotification(subscription_request, notification_message)
+
   def _getRelatedPaymentValue(self, subscription_request):
     invoice = subscription_request.getCausalityValue(portal_type="Sale Invoice Transaction")
     return invoice.getCausalityRelatedValue(portal_type="Payment Transaction")
@@ -206,8 +226,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.login()
     sale_transaction_invoice.SaleInvoiceTransaction_createReversalPayzenTransaction()
 
-
-  def checkAndPayFirstTreeMonth(self, subscription_request):
+  def checkAndPayFirstMonth(self, subscription_request):
     self.login()
     person = subscription_request.getDestinationSectionValue()
 
@@ -307,13 +326,49 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
   def checkEmailNotification(self, subscription_request,
                  notification_message="subscription_request-confirmation-with-password"):
-    mail_message = subscription_request.getFollowUpRelatedValue(
-      portal_type="Mail Message")
+    mail_message_list = [i for i in subscription_request.getFollowUpRelatedValueList(
+      portal_type="Mail Message") if notification_message in i.getTitle()]
 
+    self.assertEqual(len(mail_message_list), 1)
+    mail_message = mail_message_list[0]
     self.assertEqual(
       "TestSubscriptionSkins Notification Message %s" % notification_message,
       mail_message.getTitle())
     self.assertTrue(subscription_request.getDefaultEmailText() in \
+                 mail_message.getTextContent())
+    self.assertTrue(subscription_request.getDestinationSectionTitle() in \
+      mail_message.getTextContent())
+
+  def checkEmailPaymentNotification(self, subscription_request,
+                 notification_message="subscription_request-payment-is-ready"):
+    mail_message_list = [i for i in subscription_request.getFollowUpRelatedValueList(
+      portal_type="Mail Message") if notification_message in i.getTitle()]
+
+    self.assertEqual(len(mail_message_list), 1)
+    mail_message = mail_message_list[0]
+    self.assertEqual(
+      "TestSubscriptionSkins Notification Message %s" % notification_message,
+      mail_message.getTitle())
+    payment = subscription_request.SubscriptionRequest_verifyPaymentBalanceIsReady()
+    self.assertEqual(payment.getSimulationState(), 'started')
+    self.assertTrue(payment.getRelativeUrl() in \
+                 mail_message.getTextContent())
+    self.assertTrue(subscription_request.getDestinationSectionTitle() in \
+      mail_message.getTextContent())
+
+  def checkEmailInstanceNotification(self, subscription_request,
+                 notification_message="subscription_request-instance-is-ready"):
+    mail_message_list = [i for i in subscription_request.getFollowUpRelatedValueList(
+      portal_type="Mail Message") if notification_message in i.getTitle()]
+
+    self.assertEqual(len(mail_message_list), 1)
+    mail_message = mail_message_list[0]
+    self.assertEqual(
+      "TestSubscriptionSkins Notification Message %s" % notification_message,
+      mail_message.getTitle())
+    hosting_subscription = subscription_request.getAggregateValue()
+    self.assertEqual(hosting_subscription.getSlapState(), 'start_requested')
+    self.assertTrue(hosting_subscription.getRelativeUrl() in \
                  mail_message.getTextContent())
     self.assertTrue(subscription_request.getDestinationSectionTitle() in \
       mail_message.getTextContent())
@@ -471,13 +526,15 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
     return subscription_request
 
-  def checkSubscriptionDeploymentAndSimulation(self, default_email_text, subscription_server):
+  def _checkSubscriptionDeploymentAndSimulation(self, subscription_request_list,
+                                                default_email_text, subscription_server):
 
-    subscription_request_list = self.getSubscriptionRequestList(
-      default_email_text, self.subscription_condition)
     for subscription_request in subscription_request_list:
       # Check if instance was requested
       self.checkRelatedInstance(subscription_request)
+
+    self.simulateSlapgridCP(subscription_server)
+    self.tic()
 
     self.stepCallSlaposAllocateInstanceAlarm()
     self.tic()
@@ -489,7 +546,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     for subscription_request in subscription_request_list:
       # Re-check, as instance shouldn't be allocated until
       # the confirmation of the new Payment.
-      self.checkRelatedInstance(subscription_request)
+      self.checkAllocationOnRelatedInstance(subscription_request)
 
     # generate simulation for open order
     self.stepCallUpdateOpenOrderSimulationAlarm()
@@ -605,10 +662,6 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     # trigger the CRM interaction
     self.stepCallSlaposCrmCreateRegularisationRequestAlarm()
     self.tic()
-
-    for subscription_request in subscription_request_list:
-      self.checkAndPayFirstTreeMonth(subscription_request)
-      self.tic()
 
     # After the payment re-call the Alarm in order to confirm the subscription
     # Request.
@@ -620,192 +673,114 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.tic()
 
     for subscription_request in subscription_request_list:
-      # Check if instance was already allocated, in this case, it shouldn't
-      # until the allocation alarm kicks in.
-      self.checkRelatedInstance(subscription_request)
-
-    # Now really allocate the instance
-    self.stepCallSlaposAllocateInstanceAlarm()
-    self.tic()
-
-    # now instantiate it on computer and set some nice connection dict
-    self.simulateSlapgridCP(subscription_server)
-    self.tic()
-
-    for subscription_request in subscription_request_list:
-      # Re-check, now it should be allocated.
+      # Instances should be allocated
       self.checkAllocationOnRelatedInstance(subscription_request)
 
-  def checkSubscriptionDeploymentAndSimulationWithReversalTransaction(
-        self, default_email_text, subscription_server):
+    # Check if instance is on confirmed state
+    for subscription_request in subscription_request_list:
+      self.checkConfirmedSubscriptionRequest(subscription_request,
+               default_email_text, self.subscription_condition)
+      
+      # Assert that First month isn't payed
+      self.assertFalse(
+        subscription_request.SubscriptionRequest_testPaymentBalance())
+      
+      self.assertEquals('start_requested',
+        subscription_request.getAggregateValue().getSlapState())
+      
+    # The alarms might be called multiple times for move each step
+    self.stepCallSlaposSubscriptionRequestProcessConfirmedAlarm()
+    self.tic()
 
+    for subscription_request in subscription_request_list:
+      self.assertFalse(
+        subscription_request.SubscriptionRequest_testPaymentBalance())
+      
+      self.assertEquals('stop_requested',
+        subscription_request.getAggregateValue().getSlapState())
+
+  def checkSubscriptionDeploymentAndSimulationWithReversalTransaction(self, default_email_text, subscription_server):
+    
     subscription_request_list = self.getSubscriptionRequestList(
       default_email_text, self.subscription_condition)
-    for subscription_request in subscription_request_list:
-      # Check if instance was requested
-      self.checkRelatedInstance(subscription_request)
 
-    self.stepCallSlaposAllocateInstanceAlarm()
-    self.tic()
+    self._checkSubscriptionDeploymentAndSimulation(
+      subscription_request_list, default_email_text, subscription_server)
 
-    # now instantiate it on computer and set some nice connection dict
-    self.simulateSlapgridCP(subscription_server)
-    self.tic()
-
-    for subscription_request in subscription_request_list:
-      # Re-check, as instance shouldn't be allocated until
-      # the confirmation of the new Payment.
-      self.checkRelatedInstance(subscription_request)
-
-    # check the Open Sale Order coverage
-    #self.stepCallSlaposRequestUpdateHostingSubscriptionOpenSaleOrderAlarm()
-    #self.tic()
-
-    # generate simulation for open order
-    self.stepCallUpdateOpenOrderSimulationAlarm()
-    self.tic()
-
-    # build subscription packing list
-    self.stepCallSlaposTriggerBuildAlarm()
-    self.tic()
-
-    # stabilise build deliveries and expand them
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
-    # build aggregated packing list
-    self.stepCallSlaposTriggerAggregatedDeliveryOrderBuilderAlarm()
-    self.tic()
-
-    # stabilise aggregated deliveries and expand them
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
-    # check if Packing list is generated with the right trade condition
-    preference_tool = self.portal.portal_preferences
-    specialise_subscription_uid = preference_tool.getPreferredAggregatedSubscriptionSaleTradeCondition()
-    specialise_uid = preference_tool.getPreferredAggregatedSaleTradeCondition()
-
-    for subscription_request in subscription_request_list:
-      sale_packing_list_list = self.getAggregatedSalePackingList(
-        subscription_request, specialise_subscription_uid)
-      self.assertEqual(1, len(sale_packing_list_list))
-
-      self.checkAggregatedSalePackingList(subscription_request, sale_packing_list_list[0])
-
-      expected_sale_packing_list_amount = len(subscription_request_list) * 1
-      self.assertEqual(expected_sale_packing_list_amount, 
-        len(self.getSubscriptionSalePackingList(subscription_request)))
-
-      self.assertEqual(0, len(self.getAggregatedSalePackingList(
-        subscription_request, specialise_uid)))
-
-    # Call this alarm shouldn't affect the delivery
-    self.stepCallSlaposStartConfirmedAggregatedSalePackingListAlarm(
-        accounting_date=DateTime('2222/01/01'))
-    self.tic()
-
-    for subscription_request in subscription_request_list:
-      self.assertEqual(1, len(self.getAggregatedSalePackingList(
-        subscription_request, specialise_subscription_uid)))
-
-    # Call this alarm shouldn't affect the delivery
-    self.stepCallSlaposStartConfirmedAggregatedSubscriptionSalePackingListAlarm()
-    self.tic()
-
-    for subscription_request in subscription_request_list:
-      self.assertEqual(0, len(self.getAggregatedSalePackingList(
-        subscription_request, specialise_uid)))
-
-    # stabilise aggregated deliveries and expand them
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
-    # deliver aggregated deliveries
-    self.stepCallSlaposDeliverStartedAggregatedSalePackingListAlarm()
-    self.tic()
-
-    # stabilise aggregated deliveries and expand them
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
-    # build aggregated invoices
-    self.stepCallSlaposTriggerBuildAlarm()
-    self.tic()
-
-    # stabilise aggregated invoices and expand them
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
-    # update invoices with their tax & discount
-    self.stepCallSlaposTriggerBuildAlarm()
-    self.tic()
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
-    # update invoices with their tax & discount transaction lines
-    self.stepCallSlaposTriggerBuildAlarm()
-    self.tic()
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
-    # stop the invoices and solve them again
-    self.stepCallSlaposStopConfirmedAggregatedSaleInvoiceTransactionAlarm()
-    self.tic()
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
-    builder = self.portal.portal_orders.slapos_payment_transaction_builder
-    for _ in range(500):
-      # build the aggregated payment
-      self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
-      self.tic()
-      # If there is something unbuild recall alarm.
-      if not len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
-        break
-
-    # start the payzen payment
-    self.stepCallSlaposPayzenUpdateConfirmedPaymentAlarm()
-    self.tic()
-
-    # stabilise the payment deliveries and expand them
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
-    # trigger the CRM interaction
-    self.stepCallSlaposCrmCreateRegularisationRequestAlarm()
-    self.tic()
-
+    # Make payments and reinvoke alarm
     for subscription_request in subscription_request_list:
       self.createReversalInvoiceAndCancelPayment(subscription_request)
       self.tic()
 
-    # After the payment re-call the Alarm in order to confirm the subscription
-    # Request.
-    self.stepCallSlaposSubscriptionRequestProcessOrderedAlarm()
-    self.tic()
-
-    # The alarms might be called multiple times for move each step
-    self.stepCallSlaposSubscriptionRequestProcessOrderedAlarm()
+    self.stepCallSlaposSubscriptionRequestProcessConfirmedAlarm()
     self.tic()
 
     for subscription_request in subscription_request_list:
-      # Check if instance was already allocated, in this case, it shouldn't
-      # until the allocation alarm kicks in.
-      self.checkRelatedInstance(subscription_request)
+      self.assertTrue(
+        subscription_request.SubscriptionRequest_testPaymentBalance())
+      
+      self.assertEqual('start_requested',
+        subscription_request.getAggregateValue().getSlapState())
 
-    # Now really allocate the instance
-    self.stepCallSlaposAllocateInstanceAlarm()
-    self.tic()
+      # It is requireds a second interaction so the instance is 
+      # correctly started
+      self.assertEqual("confirmed", subscription_request.getSimulationState())
 
-    # now instantiate it on computer and set some nice connection dict
-    self.simulateSlapgridCP(subscription_server)
+    # On the second loop that email is send and state is moved to started
+    self.stepCallSlaposSubscriptionRequestProcessConfirmedAlarm()
     self.tic()
 
     for subscription_request in subscription_request_list:
-      # Re-check, now it should be allocated.
-      self.checkAllocationOnRelatedInstance(subscription_request)
+      self.assertTrue(
+        subscription_request.SubscriptionRequest_testPaymentBalance())
+      
+      self.assertEquals('start_requested',
+        subscription_request.getAggregateValue().getSlapState())
 
+      self.checkStartedSubscriptionRequest(subscription_request,
+               default_email_text, self.subscription_condition)
+    
+
+
+  def checkSubscriptionDeploymentAndSimulation(self, default_email_text, subscription_server):
+    subscription_request_list = self.getSubscriptionRequestList(
+      default_email_text, self.subscription_condition)
+
+    self._checkSubscriptionDeploymentAndSimulation(
+      subscription_request_list, default_email_text, subscription_server)
+
+    for subscription_request in subscription_request_list:
+      self.checkAndPayFirstMonth(subscription_request)
+      self.tic()
+    
+    self.stepCallSlaposSubscriptionRequestProcessConfirmedAlarm()
+    self.tic()
+
+    for subscription_request in subscription_request_list:
+      self.assertTrue(
+        subscription_request.SubscriptionRequest_testPaymentBalance())
+      
+      self.assertEqual('start_requested',
+        subscription_request.getAggregateValue().getSlapState())
+
+      # It is requireds a second interaction so the instance is 
+      # correctly started
+      self.assertEqual("confirmed", subscription_request.getSimulationState())
+
+    # On the second loop that email is send and state is moved to started
+    self.stepCallSlaposSubscriptionRequestProcessConfirmedAlarm()
+    self.tic()
+
+    for subscription_request in subscription_request_list:
+      self.assertTrue(
+        subscription_request.SubscriptionRequest_testPaymentBalance())
+      
+      self.assertEquals('start_requested',
+        subscription_request.getAggregateValue().getSlapState())
+
+      self.checkStartedSubscriptionRequest(subscription_request,
+               default_email_text, self.subscription_condition)
+    
 
   def _test_subscription_scenario(self, amount=1):
     """ The admin creates an computer, user can request instances on it"""
@@ -815,11 +790,15 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     # Call as anonymous... check response?
     default_email_text = "abc%s@nexedi.com" % self.new_id
     name="ABC %s" % self.new_id
-    self.requestAndCheckHostingSubscription(amount, name, default_email_text)
+
+    self.requestAndCheckHostingSubscription(
+      amount, name, default_email_text)
 
     self.checkSubscriptionDeploymentAndSimulation(
         default_email_text, subscription_server)
 
+    
+               
   def _test_two_subscription_scenario(self, amount=1):
     """ The admin creates an computer, user can request instances on it"""
  
@@ -828,10 +807,46 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     # Call as anonymous... check response?
     default_email_text = "abc%s@nexedi.com" % self.new_id
     name="ABC %s" % self.new_id
-    self.requestAndCheckHostingSubscription(amount, name, default_email_text)
 
     self.logout()
+    self._requestSubscription(
+      subscription_reference=self.subscription_condition.getReference(),
+      amount=amount,
+      name=name,
+      default_email_text=default_email_text,
+      REQUEST=self.portal.REQUEST)
 
+    self.login()
+
+    # I'm not sure if this is realistic
+    self.tic()
+
+    first_subscription_request = self.getSubscriptionRequest(
+      default_email_text, self.subscription_condition)
+
+    self.checkDraftSubscriptionRequest(first_subscription_request,
+                      default_email_text, self.subscription_condition, amount=amount)
+
+    # Check Payment and pay it.
+    self.checkAndPaySubscriptionPayment(first_subscription_request)
+    self.tic()
+
+    # Call alarm to check payment and invoice and move foward to planned.
+    self.stepCallSlaposSubscriptionRequestProcessDraftAlarm()
+    self.tic()
+
+    self.checkPlannedSubscriptionRequest(first_subscription_request,
+               default_email_text, self.subscription_condition)
+
+    # Call alarm to mark subscription request as ordered, bootstrap the user
+    # and check if email is sent, once done move to ordered state.
+    self.stepCallSlaposSubscriptionRequestProcessPlannedAlarm()
+    self.tic()
+
+    self.checkOrderedSubscriptionRequest(first_subscription_request,
+               default_email_text, self.subscription_condition)
+
+    self.logout()
     # Request a second one, without require confirmation and verifing the second subscription request
     self._requestSubscription(
       subscription_reference=self.subscription_condition.getReference(),
@@ -898,7 +913,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
 class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
-  def test_subscription_scenario(self):
+  def test_subscription_scenario_with_single_vm(self):
     self._test_subscription_scenario(amount=1)
 
   def test_subscription_scenario_with_reversal_transaction(self):

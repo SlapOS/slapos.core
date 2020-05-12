@@ -45,7 +45,10 @@
         <item>
             <key> <string>text_content_warning_message</string> </key>
             <value>
-              <tuple/>
+              <tuple>
+                <string>W:270,  4: Unused variable \'password\' (unused-variable)</string>
+                <string>W:  8,  0: Unused import transaction (unused-import)</string>
+              </tuple>
             </value>
         </item>
         <item>
@@ -117,6 +120,7 @@
             </item>
           </dictionary>
         </list>
+        <none/>
       </tuple>
     </pickle>
   </record>

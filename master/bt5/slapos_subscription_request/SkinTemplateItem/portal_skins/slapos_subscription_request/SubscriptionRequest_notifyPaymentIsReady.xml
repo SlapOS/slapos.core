@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string></string> </value>
+            <value> <string>payment</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SubscriptionRequest_checkPaymentBalance</string> </value>
+            <value> <string>SubscriptionRequest_notifyPaymentIsReady</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -271,7 +271,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_solveInvoicingGeneration(
     reference = 'test_%s' % self.generateNewId()
     person = self.portal.person_module.newContent(portal_type='Person',
       title=reference,
-      reference=reference, password=password)
+      reference=reference)
     person.newContent(portal_type='Assignment', role='member').open()
 
     # Create second person
@@ -279,7 +279,7 @@ class TestSlapOSComputerConsumptionTioXMLFile_solveInvoicingGeneration(
     reference = 'test_%s' % self.generateNewId()
     second_person = self.portal.person_module.newContent(portal_type='Person',
       title=reference,
-      reference=reference, password=password)
+      reference=reference)
     second_person.newContent(portal_type='Assignment', role='member').open()
 
     self.commit()

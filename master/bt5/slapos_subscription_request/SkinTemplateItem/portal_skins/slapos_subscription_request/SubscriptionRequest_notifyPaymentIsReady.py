@@ -1,14 +1,7 @@
 portal = context.getPortalObject()
 
-if context.getSimulationState() != "confirmed":
+if context.getSimulationState() != "ordered":
   return
-
-hosting_subscription = context.getAggregateValue()
-
-for instance in hosting_subscription.getSpecialiseRelatedValueList(portal_type="Software Instance"):
-  if (not instance.getAggregate()) or instance.SoftwareInstance_hasReportedError():
-    # Some instance still failing, so instance seems not ready yet.
-    return
 
 # Instance is ok, we should move foward
 portal = context.getPortalObject()
@@ -16,7 +9,9 @@ sender = context.getSourceSectionValue(portal_type="Person")
 recipient = context.getDestinationSectionValue(portal_type="Person")
 
 # Get message from catalog
-notification_reference = 'subscription_request-instance-is-ready'
+notification_reference = 'subscription_request-payment-is-ready'
+
+# This implies the language to notify.
 notification_message = portal.portal_notifications.getDocumentValue(
     reference=notification_reference, language=recipient.getLanguage())
 
@@ -27,7 +22,8 @@ if notification_message is None:
 notification_mapping_dict = {
   'name': recipient.getTitle(),
   'subscription_title': context.getTitle(),
-  'hosting_subscription_relative_url': hosting_subscription.getRelativeUrl()}
+  # Possible more actions goes here
+  'payment_relative_relative_url': payment.getRelativeUrl()}
 
 # Preserve HTML else convert to text
 if notification_message.getContentType() == "text/html":

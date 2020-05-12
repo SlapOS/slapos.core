@@ -24,7 +24,7 @@ from erp5.component.test.SlapOSTestCaseMixin import \
 class TestSlapOSSubscriptionRequestProcessAlarm(SlapOSTestCaseMixin):
 
   def test_alarm_slapos_subscription_request_process_draft(self):
-    script_name = "SubscriptionRequest_verifyPaymentTransaction"
+    script_name = "SubscriptionRequest_verifyReservationPaymentTransaction"
     alarm = self.portal.portal_alarms.slapos_subscription_request_process_draft
 
     subscription_request = self.portal.subscription_request_module.newContent(
@@ -51,7 +51,7 @@ class TestSlapOSSubscriptionRequestProcessAlarm(SlapOSTestCaseMixin):
       alarm, subscription_request, script_name)
 
   def test_alarm_slapos_subscription_request_process_ordered(self):
-    script_name = "SubscriptionRequest_checkPaymentBalance"
+    script_name = "SubscriptionRequest_processOrdered"
     alarm = self.portal.portal_alarms.slapos_subscription_request_process_ordered
 
     subscription_request = self.portal.subscription_request_module.newContent(
@@ -66,7 +66,7 @@ class TestSlapOSSubscriptionRequestProcessAlarm(SlapOSTestCaseMixin):
       alarm, subscription_request, script_name)
 
   def test_alarm_slapos_subscription_request_process_confirmed(self):
-    script_name = "SubscriptionRequest_notifyInstanceIsReady"
+    script_name = "SubscriptionRequest_processConfirmed"
     alarm = self.portal.portal_alarms.slapos_subscription_request_process_confirmed
 
     subscription_request = self.portal.subscription_request_module.newContent(

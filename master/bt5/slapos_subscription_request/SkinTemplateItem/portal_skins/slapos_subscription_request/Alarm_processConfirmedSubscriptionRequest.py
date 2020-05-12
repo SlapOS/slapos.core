@@ -4,7 +4,7 @@ portal = context.getPortalObject()
 portal.portal_catalog.searchAndActivate(
   portal_type="Subscription Request",
   simulation_state="confirmed",
-  method_id="SubscriptionRequest_notifyInstanceIsReady",
+  method_id="SubscriptionRequest_processConfirmed",
   activity_kw={tag: tag}
 
 )

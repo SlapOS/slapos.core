@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SubscriptionRequest_verifyPaymentTransaction</string> </value>
+            <value> <string>SubscriptionRequest_verifyReservationPaymentTransaction</string> </value>
         </item>
       </dictionary>
     </pickle>

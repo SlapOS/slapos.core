@@ -33,8 +33,8 @@ def assignComputerPartition(software_instance, hosting_subscription):
         portal_type="Subscription Request")
     if subscription_request is not None:
       subscription_reference = subscription_request.getReference()
-      if subscription_request.getSimulationState() not in ["confirmed", "started"]:
-        raise Unauthorized("Related Subscription Requested isn't confirmed or started")
+      if subscription_request.getSimulationState() not in ["ordered", "confirmed", "started"]:
+        raise Unauthorized("Related Subscription Requested isn't ordered, confirmed or started")
 
     tag = None
     try:

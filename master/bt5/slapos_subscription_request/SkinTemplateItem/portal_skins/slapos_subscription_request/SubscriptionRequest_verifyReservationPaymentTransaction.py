@@ -32,6 +32,4 @@ if context.getSpecialise(portal_type="Subscription Condition") is not None:
   # Ensure Subscription is updated
   context.SubscriptionRequest_applyCondition()
 
-# Send notification to Our Mantainers via portal notifications
-#
 context.plan(comment="Payment is consider valid.")

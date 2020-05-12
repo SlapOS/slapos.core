@@ -50,7 +50,7 @@ class TestSlapOSSubscriptionChineseScenario(TestSlapOSSubscriptionScenarioMixin)
     self.subscription_condition.updateLocalRolesOnSecurityGroups()
     self.tic()
 
-  def test_subscription_scenario(self):
+  def test_subscription_scenario_with_single_vm(self):
     self._test_subscription_scenario(amount=1)
 
   def test_subscription_with_3_vms_scenario(self):

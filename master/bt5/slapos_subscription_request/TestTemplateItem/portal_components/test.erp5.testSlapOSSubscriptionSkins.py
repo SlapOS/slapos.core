@@ -900,7 +900,7 @@ class TestSubscriptionRequest_notifyInstanceIsReady(TestSubscriptionSkinsMixin):
       event.getTextContent(),'%s %s %s' % (person.getTitle(), subscription_request.getTitle(),
         self.hosting_subscription.getRelativeUrl()))
 
-class TestSubscriptionRequest_verifyPaymentTransaction(TestSubscriptionSkinsMixin):
+class TestSubscriptionRequest_verifyReservationPaymentTransaction(TestSubscriptionSkinsMixin):
 
   def test_no_sale_invoice(self):
     person = self.makePerson()
@@ -908,7 +908,7 @@ class TestSubscriptionRequest_verifyPaymentTransaction(TestSubscriptionSkinsMixi
       quantity=1, destination_section_value=person)
     
     # Too early to cancel
-    self.assertEqual(subscription_request.SubscriptionRequest_verifyPaymentTransaction(),
+    self.assertEqual(subscription_request.SubscriptionRequest_verifyReservationPaymentTransaction(),
       None)
     self.assertEqual(subscription_request.getSimulationState(),
       "draft")
@@ -921,7 +921,7 @@ class TestSubscriptionRequest_verifyPaymentTransaction(TestSubscriptionSkinsMixi
     Base.getCreationDate = getCreationDate
 
     try:
-      self.assertEqual(subscription_request.SubscriptionRequest_verifyPaymentTransaction(),
+      self.assertEqual(subscription_request.SubscriptionRequest_verifyReservationPaymentTransaction(),
           None)
     finally:
       Base.getCreationDate = original_get_creation
@@ -944,7 +944,7 @@ class TestSubscriptionRequest_verifyPaymentTransaction(TestSubscriptionSkinsMixi
     payment_template = self.portal.restrictedTraverse("accounting_module/slapos_pre_payment_template")
 
     # Too early to cancel
-    self.assertEqual(subscription_request.SubscriptionRequest_verifyPaymentTransaction(), None)
+    self.assertEqual(subscription_request.SubscriptionRequest_verifyReservationPaymentTransaction(), None)
     self.assertEqual(subscription_request.getSimulationState(), "draft")
 
     current_invoice = invoice_template.Base_createCloneDocument(batch_mode=1)
@@ -960,7 +960,7 @@ class TestSubscriptionRequest_verifyPaymentTransaction(TestSubscriptionSkinsMixi
       current_payment.delete()
   
     self.tic()
-    self.assertEqual(subscription_request.SubscriptionRequest_verifyPaymentTransaction(),
+    self.assertEqual(subscription_request.SubscriptionRequest_verifyReservationPaymentTransaction(),
       None)
 
     self.assertEqual(current_invoice.getSimulationState(), "cancelled")
@@ -991,7 +991,7 @@ class TestSubscriptionRequest_verifyPaymentTransaction(TestSubscriptionSkinsMixi
     payment_template = self.portal.restrictedTraverse("accounting_module/slapos_pre_payment_template")
 
     # Too early to cancel
-    self.assertEqual(subscription_request.SubscriptionRequest_verifyPaymentTransaction(), None)
+    self.assertEqual(subscription_request.SubscriptionRequest_verifyReservationPaymentTransaction(), None)
     self.assertEqual(subscription_request.getSimulationState(), "draft")
 
     current_invoice = invoice_template.Base_createCloneDocument(batch_mode=1)
@@ -1008,14 +1008,14 @@ class TestSubscriptionRequest_verifyPaymentTransaction(TestSubscriptionSkinsMixi
     current_payment.start()
     
     self.tic()
-    self.assertEqual(subscription_request.SubscriptionRequest_verifyPaymentTransaction(),
+    self.assertEqual(subscription_request.SubscriptionRequest_verifyReservationPaymentTransaction(),
       None)
     self.assertEqual(subscription_request.getSimulationState(),
       "draft")
 
     current_payment.stop()
 
-    self.assertEqual(subscription_request.SubscriptionRequest_verifyPaymentTransaction(),
+    self.assertEqual(subscription_request.SubscriptionRequest_verifyReservationPaymentTransaction(),
       None)
     self.assertEqual(subscription_request.getSimulationState(),
       "planned")
@@ -1035,7 +1035,7 @@ class TestSubscriptionRequest_verifyPaymentTransaction(TestSubscriptionSkinsMixi
     invoice_template = self.portal.restrictedTraverse(invoice_template_path)
 
     # Too early to cancel
-    self.assertEqual(subscription_request.SubscriptionRequest_verifyPaymentTransaction(),
+    self.assertEqual(subscription_request.SubscriptionRequest_verifyReservationPaymentTransaction(),
       None)
     self.assertEqual(subscription_request.getSimulationState(),
       "draft")
@@ -1048,7 +1048,7 @@ class TestSubscriptionRequest_verifyPaymentTransaction(TestSubscriptionSkinsMixi
     elif state == "deleted":
       current_invoice.delete()
   
-    self.assertEqual(subscription_request.SubscriptionRequest_verifyPaymentTransaction(),
+    self.assertEqual(subscription_request.SubscriptionRequest_verifyReservationPaymentTransaction(),
       None)
     self.assertEqual(subscription_request.getSimulationState(),
       "cancelled")
@@ -1062,7 +1062,7 @@ class TestSubscriptionRequest_verifyPaymentTransaction(TestSubscriptionSkinsMixi
   def test_deleted_sale_invoice_state(self):
     self._test_cancel_due_sale_invoice_state(state="deleted")
 
-class TestSubscriptionRequest_checkPaymentBalance(TestSubscriptionSkinsMixin):
+class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
 
   def test_no_sale_invoice(self):
     person = self.makePerson()
@@ -1084,7 +1084,7 @@ class TestSubscriptionRequest_checkPaymentBalance(TestSubscriptionSkinsMixin):
 
     self.tic()
     self.assertEqual(
-      subscription_request.SubscriptionRequest_checkPaymentBalance(), None)
+      subscription_request.SubscriptionRequest_processOrdered(), None)
     self.tic()
 
     hosting_subscription = subscription_request.getAggregateValue(portal_type="Hosting Subscription")
@@ -1143,7 +1143,7 @@ class TestSubscriptionRequest_checkPaymentBalance(TestSubscriptionSkinsMixin):
 
     self.tic()
     self.assertEqual(
-      subscription_request.SubscriptionRequest_checkPaymentBalance(), None)
+      subscription_request.SubscriptionRequest_processOrdered(), None)
     self.tic()
 
     hosting_subscription = subscription_request.getAggregateValue(portal_type="Hosting Subscription")
@@ -1198,7 +1198,7 @@ class TestSubscriptionRequest_checkPaymentBalance(TestSubscriptionSkinsMixin):
     
     self.tic()
     self.assertEqual(
-      subscription_request.SubscriptionRequest_checkPaymentBalance(), None)
+      subscription_request.SubscriptionRequest_processOrdered(), None)
     self.tic()
 
 

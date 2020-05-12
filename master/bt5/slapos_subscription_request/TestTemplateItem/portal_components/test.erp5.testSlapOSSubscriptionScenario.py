@@ -465,6 +465,10 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.stepCallSlaposSubscriptionRequestProcessOrderedAlarm()
     self.tic()
 
+    # The alarms might be called multiple times for move each step
+    self.stepCallSlaposSubscriptionRequestProcessOrderedAlarm()
+    self.tic()
+
     return subscription_request
 
   def checkSubscriptionDeploymentAndSimulation(self, default_email_text, subscription_server):
@@ -486,10 +490,6 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       # Re-check, as instance shouldn't be allocated until
       # the confirmation of the new Payment.
       self.checkRelatedInstance(subscription_request)
-
-    # check the Open Sale Order coverage
-    self.stepCallSlaposRequestUpdateHostingSubscriptionOpenSaleOrderAlarm()
-    self.tic()
 
     # generate simulation for open order
     self.stepCallUpdateOpenOrderSimulationAlarm()
@@ -591,7 +591,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
       self.tic()
       # If there is something unbuild recall alarm.
-      if len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
+      if not len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
         break
 
     # start the payzen payment
@@ -612,6 +612,10 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
     # After the payment re-call the Alarm in order to confirm the subscription
     # Request.
+    self.stepCallSlaposSubscriptionRequestProcessOrderedAlarm()
+    self.tic()
+
+    # The alarms might be called multiple times for move each step
     self.stepCallSlaposSubscriptionRequestProcessOrderedAlarm()
     self.tic()
 
@@ -654,8 +658,8 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       self.checkRelatedInstance(subscription_request)
 
     # check the Open Sale Order coverage
-    self.stepCallSlaposRequestUpdateHostingSubscriptionOpenSaleOrderAlarm()
-    self.tic()
+    #self.stepCallSlaposRequestUpdateHostingSubscriptionOpenSaleOrderAlarm()
+    #self.tic()
 
     # generate simulation for open order
     self.stepCallUpdateOpenOrderSimulationAlarm()
@@ -757,7 +761,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
       self.tic()
       # If there is something unbuild recall alarm.
-      if len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
+      if not len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
         break
 
     # start the payzen payment
@@ -778,6 +782,10 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
     # After the payment re-call the Alarm in order to confirm the subscription
     # Request.
+    self.stepCallSlaposSubscriptionRequestProcessOrderedAlarm()
+    self.tic()
+
+    # The alarms might be called multiple times for move each step
     self.stepCallSlaposSubscriptionRequestProcessOrderedAlarm()
     self.tic()
 
@@ -862,6 +870,10 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
                notification_message="subscription_request-confirmation-without-password")
 
     # Call alarm to make the request of the instance?
+    self.stepCallSlaposSubscriptionRequestProcessOrderedAlarm()
+    self.tic()
+
+    # The alarms might be called multiple times for move each step
     self.stepCallSlaposSubscriptionRequestProcessOrderedAlarm()
     self.tic()
 

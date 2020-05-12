@@ -5,9 +5,16 @@ hosting_subscription = context.getAggregateValue()
 # Don't request again if it is already requested.
 if hosting_subscription is None:
   context.SubscriptionRequest_processRequest()
-  hosting_subscription = context.getAggregateValue()
+  # Don't perform everything on the same transaction
+  return 
 
 if hosting_subscription is not None:
+
+  if hosting_subscription.getCausalityState() == "diverged":
+    # Call it as soon as possible 
+    hosting_subscription.HostingSubscription_requestUpdateOpenSaleOrder()
+    
+
   instance = hosting_subscription.getPredecessorValue()
 
   # This ensure that the user has a valid cloud contract.

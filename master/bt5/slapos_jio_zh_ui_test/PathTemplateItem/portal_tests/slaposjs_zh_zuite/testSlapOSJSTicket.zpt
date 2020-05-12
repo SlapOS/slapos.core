@@ -70,7 +70,7 @@
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
       <tal:block tal:define="notification_configuration python: {'class': 'success',
-                                                           'text': '新的集合已创建。'}">
+                                                           'text': '新的工单已创建。'}">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
       </tal:block>
 

@@ -469,7 +469,7 @@
 
     <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
 
-    <tal:block define="header python: 'Computer Network :%s' % document_title; ">
+    <tal:block define="header python: '计算机网络 :%s' % document_title; ">
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
     </tal:block>
     <tr>
@@ -541,7 +541,7 @@
       <td></td>
     </tr>
 
-    <tal:block define="header python: 'Computer: %s' % document_title; ">
+    <tal:block define="header python: '计算机: %s' % document_title; ">
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
     </tal:block>
   </tal:block>

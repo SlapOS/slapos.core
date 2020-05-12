@@ -51,7 +51,7 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//a[@data-i18n="Computer: TEST-SLAPOSJS-COMPUTER-SHARED-BY-ORGANISATION 0"]</td>
+        <td>//a[@data-i18n="计算机: TEST-SLAPOSJS-COMPUTER-SHARED-BY-ORGANISATION 0"]</td>
         <td></td>
       </tr>
 
@@ -107,7 +107,7 @@
         <td></td>
       </tr>
 
-      <tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER-SHARED-BY-ORGANISATION 0'; ">
+      <tal:block define="header python: '计算机: TEST-SLAPOSJS-COMPUTER-SHARED-BY-ORGANISATION 0'; ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
@@ -260,7 +260,7 @@
   <td></td>
 </tr>
 
-<tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER-SHARED-BY-ORGANISATION 0'; ">
+<tal:block define="header python: '计算机: TEST-SLAPOSJS-COMPUTER-SHARED-BY-ORGANISATION 0'; ">
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
 </tal:block>
 

@@ -74,6 +74,8 @@ setup(name=name,
           'six',
           'cachecontrol',
           'lockfile',
+          'jsonschema',
+          'pyaml',
           'uritemplate', # used by hateoas navigator
           'subprocess32; python_version<"3"'
         ] + additional_install_requires,

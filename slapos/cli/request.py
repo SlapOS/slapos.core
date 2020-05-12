@@ -29,13 +29,42 @@
 
 import pprint
 import os.path
+import argparse
+import json
 
 from slapos.cli.config import ClientConfigCommand
 from slapos.client import init, ClientConfig, _getSoftwareReleaseFromSoftwareString
 from slapos.slap import ResourceNotReady
+from slapos.util import SoftwareReleaseSchema
+from slapos.util import SoftwareReleaseSerialisation
+
+from typing import IO, Dict
+
+
+def getParametersFromFile(file, serialisation):
+  # type: (IO[str], str) -> Dict
+  if os.path.splitext(file.name)[1] == '.yaml':
+    import yaml
+    params = yaml.full_load(file)
+    if serialisation == 'json-in-xml':
+      params = {'_': json.dumps(params)}
+  elif os.path.splitext(file.name)[1] == '.xml':
+    import lxml.etree
+    tree = lxml.etree.parse(file)
+    params = {e.attrib['id']: e.text for e in tree.findall('/parameter')}
+    # because the use case of xml files is to copy paste existing XML parameters
+    # as found on slapos interface, we don't be clever regarding the serialisation
+    # and assume they are already correct.
+  else:
+    params = json.load(file)
+    if serialisation == 'json-in-xml':
+      params = {'_': json.dumps(params)}
+
+  return params
 
 
 def parse_option_dict(options):
+    # type: (str) -> Dict
     """
     Parse a list of option strings like foo=bar baz=qux and return a dictionary.
     Will raise if keys are repeated.
@@ -85,9 +114,11 @@ class RequestCommand(ClientConfigCommand):
 
         ap.add_argument('--parameters',
                         nargs='+',
-                        help="Instance parameters, in the form 'option1=value1 option2=value2'.\n"
-                        "The content of a file can also be passed as option=@filename")
+                        help="Instance parameters, in the form 'option1=value1 option2=value2'.")
 
+        ap.add_argument('--parameters-file',
+                        type=argparse.FileType('r'),
+                        help="Instance parameters, in a file.")
         return ap
 
     def take_action(self, args):
@@ -110,11 +141,17 @@ def do_request(logger, conf, local):
 
     if conf.software_url in local:
         conf.software_url = local[conf.software_url]
+
+    software_schema = SoftwareReleaseSchema(conf.software_url, conf.type)
+    software_schema_serialisation = software_schema.getSerialisation()
+    parameters = conf.parameters
+    if conf.parameters_file:
+      parameters = getParametersFromFile(conf.parameters_file, software_schema_serialisation)
     try:
         partition = local['slap'].registerOpenOrder().request(
             software_release=conf.software_url,
             partition_reference=conf.reference,
-            partition_parameter_kw=conf.parameters,
+            partition_parameter_kw=parameters,
             software_type=conf.type,
             filter_kw=conf.node,
             state=conf.state,
@@ -122,7 +159,11 @@ def do_request(logger, conf, local):
         )
         logger.info('Instance requested.\nState is : %s.', partition.getState())
         logger.info('Connection parameters of instance are:')
-        logger.info(pprint.pformat(partition.getConnectionParameterDict()))
+        connection_parameter_dict = partition.getConnectionParameterDict()
+        if software_schema_serialisation == SoftwareReleaseSerialisation.JsonInXml:
+          if '_' in connection_parameter_dict:
+            connection_parameter_dict = json.loads(connection_parameter_dict['_'])
+        logger.info(pprint.pformat(connection_parameter_dict))
         logger.info('You can rerun the command to get up-to-date information.')
     except ResourceNotReady:
         logger.warning('Instance requested. Master is provisioning it. Please rerun in a '

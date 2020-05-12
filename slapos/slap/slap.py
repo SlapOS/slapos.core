@@ -266,6 +266,20 @@ class OpenOrder(SlapRequester):
         'state': dumps(state),
         'shared_xml': dumps(shared),
     }
+
+    import warnings
+    import jsonschema
+    from ..util import SoftwareReleaseSchema
+    try:
+      SoftwareReleaseSchema(
+          request_dict['software_release'],
+          request_dict['software_type']
+      ).validateInstanceParameterDict(partition_parameter_kw)
+    except jsonschema.ValidationError as e:
+      warnings.warn(
+        "Request parameters do not validate against schema definition:\n{e}".format(e=e),
+        UserWarning,
+      )
     return self._requestComputerPartition(request_dict)
 
   def getInformation(self, partition_reference):

@@ -2249,13 +2249,14 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 
 class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   def afterSetUp(self):
-    password = self.generateNewId()
+    password = "%s-1Aa$" % self.generateNewId() 
     reference = 'test_%s' % self.generateNewId()
     person = self.portal.person_module.newContent(portal_type='Person',
       title=reference,
-      reference=reference, password=password)
+      reference=reference)
     person.newContent(portal_type='Assignment', role='member').open()
-    person.newContent(portal_type='ERP5 Login', reference=reference).validate()
+    person.newContent(portal_type='ERP5 Login',
+      reference=reference, password=password).validate()
 
     self.commit()
     self.person = person

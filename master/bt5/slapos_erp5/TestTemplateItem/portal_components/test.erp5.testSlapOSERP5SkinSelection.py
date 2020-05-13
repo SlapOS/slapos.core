@@ -28,7 +28,12 @@ class TestSlaposSkinSelection(SlapOSTestCaseMixin):
 
   # Ignore these bt5 as they might be present on development instances
   # but not present on the test.
-  ignore_list = ["slapos_ui_test"]
+  ignore_list = [
+    # UI testing folders not deployed by Configurator
+    "slapos_ui_test", "slapos_zh_ui_test",
+
+    # Legacy and/or custom bt5 folders
+    "slapos_vifib", "rapid_space", "rapid_space_ui_test"]
 
   def getTitle(self):
     return "Slapos Skin Selection"
@@ -150,6 +155,7 @@ erp5_access_tab
 erp5_access_token
 erp5_accounting
 erp5_administration
+erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
@@ -266,6 +272,7 @@ erp5_access_tab
 erp5_access_token
 erp5_accounting
 erp5_administration
+erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
@@ -383,6 +390,7 @@ erp5_access_tab
 erp5_access_token
 erp5_accounting
 erp5_administration
+erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
@@ -496,6 +504,7 @@ erp5_access_tab
 erp5_access_token
 erp5_accounting
 erp5_administration
+erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
@@ -613,6 +622,7 @@ erp5_access_tab
 erp5_access_token
 erp5_accounting
 erp5_administration
+erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
@@ -730,6 +740,7 @@ erp5_access_tab
 erp5_access_token
 erp5_accounting
 erp5_administration
+erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
@@ -844,6 +855,7 @@ erp5_access_tab
 erp5_access_token
 erp5_accounting
 erp5_administration
+erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
@@ -959,6 +971,7 @@ erp5_access_tab
 erp5_access_token
 erp5_accounting
 erp5_administration
+erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
@@ -1073,6 +1086,7 @@ erp5_access_tab
 erp5_access_token
 erp5_accounting
 erp5_administration
+erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
@@ -1188,6 +1202,7 @@ erp5_access_tab
 erp5_access_token
 erp5_accounting
 erp5_administration
+erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
@@ -1303,6 +1318,7 @@ erp5_access_tab
 erp5_access_token
 erp5_accounting
 erp5_administration
+erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
@@ -1419,6 +1435,7 @@ erp5_access_tab
 erp5_access_token
 erp5_accounting
 erp5_administration
+erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
@@ -1535,6 +1552,7 @@ erp5_access_tab
 erp5_access_token
 erp5_accounting
 erp5_administration
+erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token

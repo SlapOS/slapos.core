@@ -60,7 +60,8 @@ class TestSlapOSSecurityMixin(SlapOSTestCaseMixin):
     for _, plugin in uf._getOb('plugins').listPlugins(
                                 IAuthenticationPlugin ):
       if plugin.authenticateCredentials(
-                  {'login_portal_type': ('ERP5 Login', 'Certificate Login'),
+                  {'login_portal_type': ('ERP5 Login', 'Certificate Login',
+                                         'Facebook Login', 'Google Login'),
                    'external_login': login}) is not None:
         break
     else:
@@ -182,18 +183,23 @@ class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
 
 class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
   def test_active(self, login_portal_type="Certificate Login"):
-    password = str(random.random())
+    password = '%s-aA1$' % str(random.random())
     reference = self._generateRandomUniqueReference('Person')
     user_id = self._generateRandomUniqueUserId('Person')
 
     person = self.portal.person_module.newContent(
       portal_type='Person',
-      reference=reference, password=password)
+      reference=reference)
     person.setUserId(user_id)
 
     person.newContent(portal_type='Assignment').open()
-    person.newContent(portal_type=login_portal_type,
-      reference=reference, password=password).validate()
+    if login_portal_type == "ERP5 Login":
+      person.newContent(portal_type=login_portal_type,
+                      reference=reference,
+                      password=password).validate()
+    else:
+      person.newContent(portal_type=login_portal_type,
+                      reference=reference).validate()
 
     self.tic()
 
@@ -229,20 +235,24 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
     self.assertSameSet(['R-MEMBER', 'G-COMPANY'], user.getGroups())
 
   def test_inactive(self, login_portal_type="Certificate Login"):
-    password = str(random.random())
+    password = '%s-aA1$' % str(random.random())
     reference = self._generateRandomUniqueReference('Person')
     user_id = self._generateRandomUniqueReference('Person')
     
     person = self.portal.person_module.newContent(portal_type='Person',
-      reference=reference, password=password)
+      reference=reference)
 
     self.tic()
 
     self._assertUserDoesNotExists(user_id, reference, password)
 
-    person.newContent(portal_type=login_portal_type,
+    if login_portal_type == "ERP5 Login":
+      person.newContent(portal_type=login_portal_type,
+                      reference=reference,
+                      password=password).validate()
+    else:
+      person.newContent(portal_type=login_portal_type,
                       reference=reference).validate()
-
     self.tic()
 
     self._assertUserDoesNotExists(user_id, reference, password)
@@ -253,7 +263,17 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
   def test_inactive_erp5_login(self):
     self.test_inactive(login_portal_type="ERP5 Login")
 
+  def test_active_facebook_login(self):
+    self.test_active(login_portal_type="Facebook Login")
+
+  def test_inactive_facebook_login(self):
+    self.test_inactive(login_portal_type="Facebook Login")
   
+  def test_active_google_login(self):
+    self.test_active(login_portal_type="Google Login")
+
+  def test_inactive_google_login(self):
+    self.test_inactive(login_portal_type="Google Login")
 
 
 def test_suite():

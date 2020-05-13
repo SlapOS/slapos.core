@@ -118,10 +118,13 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
 
     return person_user
 
-  def _addERP5Login(self, document):
+  def _addERP5Login(self, document, **kw):
+    if document.getPortalType() == "Person":
+      kw["password"] = "%s-aA$1" % self.generateNewId()
     login = document.newContent(
         portal_type="ERP5 Login",
-        reference=document.getReference())
+        reference=document.getReference(),
+        **kw)
     login.validate()
     return login
 

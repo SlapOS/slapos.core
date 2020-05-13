@@ -226,6 +226,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
   def bootstrapSite(self):
     self.logMessage('SlapOS bootstrapSite')
     self.getDefaultSystemPreference().setPreferredHateoasUrl("http://dummy/")
+    self.getDefaultSystemPreference().setPreferredAuthenticationPolicyEnabled(True)
 
     self.clearCache()
     self.tic()

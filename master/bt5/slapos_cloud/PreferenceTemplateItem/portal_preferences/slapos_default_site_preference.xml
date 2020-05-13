@@ -265,6 +265,18 @@ It\'s the lowest priority one; ie. managers can create higher priority preferenc
             <value> <string>ymd</string> </value>
         </item>
         <item>
+            <key> <string>preferred_diff_filter_script_id</string> </key>
+            <value>
+              <tuple>
+                <string>TemplateTool_filterClassTupleDiff</string>
+                <string>TemplateTool_filterTemplateUnicodeDiff</string>
+                <string>TemplateTool_filterPortalTypeClassDiff</string>
+                <string>TemplateTool_filterOOBTreeClassDiff</string>
+                <string>TemplateTool_filterEmptyContentTranslation</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
             <key> <string>preferred_document_file_name_regular_expression</string> </key>
             <value> <string encoding="cdata"><![CDATA[
 

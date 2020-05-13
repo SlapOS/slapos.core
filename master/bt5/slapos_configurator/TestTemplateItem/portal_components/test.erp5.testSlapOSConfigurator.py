@@ -27,6 +27,7 @@ import os
 
 class TestSlapOSConfigurator(SlapOSTestCaseMixin):
 
+  maxDiff = None
   def bootstrapSite(self):
     SlapOSTestCaseMixin.bootstrapSite(self)
     self.getBusinessConfiguration().BusinessConfiguration_invokeSlapOSMasterPromiseAlarmList()
@@ -338,6 +339,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'erp5_slapos_tutorial',
       'erp5_slapos_tutorial_data',	
       'erp5_slideshow_style',
+      'erp5_authentication_policy',
       'slapos_cloud',
       'slapos_slap_tool',
       'slapos_category',

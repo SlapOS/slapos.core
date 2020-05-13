@@ -94,6 +94,18 @@
             <value> <string>sale_trade_condition_module/slapos_aggregated_subscription_trade_condition</string> </value>
         </item>
         <item>
+            <key> <string>preferred_authentication_failure_block_duration</string> </key>
+            <value> <int>1800</int> </value>
+        </item>
+        <item>
+            <key> <string>preferred_authentication_failure_check_duration</string> </key>
+            <value> <int>5400</int> </value>
+        </item>
+        <item>
+            <key> <string>preferred_authentication_policy_enabled</string> </key>
+            <value> <int>0</int> </value>
+        </item>
+        <item>
             <key> <string>preferred_campaign_use</string> </key>
             <value>
               <tuple/>
@@ -164,6 +176,14 @@
         <item>
             <key> <string>preferred_instance_update_movement_template</string> </key>
             <value> <string>sale_packing_list_module/slapos_accounting_instance_delivery_line_template/update</string> </value>
+        </item>
+        <item>
+            <key> <string>preferred_max_authentication_failure</string> </key>
+            <value> <int>3</int> </value>
+        </item>
+        <item>
+            <key> <string>preferred_max_password_lifetime_duration</string> </key>
+            <value> <int>1008</int> </value>
         </item>
         <item>
             <key> <string>preferred_maximum_balance</string> </key>
@@ -274,6 +294,10 @@
             </value>
         </item>
         <item>
+            <key> <string>preferred_system_recover_expired_password</string> </key>
+            <value> <int>1</int> </value>
+        </item>
+        <item>
             <key> <string>preferred_time_zone</string> </key>
             <value> <string>Europe/Paris</string> </value>
         </item>
@@ -288,6 +312,10 @@
         <item>
             <key> <string>preferred_wechat_payment_service_reference</string> </key>
             <value> <string>PSERV-Wechat-Test</string> </value>
+        </item>
+        <item>
+            <key> <string>preffered_force_username_check_in_password</string> </key>
+            <value> <int>1</int> </value>
         </item>
         <item>
             <key> <string>priority</string> </key>

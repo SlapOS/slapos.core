@@ -15,5 +15,10 @@ if context.getPortalType() == "Hosting Subscription":
       attention_point_list.append(
         {"text": "Please Upgrade this service",
          "link": ticket.getRelativeUrl()})
-
+elif context.getPortalType() == 'Accounting Transaction Module':
+  for invoice in context.Base_getPendingInvoiceList(limit=3):
+    attention_point_list.append(
+      {"text": "Invoice to pay 2",
+       "link": invoice.getRelativeUrl()}
+    )
 return dumps(attention_point_list)

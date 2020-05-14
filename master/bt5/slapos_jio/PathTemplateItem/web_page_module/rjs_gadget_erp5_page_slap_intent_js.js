@@ -71,8 +71,10 @@
         ];
       return new RSVP.Queue()
         .push(function () {
-          gadget.change.changeState(options);
-          gadget.getTranslationList(translation_list);
+          return RSVP.all([
+            gadget.changeState(options),
+            gadget.getTranslationList(translation_list)
+          ]);
         })
         .push(function (result) {
           gadget.message_tranlation = result[1][0];

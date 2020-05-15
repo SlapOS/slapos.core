@@ -12,7 +12,5 @@ ${base_setup_content}
 
 ${slapos_install_content}
 
-clear
-
 echo "Starting Ansible playbook:"
-ansible-playbook vifib-base.yml -i hosts --connection=local
+ansible-playbook vifib-base.yml -i hosts --connection=local $*

@@ -32,7 +32,7 @@
         </item>
         <item>
             <key> <string>periodicity_hour_frequency</string> </key>
-            <value> <int>8</int> </value>
+            <value> <int>1</int> </value>
         </item>
         <item>
             <key> <string>periodicity_minute</string> </key>

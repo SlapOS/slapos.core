@@ -50,8 +50,8 @@ elif error_code == '0':
     '12': 'Being authorized',
     '13': 'Failed',
   }
-  mark_transaction_id_list = ['0', '1', '3', '4', '5', '10', '11', '12']
-  continue_transaction_id_list = ['6']
+  mark_transaction_id_list = ['0', '1', '3', '5', '10', '11', '12']
+  continue_transaction_id_list = ['4', '6']
   cancel_transaction_id_list = ['8']
 
   transaction_status = data_kw['transactionStatus']
@@ -75,7 +75,7 @@ elif error_code == '0':
     # Check authAmount and authDevise and if match, stop transaction
     auth_amount = int(data_kw['authAmount'])
     auth_devise = data_kw['authDevise']
-    transaction_amount = int(round((transaction.PaymentTransaction_getTotalPayablePrice() * -100), 2))
+    transaction_amount = int((round(transaction.PaymentTransaction_getTotalPayablePrice(), 2) * -100))
 
     if transaction_amount != auth_amount:
       payzen_event.confirm(comment='Received amount (%r) does not match stored on transaction (%r)'% (auth_amount, transaction_amount))

@@ -78,6 +78,8 @@ failovermethod=priority
 enabled=0
 gpgcheck=0
 EOF
+    yum clean all
+    yum makecache
     yum update -y
     yum_install yum-utils
     # Enable a bootstrap repo.  It is removed after finishing

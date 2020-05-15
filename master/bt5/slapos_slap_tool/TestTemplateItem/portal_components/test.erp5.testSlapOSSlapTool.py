@@ -1862,6 +1862,41 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       if os.path.exists(self.instance_request_simulator):
         os.unlink(self.instance_request_simulator)
 
+  def test_request_stopped(self):
+    self._makeComplexComputer()
+    self.instance_request_simulator = tempfile.mkstemp()[1]
+    try:
+      partition_id = self.stop_requested_software_instance.getAggregateValue(
+          portal_type='Computer Partition').getReference()
+      self.login(self.stop_requested_software_instance.getUserId())
+      self.stop_requested_software_instance.requestInstance = Simulator(
+        self.instance_request_simulator, 'requestInstance')
+      response = self.portal_slap.requestComputerPartition(
+          computer_id=self.computer_id,
+          computer_partition_id=partition_id,
+          software_release='req_release',
+          software_type='req_type',
+          partition_reference='req_reference',
+          partition_parameter_xml='<marshal><dictionary id="i2"/></marshal>',
+          filter_xml='<marshal><dictionary id="i2"/></marshal>',
+          state='<marshal><string>started</string></marshal>',
+          shared_xml='<marshal><bool>0</bool></marshal>',
+          )
+      self.assertEqual(408, response.status)
+      self.assertEqual('private',
+          response.headers.get('cache-control'))
+      self.assertInstanceRequestSimulator((), {
+          'instance_xml': "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n",
+          'software_title': 'req_reference',
+          'software_release': 'req_release',
+          'state': 'stopped',
+          'sla_xml': "<?xml version='1.0' encoding='utf-8'?>\n<instance/>\n",
+          'software_type': 'req_type',
+          'shared': False})
+    finally:
+      if os.path.exists(self.instance_request_simulator):
+        os.unlink(self.instance_request_simulator)
+
   def test_updateInstancePredecessorList(self):
     self._makeComplexComputer()
 

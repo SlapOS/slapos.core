@@ -1288,6 +1288,8 @@ class SlapTool(BaseTool):
       software_instance_document = self.\
         _getSoftwareInstanceForComputerPartition(computer_id,
         computer_partition_id)
+      if software_instance_document.getSlapState() == "stop_requested":
+        state = 'stopped'
       kw = dict(software_release=software_release,
               software_type=software_type,
               software_title=partition_reference,

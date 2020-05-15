@@ -47,21 +47,21 @@
             <value>
               <tuple>
                 <string>W: 28, 10: Use of eval (eval-used)</string>
-                <string>W:537, 13: Use of eval (eval-used)</string>
-                <string>W:592, 13: Use of eval (eval-used)</string>
-                <string>W:829, 13: Use of eval (eval-used)</string>
-                <string>W:1446, 13: Use of eval (eval-used)</string>
-                <string>W:1649, 13: Use of eval (eval-used)</string>
-                <string>W:1707, 13: Use of eval (eval-used)</string>
-                <string>W:1747, 13: Use of eval (eval-used)</string>
-                <string>W:2306, 13: Use of eval (eval-used)</string>
-                <string>W:2699, 13: Use of eval (eval-used)</string>
-                <string>W:2757, 13: Use of eval (eval-used)</string>
-                <string>W:2784, 13: Use of eval (eval-used)</string>
-                <string>W:2941, 13: Use of eval (eval-used)</string>
-                <string>W:2969, 13: Use of eval (eval-used)</string>
-                <string>W:3018, 13: Use of eval (eval-used)</string>
-                <string>W:3065, 13: Use of eval (eval-used)</string>
+                <string>W:545, 13: Use of eval (eval-used)</string>
+                <string>W:602, 13: Use of eval (eval-used)</string>
+                <string>W:851, 13: Use of eval (eval-used)</string>
+                <string>W:1480, 13: Use of eval (eval-used)</string>
+                <string>W:1689, 13: Use of eval (eval-used)</string>
+                <string>W:1749, 13: Use of eval (eval-used)</string>
+                <string>W:1789, 13: Use of eval (eval-used)</string>
+                <string>W:2396, 13: Use of eval (eval-used)</string>
+                <string>W:2803, 13: Use of eval (eval-used)</string>
+                <string>W:2863, 13: Use of eval (eval-used)</string>
+                <string>W:2890, 13: Use of eval (eval-used)</string>
+                <string>W:3047, 13: Use of eval (eval-used)</string>
+                <string>W:3075, 13: Use of eval (eval-used)</string>
+                <string>W:3124, 13: Use of eval (eval-used)</string>
+                <string>W:3171, 13: Use of eval (eval-used)</string>
               </tuple>
             </value>
         </item>
@@ -117,25 +117,28 @@
   </record>
   <record id="4" aka="AAAAAAAAAAQ=">
     <pickle>
-      <global name="WorkflowHistoryList" module="Products.ERP5Type.patches.WorkflowTool"/>
+      <global name="WorkflowHistoryList" module="Products.ERP5Type.Workflow"/>
     </pickle>
     <pickle>
-      <tuple>
-        <none/>
-        <list>
-          <dictionary>
-            <item>
-                <key> <string>action</string> </key>
-                <value> <string>validate</string> </value>
-            </item>
-            <item>
-                <key> <string>validation_state</string> </key>
-                <value> <string>validated</string> </value>
-            </item>
-          </dictionary>
-        </list>
-        <none/>
-      </tuple>
+      <dictionary>
+        <item>
+            <key> <string>_log</string> </key>
+            <value>
+              <list>
+                <dictionary>
+                  <item>
+                      <key> <string>action</string> </key>
+                      <value> <string>validate</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>validation_state</string> </key>
+                      <value> <string>validated</string> </value>
+                  </item>
+                </dictionary>
+              </list>
+            </value>
+        </item>
+      </dictionary>
     </pickle>
   </record>
 </ZopeData>

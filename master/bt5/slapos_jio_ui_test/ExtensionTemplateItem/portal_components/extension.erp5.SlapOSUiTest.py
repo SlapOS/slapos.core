@@ -1,0 +1,96 @@
+from AccessControl.SecurityManagement import getSecurityManager
+from AccessControl.SecurityManagement import setSecurityManager
+from AccessControl.SecurityManagement import newSecurityManager
+import xml_marshaller
+
+
+def Computer_simulateSlapgridCP(self, instance_connection_dict=None,
+                       slave_connection_dict=None):
+
+  if slave_connection_dict is None:
+    slave_connection_dict = {}
+  
+  if instance_connection_dict is None:
+    instance_connection_dict = {}
+
+  sm = getSecurityManager()
+  computer_reference = self.getReference()
+  computer_user_id = self.getUserId()
+  portal = self.getPortalObject()
+  try:
+    newSecurityManager(None, portal.acl_users.getUserById(computer_user_id))
+    computer_xml = portal.portal_slap.getFullComputerInformation(
+        computer_id=self.getReference())
+    
+    if not isinstance(computer_xml, str):
+      computer_xml = computer_xml.getBody()
+
+    slap_computer = xml_marshaller.xml_marshaller.loads(computer_xml)
+    assert 'Computer' == slap_computer.__class__.__name__
+
+    for partition in slap_computer._computer_partition_list:
+      if partition._requested_state in ('started', 'stopped') \
+              and partition._need_modification == 1:
+        instance_reference = partition._instance_guid.encode('UTF-8')
+        ip_list = partition._parameter_dict['ip_list']
+        instance_connection_dict.update(dict(
+            url_1 = 'http://%s/' % ip_list[0][1],
+            url_2 = 'http://%s/' % ip_list[1][1],
+          ))
+        connection_xml = xml_marshaller.xml_marshaller.dumps(instance_connection_dict)
+        portal.portal_slap.setComputerPartitionConnectionXml(
+          computer_id=computer_reference,
+          computer_partition_id=partition._partition_id,
+          connection_xml=connection_xml
+        )
+        setSecurityManager(sm)
+        instance_user_id = portal.portal_catalog.getResultValue(
+              reference=instance_reference, portal_type="Software Instance").getUserId()
+        
+        newSecurityManager(None, portal.acl_users.getUserById(instance_user_id))
+        for slave in partition._parameter_dict['slave_instance_list']:
+          slave_reference = slave['slave_reference']
+      
+        slave_connection_dict.update(dict(
+            url_1 = 'http://%s/%s' % (ip_list[0][1], slave_reference),
+            url_2 = 'http://%s/%s' % (ip_list[1][1], slave_reference)
+          ))
+        connection_xml = xml_marshaller.xml_marshaller.dumps(slave_connection_dict)
+        self.portal.portal_slap.setComputerPartitionConnectionXml(
+            computer_id=computer_reference,
+            computer_partition_id=partition._partition_id,
+            connection_xml=connection_xml,
+            slave_reference=slave_reference
+          )
+        
+  finally:
+    setSecurityManager(sm)
+
+def Computer_simulateSlapgridFormat(self, partition_count=10):
+  portal = self.getPortalObject()
+
+  computer_dict = dict(
+    software_root='/opt',
+    reference=self.getReference(),
+    netmask='255.255.255.0',
+    address='128.0.0.1',
+    instance_root='/srv'
+  )
+  computer_dict['partition_list'] = []
+  a = computer_dict['partition_list'].append
+  for i in range(1, partition_count+1):
+    a(dict(
+      reference='part%s' % i,
+      tap=dict(name='tap%s' % i),
+      address_list=[
+        dict(addr='p%sa1' % i, netmask='p%sn1' % i),
+        dict(addr='p%sa2' % i, netmask='p%sn2' % i)
+      ]
+    ))
+  sm = getSecurityManager()
+  try:
+    newSecurityManager(None, portal.acl_users.getUserById(self.getUserId()))
+    return portal.portal_slap.loadComputerConfigurationFromXML(
+        xml_marshaller.xml_marshaller.dumps(computer_dict))
+  finally:
+    setSecurityManager(sm)

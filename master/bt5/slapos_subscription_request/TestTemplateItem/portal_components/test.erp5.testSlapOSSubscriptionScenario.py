@@ -351,7 +351,8 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       mail_message.getTitle())
     payment = subscription_request.SubscriptionRequest_verifyPaymentBalanceIsReady()
     self.assertEqual(payment.getSimulationState(), 'started')
-    self.assertTrue(payment.getRelativeUrl() in \
+    invoice = payment.getCausalityValue()
+    self.assertTrue(invoice.getRelativeUrl() in \
                  mail_message.getTextContent())
     self.assertTrue(subscription_request.getDestinationSectionTitle() in \
       mail_message.getTextContent())

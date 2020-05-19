@@ -217,6 +217,20 @@ class TestUtil(unittest.TestCase):
       slapos.util.dict2xml(self.xml2dict1_dict)
     )
 
+  def test_dumps_loads(self):
+    simple_object = {"ok": [True]}
+    self.assertEqual(simple_object, slapos.util.loads(slapos.util.dumps(simple_object)))
+
+    self.assertRaises(
+        Exception,
+        slapos.util.loads,
+            b'<marshal><object id="i2" module="nasty" class="klass">'
+            b'<tuple></tuple><dictionary id="i3"/></object></marshal>')
+
+    class Nasty(object):
+      pass
+    self.assertRaises(Exception, slapos.util.dumps, Nasty())
+
 
 if __name__ == '__main__':
   unittest.main()

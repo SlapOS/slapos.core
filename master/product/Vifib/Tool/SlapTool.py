@@ -49,7 +49,7 @@ try:
     ComputerPartition as SlapComputerPartition,
     SoftwareInstance,
     SoftwareRelease)
-  from slapos.util import dict2xml, xml2dict, calculate_dict_hash
+  from slapos.util import dict2xml, xml2dict, calculate_dict_hash, loads, dumps
 except ImportError:
   # Do no prevent instance from starting
   # if libs are not installed
@@ -71,9 +71,12 @@ except ImportError:
     raise ImportError
   def calculate_dict_hash(dictionary):
     raise ImportError
+  def loads(*args):
+    raise ImportError
+  def dumps(*args):
+    raise ImportError
 
 from zLOG import LOG, INFO
-import xml_marshaller
 import StringIO
 import pkg_resources
 from Products.Vifib.Conduit import VifibConduit
@@ -185,7 +188,7 @@ class SlapTool(BaseTool):
                     portal_type="Computer Partition"):
       slap_computer._computer_partition_list.append(
           self._getSlapPartitionByPackingList(_assertACI(computer_partition.getObject())))
-    return xml_marshaller.xml_marshaller.dumps(slap_computer)
+    return dumps(slap_computer)
 
   def _fillComputerInformationCache(self, computer_id, user):
     key = '%s_%s' % (computer_id, user)
@@ -278,7 +281,7 @@ class SlapTool(BaseTool):
     for computer_partition in computer_partition_list:
       slap_computer._computer_partition_list.append(
           self._getSlapPartitionByPackingList(_assertACI(computer_partition.getObject())))
-    return xml_marshaller.xml_marshaller.dumps(slap_computer)
+    return dumps(slap_computer)
 
   @UnrestrictedMethod
   def _getHostingSubscriptionIpList(self, computer_id, computer_partition_id):
@@ -287,7 +290,7 @@ class SlapTool(BaseTool):
     
     if software_instance is None or \
                         software_instance.getSlapState() == 'destroy_requested':
-        return xml_marshaller.xml_marshaller.dumps([])
+      return dumps([])
     # Search hosting subscription
     hosting = software_instance.getSpecialiseValue()
     while hosting and hosting.getPortalType() != "Hosting Subscription":
@@ -305,7 +308,7 @@ class SlapTool(BaseTool):
               internet_protocol_address.getIpAddress().decode("UTF-8"))
         )
     
-    return xml_marshaller.xml_marshaller.dumps(ip_address_list)
+    return dumps(ip_address_list)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'getFullComputerInformation')
@@ -366,7 +369,7 @@ class SlapTool(BaseTool):
       key=software_instance.getSslKey(),
       certificate=software_instance.getSslCertificate()
     )
-    result = xml_marshaller.xml_marshaller.dumps(certificate_dict)
+    result = dumps(certificate_dict)
     # Cache with revalidation
     self.REQUEST.response.setStatus(200)
     self.REQUEST.response.setHeader('Cache-Control',
@@ -458,7 +461,7 @@ class SlapTool(BaseTool):
       reference=software_product_reference,
       validation_state='published')
     if len(software_product_list) is 0:
-      return xml_marshaller.xml_marshaller.dumps([])
+      return dumps([])
     if len(software_product_list) > 1:
       raise NotImplementedError('Several Software Product with the same title.')
     software_release_list = \
@@ -477,7 +480,7 @@ class SlapTool(BaseTool):
         key=sortkey,
         reverse=True,
     )
-    return xml_marshaller.xml_marshaller.dumps(
+    return dumps(
       [software_release.getUrlString()
         for software_release in software_release_list
           if software_release.getValidationState() in \
@@ -555,7 +558,7 @@ class SlapTool(BaseTool):
     person = portal.portal_membership.getAuthenticatedMember().getUserValue()
     person.requestComputer(computer_title=computer_title)
     computer = Computer(self.REQUEST.get('computer_reference').decode("UTF-8"))
-    return xml_marshaller.xml_marshaller.dumps(computer)
+    return dumps(computer)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'requestComputer')
@@ -724,7 +727,7 @@ class SlapTool(BaseTool):
     'loadComputerConfigurationFromXML')
   def loadComputerConfigurationFromXML(self, xml):
     "Load the given xml as configuration for the computer object"
-    computer_dict = xml_marshaller.xml_marshaller.loads(xml)
+    computer_dict = loads(xml)
     computer = self._getComputerDocument(computer_dict['reference'])
     computer.Computer_updateFromDict(computer_dict)
     return 'Content properly posted.'
@@ -750,7 +753,7 @@ class SlapTool(BaseTool):
      'certificate': self.REQUEST.get('computer_certificate').decode("UTF-8"),
      'key': self.REQUEST.get('computer_key').decode("UTF-8")
      }
-    return xml_marshaller.xml_marshaller.dumps(result)
+    return dumps(result)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'generateComputerCertificate')
@@ -842,7 +845,7 @@ class SlapTool(BaseTool):
             slave_instance_dict.pop("xml")))
       slap_partition._parameter_dict.update(parameter_dict)
 
-    result = xml_marshaller.xml_marshaller.dumps(slap_partition)
+    result = dumps(slap_partition)
 
     # Keep in cache server for 7 days
     self.REQUEST.response.setStatus(200)
@@ -1145,7 +1148,7 @@ class SlapTool(BaseTool):
                                     'REMOTE_USER')
     self.REQUEST.response.setHeader('Last-Modified', last_modified)
     self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
-    self.REQUEST.response.setBody(xml_marshaller.xml_marshaller.dumps(d))
+    self.REQUEST.response.setBody(dumps(d))
     return self.REQUEST.response
 
   @convertToREST
@@ -1218,8 +1221,7 @@ class SlapTool(BaseTool):
         computer_id,
         computer_partition_id,
         slave_reference)
-    connection_xml = dict2xml(xml_marshaller.xml_marshaller.loads(
-                                              connection_xml))
+    connection_xml = dict2xml(loads(connection_xml))
     reference = software_instance.getReference()
     if self._getLastData(reference) != connection_xml:
       software_instance.updateConnection(
@@ -1244,20 +1246,19 @@ class SlapTool(BaseTool):
     In any other case returns not important data and HTTP code is 403 Forbidden
     """
     if state:
-      state = xml_marshaller.xml_marshaller.loads(state)
+      state = loads(state)
     if state is None:
       state = 'started'
     if shared_xml is not _MARKER:
-      shared = xml_marshaller.xml_marshaller.loads(shared_xml)
+      shared = loads(shared_xml)
     else:
       shared = False
     if partition_parameter_xml:
-      partition_parameter_kw = xml_marshaller.xml_marshaller.loads(
-                                              partition_parameter_xml)
+      partition_parameter_kw = loads(partition_parameter_xml)
     else:
       partition_parameter_kw = dict()
     if filter_xml:
-      filter_kw = xml_marshaller.xml_marshaller.loads(filter_xml)
+      filter_kw = loads(filter_xml)
       if software_type == 'pull-backup' and not 'retention_delay' in filter_kw:
         filter_kw['retention_delay'] = 7.0
     else:
@@ -1363,7 +1364,7 @@ class SlapTool(BaseTool):
         software_instance._filter_dict = filter_xml
         software_instance._requested_state = state
         software_instance._instance_guid = instance_guid
-        return xml_marshaller.xml_marshaller.dumps(software_instance)
+        return dumps(software_instance)
 
   @UnrestrictedMethod
   def _updateComputerPartitionRelatedInstanceList(self, computer_id,
@@ -1383,8 +1384,7 @@ class SlapTool(BaseTool):
 
     cache_reference = '%s-PREDLIST' % software_instance_document.getReference()
     if self._getLastData(cache_reference) != instance_reference_xml:
-      instance_reference_list = xml_marshaller.xml_marshaller.loads(
-                                                        instance_reference_xml)
+      instance_reference_list = loads(instance_reference_xml)
 
       current_predecessor_list = software_instance_document.getPredecessorValueList(
                             portal_type=['Software Instance', 'Slave Instance'])

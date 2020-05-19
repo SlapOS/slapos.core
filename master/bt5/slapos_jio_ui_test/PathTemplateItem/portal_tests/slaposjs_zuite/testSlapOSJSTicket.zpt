@@ -114,6 +114,12 @@
       <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_slapos_event_discussion_entry.html')]//div[@class="slapos-event-discussion-message-header"]</td>
+        <td></td>
+      </tr>
       <tr>
         <td>verifyTextPresent</td>
         <td>Demo User Functional</td>
@@ -185,7 +191,11 @@
       <tal:block tal:define="pagination_configuration python: {'header': '(2)', 'footer': '2 Records'}">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
-
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_slapos_event_discussion_entry.html')]//div[@class="slapos-event-discussion-message-header"]</td>
+        <td></td>
+      </tr>
       <tr>
         <td>verifyTextPresent</td>
         <td>TEST-SLAPOSJS-SUPPORT-REQUEST NEW MESSAGE</td>

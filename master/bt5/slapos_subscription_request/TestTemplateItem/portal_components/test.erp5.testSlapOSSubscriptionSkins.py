@@ -26,6 +26,22 @@ from DateTime import  DateTime
 
 class TestSubscriptionSkinsMixin(SlapOSTestCaseMixinWithAbort):
 
+  def createNotificationMessage(self, reference,
+      content_type='text/html', text_content='${name} ${login_name} ${login_password}'):
+
+    notification_message = self.portal.notification_message_module.newContent(
+      portal_type="Notification Message",
+      text_content_substitution_mapping_method_id='NotificationMessage_getSubstitutionMappingDictFromArgument',
+      title='TestSubscriptionSkins Notification Message %s' % reference,
+      text_content=text_content,
+      content_type=content_type,
+      reference=reference,
+      version=999,
+      language="en"
+      )
+    notification_message.validate()
+    return notification_message
+
   def newSubscriptionCondition(self, **kw):
     subscription_condition = self.portal.subscription_condition_module.newContent(
         portal_type='Subscription Condition',
@@ -1064,6 +1080,7 @@ class TestSubscriptionRequest_verifyReservationPaymentTransaction(TestSubscripti
 
 class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
 
+
   def test_no_sale_invoice(self):
     person = self.makePerson()
     subscription_request = self.newSubscriptionRequest(
@@ -1093,6 +1110,17 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
     instance = hosting_subscription.getPredecessorValue()
     self.assertNotEqual(instance, None)
 
+    self.assertEqual('diverged', hosting_subscription.getCausalityState())
+
+    instance = hosting_subscription.getPredecessorValue()
+    self.assertNotEqual(instance, None)
+ 
+    
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_processOrdered(), None)
+    self.tic()
+
+    self.assertEqual('solved', hosting_subscription.getCausalityState())
     contract = self.portal.portal_catalog.getResultValue(
       portal_type=["Cloud Contract"],
       default_destination_section_uid=person.getUid(),
@@ -1116,6 +1144,9 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
       "draft"
     )
 
+  @simulate('SubscriptionRequest_verifyPaymentBalanceIsReady', '*args, **kwrgs', 'return None')
+  @simulate('HostingSubscription_requestUpdateOpenSaleOrder', '*args, **kwargs', 'context.converge()')
+  @simulate('SubscriptionRequest_verifyInstanceIsAllocated', '*args, **kwargs','return True')
   def test_with_reservation_fee(self):
     person = self.makePerson()
     subscription_request = self.newSubscriptionRequest(
@@ -1148,10 +1179,17 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
 
     hosting_subscription = subscription_request.getAggregateValue(portal_type="Hosting Subscription")
     self.assertNotEqual(hosting_subscription, None)
+    self.assertEqual('diverged', hosting_subscription.getCausalityState())
 
     instance = hosting_subscription.getPredecessorValue()
     self.assertNotEqual(instance, None)
+ 
+    
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_processOrdered(), None)
+    self.tic()
 
+    self.assertEqual('solved', hosting_subscription.getCausalityState())
     contract = self.portal.portal_catalog.getResultValue(
       portal_type=["Cloud Contract"],
       default_destination_section_uid=person.getUid(),
@@ -1175,7 +1213,9 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
       "draft"
     )
 
-  @simulate('SubscriptionRequest_testPaymentBalance', '*args, **kwargs','return True')
+  @simulate('SubscriptionRequest_verifyPaymentBalanceIsReady', '*args, **kwrgs', 'return context.fake_payment')
+  @simulate('HostingSubscription_requestUpdateOpenSaleOrder', '*args, **kwargs', 'context.converge()')
+  @simulate('SubscriptionRequest_verifyInstanceIsAllocated', '*args, **kwargs','return True')
   def test_confirmed(self):
     person = self.makePerson()
     subscription_request = self.newSubscriptionRequest(
@@ -1196,12 +1236,38 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
     subscription_request.plan()
     subscription_request.order()
     
+    self.createNotificationMessage("subscription_request-payment-is-ready",
+      text_content='${name} ${subscription_title} ${payment_relative_relative_url}')
+
+    fake_invoice = self.portal.accounting_module.newContent(
+      portal_type="Sale Invoice Transaction"
+    )
+
+    fake_payment = self.portal.accounting_module.newContent(
+      portal_type="Payment Transaction",
+      causality=fake_invoice.getRelativeUrl())
+
+    # Set this to the mock script can return it
+    setattr(subscription_request, 'fake_payment', fake_payment)
+
     self.tic()
     self.assertEqual(
       subscription_request.SubscriptionRequest_processOrdered(), None)
     self.tic()
 
+    hosting_subscription = subscription_request.getAggregateValue()
+    self.assertNotEqual(None, hosting_subscription)
+    self.assertEqual('diverged', hosting_subscription.getCausalityState())
+    
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_processOrdered(), None)
+    self.tic()
 
+    self.assertEqual('solved', hosting_subscription.getCausalityState())
+
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_processOrdered(), None)
+    self.tic()
     self.assertEqual(
       subscription_request.getSimulationState(),
       "confirmed"

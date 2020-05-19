@@ -4,6 +4,8 @@ portal = context.getPortalObject()
 reservation_fee_invoice = context.getCausalityValue(
   portal_type="Sale Invoice Transaction"
 )
+if reservation_fee_invoice is None:
+  return
 
 reservation_fee_total_price = reservation_fee_invoice.getTotalPrice()
 subscription_request_total_price = context.getPrice() * context.getQuantity()

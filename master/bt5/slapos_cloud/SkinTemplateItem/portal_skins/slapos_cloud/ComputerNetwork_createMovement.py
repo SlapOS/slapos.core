@@ -53,7 +53,7 @@ delivery_line = delivery.newContent(
 delivery_line.edit(
               price=0.0,
               quantity=1.0,
-              aggregate_value=context)
+              aggregate=context.getRelativeUrl())
 
 
 delivery.confirm()

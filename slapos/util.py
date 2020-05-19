@@ -33,7 +33,7 @@ import socket
 import struct
 import subprocess
 import sqlite3
-from xml_marshaller.xml_marshaller import dumps, loads
+from xml_marshaller.xml_marshaller import Marshaller, Unmarshaller
 from lxml import etree
 import six
 from six.moves.urllib import parse
@@ -47,6 +47,36 @@ try:
 except NameError:  # make pylint happy on python2...
   PermissionError = Exception
 
+
+
+_ALLOWED_CLASS_SET = frozenset((
+    ('slapos.slap.slap', 'Computer'),
+    ('slapos.slap.slap', 'ComputerPartition'),
+    ('slapos.slap.slap', 'SoftwareRelease'),
+    ('slapos.slap.slap', 'SoftwareInstance'),
+))
+
+
+class SafeXMLMarshaller(Marshaller):
+  def m_instance(self, value, kw):
+    cls = value.__class__
+    if (cls.__module__, cls.__name__) in _ALLOWED_CLASS_SET:
+      return super(SafeXMLMarshaller, self).m_instance(value, kw)
+    raise RuntimeError("Refusing to marshall {}.{}".format(
+        cls.__module__, cls.__name__))
+
+
+dumps = SafeXMLMarshaller().dumps
+
+
+class SafeXMLUnmrshaller(Unmarshaller, object):
+  def find_class(self, module, name):
+    if (module, name) in _ALLOWED_CLASS_SET:
+      return super(SafeXMLUnmrshaller, self).find_class(module, name)
+    raise RuntimeError("Refusing to unmarshall {}.{}".format(module, name))
+
+
+loads = SafeXMLUnmrshaller().loads
 
 
 def mkdir_p(path, mode=0o700):

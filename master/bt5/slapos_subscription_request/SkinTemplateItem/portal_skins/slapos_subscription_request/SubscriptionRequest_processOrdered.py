@@ -30,5 +30,8 @@ if not context.SubscriptionRequest_verifyInstanceIsAllocated():
   # Only continue if instance is ready
   return
 
-if context.SubscriptionRequest_notifyPaymentIsReady(payment=first_period_payment):
+invoice = first_period_payment.getCausalityValue()
+
+# Link to be sent is the invoice one
+if context.SubscriptionRequest_notifyPaymentIsReady(payment=invoice):
   context.confirm()

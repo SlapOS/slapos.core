@@ -1,14 +1,9 @@
-# Update update user information, by creating
-#  - creating one cloud contract
-
 # Send an email for the user with a URL, so he can set the password.
 
-# Create conpensation payment for future payment, and attach to the subscription request
-#  Person_findPartition must check if Subscription Request is on confirmed state to allocate.
 from Products.ERP5Type.Errors import UnsupportedWorkflowMethod
 
 portal = context.getPortalObject()
-portal_preferences = context.portal_preferences
+portal_preferences = portal.portal_preferences
 
 reference = None
 password = None
@@ -18,6 +13,9 @@ person = context.getDestinationSectionValue(portal_type="Person")
 if person.getDefaultEmailText() is None:
   person.setDefaultEmailText(context.getDefaultEmailText())
 
+if person.getLanguage() in [None, ""]:
+  person.setLanguage(context.getLanguage())
+
 # Should come from subscription condition probably or preference
 role_list = ['member', 'subscriber']
 
@@ -25,7 +23,7 @@ open_assignment_list = person.searchFolder(portal_type="Assignment",
                                               validation_state="open")
 
 # Initialisation
-assignment_duration = context.portal_preferences.getPreferredCredentialAssignmentDuration()
+assignment_duration = portal_preferences.getPreferredCredentialAssignmentDuration()
 today = DateTime()
 delay = today+assignment_duration
 

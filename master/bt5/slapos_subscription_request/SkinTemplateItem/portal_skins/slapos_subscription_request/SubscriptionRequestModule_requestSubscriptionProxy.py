@@ -19,15 +19,17 @@ if confirmation_required and not person_is_new:
        user_input_dict["amount"],
        subscription_reference))
 
+target_language = context.getPortalObject().Localizer.get_selected_language()
+
 subscription_request = context.subscription_request_module.newContent(
   portal_type="Subscription Request",
   destination_section_value=person,
-  quantity=user_input_dict["amount"]
+  quantity=user_input_dict["amount"],
+  language=target_language
 )
 
 subscription_request.setDefaultEmailText(email)
 
-target_language = context.getPortalObject().Localizer.get_selected_language()
 
 def wrapWithShadow(subscription_request, amount, subscription_reference):
   subscription_request.activate(tag="subscription_condition_%s" % subscription_request.getId()

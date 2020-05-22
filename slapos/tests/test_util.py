@@ -191,17 +191,20 @@ class TestUtil(unittest.TestCase):
 """
 
   xml2dict1_dict = {
-    "_": {
-      "param1": "value1",
-      "param2_dict": {
-          "param2_param1": "",
-          "param2_param2_dict": {},
-          "param2_param3_dict": {"param": "value"}
-      }
+    "_": str('''{
+    "param1": "value1",
+    "param2_dict": {
+        "param2_param1": "",
+        "param2_param2_dict": {},
+        "param2_param3_dict": {
+            "param": "value"
+        }
     }
+}''')
   }
 
   def test_xml2dict1(self):
+    self.maxDiff = None
     self.assertEqual(
       self.xml2dict1_dict,
       slapos.util.xml2dict(self.xml2dict1_xml)

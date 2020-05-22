@@ -217,7 +217,10 @@ def getUsageSignatureFromSoftwareAndSharedPart(
       signatures[installed_cfg] = f.read()
   for script in glob.glob(os.path.join(software_root, '*', 'bin', '*')):
     with open(script) as f:
-      signatures[script] = f.read()
+      try:
+        signatures[script] = f.read()
+      except UnicodeDecodeError:
+        logger.debug("Skipping script %s that could not be decoded", script)
   if shared_root:
     for shared_signature in glob.glob(os.path.join(shared_root, '*', '*',
                                                    '.*signature')):

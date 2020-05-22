@@ -563,21 +563,47 @@ def forwardRequestToExternalMaster(master_url, request_form):
     slap.initializeConnection(master_url)
 
   partition_reference = unicode2str(request_form['partition_reference'])
+  filter_kw = loads(request_form['filter_xml'].encode('utf-8'))
+  partition_parameter_kw = loads(request_form['partition_parameter_xml'].encode('utf-8'))
+
+  app.logger.info("Forwarding request of %s to %s", partition_reference, master_url)
+  app.logger.debug("request_form: %s", request_form)
+
   # Store in database
   execute_db('forwarded_partition_request', 'INSERT OR REPLACE INTO %s values(:partition_reference, :master_url)',
              {'partition_reference':partition_reference, 'master_url': master_url})
 
-  new_request_form = request_form.copy()
-  filter_kw = loads(new_request_form['filter_xml'].encode('utf-8'))
-  filter_kw['source_instance_id'] = partition_reference
-  new_request_form['filter_xml'] = dumps(filter_kw)
-
-  xml = slap._connection_helper.POST('/requestComputerPartition', data=new_request_form)
-  partition = loads(xml)
+  if master_entry.get('computer') and master_entry.get('partition'):
+    app.logger.debug("requesting from partition %s", master_entry)
+    # XXX ComputerPartition.request and OpenOrder.request have different signatures
+    partition = slap.registerComputerPartition(
+        master_entry['computer'],
+        master_entry['partition'],
+    ).request(
+        software_release=request_form['software_release'],
+        software_type=request_form.get('software_type', ''),
+        partition_reference=partition_reference,
+        shared=loads(request_form['shared_xml'].encode('utf-8')),
+        partition_parameter_kw=partition_parameter_kw,
+        filter_kw=filter_kw,
+        state=loads(request_form['state'].encode('utf-8')),
+    )
+  else:
+    filter_kw['source_instance_id'] = partition_reference
+    partition = slap.registerOpenOrder().request(
+        software_release=request_form['software_release'],
+        partition_reference=partition_reference,
+        partition_parameter_kw=partition_parameter_kw,
+        software_type=request_form.get('software_type', ''),
+        filter_kw=filter_kw,
+        state=loads(request_form['state'].encode('utf-8')),
+        shared=loads(request_form['shared_xml'].encode('utf-8')),
+    )
 
   # XXX move to other end
-  partition._master_url = master_url
-
+  partition._master_url = master_url # type: ignore
+  partition._connection_helper = None
+  partition._software_release_document = request_form['software_release'] # type: ignore
   return dumps(partition)
 
 def getAllocatedInstance(partition_reference):

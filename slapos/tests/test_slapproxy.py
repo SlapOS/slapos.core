@@ -78,6 +78,7 @@ class BasicMixin(object):
     logging.basicConfig(level=logging.DEBUG)
     self.setFiles()
     self.startProxy()
+    os.environ.pop('SLAPGRID_INSTANCE_ROOT', None)
 
   def createSlapOSConfigurationFile(self):
     with open(self.slapos_cfg, 'w') as f:
@@ -1455,6 +1456,25 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     self.external_proxy_slap._connection_helper.POST('/loadComputerConfigurationFromXML',
                                                      data=request_dict)
 
+  def external_proxy_create_requested_partition(self):
+    # type: () -> None
+    """Create an already requested partition as slappart0, so that we can
+    request from this partition.
+    """
+    external_slap = slapos.slap.slap()
+    external_slap.initializeConnection(self.external_master_url)
+    external_slap.registerSupply().supply(
+        'https://example.com/dummy/software.cfg',
+         computer_guid=self.external_computer_id,
+    )
+    partition = external_slap.registerOpenOrder().request(
+        'https://example.com/dummy/software.cfg',
+        'instance',
+    )
+    # XXX this has to match what is set in slapos_multimaster.cfg.in
+    self.assertEqual('external_computer', partition.slap_computer_id)
+    self.assertEqual('slappart0', partition.slap_computer_partition_id)
+
   def _checkInstanceIsFowarded(self, name, partition_parameter_kw, software_release):
     """
     Test there is no instance on local proxy.
@@ -1573,6 +1593,51 @@ database_uri = %(tempdir)s/lib/external_proxy.db
                              partition_parameter_kw=dummy_parameter_dict)
 
     self._checkInstanceIsFowarded(instance_reference, dummy_parameter_dict, self.external_software_release)
+
+    instance_parameter_dict = partition.getInstanceParameterDict()
+    instance_parameter_dict.pop('timestamp')
+    self.assertEqual(dummy_parameter_dict, instance_parameter_dict)
+    self.assertEqual(self.external_software_release, partition.getSoftwareRelease())
+    self.assertEqual({}, partition.getConnectionParameterDict())
+
+  def testForwardRequestFromPartition(self):
+    """
+    Test that instance request is forwarded and requested from computer partition.
+    """
+    dummy_parameter_dict = {'foo': 'bar'}
+    instance_reference = 'MyFirstInstance'
+    self.format_for_number_of_partitions(1)
+    self.external_proxy_format_for_number_of_partitions(2)
+    self.external_proxy_create_requested_partition()
+
+    partition = self.request(
+        'https://example.com/request/from/partition/software.cfg',
+        None,
+        instance_reference,
+        'slappart0',
+        partition_parameter_kw=dummy_parameter_dict,
+    )
+
+    instance_parameter_dict = partition.getInstanceParameterDict()
+    instance_parameter_dict.pop('timestamp')
+    self.assertEqual(dummy_parameter_dict, instance_parameter_dict)
+    self.assertEqual('https://example.com/request/from/partition/software.cfg', partition.getSoftwareRelease())
+    self.assertEqual({}, partition.getConnectionParameterDict())
+
+    with sqlite3.connect(os.path.join(
+        self._tempdir,
+        'lib',
+        'external_proxy.db',
+    )) as db:
+      requested_by = slapos.proxy.views.execute_db(
+          "partition", "select reference, requested_by from %s", db=db)
+    self.assertEqual([{
+        'reference': 'slappart0',
+        'requested_by': None
+    }, {
+        'reference': 'slappart1',
+        'requested_by': 'slappart0'
+    }], requested_by)
 
   def testRequestToCurrentMaster(self):
     """

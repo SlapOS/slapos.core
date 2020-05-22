@@ -6,6 +6,7 @@ Subscription Condition | TextDocument
 Subscription Condition | Url
 Subscription Request | Amount
 Subscription Request | CredentialRequest
+Subscription Request | DublinCore
 Subscription Request | HostingSubscription
 Subscription Request | Person
 Subscription Request | Price

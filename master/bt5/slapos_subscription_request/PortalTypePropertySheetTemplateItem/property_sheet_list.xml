@@ -10,6 +10,7 @@
  <portal_type id="Subscription Request">
   <item>Amount</item>
   <item>CredentialRequest</item>
+  <item>DublinCore</item>
   <item>HostingSubscription</item>
   <item>Person</item>
   <item>Price</item>

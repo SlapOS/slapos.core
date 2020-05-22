@@ -27,8 +27,8 @@
 
 from AccessControl.SecurityManagement import getSecurityManager, \
              setSecurityManager, newSecurityManager
+from Products.ERP5Security import SUPER_USER
 
-from Products.ERP5Type.UnrestrictedMethod import super_user
 from zExceptions import Unauthorized
 from DateTime import DateTime
 
@@ -45,17 +45,15 @@ def SoftwareInstance_bangAsSelf(self, relative_url=None, reference=None,
   if (software_instance.getPortalType() == "Slave Instance") and \
     (software_instance.getReference() == reference):
     # XXX There is no account for Slave Instance
-    with super_user():
-      software_instance.bang(bang_tree=True, comment=comment)
-    return
-
+    user = self.getPortalObject().acl_users.getUser(SUPER_USER)
+  else:
+    user_id = software_instance.getUserId()
+    user = self.getPortalObject().acl_users.getUserById(user_id)
   sm = getSecurityManager()
-  user_id = software_instance.getUserId()
-  newSecurityManager(None, self.getPortalObject().acl_users.getUserById(user_id))
   try:
+    newSecurityManager(None, user)
     software_instance.bang(bang_tree=True, comment=comment)
   finally:
-    # Restore the original user.
     setSecurityManager(sm)
 
 def SoftwareInstance_renameAndRequestDestroy(self, REQUEST=None):

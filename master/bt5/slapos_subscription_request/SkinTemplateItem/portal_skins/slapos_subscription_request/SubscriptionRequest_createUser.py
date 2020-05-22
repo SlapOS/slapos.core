@@ -23,13 +23,20 @@ person = portal.person_module.newContent(
   portal_type="Person",
   first_name=name)
 
+password = [random.choice(string.upper(string.ascii_letters)),
+            random.choice(string.lower(string.ascii_letters)),
+            random.choice(string.digits),
+            random.choice("$!*#%$.;:,")]
+
 chars = string.ascii_letters + string.digits + '!@#$%^&*()'
+password.extend([random.choice(chars) for _ in range(26)])
+
+random.shuffle(password)
 
 login = person.newContent(
   portal_type="ERP5 Login",
   reference=person.getUserId(),
-  # Please generate a LAAARGE random password.
-  password=''.join(random.choice(chars) for i in range(13)))
+  password=''.join(password))
 
 login.validate()
 

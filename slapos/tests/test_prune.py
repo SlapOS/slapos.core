@@ -31,6 +31,7 @@ import os
 import shutil
 import unittest
 import slapos.client
+import six
 
 try:
   import mock
@@ -139,11 +140,19 @@ class TestPrune(unittest.TestCase):
     script = os.path.join(fake_software_path, 'bin', 'buildout')
     with open(script, 'w') as f:
       f.write('#!{}'.format(used_in_script))
+    # bin/ can also contain binary executables, this should not cause problems
+    binary_script = os.path.join(fake_software_path, 'bin', 'binary')
+    with open(binary_script, 'wb') as f:
+      f.write(b'\x80')
     do_prune(self.logger, self.config, False)
     self.assertTrue(os.path.exists(used_in_script))
     self.assertFalse(os.path.exists(not_used))
     self.logger.warning.assert_called_with(
         'Unusued shared parts at %s%s', not_used, ' ... removed')
+    if six.PY3:
+      self.logger.debug.assert_any_call(
+        'Skipping script %s that could not be decoded', binary_script)
+
 
   def test_shared_part_used_in_recursive_instance(self):
     used_in_software_from_instance = self._createSharedPart('used_in_software_from_instance')

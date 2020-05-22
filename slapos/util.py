@@ -33,7 +33,6 @@ import socket
 import struct
 import subprocess
 import sqlite3
-import json
 from xml_marshaller.xml_marshaller import dumps, loads
 from lxml import etree
 import six
@@ -163,22 +162,14 @@ else:
 
 def dict2xml(dictionary):
   instance = etree.Element('instance')
-  if len(dictionary) == 1 and '_' in dictionary:
+  for k, v in sorted(six.iteritems(dictionary)):
+    if isinstance(k, bytes):
+      k = k.decode('utf-8')
+    if isinstance(v, bytes):
+      v = v.decode('utf-8')
+    elif not isinstance(v, six.text_type):
+      v = str(v)
     etree.SubElement(instance, "parameter",
-            attrib={'id': '_'}).text = json.dumps(
-                    dictionary['_'],
-                    separators=(',', ': '),
-                    sort_keys=True,
-                    indent=4)
-  else:
-    for k, v in sorted(six.iteritems(dictionary)):
-      if isinstance(k, bytes):
-        k = k.decode('utf-8')
-      if isinstance(v, bytes):
-        v = v.decode('utf-8')
-      elif not isinstance(v, six.text_type):
-        v = str(v)
-      etree.SubElement(instance, "parameter",
                      attrib={'id': k}).text = v
   return bytes2str(etree.tostring(instance,
                    pretty_print=True,
@@ -198,8 +189,6 @@ def xml2dict(xml):
       else:
         value = element.text
       result_dict[key] = value
-  if len(result_dict) == 1 and '_' in result_dict:
-    result_dict['_'] = json.loads(result_dict['_'])
   return result_dict
 
 

@@ -190,9 +190,7 @@
 
       <tal:block define="header python: 'Request New Certificate'; ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
-        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
       </tal:block>
-
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_logout" />
 

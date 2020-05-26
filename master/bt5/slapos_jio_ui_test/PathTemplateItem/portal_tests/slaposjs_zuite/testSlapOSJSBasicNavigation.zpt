@@ -238,6 +238,21 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//button[@data-i18n='Menu']</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//a[@data-i18n='Home']</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//a[@data-i18n='Login Account']</td>
+        <td></td>
+      </tr>
 
       <tal:block define="person_name python: 'Demo User Functional'">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />

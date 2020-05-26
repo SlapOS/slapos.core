@@ -79,22 +79,16 @@
       <tr>
         <td>waitForElementPresent</td>
         <td>//div[contains(@data-gadget-url,
-          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Custom Personal"]
+          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Custom Personal (Slave)"]
         </td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
         <td>//div[contains(@data-gadget-url,
-          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Custom Personal"]
+          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Custom Personal (Slave)"]
         </td>
         <td></td>
-      </tr>
-      <tr>
-        <td>select</td>
-        <td>//div[contains(@data-gadget-url,
-          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
-        <td>Custom Personal (Slave) </td>
       </tr>
       <tr>
         <td>waitForElementPresent</td>

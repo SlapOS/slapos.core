@@ -198,7 +198,7 @@
         } else {
           msg += "<tr>";
         }
-        msg += "<td>" + u + "</td>";
+        msg += '<td><a href="' + table_dict[u].url + '">' + u + '</a></td>';
         for (y in interaction_dict) {
           if (interaction_dict.hasOwnProperty(y)) {
             msg += "<td>" + table_dict[u][y] + "</td>";

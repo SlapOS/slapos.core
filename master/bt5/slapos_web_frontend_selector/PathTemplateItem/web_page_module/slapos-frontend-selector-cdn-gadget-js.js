@@ -5,18 +5,18 @@
   var promise_list = [],
     relative_url_path = "/app",
     test_url_list = [
-      { name : 'US-West-A',
-        testurl: "http://demoapp7.erp5.cn/WebSite_getTestFrontendResponse",
-        redirect: "http://demoapp7.erp5.cn" + relative_url_path },
       { name : 'France-O',
         testurl: "http://demoapp3.erp5.cn/WebSite_getTestFrontendResponse",
         redirect: "http://demoapp3.erp5.cn" + relative_url_path },
       { name : 'France-I',
         testurl: "http://demoapp6.erp5.cn/WebSite_getTestFrontendResponse",
         redirect: "http://demoapp6.erp5.cn" + relative_url_path },
-      { name : 'Canada-O',
-        testurl: "http://demoapp8.erp5.cn/WebSite_getTestFrontendResponse",
-        redirect: "http://demoapp8.erp5.cn" + relative_url_path },
+      { name : 'US-West-A',
+        testurl: "http://demoapp7.erp5.cn/WebSite_getTestFrontendResponse",
+        redirect: "http://demoapp7.erp5.cn" + relative_url_path },
+      { name : 'Canada',
+        testurl: "http://demoapp12.erp5.cn/WebSite_getTestFrontendResponse",
+        redirect: "http://demoapp12.erp5.cn" + relative_url_path },
       { name : 'China-CT',
         testurl: "http://demoapp26.erp5.cn/WebSite_getTestFrontendResponse",
         redirect: "http://demoapp26.erp5.cn" + relative_url_path },
@@ -25,7 +25,13 @@
         redirect: "http://demoapp27.erp5.cn" + relative_url_path },
       { name : 'China-CM',
         testurl: "http://demoapp28.erp5.cn/WebSite_getTestFrontendResponse",
-        redirect: "http://demoapp28.erp5.cn" + relative_url_path }
+        redirect: "http://demoapp28.erp5.cn" + relative_url_path },
+      { name : 'Japan-AWS-001',
+        testurl: "http://demoapp29.erp5.cn/WebSite_getTestFrontendResponse",
+        redirect: "http://demoapp29.erp5.cn" + relative_url_path },
+      { name : 'Japan-AWS-002',
+        testurl: "http://demoapp30.erp5.cn/WebSite_getTestFrontendResponse",
+        redirect: "http://demoapp30.erp5.cn" + relative_url_path }
     ];
 
   function ajax(param) {

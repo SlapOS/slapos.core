@@ -78,15 +78,15 @@
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//div[contains(@data-gadget-url,
-          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Custom Personal"]
+                <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Custom Personal (Slave)"]
         </td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
         <td>//div[contains(@data-gadget-url,
-          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Custom Personal"]
+          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]//option[text()="Custom Personal (Slave)"]
         </td>
         <td></td>
       </tr>
@@ -137,7 +137,7 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//a[@data-i18n="Hosting Subscription: TEST-SLAPOSJS-SERVICE-FRONTEND 0"]</td>
+        <td>//a[@data-i18n="托管订阅： TEST-SLAPOSJS-SERVICE-FRONTEND 0"]</td>
         <td></td>
       </tr>
 

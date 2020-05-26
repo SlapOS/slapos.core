@@ -1,3 +1,6 @@
+from ExtensionClass import pmc_init_of
+from Products.ERP5Type.tests.utils import DummyMailHostMixin
+
 from AccessControl.SecurityManagement import getSecurityManager
 from AccessControl.SecurityManagement import setSecurityManager
 from AccessControl.SecurityManagement import newSecurityManager
@@ -94,3 +97,17 @@ def Computer_simulateSlapgridFormat(self, partition_count=10):
         xml_marshaller.xml_marshaller.dumps(computer_dict))
   finally:
     setSecurityManager(sm)
+
+
+def restoreDummyMailHost(self):
+  """Restore the replacement of Original Mail Host by Dummy Mail Host.
+
+    Copied & pasted from ERP5TypeTestCaseMixin._restoreMailHost
+  """
+  mailhost = self.getPortalObject().MailHost
+  cls = mailhost.__class__
+  if cls.__bases__[0] is DummyMailHostMixin:
+    cls.__bases__ = cls.__bases__[1:]
+  pmc_init_of(cls)
+
+  return True

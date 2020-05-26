@@ -248,7 +248,8 @@
               default_dict[default_value],
               default_div,
               path + "/" + default_value,
-              restricted);
+              restricted
+            );
             div.appendChild(default_div);
           }
         }
@@ -748,13 +749,27 @@
             parameter_shared = gadget.element.querySelector('input.parameter_shared'),
             parameter_schema_url = gadget.element.querySelector('input.parameter_schema_url'),
             s_input = gadget.element.querySelector('input.slapos-serialisation-type'),
-            selection_option_list = [];
-
-          if (option_selected === undefined) {
-            option_selected = options.value.parameter.softwaretype;
-          }
+            selection_option_list = [],
+            lowest_index = 999,
+            lowest_option_index;
 
           if (input.children.length === 0) {
+            if (option_selected === undefined) {
+              // search by the lowest index
+              for (option_index in json['software-type']) {
+                if (json['software-type'].hasOwnProperty(option_index)) {
+                  if (json['software-type'][option_index].index === undefined) {
+                    json['software-type'][option_index].index = 999;
+                  }
+
+                  if (json['software-type'][option_index].index < lowest_index) {
+                    lowest_index = json['software-type'][option_index].index;
+                    lowest_option_index = option_index;
+                  }
+                }
+              }
+            }
+
             for (option_index in json['software-type']) {
               if (json['software-type'].hasOwnProperty(option_index)) {
                 option = document.createElement("option");
@@ -771,23 +786,22 @@
                 option.textContent = json['software-type'][option_index].title;
                 if (json['software-type'][option_index].index) {
                   option['data-index'] = json['software-type'][option_index].index;
+                } else {
+                  option['data-index'] = 999;
                 }
-                if (options.value.parameter.shared === undefined) {
-                  options.value.parameter.shared = false;
-                }
-
-                if (option_selected === undefined) {
+                
+                if (option_index === lowest_option_index) {
                   option_selected = option.value;
+                  option.selected = "selected";
                   option_selected_index = option_index;
                   if (json['software-type'][option_index].shared === true) {
                     parameter_shared.value = true;
                   } else {
                     parameter_shared.value = false;
                   }
-                }
-
-                if (softwaretype === undefined) {
-                  softwaretype = option_selected;
+                  if (options.value.parameter.shared === undefined) {
+                    options.value.parameter.shared = parameter_shared.value;
+                  }
                 }
 
                 if (json['software-type'][option_index].shared === undefined) {
@@ -795,7 +809,7 @@
                 }
 
                 option['data-shared'] = json['software-type'][option_index].shared;
-
+                
                 if ((option_selected_index === undefined) &&
                   (option.value === option_selected) &&
                   (options.value.parameter.shared == json['software-type'][option_index].shared)) {
@@ -820,7 +834,7 @@
               }
             }
           }
-
+          
           selection_option_list.sort(function (a, b) {
             return a["data-index"] - b["data-index"];
           });

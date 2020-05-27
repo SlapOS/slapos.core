@@ -25,7 +25,7 @@
 #
 ##############################################################################
 
-from Products.ERP5.Document.MovementGroup import MovementGroup
+from erp5.component.document.MovementGroup import MovementGroup
 
 class RootAppliedRuleCausalityCausalityMovementGroup(MovementGroup):
   """

@@ -1,9 +1,10 @@
 select_kw = kwargs.copy()
 select_kw.pop('portal_type', None)
 select_kw.pop('delivery_relative_url_list', None)
-from Products.ERP5Type.Document import newTempSimulationMovement
 from Products.ZSQLCatalog.SQLCatalog import Query, NegatedQuery, ComplexQuery
 portal = context.getPortalObject()
+
+newTempSimulationMovement = portal.portal_trash.newContent
 
 business_process_uid_list = [
   portal.business_process_module.slapos_reservation_refound_business_process.getUid(),
@@ -50,7 +51,8 @@ for movement in movement_list:
   if movement.getGroupingReference() is not None:
     continue
   temp_movement = newTempSimulationMovement(
-    portal, movement.getRelativeUrl(),
+    temp_object=True, id=movement.getRelativeUrl(),
+    portal_type="Simulation Movement",
     quantity=movement.getQuantity(),
     resource=movement.getResource(),
     source=movement.getDestination(),

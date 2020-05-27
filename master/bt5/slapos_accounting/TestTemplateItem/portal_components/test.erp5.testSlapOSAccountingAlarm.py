@@ -750,7 +750,7 @@ class TestSlapOSTriggerBuildAlarm(SlapOSTestCaseMixin):
       ActiveObject.original_activate = ActiveObject.activate
       ActiveObject.activate = Simulator(activate_simulator, 'activate',
           root_applied_rule)
-      from Products.ERP5.Document.BusinessLink import BusinessLink
+      from erp5.component.document.BusinessLink import BusinessLink
       BusinessLink.original_build = BusinessLink.build
       BusinessLink.build = Simulator(build_simulator, 'build')
 
@@ -838,7 +838,7 @@ class TestSlapOSTriggerBuildAlarm(SlapOSTestCaseMixin):
       ActiveObject.original_activate = ActiveObject.activate
       ActiveObject.activate = Simulator(activate_simulator, 'activate',
           root_applied_rule)
-      from Products.ERP5.Document.BusinessLink import BusinessLink
+      from erp5.component.document.BusinessLink import BusinessLink
       BusinessLink.original_build = BusinessLink.build
       BusinessLink.build = Simulator(build_simulator, 'build')
 
@@ -908,7 +908,7 @@ class TestSlapOSManageBuildingCalculatingDeliveryAlarm(SlapOSTestCaseMixin):
     self.portal.portal_workflow._jumpToStateFor(delivery, state)
 
     try:
-      from Products.ERP5.Document.Delivery import Delivery
+      from erp5.component.document.Delivery import Delivery
       Delivery.original_updateCausalityState = Delivery.updateCausalityState
       Delivery.original_updateSimulation = Delivery.updateSimulation
       Delivery.updateCausalityState = Simulator(

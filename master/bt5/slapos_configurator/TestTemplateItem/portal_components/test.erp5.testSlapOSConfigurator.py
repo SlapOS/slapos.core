@@ -259,7 +259,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'erp5_mysql_innodb_catalog',
       'erp5_upgrader',
       'slapos_upgrader',
-      'erp5_full_text_myisam_catalog',
+      'erp5_full_text_mroonga_catalog',
       'erp5_core_proxy_field_legacy',
       'erp5_base',
       'erp5_administration',

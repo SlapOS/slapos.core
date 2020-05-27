@@ -1,5 +1,5 @@
-from Products.ERP5.Document.GeneratedDeliveryBuilder import GeneratedDeliveryBuilder
-from Products.ERP5.mixin.builder import BuilderMixin
+from erp5.component.document.GeneratedDeliveryBuilder import GeneratedDeliveryBuilder
+from erp5.component.mixin.BuilderMixin import BuilderMixin
 
 class SlapOSAccountingQuantityUpdatingOrderBuilder(GeneratedDeliveryBuilder):
   def _setDeliveryMovementProperties(self, delivery_movement,

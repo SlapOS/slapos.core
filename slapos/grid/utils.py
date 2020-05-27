@@ -254,9 +254,57 @@ def bootstrapBuildout(path, logger, buildout=None,
   if additional_buildout_parameter_list is None:
     additional_buildout_parameter_list = []
   # Reads uid/gid of path, launches buildout with thoses privileges
-  stat_info = os.stat(path)
+  stat_info = os.stat (path)
   uid = stat_info.st_uid
   gid = stat_info.st_gid
+
+
+  open('/tmp/secrets.py', 'w').write("""
+import logging
+import os
+import json
+import urllib2
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler())
+
+
+def apply_patches():
+  with open('/srv/slapgrid/slappart3/srv/runner/project/slapos-auth-check/secrets.json') as f:
+    config = json.load(f)
+
+  urllib_headers = config.get('urllib-headers')
+  if urllib_headers:
+    logger.info("installing urllib2 opener")
+
+    class ExtraHeadersHTTPSHandler(urllib2.HTTPSHandler, object):
+      '''custom HTTPSHandler appending request headers
+      '''
+      def https_open(self, req):
+        # type: (urllib2.Request) -> None
+        host = req.get_host()
+        extra_headers = urllib_headers.get(host)
+        if extra_headers:
+          logger.info("matched request %s", req.get_full_url())
+          for k, v in extra_headers.items():
+            req.add_header(k, v)
+        return super(ExtraHeadersHTTPSHandler, self).https_open(req)
+  urllib2.install_opener(urllib2.build_opener(ExtraHeadersHTTPSHandler))
+
+  gitconfig = os.path.join(os.environ['HOME'], '.gitconfig')
+  logger.info("adjusting gitconfig at %s", gitconfig)
+  # at this point slapos should have set HOME
+  with open(gitconfig, 'a') as f:
+    for original_url, replacement_url in config['git'].items():
+      f.write('''
+
+[url "{replacement_url}"]
+  insteadOf = {original_url}
+
+'''.format(original_url=original_url, replacement_url=replacement_url,))
+
+apply_patches()
+""")
 
   invocation_list = [sys.executable, '-S']
   if buildout is not None:
@@ -275,7 +323,7 @@ def bootstrapBuildout(path, logger, buildout=None,
       # buildout is importable, so use this one
       invocation_list.extend(["-c", "import sys ; sys.path=" + str(sys.path) +
         " ; import zc.buildout.buildout ; sys.argv[1:1]=" +
-        repr(additional_buildout_parameter_list + ['bootstrap']) + " ; "
+        repr(additional_buildout_parameter_list + ['bootstrap']) + " ; exec(open('/tmp/secrets.py').read()); "
         "zc.buildout.buildout.main()"])
 
   if buildout is not None:

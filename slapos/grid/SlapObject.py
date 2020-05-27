@@ -288,6 +288,7 @@ class Software(object):
       additional_parameters = list(self._additional_buildout_parameters(extends_cache))
       additional_parameters.extend(['-c', buildout_cfg])
 
+      # install real bin/buildout
       buildout_binary = os.path.join(self.software_path, 'bin', 'buildout')
       buildout_marker = buildout_binary + "-bootstrap-skipped"
 
@@ -303,8 +304,65 @@ class Software(object):
                                 buildout=self.buildout,
                                 logger=self.logger,
                                 additional_buildout_parameter_list=additional_parameters)
+      # create a wrapper to load secrets
+      buildout_secrets_binary = os.path.join(self.software_path, 'bin', 'slapos-buildout-secrets')
+      with open(buildout_secrets_binary, 'w') as buildout_secrets_script:
+        buildout_secrets_script.write("""#!/srv/slapgrid/slappart3/srv/runner/project/env27/bin/python
+
+# TODO: exec with python from bin/buildout 's shebang
+import json
+import logging
+import os
+import urllib2
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler())
+
+
+def apply_patches():
+  with open('/srv/slapgrid/slappart3/srv/runner/project/slapos-auth-check/secrets.json') as f:
+    config = json.load(f)
+
+  urllib_headers = config.get('urllib-headers')
+  if urllib_headers:
+    logger.info("installing urllib2 opener")
+
+    class ExtraHeadersHTTPSHandler(urllib2.HTTPSHandler, object):
+      '''custom HTTPSHandler appending request headers
+      '''
+      def https_open(self, req):
+        # type: (urllib2.Request) -> None
+        host = req.get_host()
+        extra_headers = urllib_headers.get(host)
+        if extra_headers:
+          logger.info("matched request %s", req.get_full_url())
+          for k, v in extra_headers.items():
+            req.add_header(k, v)
+        return super(ExtraHeadersHTTPSHandler, self).https_open(req)
+  urllib2.install_opener(urllib2.build_opener(ExtraHeadersHTTPSHandler))
+
+  gitconfig = os.path.join(os.environ['HOME'], '.gitconfig')
+  logger.info("adjusting gitconfig at %s", gitconfig)
+  # at this point slapos should have set HOME
+  with open(gitconfig, 'a') as f:
+    for original_url, replacement_url in config['git'].items():
+      f.write('''
+
+[url "{replacement_url}"]
+  insteadOf = {original_url}
+
+'''.format(original_url=original_url, replacement_url=replacement_url,))
+
+apply_patches()
+with open(os.path.join(os.path.dirname(__file__), 'buildout')) as buildout_f:
+  exec(buildout_f.read())
+
+""")
+      os.chmod(buildout_secrets_binary, 0o700)
+
       utils.launchBuildout(path=self.software_path,
-                           buildout_binary=buildout_binary,
+                           buildout_binary=buildout_secrets_binary,
                            logger=self.logger,
                            additional_buildout_parameter_list=additional_parameters,
                            debug=self.buildout_debug)

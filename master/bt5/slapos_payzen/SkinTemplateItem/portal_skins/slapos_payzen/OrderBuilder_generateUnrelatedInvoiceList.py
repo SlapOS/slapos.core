@@ -1,6 +1,6 @@
-from Products.ERP5Type.Document import newTempSimulationMovement
-
 portal = context.getPortalObject()
+newTempSimulationMovement = portal.portal_trash.newContent
+
 select_dict = {
   'causality_payment_transaction_related_uid': None,
   'causality_subscription_request_related_uid': None,
@@ -38,6 +38,7 @@ for invoice in portal.portal_catalog(**select_kw):
     default_source_uid=default_source_uid):
     quantity += movement.getQuantity()
   temp_movement_kw = dict(
+    portal_type="Simulation Movement",
     causality=invoice.getRelativeUrl(),
     source_section=invoice.getSourceSection(),
     destination_section=invoice.getDestinationSection(),
@@ -50,7 +51,7 @@ for invoice in portal.portal_catalog(**select_kw):
     source_payment='organisation_module/slapos/bank_account', # the other place defnied: business process
   )
   temp_movement_rec = newTempSimulationMovement(
-    portal, str(id),
+    temp_object=True, id=str(id),
     quantity=-1 * quantity,
     source='account_module/receivable',
     destination='account_module/payable',
@@ -58,7 +59,7 @@ for invoice in portal.portal_catalog(**select_kw):
   )
   id += 1
   temp_movement_bank = newTempSimulationMovement(
-    portal, str(id),
+    temp_object=True, id=str(id),
     quantity=1 * quantity,
     source='account_module/bank',
     destination='account_module/bank',

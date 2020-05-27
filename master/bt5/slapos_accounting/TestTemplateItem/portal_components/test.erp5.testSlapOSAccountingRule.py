@@ -8,7 +8,7 @@ from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbo
 
 from DateTime import DateTime
 from Products.ERP5Type.DateUtils import addToDate
-from Products.ERP5.Document.SimulationMovement import SimulationMovement
+from erp5.component.document.SimulationMovement import SimulationMovement
 import transaction
 
 def getSimulationStatePlanned(self, *args, **kwargs):

@@ -21,31 +21,35 @@
   });
 
   function createAttentionPointTemplate(gadget, attention_point) {
-    if (attention_point.link) {
-      return gadget.getUrlFor({command: 'change',
-                       options: {jio_key: attention_point.link,
-                                 "page": "slap_controller"}})
-        .push(function (link) {
-          return gadget.translateHtml(attention_point_item_template({
+    return gadget.getSetting("jio_document_page_gadget")
+    .push(function (result) {
+      if (attention_point.link) {
+        return gadget.getUrlFor({command: 'change',
+                         options: {jio_key: attention_point.link,
+                                   "page": result}})
+          .push(function (link) {
+            return gadget.translateHtml(attention_point_item_template({
+              option: [{
+                text: attention_point.text,
+                link: link
+              }]
+            }));
+          });
+      } else {
+        return gadget.translateHtml(attention_point_item_template({
             option: [{
               text: attention_point.text,
-              link: link
+              link: attention_point.link
             }]
           }));
-        });
-    } else {
-      return gadget.translateHtml(attention_point_item_template({
-          option: [{
-            text: attention_point.text,
-            link: attention_point.link
-          }]
-        }));
-    }
+      }
+    });
   }
   gadget_klass
     //////////////////////////////////////////////
     // acquired method
     //////////////////////////////////////////////
+    .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("translateHtml", "translateHtml")
     .declareAcquiredMethod("redirect", "redirect")
     .declareAcquiredMethod("trigger", "trigger")

@@ -34,10 +34,10 @@ import zope.interface
 from AccessControl import ClassSecurityInfo
 from Products.ERP5Type import Permissions, PropertySheet, interfaces
 from Products.ERP5Type.Core.Predicate import Predicate
-from Products.ERP5.mixin.rule import RuleMixin
-from Products.ERP5.mixin.movement_collection_updater import \
+from erp5.component.mixin.RuleMixin import RuleMixin
+from erp5.component.mixin.MovementCollectionUpdaterMixin import \
      MovementCollectionUpdaterMixin
-from Products.ERP5.mixin.rule import MovementGeneratorMixin
+from Products.ERP5.mixin.movement_generator import MovementGeneratorMixin
 
 class SubscriptionItemRootSimulationRule(RuleMixin, MovementCollectionUpdaterMixin, Predicate):
   """

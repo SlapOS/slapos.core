@@ -22,13 +22,19 @@
       return {};
     })
     .declareMethod("render", function (options) {
-      var gadget = this;
+      var gadget = this,
+        return_page = options.return_page;
+
+      if (return_page === undefined) {
+        return_page = "slap_invoice_list";
+      }
+
       return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getElement(),
             gadget.getUrlFor({command: 'change',
-                     options: {jio_key: "/", page: "slap_invoice_list", "result": ""}})
+                     options: {jio_key: "/", page: return_page, "result": ""}})
           ]);
         })
         .push(function (result) {
@@ -65,7 +71,6 @@
           } else {
             throw new Error("Unknown action to take: " + options.result);
           }
-          console.log(options);
           element.innerHTML = message_template({
             message_to_acknowledge: message,
             advice: advice,

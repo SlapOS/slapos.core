@@ -131,6 +131,7 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
 
     software_installation.validate()
     self.tic()
+    self.changeSkin('Hal')
     return software_installation
 
 class TestHostingSubscription_getNewsDict(TestSlapOSHalJsonStyleMixin):
@@ -175,6 +176,7 @@ class TestHostingSubscription_getNewsDict(TestSlapOSHalJsonStyleMixin):
     instance = self._makeInstance()
     instance.edit(specialise_value=hosting_subscription)
     self.tic()
+    self.changeSkin('Hal')
     news_dict = hosting_subscription.HostingSubscription_getNewsDict()
     expected_news_dict = {'instance': [{'no_data': 1,
                 'text': '#error no data found for %s' % instance.getReference(),
@@ -188,6 +190,7 @@ class TestHostingSubscription_getNewsDict(TestSlapOSHalJsonStyleMixin):
     instance = self._makeSlaveInstance()
     instance.edit(specialise_value=hosting_subscription)
     self.tic()
+    self.changeSkin('Hal')
     news_dict = hosting_subscription.HostingSubscription_getNewsDict()
     expected_news_dict = {'instance': []}
     self.assertEquals(news_dict, expected_news_dict)
@@ -202,6 +205,7 @@ class TestHostingSubscription_getNewsDict(TestSlapOSHalJsonStyleMixin):
     instance0.edit(specialise_value=hosting_subscription)
     
     self.tic()
+    self.changeSkin('Hal')
     news_dict = hosting_subscription.HostingSubscription_getNewsDict()
     expected_news_dict = {'instance': [{'no_data': 1,
                 'text': '#error no data found for %s' % instance0.getReference(),

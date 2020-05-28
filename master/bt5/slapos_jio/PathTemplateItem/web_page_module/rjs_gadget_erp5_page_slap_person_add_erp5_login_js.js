@@ -1,6 +1,6 @@
 /*global window, rJS, RSVP */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP) {
+(function (window, rJS, RSVP, jIO) {
   "use strict";
 
   rJS(window)
@@ -63,6 +63,24 @@
                   return gadget.redirect({"command": "change",
                     "options": {"jio_key": content.parent_relative_url,
                                 "page": "slap_controller"}});
+                })
+                .push(undefined, function (error) {
+                  return gadget.getTranslationList(["Unknown Error, please open a ticket."])
+                    .push(function (error_message) {
+                      if (error.target === undefined) {
+                        // received a cancelation so just skip
+                        return gadget;
+                      }
+                      return jIO.util.readBlobAsText(error.target.response)
+                        .then(function (evt) {
+                          if (error.target.status === 406) {
+                            return gadget.notifySubmitted({message: JSON.parse(evt.target.result),
+                                                           status: 'error'});
+                          }
+                          return gadget.notifySubmitted({message: error_message[0],
+                                                      status: 'error'});
+                        });
+                    });
                 });
             });
         });
@@ -184,4 +202,4 @@
           });
         });
     });
-}(window, rJS, RSVP));
+}(window, rJS, RSVP, jIO));

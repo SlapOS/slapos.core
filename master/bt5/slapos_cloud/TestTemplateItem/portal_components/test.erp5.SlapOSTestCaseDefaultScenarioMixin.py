@@ -66,7 +66,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       default_address_zip_code="28480",
     )
 
-    self.assertTrue('Thank you for your registration. You will receive an email to activate your account.' in request, request)
+    self.assertIn('Thank you for your registration. You will receive an email to activate your account.', request)
 
     self.tic()
 
@@ -76,11 +76,15 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
     to_click_url = re.search('href="(.+?)"', to_click_message).group(1)
 
-    self.assertTrue('ERP5Site_activeLogin' in to_click_url)
-
+    self.assertIn('%s/hateoas/connection/ERP5Site_activeLogin' % self.web_site.getId(), to_click_url)
+    
     join_key = to_click_url.split('=')[-1]
     self.assertNotEqual(join_key, None)
     web_site.ERP5Site_activeLogin(key=join_key)
+
+    self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 303)
+    self.assertIn(self.web_site.getId() + "/%23%21login%3Fp.page%3Dslapos%7B%26n.me%7D",
+      self.portal.REQUEST.RESPONSE.getHeader("Location"))
 
     self.tic()
 

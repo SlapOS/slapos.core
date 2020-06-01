@@ -36,6 +36,7 @@ import logging
 from collections import OrderedDict
 import httmock
 
+import json
 import mock
 
 import slapos.slap
@@ -1249,13 +1250,11 @@ class TestOpenOrder(SlapMixin):
   def test_getInformation(self):
     self.slap = slapos.slap.slap()
     parameter_dict = {
-      "_": {
-        "param1": "value1",
-        "param2_dict": {
-          "param2_param1": "",
-          "param2_param2_dict": {},
-          "param2_param3_dict": {"param": "value"}
-          }
+      "param1": "value1",
+      "param2_dict": {
+        "param2_param1": "",
+        "param2_param2_dict": {},
+        "param2_param3_dict": {"param": "value"}
         }
       }
 
@@ -1289,7 +1288,7 @@ class TestOpenOrder(SlapMixin):
             },
         "text_content": {
             "title": "Parameter XML",
-            "default": dict2xml(parameter_dict),
+            "default": dict2xml({'_':json.dumps(parameter_dict)}),
             "key": "field_my_text_content",
             "type": "TextAreaField"
             },
@@ -1448,7 +1447,7 @@ class TestOpenOrder(SlapMixin):
       for key in hosting_subscription_info_dict:
         if key not in link_keys:
           self.assertEqual(getattr(software_instance, '_' + key), hosting_subscription_info_dict[key]["default"])
-      self.assertEqual(software_instance._parameter_dict, parameter_dict)
+      self.assertEqual(software_instance._parameter_dict, {'_': parameter_dict})
       self.assertEqual(software_instance._requested_state, hosting_subscription_info_dict['slap_state']["default"])
       self.assertEqual(software_instance._connection_dict, hosting_subscription_info_dict['connection_parameter_list']["default"])
       self.assertEqual(software_instance._software_release_url, hosting_subscription_info_dict['url_string']["default"])

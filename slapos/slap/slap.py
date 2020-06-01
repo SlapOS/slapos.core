@@ -41,6 +41,7 @@ import logging
 import re
 from functools import wraps
 
+import json
 import six
 
 from .exception import ResourceNotReady, ServerError, NotFoundError, \
@@ -279,13 +280,18 @@ class OpenOrder(SlapRequester):
       setattr(software_instance, '_%s' % key, value)
 
     if raw_information["data"].get("text_content", None) is not None:
-      setattr(software_instance, '_parameter_dict', xml2dict(unicode2str(raw_information["data"]['text_content'])))
+      result_dict = xml2dict(unicode2str(raw_information["data"]['text_content']))
+      # the '_' parameter contains a stringified JSON which is not easily readable by human
+      # we parse it as a dict so that it is displayed in the console as a dict (beautiful display on several lines)
+      if len(result_dict) == 1 and '_' in result_dict:
+        result_dict['_'] = json.loads(result_dict['_'])
+      software_instance._parameter_dict = result_dict
     else:
-      setattr(software_instance, '_parameter_dict', {})
+      software_instance._parameter_dict = {}
 
-    setattr(software_instance, '_requested_state', raw_information["data"]['slap_state'])
-    setattr(software_instance, '_connection_dict', raw_information["data"]['connection_parameter_list'])
-    setattr(software_instance, '_software_release_url', raw_information["data"]['url_string'])
+    software_instance._requested_state = raw_information["data"]['slap_state']
+    software_instance._connection_dict = raw_information["data"]['connection_parameter_list']
+    software_instance._software_release_url = raw_information["data"]['url_string']
     return software_instance
 
   def requestComputer(self, computer_reference):

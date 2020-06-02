@@ -33,7 +33,6 @@ from erp5.component.test.testSlapOSCloudSecurityGroup import TestSlapOSSecurityM
 
 class TestSlapOSShadowPerson(TestSlapOSSecurityMixin):
   def test_active(self):
-    password = str(random.random())
     reference = self._generateRandomUniqueReference('Person')
     user_id = self._generateRandomUniqueUserId('Person')
     shadow_user_id = 'SHADOW-%s' % user_id
@@ -43,6 +42,7 @@ class TestSlapOSShadowPerson(TestSlapOSSecurityMixin):
     person.setUserId(user_id)
     person.newContent(portal_type='Assignment').open()
 
+    password = person.Person_generatePassword()
     person.newContent(portal_type='ERP5 Login',
           reference=reference, password=password).validate()
     self.tic()

@@ -2,8 +2,8 @@
 from DateTime import DateTime
 
 portal = context.getPortalObject()
-preference = portal.portal_preferences.getActiveSystemPreference()
 
+preference = portal.portal_preferences.getActiveSystemPreference()
 preference.edit(
   preferred_credential_alarm_automatic_call=1,
   preferred_credential_recovery_automatic_approval=1,
@@ -73,5 +73,12 @@ except KeyError:
 
 if slaprunner_software_release.getValidationState() == "draft":
   slaprunner_software_release.publishAlive()
+
+portal = context.getPortalObject()
+
+# some are already indexed
+kw = {'portal_type': ('Authentication Event', 'Passoword Event')}
+for authentication_event in portal.portal_catalog(**kw):
+  portal.system_event_module.manage_delObjects(ids=[authentication_event.getId()])
 
 return "Done."

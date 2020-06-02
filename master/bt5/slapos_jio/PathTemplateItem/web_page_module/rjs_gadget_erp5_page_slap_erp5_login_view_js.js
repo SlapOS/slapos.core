@@ -1,6 +1,6 @@
-/*global window, rJS, RSVP, jIO, Blob */
+/*global window, rJS, RSVP, jIO, Blob, UriTemplate */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP) {
+(function (window, rJS, RSVP, jIO, UriTemplate) {
   "use strict";
 
   rJS(window)
@@ -18,6 +18,9 @@
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
     .declareAcquiredMethod("getTranslationList", "getTranslationList")
+    .declareAcquiredMethod("redirect", "redirect")
+
+
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -55,12 +58,58 @@
               }
             }
           }
-          return gadget.getSetting("hateoas_url")
-            .push(function (hateoas_url) {
-              return gadget.jio_putAttachment(gadget.state.jio_key,
-                hateoas_url + gadget.state.jio_key + "/Login_edit", doc)
-                  .push(function () {
+          return gadget.jio_getAttachment('acl_users', 'links')
+            .push(function (links) {
+              var logout_url_template = links._links.logout.href;
+              return gadget.getSetting("hateoas_url")
+                .push(function (hateoas_url) {
+                  return gadget.jio_putAttachment(gadget.state.jio_key,
+                      hateoas_url + gadget.state.jio_key + "/Login_edit", doc);
+                })
+                .push(function (response) {
+                  var redirect_url;
+                  if (response.target === undefined) {
+                    return gadget.notifySubmitted({message: gadget.message2_translation, status: 'success'});
+                  }
+                  // This is probably not ok
+                  if (response.target.status === 200 && response.target.responseURL.search("login_form")) {
+                    // The script required to launch a redirect
+                    return gadget.notifySubmitted({message: gadget.message2_translation, status: 'success'})
+                      .push(function () {
+                        return gadget.getUrlFor({
+                          command: 'display',
+                          absolute_url: true,
+                          options: {"jio_key": "/", "page": "slapos"}
+                        })
+                      })
+                      .push(function (came_from) {
+                        return gadget.redirect({
+                          command: 'raw',
+                          options: {
+                            url: UriTemplate.parse(logout_url_template).expand({came_from: came_from})
+                          }
+                        });
+                      });
+                  }
                   return gadget.notifySubmitted({message: gadget.message2_translation, status: 'success'});
+                });
+            })
+            .push(undefined, function (error) {
+              return gadget.getTranslationList(["Unknown Error, please open a ticket."])
+                .push(function (error_message) {
+                  if (error.target === undefined) {
+                    // received a cancelation so just skip
+                    return gadget;
+                  }
+                  return jIO.util.readBlobAsText(error.target.response)
+                    .then(function (evt) {
+                      if (error.target.status === 406) {
+                        return gadget.notifySubmitted({message: JSON.parse(evt.target.result),
+                                                       status: 'error'});
+                      }
+                      return gadget.notifySubmitted({message: error_message[0],
+                                                     status: 'error'});
+                    });
                 });
             });
         });
@@ -165,4 +214,4 @@
           return gadget.updateHeader(header_dict);
         });
     });
-}(window, rJS, RSVP));
+}(window, rJS, RSVP, jIO, UriTemplate));

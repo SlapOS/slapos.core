@@ -277,6 +277,7 @@ class TestSlapOSStandaloneSoftware(SlapOSStandaloneTestCase):
               '''
               [buildout]
               parts = instance
+              newest = false
               [instance]
               recipe = plone.recipe.command==1.1
               command = touch ${buildout:directory}/instance.cfg
@@ -312,6 +313,7 @@ class TestSlapOSStandaloneSoftware(SlapOSStandaloneTestCase):
               '''
               [buildout]
               parts = error
+              newest = false
               [error]
               recipe = plone.recipe.command==1.1
               command = bash -c "exit 123"
@@ -353,6 +355,7 @@ class TestSlapOSStandaloneInstance(SlapOSStandaloneTestCase):
               '''
               [buildout]
               parts = instance
+              newest = false
 
               [instance]
               recipe = plone.recipe.command==1.1

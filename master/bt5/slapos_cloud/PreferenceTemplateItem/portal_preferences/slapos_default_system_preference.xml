@@ -179,7 +179,7 @@
         </item>
         <item>
             <key> <string>preferred_max_authentication_failure</string> </key>
-            <value> <int>3</int> </value>
+            <value> <int>10</int> </value>
         </item>
         <item>
             <key> <string>preferred_max_password_lifetime_duration</string> </key>
@@ -198,6 +198,22 @@
             <value>
               <tuple/>
             </value>
+        </item>
+        <item>
+            <key> <string>preferred_min_password_length</string> </key>
+            <value> <int>7</int> </value>
+        </item>
+        <item>
+            <key> <string>preferred_min_password_lifetime_duration</string> </key>
+            <value> <int>0</int> </value>
+        </item>
+        <item>
+            <key> <string>preferred_min_regular_expression_group_number</string> </key>
+            <value> <int>3</int> </value>
+        </item>
+        <item>
+            <key> <string>preferred_number_of_last_password_to_check</string> </key>
+            <value> <int>24</int> </value>
         </item>
         <item>
             <key> <string>preferred_ooodoc_server_address</string> </key>
@@ -220,6 +236,10 @@
             <value> <int>1</int> </value>
         </item>
         <item>
+            <key> <string>preferred_password_lifetime_expire_warning_duration</string> </key>
+            <value> <int>336</int> </value>
+        </item>
+        <item>
             <key> <string>preferred_payzen_integration_site</string> </key>
             <value> <string>portal_integrations/slapos_payzen_test_integration</string> </value>
         </item>
@@ -230,6 +250,17 @@
         <item>
             <key> <string>preferred_registration_resource</string> </key>
             <value> <string>service_module/vifib_registration</string> </value>
+        </item>
+        <item>
+            <key> <string>preferred_regular_expression_group</string> </key>
+            <value>
+              <tuple>
+                <string>([a-z]+)</string>
+                <string>([A-Z]+)</string>
+                <string>([0-9]+)</string>
+                <string>([$!*#%$.;:,]+)</string>
+              </tuple>
+            </value>
         </item>
         <item>
             <key> <string>preferred_regularisation_request_resource</string> </key>

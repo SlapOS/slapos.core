@@ -60,6 +60,24 @@
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
+      <tal:block tal:define="notification_configuration python: {'class': 'error',
+                                                           'text': 'Password value doest not comply with password policy'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+      </tal:block>
+
+      <tr>
+        <td>type</td>
+        <td>//input[@name='password']</td>
+        <td>SoMeOth3rPa$$w0d</td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>//input[@name='password_confirmation']</td>
+        <td>SoMeOth3rPa$$w0d</td>
+      </tr>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
       <tal:block tal:define="notification_configuration python: {'class': 'success',
                                                            'text': '新用户登录已创建。'}">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
@@ -96,15 +114,86 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_logout" />
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//label[contains(text(), "登录")]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//input[@name="__ac_name"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//input[@name="__ac_password"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>__ac_name</td>
+        <td>demo_test_login_from_testSlapOSJSAccountLogin</td>
+      </tr>
+      <tr>
+        <td>type</td>
+        <td>__ac_password</td>
+        <td>SoMeOth3rPa$$w0d</td>
+      </tr>
+
+      <tr>
+        <td>clickAndWait</td>
+        <td>WebSite_login:method</td>
+        <td></td>
+      </tr>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_wait_for_front_page" />
+
+      <tal:block define="person_name python: 'Demo User Functional'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_account" />
+      </tal:block>
+
+      <tal:block tal:define="pagination_configuration python: {'header': '(2)', 'footer': '2 记录'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+      </tal:block>
+
+      <tr>
+        <td>verifyTextPresent</td>
+        <td>demo_test_login_from_testSlapOSJSAccountLogin</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>verifyTextPresent</td>
+        <td>demo_functional_user</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>click</td>
+        <td>//a[text()="demo_functional_user"]</td>
+        <td></td>
+      </tr>
+
+      <tal:block define="header python: 'Login : demo_functional_user'; ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      </tal:block>
+
       <tal:block define="menu_action python: 'Delete'">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
       </tal:block>
 
-      <tal:block define="header python: '关闭登录账号: demo_test_login_from_testSlapOSJSAccountLogin'; ">
+      <tal:block define="header python: '关闭登录账号: demo_functional_user'; ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                           'text': 'Login is Disabled.'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+      </tal:block>
 
       <tal:block define="header python: '您的登录账号 : Demo User Functional'; ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
@@ -122,11 +211,12 @@
 
       <tr>
         <td>verifyTextNotPresent</td>
-        <td>demo_test_login_from_testSlapOSJSAccountLogin</td>
+        <td>demo_functional_user</td>
         <td></td>
       </tr>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/slapos_logout" />
+
 
     </tbody>
   </table>

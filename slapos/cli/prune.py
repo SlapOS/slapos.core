@@ -34,6 +34,7 @@ import six.moves.configparser as configparser
 
 from slapos.cli.config import ConfigCommand
 from slapos.grid.slapgrid import merged_options
+from slapos.util import rmtree
 
 
 class PruneCommand(ConfigCommand):
@@ -229,53 +230,3 @@ def getUsageSignatureFromSoftwareAndSharedPart(
         with open(shared_signature) as f:
           signatures[shared_signature] = f.read()
   return signatures
-
-
-# XXX copied from https://lab.nexedi.com/nexedi/erp5/blob/31804f683fd36322fb38aeb9654bee70cebe4fdb/erp5/util/testnode/Utils.py
-# TODO: move to shared place or ... isn't there already such an utility function in slapos.core ?
-import shutil
-import errno
-import six
-from six.moves import map
-
-try:
-  PermissionError
-except NameError:  # make pylint happy on python2...
-  PermissionError = Exception
-
-
-def rmtree(path):
-  """Delete a path recursively.
-  Like shutil.rmtree, but supporting the case that some files or folder
-  might have been marked read only.  """
-  def chmod_retry(func, failed_path, exc_info):
-    """Make sure the directories are executable and writable.
-    """
-    # Depending on the Python version, the following items differ.
-    if six.PY3:
-      expected_error_type = PermissionError
-      expected_func = os.lstat
-    else:
-      expected_error_type = OSError
-      expected_func = os.listdir
-    e = exc_info[1]
-    if isinstance(e, expected_error_type):
-      if e.errno == errno.ENOENT:
-        # because we are calling again rmtree on listdir errors, this path might
-        # have been already deleted by the recursive call to rmtree.
-        return
-      if e.errno == errno.EACCES:
-        if func is expected_func:
-          os.chmod(failed_path, 0o700)
-          # corner case to handle errors in listing directories.
-          # https://bugs.python.org/issue8523
-          return shutil.rmtree(failed_path, onerror=chmod_retry)
-        # If parent directory is not writable, we still cannot delete the file.
-        # But make sure not to change the parent of the folder we are deleting.
-        if failed_path != path:
-          os.chmod(os.path.dirname(failed_path), 0o700)
-          return func(failed_path)
-    raise e  # XXX make pylint happy
-
-  shutil.rmtree(path, onerror=chmod_retry)
-# / erp5/util/testnode/Utils.py code

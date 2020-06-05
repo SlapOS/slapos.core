@@ -363,7 +363,13 @@
       "Telephone": "Telephone",
       "Address": "Address",
       "Postal Code": "Postal Code",
-      "City": "City"
+      "City": "City",
+      "I forgot my password!": "I forgot my password!",
+      "Connect": "Connect",
+      "Create New Account": "Create New Account",
+      "Sign in or Login with Google": "Sign in or Login with Google",
+      "Sign in or Login with Facebook": "Sign in or Login with Facebook",
+      "Recover your account": "Recover your account"
     },
     "zh": {
       "Title": "标题",
@@ -724,7 +730,13 @@
       "Telephone": "电话号码",
       "Address": "地址",
       "Postal Code": "邮编",
-      "City": "城市"
+      "City": "城市",
+      "I forgot my password!": "忘记密码",
+      "Connect": "登录",
+      "Create New Account": "创建新用户",
+      "Sign in or Login with Google": "使用谷歌账号登录或注册",
+      "Sign in or Login with Facebook": "使用脸书账号登录或注册",
+      "Recover your account": "找回您的账号"
    }
 };
 }(window));

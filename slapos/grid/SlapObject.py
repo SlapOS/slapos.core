@@ -52,7 +52,7 @@ from slapos.grid.exception import (BuildoutFailedError, WrongPermissionError,
                                    PathDoesNotExistError, DiskSpaceError)
 from slapos.grid.networkcache import download_network_cached, upload_network_cached
 from slapos.human import bytes2human
-from slapos.util import bytes2str
+from slapos.util import bytes2str, rmtree
 
 
 WATCHDOG_MARK = '-on-watch'
@@ -354,17 +354,10 @@ class Software(object):
 
   def destroy(self):
     """Removes software release."""
-    def retry(func, path, exc):
-      # inspired by slapos.buildout hard remover
-      if func == os.path.islink:
-        os.unlink(path)
-      else:
-        os.chmod(path, 0o600)
-        func(path)
     try:
       if os.path.exists(self.software_path):
         self.logger.info('Removing path %r' % self.software_path)
-        shutil.rmtree(self.software_path, onerror=retry)
+        rmtree(self.software_path)
       else:
         self.logger.info('Path %r does not exists, no need to remove.' %
             self.software_path)

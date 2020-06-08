@@ -27,6 +27,11 @@
 
     <div role="main" class="ui-container gadget-content">
       <article>
+        <div class="ui-field-contain">
+           <section>
+              <span tal:replace="structure here/WebSection_getLoginWarningMessage"></span>
+          </section>
+        </div>
          <div class="ui-field-contain">
            <section>
             <tal:block tal:condition="exists: request/portal_status_message">

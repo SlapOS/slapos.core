@@ -397,6 +397,8 @@ class ComputerForTest(object):
         return {'status_code': 200}
       if url.path == '/buildingSoftwareRelease':
         return {'status_code': 200}
+      if url.path == '/destroyedSoftwareRelease':
+        return {'status_code': 200}
       if url.path == '/softwareReleaseError':
         software.error_log = '\n'.join(
             [
@@ -1920,6 +1922,41 @@ echo %s; echo %s; exit 42""" % (line1, line2))
         cat buildout.cfg; exit 1""")
       self.launchSlapgridSoftware()
     self.assertIn('shared-part-list = %s' % self.shared_parts_root, software.error_log)
+
+  def test_remove_software(self):
+    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
+    with httmock.HTTMock(computer.request_handler):
+      software = computer.software_list[0]
+
+      software.setBuildout("""#!/bin/sh
+mkdir directory
+touch directory/file
+""")
+      self.launchSlapgridSoftware()
+      self.assertIn('directory', os.listdir(os.path.join(self.software_root, software.software_hash)))
+
+      software.requested_state = 'destroyed'
+      self.launchSlapgridSoftware()
+      self.assertEqual(os.listdir(self.software_root), [])
+
+  def test_remove_software_chmod(self):
+    # This software is "hard" to remove, as permissions have been changed
+    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
+    with httmock.HTTMock(computer.request_handler):
+      software = computer.software_list[0]
+
+      software.setBuildout("""#!/bin/sh
+mkdir directory
+touch directory/file
+chmod a-rxw directory/file
+chmod a-rxw directory
+""")
+      self.launchSlapgridSoftware()
+      self.assertIn('directory', os.listdir(os.path.join(self.software_root, software.software_hash)))
+
+      software.requested_state = 'destroyed'
+      self.launchSlapgridSoftware()
+      self.assertEqual(os.listdir(self.software_root), [])
 
 
 class SlapgridInitialization(unittest.TestCase):

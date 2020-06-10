@@ -179,11 +179,11 @@
                     "my_simulation_state": {
                       "description": "",
                       "title": result[1][5],
-                      "default": gadget.state.doc.simulation_state_title,
+                      "default": gadget.state.doc.translated_simulation_state_title,
                       "css_class": "",
                       "required": 1,
                       "editable": 0,
-                      "key": "simulation_state",
+                      "key": "translated_simulation_state_title",
                       "hidden": 0,
                       "type": "StringField"
                     },

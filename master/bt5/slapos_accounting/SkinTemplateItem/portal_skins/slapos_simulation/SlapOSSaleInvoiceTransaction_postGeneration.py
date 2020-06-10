@@ -17,4 +17,18 @@ if invoice.portal_workflow.isTransitionPossible(invoice, 'plan'):
   invoice.plan(comment=comment)
 if invoice.portal_workflow.isTransitionPossible(invoice, 'confirm'):
   invoice.confirm(comment=comment)
+
+
+causality_list = []
+for line in invoice.objectValues():
+  related_delivery = line.getDeliveryRelatedValue()
+  if related_delivery is not None:
+    root_applied_rule = related_delivery.getRootAppliedRule()
+    if root_applied_rule is not None:
+      causality = root_applied_rule.getCausality()
+      if causality is not None and causality not in causality_list:
+        causality_list.append(causality)
+
+invoice.setCausalityList(causality_list)
+
 invoice.startBuilding(comment=comment)

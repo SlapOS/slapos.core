@@ -363,7 +363,9 @@
       "Telephone": "Telephone",
       "Address": "Address",
       "Postal Code": "Postal Code",
-      "City": "City"
+      "City": "City",
+      "User": "User",
+      "Opened": "Opened"
     },
     "zh": {
       "Title": "标题",
@@ -462,7 +464,7 @@
       "Fail...": "失败...",
       "2/3 Select one Release": "2/3 选择一个发布",
       "Longitude": "经度",
-      "Regularisation Request:": "正则要求:",
+      "Regularisation Request:": "合规化请求:",
       "Trade Condition": "贸易条款",
       "Previous": "上一页",
       "Network": "网络",
@@ -724,7 +726,9 @@
       "Telephone": "电话号码",
       "Address": "地址",
       "Postal Code": "邮编",
-      "City": "城市"
+      "City": "城市",
+      "User": "用户",
+      "Opened": "开启"
    }
 };
 }(window));

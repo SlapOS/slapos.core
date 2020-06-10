@@ -8,6 +8,7 @@ Hosting Subscription | jump_to_related_open_order_line
 Hosting Subscription | periodicity
 Payment Transaction | related_payzen_event
 Person | jump_to_cloud_contract
+Root Applied Rule Causality Causality Movement Group | view
 Sale Invoice Transaction | create_slapos_reversal
 SlapOS Accounting Quantity Updating Order Builder | view
 SlapOS Accounting Quantity Updating Order Builder | view_predicate_group

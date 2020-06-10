@@ -104,6 +104,7 @@
                         <string>my_simulation_state_title</string>
                         <string>my_destination_decision</string>
                         <string>my_source</string>
+                        <string>my_translated_simulation_state_title</string>
                       </list>
                     </value>
                 </item>

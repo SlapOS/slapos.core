@@ -706,6 +706,70 @@ class TestPerson_testLoginExistence(TestSlapOSHalJsonStyleMixin):
   def test_Person_testLoginExistence_facebook(self):
     self.test_Person_testLoginExistence(portal_type="Facebook Login")
 
+class TestERP5Site_invalidate(TestSlapOSHalJsonStyleMixin):
+  def test_ERP5Site_invalidate(self, portal_type="ERP5 Login"):
+    person = self._makePerson(user=0)
+    login = self.generateNewId()
+    login_doc = person.newContent(
+      portal_type=portal_type,
+      reference=login  
+    )
+    login_doc.validate()
+    self.tic()
+    self.changeSkin("Hal")
+
+    login_doc.ERP5Login_invalidate()
+    self.assertEqual(login_doc.getValidationState(), 'invalidated')
+
+    # It shouldn't raise
+    login_doc.ERP5Login_invalidate()
+    self.assertEqual(login_doc.getValidationState(), 'invalidated')
+
+  def test_ERP5Site_invalidate_google(self):
+    self.test_ERP5Site_invalidate(portal_type="Google Login")
+
+  def test_ERP5Site_invalidate_facebook(self):
+    self.test_ERP5Site_invalidate(portal_type="Facebook Login")
 
 
+class TestComputer_get_revoke_Certificate(TestSlapOSHalJsonStyleMixin):
+  def test_Computer_getCertificate(self):
+    computer = self._makeComputer()
+    self.assertEqual(0, len(computer.objectValues(portal_type=["ERP5 Login", "Certificate Login"])))
+
+    response_dict = json.loads(computer.Computer_getCertificate())
     
+    self.assertSameSet(response_dict.keys(), ["certificate", "key"])
+    self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 200)
+
+    response_false = json.loads(computer.Computer_getCertificate())
+    self.assertFalse(response_false)
+
+    response_true = json.loads(computer.Computer_revokeCertificate())
+    self.assertTrue(response_true)
+
+    response_false = json.loads(computer.Computer_revokeCertificate())
+    self.assertFalse(response_false)
+
+    response_dict = json.loads(computer.Computer_getCertificate())
+    
+    self.assertSameSet(response_dict.keys(), ["certificate", "key"])
+    self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 200)
+
+class TestComputerNetwork_invalidate(TestSlapOSHalJsonStyleMixin):
+
+  def test_ComputerNetwork_invalidate(self):
+    network = self._makeComputerNetwork()
+    self.assertEqual(network.getValidationState(), "validated")
+
+    self.changeSkin("Hal")
+    network.ComputerNetwork_invalidate()
+    self.assertEqual(network.getValidationState(), "invalidated")
+
+    # Call again to ensure it doesn't raise
+    network.ComputerNetwork_invalidate()
+    self.assertEqual(network.getValidationState(), "invalidated")
+
+
+
+

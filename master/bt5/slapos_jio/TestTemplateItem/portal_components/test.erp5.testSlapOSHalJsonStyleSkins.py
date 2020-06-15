@@ -770,6 +770,38 @@ class TestComputerNetwork_invalidate(TestSlapOSHalJsonStyleMixin):
     network.ComputerNetwork_invalidate()
     self.assertEqual(network.getValidationState(), "invalidated")
 
+class TestComputerNetwork_hasComputer(TestSlapOSHalJsonStyleMixin):
+
+  def test_ComputerNetwork_hasComputer(self):
+    network = self._makeComputerNetwork()
+    self.assertEqual(json.loads(network.ComputerNetwork_hasComputer()), 0)
+
+    computer = self._makeComputer()
+    computer.setSubordinationValue(network)
+
+    self.tic()
+    self.changeSkin("Hal")
+    self.assertEqual(json.loads(network.ComputerNetwork_hasComputer()), 1)
+
+class TestBase_getCredentialToken(TestSlapOSHalJsonStyleMixin):
+
+  def test_Base_getCredentialToken(self):
+    person = self._makePerson()
+    base = self.portal.web_site_module.hostingjs
+
+    self.assertRaises(AttributeError, base.Base_getCredentialToken)
+
+    self.login(person.getUserId())
+
+    token_dict = json.loads(base.Base_getCredentialToken())
+
+    self.assertEqual(token_dict.keys(), ["access_token", "command_line"])
+    self.assertEqual(token_dict['command_line'], "slapos configure client")
+
+    self.assertIn("%s-" % (DateTime().strftime("%Y%m%d")) , token_dict['access_token'])
+
+
+
 
 
 

@@ -677,6 +677,34 @@ class TestPerson_get_revoke_Certificate(TestSlapOSHalJsonStyleMixin):
     self.assertEqual(response_dict["common_name"], person.getUserId())
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 200)
 
+class TestPerson_testLoginExistence(TestSlapOSHalJsonStyleMixin):
+  def test_Person_testLoginExistence(self, portal_type="ERP5 Login"):
+    person = self._makePerson(user=0)
+    self.assertFalse(person.Person_testLoginExistence(reference="oqidjqosidjqoisdjqsoijdqs"))
+    self.assertFalse(person.Person_testLoginExistence(reference=person.getUserId()))
+
+    login = self.generateNewId()
+    login_doc = person.newContent(
+      portal_type=portal_type,
+      reference=login  
+    )
+    login_doc.validate()
+    self.tic()
+    self.changeSkin("Hal")
+    self.assertFalse(person.Person_testLoginExistence(reference=person.getUserId()))
+    self.assertTrue(person.Person_testLoginExistence(reference=login))
+    login_doc.invalidate()
+
+    self.tic()
+
+    self.changeSkin("Hal")
+    self.assertFalse(person.Person_testLoginExistence(reference=login))
+
+  def test_Person_testLoginExistence_google(self):
+    self.test_Person_testLoginExistence(portal_type="Google Login")
+
+  def test_Person_testLoginExistence_facebook(self):
+    self.test_Person_testLoginExistence(portal_type="Facebook Login")
 
 
 

@@ -5,7 +5,7 @@ portal = context.getPortalObject()
 
 person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
-if person.getUid() != context.getUid():
+if (person is None) or (person.getUid() != context.getUid()):
   raise Unauthorized("You are not allowed to create login to a different user")
 
 if context.Person_testLoginExistence(reference=reference):

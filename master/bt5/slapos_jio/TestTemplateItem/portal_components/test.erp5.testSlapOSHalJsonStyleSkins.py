@@ -22,6 +22,7 @@
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import \
   SlapOSTestCaseMixinWithAbort, simulate
+from zExceptions import Unauthorized
 from App.Common import rfc1123_date
 from DateTime import DateTime
 import json
@@ -51,8 +52,8 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
     memcached_dict = self.portal.Base_getSlapToolMemcachedDict()
     memcached_dict[reference] = value
 
-  def _makePerson(self):
-    person_user = self.makePerson()
+  def _makePerson(self, **kw):
+    person_user = self.makePerson(**kw)
     self.tic()
     self.changeSkin('Hal')
     return person_user
@@ -576,3 +577,61 @@ class TestProject_getNewsDict(TestSlapOSHalJsonStyleMixin):
     self.assertEquals(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
+
+class TestPerson_newLogin(TestSlapOSHalJsonStyleMixin):
+  def test_Person_newLogin_as_superuser(self):
+    person = self._makePerson(user=0)
+    self.assertEqual(0 , len(person.objectValues( portal_type="ERP5 Login")))
+
+    self.assertRaises(Unauthorized, person.Person_newLogin, reference="a", password="b")
+
+  def test_Person_newLogin_different_user(self):
+    person = self._makePerson(user=1)
+    self.assertEqual(1 , len(person.objectValues( portal_type="ERP5 Login")))
+
+    personx = self._makePerson(user=1)
+    self.assertEqual(1 , len(personx.objectValues( portal_type="ERP5 Login")))
+
+    self.login(person.getUserId())
+    self.assertRaises(Unauthorized, personx.Person_newLogin, reference="a", password="b")
+
+  def test_Person_newLogin_duplicated(self):
+    person = self._makePerson(user=1)
+    self.assertEqual(1 , len(person.objectValues( portal_type="ERP5 Login")))
+
+    personx = self._makePerson(user=1)
+    login_list = personx.objectValues(portal_type="ERP5 Login")
+    self.assertEqual(1 , len(login_list))
+    login = login_list[0].getReference()
+    self.tic()
+   
+    self.login(person.getUserId())
+    result = json.loads(person.Person_newLogin(reference=login,
+                                    password="b"))
+    
+    self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 406)
+    self.assertEqual(result, 'Login already exists')
+
+  def test_Person_newLogin_dont_comply(self):
+    person = self._makePerson(user=1)
+    self.assertEqual(1 , len(person.objectValues( portal_type="ERP5 Login")))
+
+    self.login(person.getUserId())
+    result = json.loads(person.Person_newLogin(reference="a",
+                                    password="b"))
+    
+    self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 406)
+    self.assertEqual(result, 'Password value doest not comply with password policy')
+    
+  def test_Person_newLogin(self):
+    person = self._makePerson(user=1)
+    self.assertEqual(1 , len(person.objectValues( portal_type="ERP5 Login")))
+
+    self.login(person.getUserId())
+
+    result = json.loads(person.Person_newLogin(reference="SOMEUNIQUEUSER%s" % self.generateNewId(),
+                                    password=person.Person_generatePassword()))
+    
+    self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 200)
+    self.assertIn(person.getRelativeUrl(), result)
+    

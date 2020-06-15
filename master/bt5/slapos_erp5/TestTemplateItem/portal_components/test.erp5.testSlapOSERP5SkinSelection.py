@@ -147,6 +147,8 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_certificate_authority
 erp5_item
 erp5_item_trade
@@ -154,6 +156,8 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_administration
 erp5_authentication_policy
 erp5_auto_logout
@@ -182,8 +186,8 @@ erp5_forge
 erp5_forge_release
 erp5_gadget
 erp5_glossary
+erp5_immobilisation
 erp5_ingestion
-erp5_ingestion_test
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
@@ -264,6 +268,8 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_certificate_authority
 erp5_item
 erp5_item_trade
@@ -271,6 +277,8 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_administration
 erp5_authentication_policy
 erp5_auto_logout
@@ -300,8 +308,8 @@ erp5_forge
 erp5_forge_release
 erp5_gadget
 erp5_glossary
+erp5_immobilisation
 erp5_ingestion
-erp5_ingestion_test
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
@@ -382,6 +390,8 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_certificate_authority
 erp5_item
 erp5_item_trade
@@ -389,6 +399,8 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_administration
 erp5_authentication_policy
 erp5_auto_logout
@@ -417,8 +429,8 @@ erp5_forge
 erp5_forge_release
 erp5_gadget
 erp5_glossary
+erp5_immobilisation
 erp5_ingestion
-erp5_ingestion_test
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
@@ -496,6 +508,8 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_certificate_authority
 erp5_item
 erp5_item_trade
@@ -503,6 +517,8 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_administration
 erp5_authentication_policy
 erp5_auto_logout
@@ -531,9 +547,9 @@ erp5_forge
 erp5_forge_release
 erp5_gadget
 erp5_glossary
+erp5_immobilisation
 erp5_html_compatibility
 erp5_ingestion
-erp5_ingestion_test
 erp5_integration
 erp5_invoicing
 erp5_jquery
@@ -614,6 +630,8 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_certificate_authority
 erp5_item
 erp5_item_trade
@@ -621,6 +639,8 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_administration
 erp5_authentication_policy
 erp5_auto_logout
@@ -649,8 +669,8 @@ erp5_forge
 erp5_forge_release
 erp5_gadget
 erp5_glossary
+erp5_immobilisation
 erp5_ingestion
-erp5_ingestion_test
 erp5_integration
 erp5_invoicing
 erp5_jquery
@@ -732,6 +752,8 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_certificate_authority
 erp5_item
 erp5_item_trade
@@ -739,6 +761,8 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_administration
 erp5_authentication_policy
 erp5_auto_logout
@@ -767,8 +791,8 @@ erp5_forge
 erp5_forge_release
 erp5_gadget
 erp5_glossary
+erp5_immobilisation
 erp5_ingestion
-erp5_ingestion_test
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
@@ -847,6 +871,8 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_certificate_authority
 erp5_item
 erp5_item_trade
@@ -854,6 +880,8 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_administration
 erp5_authentication_policy
 erp5_auto_logout
@@ -882,8 +910,8 @@ erp5_forge
 erp5_forge_release
 erp5_gadget
 erp5_glossary
+erp5_immobilisation
 erp5_ingestion
-erp5_ingestion_test
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
@@ -963,6 +991,8 @@ erp5_dms_base
 erp5_dms_web
 erp5_ods_style
 erp5_accounting_l10n_fr
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_certificate_authority
 erp5_item
 erp5_item_trade
@@ -970,6 +1000,8 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_administration
 erp5_authentication_policy
 erp5_auto_logout
@@ -998,8 +1030,8 @@ erp5_forge
 erp5_forge_release
 erp5_gadget
 erp5_glossary
+erp5_immobilisation
 erp5_ingestion
-erp5_ingestion_test
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
@@ -1078,6 +1110,8 @@ erp5_dms_base
 erp5_dms_web
 erp5_odt_style
 erp5_accounting_l10n_fr
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_certificate_authority
 erp5_item
 erp5_item_trade
@@ -1085,6 +1119,8 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_administration
 erp5_authentication_policy
 erp5_auto_logout
@@ -1113,8 +1149,8 @@ erp5_forge
 erp5_forge_release
 erp5_gadget
 erp5_glossary
+erp5_immobilisation
 erp5_ingestion
-erp5_ingestion_test
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
@@ -1194,6 +1230,8 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_certificate_authority
 erp5_item
 erp5_item_trade
@@ -1201,6 +1239,8 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_administration
 erp5_authentication_policy
 erp5_auto_logout
@@ -1229,8 +1269,8 @@ erp5_forge
 erp5_forge_release
 erp5_gadget
 erp5_glossary
+erp5_immobilisation
 erp5_ingestion
-erp5_ingestion_test
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
@@ -1310,6 +1350,8 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_certificate_authority
 erp5_item
 erp5_item_trade
@@ -1317,6 +1359,8 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_administration
 erp5_authentication_policy
 erp5_auto_logout
@@ -1345,8 +1389,8 @@ erp5_forge
 erp5_forge_release
 erp5_gadget
 erp5_glossary
+erp5_immobilisation
 erp5_ingestion
-erp5_ingestion_test
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
@@ -1427,6 +1471,8 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_certificate_authority
 erp5_item
 erp5_item_trade
@@ -1434,6 +1480,8 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_administration
 erp5_authentication_policy
 erp5_auto_logout
@@ -1462,8 +1510,8 @@ erp5_forge
 erp5_forge_release
 erp5_gadget
 erp5_glossary
+erp5_immobilisation
 erp5_ingestion
-erp5_ingestion_test
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
@@ -1544,6 +1592,8 @@ erp5_simulation
 erp5_dms_base
 erp5_dms_web
 erp5_accounting_l10n_fr
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_certificate_authority
 erp5_item
 erp5_item_trade
@@ -1551,6 +1601,8 @@ erp5_upgrader
 erp5_access_tab
 erp5_access_token
 erp5_accounting
+erp5_accounting_eu
+erp5_accounting_fr
 erp5_administration
 erp5_authentication_policy
 erp5_auto_logout
@@ -1579,8 +1631,8 @@ erp5_forge
 erp5_forge_release
 erp5_gadget
 erp5_glossary
+erp5_immobilisation
 erp5_ingestion
-erp5_ingestion_test
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor

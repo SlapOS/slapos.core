@@ -574,27 +574,28 @@
 
   <tal:block metal:define-macro="check_listbox_pagination_text">
     <!-- Macro copied from renderjs tests, which is bad but it can be dropped later -->
+    <!-- test python: Base_translateString() -->
     <tr>
-      <td colspan="3"><b tal:content="python: 'Check the listbox pagination text: %s' % pagination_configuration"></b></td>
+      <td colspan="3"><b tal:content="python: 'Check the listbox pagination text: %s' % here.Base_translateString(pagination_configuration)"></b></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1//span[@class=\'listboxloader\' and text()=\'%(header)s\']' % pagination_configuration"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1//span[@class=\'listboxloader\' and text()=\'%(header)s\']' %  here.Base_translateString(pagination_configuration)"></td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1//span[@class=\'listboxloader\' and text()=\'%(header)s\']' % pagination_configuration"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1//span[@class=\'listboxloader\' and text()=\'%(header)s\']' % here.Base_translateString(pagination_configuration)"></td>
       <td></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//nav//span[@class=\'ui-disabled\' and text()=\'%(footer)s\']' % pagination_configuration"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//nav//span[@class=\'ui-disabled\' and text()=\'%(footer)s\']' % here.Base_translateString(pagination_configuration)"></td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//nav//span[@class=\'ui-disabled\' and text()=\'%(footer)s\']' % pagination_configuration"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//nav//span[@class=\'ui-disabled\' and text()=\'%(footer)s\']' % here.Base_translateString(pagination_configuration)"></td>
       <td></td>
     </tr>
     <tr>

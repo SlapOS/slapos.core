@@ -31,19 +31,19 @@ subscription_request = context.subscription_request_module.newContent(
 subscription_request.setDefaultEmailText(email)
 
 
-def wrapWithShadow(subscription_request, amount, subscription_reference):
-  subscription_request.activate(tag="subscription_condition_%s" % subscription_request.getId()
+def wrapWithShadow(subscription_request, amount, subscription_reference, subscription_request_id):
+  subscription_request.activate(tag="subscription_condition_%s" % subscription_request_id
                              ).SubscriptionRequest_applyCondition(subscription_reference, target_language)
   return subscription_request.SubscriptionRequest_requestPaymentTransaction(
     amount=amount,
-    tag="subscription_%s" % subscription_request.getId(),
+    tag="subscription_%s" % subscription_request_id,
     target_language=target_language
   )
 
 payment = person.Person_restrictMethodAsShadowUser(
   shadow_document=person,
   callable_object=wrapWithShadow,
-  argument_list=[subscription_request, user_input_dict["amount"], subscription_reference])
+  argument_list=[subscription_request, user_input_dict["amount"], subscription_reference, subscription_request.getId()])
 
 if batch_mode:
   return {'subscription' : subscription_request.getRelativeUrl(), 'payment': payment.getRelativeUrl() }

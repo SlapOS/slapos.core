@@ -539,8 +539,8 @@ erp5_forge
 erp5_forge_release
 erp5_gadget
 erp5_glossary
-erp5_immobilisation
 erp5_html_compatibility
+erp5_immobilisation
 erp5_ingestion
 erp5_integration
 erp5_invoicing

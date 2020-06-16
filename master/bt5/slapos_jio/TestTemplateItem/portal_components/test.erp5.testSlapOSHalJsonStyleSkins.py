@@ -800,6 +800,42 @@ class TestBase_getCredentialToken(TestSlapOSHalJsonStyleMixin):
 
     self.assertIn("%s-" % (DateTime().strftime("%Y%m%d")) , token_dict['access_token'])
 
+    self.login()
+    token = self.portal.access_token_module[token_dict['access_token']]
+
+    self.assertTrue(
+      token.getUrlString().endswith("Person_getCertificate"))
+
+    self.assertEqual(token.getAgentValue(), person)
+    self.assertEqual("One Time Restricted Access Token", token.getPortalType())
+
+class TestBase_getComputerToken(TestSlapOSHalJsonStyleMixin):
+
+  def test_Base_getComputerToken(self):
+    person = self._makePerson()
+    base = self.portal.web_site_module.hostingjs
+
+    self.login(person.getUserId())
+    token_dict = json.loads(base.Base_getComputerToken())
+
+    self.assertSameSet(token_dict.keys(), ['access_token', 'command_line',
+                                    'slapos_master_web', 'slapos_master_api'])
+
+    self.assertEqual(token_dict['command_line'], "wget https://deploy.erp5.net/slapos ; bash slapos")
+    self.assertIn("%s-" % (DateTime().strftime("%Y%m%d")) , token_dict['access_token'])
+    self.assertEqual(token_dict['slapos_master_api'], "https://slap.vifib.com")
+    self.assertEqual(token_dict['slapos_master_web'], base.absolute_url())
+    
+    self.login()
+    token = self.portal.access_token_module[token_dict["access_token"]]
+
+    self.assertIn("/Person_requestComputer", token.getUrlString())
+
+    self.assertEqual(token.getAgentValue(), person)
+    self.assertEqual("One Time Restricted Access Token", token.getPortalType())
+
+
+    
 
 
 

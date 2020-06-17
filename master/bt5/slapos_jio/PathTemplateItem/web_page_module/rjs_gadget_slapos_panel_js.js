@@ -17,6 +17,9 @@
                          .innerHTML),
     panel_template_warning_link = Handlebars.compile(template_element
                          .getElementById("panel-template-warning-link")
+                         .innerHTML),
+    panel_template_contextual_help = Handlebars.compile(template_element
+                         .getElementById("panel-template-contextual-help")
                          .innerHTML);
 
   gadget_klass
@@ -38,18 +41,18 @@
     /////////////////////////////////////////////////////////////////
     // declared methods
     /////////////////////////////////////////////////////////////////
-    .declareMethod('toggle', function () {
+    .declareMethod('toggle', function toggle() {
       return this.changeState({
         visible: !this.state.visible
       });
     })
-    .declareMethod('close', function () {
+    .declareMethod('close', function close() {
       return this.changeState({
         visible: false
       });
     })
 
-    .declareMethod('render', function (options) {
+    .declareMethod('render', function render(options) {
       return this.changeState({
         global: true,
         editable: true,
@@ -132,6 +135,9 @@
       if (!(jio_key === undefined || jio_key === null)) {
         queue
           .push(function () {
+            return context.calculateContextualHelpList(jio_key);
+          })
+          .push(function () {
             return context.calculateMyAttentionPointList(jio_key, false);
           });
       }
@@ -142,7 +148,7 @@
     /////////////////////////////////////////////////////////////////
     // declared services
     /////////////////////////////////////////////////////////////////
-    .onEvent('click', function (evt) {
+    .onEvent('click', function click(evt) {
       if ((evt.target.nodeType === Node.ELEMENT_NODE) &&
           (evt.target.tagName === 'BUTTON')) {
         return this.toggle();
@@ -182,6 +188,33 @@
       return;
     })
 
+    .declareJob("calculateContextualHelpList", function (jio_key) {
+      var context = this,
+        queue = new RSVP.Queue(),
+        contextual_help_dl = document.querySelector('dl.dl-contextual-help');
+      return queue
+        .push(function () {
+          return context.getSetting('hateoas_url');
+        })
+        .push(function (hateoas_url) {
+          if (jio_key === false || jio_key === undefined || jio_key === null) {
+            return [];
+          }
+          return context.jio_getAttachment(
+            jio_key,
+            hateoas_url + jio_key + '/Base_getContextualHelpList'
+          );
+        })
+        .push(function (contextual_help_list) {
+          if (contextual_help_list.length > 0) {
+            if (!Boolean(document.querySelector('#contextual-help-link'))) {
+              contextual_help_dl.innerHTML = panel_template_contextual_help({
+                contextual_help_list: contextual_help_list
+              })
+              }
+          }
+        });
+     })
     .declareJob("calculateMyAttentionPointList", function (jio_key, force_open) {
       var context = this,
         queue = new RSVP.Queue(),

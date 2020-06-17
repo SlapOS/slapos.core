@@ -76,7 +76,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
         invoking checkConsistency """
     self.assertEqual(
         [ i for i in self.portal.portal_templates.checkConsistency()
-                     if "(reinstall)" not in i.message], [])
+                     if not ("(reinstall)" in i.message or "Update translation table" in i.message)], [])
 
 
   def testConfiguredVolatileCache(self):
@@ -319,6 +319,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'erp5_code_mirror',
       'erp5_font',
       'erp5_hal_json_style',
+      'erp5_immobilisation',
       'erp5_l10n_fr',
       'erp5_l10n_zh',
       'erp5_monaco_editor',

@@ -22,7 +22,7 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSZHCommonTemplate/macros/access_menu_item_account" />
       </tal:block>
 
-      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 记录'}">
+      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
 

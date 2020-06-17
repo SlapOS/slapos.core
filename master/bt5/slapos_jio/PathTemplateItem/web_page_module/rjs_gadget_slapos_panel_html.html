@@ -40,6 +40,16 @@
     <script id="panel-template-warning-link" type="text/x-handlebars-template">
       <li><a href="#" id="attention-point-link" class="ui-btn-icon-notext ui-icon-warning attention-point-link">Warnings ({{amount}})</a></li>
     </script>
+
+    <script id="panel-template-contextual-help" type="text/x-handlebars-template">
+        <dt class="ui-btn-icon-left ui-icon-question" data-i18n="Help">Help</dt>
+        {{#each contextual_help_list}}
+        <dd class="document-listview">
+          <a class="help" target="_blank" href="{{href}}">{{title}}</a>
+        </dd>
+        {{/each}}
+    </script>
+    
     <script id="panel-template-body" type="text/x-handlebars-template">
       <div class="ui-content">
         <ul data-role="listview" class="ui-listview" data-enhanced="true">
@@ -67,6 +77,8 @@
         <ul data-role="listview" class="ui-listview ul-attention-point" data-enhanced="true">
           <li></li>
         </ul>
+        <dl class="dl-contextual-help">
+        </dl> 
       </div>
     </script>
     <!-- custom script -->

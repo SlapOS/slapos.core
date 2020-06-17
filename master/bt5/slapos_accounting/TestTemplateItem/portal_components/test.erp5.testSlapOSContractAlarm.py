@@ -69,7 +69,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
       self.tic()
     finally:
       self._dropSoftwareInstance_requestValidationPayment()
-    self.assertEqual(
+    self.assertNotEqual(
         'Visited by SoftwareInstance_requestValidationPayment',
         self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
 

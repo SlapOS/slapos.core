@@ -20,10 +20,11 @@ access_token = portal.access_token_module.newContent(
   url_string=request_url,
   url_method=request_method
 )
+access_token_id = access_token.getId()
 access_token.validate()
 
 request = context.REQUEST
 response = request.RESPONSE
 response.setHeader('Content-Type', "application/json")
-return json.dumps({'access_token': access_token.getId(),
+return json.dumps({'access_token': access_token_id,
                    'command_line': "slapos configure client"})

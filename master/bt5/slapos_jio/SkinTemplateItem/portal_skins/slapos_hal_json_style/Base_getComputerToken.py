@@ -17,6 +17,7 @@ access_token = portal.access_token_module.newContent(
   url_string=request_url,
   url_method=request_method
 )
+access_token_id = access_token.getId()
 access_token.validate()
 
 slapos_master_api = web_site.getLayoutProperty(
@@ -29,7 +30,7 @@ computer_install_command_line = web_site.getLayoutProperty(
 request = context.REQUEST
 response = request.RESPONSE
 response.setHeader('Content-Type', "application/json")
-return json.dumps({'access_token': access_token.getId(),
+return json.dumps({'access_token': access_token_id,
                    'command_line': computer_install_command_line,
                    'slapos_master_web': slapos_master_web_url,
                    'slapos_master_api': slapos_master_api})

@@ -589,12 +589,12 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//nav//span[@class=\'ui-disabled\' and text()=\'%(footer)s\']' % pagination_configuration"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//nav//span[@class=\'ui-disabled\' and text()=\'%s\']' % here.Base_translateString(pagination_configuration['footer'], lang=lang)"></td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//nav//span[@class=\'ui-disabled\' and text()=\'%(footer)s\']' % pagination_configuration"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//nav//span[@class=\'ui-disabled\' and text()=\'%s\']' % here.Base_translateString(pagination_configuration['footer'], lang=lang)"></td>
       <td></td>
     </tr>
     <tr>
@@ -954,6 +954,51 @@
     </tr>
   </tal:block>
 
+  <tal:block metal:define-macro="check_listbox_register_label">
+    <tr>
+      <td colspan="3"><b>Check Listbox Resgister label</b></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//label[text()=\'%s\']' % (here.Base_translateString('First Name', lang=lang))"></td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//label[text()=\'%s\']' % (here.Base_translateString('Last Name', lang=lang))"></td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//label[text()=\'%s\']' % (here.Base_translateString('Email', lang=lang))"></td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//label[text()=\'%s\']' % (here.Base_translateString('Telephone', lang=lang))"></td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//label[text()=\'%s\']' % (here.Base_translateString('Address', lang=lang))"></td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//label[text()=\'%s\']' % (here.Base_translateString('Postal Code', lang=lang))"></td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//label[text()=\'%s\']' % (here.Base_translateString('City', lang=lang))"></td>
+      <td></td>
+    </tr>
 
   <tal:block metal:define-macro="create_fake_invoice">
 
@@ -984,4 +1029,13 @@
     </tr>
   </tal:block>
 
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//label[text()=\'%s\']' % (here.Base_translateString('Country', lang=lang))"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td colspan="3"><p></p></td>
+    </tr>
+  </tal:block>
 </tal:block>

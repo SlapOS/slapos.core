@@ -1,6 +1,20 @@
 Changes
 =======
 
+1.6.0 (2020-06-17)
+------------------
+
+ * cli: Allow boot and bang commands in non-root environments
+ * collect: disable FolderSizeSnapshot for now
+ * collect: small optimization on garbage collect
+ * grid: Fix OS detection
+ * grid: Support chmod'ed folders when removing software directory
+ * prune: Several bug fixes
+ * proxy: support forwarding requests as a partition
+ * standalone: support setting multi-master in slapos.cfg
+ * testing/testcase: several bug fixes in ldd check and snapshots
+ * util: use safe variant or xml_marshaller
+
 1.5.12 (2020-04-07)
 -------------------
 

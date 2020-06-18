@@ -241,10 +241,10 @@ def rmtree(path):
     # Depending on the Python version, the following items differ.
     if six.PY3:
       expected_error_type = PermissionError
-      expected_func = os.lstat
+      expected_func_set = {os.lstat, os.open}
     else:
       expected_error_type = OSError
-      expected_func = os.listdir
+      expected_func_set = {os.listdir}
     e = exc_info[1]
     if isinstance(e, expected_error_type):
       if e.errno == errno.ENOENT:
@@ -252,7 +252,7 @@ def rmtree(path):
         # have been already deleted by the recursive call to rmtree.
         return
       if e.errno == errno.EACCES:
-        if func is expected_func:
+        if func in expected_func_set:
           os.chmod(failed_path, 0o700)
           # corner case to handle errors in listing directories.
           # https://bugs.python.org/issue8523
@@ -261,7 +261,7 @@ def rmtree(path):
         # But make sure not to change the parent of the folder we are deleting.
         if failed_path != path:
           os.chmod(os.path.dirname(failed_path), 0o700)
-          return func(failed_path)
+          func(failed_path)
     raise e  # XXX make pylint happy
 
   shutil.rmtree(path, onerror=chmod_retry)

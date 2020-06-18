@@ -261,7 +261,9 @@ def rmtree(path):
         # But make sure not to change the parent of the folder we are deleting.
         if failed_path != path:
           os.chmod(os.path.dirname(failed_path), 0o700)
-          return func(failed_path)
+          if func is os.open:
+            return rmtree(failed_path)
+          func(failed_path)
     raise e  # XXX make pylint happy
 
   shutil.rmtree(path, onerror=chmod_retry)

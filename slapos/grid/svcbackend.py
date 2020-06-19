@@ -31,6 +31,7 @@
 import os
 import pkg_resources
 import socket as socketlib
+import resource
 import subprocess
 import stat
 import sys
@@ -175,7 +176,8 @@ def launchSupervisord(instance_root, logger,
   supervisord_argument_list = ['-c', configuration_file]
   if supervisord_additional_argument_list is not None:
     supervisord_argument_list.extend(supervisord_additional_argument_list)
-
+  def preexec_fn():
+    resource.setrlimit(resource.RLIMIT_NOFILE, (65536, 1048576)))
   logger.info("Launching supervisord with clean environment.")
   # Extract python binary to prevent shebang size limit
   invocation_list = [sys.executable, '-c']
@@ -188,7 +190,8 @@ def launchSupervisord(instance_root, logger,
                                 env={},
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT,
-                                logger=logger)
+                                logger=logger,
+                                preexec_fn=prexec_fn)
 
   result = supervisord_popen.communicate()[0]
   if supervisord_popen.returncode:

@@ -63,7 +63,7 @@ setup(name=name,
           'netaddr>=0.7.5', # to play safely with IPv6 prefixes
           'netifaces', # to fetch information about network devices
           'setuptools', # namespaces
-          'supervisor', # slapgrid uses supervisor to manage processes
+          'supervisor>=3.3.0', # slapgrid uses supervisor to manage processes
           'psutil>=2.0.0',
           'xml_marshaller>=0.9.3', # to unmarshall/marshall python objects to/from
                                    # XML
@@ -75,6 +75,7 @@ setup(name=name,
           'cachecontrol',
           'lockfile',
           'uritemplate', # used by hateoas navigator
+          'resource',
           'subprocess32; python_version<"3"'
         ] + additional_install_requires,
       extras_require=extras_require,

@@ -110,7 +110,8 @@
 
   </tal:block>
 
-  <tal:block metal:define-macro="slapos_login_base">
+  <tal:block metal:define-macro="slapos_login_base"
+             tal:define="lang python: here.web_site_module[web_site_id].getDefaultAvailableLanguage()">
     <!-- Logout  -->
     <tr>
       <td>open</td>
@@ -140,7 +141,7 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//input[@value="Login"]</td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
       <td></td>
     </tr>
     <tr>

@@ -37,6 +37,7 @@ class TestSlapOSUIZHHalStyle(SlapOSTestCaseMixin, ERP5TypeFunctionalTestCase):
     ERP5TypeFunctionalTestCase.afterSetUp(self)
     SlapOSTestCaseMixin.afterSetUp(self)
     self.getPortalObject().web_site_module.hostingjs.setDefaultAvailableLanguage('zh')
+    self.tic()
 
   def getBusinessTemplateList(self):
     bt5_list = SlapOSTestCaseMixin.getBusinessTemplateList(self)

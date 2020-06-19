@@ -53,7 +53,7 @@ for role in role_list:
 
     assignment.open()
 
-login_list = [x for x in person.objectValues(portal_type='ERP5 Login') \
+login_list = [x for x in person.objectValues(portal_type=['ERP5 Login', 'Google Login', 'Facebook Login']) \
               if x.getValidationState() == 'validated']
 
 if not login_list:

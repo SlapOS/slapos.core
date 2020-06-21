@@ -56,12 +56,12 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//a[@data-i18n=' Create New Account ']</td>
+        <td>//a[text()='创建新用户']</td>
         <td></td>
       </tr>
       <tr>
         <td>clickAndWait</td>
-        <td>//a[@data-i18n=' Create New Account ']</td>
+        <td>//a[text()='创建新用户']</td>
         <td></td>
       </tr>
       <tr>

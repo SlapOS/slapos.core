@@ -50,7 +50,8 @@ delivery.edit(
   destination=person.getRelativeUrl(),
   destination_decision=person.getRelativeUrl(),
   start_date=payment_transaction.getCreationDate(),
-  causality_uid=context.getUid()
+  causality_uid=context.getUid(),
+  price_currency=sale_invoice_transaction.getPriceCurrency()
 )
 
 line = delivery.newContent(

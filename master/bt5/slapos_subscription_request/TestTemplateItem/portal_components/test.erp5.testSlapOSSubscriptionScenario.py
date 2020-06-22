@@ -28,6 +28,8 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
   def afterSetUp(self):
     self.expected_individual_price_without_tax = 162.50
     self.expected_individual_price_with_tax = 195.00
+    self.expected_reservation_fee = 25.00
+    self.expected_price_currency = "currency_module/EUR"
 
     self.login()
     self.portal.portal_alarms.slapos_subscription_request_process_draft.setEnabled(True)
@@ -244,7 +246,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     # 195 is the month payment
     # 195*1 is the 1 months to pay upfront to use.
     # 25 is the reservation fee deduction.
-    authAmount = (int(self.expected_individual_price_with_tax*100)*1-2500)*quantity
+    authAmount = (int(self.expected_individual_price_with_tax*100)*1-int(self.expected_reservation_fee*100))*quantity
     data_kw = {
         'errorCode': '0',
         'transactionStatus': '6',
@@ -268,7 +270,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     data_kw = {
         'errorCode': '0',
         'transactionStatus': '6',
-        'authAmount': 2500*quantity,
+        'authAmount': self.expected_reservation_fee*100*quantity,
         'authDevise': '978',
     }
 
@@ -301,6 +303,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
     self.assertEqual(invoice.getSimulationState(), "stopped")
     self.assertEqual(invoice.getCausalityState(), "solved")
+    self.assertEqual(invoice.getPriceCurrency(), self.expected_price_currency)
     for line in invoice.objectValues():
       if line.getResource() == "service_module/slapos_reservation_fee":
         self.assertEqual(line.getQuantity(), quantity)
@@ -309,7 +312,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
         self.assertEqual(round(line.getQuantity(), 2), round(20.833333333333333*quantity, 2))
         self.assertEqual(round(line.getTotalPrice(), 2), round(4.166666666666667*quantity, 2))
 
-    self.assertEqual(round(invoice.getTotalPrice(), 2), 25.0*quantity)
+    self.assertEqual(round(invoice.getTotalPrice(), 2), self.expected_reservation_fee*quantity)
 
   def checkBootstrapUser(self, subscription_request):
     person = subscription_request.getDestinationSectionValue(portal_type="Person")
@@ -421,11 +424,15 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     quantity = subscription_request.getQuantity()
     # The values are without tax
     self.assertEqual(sale_packing_list_line.getQuantity(), 1)
-    self.assertEqual(round(sale_packing_list_line.getPrice(), 2), -25*quantity)
-    self.assertEqual(round(sale_packing_list_line.getTotalPrice(), 2), -25*quantity)
+    self.assertEqual(round(sale_packing_list_line.getPrice(), 2), -int(self.expected_reservation_fee*quantity))
+    self.assertEqual(round(sale_packing_list_line.getTotalPrice(), 2), -int(self.expected_reservation_fee*quantity))
 
     self.assertEqual(sale_packing_list.getCausality(),
                      subscription_request.getRelativeUrl())
+
+    self.assertEqual(sale_packing_list.getPriceCurrency(),
+                     self.expected_price_currency)
+
   @changeSkin('Hal')
   def _requestSubscription(self, **kw):
     return self.web_site.hateoas.SubscriptionRequestModule_requestSubscription(**kw)
@@ -524,6 +531,22 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     # The alarms might be called multiple times for move each step
     self.stepCallSlaposSubscriptionRequestProcessOrderedAlarm()
     self.tic()
+
+    sale_packing_list_list = self.portal.portal_catalog(
+      causality_uid = subscription_request.getUid(),
+      title="Reservation Deduction",
+      portal_type="Sale Packing List"
+    )
+    self.assertEqual(len(sale_packing_list_list), 1)
+    sale_packing_list = sale_packing_list_list[0]
+
+    self.assertEqual(sale_packing_list.getPriceCurrency(),
+                     self.expected_price_currency)
+    self.assertEqual(sale_packing_list.getSpecialise(),
+      "sale_trade_condition_module/slapos_reservation_refund_trade_condition")
+
+    self.assertEqual(round(sale_packing_list.getTotalPrice(), 2),
+                     -round(self.expected_reservation_fee, 2))
 
     return subscription_request
 

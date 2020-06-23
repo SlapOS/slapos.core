@@ -19,7 +19,8 @@ if confirmation_required and not person_is_new:
        user_input_dict["amount"],
        subscription_reference))
 
-target_language = context.getPortalObject().Localizer.get_selected_language()
+if target_language is None:
+  target_language = context.getPortalObject().Localizer.get_selected_language()
 
 subscription_request = context.subscription_request_module.newContent(
   portal_type="Subscription Request",

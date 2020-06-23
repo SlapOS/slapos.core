@@ -20,6 +20,8 @@
 ##############################################################################
 
 from erp5.component.test.testSlapOSSubscriptionScenario import TestSlapOSSubscriptionScenarioMixin
+from erp5.component.test.SlapOSTestCaseMixin import changeSkin
+from Products.ERP5Type.tests.utils import createZODBPythonScript
 
 class TestSlapOSSubscriptionChineseScenario(TestSlapOSSubscriptionScenarioMixin):
 
@@ -27,6 +29,50 @@ class TestSlapOSSubscriptionChineseScenario(TestSlapOSSubscriptionScenarioMixin)
     TestSlapOSSubscriptionScenarioMixin.afterSetUp(self)
     self.expected_individual_price_without_tax = 1573.3333333333335
     self.expected_individual_price_with_tax = 1888.00
+    self.expected_reservation_fee = 188.00
+    self.expected_reservation_fee_without_tax = 188
+    self.expected_reservation_quantity_tax = 0
+    self.expected_reservation_tax = 0
+    self.expected_price_currency = "currency_module/CNY"
+
+
+  def _simulatePaymentTransaction_getVADSUrlDict(self):
+    script_name = 'PaymentTransaction_getVADSUrlDict'
+    if script_name in self.portal.portal_skins.custom.objectIds():
+      raise ValueError('Precondition failed: %s exists in custom' % script_name)
+    createZODBPythonScript(self.portal.portal_skins.custom,
+                        script_name,
+                        '*args, **kwargs',
+                        '# Script body\n'
+"""payment_transaction_url = context.getRelativeUrl()
+return dict(vads_url_already_registered="%s/already_registered" % (payment_transaction_url),
+  vads_url_cancel="%s/cancel" % (payment_transaction_url),
+  vads_url_error="%s/error" % (payment_transaction_url),
+  vads_url_referral="%s/referral" % (payment_transaction_url),
+  vads_url_refused="%s/refused" % (payment_transaction_url),
+  vads_url_success="%s/success" % (payment_transaction_url),
+  vads_url_return="%s/return" % (payment_transaction_url),
+)""")
+
+  def _dropPaymentTransaction_getVADSUrlDict(self):
+    script_name = 'PaymentTransaction_getVADSUrlDict'
+    if script_name in self.portal.portal_skins.custom.objectIds():
+      self.portal.portal_skins.custom.manage_delObjects(script_name)
+
+  @changeSkin('Hal')
+  def _requestSubscription(self, **kw):
+    if 'target_language' not in kw:
+      kw["target_language"] = "zh"
+    kw["subscription_reference"] = self.subscription_condition.getReference().replace("_zh", "")
+
+    original_mode = self.portal.portal_secure_payments.slapos_wechat_test.getWechatMode()
+    self._simulatePaymentTransaction_getVADSUrlDict()
+    try:
+      self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode("UNITTEST")
+      return self.web_site.hateoas.SubscriptionRequestModule_requestSubscription(**kw)
+    finally:
+      self._dropPaymentTransaction_getVADSUrlDict()
+      self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode(original_mode)
 
   def createSubscriptionCondition(self, slave=False):
     self.subscription_condition = self.portal.subscription_condition_module.newContent(
@@ -39,7 +85,7 @@ class TestSlapOSSubscriptionChineseScenario(TestSlapOSSubscriptionScenarioMixin)
       price=1888.00,
       resource="currency_module/CNY",
       default_source_reference="default",
-      reference="rapidvm%s" % self.new_id,
+      reference="rapidvm%s_zh" % self.new_id,
       # Aggregate and Follow up to web pages for product description and
       # Terms of service
       sla_xml='<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>',
@@ -49,6 +95,29 @@ class TestSlapOSSubscriptionChineseScenario(TestSlapOSSubscriptionScenarioMixin)
     self.subscription_condition.validate()
     self.subscription_condition.updateLocalRolesOnSecurityGroups()
     self.tic()
+
+  def _payPayment(self, subscription_request):
+    quantity = subscription_request.getQuantity()
+    # Check Payment
+    payment = self._getRelatedPaymentValue(subscription_request)
+
+    self.assertEqual(self.expected_price_currency, payment.getPriceCurrency())
+    self.assertEqual(-self.expected_reservation_fee*quantity,
+      payment.PaymentTransaction_getTotalPayablePrice())
+    
+    self.assertEqual(payment.getSimulationState(), "started")
+
+    # Pay 188 CNY per VM
+    data_kw = {
+        'result_code': 'SUCCESS',
+        'trade_state': 'SUCCESS',
+        'total_fee': self.expected_reservation_fee*100*quantity,
+        'fee_type': 'CNY',
+    }
+
+    # Wechat_processUpdate will mark payment as payed by stopping it.
+    payment.PaymentTransaction_createWechatEvent().WechatEvent_processUpdate(data_kw)
+    return payment
 
   def test_subscription_scenario_with_single_vm(self):
     self._test_subscription_scenario(amount=1)

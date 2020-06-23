@@ -546,7 +546,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       "sale_trade_condition_module/slapos_reservation_refund_trade_condition")
 
     self.assertEqual(round(sale_packing_list.getTotalPrice(), 2),
-                     -round(self.expected_reservation_fee, 2))
+                     -round(self.expected_reservation_fee*amount, 2))
 
     return subscription_request
 

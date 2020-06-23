@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>email, subscription_reference, confirmation_required=False, user_input_dict={}, batch_mode=True, REQUEST=None</string> </value>
+            <value> <string>email, subscription_reference, confirmation_required=False, user_input_dict={}, target_language=None, batch_mode=True, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>_proxy_roles</string> </key>

@@ -138,7 +138,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       url_string=self.generateNewSoftwareReleaseUrl(),
       root_slave=slave,
       price=195.00,
-      resource="currency_module/EUR",
+      price_currency="currency_module/EUR",
       default_source_reference="default",
       reference="rapidvm%s" % self.new_id,
       # Aggregate and Follow up to web pages for product description and
@@ -243,13 +243,19 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       portal_type="Payment Transaction",
       simulation_state="started")
 
-    self.logout()
-    self.login()
-
     # 195 is the month payment
     # 195*1 is the 1 months to pay upfront to use.
     # 25 is the reservation fee deduction.
     authAmount = (int(self.expected_individual_price_with_tax*100)*1-int(self.expected_reservation_fee*100))*quantity
+
+    self.assertEqual(int(payment.PaymentTransaction_getTotalPayablePrice()*100),
+                     -authAmount)
+    
+    self.assertEqual(payment.getPriceCurrency(), self.expected_price_currency)
+
+    self.logout()
+    self.login()
+
     data_kw = {
         'errorCode': '0',
         'transactionStatus': '6',

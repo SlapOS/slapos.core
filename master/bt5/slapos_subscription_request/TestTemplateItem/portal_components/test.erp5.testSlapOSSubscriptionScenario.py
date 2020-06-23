@@ -29,6 +29,9 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.expected_individual_price_without_tax = 162.50
     self.expected_individual_price_with_tax = 195.00
     self.expected_reservation_fee = 25.00
+    self.expected_reservation_fee_without_tax = 20.83
+    self.expected_reservation_quantity_tax = 20.833333333333333
+    self.expected_reservation_tax = 4.166666666666667
     self.expected_price_currency = "currency_module/EUR"
 
     self.login()
@@ -255,15 +258,15 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       }
     payment.PaymentTransaction_createPayzenEvent().PayzenEvent_processUpdate(data_kw, True)
 
-  def checkAndPaySubscriptionPayment(self, subscription_request):
+  def _payPayment(self, subscription_request):
     quantity = subscription_request.getQuantity()
-    invoice = subscription_request.getCausalityValue(
-      portal_type="Sale Invoice Transaction")
-    self.assertEqual(invoice.getSimulationState(), "confirmed")
-    self.assertEqual(invoice.getCausalityState(), "building")
-
     # Check Payment
     payment = self._getRelatedPaymentValue(subscription_request)
+
+    self.assertEqual(self.expected_price_currency, payment.getPriceCurrency())
+    self.assertEqual(-self.expected_reservation_fee*quantity,
+      payment.PaymentTransaction_getTotalPayablePrice())
+    
     self.assertEqual(payment.getSimulationState(), "started")
 
     # Pay 25 euros per VM
@@ -276,6 +279,17 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
     # Payzen_processUpdate will mark payment as payed by stopping it.
     payment.PaymentTransaction_createPayzenEvent().PayzenEvent_processUpdate(data_kw, True)
+    return payment
+ 
+  def checkAndPaySubscriptionPayment(self, subscription_request):
+    quantity = subscription_request.getQuantity()
+    invoice = subscription_request.getCausalityValue(
+      portal_type="Sale Invoice Transaction")
+    self.assertEqual(invoice.getSimulationState(), "confirmed")
+    self.assertEqual(invoice.getCausalityState(), "building")
+
+    # Check Payment
+    payment = self._payPayment(subscription_request)
     self.tic()
     self.assertEqual(payment.getSimulationState(), "stopped")
 
@@ -307,10 +321,10 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     for line in invoice.objectValues():
       if line.getResource() == "service_module/slapos_reservation_fee":
         self.assertEqual(line.getQuantity(), quantity)
-        self.assertEqual(round(line.getPrice(), 2), 20.83)
+        self.assertEqual(round(line.getPrice(), 2),  self.expected_reservation_fee_without_tax)
       if line.getResource() == "service_module/slapos_tax":
-        self.assertEqual(round(line.getQuantity(), 2), round(20.833333333333333*quantity, 2))
-        self.assertEqual(round(line.getTotalPrice(), 2), round(4.166666666666667*quantity, 2))
+        self.assertEqual(round(line.getQuantity(), 2), round(self.expected_reservation_quantity_tax*quantity, 2))
+        self.assertEqual(round(line.getTotalPrice(), 2), round(self.expected_reservation_tax*quantity, 2))
 
     self.assertEqual(round(invoice.getTotalPrice(), 2), self.expected_reservation_fee*quantity)
 

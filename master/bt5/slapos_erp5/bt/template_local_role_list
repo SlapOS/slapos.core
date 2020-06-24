@@ -27,6 +27,7 @@ computer_network_module
 consumption_document_module
 credential_update_module
 currency_module
+currency_module/CNY
 currency_module/EUR
 data_set_module
 document_ingestion_module

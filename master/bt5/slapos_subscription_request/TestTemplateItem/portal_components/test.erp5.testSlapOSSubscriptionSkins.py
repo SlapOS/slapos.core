@@ -245,7 +245,7 @@ class TestSubscriptionRequestModule_requestSubscription(TestSubscriptionSkinsMix
                        name="couscous")
 
     expected_argument_tuple = (('123@nexedi.com', 'subscription_reference'),
-      {'confirmation_required': True, 'user_input_dict': {'name': "couscous", 'amount': 0}, 'batch_mode': 0})
+      {'confirmation_required': True, 'user_input_dict': {'name': "couscous", 'amount': 0}, 'target_language': None, 'batch_mode': 0})
 
     self.assertEqual(expected_argument_tuple, module.SubscriptionRequestModule_requestSubscription(
                        REQUEST=self.portal.REQUEST, default_email_text="123@nexedi.com",

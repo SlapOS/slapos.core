@@ -46,7 +46,7 @@
                 link = payment_link_template({
                   invoice_state: state.state,
                   invoice_url: hateoas_url + payment_transaction +
-                            "/PaymentTransaction_redirectToManualPayzenPayment"
+                            "/PaymentTransaction_redirectToManualSlapOSPayment"
                 });
               } else {
                 link = payment_state_template({

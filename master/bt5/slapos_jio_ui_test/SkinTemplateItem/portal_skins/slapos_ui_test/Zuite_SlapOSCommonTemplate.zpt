@@ -954,5 +954,19 @@
     </tr>
   </tal:block>
 
+  <tal:block metal:define-macro="create_fake_invoice">
+    <tal:block tal:define="web_site_id python: 'hostingjs'">
+      <tr>
+        <td>open</td>
+        <td tal:content="python:'${base_url}/web_site_module/%s/ERP5Site_createFakeInvoice' % web_site_id">.../ERP5Site_createFakeInvoice</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertTextPresent</td>
+        <td>Done.</td>
+        <td></td>
+      </tr>
+    </tal:block>
+  </tal:block>
 
 </tal:block>

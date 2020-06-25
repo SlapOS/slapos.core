@@ -34,7 +34,19 @@ class TestSlapOSSubscriptionChineseScenario(TestSlapOSSubscriptionScenarioMixin)
     self.expected_reservation_quantity_tax = 0
     self.expected_reservation_tax = 0
     self.expected_price_currency = "currency_module/CNY"
+    self.normal_user = None
+    self.expected_notification_language = "zh"
 
+
+    self.login()
+    self.createNotificationMessage("subscription_request-confirmation-with-password", language="zh",
+      text_content='CHINESE! ${name} ${login_name} ${login_password}')
+    self.createNotificationMessage("subscription_request-confirmation-without-password", language="zh",
+                               text_content='CHINESE! ${name} ${login_name}')
+    self.createNotificationMessage("subscription_request-instance-is-ready", language="zh",
+      text_content='CHINESE! ${name} ${subscription_title} ${hosting_subscription_relative_url}')
+    self.createNotificationMessage("subscription_request-payment-is-ready", language="zh",
+      text_content='CHINESE! ${name} ${subscription_title} ${payment_relative_relative_url}')
 
   def _simulatePaymentTransaction_getVADSUrlDict(self):
     script_name = 'PaymentTransaction_getVADSUrlDict'
@@ -69,6 +81,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self._simulatePaymentTransaction_getVADSUrlDict()
     try:
       self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode("UNITTEST")
+      self.logout()
       return self.web_site.hateoas.SubscriptionRequestModule_requestSubscription(**kw)
     finally:
       self._dropPaymentTransaction_getVADSUrlDict()
@@ -170,3 +183,11 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
   def test_two_subscription_scenario(self):
     self._test_two_subscription_scenario(amount=1)
+
+  def test_subscription_scenario_with_existing_user(self):
+    self._test_subscription_scenario_with_existing_user(amount=1, language="zh")
+
+  def test_subscription_scenario_with_existing_english_user(self):
+    # Messages are in chinese, when subscribed via chinese website. Even if the english language is
+    # english
+    self._test_subscription_scenario_with_existing_user(amount=1, language="en")

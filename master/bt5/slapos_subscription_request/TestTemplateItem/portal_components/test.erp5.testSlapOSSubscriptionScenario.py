@@ -26,6 +26,7 @@ from DateTime import DateTime
 class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
   def afterSetUp(self):
+    self.normal_user = None
     self.expected_individual_price_without_tax = 162.50
     self.expected_individual_price_with_tax = 195.00
     self.expected_reservation_fee = 25.00
@@ -33,6 +34,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.expected_reservation_quantity_tax = 20.833333333333333
     self.expected_reservation_tax = 4.166666666666667
     self.expected_price_currency = "currency_module/EUR"
+    self.expected_notification_language = "en"
 
     self.login()
     self.portal.portal_alarms.slapos_subscription_request_process_draft.setEnabled(True)
@@ -52,7 +54,9 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
     # One user to create computers to deploy the subscription
     self.createAdminUser()
-
+    self.cleanUpNotificationMessage()
+    self.tic()
+    
     self.createNotificationMessage("subscription_request-confirmation-with-password")
     self.createNotificationMessage("subscription_request-confirmation-without-password",
                                text_content='${name} ${login_name}')
@@ -74,7 +78,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
   def cleanUpSubscriptionRequest(self):
     for subscription_request in self.portal.portal_catalog(
       portal_type="Subscription Request",
-      simulation_state=["draft", "planned", "ordered"],
+      simulation_state=["draft", "planned", "ordered", "confirmed"],
       title="Test Subscription Request %"):
       if subscription_request.getSimulationState() == "draft":
         subscription_request.cancel()
@@ -82,19 +86,31 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
         subscription_request.order()
       if subscription_request.getSimulationState() == "ordered":
         subscription_request.confirm()
+      if subscription_request.getSimulationState() == "confirmed":
+        subscription_request.start()
+      if subscription_request.getSimulationState() == "started":
+        subscription_request.stop()
+
+  def cleanUpNotificationMessage(self):
+    for notification_message in self.portal.portal_catalog(
+      portal_type="Notification Message",
+      validation_state=["validated"],
+      title="TestSubscriptionSkins %"):
+      if str(notification_message.getVersion("")) == "999":
+        notification_message.invalidate()
 
   def createNotificationMessage(self, reference,
-      content_type='text/html', text_content='${name} ${login_name} ${login_password}'):
+      content_type='text/html', language="en", text_content='${name} ${login_name} ${login_password}'):
 
     notification_message = self.portal.notification_message_module.newContent(
       portal_type="Notification Message",
       text_content_substitution_mapping_method_id='NotificationMessage_getSubstitutionMappingDictFromArgument',
-      title='TestSubscriptionSkins Notification Message %s' % reference,
+      title='TestSubscriptionSkins Notification Message %s %s' % (language, reference),
       text_content=text_content,
       content_type=content_type,
       reference=reference,
       version=999,
-      language="en"
+      language=language
       )
     notification_message.validate()
     return notification_message
@@ -128,6 +144,37 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       self.admin_user = admin_user
     else:
       self.admin_user = admin_user_login.getParentValue()
+
+  def createNormalUser(self, email, name, language):
+    """ Create a Normal user """
+    normal_user_login = self.portal.portal_catalog.getResultValue(
+      portal_type="ERP5 Login",
+      reference=email,
+      validation_state="validated"
+    )
+
+    if normal_user_login is None:
+      normal_user = self.portal.person_module.template_member.\
+                                 Base_createCloneDocument(batch_mode=1)
+
+      normal_user.newContent(
+        portal_type="ERP5 Login",
+        reference=email).validate()
+
+      normal_user.edit(
+        first_name=name,
+        reference=email,
+        default_email_text=email,
+      )
+
+      for assignment in normal_user.contentValues(portal_type="Assignment"):
+        assignment.open()
+
+      normal_user.validate()
+      self.normal_user = normal_user
+    else:
+      self.normal_user = normal_user_login.getParentValue()
+    self.normal_user.setLanguage(language)
 
   def createSubscriptionCondition(self, slave=False):
     self.subscription_condition = self.portal.subscription_condition_module.newContent(
@@ -349,13 +396,21 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
   def checkEmailNotification(self, subscription_request,
                  notification_message="subscription_request-confirmation-with-password"):
+    expected_amount = 1
+    if self.normal_user is not None:
+      # If user already exists we do not expect to send an email
+      expected_amount = 0
+    
     mail_message_list = [i for i in subscription_request.getFollowUpRelatedValueList(
       portal_type="Mail Message") if notification_message in i.getTitle()]
 
-    self.assertEqual(len(mail_message_list), 1)
+    self.assertEqual(len(mail_message_list), expected_amount)
+    if not expected_amount:
+      return
+
     mail_message = mail_message_list[0]
     self.assertEqual(
-      "TestSubscriptionSkins Notification Message %s" % notification_message,
+      "TestSubscriptionSkins Notification Message %s %s" % (self.expected_notification_language, notification_message),
       mail_message.getTitle())
     self.assertTrue(subscription_request.getDefaultEmailText() in \
                  mail_message.getTextContent())
@@ -370,7 +425,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.assertEqual(len(mail_message_list), 1)
     mail_message = mail_message_list[0]
     self.assertEqual(
-      "TestSubscriptionSkins Notification Message %s" % notification_message,
+      "TestSubscriptionSkins Notification Message %s %s" % (self.expected_notification_language, notification_message),
       mail_message.getTitle())
     payment = subscription_request.SubscriptionRequest_verifyPaymentBalanceIsReady()
     self.assertEqual(payment.getSimulationState(), 'started')
@@ -388,7 +443,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.assertEqual(len(mail_message_list), 1)
     mail_message = mail_message_list[0]
     self.assertEqual(
-      "TestSubscriptionSkins Notification Message %s" % notification_message,
+      "TestSubscriptionSkins Notification Message %s %s" % (self.expected_notification_language, notification_message),
       mail_message.getTitle())
     hosting_subscription = subscription_request.getAggregateValue()
     self.assertEqual(hosting_subscription.getSlapState(), 'start_requested')
@@ -514,6 +569,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       amount=amount,
       name=name,
       default_email_text=default_email_text,
+      confirmation_required=False,
       REQUEST=self.portal.REQUEST)
 
     self.login()
@@ -825,7 +881,6 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       self.checkStartedSubscriptionRequest(subscription_request,
                default_email_text, self.subscription_condition)
     
-
   def _test_subscription_scenario(self, amount=1):
     """ The admin creates an computer, user can request instances on it"""
 
@@ -841,8 +896,32 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.checkSubscriptionDeploymentAndSimulation(
         default_email_text, subscription_server)
 
-    
-               
+  def _test_subscription_scenario_with_existing_user(self, amount=1, language=None):
+    """ The admin creates an computer, user can request instances on it"""
+
+    # Call as anonymous... check response?
+    default_email_text = "abc%s@nexedi.com" % self.new_id
+    name="ABC %s" % self.new_id
+
+    self.login()
+    self.createNormalUser(default_email_text, name, language)
+    self.tic()
+
+    subscription_server = self.createPublicServerForAdminUser()
+
+    self.requestAndCheckHostingSubscription(
+      amount, name, default_email_text)
+
+    self.checkSubscriptionDeploymentAndSimulation(
+        default_email_text, subscription_server)
+
+    subscription_request = self.getSubscriptionRequest(
+      default_email_text, self.subscription_condition)
+
+    self.assertEqual(self.normal_user,
+                    subscription_request.getDestinationSectionValue())
+
+
   def _test_two_subscription_scenario(self, amount=1):
     """ The admin creates an computer, user can request instances on it"""
  
@@ -954,7 +1033,6 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
         default_email_text, subscription_server)
 
 
-
 class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
   def test_subscription_scenario_with_single_vm(self):
@@ -968,3 +1046,11 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
   def test_two_subscription_scenario(self):
     self._test_two_subscription_scenario(amount=1)
+
+  def test_subscription_scenario_with_existing_user(self):
+    self._test_subscription_scenario_with_existing_user(amount=1, language="en")
+
+  def test_subscription_scenario_with_existing_chinese_user(self):
+    # Messages are in english, when subscribed via english website. Even if the chinese language is
+    # defined at user level.
+    self._test_subscription_scenario_with_existing_user(amount=1, language="zh")

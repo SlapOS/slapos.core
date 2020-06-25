@@ -11,9 +11,11 @@ recipient = context.getDestinationSectionValue(portal_type="Person")
 # Get message from catalog
 notification_reference = 'subscription_request-payment-is-ready'
 
+language = context.getLanguage(recipient.getLanguage())
+
 # This implies the language to notify.
 notification_message = portal.portal_notifications.getDocumentValue(
-    reference=notification_reference, language=recipient.getLanguage())
+    reference=notification_reference, language=language)
 
 if notification_message is None:
   raise ValueError, 'Unable to found Notification Message with reference "%s".' % notification_reference

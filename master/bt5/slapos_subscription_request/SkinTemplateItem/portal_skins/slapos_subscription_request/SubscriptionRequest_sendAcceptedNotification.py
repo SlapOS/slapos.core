@@ -7,10 +7,12 @@ notification_type = "without-password"
 if password:
   notification_type = "with-password"
 
+language = context.getLanguage(recipient.getLanguage())
+
 #Get message from catalog
 notification_reference = 'subscription_request-confirmation-%s' % notification_type
 notification_message = portal.portal_notifications.getDocumentValue(reference=notification_reference,
-                                                                    language=recipient.getLanguage())
+                                                                    language=language)
 if notification_message is None:
   raise ValueError, 'Unable to found Notification Message with reference "%s".' % notification_reference
 
@@ -36,7 +38,7 @@ else:
   mail_text = notification_message.asText(
     substitution_method_parameter_dict={'mapping_dict':notification_mapping_dict})
 
-#Send email
+# Send email
 portal.portal_notifications.sendMessage(
   sender=sender,
   recipient=recipient,

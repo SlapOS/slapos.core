@@ -111,6 +111,23 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
         ['slappart0'],
         [cp.getId() for cp in standalone.computer.getComputerPartitionList()])
 
+  def test_reformat_less_chmod_files(self):
+    working_dir = tempfile.mkdtemp(prefix=__name__)
+    self.addCleanup(shutil.rmtree, working_dir)
+    standalone = StandaloneSlapOS(
+        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
+    self.addCleanup(standalone.stop)
+    standalone.format(2, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
+    # removing this directory should not be a problem
+    chmoded_dir_path = os.path.join(standalone.instance_directory, 'slappart1', 'directory')
+    os.mkdir(chmoded_dir_path)
+    os.chmod(chmoded_dir_path, 0o000)
+    standalone.format(1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
+    self.assertFalse(os.path.exists(chmoded_dir_path))
+    self.assertEqual(
+        ['slappart0'],
+        [cp.getId() for cp in standalone.computer.getComputerPartitionList()])
+
   def test_reformat_different_base_name(self):
     working_dir = tempfile.mkdtemp(prefix=__name__)
     self.addCleanup(shutil.rmtree, working_dir)

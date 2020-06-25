@@ -60,7 +60,7 @@ from .interface.slap import IRequester
 from ..grid.slapgrid import SLAPGRID_PROMISE_FAIL
 
 from .slap import slap
-from ..util import dumps
+from ..util import dumps, rmtree
 
 from ..grid.svcbackend import getSupervisorRPC
 
@@ -548,7 +548,7 @@ class StandaloneSlapOS(object):
       self._logger.debug(
           "removing partition no longer part of format spec %s", part)
       # remove partition directory
-      shutil.rmtree(part)
+      rmtree(part)
       # remove partition supervisor config, if it was not removed cleanly
       supervisor_conf = os.path.join(
           self._instance_root,

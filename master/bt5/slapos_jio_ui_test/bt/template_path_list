@@ -1,2 +1,6 @@
+accounting_module/template_fake_sale_invoice_transaction_for_demo_user_functional
+accounting_module/template_fake_sale_invoice_transaction_for_demo_user_functional/**
+person_module/demo_user_invoice_functional
+person_module/demo_user_invoice_functional/**
 portal_tests/slaposjs_zuite
 portal_tests/slaposjs_zuite/**

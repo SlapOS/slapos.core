@@ -454,6 +454,10 @@ class TestPartitionDestructionLock(MasterMixin, unittest.TestCase):
     utils.bootstrapBuildout = FakeCallAndNoop()
     utils.launchBuildout = FakeCallAndStore()
 
+  def tearDown(self):
+    MasterMixin.tearDown(self)
+    Partition.generateSupervisorConfigurationFile = originalPartitionGenerateSupervisorConfigurationFile
+
   def test_retention_lock_delay_creation(self):
     delay = 42
     software = self.createSoftware()

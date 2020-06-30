@@ -537,3 +537,33 @@ class TestPartitionDestructionLock(MasterMixin, unittest.TestCase):
     with open(partition.retention_lock_date_file_path) as f:
       deployed_date = float(f.read())
     self.assertEqual(delay * 3600 * 24 + int(now), int(deployed_date))
+
+
+class TestPartitionDestructionUnwritable(MasterMixin, unittest.TestCase):
+  def setUp(self):
+    MasterMixin.setUp(self)
+    Partition.generateSupervisorConfigurationFile = FakeCallAndNoop()
+    utils.bootstrapBuildout = FakeCallAndNoop()
+    utils.launchBuildout = FakeCallAndStore()
+
+  def tearDown(self):
+    MasterMixin.tearDown(self)
+    Partition.generateSupervisorConfigurationFile = originalPartitionGenerateSupervisorConfigurationFile
+
+  def test(self):
+    software = self.createSoftware()
+    partition = self.createPartition(software.url)
+    partition.install()
+    directory = os.path.join(partition.instance_path, 'directory')
+    top_file = os.path.join(partition.instance_path, 'file')
+    os.mkdir(directory)
+    directory_file = os.path.join(directory, 'file')
+    for f in [top_file, directory_file]:
+      with open(f, 'w') as fh:
+        fh.write('test')
+      os.chmod(f, 0o440)
+    os.chmod(directory, 0o550)
+    self.assertTrue(partition.destroy())
+    self.assertFalse(os.path.exists(directory_file))
+    self.assertFalse(os.path.exists(directory))
+    self.assertFalse(os.path.exists(top_file))

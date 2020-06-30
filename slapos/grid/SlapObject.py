@@ -844,7 +844,7 @@ class Partition(object):
     """
     for root, dirs, file_list in os.walk(folder_path):
       for directory in dirs:
-        shutil.rmtree(os.path.join(folder_path, directory))
+        rmtree(os.path.join(folder_path, directory))
       for file in file_list:
         os.remove(os.path.join(folder_path, file))
 

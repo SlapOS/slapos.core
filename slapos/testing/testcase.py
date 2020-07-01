@@ -324,7 +324,7 @@ def checkSoftware(slap, software_url):
     raise RuntimeError('\n'.join(error_list))
 
 
-def installSoftwareUrlList(cls, software_url_list, max_retry=2, debug=False):
+def installSoftwareUrlList(cls, software_url_list, max_retry=10, debug=False):
   # type: (Type[SlapOSInstanceTestCase], Iterable[str], int, bool) -> None
   """Install softwares on the current testing slapos, for use in `setUpModule`.
 
@@ -406,9 +406,9 @@ class SlapOSInstanceTestCase(unittest.TestCase):
   # can set this to true to enable more verbose output
   _verbose = False
   # maximum retries for `slapos node instance`
-  instance_max_retry = 10
+  instance_max_retry = 20
   # maximum retries for `slapos node report`
-  report_max_retry = 10
+  report_max_retry = 20
   # number of partitions needed for this instance
   partition_count = 10
   # reference of the default requested partition

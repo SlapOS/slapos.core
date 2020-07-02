@@ -69,20 +69,9 @@
           } else if ((result.portal_type === "Organisation") &&
                      result.role === "host") {
             child_gadget_url = "gadget_erp5_page_slap_site_view.html";
-          } else if ((result.portal_type === "组织") &&
-                     result.role === "host") {
-            child_gadget_url = "gadget_erp5_page_slap_site_view.html";
-          } else if (result.portal_type === "ERP5 Login") {
-            child_gadget_url = 'gadget_erp5_page_slap_' +
-              result.portal_type.replace(/ /g, '_').toLowerCase() +
-              '_view.html';
-          } else if (result.portal_type === "access_denied") {
-            child_gadget_url = 'gadget_erp5_page_slap_' +
-              result.portal_type.replace(/ /g, '_').toLowerCase() +
-              '_view.html';
           } else if (result.portal_type !== undefined) {
             child_gadget_url = 'gadget_erp5_page_slap_' +
-              result.parent_relative_url.replace(/_module/g, '').toLowerCase() +
+              result.portal_type.replace(/ /g, '_').toLowerCase() +
               '_view.html';
           } else {
             throw new Error('Can not display document: ' + options.jio_key);

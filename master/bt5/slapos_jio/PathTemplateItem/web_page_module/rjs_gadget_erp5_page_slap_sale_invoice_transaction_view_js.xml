@@ -16,6 +16,7 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
+                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -58,6 +59,7 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
+                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -69,7 +71,7 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_erp5_page_slap_accounting_view.js</string> </value>
+            <value> <string>gadget_erp5_page_slap_sale_invoice_transaction_view.js</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -79,7 +81,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_erp5_page_slap_accounting_view_js</string> </value>
+            <value> <string>rjs_gadget_erp5_page_slap_sale_invoice_transaction_view_js</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -97,7 +99,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget SlapOS Accounting View</string> </value>
+            <value> <string>Gadget SlapOS Sale Invoice Transaction View</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
@@ -126,6 +128,18 @@
                     <key> <string>document_publication_workflow</string> </key>
                     <value>
                       <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
+                    </value>
+                </item>
+                <item>
+                    <key> <string>edit_workflow</string> </key>
+                    <value>
+                      <persistent> <string encoding="base64">AAAAAAAAAAQ=</string> </persistent>
+                    </value>
+                </item>
+                <item>
+                    <key> <string>processing_status_workflow</string> </key>
+                    <value>
+                      <persistent> <string encoding="base64">AAAAAAAAAAU=</string> </persistent>
                     </value>
                 </item>
               </dictionary>
@@ -171,7 +185,7 @@
                     </tuple>
                     <state>
                       <tuple>
-                        <float>1593311505.56</float>
+                        <float>1516642548.81</float>
                         <string>UTC</string>
                       </tuple>
                     </state>
@@ -181,6 +195,124 @@
             <item>
                 <key> <string>validation_state</string> </key>
                 <value> <string>published_alive</string> </value>
+            </item>
+          </dictionary>
+        </list>
+        <none/>
+      </tuple>
+    </pickle>
+  </record>
+  <record id="4" aka="AAAAAAAAAAQ=">
+    <pickle>
+      <global name="WorkflowHistoryList" module="Products.ERP5Type.patches.WorkflowTool"/>
+    </pickle>
+    <pickle>
+      <tuple>
+        <none/>
+        <list>
+          <dictionary>
+            <item>
+                <key> <string>action</string> </key>
+                <value> <string>edit</string> </value>
+            </item>
+            <item>
+                <key> <string>actor</string> </key>
+                <value> <string>zope</string> </value>
+            </item>
+            <item>
+                <key> <string>comment</string> </key>
+                <value>
+                  <none/>
+                </value>
+            </item>
+            <item>
+                <key> <string>error_message</string> </key>
+                <value> <string></string> </value>
+            </item>
+            <item>
+                <key> <string>serial</string> </key>
+                <value> <string>982.32516.46874.3959</string> </value>
+            </item>
+            <item>
+                <key> <string>state</string> </key>
+                <value> <string>current</string> </value>
+            </item>
+            <item>
+                <key> <string>time</string> </key>
+                <value>
+                  <object>
+                    <klass>
+                      <global name="DateTime" module="DateTime.DateTime"/>
+                    </klass>
+                    <tuple>
+                      <none/>
+                    </tuple>
+                    <state>
+                      <tuple>
+                        <float>1584106716.12</float>
+                        <string>UTC</string>
+                      </tuple>
+                    </state>
+                  </object>
+                </value>
+            </item>
+          </dictionary>
+        </list>
+        <none/>
+      </tuple>
+    </pickle>
+  </record>
+  <record id="5" aka="AAAAAAAAAAU=">
+    <pickle>
+      <global name="WorkflowHistoryList" module="Products.ERP5Type.patches.WorkflowTool"/>
+    </pickle>
+    <pickle>
+      <tuple>
+        <none/>
+        <list>
+          <dictionary>
+            <item>
+                <key> <string>action</string> </key>
+                <value> <string>detect_converted_file</string> </value>
+            </item>
+            <item>
+                <key> <string>actor</string> </key>
+                <value> <string>zope</string> </value>
+            </item>
+            <item>
+                <key> <string>comment</string> </key>
+                <value> <string></string> </value>
+            </item>
+            <item>
+                <key> <string>error_message</string> </key>
+                <value> <string></string> </value>
+            </item>
+            <item>
+                <key> <string>external_processing_state</string> </key>
+                <value> <string>converted</string> </value>
+            </item>
+            <item>
+                <key> <string>serial</string> </key>
+                <value> <string>0.0.0.0</string> </value>
+            </item>
+            <item>
+                <key> <string>time</string> </key>
+                <value>
+                  <object>
+                    <klass>
+                      <global name="DateTime" module="DateTime.DateTime"/>
+                    </klass>
+                    <tuple>
+                      <none/>
+                    </tuple>
+                    <state>
+                      <tuple>
+                        <float>1516641773.94</float>
+                        <string>UTC</string>
+                      </tuple>
+                    </state>
+                  </object>
+                </value>
             </item>
           </dictionary>
         </list>

@@ -1,16 +1,16 @@
 <tal:block xmlns:tal="http://xml.zope.org/namespaces/tal"
            xmlns:metal="http://xml.zope.org/namespaces/metal">
 
-
+  <!-- set global variable "web_site_id" -->
   <tal:block metal:define-macro="slapos_init">
-    <tal:block tal:define="web_site_id python: 'hostingjs'">
+    <tal:block tal:define="global web_site_id python: 'hostingjs'">
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init_base" />
     </tal:block>
   </tal:block>
 
 
   <tal:block metal:define-macro="slapos_login">
-    <tal:block tal:define="web_site_id python: 'hostingjs'">
+    <tal:block>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login_base" />
     </tal:block>
   </tal:block>
@@ -140,12 +140,12 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//input[@value="Login"]</td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
       <td>clickAndWait</td>
-      <td>//input[@value="Login"]</td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
       <td></td>
     </tr>
     <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_app_loaded" />
@@ -182,12 +182,12 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//input[@value="Login"]</td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
       <td>clickAndWait</td>
-      <td>//input[@value="Login"]</td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
       <td></td>
     </tr>
     <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_app_loaded" />
@@ -218,7 +218,7 @@
     <!-- Dashboard -->
     <tr>
       <td>waitForElementPresent</td>
-      <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//span[@data-i18n='Dashboard']</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//span[@data-i18n=\'%s\']' % (here.Base_translateString('Dashboard', lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
@@ -229,12 +229,12 @@
 
     <tr>
       <td>waitForElementPresent</td>
-      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), "Sites")]</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % (here.Base_translateString('Sites', lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), "Pending Tickets to Process")]</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % (here.Base_translateString('Pending Tickets to Process', lang=lang))"></td>
       <td></td>
     </tr>
     <!-- Check if map is ok -->
@@ -261,18 +261,18 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//input[@value='Confirm']</td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Confirm', lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
       <td>click</td>
-      <td>//input[@value='Confirm']</td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Confirm', lang=lang))"></td>
       <td></td>
     </tr>
 
     <tr>
       <td>waitForElementPresent</td>
-      <td>//input[@value='Login']</td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
       <td></td>
     </tr>
   </tal:block>
@@ -300,17 +300,17 @@
 
     <tr>
       <td>assertElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % menu_item"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % here.Base_translateString(menu_item, lang=lang)"></td>
       <td></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % menu_item"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % here.Base_translateString(menu_item, lang=lang)"></td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % menu_item"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % here.Base_translateString(menu_item, lang=lang)"></td>
       <td></td>
     </tr>
   </tal:block>
@@ -319,12 +319,12 @@
   <tal:block metal:define-macro="assert_page_header">
     <tr>
       <td>waitForElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % header"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % here.Base_translateString(header, lang=lang)"></td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % header"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % here.Base_translateString(header, lang=lang)"></td>
       <td></td>
     </tr>
   </tal:block>
@@ -332,12 +332,12 @@
   <tal:block metal:define-macro="click_page_header">
     <tr>
       <td>waitForElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % header"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % here.Base_translateString(header, lang=lang)"></td>
       <td></td>
     </tr>
     <tr>
       <td>click</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % header"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % here.Base_translateString(header, lang=lang)"></td>
       <td></td>
     </tr>
   </tal:block>
@@ -359,24 +359,24 @@
     </tr>
     <tr>
       <td>click</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[contains(text(), \'Login Account\')]' % panel_gadget_id"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[@data-i18n=\'Login Account\']' % panel_gadget_id"></td>
       <td></td>
     </tr>
     <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
 
     <tr>
       <td>assertElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'Your Account : %s\']' % person_name"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s : %s\']' % (here.Base_translateString('Your Account', lang=lang), person_name)"></td>
       <td></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'Logins\')]'"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]'% (here.Base_translateString('Login', lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'Logins\')]'"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]'% (here.Base_translateString('Login', lang=lang))"></td>
       <td></td>
     </tr>
   </tal:block>
@@ -477,12 +477,12 @@
     <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
     <tr>
       <td>waitForElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % delete_configuration['header_title']"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % here.Base_translateString(delete_configuration['header_title'], lang=lang)"></td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % delete_configuration['header_title']"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % here.Base_translateString(delete_configuration['header_title'], lang=lang)"></td>
       <td></td>
     </tr>
     <tr>
@@ -579,22 +579,22 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1//span[@class=\'listboxloader\' and text()=\'%(header)s\']' % pagination_configuration"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1//span[@class=\'listboxloader\' and text()=\'%s\']' % here.Base_translateString(pagination_configuration['header'], lang=lang)"></td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1//span[@class=\'listboxloader\' and text()=\'%(header)s\']' % pagination_configuration"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1//span[@class=\'listboxloader\' and text()=\'%s\']' % here.Base_translateString(pagination_configuration['header'], lang=lang)"></td>
       <td></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//nav//span[@class=\'ui-disabled\' and text()=\'%(footer)s\']' % pagination_configuration"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//nav//span[@class=\'ui-disabled\' and text()=\'%s\']' % here.Base_translateString(pagination_configuration['footer'], lang=lang)"></td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//nav//span[@class=\'ui-disabled\' and text()=\'%(footer)s\']' % pagination_configuration"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//nav//span[@class=\'ui-disabled\' and text()=\'%s\']' % here.Base_translateString(pagination_configuration['footer'], lang=lang)"></td>
       <td></td>
     </tr>
     <tr>
@@ -608,12 +608,12 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td tal:content="python: '//div[@data-gadget-scope=\'notification\' and @class=\'visible\']//button[@class=\'%(class)s\' and text()=\'%(text)s\']' % notification_configuration"></td>
+      <td tal:content="python: '//div[@data-gadget-scope=\'notification\' and @class=\'visible\']//button[@class=\'%s\' and text()=\'%s\']' % (notification_configuration['class'], here.Base_translateString(notification_configuration['text'], lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td tal:content="python: '//div[@data-gadget-scope=\'notification\' and @class=\'visible\']//button[@class=\'%(class)s\' and text()=\'%(text)s\']' % notification_configuration"></td>
+      <td tal:content="python: '//div[@data-gadget-scope=\'notification\' and @class=\'visible\']//button[@class=\'%s\' and text()=\'%s\']' % (notification_configuration['class'], here.Base_translateString(notification_configuration['text'], lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
@@ -982,6 +982,11 @@
       <td>Done.</td>
       <td></td>
     </tr>
+  </tal:block>
+
+  <!-- the macro to set the language globally -->
+  <tal:block metal:define-macro="set_default_available_language"
+            tal:define="global lang python: here.web_site_module[web_site_id].getDefaultAvailableLanguage()">
   </tal:block>
 
 </tal:block>

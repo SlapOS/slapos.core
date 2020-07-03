@@ -14,6 +14,7 @@
     </thead>
     <tbody>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/set_default_available_language"/>
 
       <tr>
         <td>open</td>
@@ -30,7 +31,7 @@ have the correct "me" setting, so we just let the getSettingMe
 function redirect us to the login page -->
       <tr>
         <td>waitForElementPresent</td>
-        <td>//label[contains(text(), "Login")]</td>
+        <td tal:content="python: '//label[contains(text(), \'%s\')]' % (here.Base_translateString('Login', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
@@ -117,17 +118,17 @@ function redirect us to the login page -->
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//label[contains(text(), "First Name")]</td>
+        <td tal:content="python: '//label[contains(text(), \'%s\')]' % (here.Base_translateString('First Name', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//label[contains(text(), "Last Name")]</td>
+        <td tal:content="python: '//label[contains(text(), \'%s\')]' % (here.Base_translateString('Last Name', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//label[contains(text(), "Email")]</td>
+        <td tal:content="python: '//label[contains(text(), \'%s\')]' % (here.Base_translateString('Email', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
@@ -147,42 +148,42 @@ function redirect us to the login page -->
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//h1[contains(text(), "Logins")]</td>
+        <td tal:content="python: '//h1[contains(text(), \'%s\')]' % (here.Base_translateString('Logins', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//a[contains(text(), "Reference")]</td>
+        <td tal:content="python: '//a[contains(text(), \'%s\')]' % (here.Base_translateString('Reference', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//a[contains(text(), "Type")]</td>
+        <td tal:content="python: '//a[contains(text(), \'%s\')]' % (here.Base_translateString('Type', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//h1[contains(text(), "Organisation")]</td>
+        <td tal:content="python: '//h1[contains(text(), \'%s\')]' % (here.Base_translateString('Organisation', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//th[contains(text(), "Title")]</td>
+        <td tal:content="python: '//th[contains(text(), \'%s\')]' % (here.Base_translateString('Title', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//a[contains(text(), "Reference")]</td>
+        <td tal:content="python: '//a[contains(text(), \'%s\')]' % (here.Base_translateString('Reference', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//th[contains(text(), "Region")]</td>
+        <td tal:content="python: '//label[contains(text(), \'%s\')]' % (here.Base_translateString('Email', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//th[contains(text(), "Status")]</td>
+        <td tal:content="python: '//th[contains(text(), \'%s\')]' % (here.Base_translateString('Status', lang=lang))"></td>
         <td></td>
       </tr>
     </tbody>

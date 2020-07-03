@@ -1,30 +1,30 @@
 <tal:block xmlns:tal="http://xml.zope.org/namespaces/tal"
            xmlns:metal="http://xml.zope.org/namespaces/metal">
 
-
+  <!-- Set global variable "web_site_id" -->
   <tal:block metal:define-macro="slapos_init">
-    <tal:block tal:define="web_site_id python: 'hostingjs'">
+    <tal:block tal:define="global web_site_id python: 'hostingjs'">
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init_base" />
     </tal:block>
   </tal:block>
 
 
   <tal:block metal:define-macro="slapos_login">
-    <tal:block tal:define="web_site_id python: 'hostingjs'">
+    <tal:block>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login_base" />
     </tal:block>
   </tal:block>
 
 
   <tal:block metal:define-macro="slapos_login_with_another_user">
-    <tal:block tal:define="web_site_id python: 'hostingjs'">
+    <tal:block>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login_with_another_user_base" />
     </tal:block>
   </tal:block>
 
 
   <tal:block metal:define-macro="slapos_wait_for_activities_and_front_page">
-    <tal:block tal:define="web_site_id python: 'hostingjs'">
+    <tal:block >
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page_base" />
     </tal:block>
   </tal:block>
@@ -140,12 +140,12 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//input[@value="Login"]</td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
       <td>clickAndWait</td>
-      <td>//input[@value="Login"]</td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
       <td></td>
     </tr>
     <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_app_loaded" />
@@ -182,12 +182,12 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//input[@value="Login"]</td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
       <td>clickAndWait</td>
-      <td>//input[@value="Login"]</td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
       <td></td>
     </tr>
     <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_app_loaded" />
@@ -218,7 +218,7 @@
     <!-- Dashboard -->
     <tr>
       <td>waitForElementPresent</td>
-      <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//span[@data-i18n='Dashboard']</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//span[@data-i18n=\'%s\']' % (here.Base_translateString('Dashboard', lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
@@ -984,4 +984,7 @@
     </tr>
   </tal:block>
 
+  <tal:block metal:define-macro="set_default_available_language"
+            tal:define="global lang python: here.web_site_module[web_site_id].getDefaultAvailableLanguage()">
+  </tal:block>
 </tal:block>

@@ -15,9 +15,8 @@
     <tbody>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init" />
-
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/set_default_available_language"/>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login" />
-
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
 
       <tal:block define="document_title python: 'TEST-SLAPOSJS-ORGANISATION-TO-SHARE-COMPUTER 0';">

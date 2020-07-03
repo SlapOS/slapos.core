@@ -31,11 +31,14 @@ from Products.ERP5Type.tests.ERP5TypeFunctionalTestCase import ERP5TypeFunctiona
 
 class TestSlapOSUIZHHalStyle(SlapOSTestCaseMixin, ERP5TypeFunctionalTestCase):
   foreground = 0
-  run_only = "slaposjs_zh_zuite"
+  run_only = "slaposjs_zuite"
 
   def afterSetUp(self):
     ERP5TypeFunctionalTestCase.afterSetUp(self)
     SlapOSTestCaseMixin.afterSetUp(self)
+    # set default available language as "zh" for Chinese UI test
+    self.getPortalObject().web_site_module.hostingjs.setDefaultAvailableLanguage('zh')
+    self.tic()
 
   def getBusinessTemplateList(self):
     bt5_list = SlapOSTestCaseMixin.getBusinessTemplateList(self)

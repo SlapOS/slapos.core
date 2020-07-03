@@ -29,18 +29,25 @@ import unittest
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 from Products.ERP5Type.tests.ERP5TypeFunctionalTestCase import ERP5TypeFunctionalTestCase
 
-class TestSlapOSUIHalStyle(SlapOSTestCaseMixin, ERP5TypeFunctionalTestCase):
+class TestSlapOSUIZHHalStyle(SlapOSTestCaseMixin, ERP5TypeFunctionalTestCase):
   foreground = 0
   run_only = "slaposjs_zuite"
 
   def afterSetUp(self):
     ERP5TypeFunctionalTestCase.afterSetUp(self)
     SlapOSTestCaseMixin.afterSetUp(self)
-    # Ensuring the default available language is "en" for English UI test
-    self.getPortalObject().web_site_module.hostingjs.setDefaultAvailableLanguage('en')
+    # set default available language as "zh" for Chinese UI test
+    self.getPortalObject().web_site_module.hostingjs.setDefaultAvailableLanguage('zh')
     self.tic()
+
+  def getBusinessTemplateList(self):
+    bt5_list = SlapOSTestCaseMixin.getBusinessTemplateList(self)
+    bt5_list.extend(
+      'slapos_jio_ui_test',
+    )
+    return bt5_list
 
 def test_suite():
   suite = unittest.TestSuite()
-  suite.addTest(unittest.makeSuite(TestSlapOSUIHalStyle))
+  suite.addTest(unittest.makeSuite(TestSlapOSUIZHHalStyle))
   return suite

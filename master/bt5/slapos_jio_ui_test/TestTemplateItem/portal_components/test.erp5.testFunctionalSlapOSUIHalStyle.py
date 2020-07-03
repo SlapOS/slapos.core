@@ -36,6 +36,9 @@ class TestSlapOSUIHalStyle(SlapOSTestCaseMixin, ERP5TypeFunctionalTestCase):
   def afterSetUp(self):
     ERP5TypeFunctionalTestCase.afterSetUp(self)
     SlapOSTestCaseMixin.afterSetUp(self)
+    # Ensuring the default available language is "en" for English UI test
+    self.getPortalObject().web_site_module.hostingjs.setDefaultAvailableLanguage('en')
+    self.tic()
 
 def test_suite():
   suite = unittest.TestSuite()

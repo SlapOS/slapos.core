@@ -14,6 +14,7 @@
     </thead>
     <tbody>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/set_default_available_language"/>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login" />
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
 
@@ -50,14 +51,12 @@
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), 'Software
-          Products')]</td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % (here.Base_translateString('Software Products', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), 'Software
-          Products')]</td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % (here.Base_translateString('Software Products', lang=lang))"></td>
         <td></td>
       </tr>
 
@@ -84,14 +83,12 @@
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), 'Software
-          Releases')]</td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % (here.Base_translateString('Software Releases', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1[contains(text(), 'Software
-          Releases')]</td>
+        <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % (here.Base_translateString('Software Releases', lang=lang))"></td>
         <td></td>
       </tr>
 
@@ -200,7 +197,7 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//a[@data-i18n="Hosting Subscription: TEST-SLAPOSJS-SERVICE-SHARED-BY-PROJECT 0"]</td>
+        <td tal:content="python: '//a[@data-i18n=\'%s\']' % (here.Base_translateString('Hosting Subscription: TEST-SLAPOSJS-SERVICE-SHARED-BY-PROJECT 0', lang=lang))"></td>
         <td></td>
       </tr>
 
@@ -347,14 +344,14 @@
         <tr>
           <td>waitForElementPresent</td>
           <td
-            tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//span[@data-i18n=\'%s\']' % header">
+            tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//span[@data-i18n=\'%s\']' % here.Base_translateString(header, lang=lang)">
           </td>
           <td></td>
         </tr>
         <tr>
           <td>assertElementPresent</td>
           <td
-            tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//span[@data-i18n=\'%s\']' % header">
+            tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//span[@data-i18n=\'%s\']' % here.Base_translateString(header, lang=lang)">
           </td>
           <td></td>
         </tr>

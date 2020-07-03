@@ -14,6 +14,7 @@
     </thead>
     <tbody>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/set_default_available_language"/>
 
       <tr>
         <td>assertTextPresent</td>
@@ -51,17 +52,17 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//input[@value='Login']</td>
+        <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//a[text()=' Create New Account ']</td>
+        <td tal:content="python: '//a[text()=\'%s\']' % (here.Base_translateString(' Create New Account ', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>clickAndWait</td>
-        <td>//a[text()=' Create New Account ']</td>
+        <td tal:content="python: '//a[text()=\'%s\']' % (here.Base_translateString(' Create New Account ', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
@@ -146,7 +147,7 @@
       </tr>
       <tr>
         <td>clickAndWait</td>
-        <td>//input[@value='Register']</td>
+        <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Register', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
@@ -156,12 +157,12 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//input[@value='Login']</td>
+        <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>assertTextPresent</td>
-        <td>Credential Request Created.</td>
+        <td tal:content="python: '%s' % (here.Base_translateString('Credential Request Created.', lang=lang))"></td>
         <td></td>
       </tr>
 
@@ -197,54 +198,16 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//input[@value="Login"]</td>
+        <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>clickAndWait</td>
-        <td>//input[@value="Login"]</td>
+        <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
         <td></td>
       </tr>
 
-      <!-- Logout -->
-
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//button[@data-i18n='Menu']</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>click</td>
-        <td>//button[@data-i18n='Menu']</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//a[@data-i18n='Logout']</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>click</td>
-        <td>//a[@data-i18n='Logout']</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@value='Confirm']</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>click</td>
-        <td>//input[@value='Confirm']</td>
-        <td></td>
-      </tr>
-
-      <tr>
-        <td>waitForElementPresent</td>
-        <td>//input[@value='Login']</td>
-        <td></td>
-      </tr>
-
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_logout"/>
 
     </tbody>
   </table>

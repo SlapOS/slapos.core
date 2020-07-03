@@ -12,8 +12,9 @@
         <td rowspan="1" colspan="3">Test RenderJS UI</td>
       </tr>
     </thead>
-    <tbody>
+    <tbody tal:define="web_site_id python: 'hostingjs'">
       <tal:block metal:use-macro="here/Zuite_CommonTemplate/macros/init" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/set_default_available_language"/>
       <tr>
         <td colspan="3"><b tal:content="python: 'Clone web site'"></b></td>
       </tr>
@@ -36,7 +37,7 @@
       </tr>
       <tr>
         <td>verifyTextPresent</td>
-        <td>Created Clone Web Site</td>
+        <td tal:content="python: '%s' % (here.Base_translateString('Created Clone Web Site', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>

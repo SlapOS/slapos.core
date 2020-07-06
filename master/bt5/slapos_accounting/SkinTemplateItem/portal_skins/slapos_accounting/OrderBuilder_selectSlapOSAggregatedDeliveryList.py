@@ -6,7 +6,7 @@ portal = context.getPortalObject()
 def newPackingList(movement, causality, message):
   delivery = portal.sale_packing_list_module.newContent(
         portal_type='Sale Packing List',
-        source=movement.getDestination(),
+        source=movement.getSource(),
         destination=movement.getDestination(),
         source_section=movement.getSourceSection(),
         destination_section=movement.getDestination(),

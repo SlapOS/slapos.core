@@ -55,7 +55,7 @@ for movement in movement_list:
     portal_type="Simulation Movement",
     quantity=movement.getQuantity(),
     resource=movement.getResource(),
-    source=movement.getDestination(),
+    source=movement.getSource(),
     destination=movement.getDestination(),
     source_section=movement.getSourceSection(),
     destination_section=movement.getDestination(),

@@ -1262,7 +1262,7 @@ class TestSlapOSAggregatedDeliveryBuilder(SlapOSTestCaseMixin):
         'destination_decision/%s' % person.getRelativeUrl(),
         'destination_section/%s' % person.getRelativeUrl(),
         'price_currency/currency_module/EUR',
-        'source/%s' % person.getRelativeUrl(),
+        'source/organisation_module/slapos',
         'source_section/organisation_module/slapos',
         'specialise/sale_trade_condition_module/'
             'slapos_aggregated_trade_condition'],

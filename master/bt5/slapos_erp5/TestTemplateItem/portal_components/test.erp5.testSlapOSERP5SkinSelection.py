@@ -30,7 +30,7 @@ class TestSlaposSkinSelection(SlapOSTestCaseMixin):
   # but not present on the test.
   ignore_list = [
     # UI testing folders not deployed by Configurator
-    "slapos_ui_test", "slapos_zh_ui_test",
+    "slapos_ui_test",
 
     # Legacy and/or custom bt5 folders
     "slapos_vifib", "rapid_space", "rapid_space_ui_test"]

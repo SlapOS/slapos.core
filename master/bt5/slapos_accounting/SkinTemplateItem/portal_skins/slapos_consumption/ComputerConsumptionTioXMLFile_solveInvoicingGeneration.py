@@ -20,8 +20,11 @@ if tioxml_dict is None:
 else:
 
   computer = context.getContributorValue(portal_type="Computer")
-  computer_project = computer.Item_getCurrentProjectValue()
+  computer_project_document = computer.Item_getCurrentProjectValue()
   delivery_title = tioxml_dict['title']
+
+  if computer_project_document is not None:
+    computer_project = computer_project_document.getRelativeUrl()
 
   movement_list = []
   for movement in tioxml_dict["movement"]:

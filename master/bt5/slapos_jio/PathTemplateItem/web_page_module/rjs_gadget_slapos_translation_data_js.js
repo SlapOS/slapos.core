@@ -669,7 +669,7 @@
       "New": "新建",
       "Email": "电子邮件",
       "Your Email": "您的电子邮件",
-      "Invoice:": "发票：",
+      "Invoice:": "账单：",
       "Password is different from confirmation": "密码不一致",
       "All criterions (AND)": "符合所有(和)",
       "Projects": "项目",

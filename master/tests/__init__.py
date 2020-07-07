@@ -19,8 +19,7 @@ slapos_bt_list = [
     'slapos_wechat',
     'slapos_configurator',
     'slapos_jio',
-    'slapos_jio_ui_test',
-    'slapos_jio_zh_ui_test'
+    'slapos_jio_ui_test'
   ]
 
 class SlapOSCloud(SavedTestSuite, ProjectTestSuite):

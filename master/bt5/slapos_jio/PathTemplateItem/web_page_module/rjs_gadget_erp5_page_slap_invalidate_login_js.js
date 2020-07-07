@@ -43,7 +43,7 @@
             });
         })
         .push(function () {
-          return gadget.notifySubmitted({message: 'Login is Disabled.', status: 'success'})
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
               return gadget.redirect({"command": "change",

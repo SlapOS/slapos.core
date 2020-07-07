@@ -51,7 +51,7 @@
         <item>
             <key> <string>_body</string> </key>
             <value> <string>from Products.ZSQLCatalog.SQLCatalog import Query\n
-from Products.ERP5Type.DateUtils import atTheEndOfPeriod\n
+from erp5.component.module.DateUtils import atTheEndOfPeriod\n
 request = container.REQUEST\n
 portal = context.getPortalObject()\n
 from_date = request.get(\'from_date\', None)\n

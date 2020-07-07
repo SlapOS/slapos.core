@@ -14,7 +14,7 @@ from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbo
 import os
 import tempfile
 from DateTime import DateTime
-from Products.ERP5Type.DateUtils import addToDate, getClosestDate
+from erp5.component.module.DateUtils import addToDate, getClosestDate
 from zExceptions import Unauthorized
 
 class Simulator:

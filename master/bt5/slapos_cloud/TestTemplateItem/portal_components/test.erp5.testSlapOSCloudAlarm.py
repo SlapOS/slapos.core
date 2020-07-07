@@ -6,7 +6,7 @@ import json
 import time
 from zExceptions import Unauthorized
 from DateTime import DateTime
-from Products.ERP5Type.DateUtils import addToDate
+from erp5.component.module.DateUtils import addToDate
 from App.Common import rfc1123_date
 
 class TestSlapOSCoreSlapOSAssertHostingSubscriptionPredecessorAlarm(

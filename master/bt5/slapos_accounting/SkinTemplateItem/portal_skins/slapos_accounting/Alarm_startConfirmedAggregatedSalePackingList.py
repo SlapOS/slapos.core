@@ -2,7 +2,7 @@ if params is None:
   params = {}
 
 from DateTime import DateTime
-from Products.ERP5Type.DateUtils import addToDate
+from erp5.component.module.DateUtils import addToDate
 from Products.ZSQLCatalog.SQLCatalog import Query
 
 def getAccountingDate(accounting_date):

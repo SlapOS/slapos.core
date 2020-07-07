@@ -1,5 +1,5 @@
 from DateTime import DateTime
-from Products.ERP5Type.DateUtils import addToDate
+from erp5.component.module.DateUtils import addToDate
 
 hosting_subscription = context
 portal = context.getPortalObject()

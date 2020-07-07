@@ -1,6 +1,6 @@
 from zExceptions import Unauthorized
 from DateTime import DateTime
-from Products.ERP5Type.DateUtils import addToDate
+from erp5.component.module.DateUtils import addToDate
 if REQUEST is not None:
   raise Unauthorized
 

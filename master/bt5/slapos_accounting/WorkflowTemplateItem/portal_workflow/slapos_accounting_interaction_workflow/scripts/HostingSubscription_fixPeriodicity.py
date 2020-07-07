@@ -1,4 +1,4 @@
-from Products.ERP5Type.DateUtils import addToDate, getClosestDate
+from erp5.component.module.DateUtils import addToDate, getClosestDate
 hosting_subscription = state_change['object']
 
 edit_kw = {}

@@ -443,7 +443,7 @@ class TestSlapOSWechatEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
                         script_name,
                         '*args, **kwargs',
                         '# Script body\n'
-"""from Products.ERP5Type.DateUtils import addToDate
+"""from erp5.component.module.DateUtils import addToDate
 return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'foo'""")
 
   def _dropPaymentTransaction_getWechatId(self):

@@ -8,9 +8,9 @@ current_invoice = context.getCausalityValue()
 
 if current_invoice is None:
   if target_language == "zh": # Wechat payment
-    invoice_template_path = "accounting_module/template_wechat_pre_payment_subscription_sale_invoice_transaction"
+    invoice_template_path = portal.portal_preferences.getPreferredZhPrePaymentSubscriptionInvoiceTemplate()
   else:
-    invoice_template_path = "accounting_module/template_pre_payment_subscription_sale_invoice_transaction"
+    invoice_template_path = portal.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate()
   invoice_template = portal.restrictedTraverse(invoice_template_path)
 
   current_invoice = invoice_template.Base_createCloneDocument(batch_mode=1)

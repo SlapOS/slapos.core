@@ -84,6 +84,8 @@
                         <string>my_preferred_aggregated_sale_trade_condition</string>
                         <string>my_preferred_aggregated_subscription_sale_trade_condition</string>
                         <string>my_preferred_aggregated_consumption_sale_trade_condition</string>
+                        <string>my_preferred_zh_pre_payment_subscription_invoice_template</string>
+                        <string>my_preferred_default_pre_payment_subscription_invoice_template</string>
                         <string>my_preferred_rest_api_token_server_url</string>
                       </list>
                     </value>
@@ -100,6 +102,8 @@
                       <list>
                         <string>my_preferred_open_sale_order_line_template</string>
                         <string>my_preferred_open_sale_order_template</string>
+                        <string>my_preferred_zh_pre_payment_template</string>
+                        <string>my_preferred_default_pre_payment_template</string>
                         <string>my_preferred_instance_delivery_template</string>
                         <string>my_preferred_hateoas_url</string>
                         <string>my_preferred_slapos_web_site_url</string>

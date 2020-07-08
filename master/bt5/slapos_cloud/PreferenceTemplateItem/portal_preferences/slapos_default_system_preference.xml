@@ -120,6 +120,14 @@
             <value> <int>1</int> </value>
         </item>
         <item>
+            <key> <string>preferred_default_pre_payment_subscription_invoice_template</string> </key>
+            <value> <string>accounting_module/template_pre_payment_subscription_sale_invoice_transaction</string> </value>
+        </item>
+        <item>
+            <key> <string>preferred_default_pre_payment_template</string> </key>
+            <value> <string>accounting_module/slapos_pre_payment_template</string> </value>
+        </item>
+        <item>
             <key> <string>preferred_document_conversion_server_url</string> </key>
             <value>
               <tuple>
@@ -305,6 +313,12 @@
             </value>
         </item>
         <item>
+            <key> <string>preferred_support_request_creation_limit</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
             <key> <string>preferred_support_request_resource</string> </key>
             <value>
               <tuple>
@@ -343,6 +357,14 @@
         <item>
             <key> <string>preferred_wechat_payment_service_reference</string> </key>
             <value> <string>PSERV-Wechat-Test</string> </value>
+        </item>
+        <item>
+            <key> <string>preferred_zh_pre_payment_subscription_invoice_template</string> </key>
+            <value> <string>accounting_module/template_wechat_pre_payment_subscription_sale_invoice_transaction</string> </value>
+        </item>
+        <item>
+            <key> <string>preferred_zh_pre_payment_template</string> </key>
+            <value> <string>accounting_module/slapos_wechat_pre_payment_template</string> </value>
         </item>
         <item>
             <key> <string>preffered_force_username_check_in_password</string> </key>

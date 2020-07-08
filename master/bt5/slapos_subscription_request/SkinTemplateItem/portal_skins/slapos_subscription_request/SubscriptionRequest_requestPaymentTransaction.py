@@ -9,11 +9,9 @@ current_payment = None
 
 if current_invoice is None:
   if target_language == "zh": # Wechat payment, reservation fee is 188 CNY
-    payment_template = portal.restrictedTraverse("accounting_module/slapos_wechat_pre_payment_template")
-    quantity = int(amount) * 188
+    payment_template = portal.restrictedTraverse(portal.portal_preferences.getPreferredZhPrePaymentTemplate())
   else: # Payzen payment, reservation fee is 25 EUR
-    payment_template = portal.restrictedTraverse("accounting_module/slapos_pre_payment_template")
-    quantity = int(amount) * 25
+    payment_template = portal.restrictedTraverse(portal.portal_preferences.getPreferredDefaultPrePaymentTemplate())
   current_payment = payment_template.Base_createCloneDocument(batch_mode=1)
 
   current_payment.edit(
@@ -28,11 +26,10 @@ if current_invoice is None:
 
 
   for line in current_payment.contentValues():
-    if line.getSource() == "account_module/bank":
-      line.setQuantity(-1*quantity)
-    if line.getSource() == "account_module/receivable":
+    if line.getSource() in ["account_module/bank", "account_module/receivable"]:
+      quantity = int(amount) * line.getQuantity()
       line.setQuantity(quantity)
-
+   
   # Accelarate job of alarms before proceed to payment.
   comment = "Validation payment for subscription request %s" % context.getRelativeUrl()
   current_payment.confirm(comment=comment)

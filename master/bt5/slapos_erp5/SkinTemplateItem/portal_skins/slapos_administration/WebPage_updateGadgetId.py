@@ -1,6 +1,6 @@
 # Update the document id to be commited
 
-if not context.getId().startswith("201"):
+if not context.getId().startswith("202"):
   raise ValueError("already updated")
 
 if context.getValidationState() not in ["published", "published_alive" ]:

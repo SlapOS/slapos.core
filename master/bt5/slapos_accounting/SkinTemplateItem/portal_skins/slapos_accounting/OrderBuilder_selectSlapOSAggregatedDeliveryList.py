@@ -48,6 +48,9 @@ for movement in movement_list:
         # we create a separated Sale Packing List for it.
         delivery = newPackingList(movement, causality, 'New aggregated delivery for subscription')
 
+
+    if delivery is not None and delivery.getSource() != movement.getSource():
+      delivery.setSource(movement.getSource())
     person_delivery_mapping["%s---%s---%s" % (person.getUid(), causality, specialise_uid)] = delivery
 
 return person_delivery_mapping.values()

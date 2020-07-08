@@ -100,9 +100,6 @@
                       <list>
                         <string>my_preferred_open_sale_order_line_template</string>
                         <string>my_preferred_open_sale_order_template</string>
-                        <string>my_preferred_instance_update_movement_template</string>
-                        <string>my_preferred_instance_destroy_movement_template</string>
-                        <string>my_preferred_instance_setup_movement_template</string>
                         <string>my_preferred_instance_delivery_template</string>
                         <string>my_preferred_hateoas_url</string>
                         <string>my_preferred_slapos_web_site_url</string>

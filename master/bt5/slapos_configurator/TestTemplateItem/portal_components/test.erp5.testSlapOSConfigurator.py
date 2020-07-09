@@ -302,6 +302,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'erp5_content_translation',
       'erp5_software_pdm',
       'erp5_svg_editor',
+      'erp5_syncml',
       'erp5_computer_immobilisation',
       'erp5_open_trade',
       'erp5_accounting',

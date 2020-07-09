@@ -208,6 +208,7 @@ erp5_simplified_invoicing
 erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
+erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
@@ -328,6 +329,7 @@ erp5_simplified_invoicing
 erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
+erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
@@ -447,6 +449,7 @@ erp5_simplified_invoicing
 erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
+erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
@@ -565,6 +568,7 @@ erp5_simplified_invoicing
 erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
+erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
@@ -685,6 +689,7 @@ erp5_simplified_invoicing
 erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
+erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
@@ -803,6 +808,7 @@ erp5_simplified_invoicing
 erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
+erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
@@ -920,6 +926,7 @@ erp5_simplified_invoicing
 erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
+erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
@@ -1038,6 +1045,7 @@ erp5_simplified_invoicing
 erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
+erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
@@ -1155,6 +1163,7 @@ erp5_simplified_invoicing
 erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
+erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
@@ -1273,6 +1282,7 @@ erp5_simplified_invoicing
 erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
+erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
@@ -1391,6 +1401,7 @@ erp5_simplified_invoicing
 erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
+erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
@@ -1510,6 +1521,7 @@ erp5_simplified_invoicing
 erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
+erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
@@ -1629,6 +1641,7 @@ erp5_simplified_invoicing
 erp5_slideshow_core
 erp5_software_pdm
 erp5_svg_editor
+erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade

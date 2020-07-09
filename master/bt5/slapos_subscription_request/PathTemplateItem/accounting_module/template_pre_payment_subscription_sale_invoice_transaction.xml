@@ -91,6 +91,7 @@
             <value>
               <tuple>
                 <string>source_section/organisation_module/slapos</string>
+                <string>source/organisation_module/slapos</string>
                 <string>price_currency/currency_module/EUR</string>
                 <string>resource/currency_module/EUR</string>
                 <string>payment_mode/payzen</string>

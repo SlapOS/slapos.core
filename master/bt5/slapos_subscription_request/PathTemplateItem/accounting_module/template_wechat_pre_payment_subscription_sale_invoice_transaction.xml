@@ -91,7 +91,8 @@
             <value>
               <tuple>
                 <string>source_section/organisation_module/slapos</string>
-                <string>payment_mode/payzen</string>
+                <string>source/organisation_module/slapos</string>
+                <string>payment_mode/wechat</string>
                 <string>specialise/sale_trade_condition_module/slapos_aggregated_trade_condition</string>
                 <string>price_currency/currency_module/CNY</string>
                 <string>resource/currency_module/CNY</string>

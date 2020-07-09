@@ -92,6 +92,7 @@
               <tuple>
                 <string>source_payment/organisation_module/slapos/bank_account</string>
                 <string>source_section/organisation_module/slapos</string>
+                <string>source/organisation_module/slapos</string>
                 <string>price_currency/currency_module/CNY</string>
                 <string>specialise/sale_trade_condition_module/slapos_aggregated_trade_condition</string>
                 <string>resource/currency_module/CNY</string>

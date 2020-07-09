@@ -85,10 +85,58 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     self.portal.portal_activities.unsubscribe()
     self.new_id = self.generateNewId()
     
+    # Define default Organisation
+    self.slapos_organisation = self.portal.organisation_module.slapos
+
     instance_template = self.portal.software_instance_module.template_software_instance		 
     if len(instance_template.objectValues()):
       instance_template.manage_delObjects(		 
         ids=[i.getId() for i in instance_template.objectValues()])
+
+
+  def makeCustomOrganisation(self, new_id=None, index=True):
+    # Create a custom organisation same as slapos, for ensure we can have
+    # multiple organisations working on the site
+
+    if new_id is None:
+      new_id = self.generateNewId()
+    
+    custom_organisation = self.portal.organisation_module.slapos.\
+                                 Base_createCloneDocument(batch_mode=1)
+    custom_organisation.edit(
+      title="organisation_live_test_%s" % new_id,
+      reference="organisation_live_test_%s" % new_id,
+      default_email_text="organisation_live_test_%s@example.org" % new_id,
+    )
+
+    custom_organisation.validate()
+
+    self.assertEqual(custom_organisation.getGroup(),
+                      "company")
+
+    self.assertEqual("currency_module/EUR",
+                     custom_organisation.getPriceCurrency())
+
+    self.assertNotEqual(getattr(custom_organisation, "bank_account", None), None)
+
+    if index:
+      custom_organisation.updateLocalRolesOnSecurityGroups()
+      custom_organisation.bank_account.updateLocalRolesOnSecurityGroups()
+  
+      transaction.commit()
+      custom_organisation.immediateReindexObject()
+      
+    return custom_organisation
+
+  def _addERP5Login(self, document, **kw):
+    if document.getPortalType() == "Person":
+      kw["password"] = "%s-aA$1" % self.generateNewId()
+    login = document.newContent(
+        portal_type="ERP5 Login",
+        reference=document.getReference(),
+        **kw)
+    login.validate()
+    return login
 
   def makePerson(self, new_id=None, index=True, user=True):
 
@@ -118,16 +166,6 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         login.immediateReindexObject()
 
     return person_user
-
-  def _addERP5Login(self, document, **kw):
-    if document.getPortalType() == "Person":
-      kw["password"] = "%s-aA$1" % self.generateNewId()
-    login = document.newContent(
-        portal_type="ERP5 Login",
-        reference=document.getReference(),
-        **kw)
-    login.validate()
-    return login
 
   def _makeTree(self, requested_template_id='template_software_instance'):
     new_id = self.generateNewId()
@@ -616,7 +654,106 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by %
       self._dropScript(script_name)
     self.assertScriptNotVisited(document, script_name)
 
+  def restoreAccountingTemplatesOnPreferences(self):
+    self.login()
+    system_preference = self.portal.portal_preferences.slapos_default_system_preference
+    system_preference.edit(
+      preferred_aggregated_consumption_sale_trade_condition=\
+        'sale_trade_condition_module/slapos_aggregated_consumption_trade_condition',
+      preferred_aggregated_sale_trade_condition=\
+        'sale_trade_condition_module/slapos_aggregated_trade_condition',
+      preferred_aggregated_subscription_sale_trade_condition=\
+        'sale_trade_condition_module/slapos_aggregated_subscription_trade_condition',
+      preferred_default_pre_payment_template=\
+        'accounting_module/slapos_pre_payment_template',
+      preferred_instance_delivery_template=\
+        'sale_packing_list_module/slapos_accounting_instance_delivery_template',
+      preferred_open_sale_order_line_template=\
+        'open_sale_order_module/slapos_accounting_open_sale_order_line_template/slapos_accounting_open_sale_order_line_template',
+      preferred_open_sale_order_template=\
+        'open_sale_order_module/slapos_accounting_open_sale_order_template',
+      preferred_zh_pre_payment_template=\
+        'accounting_module/slapos_wechat_pre_payment_template',
+      preferred_zh_pre_payment_subscription_invoice_template=\
+        'accounting_module/template_wechat_pre_payment_subscription_sale_invoice_transaction',
+      preferred_default_pre_payment_subscription_invoice_template=\
+        'accounting_module/template_pre_payment_subscription_sale_invoice_transaction'
 
+    )
+    self.tic()
+
+  def redefineAccountingTemplatesonPreferences(self):
+    # Define a new set of templates and change organisation on them, in this way tests should
+    # behave the same.
+    self.login()
+    organisation = self.makeCustomOrganisation()
+    accounting_module = self.portal.accounting_module
+    sale_packing_list_module = self.portal.sale_packing_list_module
+
+    preferred_zh_pre_payment_template = \
+      accounting_module.slapos_wechat_pre_payment_template.Base_createCloneDocument(batch_mode=1)
+    preferred_zh_pre_payment_template.edit(
+      source_section_value = organisation,
+      source_payment_value=organisation.bank_account
+    )
+    
+    preferred_default_pre_payment_template = \
+      accounting_module.slapos_pre_payment_template.Base_createCloneDocument(batch_mode=1)
+    preferred_default_pre_payment_template.edit(
+      source_section_value = organisation,
+      source_payment_value=organisation.bank_account
+    )
+
+    preferred_zh_pre_payment_subscription_invoice_template = \
+      accounting_module.template_wechat_pre_payment_subscription_sale_invoice_transaction.Base_createCloneDocument(batch_mode=1)
+
+    preferred_zh_pre_payment_subscription_invoice_template.edit(
+      source_section_value = organisation,
+      source_value=organisation
+    )
+    preferred_default_pre_payment_subscription_invoice_template = \
+      accounting_module.template_pre_payment_subscription_sale_invoice_transaction.Base_createCloneDocument(batch_mode=1)
+    
+    preferred_default_pre_payment_subscription_invoice_template.edit(
+      source_section_value = organisation,
+      source_value=organisation
+    )
+
+    preferred_instance_delivery_template = \
+      sale_packing_list_module.slapos_accounting_instance_delivery_template.Base_createCloneDocument(batch_mode=1)
+
+    preferred_instance_delivery_template.edit(
+      source_section_value = organisation,
+      source_value=organisation
+    )
+
+    open_sale_order_module = self.portal.open_sale_order_module
+
+    preferred_open_sale_order_template=\
+        open_sale_order_module.slapos_accounting_open_sale_order_template.Base_createCloneDocument(batch_mode=1)
+
+    preferred_open_sale_order_template.edit(
+      source_section_value = organisation,
+      source_value=organisation
+    )
+
+    system_preference = self.portal.portal_preferences.slapos_default_system_preference
+
+    system_preference.edit(
+      preferred_default_pre_payment_template=preferred_default_pre_payment_template.getRelativeUrl(),
+      preferred_zh_pre_payment_template=preferred_zh_pre_payment_template.getRelativeUrl(),
+      preferred_zh_pre_payment_subscription_invoice_template=\
+        preferred_zh_pre_payment_subscription_invoice_template.getRelativeUrl(),
+      preferred_default_pre_payment_subscription_invoice_template=\
+        preferred_default_pre_payment_subscription_invoice_template.getRelativeUrl(),
+      preferred_instance_delivery_template=\
+        preferred_instance_delivery_template.getRelativeUrl(),
+      preferred_open_sale_order_template=\
+        preferred_open_sale_order_template.getRelativeUrl()
+    )
+    self.tic()
+
+    return organisation
 
 class SlapOSTestCaseMixinWithAbort(SlapOSTestCaseMixin):
   abort_transaction = 1

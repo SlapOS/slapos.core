@@ -23,7 +23,7 @@ from erp5.component.test.testSlapOSSubscriptionScenario import TestSlapOSSubscri
 from erp5.component.test.SlapOSTestCaseMixin import changeSkin
 from Products.ERP5Type.tests.utils import createZODBPythonScript
 
-class TestSlapOSSubscriptionChineseScenario(TestSlapOSSubscriptionScenarioMixin):
+class TestSlapOSSubscriptionChineseScenarioMixin(TestSlapOSSubscriptionScenarioMixin):
 
   def afterSetUp(self):
     TestSlapOSSubscriptionScenarioMixin.afterSetUp(self)
@@ -149,6 +149,9 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
         portal_type="Payment Transaction",
         simulation_state="started")
 
+      self.assertEqual(payment.getSourceSection(), self.expected_source_section)
+      self.assertEqual(payment.getSourcePayment(), "%s/bank_account" % self.expected_source_section)
+
       authAmount = (int(self.expected_individual_price_with_tax*100)*1-int(self.expected_reservation_fee*100))*quantity
 
       self.assertEqual(int(payment.PaymentTransaction_getTotalPayablePrice()*100),
@@ -171,6 +174,9 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     finally:
       self._dropPaymentTransaction_getVADSUrlDict()
       self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode(original_mode)
+
+
+class TestSlapOSSubscriptionChineseScenario(TestSlapOSSubscriptionChineseScenarioMixin):
 
   def test_subscription_scenario_with_single_vm(self):
     self._test_subscription_scenario(amount=1)

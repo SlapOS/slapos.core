@@ -35,7 +35,9 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.expected_reservation_tax = 4.166666666666667
     self.expected_price_currency = "currency_module/EUR"
     self.expected_notification_language = "en"
-
+    self.expected_source = "organisation_module/slapos"
+    self.expected_source_section = "organisation_module/slapos"
+    
     self.login()
     self.portal.portal_alarms.slapos_subscription_request_process_draft.setEnabled(True)
     self.portal.portal_alarms.slapos_subscription_request_process_ordered.setEnabled(True)
@@ -295,6 +297,10 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     # 25 is the reservation fee deduction.
     authAmount = (int(self.expected_individual_price_with_tax*100)*1-int(self.expected_reservation_fee*100))*quantity
 
+    self.assertEqual(payment.getSourceSection(), self.expected_source_section)
+    self.assertEqual(payment.getSourcePayment(), "%s/bank_account" % self.expected_source_section)
+    
+
     self.assertEqual(int(payment.PaymentTransaction_getTotalPayablePrice()*100),
                      -authAmount)
     
@@ -341,8 +347,14 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.assertEqual(invoice.getSimulationState(), "confirmed")
     self.assertEqual(invoice.getCausalityState(), "building")
 
+    self.assertEqual(invoice.getSource(), self.expected_source)
+    self.assertEqual(invoice.getSourceSection(), self.expected_source_section)
+    
     # Check Payment
     payment = self._payPayment(subscription_request)
+    self.assertEqual(payment.getSourceSection(), self.expected_source_section)
+    self.assertEqual(payment.getSourcePayment(), "%s/bank_account" % self.expected_source_section)
+    
     self.tic()
     self.assertEqual(payment.getSimulationState(), "stopped")
 

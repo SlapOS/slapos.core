@@ -586,7 +586,9 @@
             xml_output = jsonDictToParameterXML(json_dict);
           }
           parameter_hash_input.value = btoa(xml_output);
+          g.options.value.parameter.parameter_hash = btoa(xml_output);
           // console.log(parameter_hash_input.value);
+          // console.log(xml_output);
           if (validation.valid) {
             return xml_output;
           }

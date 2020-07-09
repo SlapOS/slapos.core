@@ -16,7 +16,6 @@ if current_invoice is None:
 
   current_payment.edit(
         title="Payment for Reservation Fee",
-        source_value=context.getDestinationSection(),
         destination_value=context.getDestinationSection(),
         destination_section_value=context.getDestinationSection(),
         destination_decision_value=context.getDestinationSection(),

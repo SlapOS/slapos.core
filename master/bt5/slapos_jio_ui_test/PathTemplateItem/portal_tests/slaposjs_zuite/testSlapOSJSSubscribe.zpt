@@ -162,7 +162,9 @@
       </tr>
       <tr>
         <td>assertTextPresent</td>
-        <td tal:content="python: '%s' % (here.Base_translateString('Credential Request Created.', lang=lang))"></td>
+        <td tal:define="portal_type_translation python: here.Base_translateString('Credential Request', lang=lang);
+                        dummy python: context.REQUEST.set('mapping', {'portal_type': portal_type_translation})"></td>
+        <td tal:content="python: '%s' % (here.Base_translateString('${portal_type} Created.', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
         <td></td>
       </tr>
 

@@ -29,10 +29,14 @@ class testSlapOSSubscriptionNewTemplateChineseScenario(TestSlapOSSubscriptionChi
 
     self.expected_source = organisation.getRelativeUrl()
     self.expected_source_section = organisation.getRelativeUrl()
+    self.portal.portal_caches.clearAllCache()
+    self.tic()
 
   def beforeTearDown(self):
     TestSlapOSSubscriptionChineseScenarioMixin.beforeTearDown(self)
     self.restoreAccountingTemplatesOnPreferences()
+    self.portal.portal_caches.clearAllCache()
+    self.tic()
 
   def test_subscription_scenario_with_single_vm(self):
     self._test_subscription_scenario(amount=1)

@@ -22,7 +22,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
       </tal:block>
 
-      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '${count} Records'};
+                             dummy python: context.REQUEST.set('mapping', {'count': '1'})">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
              

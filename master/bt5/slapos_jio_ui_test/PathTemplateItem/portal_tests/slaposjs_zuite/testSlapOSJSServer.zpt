@@ -29,7 +29,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
       </tal:block>
 
-      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '${count} Records'};
+                             dummy python: context.REQUEST.set('mapping', {'count': '1'})">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
 
@@ -44,7 +45,8 @@
         <td></td>
       </tr>
 
-      <tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+      <tal:block tal:define="header python: 'Computer: ${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-COMPUTER 0'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
@@ -160,7 +162,8 @@
         <td>5000</td>
       </tr>
 
-      <tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+      <tal:block tal:define="header python: 'Computer: ${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-COMPUTER 0'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
@@ -172,7 +175,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
       </tal:block>
 
-      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '${count} Records'};
+                             dummy python: context.REQUEST.set('mapping', {'count': '1'})">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
 
@@ -187,7 +191,8 @@
         <td></td>
       </tr>
 
-      <tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+      <tal:block tal:define="header python: 'Computer: ${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-COMPUTER 0'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
@@ -265,8 +270,8 @@
       </tr>
 
 
-
-      <tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+      <tal:block tal:define="header python: 'Computer: ${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-COMPUTER 0'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
@@ -318,7 +323,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
       </tal:block>
 
-      <tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+      <tal:block tal:define="header python: 'Computer: ${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-COMPUTER 0'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
@@ -368,8 +374,8 @@
         <td colspan="3"><b> Try again Request Certificate</b></td>
       </tr>
 
-
-      <tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+      <tal:block tal:define="header python: 'Computer: ${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-COMPUTER 0'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
@@ -427,7 +433,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
       </tal:block>
 
-      <tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+      <tal:block tal:define="header python: 'Computer: ${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-COMPUTER 0'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
@@ -477,7 +484,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
       </tal:block>
 
-      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '${count} Records'};
+                             dummy python: context.REQUEST.set('mapping', {'count': '1'})">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
 
@@ -492,7 +500,8 @@
         <td></td>
       </tr>
 
-      <tal:block define="header python: 'Computer: TEST-SLAPOSJS-COMPUTER 0'; ">
+      <tal:block tal:define="header python: 'Computer: ${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-COMPUTER 0'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 

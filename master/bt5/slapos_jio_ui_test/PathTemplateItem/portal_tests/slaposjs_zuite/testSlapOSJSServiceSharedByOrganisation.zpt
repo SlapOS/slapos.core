@@ -105,7 +105,8 @@
         <td colspan="3"><b> Fill Request form </b></td>
       </tr>
 
-      <tal:block define="header python: '3/3 Request Service: Frontend'; ">
+      <tal:block tal:define="header python: '3/3 Request Service: ${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': 'Frontend'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
@@ -181,7 +182,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
       </tal:block>
 
-      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '${count} Records'};
+                             dummy python: context.REQUEST.set('mapping', {'count': '1'})">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
 
@@ -195,10 +197,9 @@
         <td>//a[text()="TEST-SLAPOSJS-SERVICE-SHARED-BY-ORGANISATION 0"]</td>
         <td></td>
       </tr>
-      <tr>
+      <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-SHARED-BY-ORGANISATION 0'})">
         <td>waitForElementPresent</td>
-
-        <td tal:content="python: '//a[@data-i18n=\'%s\']' % here.Base_translateString('Hosting Subscription: TEST-SLAPOSJS-SERVICE-SHARED-BY-ORGANISATION 0', lang=lang)"></td>
+        <td tal:content="python: '//a[@data-i18n= \'%s\']' % (here.Base_translateString('Hosting Subscription: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
         <td></td>
       </tr>
 
@@ -239,7 +240,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
       </tal:block>
 
-      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '${count} Records'};
+                             dummy python: context.REQUEST.set('mapping', {'count': '1'})">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
 
@@ -254,7 +256,8 @@
         <td></td>
       </tr>
 
-      <tal:block define="header python: 'Hosting Subscription: TEST-SLAPOSJS-SERVICE-SHARED-BY-ORGANISATION 0'; ">
+      <tal:block tal:define="header python: 'Hosting Subscription: ${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-SHARED-BY-ORGANISATION 0'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
@@ -268,7 +271,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
       </tal:block>
 
-      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '${count} Records'};
+                             dummy python: context.REQUEST.set('mapping', {'count': '1'})">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
 
@@ -283,7 +287,8 @@
         <td></td>
       </tr>
 
-      <tal:block define="header python: 'Organisation : TEST-SLAPOSJS-ORGANISATION-TO-SHARE-SERVICE 0'; ">
+      <tal:block tal:define="header python: 'Organisation : ${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-ORGANISATION-TO-SHARE-SERVICE 0'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
@@ -331,7 +336,8 @@
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
 </tal:block>
 
-<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '${count} Records'};
+                       dummy python: context.REQUEST.set('mapping', {'count': '1'})">
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
 </tal:block>
 
@@ -377,7 +383,8 @@
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
 </tal:block>
 
-<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '${count} Records'};
+                       dummy python: context.REQUEST.set('mapping', {'count': '1'})">
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
 </tal:block>
 
@@ -391,7 +398,8 @@
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
 </tal:block>
 
-<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+<tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '${count} Records'};
+                       dummy python: context.REQUEST.set('mapping', {'count': '1'})">
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
 </tal:block>
 
@@ -407,7 +415,8 @@
   <td></td>
 </tr>
 
-<tal:block define="header python: 'Hosting Subscription: TEST-SLAPOSJS-SERVICE-SHARED-BY-ORGANISATION 0'; ">
+<tal:block tal:define="header python: 'Hosting Subscription: ${title}';
+                       dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-SHARED-BY-ORGANISATION 0'}) ">
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
 </tal:block>
 

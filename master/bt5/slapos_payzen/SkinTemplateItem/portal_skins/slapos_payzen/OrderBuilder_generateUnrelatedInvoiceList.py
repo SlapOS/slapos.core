@@ -48,7 +48,7 @@ for invoice in portal.portal_catalog(**select_kw):
     stop_date=invoice.getStopDate(),
     specialise=invoice.getSpecialise(),
     payment_mode=invoice.getPaymentMode(),
-    source_payment='organisation_module/slapos/bank_account', # the other place defnied: business process
+    source_payment='%s/bank_account' % invoice.getSourceSection(), # the other place defnied: business process
   )
   temp_movement_rec = newTempSimulationMovement(
     temp_object=True, id=str(id),

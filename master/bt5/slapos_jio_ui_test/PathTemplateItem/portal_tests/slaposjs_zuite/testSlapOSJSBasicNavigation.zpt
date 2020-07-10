@@ -259,7 +259,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
       </tal:block>
 
-      <tal:block define="header python: 'Your Account : Demo User Functional';">
+      <tal:block tal:define="header python: 'Your Account : ${title}';
+                         dummy python: context.REQUEST.set('mapping', {'title': 'Demo User Functional'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
       </tal:block>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />

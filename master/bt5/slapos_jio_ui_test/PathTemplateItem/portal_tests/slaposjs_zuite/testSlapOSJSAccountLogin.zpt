@@ -22,7 +22,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
       </tal:block>
 
-      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '${count} Records'};
+                             dummy python: context.REQUEST.set('mapping', {'count': '1'})">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
 
@@ -85,7 +86,8 @@
       </tal:block>
 
 
-      <tal:block define="header python: 'Your Account : Demo User Functional'; ">
+      <tal:block tal:define="header python: 'Your Account : ${title}';
+                         dummy python: context.REQUEST.set('mapping', {'title': 'Demo User Functional'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
@@ -95,7 +97,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
       </tal:block>
 
-      <tal:block tal:define="pagination_configuration python: {'header': '(2)', 'footer': '2 Records'}">
+      <tal:block tal:define="pagination_configuration python: {'header': '(2)', 'footer': '${count} Records'};
+                             dummy python: context.REQUEST.set('mapping', {'count': '2'})">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
 
@@ -155,7 +158,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
       </tal:block>
 
-      <tal:block tal:define="pagination_configuration python: {'header': '(2)', 'footer': '2 Records'}">
+      <tal:block tal:define="pagination_configuration python: {'header': '(2)', 'footer': '${count} Records'};
+                             dummy python: context.REQUEST.set('mapping', {'count': '2'})">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
 
@@ -185,7 +189,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
       </tal:block>
 
-      <tal:block define="header python: 'Disable Login: demo_functional_user'; ">
+      <tal:block define="header python: 'Disable Login: ${title}';
+                         dummy python: context.REQUEST.set('mapping', {'title': 'demo_functional_user'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
@@ -196,7 +201,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
       </tal:block>
 
-      <tal:block define="header python: 'Your Account : Demo User Functional'; ">
+      <tal:block tal:define="header python: 'Your Account : ${title}';
+                         dummy python: context.REQUEST.set('mapping', {'title': 'Demo User Functional'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
@@ -206,7 +212,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
       </tal:block>
 
-      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '${count} Records'};
+                             dummy python: context.REQUEST.set('mapping', {'count': '1'})">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
 

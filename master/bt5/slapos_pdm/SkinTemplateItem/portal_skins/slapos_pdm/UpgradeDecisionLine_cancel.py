@@ -9,6 +9,9 @@ if software_release.getValidationState() == "archived":
   return
 
 if hosting_subscription is not None:
+  if hosting_subscription.getUpgradeScope() in ['never', 'disabled']:
+    upgrade_decision.cancel("Upgrade scope was disabled on the related Hosting Subscription")
+
   if hosting_subscription.getSlapState() == "destroy_requested":
     upgrade_decision.cancel(comment="Hosting Subscription is destroyed.")
 
@@ -19,6 +22,9 @@ if hosting_subscription is not None:
 
 computer = context.getAggregateValue(portal_type="Computer")
 if computer is not None:
+  if computer.getUpgradeScope() in ['never', 'disabled']:
+    upgrade_decision.cancel("Upgrade scope was disabled on the related Hosting Subscription")
+
   if computer.getAllocationScope() in ["closed/forever", "closed/termination"]:
     upgrade_decision.cancel(comment="Computer is closed.")
     return
@@ -28,4 +34,4 @@ if computer is not None:
     parent_reference=computer.getReference(),
     software_release_url=software_release.getUrlString()))
   if already_deployed:
-    context.getParentValue().cancel(comment="Computer already has the software release")
+    upgrade_decision.cancel(comment="Computer already has the software release")

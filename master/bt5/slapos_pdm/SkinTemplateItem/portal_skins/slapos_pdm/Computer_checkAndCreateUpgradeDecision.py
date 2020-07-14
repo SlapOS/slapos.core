@@ -2,7 +2,8 @@ from DateTime import DateTime
 computer = context
 portal = context.getPortalObject()
 
-if context.getUpgradeScope() == "never":
+upgrade_scope = context.getUpgradeScope()
+if upgrade_scope in ["never", "disabled"]:
   return
 
 full_software_release_list = [si.url_string for si in

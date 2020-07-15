@@ -81,4 +81,19 @@ class TestSlapOSSubscriptionRequestProcessAlarm(SlapOSTestCaseMixin):
     self._test_alarm(
       alarm, subscription_request, script_name)
 
+  def test_alarm_slapos_subscription_request_process_started(self):
+    script_name = "SubscriptionRequest_processStarted"
+    alarm = self.portal.portal_alarms.slapos_subscription_request_process_started
 
+    subscription_request = self.portal.subscription_request_module.newContent(
+        portal_type='Subscription Request',
+        title="Test Subscription Request %s" % self.new_id,
+        reference="TESTSUBSCRIPTIONREQUEST-%s" % self.new_id
+    )
+    subscription_request.plan()
+    subscription_request.order()
+    subscription_request.confirm()
+    subscription_request.start()
+    
+    self._test_alarm(
+      alarm, subscription_request, script_name)

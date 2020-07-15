@@ -231,6 +231,9 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     self.requested_software_instance.validate()
     self.tic()
 
+  def _makeSlaveTree(self, requested_template_id='template_slave_instance'):
+    return self._makeTree(requested_template_id=requested_template_id)
+
   def _makeComputer(self, owner=None, allocation_scope='open/public'):
     self.computer = self.portal.computer_module.template_computer\
         .Base_createCloneDocument(batch_mode=1)

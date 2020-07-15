@@ -1225,24 +1225,6 @@ class TestSlapOSUpdateOpenSaleOrderPeriod(SlapOSTestCaseMixin):
       self.portal.OpenSaleOrder_updatePeriod,
       REQUEST={})
 
-  def _simulatePerson_storeOpenSaleOrderJournal(self):
-    script_name = 'Person_storeOpenSaleOrderJournal'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by Person_storeOpenSaleOrderJournal') """ )
-    transaction.commit()
-
-  def _dropPerson_storeOpenSaleOrderJournal(self):
-    script_name = 'Person_storeOpenSaleOrderJournal'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
-
   def test_updatePeriod_no_person(self):
     open_order = self.createOpenOrder()
     open_order.OpenSaleOrder_updatePeriod()
@@ -1255,14 +1237,13 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by P
       destination_decision_value=person,
     )
 
-    self._simulatePerson_storeOpenSaleOrderJournal()
+    script_name = "Person_storeOpenSaleOrderJournal"
+    self._simulateScript(script_name)
     try:
       open_order.OpenSaleOrder_updatePeriod()
     finally:
-      self._dropPerson_storeOpenSaleOrderJournal()
-    self.assertEqual(
-        'Visited by Person_storeOpenSaleOrderJournal',
-        person.workflow_history['edit_workflow'][-1]['comment'])
+      self._dropScript(script_name)
+    self.assertScriptVisited(person, script_name)
 
   def test_updatePeriod_invalidated(self):
     open_order = self.createOpenOrder()
@@ -1273,74 +1254,43 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by P
     )
     open_order.invalidate()
 
-    self._simulatePerson_storeOpenSaleOrderJournal()
+    script_name = "Person_storeOpenSaleOrderJournal"
+    self._simulateScript(script_name)
     try:
       open_order.OpenSaleOrder_updatePeriod()
     finally:
-      self._dropPerson_storeOpenSaleOrderJournal()
-    self.assertNotEqual(
-        'Visited by Person_storeOpenSaleOrderJournal',
-        person.workflow_history['edit_workflow'][-1]['comment'])
-
-  def _simulateOpenSaleOrder_updatePeriod(self):
-    script_name = 'OpenSaleOrder_updatePeriod'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by OpenSaleOrder_updatePeriod') """ )
-    transaction.commit()
-
-  def _dropOpenSaleOrder_updatePeriod(self):
-    script_name = 'OpenSaleOrder_updatePeriod'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
+      self._dropScript(script_name)
+    self.assertScriptNotVisited(person, script_name)
 
   def test_alarm(self):
     open_order = self.createOpenOrder()
     open_order.newContent(portal_type="Open Sale Order Line")
     self.tic()
-    self._simulateOpenSaleOrder_updatePeriod()
-    try:
-      self.portal.portal_alarms.slapos_update_open_sale_order_period.activeSense()
-      self.tic()
-    finally:
-      self._dropOpenSaleOrder_updatePeriod()
-    self.assertEqual(
-        'Visited by OpenSaleOrder_updatePeriod',
-        open_order.workflow_history['edit_workflow'][-1]['comment'])
+    script_name = "OpenSaleOrder_updatePeriod"
+    alarm = self.portal.portal_alarms.slapos_update_open_sale_order_period
+    
+    self._test_alarm(
+      alarm, open_order, script_name)
 
   def test_alarm_invalidated(self):
     open_order = self.createOpenOrder()
     open_order.newContent(portal_type="Open Sale Order Line")
     open_order.invalidate()
     self.tic()
-    self._simulateOpenSaleOrder_updatePeriod()
-    try:
-      self.portal.portal_alarms.slapos_update_open_sale_order_period.activeSense()
-      self.tic()
-    finally:
-      self._dropOpenSaleOrder_updatePeriod()
-    self.assertNotEqual(
-        'Visited by OpenSaleOrder_updatePeriod',
-        open_order.workflow_history['edit_workflow'][-1]['comment'])
+    script_name = "OpenSaleOrder_updatePeriod"
+    alarm = self.portal.portal_alarms.slapos_update_open_sale_order_period
+    
+    self._test_alarm_not_visited(
+      alarm, open_order, script_name)
 
   def test_alarm_no_line(self):
     open_order = self.createOpenOrder()
     self.tic()
-    self._simulateOpenSaleOrder_updatePeriod()
-    try:
-      self.portal.portal_alarms.slapos_update_open_sale_order_period.activeSense()
-      self.tic()
-    finally:
-      self._dropOpenSaleOrder_updatePeriod()
-    self.assertNotEqual(
-        'Visited by OpenSaleOrder_updatePeriod',
-        open_order.workflow_history['edit_workflow'][-1]['comment'])
+    script_name = "OpenSaleOrder_updatePeriod"
+    alarm = self.portal.portal_alarms.slapos_update_open_sale_order_period
+    
+    self._test_alarm_not_visited(
+      alarm, open_order, script_name)
 
 class TestSlapOSReindexOpenSaleOrder(SlapOSTestCaseMixin):
 
@@ -1354,8 +1304,7 @@ class TestSlapOSReindexOpenSaleOrder(SlapOSTestCaseMixin):
     )
     return open_order
 
-  def _simulateOpenSaleOrder_reindexIfIndexedBeforeLine(self):
-    script_name = 'OpenSaleOrder_reindexIfIndexedBeforeLine'
+  def _simulateScript(self, script_name):
     if script_name in self.portal.portal_skins.custom.objectIds():
       raise ValueError('Precondition failed: %s exists in custom' % script_name)
     createZODBPythonScript(self.portal.portal_skins.custom,
@@ -1363,14 +1312,8 @@ class TestSlapOSReindexOpenSaleOrder(SlapOSTestCaseMixin):
                         'uid=None,*args, **kwargs',
                         '# Script body\n'
 """portal_workflow = context.portal_workflow
-open_order = context.portal_catalog.getResultValue(uid=uid)
-portal_workflow.doActionFor(open_order, action='edit_action', comment='Visited by OpenSaleOrder_reindexIfIndexedBeforeLine') """ )
-    transaction.commit()
-
-  def _dropOpenSaleOrder_reindexIfIndexedBeforeLine(self):
-    script_name = 'OpenSaleOrder_reindexIfIndexedBeforeLine'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
+document = context.portal_catalog.getResultValue(uid=uid)
+portal_workflow.doActionFor(document, action='edit_action', comment='Visited by %s') """ % script_name )
     transaction.commit()
 
   def test_alarm(self):
@@ -1380,28 +1323,20 @@ portal_workflow.doActionFor(open_order, action='edit_action', comment='Visited b
     time.sleep(1)
     open_order.newContent(portal_type="Open Sale Order Line")
     self.tic()
-    self._simulateOpenSaleOrder_reindexIfIndexedBeforeLine()
-    try:
-      self.portal.portal_alarms.slapos_reindex_open_sale_order.activeSense()
-      self.tic()
-    finally:
-      self._dropOpenSaleOrder_reindexIfIndexedBeforeLine()
-    self.assertEqual(
-        'Visited by OpenSaleOrder_reindexIfIndexedBeforeLine',
-        open_order.workflow_history['edit_workflow'][-1]['comment'])
+    script_name = "OpenSaleOrder_reindexIfIndexedBeforeLine"
+    alarm = self.portal.portal_alarms.slapos_reindex_open_sale_order
+    
+    self._test_alarm(
+      alarm, open_order, script_name)
 
   def test_alarm_no_line(self):
     open_order = self.createOpenOrder()
     self.tic()
-    self._simulateOpenSaleOrder_reindexIfIndexedBeforeLine()
-    try:
-      self.portal.portal_alarms.slapos_reindex_open_sale_order.activeSense()
-      self.tic()
-    finally:
-      self._dropOpenSaleOrder_reindexIfIndexedBeforeLine()
-    self.assertNotEqual(
-        'Visited by OpenSaleOrder_reindexIfIndexedBeforeLine',
-        open_order.workflow_history['edit_workflow'][-1]['comment'])
+    script_name = "OpenSaleOrder_reindexIfIndexedBeforeLine"
+    alarm = self.portal.portal_alarms.slapos_reindex_open_sale_order
+    
+    self._test_alarm_not_visited(
+      alarm, open_order, script_name)
 
 class TestSlapOSGeneratePackingListFromTioXML(SlapOSTestCaseMixin):
 
@@ -1412,49 +1347,23 @@ class TestSlapOSGeneratePackingListFromTioXML(SlapOSTestCaseMixin):
     )
     return document
 
-  def _simulateComputerConsumptionTioXMLFile_solveInvoicingGeneration(self):
-    script_name = 'ComputerConsumptionTioXMLFile_solveInvoicingGeneration'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by ComputerConsumptionTioXMLFile_solveInvoicingGeneration') """ )
-    transaction.commit()
-
-  def _dropComputerConsumptionTioXMLFile_solveInvoicingGeneration(self):
-    script_name = 'ComputerConsumptionTioXMLFile_solveInvoicingGeneration'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
-
   def test_alarm(self):
     document = self.createTioXMLFile()
     document.submit()
     self.tic()
-    self._simulateComputerConsumptionTioXMLFile_solveInvoicingGeneration()
-    try:
-      self.portal.portal_alarms.\
-        slapos_accounting_generate_packing_list_from_tioxml.activeSense()
-      self.tic()
-    finally:
-      self._dropComputerConsumptionTioXMLFile_solveInvoicingGeneration()
-    self.assertEqual(
-        'Visited by ComputerConsumptionTioXMLFile_solveInvoicingGeneration',
-        document.workflow_history['edit_workflow'][-1]['comment'])
+
+    script_name = "ComputerConsumptionTioXMLFile_solveInvoicingGeneration"
+    alarm = self.portal.portal_alarms.slapos_accounting_generate_packing_list_from_tioxml
+
+    self._test_alarm(
+      alarm, document, script_name)
 
   def test_alarm_not_submitted(self):
     document = self.createTioXMLFile()
     self.tic()
-    self._simulateComputerConsumptionTioXMLFile_solveInvoicingGeneration()
-    try:
-      self.portal.portal_alarms.\
-        slapos_accounting_generate_packing_list_from_tioxml.activeSense()
-      self.tic()
-    finally:
-      self._dropComputerConsumptionTioXMLFile_solveInvoicingGeneration()
-    self.assertNotEqual(
-        'Visited by ComputerConsumptionTioXMLFile_solveInvoicingGeneration',
-        document.workflow_history['edit_workflow'][-1]['comment'])
+    
+    script_name = "ComputerConsumptionTioXMLFile_solveInvoicingGeneration"
+    alarm = self.portal.portal_alarms.slapos_accounting_generate_packing_list_from_tioxml
+
+    self._test_alarm_not_visited(
+      alarm, document, script_name)

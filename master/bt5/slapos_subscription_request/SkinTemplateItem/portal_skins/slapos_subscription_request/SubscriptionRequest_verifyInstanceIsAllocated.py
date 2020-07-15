@@ -7,16 +7,14 @@ software_instance_list = portal.portal_catalog(
 
 # Check if at least one software Instance is Allocated
 for instance in software_instance_list:
-  if instance.getSlapState() != "start_requested":
-    # There is something wrong.
-    return False
-
+  # All partitions should be allocated
   computer_partition = instance.getAggregateValue()
   if computer_partition is None:
     return False
 
-  if instance.getPortalType() == "Software Instance" and \
+  if instance.getPortalType() == "Software Instance":
+    if instance.getSlapState() == "start_requested" and \
       instance.SoftwareInstance_hasReportedError():
-    return False
- 
+      return False
+
 return True

@@ -23,6 +23,7 @@ else:
   computer_project_document = computer.Item_getCurrentProjectValue()
   delivery_title = tioxml_dict['title']
 
+  computer_project = None
   if computer_project_document is not None:
     computer_project = computer_project_document.getRelativeUrl()
 

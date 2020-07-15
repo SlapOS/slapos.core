@@ -1,6 +1,22 @@
 Changes
 =======
 
+1.6.0 (2020-07-15)
+------------------
+
+ * cli: Allow boot and bang commands in non-root environments
+ * collect: disable FolderSizeSnapshot for now
+ * collect: small optimization on garbage collect
+ * grid: Fix OS detection
+ * grid: Support non writable files and folders when removing software or partition directories
+ * grid: try 3 times to upload archive to binary cache
+ * prune: Several bug fixes
+ * proxy: support forwarding requests as a partition
+ * standalone: support setting multi-master in slapos.cfg
+ * testing/testcase: several bug fixes in ldd check and snapshots
+ * util: use safe variant or xml_marshaller
+ * util: introduce rmtree, a wrapper for shutil.rmtree with support for non writable files and folders
+
 1.5.12 (2020-04-07)
 -------------------
 

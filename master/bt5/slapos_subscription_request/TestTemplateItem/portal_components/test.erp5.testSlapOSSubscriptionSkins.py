@@ -1083,7 +1083,6 @@ class TestSubscriptionRequest_verifyReservationPaymentTransaction(TestSubscripti
 
 class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
 
-
   def test_no_sale_invoice(self):
     person = self.makePerson()
     subscription_request = self.newSubscriptionRequest(
@@ -1183,6 +1182,7 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
     hosting_subscription = subscription_request.getAggregateValue(portal_type="Hosting Subscription")
     self.assertNotEqual(hosting_subscription, None)
     self.assertEqual('diverged', hosting_subscription.getCausalityState())
+    self.assertEqual('start_requested', hosting_subscription.getSlapState())
 
     instance = hosting_subscription.getPredecessorValue()
     self.assertNotEqual(instance, None)
@@ -1275,3 +1275,340 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
       subscription_request.getSimulationState(),
       "confirmed"
     )
+
+class TestSubscriptionRequest_verifyInstanceIsAllocated(TestSubscriptionSkinsMixin):
+
+  @simulate('SoftwareInstance_hasReportedError', '', 'return False')
+  def test_hosting_subscription(self):
+    person = self.makePerson()
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      url_string="https://%s/software.cfg" % self.new_id,
+      sla_xml="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="oi">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    text_content="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="xx">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    root_slave=False,
+    source_reference="test_for_test_123")
+  
+    self._makeTree()
+    subscription_request.edit(
+      aggregate_value=self.hosting_subscription
+    )
+
+    # Ensure the requested instances aren't allocated
+    self.assertEqual(self.requested_software_instance.getAggregate(), None)
+    self.assertEqual(self.software_instance.getAggregate(), None)
+    
+    self.tic()
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_verifyInstanceIsAllocated(), False)
+
+  def _test_hosting_subscription(self, slave=False):
+    person = self.makePerson()
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      url_string="https://%s/software.cfg" % self.new_id,
+      sla_xml="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="oi">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    text_content="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="xx">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    root_slave=False,
+    source_reference="test_for_test_123")
+  
+    if slave:
+      self._makeSlaveTree()
+      _, p0 = self._makeComputer()
+      self.software_instance.setAggregateValue(p0)
+      self.requested_software_instance.setSpecialise(None)
+
+    else:
+      self._makeTree()
+      _, p0 = self._makeComputer()
+      _, p1 = self._makeComputer()
+
+      # Ensure the requested instances aren't allocated
+      self.requested_software_instance.setAggregateValue(p1)
+      self.software_instance.setAggregateValue(p0)
+
+    subscription_request.edit(
+      aggregate_value=self.hosting_subscription
+    )
+    self.tic()
+    return subscription_request
+
+  @simulate('SoftwareInstance_hasReportedError', '', 'return True')
+  def test_hosting_subscription_instance_with_error(self):
+    subscription_request = self._test_hosting_subscription()
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_verifyInstanceIsAllocated(), False)
+
+  @simulate('SoftwareInstance_hasReportedError', '', 'return False')
+  def test_hosting_subscription_instance_without_error(self):
+    subscription_request = self._test_hosting_subscription()
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_verifyInstanceIsAllocated(), True)
+
+  @simulate('SoftwareInstance_hasReportedError', '', 'return True')
+  def test_hosting_subscription_slave_with_error(self):
+    subscription_request = self._test_hosting_subscription(slave=True)
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_verifyInstanceIsAllocated(), True)
+
+class TestSubscriptionRequest_processConfirmed(TestSubscriptionSkinsMixin):
+
+  def test_no_hosting_subscription(self):
+    person = self.makePerson()
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      url_string="https://%s/software.cfg" % self.new_id,
+      sla_xml="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="oi">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    text_content="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="xx">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    root_slave=False,
+    source_reference="test_for_test_123")
+    subscription_request.plan()
+    subscription_request.order()
+    subscription_request.confirm()
+
+    self.tic()
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_processConfirmed(), None)
+    self.tic()
+
+    self.assertEqual(subscription_request.getSimulationState(), "confirmed")
+
+  @simulate('SubscriptionRequest_testPaymentBalance', '', 'return False')
+  def test_hosting_subscription_is_stopped_due_unpaid_invoice(self):
+    person = self.makePerson()
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      url_string="https://%s/software.cfg" % self.new_id,
+      sla_xml="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="oi">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    text_content="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="xx">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    root_slave=False,
+    source_reference="test_for_test_123")
+    subscription_request.plan()
+    subscription_request.order()
+    subscription_request.confirm()
+  
+    self._makeTree()
+
+    subscription_request.edit(
+      aggregate_value=self.hosting_subscription
+    )
+
+    self.tic()
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_processConfirmed(), None)
+    self.tic()
+
+    self.assertEqual(subscription_request.getSimulationState(), "confirmed")
+    self.assertEqual(self.hosting_subscription.getSlapState(), "stop_requested")
+
+  @simulate('SubscriptionRequest_testPaymentBalance', '', 'return True')
+  def test_hosting_subscription_is_started_due_paid_invoice(self):
+    person = self.makePerson()
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      url_string="https://%s/software.cfg" % self.new_id,
+      sla_xml="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="oi">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    text_content="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="xx">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    root_slave=False,
+    source_reference="test_for_test_123")
+    subscription_request.plan()
+    subscription_request.order()
+    subscription_request.confirm()
+  
+    self._makeTree()
+
+    subscription_request.edit(
+      aggregate_value=self.hosting_subscription
+    )
+
+    self.portal.portal_workflow._jumpToStateFor(self.hosting_subscription, 'stop_requested')
+
+    self.tic()
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_processConfirmed(), None)
+    self.tic()
+
+    self.assertEqual(subscription_request.getSimulationState(), "confirmed")
+    self.assertEqual(self.hosting_subscription.getSlapState(), "start_requested")
+
+
+class TestSubscriptionRequest_processStarted(TestSubscriptionSkinsMixin):
+
+  def test_no_hosting_subscription(self):
+    person = self.makePerson()
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      url_string="https://%s/software.cfg" % self.new_id,
+      sla_xml="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="oi">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    text_content="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="xx">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    root_slave=False,
+    source_reference="test_for_test_123")
+    subscription_request.plan()
+    subscription_request.order()
+    subscription_request.confirm()
+    subscription_request.start()
+
+    self.tic()
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_processStarted(), None)
+    self.tic()
+
+    self.assertEqual(subscription_request.getSimulationState(), "started")
+
+
+  def test_hosting_subscription_started(self):
+    person = self.makePerson()
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      url_string="https://%s/software.cfg" % self.new_id,
+      sla_xml="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="oi">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    text_content="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="xx">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    root_slave=False,
+    source_reference="test_for_test_123")
+    subscription_request.plan()
+    subscription_request.order()
+    subscription_request.confirm()
+    subscription_request.start()
+  
+    self._makeTree()
+
+    subscription_request.edit(
+      aggregate_value=self.hosting_subscription
+    )
+
+    self.tic()
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_processStarted(), None)
+    self.tic()
+
+    self.assertEqual(subscription_request.getSimulationState(), "started")
+
+  def test_hosting_subscription_stopped(self):
+    person = self.makePerson()
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      url_string="https://%s/software.cfg" % self.new_id,
+      sla_xml="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="oi">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    text_content="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="xx">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    root_slave=False,
+    source_reference="test_for_test_123")
+    subscription_request.plan()
+    subscription_request.order()
+    subscription_request.confirm()
+    subscription_request.start()
+  
+    self._makeTree()
+
+    subscription_request.edit(
+      aggregate_value=self.hosting_subscription
+    )
+
+    self.portal.portal_workflow._jumpToStateFor(self.hosting_subscription, 'stop_requested')
+
+    self.tic()
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_processStarted(), None)
+    self.tic()
+
+    self.assertEqual(subscription_request.getSimulationState(), "started")
+
+  def test_hosting_subscription_destroyed(self):
+    person = self.makePerson()
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      url_string="https://%s/software.cfg" % self.new_id,
+      sla_xml="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="oi">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    text_content="""<?xml version="1.0" encoding="utf-8"?>
+<instance>
+  <parameter id="xx">couscous</parameter>
+  <parameter id="zz">yy</parameter>
+</instance>""",
+    root_slave=False,
+    source_reference="test_for_test_123")
+    subscription_request.plan()
+    subscription_request.order()
+    subscription_request.confirm()
+    subscription_request.start()
+  
+    self._makeTree()
+
+    subscription_request.edit(
+      aggregate_value=self.hosting_subscription
+    )
+
+    self.portal.portal_workflow._jumpToStateFor(self.hosting_subscription, 'destroy_requested')
+
+    self.tic()
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_processStarted(), None)
+    self.tic()
+
+    self.assertEqual(subscription_request.getSimulationState(), "stopped")

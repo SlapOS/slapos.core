@@ -149,7 +149,7 @@ Accounting Transaction Module
   Acquire Local Roles: 1
   Property Sheets: []
   Base Categories: ['business_application']
-  Allowed Content Types: ['Accounting Transaction', 'Balance Transaction', 'Payment Transaction', 'Purchase Invoice Transaction', 'Sale Invoice Transaction']
+  Allowed Content Types: ['Accounting Transaction', 'Amortisation Transaction', 'Balance Transaction', 'Payment Transaction', 'Purchase Invoice Transaction', 'Sale Invoice Transaction']
   Hidden Content Types: ['Balance Transaction']
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -345,6 +345,45 @@ Alarm Tool
   Property Sheets: []
   Base Categories: []
   Allowed Content Types: ['Alarm']
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Amortisation Rule
+  Short Title: None
+  Class: AmortisationRule
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: 1
+  Property Sheets: []
+  Base Categories: []
+  Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Amortisation Transaction
+  Short Title: None
+  Class: AccountingTransaction
+  Init Script: 
+  Add Permission: 
+  Acquire Local Roles: 1
+  Property Sheets: []
+  Base Categories: []
+  Allowed Content Types: ['Amortisation Transaction Line']
+  Hidden Content Types: []
+  Searchable Property: ['comment', 'description', 'destination_reference', 'reference', 'source_reference', 'title']
+  Searchable Method: []
+
+Amortisation Transaction Line
+  Short Title: None
+  Class: AccountingTransactionLine
+  Init Script: 
+  Add Permission: 
+  Acquire Local Roles: 1
+  Property Sheets: []
+  Base Categories: []
+  Allowed Content Types: []
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -1137,7 +1176,7 @@ Component Tool
   Acquire Local Roles: 0
   Property Sheets: []
   Base Categories: []
-  Allowed Content Types: ['Document Component', 'Extension Component', 'Interface Component', 'Mixin Component', 'Test Component']
+  Allowed Content Types: ['Document Component', 'Extension Component', 'Interface Component', 'Mixin Component', 'Module Component', 'Test Component', 'Tool Component']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -1631,7 +1670,7 @@ Delivery Builder
   Acquire Local Roles: 1
   Property Sheets: []
   Base Categories: []
-  Allowed Content Types: ['Base Variant Movement Group', 'Category Movement Group', 'Causality Assignment Movement Group', 'Causality Movement Group', 'Day Movement Group', 'Delivery Causality Assignment Movement Group', 'First Causality Movement Group', 'Invoice Movement Group', 'Monthly Range Movement Group', 'Nested Line Movement Group', 'Order Movement Group', 'Parent Delivery Property Movement Group', 'Parent Explanation Movement Group', 'Predicate', 'Previous Causality Movement Group', 'Property Assignment Movement Group', 'Property Grouping Movement Group', 'Property Movement Group', 'Quantity Sign Movement Group', 'Requirement Movement Group', 'Root Applied Rule Causality Movement Group', 'Split Movement Group', 'Title Movement Group', 'Variant Movement Group', 'Variation Property Movement Group']
+  Allowed Content Types: ['Base Variant Movement Group', 'Category Movement Group', 'Causality Assignment Movement Group', 'Causality Movement Group', 'Day Movement Group', 'Delivery Causality Assignment Movement Group', 'First Causality Movement Group', 'Invoice Movement Group', 'Monthly Range Movement Group', 'Nested Line Movement Group', 'Order Movement Group', 'Parent Delivery Property Movement Group', 'Parent Explanation Movement Group', 'Predicate', 'Previous Causality Movement Group', 'Property Assignment Movement Group', 'Property Grouping Movement Group', 'Property Movement Group', 'Quantity Sign Movement Group', 'Requirement Movement Group', 'Root Applied Rule Causality Causality Movement Group', 'Root Applied Rule Causality Movement Group', 'Split Movement Group', 'Title Movement Group', 'Variant Movement Group', 'Variation Property Movement Group']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -1789,7 +1828,7 @@ Document Component
   Base Categories: []
   Allowed Content Types: []
   Hidden Content Types: []
-  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Property: ['description', 'id', 'reference', 'text_content']
   Searchable Method: []
 
 Document Ingestion Message
@@ -1914,7 +1953,7 @@ ERP5 Form
   Class: ERP5Form
   Init Script: None
   Add Permission: None
-  Acquire Local Roles: False
+  Acquire Local Roles: 1
   Property Sheets: []
   Base Categories: []
   Allowed Content Types: []
@@ -2023,7 +2062,7 @@ Extension Component
   Base Categories: []
   Allowed Content Types: []
   Hidden Content Types: []
-  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Property: ['description', 'id', 'reference', 'text_content']
   Searchable Method: []
 
 External Identifier
@@ -2364,6 +2403,45 @@ Image Module
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
+Immobilisation
+  Short Title: None
+  Class: Immobilisation
+  Init Script: 
+  Add Permission: 
+  Acquire Local Roles: 1
+  Property Sheets: []
+  Base Categories: []
+  Allowed Content Types: ['Immobilisation Line']
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Immobilisation Line
+  Short Title: None
+  Class: ImmobilisationLine
+  Init Script: 
+  Add Permission: 
+  Acquire Local Roles: 1
+  Property Sheets: []
+  Base Categories: []
+  Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Immobilisation Module
+  Short Title: None
+  Class: Folder
+  Init Script: 
+  Add Permission: 
+  Acquire Local Roles: 1
+  Property Sheets: []
+  Base Categories: ['business_application']
+  Allowed Content Types: ['Immobilisation']
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
 Implicit Item Movement
   Short Title: None
   Class: ImplicitItemMovement
@@ -2517,7 +2595,7 @@ Interface Component
   Base Categories: []
   Allowed Content Types: []
   Hidden Content Types: []
-  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Property: ['description', 'id', 'reference', 'text_content']
   Searchable Method: []
 
 Internal Invoice Transaction
@@ -2684,8 +2762,8 @@ Internal Supply Line
   Acquire Local Roles: 1
   Property Sheets: []
   Base Categories: []
-  Allowed Content Types: ['Internal Supply Cell', 'Predicate']
-  Hidden Content Types: ['Internal Supply Cell', 'Predicate']
+  Allowed Content Types: ['Internal Supply Cell', 'Link', 'Predicate']
+  Hidden Content Types: ['Internal Supply Cell', 'Link', 'Predicate']
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
@@ -3167,7 +3245,20 @@ Mixin Component
   Base Categories: []
   Allowed Content Types: []
   Hidden Content Types: []
-  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Property: ['description', 'id', 'reference', 'text_content']
+  Searchable Method: []
+
+Module Component
+  Short Title: None
+  Class: ModuleComponent
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: 0
+  Property Sheets: ['SortIndex']
+  Base Categories: []
+  Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'id', 'reference', 'text_content']
   Searchable Method: []
 
 Monthly Range Movement Group
@@ -3839,7 +3930,7 @@ Preference
   Init Script: None
   Add Permission: None
   Acquire Local Roles: 0
-  Property Sheets: ['AccountingPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'SlapOSWechatSystemPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
+  Property Sheets: ['AccountingPreference', 'AuthenticationPolicyPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'SlapOSWechatSystemPreference', 'SyncMLPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
   Base Categories: []
   Allowed Content Types: ['Accounting Transaction', 'Knowledge Pad', 'Payment Transaction', 'Purchase Invoice Transaction', 'Purchase Order', 'Sale Invoice Transaction', 'Sale Order', 'Support Request']
   Hidden Content Types: ['Accounting Transaction', 'Knowledge Pad', 'Payment Transaction', 'Purchase Invoice Transaction', 'Sale Invoice Transaction', 'Sale Order', 'Support Request']
@@ -3865,7 +3956,7 @@ Preference Tool
   Init Script: 
   Add Permission: 
   Acquire Local Roles: 1
-  Property Sheets: ['AccountingPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'SlapOSWechatSystemPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
+  Property Sheets: ['AccountingPreference', 'AuthenticationPolicyPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'SlapOSWechatSystemPreference', 'SyncMLPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
   Base Categories: []
   Allowed Content Types: ['Preference', 'System Preference']
   Hidden Content Types: []
@@ -3943,9 +4034,9 @@ Product Individual Variation
   Init Script: IndividualVariation_init
   Add Permission: 
   Acquire Local Roles: 1
-  Property Sheets: []
+  Property Sheets: ['DefaultImage', 'Reference']
   Base Categories: []
-  Allowed Content Types: []
+  Allowed Content Types: ['Embedded File']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -3969,16 +4060,16 @@ Project
   Init Script: Project_init
   Add Permission: None
   Acquire Local Roles: 0
-  Property Sheets: ['Codification']
+  Property Sheets: ['Codification', 'Project']
   Base Categories: ['predecessor', 'requirement']
-  Allowed Content Types: ['File', 'Image', 'Project Line', 'Project Milestone']
+  Allowed Content Types: ['File', 'Image', 'Link', 'Project Line', 'Project Milestone']
   Hidden Content Types: ['File', 'Image']
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
 Project Cell
   Short Title: None
-  Class: BudgetCell
+  Class: OrderCell
   Init Script: None
   Add Permission: None
   Acquire Local Roles: 1
@@ -4279,12 +4370,12 @@ Purchase Supply Line
   Short Title: None
   Class: SupplyLine
   Init Script: PurchaseSupplyLine_init
-  Add Permission: 
+  Add Permission: None
   Acquire Local Roles: 1
   Property Sheets: []
   Base Categories: []
-  Allowed Content Types: ['Predicate', 'Purchase Supply Cell']
-  Hidden Content Types: ['Predicate', 'Purchase Supply Cell']
+  Allowed Content Types: ['Link', 'Predicate', 'Purchase Supply Cell']
+  Hidden Content Types: ['Link', 'Predicate', 'Purchase Supply Cell']
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
@@ -4847,6 +4938,19 @@ Role Information
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
+Root Applied Rule Causality Causality Movement Group
+  Short Title: None
+  Class: RootAppliedRuleCausalityCausalityMovementGroup
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: 1
+  Property Sheets: []
+  Base Categories: []
+  Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
 Root Applied Rule Causality Movement Group
   Short Title: None
   Class: RootAppliedRuleCausalityMovementGroup
@@ -5137,12 +5241,12 @@ Sale Supply Line
   Short Title: None
   Class: SupplyLine
   Init Script: SaleSupplyLine_init
-  Add Permission: 
+  Add Permission: None
   Acquire Local Roles: 1
   Property Sheets: []
   Base Categories: ['aggregate']
-  Allowed Content Types: ['Predicate', 'Sale Supply Cell']
-  Hidden Content Types: ['Predicate', 'Sale Supply Cell']
+  Allowed Content Types: ['Link', 'Predicate', 'Sale Supply Cell']
+  Hidden Content Types: ['Link', 'Predicate', 'Sale Supply Cell']
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
@@ -5427,7 +5531,7 @@ SlapOS Accounting Quantity Updating Order Builder
   Acquire Local Roles: 1
   Property Sheets: []
   Base Categories: []
-  Allowed Content Types: ['Base Variant Movement Group', 'Category Movement Group', 'Causality Assignment Movement Group', 'Causality Movement Group', 'Day Movement Group', 'Delivery Causality Assignment Movement Group', 'Monthly Range Movement Group', 'Nested Line Movement Group', 'Order Movement Group', 'Parent Delivery Category Movement Group', 'Parent Delivery Property Movement Group', 'Parent Explanation Movement Group', 'Predicate', 'Property Assignment Movement Group', 'Property Movement Group', 'Quantity Sign Movement Group', 'Requirement Movement Group', 'Root Applied Rule Causality Movement Group', 'Split Movement Group', 'Title Movement Group', 'Variant Movement Group', 'Variation Property Movement Group']
+  Allowed Content Types: ['Base Variant Movement Group', 'Category Movement Group', 'Causality Assignment Movement Group', 'Causality Movement Group', 'Day Movement Group', 'Delivery Causality Assignment Movement Group', 'Monthly Range Movement Group', 'Nested Line Movement Group', 'Order Movement Group', 'Parent Delivery Property Movement Group', 'Parent Explanation Movement Group', 'Predicate', 'Property Assignment Movement Group', 'Property Movement Group', 'Quantity Sign Movement Group', 'Requirement Movement Group', 'Root Applied Rule Causality Movement Group', 'Split Movement Group', 'Title Movement Group', 'Variant Movement Group', 'Variation Property Movement Group']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -5802,7 +5906,7 @@ Static Web Section
   Init Script: WebSection_init
   Add Permission: None
   Acquire Local Roles: 0
-  Property Sheets: ['SortIndex']
+  Property Sheets: ['SortIndex', 'WebSectionUpgradeConstraint']
   Base Categories: ['aggregate', 'caching_policy']
   Allowed Content Types: ['File', 'Image', 'Role Definition']
   Hidden Content Types: []
@@ -5815,7 +5919,7 @@ Static Web Site
   Init Script: StaticWebSite_init
   Add Permission: None
   Acquire Local Roles: 0
-  Property Sheets: ['WebSitePreference']
+  Property Sheets: ['WebSectionUpgradeConstraint', 'WebSitePreference']
   Base Categories: ['aggregate', 'caching_policy']
   Allowed Content Types: []
   Hidden Content Types: []
@@ -5893,7 +5997,7 @@ Subscription Request
   Init Script: SubscriptionRequest_init
   Add Permission: None
   Acquire Local Roles: False
-  Property Sheets: ['Amount', 'CredentialRequest', 'HostingSubscription', 'Person', 'Price', 'Reference', 'SlapOSAccountingHostingSubscriptionConstraint', 'SlaposHostingSubscriptionConstraint', 'SoftwareInstance', 'Task', 'TextDocument', 'Url', 'VariationRange']
+  Property Sheets: ['Amount', 'CredentialRequest', 'DublinCore', 'HostingSubscription', 'Person', 'Price', 'Reference', 'SlapOSAccountingHostingSubscriptionConstraint', 'SlaposHostingSubscriptionConstraint', 'SoftwareInstance', 'Task', 'TextDocument', 'Url', 'VariationRange']
   Base Categories: ['aggregate', 'causality', 'destination_section', 'source_section', 'specialise']
   Allowed Content Types: ['Email']
   Hidden Content Types: ['Email']
@@ -5930,12 +6034,12 @@ Supply Line
   Short Title: None
   Class: SupplyLine
   Init Script: SupplyLine_init
-  Add Permission: 
+  Add Permission: None
   Acquire Local Roles: 1
   Property Sheets: []
   Base Categories: []
-  Allowed Content Types: ['Predicate', 'Supply Cell']
-  Hidden Content Types: ['Predicate', 'Supply Cell']
+  Allowed Content Types: ['Link', 'Predicate', 'Supply Cell']
+  Hidden Content Types: ['Link', 'Predicate', 'Supply Cell']
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
@@ -5965,6 +6069,58 @@ Support Request Module
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
+SyncML Conflict
+  Short Title: None
+  Class: SyncMLConflict
+  Init Script: None
+  Add Permission: Add portal content
+  Acquire Local Roles: 1
+  Property Sheets: []
+  Base Categories: []
+  Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+SyncML Publication
+  Short Title: None
+  Class: SyncMLPublication
+  Init Script: SyncMLPublication_init
+  Add Permission: Add portal content
+  Acquire Local Roles: False
+  Property Sheets: []
+  Base Categories: []
+  Allowed Content Types: ['SyncML Subscription']
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+SyncML Signature
+  Short Title: None
+  Class: SyncMLSignature
+  Init Script: None
+  Add Permission: Add portal content
+  Acquire Local Roles: 1
+  Property Sheets: []
+  Base Categories: []
+  Allowed Content Types: ['SyncML Conflict']
+  Hidden Content Types: ['SyncML Conflict']
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+SyncML Subscription
+  Short Title: None
+  Class: SyncMLSubscription
+  Init Script: SyncMLSubscription_init
+  Add Permission: Add portal content
+  Acquire Local Roles: False
+  Property Sheets: []
+  Base Categories: []
+  Allowed Content Types: ['SyncML Signature']
+  Hidden Content Types: ['SyncML Signature']
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
 Synchronization Configurator Item
   Short Title: None
   Class: Item
@@ -5974,6 +6130,19 @@ Synchronization Configurator Item
   Property Sheets: ['SortIndex', 'SynchronizationConfiguratorItem']
   Base Categories: ['destination_section', 'source_decision', 'source_section']
   Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Synchronization Tool
+  Short Title: None
+  Class: SynchronizationTool
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: 0
+  Property Sheets: []
+  Base Categories: []
+  Allowed Content Types: ['SyncML Publication', 'SyncML Subscription']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -5997,7 +6166,7 @@ System Preference
   Init Script: SystemPreference_init
   Add Permission: Manage portal
   Acquire Local Roles: 0
-  Property Sheets: ['AccountingPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'SlapOSWechatSystemPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
+  Property Sheets: ['AccountingPreference', 'AuthenticationPolicyPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'SlapOSWechatSystemPreference', 'SyncMLPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
   Base Categories: []
   Allowed Content Types: ['Knowledge Pad']
   Hidden Content Types: []
@@ -6157,7 +6326,7 @@ Test Component
   Base Categories: []
   Allowed Content Types: []
   Hidden Content Types: []
-  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Property: ['description', 'id', 'reference', 'text_content']
   Searchable Method: []
 
 Test Page
@@ -6223,6 +6392,19 @@ Title Movement Group
   Allowed Content Types: []
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Tool Component
+  Short Title: None
+  Class: ToolComponent
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: 0
+  Property Sheets: ['SortIndex']
+  Base Categories: []
+  Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'id', 'reference', 'text_content']
   Searchable Method: []
 
 Trade Model Cell
@@ -6506,7 +6688,7 @@ Types Tool
   Acquire Local Roles: 0
   Property Sheets: []
   Base Categories: []
-  Allowed Content Types: ['Base Type', 'Gadget Type']
+  Allowed Content Types: ['Base Type', 'Gadget Type', 'Preference Tool Type', 'Preference Type']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -6738,7 +6920,7 @@ Web Section
   Init Script: WebSection_init
   Add Permission: 
   Acquire Local Roles: 0
-  Property Sheets: ['SortIndex']
+  Property Sheets: ['SortIndex', 'WebSectionUpgradeConstraint']
   Base Categories: ['aggregate', 'caching_policy']
   Allowed Content Types: ['File', 'Image', 'Role Definition', 'Static Web Section', 'Web Section']
   Hidden Content Types: []
@@ -6803,7 +6985,7 @@ Web Site
   Init Script: WebSite_init
   Add Permission: 
   Acquire Local Roles: 0
-  Property Sheets: ['WebSitePreference']
+  Property Sheets: ['WebSectionUpgradeConstraint', 'WebSitePreference', 'WebSiteRenderJSUpgradeConstraint']
   Base Categories: ['aggregate', 'caching_policy']
   Allowed Content Types: ['File', 'Image', 'Role Definition', 'Static Web Section', 'Text', 'Web Section']
   Hidden Content Types: []

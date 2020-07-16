@@ -14,7 +14,7 @@ Account
   Action: string:${portal_url}/accounting_module/AccountingTransactionModule_viewGroupingFastInputDialog?reset:int=1&node=${here/getRelativeUrl}
   Icon: string:${portal_url}/letter.png
   Permission: View
-  Action Type: object_button
+  Action Type: object_jio_button
   Visible: 1
   Index: 7.0
 
@@ -124,7 +124,7 @@ Accounting Period
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&portal_type:list=Balance+Transaction
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 1.0
 
@@ -324,7 +324,7 @@ Accounting Transaction Module
   Action: string:${object_url}/AccountingTransactionModule_viewAccountingLineReportReportDialog?your_portal_skin=ODS&your_format=
   Icon: None
   Permission: View
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 46.0
 
@@ -369,12 +369,22 @@ Accounting Transaction Module
   Index: 14.0
 
 Accounting Transaction Module
+  Reference: build_amortisation
+  Title: Build Amortisation
+  Action: string:${object_url}/AccountingTransactionModule_beforeBuildAmortisationTransactionDialogScript
+  Icon: None
+  Permission: Modify portal content
+  Action Type: object_action
+  Visible: 1
+  Index: 24.0
+
+Accounting Transaction Module
   Reference: create_related_payments
   Title: Create Related Payments
   Action: string:${object_url}/AccountingTransactionModule_viewCreateRelatedPaymentTransactionListDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 25.0
 
@@ -384,7 +394,7 @@ Accounting Transaction Module
   Action: string:${object_url}/AccountingTransactionModule_viewCreateReversalTransactionListDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 35.0
 
@@ -444,7 +454,7 @@ Accounting Transaction Module
   Action: string:${object_url}/AccountingTransactionModule_viewGroupingFastInputDialog?reset:int=1
   Icon: string:${portal_url}/letter.png
   Permission: View
-  Action Type: object_button
+  Action Type: object_jio_button
   Visible: 1
   Index: 4.5
 
@@ -454,7 +464,7 @@ Accounting Transaction Module
   Action: string:${object_url}/AccountingTransactionModule_viewInvoiceReportDialog?your_portal_skin=ODS&your_format=
   Icon: None
   Permission: View
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 32.0
 
@@ -464,7 +474,7 @@ Accounting Transaction Module
   Action: string:${object_url}/AccountingTransactionModule_viewInvoiceReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 32.0
 
@@ -474,7 +484,7 @@ Accounting Transaction Module
   Action: string:${object_url}/AccountingTransactionModule_viewJournalDialog?your_portal_skin=ODS&your_format=
   Icon: None
   Permission: View
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 11.0
 
@@ -547,6 +557,16 @@ Accounting Transaction Module
   Action Type: object_search
   Visible: 1
   Index: 3.0
+
+Accounting Transaction Module
+  Reference: select_items_to_build_amortisation_transactions
+  Title: Select items to build Amortisation Transactions
+  Action: string:${object_url}/AccountingTransactionModule_buildAmortisationTransactionSelectItemListDialog
+  Icon: None
+  Permission: Modify portal content
+  Action Type: object_action
+  Visible: 0
+  Index: 25.0
 
 Accounting Transaction Module
   Reference: slaposjs_view
@@ -858,6 +878,56 @@ Alarm Tool
   Visible: 1
   Index: 1.0
 
+Amortisation Rule
+  Reference: view
+  Title: View
+  Action: string:${object_url}/Rule_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Amortisation Transaction
+  Reference: causality_report
+  Title: Report
+  Action: string:${object_url}/AmortisationTransaction_viewAsPDF
+  Icon: None
+  Permission: View
+  Action Type: object_report
+  Visible: 1
+  Index: 10.0
+
+Amortisation Transaction
+  Reference: jump_causality_items
+  Title: Jump to Related Items
+  Action: string:${object_url}/AmortisationTransaction_jumpToRelatedItem
+  Icon: None
+  Permission: View
+  Action Type: object_jump
+  Visible: 1
+  Index: 2.0
+
+Amortisation Transaction
+  Reference: view
+  Title: View
+  Action: string:${object_url}/AccountingTransaction_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Amortisation Transaction Line
+  Reference: view
+  Title: View
+  Action: string:${object_url}/AccountingTransactionLine_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
 Application Id Generator
   Reference: view
   Title: View
@@ -961,10 +1031,10 @@ Authentication Event
 Balance Transaction
   Reference: add_accounting_transaction_line
   Title: Add Accounting Transaction Lines
-  Action: string:${object_url}/AccountingTransaction_viewAddAccountingTransactionLineDialog?your_line_portal_type=Balance+Transaction+Line
+  Action: string:${object_url}/AccountingTransaction_viewAddAccountingTransactionLineDialog?line_portal_type=Balance+Transaction+Line
   Icon: None
   Permission: Add portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 20.0
 
@@ -1134,7 +1204,7 @@ Bug
   Action: string:${object_url}/Bug_viewBugLineSendFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 1.0
 
@@ -1154,7 +1224,7 @@ Bug
   Action: string:${object_url}/Bug_viewNewFileDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 3.0
 
@@ -1184,7 +1254,7 @@ Bug Line
   Action: string:${object_url}/Bug_viewNewFileDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 3.0
 
@@ -1294,7 +1364,7 @@ Business Template
   Action: string:${object_url}/BusinessTemplate_viewCheckPythonCodeDialog
   Icon: None
   Permission: Manage portal
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 12.0
 
@@ -1356,7 +1426,7 @@ Business Template
   Permission: Manage portal
   Action Type: object_jio_exchange
   Visible: 1
-  Index: 8.0
+  Index: 7.0
 
 Business Template
   Reference: get_portal_type_properties
@@ -1436,7 +1506,7 @@ Business Template
   Permission: Manage portal
   Action Type: object_jio_exchange
   Visible: 1
-  Index: 7.0
+  Index: 8.0
 
 Business Template
   Reference: svn_cleanup_locks
@@ -1594,7 +1664,7 @@ Campaign
   Action: string:${object_url}/Ticket_viewCloneTicketAndEventListDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 12.0
 
@@ -1614,7 +1684,7 @@ Campaign
   Action: string:${object_url}/Base_viewNewFileDialog
   Icon: string:${portal_url}/images/attach.png
   Permission: View
-  Action Type: object_button
+  Action Type: object_jio_button
   Visible: 1
   Index: 13.0
 
@@ -1654,7 +1724,7 @@ Campaign
   Action: string:${object_url}/Ticket_viewNewEventDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 10.0
 
@@ -1694,7 +1764,7 @@ Campaign Module
   Action: string:${object_url}/Folder_viewTicketDetailedReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 15.0
 
@@ -1704,7 +1774,7 @@ Campaign Module
   Action: string:${object_url}/Folder_viewTicketStatusReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 10.0
 
@@ -2184,7 +2254,7 @@ Component
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=resource&portal_type=Transformation
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 5.0
 
@@ -2229,12 +2299,32 @@ Component
   Index: 1.5
 
 Component
-  Reference: view_stock
-  Title: Stock
-  Action: string:${object_url}/Resource_viewInventory?reset=1
+  Reference: view_movement_history
+  Title: Movement History
+  Action: string:${object_url}/Resource_viewMovementHistoryDialog
   Icon: None
   Permission: View
-  Action Type: object_view
+  Action Type: object_jio_view
+  Visible: 1
+  Index: 3.0
+
+Component
+  Reference: view_stock
+  Title: Stock
+  Action: string:${object_url}/Resource_viewInventoryDialog?reset=1
+  Icon: None
+  Permission: View
+  Action Type: object_report
+  Visible: 1
+  Index: 4.0
+
+Component
+  Reference: view_stock_jio
+  Title: Stock
+  Action: string:${object_url}/Resource_viewInventoryDialog?reset=1
+  Icon: None
+  Permission: View
+  Action Type: object_onlyjio_view
   Visible: 1
   Index: 4.0
 
@@ -2247,16 +2337,6 @@ Component Individual Variation
   Action Type: object_view
   Visible: 1
   Index: 1.0
-
-Component Module
-  Reference: converted_inventory_report
-  Title: Converted Inventory Report
-  Action: string:${object_url}/ResourceModule_viewConvertedInventoryReportDialog
-  Icon: None
-  Permission: View
-  Action Type: object_report
-  Visible: 1
-  Index: 2.0
 
 Component Module
   Reference: jump_to_related_sale_packing_list
@@ -2664,7 +2744,7 @@ Container
   Action: string:${object_url}/Delivery_checkConsistencyForDeliveryFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 1.0
 
@@ -2744,7 +2824,7 @@ Contribution Tool
   Action: string:${object_url}/Base_viewContributeFileDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 3.0
 
@@ -3028,16 +3108,6 @@ Delivery Causality Assignment Movement Group
   Visible: 1
   Index: 1.0
 
-Delivery Cell
-  Reference: view
-  Title: View
-  Action: string:${object_url}/DeliveryCell_view
-  Icon: None
-  Permission: View
-  Action Type: object_view
-  Visible: 1
-  Index: 1.0
-
 Delivery Node
   Reference: view
   Title: View
@@ -3208,6 +3278,16 @@ Document Component
   Visible: 1
   Index: 1.0
 
+Document Component
+  Reference: web_view
+  Title: View
+  Action: string:${object_url}/ComponentMixin_viewAsWeb
+  Icon: None
+  Permission: View
+  Action Type: object_onlyjio_view
+  Visible: 1
+  Index: 2.0
+
 Document Ingestion Message
   Reference: view
   Title: View
@@ -3334,7 +3414,7 @@ Drawing
   Action: string:${object_url}/OOoDocument_viewOOoFileDialog
   Icon: None
   Permission: View
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 20.0
 
@@ -3354,7 +3434,7 @@ Drawing
   Action: string:${object_url}/File_viewUploadDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 50.0
 
@@ -3454,7 +3534,7 @@ Drawing
   Action: string:${object_url}/OOoDocument_print
   Icon: None
   Permission: View
-  Action Type: object_print
+  Action Type: object_jio_print
   Visible: 1
   Index: 10.0
 
@@ -3474,7 +3554,7 @@ Drawing
   Action: string:${object_url}/Document_viewUpdateContentFromURLDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 10.0
 
@@ -3539,6 +3619,16 @@ ERP5 Login
   Index: 1.0
 
 ERP5 Login
+  Reference: unblock_user_login
+  Title: Unblock User Login
+  Action: string:${object_url}/Login_unblockLogin
+  Icon: None
+  Permission: View
+  Action Type: object_jio_action
+  Visible: 1
+  Index: 25.0
+
+ERP5 Login
   Reference: view
   Title: View
   Action: string:${object_url}/Login_view
@@ -3554,7 +3644,7 @@ Email
   Action: string:${object_url}/Base_viewChangeIdDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 2.0
 
@@ -3574,7 +3664,7 @@ Embedded File
   Action: string:${object_url}/Base_download
   Icon: None
   Permission: View
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 4.0
 
@@ -3594,7 +3684,7 @@ Embedded File
   Action: string:${object_url}/File_viewUploadDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 0
   Index: 25.0
 
@@ -3644,7 +3734,7 @@ Event Module
   Action: string:${object_url}/EventModule_viewEventActivityReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 10.0
 
@@ -3654,7 +3744,7 @@ Event Module
   Action: string:${object_url}/EventModule_viewEventDetailedReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 20.0
 
@@ -3674,7 +3764,7 @@ Event Module
   Action: string:${object_url}/Folder_generateWorkflowReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 41.0
 
@@ -3697,6 +3787,16 @@ Extension Component
   Action Type: object_view
   Visible: 1
   Index: 1.0
+
+Extension Component
+  Reference: web_view
+  Title: View
+  Action: string:${object_url}/ComponentMixin_viewAsWeb
+  Icon: None
+  Permission: View
+  Action Type: object_onlyjio_view
+  Visible: 1
+  Index: 2.0
 
 External Identifier
   Reference: view
@@ -3794,7 +3894,7 @@ Fax Message
   Action: string:${object_url}/Event_viewCreateResponseDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 5.0
 
@@ -3844,7 +3944,7 @@ File
   Action: string:${object_url}/File_viewUploadDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 5.0
 
@@ -3934,7 +4034,7 @@ File
   Action: string:${object_url}/Document_viewUpdateContentFromURLDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 10.0
 
@@ -4104,7 +4204,7 @@ Geographical Location
   Action: string:${object_url}/GeographicalLocation_redirectToLocation
   Icon: None
   Permission: View
-  Action Type: object_view
+  Action Type: object_jump
   Visible: 1
   Index: 2.0
 
@@ -4414,7 +4514,7 @@ Image
   Action: string:${object_url}/Base_viewChangeIdDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 2.0
 
@@ -4444,7 +4544,7 @@ Image
   Action: string:${object_url}/File_viewUploadDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 25.0
 
@@ -4544,7 +4644,7 @@ Image
   Action: string:${object_url}/Document_viewUpdateContentFromURLDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 10.0
 
@@ -4617,6 +4717,96 @@ Image Module
   Action Type: object_view
   Visible: 1
   Index: 10.0
+
+Immobilisation
+  Reference: immobilisation_validity_errors
+  Title: Immobilisation Validity Errors
+  Action: string:${object_url}/Immobilisation_viewValidityErrors
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 3.0
+
+Immobilisation
+  Reference: view
+  Title: View
+  Action: string:${object_url}/Immobilisation_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Immobilisation Line
+  Reference: eu_linear_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_euLinearAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Immobilisation Line
+  Reference: eu_no_amortisation_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_euNoAmortisationAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Immobilisation Line
+  Reference: fr_actual_use_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frActualUseAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Immobilisation Line
+  Reference: fr_degressive_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frDegressiveAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Immobilisation Line
+  Reference: fr_uncontinuous_degressive_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frUncontinuousDegressiveAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Immobilisation Line
+  Reference: view
+  Title: View
+  Action: string:${object_url}/ImmobilisationLine_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Immobilisation Module
+  Reference: view
+  Title: View
+  Action: string:${object_url}/ImmobilisationModule_viewImmobilisationList
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
 
 Implicit Item Movement
   Reference: view
@@ -4858,13 +5048,23 @@ Interface Component
   Visible: 1
   Index: 1.0
 
+Interface Component
+  Reference: web_view
+  Title: View
+  Action: string:${object_url}/ComponentMixin_viewAsWeb
+  Icon: None
+  Permission: View
+  Action Type: object_onlyjio_view
+  Visible: 1
+  Index: 2.0
+
 Internal Invoice Transaction
   Reference: add_internal_invoice_transaction_line
   Title: Add Accounting Transaction Lines
   Action: string:${object_url}/AccountingTransaction_viewAddAccountingTransactionLineDialog?line_portal_type=Internal+Invoice+Transaction+Line
   Icon: None
   Permission: Add portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 11.0
 
@@ -4874,7 +5074,7 @@ Internal Invoice Transaction
   Action: string:${object_url}/AccountingTransaction_viewConvertDestinationPriceDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 15.0
 
@@ -4884,7 +5084,7 @@ Internal Invoice Transaction
   Action: string:${object_url}/AccountingTransaction_viewConvertSourcePriceDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 16.0
 
@@ -4894,7 +5094,7 @@ Internal Invoice Transaction
   Action: string:${object_url}/Base_viewNewFileDialog
   Icon: string:${portal_url}/images/attach.png
   Permission: View
-  Action Type: object_button
+  Action Type: object_jio_button
   Visible: 1
   Index: 14.0
 
@@ -4904,7 +5104,7 @@ Internal Invoice Transaction
   Action: string:${object_url}/Invoice_viewCreateRelatedPaymentTransactionDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 15.0
 
@@ -4914,7 +5114,7 @@ Internal Invoice Transaction
   Action: string:${object_url}/AccountingTransaction_createReversalTransaction
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 4.0
 
@@ -4964,7 +5164,7 @@ Internal Invoice Transaction
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&portal_type:list=Payment+Transaction&portal_type:list=Internal+Invoice+Transaction
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 9.0
 
@@ -5014,7 +5214,7 @@ Internal Order
   Action: string:${object_url}/InternalOrder_viewApplyInternalTradeConditionDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 9.0
 
@@ -5024,7 +5224,7 @@ Internal Order
   Action: string:${object_url}/Delivery_checkConsistencyForDeliveryFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 1.0
 
@@ -5034,7 +5234,7 @@ Internal Order
   Action: string:${object_url}/Delivery_viewDeliveryUpdateFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 2.0
 
@@ -5044,7 +5244,7 @@ Internal Order
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&portal_type=Internal+Packing+List
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 9.0
 
@@ -5174,7 +5374,7 @@ Internal Packing List
   Action: string:${object_url}/Delivery_checkConsistencyForDeliveryFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 1.0
 
@@ -5184,7 +5384,17 @@ Internal Packing List
   Action: string:${object_url}/Delivery_viewDeliveryUpdateFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
+  Visible: 1
+  Index: 2.0
+
+Internal Packing List
+  Reference: immobilisation_validity_errors
+  Title: Immobilisation Validity Errors
+  Action: string:${object_url}/Immobilisation_viewValidityErrors
+  Icon: None
+  Permission: View
+  Action Type: object_view
   Visible: 1
   Index: 2.0
 
@@ -5242,6 +5452,56 @@ Internal Packing List Cell
   Reference: view
   Title: View
   Action: string:${object_url}/DeliveryCell_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Internal Packing List Line
+  Reference: eu_linear_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_euLinearAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Internal Packing List Line
+  Reference: eu_no_amortisation_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_euNoAmortisationAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Internal Packing List Line
+  Reference: fr_actual_use_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frActualUseAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Internal Packing List Line
+  Reference: fr_degressive_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frDegressiveAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Internal Packing List Line
+  Reference: fr_uncontinuous_degressive_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frUncontinuousDegressiveAmortisationMethodViewDetails
   Icon: None
   Permission: View
   Action Type: object_view
@@ -5344,7 +5604,7 @@ Internal Packing List Module
   Action: string:${object_url}/Folder_generateWorkflowReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 41.0
 
@@ -5604,7 +5864,7 @@ Inventory
   Action: string:${object_url}/Delivery_checkConsistencyForDeliveryFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 1.0
 
@@ -5614,14 +5874,74 @@ Inventory
   Action: string:${object_url}/Delivery_viewDeliveryUpdateFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 2.0
+
+Inventory
+  Reference: immobilisation_validity_errors
+  Title: Immobilisation Validity Errors
+  Action: string:${object_url}/Immobilisation_viewValidityErrors
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 3.0
 
 Inventory
   Reference: view
   Title: View
   Action: string:${object_url}/Inventory_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Inventory Cell
+  Reference: eu_linear_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_euLinearAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Inventory Cell
+  Reference: eu_no_amortisation_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_euNoAmortisationAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Inventory Cell
+  Reference: fr_actual_use_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frActualUseAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Inventory Cell
+  Reference: fr_degressive_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frDegressiveAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Inventory Cell
+  Reference: fr_uncontinuous_degressive_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frUncontinuousDegressiveAmortisationMethodViewDetails
   Icon: None
   Permission: View
   Action Type: object_view
@@ -5637,6 +5957,56 @@ Inventory Cell
   Action Type: object_view
   Visible: 1
   Index: 1.0
+
+Inventory Line
+  Reference: eu_linear_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_euLinearAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 10.0
+
+Inventory Line
+  Reference: eu_no_amortisation_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_euNoAmortisationAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 10.0
+
+Inventory Line
+  Reference: fr_actual_use_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frActualUseAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 10.0
+
+Inventory Line
+  Reference: fr_degressive_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frDegressiveAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 10.0
+
+Inventory Line
+  Reference: fr_uncontinuous_degressive_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frUncontinuousDegressiveAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 10.0
 
 Inventory Line
   Reference: inventory_view
@@ -5684,7 +6054,7 @@ Inventory Module
   Action: string:${object_url}/Base_viewStockReportBySiteDialog?your_portal_skin=ODS&your_format=
   Icon: None
   Permission: View
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 10.0
 
@@ -5694,7 +6064,7 @@ Inventory Module
   Action: string:${object_url}/Base_viewStockReportBySiteDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 11.0
 
@@ -5704,7 +6074,7 @@ Inventory Report
   Action: string:${object_url}/InventoryReport_viewCalculateProductStockDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 1.0
 
@@ -5844,7 +6214,7 @@ Item
   Action: string:${object_url}/Item_viewDeliveryLineCreationDialog
   Icon: None
   Permission: View
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 4.0
 
@@ -5954,7 +6324,7 @@ Letter
   Action: string:${object_url}/Event_viewCreateResponseDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 5.0
 
@@ -6034,7 +6404,7 @@ Mail Message
   Action: string:${object_url}/Event_viewCreateResponseDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 5.0
 
@@ -6114,7 +6484,7 @@ Meeting
   Action: string:${object_url}/Ticket_viewCreateEventFromEventPathDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 10.5
 
@@ -6124,7 +6494,7 @@ Meeting
   Action: string:${object_url}/Base_viewNewFileDialog
   Icon: string:${portal_url}/images/attach.png
   Permission: View
-  Action Type: object_button
+  Action Type: object_jio_button
   Visible: 1
   Index: 15.0
 
@@ -6154,7 +6524,7 @@ Meeting
   Action: string:${object_url}/Ticket_viewNewEventDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 10.0
 
@@ -6184,7 +6554,7 @@ Meeting Module
   Action: string:${object_url}/Folder_viewTicketDetailedReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 20.0
 
@@ -6194,7 +6564,7 @@ Meeting Module
   Action: string:${object_url}/Folder_viewTicketStatusReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 10.0
 
@@ -6257,6 +6627,36 @@ Mixin Component
   Action Type: object_view
   Visible: 1
   Index: 1.0
+
+Mixin Component
+  Reference: web_view
+  Title: View
+  Action: string:${object_url}/ComponentMixin_viewAsWeb
+  Icon: None
+  Permission: View
+  Action Type: object_onlyjio_view
+  Visible: 1
+  Index: 2.0
+
+Module Component
+  Reference: view
+  Title: View
+  Action: string:${object_url}/ComponentMixin_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Module Component
+  Reference: web_view
+  Title: View
+  Action: string:${object_url}/ComponentMixin_viewAsWeb
+  Icon: None
+  Permission: View
+  Action Type: object_onlyjio_view
+  Visible: 1
+  Index: 2.0
 
 Monthly Range Movement Group
   Reference: view
@@ -6934,7 +7334,7 @@ Organisation
   Action: string:${object_url}/Base_viewAddEventDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 55.0
 
@@ -6944,7 +7344,7 @@ Organisation
   Action: string:${object_url}/Base_viewNewFileDialog
   Icon: string:${portal_url}/images/attach.png
   Permission: View
-  Action Type: object_button
+  Action Type: object_jio_button
   Visible: 1
   Index: 50.0
 
@@ -7004,7 +7404,7 @@ Organisation
   Action: string:${portal_url}/accounting_module/AccountingTransactionModule_viewGroupingFastInputDialog?reset:int=1&mirror_section=${here/getRelativeUrl}
   Icon: string:${portal_url}/letter.png
   Permission: View
-  Action Type: object_button
+  Action Type: object_jio_button
   Visible: 1
   Index: 17.0
 
@@ -7054,7 +7454,7 @@ Organisation
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=subordination&portal_type=Person
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 17.0
 
@@ -7064,7 +7464,7 @@ Organisation
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=source&portal_type=Purchase+Order
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 13.0
 
@@ -7104,7 +7504,7 @@ Organisation
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=destination&portal_type=Sale+Order
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 15.0
 
@@ -7114,7 +7514,7 @@ Organisation
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=destination&portal_type=Sale+Packing+List
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 16.0
 
@@ -7224,7 +7624,7 @@ PDF
   Action: string:${object_url}/File_viewUploadDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 50.0
 
@@ -7344,7 +7744,7 @@ PDF
   Action: string:${object_url}/Document_viewUpdateContentFromURLDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 10.0
 
@@ -7644,7 +8044,7 @@ Person
   Action: string:${object_url}/Base_viewAddEventDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 55.0
 
@@ -7654,7 +8054,7 @@ Person
   Action: string:${object_url}/Base_viewAddSupportRequestDialog
   Icon: None
   Permission: View
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 60.0
 
@@ -7674,7 +8074,7 @@ Person
   Action: string:${object_url}/Base_viewNewFileDialog
   Icon: string:${portal_url}/images/attach.png
   Permission: View
-  Action Type: object_button
+  Action Type: object_jio_button
   Visible: 1
   Index: 50.0
 
@@ -7754,7 +8154,7 @@ Person
   Action: string:${portal_url}/accounting_module/AccountingTransactionModule_viewGroupingFastInputDialog?reset:int=1&mirror_section=${here/getRelativeUrl}
   Icon: string:${portal_url}/letter.png
   Permission: View
-  Action Type: object_button
+  Action Type: object_jio_button
   Visible: 1
   Index: 23.0
 
@@ -7784,7 +8184,7 @@ Person
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=destination_decision&portal_type=Credential+Request
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 30.0
 
@@ -7794,7 +8194,7 @@ Person
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=destination_decision&portal_type=Credential+Update
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 30.2
 
@@ -7814,7 +8214,7 @@ Person
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=source&portal_type=Purchase+Order
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 18.0
 
@@ -7824,7 +8224,7 @@ Person
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=source&portal_type=Purchase+Packing+List
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 19.0
 
@@ -7834,7 +8234,7 @@ Person
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=destination&portal_type=Sale+Order
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 21.0
 
@@ -7844,7 +8244,7 @@ Person
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=destination&portal_type=Sale+Packing+List
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 22.0
 
@@ -7854,7 +8254,7 @@ Person
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=source&portal_type=Task
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 23.0
 
@@ -7864,7 +8264,7 @@ Person
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=source&portal_type=Task Report
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 24.0
 
@@ -7974,7 +8374,7 @@ Person Module
   Action: string:${object_url}/PersonModule_viewNewEventDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 1.0
 
@@ -8004,7 +8404,7 @@ Phone Call
   Action: string:${object_url}/Event_viewCreateResponseDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 5.0
 
@@ -8084,7 +8484,7 @@ Preference
   Action: string:${object_url}/PreferenceTool_viewChangePasswordDialog
   Icon: None
   Permission: Set own password
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 1.0
 
@@ -8154,7 +8554,7 @@ Preference Tool
   Action: string:${object_url}/PreferenceTool_viewChangePasswordDialog
   Icon: None
   Permission: Set own password
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 5.0
 
@@ -8274,7 +8674,7 @@ Presentation
   Action: string:${object_url}/OOoDocument_viewOOoFileDialog
   Icon: None
   Permission: View
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 20.0
 
@@ -8294,7 +8694,7 @@ Presentation
   Action: string:${object_url}/File_viewUploadDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 50.0
 
@@ -8394,7 +8794,7 @@ Presentation
   Action: string:${object_url}/OOoDocument_print
   Icon: None
   Permission: View
-  Action Type: object_print
+  Action Type: object_jio_print
   Visible: 1
   Index: 10.0
 
@@ -8414,7 +8814,7 @@ Presentation
   Action: string:${object_url}/Document_viewUpdateContentFromURLDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 10.0
 
@@ -8494,7 +8894,7 @@ Product
   Action: python:'%s/Base_jumpToRelatedObject?base_category=resource&relation_form_id=Resource_viewRelatedSupplyLineList&%s' % (object_url, '&'.join(('portal_type=%s' % portal_type for portal_type in here.getPortalSupplyPathTypeList() if portal_type.endswith(' Line'))))
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 5.0
 
@@ -8561,7 +8961,7 @@ Product
 Product
   Reference: view_movement_history
   Title: Movement History
-  Action: string:${object_url}/Resource_viewMovementHistory
+  Action: string:${object_url}/Resource_viewMovementHistoryDialog
   Icon: None
   Permission: View
   Action Type: object_jio_view
@@ -8581,7 +8981,27 @@ Product
 Product
   Reference: view_stock
   Title: Stock
-  Action: string:${object_url}/Resource_viewInventory?reset=1
+  Action: string:${object_url}/Resource_viewInventoryDialog?reset=1
+  Icon: None
+  Permission: View
+  Action Type: object_report
+  Visible: 1
+  Index: 3.0
+
+Product
+  Reference: view_stock_jio
+  Title: Stock
+  Action: string:${object_url}/Resource_viewInventoryDialog?reset=1
+  Icon: None
+  Permission: View
+  Action Type: object_onlyjio_view
+  Visible: 1
+  Index: 3.0
+
+Product Individual Variation
+  Reference: image_list
+  Title: Images
+  Action: string:${object_url}/IndividualVariation_viewImageList
   Icon: None
   Permission: View
   Action Type: object_view
@@ -8597,16 +9017,6 @@ Product Individual Variation
   Action Type: object_view
   Visible: 1
   Index: 1.0
-
-Product Module
-  Reference: converted_inventory_report
-  Title: Converted Inventory Report
-  Action: string:${object_url}/ResourceModule_viewConvertedInventoryReportDialog
-  Icon: None
-  Permission: View
-  Action Type: object_report
-  Visible: 1
-  Index: 2.0
 
 Product Module
   Reference: jump_to_related_sale_packing_list
@@ -8644,7 +9054,7 @@ Project
   Action: string:${object_url}/Project_addTask
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 23.0
 
@@ -8674,7 +9084,7 @@ Project
   Action: string:${object_url}/Base_viewNewFileDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 24.0
 
@@ -8684,7 +9094,7 @@ Project
   Action: string:${object_url}/Project_viewDetailedReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 10.0
 
@@ -8704,7 +9114,7 @@ Project
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=source_project&portal_type=Sale+Order+Line
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 1.0
 
@@ -8714,7 +9124,7 @@ Project
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=source_project&portal_type=Task
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 2.0
 
@@ -8724,7 +9134,7 @@ Project
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=source_project&portal_type=Task Report
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 3.0
 
@@ -8764,7 +9174,7 @@ Project
   Action: string:${object_url}/Project_viewTaskReportListDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 2.0
 
@@ -8774,7 +9184,7 @@ Project
   Action: string:${object_url}/Project_viewGantt
   Icon: None
   Permission: View
-  Action Type: object_jio_action
+  Action Type: object_onlyjio_action
   Visible: 1
   Index: 2.0
 
@@ -8804,7 +9214,7 @@ Project
   Action: string:${object_url}/ProjectLine_viewTaskFastInputDialog
   Icon: None
   Permission: View
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 22.0
 
@@ -8864,7 +9274,7 @@ Project Line
   Action: string:${object_url}/Project_addTask
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 22.0
 
@@ -8904,7 +9314,7 @@ Project Line
   Action: string:${object_url}/Base_viewNewFileDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 31.0
 
@@ -8924,7 +9334,7 @@ Project Line
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=source_project&portal_type=Sale+Order+Line
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 1.0
 
@@ -8934,7 +9344,7 @@ Project Line
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=source_project&portal_type=Task
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 2.0
 
@@ -8944,7 +9354,7 @@ Project Line
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=source_project&portal_type=Task Report
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 3.0
 
@@ -8954,7 +9364,7 @@ Project Line
   Action: string:${object_url}/ProjectLine_viewTaskFastInputDialog
   Icon: None
   Permission: View
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 30.0
 
@@ -8994,7 +9404,7 @@ Project Milestone
   Action: string:${object_url}/Base_viewNewFileDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 7.0
 
@@ -9034,7 +9444,7 @@ Project Module
   Action: string:${object_url}/ProjectModule_viewProjectList
   Icon: None
   Permission: View
-  Action Type: folder
+  Action Type: object_list
   Visible: 1
   Index: 10.0
 
@@ -9174,7 +9584,7 @@ Purchase Invoice Transaction
   Action: string:${object_url}/PurchaseOrder_applyPurchaseTradeCondition
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 12.0
 
@@ -9304,7 +9714,7 @@ Purchase Invoice Transaction
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&portal_type:list=Payment+Transaction
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 9.0
 
@@ -9314,7 +9724,7 @@ Purchase Invoice Transaction
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&related:int=0&portal_type=Purchase+Packing+List
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 8.0
 
@@ -9404,7 +9814,7 @@ Purchase Order
   Action: string:${object_url}/PurchaseOrder_applyPurchaseTradeCondition
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 8.0
 
@@ -9414,7 +9824,7 @@ Purchase Order
   Action: string:${object_url}/Delivery_checkConsistencyForDeliveryFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 1.0
 
@@ -9424,7 +9834,7 @@ Purchase Order
   Action: string:${object_url}/Delivery_viewDeliveryUpdateFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 2.0
 
@@ -9444,7 +9854,7 @@ Purchase Order
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&portal_type=Purchase+Packing+List
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 9.0
 
@@ -9484,7 +9894,7 @@ Purchase Order
   Action: string:${object_url}/Delivery_resetMovementPriceList
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 7.0
 
@@ -9604,7 +10014,7 @@ Purchase Order Module
   Action: string:${object_url}/OrderModule_viewOrderReportDialog?your_portal_skin=ODS&your_format=
   Icon: None
   Permission: View
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 10.0
 
@@ -9614,7 +10024,7 @@ Purchase Order Module
   Action: string:${object_url}/OrderModule_viewOrderReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 10.0
 
@@ -9654,7 +10064,7 @@ Purchase Packing List
   Action: string:${object_url}/Delivery_checkConsistencyForDeliveryFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 1.0
 
@@ -9664,7 +10074,17 @@ Purchase Packing List
   Action: string:${object_url}/Delivery_viewDeliveryUpdateFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
+  Visible: 1
+  Index: 2.0
+
+Purchase Packing List
+  Reference: immobilisation_validity_errors
+  Title: Immobilisation Validity Errors
+  Action: string:${object_url}/Immobilisation_viewValidityErrors
+  Icon: None
+  Permission: View
+  Action Type: object_view
   Visible: 1
   Index: 2.0
 
@@ -9674,7 +10094,7 @@ Purchase Packing List
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&portal_type=Purchase+Order&related:int=0
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 9.0
 
@@ -9684,7 +10104,7 @@ Purchase Packing List
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&portal_type=Purchase+Invoice+Transaction
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 6.0
 
@@ -9694,7 +10114,7 @@ Purchase Packing List
   Action: string:${object_url}/PackingList_viewODTPrintDialog
   Icon: None
   Permission: View
-  Action Type: object_print
+  Action Type: object_jio_print
   Visible: 1
   Index: 1.0
 
@@ -9724,7 +10144,7 @@ Purchase Packing List
   Action: string:${object_url}/Delivery_resetMovementPriceList
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 8.0
 
@@ -9749,9 +10169,109 @@ Purchase Packing List
   Index: 9.0
 
 Purchase Packing List Cell
+  Reference: eu_linear_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_euLinearAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Purchase Packing List Cell
+  Reference: eu_no_amortisation_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_euNoAmortisationAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Purchase Packing List Cell
+  Reference: fr_actual_use_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frActualUseAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Purchase Packing List Cell
+  Reference: fr_degressive_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frDegressiveAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Purchase Packing List Cell
+  Reference: fr_uncontinuous_degressive_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frUncontinuousDegressiveAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Purchase Packing List Cell
   Reference: view
   Title: View
   Action: string:${object_url}/DeliveryCell_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Purchase Packing List Line
+  Reference: eu_linear_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_euLinearAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 3.0
+
+Purchase Packing List Line
+  Reference: eu_no_amortisation_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_euNoAmortisationAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Purchase Packing List Line
+  Reference: fr_actual_use_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frActualUseAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Purchase Packing List Line
+  Reference: fr_degressive_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frDegressiveAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 5.0
+
+Purchase Packing List Line
+  Reference: fr_uncontinuous_degressive_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frUncontinuousDegressiveAmortisationMethodViewDetails
   Icon: None
   Permission: View
   Action Type: object_view
@@ -9834,7 +10354,7 @@ Purchase Packing List Module
   Action: string:${object_url}/PackingListModule_viewPackingListReportDialog?your_portal_skin=ODS&your_format=
   Icon: None
   Permission: View
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 10.0
 
@@ -9844,7 +10364,7 @@ Purchase Packing List Module
   Action: string:${object_url}/PackingListModule_viewPackingListReportDialog?your_portal_skin=ODS&your_format=
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 10.0
 
@@ -10414,7 +10934,7 @@ Requirement
   Action: string:${object_url}/Requirement_viewGenerateReferenceDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 4.0
 
@@ -10434,7 +10954,7 @@ Requirement Document
   Action: string:${object_url}/RequirementDocument_cleanupDescription
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 8.0
 
@@ -10484,7 +11004,7 @@ Requirement Document
   Action: string:${object_url}/Requirement_viewGenerateReferenceDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 7.0
 
@@ -10564,7 +11084,7 @@ Returned Purchase Order
   Action: string:${object_url}/PurchaseOrder_applyPurchaseTradeCondition
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 8.0
 
@@ -10574,7 +11094,7 @@ Returned Purchase Order
   Action: string:${object_url}/Delivery_checkConsistencyForDeliveryFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 1.0
 
@@ -10584,7 +11104,7 @@ Returned Purchase Order
   Action: string:${object_url}/Delivery_viewDeliveryUpdateFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 2.0
 
@@ -10594,7 +11114,7 @@ Returned Purchase Order
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&portal_type=Returned+Purchase+Packing+List
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 9.0
 
@@ -10634,7 +11154,7 @@ Returned Purchase Order
   Action: string:${object_url}/Delivery_resetMovementPriceList
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 7.0
 
@@ -10744,7 +11264,7 @@ Returned Purchase Order Module
   Action: string:${object_url}/OrderModule_viewOrderReportDialog?your_portal_skin=ODS&your_format=
   Icon: None
   Permission: View
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 10.0
 
@@ -10754,7 +11274,7 @@ Returned Purchase Order Module
   Action: string:${object_url}/OrderModule_viewOrderReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 10.0
 
@@ -10794,7 +11314,7 @@ Returned Purchase Packing List
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&portal_type=Purchase+Invoice+Transaction
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 7.0
 
@@ -10924,7 +11444,7 @@ Returned Purchase Packing List Module
   Action: string:${object_url}/Folder_generateWorkflowReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 8.0
 
@@ -10934,7 +11454,7 @@ Returned Sale Order
   Action: string:${object_url}/SaleOrder_applySaleTradeCondition
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 9.0
 
@@ -10944,7 +11464,7 @@ Returned Sale Order
   Action: string:${object_url}/Delivery_checkConsistencyForDeliveryFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 1.0
 
@@ -10954,7 +11474,7 @@ Returned Sale Order
   Action: string:${object_url}/Delivery_viewDeliveryUpdateFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 2.0
 
@@ -10964,7 +11484,7 @@ Returned Sale Order
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&portal_type=Returned+Sale+Packing+List
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 10.0
 
@@ -11014,7 +11534,7 @@ Returned Sale Order
   Action: string:${object_url}/Order_viewGenerateReferenceDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 20.0
 
@@ -11024,7 +11544,7 @@ Returned Sale Order
   Action: string:${object_url}/Delivery_resetMovementPriceList
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 8.0
 
@@ -11144,7 +11664,7 @@ Returned Sale Order Module
   Action: string:${object_url}/OrderModule_viewOrderReportDialog?your_portal_skin=ODS&your_format=
   Icon: None
   Permission: View
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 10.0
 
@@ -11154,7 +11674,7 @@ Returned Sale Order Module
   Action: string:${object_url}/OrderModule_viewOrderReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 10.0
 
@@ -11174,7 +11694,7 @@ Returned Sale Order Module
   Action: string:${object_url}/Folder_generateWorkflowReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 8.0
 
@@ -11204,7 +11724,7 @@ Returned Sale Packing List
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&portal_type=Sale+Invoice+Transaction
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 7.0
 
@@ -11234,7 +11754,7 @@ Returned Sale Packing List
   Action: string:${object_url}/Delivery_resetMovementPriceList
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 8.0
 
@@ -11344,7 +11864,7 @@ Returned Sale Packing List Module
   Action: string:${object_url}/Folder_generateWorkflowReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 8.0
 
@@ -11412,6 +11932,16 @@ Role Information
   Reference: view
   Title: View
   Action: string:${object_url}/RoleInformation_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Root Applied Rule Causality Causality Movement Group
+  Reference: view
+  Title: View
+  Action: string:${object_url}/MovementGroup_view
   Icon: None
   Permission: View
   Action Type: object_view
@@ -11534,7 +12064,7 @@ Sale Invoice Transaction
   Action: string:${object_url}/SaleOrder_applySaleTradeCondition
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 15.0
 
@@ -11592,6 +12122,16 @@ Sale Invoice Transaction
   Reference: create_reversal
   Title: Create Reversal Transaction
   Action: string:${object_url}/AccountingTransaction_viewCreateReversalTransactionDialog
+  Icon: None
+  Permission: View
+  Action Type: object_jio_action
+  Visible: 1
+  Index: 14.0
+
+Sale Invoice Transaction
+  Reference: create_slapos_reversal
+  Title: Create SlapOS Reversal Transaction
+  Action: string:${object_url}/SaleInvoiceTransaction_viewCancelPaymentAndCreateReversalTransactionDialog
   Icon: None
   Permission: View
   Action Type: object_jio_action
@@ -11664,7 +12204,7 @@ Sale Invoice Transaction
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&portal_type=Payment+Transaction
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 12.0
 
@@ -11674,7 +12214,7 @@ Sale Invoice Transaction
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&related:int=0&portal_type=Sale+Packing+List
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 13.0
 
@@ -11764,7 +12304,7 @@ Sale Opportunity
   Action: string:${object_url}/Base_viewNewFileDialog
   Icon: string:${portal_url}/images/attach.png
   Permission: View
-  Action Type: object_button
+  Action Type: object_jio_button
   Visible: 1
   Index: 15.0
 
@@ -11784,7 +12324,7 @@ Sale Opportunity
   Action: string:${object_url}/Ticket_viewNewEventDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 10.0
 
@@ -11804,7 +12344,7 @@ Sale Opportunity Module
   Action: string:${object_url}/Folder_viewTicketDetailedReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 20.0
 
@@ -11814,7 +12354,7 @@ Sale Opportunity Module
   Action: string:${object_url}/Folder_viewTicketStatusReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 10.0
 
@@ -11824,7 +12364,7 @@ Sale Opportunity Module
   Action: string:${object_url}/Folder_viewTicketList
   Icon: None
   Permission: View
-  Action Type: object
+  Action Type: object_list
   Visible: 1
   Index: 1.0
 
@@ -11844,7 +12384,7 @@ Sale Order
   Action: string:${object_url}/SaleOrder_applySaleTradeCondition
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 9.0
 
@@ -11854,7 +12394,7 @@ Sale Order
   Action: string:${object_url}/SaleOrder_viewDetailedReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 20.0
 
@@ -11864,7 +12404,7 @@ Sale Order
   Action: string:${object_url}/Delivery_checkConsistencyForDeliveryFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 1.0
 
@@ -11874,7 +12414,7 @@ Sale Order
   Action: string:${object_url}/Delivery_viewDeliveryUpdateFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 2.0
 
@@ -11894,7 +12434,7 @@ Sale Order
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&portal_type=Sale+Packing+List
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 10.0
 
@@ -11924,7 +12464,7 @@ Sale Order
   Action: string:${object_url}/Order_viewODSSummaryPrintDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 22.0
 
@@ -11944,7 +12484,7 @@ Sale Order
   Action: string:${object_url}/Delivery_viewPlanning
   Icon: None
   Permission: View
-  Action Type: object_view
+  Action Type: object_onlyjio_view
   Visible: 1
   Index: 6.0
 
@@ -11964,7 +12504,7 @@ Sale Order
   Action: string:${object_url}/Order_viewGenerateReferenceDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 20.0
 
@@ -11974,7 +12514,7 @@ Sale Order
   Action: string:${object_url}/Delivery_resetMovementPriceList
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 8.0
 
@@ -12164,7 +12704,7 @@ Sale Order Module
   Action: string:${object_url}/OrderModule_viewOrderReportDialog?your_portal_skin=ODS&your_format=
   Icon: None
   Permission: View
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 10.0
 
@@ -12174,7 +12714,7 @@ Sale Order Module
   Action: string:${object_url}/OrderModule_viewOrderReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 10.0
 
@@ -12194,7 +12734,7 @@ Sale Order Module
   Action: string:${object_url}/Folder_generateWorkflowReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 8.0
 
@@ -12234,7 +12774,7 @@ Sale Packing List
   Action: string:${object_url}/Delivery_checkConsistencyForDeliveryFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 1.0
 
@@ -12244,9 +12784,19 @@ Sale Packing List
   Action: string:${object_url}/Delivery_viewDeliveryUpdateFastInputDialog
   Icon: None
   Permission: Add portal content
-  Action Type: object_fast_input
+  Action Type: object_jio_fast_input
   Visible: 1
   Index: 2.0
+
+Sale Packing List
+  Reference: immobilisation_validity_errors
+  Title: Immobilisation Validity Errors
+  Action: string:${object_url}/Immobilisation_viewValidityErrors
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
 
 Sale Packing List
   Reference: jump_related_order
@@ -12254,7 +12804,7 @@ Sale Packing List
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&portal_type=Sale+Order&related:int=0
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 8.0
 
@@ -12264,7 +12814,7 @@ Sale Packing List
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&portal_type=Sale+Invoice+Transaction
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 7.0
 
@@ -12304,7 +12854,7 @@ Sale Packing List
   Action: string:${object_url}/Delivery_resetMovementPriceList
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 8.0
 
@@ -12339,9 +12889,109 @@ Sale Packing List
   Index: 9.0
 
 Sale Packing List Cell
+  Reference: eu_linear_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_euLinearAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Sale Packing List Cell
+  Reference: eu_no_amortisation_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_euNoAmortisationAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Sale Packing List Cell
+  Reference: fr_actual_use_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frActualUseAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Sale Packing List Cell
+  Reference: fr_degressive_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frDegressiveAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Sale Packing List Cell
+  Reference: fr_uncontinuous_degressive_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frUncontinuousDegressiveAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Sale Packing List Cell
   Reference: view
   Title: View
   Action: string:${object_url}/DeliveryCell_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Sale Packing List Line
+  Reference: eu_linear_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_euLinearAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Sale Packing List Line
+  Reference: eu_no_amortisation_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_euNoAmortisationAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Sale Packing List Line
+  Reference: fr_actual_use_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frActualUseAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Sale Packing List Line
+  Reference: fr_degressive_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frDegressiveAmortisationMethodViewDetails
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Sale Packing List Line
+  Reference: fr_uncontinuous_degressive_amortisation_method_view_details
+  Title: Amortisation Details
+  Action: string:${object_url}/Immobilisation_frUncontinuousDegressiveAmortisationMethodViewDetails
   Icon: None
   Permission: View
   Action Type: object_view
@@ -12444,7 +13094,7 @@ Sale Packing List Module
   Action: string:${object_url}/PackingListModule_viewPackingListReportDialog?your_portal_skin=ODS&your_format=
   Icon: None
   Permission: View
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 10.0
 
@@ -12454,7 +13104,7 @@ Sale Packing List Module
   Action: string:${object_url}/PackingListModule_viewPackingListReportDialog?your_portal_skin=ODS&your_format=
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 10.0
 
@@ -12484,7 +13134,7 @@ Sale Packing List Module
   Action: string:${object_url}/Folder_generateWorkflowReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 8.0
 
@@ -12794,7 +13444,7 @@ Service
   Action: python:'%s/Base_jumpToRelatedObject?base_category=resource&relation_form_id=Resource_viewRelatedSupplyLineList&%s' % (object_url, '&'.join(('portal_type=%s' % portal_type for portal_type in here.getPortalSupplyPathTypeList() if portal_type.endswith(' Line'))))
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 5.0
 
@@ -12855,16 +13505,6 @@ Service Individual Variation
   Icon: None
   Permission: View
   Action Type: object_view
-  Visible: 1
-  Index: 1.0
-
-Service Module
-  Reference: converted_inventory_report
-  Title: Converted Inventory Report
-  Action: string:${object_url}/ResourceModule_viewConvertedInventoryReportDialog
-  Icon: None
-  Permission: View
-  Action Type: object_report
   Visible: 1
   Index: 1.0
 
@@ -12934,7 +13574,7 @@ Short Message
   Action: string:${object_url}/Event_viewCreateResponseDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 5.0
 
@@ -13004,7 +13644,7 @@ Site Message
   Action: string:${object_url}/Event_viewCreateResponseDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 5.0
 
@@ -13235,6 +13875,16 @@ Software Instance
   Icon: None
   Permission: View
   Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Software Instance
+  Reference: view_request_destroy
+  Title: Request Destroy
+  Action: string:${object_url}/SoftwareInstance_viewRequestDestroy
+  Icon: None
+  Permission: Modify portal content
+  Action Type: object_jio_action
   Visible: 1
   Index: 1.0
 
@@ -13764,7 +14414,7 @@ Spreadsheet
   Action: string:${object_url}/OOoDocument_viewOOoFileDialog
   Icon: None
   Permission: View
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 20.0
 
@@ -13784,7 +14434,7 @@ Spreadsheet
   Action: string:${object_url}/File_viewUploadDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 50.0
 
@@ -13884,7 +14534,7 @@ Spreadsheet
   Action: string:${object_url}/OOoDocument_print
   Icon: None
   Permission: View
-  Action Type: object_print
+  Action Type: object_jio_print
   Visible: 1
   Index: 10.0
 
@@ -13904,7 +14554,7 @@ Spreadsheet
   Action: string:${object_url}/Document_viewUpdateContentFromURLDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 10.0
 
@@ -14169,6 +14819,16 @@ Subscription Request
   Index: 1.0
 
 Subscription Request Module
+  Reference: rss_view
+  Title: RSS Subscription Request List
+  Action: string:${object_url}/SubscriptionRequestModule_viewSubscriptionRequestListAsRSS?portal_skin=RSS
+  Icon: string:rss_feed_image
+  Permission: View
+  Action Type: object_jio_button
+  Visible: 1
+  Index: 30.0
+
+Subscription Request Module
   Reference: view
   Title: View
   Action: string:${object_url}/SubscriptionRequestModule_viewSubscriptionRequestList
@@ -14274,7 +14934,7 @@ Support Request
   Action: string:${object_url}/Base_viewNewFileDialog
   Icon: string:${portal_url}/images/attach.png
   Permission: View
-  Action Type: object_button
+  Action Type: object_jio_button
   Visible: 1
   Index: 15.0
 
@@ -14294,7 +14954,7 @@ Support Request
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=follow_up&portal_type=Bug
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 14.0
 
@@ -14314,7 +14974,7 @@ Support Request
   Action: string:${object_url}/Ticket_viewNewBugDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 13.0
 
@@ -14324,7 +14984,7 @@ Support Request
   Action: string:${object_url}/Ticket_viewNewEventDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 10.0
 
@@ -14404,7 +15064,7 @@ Support Request Module
   Action: string:${object_url}/Folder_viewTicketDetailedReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 20.0
 
@@ -14434,7 +15094,7 @@ Support Request Module
   Action: string:${object_url}/Folder_viewTicketStatusReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 10.0
 
@@ -14448,10 +15108,150 @@ Support Request Module
   Visible: 1
   Index: 1.0
 
+SyncML Publication
+  Reference: reset_publication
+  Title: Reset Publication
+  Action: string:${object_url}/SyncMLPublication_viewResetPublicationDialog
+  Icon: None
+  Permission: View
+  Action Type: object_action
+  Visible: 1
+  Index: 10.0
+
+SyncML Publication
+  Reference: update_url
+  Title: Update URL to current site
+  Action: string:${object_url}/SyncMLDocument_updateURLToCurrentSite
+  Icon: None
+  Permission: Modify portal content
+  Action Type: object_action
+  Visible: 1
+  Index: 8.0
+
+SyncML Publication
+  Reference: view
+  Title: View
+  Action: string:${object_url}/SyncMLPublication_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+SyncML Publication
+  Reference: view_conflict
+  Title: Conflicts
+  Action: string:${object_url}/SyncMLPublication_viewConflictList
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 2.0
+
+SyncML Signature
+  Reference: view
+  Title: View
+  Action: string:${object_url}/SyncMLSignature_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+SyncML Subscription
+  Reference: last_point_fixe_report
+  Title: Last Point Fixe Report
+  Action: string:${object_url}/SyncMLSubscription_viewReport
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 5.0
+
+SyncML Subscription
+  Reference: reset_subscription
+  Title: Reset Subscription
+  Action: string:${object_url}/SyncMLSubscription_viewResetSubscriptionDialog
+  Icon: None
+  Permission: Modify portal content
+  Action Type: object_action
+  Visible: 1
+  Index: 10.0
+
+SyncML Subscription
+  Reference: start_synchronization
+  Title: Start Synchronization
+  Action: string:${object_url}/SyncMLSubscription_viewStartSynchronizationDialog
+  Icon: None
+  Permission: Modify portal content
+  Action Type: object_action
+  Visible: 1
+  Index: 50.0
+
+SyncML Subscription
+  Reference: update_url
+  Title: Update URL to current site
+  Action: string:${object_url}/SyncMLDocument_updateURLToCurrentSite
+  Icon: None
+  Permission: Modify portal content
+  Action Type: object_action
+  Visible: 1
+  Index: 8.0
+
+SyncML Subscription
+  Reference: vew
+  Title: View
+  Action: string:${object_url}/SyncMLSubscription_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+SyncML Subscription
+  Reference: view_conflict
+  Title: Conflicts
+  Action: string:${object_url}/SyncMLSubscription_viewConflictList
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 10.0
+
+SyncML Subscription
+  Reference: view_signatures
+  Title: Signatures
+  Action: string:${object_url}/SyncMLSubscription_viewSignatureList
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 8.0
+
 Synchronization Configurator Item
   Reference: view
   Title: View
   Action: string:${object_url}/SynchronizationConfiguratorItem_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Synchronization Tool
+  Reference: point_fixe
+  Title: Check Point Fixe
+  Action: string:${object_url}/SynchronizationTool_launchActivateCheckPointFixe
+  Icon: None
+  Permission: View
+  Action Type: object_action
+  Visible: 1
+  Index: 1.0
+
+Synchronization Tool
+  Reference: view
+  Title: Synchronization Tool
+  Action: string:${object_url}/SynchronizationTool_viewSyncMLSubscriptionList
   Icon: None
   Permission: View
   Action Type: object_view
@@ -14472,6 +15272,16 @@ System Preference
   Reference: accounting_preference
   Title: Accounting
   Action: string:${object_url}/SystemPreference_viewAccounting
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 9.0
+
+System Preference
+  Reference: authentication_policy
+  Title: Authentication Policy
+  Action: string:${object_url}/SystemPreference_viewAuthenticationPolicy
   Icon: None
   Permission: View
   Action Type: object_view
@@ -14569,16 +15379,6 @@ System Preference
   Index: 9.0
 
 System Preference
-  Reference: slapos_payzen_system_preference
-  Title: SlapOS Payzen
-  Action: string:${object_url}/SystemPreference_viewSlapOSPayzen
-  Icon: None
-  Permission: View
-  Action Type: object_view
-  Visible: 1
-  Index: 10.0
-
-System Preference
   Reference: slapos_system_preference
   Title: SlapOS
   Action: string:${object_url}/SystemPreference_viewSlapOS
@@ -14589,14 +15389,14 @@ System Preference
   Index: 10.0
 
 System Preference
-  Reference: slapos_wechat_system_preference
-  Title: SlapOS Wechat
-  Action: string:${object_url}/SystemPreference_viewSlapOSWechat
+  Reference: syncml
+  Title: SyncML
+  Action: string:${object_url}/SystemPreference_viewSyncML
   Icon: None
   Permission: View
   Action Type: object_view
   Visible: 1
-  Index: 10.0
+  Index: 3.0
 
 System Preference
   Reference: trade_preference
@@ -14654,7 +15454,7 @@ Task
   Action: string:${object_url}/SaleOrder_applySaleTradeCondition
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 11.0
 
@@ -14674,7 +15474,7 @@ Task
   Action: string:${object_url}/Task_viewDuplicateDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 60.0
 
@@ -14684,7 +15484,7 @@ Task
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=predecessor&portal_type=Task&related:int=0
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 11.0
 
@@ -14694,7 +15494,7 @@ Task
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&portal_type=Task+Report
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 7.0
 
@@ -14704,7 +15504,7 @@ Task
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=predecessor&portal_type=Task
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 12.0
 
@@ -14794,7 +15594,7 @@ Task Module
   Action: string:${object_url}/Folder_generateWorkflowReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 41.0
 
@@ -14804,7 +15604,7 @@ Task Report
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&portal_type=Sale+Invoice+Transaction&portal_type=Purchase+Invoice+Transaction
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 8.0
 
@@ -14814,7 +15614,7 @@ Task Report
   Action: string:${object_url}/Base_jumpToRelationObject?base_category=causality&portal_type=Task
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 7.0
 
@@ -14884,7 +15684,7 @@ Task Report Module
   Action: string:${object_url}/TaskReportModule_viewExportTaskReportListAsiCalendarDialog
   Icon: None
   Permission: View
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 6.0
 
@@ -14914,7 +15714,7 @@ Task Report Module
   Action: string:${object_url}/Folder_generateWorkflowReportDialog
   Icon: None
   Permission: View
-  Action Type: object_report
+  Action Type: object_jio_report
   Visible: 1
   Index: 41.0
 
@@ -14934,7 +15734,7 @@ Telephone
   Action: string:${object_url}/Base_viewChangeIdDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 2.0
 
@@ -15098,6 +15898,16 @@ Test Component
   Visible: 1
   Index: 1.0
 
+Test Component
+  Reference: web_view
+  Title: View
+  Action: string:${object_url}/ComponentMixin_viewAsWeb
+  Icon: None
+  Permission: View
+  Action Type: object_onlyjio_view
+  Visible: 1
+  Index: 2.0
+
 Test Page
   Reference: edit_test
   Title: Edit Test
@@ -15254,7 +16064,17 @@ Test Page
   Action: string:${object_url}/TestPage_viewEditSlideShow
   Icon: None
   Permission: Modify portal content
-  Action Type: object_view
+  Action Type: object_onlyxhtml_view
+  Visible: 1
+  Index: 1.5
+
+Test Page
+  Reference: view_slideshow_editor_with_gadget
+  Title: Edit Slideshow
+  Action: string:${object_url}/TestPage_viewEditSlideShowWithGadget
+  Icon: None
+  Permission: Modify portal content
+  Action Type: object_onlyjio_view
   Visible: 1
   Index: 1.5
 
@@ -15344,7 +16164,7 @@ Text
   Action: string:${object_url}/OOoDocument_viewOOoFileDialog
   Icon: None
   Permission: View
-  Action Type: object_exchange
+  Action Type: object_jio_exchange
   Visible: 1
   Index: 20.0
 
@@ -15364,7 +16184,7 @@ Text
   Action: string:${object_url}/File_viewUploadDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_exchange
+  Action Type: object_jio_action
   Visible: 1
   Index: 50.0
 
@@ -15464,7 +16284,7 @@ Text
   Action: string:${object_url}/OOoDocument_print
   Icon: None
   Permission: View
-  Action Type: object_print
+  Action Type: object_jio_print
   Visible: 1
   Index: 20.0
 
@@ -15481,10 +16301,10 @@ Text
 Text
   Reference: suggest_reference
   Title: Suggest Reference
-  Action: string:${object_url}/Document_suggestReference 
+  Action: string:${object_url}/Document_suggestReference
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 100.0
 
@@ -15494,7 +16314,7 @@ Text
   Action: string:${object_url}/Document_viewUpdateContentFromURLDialog
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 10.0
 
@@ -15537,6 +16357,26 @@ Title Movement Group
   Action Type: object_view
   Visible: 1
   Index: 1.0
+
+Tool Component
+  Reference: view
+  Title: View
+  Action: string:${object_url}/ComponentMixin_view
+  Icon: None
+  Permission: View
+  Action Type: object_view
+  Visible: 1
+  Index: 1.0
+
+Tool Component
+  Reference: web_view
+  Title: View
+  Action: string:${object_url}/ComponentMixin_viewAsWeb
+  Icon: None
+  Permission: View
+  Action Type: object_onlyjio_view
+  Visible: 1
+  Index: 2.0
 
 Trade Model Line
   Reference: predicate_view
@@ -15634,7 +16474,7 @@ Transformation
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=specialise&portal_type=Transformation
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 11.0
 
@@ -15654,7 +16494,7 @@ Transformation
   Action: string:${object_url}/Transformation_updateVariationCategoryList
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 9.0
 
@@ -15724,7 +16564,7 @@ Transformation Operation
   Action: string:${object_url}/TransformedResource_completeQuantityMatrixForm
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 6.0
 
@@ -15774,7 +16614,7 @@ Transformation Transformed Resource
   Action: string:${object_url}/TransformedResource_completeQuantityMatrixForm
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 7.0
 
@@ -15784,7 +16624,7 @@ Transformation Transformed Resource
   Action: string:${object_url}/TransformedResource_completeVariationMatrix
   Icon: None
   Permission: Modify portal content
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 8.0
 
@@ -15844,7 +16684,7 @@ Trash Bin
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=causality&related:int=0&portal_type=Business+Template
   Icon: None
   Permission: View
-  Action Type: object_jump
+  Action Type: object_jio_jump
   Visible: 1
   Index: 3.0
 
@@ -16114,7 +16954,7 @@ Visit
   Action: string:${object_url}/Event_viewCreateResponseDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 5.0
 
@@ -16184,7 +17024,7 @@ Web Illustration
   Action: string:${object_url}/WebPage_viewSendByEmailDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 10.0
 
@@ -16274,7 +17114,7 @@ Web Message
   Action: string:${object_url}/Event_viewCreateResponseDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 5.0
 
@@ -16394,7 +17234,7 @@ Web Page
   Action: string:${object_url}/WebPage_viewSendByEmailDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 10.0
 
@@ -16730,8 +17570,8 @@ Web Service Tool
 
 Web Site
   Reference: create_translation_data
-  Title: Create Translation Data
-  Action: string:${object_url}/WebSite_createTranslationData
+  Title: Update Translation Data
+  Action: string:${object_url}/WebSite_viewUpdateTranslationDataDialog
   Icon: None
   Permission: View
   Action Type: object_action
@@ -16964,7 +17804,7 @@ Web Table
   Action: string:${object_url}/WebPage_viewSendByEmailDialog
   Icon: None
   Permission: View
-  Action Type: object_action
+  Action Type: object_jio_action
   Visible: 1
   Index: 10.0
 
@@ -17024,7 +17864,7 @@ Wechat Service
   Action: string:${object_url}/WechatService_view
   Icon: None
   Permission: View
-  Action Type: None
+  Action Type: object_view
   Visible: 1
   Index: 1.0
 

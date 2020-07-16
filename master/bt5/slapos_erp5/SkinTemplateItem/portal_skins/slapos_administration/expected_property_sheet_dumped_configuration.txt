@@ -2599,6 +2599,201 @@ AttributeUnicityConstraint
   translation_domain: None
   write_permission: Modify portal content
 
+AuthenticationPolicyPreference
+  elementary_type: int
+  id: preferred_authentication_failure_block_duration_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: preferred_authentication_failure_block_duration
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+AuthenticationPolicyPreference
+  elementary_type: int
+  id: preferred_authentication_failure_check_duration_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: preferred_authentication_failure_check_duration
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+AuthenticationPolicyPreference
+  elementary_type: boolean
+  id: preferred_authentication_policy_enabled_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: False
+  range: False
+  read_permission: Access contents information
+  reference: preferred_authentication_policy_enabled
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+AuthenticationPolicyPreference
+  elementary_type: int
+  id: preferred_max_authentication_failure_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: preferred_max_authentication_failure
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+AuthenticationPolicyPreference
+  elementary_type: int
+  id: preferred_max_password_lifetime_duration_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: preferred_max_password_lifetime_duration
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+AuthenticationPolicyPreference
+  elementary_type: int
+  id: preferred_min_password_length_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: preferred_min_password_length
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+AuthenticationPolicyPreference
+  elementary_type: int
+  id: preferred_min_password_lifetime_duration_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: preferred_min_password_lifetime_duration
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+AuthenticationPolicyPreference
+  elementary_type: int
+  id: preferred_min_regular_expression_group_number_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: preferred_min_regular_expression_group_number
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+AuthenticationPolicyPreference
+  elementary_type: int
+  id: preferred_number_of_last_password_to_check_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: preferred_number_of_last_password_to_check
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+AuthenticationPolicyPreference
+  elementary_type: int
+  id: preferred_password_lifetime_expire_warning_duration_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: 0
+  range: False
+  read_permission: Access contents information
+  reference: preferred_password_lifetime_expire_warning_duration
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+AuthenticationPolicyPreference
+  elementary_type: lines
+  id: preferred_regular_expression_group_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: []
+  range: False
+  read_permission: Access contents information
+  reference: preferred_regular_expression_group
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+AuthenticationPolicyPreference
+  elementary_type: boolean
+  id: preferred_system_recover_expired_password_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: False
+  range: False
+  read_permission: Access contents information
+  reference: preferred_system_recover_expired_password
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+AuthenticationPolicyPreference
+  elementary_type: boolean
+  id: preffered_force_username_check_in_password_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: False
+  range: False
+  read_permission: Access contents information
+  reference: preffered_force_username_check_in_password
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
 BankAccount
   elementary_type: string
   id: bank_account_holder_name_property
@@ -4046,6 +4241,21 @@ BusinessTemplate
 
 BusinessTemplate
   elementary_type: lines
+  id: template_module_component_id_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: ()
+  range: False
+  read_permission: Access contents information
+  reference: template_module_component_id
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+BusinessTemplate
+  elementary_type: lines
   id: template_module_id_property
   multivaluated: None
   portal_type: Standard Property
@@ -4309,6 +4519,21 @@ BusinessTemplate
   range: False
   read_permission: Access contents information
   reference: template_test_id
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+BusinessTemplate
+  elementary_type: lines
+  id: template_tool_component_id_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: ()
+  range: False
+  read_permission: Access contents information
+  reference: template_tool_component_id
   storage_id: None
   translatable: False
   translation_domain: None
@@ -6726,6 +6951,51 @@ CustomerRelationPreference
 
 CustomerRelationPreference
   elementary_type: lines
+  id: preferred_insolvency_proceeding_resource_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: []
+  range: False
+  read_permission: Access contents information
+  reference: preferred_insolvency_proceeding_resource
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Manage properties
+
+CustomerRelationPreference
+  elementary_type: lines
+  id: preferred_insolvency_proceeding_use_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: preferred_insolvency_proceeding_use
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+CustomerRelationPreference
+  elementary_type: lines
+  id: preferred_judicial_representative_role_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: []
+  range: False
+  read_permission: Access contents information
+  reference: preferred_judicial_representative_role
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Manage properties
+
+CustomerRelationPreference
+  elementary_type: lines
   id: preferred_meeting_resource_property
   multivaluated: None
   portal_type: Standard Property
@@ -7202,7 +7472,7 @@ DefaultSupply
   acquisition_object_id_list: []
   acquisition_portal_type: None
   alt_accessor_id_list: []
-  content_acquired_property_id_list: ['base_price', 'id', 'priced_quantity', 'price_currency', 'price_currency_title', 'price_precision', 'base_unit_price', 'source', 'destination', 'source_title', 'destination_title', 'source_value', 'source_value_list', 'destination_value', 'destination_value_list', 'quantity_step', 'quantity_step_list', 'priced_quantity', 'start_date', 'stop_date', 'start_date_range_max', 'start_date_range_min', 'comment', 'source_reference', 'destination_reference', 'p_variation_base_category_list', 'destination_account', 'destination_function', 'destination_function_value', 'destination_function_value_list', 'destination_function_title', 'destination_funding', 'destination_funding_value', 'destination_funding_value_list', 'destination_funding_title', 'source_account', 'source_function', 'source_function_title', 'source_function_value', 'source_function_value_list', 'source_funding', 'source_funding_title', 'source_funding_value', 'source_funding_value_list', 'min_delay', 'max_delay', 'min_flow', 'max_flow', 'min_stock', 'max_stock']
+  content_acquired_property_id_list: ['base_price', 'base_price_per_slice', 'id', 'priced_quantity', 'price_currency', 'price_currency_title', 'price_precision', 'base_unit_price', 'source', 'destination', 'source_title', 'destination_title', 'source_value', 'source_value_list', 'destination_value', 'destination_value_list', 'quantity_step', 'quantity_step_list', 'priced_quantity', 'start_date', 'stop_date', 'start_date_range_max', 'start_date_range_min', 'comment', 'description', 'source_reference', 'destination_reference', 'p_variation_base_category_list', 'destination_account', 'destination_function', 'destination_function_value', 'destination_function_value_list', 'destination_function_title', 'destination_funding', 'destination_funding_value', 'destination_funding_value_list', 'destination_funding_title', 'source_account', 'source_function', 'source_function_title', 'source_function_value', 'source_function_value_list', 'source_funding', 'source_funding_title', 'source_funding_value', 'source_funding_value_list', 'min_delay', 'max_delay', 'min_flow', 'max_flow', 'min_stock', 'max_stock', 'default_link_url_string']
   content_portal_type: python: ('Internal Supply Line',)
   content_translation_acquired_property_id_list: []
   elementary_type: content
@@ -7227,7 +7497,7 @@ DefaultSupply
   acquisition_object_id_list: []
   acquisition_portal_type: None
   alt_accessor_id_list: []
-  content_acquired_property_id_list: ['base_price', 'id', 'priced_quantity', 'price_currency', 'price_currency_title', 'price_precision', 'base_unit_price', 'source', 'destination', 'source_title', 'destination_title', 'source_value', 'source_value_list', 'destination_value', 'destination_value_list', 'quantity_step', 'quantity_step_list', 'priced_quantity', 'start_date', 'stop_date', 'start_date_range_max', 'start_date_range_min', 'comment', 'source_reference', 'destination_reference', 'p_variation_base_category_list', 'destination_account', 'destination_function', 'destination_function_value', 'destination_function_value_list', 'destination_function_title', 'destination_funding', 'destination_funding_value', 'destination_funding_value_list', 'destination_funding_title', 'min_delay', 'max_delay', 'min_flow', 'max_flow', 'min_stock', 'max_stock']
+  content_acquired_property_id_list: ['base_price', 'base_price_per_slice', 'id', 'priced_quantity', 'price_currency', 'price_currency_title', 'price_precision', 'base_unit_price', 'source', 'destination', 'source_title', 'destination_title', 'source_value', 'source_value_list', 'destination_value', 'destination_value_list', 'quantity_step', 'quantity_step_list', 'priced_quantity', 'start_date', 'stop_date', 'start_date_range_max', 'start_date_range_min', 'comment', 'description', 'source_reference', 'destination_reference', 'p_variation_base_category_list', 'destination_account', 'destination_function', 'destination_function_value', 'destination_function_value_list', 'destination_function_title', 'destination_funding', 'destination_funding_value', 'destination_funding_value_list', 'destination_funding_title', 'min_delay', 'max_delay', 'min_flow', 'max_flow', 'min_stock', 'max_stock', 'default_link_url_string']
   content_portal_type: python: ('Purchase Supply Line',)
   content_translation_acquired_property_id_list: []
   elementary_type: content
@@ -7252,7 +7522,7 @@ DefaultSupply
   acquisition_object_id_list: []
   acquisition_portal_type: None
   alt_accessor_id_list: []
-  content_acquired_property_id_list: ['base_price', 'id', 'priced_quantity', 'price_currency', 'price_currency_title', 'price_precision', 'base_unit_price', 'source', 'destination', 'source_title', 'destination_title', 'source_value', 'source_value_list', 'destination_value', 'destination_value_list', 'quantity_step', 'quantity_step_list', 'priced_quantity', 'start_date', 'stop_date', 'start_date_range_max', 'start_date_range_min', 'comment', 'source_reference', 'destination_reference', 'p_variation_base_category_list', 'source_account', 'source_function', 'source_function_value', 'source_function_value_list', 'source_function_title', 'source_funding', 'source_funding_value', 'source_funding_value_list', 'source_funding_title', 'min_delay', 'max_delay', 'min_flow', 'max_flow', 'min_stock', 'max_stock']
+  content_acquired_property_id_list: ['base_price', 'base_price_per_slice', 'id', 'priced_quantity', 'price_currency', 'price_currency_title', 'price_precision', 'base_unit_price', 'source', 'destination', 'source_title', 'destination_title', 'source_value', 'source_value_list', 'destination_value', 'destination_value_list', 'quantity_step', 'quantity_step_list', 'priced_quantity', 'start_date', 'stop_date', 'start_date_range_max', 'start_date_range_min', 'comment', 'description', 'source_reference', 'destination_reference', 'p_variation_base_category_list', 'source_account', 'source_function', 'source_function_value', 'source_function_value_list', 'source_function_title', 'source_funding', 'source_funding_value', 'source_funding_value_list', 'source_funding_title', 'min_delay', 'max_delay', 'min_flow', 'max_flow', 'min_stock', 'max_stock', 'default_link_url_string']
   content_portal_type: python: ('Sale Supply Line',)
   content_translation_acquired_property_id_list: []
   elementary_type: content
@@ -7271,15 +7541,15 @@ DefaultSupply
 
 DefaultSupply
   acquisition_accessor_id: None
-  acquisition_base_category_list: None
+  acquisition_base_category_list: []
   acquisition_copy_value: False
   acquisition_mask_value: False
-  acquisition_object_id_list: None
+  acquisition_object_id_list: []
   acquisition_portal_type: None
-  alt_accessor_id_list: None
-  content_acquired_property_id_list: ['base_price', 'id', 'priced_quantity', 'price_currency', 'source', 'destination', 'quantity_step', 'priced_quantity', 'start_date', 'stop_date', 'start_date_range_max', 'start_date_range_min', 'comment', 'source_reference', 'destination_reference', 'p_variation_base_category_list']
+  alt_accessor_id_list: []
+  content_acquired_property_id_list: ['base_price', 'base_price_per_slice', 'id', 'priced_quantity', 'price_currency', 'source', 'destination', 'quantity_step', 'priced_quantity', 'start_date', 'stop_date', 'start_date_range_max', 'start_date_range_min', 'comment', 'description', 'source_reference', 'destination_reference', 'p_variation_base_category_list', 'default_link_url_string']
   content_portal_type: python: ('Supply Line',)
-  content_translation_acquired_property_id_list: None
+  content_translation_acquired_property_id_list: []
   elementary_type: content
   id: supply_line_property
   multivaluated: None
@@ -7293,6 +7563,21 @@ DefaultSupply
   translatable: False
   translation_domain: None
   write_permission: Modify portal content
+
+DeferredStylePreference
+  elementary_type: string
+  id: preferred_deferred_report_activity_family_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: preferred_deferred_report_activity_family
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Manage properties
 
 DeferredStylePreference
   elementary_type: string
@@ -8193,7 +8478,7 @@ Document
   reference: update_frequency
 
 DocumentConstraint
-  expression: python: len(object.getFollowUpList()) > 0 	              or len(object.getGroupList()) > 0 or 		      object.getValidationState() in ("embedded", "cancelled", "deleted")
+  expression: python: len(object.getFollowUpList()) > 0 	              or len(object.getGroupList()) > 0 or 		      object.getValidationState() in ("embedded", "cancelled", "deleted") or object.isTemplate()
   id: assignor_existence_constraint
   message_expression_error: Error while evaluating expression: ${error}
   message_expression_false: Follow Up or Group must be defined
@@ -9588,6 +9873,21 @@ GeographicalPoint
   translation_domain: None
   write_permission: Modify portal content
 
+Gpg
+  elementary_type: text
+  id: 1
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: gpg_public_key
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
 HostingSubscription
   elementary_type: boolean
   id: root_slave_property
@@ -10685,11 +10985,6 @@ Item
   translatable: False
   translation_domain: None
   write_permission: Modify portal content
-
-Item
-  id: package_type_category
-  portal_type: Category Property
-  reference: package_type
 
 Item
   elementary_type: string
@@ -13232,51 +13527,6 @@ Person
   translation_domain: None
   write_permission: Modify portal content
 
-PortalTest
-  elementary_type: string
-  id: consistency_check_method_id_property
-  multivaluated: None
-  portal_type: Standard Property
-  preference: False
-  property_default: None
-  range: False
-  read_permission: Access contents information
-  reference: consistency_check_method_id
-  storage_id: None
-  translatable: False
-  translation_domain: None
-  write_permission: Modify portal content
-
-PortalTest
-  elementary_type: lines
-  id: consistency_fix_method_id_property
-  multivaluated: None
-  portal_type: Standard Property
-  preference: False
-  property_default: None
-  range: False
-  read_permission: Access contents information
-  reference: consistency_fix_method_id
-  storage_id: None
-  translatable: False
-  translation_domain: None
-  write_permission: Modify portal content
-
-PortalTest
-  elementary_type: lines
-  id: consistency_report_template_id_property
-  multivaluated: None
-  portal_type: Standard Property
-  preference: False
-  property_default: None
-  range: False
-  read_permission: Access contents information
-  reference: consistency_report_template_id
-  storage_id: None
-  translatable: False
-  translation_domain: None
-  write_permission: Modify portal content
-
 Predicate
   elementary_type: tokens
   id: criterion_property_property
@@ -13422,6 +13672,21 @@ Preference
   range: False
   read_permission: Access contents information
   reference: preferred_max_user_inactivity_duration
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+Preference
+  elementary_type: string
+  id: preferred_node_category_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: preferred_node_category
   storage_id: None
   translatable: False
   translation_domain: None
@@ -14110,6 +14375,46 @@ ProductionOrderLine
   message_expression_false: Transformation must match chosen resource
   portal_type: TALES Constraint
   reference: transformation_for_resource
+
+Project
+  acquisition_accessor_id: getForumLinkUrlString
+  acquisition_base_category_list: ['subordination']
+  acquisition_copy_value: 0
+  acquisition_mask_value: 1
+  acquisition_object_id_list: []
+  acquisition_portal_type: None
+  alt_accessor_id_list: []
+  content_acquired_property_id_list: ['url_string']
+  content_portal_type: python: ('Link',)
+  content_translation_acquired_property_id_list: []
+  elementary_type: content
+  id: forum_link_property
+  multivaluated: None
+  portal_type: Acquired Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: forum_link
+  storage_id: forum_link
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+ProjectPreference
+  elementary_type: lines
+  id: preferred_project_home_page_publication_section_category_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: preferred_project_home_page_publication_section_category
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
 
 ProjectPreference
   elementary_type: lines
@@ -15937,6 +16242,36 @@ SlapOSAccountingSystemPreference
 
 SlapOSAccountingSystemPreference
   elementary_type: string
+  id: preferred_default_pre_payment_subscription_invoice_template_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: ''
+  range: False
+  read_permission: Access contents information
+  reference: preferred_default_pre_payment_subscription_invoice_template
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Manage properties
+
+SlapOSAccountingSystemPreference
+  elementary_type: string
+  id: preferred_default_pre_payment_template_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: ''
+  range: False
+  read_permission: Access contents information
+  reference: preferred_default_pre_payment_template
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Manage properties
+
+SlapOSAccountingSystemPreference
+  elementary_type: string
   id: preferred_instance_delivery_template_property
   multivaluated: None
   portal_type: Standard Property
@@ -15945,51 +16280,6 @@ SlapOSAccountingSystemPreference
   range: False
   read_permission: Access contents information
   reference: preferred_instance_delivery_template
-  storage_id: None
-  translatable: False
-  translation_domain: None
-  write_permission: Manage properties
-
-SlapOSAccountingSystemPreference
-  elementary_type: string
-  id: preferred_instance_destroy_movement_template_property
-  multivaluated: None
-  portal_type: Standard Property
-  preference: 1
-  property_default: python: ''
-  range: False
-  read_permission: Access contents information
-  reference: preferred_instance_destroy_movement_template
-  storage_id: None
-  translatable: False
-  translation_domain: None
-  write_permission: Manage properties
-
-SlapOSAccountingSystemPreference
-  elementary_type: string
-  id: preferred_instance_setup_movement_template_property
-  multivaluated: None
-  portal_type: Standard Property
-  preference: 1
-  property_default: python: ''
-  range: False
-  read_permission: Access contents information
-  reference: preferred_instance_setup_movement_template
-  storage_id: None
-  translatable: False
-  translation_domain: None
-  write_permission: Manage properties
-
-SlapOSAccountingSystemPreference
-  elementary_type: string
-  id: preferred_instance_update_movement_template_property
-  multivaluated: None
-  portal_type: Standard Property
-  preference: 1
-  property_default: python: ''
-  range: False
-  read_permission: Access contents information
-  reference: preferred_instance_update_movement_template
   storage_id: None
   translatable: False
   translation_domain: None
@@ -16020,6 +16310,36 @@ SlapOSAccountingSystemPreference
   range: False
   read_permission: Access contents information
   reference: preferred_open_sale_order_template
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Manage properties
+
+SlapOSAccountingSystemPreference
+  elementary_type: string
+  id: preferred_zh_pre_payment_subscription_invoice_template_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: ''
+  range: False
+  read_permission: Access contents information
+  reference: preferred_zh_pre_payment_subscription_invoice_template
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Manage properties
+
+SlapOSAccountingSystemPreference
+  elementary_type: string
+  id: preferred_zh_pre_payment_template_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: ''
+  range: False
+  read_permission: Access contents information
+  reference: preferred_zh_pre_payment_template
   storage_id: None
   translatable: False
   translation_domain: None
@@ -17175,6 +17495,21 @@ SupplyLine
   write_permission: Modify portal content
 
 SupplyLine
+  elementary_type: boolean
+  id: base_price_per_slice_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: base_price_per_slice
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SupplyLine
   elementary_type: float
   id: base_price_property
   multivaluated: None
@@ -17185,6 +17520,31 @@ SupplyLine
   read_permission: Access contents information
   reference: base_price
   storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SupplyLine
+  acquisition_accessor_id: getDefaultLinkUrlString
+  acquisition_base_category_list: []
+  acquisition_copy_value: False
+  acquisition_mask_value: False
+  acquisition_object_id_list: []
+  acquisition_portal_type: None
+  alt_accessor_id_list: []
+  content_acquired_property_id_list: ['url_string']
+  content_portal_type: python: ('Link',)
+  content_translation_acquired_property_id_list: []
+  elementary_type: content
+  id: default_link_property
+  multivaluated: None
+  portal_type: Acquired Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: default_link
+  storage_id: default_link
   translatable: False
   translation_domain: None
   write_permission: Modify portal content
@@ -17470,6 +17830,36 @@ SupplyLine
   reference: quantity_unit
 
 SupplyLine
+  elementary_type: object
+  id: slice_base_price_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: slice_base_price
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SupplyLine
+  elementary_type: object
+  id: slice_quantity_range_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: slice_quantity_range
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SupplyLine
   elementary_type: float
   id: surcharge_ratio_property
   multivaluated: None
@@ -17558,6 +17948,617 @@ SupplyLink
   translatable: False
   translation_domain: None
   write_permission: Modify portal content
+
+SyncMLConflict
+  elementary_type: string
+  id: 1
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: local_value
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLConflict
+  elementary_type: string
+  id: 2
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: remote_value
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLConflict
+  elementary_type: string
+  id: 3
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: property_id
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLConflict
+  elementary_type: string
+  id: 4
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: diff_chunk
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLConflict
+  id: 5
+  portal_type: Category Property
+  reference: origin
+
+SyncMLPreference
+  elementary_type: boolean
+  id: preferred_check_delete_at_end_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: True
+  range: False
+  read_permission: Access contents information
+  reference: preferred_check_delete_at_end
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLPreference
+  elementary_type: int
+  id: preferred_document_retrieved_per_activity_count_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: int(30)
+  range: False
+  read_permission: Access contents information
+  reference: preferred_document_retrieved_per_activity_count
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLPreference
+  elementary_type: int
+  id: preferred_retrieval_activity_count_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: int(100)
+  range: False
+  read_permission: Access contents information
+  reference: preferred_retrieval_activity_count
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLPreference
+  elementary_type: boolean
+  id: preferred_split_indexation_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: False
+  range: False
+  read_permission: Access contents information
+  reference: preferred_split_indexation
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLPreference
+  elementary_type: int
+  id: preferred_sync_action_per_activity_count_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: int(0)
+  range: False
+  read_permission: Access contents information
+  reference: preferred_sync_action_per_activity_count
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSignature
+  elementary_type: data
+  id: 1
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: partial_data
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSignature
+  elementary_type: data
+  id: 2
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: temporary_data
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSignature
+  elementary_type: data
+  id: 3
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: last_data_partial_data
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSignature
+  elementary_type: string
+  id: 4
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: partial_action
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSignature
+  elementary_type: data
+  id: 5
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: subscriber_xupdate
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSignature
+  elementary_type: data
+  id: 6
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: publisher_xupdate
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSignature
+  elementary_type: boolean
+  id: 7
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: False
+  range: False
+  read_permission: Access contents information
+  reference: force
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSignature
+  elementary_type: data
+  id: 8
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: data
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscription
+  elementary_type: string
+  id: authenticated_user_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: authenticated_user
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscription
+  elementary_type: string
+  id: authentication_format_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: 'b64'
+  range: False
+  read_permission: Access contents information
+  reference: authentication_format
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscription
+  elementary_type: string
+  id: authentication_type_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: 'syncml:auth-basic'
+  range: False
+  read_permission: Access contents information
+  reference: authentication_type
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscription
+  elementary_type: string
+  id: conduit_module_id_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: conduit_module_id
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscription
+  elementary_type: string
+  id: gid_generator_method_id_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: gid_generator_method_id
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscription
+  elementary_type: boolean
+  id: is_activity_enabled_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: 0
+  range: False
+  read_permission: Access contents information
+  reference: is_activity_enabled
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscription
+  elementary_type: boolean
+  id: is_synchronized_with_erp5_portal_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: True
+  range: False
+  read_permission: Access contents information
+  reference: is_synchronized_with_erp5_portal
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscription
+  elementary_type: string
+  id: last_anchor_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: '00000000T000000Z'
+  range: False
+  read_permission: Access contents information
+  reference: last_anchor
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscription
+  elementary_type: int
+  id: last_message_id_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: last_message_id
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscription
+  elementary_type: string
+  id: last_sent_message_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: last_sent_message
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscription
+  elementary_type: int
+  id: last_session_id_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: last_session_id
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscription
+  elementary_type: string
+  id: list_method_id_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: list_method_id
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscription
+  elementary_type: int
+  id: message_id_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: 0
+  range: False
+  read_permission: Access contents information
+  reference: message_id
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscription
+  elementary_type: string
+  id: next_anchor_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: '00000000T000000Z'
+  range: False
+  read_permission: Access contents information
+  reference: next_anchor
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscription
+  elementary_type: int
+  id: session_id_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: 0
+  range: False
+  read_permission: Access contents information
+  reference: session_id
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscription
+  id: source_category
+  portal_type: Category Property
+  reference: source
+
+SyncMLSubscription
+  elementary_type: string
+  id: subscription_url_string_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: subscription_url_string
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscription
+  elementary_type: string
+  id: synchronization_id_generator_method_id_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: synchronization_id_generator_method_id
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscription
+  id: syncml_alert_code_category
+  portal_type: Category Property
+  reference: syncml_alert_code
+
+SyncMLSubscription
+  elementary_type: string
+  id: xml_binding_generator_method_id_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: xml_binding_generator_method_id
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+SyncMLSubscriptionConstraint
+  constraint_property_list: ['conduit_module_id']
+  id: conduit_module_id_constraint
+  message_no_such_property: Property existence error for property ${property_id}, this document has no such property or the property has never been set
+  portal_type: Property Existence Constraint
+  reference: conduit_module_id
+
+SyncMLSubscriptionConstraint
+  constraint_property_list: ['destination_reference']
+  id: destination_reference_constraint
+  message_no_such_property: Property existence error for property ${property_id}, this document has no such property or the property has never been set
+  portal_type: Property Existence Constraint
+  reference: destination_reference
+
+SyncMLSubscriptionConstraint
+  constraint_property_list: ['list_method_id']
+  id: list_method_id_constraint
+  message_no_such_property: Property existence error for property ${property_id}, this document has no such property or the property has never been set
+  portal_type: Property Existence Constraint
+  reference: list_method_id
+
+SyncMLSubscriptionConstraint
+  constraint_property_list: ['password']
+  id: password_constraint
+  message_no_such_property: Property existence error for property ${property_id}, this document has no such property or the property has never been set
+  portal_type: Property Existence Constraint
+  reference: password
+
+SyncMLSubscriptionConstraint
+  constraint_base_category_list: ['source']
+  id: source_constraint
+  message_category_not_associated_with_portal_type: Category existence error for base category ${base_category}, this document has no such category
+  message_category_not_set: Source Content must be defined
+  portal_type: Category Existence Constraint
+  reference: source
+
+SyncMLSubscriptionConstraint
+  constraint_property_list: ['source_reference']
+  id: source_reference_constraint
+  message_no_such_property: Property existence error for property ${property_id}, this document has no such property or the property has never been set
+  portal_type: Property Existence Constraint
+  reference: source_reference
+
+SyncMLSubscriptionConstraint
+  constraint_property_list: ['subscription_url_string']
+  id: subscription_url_string_constraint
+  message_no_such_property: Property existence error for property ${property_id}, this document has no such property or the property has never been set
+  portal_type: Property Existence Constraint
+  reference: subscription_url_string
+
+SyncMLSubscriptionConstraint
+  constraint_property_list: ['url_string']
+  id: url_string_constraint
+  message_no_such_property: Property existence error for property ${property_id}, this document has no such property or the property has never been set
+  portal_type: Property Existence Constraint
+  reference: url_string
+
+SyncMLSubscriptionConstraint
+  constraint_property_list: ['user_id']
+  id: user_id_constraint
+  message_no_such_property: Property existence error for property ${property_id}, this document has no such property or the property has never been set
+  portal_type: Property Existence Constraint
+  reference: user_id
+
+SyncMLSubscriptionConstraint
+  constraint_property_list: ['xml_binding_generator_method_id']
+  id: xml_binding_generator_method_id_constraint
+  message_no_such_property: Property existence error for property ${property_id}, this document has no such property or the property has never been set
+  portal_type: Property Existence Constraint
+  reference: xml_binding_generator_method_id
 
 SynchronizationConfiguratorItem
   elementary_type: string
@@ -18228,6 +19229,21 @@ TradeModelPath
   write_permission: Modify portal content
 
 TradeModelPath
+  elementary_type: boolean
+  id: destination_method_replace_category_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: destination_method_replace_category
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+TradeModelPath
   id: end_of_category
   portal_type: Category Property
   reference: end_of
@@ -18267,6 +19283,21 @@ TradeModelPath
   range: False
   read_permission: Access contents information
   reference: source_method_id
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+TradeModelPath
+  elementary_type: boolean
+  id: source_method_replace_category_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: source_method_replace_category
   storage_id: None
   translatable: False
   translation_domain: None
@@ -19380,6 +20411,11 @@ WebSection
   translation_domain: None
   write_permission: Modify portal content
 
+WebSectionUpgradeConstraint
+  id: default_page_modification_date_constraint
+  portal_type: Script Constraint
+  reference: default_page_modification_date
+
 WebServiceConnector
   elementary_type: string
   id: 1
@@ -19669,6 +20705,16 @@ WebSitePreference
   translatable: False
   translation_domain: None
   write_permission: Modify portal content
+
+WebSiteRenderJSUpgradeConstraint
+  id: cache_modification_date_constraint
+  portal_type: Script Constraint
+  reference: cache_modification_date
+
+WebSiteRenderJSUpgradeConstraint
+  id: translation_signature_constraint
+  portal_type: Script Constraint
+  reference: translation_signature
 
 WechatService
   constraint_portal_type: python: ('Link',)

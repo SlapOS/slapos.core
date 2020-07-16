@@ -2,6 +2,7 @@ erp5_access_token
 erp5_accounting
 erp5_accounting_l10n_fr
 erp5_administration
+erp5_authentication_policy
 erp5_base
 erp5_bearer_token
 erp5_certificate_authority
@@ -23,6 +24,7 @@ erp5_font
 erp5_forge
 erp5_full_text_mroonga_catalog
 erp5_hal_json_style
+erp5_immobilisation
 erp5_ingestion
 erp5_ingestion_mysql_innodb_catalog
 erp5_invoicing
@@ -64,6 +66,7 @@ erp5_slapos_tutorial_data
 erp5_slideshow_style
 erp5_software_pdm
 erp5_svg_editor
+erp5_syncml
 erp5_system_event
 erp5_tiosafe_core
 erp5_trade

@@ -33,7 +33,10 @@ Deferred,erp5_upgrader
 Deferred,erp5_access_tab
 Deferred,erp5_access_token
 Deferred,erp5_accounting
+Deferred,erp5_accounting_eu
+Deferred,erp5_accounting_fr
 Deferred,erp5_administration
+Deferred,erp5_authentication_policy
 Deferred,erp5_auto_logout
 Deferred,erp5_base
 Deferred,erp5_bearer_token
@@ -61,8 +64,8 @@ Deferred,erp5_forge
 Deferred,erp5_forge_release
 Deferred,erp5_gadget
 Deferred,erp5_glossary
+Deferred,erp5_immobilisation
 Deferred,erp5_ingestion
-Deferred,erp5_ingestion_test
 Deferred,erp5_integration
 Deferred,erp5_invoicing
 Deferred,erp5_jquery_sheet_editor
@@ -85,6 +88,7 @@ Deferred,erp5_simplified_invoicing
 Deferred,erp5_slideshow_core
 Deferred,erp5_software_pdm
 Deferred,erp5_svg_editor
+Deferred,erp5_syncml
 Deferred,erp5_system_event
 Deferred,erp5_toolbox
 Deferred,erp5_trade
@@ -137,7 +141,10 @@ Deploy,erp5_upgrader
 Deploy,erp5_access_tab
 Deploy,erp5_access_token
 Deploy,erp5_accounting
+Deploy,erp5_accounting_eu
+Deploy,erp5_accounting_fr
 Deploy,erp5_administration
+Deploy,erp5_authentication_policy
 Deploy,erp5_auto_logout
 Deploy,erp5_base
 Deploy,erp5_bearer_token
@@ -164,8 +171,8 @@ Deploy,erp5_forge
 Deploy,erp5_forge_release
 Deploy,erp5_gadget
 Deploy,erp5_glossary
+Deploy,erp5_immobilisation
 Deploy,erp5_ingestion
-Deploy,erp5_ingestion_test
 Deploy,erp5_integration
 Deploy,erp5_invoicing
 Deploy,erp5_jquery_sheet_editor
@@ -188,6 +195,7 @@ Deploy,erp5_simplified_invoicing
 Deploy,erp5_slideshow_core
 Deploy,erp5_software_pdm
 Deploy,erp5_svg_editor
+Deploy,erp5_syncml
 Deploy,erp5_system_event
 Deploy,erp5_toolbox
 Deploy,erp5_trade
@@ -239,7 +247,10 @@ Download,erp5_upgrader
 Download,erp5_access_tab
 Download,erp5_access_token
 Download,erp5_accounting
+Download,erp5_accounting_eu
+Download,erp5_accounting_fr
 Download,erp5_administration
+Download,erp5_authentication_policy
 Download,erp5_auto_logout
 Download,erp5_base
 Download,erp5_bearer_token
@@ -266,8 +277,8 @@ Download,erp5_forge
 Download,erp5_forge_release
 Download,erp5_gadget
 Download,erp5_glossary
+Download,erp5_immobilisation
 Download,erp5_ingestion
-Download,erp5_ingestion_test
 Download,erp5_integration
 Download,erp5_invoicing
 Download,erp5_jquery_sheet_editor
@@ -290,6 +301,7 @@ Download,erp5_simplified_invoicing
 Download,erp5_slideshow_core
 Download,erp5_software_pdm
 Download,erp5_svg_editor
+Download,erp5_syncml
 Download,erp5_system_event
 Download,erp5_toolbox
 Download,erp5_trade
@@ -343,7 +355,10 @@ Hal,erp5_upgrader
 Hal,erp5_access_tab
 Hal,erp5_access_token
 Hal,erp5_accounting
+Hal,erp5_accounting_eu
+Hal,erp5_accounting_fr
 Hal,erp5_administration
+Hal,erp5_authentication_policy
 Hal,erp5_auto_logout
 Hal,erp5_base
 Hal,erp5_bearer_token
@@ -370,8 +385,8 @@ Hal,erp5_forge
 Hal,erp5_forge_release
 Hal,erp5_gadget
 Hal,erp5_glossary
+Hal,erp5_immobilisation
 Hal,erp5_ingestion
-Hal,erp5_ingestion_test
 Hal,erp5_integration
 Hal,erp5_invoicing
 Hal,erp5_jquery_sheet_editor
@@ -394,6 +409,7 @@ Hal,erp5_simplified_invoicing
 Hal,erp5_slideshow_core
 Hal,erp5_software_pdm
 Hal,erp5_svg_editor
+Hal,erp5_syncml
 Hal,erp5_system_event
 Hal,erp5_toolbox
 Hal,erp5_trade
@@ -448,7 +464,10 @@ HalRestricted,erp5_upgrader
 HalRestricted,erp5_access_tab
 HalRestricted,erp5_access_token
 HalRestricted,erp5_accounting
+HalRestricted,erp5_accounting_eu
+HalRestricted,erp5_accounting_fr
 HalRestricted,erp5_administration
+HalRestricted,erp5_authentication_policy
 HalRestricted,erp5_auto_logout
 HalRestricted,erp5_base
 HalRestricted,erp5_bearer_token
@@ -475,8 +494,8 @@ HalRestricted,erp5_forge
 HalRestricted,erp5_forge_release
 HalRestricted,erp5_gadget
 HalRestricted,erp5_glossary
+HalRestricted,erp5_immobilisation
 HalRestricted,erp5_ingestion
-HalRestricted,erp5_ingestion_test
 HalRestricted,erp5_integration
 HalRestricted,erp5_invoicing
 HalRestricted,erp5_jquery_sheet_editor
@@ -499,6 +518,7 @@ HalRestricted,erp5_simplified_invoicing
 HalRestricted,erp5_slideshow_core
 HalRestricted,erp5_software_pdm
 HalRestricted,erp5_svg_editor
+HalRestricted,erp5_syncml
 HalRestricted,erp5_system_event
 HalRestricted,erp5_toolbox
 HalRestricted,erp5_trade
@@ -551,7 +571,10 @@ KM,erp5_upgrader
 KM,erp5_access_tab
 KM,erp5_access_token
 KM,erp5_accounting
+KM,erp5_accounting_eu
+KM,erp5_accounting_fr
 KM,erp5_administration
+KM,erp5_authentication_policy
 KM,erp5_auto_logout
 KM,erp5_base
 KM,erp5_bearer_token
@@ -578,8 +601,8 @@ KM,erp5_forge
 KM,erp5_forge_release
 KM,erp5_gadget
 KM,erp5_glossary
+KM,erp5_immobilisation
 KM,erp5_ingestion
-KM,erp5_ingestion_test
 KM,erp5_integration
 KM,erp5_invoicing
 KM,erp5_jquery
@@ -604,6 +627,7 @@ KM,erp5_simplified_invoicing
 KM,erp5_slideshow_core
 KM,erp5_software_pdm
 KM,erp5_svg_editor
+KM,erp5_syncml
 KM,erp5_system_event
 KM,erp5_toolbox
 KM,erp5_trade
@@ -656,7 +680,10 @@ Multiflex,erp5_upgrader
 Multiflex,erp5_access_tab
 Multiflex,erp5_access_token
 Multiflex,erp5_accounting
+Multiflex,erp5_accounting_eu
+Multiflex,erp5_accounting_fr
 Multiflex,erp5_administration
+Multiflex,erp5_authentication_policy
 Multiflex,erp5_auto_logout
 Multiflex,erp5_base
 Multiflex,erp5_bearer_token
@@ -683,8 +710,8 @@ Multiflex,erp5_forge
 Multiflex,erp5_forge_release
 Multiflex,erp5_gadget
 Multiflex,erp5_glossary
+Multiflex,erp5_immobilisation
 Multiflex,erp5_ingestion
-Multiflex,erp5_ingestion_test
 Multiflex,erp5_integration
 Multiflex,erp5_invoicing
 Multiflex,erp5_jquery_sheet_editor
@@ -707,6 +734,7 @@ Multiflex,erp5_simplified_invoicing
 Multiflex,erp5_slideshow_core
 Multiflex,erp5_software_pdm
 Multiflex,erp5_svg_editor
+Multiflex,erp5_syncml
 Multiflex,erp5_system_event
 Multiflex,erp5_toolbox
 Multiflex,erp5_trade
@@ -758,7 +786,10 @@ ODS,erp5_upgrader
 ODS,erp5_access_tab
 ODS,erp5_access_token
 ODS,erp5_accounting
+ODS,erp5_accounting_eu
+ODS,erp5_accounting_fr
 ODS,erp5_administration
+ODS,erp5_authentication_policy
 ODS,erp5_auto_logout
 ODS,erp5_base
 ODS,erp5_bearer_token
@@ -785,8 +816,8 @@ ODS,erp5_forge
 ODS,erp5_forge_release
 ODS,erp5_gadget
 ODS,erp5_glossary
+ODS,erp5_immobilisation
 ODS,erp5_ingestion
-ODS,erp5_ingestion_test
 ODS,erp5_integration
 ODS,erp5_invoicing
 ODS,erp5_jquery_sheet_editor
@@ -809,6 +840,7 @@ ODS,erp5_simplified_invoicing
 ODS,erp5_slideshow_core
 ODS,erp5_software_pdm
 ODS,erp5_svg_editor
+ODS,erp5_syncml
 ODS,erp5_system_event
 ODS,erp5_toolbox
 ODS,erp5_trade
@@ -860,7 +892,10 @@ ODT,erp5_upgrader
 ODT,erp5_access_tab
 ODT,erp5_access_token
 ODT,erp5_accounting
+ODT,erp5_accounting_eu
+ODT,erp5_accounting_fr
 ODT,erp5_administration
+ODT,erp5_authentication_policy
 ODT,erp5_auto_logout
 ODT,erp5_base
 ODT,erp5_bearer_token
@@ -887,8 +922,8 @@ ODT,erp5_forge
 ODT,erp5_forge_release
 ODT,erp5_gadget
 ODT,erp5_glossary
+ODT,erp5_immobilisation
 ODT,erp5_ingestion
-ODT,erp5_ingestion_test
 ODT,erp5_integration
 ODT,erp5_invoicing
 ODT,erp5_jquery_sheet_editor
@@ -911,6 +946,7 @@ ODT,erp5_simplified_invoicing
 ODT,erp5_slideshow_core
 ODT,erp5_software_pdm
 ODT,erp5_svg_editor
+ODT,erp5_syncml
 ODT,erp5_system_event
 ODT,erp5_toolbox
 ODT,erp5_trade
@@ -963,7 +999,10 @@ RJS,erp5_upgrader
 RJS,erp5_access_tab
 RJS,erp5_access_token
 RJS,erp5_accounting
+RJS,erp5_accounting_eu
+RJS,erp5_accounting_fr
 RJS,erp5_administration
+RJS,erp5_authentication_policy
 RJS,erp5_auto_logout
 RJS,erp5_base
 RJS,erp5_bearer_token
@@ -990,8 +1029,8 @@ RJS,erp5_forge
 RJS,erp5_forge_release
 RJS,erp5_gadget
 RJS,erp5_glossary
+RJS,erp5_immobilisation
 RJS,erp5_ingestion
-RJS,erp5_ingestion_test
 RJS,erp5_integration
 RJS,erp5_invoicing
 RJS,erp5_jquery_sheet_editor
@@ -1014,6 +1053,7 @@ RJS,erp5_simplified_invoicing
 RJS,erp5_slideshow_core
 RJS,erp5_software_pdm
 RJS,erp5_svg_editor
+RJS,erp5_syncml
 RJS,erp5_system_event
 RJS,erp5_toolbox
 RJS,erp5_trade
@@ -1066,7 +1106,10 @@ RSS,erp5_upgrader
 RSS,erp5_access_tab
 RSS,erp5_access_token
 RSS,erp5_accounting
+RSS,erp5_accounting_eu
+RSS,erp5_accounting_fr
 RSS,erp5_administration
+RSS,erp5_authentication_policy
 RSS,erp5_auto_logout
 RSS,erp5_base
 RSS,erp5_bearer_token
@@ -1093,8 +1136,8 @@ RSS,erp5_forge
 RSS,erp5_forge_release
 RSS,erp5_gadget
 RSS,erp5_glossary
+RSS,erp5_immobilisation
 RSS,erp5_ingestion
-RSS,erp5_ingestion_test
 RSS,erp5_integration
 RSS,erp5_invoicing
 RSS,erp5_jquery_sheet_editor
@@ -1117,6 +1160,7 @@ RSS,erp5_simplified_invoicing
 RSS,erp5_slideshow_core
 RSS,erp5_software_pdm
 RSS,erp5_svg_editor
+RSS,erp5_syncml
 RSS,erp5_system_event
 RSS,erp5_toolbox
 RSS,erp5_trade
@@ -1168,7 +1212,10 @@ RedirectAssist,erp5_upgrader
 RedirectAssist,erp5_access_tab
 RedirectAssist,erp5_access_token
 RedirectAssist,erp5_accounting
+RedirectAssist,erp5_accounting_eu
+RedirectAssist,erp5_accounting_fr
 RedirectAssist,erp5_administration
+RedirectAssist,erp5_authentication_policy
 RedirectAssist,erp5_auto_logout
 RedirectAssist,erp5_base
 RedirectAssist,erp5_bearer_token
@@ -1195,8 +1242,8 @@ RedirectAssist,erp5_forge
 RedirectAssist,erp5_forge_release
 RedirectAssist,erp5_gadget
 RedirectAssist,erp5_glossary
+RedirectAssist,erp5_immobilisation
 RedirectAssist,erp5_ingestion
-RedirectAssist,erp5_ingestion_test
 RedirectAssist,erp5_integration
 RedirectAssist,erp5_invoicing
 RedirectAssist,erp5_jquery_sheet_editor
@@ -1219,6 +1266,7 @@ RedirectAssist,erp5_simplified_invoicing
 RedirectAssist,erp5_slideshow_core
 RedirectAssist,erp5_software_pdm
 RedirectAssist,erp5_svg_editor
+RedirectAssist,erp5_syncml
 RedirectAssist,erp5_system_event
 RedirectAssist,erp5_toolbox
 RedirectAssist,erp5_trade
@@ -1272,7 +1320,10 @@ SHACACHE,erp5_upgrader
 SHACACHE,erp5_access_tab
 SHACACHE,erp5_access_token
 SHACACHE,erp5_accounting
+SHACACHE,erp5_accounting_eu
+SHACACHE,erp5_accounting_fr
 SHACACHE,erp5_administration
+SHACACHE,erp5_authentication_policy
 SHACACHE,erp5_auto_logout
 SHACACHE,erp5_base
 SHACACHE,erp5_bearer_token
@@ -1299,8 +1350,8 @@ SHACACHE,erp5_forge
 SHACACHE,erp5_forge_release
 SHACACHE,erp5_gadget
 SHACACHE,erp5_glossary
+SHACACHE,erp5_immobilisation
 SHACACHE,erp5_ingestion
-SHACACHE,erp5_ingestion_test
 SHACACHE,erp5_integration
 SHACACHE,erp5_invoicing
 SHACACHE,erp5_jquery_sheet_editor
@@ -1323,6 +1374,7 @@ SHACACHE,erp5_simplified_invoicing
 SHACACHE,erp5_slideshow_core
 SHACACHE,erp5_software_pdm
 SHACACHE,erp5_svg_editor
+SHACACHE,erp5_syncml
 SHACACHE,erp5_system_event
 SHACACHE,erp5_toolbox
 SHACACHE,erp5_trade
@@ -1376,7 +1428,10 @@ SHADIR,erp5_upgrader
 SHADIR,erp5_access_tab
 SHADIR,erp5_access_token
 SHADIR,erp5_accounting
+SHADIR,erp5_accounting_eu
+SHADIR,erp5_accounting_fr
 SHADIR,erp5_administration
+SHADIR,erp5_authentication_policy
 SHADIR,erp5_auto_logout
 SHADIR,erp5_base
 SHADIR,erp5_bearer_token
@@ -1403,8 +1458,8 @@ SHADIR,erp5_forge
 SHADIR,erp5_forge_release
 SHADIR,erp5_gadget
 SHADIR,erp5_glossary
+SHADIR,erp5_immobilisation
 SHADIR,erp5_ingestion
-SHADIR,erp5_ingestion_test
 SHADIR,erp5_integration
 SHADIR,erp5_invoicing
 SHADIR,erp5_jquery_sheet_editor
@@ -1427,6 +1482,7 @@ SHADIR,erp5_simplified_invoicing
 SHADIR,erp5_slideshow_core
 SHADIR,erp5_software_pdm
 SHADIR,erp5_svg_editor
+SHADIR,erp5_syncml
 SHADIR,erp5_system_event
 SHADIR,erp5_toolbox
 SHADIR,erp5_trade
@@ -1479,7 +1535,10 @@ SlideShow,erp5_upgrader
 SlideShow,erp5_access_tab
 SlideShow,erp5_access_token
 SlideShow,erp5_accounting
+SlideShow,erp5_accounting_eu
+SlideShow,erp5_accounting_fr
 SlideShow,erp5_administration
+SlideShow,erp5_authentication_policy
 SlideShow,erp5_auto_logout
 SlideShow,erp5_base
 SlideShow,erp5_bearer_token
@@ -1506,8 +1565,8 @@ SlideShow,erp5_forge
 SlideShow,erp5_forge_release
 SlideShow,erp5_gadget
 SlideShow,erp5_glossary
+SlideShow,erp5_immobilisation
 SlideShow,erp5_ingestion
-SlideShow,erp5_ingestion_test
 SlideShow,erp5_integration
 SlideShow,erp5_invoicing
 SlideShow,erp5_jquery_sheet_editor
@@ -1530,6 +1589,7 @@ SlideShow,erp5_simplified_invoicing
 SlideShow,erp5_slideshow_core
 SlideShow,erp5_software_pdm
 SlideShow,erp5_svg_editor
+SlideShow,erp5_syncml
 SlideShow,erp5_system_event
 SlideShow,erp5_toolbox
 SlideShow,erp5_trade
@@ -1581,7 +1641,10 @@ View,erp5_upgrader
 View,erp5_access_tab
 View,erp5_access_token
 View,erp5_accounting
+View,erp5_accounting_eu
+View,erp5_accounting_fr
 View,erp5_administration
+View,erp5_authentication_policy
 View,erp5_auto_logout
 View,erp5_base
 View,erp5_bearer_token
@@ -1609,8 +1672,8 @@ View,erp5_forge_release
 View,erp5_gadget
 View,erp5_glossary
 View,erp5_html_compatibility
+View,erp5_immobilisation
 View,erp5_ingestion
-View,erp5_ingestion_test
 View,erp5_integration
 View,erp5_invoicing
 View,erp5_jquery
@@ -1634,6 +1697,7 @@ View,erp5_simplified_invoicing
 View,erp5_slideshow_core
 View,erp5_software_pdm
 View,erp5_svg_editor
+View,erp5_syncml
 View,erp5_system_event
 View,erp5_toolbox
 View,erp5_trade

@@ -1,3 +1,41 @@
+amortisation_transaction_builder
+  Title: Amortisation Transaction Builder
+  Simulation Select Method: AmortisationTransaction_selectMovement
+  Delivery Select Method: AmortisationTransaction_selectDelivery
+  After Generation Script: AmortisationTransaction_activateAfterBuild
+
+amortisation_transaction_builder
+  Id: category_movement_group_on_delivery
+  Title: category_movement_group_on_delivery
+  Type: Category Movement Group
+  Collect Order Group: delivery
+  Tested Properties: ['source_section', 'destination_section', 'resource']
+  Update Always: None
+
+amortisation_transaction_builder
+  Id: category_movement_group_on_line
+  Title: category_movement_group_on_line
+  Type: Category Movement Group
+  Collect Order Group: line
+  Tested Properties: ['source', 'destination']
+  Update Always: None
+
+amortisation_transaction_builder
+  Id: property_movement_group_on_delivery
+  Title: property_movement_group_on_delivery
+  Type: Property Movement Group
+  Collect Order Group: delivery
+  Tested Properties: ['start_date', 'stop_date']
+  Update Always: None
+
+amortisation_transaction_builder
+  Id: quantity_sign_movement_group_on_line
+  Title: quantity_sign_movement_group_on_line
+  Type: Quantity Sign Movement Group
+  Collect Order Group: line
+  Tested Properties: []
+  Update Always: None
+
 payment_transaction_builder
   Title: Payment Transaction Builder
   Simulation Select Method: PaymentTransaction_selectMovement
@@ -67,28 +105,20 @@ slapos_sale_invoice_builder
   Update Always: 0
 
 slapos_sale_invoice_builder
-  Id: causality_movement_group_on_delivery
-  Title: causality_movement_group_on_delivery
-  Type: Causality Movement Group
-  Collect Order Group: delivery
-  Tested Properties: []
-  Update Always: None
-
-slapos_sale_invoice_builder
-  Id: delivery_causality_assignment_movement_group_on_delivery
-  Title: delivery_causality_assignment_movement_group_on_delivery
-  Type: Delivery Causality Assignment Movement Group
-  Collect Order Group: delivery
-  Tested Properties: []
-  Update Always: None
-
-slapos_sale_invoice_builder
   Id: property_movement_group_on_delivery
   Title: property_movement_group_on_delivery
   Type: Property Movement Group
   Collect Order Group: delivery
   Tested Properties: ['start_date', 'stop_date']
   Update Always: 0
+
+slapos_sale_invoice_builder
+  Id: root_applied_rule_causality_causality_movement_group_on_delivery
+  Title: root_applied_rule_causality_causality_movement_group_on_delivery
+  Type: Root Applied Rule Causality Causality Movement Group
+  Collect Order Group: delivery
+  Tested Properties: []
+  Update Always: None
 
 slapos_sale_invoice_transaction_builder
   Title: SlapOS Sale Invoice Transaction Builder

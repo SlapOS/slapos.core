@@ -36,6 +36,15 @@ Agent Privilege,(Default)
 Alarm,edit_workflow
 Alarm Configurator Item,(Default)
 Alarm Tool,(Default)
+Amortisation Rule,edit_workflow
+Amortisation Rule,rule_validation_workflow
+Amortisation Transaction,accounting_workflow
+Amortisation Transaction,amortisation_transaction_causality_workflow
+Amortisation Transaction,delivery_causality_interaction_workflow
+Amortisation Transaction,delivery_causality_workflow
+Amortisation Transaction,edit_workflow
+Amortisation Transaction Line,delivery_movement_causality_interaction_workflow
+Amortisation Transaction Line,edit_workflow
 Amount,(Default)
 Application Id Generator,(Default)
 Applied Rule,(Default)
@@ -233,6 +242,7 @@ Dynamic Category Property,dynamic_class_generation_interaction_workflow
 ERP5 Form,(Default)
 ERP5 Login,edit_workflow
 ERP5 Login,login_validation_workflow
+ERP5 Login,password_interaction_workflow
 Email,edit_workflow
 Email,reachability_workflow
 Embedded File,document_conversion_interaction_workflow
@@ -299,6 +309,14 @@ Image,document_publication_workflow
 Image,document_security_interaction_workflow
 Image,edit_workflow
 Image Module,(Default)
+Immobilisation,edit_workflow
+Immobilisation,immobilisation_delivery_workflow
+Immobilisation,immobilisation_movement_interaction_workflow
+Immobilisation,immobilisation_workflow
+Immobilisation Line,edit_workflow
+Immobilisation Line,immobilisation_movement_interaction_workflow
+Immobilisation Line,pricing_interaction_workflow
+Immobilisation Module,(Default)
 Implicit Item Movement,edit_workflow
 Implicit Item Movement,implicit_item_movement_workflow
 Implicit Item Movement,movement_resource_interaction_workflow
@@ -339,6 +357,7 @@ Internal Order Module,(Default)
 Internal Packing List,delivery_causality_interaction_workflow
 Internal Packing List,delivery_causality_workflow
 Internal Packing List,edit_workflow
+Internal Packing List,immobilisation_workflow
 Internal Packing List,packing_list_workflow
 Internal Packing List Cell,delivery_movement_causality_interaction_workflow
 Internal Packing List Cell,pricing_interaction_workflow
@@ -351,7 +370,7 @@ Internal Packing List Line,trade_matrix_workflow
 Internal Packing List Module,(Default)
 Internal Supply,edit_workflow
 Internal Supply,validation_workflow
-Internal Supply Cell,(Default)
+Internal Supply Cell,supply_cell_interaction_workflow
 Internal Supply Line,edit_workflow
 Internal Supply Line,reindex_object_interaction_workflow
 Internal Supply Line,supply_line_interaction_workflow
@@ -362,6 +381,7 @@ Internal Trade Condition,validation_workflow
 Internal Trade Condition Module,(Default)
 Internet Protocol Address,edit_workflow
 Inventory,edit_workflow
+Inventory,immobilisation_workflow
 Inventory,inventory_workflow
 Inventory Cell,pricing_interaction_workflow
 Inventory Line,edit_workflow
@@ -427,6 +447,9 @@ Missing Category Document Constraint,(Default)
 Mixin Component,component_validation_workflow
 Mixin Component,dynamic_class_generation_interaction_workflow
 Mixin Component,edit_workflow
+Module Component,component_validation_workflow
+Module Component,dynamic_class_generation_interaction_workflow
+Module Component,edit_workflow
 Monthly Range Movement Group,(Default)
 Movement,(Default)
 Nested Line Movement Group,(Default)
@@ -521,6 +544,7 @@ Portal Type Configurator Item,(Default)
 Portal Type Roles Spreadsheet Configurator Item,(Default)
 Predicate,edit_workflow
 Preference,edit_workflow
+Preference,preference_interaction_workflow
 Preference,preference_workflow
 Preference Configurator Item,(Default)
 Preference Tool,(Default)
@@ -534,7 +558,8 @@ Presentation,processing_status_workflow
 Previous Causality Movement Group,(Default)
 Product,commerce_validation_workflow
 Product,edit_workflow
-Product Individual Variation,(Default)
+Product Individual Variation,edit_workflow
+Product Individual Variation,visibility_workflow
 Product Module,(Default)
 Project,edit_workflow
 Project,project_workflow
@@ -572,6 +597,7 @@ Purchase Order Module,(Default)
 Purchase Packing List,delivery_causality_interaction_workflow
 Purchase Packing List,delivery_causality_workflow
 Purchase Packing List,edit_workflow
+Purchase Packing List,immobilisation_workflow
 Purchase Packing List,packing_list_workflow
 Purchase Packing List Cell,delivery_movement_causality_interaction_workflow
 Purchase Packing List Cell,pricing_interaction_workflow
@@ -583,7 +609,7 @@ Purchase Packing List Line,trade_matrix_workflow
 Purchase Packing List Module,(Default)
 Purchase Supply,edit_workflow
 Purchase Supply,validation_workflow
-Purchase Supply Cell,(Default)
+Purchase Supply Cell,supply_cell_interaction_workflow
 Purchase Supply Line,edit_workflow
 Purchase Supply Line,reindex_object_interaction_workflow
 Purchase Supply Line,supply_line_interaction_workflow
@@ -689,6 +715,7 @@ Role Configurator Item,(Default)
 Role Definition,edit_workflow
 Role Definition,local_permission_interaction_workflow
 Role Information,(Default)
+Root Applied Rule Causality Causality Movement Group,(Default)
 Root Applied Rule Causality Movement Group,(Default)
 Rounding Model,validation_workflow
 Rounding Tool,(Default)
@@ -726,6 +753,7 @@ Sale Order Module,(Default)
 Sale Packing List,delivery_causality_interaction_workflow
 Sale Packing List,delivery_causality_workflow
 Sale Packing List,edit_workflow
+Sale Packing List,immobilisation_workflow
 Sale Packing List,local_permission_slapos_interaction_workflow
 Sale Packing List,packing_list_container_workflow
 Sale Packing List,packing_list_workflow
@@ -740,7 +768,7 @@ Sale Packing List Line,trade_matrix_workflow
 Sale Packing List Module,(Default)
 Sale Supply,edit_workflow
 Sale Supply,validation_workflow
-Sale Supply Cell,(Default)
+Sale Supply Cell,supply_cell_interaction_workflow
 Sale Supply Line,edit_workflow
 Sale Supply Line,reindex_object_interaction_workflow
 Sale Supply Line,supply_line_interaction_workflow
@@ -846,7 +874,7 @@ Subscription Item Root Simulation Rule,rule_validation_workflow
 Subscription Request,edit_workflow
 Subscription Request,subscription_request_workflow
 Subscription Request Module,(Default)
-Supply Cell,(Default)
+Supply Cell,supply_cell_interaction_workflow
 Supply Line,edit_workflow
 Supply Line,reindex_object_interaction_workflow
 Supply Line,supply_line_interaction_workflow
@@ -856,9 +884,22 @@ Support Request,slapos_erp5_interaction_workflow
 Support Request,ticket_interaction_workflow
 Support Request,ticket_workflow
 Support Request Module,(Default)
+SyncML Conflict,(Default)
+SyncML Publication,edit_workflow
+SyncML Publication,syncml_subcription_validation_workflow
+SyncML Publication,syncml_subscription_authentication_workflow
+SyncML Publication,syncml_synchronization_workflow
+SyncML Signature,edit_workflow
+SyncML Signature,syncml_signature_validation_workflow
+SyncML Subscription,edit_workflow
+SyncML Subscription,syncml_subcription_validation_workflow
+SyncML Subscription,syncml_subscription_authentication_workflow
+SyncML Subscription,syncml_synchronization_workflow
 Synchronization Configurator Item,(Default)
+Synchronization Tool,edit_workflow
 System Event Module,(Default)
 System Preference,edit_workflow
+System Preference,preference_interaction_workflow
 System Preference,preference_workflow
 System Preference Configurator Item,(Default)
 TALES Constraint,dynamic_class_generation_interaction_workflow
@@ -897,6 +938,9 @@ Text,document_security_interaction_workflow
 Text,edit_workflow
 Text,processing_status_workflow
 Title Movement Group,(Default)
+Tool Component,component_validation_workflow
+Tool Component,dynamic_class_generation_interaction_workflow
+Tool Component,edit_workflow
 Trade Model Cell,(Default)
 Trade Model Line,edit_workflow
 Trade Model Line Cell Consistency Constraint,dynamic_class_generation_interaction_workflow

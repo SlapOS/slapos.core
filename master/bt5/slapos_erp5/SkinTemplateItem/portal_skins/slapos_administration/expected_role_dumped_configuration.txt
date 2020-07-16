@@ -2368,18 +2368,18 @@ Visit
 Web Message
   Title: Customer
   Roles: ['Auditor']
-  Condition: python: here.getDestinationValue(portal_type='Person') is not None
+  Condition: python: here.getSourceValue(portal_type='Person') is not None
   Local Roles Group Id: user
-  Base Categories: ['destination']
+  Base Categories: ['source']
   Base Category Script: ERP5Type_getSecurityCategoryFromContent
   Categories: []
 
 Web Message
-  Title: Customer
+  Title: Customer (Destination)
   Roles: ['Auditor']
-  Condition: python: here.getSourceValue(portal_type='Person') is not None
+  Condition: python: here.getDestinationValue(portal_type='Person') is not None
   Local Roles Group Id: user
-  Base Categories: ['source']
+  Base Categories: ['destination']
   Base Category Script: ERP5Type_getSecurityCategoryFromContent
   Categories: []
 

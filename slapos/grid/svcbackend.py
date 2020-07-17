@@ -65,7 +65,7 @@ def getSupervisorRPC(socket):
       yield s.supervisor
 
 def _getSupervisordSocketPath(instance_root):
-  return os.path.join(instance_root, 'supervisord.socket')
+  return os.path.join(instance_root, 'sv.sock')
 
 def _getSupervisordConfigurationFilePath(instance_root):
   return os.path.join(instance_root, 'etc', 'supervisord.conf')

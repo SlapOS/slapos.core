@@ -14,6 +14,7 @@
     </thead>
     <tbody>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/set_default_available_language"/>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login" />
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
 
@@ -46,7 +47,8 @@
         <td colspan="3"><b> Fill Request form </b></td>
       </tr>
 
-      <tal:block define="header python: '3/3 Request Service: Frontend'; ">
+      <tal:block tal:define="header python: '3/3 Request Service: ${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': 'Frontend'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
@@ -121,7 +123,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
       </tal:block>
 
-      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '1 Records'}">
+      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '${count} Records'};
+                             dummy python: context.REQUEST.set('mapping', {'count': '1'})">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
       </tal:block>
 
@@ -135,9 +138,9 @@
         <td>//a[text()="TEST-SLAPOSJS-SERVICE-FRONTEND 0"]</td>
         <td></td>
       </tr>
-      <tr>
+      <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-FRONTEND 0'})">
         <td>waitForElementPresent</td>
-        <td>//a[@data-i18n="Hosting Subscription: TEST-SLAPOSJS-SERVICE-FRONTEND 0"]</td>
+        <td tal:content="python: '//a[@data-i18n= \'%s\']' % (here.Base_translateString('Hosting Subscription: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
         <td></td>
       </tr>
 
@@ -186,6 +189,7 @@
         <td>http://www.erp5.com</td>
       </tr>
 
+      <!-- Update Parameters -->
       <!-- Update Add Ticket -->
       <!-- Update Stop -->
       <!-- Update Start -->
@@ -195,7 +199,8 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
       </tal:block>
 
-      <tal:block define="header python: 'Destroy Hosting Subscription: TEST-SLAPOSJS-SERVICE-FRONTEND 0'; ">
+      <tal:block tal:define="header python: 'Destroy Hosting Subscription: ${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-FRONTEND 0'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />

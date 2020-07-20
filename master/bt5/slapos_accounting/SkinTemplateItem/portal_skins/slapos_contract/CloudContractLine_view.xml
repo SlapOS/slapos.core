@@ -38,6 +38,10 @@
             <value> <string>Base_edit</string> </value>
         </item>
         <item>
+            <key> <string>action_title</string> </key>
+            <value> <string></string> </value>
+        </item>
+        <item>
             <key> <string>description</string> </key>
             <value> <string></string> </value>
         </item>
@@ -74,9 +78,7 @@
                 <item>
                     <key> <string>bottom</string> </key>
                     <value>
-                      <list>
-                        <string>listbox</string>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>
@@ -96,7 +98,6 @@
                     <value>
                       <list>
                         <string>my_title</string>
-                        <string>my_destination_section_title</string>
                       </list>
                     </value>
                 </item>
@@ -104,8 +105,8 @@
                     <key> <string>right</string> </key>
                     <value>
                       <list>
-                        <string>my_maximum_invoice_delay</string>
-                        <string>my_translated_validation_state_title</string>
+                        <string>my_maximum_invoice_credit</string>
+                        <string>my_price_currency</string>
                       </list>
                     </value>
                 </item>
@@ -114,7 +115,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>CloudContract_view</string> </value>
+            <value> <string>CloudContractLine_view</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -122,7 +123,7 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>CloudContract_view</string> </value>
+            <value> <string>CloudContractLine_view</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>
@@ -138,7 +139,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Cloud Contract</string> </value>
+            <value> <string>Cloud Contract Line</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

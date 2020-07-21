@@ -127,6 +127,9 @@ def makeModuleSetUpAndTestCaseClass(
       logging.DEBUG if (verbose or debug) else logging.WARNING)
   logger.addHandler(console_handler)
 
+  if debug:
+    unittest.installHandler()
+
   # TODO: fail if already running ?
   try:
     slap = StandaloneSlapOS(
@@ -162,8 +165,6 @@ def makeModuleSetUpAndTestCaseClass(
 
   def setUpModule():
     # type: () -> None
-    if debug:
-      unittest.installHandler()
     installSoftwareUrlList(cls, [software_url], debug=debug)
 
   return setUpModule, SlapOSInstanceTestCase_

@@ -42,8 +42,9 @@ credential_request.setCategoryList(category_list)
 credential_request.reindexObject(activate_kw=dict(tag='set_login_%s' % reference.encode('hex')))
 
 if portal_preferences.getPreferredCredentialAlarmAutomaticCall():
+  portal_type = context.Base_translateString("Credential Request")
   credential_request.submit("Automatic submit")
-  message_str = "Credential Request Created."
+  message_str = context.Base_translateString("${portal_type} Created.", mapping=({'portal_type': portal_type}))
 else:
   if portal_preferences.isPreferredEmailVerificationCheck():
     # after_path_and_method_id argument is used below to not activate when
@@ -61,8 +62,8 @@ else:
   else:
     # no email verification is needed
     credential_request.submit("Automatic submit")
-    message_str = "Credential Request Created."
-
+    message_str = context.Base_translateString("${portal_type} Created.", mapping=({'portal_type': portal_type}))
+    
 if batch_mode:
   return credential_request
     

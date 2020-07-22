@@ -4,7 +4,7 @@
 # Copyright (c) 2012 Nexedi SA and Contributors. All Rights Reserved.
 #
 ##############################################################################
-
+       
 import transaction
 import time
 from functools import wraps
@@ -296,19 +296,23 @@ class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
         if q.getValidationState() == 'validated']
     archived_open_sale_order_list = [q for q in open_sale_order_list
         if q.getValidationState() == 'archived']
-    self.assertEqual(1, len(validated_open_sale_order_list))
-    self.assertEqual(1, len(archived_open_sale_order_list))
-    validated_open_sale_order = validated_open_sale_order_list[0].getObject()
+
+    self.assertEqual(0, len(validated_open_sale_order_list))
+    self.assertEqual(2, len(archived_open_sale_order_list))
+    
+    archived_open_sale_order_list.sort(key=lambda x: x.getCreationDate())
+
+    last_open_sale_order = archived_open_sale_order_list[-1].getObject()
     archived_open_sale_order = archived_open_sale_order_list[0]\
         .getObject()
     self.assertEqual(open_sale_order.getRelativeUrl(),
         archived_open_sale_order.getRelativeUrl())
 
-    validated_line_list = validated_open_sale_order.contentValues(
+    last_line_list = last_open_sale_order.contentValues(
         portal_type='Open Sale Order Line')
     archived_line_list = archived_open_sale_order.contentValues(
         portal_type='Open Sale Order Line')
-    self.assertEqual(0, len(validated_line_list))
+    self.assertEqual(0, len(last_line_list))
     self.assertEqual(1, len(archived_line_list))
 
     archived_line = archived_line_list[0].getObject()
@@ -373,8 +377,13 @@ class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     )
 
     self.assertEqual(2, len(open_sale_order_list))
-    open_sale_order = [x for x in open_sale_order_list \
-                       if x.getValidationState() != 'validated'][0].getObject()
+    archived_open_sale_order_list = [x for x in open_sale_order_list \
+                       if x.getValidationState() != 'validated' and \
+                          len(x.objectValues()) > 0]
+
+    self.assertEqual(1, len(archived_open_sale_order_list))  
+    open_sale_order = archived_open_sale_order_list[0].getObject()
+    
     self.assertEqual('archived', open_sale_order.getValidationState())
 
     open_sale_order_line_list = open_sale_order.contentValues(
@@ -398,9 +407,18 @@ class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
 
     self.assertEqual(DateTime('2012/02/02'), line.getStopDate())
 
-    new_open_sale_order = [x for x in open_sale_order_list \
-                           if x.getValidationState() == 'validated'][0].getObject()
-    self.assertEqual('validated', new_open_sale_order.getValidationState())
+    new_validated_open_sale_order_list = [x for x in open_sale_order_list \
+                           if x.getValidationState() == 'validated']
+    self.assertEqual(0, len(new_validated_open_sale_order_list))  
+
+    archived_open_sale_order_list = [x for x in open_sale_order_list \
+                           if x.getValidationState() != 'validated']
+
+    archived_open_sale_order_list.sort(key=lambda x: x.getCreationDate(), reverse=True)
+
+    new_open_sale_order = archived_open_sale_order_list[0]
+    # The OSO is archived as soon it has no lines anymore.
+    self.assertEqual('archived', new_open_sale_order.getValidationState())
     open_sale_order_line_list = new_open_sale_order.contentValues(
         portal_type='Open Sale Order Line')
     self.assertEqual(0, len(open_sale_order_line_list))
@@ -650,8 +668,12 @@ class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     )
 
     self.assertEqual(2,len(open_sale_order_list))
-    open_sale_order = [x for x in open_sale_order_list \
-                       if x.getValidationState() != 'validated'][0].getObject()
+    archived_open_sale_order_list = [x for x in open_sale_order_list \
+                           if x.getValidationState() != 'validated']
+
+    archived_open_sale_order_list.sort(key=lambda x: x.getCreationDate())
+
+    open_sale_order = archived_open_sale_order_list[0].getObject()
     self.assertEqual('archived', open_sale_order.getValidationState())
 
     open_sale_order_line_list = open_sale_order.contentValues(
@@ -676,9 +698,13 @@ class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertEqual(addToDate(line.getStartDate(), to_add={'day': 1}),
                      line.getStopDate())
 
-    new_open_sale_order = [x for x in open_sale_order_list \
-                           if x.getValidationState() == 'validated'][0].getObject()
-    self.assertEqual('validated', new_open_sale_order.getValidationState())
+    archived_open_sale_order_list = [x for x in open_sale_order_list \
+                           if x.getValidationState() != 'validated']
+
+    archived_open_sale_order_list.sort(key=lambda x: x.getCreationDate())
+
+    new_open_sale_order = archived_open_sale_order_list[-1].getObject()
+    self.assertEqual('archived', new_open_sale_order.getValidationState())
     new_effective_date = new_open_sale_order.getEffectiveDate()
     open_sale_order_line_list = new_open_sale_order.contentValues(
         portal_type='Open Sale Order Line')

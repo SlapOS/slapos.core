@@ -11,13 +11,16 @@ if portal.portal_activities.countMessageWithTag(tag) > 0:
   return
 
 def newOpenOrder(open_sale_order):
+  open_sale_order_template = portal.restrictedTraverse(
+      portal.portal_preferences.getPreferredOpenSaleOrderTemplate())
+
   open_order_edit_kw = {
     'effective_date': DateTime(),
     'activate_kw': activate_kw,
+    'source': open_sale_order_template.getSource(),
+    'source_section': open_sale_order_template.getSourceSection()
   }
   if open_sale_order is None:
-    open_sale_order_template = portal.restrictedTraverse(
-        portal.portal_preferences.getPreferredOpenSaleOrderTemplate())
     new_open_sale_order = open_sale_order_template.Base_createCloneDocument(batch_mode=1)
     open_order_edit_kw.update({
       'destination': person.getRelativeUrl(),
@@ -201,6 +204,7 @@ if (delete_line_list):
   open_order_explanation += "Removed %s." % str(delete_line_list)
 
   storeWorkflowComment(new_open_sale_order, open_order_explanation)
+  open_sale_order = new_open_sale_order
 
 if open_sale_order is not None:
   if not len(open_sale_order.contentValues(

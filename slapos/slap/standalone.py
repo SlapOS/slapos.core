@@ -63,6 +63,7 @@ from .slap import slap
 from ..util import dumps, rmtree
 
 from ..grid.svcbackend import getSupervisorRPC
+from ..grid.svcbackend import _getSupervisordSocketPath
 
 
 @zope.interface.implementer(IException)
@@ -355,7 +356,7 @@ class StandaloneSlapOS(object):
     # https://github.com/torvalds/linux/blob/3848ec5/net/unix/af_unix.c#L234-L238
     # Supervisord socket name contains the pid number, which is why we add
     # .xxxxxxx in this check.
-    if len(os.path.join(base_directory, 'supervisord.socket.xxxxxxx')) > 108:
+    if len(os.path.join(base_directory, 'sv.sock.xxxxxxx')) > 108:
       raise PathTooDeepError(
           'working directory ( {base_directory} ) is too deep'.format(
               **locals()))
@@ -400,7 +401,7 @@ class StandaloneSlapOS(object):
     self._instance_pid = os.path.join(run_directory, 'slapos-node-instance.pid')
     self._report_pid = os.path.join(run_directory, 'slapos-node-report.pid')
 
-    self._supervisor_socket = os.path.join(run_directory, 'supervisord.sock')
+    self._supervisor_socket = os.path.join(run_directory, 'sv.sock')
 
     SupervisorConfigWriter(self).writeConfig(self._supervisor_config)
     SlapOSConfigWriter(self).writeConfig(self._slapos_config)
@@ -454,9 +455,7 @@ class StandaloneSlapOS(object):
 
     This should be used as a context manager.
     """
-    return getSupervisorRPC(
-        # this socket path is not configurable.
-        os.path.join(self._instance_root, "supervisord.socket"))
+    return getSupervisorRPC(_getSupervisordSocketPath(self._instance_root))
 
   def format(
       self,

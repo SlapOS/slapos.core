@@ -151,7 +151,7 @@ class BasicMixin(object):
     if getattr(self, 'master_url', None) is None:
       self.master_url = 'http://127.0.0.1:80/'
     self.computer_id = 'computer'
-    self.supervisord_socket = os.path.join(self._tempdir, 'supervisord.sock')
+    self.supervisord_socket = os.path.join(self._tempdir, 'sv.sock')
     self.supervisord_configuration_path = os.path.join(self._tempdir,
                                                        'supervisord')
     self.usage_report_periodicity = 1
@@ -227,7 +227,7 @@ class BasicMixin(object):
   def assertInstanceDirectoryListEqual(self, instance_list):
     instance_list.append('etc')
     instance_list.append('var')
-    instance_list.append('supervisord.socket')
+    instance_list.append('sv.sock')
     six.assertCountEqual(self, os.listdir(self.instance_root), instance_list)
 
   def tearDown(self):

@@ -33,6 +33,7 @@ import re
 import glob
 import logging
 import shutil
+import warnings
 from six.moves.urllib.parse import urlparse
 
 try:
@@ -112,6 +113,23 @@ def makeModuleSetUpAndTestCaseClass(
     base_directory = os.path.realpath(
         os.environ.get(
             'SLAPOS_TEST_WORKING_DIR', os.path.join(os.getcwd(), '.slapos')))
+
+  software_id = urlparse(software_url).path.split('/')[-2]
+
+  logging.basicConfig(
+      level=logging.DEBUG,
+      format='%(asctime)s - {} - %(name)s - %(levelname)s - %(message)s'.format(software_id),
+      filename=os.path.join(snapshot_directory or base_directory, 'testcase.log'),
+  )
+  logger = logging.getLogger()
+  console_handler = logging.StreamHandler()
+  console_handler.setLevel(
+      logging.DEBUG if (verbose or debug) else logging.WARNING)
+  logger.addHandler(console_handler)
+
+  if debug:
+    unittest.installHandler()
+
   # TODO: fail if already running ?
   try:
     slap = StandaloneSlapOS(
@@ -124,15 +142,13 @@ def makeModuleSetUpAndTestCaseClass(
         'base directory ( {} ) is too deep, try setting '
         'SLAPOS_TEST_WORKING_DIR to a shallow enough directory'.format(
             base_directory))
-  if not snapshot_directory:
-    snapshot_directory = os.path.join(base_directory, "snapshots")
 
   cls = type(
       'SlapOSInstanceTestCase for {}'.format(software_url),
       (SlapOSInstanceTestCase,), {
           'slap': slap,
           'getSoftwareURL': classmethod(lambda _cls: software_url),
-          'software_id': urlparse(software_url).path.split('/')[-2],
+          'software_id': software_id,
           '_debug': debug,
           '_verbose': verbose,
           '_ipv4_address': ipv4_address,
@@ -149,10 +165,6 @@ def makeModuleSetUpAndTestCaseClass(
 
   def setUpModule():
     # type: () -> None
-    if debug:
-      unittest.installHandler()
-    logging.basicConfig(
-        level=logging.DEBUG if (verbose or debug) else logging.WARNING)
     installSoftwareUrlList(cls, [software_url], debug=debug)
 
   return setUpModule, SlapOSInstanceTestCase_
@@ -362,7 +374,9 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=10, debug=False):
     cls.slap.waitForSoftware(max_retry=max_retry, debug=debug)
     _storeSoftwareSnapshot('setupModule')
     for software_url in software_url_list:
+      cls.logger.debug("Checking software %s", software_url)
       checkSoftware(cls.slap, software_url)
+      cls.logger.debug("Done checking software %s", software_url)
   except BaseException as e:
     if not debug:
       cls.logger.exception("Error building software, removing")
@@ -376,7 +390,7 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=10, debug=False):
         cls.logger.exception("Error removing software")
         _storeSoftwareSnapshot('setupModule removing software')
     cls._cleanup('setupModule')
-    raise e
+    raise
 
 
 class SlapOSInstanceTestCase(unittest.TestCase):
@@ -589,6 +603,9 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     The path are made relative to slapos root directory and
     we keep the same directory structure.
     """
+    if not cls._test_file_snapshot_directory:
+      warnings.warn("No snapshot directory configured, skipping snapshot")
+      return
     # we cannot use os.path.commonpath on python2, so implement something similar
     common_path = os.path.commonprefix((source_file_name, cls._base_directory))
     if not os.path.isdir(common_path):
@@ -612,10 +629,8 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       with open(destination, 'w') as f:
         f.write('broken symink to {}\n'.format(os.readlink(source_file_name)))
     elif os.path.isfile(source_file_name):
-      cls.logger.debug("copy %s as %s", source_file_name, destination)
       shutil.copy(source_file_name, destination)
     elif os.path.isdir(source_file_name):
-      cls.logger.debug("copy directory %s as %s", source_file_name, destination)
       # we copy symlinks as symlinks, so that this does not fail when
       # we copy a directory containing broken symlinks.
       shutil.copytree(source_file_name, destination, symlinks=True)

@@ -2,6 +2,9 @@ movement = context
 
 business_link = movement.getCausalityValue(portal_type='Business Link')
 
+if business_link is None:
+  return False
+
 rule_trade_phase_list = rule.getTradePhaseList()
 if len(rule_trade_phase_list) > 0:
   # if rule defines trade phase check if there is sense to apply it

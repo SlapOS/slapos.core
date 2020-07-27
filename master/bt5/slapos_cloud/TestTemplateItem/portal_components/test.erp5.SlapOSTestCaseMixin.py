@@ -82,6 +82,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
 
   def afterSetUp(self):
     testSlapOSMixin.afterSetUp(self)
+    self.changeSkin('View')
     self.portal.portal_activities.unsubscribe()
     self.new_id = self.generateNewId()
     

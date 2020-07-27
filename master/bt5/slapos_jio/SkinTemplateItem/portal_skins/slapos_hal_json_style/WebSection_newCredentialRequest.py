@@ -61,6 +61,7 @@ else:
     message_str = "Thank you for your registration. You will receive an email to activate your account."
   else:
     # no email verification is needed
+    portal_type = context.Base_translateString("Credential Request")
     credential_request.submit("Automatic submit")
     message_str = context.Base_translateString("${portal_type} Created.", mapping=({'portal_type': portal_type}))
     

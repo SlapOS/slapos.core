@@ -616,7 +616,7 @@ The slapos team
     event, invoice_list = \
       ticket.RegularisationRequest_cancelInvoiceIfPersonOpenOrderIsEmpty()
 
-    self.assertEqual(event, "fooevent")
+    self.assertNotEqual(event, "fooevent")
     self.assertEqual(invoice_list, [])
 
 class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(

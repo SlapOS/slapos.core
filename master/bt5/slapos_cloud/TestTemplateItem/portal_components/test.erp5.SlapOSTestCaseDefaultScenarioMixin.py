@@ -625,8 +625,14 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
     self.assertEqual(2, len(open_sale_order_list))
 
-    open_sale_order = [q for q in open_sale_order_list
-                       if q.getValidationState() == 'archived'][0]
+    archived_open_sale_order_list = [q for q in open_sale_order_list
+                       if q.getValidationState() == 'archived']
+
+    archived_open_sale_order_list.sort(key=lambda x: x.getCreationDate())
+    
+    # Select the first archived
+    open_sale_order = archived_open_sale_order_list[0]
+
     line_list = open_sale_order.contentValues(
         portal_type='Open Sale Order Line')
     self.assertEqual(len(hosting_subscription_list), len(line_list))
@@ -635,9 +641,14 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         [q.getAggregate() for q in line_list]
     )
 
-    validated_open_sale_order = [q for q in open_sale_order_list
-                                 if q.getValidationState() == 'validated'][0]
-    line_list = validated_open_sale_order.contentValues(
+    validated_open_sale_order_list = [q for q in open_sale_order_list
+                       if q.getValidationState() == 'validated']
+
+    # if no line, all open orders are kept archived
+    self.assertEqual(len(validated_open_sale_order_list), 0)
+
+    latest_open_sale_order = archived_open_sale_order_list[-1]
+    line_list = latest_open_sale_order.contentValues(
         portal_type='Open Sale Order Line')
     self.assertEqual(len(line_list), 0)
 

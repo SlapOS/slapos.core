@@ -79,7 +79,6 @@ except ImportError:
 from zLOG import LOG, INFO
 import StringIO
 import pkg_resources
-from Products.Vifib.Conduit import VifibConduit
 import json
 from DateTime import DateTime
 from App.Common import rfc1123_date

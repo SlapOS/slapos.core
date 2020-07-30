@@ -127,7 +127,7 @@ def _assertACI(document):
   raise Unauthorized('User %r has no access to %r' % (sm.getUser(), document))
 
 
-_MARKER = []
+_MARKER = object()
 
 class SlapTool(BaseTool):
   """SlapTool"""
@@ -252,7 +252,7 @@ class SlapTool(BaseTool):
           entry = cache_plugin.get(key, DEFAULT_CACHE_SCOPE)
         except KeyError:
           entry = None
-        if entry is not None and type(entry.getValue()) == type({}):
+        if entry is not None and isinstance(entry.getValue(), dict):
           result = entry.getValue()['data']
           self._activateFillComputerInformationCache(computer_id, user)
           return result
@@ -898,7 +898,7 @@ class SlapTool(BaseTool):
 
     try:
       document = etree.parse(string_to_validate)
-    except (etree.XMLSyntaxError, etree.DocumentInvalid) as e:
+    except (etree.XMLSyntaxError, etree.DocumentInvalid) as e: # pylint: disable=catching-non-exception
       LOG('SlapTool::_validateXML', INFO, 
         'Failed to parse this XML reports : %s\n%s' % \
           (to_be_validated, e))
@@ -913,8 +913,8 @@ class SlapTool(BaseTool):
     result_dict = {}
     try:
       result_dict = xml2dict(xml)
-    except (etree.XMLSchemaError, etree.XMLSchemaParseError,
-      etree.XMLSchemaValidateError, etree.XMLSyntaxError):
+    except (etree.XMLSchemaError, etree.XMLSchemaParseError, # pylint: disable=catching-non-exception
+      etree.XMLSchemaValidateError, etree.XMLSyntaxError): # pylint: disable=catching-non-exception
       LOG('SlapTool', INFO, 'Issue during parsing xml:', error=True)
     return result_dict
 
@@ -1084,7 +1084,7 @@ class SlapTool(BaseTool):
     timestamp = str(int(software_instance.getModificationDate()))
     key = "%s_bangstamp" % software_instance.getReference()
 
-    transition = self.getPortalObject().portal_workflow.getInfoFor(
+    self.getPortalObject().portal_workflow.getInfoFor(
       software_instance, 'action', wf_id='instance_slap_interface_workflow')
 
     if (self._getLastData(key) != timestamp):
@@ -1303,12 +1303,12 @@ class SlapTool(BaseTool):
         )
       last_data = self._getLastData(key)
       requested_software_instance = None
-      if last_data is not None and type(last_data) == type({}):
+      if last_data is not None and isinstance(last_data, dict):
         requested_software_instance = portal.restrictedTraverse(
           last_data.get('request_instance'), None)
-      if last_data is None or type(last_data) != type(value) or \
+      if last_data is None or not isinstance(last_data, type(value)) or \
           last_data.get('hash') != value['hash'] or \
-          requested_software_instance is None:
+          requested_software_instance is None: 
         software_instance_document.requestInstance(**kw)
         requested_software_instance = self.REQUEST.get('request_instance')
         if requested_software_instance is not None:
@@ -1330,10 +1330,10 @@ class SlapTool(BaseTool):
         hash=str(kw)
       )
       last_data = self._getLastData(key)
-      if last_data is not None and type(last_data) == type({}):
+      if last_data is not None and isinstance(last_data, dict):
         requested_software_instance = portal.restrictedTraverse(
           last_data.get('request_instance'), None)
-      if last_data is None or type(last_data) != type(value) or \
+      if last_data is None or not isinstance(last_data, type(value)) or \
         last_data.get('hash') != value['hash'] or \
         requested_software_instance is None:
         person.requestSoftwareInstance(**kw)

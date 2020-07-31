@@ -612,7 +612,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       )
 
   # Set of methods to help test alarms and to see if the script was called
-  def _simulateScript(self, script_name):
+  def _simulateScript(self, script_name,  fake_return=""):
     if script_name in self.portal.portal_skins.custom.objectIds():
       raise ValueError('Precondition failed: %s exists in custom' % script_name)
     createZODBPythonScript(self.portal.portal_skins.custom,
@@ -620,7 +620,8 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
                         '*args, **kwargs',
                         '# Script body\n'
 """portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by %s') """ % script_name )
+portal_workflow.doActionFor(context, action='edit_action', comment='Visited by %s')
+return %s""" % (script_name, fake_return ))
     transaction.commit()
 
   def _dropScript(self, script_name):

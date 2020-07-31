@@ -1,8 +1,5 @@
 # Copyright (c) 2013 Nexedi SA and Contributors. All Rights Reserved.
-import transaction
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
-
-from Products.ERP5Type.tests.utils import createZODBPythonScript
 
 class TestSlapOSUpgradeDecisionProcess(SlapOSTestCaseMixin):
   def afterSetUp(self):
@@ -18,21 +15,6 @@ class TestSlapOSUpgradeDecisionProcess(SlapOSTestCaseMixin):
       upgrade_decision.confirm()
     return upgrade_decision
 
-  def _makeComputer(self,new_id):
-    # Clone computer document
-    person = self.portal.person_module.template_member\
-         .Base_createCloneDocument(batch_mode=1)
-    computer = self.portal.computer_module\
-      .template_computer.Base_createCloneDocument(batch_mode=1)
-    computer.edit(
-      title="computer ticket %s" % (new_id, ),
-      reference="TESTCOMPT-%s" % (new_id, ),
-      source_administration_value=person
-    )
-    computer.validate()
-
-    return computer
-
   def _makeHostingSubscription(self, slap_state="start_requested"):
     hosting_subscription = self.portal\
       .hosting_subscription_module.template_hosting_subscription\
@@ -45,24 +27,6 @@ class TestSlapOSUpgradeDecisionProcess(SlapOSTestCaseMixin):
     self.portal.portal_workflow._jumpToStateFor(hosting_subscription, slap_state)
 
     return hosting_subscription
-
-  def _simulateScript(self, script_name, fake_return='True'):
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by %s') 
-return %s
-""" % (script_name, fake_return ))
-    transaction.commit()
-
-  def _dropScript(self, script_name):
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
 
   def test_alarm_upgrade_decision_process_hosting_subscription(self):
     upgrade_decision = self._makeUpgradeDecision()
@@ -84,7 +48,7 @@ return %s
     upgrade_decision.plan()
     self.tic()
 
-    self._simulateScript('UpgradeDecision_notify')
+    self._simulateScript('UpgradeDecision_notify', 'True')
     try:
       self.portal.portal_alarms.slapos_pdm_upgrade_decision_process_planned.\
         activeSense()
@@ -102,7 +66,7 @@ return %s
     upgrade_decision.stop()
     self.tic()
 
-    self._simulateScript('UpgradeDecision_notifyDelivered')
+    self._simulateScript('UpgradeDecision_notifyDelivered',  'True')
     try:
       self.portal.portal_alarms.slapos_pdm_upgrade_decision_process_stopped.\
         activeSense()
@@ -114,15 +78,12 @@ return %s
       upgrade_decision.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_computer_create_upgrade_decision(self):
-    computer = self._makeComputer(self.new_id)
-    computer.edit(allocation_scope = 'open/public')
-    computer2 = self._makeComputer(self.generateNewId())
-    computer2.edit(allocation_scope = 'open/personal')
-    computer3 = self._makeComputer(self.generateNewId())
-    computer3.edit(allocation_scope = 'open/friend')
+    computer = self._makeComputer(allocation_scope = 'open/public')[0]
+    computer2 = self._makeComputer(allocation_scope = 'open/personal')[0]
+    computer3 = self._makeComputer(allocation_scope = 'open/friend')[0]
     self.tic()
 
-    self._simulateScript('Computer_checkAndCreateUpgradeDecision')
+    self._simulateScript('Computer_checkAndCreateUpgradeDecision', 'True')
     try:
       self.portal.portal_alarms.slapos_pdm_computer_create_upgrade_decision.\
         activeSense()
@@ -146,7 +107,7 @@ return %s
 
     self.tic()
 
-    self._simulateScript('HostingSubscription_createUpgradeDecision')
+    self._simulateScript('HostingSubscription_createUpgradeDecision', 'True')
     try:
       self.portal.portal_alarms.slapos_pdm_hosting_subscription_create_upgrade_decision.\
         activeSense()
@@ -168,7 +129,7 @@ return %s
     hosting_subscription2 = self._makeHostingSubscription(slap_state="destroy_requested")
     self.tic()
 
-    self._simulateScript('HostingSubscription_createUpgradeDecision')
+    self._simulateScript('HostingSubscription_createUpgradeDecision', 'True')
     try:
       self.portal.portal_alarms.slapos_pdm_hosting_subscription_create_upgrade_decision.\
         activeSense()
@@ -183,13 +144,11 @@ return %s
       hosting_subscription2.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_create_upgrade_decision_closed_computer(self):
-    computer = self._makeComputer(self.new_id)
-    computer.edit(allocation_scope = 'close/oudtated')
-    computer2 = self._makeComputer(self.generateNewId())
-    computer2.edit(allocation_scope = 'close/maintenance')
+    computer = self._makeComputer(allocation_scope='close/oudtated')[0]
+    computer2 = self._makeComputer(allocation_scope='close/maintenance')[0]
     self.tic()
 
-    self._simulateScript('Computer_checkAndCreateUpgradeDecision')
+    self._simulateScript('Computer_checkAndCreateUpgradeDecision', 'True')
     try:
       self.portal.portal_alarms.slapos_pdm_computer_create_upgrade_decision.\
         activeSense()

@@ -18,8 +18,6 @@ software_release = context.UpgradeDecision_getSoftwareRelease()
 software_product_title = software_release.getAggregateTitle(
                                portal_type="Software Product")
 
-reference = context.getReference()
-
 mapping_dict = {
   'software_product_title': software_product_title,
   'software_release_name': software_release.getTitle(),

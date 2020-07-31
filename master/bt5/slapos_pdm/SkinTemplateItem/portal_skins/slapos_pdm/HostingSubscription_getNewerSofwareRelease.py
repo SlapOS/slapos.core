@@ -1,5 +1,4 @@
 hosting_subscription = context
-portal = context.getPortalObject()
 
 software_instance = hosting_subscription.getPredecessorValue()
 if not software_instance:

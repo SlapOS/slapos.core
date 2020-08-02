@@ -1,4 +1,4 @@
-from Products.ERP5Type.Document import newTempDocument
+from Products.PythonScripts.standard import Object
 
 from DateTime import DateTime
 
@@ -36,30 +36,30 @@ if aggregate_portal_type == "Hosting Subscription":
         m, create_at, since = instance.SoftwareInstance_hasReportedError(include_message=True,
                                                                   include_created_at=True,
                                                                   include_since=True)
-        message_list.append(newTempDocument(
-          document, instance.getRelativeUrl(), **{
-            "uid": instance.getUid(),
-            "title": instance.getTitle(),
-            "specialise_title": hosting_subscription.getTitle(),
-            "software_release": instance.getUrlString(),
-            "computer_reference": computer.getReference(),
-            "allocation_scope": computer.getAllocationScope(),
-            "follow_up_title": context.getFollowUpTitle(),
-            "message" : m,
-            "created_at": create_at,
-            "since": since,
-            "age": "%s m ago" % (int((DateTime()-DateTime(since))*24*60))}))
+        message_list.append(Object(
+            pasth=instance.getRelativeUrl(),
+            uid=instance.getUid(),
+            title= instance.getTitle(),
+            specialise_title= hosting_subscription.getTitle(),
+            software_release= instance.getUrlString(),
+            computer_reference= computer.getReference(),
+            allocation_scope= computer.getAllocationScope(),
+            follow_up_title= context.getFollowUpTitle(),
+            message=m,
+            created_at=create_at,
+            since=since,
+            age="%s m ago" % (int((DateTime()-DateTime(since))*24*60))))
     else:
-      message_list.append(newTempDocument(
-        document, instance.getRelativeUrl(), **{
-          "uid": instance.getUid(),
-          "title": instance.getTitle(),
-          "specialise_title": hosting_subscription.getTitle(),
-          "software_release": instance.getUrlString(),
-          "follow_up_title": context.getFollowUpTitle(),
-          "computer_reference": "",
-          "allocation_scope": "",
-          "message" : "Instance isn't allocated"}))
+      message_list.append(Object(
+          relative_url=instance.getRelativeUrl(),
+          uid=instance.getUid(),
+          title=instance.getTitle(),
+          specialise_title=hosting_subscription.getTitle(),
+          software_release=instance.getUrlString(),
+          follow_up_title=context.getFollowUpTitle(),
+          computer_reference="",
+          allocation_scope="",
+          message="Instance isn't allocated"))
   return message_list
 
 return []

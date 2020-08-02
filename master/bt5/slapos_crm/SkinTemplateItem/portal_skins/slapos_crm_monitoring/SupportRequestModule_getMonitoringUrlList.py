@@ -1,4 +1,4 @@
-from Products.ERP5Type.Document import newTempDocument
+from Products.PythonScripts.standard import Object
 
 portal = context.getPortalObject()
 
@@ -35,8 +35,9 @@ for hosting_subscription in hosting_subscription_list:
       # bad or unknown url
       continue
 
-    o = newTempDocument(portal, "uid_%s" % instance.getId())
-    o.edit(title=instance.getTitle(), monitor_url=url_string)
-    monitor_instance_list.append(o)
+    monitor_instance_list.append(
+      Object(uid="uid_%s" % instance.getId(),
+             title=instance.getTitle(),
+             monitor_url=url_string))
 
 return monitor_instance_list

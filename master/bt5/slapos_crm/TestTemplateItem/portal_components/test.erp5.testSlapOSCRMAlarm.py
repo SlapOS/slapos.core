@@ -1,30 +1,10 @@
 # Copyright (c) 2013 Nexedi SA and Contributors. All Rights Reserved.
-import transaction
 from erp5.component.test.SlapOSTestCaseMixin import \
-  SlapOSTestCaseMixin, simulate
+  SlapOSTestCaseMixin, SlapOSTestCaseMixinWithAbort
 from unittest import skip
 from DateTime import DateTime
-from Products.ERP5Type.tests.utils import createZODBPythonScript
 
 class TestSlapOSCRMCreateRegularisationRequest(SlapOSTestCaseMixin):
-
-  def _simulatePerson_checkToCreateRegularisationRequest(self):
-    script_name = 'Person_checkToCreateRegularisationRequest'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by Person_checkToCreateRegularisationRequest') """ )
-    transaction.commit()
-
-  def _dropPerson_checkToCreateRegularisationRequest(self):
-    script_name = 'Person_checkToCreateRegularisationRequest'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
 
   def test_alarm_expected_person(self):
     new_id = self.generateNewId()
@@ -37,16 +17,9 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by P
     person.validate()
 
     self.tic()
-    self._simulatePerson_checkToCreateRegularisationRequest()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_create_regularisation_request.activeSense()
-      self.tic()
-    finally:
-      self._dropPerson_checkToCreateRegularisationRequest()
-    self.assertEqual(
-        'Visited by Person_checkToCreateRegularisationRequest',
-        person.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_create_regularisation_request
+    self._test_alarm(alarm, person, "Person_checkToCreateRegularisationRequest")
 
   def test_alarm_no_email(self):
     new_id = self.generateNewId()
@@ -58,16 +31,9 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by P
     person.validate()
 
     self.tic()
-    self._simulatePerson_checkToCreateRegularisationRequest()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_create_regularisation_request.activeSense()
-      self.tic()
-    finally:
-      self._dropPerson_checkToCreateRegularisationRequest()
-    self.assertNotEqual(
-        'Visited by Person_checkToCreateRegularisationRequest',
-        person.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_create_regularisation_request
+    self._test_alarm_not_visited(alarm, person, "Person_checkToCreateRegularisationRequest")
 
   def test_alarm_not_validated(self):
     new_id = self.generateNewId()
@@ -81,21 +47,12 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by P
     person.invalidate()
 
     self.tic()
-    self._simulatePerson_checkToCreateRegularisationRequest()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_create_regularisation_request.activeSense()
-      self.tic()
-    finally:
-      self._dropPerson_checkToCreateRegularisationRequest()
-    self.assertNotEqual(
-        'Visited by Person_checkToCreateRegularisationRequest',
-        person.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_create_regularisation_request
+    self._test_alarm_not_visited(alarm, person, "Person_checkToCreateRegularisationRequest")
 
-class TestSlapOSCrmInvalidateSuspendedRegularisationRequest(SlapOSTestCaseMixin):
 
-  def beforeTearDown(self):
-    transaction.abort()
+class TestSlapOSCrmInvalidateSuspendedRegularisationRequest(SlapOSTestCaseMixinWithAbort):
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()
@@ -105,39 +62,43 @@ class TestSlapOSCrmInvalidateSuspendedRegularisationRequest(SlapOSTestCaseMixin)
       reference="TESTREGREQ-%s" % new_id,
       )
 
-  def _simulateRegularisationRequest_invalidateIfPersonBalanceIsOk(self):
-    script_name = 'RegularisationRequest_invalidateIfPersonBalanceIsOk'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by RegularisationRequest_invalidateIfPersonBalanceIsOk') """ )
-    transaction.commit()
+  def test_alarm_not_suspended_regularisation_request(self):
+    ticket = self.createRegularisationRequest()
+    ticket.validate()
+    self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_invalidate_suspended_regularisation_request
+    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_invalidateIfPersonBalanceIsOk")
 
-  def _dropRegularisationRequest_invalidateIfPersonBalanceIsOk(self):
-    script_name = 'RegularisationRequest_invalidateIfPersonBalanceIsOk'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
+  def test_alarm_suspended_regularisation_request(self):
+    ticket = self.createRegularisationRequest()
+    ticket.validate()
+    ticket.suspend()
+    self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_invalidate_suspended_regularisation_request
+    self._test_alarm(alarm, ticket, "RegularisationRequest_invalidateIfPersonBalanceIsOk")
+
+
+class TestSlapOSCrmCancelInvoiceRelatedToSuspendedRegularisationRequest(SlapOSTestCaseMixinWithAbort):
+
+  def createRegularisationRequest(self):
+    new_id = self.generateNewId()
+    return self.portal.regularisation_request_module.newContent(
+      portal_type='Regularisation Request',
+      title="Test Reg. Req.%s" % new_id,
+      reference="TESTREGREQ-%s" % new_id,
+      )
 
   def test_alarm_not_suspended_regularisation_request(self):
     ticket = self.createRegularisationRequest()
     ticket.validate()
 
     self.tic()
-    self._simulateRegularisationRequest_invalidateIfPersonBalanceIsOk()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_invalidate_suspended_regularisation_request.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_invalidateIfPersonBalanceIsOk()
-    self.assertNotEqual(
-        'Visited by RegularisationRequest_invalidateIfPersonBalanceIsOk',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_cancel_invoice
+    self._test_alarm_not_visited(alarm, ticket,
+      "RegularisationRequest_cancelInvoiceIfPersonOpenOrderIsEmpty")
 
   def test_alarm_suspended_regularisation_request(self):
     ticket = self.createRegularisationRequest()
@@ -145,21 +106,12 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.suspend()
 
     self.tic()
-    self._simulateRegularisationRequest_invalidateIfPersonBalanceIsOk()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_invalidate_suspended_regularisation_request.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_invalidateIfPersonBalanceIsOk()
-    self.assertEqual(
-        'Visited by RegularisationRequest_invalidateIfPersonBalanceIsOk',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_cancel_invoice
+    self._test_alarm(alarm, ticket,
+      "RegularisationRequest_cancelInvoiceIfPersonOpenOrderIsEmpty")
 
-class TestSlapOSCrmCancelInvoiceRelatedToSuspendedRegularisationRequest(SlapOSTestCaseMixin):
-
-  def beforeTearDown(self):
-    transaction.abort()
+class TestSlapOSCrmTriggerEscalationOnAcknowledgmentRegularisationRequest(SlapOSTestCaseMixinWithAbort):
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()
@@ -168,88 +120,6 @@ class TestSlapOSCrmCancelInvoiceRelatedToSuspendedRegularisationRequest(SlapOSTe
       title="Test Reg. Req.%s" % new_id,
       reference="TESTREGREQ-%s" % new_id,
       )
-
-  def _simulateRegularisationRequest_cancelInvoiceIfPersonOpenOrderIsEmpty(self):
-    script_name = 'RegularisationRequest_cancelInvoiceIfPersonOpenOrderIsEmpty'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by RegularisationRequest_cancelInvoiceIfPersonOpenOrderIsEmpty') """ )
-    transaction.commit()
-
-  def _dropRegularisationRequest_cancelInvoiceIfPersonOpenOrderIsEmpty(self):
-    script_name = 'RegularisationRequest_cancelInvoiceIfPersonOpenOrderIsEmpty'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
-
-  def test_alarm_not_suspended_regularisation_request(self):
-    ticket = self.createRegularisationRequest()
-    ticket.validate()
-
-    self.tic()
-    self._simulateRegularisationRequest_cancelInvoiceIfPersonOpenOrderIsEmpty()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_cancel_invoice.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_cancelInvoiceIfPersonOpenOrderIsEmpty()
-    self.assertNotEqual(
-        'Visited by RegularisationRequest_cancelInvoiceIfPersonOpenOrderIsEmpty',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
-
-  def test_alarm_suspended_regularisation_request(self):
-    ticket = self.createRegularisationRequest()
-    ticket.validate()
-    ticket.suspend()
-
-    self.tic()
-    self._simulateRegularisationRequest_cancelInvoiceIfPersonOpenOrderIsEmpty()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_cancel_invoice.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_cancelInvoiceIfPersonOpenOrderIsEmpty()
-    self.assertEqual(
-        'Visited by RegularisationRequest_cancelInvoiceIfPersonOpenOrderIsEmpty',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
-
-class TestSlapOSCrmTriggerEscalationOnAcknowledgmentRegularisationRequest(SlapOSTestCaseMixin):
-
-  def beforeTearDown(self):
-    transaction.abort()
-
-  def createRegularisationRequest(self):
-    new_id = self.generateNewId()
-    return self.portal.regularisation_request_module.newContent(
-      portal_type='Regularisation Request',
-      title="Test Reg. Req.%s" % new_id,
-      reference="TESTREGREQ-%s" % new_id,
-      )
-
-  def _simulateRegularisationRequest_triggerAcknowledgmentEscalation(self):
-    script_name = 'RegularisationRequest_triggerAcknowledgmentEscalation'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by RegularisationRequest_triggerAcknowledgmentEscalation') """ )
-    transaction.commit()
-
-  def _dropRegularisationRequest_triggerAcknowledgmentEscalation(self):
-    script_name = 'RegularisationRequest_triggerAcknowledgmentEscalation'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
 
   def test_alarm_matching_regularisation_request(self):
     ticket = self.createRegularisationRequest()
@@ -258,16 +128,10 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.suspend()
 
     self.tic()
-    self._simulateRegularisationRequest_triggerAcknowledgmentEscalation()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_trigger_acknowledgment_escalation.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_triggerAcknowledgmentEscalation()
-    self.assertEqual(
-        'Visited by RegularisationRequest_triggerAcknowledgmentEscalation',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_trigger_acknowledgment_escalation
+    self._test_alarm(alarm, ticket,
+      "RegularisationRequest_triggerAcknowledgmentEscalation")
 
   def test_alarm_not_suspended(self):
     ticket = self.createRegularisationRequest()
@@ -275,16 +139,11 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.validate()
 
     self.tic()
-    self._simulateRegularisationRequest_triggerAcknowledgmentEscalation()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_trigger_acknowledgment_escalation.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_triggerAcknowledgmentEscalation()
-    self.assertNotEqual(
-        'Visited by RegularisationRequest_triggerAcknowledgmentEscalation',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_trigger_acknowledgment_escalation
+    self._test_alarm_not_visited(alarm, ticket,
+      "RegularisationRequest_triggerAcknowledgmentEscalation")
+
 
   def test_alarm_not_expected_resource(self):
     ticket = self.createRegularisationRequest()
@@ -292,21 +151,12 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.suspend()
 
     self.tic()
-    self._simulateRegularisationRequest_triggerAcknowledgmentEscalation()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_trigger_acknowledgment_escalation.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_triggerAcknowledgmentEscalation()
-    self.assertNotEqual(
-        'Visited by RegularisationRequest_triggerAcknowledgmentEscalation',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_trigger_acknowledgment_escalation
+    self._test_alarm_not_visited(alarm, ticket,
+      "RegularisationRequest_triggerAcknowledgmentEscalation")
 
-class TestSlapOSCrmTriggerEscalationOnStopReminderRegularisationRequest(SlapOSTestCaseMixin):
-
-  def beforeTearDown(self):
-    transaction.abort()
+class TestSlapOSCrmTriggerEscalationOnStopReminderRegularisationRequest(SlapOSTestCaseMixinWithAbort):
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()
@@ -315,24 +165,6 @@ class TestSlapOSCrmTriggerEscalationOnStopReminderRegularisationRequest(SlapOSTe
       title="Test Reg. Req.%s" % new_id,
       reference="TESTREGREQ-%s" % new_id,
       )
-
-  def _simulateRegularisationRequest_triggerStopReminderEscalation(self):
-    script_name = 'RegularisationRequest_triggerStopReminderEscalation'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by RegularisationRequest_triggerStopReminderEscalation') """ )
-    transaction.commit()
-
-  def _dropRegularisationRequest_triggerStopReminderEscalation(self):
-    script_name = 'RegularisationRequest_triggerStopReminderEscalation'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
 
   def test_alarm_matching_regularisation_request(self):
     ticket = self.createRegularisationRequest()
@@ -341,16 +173,10 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.suspend()
 
     self.tic()
-    self._simulateRegularisationRequest_triggerStopReminderEscalation()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_trigger_stop_reminder_escalation.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_triggerStopReminderEscalation()
-    self.assertEqual(
-        'Visited by RegularisationRequest_triggerStopReminderEscalation',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_trigger_stop_reminder_escalation
+    self._test_alarm(alarm, ticket,
+      "RegularisationRequest_triggerStopReminderEscalation")
 
   def test_alarm_not_suspended(self):
     ticket = self.createRegularisationRequest()
@@ -358,16 +184,10 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.validate()
 
     self.tic()
-    self._simulateRegularisationRequest_triggerStopReminderEscalation()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_trigger_stop_reminder_escalation.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_triggerStopReminderEscalation()
-    self.assertNotEqual(
-        'Visited by RegularisationRequest_triggerStopReminderEscalation',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_trigger_stop_reminder_escalation
+    self._test_alarm_not_visited(alarm, ticket,
+      "RegularisationRequest_triggerStopReminderEscalation")
 
   def test_alarm_not_expected_resource(self):
     ticket = self.createRegularisationRequest()
@@ -375,21 +195,12 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.suspend()
 
     self.tic()
-    self._simulateRegularisationRequest_triggerStopReminderEscalation()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_trigger_stop_reminder_escalation.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_triggerStopReminderEscalation()
-    self.assertNotEqual(
-        'Visited by RegularisationRequest_triggerStopReminderEscalation',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_trigger_stop_reminder_escalation
+    self._test_alarm_not_visited(alarm, ticket,
+      "RegularisationRequest_triggerStopReminderEscalation")
 
-class TestSlapOSCrmTriggerEscalationOnStopAcknowledgmentRegularisationRequest(SlapOSTestCaseMixin):
-
-  def beforeTearDown(self):
-    transaction.abort()
+class TestSlapOSCrmTriggerEscalationOnStopAcknowledgmentRegularisationRequest(SlapOSTestCaseMixinWithAbort):
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()
@@ -398,24 +209,6 @@ class TestSlapOSCrmTriggerEscalationOnStopAcknowledgmentRegularisationRequest(Sl
       title="Test Reg. Req.%s" % new_id,
       reference="TESTREGREQ-%s" % new_id,
       )
-
-  def _simulateRegularisationRequest_triggerStopAcknowledgmentEscalation(self):
-    script_name = 'RegularisationRequest_triggerStopAcknowledgmentEscalation'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by RegularisationRequest_triggerStopAcknowledgmentEscalation') """ )
-    transaction.commit()
-
-  def _dropRegularisationRequest_triggerStopAcknowledgmentEscalation(self):
-    script_name = 'RegularisationRequest_triggerStopAcknowledgmentEscalation'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
 
   def test_alarm_matching_regularisation_request(self):
     ticket = self.createRegularisationRequest()
@@ -424,16 +217,10 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.suspend()
 
     self.tic()
-    self._simulateRegularisationRequest_triggerStopAcknowledgmentEscalation()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_trigger_stop_acknowledgment_escalation.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_triggerStopAcknowledgmentEscalation()
-    self.assertEqual(
-        'Visited by RegularisationRequest_triggerStopAcknowledgmentEscalation',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_trigger_stop_acknowledgment_escalation
+    self._test_alarm(alarm, ticket,
+      "RegularisationRequest_triggerStopAcknowledgmentEscalation")
 
   def test_alarm_not_suspended(self):
     ticket = self.createRegularisationRequest()
@@ -441,16 +228,10 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.validate()
 
     self.tic()
-    self._simulateRegularisationRequest_triggerStopAcknowledgmentEscalation()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_trigger_stop_acknowledgment_escalation.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_triggerStopAcknowledgmentEscalation()
-    self.assertNotEqual(
-        'Visited by RegularisationRequest_triggerStopAcknowledgmentEscalation',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_trigger_stop_acknowledgment_escalation
+    self._test_alarm_not_visited(alarm, ticket,
+      "RegularisationRequest_triggerStopAcknowledgmentEscalation")
 
   def test_alarm_not_expected_resource(self):
     ticket = self.createRegularisationRequest()
@@ -458,21 +239,12 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.suspend()
 
     self.tic()
-    self._simulateRegularisationRequest_triggerStopAcknowledgmentEscalation()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_trigger_stop_acknowledgment_escalation.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_triggerStopAcknowledgmentEscalation()
-    self.assertNotEqual(
-        'Visited by RegularisationRequest_triggerStopAcknowledgmentEscalation',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_trigger_stop_acknowledgment_escalation
+    self._test_alarm_not_visited(alarm, ticket,
+      "RegularisationRequest_triggerStopAcknowledgmentEscalation")
 
-class TestSlapOSCrmTriggerEscalationOnDeleteReminderRegularisationRequest(SlapOSTestCaseMixin):
-
-  def beforeTearDown(self):
-    transaction.abort()
+class TestSlapOSCrmTriggerEscalationOnDeleteReminderRegularisationRequest(SlapOSTestCaseMixinWithAbort):
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()
@@ -482,24 +254,6 @@ class TestSlapOSCrmTriggerEscalationOnDeleteReminderRegularisationRequest(SlapOS
       reference="TESTREGREQ-%s" % new_id,
       )
 
-  def _simulateRegularisationRequest_triggerDeleteReminderEscalation(self):
-    script_name = 'RegularisationRequest_triggerDeleteReminderEscalation'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by RegularisationRequest_triggerDeleteReminderEscalation') """ )
-    transaction.commit()
-
-  def _dropRegularisationRequest_triggerDeleteReminderEscalation(self):
-    script_name = 'RegularisationRequest_triggerDeleteReminderEscalation'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
-
   def test_alarm_matching_regularisation_request(self):
     ticket = self.createRegularisationRequest()
     ticket.edit(resource='service_module/slapos_crm_delete_reminder')
@@ -507,33 +261,20 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.suspend()
 
     self.tic()
-    self._simulateRegularisationRequest_triggerDeleteReminderEscalation()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_trigger_delete_reminder_escalation.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_triggerDeleteReminderEscalation()
-    self.assertEqual(
-        'Visited by RegularisationRequest_triggerDeleteReminderEscalation',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_trigger_delete_reminder_escalation
+    self._test_alarm(alarm, ticket, "RegularisationRequest_triggerDeleteReminderEscalation")
 
   def test_alarm_not_suspended(self):
     ticket = self.createRegularisationRequest()
     ticket.edit(resource='service_module/slapos_crm_delete_reminder')
     ticket.validate()
 
-    self.tic()
-    self._simulateRegularisationRequest_triggerDeleteReminderEscalation()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_trigger_delete_reminder_escalation.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_triggerDeleteReminderEscalation()
-    self.assertNotEqual(
-        'Visited by RegularisationRequest_triggerDeleteReminderEscalation',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    self.tic()    
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_trigger_delete_reminder_escalation
+    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_triggerDeleteReminderEscalation")
+
 
   def test_alarm_not_expected_resource(self):
     ticket = self.createRegularisationRequest()
@@ -541,21 +282,11 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.suspend()
 
     self.tic()
-    self._simulateRegularisationRequest_triggerDeleteReminderEscalation()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_trigger_delete_reminder_escalation.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_triggerDeleteReminderEscalation()
-    self.assertNotEqual(
-        'Visited by RegularisationRequest_triggerDeleteReminderEscalation',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_trigger_delete_reminder_escalation
+    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_triggerDeleteReminderEscalation")
 
-class TestSlapOSCrmStopHostingSubscription(SlapOSTestCaseMixin):
-
-  def beforeTearDown(self):
-    transaction.abort()
+class TestSlapOSCrmStopHostingSubscription(SlapOSTestCaseMixinWithAbort):
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()
@@ -565,24 +296,6 @@ class TestSlapOSCrmStopHostingSubscription(SlapOSTestCaseMixin):
       reference="TESTREGREQ-%s" % new_id,
       )
 
-  def _simulateRegularisationRequest_stopHostingSubscriptionList(self):
-    script_name = 'RegularisationRequest_stopHostingSubscriptionList'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by RegularisationRequest_stopHostingSubscriptionList') """ )
-    transaction.commit()
-
-  def _dropRegularisationRequest_stopHostingSubscriptionList(self):
-    script_name = 'RegularisationRequest_stopHostingSubscriptionList'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
-
   def test_alarm_matching_regularisation_request(self):
     ticket = self.createRegularisationRequest()
     ticket.edit(resource='service_module/slapos_crm_delete_reminder')
@@ -590,16 +303,9 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.suspend()
 
     self.tic()
-    self._simulateRegularisationRequest_stopHostingSubscriptionList()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_stop_hosting_subscription.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_stopHostingSubscriptionList()
-    self.assertEqual(
-        'Visited by RegularisationRequest_stopHostingSubscriptionList',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_stop_hosting_subscription
+    self._test_alarm(alarm, ticket, "RegularisationRequest_stopHostingSubscriptionList")
 
   def test_alarm_matching_regularisation_request_2(self):
     ticket = self.createRegularisationRequest()
@@ -608,16 +314,9 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.suspend()
 
     self.tic()
-    self._simulateRegularisationRequest_stopHostingSubscriptionList()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_stop_hosting_subscription.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_stopHostingSubscriptionList()
-    self.assertEqual(
-        'Visited by RegularisationRequest_stopHostingSubscriptionList',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_stop_hosting_subscription
+    self._test_alarm(alarm, ticket, "RegularisationRequest_stopHostingSubscriptionList")
 
   def test_alarm_not_suspended(self):
     ticket = self.createRegularisationRequest()
@@ -625,16 +324,10 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.validate()
 
     self.tic()
-    self._simulateRegularisationRequest_stopHostingSubscriptionList()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_stop_hosting_subscription.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_stopHostingSubscriptionList()
-    self.assertNotEqual(
-        'Visited by RegularisationRequest_stopHostingSubscriptionList',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_stop_hosting_subscription
+    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_stopHostingSubscriptionList")
+
 
   def test_alarm_other_resource(self):
     ticket = self.createRegularisationRequest()
@@ -643,21 +336,12 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.suspend()
 
     self.tic()
-    self._simulateRegularisationRequest_stopHostingSubscriptionList()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_stop_hosting_subscription.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_stopHostingSubscriptionList()
-    self.assertNotEqual(
-        'Visited by RegularisationRequest_stopHostingSubscriptionList',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_stop_hosting_subscription
+    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_stopHostingSubscriptionList")
 
-class TestSlapOSCrmDeleteHostingSubscription(SlapOSTestCaseMixin):
 
-  def beforeTearDown(self):
-    transaction.abort()
+class TestSlapOSCrmDeleteHostingSubscription(SlapOSTestCaseMixinWithAbort):
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()
@@ -667,24 +351,6 @@ class TestSlapOSCrmDeleteHostingSubscription(SlapOSTestCaseMixin):
       reference="TESTREGREQ-%s" % new_id,
       )
 
-  def _simulateRegularisationRequest_deleteHostingSubscriptionList(self):
-    script_name = 'RegularisationRequest_deleteHostingSubscriptionList'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by RegularisationRequest_deleteHostingSubscriptionList') """ )
-    transaction.commit()
-
-  def _dropRegularisationRequest_deleteHostingSubscriptionList(self):
-    script_name = 'RegularisationRequest_deleteHostingSubscriptionList'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
-
   def test_alarm_matching_regularisation_request(self):
     ticket = self.createRegularisationRequest()
     ticket.edit(resource='service_module/slapos_crm_delete_acknowledgement')
@@ -692,16 +358,9 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.suspend()
 
     self.tic()
-    self._simulateRegularisationRequest_deleteHostingSubscriptionList()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_delete_hosting_subscription.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_deleteHostingSubscriptionList()
-    self.assertEqual(
-        'Visited by RegularisationRequest_deleteHostingSubscriptionList',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_delete_hosting_subscription
+    self._test_alarm(alarm, ticket, "RegularisationRequest_deleteHostingSubscriptionList")
 
   def test_alarm_not_suspended(self):
     ticket = self.createRegularisationRequest()
@@ -709,16 +368,10 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.validate()
 
     self.tic()
-    self._simulateRegularisationRequest_deleteHostingSubscriptionList()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_delete_hosting_subscription.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_deleteHostingSubscriptionList()
-    self.assertNotEqual(
-        'Visited by RegularisationRequest_deleteHostingSubscriptionList',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_delete_hosting_subscription
+    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_deleteHostingSubscriptionList")
+
 
   def test_alarm_other_resource(self):
     ticket = self.createRegularisationRequest()
@@ -727,105 +380,51 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by R
     ticket.suspend()
 
     self.tic()
-    self._simulateRegularisationRequest_deleteHostingSubscriptionList()
-    try:
-      self.portal.portal_alarms.\
-          slapos_crm_delete_hosting_subscription.activeSense()
-      self.tic()
-    finally:
-      self._dropRegularisationRequest_deleteHostingSubscriptionList()
-    self.assertNotEqual(
-        'Visited by RegularisationRequest_deleteHostingSubscriptionList',
-        ticket.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_delete_hosting_subscription
+    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_deleteHostingSubscriptionList")
 
-class TestSlapOSCrmMonitoringCheckComputerState(SlapOSTestCaseMixin):
 
-  def beforeTearDown(self):
-    transaction.abort()
-
-  def _simulateComputer_checkState(self):
-    script_name = 'Computer_checkState'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-      script_name,
-      '*args, **kw',
-      '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by Computer_checkState') """ )
-    transaction.commit()
-
-  def _dropComputer_checkState(self):
-    script_name = 'Computer_checkState'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
+class TestSlapOSCrmMonitoringCheckComputerState(SlapOSTestCaseMixinWithAbort):
 
   def test_alarm_check_public_computer_state(self):
     self._makeComputer()
     self.computer.edit(allocation_scope='open/public')
     self.tic()
     self.assertEqual(self.computer.getMonitorScope(), "enabled")
-    self._simulateComputer_checkState()
     self.tic()
-
-    try:
-      self.portal.portal_alarms.slapos_crm_check_computer_state.activeSense()
-      self.tic()
-    finally:
-      self._dropComputer_checkState()
-
-    self.assertEqual('Visited by Computer_checkState',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_computer_state
+    self._test_alarm(alarm, self.computer, "Computer_checkState")
 
   def test_alarm_check_friend_computer_state(self):
     self._makeComputer()
     self.computer.edit(allocation_scope='open/friend')
     self.tic()
-    self._simulateComputer_checkState()
-
-    try:
-      self.portal.portal_alarms.slapos_crm_check_computer_state.activeSense()
-      self.tic()
-    finally:
-      self._dropComputer_checkState()
-
-    self.assertEqual('Visited by Computer_checkState',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_computer_state
+    self._test_alarm(alarm, self.computer, "Computer_checkState")
 
   def test_alarm_check_personal_computer_state(self):
     self._makeComputer()
     self.computer.edit(allocation_scope='open/personal')
     self.tic()
-    self._simulateComputer_checkState()
-
-    try:
-      self.portal.portal_alarms.slapos_crm_check_computer_state.activeSense()
-      self.tic()
-    finally:
-      self._dropComputer_checkState()
-
-    self.assertEqual('Visited by Computer_checkState',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_computer_state
+    self._test_alarm(alarm, self.computer, "Computer_checkState")
 
   def _test_alarm_check_computer_state_not_selected(self, allocation_scope,
                                                  monitor_scope=None):
     self._makeComputer()
     self.computer.edit(allocation_scope=allocation_scope)
     self.tic()
-    self._simulateComputer_checkState()
     if monitor_scope is not None:
       self.computer.edit(monitor_scope=monitor_scope)
       self.tic()
 
-    try:
-      self.portal.portal_alarms.slapos_crm_check_computer_state.activeSense()
-      self.tic()
-    finally:
-      self._dropComputer_checkState()
-
-    self.assertNotEqual('Visited by Computer_checkState',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_computer_state
+    self._test_alarm_not_visited(alarm, self.computer, "Computer_checkState")
 
   def test_alarm_check_computer_state_on_public_computer_with_monitor_scope_disabled(self):
     self._test_alarm_check_computer_state_not_selected(
@@ -855,144 +454,60 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
       allocation_scope='closed/termination')
 
 
-class TestSlapOSCrmMonitoringCheckComputerAllocationScope(SlapOSTestCaseMixin):
-
-  def beforeTearDown(self):
-    transaction.abort()
-
-  def _simulateComputer_checkAndUpdateAllocationScope(self):
-    script_name = 'Computer_checkAndUpdateAllocationScope'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-      script_name,
-      '*args, **kw',
-      '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by Computer_checkAndUpdateAllocationScope') """ )
-    transaction.commit()
-
-  def _dropComputer_checkAndUpdateAllocationScope(self):
-    script_name = 'Computer_checkAndUpdateAllocationScope'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
+class TestSlapOSCrmMonitoringCheckComputerAllocationScope(SlapOSTestCaseMixinWithAbort):
 
   def test_alarm_not_allowed_allocation_scope_OpenPublic(self):
     self._makeComputer()
     self.computer.edit(allocation_scope = 'open/public')
+    self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_update_allocation_scope
+    self._test_alarm(alarm, self.computer, "Computer_checkAndUpdateAllocationScope")
 
-    self._simulateComputer_checkAndUpdateAllocationScope()
-
-    try:
-      self.portal.portal_alarms.slapos_crm_check_update_allocation_scope.activeSense()
-      self.tic()
-    finally:
-      self._dropComputer_checkAndUpdateAllocationScope()
-
-    self.assertEqual('Visited by Computer_checkAndUpdateAllocationScope',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_not_allowed_allocation_scope_OpenFriend(self):
     self._makeComputer()
     self.computer.edit(allocation_scope = 'open/friend')
-
-    self._simulateComputer_checkAndUpdateAllocationScope()
-
-    try:
-      self.portal.portal_alarms.slapos_crm_check_update_allocation_scope.activeSense()
-      self.tic()
-    finally:
-      self._dropComputer_checkAndUpdateAllocationScope()
-
-    self.assertEqual('Visited by Computer_checkAndUpdateAllocationScope',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+    self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_update_allocation_scope
+    self._test_alarm(alarm, self.computer, "Computer_checkAndUpdateAllocationScope")
 
   def test_alarm_not_allowed_allocationScope_open_personal(self):
     self._makeComputer()
     self.computer.edit(allocation_scope = 'open/personal')
-
-    self._simulateComputer_checkAndUpdateAllocationScope()
-
     self.tic()
-    try:
-      self.portal.portal_alarms.slapos_crm_check_update_allocation_scope.activeSense()
-      self.tic()
-    finally:
-      self._dropComputer_checkAndUpdateAllocationScope()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_update_allocation_scope
+    self._test_alarm_not_visited(alarm, self.computer, "Computer_checkAndUpdateAllocationScope")
 
-    self.assertNotEqual('Visited by Computer_checkAndUpdateAllocationScope',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
-
-class TestSlapOSCrmMonitoringCheckComputerSoftwareInstallation(SlapOSTestCaseMixin):
-
-  def beforeTearDown(self):
-    transaction.abort()
-
-  def _simulateComputer_checkSoftwareInstallationState(self):
-    script_name = 'Computer_checkSoftwareInstallationState'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-      script_name,
-      '*args, **kw',
-      '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by Computer_checkSoftwareInstallationState') """ )
-    transaction.commit()
-
-  def _dropComputer_checkSoftwareInstallationState(self):
-    script_name = 'Computer_checkSoftwareInstallationState'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
+class TestSlapOSCrmMonitoringCheckComputerSoftwareInstallation(SlapOSTestCaseMixinWithAbort):
 
   def test_alarm_run_on_open_public(self):
     self._makeComputer()
     self.computer.edit(allocation_scope = 'open/public')
     self.tic()
-    self._simulateComputer_checkSoftwareInstallationState()
-
-    try:
-      self.portal.portal_alarms.slapos_crm_check_software_installation_state.activeSense()
-      self.tic()
-    finally:
-      self._dropComputer_checkSoftwareInstallationState()
-
-    self.assertEqual('Visited by Computer_checkSoftwareInstallationState',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_software_installation_state
+    self._test_alarm(alarm, self.computer, "Computer_checkSoftwareInstallationState")
 
   def test_alarm_run_on_open_friend(self):
     self._makeComputer()
     self.computer.edit(allocation_scope = 'open/friend')
     self.tic()
-    self._simulateComputer_checkSoftwareInstallationState()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_software_installation_state
+    self._test_alarm(alarm, self.computer, "Computer_checkSoftwareInstallationState")
 
-    try:
-      self.portal.portal_alarms.slapos_crm_check_software_installation_state.activeSense()
-      self.tic()
-    finally:
-      self._dropComputer_checkSoftwareInstallationState()
-
-    self.assertEqual('Visited by Computer_checkSoftwareInstallationState',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_run_on_open_personal(self):
     self._makeComputer()
     self.computer.edit(allocation_scope = 'open/personal',
                        monitor_scope="enabled")
     self.tic()
-    self._simulateComputer_checkSoftwareInstallationState()
-
-    try:
-      self.portal.portal_alarms.slapos_crm_check_software_installation_state.activeSense()
-      self.tic()
-    finally:
-      self._dropComputer_checkSoftwareInstallationState()
-
-    self.assertEqual('Visited by Computer_checkSoftwareInstallationState',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
-
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_software_installation_state
+    self._test_alarm(alarm, self.computer, "Computer_checkSoftwareInstallationState")
 
   def test_alarm_dont_run_on_open_public_with_monitor_scope_disabled(self):
     self._makeComputer()
@@ -1000,142 +515,52 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
     self.tic()
     self.computer.edit(monitor_scope = 'disabled')
     self.tic()
-    self._simulateComputer_checkSoftwareInstallationState()
-
-    try:
-      self.portal.portal_alarms.slapos_crm_check_software_installation_state.activeSense()
-      self.tic()
-    finally:
-      self._dropComputer_checkSoftwareInstallationState()
-
-    self.assertNotEqual('Visited by Computer_checkSoftwareInstallationState',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_software_installation_state
+    self._test_alarm_not_visited(alarm, self.computer, "Computer_checkSoftwareInstallationState")
 
   def test_alarm_dont_run_on_open_friend_with_monitor_scope_disabled(self):
     self._makeComputer()
     self.computer.edit(allocation_scope = 'open/friend')
     self.tic()
-    self._simulateComputer_checkSoftwareInstallationState()
     self.computer.edit(monitor_scope = 'disabled')
     self.tic()
-
-    try:
-      self.portal.portal_alarms.slapos_crm_check_software_installation_state.activeSense()
-      self.tic()
-    finally:
-      self._dropComputer_checkSoftwareInstallationState()
-
-    self.assertNotEqual('Visited by Computer_checkSoftwareInstallationState',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_software_installation_state
+    self._test_alarm_not_visited(alarm, self.computer, "Computer_checkSoftwareInstallationState")
 
   def test_alarm_dont_run_on_open_personal_with_monitor_scope_disabled(self):
     self._makeComputer()
     self.computer.edit(allocation_scope = 'open/personal',
                        monitor_scope="enabled")
     self.tic()
-    self._simulateComputer_checkSoftwareInstallationState()
     self.computer.edit(monitor_scope = 'disabled')
     self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_software_installation_state
+    self._test_alarm_not_visited(alarm, self.computer, "Computer_checkSoftwareInstallationState")
 
-    try:
-      self.portal.portal_alarms.slapos_crm_check_software_installation_state.activeSense()
-      self.tic()
-    finally:
-      self._dropComputer_checkSoftwareInstallationState()
-
-    self.assertNotEqual('Visited by Computer_checkSoftwareInstallationState',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+  def _test_alarm_not_run_on_close(self, allocation_scope):
+    self._makeComputer()
+    self.computer.edit(allocation_scope=allocation_scope)
+    self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_software_installation_state
+    self._test_alarm_not_visited(alarm, self.computer, "Computer_checkSoftwareInstallationState")
 
   def test_alarm_not_run_on_close_forever(self):
-    self._makeComputer()
-    self.computer.edit(allocation_scope = 'close/forever')
-    self.tic()
-
-    self._simulateComputer_checkSoftwareInstallationState()
-
-    try:
-      self.portal.portal_alarms.slapos_crm_check_software_installation_state.activeSense()
-      self.tic()
-    finally:
-      self._dropComputer_checkSoftwareInstallationState()
-
-    self.assertNotEqual('Visited by Computer_checkSoftwareInstallationState',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
-
+    self._test_alarm_not_run_on_close('close/forever')
 
   def test_alarm_not_run_on_close_maintainence(self):
-    self._makeComputer()
-    self.computer.edit(allocation_scope = 'close/maintenence')
-    self.tic()
-
-    self._simulateComputer_checkSoftwareInstallationState()
-
-    try:
-      self.portal.portal_alarms.slapos_crm_check_software_installation_state.activeSense()
-      self.tic()
-    finally:
-      self._dropComputer_checkSoftwareInstallationState()
-
-    self.assertNotEqual('Visited by Computer_checkSoftwareInstallationState',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
-
+    self._test_alarm_not_run_on_close('close/maintenence')
 
   def test_alarm_not_run_on_close_outdated(self):
-    self._makeComputer()
-    self.computer.edit(allocation_scope = 'close/outdated')
-    self.tic()
-
-    self._simulateComputer_checkSoftwareInstallationState()
-
-    try:
-      self.portal.portal_alarms.slapos_crm_check_software_installation_state.activeSense()
-      self.tic()
-    finally:
-      self._dropComputer_checkSoftwareInstallationState()
-
-    self.assertNotEqual('Visited by Computer_checkSoftwareInstallationState',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+    self._test_alarm_not_run_on_close('close/outdated')
 
   def test_alarm_not_run_on_close_termination(self):
-    self._makeComputer()
-    self.computer.edit(allocation_scope = 'close/termination')
-    self.tic()
+    self._test_alarm_not_run_on_close('close/termination')
 
-    self._simulateComputer_checkSoftwareInstallationState()
-
-    try:
-      self.portal.portal_alarms.slapos_crm_check_software_installation_state.activeSense()
-      self.tic()
-    finally:
-      self._dropComputer_checkSoftwareInstallationState()
-
-    self.assertNotEqual('Visited by Computer_checkSoftwareInstallationState',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
-
-
-
-class TestSlapOSCrmMonitoringCheckComputerPersonalAllocationScope(SlapOSTestCaseMixin):
-
-  def beforeTearDown(self):
-    transaction.abort()
-
-  def _simulateComputer_checkAndUpdatePersonalAllocationScope(self):
-    script_name = 'Computer_checkAndUpdatePersonalAllocationScope'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-      script_name,
-      '*args, **kw',
-      '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by Computer_checkAndUpdatePersonalAllocationScope') """ )
-    transaction.commit()
-
-  def _dropComputer_checkAndUpdatePersonalAllocationScope(self):
-    script_name = 'Computer_checkAndUpdatePersonalAllocationScope'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
+class TestSlapOSCrmMonitoringCheckComputerPersonalAllocationScope(SlapOSTestCaseMixinWithAbort):
 
   def test_alarm_allowed_allocation_scope_OpenPersonal_old_computer(self):
     self._makeComputer()
@@ -1145,7 +570,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
 
     from Products.ERP5Type.Base import Base
 
-    self._simulateComputer_checkAndUpdatePersonalAllocationScope()
+    self._simulateScript("Computer_checkAndUpdatePersonalAllocationScope")
     original_get_creation = Base.getCreationDate
     Base.getCreationDate = getCreationDate
 
@@ -1156,7 +581,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
       self.tic()
     finally:
       Base.getCreationDate = original_get_creation
-      self._dropComputer_checkAndUpdatePersonalAllocationScope()
+      self._dropScript('Computer_checkAndUpdatePersonalAllocationScope')
 
     self.assertEqual('Visited by Computer_checkAndUpdatePersonalAllocationScope',
       self.computer.workflow_history['edit_workflow'][-1]['comment'])
@@ -1170,7 +595,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
 
     from Products.ERP5Type.Base import Base
 
-    self._simulateComputer_checkAndUpdatePersonalAllocationScope()
+    self._simulateScript("Computer_checkAndUpdatePersonalAllocationScope")
     original_get_creation = Base.getCreationDate
     Base.getCreationDate = getCreationDate
 
@@ -1179,7 +604,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
       self.tic()
     finally:
       Base.getCreationDate = original_get_creation
-      self._dropComputer_checkAndUpdatePersonalAllocationScope()
+      self._dropScript('Computer_checkAndUpdatePersonalAllocationScope')
 
     self.assertNotEqual('Visited by Computer_checkAndUpdatePersonalAllocationScope',
       self.computer.workflow_history['edit_workflow'][-1]['comment'])
@@ -1188,21 +613,18 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
     self._makeComputer()
     self.computer.edit(allocation_scope = 'open/oudated')
 
-    self._simulateComputer_checkAndUpdatePersonalAllocationScope()
+    self._simulateScript("Computer_checkAndUpdatePersonalAllocationScope")
 
     try:
       self.portal.portal_alarms.slapos_crm_check_update_personal_allocation_scope.activeSense()
       self.tic()
     finally:
-      self._dropComputer_checkAndUpdatePersonalAllocationScope()
+      self._dropScript('Computer_checkAndUpdatePersonalAllocationScope')
 
     self.assertNotEqual('Visited by Computer_checkAndUpdatePersonalAllocationScope',
       self.computer.workflow_history['edit_workflow'][-1]['comment'])
 
-class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixin):
-
-  def beforeTearDown(self):
-    transaction.abort()
+class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):
 
   def _makeHostingSubscription(self):
     person = self.portal.person_module.template_member\
@@ -1235,50 +657,20 @@ class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixin):
     hosting_subscription.requestStart(**kw)
     hosting_subscription.requestInstance(**kw)
 
-  def _simulateHostingSubscription_checkSoftwareInstanceState(self):
-    script_name = 'HostingSubscription_checkSoftwareInstanceState'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-      script_name,
-      '*args, **kw',
-      '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by HostingSubscription_checkSoftwareInstanceState') """ )
-    transaction.commit()
-
-  def _dropHostingSubscription_checkSoftwareInstanceState(self):
-    script_name = 'HostingSubscription_checkSoftwareInstanceState'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
-
   def test_alarm_check_instance_in_error_validated_hosting_subscription(self):
     host_sub = self._makeHostingSubscription()
     self.tic()
-
-    self._simulateHostingSubscription_checkSoftwareInstanceState()
-
-    try:
-      self.portal.portal_alarms.slapos_crm_check_instance_in_error.activeSense()
-      self.tic()
-    finally:
-      self._dropHostingSubscription_checkSoftwareInstanceState()
-
-    self.assertEqual('Visited by HostingSubscription_checkSoftwareInstanceState',
-      host_sub.workflow_history['edit_workflow'][-1]['comment'])
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_instance_in_error
+    self._test_alarm(alarm, host_sub, "HostingSubscription_checkSoftwareInstanceState")
 
   def test_alarm_check_instance_in_error_validated_hosting_subscription_with_monitor_disabled(self):
     host_sub = self._makeHostingSubscription()
     host_sub.edit(monitor_scope="disabled")
     self.tic()
-    self._simulateHostingSubscription_checkSoftwareInstanceState()
-
-    try:
-      self.portal.portal_alarms.slapos_crm_check_instance_in_error.activeSense()
-      self.tic()
-    finally:
-      self._dropHostingSubscription_checkSoftwareInstanceState()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_instance_in_error
+    self._test_alarm(alarm, host_sub, "HostingSubscription_checkSoftwareInstanceState")
 
     # This is an un-optimal case, as the query cannot be used in negated form
     # on the searchAndActivate, so we end up callind the script in any situation.
@@ -1288,22 +680,13 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by H
   def test_alarm_check_instance_in_error_archived_hosting_subscription(self):
     host_sub = self._makeHostingSubscription()
     host_sub.archive()
+    self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_instance_in_error
+    self._test_alarm_not_visited(alarm, host_sub, "HostingSubscription_checkSoftwareInstanceState")
 
-    self._simulateHostingSubscription_checkSoftwareInstanceState()
 
-    try:
-      self.portal.portal_alarms.slapos_crm_check_instance_in_error.activeSense()
-      self.tic()
-    finally:
-      self._dropHostingSubscription_checkSoftwareInstanceState()
-
-    self.assertNotEqual('Visited by HostingSubscription_checkSoftwareInstanceState',
-      host_sub.workflow_history['edit_workflow'][-1]['comment'])
-
-class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixin):
-
-  def beforeTearDown(self):
-    transaction.abort()
+class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixinWithAbort):
 
   def _makeSupportRequest(self):
     person = self.portal.person_module.template_member\
@@ -1314,7 +697,7 @@ class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixin):
     support_request.validate()
     new_id = self.generateNewId()
     support_request.edit(
-        title= "Support Request éçà %s" % new_id,
+        title= "Support Request éçà %s" % new_id, #pylint: disable=invalid-encoded-data
         reference="TESTSRQ-%s" % new_id,
         destination_decision_value=person
     )
@@ -1338,45 +721,11 @@ class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixin):
 
     return hosting_subscription
 
-  def _simulateSupportRequest_updateMonitoringState(self):
-    script_name = 'SupportRequest_updateMonitoringState'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-      script_name,
-      '*args, **kw',
-      '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by SupportRequest_updateMonitoringState') """ )
-    transaction.commit()
-
-  def _dropSupportRequest_updateMonitoringState(self):
-    script_name = 'SupportRequest_updateMonitoringState'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
-
   def test_alarm_update_support_request_state(self):
     support_request = self._makeSupportRequest()
     hs = self._makeHostingSubscription()
     support_request.setAggregateValue(hs)
     self.tic()
-
-    self._simulateSupportRequest_updateMonitoringState()
-
-    try:
-      self.portal.portal_alarms.slapos_crm_update_support_request_state.activeSense()
-      self.tic()
-    finally:
-      self._dropSupportRequest_updateMonitoringState()
-
-    self.assertEqual('Visited by SupportRequest_updateMonitoringState',
-      support_request.workflow_history['edit_workflow'][-1]['comment'])
-
-
-
-
-
-
-
-
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_update_support_request_state
+    self._test_alarm(alarm, support_request, "SupportRequest_updateMonitoringState")

@@ -25,7 +25,7 @@ class Simulator:
     """Simulation Method"""
     old = open(self.outfile, 'r').read()
     if old:
-      l = eval(old)
+      l = eval(old) #pylint: disable=eval-used
     else:
       l = []
     l.append({'recmethod': self.method,
@@ -542,7 +542,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def assertComputerBangSimulator(self, args, kwargs):
-    stored = eval(open(self.computer_bang_simulator).read())
+    stored = eval(open(self.computer_bang_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     kwargs['comment'] = kwargs.pop('comment')
     self.assertEqual(stored,
@@ -599,7 +599,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
         os.unlink(self.computer_bang_simulator)
 
   def assertLoadComputerConfigurationFromXML(self, args, kwargs):
-    stored = eval(open(self.computer_load_configuration_simulator).read())
+    stored = eval(open(self.computer_load_configuration_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,
@@ -848,7 +848,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     self.assertEqual("", response.body)
 
   def assertReportComputerConsumption(self, args, kwargs):
-    stored = eval(open(self.computer_use_computer_simulator).read())
+    stored = eval(open(self.computer_use_computer_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,
@@ -1477,7 +1477,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def assertInstanceUpdateConnectionSimulator(self, args, kwargs):
-    stored = eval(open(self.instance_update_connection_simulator).read())
+    stored = eval(open(self.instance_update_connection_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     kwargs['connection_xml'] = kwargs.pop('connection_xml')
     self.assertEqual(stored,
@@ -1686,7 +1686,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def assertInstanceBangSimulator(self, args, kwargs):
-    stored = eval(open(self.instance_bang_simulator).read())
+    stored = eval(open(self.instance_bang_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     kwargs['comment'] = kwargs.pop('comment')
     self.assertEqual(stored,
@@ -1746,7 +1746,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         os.unlink(self.instance_bang_simulator)
       
   def assertInstanceRenameSimulator(self, args, kwargs):
-    stored = eval(open(self.instance_rename_simulator).read())
+    stored = eval(open(self.instance_rename_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,
@@ -1786,7 +1786,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     self.assertEqual(None, self.destroy_requested_software_instance.getSslCertificate())
 
   def assertInstanceRequestSimulator(self, args, kwargs):
-    stored = eval(open(self.instance_request_simulator).read())
+    stored = eval(open(self.instance_request_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,
@@ -2393,7 +2393,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def assertComputerBangSimulator(self, args, kwargs):
-    stored = eval(open(self.computer_bang_simulator).read())
+    stored = eval(open(self.computer_bang_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     kwargs['comment'] = kwargs.pop('comment')
     self.assertEqual(stored,
@@ -2800,7 +2800,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def assertInstanceBangSimulator(self, args, kwargs):
-    stored = eval(open(self.instance_bang_simulator).read())
+    stored = eval(open(self.instance_bang_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     kwargs['comment'] = kwargs.pop('comment')
     self.assertEqual(stored,
@@ -2860,7 +2860,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         os.unlink(self.instance_bang_simulator)
 
   def assertInstanceRenameSimulator(self, args, kwargs):
-    stored = eval(open(self.instance_rename_simulator).read())
+    stored = eval(open(self.instance_rename_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,
@@ -2887,7 +2887,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         os.unlink(self.instance_rename_simulator)
 
   def assertInstanceRequestSimulator(self, args, kwargs):
-    stored = eval(open(self.instance_request_simulator).read())
+    stored = eval(open(self.instance_request_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,
@@ -3044,7 +3044,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
                                                  got_xml.split('\n'))]))
 
   def assertSupplySimulator(self, args, kwargs):
-    stored = eval(open(self.computer_supply_simulator).read())
+    stored = eval(open(self.computer_supply_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     kwargs['software_release_url'] = kwargs.pop('software_release_url')
     kwargs['state'] = kwargs.pop('state')
@@ -3072,7 +3072,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         os.unlink(self.computer_supply_simulator)
 
   def assertRequestComputerSimulator(self, args, kwargs):
-    stored = eval(open(self.computer_request_computer_simulator).read())
+    stored = eval(open(self.computer_request_computer_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     kwargs['computer_title'] = kwargs.pop('computer_title')
     self.assertEqual(stored,
@@ -3121,7 +3121,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         os.unlink(self.computer_request_computer_simulator)
 
   def assertGenerateComputerCertificateSimulator(self, args, kwargs):
-    stored = eval(open(self.generate_computer_certificate_simulator).read())
+    stored = eval(open(self.generate_computer_certificate_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,
@@ -3168,7 +3168,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         os.unlink(self.generate_computer_certificate_simulator)
 
   def assertRevokeComputerCertificateSimulator(self, args, kwargs):
-    stored = eval(open(self.revoke_computer_certificate_simulator).read())
+    stored = eval(open(self.revoke_computer_certificate_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,

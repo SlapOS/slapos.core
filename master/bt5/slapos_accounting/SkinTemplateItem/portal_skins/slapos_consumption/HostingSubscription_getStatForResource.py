@@ -1,4 +1,3 @@
-from Products.ZSQLCatalog.SQLCatalog import Query
 portal = context.getPortalObject()
 
 query_kw.update(query_kw['selection'].getParams())

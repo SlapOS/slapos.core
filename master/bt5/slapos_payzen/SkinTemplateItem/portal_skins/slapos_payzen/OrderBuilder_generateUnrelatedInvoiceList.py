@@ -23,7 +23,7 @@ select_kw.update(
 
 default_source_uid=portal.restrictedTraverse('account_module/receivable').getUid()
 movement_list = []
-id = 1
+_id = 1
 for invoice in portal.portal_catalog(**select_kw):
   invoice.getObject().serialize() # in order to avoid selection on concurrent transactions
 
@@ -51,21 +51,21 @@ for invoice in portal.portal_catalog(**select_kw):
     source_payment='%s/bank_account' % invoice.getSourceSection(), # the other place defnied: business process
   )
   temp_movement_rec = newTempSimulationMovement(
-    temp_object=True, id=str(id),
+    temp_object=True, id=str(_id),
     quantity=-1 * quantity,
     source='account_module/receivable',
     destination='account_module/payable',
     **temp_movement_kw
   )
-  id += 1
+  _id += 1
   temp_movement_bank = newTempSimulationMovement(
-    temp_object=True, id=str(id),
+    temp_object=True, id=str(_id),
     quantity=1 * quantity,
     source='account_module/bank',
     destination='account_module/bank',
     **temp_movement_kw
   )
-  id += 1
+  _id += 1
   movement_list.extend([temp_movement_rec, temp_movement_bank])
 
 return movement_list

@@ -78,7 +78,7 @@ if show_all or configuration == "skins":
 if show_all or configuration == "web_content":
   expected_file = portal.expected_web_page_module_configuration
   found = portal.ERP5Site_dumpWebPageModuleContent(
-    ignore_string_on_reference=["rapid_"])
+    ignore_string_on_reference_list=["rapid_"])
   print resolveDiff("Web Content Configuration Diff", expected_file, found)
 
 if show_all or configuration == "actions":

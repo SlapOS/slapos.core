@@ -49,7 +49,7 @@ def ComputerConsumptionTioXMLFile_parseXml(self, REQUEST=None):
 
   try:
     tree = etree.parse(string_to_validate)
-  except (etree.XMLSyntaxError, etree.DocumentInvalid) as e:
+  except (etree.XMLSyntaxError, etree.DocumentInvalid): #pylint: disable=catching-non-exception
     return None
 
   if not xmlschema.validate(tree):

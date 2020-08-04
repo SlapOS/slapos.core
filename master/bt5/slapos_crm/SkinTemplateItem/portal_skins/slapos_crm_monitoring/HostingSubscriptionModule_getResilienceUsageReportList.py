@@ -1,5 +1,5 @@
 portal = context.getPortalObject()
-from Products.ERP5Type.Document import newTempDocument
+from Products.ERP5Type.Document import newTempBase
 
 kw = {}
 kw["portal_type"] = "Hosting Subscription"
@@ -39,7 +39,7 @@ document_list = []
 for person_relative_url in l:
   person = portal.restrictedTraverse(person_relative_url)
   document_list.append(
-    newTempDocument(context.person_module, person.getId(),
+    newTempBase(context.person_module, person.getId(),
       uid = "t_%s" % person.getUid(), title=person.getTitle(),
       **l[person_relative_url]))
 

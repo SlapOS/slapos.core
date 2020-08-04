@@ -5,7 +5,7 @@ if REQUEST is not None:
 portal = context.getPortalObject()
 integration_site = portal.restrictedTraverse(portal.portal_preferences.getPreferredWechatIntegrationSite())
 
-transaction_date, transaction_id = context.PaymentTransaction_getWechatId()
+_, transaction_id = context.PaymentTransaction_getWechatId()
 if transaction_id is not None:
   # XXX raise?
   return None, None
@@ -15,7 +15,7 @@ if transaction_id is not None:
 mapping_id = context.getId()
 
 try:
-  mapping = integration_site.getCategoryFromMapping(
+  integration_site.getCategoryFromMapping(
   'Causality/%s' % context.getId().replace('-', '_'),
   create_mapping_line=True,
   create_mapping=True)

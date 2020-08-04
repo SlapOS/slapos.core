@@ -21,8 +21,9 @@ def compareAndUpdateAddressList(document, address_list, additional_dict=None):
 
   for address in to_add_ip_dict_list:
     if to_delete_ip_id_list:
-      id = to_delete_ip_id_list.pop()
-      address_document = document.restrictedTraverse(id)
+      address_document = document.restrictedTraverse(
+        to_delete_ip_id_list.pop()
+      )
     else:
       kw = {'portal_type': 'Internet Protocol Address'}
       if not len(document.objectIds(portal_type='Internet Protocol Address')):

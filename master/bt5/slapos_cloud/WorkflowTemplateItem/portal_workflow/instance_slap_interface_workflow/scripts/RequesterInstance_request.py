@@ -15,7 +15,7 @@ try:
   root_state = kwargs["state"]
 except KeyError:
   raise
-  raise TypeError, "RequesterInstance_request takes exactly 7 arguments"
+  #raise TypeError, "RequesterInstance_request takes exactly 7 arguments"
 
 if is_slave not in [True, False]:
   raise ValueError, "shared should be a boolean"

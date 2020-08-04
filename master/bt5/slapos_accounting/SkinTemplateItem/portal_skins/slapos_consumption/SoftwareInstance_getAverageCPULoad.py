@@ -1,6 +1,6 @@
 portal = context.getPortalObject()
 
-software_release_url = context.getUrlString()
+#software_release_url = context.getUrlString()
 
 resource_uid = context.service_module.cpu_load_percent.getUid()
 

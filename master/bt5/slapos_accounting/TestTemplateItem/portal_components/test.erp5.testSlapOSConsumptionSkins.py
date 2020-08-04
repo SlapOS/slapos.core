@@ -5,7 +5,6 @@
 #
 ##############################################################################
 
-import transaction
 from erp5.component.test.SlapOSTestCaseMixin import \
   SlapOSTestCaseMixinWithAbort, SlapOSTestCaseMixin, simulate
 from zExceptions import Unauthorized
@@ -267,7 +266,6 @@ class TestSlapOSComputerConsumptionTioXMLFile_solveInvoicingGeneration(
 
   def createAllocatedComputer(self):
     # Create person
-    password = self.generateNewId()
     reference = 'test_%s' % self.generateNewId()
     person = self.portal.person_module.newContent(portal_type='Person',
       title=reference,
@@ -275,7 +273,6 @@ class TestSlapOSComputerConsumptionTioXMLFile_solveInvoicingGeneration(
     person.newContent(portal_type='Assignment', role='member').open()
 
     # Create second person
-    password = self.generateNewId()
     reference = 'test_%s' % self.generateNewId()
     second_person = self.portal.person_module.newContent(portal_type='Person',
       title=reference,

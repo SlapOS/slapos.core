@@ -1,6 +1,4 @@
 portal_memcached = context
-portal = context.getPortalObject()
-
 
 # erp5-memcached-persistent is provided by SlapOS, so here we are
 # ensuring the site uses real DNS Configuration provided by SlapOS.

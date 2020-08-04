@@ -5,7 +5,8 @@
    a old business template without updating it and without removing it
 """
 
-bt5_id_list, bt5_update_catalog_list, keep_bt5_id_list = \
+# _ = bt5_update_catalog_list
+bt5_id_list, _, keep_bt5_id_list = \
   context.TemplateTool_getSlapOSMasterBusinessTemplateList()
 
 return bt5_id_list, keep_bt5_id_list

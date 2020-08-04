@@ -1,2 +1,2 @@
-object = state_change['object']
-object.Base_checkConsistency()
+trial_request = state_change['object']
+trial_request.Base_checkConsistency()

@@ -3,8 +3,9 @@ from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, ComplexQuery
 person = context
 portal = context.getPortalObject()
 
-def getOpenAllocationScopeUidList(exclude_uid_list=[]):
-  return [scope.getUid() for scope in portal.portal_categories.allocation_scope.open.objectValues() if scope.getUid() not in exclude_uid_list]
+def getOpenAllocationScopeUidList(exclude_uid_list):
+  return [scope.getUid() for scope in portal.portal_categories.allocation_scope.open.objectValues()
+           if scope.getUid() not in exclude_uid_list]
 
 
 computer_partition = None
@@ -93,7 +94,8 @@ if subscription_reference is not None and software_instance_portal_type != "Slav
   query_kw["allocation_scope_uid"] = portal.portal_categories.allocation_scope.open.subscription.getUid()
 else:
   # else pic anything but open/subscription
-  query_kw["allocation_scope_uid"] = getOpenAllocationScopeUidList(exclude_uid_list=[portal.portal_categories.allocation_scope.open.subscription.getUid()])
+  query_kw["allocation_scope_uid"] = getOpenAllocationScopeUidList(
+    exclude_uid_list=[portal.portal_categories.allocation_scope.open.subscription.getUid()])
 
 
 extra_query_kw = context.ComputerPartition_getCustomAllocationParameterDict(

@@ -45,14 +45,7 @@
         <item>
             <key> <string>text_content_warning_message</string> </key>
             <value>
-              <tuple>
-                <string>W:  9,  0: Unused changeSkin imported from erp5.component.test.SlapOSTestCaseMixin (unused-import)</string>
-                <string>W: 10,  0: Unused import re (unused-import)</string>
-                <string>W: 11,  0: Unused import json (unused-import)</string>
-                <string>W: 12,  0: Unused import xml_marshaller (unused-import)</string>
-                <string>W: 13,  0: Unused getSecurityManager imported from AccessControl.SecurityManagement (unused-import)</string>
-                <string>W: 13,  0: Unused setSecurityManager imported from AccessControl.SecurityManagement (unused-import)</string>
-              </tuple>
+              <tuple/>
             </value>
         </item>
         <item>

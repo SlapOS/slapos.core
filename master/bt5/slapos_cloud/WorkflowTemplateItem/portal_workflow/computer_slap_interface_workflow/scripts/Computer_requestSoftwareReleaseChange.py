@@ -62,7 +62,7 @@ else:
 
 # Change the state at the end to allow to execute updateLocalRoles only once in the transaction
 validation_state = software_installation.getValidationState()
-slap_state = software_installation.getSlapState()
+# slap_state = software_installation.getSlapState()
 if validation_state == 'draft':
   portal.portal_workflow.doActionFor(software_installation,
                                            'validate_action')

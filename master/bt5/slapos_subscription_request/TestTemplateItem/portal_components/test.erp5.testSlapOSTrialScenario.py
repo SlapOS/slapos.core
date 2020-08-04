@@ -6,12 +6,6 @@
 ##############################################################################
 
 from erp5.component.test.SlapOSTestCaseDefaultScenarioMixin import DefaultScenarioMixin
-from erp5.component.test.SlapOSTestCaseMixin import changeSkin
-import re
-import json
-import xml_marshaller
-from AccessControl.SecurityManagement import getSecurityManager, \
-             setSecurityManager
 from DateTime import DateTime
 
 class TestSlapOSTrialScenario(DefaultScenarioMixin):

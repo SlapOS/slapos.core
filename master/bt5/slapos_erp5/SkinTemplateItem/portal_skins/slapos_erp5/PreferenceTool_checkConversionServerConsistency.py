@@ -4,11 +4,9 @@ if context.getPortalType() not in [ "System Preference"]:
 if context.getPreferenceState() != "global":
   return []
 
-
 portal = context.getPortalObject()
 system_preference = context
 expected_url = portal.ERP5Site_getConfigurationCloudoooUrl()
-
 url = system_preference.getPreferredDocumentConversionServerUrl()
 
 if expected_url != url:

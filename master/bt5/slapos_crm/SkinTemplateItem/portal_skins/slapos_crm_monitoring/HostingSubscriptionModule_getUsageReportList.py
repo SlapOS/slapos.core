@@ -1,5 +1,5 @@
 from DateTime import DateTime
-from Products.ERP5Type.Document import newTempDocument
+from Products.ERP5Type.Document import newTempBase
 
 portal = context.getPortalObject()
 
@@ -37,7 +37,7 @@ creation_date_list = list(date_set)
 creation_date_list.sort()
 
 for creation_date in creation_date_list:     
-  line = newTempDocument(context, '%s' % creation_date.replace("/", "_"), **{
+  line = newTempBase(context, '%s' % creation_date.replace("/", "_"), **{
        "uid": "%s_%s" % (context.getUid(), len(stats_list)),
        "title": creation_date,
        "hosting_subscription_quantity" : countDocument(creation_date, "Hosting Subscription"),

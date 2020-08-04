@@ -5,7 +5,7 @@ payment_transaction = wechat_event.getDestinationValue(portal_type="Payment Tran
 now = DateTime()
 payment_transaction.AccountingTransaction_updateStartDate(now)
 
-transaction_date, transaction_id = payment_transaction.PaymentTransaction_generateWechatId()
+_, transaction_id = payment_transaction.PaymentTransaction_generateWechatId()
 if transaction_id is None:
   raise ValueError, "Transaction already registered"
 

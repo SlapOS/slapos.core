@@ -1,4 +1,3 @@
-partition_co2_dict = {}
 min_delta_co2 = 2000
 minimal_candidate = None
 

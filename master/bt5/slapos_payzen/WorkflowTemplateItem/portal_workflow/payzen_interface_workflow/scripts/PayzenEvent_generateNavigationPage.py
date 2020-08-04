@@ -20,11 +20,10 @@ payment_transaction = payzen_event.getDestinationValue(portal_type="Payment Tran
 now = DateTime()
 payment_transaction.AccountingTransaction_updateStartDate(now)
 
-transaction_date, transaction_id = payment_transaction.PaymentTransaction_generatePayzenId()
+_, transaction_id = payment_transaction.PaymentTransaction_generatePayzenId()
 if transaction_id is None:
   raise ValueError, "Transaction already registered"
 
-today = now.toZone('UTC').asdatetime().strftime('%Y%m%d')
 payzen_dict = {
   'vads_currency': payment_transaction.getResourceValue().Currency_getIntegrationMapping(),
   'vads_amount': str(int(round((payment_transaction.PaymentTransaction_getTotalPayablePrice() * -100), 0))),

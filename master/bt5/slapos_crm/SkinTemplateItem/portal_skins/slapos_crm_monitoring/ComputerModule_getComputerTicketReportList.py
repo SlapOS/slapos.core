@@ -1,7 +1,7 @@
 from DateTime import DateTime
 import json
 portal = context.getPortalObject()
-from Products.ERP5Type.Document import newTempDocument
+from Products.ERP5Type.Document import newTempBase
 
 public_category_uid = portal.restrictedTraverse(
   "portal_categories/allocation_scope/open/public", None).getUid()
@@ -78,7 +78,7 @@ for computer in portal.portal_catalog(
       instance_error_ratio = float(instance_error_count)/instance_count
 
     l.append(
-       newTempDocument(context, '%s'% computer.id, **{"title": computer.title,
+       newTempBase(context, '%s'% computer.id, **{"title": computer.title,
                                                  "uid": "%s_%s" % (computer.getUid(), instance_count),
                                                  "reference": computer.reference,
                                                  "partition_use_ratio": partition_use_ratio,

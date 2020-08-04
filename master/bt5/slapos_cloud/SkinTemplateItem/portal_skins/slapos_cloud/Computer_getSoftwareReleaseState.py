@@ -1,4 +1,3 @@
-computer = context
 portal = context.getPortalObject()
 
 software_installation_list = portal.portal_catalog(

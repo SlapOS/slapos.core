@@ -37,11 +37,11 @@ else :
       if v:
         new_category_dict[category] = v
 
-  for property in property_list:
-    if force or not computer.getProperty(property):
-      v = computer_model.getProperty(property)
+  for _property in property_list:
+    if force or not computer.getProperty(_property):
+      v = computer_model.getProperty(_property)
       if v:
-        new_category_dict[property] = v
+        new_category_dict[_property] = v
 
   if new_category_dict:
     computer.edit(**new_category_dict)

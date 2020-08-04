@@ -2460,8 +2460,6 @@ class TestSlapOSCorePersonRequestComputer(SlapOSTestCaseMixin):
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
-    portal = self.getPortalObject()
-
     person_user = self.makePerson()
     self.tic()
 
@@ -2702,7 +2700,7 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       else:
         return self.activeSense_call()
 
-    from Products.ERP5Type.Document.Alarm import Alarm
+    from Products.ERP5Type.Document.Alarm import Alarm #pylint: disable=import-error
 
     Alarm.activeSense_call = Alarm.activeSense
     Alarm.activeSense = verify_activeSense_call

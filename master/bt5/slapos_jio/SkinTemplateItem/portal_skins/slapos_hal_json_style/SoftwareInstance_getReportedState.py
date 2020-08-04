@@ -1,6 +1,6 @@
-from zExceptions import UnauthorizedError
+from zExceptions import Unauthorized
 if REQUEST is not None:
-  raise UnauthorizedError
+  raise Unauthorized
 
 from DateTime import DateTime
 import json

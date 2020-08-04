@@ -1,6 +1,8 @@
 import hashlib
 portal = context.getPortalObject()
 
+if not ignore_string_on_reference_list:
+  ignore_string_on_reference_list = []
 
 def getWebContentHash(document):
   content = document.getTextContent("ignore")
@@ -20,7 +22,7 @@ for document in portal.web_page_module.searchFolder(
 
   print_web_content = 1
   document_reference = str(document.getReference(""))
-  for ignore_string in ignore_string_on_reference:
+  for ignore_string in ignore_string_on_reference_list:
     if ignore_string in document_reference:
       print_web_content = 0
       break

@@ -1,5 +1,4 @@
 from zExceptions import Unauthorized
-from AccessControl import getSecurityManager
 if REQUEST is None:
   raise Unauthorized
 

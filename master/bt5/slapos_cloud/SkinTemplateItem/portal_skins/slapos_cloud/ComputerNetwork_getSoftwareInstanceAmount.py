@@ -1,4 +1,3 @@
-network = context
 portal = context.getPortalObject()
 software_release = context.REQUEST.get('here')
 

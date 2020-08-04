@@ -5,7 +5,7 @@ if REQUEST is not None:
 portal = context.getPortalObject()
 integration_site = portal.restrictedTraverse(portal.portal_preferences.getPreferredPayzenIntegrationSite())
 
-transaction_date, transaction_id = context.PaymentTransaction_getPayzenId()
+_, transaction_id = context.PaymentTransaction_getPayzenId()
 if transaction_id is not None:
   # XXX raise?
   return None, None
@@ -28,10 +28,11 @@ mapping_id = '%s_%s' % (today, transaction_id)
 #   raise ValueError, "Payzen transaction_id already exists"
 
 try:
-  mapping = integration_site.getCategoryFromMapping(
-  'Causality/%s' % context.getId().replace('-', '_'),
-  create_mapping_line=True,
-  create_mapping=True)
+  # Init for use later.
+  integration_site.getCategoryFromMapping(
+    'Causality/%s' % context.getId().replace('-', '_'),
+    create_mapping_line=True,
+    create_mapping=True)
 except ValueError:
   pass
 integration_site.Causality[context.getId().replace('-', '_')].setDestinationReference(mapping_id)

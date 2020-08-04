@@ -1,5 +1,4 @@
 instance = state_change['object']
-portal = instance.getPortalObject()
 # Get required arguments
 kwargs = state_change.kwargs
 

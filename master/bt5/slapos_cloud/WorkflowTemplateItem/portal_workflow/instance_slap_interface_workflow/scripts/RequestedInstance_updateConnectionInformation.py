@@ -1,9 +1,5 @@
 instance = state_change['object']
-portal = instance.getPortalObject()
-# Get required arguments
-kwargs = state_change.kwargs
 
-# Required args
 # Raise TypeError if all parameters are not provided
 try:
   connection_xml = state_change.kwargs['connection_xml']

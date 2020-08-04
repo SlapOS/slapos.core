@@ -19,12 +19,6 @@ except KeyError:
 if is_slave not in [True, False]:
   raise ValueError, "shared should be a boolean"
 
-empty_parameter = """<?xml version="1.0" encoding="utf-8"?>
-<instance>
-</instance>"""
-empty_parameter2 = """<?xml version='1.0' encoding='utf-8'?>
-<instance/>"""
-
 hosting_subscription_portal_type = "Hosting Subscription"
 
 tag = "%s_%s_inProgress" % (person.getUid(),

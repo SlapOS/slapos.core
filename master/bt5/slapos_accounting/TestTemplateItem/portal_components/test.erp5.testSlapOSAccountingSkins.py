@@ -170,7 +170,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
   def test_OpenSaleOrder_reindexIfIndexedBeforeLine_line_indexed_before(self):
     portal = self.portal
     order = self.createOpenSaleOrder()
-    line = order.newContent(portal_type="Open Sale Order Line")
+    order.newContent(portal_type="Open Sale Order Line")
     self.tic()
     order.activate().immediateReindexObject()
     # XXX One more kitten killed

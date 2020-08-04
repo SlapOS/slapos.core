@@ -18,7 +18,7 @@ if has_partition:
 
   except Exception:
     raise
-    result = 'There is system issue, please try again later.'
+    # result = 'There is system issue, please try again later.'
 
 else:
   if state in ["start_requested", "stop_requested"]:

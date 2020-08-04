@@ -1,6 +1,5 @@
 slap_state = context.getSlapState()
 portal = context.getPortalObject()
-portal_preferences = portal.portal_preferences
 
 if slap_state == 'free':
   computer = context.getParentValue()

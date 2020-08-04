@@ -1,5 +1,4 @@
 """Fetch computer to find witch software is installed"""
-portal = context.getPortalObject()
 portal_type = "Software Release"
 
 url_string_list = context.Computer_getSoftwareReleaseUrlStringList()

@@ -7,7 +7,7 @@ from erp5.component.module.DateUtils import addToDate, getClosestDate
 hosting_subscription = context
 portal = context.getPortalObject()
 
-start_date = context.HostingSubscription_calculateSubscriptionStartDate()
+#start_date = context.HostingSubscription_calculateSubscriptionStartDate()
 
 workflow_item_list = portal.portal_workflow.getInfoFor(
   ob=hosting_subscription,

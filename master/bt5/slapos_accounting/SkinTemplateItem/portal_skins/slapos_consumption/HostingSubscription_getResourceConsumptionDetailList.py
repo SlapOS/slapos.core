@@ -1,6 +1,5 @@
 from DateTime import DateTime
-from Products.ZSQLCatalog.SQLCatalog import Query
-from Products.ERP5Type.Document import newTempDocument
+from Products.ERP5Type.Document import newTempBase
 
 portal = context.getPortalObject()
 
@@ -136,7 +135,7 @@ for date in sorted(consumption_dict, reverse=True):
     hosting_title, instance_dict, hs_url = consumption_dict[date][hosting_key]
     for instance_value_list in instance_dict.values():
       instance_title, values, instance_url, computer_title = instance_value_list
-      line = newTempDocument(portal, instance_url, uid="%s_%s" % (context.getUid(), i))
+      line = newTempBase(portal, instance_url, uid="%s_%s" % (context.getUid(), i))
       line.edit(
         title=hosting_title,
         start_date=date,

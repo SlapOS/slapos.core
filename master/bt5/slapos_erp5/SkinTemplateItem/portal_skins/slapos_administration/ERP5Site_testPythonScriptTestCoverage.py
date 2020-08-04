@@ -1,4 +1,3 @@
-import hashlib
 portal = context.getPortalObject()
 
 content_dict = {}

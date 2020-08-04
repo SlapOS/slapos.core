@@ -1,4 +1,4 @@
-from erp5.component.module.DateUtils import addToDate, getClosestDate
+from erp5.component.module.DateUtils import addToDate
 from DateTime import DateTime
 
 portal = context.getPortalObject()

@@ -45,19 +45,7 @@
         <item>
             <key> <string>text_content_warning_message</string> </key>
             <value>
-              <tuple>
-                <string>W: 31, 10: Use of eval (eval-used)</string>
-                <string>W:785, 20: Use of eval (eval-used)</string>
-                <string>W:786, 23: Use of eval (eval-used)</string>
-                <string>W:807, 20: Use of eval (eval-used)</string>
-                <string>W:808, 23: Use of eval (eval-used)</string>
-                <string>W:873, 20: Use of eval (eval-used)</string>
-                <string>W:874, 23: Use of eval (eval-used)</string>
-                <string>W:883, 20: Use of eval (eval-used)</string>
-                <string>W:884, 23: Use of eval (eval-used)</string>
-                <string>W:947, 35: Use of eval (eval-used)</string>
-                <string>W:948, 31: Use of eval (eval-used)</string>
-              </tuple>
+              <tuple/>
             </value>
         </item>
         <item>

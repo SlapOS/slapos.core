@@ -6,7 +6,7 @@ def wrapWithShadow(payment_transaction, web_site, person_relative_url):
   vads_url_dict = payment_transaction.PaymentTransaction_getVADSUrlDict(web_site)
   # ???
 
-  _ , transaction_id = payment_transaction.PaymentTransaction_getPayzenId()
+  #_ , transaction_id = payment_transaction.PaymentTransaction_getWechatId()
   # vads_url_already_registered = vads_url_dict.pop('vads_url_already_registered')
   # if transaction_id is not None:
   #  return context.REQUEST.RESPONSE.redirect(vads_url_already_registered)

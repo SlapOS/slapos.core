@@ -1,6 +1,5 @@
 import random
 from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, ComplexQuery
-person = context
 
 computer_partition = None
 query_kw = {
@@ -19,14 +18,13 @@ else:
 # support SLA
 
 # Explicit location
-explicit_location = False
+#explicit_location = False
 if "computer_guid" in filter_kw:
-  explicit_location = True
+  #explicit_location = True
   query_kw["parent_reference"] = SimpleQuery(parent_reference=filter_kw.pop("computer_guid"))
 
 if "instance_guid" in filter_kw:
-  explicit_location = True
-  portal = context.getPortalObject()
+  #explicit_location = True
   instance_guid = filter_kw.pop("instance_guid")
   query_kw["aggregate_related_reference"] = SimpleQuery(aggregate_related_reference=instance_guid)
 

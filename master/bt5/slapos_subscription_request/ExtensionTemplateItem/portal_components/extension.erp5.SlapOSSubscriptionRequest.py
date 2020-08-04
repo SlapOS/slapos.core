@@ -22,8 +22,8 @@ def Base_instanceXmlToDict(self, xml):
         else:
           value = element.text
         result_dict[key] = value
-  except (etree.XMLSchemaError, etree.XMLSchemaParseError,
-    etree.XMLSchemaValidateError, etree.XMLSyntaxError):
+  except (etree.XMLSchemaError, etree.XMLSchemaParseError, #pylint: disable=catching-non-exception
+    etree.XMLSchemaValidateError, etree.XMLSyntaxError): #pylint: disable=catching-non-exception
     LOG('SubscriptionRequest', INFO, 'Issue during parsing xml:', error=True)
   return result_dict
 

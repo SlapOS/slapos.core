@@ -1,6 +1,6 @@
 from zExceptions import Unauthorized
 if REQUEST is not None:
-  pass #raise Unauthorized
+  raise Unauthorized
 
 portal = context.getObject()
 

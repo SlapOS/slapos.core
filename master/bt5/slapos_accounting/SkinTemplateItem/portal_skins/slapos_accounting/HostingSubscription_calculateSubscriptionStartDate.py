@@ -2,7 +2,7 @@ from zExceptions import Unauthorized
 if REQUEST is not None:
   raise Unauthorized
 
-from erp5.component.module.DateUtils import addToDate, getClosestDate
+from erp5.component.module.DateUtils import getClosestDate
 
 hosting_subscription = context
 portal = context.getPortalObject()

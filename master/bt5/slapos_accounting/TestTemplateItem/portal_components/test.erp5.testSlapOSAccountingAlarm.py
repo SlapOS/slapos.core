@@ -28,7 +28,7 @@ class Simulator:
     """Simulation Method"""
     old = open(self.outfile, 'r').read()
     if old:
-      l = eval(old)
+      l = eval(old) #pylint: disable=eval-used
     else:
       l = []
     l.append({'recmethod': self.method,
@@ -782,8 +782,8 @@ class TestSlapOSTriggerBuildAlarm(SlapOSTestCaseMixin):
 
       simulation_movement.SimulationMovement_buildSlapOS(tag='root_tag')
 
-      build_value = eval(open(build_simulator).read())
-      activate_value = eval(open(activate_simulator).read())
+      build_value = eval(open(build_simulator).read()) #pylint: disable=eval-used
+      activate_value = eval(open(activate_simulator).read()) #pylint: disable=eval-used
 
       self.assertEqual([{
         'recmethod': 'build',
@@ -804,8 +804,8 @@ class TestSlapOSTriggerBuildAlarm(SlapOSTestCaseMixin):
       open(activate_simulator, 'w').truncate()
 
       lower_simulation_movement.SimulationMovement_buildSlapOS(tag='lower_tag')
-      build_value = eval(open(build_simulator).read())
-      activate_value = eval(open(activate_simulator).read())
+      build_value = eval(open(build_simulator).read()) #pylint: disable=eval-used
+      activate_value = eval(open(activate_simulator).read()) #pylint: disable=eval-used
 
       self.assertEqual([{
         'recmethod': 'build',
@@ -870,8 +870,8 @@ class TestSlapOSTriggerBuildAlarm(SlapOSTestCaseMixin):
 
       simulation_movement.SimulationMovement_buildSlapOS(tag='root_tag')
 
-      build_value = eval(open(build_simulator).read())
-      activate_value = eval(open(activate_simulator).read())
+      build_value = eval(open(build_simulator).read()) #pylint: disable=eval-used
+      activate_value = eval(open(activate_simulator).read()) #pylint: disable=eval-used
 
       self.assertEqual([], build_value)
       self.assertEqual([], activate_value)
@@ -880,8 +880,8 @@ class TestSlapOSTriggerBuildAlarm(SlapOSTestCaseMixin):
       open(activate_simulator, 'w').write(repr([]))
 
       lower_simulation_movement.SimulationMovement_buildSlapOS(tag='lower_tag')
-      build_value = eval(open(build_simulator).read())
-      activate_value = eval(open(activate_simulator).read())
+      build_value = eval(open(build_simulator).read()) #pylint: disable=eval-used
+      activate_value = eval(open(activate_simulator).read()) #pylint: disable=eval-used
 
       self.assertEqual([], build_value)
       self.assertEqual([], activate_value)
@@ -944,8 +944,8 @@ class TestSlapOSManageBuildingCalculatingDeliveryAlarm(SlapOSTestCaseMixin):
 
       delivery.Delivery_manageBuildingCalculatingDelivery()
 
-      updateCausalityState_value = eval(open(updateCausalityState_simulator).read())
-      updateSimulation_value = eval(open(updateSimulation_simulator).read())
+      updateCausalityState_value = eval(open(updateCausalityState_simulator).read()) #pylint: disable=eval-used
+      updateSimulation_value = eval(open(updateSimulation_simulator).read()) #pylint: disable=eval-used
 
       if empty:
         self.assertEqual([], updateCausalityState_value)
@@ -1330,7 +1330,7 @@ class TestSlapOSReindexOpenSaleOrder(SlapOSTestCaseMixin):
     )
     return open_order
 
-  def _simulateScript(self, script_name):
+  def _simulateScript(self, script_name, fake_return="False"):
     if script_name in self.portal.portal_skins.custom.objectIds():
       raise ValueError('Precondition failed: %s exists in custom' % script_name)
     createZODBPythonScript(self.portal.portal_skins.custom,

@@ -22,7 +22,7 @@ for computer in network.getSubordinationRelatedValueList():
     if isAllowed:
       allocation_state = 'Open'
       break
-  except:
+  except Exception:
     continue
 
 return allocation_state

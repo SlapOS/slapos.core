@@ -9,7 +9,6 @@ def storeWorkflowComment(ctx, comment):
 
 payzen_event = context
 transaction = payzen_event.getDestinationValue()
-portal = transaction.getPortalObject()
 
 assert signature in (True, False)
 if signature is False:
@@ -21,7 +20,7 @@ isTransitionPossible = context.getPortalObject().portal_workflow.isTransitionPos
 
 error_code = data_kw['errorCode']
 if error_code == '2':
-  transaction_date, payzen_id = transaction.PaymentTransaction_getPayzenId()
+  transaction_date, _ = transaction.PaymentTransaction_getPayzenId()
   # Mark on payment transaction history log that transaction was not processed yet
   payzen_event.confirm()
   payzen_event.acknowledge(comment='Transaction not found on payzen side.')
@@ -60,8 +59,6 @@ elif error_code == '0':
   if transaction_status_description is None:
     payzen_event.confirm(comment='Unknown transactionStatus %r' % transaction_status)
     return
-
-  doActionFor = context.getPortalObject().portal_workflow.doActionFor
 
   if transaction_status in mark_transaction_id_list:
     # Mark on payment transaction history log that transaction was not processed yet

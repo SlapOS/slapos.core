@@ -1,6 +1,4 @@
 portal_oauth = context.portal_oauth
-error_list = []
-
 
 for connector in portal_oauth.searchFolder(portal_type="Facebook Connector"):
   if connector.getReference() == "default":

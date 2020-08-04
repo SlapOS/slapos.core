@@ -32,7 +32,7 @@ from AccessControl import Unauthorized
 from DateTime import DateTime
 
 def getComputerSecurityCategory(self, base_category_list, user_name,
-                                object, portal_type):
+                                ob, portal_type):
   """
   This script returns a list of dictionaries which represent
   the security groups which a computer is member of.
@@ -58,7 +58,7 @@ def getComputerSecurityCategory(self, base_category_list, user_name,
   return category_list
 
 def getSoftwareInstanceSecurityCategory(self, base_category_list, user_name,
-                                object, portal_type):
+                                ob, portal_type): 
   """
   This script returns a list of dictionaries which represent
   the security groups which a Software Instance is member of.
@@ -132,7 +132,7 @@ def getSecurityCategoryFromAssignmentDestinationClientOrganisation(
   self,
   base_category_list,
   user_name,
-  object,  # pylint: disable=redefined-builtin
+  ob,
   portal_type,
   child_category_list=None
 ):
@@ -152,7 +152,7 @@ def getSecurityCategoryFromAssignmentDestinationClientOrganisation(
 
     base_category_list -- list of category values we need to retrieve
     user_name          -- string obtained from getSecurityManager().getUser().getId()
-    object             -- object which we want to assign roles to
+    ob             -- object which we want to assign roles to
     portal_type        -- portal type of object
   """
   category_list = []

@@ -2,14 +2,12 @@ portal = context.getPortalObject()
 
 uid_groups_columns_dict = portal.portal_catalog.getSQLCatalog().getSQLCatalogSecurityUidGroupsColumnsDict()
 uid_groups_columns_items = sorted(uid_groups_columns_dict.items())
-security_column_list = sorted(uid_groups_columns_dict.values())
+#security_column_list = sorted(uid_groups_columns_dict.values())
 
-user_id_list = ['claudie', 'rafael', 'vifib-admin', 'nexedi_development_service']
-#for user in portal.person_module.searchFolder(
-#          reference='%',
-#          validation_state='validated',
-#          default_role_uid=portal.portal_categories.role.internal.getUid()):
-#  user_id_list.append(user.getReference())
+user_id_list = [ user.getReference() for user in portal.person_module.searchFolder(
+          reference='%',
+          validation_state='validated',
+          default_role_uid=portal.portal_categories.role.internal.getUid())]
 
 info_list = []
 for user_id in sorted(user_id_list):
@@ -19,7 +17,7 @@ for user_id in sorted(user_id_list):
   groups = user.getGroups()
   uid_dict_and_roles_column_dict = portal.Base_getSecurityUidDictAndRoleColumnDictForUser(user_id)
   info = [user_id, len(groups)]
-  for local_roles_group_id, security_column in uid_groups_columns_items:
+  for local_roles_group_id, security_column in uid_groups_columns_items: #pylint: disable=unused-variable
     info.append(len(uid_dict_and_roles_column_dict[0].get(local_roles_group_id,[])))
 
   info_list.append(info)

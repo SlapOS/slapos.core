@@ -82,7 +82,7 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
     self.tic()
     return instance
 
-  def _makeComputer(self):
+  def _makeComputer(self, owner=None, allocation_scope='open/public'):
     computer = self.portal.computer_module\
         .template_computer.Base_createCloneDocument(batch_mode=1)
     computer.edit(reference="TESTCOMP-%s" % computer.getId())

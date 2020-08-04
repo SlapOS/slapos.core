@@ -30,6 +30,15 @@ payzen_dict.update(
 
 data_kw, signature, sent_text, received_text = payment_service.soap_duplicate(**payzen_dict)
 
-sent = wechat_event.newContent(title='Sent SOAP', portal_type='Wechat Event Message', text_content=sent_text)
-received = wechat_event.newContent(title='Received SOAP', text_content=received_text, predecessor_value=sent, portal_type='Wechat Event Message')
+# SENT
+sent = wechat_event.newContent(title='Sent SOAP',
+                               portal_type='Wechat Event Message',
+                              text_content=sent_text)
+
+# RECEIVED
+wechat_event.newContent(title='Received SOAP',
+                        text_content=received_text,
+                        predecessor_value=sent,
+                        portal_type='Wechat Event Message')
+
 context.WechatEvent_processUpdate(state_change, data_kw, signature)

@@ -1,5 +1,4 @@
 from DateTime import DateTime
-portal = context.getPortalObject()
 
 state = context.getSimulationState()
 transaction_amount = int(round((context.PaymentTransaction_getTotalPayablePrice() * -100), 2))

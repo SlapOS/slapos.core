@@ -31,7 +31,6 @@ subscription_request = context.subscription_request_module.newContent(
 
 subscription_request.setDefaultEmailText(email)
 
-
 def wrapWithShadow(subscription_request, amount, subscription_reference, subscription_request_id):
   subscription_request.activate(tag="subscription_condition_%s" % subscription_request_id
                              ).SubscriptionRequest_applyCondition(subscription_reference, target_language)

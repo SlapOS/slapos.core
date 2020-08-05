@@ -53,9 +53,6 @@ class SlapOSCloud(SavedTestSuite, ProjectTestSuite):
           product = test_path.split(os.sep)[-3]
         if not product in self._bt_list:
           continue
-      elif test_path.split(os.sep)[-3] == 'Vifib':
-        # There is no valid tests in Vifib!
-        continue
       test_list.append(test_case)
     return test_list
 

@@ -7,7 +7,7 @@
   </role>
   <role id='Assignee'>
    <property id='title'>Customer of the Instance</property>
-   <property id='base_category_script'>InstanceType_getSecurityCategoryFromUser</property>
+   <property id='base_category_script'>SoftwareInstance_getSecurityCategoryFromUser</property>
    <multi_property id='categories'>local_role_group/user</multi_property>
    <multi_property id='base_category'>destination_section</multi_property>
   </role>
@@ -25,19 +25,19 @@
   </role>
   <role id='Assignee'>
    <property id='title'>Organisation Member</property>
-   <property id='base_category_script'>Instance_getSecurityCategoryFromMovementSpecialiseDestination</property>
+   <property id='base_category_script'>SoftwareInstance_getSecurityCategoryFromMovementSpecialiseDestination</property>
    <multi_property id='categories'>local_role_group/organisation</multi_property>
    <multi_property id='base_category'>destination</multi_property>
   </role>
   <role id='Assignee'>
    <property id='title'>Project Member</property>
-   <property id='base_category_script'>Instance_getSecurityCategoryFromMovementSpecialiseDestinationProject</property>
+   <property id='base_category_script'>SoftwareInstance_getSecurityCategoryFromMovementSpecialiseDestinationProject</property>
    <multi_property id='categories'>local_role_group/project</multi_property>
    <multi_property id='base_category'>destination_project</multi_property>
   </role>
   <role id='Assignor'>
    <property id='title'>Software Instance which provides this Slave Instance</property>
-   <property id='base_category_script'>SlaveInstanceType_getSecurityCategoryFromSoftwareInstance</property>
+   <property id='base_category_script'>SlaveInstance_getSecurityCategoryFromSoftwareInstance</property>
    <multi_property id='base_category'>aggregate</multi_property>
   </role>
 </type_roles>

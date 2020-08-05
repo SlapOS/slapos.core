@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SlapOSInvoiceTransaction_selectDelivery</string> </value>
+            <value> <string>SaleInvoiceTransaction_selectSlapOSDelivery</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

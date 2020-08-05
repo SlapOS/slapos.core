@@ -53,16 +53,8 @@
             <value> <string>base_category_list, user_name, obj, portal_type</string> </value>
         </item>
         <item>
-            <key> <string>_proxy_roles</string> </key>
-            <value>
-              <tuple>
-                <string>Manager</string>
-              </tuple>
-            </value>
-        </item>
-        <item>
             <key> <string>id</string> </key>
-            <value> <string>PayzenEventType_getSecurityCategoryFromUser</string> </value>
+            <value> <string>Person_getSecurityCategoryFromSelfShadow</string> </value>
         </item>
       </dictionary>
     </pickle>

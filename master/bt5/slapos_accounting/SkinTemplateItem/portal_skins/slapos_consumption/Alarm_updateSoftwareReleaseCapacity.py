@@ -6,5 +6,5 @@ portal = context.getPortalObject()
 
 portal.portal_catalog.searchAndActivate(
   portal_type="Software Release",
-  method_id="SotftwareRelease_updateCapacityQuantity",
+  method_id="SoftwareRelease_updateCapacityQuantity",
 )

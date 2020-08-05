@@ -2,7 +2,7 @@
   <role id='Auditor'>
    <property id='title'>Allocation scope</property>
    <property id='condition'>python: here.getAllocationScope('').startswith('open')</property>
-   <property id='base_category_script'>ComputerType_getSecurityCategoryFromAllocationScope</property>
+   <property id='base_category_script'>Computer_getSecurityCategoryFromAllocationScope</property>
    <multi_property id='categories'>local_role_group/shadow</multi_property>
    <multi_property id='base_category'>aggregate</multi_property>
   </role>

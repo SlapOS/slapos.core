@@ -117,7 +117,7 @@ class TestSlapOSFreeComputerPartitionAlarm(SlapOSTestCaseMixin):
     SlapOSTestCaseMixin.afterSetUp(self)
     self._makeTree()
 
-  def test_Instance_tryToUnallocatePartition(self):
+  def test_SoftwareInstance_tryToUnallocatePartition(self):
     self._makeComputer()
     self.software_instance.setAggregate(self.partition.getRelativeUrl())
     self.partition.markBusy()
@@ -125,12 +125,12 @@ class TestSlapOSFreeComputerPartitionAlarm(SlapOSTestCaseMixin):
         'destroy_requested')
     self.tic()
 
-    self.software_instance.Instance_tryToUnallocatePartition()
+    self.software_instance.SoftwareInstance_tryToUnallocatePartition()
     self.tic()
     self.assertEqual(None, self.software_instance.getAggregate())
     self.assertEqual('free', self.partition.getSlapState())
 
-  def test_Instance_tryToUnallocatePartition_concurrency(self):
+  def test_SoftwareInstance_tryToUnallocatePartition_concurrency(self):
     self._makeComputer()
     self.software_instance.setAggregate(self.partition.getRelativeUrl())
     self.partition.markBusy()
@@ -141,13 +141,13 @@ class TestSlapOSFreeComputerPartitionAlarm(SlapOSTestCaseMixin):
     self.partition.activate(tag="allocate_%s" % self.partition.getRelativeUrl()\
         ).getId()
     transaction.commit()
-    self.software_instance.Instance_tryToUnallocatePartition()
+    self.software_instance.SoftwareInstance_tryToUnallocatePartition()
     self.tic()
     self.assertEqual(self.partition.getRelativeUrl(),
         self.software_instance.getAggregate())
     self.assertEqual('busy', self.partition.getSlapState())
 
-  def test_Instance_tryToUnallocatePartition_twoInstances(self):
+  def test_SoftwareInstance_tryToUnallocatePartition_twoInstances(self):
     software_instance = self.portal.software_instance_module\
         .template_software_instance.Base_createCloneDocument(batch_mode=1)
 
@@ -159,29 +159,11 @@ class TestSlapOSFreeComputerPartitionAlarm(SlapOSTestCaseMixin):
         'destroy_requested')
     self.tic()
 
-    self.software_instance.Instance_tryToUnallocatePartition()
+    self.software_instance.SoftwareInstance_tryToUnallocatePartition()
     self.tic()
     self.assertEqual(None, self.software_instance.getAggregate())
     self.assertEqual('busy', self.partition.getSlapState())
     self.assertEqual(self.partition.getRelativeUrl(), software_instance.getAggregate())
-
-  def _simulateInstance_tryToUnallocatePartition(self):
-    script_name = 'Instance_tryToUnallocatePartition'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by Instance_tryToUnallocatePartition') """ )
-    transaction.commit()
-
-  def _dropInstance_tryToUnallocatePartition(self):
-    script_name = 'Instance_tryToUnallocatePartition'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
 
   def test_alarm_allocated(self):
     self._makeComputer()
@@ -191,14 +173,14 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by I
         'destroy_requested')
     self.software_instance.invalidate()
     self.tic()
-    self._simulateInstance_tryToUnallocatePartition()
+    self._simulateScript('SoftwareInstance_tryToUnallocatePartition')
     try:
       self.portal.portal_alarms.slapos_free_computer_partition.activeSense()
       self.tic()
     finally:
-      self._dropInstance_tryToUnallocatePartition()
+      self._dropScript('SoftwareInstance_tryToUnallocatePartition')
     self.assertEqual(
-        'Visited by Instance_tryToUnallocatePartition',
+        'Visited by SoftwareInstance_tryToUnallocatePartition',
         self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_unallocated(self):
@@ -208,14 +190,14 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by I
         'destroy_requested')
     self.software_instance.invalidate()
     self.tic()
-    self._simulateInstance_tryToUnallocatePartition()
+    self._simulateScript('SoftwareInstance_tryToUnallocatePartition')
     try:
       self.portal.portal_alarms.slapos_free_computer_partition.activeSense()
       self.tic()
     finally:
-      self._dropInstance_tryToUnallocatePartition()
+      self._dropScript('SoftwareInstance_tryToUnallocatePartition')
     self.assertNotEqual(
-        'Visited by Instance_tryToUnallocatePartition',
+        'Visited by SoftwareInstance_tryToUnallocatePartition',
         self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_validated(self):
@@ -225,14 +207,14 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by I
     self.portal.portal_workflow._jumpToStateFor(self.software_instance,
         'destroy_requested')
     self.tic()
-    self._simulateInstance_tryToUnallocatePartition()
+    self._simulateScript('SoftwareInstance_tryToUnallocatePartition')
     try:
       self.portal.portal_alarms.slapos_free_computer_partition.activeSense()
       self.tic()
     finally:
-      self._dropInstance_tryToUnallocatePartition()
+      self._dropScript('SoftwareInstance_tryToUnallocatePartition')
     self.assertNotEqual(
-        'Visited by Instance_tryToUnallocatePartition',
+        'Visited by SoftwareInstance_tryToUnallocatePartition',
         self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_start_requested(self):
@@ -240,14 +222,14 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by I
     self.software_instance.setAggregate(self.partition.getRelativeUrl())
     self.partition.markBusy()
     self.tic()
-    self._simulateInstance_tryToUnallocatePartition()
+    self._simulateScript('SoftwareInstance_tryToUnallocatePartition')
     try:
       self.portal.portal_alarms.slapos_free_computer_partition.activeSense()
       self.tic()
     finally:
-      self._dropInstance_tryToUnallocatePartition()
+      self._dropScript('SoftwareInstance_tryToUnallocatePartition')
     self.assertNotEqual(
-        'Visited by Instance_tryToUnallocatePartition',
+        'Visited by SoftwareInstance_tryToUnallocatePartition',
         self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
 class TestSlapOSFreeComputerPartitionAlarmWithSlave(SlapOSTestCaseMixin):
@@ -255,7 +237,7 @@ class TestSlapOSFreeComputerPartitionAlarmWithSlave(SlapOSTestCaseMixin):
     SlapOSTestCaseMixin.afterSetUp(self)
     self._makeTree(requested_template_id='template_slave_instance')
 
-  def test_Instance_tryToUnallocatePartition(self):
+  def test_SoftwareInstance_tryToUnallocatePartition(self):
     self._makeComputer()
     self.software_instance.setAggregate(self.partition.getRelativeUrl())
     self.partition.markBusy()
@@ -263,18 +245,18 @@ class TestSlapOSFreeComputerPartitionAlarmWithSlave(SlapOSTestCaseMixin):
         'destroy_requested')
     self.tic()
 
-    self.software_instance.Instance_tryToUnallocatePartition()
+    self.software_instance.SoftwareInstance_tryToUnallocatePartition()
     self.tic()
     self.assertEqual(None, self.software_instance.getAggregate())
     self.assertEqual('free', self.partition.getSlapState())
 
-  def test_Instance_tryToUnallocatePartition_nonDestroyed(self):
+  def test_SoftwareInstance_tryToUnallocatePartition_nonDestroyed(self):
     self._makeComputer()
     self.software_instance.setAggregate(self.partition.getRelativeUrl())
     self.partition.markBusy()
     self.tic()
 
-    self.software_instance.Instance_tryToUnallocatePartition()
+    self.software_instance.SoftwareInstance_tryToUnallocatePartition()
     self.tic()
     self.assertEqual(self.partition.getRelativeUrl(),
         self.software_instance.getAggregate())
@@ -287,7 +269,7 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
     SlapOSTestCaseMixin.afterSetUp(self)
     self._makeTree()
 
-  def test_Instance_tryToGarbageCollect(self):
+  def test_SoftwareInstance_tryToGarbageCollect(self):
     self.hosting_subscription.archive()
     self.portal.portal_workflow._jumpToStateFor(self.software_instance,
         'destroy_requested')
@@ -295,48 +277,48 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
         'destroy_requested')
     self.tic()
 
-    self.requested_software_instance.Instance_tryToGarbageCollect()
+    self.requested_software_instance.SoftwareInstance_tryToGarbageCollect()
     self.tic()
     self.assertEqual('destroy_requested',
         self.requested_software_instance.getSlapState())
     self.assertEqual('validated',
         self.requested_software_instance.getValidationState())
 
-  def test_Instance_tryToGarbageCollect_not_destroy_requested(self):
-    self.requested_software_instance.Instance_tryToGarbageCollect()
+  def test_SoftwareInstance_tryToGarbageCollect_not_destroy_requested(self):
+    self.requested_software_instance.SoftwareInstance_tryToGarbageCollect()
     self.tic()
     self.assertEqual('start_requested',
         self.requested_software_instance.getSlapState())
     self.assertEqual('validated',
         self.requested_software_instance.getValidationState())
 
-  def test_Instance_tryToGarbageCollect_not_archived(self):
+  def test_SoftwareInstance_tryToGarbageCollect_not_archived(self):
     self.portal.portal_workflow._jumpToStateFor(self.software_instance,
         'destroy_requested')
     self.portal.portal_workflow._jumpToStateFor(self.software_instance,
         'destroy_requested')
     self.tic()
 
-    self.requested_software_instance.Instance_tryToGarbageCollect()
+    self.requested_software_instance.SoftwareInstance_tryToGarbageCollect()
     self.tic()
     self.assertEqual('start_requested',
         self.requested_software_instance.getSlapState())
     self.assertEqual('validated',
         self.requested_software_instance.getValidationState())
 
-  def test_Instance_tryToGarbageCollect_only_instance_destroy_requested(self):
+  def test_SoftwareInstance_tryToGarbageCollect_only_instance_destroy_requested(self):
     self.portal.portal_workflow._jumpToStateFor(self.software_instance,
         'destroy_requested')
     self.tic()
 
-    self.requested_software_instance.Instance_tryToGarbageCollect()
+    self.requested_software_instance.SoftwareInstance_tryToGarbageCollect()
     self.tic()
     self.assertEqual('start_requested',
         self.requested_software_instance.getSlapState())
     self.assertEqual('validated',
         self.requested_software_instance.getValidationState())
 
-  def test_Instance_tryToGarbageCollect_unlinked_predecessor(self):
+  def test_SoftwareInstance_tryToGarbageCollect_unlinked_predecessor(self):
     self.requested_software_instance.edit(predecessor_list=[])
     self.hosting_subscription.archive()
     self.portal.portal_workflow._jumpToStateFor(self.hosting_subscription,
@@ -345,7 +327,7 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
         'destroy_requested')
     self.tic()
 
-    self.requested_software_instance.Instance_tryToGarbageCollect()
+    self.requested_software_instance.SoftwareInstance_tryToGarbageCollect()
     self.tic()
 
     self.assertEqual('destroy_requested',
@@ -353,7 +335,7 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
     self.assertEqual('validated',
         self.requested_software_instance.getValidationState())
 
-  def test_Instance_tryToGarbageCollect_destroy_unlinked_with_child(self):
+  def test_SoftwareInstance_tryToGarbageCollect_destroy_unlinked_with_child(self):
     instance_kw = dict(software_release=self.generateNewSoftwareReleaseUrl(),
       software_type=self.generateNewSoftwareType(),
       instance_xml=self.generateSafeXml(),
@@ -374,7 +356,7 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
         'destroy_requested')
     self.tic()
 
-    self.requested_software_instance.Instance_tryToGarbageCollect()
+    self.requested_software_instance.SoftwareInstance_tryToGarbageCollect()
     self.tic()
 
     self.assertEqual('destroy_requested',
@@ -386,14 +368,14 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
                       None)
     self.assertEqual(sub_instance.getSlapState(), 'start_requested')
 
-    sub_instance.Instance_tryToGarbageCollect()
+    sub_instance.SoftwareInstance_tryToGarbageCollect()
     self.tic()
 
     self.assertEqual(sub_instance.getSlapState(), 'destroy_requested')
     self.assertEqual(sub_instance.getValidationState(), 'validated')
 
-  def _simulateInstance_tryToGarbageCollect(self):
-    script_name = 'Instance_tryToGarbageCollect'
+  def _simulateSoftwareInstance_tryToGarbageCollect(self):
+    script_name = 'SoftwareInstance_tryToGarbageCollect'
     if script_name in self.portal.portal_skins.custom.objectIds():
       raise ValueError('Precondition failed: %s exists in custom' % script_name)
     createZODBPythonScript(self.portal.portal_skins.custom,
@@ -401,11 +383,11 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
                         '*args, **kwargs',
                         '# Script body\n'
 """portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by Instance_tryToGarbageCollect') """ )
+portal_workflow.doActionFor(context, action='edit_action', comment='Visited by SoftwareInstance_tryToGarbageCollect') """ )
     transaction.commit()
 
-  def _dropInstance_tryToGarbageCollect(self):
-    script_name = 'Instance_tryToGarbageCollect'
+  def _dropSoftwareInstance_tryToGarbageCollect(self):
+    script_name = 'SoftwareInstance_tryToGarbageCollect'
     if script_name in self.portal.portal_skins.custom.objectIds():
       self.portal.portal_skins.custom.manage_delObjects(script_name)
     transaction.commit()
@@ -413,40 +395,40 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by I
   def test_alarm(self):
     self.hosting_subscription.archive()
     self.tic()
-    self._simulateInstance_tryToGarbageCollect()
+    self._simulateScript('SoftwareInstance_tryToGarbageCollect')
     try:
       self.portal.portal_alarms.slapos_garbage_collect_destroyed_root_tree.activeSense()
       self.tic()
     finally:
-      self._dropInstance_tryToGarbageCollect()
+      self._dropScript('SoftwareInstance_tryToGarbageCollect')
     self.assertEqual(
-        'Visited by Instance_tryToGarbageCollect',
+        'Visited by SoftwareInstance_tryToGarbageCollect',
         self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_invalidated(self):
     self.hosting_subscription.archive()
     self.software_instance.invalidate()
     self.tic()
-    self._simulateInstance_tryToGarbageCollect()
+    self._simulateScript('SoftwareInstance_tryToGarbageCollect')
     try:
       self.portal.portal_alarms.slapos_garbage_collect_destroyed_root_tree.activeSense()
       self.tic()
     finally:
-      self._dropInstance_tryToGarbageCollect()
+      self._dropScript('SoftwareInstance_tryToGarbageCollect')
     self.assertNotEqual(
-        'Visited by Instance_tryToGarbageCollect',
+        'Visited by SoftwareInstance_tryToGarbageCollect',
         self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_not_archived(self):
     self.tic()
-    self._simulateInstance_tryToGarbageCollect()
+    self._simulateScript('SoftwareInstance_tryToGarbageCollect')
     try:
       self.portal.portal_alarms.slapos_garbage_collect_destroyed_root_tree.activeSense()
       self.tic()
     finally:
-      self._dropInstance_tryToGarbageCollect()
+      self._dropScript('SoftwareInstance_tryToGarbageCollect')
     self.assertNotEqual(
-        'Visited by Instance_tryToGarbageCollect',
+        'Visited by SoftwareInstance_tryToGarbageCollect',
         self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
 class TestSlapOSUpdateComputerCapacityScopeAlarm(SlapOSTestCaseMixin):
@@ -677,13 +659,13 @@ class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
     self.tic()
     return instance
 
-  def test_Instance_tryToStopCollect_REQUEST_disallowed(self):
+  def test_SoftwareInstance_tryToStopCollect_REQUEST_disallowed(self):
     self.assertRaises(
       Unauthorized,
-      self.portal.Instance_tryToStopCollect,
+      self.portal.SoftwareInstance_tryToStopCollect,
       REQUEST={})
 
-  def test_Instance_tryToStopCollect_started_instance(self):
+  def test_SoftwareInstance_tryToStopCollect_started_instance(self):
     instance = self.createInstance()
     hosting_subscription = instance.getSpecialiseValue()
 
@@ -691,10 +673,10 @@ class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
         'stop_requested')
     self.assertEqual('start_requested', instance.getSlapState())
 
-    instance.Instance_tryToStopCollect()
+    instance.SoftwareInstance_tryToStopCollect()
     self.assertEqual('stop_requested', instance.getSlapState())
 
-  def test_Instance_tryToStopCollect_destroyed_instance(self):
+  def test_SoftwareInstance_tryToStopCollect_destroyed_instance(self):
     instance = self.createInstance()
     hosting_subscription = instance.getSpecialiseValue()
 
@@ -703,61 +685,43 @@ class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
     self.portal.portal_workflow._jumpToStateFor(instance,
         'destroy_requested')
 
-    instance.Instance_tryToStopCollect()
+    instance.SoftwareInstance_tryToStopCollect()
     self.assertEqual('destroy_requested', instance.getSlapState())
 
-  def test_Instance_tryToStopCollect_started_subscription(self):
+  def test_SoftwareInstance_tryToStopCollect_started_subscription(self):
     instance = self.createInstance()
     hosting_subscription = instance.getSpecialiseValue()
 
     self.assertEqual('start_requested', hosting_subscription.getSlapState())
     self.assertEqual('start_requested', instance.getSlapState())
 
-    instance.Instance_tryToStopCollect()
+    instance.SoftwareInstance_tryToStopCollect()
     self.assertEqual('start_requested', instance.getSlapState())
-
-  def _simulateInstance_tryToStopCollect(self):
-    script_name = 'Instance_tryToStopCollect'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by Instance_tryToStopCollect') """ )
-    transaction.commit()
-
-  def _dropInstance_tryToStopCollect(self):
-    script_name = 'Instance_tryToStopCollect'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
 
   def test_alarm(self):
     instance = self.createInstance()
-    self._simulateInstance_tryToStopCollect()
+    self._simulateScript('SoftwareInstance_tryToStopCollect')
     try:
       self.portal.portal_alarms.slapos_stop_collect_instance.activeSense()
       self.tic()
     finally:
-      self._dropInstance_tryToStopCollect()
+      self._dropScript('SoftwareInstance_tryToStopCollect')
     self.assertEqual(
-        'Visited by Instance_tryToStopCollect',
+        'Visited by SoftwareInstance_tryToStopCollect',
         instance.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_invalidated(self):
     instance = self.createInstance()
     instance.invalidate()
     self.tic()
-    self._simulateInstance_tryToStopCollect()
+    self._simulateScript('SoftwareInstance_tryToStopCollect')
     try:
       self.portal.portal_alarms.slapos_stop_collect_instance.activeSense()
       self.tic()
     finally:
-      self._dropInstance_tryToStopCollect()
+      self._dropScript('SoftwareInstance_tryToStopCollect')
     self.assertNotEqual(
-        'Visited by Instance_tryToStopCollect',
+        'Visited by SoftwareInstance_tryToStopCollect',
         instance.workflow_history['edit_workflow'][-1]['comment'])
 
 class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
@@ -800,7 +764,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
   def test_tryToGarbageCollect_REQUEST_disallowed(self):
     self.assertRaises(
       Unauthorized,
-      self.portal.Instance_tryToGarbageCollectNonAllocatedRootTree,
+      self.portal.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree,
       REQUEST={})
 
   def test_tryToGarbageCollect_invalidated_instance(self):
@@ -808,7 +772,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
     instance.invalidate()
     self.tic()
 
-    instance.Instance_tryToGarbageCollectNonAllocatedRootTree()
+    instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('start_requested', instance.getSlapState())
     hosting_subscription = instance.getSpecialiseValue()
     self.assertEqual('start_requested', hosting_subscription.getSlapState())
@@ -818,7 +782,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
     self.portal.portal_workflow._jumpToStateFor(instance, 'destroy_requested')
     self.tic()
 
-    instance.Instance_tryToGarbageCollectNonAllocatedRootTree()
+    instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('destroy_requested', instance.getSlapState())
     hosting_subscription = instance.getSpecialiseValue()
     self.assertEqual('start_requested', hosting_subscription.getSlapState())
@@ -829,7 +793,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
     instance.edit(aggregate_value=partition)
     self.tic()
 
-    instance.Instance_tryToGarbageCollectNonAllocatedRootTree()
+    instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('start_requested', instance.getSlapState())
     hosting_subscription = instance.getSpecialiseValue()
     self.assertEqual('start_requested', hosting_subscription.getSlapState())
@@ -838,7 +802,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
     instance = self.createInstance()
     self.tic()
 
-    instance.Instance_tryToGarbageCollectNonAllocatedRootTree()
+    instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('start_requested', instance.getSlapState())
     hosting_subscription = instance.getSpecialiseValue()
     self.assertEqual('start_requested', hosting_subscription.getSlapState())
@@ -855,7 +819,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
         'action': 'edit'
     })
 
-    instance.Instance_tryToGarbageCollectNonAllocatedRootTree()
+    instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('start_requested', instance.getSlapState())
     hosting_subscription = instance.getSpecialiseValue()
     self.assertEqual('start_requested', hosting_subscription.getSlapState())
@@ -873,7 +837,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
         'action': 'edit'
     })
 
-    instance.Instance_tryToGarbageCollectNonAllocatedRootTree()
+    instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('start_requested', instance.getSlapState())
     hosting_subscription = instance.getSpecialiseValue()
     self.assertEqual('start_requested', hosting_subscription.getSlapState())
@@ -903,7 +867,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
         'action': 'edit'
     })
 
-    sub_instance.Instance_tryToGarbageCollectNonAllocatedRootTree()
+    sub_instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('start_requested', hosting_subscription.getSlapState())
 
   def test_tryToGarbageCollect_complex_tree_allocation_disallowed(self):
@@ -931,7 +895,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
         'action': 'edit'
     })
 
-    sub_instance.Instance_tryToGarbageCollectNonAllocatedRootTree()
+    sub_instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('start_requested', hosting_subscription.getSlapState())
 
   def test_tryToGarbageCollect_old_allocation_try_found(self):
@@ -947,7 +911,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
         'action': 'edit'
     })
 
-    instance.Instance_tryToGarbageCollectNonAllocatedRootTree()
+    instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('destroy_requested', hosting_subscription.getSlapState())
     self.assertEqual('archived', hosting_subscription.getValidationState())
 
@@ -965,53 +929,35 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
         'action': 'edit'
     })
 
-    instance.Instance_tryToGarbageCollectNonAllocatedRootTree()
+    instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('destroy_requested', hosting_subscription.getSlapState())
     self.assertEqual('archived', hosting_subscription.getValidationState())
-
-  def _simulateInstance_tryToGarbageCollectNonAllocatedRootTree(self):
-    script_name = 'Instance_tryToGarbageCollectNonAllocatedRootTree'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by Instance_tryToGarbageCollectNonAllocatedRootTree') """ )
-    transaction.commit()
-
-  def _dropInstance_tryToGarbageCollectNonAllocatedRootTree(self):
-    script_name = 'Instance_tryToGarbageCollectNonAllocatedRootTree'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
 
   def test_alarm(self):
     instance = self.createInstance()
     self.tic()
-    self._simulateInstance_tryToGarbageCollectNonAllocatedRootTree()
+    self._simulateScript("SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree")
     try:
       self.portal.portal_alarms.slapos_garbage_collect_non_allocated_root_tree.activeSense()
       self.tic()
     finally:
-      self._dropInstance_tryToGarbageCollectNonAllocatedRootTree()
+      self._dropScript('SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree')
     self.assertEqual(
-        'Visited by Instance_tryToGarbageCollectNonAllocatedRootTree',
+        'Visited by SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree',
         instance.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_invalidated(self):
     instance = self.createInstance()
     instance.invalidate()
     self.tic()
-    self._simulateInstance_tryToGarbageCollectNonAllocatedRootTree()
+    self._simulateScript("SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree")
     try:
       self.portal.portal_alarms.slapos_garbage_collect_non_allocated_root_tree.activeSense()
       self.tic()
     finally:
-      self._dropInstance_tryToGarbageCollectNonAllocatedRootTree()
+      self._dropScript('SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree')
     self.assertNotEqual(
-        'Visited by Instance_tryToGarbageCollectNonAllocatedRootTree',
+        'Visited by SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree',
         instance.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_allocated(self):
@@ -1019,14 +965,14 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by I
     partition = self.createComputerPartition()
     instance.edit(aggregate_value=partition)
     self.tic()
-    self._simulateInstance_tryToGarbageCollectNonAllocatedRootTree()
+    self._simulateScript("SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree")
     try:
       self.portal.portal_alarms.slapos_garbage_collect_non_allocated_root_tree.activeSense()
       self.tic()
     finally:
-      self._dropInstance_tryToGarbageCollectNonAllocatedRootTree()
+      self._dropScript('SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree')
     self.assertNotEqual(
-        'Visited by Instance_tryToGarbageCollectNonAllocatedRootTree',
+        'Visited by SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree',
         instance.workflow_history['edit_workflow'][-1]['comment'])
 
 class TestSlapOSGarbageCollectUnlinkedInstanceAlarm(SlapOSTestCaseMixin):

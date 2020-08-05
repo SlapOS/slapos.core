@@ -7,7 +7,7 @@ portal.portal_catalog.searchAndActivate(
   select_dict=select_dict,
   left_join_list=select_dict.keys(),
 
-  method_id='Instance_tryToGarbageCollectNonAllocatedRootTree',
+  method_id='SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree',
   activate_kw={'tag': tag},
   **{"slapos_item.slap_state": ['start_requested', 'stop_requested']}
 )

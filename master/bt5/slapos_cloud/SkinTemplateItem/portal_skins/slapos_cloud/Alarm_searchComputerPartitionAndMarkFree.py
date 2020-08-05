@@ -4,7 +4,7 @@ portal.portal_catalog.searchAndActivate(
   portal_type=["Software Instance", "Slave Instance"],
   default_aggregate_relative_url="computer_module/%/%",
   validation_state="invalidated",
-  method_id='Instance_tryToUnallocatePartition',
+  method_id='SoftwareInstance_tryToUnallocatePartition',
   activate_kw={'tag': tag}
 )
 

@@ -283,7 +283,7 @@ Computer
   Condition: python: here.getAllocationScope('').startswith('open')
   Local Roles Group Id: shadow
   Base Categories: ['aggregate']
-  Base Category Script: ComputerType_getSecurityCategoryFromAllocationScope
+  Base Category Script: Computer_getSecurityCategoryFromAllocationScope
   Categories: []
 
 Computer
@@ -499,7 +499,7 @@ Computer Partition
   Condition: python: here.getSlapState() == "busy"
   Local Roles Group Id: user
   Base Categories: ['destination_section']
-  Base Category Script: PartitionType_getSecurityCategoryFromUser
+  Base Category Script: ComputerPartition_getSecurityCategoryFromUser
   Categories: []
 
 Computer Partition
@@ -1300,7 +1300,7 @@ Payment Transaction
   Condition: python: here.getDestinationSection('', portal_type='Person') != ''
   Local Roles Group Id: shadow
   Base Categories: ['aggregate']
-  Base Category Script: PaymentTransactionType_getSecurityCategoryFromUser
+  Base Category Script: PaymentTransaction_getSecurityCategoryFromUser
   Categories: []
 
 Payment Transaction
@@ -1327,7 +1327,7 @@ Payzen Event
   Condition: python: here.getDestinationSection('', portal_type='Person') != ''
   Local Roles Group Id: shadow
   Base Categories: ['aggregate']
-  Base Category Script: PayzenEventType_getSecurityCategoryFromUser
+  Base Category Script: PayzenEvent_getSecurityCategoryFromUser
   Categories: []
 
 Person
@@ -1345,7 +1345,7 @@ Person
   Condition: python: here.objectValues(portal_type=["ERP5 Login", "Google Login", "Facebook Login", "Certificate Login"])
   Local Roles Group Id: shadow
   Base Categories: ['group']
-  Base Category Script: PersonType_getSecurityCategoryFromSelfShadow
+  Base Category Script: Person_getSecurityCategoryFromSelfShadow
   Categories: []
 
 Person
@@ -1885,7 +1885,7 @@ Slave Instance
   Condition: None
   Local Roles Group Id: user
   Base Categories: ['destination_section']
-  Base Category Script: InstanceType_getSecurityCategoryFromUser
+  Base Category Script: SoftwareInstance_getSecurityCategoryFromUser
   Categories: []
 
 Slave Instance
@@ -1912,7 +1912,7 @@ Slave Instance
   Condition: None
   Local Roles Group Id: organisation
   Base Categories: ['destination']
-  Base Category Script: Instance_getSecurityCategoryFromMovementSpecialiseDestination
+  Base Category Script: SoftwareInstance_getSecurityCategoryFromMovementSpecialiseDestination
   Categories: []
 
 Slave Instance
@@ -1921,7 +1921,7 @@ Slave Instance
   Condition: None
   Local Roles Group Id: project
   Base Categories: ['destination_project']
-  Base Category Script: Instance_getSecurityCategoryFromMovementSpecialiseDestinationProject
+  Base Category Script: SoftwareInstance_getSecurityCategoryFromMovementSpecialiseDestinationProject
   Categories: []
 
 Slave Instance
@@ -1930,7 +1930,7 @@ Slave Instance
   Condition: None
   Local Roles Group Id: None
   Base Categories: ['aggregate']
-  Base Category Script: SlaveInstanceType_getSecurityCategoryFromSoftwareInstance
+  Base Category Script: SlaveInstance_getSecurityCategoryFromSoftwareInstance
   Categories: []
 
 Software Installation
@@ -2020,7 +2020,7 @@ Software Instance
   Condition: None
   Local Roles Group Id: user
   Base Categories: ['destination_section']
-  Base Category Script: InstanceType_getSecurityCategoryFromUser
+  Base Category Script: SoftwareInstance_getSecurityCategoryFromUser
   Categories: []
 
 Software Instance
@@ -2047,7 +2047,7 @@ Software Instance
   Condition: None
   Local Roles Group Id: organisation
   Base Categories: ['destination']
-  Base Category Script: Instance_getSecurityCategoryFromMovementSpecialiseDestination
+  Base Category Script: SoftwareInstance_getSecurityCategoryFromMovementSpecialiseDestination
   Categories: []
 
 Software Instance
@@ -2056,7 +2056,7 @@ Software Instance
   Condition: None
   Local Roles Group Id: project
   Base Categories: ['destination_project']
-  Base Category Script: Instance_getSecurityCategoryFromMovementSpecialiseDestinationProject
+  Base Category Script: SoftwareInstance_getSecurityCategoryFromMovementSpecialiseDestinationProject
   Categories: []
 
 Software Instance Module
@@ -2434,6 +2434,6 @@ Wechat Event
   Condition: python: here.getDestinationSection('', portal_type='Person') != ''
   Local Roles Group Id: shadow
   Base Categories: ['aggregate']
-  Base Category Script: PayzenEventType_getSecurityCategoryFromUser
+  Base Category Script: PayzenEvent_getSecurityCategoryFromUser
   Categories: []
 

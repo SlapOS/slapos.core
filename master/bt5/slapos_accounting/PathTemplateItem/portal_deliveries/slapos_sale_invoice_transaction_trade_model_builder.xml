@@ -126,7 +126,7 @@
         </item>
         <item>
             <key> <string>delivery_select_method_id</string> </key>
-            <value> <string>SlapOSInvoiceTransaction_selectDelivery</string> </value>
+            <value> <string>SaleInvoiceTransaction_selectSlapOSDelivery</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -148,7 +148,7 @@
         </item>
         <item>
             <key> <string>simulation_select_method_id</string> </key>
-            <value> <string>SlapOSDeliveryBuilder_selectMovement</string> </value>
+            <value> <string>DeliveryBuilder_selectSlapOSMovement</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

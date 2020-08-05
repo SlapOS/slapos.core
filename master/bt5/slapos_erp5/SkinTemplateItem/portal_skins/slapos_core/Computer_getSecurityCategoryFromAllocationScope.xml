@@ -53,8 +53,16 @@
             <value> <string>base_category_list, user_name, obj, portal_type</string> </value>
         </item>
         <item>
+            <key> <string>_proxy_roles</string> </key>
+            <value>
+              <tuple>
+                <string>Manager</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
             <key> <string>id</string> </key>
-            <value> <string>PersonType_getSecurityCategoryFromSelfShadow</string> </value>
+            <value> <string>Computer_getSecurityCategoryFromAllocationScope</string> </value>
         </item>
       </dictionary>
     </pickle>

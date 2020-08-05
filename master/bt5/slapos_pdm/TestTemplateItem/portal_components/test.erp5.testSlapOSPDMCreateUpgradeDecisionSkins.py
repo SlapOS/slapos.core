@@ -84,7 +84,7 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
     self.tic()
     return hosting_subscription, instance
 
-  def _makeTree(self, software_release_url):
+  def _makeTreeForTestSlapOSPDMCreateUpgradeDecisionSkins(self, software_release_url):
     self.hosting_subscription, self.instance = self._createInstance(software_release_url)
     self.shared_hosting_subscription, self.shared_instance = self._createInstance(software_release_url, True)
     self.instance.setAggregate(self.partition.getRelativeUrl())
@@ -105,7 +105,8 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
     ])
     self.person = self.makePerson()
     self.tic()
-    self._makeTree(self.previous_software_release.getUrlString())
+    self._makeTreeForTestSlapOSPDMCreateUpgradeDecisionSkins(
+       self.previous_software_release.getUrlString())
 
   def test_HostingSubscription_createUpgradeDecision_upgradeScopeConfirmation(self):
     # check upgrade decision on HS

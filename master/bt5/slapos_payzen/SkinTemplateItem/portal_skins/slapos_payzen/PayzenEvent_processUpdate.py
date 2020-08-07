@@ -10,6 +10,9 @@ def storeWorkflowComment(ctx, comment):
 payzen_event = context
 transaction = payzen_event.getDestinationValue()
 
+if transaction is None:
+  raise ValueError("Unable to find related transaction")
+
 assert signature in (True, False)
 if signature is False:
   # signature is wrong, bye bye

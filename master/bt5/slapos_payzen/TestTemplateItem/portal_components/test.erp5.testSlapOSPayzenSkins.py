@@ -189,7 +189,7 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
   def test_processUpdate_noTransaction(self):
     event = self.createPayzenEvent()
     self.assertRaises(
-      AttributeError,
+      ValueError,
       event.PayzenEvent_processUpdate,
       'a', 'b')
 

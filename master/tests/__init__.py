@@ -91,7 +91,7 @@ class SlapOSCloud(SavedTestSuite, ProjectTestSuite):
       shutil.copyfile(os.path.join(old_data_path, 'dump.sql'),
                       os.path.join(instance_home, 'dump.sql'))
 
-      return self.runUnitTest(
+      return ProjectTestSuite.runUnitTest(self,
         '--load',
         '--portal_id=erp5',
         '--enable_full_indexing=portal_types,portal_property_sheets',

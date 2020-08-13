@@ -16,7 +16,6 @@ Hosting Subscription Module | slaposjs_view
 Hosting Subscription | slaposjs_view
 Organisation Module | slaposjs_view
 Organisation | slaposjs_view
-Person | request_hateoas_hosting_subscription
 Person | slaposjs_view
 Project Module | slaposjs_view
 Project | slaposjs_view

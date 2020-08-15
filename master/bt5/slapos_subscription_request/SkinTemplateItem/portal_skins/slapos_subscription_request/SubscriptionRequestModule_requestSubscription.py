@@ -21,4 +21,5 @@ user_input_dict = {
 return context.SubscriptionRequestModule_requestSubscriptionProxy(
     default_email_text, subscription_reference,
     confirmation_required=bool(confirmation_required),
-    user_input_dict=user_input_dict, target_language=target_language, batch_mode=0)
+    token=token, user_input_dict=user_input_dict,
+    target_language=target_language, batch_mode=0)

@@ -3,24 +3,51 @@ from DateTime import DateTime
 if REQUEST is not None:
   raise Unauthorized
 
+portal = context.getPortalObject()
+web_site = context.getWebSiteValue()
+
+if token:
+  raise
+  error = ""
+  try:
+    invitation_token = portal.invitation_token_module[token]
+  except KeyError:
+    error = context.Base_translateString("Token not Found")
+  else:
+    if invitation_token.getValidationState() != "validated":
+      error = "Token is invalid or it was already used"
+
+  if error:
+    base_url = web_site.absolute_url()
+    redirect_url = "%s/#order?name=%s&email=%s&amount=%s&subscription_reference=%s&token=%s&error=%s" % (
+      base_url,
+      user_input_dict['name'],
+      email,
+      user_input_dict["amount"],
+      subscription_reference,
+      token,
+      error
+      )
+    return context.REQUEST.RESPONSE.redirect(redirect_url)
+
 # You always needs a user here
 person, person_is_new = context.SubscriptionRequest_createUser(email, user_input_dict['name'])
 
-web_site = context.getWebSiteValue()
 # Check if user is already exist, otherwise redirect to ask confirmation
 if confirmation_required and not person_is_new:
   base_url = web_site.absolute_url()
-
-  return context.REQUEST.RESPONSE.redirect(
-    "%s/#order_confirmation?name=%s&email=%s&amount=%s&subscription_reference=%s" % (
+  redirect_url = "%s/#order_confirmation?name=%s&email=%s&amount=%s&subscription_reference=%s" % (
        base_url,
        person.getTitle(),
        person.getDefaultEmailText(),
        user_input_dict["amount"],
-       subscription_reference))
+       subscription_reference)
+  if token:
+    redirect_url += "&token=%s" % token
+  return context.REQUEST.RESPONSE.redirect(redirect_url)
 
 if target_language is None:
-  target_language = context.getPortalObject().Localizer.get_selected_language()
+  target_language = portal.Localizer.get_selected_language()
 
 subscription_request = context.subscription_request_module.newContent(
   portal_type="Subscription Request",

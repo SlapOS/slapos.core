@@ -5,9 +5,7 @@ if REQUEST is not None:
 
 portal = context.getPortalObject()
 web_site = context.getWebSiteValue()
-
 if token:
-  raise
   error = ""
   try:
     invitation_token = portal.invitation_token_module[token]
@@ -48,6 +46,9 @@ if confirmation_required and not person_is_new:
 
 if target_language is None:
   target_language = portal.Localizer.get_selected_language()
+
+if token:
+  person.Person_applyContractInvitation(invitation_token)
 
 subscription_request = context.subscription_request_module.newContent(
   portal_type="Subscription Request",

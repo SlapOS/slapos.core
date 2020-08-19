@@ -84,7 +84,7 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
     self.assertFalse(login.isLoginBlocked())
 
     # Password should be ignored
-    login.setPassword("%s-aA$1" % self.generateNewId())
+    login.setPassword(document.Person_generatePassword())
 
     self._clearCache()
     self.tic()
@@ -197,7 +197,7 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
       login_portal_type=login_portal_type
     )
 
-    login.setPassword("%s-aA$1" % self.generateNewId())
+    login.setPassword(document.Person_generatePassword())
     self.system_preference.setPreferredMaxPasswordLifetimeDuration(0)
     self._clearCache()
     self.assertTrue(login.isPasswordExpired())
@@ -208,7 +208,7 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
       login_portal_type=login_portal_type
     )
 
-    login.setPassword("%s-aA$1" % self.generateNewId())
+    login.setPassword(document.Person_generatePassword())
     self.system_preference.setPreferredMaxPasswordLifetimeDuration(0)
     self._clearCache()
     self.assertFalse(login.isPasswordExpired())

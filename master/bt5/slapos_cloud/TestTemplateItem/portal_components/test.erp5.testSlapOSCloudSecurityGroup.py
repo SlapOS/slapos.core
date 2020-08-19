@@ -182,8 +182,7 @@ class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
     self.test_inactive(login_portal_type="ERP5 Login")
 
 class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
-  def test_active(self, login_portal_type="Certificate Login"):
-    password = '%s-aA1$' % str(random.random())
+  def test_active(self, login_portal_type="Certificate Login"):    
     reference = self._generateRandomUniqueReference('Person')
     user_id = self._generateRandomUniqueUserId('Person')
 
@@ -192,6 +191,7 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
       reference=reference)
     person.setUserId(user_id)
 
+    password = person.Person_generatePassword()
     person.newContent(portal_type='Assignment').open()
     if login_portal_type == "ERP5 Login":
       person.newContent(portal_type=login_portal_type,
@@ -235,12 +235,12 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
     self.assertSameSet(['R-MEMBER', 'G-COMPANY'], user.getGroups())
 
   def test_inactive(self, login_portal_type="Certificate Login"):
-    password = '%s-aA1$' % str(random.random())
     reference = self._generateRandomUniqueReference('Person')
     user_id = self._generateRandomUniqueReference('Person')
     
     person = self.portal.person_module.newContent(portal_type='Person',
       reference=reference)
+    password = person.Person_generatePassword()
 
     self.tic()
 

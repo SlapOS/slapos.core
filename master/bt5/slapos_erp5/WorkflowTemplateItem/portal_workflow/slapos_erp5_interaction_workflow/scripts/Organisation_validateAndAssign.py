@@ -23,14 +23,18 @@ if organisation.getReference() in [None, ""]:
 organisation.validate()
 
 user_id = organisation.Base_getOwnerId()
-
 person = context.getPortalObject().portal_catalog.getResultValue(user_id=user_id)
+if person is None:
+  return
 
 for assignment in person.objectValues(portal_type="Assignment"):
   if assignment.getSubordination() == organisation.getRelativeUrl():
+    if assignment.getValidationState() != "open":
+      assignment.open()
     return
 
 person.newContent(
   title="Assigment for Site %s" % organisation.getTitle(),
   portal_type="Assignment",
+  subordination_value=organisation,
   destination_value=organisation).open()

@@ -46,7 +46,7 @@ if allocation_scope in ['open/public', 'open/subscription']:
 elif allocation_scope == 'open/personal':
   # reset friends to self and update in place
   edit_kw['subject_list'] = [self_email]
-  edit_kw['destination_section_value'] = self_person
+  edit_kw['destination_section'] = self_person.getRelativeUrl()
 else:
   subject_list = computer.getSubjectList()
   if self_email not in subject_list:

@@ -29,6 +29,8 @@
 import socket
 import hashlib
 import unittest
+import os
+import subprocess
 from contextlib import closing
 
 try:
@@ -58,6 +60,36 @@ def getPortFromPath(path):
   return 1024 + int(
       hashlib.md5(path.encode('utf-8', 'backslashreplace')).hexdigest(),
       16) % (65535 - 1024)
+
+
+class CrontabMixin(object):
+  computer_partition_root_path = None # type: str
+  def _getCrontabCommand(self, crontab_name):
+    # type: (str) -> str
+    """Read a crontab and return the command that is executed.
+    """
+    with open(
+        os.path.join(
+            self.computer_partition_root_path,
+            'etc',
+            'cron.d',
+            crontab_name,
+        )) as f:
+      crontab_spec = f.read()
+    return " ".join(crontab_spec.split()[5:])
+
+  def _executeCrontabAtDate(self, crontab_name, date):
+    # type: (str, str) -> None
+    """Executes a crontab as if the current date was `date`.
+
+    `date` will be passed to faketime time command, it can also
+    be a relative time.
+    """
+    crontab_command =  self._getCrontabCommand(crontab_name)
+    subprocess.check_call(
+        "faketime {date} bash -o pipefail -e -c '{crontab_command}'".format(**locals()),
+        shell=True,
+    )
 
 
 class ImageComparisonTestCase(unittest.TestCase):

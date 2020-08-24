@@ -71,7 +71,7 @@ class TestSlapOSPromiseMixin(unittest.TestCase):
     if sys.path[0] == self.plugin_dir:
       del sys.path[0]
 
-  def configureLauncher(self, save_method=None, timeout=1, master_url="", debug=False,
+  def configureLauncher(self, save_method=None, timeout=5, master_url="", debug=False,
       run_list=[], uid=None, gid=None, enable_anomaly=False, force=False,
       logdir=True, dry_run=False):
     parameter_dict = {

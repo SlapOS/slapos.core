@@ -31,6 +31,8 @@ import hashlib
 import unittest
 import os
 import subprocess
+import sys
+import json
 from contextlib import closing
 
 try:
@@ -60,6 +62,26 @@ def getPortFromPath(path):
   return 1024 + int(
       hashlib.md5(path.encode('utf-8', 'backslashreplace')).hexdigest(),
       16) % (65535 - 1024)
+
+
+def getPromisePluginParameterDict(filepath):
+  # type: (str) -> dict
+  """Load the slapos monitor plugin and returns the configuration used by this plugin.
+
+  This allow to check that monitoring plugin are using a proper config.
+  """
+  extra_config_dict_json = subprocess.check_output([
+      sys.executable,
+      "-c",
+      """
+import json, sys
+with open(sys.argv[1]) as f:
+  exec(f.read())
+print(json.dumps(extra_config_dict))
+""",
+      filepath,
+  ])
+  return json.loads(extra_config_dict_json)
 
 
 class CrontabMixin(object):

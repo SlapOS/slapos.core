@@ -20,25 +20,25 @@ Changes
 1.5.12 (2020-04-07)
 -------------------
 
-* slapos/slap: fix "slapos service info" when parameter dict is in JSON format
+ * slapos/slap: fix "slapos service info" when parameter dict is in JSON format
 
 1.5.11 (2020-04-03)
 -------------------
 
-* slapgrid: Fix manager: section support
+ * slapgrid: Fix manager: section support
 
 1.5.10 (2020-04-02)
 -------------------
 
-* prune: fix detection of parts used in scripts
-* manager: Support manager:devperm allowed-disk-for-vm
-* manager: Follow links in devperm
+ * prune: fix detection of parts used in scripts
+ * manager: Support manager:devperm allowed-disk-for-vm
+ * manager: Follow links in devperm
 
 1.5.9 (2020-02-17)
 ------------------
 
-* Fixes for Python 3.6
-* cli/boot: read partition base name from config
+ * Fixes for Python 3.6
+ * cli/boot: read partition base name from config
 
 1.5.8 (2020-02-03)
 ------------------

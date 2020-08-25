@@ -19,7 +19,7 @@ ticket = portal.portal_catalog.getResultValue(
   default_source_project_uid=person.getUid(),
   simulation_state=['suspended', 'validated'],
 )
-if (ticket is None) and int(person.Entity_statBalance()) > 0:
+if (ticket is None) and int(person.Entity_statOutstandingAmount()) > 0:
 
   tag = "%s_addRegularisationRequest_inProgress" % person.getUid()
   if (portal.portal_activities.countMessageWithTag(tag) > 0):

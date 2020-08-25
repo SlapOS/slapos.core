@@ -30,7 +30,7 @@ import difflib
 
 class TestSlapOSPerson_checkToCreateRegularisationRequest(SlapOSTestCaseMixinWithAbort):
 
-  @simulate('Entity_statBalance', '*args, **kwargs', 'return "1"')
+  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "1"')
   def test_addRegularisationRequest_payment_requested(self):
     for preference in \
       self.portal.portal_catalog(portal_type="System Preference"):
@@ -84,7 +84,7 @@ The slapos team
   'assert reference == "slapos-crm.create.regularisation.request"\n' \
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_addRegularisationRequest_notification_message"])')
-  @simulate('Entity_statBalance', '*args, **kwargs', 'return "1"')
+  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "1"')
   def test_addRegularisationRequest_notification_message(self):
     for preference in \
       self.portal.portal_catalog(portal_type="System Preference"):
@@ -143,7 +143,7 @@ The slapos team
 #     ticket2 = person.Person_checkToCreateRegularisationRequest()
 #     self.assertEqual(ticket.getRelativeUrl(), ticket2.getRelativeUrl())
 
-  @simulate('Entity_statBalance', '*args, **kwargs', 'return "1"')
+  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "1"')
   def test_addRegularisationRequest_do_not_duplicate_ticket_if_not_reindexed(self):
     person = self.makePerson(index=0, user=0)
     ticket, event = person.Person_checkToCreateRegularisationRequest()
@@ -154,7 +154,7 @@ The slapos team
     self.assertEqual(ticket2, None)
     self.assertEqual(event2, None)
 
-  @simulate('Entity_statBalance', '*args, **kwargs', 'return "0"')
+  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "0"')
   @simulate('RegularisationRequest_checkToSendUniqEvent',
             '*args, **kwargs',
             'raise NotImplementedError, "Should not have been called"')
@@ -164,7 +164,7 @@ The slapos team
     self.assertEqual(ticket, None)
     self.assertEqual(event, None)
 
-  @simulate('Entity_statBalance', '*args, **kwargs', 'return "1"')
+  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "1"')
   def test_addRegularisationRequest_existing_suspended_ticket(self):
     person = self.makePerson(index=0, user=0)
     ticket, event = person.Person_checkToCreateRegularisationRequest()
@@ -176,7 +176,7 @@ The slapos team
     self.assertEqual(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
     self.assertEqual(event2, None)
 
-  @simulate('Entity_statBalance', '*args, **kwargs', 'return "1"')
+  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "1"')
   def test_addRegularisationRequest_existing_validated_ticket(self):
     person = self.makePerson(index=0, user=0)
     ticket, event = person.Person_checkToCreateRegularisationRequest()
@@ -189,7 +189,7 @@ The slapos team
     self.assertEqual(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
     self.assertEqual(event2, None)
 
-  @simulate('Entity_statBalance', '*args, **kwargs', 'return "1"')
+  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "1"')
   def test_addRegularisationRequest_existing_invalidated_ticket(self):
     person = self.makePerson(index=0, user=0)
     ticket = person.Person_checkToCreateRegularisationRequest()[0]
@@ -226,7 +226,7 @@ class TestSlapOSRegularisationRequest_invalidateIfPersonBalanceIsOk(
       ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk,
       REQUEST={})
 
-  @simulate('Entity_statBalance', '*args, **kwargs', 'return "0"')
+  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "0"')
   def test_invalidateIfPersonBalanceIsOk_matching_case(self):
     person = self.makePerson(index=0, user=0)
     ticket = self.createRegularisationRequest()
@@ -236,7 +236,7 @@ class TestSlapOSRegularisationRequest_invalidateIfPersonBalanceIsOk(
     ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk()
     self.assertEqual(ticket.getSimulationState(), 'invalidated')
 
-  @simulate('Entity_statBalance', '*args, **kwargs', 'return "0"')
+  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "0"')
   def test_invalidateIfPersonBalanceIsOk_not_suspended(self):
     person = self.makePerson(index=0, user=0)
     ticket = self.createRegularisationRequest()
@@ -245,7 +245,7 @@ class TestSlapOSRegularisationRequest_invalidateIfPersonBalanceIsOk(
     ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk()
     self.assertEqual(ticket.getSimulationState(), 'validated')
 
-  @simulate('Entity_statBalance', '*args, **kwargs', 'return "0"')
+  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "0"')
   def test_invalidateIfPersonBalanceIsOk_no_person(self):
     ticket = self.createRegularisationRequest()
     ticket.validate()
@@ -253,7 +253,7 @@ class TestSlapOSRegularisationRequest_invalidateIfPersonBalanceIsOk(
     ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk()
     self.assertEqual(ticket.getSimulationState(), 'suspended')
 
-  @simulate('Entity_statBalance', '*args, **kwargs', 'return "1"')
+  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "1"')
   def test_invalidateIfPersonBalanceIsOk_wrong_balance(self):
     person = self.makePerson(index=0, user=0)
     ticket = self.createRegularisationRequest()

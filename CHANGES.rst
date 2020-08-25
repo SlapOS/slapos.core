@@ -1,6 +1,13 @@
 Changes
 =======
 
+1.6.1 (2020-08-25)
+------------------
+
+ * svcbackend/standalone: use shorter names for supervisor sockets
+ * testing: several small bug fixes and minor features
+ * tests/test_promise: use a larger timeout to prevent false positives
+
 1.6.0 (2020-07-15)
 ------------------
 

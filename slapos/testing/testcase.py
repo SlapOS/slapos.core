@@ -447,6 +447,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       '*/bin/*',
       '*/etc/*',
       '*/var/log/*',
+      '*/srv/monitor/*',
       '*/.*log',
       '*/.*cfg',
       '*/*cfg',

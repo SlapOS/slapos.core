@@ -23,6 +23,8 @@ if current_invoice is None:
         stop_date=DateTime()
       )
 
+  if context.SubscriptionRequest_testSkippedReservationFree(contract):
+    amount = 0
 
   for line in current_payment.contentValues():
     if line.getSource() in ["account_module/bank", "account_module/receivable"]:

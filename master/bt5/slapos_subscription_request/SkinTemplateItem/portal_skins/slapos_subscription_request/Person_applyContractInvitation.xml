@@ -50,19 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>amount, tag, target_language, contract=None, REQUEST=None</string> </value>
-        </item>
-        <item>
-            <key> <string>_proxy_roles</string> </key>
-            <value>
-              <tuple>
-                <string>Manager</string>
-              </tuple>
-            </value>
+            <value> <string>invitation_token=None, **kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SubscriptionRequest_requestPaymentTransaction</string> </value>
+            <value> <string>Person_applyContractInvitation</string> </value>
         </item>
       </dictionary>
     </pickle>

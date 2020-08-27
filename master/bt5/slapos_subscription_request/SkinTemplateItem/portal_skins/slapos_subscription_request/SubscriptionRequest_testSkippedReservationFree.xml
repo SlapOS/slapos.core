@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>amount, tag, target_language, contract=None, REQUEST=None</string> </value>
+            <value> <string>contract=None, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>_proxy_roles</string> </key>
@@ -62,7 +62,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SubscriptionRequest_requestPaymentTransaction</string> </value>
+            <value> <string>SubscriptionRequest_testSkippedReservationFree</string> </value>
         </item>
       </dictionary>
     </pickle>

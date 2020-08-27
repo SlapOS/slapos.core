@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>at_date=None, resource_uid=None, **kw</string> </value>
+            <value> <string>contract=None, **kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Entity_statOutstandingAmount</string> </value>
+            <value> <string>Entity_statSlapOSOutstandingAmount</string> </value>
         </item>
       </dictionary>
     </pickle>

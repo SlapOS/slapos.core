@@ -9,6 +9,11 @@ def SubscriptionRequest_saveTransactionalUser(self, person=None):
     getTransactionalVariable()["transactional_user"] = person
   return person
 
+def SubscriptionRequest_getTransactionalUser(self, REQUEST=None):
+  if REQUEST is not None:
+    raise Unauthorized
+  return getTransactionalVariable().get("transactional_user", None) 
+
 def Base_instanceXmlToDict(self, xml):
   result_dict = {}
   try:

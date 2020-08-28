@@ -84,13 +84,15 @@ if batch_mode:
 
 if target_language == "zh": # Wechat payment
   def wrapRedirectWithShadow(payment_transaction, web_site):
-    if payment_transaction.PaymentTransaction_getTotalPayablePrice() > 0:
+    # getTotalPayble returns a negative value
+    if payment_transaction.PaymentTransaction_getTotalPayablePrice() < 0:
       return payment_transaction.PaymentTransaction_redirectToManualWechatPayment(web_site)
     return payment_transaction.PaymentTransaction_redirectToManualFreePayment(web_site)
     
 else: # Payzen payment
   def wrapRedirectWithShadow(payment_transaction, web_site):
-    if payment_transaction.PaymentTransaction_getTotalPayablePrice() > 0:
+    # getTotalPayble returns a negative value
+    if payment_transaction.PaymentTransaction_getTotalPayablePrice() < 0:
       return payment_transaction.PaymentTransaction_redirectToManualPayzenPayment(web_site)
     return payment_transaction.PaymentTransaction_redirectToManualFreePayment(web_site)
     

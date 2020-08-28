@@ -73,6 +73,8 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
   @changeSkin('Hal')
   def _requestSubscription(self, **kw):
+    if self.cloud_invitation_token is not None:
+      kw["token"] = self.cloud_invitation_token.getId()
     if 'target_language' not in kw:
       kw["target_language"] = "zh"
     kw["subscription_reference"] = self.subscription_condition.getReference().replace("_zh", "")
@@ -82,6 +84,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     try:
       self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode("UNITTEST")
       self.logout()
+      self.changeSkin('Hal')
       return self.web_site.hateoas.SubscriptionRequestModule_requestSubscription(**kw)
     finally:
       self._dropPaymentTransaction_getVADSUrlDict()

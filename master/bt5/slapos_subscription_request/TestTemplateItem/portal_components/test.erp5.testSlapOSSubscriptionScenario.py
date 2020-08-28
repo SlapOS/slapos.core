@@ -37,12 +37,15 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.expected_notification_language = "en"
     self.expected_source = "organisation_module/slapos"
     self.expected_source_section = "organisation_module/slapos"
-    
+    self.cloud_invitation_token = None
+    self.expected_free_reservation = 0
+
     self.login()
     self.portal.portal_alarms.slapos_subscription_request_process_draft.setEnabled(True)
     self.portal.portal_alarms.slapos_subscription_request_process_ordered.setEnabled(True)
     self.portal.portal_alarms.slapos_subscription_request_process_planned.setEnabled(True)
     self.portal.portal_alarms.slapos_subscription_request_process_confirmed.setEnabled(True)
+    self.portal.portal_alarms.slapos_subscription_request_process_started.setEnabled(True)
 
     DefaultScenarioMixin.afterSetUp(self)
 
@@ -385,7 +388,10 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.assertEqual(invoice.getPriceCurrency(), self.expected_price_currency)
     for line in invoice.objectValues():
       if line.getResource() == "service_module/slapos_reservation_fee":
-        self.assertEqual(line.getQuantity(), quantity)
+        if self.expected_free_reservation:
+          self.assertEqual(line.getQuantity(), 0)
+        else:
+          self.assertEqual(line.getQuantity(), quantity)
         self.assertEqual(round(line.getPrice(), 2),  self.expected_reservation_fee_without_tax)
       if line.getResource() == "service_module/slapos_tax":
         self.assertEqual(round(line.getQuantity(), 2), round(self.expected_reservation_quantity_tax*quantity, 2))
@@ -520,8 +526,33 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.assertEqual(sale_packing_list.getPriceCurrency(),
                      self.expected_price_currency)
 
+  def makeCloudInvitationToken(self, max_invoice_delay=0, max_invoice_credit_eur=0.0,
+                                    max_invoice_credit_cny=0.0):
+    
+    self.login()
+    contract_invitation_token = self.portal.invitation_token_module.newContent(
+      portal_type="Contract Invitation Token",
+      maximum_invoice_delay=max_invoice_delay
+    )
+
+    if max_invoice_credit_eur > 0:
+      contract_invitation_token.newContent(
+      maximum_invoice_credit=max_invoice_credit_eur,
+      price_currency="currency_module/EUR")
+
+    if max_invoice_credit_cny > 0:
+      contract_invitation_token.newContent(
+      maximum_invoice_credit=max_invoice_credit_cny,
+      price_currency="currency_module/CNY")
+
+    contract_invitation_token.validate()
+    self.logout()
+    return contract_invitation_token
+
   @changeSkin('Hal')
   def _requestSubscription(self, **kw):
+    if self.cloud_invitation_token is not None:
+      kw["token"] = self.cloud_invitation_token.getId()
     return self.web_site.hateoas.SubscriptionRequestModule_requestSubscription(**kw)
 
   def getAggregatedSalePackingList(self, subscription_request, specialise):
@@ -852,8 +883,6 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       self.checkStartedSubscriptionRequest(subscription_request,
                default_email_text, self.subscription_condition)
     
-
-
   def checkSubscriptionDeploymentAndSimulation(self, default_email_text, subscription_server):
     subscription_request_list = self.getSubscriptionRequestList(
       default_email_text, self.subscription_condition)
@@ -934,7 +963,8 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
                     subscription_request.getDestinationSectionValue())
 
 
-  def _test_two_subscription_scenario(self, amount=1):
+  def _test_two_subscription_scenario(self, amount=1, create_invitation=False,
+    max_invoice_delay=0, max_invoice_credit_eur=0.0, max_invoice_credit_cny=0.0):
     """ The admin creates an computer, user can request instances on it"""
  
     subscription_server = self.createPublicServerForAdminUser()
@@ -942,6 +972,13 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     # Call as anonymous... check response?
     default_email_text = "abc%s@nexedi.com" % self.new_id
     name="ABC %s" % self.new_id
+    if create_invitation:
+      self.login()
+      self.cloud_invitation_token = self.makeCloudInvitationToken(
+        max_invoice_delay=max_invoice_delay,
+        max_invoice_credit_eur=max_invoice_credit_eur,
+        max_invoice_credit_cny=max_invoice_credit_cny
+      )
 
     self.logout()
     self._requestSubscription(
@@ -981,8 +1018,17 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.checkOrderedSubscriptionRequest(first_subscription_request,
                default_email_text, self.subscription_condition)
 
+    if create_invitation:
+      self.login()
+      self.cloud_invitation_token = self.makeCloudInvitationToken(
+        max_invoice_delay=max_invoice_delay,
+        max_invoice_credit_eur=max_invoice_credit_eur,
+        max_invoice_credit_cny=max_invoice_credit_cny
+      )
+
     self.logout()
-    # Request a second one, without require confirmation and verifing the second subscription request
+    # Request a second one, without require confirmation and verifing
+    # the second subscription request
     self._requestSubscription(
       subscription_reference=self.subscription_condition.getReference(),
       amount=amount,

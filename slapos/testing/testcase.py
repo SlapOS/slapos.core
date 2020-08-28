@@ -378,6 +378,7 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=10, debug=False):
       checkSoftware(cls.slap, software_url)
       cls.logger.debug("Done checking software %s", software_url)
   except BaseException as e:
+    _storeSoftwareSnapshot('setupModule failed installing software')
     if not debug:
       cls.logger.exception("Error building software, removing")
       try:

@@ -24,6 +24,7 @@ if current_invoice is None:
       )
 
   if context.SubscriptionRequest_testSkippedReservationFree(contract):
+    # Reservation is Free
     amount = 0
 
   for line in current_payment.contentValues():
@@ -35,7 +36,11 @@ if current_invoice is None:
   comment = "Validation payment for subscription request %s" % context.getRelativeUrl()
   current_payment.confirm(comment=comment)
   current_payment.start(comment=comment)
-  current_payment.PaymentTransaction_updateStatus()
+  if not amount:
+    current_payment.stop(comment="%s (Free)" % comment)
+  elif target_language != "zh":
+    # Payzen don't require update like this.
+    current_payment.PaymentTransaction_updateStatus()
   current_payment.reindexObject(activate_kw={'tag': tag})
   context.reindexObject(activate_kw={'tag': tag})
 

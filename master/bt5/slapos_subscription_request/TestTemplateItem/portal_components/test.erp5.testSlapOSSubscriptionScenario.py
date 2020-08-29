@@ -320,6 +320,18 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       }
     payment.PaymentTransaction_createPayzenEvent().PayzenEvent_processUpdate(data_kw, True)
 
+  def _checkFreeReservationPayment(self, subscription_request):
+    quantity = subscription_request.getQuantity()
+    # Check Payment
+    payment = self._getRelatedPaymentValue(subscription_request)
+
+    self.assertEqual(self.expected_price_currency, payment.getPriceCurrency())
+    self.assertEqual(-self.expected_reservation_fee*quantity,
+      payment.PaymentTransaction_getTotalPayablePrice())
+    
+    self.assertEqual(payment.getSimulationState(), "stopped")
+    return payment
+
   def _payPayment(self, subscription_request):
     quantity = subscription_request.getQuantity()
     # Check Payment
@@ -353,8 +365,13 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.assertEqual(invoice.getSource(), self.expected_source)
     self.assertEqual(invoice.getSourceSection(), self.expected_source_section)
     
+    # Pay Invoice if it is not Free
+    if not self.expected_free_reservation:
+      payment = self._payPayment(subscription_request)
+    else:
+      payment = self._checkFreeReservationPayment(subscription_request)
+
     # Check Payment
-    payment = self._payPayment(subscription_request)
     self.assertEqual(payment.getSourceSection(), self.expected_source_section)
     self.assertEqual(payment.getSourcePayment(), "%s/bank_account" % self.expected_source_section)
     

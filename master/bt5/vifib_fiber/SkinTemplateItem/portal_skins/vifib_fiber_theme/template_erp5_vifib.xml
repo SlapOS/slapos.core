@@ -76,7 +76,7 @@ Default template for all innov24 page. Set default block of the generated web pa
       <tal:block metal:fill-slot="head">\n
        <meta name="author" content="Francois-Xavier ALGRAIN" />\n
        <meta name="publisher" content="Nexedi"/>\n
-       <meta name="copyright" content="Nexedi-2010" />\n
+       <meta name="copyright" content="Nexedi SA-2010" />\n
       </tal:block>\n
       <tal:block metal:fill-slot="layout">\n
   <tal:block metal:use-macro="here/aggregate_render/macros/populate_request"/>\n

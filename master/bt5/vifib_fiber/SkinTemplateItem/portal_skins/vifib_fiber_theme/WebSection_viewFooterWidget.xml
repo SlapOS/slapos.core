@@ -39,7 +39,7 @@
 <tal:comment replace="nothing">Display footer for all web page.</tal:comment>\n
 <div id="footerBox" tal:define="website_url python: request.get(\'current_web_site\', here).getAbsoluteUrl();" i18n:domain="ui">\n
   <div>\n
-  <p class="copyright" i18n:translate="">&copy; 2010 ViFiB SARL&nbsp;-&nbsp;</p>   \n
+  <p class="copyright" i18n:translate="">&copy; 2010 Nexedi SA&nbsp;-&nbsp;</p>   \n
   <ul>\n
     <li>\n
       &nbsp;<a tal:attributes="href python: \'%s/vifib.legalInformation\' % website_url" i18n:translate="">Legal Information</a> | \n

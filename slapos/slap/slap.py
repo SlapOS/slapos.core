@@ -270,7 +270,7 @@ class OpenOrder(SlapRequester):
 
   def getInformation(self, partition_reference):
     if not getattr(self, '_hateoas_navigator', None):
-      raise Exception('SlapOS Master Hateoas API required for this operation is not availble.')
+      raise Exception('SlapOS Master Hateoas API required for this operation is not available.')
     raw_information = self._hateoas_navigator.getHostingSubscriptionRootSoftwareInstanceInformation(partition_reference)
     software_instance = SoftwareInstance()
     # XXX redefine SoftwareInstance to be more consistent
@@ -381,7 +381,7 @@ class Computer(SlapDocument):
 
   def getInformation(self):
     if not getattr(self, '_hateoas_navigator', None):
-      raise Exception('SlapOS Master Hateoas API required for this operation is not availble.')
+      raise Exception('SlapOS Master Hateoas API required for this operation is not available.')
     raw_information = self._hateoas_navigator._getComputer(reference=self._computer_id)
     computer = Computer(self._computer_id) 
     for key, value in six.iteritems(raw_information["data"]):
@@ -536,7 +536,7 @@ class ComputerPartition(SlapRequester):
     in the Instance tree of the current Computer Partition.
     """
     if not getattr(self, '_hateoas_navigator', None):
-      raise Exception('SlapOS Master Hateoas API required for this operation is not availble.')
+      raise Exception('SlapOS Master Hateoas API required for this operation is not available.')
 
     instance_url = self.getMeUrl()
     raw_information = self._hateoas_navigator.getRelatedInstanceInformation(
@@ -772,7 +772,7 @@ class slap:
     return Token class object
     """
     if not getattr(self, '_hateoas_navigator', None):
-      raise Exception('SlapOS Master Hateoas API required for this operation is not availble.')
+      raise Exception('SlapOS Master Hateoas API required for this operation is not available.')
 
     return Token(
       connection_helper=self._connection_helper,
@@ -846,11 +846,11 @@ class slap:
 
   def getOpenOrderDict(self):
     if not getattr(self, '_hateoas_navigator', None):
-      raise Exception('SlapOS Master Hateoas API required for this operation is not availble.')
+      raise Exception('SlapOS Master Hateoas API required for this operation is not available.')
     return self._hateoas_navigator.getHostingSubscriptionDict()
 
   def getComputerDict(self): 
     if not getattr(self, '_hateoas_navigator', None):
-      raise Exception('SlapOS Master Hateoas API required for this operation is not availble.')
+      raise Exception('SlapOS Master Hateoas API required for this operation is not available.')
     return self._hateoas_navigator.getComputerDict()
 

@@ -55,7 +55,7 @@ class testSlapOSSubscriptionCloudInvitationTokenScenario(TestSlapOSSubscriptionC
     self.cloud_invitation_token = self.makeCloudInvitationToken(
       max_invoice_delay=99,
       max_invoice_credit_eur=900,
-      max_invoice_credit_cny=900)
+      max_invoice_credit_cny=90000)
 
   def test_subscription_scenario_with_single_vm_with_invitation(self):
     self._init_test_with_valid_invitation()
@@ -78,7 +78,7 @@ class testSlapOSSubscriptionCloudInvitationTokenScenario(TestSlapOSSubscriptionC
       create_invitation=True,
       max_invoice_delay=99,
       max_invoice_credit_eur=900,
-      max_invoice_credit_cny=900
+      max_invoice_credit_cny=90000
     )
 
   def test_subscription_scenario_with_existing_user_with_invitation(self):

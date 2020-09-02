@@ -219,7 +219,8 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.assertEqual(subscription_request.getDefaultEmailText(), email)
     self.assertEqual(subscription_request.getUrlString(), subscription_condition.getUrlString())
     self.assertEqual(subscription_request.getRootSlave(), slave)
-    self.assertEqual(subscription_request.getTextContent(), '<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>')
+    self.assertEqual(subscription_request.getTextContent(),
+      '<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>')
     #self.assertEqual(trial_request.getSlaXml(), '<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>')
     self.assertEqual(subscription_request.getSourceReference(), "default")
 
@@ -268,6 +269,12 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
                                   subscription_condition, slave=slave)
     self.assertEqual(subscription_request.getSimulationState(), "started")
     self.checkEmailInstanceNotification(subscription_request, notification_message)
+
+  def checkStoppedSubscriptionRequest(self, subscription_request, email,
+                        subscription_condition, slave=0):
+    self.checkSubscriptionRequest(subscription_request, email,
+                                  subscription_condition, slave=slave)
+    self.assertEqual(subscription_request.getSimulationState(), "stopped")
 
   def _getRelatedPaymentValue(self, subscription_request):
     invoice = subscription_request.getCausalityValue(portal_type="Sale Invoice Transaction")
@@ -510,7 +517,8 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
                      hosting_subscription.getUrlString())
     self.assertEqual(subscription_request.getRootSlave(),
                      hosting_subscription.getRootSlave())
-    self.assertEqual(hosting_subscription.getTextContent(), '<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>')
+    self.assertEqual(hosting_subscription.getTextContent(),
+      '<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>')
     #self.assertEqual(trial_request.getSlaXml(), '<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>')
     self.assertEqual(hosting_subscription.getSourceReference(), "default")
 
@@ -951,7 +959,26 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
       self.checkStartedSubscriptionRequest(subscription_request,
                default_email_text, self.subscription_condition)
-    
+
+  def destroyAndCheckSubscription(self, default_email_text, subscription_server):
+    subscription_request_list = self.getSubscriptionRequestList(
+      default_email_text, self.subscription_condition)
+
+    for subscription_request in subscription_request_list:
+      self.assertEquals('start_requested',
+        subscription_request.getAggregateValue().getSlapState())
+
+      # Destroy all instances and process 
+      hosting_subscription = subscription_request.getAggregateValue()
+      hosting_subscription.HostingSubscription_requestPerson('destroyed')
+      self.tic()
+
+    self.stepCallSlaposSubscriptionRequestProcessStartedAlarm()
+    self.tic()
+
+    self.checkStoppedSubscriptionRequest(subscription_request,
+               default_email_text, self.subscription_condition)
+
   def _test_subscription_scenario(self, amount=1):
     """ The admin creates an computer, user can request instances on it"""
 
@@ -966,6 +993,10 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
     self.checkSubscriptionDeploymentAndSimulation(
         default_email_text, subscription_server)
+
+    self.destroyAndCheckSubscription(
+      default_email_text, subscription_server
+    )
 
   def _test_subscription_scenario_with_existing_user(self, amount=1, language=None):
     """ The admin creates an computer, user can request instances on it"""
@@ -992,6 +1023,9 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.assertEqual(self.normal_user,
                     subscription_request.getDestinationSectionValue())
 
+    self.destroyAndCheckSubscription(
+      default_email_text, subscription_server
+    )
 
   def _test_two_subscription_scenario(self, amount=1, create_invitation=False,
     max_invoice_delay=0, max_invoice_credit_eur=0.0, max_invoice_credit_cny=0.0):
@@ -1106,6 +1140,9 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.checkSubscriptionDeploymentAndSimulation(
         default_email_text, subscription_server)
 
+    self.destroyAndCheckSubscription(
+      default_email_text, subscription_server
+    )
 
   def _test_subscription_scenario_with_reversal_transaction(self, amount=1):
     """ The admin creates an computer, user can request instances on it"""
@@ -1120,6 +1157,9 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.checkSubscriptionDeploymentAndSimulationWithReversalTransaction(
         default_email_text, subscription_server)
 
+    self.destroyAndCheckSubscription(
+      default_email_text, subscription_server
+    )
 
 class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 

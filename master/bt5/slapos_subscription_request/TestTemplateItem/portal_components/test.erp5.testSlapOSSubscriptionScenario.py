@@ -235,30 +235,37 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     payment = invoice.getCausalityRelatedValue(portal_type="Payment Transaction")
     self.assertNotEqual(payment, None)
 
-  def checkPlannedSubscriptionRequest(self, subscription_request, email, subscription_condition, slave=0):
-    self.checkSubscriptionRequest(subscription_request, email, subscription_condition, slave=slave)
+  def checkPlannedSubscriptionRequest(self, subscription_request, email,
+                                            subscription_condition, slave=0):
+    self.checkSubscriptionRequest(subscription_request, email,
+                                  subscription_condition, slave=slave)
     self.assertEqual(subscription_request.getSimulationState(), "planned")
 
-
-  def checkOrderedSubscriptionRequest(self, subscription_request, email, subscription_condition, slave=0,
-                                        notification_message="subscription_request-confirmation-with-password"):
-    self.checkSubscriptionRequest(subscription_request, email, subscription_condition, slave=slave)
+  def checkOrderedSubscriptionRequest(self, subscription_request, email,
+                subscription_condition, slave=0,
+                notification_message="subscription_request-confirmation-with-password"):
+    self.checkSubscriptionRequest(subscription_request, email,
+                                  subscription_condition, slave=slave)
     self.assertEqual(subscription_request.getSimulationState(), "ordered")
     self.checkBootstrapUser(subscription_request)
     self.checkEmailNotification(subscription_request, notification_message)
 
-  def checkConfirmedSubscriptionRequest(self, subscription_request, email, subscription_condition, slave=0,
-                                        notification_message="subscription_request-payment-is-ready"):
-    self.checkSubscriptionRequest(subscription_request, email, subscription_condition, slave=slave)
+  def checkConfirmedSubscriptionRequest(self, subscription_request, email,
+                      subscription_condition, slave=0,
+                      notification_message="subscription_request-payment-is-ready"):
+    self.checkSubscriptionRequest(subscription_request, email,
+                                  subscription_condition, slave=slave)
     payment = subscription_request.SubscriptionRequest_verifyPaymentBalanceIsReady()
     self.assertNotEqual(payment, None)
     self.assertEqual(payment.getSimulationState(), 'started')
     self.assertEqual(subscription_request.getSimulationState(), "confirmed")
     self.checkEmailPaymentNotification(subscription_request, notification_message)
 
-  def checkStartedSubscriptionRequest(self, subscription_request, email, subscription_condition, slave=0,
-                                        notification_message="subscription_request-instance-is-ready"):
-    self.checkSubscriptionRequest(subscription_request, email, subscription_condition, slave=slave)
+  def checkStartedSubscriptionRequest(self, subscription_request, email,
+                        subscription_condition, slave=0,
+                        notification_message="subscription_request-instance-is-ready"):
+    self.checkSubscriptionRequest(subscription_request, email,
+                                  subscription_condition, slave=slave)
     self.assertEqual(subscription_request.getSimulationState(), "started")
     self.checkEmailInstanceNotification(subscription_request, notification_message)
 
@@ -301,7 +308,8 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     authAmount = (int(self.expected_individual_price_with_tax*100)*1-int(self.expected_reservation_fee*100))*quantity
 
     self.assertEqual(payment.getSourceSection(), self.expected_source_section)
-    self.assertEqual(payment.getSourcePayment(), "%s/bank_account" % self.expected_source_section)
+    self.assertEqual(payment.getSourcePayment(),
+                     "%s/bank_account" % self.expected_source_section)
     
 
     self.assertEqual(int(payment.PaymentTransaction_getTotalPayablePrice()*100),
@@ -373,7 +381,8 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
     # Check Payment
     self.assertEqual(payment.getSourceSection(), self.expected_source_section)
-    self.assertEqual(payment.getSourcePayment(), "%s/bank_account" % self.expected_source_section)
+    self.assertEqual(payment.getSourcePayment(),
+                     "%s/bank_account" % self.expected_source_section)
     
     self.tic()
     self.assertEqual(payment.getSimulationState(), "stopped")
@@ -411,8 +420,10 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
           self.assertEqual(line.getQuantity(), quantity)
         self.assertEqual(round(line.getPrice(), 2),  self.expected_reservation_fee_without_tax)
       if line.getResource() == "service_module/slapos_tax":
-        self.assertEqual(round(line.getQuantity(), 2), round(self.expected_reservation_quantity_tax*quantity, 2))
-        self.assertEqual(round(line.getTotalPrice(), 2), round(self.expected_reservation_tax*quantity, 2))
+        self.assertEqual(round(line.getQuantity(), 2),
+                         round(self.expected_reservation_quantity_tax*quantity, 2))
+        self.assertEqual(round(line.getTotalPrice(), 2),
+                         round(self.expected_reservation_tax*quantity, 2))
 
     self.assertEqual(round(invoice.getTotalPrice(), 2), self.expected_reservation_fee*quantity)
 
@@ -836,14 +847,23 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       # Instances should be allocated
       self.checkAllocationOnRelatedInstance(subscription_request)
 
+    if not self.expected_free_reservation:
+      # In a scenario where invitation token is used, we expect
+      # that this script outputs True as user is below the maximum limit.
+      expected_test_payment_balance = False
+      expected_slap_state_after_subscription_is_confirmed = 'stop_requested'
+    else:
+      expected_test_payment_balance = True
+      expected_slap_state_after_subscription_is_confirmed = 'start_requested'
+
+
     # Check if instance is on confirmed state
     for subscription_request in subscription_request_list:
       self.checkConfirmedSubscriptionRequest(subscription_request,
                default_email_text, self.subscription_condition)
-      
-      # Assert that First month isn't payed
-      self.assertFalse(
-        subscription_request.SubscriptionRequest_testPaymentBalance())
+
+      self.assertEqual(expected_test_payment_balance,
+          subscription_request.SubscriptionRequest_testPaymentBalance())
       
       self.assertEquals('start_requested',
         subscription_request.getAggregateValue().getSlapState())
@@ -853,10 +873,10 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.tic()
 
     for subscription_request in subscription_request_list:
-      self.assertFalse(
-        subscription_request.SubscriptionRequest_testPaymentBalance())
-      
-      self.assertEquals('stop_requested',
+      self.assertEqual(expected_test_payment_balance,
+          subscription_request.SubscriptionRequest_testPaymentBalance())
+
+      self.assertEquals(expected_slap_state_after_subscription_is_confirmed,
         subscription_request.getAggregateValue().getSlapState())
 
   def checkSubscriptionDeploymentAndSimulationWithReversalTransaction(self, default_email_text, subscription_server):
@@ -882,10 +902,6 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       self.assertEqual('start_requested',
         subscription_request.getAggregateValue().getSlapState())
 
-      # It is requireds a second interaction so the instance is 
-      # correctly started
-      self.assertEqual("confirmed", subscription_request.getSimulationState())
-
     # On the second loop that email is send and state is moved to started
     self.stepCallSlaposSubscriptionRequestProcessConfirmedAlarm()
     self.tic()
@@ -907,9 +923,10 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self._checkSubscriptionDeploymentAndSimulation(
       subscription_request_list, default_email_text, subscription_server)
 
-    for subscription_request in subscription_request_list:
-      self.checkAndPayFirstMonth(subscription_request)
-      self.tic()
+    if not self.expected_free_reservation:
+      for subscription_request in subscription_request_list:
+        self.checkAndPayFirstMonth(subscription_request)
+        self.tic()
     
     self.stepCallSlaposSubscriptionRequestProcessConfirmedAlarm()
     self.tic()
@@ -920,10 +937,6 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       
       self.assertEqual('start_requested',
         subscription_request.getAggregateValue().getSlapState())
-
-      # It is requireds a second interaction so the instance is 
-      # correctly started
-      self.assertEqual("confirmed", subscription_request.getSimulationState())
 
     # On the second loop that email is send and state is moved to started
     self.stepCallSlaposSubscriptionRequestProcessConfirmedAlarm()

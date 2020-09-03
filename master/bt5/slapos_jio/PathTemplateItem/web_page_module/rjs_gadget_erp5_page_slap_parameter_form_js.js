@@ -122,6 +122,37 @@
     return input;
   }
 
+  function render_selection_oneof(json_field, default_value) {
+    var input = document.createElement("select"),
+      option = document.createElement("option"),
+      optionz;
+    input.size = 1;
+    option.value = "";
+    if (default_value === undefined) {
+      option.selected = "selected";
+    }
+    input.appendChild(option);
+    json_field.oneOf.forEach(function (element, index) {
+      if ((element['const'] !== undefined) && (element.title !== undefined)) {
+        var value;
+        if ((json_field.type == 'array') || (json_field.type == 'object')) {
+          // Support for unusual types
+          value = JSON.stringify(element['const']);
+        } else {
+          value = element['const'];
+        }
+        optionz = document.createElement("option");
+        optionz.value = value;
+        optionz.textContent = element.title;
+        if (value === default_value) {
+          optionz.selected = "selected";
+        }
+        input.appendChild(optionz);
+      }
+    });
+    return input;
+  }
+
   function render_textarea(json_field, default_value, data_format) {
     var input = document.createElement("textarea");
     if (default_value !== undefined) {
@@ -139,6 +170,10 @@
 
     if (json_field['enum'] !== undefined) {
       return render_selection(json_field, default_value);
+    }
+
+    if (json_field.oneOf !== undefined) {
+      return render_selection_oneof(json_field, default_value);
     }
 
     if (json_field.type === "boolean") {

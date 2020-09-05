@@ -2316,20 +2316,35 @@ class TestCloudContractModule(TestSlapOSGroupRoleSecurityMixin):
     module = self.portal.cloud_contract_module
     self.changeOwnership(module)
     self.assertSecurityGroup(module,
-        [self.user_id, 'G-COMPANY'], False)
+        [self.user_id, 'G-COMPANY', 'R-MEMBER', 'R-SHADOW-PERSON'], False)
     self.assertRoles(module, 'G-COMPANY', ['Author', 'Auditor'])
     self.assertRoles(module, self.user_id, ['Owner'])
 
 class TestCloudContract(TestSlapOSGroupRoleSecurityMixin):
   def test_GroupCompany(self):
-    text = self.portal.cloud_contract_module.newContent(
+    contract = self.portal.cloud_contract_module.newContent(
         portal_type='Cloud Contract')
 
-    self.assertSecurityGroup(text,
+    self.assertSecurityGroup(contract,
         ['G-COMPANY', self.user_id],
         False)
-    self.assertRoles(text, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(text, self.user_id, ['Owner'])
+    self.assertRoles(contract, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(contract, self.user_id, ['Owner'])
+
+  def test_Customer(self):
+    reference = 'TESTPERSON-%s' % self.generateNewId()
+    person = self.portal.person_module.newContent(portal_type='Person',
+        reference=reference)
+    contract = self.portal.cloud_contract_module.newContent(
+        portal_type='Cloud Contract',
+        destination_section_value=person,
+        )
+    contract.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(contract,
+        ['G-COMPANY', person.getUserId(), self.user_id], False)
+    self.assertRoles(contract, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(contract, person.getUserId(), ['Auditor'])
+    self.assertRoles(contract, self.user_id, ['Owner'])
 
 class TestUpgradeDecisionModule(TestSlapOSGroupRoleSecurityMixin):
   def test(self):

@@ -16,7 +16,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -40,6 +39,17 @@
             </value>
         </item>
         <item>
+            <key> <string>_Copy_or_Move_Permission</string> </key>
+            <value>
+              <list>
+                <string>Manager</string>
+                <string>Authenticated</string>
+                <string>Developer</string>
+                <string>Owner</string>
+              </list>
+            </value>
+        </item>
+        <item>
             <key> <string>_Modify_portal_content_Permission</string> </key>
             <value>
               <tuple>
@@ -59,7 +69,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -71,7 +80,7 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_erp5_page_slap_invoice_list.js</string> </value>
+            <value> <string>gadget_erp5_page_slap_cloud_contract_view.js</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -81,7 +90,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_erp5_page_slap_invoice_list_js</string> </value>
+            <value> <string>gadget_erp5_page_slap_cloud_contract_view_js</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -99,11 +108,11 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget SlapOS Invoice List</string> </value>
+            <value> <string>Gadget SlapOS Cloud Contract View</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
-            <value> <string>002</string> </value>
+            <value> <string>003</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -187,7 +196,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1508407265.61</float>
+                              <float>1599282574.76</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -236,7 +245,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>986.30539.17853.40038</string> </value>
+                      <value> <string>986.30196.37771.52804</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -254,7 +263,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1599538229.52</float>
+                              <float>1599516871.36</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -315,7 +324,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1508403813.01</float>
+                              <float>1599282485.89</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

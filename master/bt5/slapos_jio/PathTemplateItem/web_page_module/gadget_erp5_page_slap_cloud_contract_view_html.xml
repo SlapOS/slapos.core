@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="Web Script" module="erp5.portal_type"/>
+      <global name="Web Page" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -16,7 +16,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -59,7 +58,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -70,8 +68,12 @@
             </value>
         </item>
         <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>text/html</string> </value>
+        </item>
+        <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_erp5_page_slap_invoice_list.js</string> </value>
+            <value> <string>gadget_erp5_page_slap_cloud_contract_view.html</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -81,7 +83,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_erp5_page_slap_invoice_list_js</string> </value>
+            <value> <string>gadget_erp5_page_slap_cloud_contract_view_html</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -89,7 +91,7 @@
         </item>
         <item>
             <key> <string>portal_type</string> </key>
-            <value> <string>Web Script</string> </value>
+            <value> <string>Web Page</string> </value>
         </item>
         <item>
             <key> <string>short_title</string> </key>
@@ -99,11 +101,11 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget SlapOS Invoice List</string> </value>
+            <value> <string>Gadget SlapOS  Cloud Contract View</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
-            <value> <string>002</string> </value>
+            <value> <string>003</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -187,7 +189,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1508407265.61</float>
+                              <float>1599282848.78</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -236,7 +238,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>986.30539.17853.40038</string> </value>
+                      <value> <string>986.26298.9600.51353</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -254,7 +256,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1599538229.52</float>
+                              <float>1599283593.01</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -315,7 +317,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1508403813.01</float>
+                              <float>1599282761.62</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

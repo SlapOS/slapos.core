@@ -12,6 +12,8 @@
     .declareAcquiredMethod("setSetting", "setSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+    .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
+    .declareAcquiredMethod("jio_get", "jio_get")
     .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     .allowPublicAcquisition("jio_allDocs", function (param_list) {
@@ -169,13 +171,27 @@
         })
         .push(function () {
           return RSVP.all([
-            gadget.getUrlFor({command: "change", options: {"page": "slapos"}})
+            gadget.getSetting("hateoas_url"),
+            window.getSettingMe(gadget)
+          ]);
+        })
+        .push(function (url_list) {
+          return  gadget.jio_getAttachment("contract_relative_url",
+            url_list[0] + url_list[1] + "/Person_getCloudContractRelated?return_json=True");
+        })
+        .push(function (contract_relative_url) {
+          return RSVP.all([
+            gadget.getUrlFor({command: "change", options: {"page": "slapos"}}),
+            gadget.getUrlFor({command: "change", options: {"jio_key": contract_relative_url,
+                                                           "page": "slap_controller"}})
+
           ]);
         })
         .push(function (result) {
           return gadget.updateHeader({
             page_title: invoices_translation,
             selection_url: result[0],
+            contract_url: result[1],
             filter_action: true
           });
         });

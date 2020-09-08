@@ -55,7 +55,8 @@
       ['supply_url', 'Supply', 'plus'],
       ['transfer_url', 'Transfer', 'exchange'],
       ['accept_url', 'Accept', 'check-circle'],
-      ['reject_url', 'Reject', 'ban']
+      ['reject_url', 'Reject', 'ban'],
+      ['contract_url', 'Contract', 'usd']
     ],
     header_button_template = function (data) {
       // <form><button name='{{name}}' data-i18n="{{title}}" type='submit' class='ui-icon-{{icon}} ui-btn-icon-left {{class}}'>{{title}}</button></form>

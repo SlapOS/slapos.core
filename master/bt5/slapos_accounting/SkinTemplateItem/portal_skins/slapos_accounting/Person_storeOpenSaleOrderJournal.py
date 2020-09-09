@@ -38,7 +38,7 @@ def newOpenOrder(open_sale_order):
 def storeWorkflowComment(document, comment):
   portal.portal_workflow.doActionFor(document, 'edit_action', comment=comment)
 
-def calculateOpenOrderLineStopDate(open_order_line, hosting_subscription, start_date_delta):
+def calculateOpenOrderLineStopDate(open_order_line, hosting_subscription, start_date_delta, next_stop_date_delta=0):
   end_date = hosting_subscription.HostingSubscription_calculateSubscriptionStopDate()
   if end_date is None:
     # Be sure that start date is different from stop date
@@ -47,11 +47,14 @@ def calculateOpenOrderLineStopDate(open_order_line, hosting_subscription, start_
     next_stop_date = hosting_subscription.getNextPeriodicalDate(
       hosting_subscription.HostingSubscription_calculateSubscriptionStartDate() + start_date_delta)
     current_stop_date = next_stop_date
-    while next_stop_date < now:
+
+    # Ensure the invoice is generated 15 days in advance of the next period.
+    while next_stop_date < now + next_stop_date_delta:
       # Return result should be < now, it order to provide stability in simulation (destruction if it happen should be >= now)
       current_stop_date = next_stop_date
       next_stop_date = \
          hosting_subscription.getNextPeriodicalDate(current_stop_date)
+
     return addToDate(current_stop_date, to_add={'second': -1})
   else:
     stop_date = end_date
@@ -95,8 +98,16 @@ if open_sale_order is not None:
     hosting_subscription = open_order_line.getAggregateValue(portal_type='Hosting Subscription')
     assert current_start_date == hosting_subscription.HostingSubscription_calculateSubscriptionStartDate()
 
+
+    subscription_request = hosting_subscription.getAggregateRelatedValue(portal_type="Subscription Request")
+    # Define the start date of the period, this can variates with the time.
+    next_stop_date_delta = 0
+    if subscription_request is not None:
+      next_stop_date_delta = 46
+
     # First check if the hosting subscription has been correctly simulated (this script may run only once per year...)
-    stop_date = calculateOpenOrderLineStopDate(open_order_line, hosting_subscription, start_date_delta=0)
+    stop_date = calculateOpenOrderLineStopDate(open_order_line, hosting_subscription,
+                                               start_date_delta=0, next_stop_date_delta=next_stop_date_delta)
     if current_stop_date < stop_date:
       # Bingo, new subscription to generate
       open_order_line.edit(

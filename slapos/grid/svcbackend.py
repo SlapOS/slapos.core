@@ -190,10 +190,10 @@ def launchSupervisord(instance_root, logger,
                                 stderr=subprocess.STDOUT,
                                 logger=logger)
 
-  result = supervisord_popen.communicate()[0]
+  result = supervisord_popen.output
   if supervisord_popen.returncode:
-    logger.warning('Supervisord unknown problem: %s' % result)
-    raise RuntimeError('Failed to launch supervisord : %s' % result)
+    logger.warning('Supervisord unknown problem: %s', result)
+    raise RuntimeError('Failed to launch supervisord:\n%s' % result)
 
   try:
     default_timeout = socketlib.getdefaulttimeout()

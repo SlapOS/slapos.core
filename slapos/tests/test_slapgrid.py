@@ -44,6 +44,7 @@ import json
 import re
 import grp
 
+import mock
 from mock import patch
 from zope.interface import implementer
 
@@ -3749,3 +3750,20 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertFalse(os.path.isfile(os.path.join(instance.partition_path,
                 ".slapgrid/promise/result/fail.status.json")))
 
+
+class TestSVCBackend(unittest.TestCase):
+  """Tests for supervisor backend.
+  """
+  def test_launchSupervisord_fail(self):
+    """Proper message is displayed when supervisor can not be started.
+    """
+    logger = mock.create_autospec(logging.Logger)
+    from slapos.grid.svcbackend import launchSupervisord
+    with self.assertRaisesRegexp(
+        RuntimeError,
+        """Failed to launch supervisord:
+Error: could not find config file /not/exist/etc/supervisord.conf
+For help, use -c -h"""):
+      launchSupervisord('/not/exist', logger)
+
+    logger.warning.assert_called()

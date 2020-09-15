@@ -302,7 +302,38 @@ def stoppedComputerPartition():
 
 @app.route('/destroyedComputerPartition', methods=['POST'])
 def destroyedComputerPartition():
-  return 'Ignored'
+
+  # Implement something similar to Alarm_garbageCollectDestroyUnlinkedInstance, if root instance
+  # is destroyed, we request child instances in deleted state
+  execute_db(
+      'partition',
+      'UPDATE %s SET requested_state="destroyed" where requested_by=? and computer_reference=?',
+      [request.form['computer_partition_id'], request.form['computer_id']])
+
+  non_destroyed_child_partitions = [
+    p['reference'] for p in execute_db(
+      'partition',
+      'SELECT reference FROM %s WHERE requested_by=? AND computer_reference=?',
+      [request.form['computer_partition_id'], request.form['computer_id']])]
+  if non_destroyed_child_partitions:
+    return "Not destroying yet because this partition has child partitions: %s" % (
+        ', '.join(non_destroyed_child_partitions))
+
+  execute_db(
+    'partition',
+    'UPDATE %s SET '
+    '  slap_state="free",'
+    '  software_release=NULL,'
+    '  xml=NULL,'
+    '  connection_xml=NULL,'
+    '  slave_instance_list=NULL,'
+    '  software_type=NULL,'
+    '  partition_reference=NULL,'
+    '  requested_by=NULL,'
+    '  requested_state="started"'
+    'WHERE reference=? AND computer_reference=? ',
+    [request.form['computer_partition_id'], request.form['computer_id']])
+  return 'OK'
 
 @app.route('/useComputer', methods=['POST'])
 def useComputer():

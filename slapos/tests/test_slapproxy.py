@@ -440,6 +440,15 @@ class MasterMixin(BasicMixin, unittest.TestCase):
       self.assertLessEqual(
         float(computer_partition._parameter_dict['timestamp']), requested_at)
 
+    app = self.app
+    class TestConnectionHelper:
+      def GET(self, path, params=None, headers=None):
+        return app.get(path, query_string=params, data=data).data
+
+      def POST(self, path, params=None, data=None,
+              content_type='application/x-www-form-urlencoded'):
+        return app.post(path, query_string=params, data=data).data
+    computer_partition._connection_helper = TestConnectionHelper()
     return computer_partition
 
   def supply(self, url, computer_id=None, state='available'):
@@ -582,7 +591,9 @@ class TestRequest(MasterMixin):
     self.assertLessEqual(float(str(requested_at)),
       float(partition._parameter_dict['timestamp']))
     time.sleep(.1) # check timestamp does not change for an identical request
-    self.assertEqual(partition.__dict__, do_request().__dict__)
+    self.assertEqual(
+        dict(partition.__dict__, _connection_helper=None),
+        dict(do_request().__dict__, _connection_helper=None))
 
   def test_instance_bang(self):
     """
@@ -740,8 +751,8 @@ class TestRequest(MasterMixin):
     """
     self.format_for_number_of_partitions(2)
     self.assertEqual(
-        self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').__dict__,
-        self.request('http://sr//', None, 'MyFirstInstance', 'slappart3').__dict__)
+        dict(self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').__dict__, _connection_helper=None),
+        dict(self.request('http://sr//', None, 'MyFirstInstance', 'slappart3').__dict__, _connection_helper=None))
 
   def test_two_different_request_from_one_partition(self):
     """

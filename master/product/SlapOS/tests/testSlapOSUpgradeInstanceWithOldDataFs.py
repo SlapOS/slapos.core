@@ -48,7 +48,7 @@ class TestUpgradeInstanceWithOldDataFs(testSlapOSMixin):
     alarm = self.portal.portal_alarms.promise_check_upgrade
     alarm.solve()
     self.tic()
-    self.assertEquals(alarm.getLastActiveProcess().getResultList(), [])
+    self.assertEqual(alarm.getLastActiveProcess().getResultList(), [])
 
     bt5_list = self.portal.portal_templates.getInstalledBusinessTemplateTitleList()
     self.assertTrue('slapos_erp5' in bt5_list, bt5_list)
@@ -63,7 +63,7 @@ class TestUpgradeInstanceWithOldDataFs(testSlapOSMixin):
       portal_type_class.loadClass()
       if issubclass(portal_type_class, ERP5BaseBroken):
         error_list.append(portal_type_id)
-    self.assertEquals(
+    self.assertEqual(
       error_list, [],
       msg="The following Portal Type classes could not be loaded (see zLOG.log): %r" % error_list)
 

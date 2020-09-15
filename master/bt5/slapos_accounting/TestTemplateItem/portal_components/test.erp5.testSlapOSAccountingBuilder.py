@@ -1336,7 +1336,7 @@ class TestSlapOSAggregatedDeliveryBuilder(SlapOSTestCaseMixin):
         built_update_line.getResource())
 
     self.assertEqual(1.0, built_subscription_line.getQuantity())
-    self.assertAlmostEquals(0.0, built_subscription_line.getPrice(), 3)
+    self.assertAlmostEqual(0.0, built_subscription_line.getPrice(), 3)
     self.assertEqual(subscription_line.getResource(),
         built_subscription_line.getResource())
 

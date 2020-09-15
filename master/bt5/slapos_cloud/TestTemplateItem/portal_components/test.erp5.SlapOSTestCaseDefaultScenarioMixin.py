@@ -661,7 +661,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       portal_type="Person",
       user_id=user_id)
 
-    self.assertNotEquals(person, None)
+    self.assertNotEqual(person, None)
 
     # User received an email for payment
     email = person.getDefaultEmailText()
@@ -694,7 +694,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       portal_type="Person",
       user_id=user_id)
 
-    self.assertNotEquals(person, None)
+    self.assertNotEqual(person, None)
 
     # User received an email for payment
     email = person.getDefaultEmailText()

@@ -147,8 +147,8 @@ The slapos team
     ticket, event = person.Person_checkToCreateRegularisationRequest()
     transaction.commit()
     ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
-    self.assertNotEquals(ticket, None)
-    self.assertNotEquals(event, None)
+    self.assertNotEqual(ticket, None)
+    self.assertNotEqual(event, None)
     self.assertEqual(ticket2, None)
     self.assertEqual(event2, None)
 
@@ -169,8 +169,8 @@ The slapos team
     transaction.commit()
     self.tic()
     ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
-    self.assertNotEquals(ticket, None)
-    self.assertNotEquals(event, None)
+    self.assertNotEqual(ticket, None)
+    self.assertNotEqual(event, None)
     self.assertEqual(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
     self.assertEqual(event2, None)
 
@@ -182,8 +182,8 @@ The slapos team
     transaction.commit()
     self.tic()
     ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
-    self.assertNotEquals(ticket, None)
-    self.assertNotEquals(event, None)
+    self.assertNotEqual(ticket, None)
+    self.assertNotEqual(event, None)
     self.assertEqual(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
     self.assertEqual(event2, None)
 
@@ -195,8 +195,8 @@ The slapos team
     transaction.commit()
     self.tic()
     ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
-    self.assertNotEquals(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
-    self.assertNotEquals(event2, None)
+    self.assertNotEqual(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
+    self.assertNotEqual(event2, None)
 
   def test_addRegularisationRequest_REQUEST_disallowed(self):
     person = self.makePerson(index=0, user=0)
@@ -347,7 +347,7 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
       'service_module/slapos_crm_spam', 'foo2 title', 'foo2 content', 'foo2 comment')
 
     self.assertEqual(ticket.getResource(), 'foo/bar')
-    self.assertNotEquals(event.getTitle(), 'foo2 title')
+    self.assertNotEqual(event.getTitle(), 'foo2 title')
     self.assertEqual(event.getTextContent(), None)
     self.assertEqual(event.getSimulationState(), 'draft')
     self.assertEqual(event.getRelativeUrl(), event2.getRelativeUrl())
@@ -379,7 +379,7 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
     transaction.commit()
     event2 = ticket.RegularisationRequest_checkToSendUniqEvent(
       'service_module/slapos_crm_spam', 'foo2 title', 'foo2 content', 'foo2 comment')
-    self.assertNotEquals(event, event2)
+    self.assertNotEqual(event, event2)
     self.assertEqual(event2, None)
 
   def test_checkToSendUniqEvent_REQUEST_disallowed(self):

@@ -44,6 +44,7 @@ from cliff.commandmanager import CommandManager, LOG
 from requests.packages import urllib3
 
 import slapos.version
+import slapos.cli.complete
 
 # silence messages like 'Starting connection' that are logged with INFO
 urllib3_logger = logging.getLogger('requests.packages.urllib3')
@@ -139,6 +140,9 @@ class SlapOSApp(App):
             version=slapos.version.version,
             command_manager=SlapOSCommandManager('slapos.cli'),
         )
+        # replace default complete command
+        self.command_manager.add_command('complete', slapos.cli.complete.CompleteCommand)
+
 
     def _set_streams(self, stdin, stdout, stderr):
         try:

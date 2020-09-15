@@ -86,10 +86,14 @@ setup(name=name,
           'slapos-watchdog = slapos.grid.watchdog:main',
           'slapos = slapos.cli.entry:main',
         ],
+        'cliff.formatter.completion': [
+          'fish = slapos.cli.complete:CompleteFish',
+        ],
         'slapos.cli': [
           # Utilities
           'cache lookup = slapos.cli.cache:CacheLookupCommand',
           'cache source = slapos.cli.cache_source:CacheLookupCommand',
+          'complete = slapos.cli.complete:CompleteCommand',
           # SlapOS Node commands
           'node bang = slapos.cli.bang:BangCommand',
           'node format = slapos.cli.format:FormatCommand',

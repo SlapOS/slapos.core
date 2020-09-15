@@ -567,3 +567,15 @@ print(request('software_release', 'instance').getInstanceParameterDict()['parame
       script.write(self.script)
       script.flush()
       app.run(('console', '--cfg', config_file, script.name))
+
+
+class TestCliComplete(CliMixin):
+  def test_complete_bash(self):
+    with patch.object(sys, 'stdout', StringIO()) as app_stdout:
+      self.assertEqual(slapos.cli.entry.SlapOSApp().run(['complete']), 0)
+    self.assertIn(b'COMPREPLY', app_stdout.getvalue())
+
+  def test_complete_fish(self):
+    with patch.object(sys, 'stdout', StringIO()) as app_stdout:
+      self.assertEqual(slapos.cli.entry.SlapOSApp().run(['complete', '--shell=fish']), 0)
+    self.assertIn(b'__fish_seen_subcommand_from', app_stdout.getvalue())

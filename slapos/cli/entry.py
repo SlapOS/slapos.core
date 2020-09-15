@@ -139,6 +139,10 @@ class SlapOSApp(App):
             version=slapos.version.version,
             command_manager=SlapOSCommandManager('slapos.cli'),
         )
+        # replace default complete command
+        from .complete import CompleteCommand
+        self.command_manager.add_command('complete', CompleteCommand)
+
 
     def _set_streams(self, stdin, stdout, stderr):
         try:

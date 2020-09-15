@@ -38,9 +38,9 @@ class TestSlapOSERP5InteractionWorkflowComputerSetAllocationScope(
     computer.edit(allocation_scope=allocation_scope)
 
     self.commit()
-    self.assertEquals(computer.getCapacityScope(), 'close')
-    self.assertEquals(computer.getMonitorScope(), 'enabled')
-    self.assertEquals(computer.getUpgradeScope(), expected_upgrade_scope)
+    self.assertEqual(computer.getCapacityScope(), 'close')
+    self.assertEqual(computer.getMonitorScope(), 'enabled')
+    self.assertEqual(computer.getUpgradeScope(), expected_upgrade_scope)
     return computer
 
   def test_Computer_setAllocationScope_public_no_source_adm(self):
@@ -79,8 +79,8 @@ class TestSlapOSERP5InteractionWorkflowComputerSetAllocationScope(
     computer = self._test_Computer_setAllocationScope_public(
       source_administration=person.getRelativeUrl())
 
-    self.assertEquals(computer.getSubjectList(), [''])
-    self.assertEquals(computer.getDestinationSection(), None)
+    self.assertEqual(computer.getSubjectList(), [''])
+    self.assertEqual(computer.getDestinationSection(), None)
 
   def test_Computer_setAllocationScope_subscription_with_source_adm(self):
     person = self.makePerson()
@@ -90,8 +90,8 @@ class TestSlapOSERP5InteractionWorkflowComputerSetAllocationScope(
       source_administration=person.getRelativeUrl(),
       allocation_scope="open/subscription")
 
-    self.assertEquals(computer.getSubjectList(), [''])
-    self.assertEquals(computer.getDestinationSection(), None)
+    self.assertEqual(computer.getSubjectList(), [''])
+    self.assertEqual(computer.getDestinationSection(), None)
 
 
   def _test_Computer_setAllocationScope_personal(self,
@@ -109,29 +109,29 @@ class TestSlapOSERP5InteractionWorkflowComputerSetAllocationScope(
     computer.edit(allocation_scope='open/personal')
 
     self.commit()
-    self.assertEquals(computer.getCapacityScope(), 'open')
-    self.assertEquals(computer.getMonitorScope(), 'disabled')
+    self.assertEqual(computer.getCapacityScope(), 'open')
+    self.assertEqual(computer.getMonitorScope(), 'disabled')
     return computer
 
   def test_Computer_setAllocationScope_personal(self):
     computer = self._test_Computer_setAllocationScope_personal()
-    self.assertEquals(computer.getUpgradeScope(), 'ask_confirmation')
-    self.assertEquals(computer.getSubjectList(), [])
-    self.assertEquals(computer.getDestinationSection(), None)
+    self.assertEqual(computer.getUpgradeScope(), 'ask_confirmation')
+    self.assertEqual(computer.getSubjectList(), [])
+    self.assertEqual(computer.getDestinationSection(), None)
 
   def test_Computer_setAllocationScope_personal_upgrade_disabled(self):
     computer = self._test_Computer_setAllocationScope_personal(
       upgrade_scope="disabled")
-    self.assertEquals(computer.getUpgradeScope(), 'disabled')
-    self.assertEquals(computer.getSubjectList(), [])
-    self.assertEquals(computer.getDestinationSection(), None)
+    self.assertEqual(computer.getUpgradeScope(), 'disabled')
+    self.assertEqual(computer.getSubjectList(), [])
+    self.assertEqual(computer.getDestinationSection(), None)
 
   def test_Computer_setAllocationScope_personal_upgrade_auto(self):
     computer = self._test_Computer_setAllocationScope_personal(
       upgrade_scope="auto")
-    self.assertEquals(computer.getUpgradeScope(), 'auto')
-    self.assertEquals(computer.getSubjectList(), [])
-    self.assertEquals(computer.getDestinationSection(), None)
+    self.assertEqual(computer.getUpgradeScope(), 'auto')
+    self.assertEqual(computer.getSubjectList(), [])
+    self.assertEqual(computer.getDestinationSection(), None)
 
   def test_Computer_setAllocationScope_personal_with_source_adm(self):
     person = self.makePerson()
@@ -141,9 +141,9 @@ class TestSlapOSERP5InteractionWorkflowComputerSetAllocationScope(
     computer = self._test_Computer_setAllocationScope_personal(
       source_administration=person.getRelativeUrl(),
     )
-    self.assertEquals(computer.getUpgradeScope(), 'ask_confirmation')
-    self.assertEquals(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
-    self.assertEquals(computer.getDestinationSectionList(),
+    self.assertEqual(computer.getUpgradeScope(), 'ask_confirmation')
+    self.assertEqual(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
+    self.assertEqual(computer.getDestinationSectionList(),
      [person.getRelativeUrl()])
 
   def test_Computer_setAllocationScope_personal_with_subject_list(self):
@@ -155,9 +155,9 @@ class TestSlapOSERP5InteractionWorkflowComputerSetAllocationScope(
       source_administration=person.getRelativeUrl(),
       subject_list=["some@example.com"]
     )
-    self.assertEquals(computer.getUpgradeScope(), 'ask_confirmation')
-    self.assertEquals(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
-    self.assertEquals(computer.getDestinationSectionList(),
+    self.assertEqual(computer.getUpgradeScope(), 'ask_confirmation')
+    self.assertEqual(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
+    self.assertEqual(computer.getDestinationSectionList(),
      [person.getRelativeUrl()])
 
   def _test_Computer_setAllocationScope_friend(self,
@@ -179,9 +179,9 @@ class TestSlapOSERP5InteractionWorkflowComputerSetAllocationScope(
     computer.edit(allocation_scope='open/friend')
 
     self.commit()
-    self.assertEquals(computer.getCapacityScope(), 'open')
-    self.assertEquals(computer.getMonitorScope(), 'enabled')
-    self.assertEquals(computer.getUpgradeScope(), expected_upgrade_scope)
+    self.assertEqual(computer.getCapacityScope(), 'open')
+    self.assertEqual(computer.getMonitorScope(), 'enabled')
+    self.assertEqual(computer.getUpgradeScope(), expected_upgrade_scope)
     return computer
 
   def test_Computer_setAllocationScope_friend_no_source_adm(self):
@@ -204,8 +204,8 @@ class TestSlapOSERP5InteractionWorkflowComputerSetAllocationScope(
     computer = self._test_Computer_setAllocationScope_friend(
       source_administration=person.getRelativeUrl())
 
-    self.assertEquals(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
-    self.assertEquals(computer.getDestinationSectionList(),
+    self.assertEqual(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
+    self.assertEqual(computer.getDestinationSectionList(),
      [person.getRelativeUrl()])
 
   def test_Computer_setAllocationScope_friend_with_subject_list(self):
@@ -221,7 +221,7 @@ class TestSlapOSERP5InteractionWorkflowComputerSetAllocationScope(
     self.assertSameSet(computer.getSubjectList(),
                       ['some@example.com', person.getDefaultEmailCoordinateText()])
 
-    self.assertEquals(computer.getDestinationSectionList(),
+    self.assertEqual(computer.getDestinationSectionList(),
      [person.getRelativeUrl()])
 
 
@@ -241,9 +241,9 @@ class TestSlapOSERP5InteractionWorkflowComputerSetAllocationScope(
     computer.edit(allocation_scope=allocation_scope)
 
     self.commit()
-    self.assertEquals(computer.getCapacityScope(), 'close')
-    self.assertEquals(computer.getMonitorScope(), 'disabled')
-    self.assertEquals(computer.getUpgradeScope(), upgrade_scope)
+    self.assertEqual(computer.getCapacityScope(), 'close')
+    self.assertEqual(computer.getMonitorScope(), 'disabled')
+    self.assertEqual(computer.getUpgradeScope(), upgrade_scope)
     return computer
 
 
@@ -258,8 +258,8 @@ class TestSlapOSERP5InteractionWorkflowComputerSetAllocationScope(
     computer = self._test_Computer_setAllocationScope_closed(
       source_administration=person.getRelativeUrl())
 
-    self.assertEquals(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
-    self.assertEquals(computer.getDestinationSectionList(),
+    self.assertEqual(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
+    self.assertEqual(computer.getDestinationSectionList(),
      [person.getRelativeUrl()])
 
   def test_Computer_setAllocationScope_closed_termination_no_source_adm(self):
@@ -276,8 +276,8 @@ class TestSlapOSERP5InteractionWorkflowComputerSetAllocationScope(
       allocation_scope="close/termination",
       source_administration=person.getRelativeUrl())
 
-    self.assertEquals(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
-    self.assertEquals(computer.getDestinationSectionList(),
+    self.assertEqual(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
+    self.assertEqual(computer.getDestinationSectionList(),
      [person.getRelativeUrl()])
 
   def test_Computer_setAllocationScope_closed_outdated_no_source_adm(self):
@@ -294,8 +294,8 @@ class TestSlapOSERP5InteractionWorkflowComputerSetAllocationScope(
       allocation_scope="close/outdated",
       source_administration=person.getRelativeUrl())
 
-    self.assertEquals(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
-    self.assertEquals(computer.getDestinationSectionList(),
+    self.assertEqual(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
+    self.assertEqual(computer.getDestinationSectionList(),
      [person.getRelativeUrl()])
 
   def test_Computer_setAllocationScope_closed_maintenance_no_source_adm(self):
@@ -312,8 +312,8 @@ class TestSlapOSERP5InteractionWorkflowComputerSetAllocationScope(
       allocation_scope="close/maintenance",
       source_administration=person.getRelativeUrl())
 
-    self.assertEquals(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
-    self.assertEquals(computer.getDestinationSectionList(),
+    self.assertEqual(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
+    self.assertEqual(computer.getDestinationSectionList(),
      [person.getRelativeUrl()])
 
 

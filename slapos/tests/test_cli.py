@@ -73,7 +73,7 @@ class TestCliCache(CliMixin):
 
   test_url = "https://lab.nexedi.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg"
   def test_cached_binary(self):
-    self.assertEquals(0, cache_do_lookup(
+    self.assertEqual(0, cache_do_lookup(
         self.logger,
         cache_dir="http://dir.shacache.org",
         software_url=self.test_url))
@@ -90,7 +90,7 @@ class TestCliCache(CliMixin):
     self.logger.info.assert_any_call(u'------------------------------------------')
 
   def test_uncached_binary(self):
-    self.assertEquals(10, cache_do_lookup(
+    self.assertEqual(10, cache_do_lookup(
         self.logger,
         cache_dir="http://dir.shacache.org",
         software_url="this_is_uncached_url"))
@@ -98,7 +98,7 @@ class TestCliCache(CliMixin):
     self.logger.critical.assert_any_call('Object not in cache: %s', 'this_is_uncached_url') 
 
   def test_bad_cache_dir(self):
-    self.assertEquals(10, cache_do_lookup(
+    self.assertEqual(10, cache_do_lookup(
         self.logger,
         cache_dir="http://xxx.shacache.org",
         software_url=self.test_url))
@@ -112,7 +112,7 @@ class TestCliCacheSource(CliMixin):
 
   test_url = "https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.17.1.tar.xz"
   def test_cached_source(self):
-    self.assertEquals(0, cache_source_do_lookup(
+    self.assertEqual(0, cache_source_do_lookup(
         self.logger,
         cache_dir="http://dir.shacache.org",
         url=self.test_url))
@@ -147,7 +147,7 @@ class TestCliCacheSource(CliMixin):
        '------------')
 
   def test_uncached_binary(self):
-    self.assertEquals(10, cache_source_do_lookup(
+    self.assertEqual(10, cache_source_do_lookup(
         self.logger,
         cache_dir="http://dir.shacache.org",
         url="this_is_uncached_url"))
@@ -155,7 +155,7 @@ class TestCliCacheSource(CliMixin):
     self.logger.critical.assert_any_call('Object not in cache: %s', 'this_is_uncached_url') 
 
   def test_bad_cache_dir(self):
-    self.assertEquals(10, cache_source_do_lookup(
+    self.assertEqual(10, cache_source_do_lookup(
         self.logger,
         cache_dir="http://xxx.shacache.org",
         url=self.test_url))

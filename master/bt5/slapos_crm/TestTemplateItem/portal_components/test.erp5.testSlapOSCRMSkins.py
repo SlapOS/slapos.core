@@ -107,7 +107,7 @@ class TestSlapOSSupportRequestModule_getMonitoringUrlList(TestCRMSkinsMixin):
     module = self.portal.support_request_module
     # We assume here that several objects created by others tests don't influentiate
     # this test.
-    self.assertEquals(module.SupportRequestModule_getMonitoringUrlList(), [])
+    self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])
     hosting_subscription = self._makeHostingSubscription()
     self._makeSoftwareInstance(hosting_subscription, "https://xxx/")
     support_request = module.newContent(portal_type="Support Request")
@@ -669,7 +669,7 @@ class TestSlapOSComputer_notifyWrongAllocationScope(TestCRMSkinsMixin):
     self.tic()
     self.assertEqual(computer.getAllocationScope(), 'open/personal')
     #ticket = self._getGeneratedSupportRequest(computer)
-    self.assertNotEquals(None, ticket)
+    self.assertNotEqual(None, ticket)
     self.assertEqual(ticket.getSimulationState(), 'suspended')
 
     self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \
@@ -1800,7 +1800,7 @@ class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
 
     self.assertEqual(title, first_event.getTitle())
     self.assertEqual(text_content, first_event.getTextContent())
-    self.assertNotEquals(None, first_event.getStartDate())
+    self.assertNotEqual(None, first_event.getStartDate())
     self.assertEqual("service_module/slapos_crm_information",
                       first_event.getResource())
     self.assertEqual(first_event.getDestination(), person.getRelativeUrl())
@@ -1814,7 +1814,7 @@ class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
 
     self.assertEqual(title, event.getTitle())
     self.assertEqual(text_content, event.getTextContent())
-    self.assertNotEquals(None, event.getStartDate())
+    self.assertNotEqual(None, event.getStartDate())
     self.assertEqual("service_module/slapos_crm_information",
                       event.getResource())
     self.assertEqual(event.getDestination(), person.getRelativeUrl())
@@ -1827,7 +1827,7 @@ class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
 
     self.assertEqual(event.getTitle(), title)
     self.assertEqual(text_content, event.getTextContent())
-    self.assertNotEquals(None, event.getStartDate())
+    self.assertNotEqual(None, event.getStartDate())
     self.assertEqual("service_module/slapos_crm_information",
                       event.getResource())
     self.assertEqual(event.getDestination(), person.getRelativeUrl())
@@ -1853,7 +1853,7 @@ class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
 
     self.assertEqual(title, another_first_event.getTitle())
     self.assertEqual(text_content, another_first_event.getTextContent())
-    self.assertNotEquals(None, another_first_event.getStartDate())
+    self.assertNotEqual(None, another_first_event.getStartDate())
     self.assertEqual("service_module/slapos_crm_information",
                       another_first_event.getResource())
     self.assertEqual(another_first_event.getDestination(), person.getRelativeUrl())

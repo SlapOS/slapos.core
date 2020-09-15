@@ -1123,7 +1123,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       self.assertEqual(expected_test_payment_balance,
           subscription_request.SubscriptionRequest_testPaymentBalance())
       
-      self.assertEquals('start_requested',
+      self.assertEqual('start_requested',
         subscription_request.getAggregateValue().getSlapState())
       
     # The alarms might be called multiple times for move each step
@@ -1134,7 +1134,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       self.assertEqual(expected_test_payment_balance,
           subscription_request.SubscriptionRequest_testPaymentBalance())
 
-      self.assertEquals(expected_slap_state_after_subscription_is_confirmed,
+      self.assertEqual(expected_slap_state_after_subscription_is_confirmed,
         subscription_request.getAggregateValue().getSlapState())
 
   def checkSubscriptionDeploymentAndSimulationWithReversalTransaction(self, default_email_text, subscription_server):
@@ -1168,7 +1168,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       self.assertTrue(
         subscription_request.SubscriptionRequest_testPaymentBalance())
       
-      self.assertEquals('start_requested',
+      self.assertEqual('start_requested',
         subscription_request.getAggregateValue().getSlapState())
 
       self.checkStartedSubscriptionRequest(subscription_request,
@@ -1204,7 +1204,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       self.assertTrue(
         subscription_request.SubscriptionRequest_testPaymentBalance())
       
-      self.assertEquals('start_requested',
+      self.assertEqual('start_requested',
         subscription_request.getAggregateValue().getSlapState())
 
       self.checkStartedSubscriptionRequest(subscription_request,
@@ -1219,7 +1219,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       default_email_text, self.subscription_condition)
 
     for subscription_request in subscription_request_list:
-      self.assertEquals('start_requested',
+      self.assertEqual('start_requested',
         subscription_request.getAggregateValue().getSlapState())
 
       # Destroy all instances and process 

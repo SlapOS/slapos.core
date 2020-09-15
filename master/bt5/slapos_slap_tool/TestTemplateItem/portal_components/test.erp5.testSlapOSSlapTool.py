@@ -1657,9 +1657,9 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     xml_fp.seek(0)
     got_xml = xml_fp.read()
 
-    self.assertNotEquals(created_at, ncreated_at)
-    self.assertNotEquals(since, ncreated_at)
-    self.assertEquals(since, created_at)
+    self.assertNotEqual(created_at, ncreated_at)
+    self.assertNotEqual(since, ncreated_at)
+    self.assertEqual(since, created_at)
     
     expected_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>

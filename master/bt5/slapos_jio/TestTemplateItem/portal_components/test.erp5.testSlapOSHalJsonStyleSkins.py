@@ -141,7 +141,7 @@ class TestHostingSubscription_getNewsDict(TestSlapOSHalJsonStyleMixin):
     hosting_subscription = self._makeHostingSubscription()
     news_dict = hosting_subscription.HostingSubscription_getNewsDict()
     expected_news_dict = {'instance': []}
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -150,7 +150,7 @@ class TestHostingSubscription_getNewsDict(TestSlapOSHalJsonStyleMixin):
     hosting_subscription.setRootSlave(1)
     news_dict = hosting_subscription.HostingSubscription_getNewsDict()
     expected_news_dict = {'instance': [], 'is_slave': 1}
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -159,7 +159,7 @@ class TestHostingSubscription_getNewsDict(TestSlapOSHalJsonStyleMixin):
     hosting_subscription.getSlapState = fakeStopRequestedSlapState
     news_dict = hosting_subscription.HostingSubscription_getNewsDict()
     expected_news_dict = {'instance': [], 'is_stopped': 1}
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -168,7 +168,7 @@ class TestHostingSubscription_getNewsDict(TestSlapOSHalJsonStyleMixin):
     hosting_subscription.getSlapState = fakeDestroyRequestedSlapState
     news_dict = hosting_subscription.HostingSubscription_getNewsDict()
     expected_news_dict = {'instance': [], 'is_destroyed': 1}
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -182,7 +182,7 @@ class TestHostingSubscription_getNewsDict(TestSlapOSHalJsonStyleMixin):
     expected_news_dict = {'instance': [{'no_data': 1,
                 'text': '#error no data found for %s' % instance.getReference(),
                 'user': 'SlapOS Master'}]}
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -194,7 +194,7 @@ class TestHostingSubscription_getNewsDict(TestSlapOSHalJsonStyleMixin):
     self.changeSkin('Hal')
     news_dict = hosting_subscription.HostingSubscription_getNewsDict()
     expected_news_dict = {'instance': []}
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -214,7 +214,7 @@ class TestHostingSubscription_getNewsDict(TestSlapOSHalJsonStyleMixin):
               {'no_data': 1,
                 'text': '#error no data found for %s' % instance.getReference(),
                 'user': 'SlapOS Master'}]}
-    self.assertEquals(news_dict["instance"], expected_news_dict["instance"])
+    self.assertEqual(news_dict["instance"], expected_news_dict["instance"])
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -231,7 +231,7 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
                            'state': 'start_requested',
                            'text': u'#access OK',
                           u'user': u'SlapOS Master'}
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -242,7 +242,7 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
     expected_news_dict = {'no_data': 1,
      'text': '#error no data found for %s' % instance.getReference(),
      'user': 'SlapOS Master'}
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -252,7 +252,7 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
     expected_news_dict = {'is_slave': 1,
       'text': '#nodata is a slave %s' % instance.getReference(),
       'user': 'SlapOS Master'}
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -265,7 +265,7 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
       "text": "#nodata is an stopped instance %s" % instance.getReference(),
       "is_stopped": 1
     }
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -278,7 +278,7 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
       "text": "#nodata is an destroyed instance %s" % instance.getReference(),
       "is_destroyed": 1
     }
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -295,7 +295,7 @@ class TestSoftwareInstallation_getNewsDict(TestSlapOSHalJsonStyleMixin):
                            'state': 'start_requested',
                            'text': u'#access OK',
                           u'user': u'SlapOS Master'}
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -313,7 +313,7 @@ class TestSoftwareInstallation_getNewsDict(TestSlapOSHalJsonStyleMixin):
                            'state': 'stop_requested',
                            'text': u'#access OK',
                           u'user': u'SlapOS Master'}
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -331,7 +331,7 @@ class TestSoftwareInstallation_getNewsDict(TestSlapOSHalJsonStyleMixin):
                            'state': 'destroy_requested',
                            'text': u'#access OK',
                           u'user': u'SlapOS Master'}
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -341,7 +341,7 @@ class TestSoftwareInstallation_getNewsDict(TestSlapOSHalJsonStyleMixin):
     expected_news_dict = {'no_data': 1,
      'text': '#error no data found for %s' % installation.getReference(),
      'user': 'SlapOS Master'}
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -361,7 +361,7 @@ class TestComputer_getNewsDict(TestSlapOSHalJsonStyleMixin):
                           u'user': u'SlapOS Master'},
                           'partition': {}
                           }
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -382,7 +382,7 @@ class TestComputer_getNewsDict(TestSlapOSHalJsonStyleMixin):
                             'user': 'SlapOS Master'},
                           'partition': {}
                           }
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -403,7 +403,7 @@ class TestComputer_getNewsDict(TestSlapOSHalJsonStyleMixin):
                            'user': u'SlapOS Master'},
                           'partition': {}
                           }
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -416,7 +416,7 @@ class TestComputer_getNewsDict(TestSlapOSHalJsonStyleMixin):
                              'user': 'SlapOS Master'},
                           'partition': {}
                           }
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -440,7 +440,7 @@ class TestComputer_getNewsDict(TestSlapOSHalJsonStyleMixin):
                               'text': '#error no data found for %s' % (instance.getReference()),
                               'user': 'SlapOS Master'}}
                           }
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -475,7 +475,7 @@ class TestComputerNetwork_getNewsDict(TestSlapOSHalJsonStyleMixin):
                             }
                           }
 
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -484,7 +484,7 @@ class TestComputerNetwork_getNewsDict(TestSlapOSHalJsonStyleMixin):
     self._logFakeAccess(network.getReference())
     news_dict = network.ComputerNetwork_getNewsDict()
     expected_news_dict = {'computer': {}, 'partition': {}}
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -521,7 +521,7 @@ class TestOrganisation_getNewsDict(TestSlapOSHalJsonStyleMixin):
                             }
                           }
 
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -529,7 +529,7 @@ class TestOrganisation_getNewsDict(TestSlapOSHalJsonStyleMixin):
     organisation = self._makeOrganisation()
     news_dict = organisation.Organisation_getNewsDict()
     expected_news_dict = {'computer': {}, 'partition': {}}
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -566,7 +566,7 @@ class TestProject_getNewsDict(TestSlapOSHalJsonStyleMixin):
                             }
                           }
 
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
@@ -574,7 +574,7 @@ class TestProject_getNewsDict(TestSlapOSHalJsonStyleMixin):
     project = self._makeProject()
     news_dict = project.Project_getNewsDict()
     expected_news_dict = {'computer': {}, 'partition': {}}
-    self.assertEquals(news_dict, expected_news_dict)
+    self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 

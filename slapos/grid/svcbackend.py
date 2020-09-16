@@ -64,7 +64,11 @@ def getSupervisorRPC(socket):
     with server_proxy as s:
       yield s.supervisor
 
-def _getSupervisordSocketPath(instance_root):
+def _getSupervisordSocketPath(instance_root, logger):
+  legacy_socket_path = os.path.join(instance_root, 'supervisord.socket')
+  if os.path.exists(legacy_socket_path):
+    logger.info("Using legacy supervisor socket path %s", legacy_socket_path)
+    return legacy_socket_path
   return os.path.join(instance_root, 'sv.sock')
 
 def _getSupervisordConfigurationFilePath(instance_root):
@@ -73,7 +77,7 @@ def _getSupervisordConfigurationFilePath(instance_root):
 def _getSupervisordConfigurationDirectory(instance_root):
   return os.path.join(instance_root, 'etc', 'supervisord.conf.d')
 
-def createSupervisordConfiguration(instance_root, watchdog_command=''):
+def createSupervisordConfiguration(instance_root, logger, watchdog_command=''):
   """
   Create supervisord related files and directories.
   """
@@ -82,7 +86,7 @@ def createSupervisordConfiguration(instance_root, watchdog_command=''):
 
   supervisord_configuration_file_path = _getSupervisordConfigurationFilePath(instance_root)
   supervisord_configuration_directory = _getSupervisordConfigurationDirectory(instance_root)
-  supervisord_socket = _getSupervisordSocketPath(instance_root)
+  supervisord_socket = _getSupervisordSocketPath(instance_root, logger)
 
   # Create directory accessible for the instances.
   var_directory = os.path.join(instance_root, 'var')
@@ -140,7 +144,7 @@ def _updateWatchdog(socket):
 def launchSupervisord(instance_root, logger,
                       supervisord_additional_argument_list=None):
   configuration_file = _getSupervisordConfigurationFilePath(instance_root)
-  socket = _getSupervisordSocketPath(instance_root)
+  socket = _getSupervisordSocketPath(instance_root, logger)
   if os.path.exists(socket):
     trynum = 1
     while trynum < 6:

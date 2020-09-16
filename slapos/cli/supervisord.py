@@ -51,7 +51,7 @@ class SupervisordCommand(ConfigCommand):
           supervisord_additional_argument_list = ['--nodaemon']
         else:
           supervisord_additional_argument_list = []
-        createSupervisordConfiguration(instance_root)
+        createSupervisordConfiguration(instance_root, logger=self.app.log)
         launchSupervisord(
             instance_root=instance_root, logger=self.app.log,
             supervisord_additional_argument_list=supervisord_additional_argument_list

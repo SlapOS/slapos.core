@@ -455,7 +455,7 @@ class StandaloneSlapOS(object):
 
     This should be used as a context manager.
     """
-    return getSupervisorRPC(_getSupervisordSocketPath(self._instance_root))
+    return getSupervisorRPC(_getSupervisordSocketPath(self._instance_root, self._logger))
 
   def format(
       self,

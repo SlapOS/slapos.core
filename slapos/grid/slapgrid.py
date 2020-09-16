@@ -361,7 +361,7 @@ class Slapgrid(object):
     self.instance_root = os.path.abspath(instance_root)
     self.master_url = master_url
     self.computer_id = computer_id
-    self.supervisord_socket = _getSupervisordSocketPath(instance_root)
+    self.supervisord_socket = _getSupervisordSocketPath(instance_root, logger)
     self.key_file = key_file
     self.cert_file = cert_file
     self.master_ca_file = master_ca_file
@@ -528,7 +528,10 @@ stderr_logfile_backups=1
     if not os.path.isdir(self.software_root):
       raise OSError('%s does not exist.' % self.software_root)
 
-    createSupervisordConfiguration(self.instance_root, self._getWatchdogLine())
+    createSupervisordConfiguration(
+        self.instance_root,
+        logger=self.logger,
+        watchdog_command=self._getWatchdogLine())
     self._generateFirewallSupervisorConf()
     self._generateDbusSupervisorConf()
 

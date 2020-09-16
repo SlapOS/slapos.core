@@ -32,6 +32,7 @@ import random
 import shutil
 import signal
 import socket
+import subprocess
 import sys
 import stat
 import tempfile
@@ -50,6 +51,7 @@ from zope.interface import implementer
 
 import slapos.slap.slap
 import slapos.grid.utils
+import slapos.grid.svcbackend
 from slapos.grid import slapgrid
 from slapos.grid.utils import md5digest
 from slapos.grid.watchdog import Watchdog
@@ -3758,12 +3760,61 @@ class TestSVCBackend(unittest.TestCase):
     """Proper message is displayed when supervisor can not be started.
     """
     logger = mock.create_autospec(logging.Logger)
-    from slapos.grid.svcbackend import launchSupervisord
+
     with self.assertRaisesRegexp(
         RuntimeError,
         """Failed to launch supervisord:
 Error: could not find config file /not/exist/etc/supervisord.conf
 For help, use -c -h"""):
-      launchSupervisord('/not/exist', logger)
+      slapos.grid.svcbackend.launchSupervisord('/not/exist', logger)
 
     logger.warning.assert_called()
+
+  def test_supervisor_socket_legacy_path(self):
+    """Check that supervisor uses legacy socket path if available.
+
+    We changed the path of supervisor socket from supervisord.socket to sv.sock
+    but we don't want createSupervisordConfiguration or launchSupervisord to use
+    the new path if a supervisor is still running at the previous path.
+    """
+    instance_root = tempfile.mkdtemp()
+    self.addCleanup(shutil.rmtree, instance_root)
+    logger = mock.create_autospec(logging.Logger)
+
+    slapos.grid.svcbackend.createSupervisordConfiguration(instance_root, logger)
+    supervisord_config_file_path = os.path.join(instance_root, 'etc', 'supervisord.conf')
+    with open(supervisord_config_file_path) as f:
+      supervisord_config_file_content = f.read()
+    self.assertIn('/sv.sock', supervisord_config_file_content)
+    # change this config to use old socket
+    with open(supervisord_config_file_path, 'w') as f:
+      f.write(supervisord_config_file_content.replace('/sv.sock', '/supervisord.socket'))
+    # start a supervisor on the old socket - this create the state of a running slapos
+    # in the state before, when supervisord.socket was used as a socket name.
+    supervisord_process = subprocess.Popen(
+        ['supervisord', '--nodaemon', '-c', supervisord_config_file_path],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    self.addCleanup(supervisord_process.wait)
+    self.addCleanup(supervisord_process.terminate)
+
+    # wait for process to be started
+    supervisord_legacy_socket_path = os.path.join(instance_root, 'supervisord.socket')
+    for i in range(20):
+      if os.path.exists(supervisord_legacy_socket_path):
+        break
+      time.sleep(.1 * i)
+    if supervisord_process.poll() is not None:
+      self.fail(supervisord_process.communicate())
+
+    # if we create config again, the legacy path will be used and config will not be overwritten
+    slapos.grid.svcbackend.createSupervisordConfiguration(instance_root, logger)
+    with open(supervisord_config_file_path) as f:
+      supervisord_config_file_content = f.read()
+    self.assertIn('/supervisord.socket', supervisord_config_file_content)
+    self.assertNotIn('/sv.sock', supervisord_config_file_content)
+    logger.info.assert_called_with('Using legacy supervisor socket path %s', supervisord_legacy_socket_path)
+
+    slapos.grid.svcbackend.launchSupervisord(instance_root, logger)
+    logger.debug.assert_called_with('Supervisord already running.')

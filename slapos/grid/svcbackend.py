@@ -66,10 +66,29 @@ def getSupervisorRPC(socket):
 
 def _getSupervisordSocketPath(instance_root, logger):
   legacy_socket_path = os.path.join(instance_root, 'supervisord.socket')
+  socket_path = os.path.join(instance_root, 'sv.sock')
   if os.path.exists(legacy_socket_path):
     logger.info("Using legacy supervisor socket path %s", legacy_socket_path)
+
+    # BBB slapos.core 1.6.1 had an issue that it started a new supervisord using
+    # `socket_path`, while leaving the supervisord using `legacy_socket_path`
+    # running with all processes attached.
+    # When we deployed slapos.core 1.6.1 all servers had two supervisord processes:
+    #     - legacy_socket_path with all processes running
+    #     - socket_path with some processes in EXIT state because ports are already taken.
+    # In this branch we clean up by stopping supervisord running on socket_path
+    if os.path.exists(socket_path) and os.access(socket_path, os.R_OK):
+      logger.critical(
+          "We have two supervisord running ! "
+          "Stopping the one using %s to keep using legacy %s instead",
+          socket_path, legacy_socket_path)
+      with getSupervisorRPC(socket_path) as supervisor:
+        supervisor.stopAllProcesses()
+        supervisor.shutdown()
+
     return legacy_socket_path
-  return os.path.join(instance_root, 'sv.sock')
+
+  return socket_path
 
 def _getSupervisordConfigurationFilePath(instance_root):
   return os.path.join(instance_root, 'etc', 'supervisord.conf')

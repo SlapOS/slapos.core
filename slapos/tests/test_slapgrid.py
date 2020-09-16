@@ -3818,3 +3818,93 @@ For help, use -c -h"""):
 
     slapos.grid.svcbackend.launchSupervisord(instance_root, logger)
     logger.debug.assert_called_with('Supervisord already running.')
+
+  def test_stop_second_supervisord_after_supervisor_socket_path_change(self):
+    """Check that supervisor uses legacy socket path if available.
+
+    We changed the path of supervisor socket from supervisord.socket to sv.sock
+    but we don't want createSupervisordConfiguration or launchSupervisord to use
+    the new path if a supervisor is still running at the previous path.
+    """
+    instance_root = tempfile.mkdtemp()
+    self.addCleanup(shutil.rmtree, instance_root)
+    logger = mock.create_autospec(logging.Logger)
+
+    slapos.grid.svcbackend.createSupervisordConfiguration(instance_root, logger)
+    supervisord_config_file_path = os.path.join(instance_root, 'etc', 'supervisord.conf')
+    with open(supervisord_config_file_path) as f:
+      supervisord_config_file_content = f.read()
+    self.assertIn('/sv.sock', supervisord_config_file_content)
+    # change this config to use old socket
+    with open(supervisord_config_file_path, 'w') as f:
+      f.write(supervisord_config_file_content.replace('/sv.sock', '/supervisord.socket'))
+
+    # start a first supervisor on the old socket
+    supervisord_process_old_socket = subprocess.Popen(
+        ['supervisord', '--nodaemon', '-c', supervisord_config_file_path],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    self.addCleanup(supervisord_process_old_socket.wait)
+    self.addCleanup(supervisord_process_old_socket.terminate)
+
+    # wait for process to be started
+    supervisord_legacy_socket_path = os.path.join(instance_root, 'supervisord.socket')
+    for i in range(20):
+      if os.path.exists(supervisord_legacy_socket_path):
+        break
+      time.sleep(.1 * i)
+    if supervisord_process_old_socket.poll() is not None:
+      self.fail(supervisord_process_old_socket.communicate())
+
+    # change this config to use new socket, as what happens when using slapos node 1.6.1
+    with open(supervisord_config_file_path, 'w') as f:
+      f.write(supervisord_config_file_content.replace('/supervisord.socket', '/sv.sock'))
+    # start a second supervisor on the old socket
+    supervisord_process_new_socket = subprocess.Popen(
+        ['supervisord', '--nodaemon', '-c', supervisord_config_file_path],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    self.addCleanup(supervisord_process_new_socket.wait)
+    self.addCleanup(supervisord_process_new_socket.terminate)
+
+    # wait for process to be started
+    supervisord_new_socket_path = os.path.join(instance_root, 'sv.sock')
+    for i in range(20):
+      if os.path.exists(supervisord_new_socket_path):
+        break
+      time.sleep(.1 * i)
+    if supervisord_process_new_socket.poll() is not None:
+      self.fail(supervisord_process_new_socket.communicate())
+
+    # Now we have two supervisord processes running, like in the bad state created
+    # by slapos.core 1.6.1
+
+    # calling createSupervisordConfiguration should stop the supervisord listening
+    # on the new socket
+    slapos.grid.svcbackend.createSupervisordConfiguration(instance_root, logger)
+    with open(supervisord_config_file_path) as f:
+      supervisord_config_file_content = f.read()
+    self.assertIn('/supervisord.socket', supervisord_config_file_content)
+    self.assertNotIn('/sv.sock', supervisord_config_file_content)
+
+    # process on new (sv.sock) will now exit
+    for i in range(20):
+      if supervisord_process_new_socket.poll() is not None:
+        break
+      time.sleep(.1 * i)
+    self.assertEqual(
+        supervisord_process_new_socket.poll(),
+        0,
+        supervisord_process_new_socket.communicate())
+    self.assertFalse(os.path.exists(supervisord_new_socket_path))
+    # process on old socket is still runnning
+    if supervisord_process_old_socket.poll() is not None:
+      self.fail(supervisord_process_old_socket.communicate())
+
+    logger.critical.assert_called_with(
+        'We have two supervisord running ! Stopping the one using %s to keep using legacy %s instead',
+        supervisord_new_socket_path,
+        supervisord_legacy_socket_path,
+    )

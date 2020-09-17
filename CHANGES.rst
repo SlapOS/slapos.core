@@ -1,6 +1,13 @@
 Changes
 =======
 
+1.6.2 (2020-09-17)
+------------------
+
+ * grid: Keep using the previous socket path name if it still exists: repairing critical problem introduced in 1.6.1 causing a second supervisor process to start
+ * svcbackend: properly log error when supervisord can not be started
+ * testing/testcase: snapshot more files
+
 1.6.1 (2020-08-25)
 ------------------
 

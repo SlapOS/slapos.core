@@ -33,11 +33,19 @@ input_movement_list = [restrictedTraverse(q) for q in
     if restrictedTraverse(q).getDestination() == person and \
       restrictedTraverse(q).getSpecialise() in specialise_filter_list]
 
+min_start_date = None
 for delivery_line in input_movement_list:
   delivery_line.setGroupingReference(reference)
+
+  if min_start_date is None:
+    min_start_date = delivery_line.getStartDate()
+  elif delivery_line.getStartDate() < min_start_date:
+    min_start_date = delivery_line.getStartDate()
 
 if context.getCausalityState() == 'draft':
   context.startBuilding()
 
 if context.getStartDate() is None:
-  context.setStartDate(DateTime().earliestTime())
+  if min_start_date is None:
+    min_start_date = DateTime().earliestTime()
+  context.setStartDate(min_start_date)

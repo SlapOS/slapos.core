@@ -84,8 +84,8 @@ for movement in movement_list:
     if subscription is not None:
       temp_movement.edit(
           specialise=specialise_to_set,
-          causality=subscription)
-
+          causality=subscription,
+          start_date=movement.getStartDate())
   elif movement.getCausality(portal_type="Subscription Request") is not None:
     temp_movement.edit(
       specialise=specialise_to_set,

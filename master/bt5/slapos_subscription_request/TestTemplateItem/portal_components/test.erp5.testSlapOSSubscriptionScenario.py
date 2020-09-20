@@ -982,7 +982,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
   def _test_subscription_scenario(self, amount=1):
     """ The admin creates an computer, user can request instances on it"""
 
-    subscription_server = self.createPublicServerForAdminUser()
+    self.subscription_server = self.createPublicServerForAdminUser()
 
     # Call as anonymous... check response?
     default_email_text = "abc%s@nexedi.com" % self.new_id
@@ -992,11 +992,13 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       amount, name, default_email_text)
 
     self.checkSubscriptionDeploymentAndSimulation(
-        default_email_text, subscription_server)
+        default_email_text, self.subscription_server)
 
     self.destroyAndCheckSubscription(
-      default_email_text, subscription_server
+      default_email_text, self.subscription_server
     )
+
+    return default_email_text, name
 
   def _test_subscription_scenario_with_existing_user(self, amount=1, language=None):
     """ The admin creates an computer, user can request instances on it"""
@@ -1009,13 +1011,13 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.createNormalUser(default_email_text, name, language)
     self.tic()
 
-    subscription_server = self.createPublicServerForAdminUser()
+    self.subscription_server = self.createPublicServerForAdminUser()
 
     self.requestAndCheckHostingSubscription(
       amount, name, default_email_text)
 
     self.checkSubscriptionDeploymentAndSimulation(
-        default_email_text, subscription_server)
+        default_email_text, self.subscription_server)
 
     subscription_request = self.getSubscriptionRequest(
       default_email_text, self.subscription_condition)
@@ -1024,14 +1026,17 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
                     subscription_request.getDestinationSectionValue())
 
     self.destroyAndCheckSubscription(
-      default_email_text, subscription_server
+      default_email_text, self.subscription_server
     )
+
+    return default_email_text, name
+
 
   def _test_two_subscription_scenario(self, amount=1, create_invitation=False,
     max_invoice_delay=0, max_invoice_credit_eur=0.0, max_invoice_credit_cny=0.0):
     """ The admin creates an computer, user can request instances on it"""
  
-    subscription_server = self.createPublicServerForAdminUser()
+    self.subscription_server = self.createPublicServerForAdminUser()
 
     # Call as anonymous... check response?
     default_email_text = "abc%s@nexedi.com" % self.new_id
@@ -1138,16 +1143,19 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.tic()
 
     self.checkSubscriptionDeploymentAndSimulation(
-        default_email_text, subscription_server)
+        default_email_text, self.subscription_server)
 
     self.destroyAndCheckSubscription(
-      default_email_text, subscription_server
+      default_email_text, self.subscription_server
     )
+
+    return default_email_text, name
+
 
   def _test_subscription_scenario_with_reversal_transaction(self, amount=1):
     """ The admin creates an computer, user can request instances on it"""
 
-    subscription_server = self.createPublicServerForAdminUser()
+    self.subscription_server = self.createPublicServerForAdminUser()
 
     # Call as anonymous... check response?
     default_email_text = "abc%s@nexedi.com" % self.new_id
@@ -1155,11 +1163,14 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.requestAndCheckHostingSubscription(amount, name, default_email_text)
 
     self.checkSubscriptionDeploymentAndSimulationWithReversalTransaction(
-        default_email_text, subscription_server)
+        default_email_text, self.subscription_server)
 
     self.destroyAndCheckSubscription(
-      default_email_text, subscription_server
+      default_email_text, self.subscription_server
     )
+
+    return default_email_text, name
+
 
 class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 

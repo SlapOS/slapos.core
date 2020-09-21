@@ -22,10 +22,12 @@
 from erp5.component.test.SlapOSTestCaseDefaultScenarioMixin import DefaultScenarioMixin
 from erp5.component.test.SlapOSTestCaseMixin import changeSkin
 from DateTime import DateTime
+import datetime
 
 class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
   def afterSetUp(self):
+    self.unpinDateTime()
     self.normal_user = None
     self.expected_individual_price_without_tax = 162.50
     self.expected_individual_price_with_tax = 195.00
@@ -39,6 +41,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.expected_source_section = "organisation_module/slapos"
     self.cloud_invitation_token = None
     self.expected_free_reservation = 0
+    self.skip_destroy_and_check = 0
 
     self.login()
     self.portal.portal_alarms.slapos_subscription_request_process_draft.setEnabled(True)
@@ -60,6 +63,9 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     # One user to create computers to deploy the subscription
     self.createAdminUser()
     self.cleanUpNotificationMessage()
+    self.portal.portal_catalog.searchAndActivate(
+      portal_type='Active Process',
+      method_id='ActiveProcess_deleteSelf')
     self.tic()
     
     self.createNotificationMessage("subscription_request-confirmation-with-password")
@@ -434,6 +440,232 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
     self.assertEqual(round(invoice.getTotalPrice(), 2), self.expected_reservation_fee*quantity)
 
+  def checkSecondMonthAggregatedSalePackingList(self, subscription_request, sale_packing_list):
+    sale_packing_list_line = [ i for i in sale_packing_list.objectValues()
+      if i.getResource() == "service_module/slapos_instance_subscription"][0]
+
+    quantity = subscription_request.getQuantity()
+    # The values are without tax
+    self.assertEqual(sale_packing_list_line.getQuantity(), 1*quantity)
+    self.assertEqual(round(sale_packing_list_line.getPrice(), 2),
+      round(self.expected_individual_price_without_tax, 2))
+    self.assertEqual(round(sale_packing_list_line.getTotalPrice(), 2), 
+      round(1*self.expected_individual_price_without_tax*quantity, 2))
+
+    self.assertEqual(sale_packing_list.getCausality(),
+                     subscription_request.getRelativeUrl())
+
+    self.assertEqual(sale_packing_list.getCausality(),
+                     subscription_request.getRelativeUrl())
+
+    self.assertEqual(sale_packing_list.getPriceCurrency(),
+                     self.expected_price_currency)
+
+  def _checkSecondMonthSimulation(self, subscription_request_list,
+          default_email_text, subscription_server):
+
+    # Needed?  
+    self.simulateSlapgridCP(subscription_server)
+    self.tic()
+
+    self.stepCallSlaposUpdateOpenSaleOrderPeriodAlarm()
+    self.tic()
+
+    for subscription_request in subscription_request_list:
+      self.checkAllocationOnRelatedInstance(subscription_request)
+
+    # Needed?  
+    self.simulateSlapgridCP(subscription_server)
+    self.tic()
+
+    # generate simulation for open order
+    self.stepCallUpdateOpenOrderSimulationAlarm(full=1)
+    self.tic()
+
+    # build subscription packing list
+    self.stepCallSlaposTriggerBuildAlarm()
+    self.tic()
+
+    # stabilise build deliveries and expand them
+    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
+    self.tic()
+
+    # build aggregated packing list
+    self.stepCallSlaposTriggerAggregatedDeliveryOrderBuilderAlarm()
+    self.tic()
+
+    # stabilise aggregated deliveries and expand them
+    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
+    self.tic()
+
+    # check if Packing list is generated with the right trade condition
+    preference_tool = self.portal.portal_preferences
+    specialise_subscription_uid = preference_tool.getPreferredAggregatedSubscriptionSaleTradeCondition()
+    specialise_uid = preference_tool.getPreferredAggregatedSaleTradeCondition()
+
+    for subscription_request in subscription_request_list:
+      sale_packing_list_list = self.getAggregatedSalePackingList(
+        subscription_request, specialise_subscription_uid)
+      if not len(sale_packing_list_list):
+        diverged_sale_packing_list_list = self.getDivergedAggregatedSalePackingList(
+          subscription_request, specialise_subscription_uid)
+        self.assertEqual(0, len(diverged_sale_packing_list_list))
+
+      self.assertEqual(1, len(sale_packing_list_list))
+
+      self.checkSecondMonthAggregatedSalePackingList(subscription_request, sale_packing_list_list[0])
+
+      expected_sale_packing_list_amount = len(subscription_request_list) * 2
+      self.assertEqual(expected_sale_packing_list_amount, 
+        len(self.getSubscriptionSalePackingList(subscription_request)))
+
+      self.assertEqual(0, len(self.getAggregatedSalePackingList(
+        subscription_request, specialise_uid)))
+
+    # Call this alarm shouldn't affect the delivery
+    self.stepCallSlaposStartConfirmedAggregatedSalePackingListAlarm(
+        accounting_date=DateTime('2222/01/01'))
+    self.tic()
+
+    for subscription_request in subscription_request_list:
+      self.assertEqual(1, len(self.getAggregatedSalePackingList(
+        subscription_request, specialise_subscription_uid)))
+
+    # Call this alarm shouldn't affect the delivery
+    self.stepCallSlaposStartConfirmedAggregatedSubscriptionSalePackingListAlarm()
+    self.tic()
+
+    for subscription_request in subscription_request_list:
+      self.assertEqual(0, len(self.getAggregatedSalePackingList(
+        subscription_request, specialise_uid)))
+
+    # stabilise aggregated deliveries and expand them
+    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
+    self.tic()
+
+    # deliver aggregated deliveries
+    self.stepCallSlaposDeliverStartedAggregatedSalePackingListAlarm()
+    self.tic()
+
+    # stabilise aggregated deliveries and expand them
+    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
+    self.tic()
+
+    # build aggregated invoices
+    self.stepCallSlaposTriggerBuildAlarm()
+    self.tic()
+
+    # stabilise aggregated invoices and expand them
+    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
+    self.tic()
+
+    # update invoices with their tax & discount
+    self.stepCallSlaposTriggerBuildAlarm()
+    self.tic()
+    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
+    self.tic()
+
+    # update invoices with their tax & discount transaction lines
+    self.stepCallSlaposTriggerBuildAlarm()
+    self.tic()
+    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
+    self.tic()
+
+    # stop the invoices and solve them again
+    self.stepCallSlaposStopConfirmedAggregatedSaleInvoiceTransactionAlarm()
+    self.tic()
+    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
+    self.tic()
+
+    builder = self.portal.portal_orders.slapos_payment_transaction_builder
+    for _ in range(500):
+      # build the aggregated payment
+      self.stepCallSlaposTriggerPaymentTransactionOrderBuilderAlarm()
+      self.tic()
+      # If there is something unbuild recall alarm.
+      if not len(builder.OrderBuilder_generateUnrelatedInvoiceList()):
+        break
+
+    # start the payzen payment
+    self.stepCallSlaposPayzenUpdateConfirmedPaymentAlarm()
+    self.tic()
+
+    # stabilise the payment deliveries and expand them
+    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
+    self.tic()
+
+    # trigger the CRM interaction
+    self.stepCallSlaposCrmCreateRegularisationRequestAlarm()
+    self.tic()
+
+    # Test if balance is bad now
+    subscriber = subscription_request.getDestinationSectionValue()
+    self.assertEqual(subscriber.Entity_statOutstandingAmount(at_date=DateTime()),
+      0.0)
+
+    
+    expected_amount = round(self.expected_individual_price_with_tax*sum([i.getQuantity(0)
+     for i in subscription_request_list]),2)
+
+    self.assertEqual(round(subscriber.Entity_statOutstandingAmount(), 2), expected_amount)
+
+    # Invoice to Pay
+    self.assertEqual(
+      round(subscriber.Entity_statSlapOSOutstandingAmount(at_date=DateTime()+20), 2),
+      expected_amount)
+
+    # Pay this new invoice
+    for subscription_request in subscription_request_list:
+      self.checkAndPaySecondMonth(subscription_request)
+      self.tic()
+
+    # Here the invoice was payed before the date, so value is negative. 
+    self.assertEqual(round(subscriber.Entity_statOutstandingAmount(at_date=DateTime()), 2),
+      -expected_amount)
+
+    self.assertEqual(round(subscriber.Entity_statOutstandingAmount(), 2), 0.0)
+
+    # All payed
+    self.assertEqual(
+      round(subscriber.Entity_statSlapOSOutstandingAmount(at_date=DateTime()+20), 2),
+      0.0)
+
+
+  def checkAndPaySecondMonth(self, subscription_request):
+    self.login()
+    person = subscription_request.getDestinationSectionValue()
+
+    quantity = subscription_request.getQuantity()
+    self.login(person.getUserId())
+    self.usePayzenManually(self.web_site, person.getUserId())
+
+    payment = self.portal.portal_catalog.getResultValue(
+      portal_type="Payment Transaction",
+      simulation_state="started")
+
+    authAmount = int(self.expected_individual_price_with_tax*100)*quantity
+
+    self.assertEqual(payment.getSourceSection(), self.expected_source_section)
+    self.assertEqual(payment.getSourcePayment(),
+                     "%s/bank_account" % self.expected_source_section)
+    
+
+    self.assertEqual(int(payment.PaymentTransaction_getTotalPayablePrice()*100),
+                     -authAmount)
+    
+    self.assertEqual(payment.getPriceCurrency(), self.expected_price_currency)
+
+    self.logout()
+    self.login()
+
+    data_kw = {
+        'errorCode': '0',
+        'transactionStatus': '6',
+        'authAmount': authAmount,
+        'authDevise': '978',
+      }
+    payment.PaymentTransaction_createPayzenEvent().PayzenEvent_processUpdate(data_kw, True)
+
   def checkBootstrapUser(self, subscription_request):
     person = subscription_request.getDestinationSectionValue(portal_type="Person")
     self.assertEqual(person.getDefaultEmailText(),
@@ -533,6 +765,9 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.assertNotEqual(instance.getAggregate(), None)
 
   def checkAggregatedSalePackingList(self, subscription_request, sale_packing_list):
+
+    self.assertEqual(len(sale_packing_list.objectValues()), 2)
+
     sale_packing_list_line = [ i for i in sale_packing_list.objectValues()
       if i.getResource() == "service_module/slapos_instance_subscription"][0]
 
@@ -599,6 +834,18 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       portal_type='Sale Packing List',
       simulation_state='confirmed',
       causality_state='solved',
+      causality_uid=subscription_request.getUid(),
+      destination_decision_uid=person_uid,
+      specialise_uid=specialise_uid)
+
+  def getDivergedAggregatedSalePackingList(self, subscription_request, specialise):
+    person_uid = subscription_request.getDestinationSectionValue().getUid()
+    specialise_uid = self.portal.restrictedTraverse(specialise).getUid()
+
+    return self.portal.portal_catalog(
+      portal_type='Sale Packing List',
+      simulation_state='confirmed',
+      causality_state='diverged',
       causality_uid=subscription_request.getUid(),
       destination_decision_uid=person_uid,
       specialise_uid=specialise_uid)
@@ -753,6 +1000,9 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     specialise_uid = preference_tool.getPreferredAggregatedSaleTradeCondition()
 
     for subscription_request in subscription_request_list:
+      hosting_subscription = subscription_request.getAggregateValue()
+      self.assertEqual(hosting_subscription.getCausalityState(), "solved")
+
       sale_packing_list_list = self.getAggregatedSalePackingList(
         subscription_request, specialise_subscription_uid)
       self.assertEqual(1, len(sale_packing_list_list))
@@ -961,6 +1211,10 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
                default_email_text, self.subscription_condition)
 
   def destroyAndCheckSubscription(self, default_email_text, subscription_server):
+
+    if self.skip_destroy_and_check:
+      return
+
     subscription_request_list = self.getSubscriptionRequestList(
       default_email_text, self.subscription_condition)
 
@@ -1171,6 +1425,28 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
     return default_email_text, name
 
+  def _test_second_month_scenario(self, default_email_text):
+
+    subscription_request_list = self.getSubscriptionRequestList(
+      default_email_text, self.subscription_condition)
+
+    # Ensure periodicity is correct
+    for subscription_request in subscription_request_list:
+      hosting_subscription = subscription_request.getAggregateValue()
+      self.assertEqual(hosting_subscription.getPeriodicityMonthDay(),
+        DateTime().day())
+
+    self.pinDateTime(DateTime(DateTime().asdatetime() + datetime.timedelta(days=17)))
+    self.addCleanup(self.unpinDateTime)
+
+    self._checkSecondMonthSimulation(subscription_request_list,
+          default_email_text, self.subscription_server)
+
+    self.skip_destroy_and_check = 0
+
+    self.destroyAndCheckSubscription(
+      default_email_text, self.subscription_server
+    )
 
 class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 

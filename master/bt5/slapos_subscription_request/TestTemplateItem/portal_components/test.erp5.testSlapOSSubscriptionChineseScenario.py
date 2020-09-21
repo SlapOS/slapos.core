@@ -178,6 +178,47 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       self._dropPaymentTransaction_getVADSUrlDict()
       self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode(original_mode)
 
+  def checkAndPaySecondMonth(self, subscription_request):
+    self.login()
+    original_mode = self.portal.portal_secure_payments.slapos_wechat_test.getWechatMode()
+    self._simulatePaymentTransaction_getVADSUrlDict()
+    try:
+      person = subscription_request.getDestinationSectionValue()
+
+      quantity = subscription_request.getQuantity()
+      self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode("UNITTEST")
+    
+      self.login(person.getUserId())
+      self.useWechatManually(self.web_site, person.getUserId())
+
+      payment = self.portal.portal_catalog.getResultValue(
+        portal_type="Payment Transaction",
+        simulation_state="started")
+
+      authAmount = int(self.expected_individual_price_with_tax*100)*quantity
+
+      self.assertEqual(int(payment.PaymentTransaction_getTotalPayablePrice()*100),
+                     -authAmount)
+    
+      self.assertEqual(payment.getPriceCurrency(), self.expected_price_currency)
+
+      self.logout()
+      self.login()
+
+      data_kw = {
+        'result_code': 'SUCCESS',
+        'trade_state': 'SUCCESS',
+        'total_fee': authAmount,
+        'fee_type': 'CNY',
+      }
+
+      # Wechat_processUpdate will mark payment as payed by stopping it.
+      payment.PaymentTransaction_createWechatEvent().WechatEvent_processUpdate(data_kw)
+    finally:
+      self._dropPaymentTransaction_getVADSUrlDict()
+      self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode(original_mode)
+
+
 
 class TestSlapOSSubscriptionChineseScenario(TestSlapOSSubscriptionChineseScenarioMixin):
 

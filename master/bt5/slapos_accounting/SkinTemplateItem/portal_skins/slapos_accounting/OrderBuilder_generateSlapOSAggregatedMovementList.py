@@ -61,8 +61,8 @@ for movement in movement_list:
     destination_section=movement.getDestination(),
     destination_decision=movement.getDestination(),
     specialise=specialise,
-    price_currency=movement.getPriceCurrency()
-  )
+    price_currency=movement.getPriceCurrency(),
+    start_date=movement.getStartDate())
 
   # XXX Shamefully hardcoded values
   if movement.getResource() == 'service_module/slapos_instance_subscription':
@@ -84,8 +84,7 @@ for movement in movement_list:
     if subscription is not None:
       temp_movement.edit(
           specialise=specialise_to_set,
-          causality=subscription,
-          start_date=movement.getStartDate())
+          causality=subscription)
   elif movement.getCausality(portal_type="Subscription Request") is not None:
     temp_movement.edit(
       specialise=specialise_to_set,

@@ -10,7 +10,10 @@ if context.getSimulationState() == 'confirmed' \
                                   portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()]:
 
   comment = 'Start by alarm as all actions in confirmed state are ready.'
-  date = DateTime().earliestTime()
+  date = context.getStartDate()
+  if date is None:
+    date = DateTime().earliestTime()
+  
   context.edit(start_date=date, stop_date=date)
   if isTransitionPossible(context, 'start'):
     context.start(comment=comment)

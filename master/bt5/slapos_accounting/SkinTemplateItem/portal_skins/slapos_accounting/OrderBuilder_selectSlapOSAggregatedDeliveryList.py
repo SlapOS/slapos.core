@@ -13,7 +13,8 @@ def newPackingList(movement, causality, message):
         destination_decision=movement.getDestination(),
         specialise=movement.getSpecialise(),
         price_currency=movement.getPriceCurrency(),
-        causality=causality)
+        causality=causality,
+        start_date=movement.getStartDate())
 
   delivery.confirm(message)
   return delivery
@@ -51,6 +52,9 @@ for movement in movement_list:
 
     if delivery is not None and delivery.getSource() != movement.getSource():
       delivery.setSource(movement.getSource())
+    if delivery is not None and delivery.getSourceSection() != movement.getSourceSection():
+      delivery.setSourceSection(movement.getSourceSection())
+
     person_delivery_mapping["%s---%s---%s" % (person.getUid(), causality, specialise_uid)] = delivery
 
 return person_delivery_mapping.values()

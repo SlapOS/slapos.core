@@ -1101,7 +1101,7 @@ class TestSlapOSStartConfirmedAggregatedSalePackingListAlarm(
         False, delivery_date=DateTime("2012/04/22"),
         accounting_date=DateTime('2012/04/23'))
 
-  def test_start_date_is_resetted(self):
+  def test_start_date_isnt_resetted(self):
     delivery = self.portal.sale_packing_list_module.newContent(
       portal_type="Sale Packing List",
       start_date=DateTime("2012/04/22"),
@@ -1122,9 +1122,9 @@ class TestSlapOSStartConfirmedAggregatedSalePackingListAlarm(
     self.portal.portal_workflow._jumpToStateFor(delivery, 'solved')
     self.portal.portal_workflow._jumpToStateFor(delivery, 'confirmed')
     delivery.Delivery_startConfirmedAggregatedSalePackingList()
-    self.assertEqual(delivery.getStartDate(),
+    self.assertNotEqual(delivery.getStartDate(),
                       DateTime().earliestTime())
-    self.assertEqual(delivery.getStopDate(),
+    self.assertNotEqual(delivery.getStopDate(),
                       DateTime().earliestTime())
     self.assertEqual(delivery.getSimulationState(), 'started')
 

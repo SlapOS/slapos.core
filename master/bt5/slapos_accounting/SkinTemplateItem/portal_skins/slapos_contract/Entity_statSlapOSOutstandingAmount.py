@@ -1,6 +1,10 @@
 portal = context.getPortalObject()
 from DateTime import DateTime
 
+at_date = None
+if at_date in kw:
+  at_date = kw["at_date"]
+
 if contract is None:
   contract = portal.portal_catalog.getResultValue(
     portal_type="Cloud Contract",
@@ -30,7 +34,8 @@ for currency_uid in currency_uid_list:
     portal_type="Cloud Contract Line"):
     if line.getPriceCurrencyUid() == currency_uid:
       maximum_invoice_credit = line.getMaximumInvoiceCredit()
-      amount_per_currency = context.Entity_statOutstandingAmount(resource_uid=currency_uid)
+      amount_per_currency = context.Entity_statOutstandingAmount(
+        at_date=at_date, resource_uid=currency_uid)
       if amount_per_currency > maximum_invoice_credit:
         return amount_per_currency # We exceed maximum amount because
                                    # user already requested too much

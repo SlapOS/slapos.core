@@ -126,11 +126,11 @@
         </item>
         <item>
             <key> <string>url_string</string> </key>
-            <value> <string>https://lab.node.vifib.com/nexedi/slapos/raw/1.0.64/software/re6stnet/software.cfg</string> </value>
+            <value> <string>https://lab.node.vifib.com/nexedi/slapos/raw/1.0.133/software/re6stnet/software.cfg</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
-            <value> <string>0.1</string> </value>
+            <value> <string>1.0.133</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -575,6 +575,51 @@
                           <state>
                             <tuple>
                               <float>1526744862.92</float>
+                              <string>UTC</string>
+                            </tuple>
+                          </state>
+                        </object>
+                      </value>
+                  </item>
+                </dictionary>
+                <dictionary>
+                  <item>
+                      <key> <string>action</string> </key>
+                      <value> <string>edit</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>actor</string> </key>
+                      <value> <string>zope</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>comment</string> </key>
+                      <value>
+                        <none/>
+                      </value>
+                  </item>
+                  <item>
+                      <key> <string>error_message</string> </key>
+                      <value> <string></string> </value>
+                  </item>
+                  <item>
+                      <key> <string>serial</string> </key>
+                      <value> <string>986.51177.11230.53760</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>state</string> </key>
+                      <value> <string>current</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>time</string> </key>
+                      <value>
+                        <object>
+                          <klass> <reference id="4.1"/> </klass>
+                          <tuple>
+                            <none/>
+                          </tuple>
+                          <state>
+                            <tuple>
+                              <float>1600955586.64</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

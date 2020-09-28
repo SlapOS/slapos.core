@@ -203,18 +203,18 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//td/a[contains(text(), "Frontend (0.1)")]</td>
+        <td>//td/a[contains(text(), "Frontend (1.0.149)")]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td>//td/a[contains(text(), "Frontend (0.1)")]</td>
+        <td>//td/a[contains(text(), "Frontend (1.0.149)")]</td>
         <td></td>
       </tr>
 
       <tr>
         <td>click</td>
-        <td>//td/a[contains(text(), "Frontend (0.1)")]</td>
+        <td>//td/a[contains(text(), "Frontend (1.0.149)")]</td>
         <td></td>
       </tr>
       <tal:block define="header python: 'Software Installation : Frontend'; ">

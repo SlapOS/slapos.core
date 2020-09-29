@@ -42,6 +42,11 @@
     </tal:block>
   </tal:block>
 
+  <tal:block metal:define-macro="access_menu_item_language">
+    <tal:block tal:define="panel_gadget_id python: 'gadget_slapos_panel.html'">
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_language_base" />
+    </tal:block>
+  </tal:block>
 
 
 
@@ -383,6 +388,44 @@
     <tr>
       <td>assertElementPresent</td>
       <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]'% (here.Base_translateString('Login', lang=lang))"></td>
+      <td></td>
+    </tr>
+  </tal:block>
+
+  <tal:block metal:define-macro="access_menu_item_language_base">
+     <tr>
+      <td colspan="3"><b tal:content="python: 'Access Entry on the Menu for Language'"> Menu Item </b></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td>//button[@data-i18n='Menu']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//button[@data-i18n='Menu']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>click</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[@data-i18n=\'%s\']' % (panel_gadget_id, menu_item)"></td>
+      <td></td>
+    </tr>
+    <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
+
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % here.Base_translateString(menu_item, lang=lang)"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_label_field.html\')]//label[text()=\'%s\']' % here.Base_translateString(menu_item, lang=lang)"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_label_field.html\')]//label[text()=\'%s\']' % here.Base_translateString(menu_item, lang=lang)"></td>
       <td></td>
     </tr>
   </tal:block>

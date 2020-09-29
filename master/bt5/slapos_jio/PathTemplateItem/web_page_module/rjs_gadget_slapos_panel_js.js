@@ -92,7 +92,8 @@
               context.getUrlFor({command: 'display', options: {page: "slap_computer_list", editable: true}}),
               context.getUrlFor({command: 'display', options: {page: "slap_network_list", editable: true}}),
               context.getUrlFor({command: 'display', options: {page: "slap_project_list", editable: true}}),
-              context.getUrlFor({command: 'display', options: {page: "slap_person_view", editable: true}})
+              context.getUrlFor({command: 'display', options: {page: "slap_person_view", editable: true}}),
+              context.getUrlFor({command: 'display', options: {page: "language"}})
             ]);
           })
           .push(function (result_list) {
@@ -109,7 +110,8 @@
                 "computer_href": result_list[6],
                 "computer_network_href": result_list[7],
                 "project_href": result_list[8],
-                "person_href": result_list[9]
+                "person_href": result_list[9],
+                "language_href": result_list[10]
               })
             );
           })

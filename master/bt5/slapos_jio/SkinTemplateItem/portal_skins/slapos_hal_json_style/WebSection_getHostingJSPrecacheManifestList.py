@@ -207,7 +207,9 @@ url_list = [
   "leaflet.css",
   "leaflet.js",
   "tv4.min.js",
-  "vkbeautify.js"
+  "vkbeautify.js",
+  "gadget_erp5_page_slap_language_view.js",
+  "gadget_erp5_page_slap_language_view.html"
 ]
 
 return url_list

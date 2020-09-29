@@ -1434,7 +1434,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     for subscription_request in subscription_request_list:
       hosting_subscription = subscription_request.getAggregateValue()
       self.assertEqual(hosting_subscription.getPeriodicityMonthDay(),
-        DateTime().day())
+        min(DateTime().day(), 28))
 
     self.pinDateTime(DateTime(DateTime().asdatetime() + datetime.timedelta(days=17)))
     self.addCleanup(self.unpinDateTime)

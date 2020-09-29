@@ -309,7 +309,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
     quantity = subscription_request.getQuantity()
     self.login(person.getUserId())
-    self.usePayzenManually(self.web_site, person.getUserId())
+    self.usePayzenManually(self.web_site, person.getUserId(), is_email_expected=False)
 
     payment = self.portal.portal_catalog.getResultValue(
       portal_type="Payment Transaction",

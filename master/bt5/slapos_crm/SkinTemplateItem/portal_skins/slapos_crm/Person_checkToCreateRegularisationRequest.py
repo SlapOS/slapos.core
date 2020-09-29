@@ -19,8 +19,24 @@ ticket = portal.portal_catalog.getResultValue(
   default_source_project_uid=person.getUid(),
   simulation_state=['suspended', 'validated'],
 )
-if (ticket is None) and int(person.Entity_statOutstandingAmount()) > 0:
 
+if ticket is not None:
+  return ticket, None
+
+outstanding_amount = person.Entity_statSlapOSOutstandingAmount()
+
+# Amount to be ignored, as it comes from the first invoice generated
+# after the subscription. We do not take it into account as no service
+# was provided yet.
+unpaid_payment_amount = 0
+for payment in person.Person_getSubscriptionRequestFirstUnpaidPaymentList():
+  unpaid_payment_amount += payment.PaymentTransaction_getTotalPayablePrice()
+
+# It can't be smaller, we are considernig all open invoices are from unpaid_payment_amount
+if round(float(outstanding_amount), 2) == round(-float(unpaid_payment_amount), 2):
+  return ticket, None
+
+if int(outstanding_amount) > 0:
   tag = "%s_addRegularisationRequest_inProgress" % person.getUid()
   if (portal.portal_activities.countMessageWithTag(tag) > 0):
     # The regularisation request is already under creation but can not be fetched from catalog
@@ -56,7 +72,7 @@ if (ticket is None) and int(person.Entity_statOutstandingAmount()) > 0:
 A new invoice has been generated. 
 You can access it in your invoice section at %s.
 
-Do not hesitate to visit the web forum (http://community.slapos.org/forum) in case of question.
+Do not hesitate to visit our website (http://slapos.vifib.com/) in case of question.
 
 Regards,
 The slapos team

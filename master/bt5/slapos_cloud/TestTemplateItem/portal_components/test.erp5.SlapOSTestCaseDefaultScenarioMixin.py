@@ -653,7 +653,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.assertEqual(len(line_list), 0)
 
   @changeSkin('RJS')
-  def useWechatManually(self, web_site, user_id):
+  def useWechatManually(self, web_site, user_id, is_email_expected=True):
 
     person = self.portal.portal_catalog.getResultValue(
       portal_type="Person",
@@ -669,7 +669,11 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         if [q for q in candidate[1] if email in q] and body in candidate[2]:
           return candidate[2]
     to_click_message = findMessage(email, 'A new invoice has been generated.')
-    self.assertNotEqual(None, to_click_message)
+    if is_email_expected:
+      self.assertNotEqual(None, to_click_message)
+    else:
+      self.assertEqual(None, to_click_message)
+
 
     # If you are using live test, be aware that the call of the alarm can be
     # not enough for the number of objects on the site.
@@ -682,7 +686,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       PaymentTransaction_redirectToManualWechatPayment()
 
   @changeSkin('RJS')
-  def usePayzenManually(self, web_site, user_id):
+  def usePayzenManually(self, web_site, user_id, is_email_expected=True):
 
     person = self.portal.portal_catalog.getResultValue(
       portal_type="Person",
@@ -698,7 +702,11 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         if [q for q in candidate[1] if email in q] and body in candidate[2]:
           return candidate[2]
     to_click_message = findMessage(email, 'A new invoice has been generated.')
-    self.assertNotEqual(None, to_click_message)
+
+    if is_email_expected:
+      self.assertNotEqual(None, to_click_message)
+    else:
+      self.assertEqual(None, to_click_message)
 
     # Pay to payzen...
     # If you are using live test, be aware that the call of the alarm can be

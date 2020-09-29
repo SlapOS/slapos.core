@@ -146,7 +146,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode("UNITTEST")
     
       self.login(person.getUserId())
-      self.useWechatManually(self.web_site, person.getUserId())
+      self.useWechatManually(self.web_site, person.getUserId(), is_email_expected=False)
 
       payment = self.portal.portal_catalog.getResultValue(
         portal_type="Payment Transaction",

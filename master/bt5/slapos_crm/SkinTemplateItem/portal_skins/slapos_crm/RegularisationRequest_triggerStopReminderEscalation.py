@@ -10,8 +10,6 @@ if notification_message is None:
 Despite our last reminder, you still have an unpaid invoice on %s.
 We will now stop all your current instances to free some hardware resources.
 
-Do not hesitate to visit the web forum (http://community.slapos.org/forum) in case of question.
-
 Regards,
 The slapos team
 """ % context.getPortalObject().portal_preferences.getPreferredSlaposWebSiteUrl()

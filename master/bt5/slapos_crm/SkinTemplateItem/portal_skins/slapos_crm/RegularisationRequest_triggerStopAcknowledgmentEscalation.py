@@ -10,8 +10,6 @@ if notification_message is None:
 We would like to remind you the unpaid invoice you have on %s.
 If no payment is done during the coming days, we will delete all your instances.
 
-Do not hesitate to visit the web forum (http://community.slapos.org/forum) in case of question.
-
 Regards,
 The slapos team
 """ % context.getPortalObject().portal_preferences.getPreferredSlaposWebSiteUrl()

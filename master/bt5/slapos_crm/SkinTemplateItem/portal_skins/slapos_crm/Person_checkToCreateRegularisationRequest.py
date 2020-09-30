@@ -72,8 +72,6 @@ if int(outstanding_amount) > 0:
 A new invoice has been generated. 
 You can access it in your invoice section at %s.
 
-Do not hesitate to visit our website (http://slapos.vifib.com/) in case of question.
-
 Regards,
 The slapos team
 """ % portal.portal_preferences.getPreferredSlaposWebSiteUrl()

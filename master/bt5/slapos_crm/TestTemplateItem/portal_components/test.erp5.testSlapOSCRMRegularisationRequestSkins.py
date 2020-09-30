@@ -68,8 +68,6 @@ class TestSlapOSPerson_checkToCreateRegularisationRequest(SlapOSTestCaseMixinWit
 A new invoice has been generated. 
 You can access it in your invoice section at http://foobar.org/.
 
-Do not hesitate to visit the web forum (http://community.slapos.org/forum) in case of question.
-
 Regards,
 The slapos team
 """
@@ -845,8 +843,6 @@ class TestSlapOSRegularisationRequest_triggerAcknowledgmentEscalation(
 We would like to remind you the unpaid invoice you have on %s.
 If no payment is done during the coming days, we will stop all your current instances to free some hardware resources.
 
-Do not hesitate to visit the web forum (http://community.slapos.org/forum) in case of question.
-
 Regards,
 The slapos team
 """ % self.portal.portal_preferences.getPreferredSlaposWebSiteUrl(),
@@ -918,8 +914,6 @@ class TestSlapOSRegularisationRequest_triggerStopReminderEscalation(
 
 Despite our last reminder, you still have an unpaid invoice on %s.
 We will now stop all your current instances to free some hardware resources.
-
-Do not hesitate to visit the web forum (http://community.slapos.org/forum) in case of question.
 
 Regards,
 The slapos team
@@ -993,8 +987,6 @@ class TestSlapOSRegularisationRequest_triggerStopAcknowledgmentEscalation(
 We would like to remind you the unpaid invoice you have on %s.
 If no payment is done during the coming days, we will delete all your instances.
 
-Do not hesitate to visit the web forum (http://community.slapos.org/forum) in case of question.
-
 Regards,
 The slapos team
 """ % self.portal.portal_preferences.getPreferredSlaposWebSiteUrl(),
@@ -1066,8 +1058,6 @@ class TestSlapOSRegularisationRequest_triggerDeleteReminderEscalation(
 
 Despite our last reminder, you still have an unpaid invoice on %s.
 We will now delete all your instances.
-
-Do not hesitate to visit the web forum (http://community.slapos.org/forum) in case of question.
 
 Regards,
 The slapos team

@@ -1,4 +1,3 @@
-web_page_module/slapos-topbar-widget-links
 portal_caches/facebook_server_auth_token_cache_factory
 portal_caches/facebook_server_auth_token_cache_factory/persistent_cache_plugin
 portal_caches/google_server_auth_token_cache_factory

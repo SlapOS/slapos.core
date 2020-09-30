@@ -18,10 +18,10 @@ else:
   body = notification_message.convert(format='text')[1]
 
 return context.RegularisationRequest_checkToTriggerNextEscalationStep(
-  2,
-  'service_module/slapos_crm_delete_reminder',
-  'service_module/slapos_crm_delete_acknowledgement',
-  subject,
-  body,
-  'Deleting acknowledgment.',
+  delay_period_in_days=10,
+  current_service_relative_url='service_module/slapos_crm_delete_reminder',
+  next_service_relative_url='service_module/slapos_crm_delete_acknowledgement',
+  title=subject,
+  text_content=body,
+  comment='Deleting acknowledgment.',
 )

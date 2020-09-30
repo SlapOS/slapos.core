@@ -823,18 +823,18 @@ class TestSlapOSRegularisationRequest_triggerAcknowledgmentEscalation(
       REQUEST={})
 
   @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
-            'day, current, next, title, text_content, comment, REQUEST=None',
+            'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
   'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
   'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s" % (day, current, next, title, text_content, comment))')
+  '%s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment))')
   def test_checkToTriggerNextEscalationStep_matching_event(self):
     ticket = self.createRegularisationRequest()
     ticket.RegularisationRequest_triggerAcknowledgmentEscalation()
     self.assertEqual(
       'Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
       '%s %s %s %s %s %s' % \
-      (38,
+      (15,
        'service_module/slapos_crm_acknowledgement',
        'service_module/slapos_crm_stop_reminder',
        'Reminder: invoice payment requested',
@@ -855,11 +855,11 @@ The slapos team
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_checkToTriggerNextEscalationStep_notification_message"])')
   @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
-            'day, current, next, title, text_content, comment, REQUEST=None',
+            'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
   'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
   'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s" % (day, current, next, title, text_content, comment))')
+  '%s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment))')
   def test_checkToTriggerNextEscalationStep_notification_message(self):
     ticket = self.createRegularisationRequest()
     new_id = self.generateNewId()
@@ -876,7 +876,7 @@ The slapos team
     self.assertEqual(
       'Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
       '%s %s %s %s %s %s' % \
-      (38,
+      (15,
        'service_module/slapos_crm_acknowledgement',
        'service_module/slapos_crm_stop_reminder',
        'Test NM title %s' % new_id,
@@ -895,11 +895,11 @@ class TestSlapOSRegularisationRequest_triggerStopReminderEscalation(
       REQUEST={})
 
   @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
-            'day, current, next, title, text_content, comment, REQUEST=None',
+            'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
   'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
   'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s" % (day, current, next, title, text_content, comment))')
+  '%s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment))')
   def test_checkToTriggerNextEscalationStep_matching_event(self):
     ticket = self.createRegularisationRequest()
     ticket.RegularisationRequest_triggerStopReminderEscalation()
@@ -927,11 +927,11 @@ The slapos team
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_checkToTriggerNextEscalationStep_notification_message"])')
   @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
-            'day, current, next, title, text_content, comment, REQUEST=None',
+            'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
   'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
   'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s" % (day, current, next, title, text_content, comment))')
+  '%s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment))')
   def test_checkToTriggerNextEscalationStep_notification_message(self):
     ticket = self.createRegularisationRequest()
     new_id = self.generateNewId()
@@ -967,18 +967,18 @@ class TestSlapOSRegularisationRequest_triggerStopAcknowledgmentEscalation(
       REQUEST={})
 
   @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
-            'day, current, next, title, text_content, comment, REQUEST=None',
+            'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
   'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
   'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s" % (day, current, next, title, text_content, comment))')
+  '%s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment))')
   def test_checkToTriggerNextEscalationStep_matching_event(self):
     ticket = self.createRegularisationRequest()
     ticket.RegularisationRequest_triggerStopAcknowledgmentEscalation()
     self.assertEqual(
       'Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
       '%s %s %s %s %s %s' % \
-      (13,
+      (7,
        'service_module/slapos_crm_stop_acknowledgement',
        'service_module/slapos_crm_delete_reminder',
        'Last reminder: invoice payment requested',
@@ -999,11 +999,11 @@ The slapos team
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_checkToTriggerNextEscalationStep_notification_message"])')
   @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
-            'day, current, next, title, text_content, comment, REQUEST=None',
+            'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
   'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
   'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s" % (day, current, next, title, text_content, comment))')
+  '%s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment))')
   def test_checkToTriggerNextEscalationStep_notification_message(self):
     ticket = self.createRegularisationRequest()
     new_id = self.generateNewId()
@@ -1020,7 +1020,7 @@ The slapos team
     self.assertEqual(
       'Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
       '%s %s %s %s %s %s' % \
-      (13,
+      (7,
        'service_module/slapos_crm_stop_acknowledgement',
        'service_module/slapos_crm_delete_reminder',
        'Test NM title %s' % new_id,
@@ -1039,18 +1039,18 @@ class TestSlapOSRegularisationRequest_triggerDeleteReminderEscalation(
       REQUEST={})
 
   @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
-            'day, current, next, title, text_content, comment, REQUEST=None',
+            'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
   'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
   'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s" % (day, current, next, title, text_content, comment))')
+  '%s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment))')
   def test_checkToTriggerNextEscalationStep_matching_event(self):
     ticket = self.createRegularisationRequest()
     ticket.RegularisationRequest_triggerDeleteReminderEscalation()
     self.assertEqual(
       'Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
       '%s %s %s %s %s %s' % \
-      (2,
+      (10,
        'service_module/slapos_crm_delete_reminder',
        'service_module/slapos_crm_delete_acknowledgement',
        'Acknowledgment: instances deleted',
@@ -1071,11 +1071,11 @@ The slapos team
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_checkToTriggerNextEscalationStep_notification_message"])')
   @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
-            'day, current, next, title, text_content, comment, REQUEST=None',
+            'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
   'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
   'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s" % (day, current, next, title, text_content, comment))')
+  '%s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment))')
   def test_checkToTriggerNextEscalationStep_notification_message(self):
     ticket = self.createRegularisationRequest()
     new_id = self.generateNewId()
@@ -1092,7 +1092,7 @@ The slapos team
     self.assertEqual(
       'Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
       '%s %s %s %s %s %s' % \
-      (2,
+      (10,
        'service_module/slapos_crm_delete_reminder',
        'service_module/slapos_crm_delete_acknowledgement',
        'Test NM title %s' % new_id,

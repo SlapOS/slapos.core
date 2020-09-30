@@ -490,7 +490,7 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
     self.tic()
 
     # escalate 1
-    self.trickCrmEvent('slapos_crm_acknowledgement', 38, public_reference)
+    self.trickCrmEvent('slapos_crm_acknowledgement', 15, public_reference)
     self.stepCallSlaposCrmTriggerAcknowledgmentEscalationAlarm()
     self.tic()
 
@@ -505,12 +505,12 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
     self.assertSubscriptionStopped(person)
 
     # escalate 3
-    self.trickCrmEvent('slapos_crm_stop_acknowledgement', 13, public_reference)
+    self.trickCrmEvent('slapos_crm_stop_acknowledgement', 7, public_reference)
     self.stepCallSlaposCrmTriggerStopAcknowledgmentEscalationAlarm()
     self.tic()
 
     # escalate 4
-    self.trickCrmEvent('slapos_crm_delete_reminder', 2, public_reference)
+    self.trickCrmEvent('slapos_crm_delete_reminder', 10, public_reference)
     self.stepCallSlaposCrmTriggerDeleteReminderEscalationAlarm()
     self.tic()
 

@@ -700,7 +700,7 @@ stderr_logfile_backups=1
         except NotFoundError as e:
           # Master doesn't implement this feature ?
           self.logger.warning("NotFoundError: %s. \nCannot send requested instance "\
-                            "list to master. Please check if this feature is"\
+                            "list to master. Please check if this feature is "\
                             "implemented on SlapOS Master." % str(e))
 
   def _addFirewallRule(self, rule_command):

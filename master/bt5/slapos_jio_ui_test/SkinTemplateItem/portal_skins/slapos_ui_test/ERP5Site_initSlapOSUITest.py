@@ -32,12 +32,15 @@ except KeyError:
     id="kvm",
     title="KVM",
     portal_type="Software Release",
-    url_string="https://lab.node.vifib.com/nexedi/slapos/raw/1.0.102/software/kvm/software.cfg",
     version="0.1",
     language="en",
     effective_date=DateTime('2018/03/14 00:00:00 UTC'),
     aggregate="software_product_module/kvm"
   )
+
+kvm_software_release.edit(
+  url_string="https://lab.nexedi.com/nexedi/slapos/raw/1.0.164/software/kvm/software.cfg",
+)
 
 if kvm_software_release.getValidationState() == "draft":
   kvm_software_release.publishAlive()
@@ -63,13 +66,16 @@ except KeyError:
     id="slaprunner",
     title="Webrunner",
     portal_type="Software Release",
-    url_string="https://lab.node.vifib.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg",
     version="0.1",
     language="en",
     effective_date=DateTime('2018/03/14 00:00:00 UTC'),
     aggregate="software_product_module/slaprunner"
 
   )
+
+slaprunner_software_release.edit(
+  url_string="https://lab.nexedi.com/nexedi/slapos/raw/1.0.164/software/slaprunner/software.cfg"
+)
 
 if slaprunner_software_release.getValidationState() == "draft":
   slaprunner_software_release.publishAlive()

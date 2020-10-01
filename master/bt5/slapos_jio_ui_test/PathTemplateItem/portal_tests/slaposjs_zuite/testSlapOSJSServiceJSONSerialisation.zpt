@@ -133,7 +133,17 @@
         <td>10</td>
       </tr>
 
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//select[@name="//kvm-partition-dict/KVM-CLUSTER-INSTANCE-0/boot-image-url-select"]</td>
+        <td></td>
+      </tr>
 
+      <tr>
+        <td>select</td>
+        <td>//select[@name="//kvm-partition-dict/KVM-CLUSTER-INSTANCE-0/boot-image-url-select"]</td>
+        <td>Debian Buster 10.5 netinst x86_64</td>
+      </tr>
       <tr>
         <td>waitForElementPresent</td>
         <td>//input[@name="ADD//kvm-partition-dict"]</td>
@@ -232,6 +242,18 @@
 
       <tr>
         <td>waitForElementPresent</td>
+        <td>//select[@name="//kvm-partition-dict/KVM-CLUSTER-INSTANCE-0/boot-image-url-select"]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//select[@name="//kvm-partition-dict/KVM-CLUSTER-INSTANCE-0/boot-image-url-select"]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
         <td>//span[@class="bt_close CLOSE//kvm-partition-dict/KVM-CLUSTER-INSTANCE-1"]</td>
         <td></td>
       </tr>
@@ -291,6 +313,18 @@
       <tr>
         <td>assertElementPresent</td>
         <td>//input[@name="//kvm-partition-dict/KVM-CLUSTER-INSTANCE-0/disk-size"]</td>
+        <td></td>
+      </tr>
+      
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//select[@name="//kvm-partition-dict/KVM-CLUSTER-INSTANCE-0/boot-image-url-select"]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//select[@name="//kvm-partition-dict/KVM-CLUSTER-INSTANCE-0/boot-image-url-select"]</td>
         <td></td>
       </tr>
 

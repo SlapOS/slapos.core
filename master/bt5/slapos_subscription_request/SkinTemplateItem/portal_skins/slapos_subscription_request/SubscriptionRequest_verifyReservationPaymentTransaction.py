@@ -15,16 +15,29 @@ if sale_invoice_transaction.getSimulationState() in ["draft", "cancelled", "dele
   context.cancel(comment="Invoice is cancelled, so subscription is cancelled")
   return
 
-payment_transaction = sale_invoice_transaction.getCausalityRelatedValue(
+payment_transaction_list = sale_invoice_transaction.getCausalityRelatedValueList(
   portal_type="Payment Transaction")
 
-if payment_transaction.getSimulationState() in ["draft", "cancelled", "deleted"]:
+cancel_subscription_request = None
+is_paid = False
+for payment_transaction in payment_transaction_list:
+  if cancel_subscription_request != False and payment_transaction.getSimulationState() in ["draft", "cancelled", "deleted"]:
+    cancel_subscription_request = True
+  
+  if payment_transaction.getSimulationState() == "stopped":
+    cancel_subscription_request = False
+    is_paid = True
+
+if cancel_subscription_request:
   context.cancel(comment="Payment is cancelled, so subscription is cancelled")
   sale_invoice_transaction.cancel(comment="Payment is cancelled, so invoice is cancelled")
-  return
+  for payment_transaction in payment_transaction_list:
+    if payment_transaction.getSimulationState() == "started":
+      payment_transaction.cancel("Subscription is been cancelled")
+
 
 # Check if payment_transaction is payed.
-if payment_transaction.getSimulationState() != "stopped":
+if not is_paid:
   # Nothing to do bug wait the payment
   return
 

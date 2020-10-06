@@ -8,6 +8,7 @@
     // Acquired methods
     /////////////////////////////////////////////////////////////////
     .declareAcquiredMethod("updateHeader", "updateHeader")
+    .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("getUrlParameter", "getUrlParameter")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("getSetting", "getSetting")
@@ -192,6 +193,11 @@
                 [["my_reference"], ["my_new_password"], ["my_confirmation_password"] ]
               ]]
             }
+          });
+        })
+        .push(function () {
+          return gadget.updatePanel({
+            jio_key: "person_module"
           });
         })
         .push(function () {

@@ -5,6 +5,7 @@
 
   rJS(window)
     .declareAcquiredMethod("updateHeader", "updateHeader")
+    .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("redirect", "redirect")
     .declareAcquiredMethod("reload", "reload")
     .declareAcquiredMethod("getSetting", "getSetting")
@@ -107,6 +108,11 @@
                 [["listbox"]]
               ]]
             }
+          });
+        })
+        .push(function () {
+          return gadget.updatePanel({
+            jio_key: "software_product_module"
           });
         })
         .push(function () {

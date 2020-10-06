@@ -8,6 +8,7 @@
     // Acquired methods
     /////////////////////////////////////////////////////////////////
     .declareAcquiredMethod("updateHeader", "updateHeader")
+    .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("redirect", "redirect")
@@ -207,6 +208,11 @@
               ]]
             }
           })
+            .push(function () {
+              return gadget.updatePanel({
+                jio_key: "software_release_module"
+              });
+            })
             .push(function () {
               return RSVP.all([
                 gadget.getUrlFor({command: 'cancel_dialog_with_history'})

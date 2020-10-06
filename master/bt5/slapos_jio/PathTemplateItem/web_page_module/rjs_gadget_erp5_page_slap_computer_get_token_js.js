@@ -8,6 +8,7 @@
     // Acquired methods
     /////////////////////////////////////////////////////////////////
     .declareAcquiredMethod("updateHeader", "updateHeader")
+    .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("redirect", "redirect")
@@ -152,6 +153,11 @@
                 [["my_command_line"], ["my_slapos_master_api"], ["my_slapos_master_web"], ["my_access_token"], ["my_relative_url"]]
               ]]
             }
+          });
+        })
+        .push(function () {
+          return gadget.updatePanel({
+            jio_key: "computer_module"
           });
         })
         .push(function () {

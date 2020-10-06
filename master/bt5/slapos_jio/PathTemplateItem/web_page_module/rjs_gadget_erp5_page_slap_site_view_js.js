@@ -8,6 +8,7 @@
     // Acquired methods
     /////////////////////////////////////////////////////////////////
     .declareAcquiredMethod("updateHeader", "updateHeader")
+    .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("getUrlParameter", "getUrlParameter")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("getSetting", "getSetting")
@@ -242,6 +243,11 @@
                 [["listbox"]]
               ]]
             }
+          });
+        })
+        .push(function () {
+          return gadget.updatePanel({
+            jio_key: "organisation_module"
           });
         })
         .push(function () {

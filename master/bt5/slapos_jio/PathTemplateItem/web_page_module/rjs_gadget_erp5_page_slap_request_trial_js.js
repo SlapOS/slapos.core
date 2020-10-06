@@ -8,6 +8,7 @@
     // Acquired methods
     /////////////////////////////////////////////////////////////////
     .declareAcquiredMethod("updateHeader", "updateHeader")
+    .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("redirect", "redirect")
@@ -176,6 +177,11 @@
               ]]
             }
           })
+            .push(function () {
+              return gadget.updatePanel({
+                jio_key: false
+              });
+            })
             .push(function () {
               return gadget.updateHeader({
                 page_title: page_title_translation + " " + doc.name,

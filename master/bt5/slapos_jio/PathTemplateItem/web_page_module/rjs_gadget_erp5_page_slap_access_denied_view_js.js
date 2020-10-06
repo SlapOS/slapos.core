@@ -6,6 +6,7 @@
   gadget_klass
     .declareAcquiredMethod("getUrlForList", "getUrlForList")
     .declareAcquiredMethod("updateHeader", "updateHeader")
+    .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("getTranslationList", "getTranslationList")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
@@ -64,7 +65,12 @@
             })
           ]);
         })
-         .push(function () {
+        .push(function () {
+          return gadget.updatePanel({
+            jio_key: false
+          });
+        })
+        .push(function () {
 //          return gadget.translate('Logout');
 //        })
 //        .push(function (translated_text) {

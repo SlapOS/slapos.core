@@ -413,6 +413,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
   def checkCloudContract(self, person_user_id, person_reference,
       instance_title, software_release, software_type, server):
 
+    self.assertTrue(self.portal.portal_preferences.getPreferredCloudContractEnabled())
+
     self.stepCallSlaposContractRequestValidationPaymentAlarm()
     self.tic()
 
@@ -463,23 +465,23 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.stepCallSlaposCrmCreateRegularisationRequestAlarm()
     self.tic()
 
-    self.usePayzenManually(self.web_site, person_user_id)
-    self.tic()
-
-    payment = self.portal.portal_catalog.getResultValue(
-      portal_type="Payment Transaction",
-      simulation_state="started")
-
-    self.logout()
     self.login()
 
-    data_kw = {
-        'errorCode': '0',
-        'transactionStatus': '6',
-        'authAmount': 200,
-        'authDevise': '978',
-      }
-    payment.PaymentTransaction_createPayzenEvent().PayzenEvent_processUpdate(data_kw, True)
+    person = self.portal.portal_catalog.getResultValue(
+      portal_type="Person",
+      user_id=person_user_id)
+
+    contract = self.portal.portal_catalog.getResultValue(
+      portal_type="Cloud Contract",
+      default_destination_section_uid=person.getUid(),
+      validation_state=['invalidated', 'validated'])
+    
+    self.assertNotEqual(contract, None)
+    self.assertEqual(contract.getValidationState(), "invalidated")
+    
+    # HACK FOR NOW
+    contract.validate()
+    self.tic()
 
     self.login(person_user_id)
 

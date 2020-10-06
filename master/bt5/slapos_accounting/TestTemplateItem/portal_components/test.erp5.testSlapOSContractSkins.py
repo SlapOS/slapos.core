@@ -2,7 +2,6 @@
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
 
 from zExceptions import Unauthorized
-from DateTime import DateTime
 
 class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWithAbort):
 
@@ -137,34 +136,6 @@ class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWit
     self.assertEqual(contract2.getCausality(""), "")
     self.assertEqual(contract2.getValidationState(), "validated")
 
-  def test_create_invoice_if_needed_and_no_payment_found(self):
-    person, instance, _ = self.createNeededDocuments()
-    contract = self.createCloudContract()
-    contract.edit(destination_section_value=person)
-    self.assertEqual(contract.getValidationState(), "invalidated")
-    self.tic()
-
-    before_date = DateTime()
-    contract2 = instance.SoftwareInstance_requestValidationPayment()
-    after_date = DateTime()
-    self.assertEqual(contract2.getRelativeUrl(), contract.getRelativeUrl())
-    self.assertNotEqual(contract2.getCausality(""), "")
-    self.assertEqual(contract2.getValidationState(), "invalidated")
-
-    invoice = contract2.getCausalityValue()
-    self.assertEqual(invoice.getPortalType(), 'Sale Invoice Transaction')
-    self.assertEqual(len(invoice.contentValues()), 1)
-    self.assertEqual(invoice.getSimulationState(), 'confirmed')
-    self.assertEqual(invoice.getCausalityState(), 'building')
-    self.assertEqual(invoice.getTitle(), 'Account validation')
-    self.assertEqual(invoice.getSource(), person.getRelativeUrl())
-    self.assertEqual(invoice.getDestination(), person.getRelativeUrl())
-    self.assertEqual(invoice.getDestinationSection(), person.getRelativeUrl())
-    self.assertEqual(invoice.getDestinationDecision(), person.getRelativeUrl())
-    self.assertTrue(invoice.getStartDate() >= before_date)
-    self.assertTrue(invoice.getStartDate() <= after_date)
-    self.assertEqual(invoice.getStartDate(), invoice.getStopDate())
-
   def test_do_nothing_if_invoice_is_ongoing(self):
     person, instance, _ = self.createNeededDocuments()
     contract = self.createCloudContract()
@@ -182,24 +153,7 @@ class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWit
     self.assertEqual(contract2.getCausality(""), invoice.getRelativeUrl())
     self.assertEqual(contract2.getValidationState(), "invalidated")
 
-  def test_forget_current_cancelled_invoice(self):
-    person, instance, _ = self.createNeededDocuments()
-    contract = self.createCloudContract()
-    invoice = self.createInvoiceTransaction()
-    self.portal.portal_workflow._jumpToStateFor(invoice, 'cancelled')
-    contract.edit(
-      destination_section_value=person,
-      causality_value=invoice,
-    )
-    self.assertEqual(contract.getValidationState(), "invalidated")
-    self.tic()
-
-    contract2 = instance.SoftwareInstance_requestValidationPayment()
-    self.assertEqual(contract2.getRelativeUrl(), contract.getRelativeUrl())
-    self.assertEqual(contract2.getCausality(""), "")
-    self.assertEqual(contract2.getValidationState(), "invalidated")
-
-  def test_forget_current_grouped_invoice(self):
+  def test_dont_forget_current_grouped_invoice(self):
     person, instance, _ = self.createNeededDocuments()
     contract = self.createCloudContract()
     invoice = self.createInvoiceTransaction()
@@ -219,7 +173,7 @@ class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWit
 
     contract2 = instance.SoftwareInstance_requestValidationPayment()
     self.assertEqual(contract2.getRelativeUrl(), contract.getRelativeUrl())
-    self.assertEqual(contract2.getCausality(""), "")
+    self.assertEqual(contract2.getCausality(""), invoice.getRelativeUrl())
     self.assertEqual(contract2.getValidationState(), "invalidated")
 
   def test_do_nothing_if_invoice_is_not_grouped(self):

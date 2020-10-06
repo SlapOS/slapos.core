@@ -8,6 +8,7 @@
     // Acquired methods
     /////////////////////////////////////////////////////////////////
     .declareAcquiredMethod("updateHeader", "updateHeader")
+    .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
@@ -208,6 +209,11 @@
               ]]
             }
           })
+            .push(function () {
+              return gadget.updatePanel({
+                jio_key: "support_request_module"
+              });
+            })
             .push(function () {
               return RSVP.all([
                 gadget.getUrlFor({command: 'history_previous'})

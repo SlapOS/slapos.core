@@ -111,7 +111,7 @@
         </item>
         <item>
             <key> <string>wechat_mode</string> </key>
-            <value> <string>PRODUCTION</string> </value>
+            <value> <string>UNITTEST</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -180,20 +180,27 @@
             url_list[0] + url_list[1] + "/Person_getCloudContractRelated?return_json=True");
         })
         .push(function (contract_relative_url) {
-          return RSVP.all([
-            gadget.getUrlFor({command: "change", options: {"page": "slapos"}}),
-            gadget.getUrlFor({command: "change", options: {"jio_key": contract_relative_url,
+          var promise_list = [
+            gadget.getUrlFor({command: "change", options: {"page": "slapos"}})
+          ];
+          if (contract_relative_url) {
+            promise_list.push(
+              gadget.getUrlFor({command: "change", options: {"jio_key": contract_relative_url,
                                                            "page": "slap_controller"}})
-
-          ]);
+            );
+          }
+          return RSVP.all(promise_list);
         })
         .push(function (result) {
-          return gadget.updateHeader({
+          var header_dict = {
             page_title: invoices_translation,
             selection_url: result[0],
-            contract_url: result[1],
             filter_action: true
-          });
+          };
+          if (result[1]) {
+            header_dict.contract_url = result[1];
+          }
+          return gadget.updateHeader(header_dict);
         });
     });
 }(window, rJS, RSVP));

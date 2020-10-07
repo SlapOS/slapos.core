@@ -21,10 +21,16 @@
   });
 
   function createAttentionPointTemplate(gadget, attention_point) {
-    if (attention_point.link) {
-      return gadget.getUrlFor({command: 'change',
-                       options: {jio_key: attention_point.link,
-                                 "page": "slap_controller"}})
+    var page = "slap_controller", option_dict = {};
+    if (attention_point.link || attention_point.page) {
+      if (attention_point.page) {
+        page = attention_point.page;
+      }
+      option_dict.page = page;
+      if (attention_point.link) {
+        option_dict.jio_key = attention_point.link;
+      }
+      return gadget.getUrlFor({command: 'change', options: option_dict})
         .push(function (link) {
           return gadget.translateHtml(attention_point_item_template({
             option: [{
@@ -33,14 +39,13 @@
             }]
           }));
         });
-    } else {
-      return gadget.translateHtml(attention_point_item_template({
-          option: [{
-            text: attention_point.text,
-            link: attention_point.link
-          }]
-        }));
     }
+    return gadget.translateHtml(attention_point_item_template({
+      option: [{
+        text: attention_point.text,
+        link: attention_point.link
+      }]
+    }));
   }
   gadget_klass
     //////////////////////////////////////////////

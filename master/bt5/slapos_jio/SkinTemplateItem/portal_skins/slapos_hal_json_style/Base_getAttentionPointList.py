@@ -2,6 +2,8 @@ from json import dumps
 
 attention_point_list = []
 portal = context.getPortalObject()
+portal_type = context.getPortalType()
+
 
 def addAttentionForTicket(ticket):
   msg = None
@@ -18,9 +20,8 @@ def addAttentionForTicket(ticket):
   if msg:
     return {"text": msg, "link": ticket.getRelativeUrl()}
 
-
 # Display unresponded tickets on services or servers
-if context.getPortalType() in ["Hosting Subscription", "Computer"]:
+if portal_type in ["Hosting Subscription", "Computer"]:
   simulation_state = ["suspended", "confirmed"]
   for ticket in context.Base_getOpenRelatedTicketList(
    limit=3, simulation_state=simulation_state):
@@ -30,7 +31,7 @@ if context.getPortalType() in ["Hosting Subscription", "Computer"]:
       
 # This is a limitation of the API that will consider that all tickets
 # Are from this module
-if context.getPortalType() in ["Support Request Module"]:
+if portal_type in ["Support Request Module"]:
   simulation_state = ["suspended", "confirmed"]
   person = portal.portal_membership.getAuthenticatedMember().getUserValue()
   for ticket in portal.portal_catalog(
@@ -41,5 +42,22 @@ if context.getPortalType() in ["Support Request Module"]:
     entry = addAttentionForTicket(ticket)
     if entry is not None:
       attention_point_list.append(entry)
-      
+
+if portal_type in ["Hosting Subscription Module", "Hosting Subscription", "Person"]:
+  person = portal.portal_membership.getAuthenticatedMember().getUserValue()
+  contract = portal.portal_catalog.getResultValue(
+    portal_type="Cloud Contract",
+    default_destination_section_uid=person.getUid(),
+    validation_state=['invalidated', 'validated'],
+  )
+  
+  if contract is None:
+    msg = context.Base_translateString(
+        "Your Contract is Desactivated")
+    attention_point_list.append({"text": msg, 'page': "slap_ticket_list"})
+  elif contract.getValidationState() == "invalidated":
+    msg = context.Base_translateString(
+        "Your Contract is Desactivated")
+    attention_point_list.append({"text": msg, "link": contract.getRelativeUrl()})
+
 return dumps(attention_point_list)

@@ -57,6 +57,8 @@ url_list = [
   "gadget_erp5_page_slap_computer_view.js",
   "gadget_erp5_page_slap_cloud_contract_view.js",
   "gadget_erp5_page_slap_cloud_contract_view.html",
+  "gadget_erp5_page_slap_request_contract_activation.js",
+  "gadget_erp5_page_slap_request_contract_activation.html",
   "gadget_erp5_page_slap_controller.html",
   "gadget_erp5_page_slap_controller.js",
   "gadget_erp5_page_slap_delete_network.html",

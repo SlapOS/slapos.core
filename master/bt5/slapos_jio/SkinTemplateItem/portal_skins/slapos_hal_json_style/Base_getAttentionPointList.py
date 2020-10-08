@@ -50,16 +50,12 @@ if portal_type in ["Hosting Subscription Module", "Hosting Subscription", "Perso
   contract = portal.portal_catalog.getResultValue(
     portal_type="Cloud Contract",
     default_destination_section_uid=person.getUid(),
-    validation_state=['invalidated', 'validated'],
+    validation_state=['validated'],
   )
   
   if contract is None:
     msg = context.Base_translateString(
         "Your Contract is Desactivated")
-    attention_point_list.append({"text": msg, 'page': "slap_ticket_list"})
-  elif contract.getValidationState() == "invalidated":
-    msg = context.Base_translateString(
-        "Your Contract is Desactivated")
-    attention_point_list.append({"text": msg, "link": contract.getRelativeUrl()})
+    attention_point_list.append({"text": msg, 'page': "gadget_erp5_page_slap_request_contract_activation"})
 
 return dumps(attention_point_list)

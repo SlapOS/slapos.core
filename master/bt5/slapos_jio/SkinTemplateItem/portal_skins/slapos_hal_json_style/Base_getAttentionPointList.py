@@ -43,7 +43,9 @@ if portal_type in ["Support Request Module"]:
     if entry is not None:
       attention_point_list.append(entry)
 
-if portal_type in ["Hosting Subscription Module", "Hosting Subscription", "Person"]:
+if portal_type in ["Hosting Subscription Module", "Hosting Subscription", "Person"] and \
+  portal.portal_preferences.getPreferredCloudContractEnabled():
+  
   person = portal.portal_membership.getAuthenticatedMember().getUserValue()
   contract = portal.portal_catalog.getResultValue(
     portal_type="Cloud Contract",

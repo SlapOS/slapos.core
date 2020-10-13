@@ -5,6 +5,7 @@
 
   rJS(window)
     .declareAcquiredMethod("updateHeader", "updateHeader")
+    .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("redirect", "redirect")
     .declareAcquiredMethod("reload", "reload")
     .declareAcquiredMethod("getSetting", "getSetting")
@@ -121,6 +122,11 @@
                 }
               });
             });
+        })
+        .push(function () {
+          return gadget.updatePanel({
+            jio_key: "software_release_module"
+          });
         })
         .push(function () {
           return RSVP.all([

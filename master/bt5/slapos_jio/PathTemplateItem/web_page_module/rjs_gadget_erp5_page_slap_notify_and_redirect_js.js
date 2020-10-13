@@ -16,6 +16,7 @@
     .declareAcquiredMethod("translateHtml", "translateHtml")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("updateHeader", "updateHeader")
+    .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     .declareMethod("getContent", function () {
@@ -29,6 +30,11 @@
           "Unknown action to take:"
         ];
       return new RSVP.Queue()
+        .push(function () {
+          return gadget.updatePanel({
+            jio_key: false
+          });
+        })
         .push(function () {
           return RSVP.all([
             gadget.getElement(),

@@ -8,6 +8,7 @@
     // Acquired methods
     /////////////////////////////////////////////////////////////////
     .declareAcquiredMethod("updateHeader", "updateHeader")
+    .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("redirect", "redirect")
@@ -268,6 +269,11 @@
                   ["my_destination"], ["my_destination_project"], ["my_destination_section"], ["my_relative_url"]]
               ]]
             }
+          });
+        })
+        .push(function () {
+          return gadget.updatePanel({
+            jio_key: "computer_module"
           });
         })
         .push(function () {

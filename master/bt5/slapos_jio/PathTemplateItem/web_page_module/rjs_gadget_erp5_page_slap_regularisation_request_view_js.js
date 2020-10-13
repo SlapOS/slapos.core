@@ -8,6 +8,7 @@
     // Acquired methods
     /////////////////////////////////////////////////////////////////
     .declareAcquiredMethod("updateHeader", "updateHeader")
+    .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("getUrlParameter", "getUrlParameter")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
@@ -230,6 +231,11 @@
                 }
               });
             });
+        })
+        .push(function () {
+          return gadget.updatePanel({
+            jio_key: false
+          });
         })
         .push(function () {
           return RSVP.all([

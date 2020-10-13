@@ -8,6 +8,7 @@
     // Acquired methods
     /////////////////////////////////////////////////////////////////
     .declareAcquiredMethod("updateHeader", "updateHeader")
+    .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("redirect", "redirect")
@@ -70,6 +71,11 @@
           "Instance"
         ];
       return new RSVP.Queue()
+        .push(function () {
+          return gadget.updatePanel({
+            jio_key: false
+          });
+        })
         .push(function () {
           return RSVP.all([
             gadget.changeState(options),

@@ -5,7 +5,7 @@ portal.portal_catalog.searchAndActivate(
   portal_type="Trial Request",
   validation_state="draft",
   method_id="TrialRequest_processRequest",
-  activity_kw={tag: tag}
+  activate_kw={tag: tag}
 
 )
 

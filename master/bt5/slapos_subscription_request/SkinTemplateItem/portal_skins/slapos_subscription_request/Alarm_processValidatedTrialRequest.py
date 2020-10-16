@@ -8,6 +8,6 @@ portal.portal_catalog.searchAndActivate(
   method_id="TrialRequest_processDestroy",
   packet_size=1,
   activity_count=1,
-  activity_kw={tag: tag}
+  activate_kw={tag: tag}
 )
 context.activate(after_tag=tag).getId()

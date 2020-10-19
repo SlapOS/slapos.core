@@ -30,15 +30,21 @@ import socket
 import hashlib
 import unittest
 import os
+import multiprocessing
+import shutil
 import subprocess
+import tempfile
 import sys
 import json
 from contextlib import closing
+from six.moves import BaseHTTPServer
+from six.moves import urllib_parse
 
 try:
   import typing
   if typing.TYPE_CHECKING:
     from PIL import Image # pylint:disable=unused-import
+    from .testcase import SlapOSInstanceTestCase
 except ImportError:
   pass
 
@@ -82,6 +88,108 @@ print(json.dumps(extra_config_dict))
       filepath,
   ])
   return json.loads(extra_config_dict_json)
+
+
+class ManagedResource(object):
+  """A resource that will be available for the lifetime of test.
+  """
+  def __init__(self, slapos_instance_testcase_class, resource_name):
+    # type: (typing.Type[SlapOSInstanceTestCase], str) -> None
+    self._cls = slapos_instance_testcase_class
+    self._name = resource_name
+  def open(self):
+    NotImplemented
+  def close(self):
+    NotImplemented
+
+
+class ManagedHTTPServer(ManagedResource):
+  """Simple HTTP Server for testing.
+  """
+  # Request Handler, needs to be defined by subclasses.
+  RequestHandler = None # type: typing.Type[BaseHTTPServer.BaseHTTPRequestHandler]
+
+  proto = 'http'
+  # hostname to listen to, default to ipv4 address of the current test
+  hostname = None # type: str
+  # port to listen to, default
+  port = None # type: int
+
+  @property
+  def url(self):
+    # type: () -> str
+    return '{self.proto}://{self.hostname}:{self.port}'.format(self=self)
+
+  @property
+  def netloc(self):
+    # type: () -> str
+    return urllib_parse.urlparse(self.url).netloc
+
+  def _makeServer(self):
+    # type: () -> BaseHTTPServer.HTTPServer
+    """build the server class.
+
+    This is a method to make it possible to subclass to add https support.
+    """
+    logger = self._cls.logger
+
+    class ErrorLoggingHTTPServer(BaseHTTPServer.HTTPServer):
+      def handle_error(self, request , client_addr):
+        # redirect errors to log
+        logger.info("Error processing request from %s", client_addr, exc_info=True)
+
+    logger.debug(
+        "starting %s (%s) on %s:%s",
+        self.__class__.__name__,
+        self._name,
+        self.hostname,
+        self.port,
+    )
+    server = ErrorLoggingHTTPServer(
+        (self.hostname, self.port),
+        self.RequestHandler,
+    )
+
+    return server
+
+  def open(self):
+    # type: () -> None
+    if not self.hostname:
+      self.hostname = self._cls._ipv4_address
+    if not self.port:
+      self.port = findFreeTCPPort(self.hostname)
+
+    server = self._makeServer()
+    self._process = multiprocessing.Process(
+        target=server.serve_forever,
+        name=self._name,
+    )
+    self._process.start()
+
+  def close(self):
+    # type: () -> None
+    self._process.terminate()
+    self._process.join()
+
+
+class ManagedHTTPSServer(ManagedHTTPServer):
+  """An HTTPS Server
+  """
+  proto = 'https'
+  certificate_file = None # type: str
+
+  def _makeServer(self):
+    # type: () -> BaseHTTPServer.HTTPServer
+    server = super(ManagedHTTPSServer, self)._makeServer()
+    raise NotImplementedError("TODO")
+    return server
+
+class ManagedTemporaryDirectory(ManagedResource):
+  path = None # type: str
+  def open(self):
+    self.path = tempfile.mkdtemp()
+  def close(self):
+    shutil.rmtree(self.path)
 
 
 class CrontabMixin(object):

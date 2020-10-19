@@ -46,6 +46,7 @@ except ImportError:
   subprocess  # pyflakes
 
 from .utils import getPortFromPath
+from .utils import ManagedResource
 
 from ..slap.standalone import StandaloneSlapOS
 from ..slap.standalone import SlapOSNodeCommandError
@@ -54,8 +55,10 @@ from ..grid.utils import md5digest
 from ..util import mkdir_p
 
 try:
-  from typing import Iterable, Tuple, Callable, Type, Dict, List, Optional
+  from typing import cast, Iterable, Tuple, Callable, Type, Dict, List, Optional, TypeVar, TYPE_CHECKING
+  ManagedResourceType = TypeVar("ManagedResourceType", bound=ManagedResource)
 except ImportError:
+  TYPE_CHECKING = False
   pass
 
 
@@ -484,6 +487,11 @@ class SlapOSInstanceTestCase(unittest.TestCase):
   _ipv4_address = ""
   _ipv6_address = ""
 
+  _resources = {} # type: Dict[str, ManagedResource]
+  _instance_parameter_dict = None # type: Dict
+  computer_partition = None # type: ComputerPartition
+  computer_partition_root_path = None # type: str
+
   # a short name of that software URL.
   # eg. helloworld instead of
   # https://lab.nexedi.com/nexedi/slapos/raw/software/helloworld/software.cfg
@@ -502,6 +510,25 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       '*/*cfg',
       'etc/',
   )
+
+  @classmethod
+  def getManagedResource(cls, resource_name, resource_class):
+    # type: (str, Type[ManagedResourceType]) -> ManagedResourceType
+    """Get the managed resource for this name.
+
+    If resouce was not created yet, it is created and `open`. The
+    resource will automatically be `close` at the end of the test
+    class.
+    """
+    try:
+      if TYPE_CHECKING:
+        return cast(ManagedResourceType, cls._resources[resource_name])
+      return cls._resources[resource_name]
+    except KeyError:
+      service = resource_class(cls, resource_name)
+      cls._resources[resource_name] = service
+      service.open()
+      return service
 
   # Methods to be defined by subclasses.
   @classmethod
@@ -692,6 +719,12 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     """Destroy all instances and stop subsystem.
     Catches and log all exceptions and take snapshot named `snapshot_name` + the failing step.
     """
+    for resource_name in list(cls._resources):
+      cls.logger.debug("closing resource %s", resource_name)
+      try:
+        cls._resources.pop(resource_name).close()
+      except:
+        cls.logger.exception("Error closing resource %s", resource_name)
     try:
       if hasattr(cls, '_instance_parameter_dict'):
         cls.requestDefaultInstance(state='destroyed')

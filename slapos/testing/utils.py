@@ -217,7 +217,8 @@ class CrontabMixin(object):
     """
     crontab_command =  self._getCrontabCommand(crontab_name)
     subprocess.check_call(
-        "faketime {date} bash -o pipefail -e -c '{crontab_command}'".format(**locals()),
+        # XXX we unset PYTHONPATH set by `setup.py test`
+        "env PYTHONPATH= faketime {date} bash -o pipefail -e -c '{crontab_command}'".format(**locals()),
         shell=True,
     )
 

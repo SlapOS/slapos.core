@@ -129,7 +129,7 @@ def makeModuleSetUpAndTestCaseClass(
   logger = logging.getLogger()
   console_handler = logging.StreamHandler()
   console_handler.setLevel(
-      logging.DEBUG if (verbose or debug) else logging.WARNING)
+      logging.DEBUG if verbose else logging.WARNING)
   logger.addHandler(console_handler)
 
   if debug:
@@ -414,7 +414,7 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=10, debug=False):
       cls._copySnapshot(path, name)
 
   try:
-    cls.logger.debug("Starting")
+    cls.logger.debug("Starting SlapOS")
     cls.slap.start()
     for software_url in software_url_list:
       cls.logger.debug("Supplying %s", software_url)
@@ -570,7 +570,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     snapshot_name = "{}.{}.setUpClass".format(cls.__module__, cls.__name__)
 
     try:
-      cls.logger.debug("Starting")
+      cls.logger.debug("Starting setUpClass %s", cls)
       cls.slap.start()
       cls.logger.debug(
           "Formatting to remove old partitions XXX should not be needed because we delete ..."
@@ -736,8 +736,16 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       cls._storeSystemSnapshot(
           "{}._cleanup request destroy".format(snapshot_name))
     try:
+      # To make debug usable, we tolerate report_max_retry-1 errors and
+      # only debug the last.
       for _ in range(3):
-        cls.slap.waitForReport(max_retry=cls.report_max_retry, debug=cls._debug)
+        if cls._debug and cls.report_max_retry:
+          try:
+            cls.slap.waitForReport(max_retry=cls.report_max_retry - 1)
+          except SlapOSNodeCommandError:
+            cls.slap.waitForReport(debug=True)
+        else:
+          cls.slap.waitForReport(max_retry=cls.report_max_retry, debug=cls._debug)
     except:
       cls.logger.exception("Error during actual destruction")
       cls._storeSystemSnapshot(
@@ -768,8 +776,16 @@ class SlapOSInstanceTestCase(unittest.TestCase):
               "{}._cleanup leaked_partitions request destruction".format(
                   snapshot_name))
       try:
+        # To make debug usable, we tolerate report_max_retry-1 errors and
+        # only debug the last.
         for _ in range(3):
-          cls.slap.waitForReport(max_retry=cls.report_max_retry, debug=cls._debug)
+          if cls._debug and cls.report_max_retry:
+            try:
+              cls.slap.waitForReport(max_retry=cls.report_max_retry - 1)
+            except SlapOSNodeCommandError:
+              cls.slap.waitForReport(debug=True)
+          else:
+            cls.slap.waitForReport(max_retry=cls.report_max_retry, debug=cls._debug)
       except:
         cls.logger.exception(
             "Error during leaked partitions actual destruction")

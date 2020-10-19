@@ -440,6 +440,15 @@ class MasterMixin(BasicMixin, unittest.TestCase):
       self.assertLessEqual(
         float(computer_partition._parameter_dict['timestamp']), requested_at)
 
+    app = self.app
+    class TestConnectionHelper:
+      def GET(self, path, params=None, headers=None):
+        return app.get(path, query_string=params, data=data).data
+
+      def POST(self, path, params=None, data=None,
+              content_type='application/x-www-form-urlencoded'):
+        return app.post(path, query_string=params, data=data).data
+    computer_partition._connection_helper = TestConnectionHelper()
     return computer_partition
 
   def supply(self, url, computer_id=None, state='available'):
@@ -582,7 +591,9 @@ class TestRequest(MasterMixin):
     self.assertLessEqual(float(str(requested_at)),
       float(partition._parameter_dict['timestamp']))
     time.sleep(.1) # check timestamp does not change for an identical request
-    self.assertEqual(partition.__dict__, do_request().__dict__)
+    self.assertEqual(
+        dict(partition.__dict__, _connection_helper=None),
+        dict(do_request().__dict__, _connection_helper=None))
 
   def test_instance_bang(self):
     """
@@ -740,8 +751,8 @@ class TestRequest(MasterMixin):
     """
     self.format_for_number_of_partitions(2)
     self.assertEqual(
-        self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').__dict__,
-        self.request('http://sr//', None, 'MyFirstInstance', 'slappart3').__dict__)
+        dict(self.request('http://sr//', None, 'MyFirstInstance', 'slappart2').__dict__, _connection_helper=None),
+        dict(self.request('http://sr//', None, 'MyFirstInstance', 'slappart3').__dict__, _connection_helper=None))
 
   def test_two_different_request_from_one_partition(self):
     """
@@ -825,6 +836,111 @@ class TestRequest(MasterMixin):
         '/',
         request.getConnectionParameterDict()['path'])
 
+  def test_destroy_partition(self):
+    self.format_for_number_of_partitions(1)
+
+    partition = self.request('http://sr//', None, 'MyFirstInstance')
+    self.assertEqual(partition.getState(), 'started')
+
+    partition = self.request('http://sr//', None, 'MyFirstInstance', state='destroyed')
+    self.assertEqual(partition.getState(), 'destroyed')
+    partition_data, =  slapos.proxy.views.execute_db(
+          'partition',
+          'SELECT * from %s where reference=?',
+          (partition.getId(),),
+          db=sqlite_connect(self.proxy_db))
+    self.assertEqual(partition_data['requested_state'], 'destroyed')
+    self.assertEqual(partition_data['slap_state'], 'busy')
+    self.assertEqual(partition_data['software_release'], 'http://sr//')
+    self.assertEqual(partition_data['partition_reference'], 'MyFirstInstance')
+
+    partition.destroyed() # this is what `slapos node report` call
+
+    # now partition is free
+    partition_data, =  slapos.proxy.views.execute_db(
+          'partition',
+          'SELECT * from %s where reference=?',
+          (partition.getId(),),
+          db=sqlite_connect(self.proxy_db))
+    self.assertEqual(partition_data['requested_state'], 'started')
+    self.assertEqual(partition_data['slap_state'], 'free')
+    self.assertIsNone(partition_data['partition_reference'])
+
+    # and we can request new partitions
+    self.request('http://sr//', None, 'Another instance')
+
+  def test_destroy_child_partition(self):
+    self.format_for_number_of_partitions(2)
+    partition_parent = self.request('http://sr//', None, 'MyFirstInstance')
+    partition_child = self.request('http://sr//', None, 'MySubInstance', partition_parent.getId())
+    self.assertEqual(partition_parent.getState(), 'started')
+    self.assertEqual(partition_child.getState(), 'started')
+
+    partition_parent = self.request('http://sr//', None, 'MyFirstInstance', state='destroyed')
+
+    self.assertEqual(
+        slapos.proxy.views.execute_db(
+            'partition',
+            'SELECT reference, slap_state, requested_by, requested_state from %s order by requested_by',
+            db=sqlite_connect(self.proxy_db),
+        ), [
+            {
+                'reference': partition_parent.getId(),
+                'slap_state': 'busy',
+                'requested_by': None,
+                'requested_state': 'destroyed',
+            },
+            {
+                'reference': partition_child.getId(),
+                'slap_state': 'busy',
+                'requested_by': partition_parent.getId(),
+                'requested_state': 'started',
+            },
+        ])
+
+    # destroying the parent partition will first mark the dependent partitions as destroyed
+    partition_parent.destroyed()
+    self.assertEqual(
+        slapos.proxy.views.execute_db(
+            'partition',
+            'SELECT reference, slap_state, requested_by, requested_state from %s order by requested_by',
+            db=sqlite_connect(self.proxy_db),
+        ), [
+            {
+                'reference': partition_parent.getId(),
+                'slap_state': 'busy',
+                'requested_by': None,
+                'requested_state': 'destroyed',
+            },
+            {
+                'reference': partition_child.getId(),
+                'slap_state': 'busy',
+                'requested_by': partition_parent.getId(),
+                'requested_state': 'destroyed',
+            },
+        ])
+    partition_parent.destroyed()
+    partition_child.destroyed()
+    partition_parent.destroyed()
+    self.assertEqual(
+        slapos.proxy.views.execute_db(
+            'partition',
+            'SELECT reference, slap_state, requested_by, requested_state from %s order by requested_by',
+            db=sqlite_connect(self.proxy_db),
+        ), [
+            {
+                'reference': partition_parent.getId(),
+                'slap_state': 'free',
+                'requested_by': None,
+                'requested_state': 'started',
+            },
+            {
+                'reference': partition_child.getId(),
+                'slap_state': 'free',
+                'requested_by': None,
+                'requested_state': 'started',
+            },
+        ])
 
 class TestSlaveRequest(MasterMixin):
   """

@@ -700,7 +700,8 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       cls._storeSystemSnapshot(
           "{}._cleanup request destroy".format(snapshot_name))
     try:
-      cls.slap.waitForReport(max_retry=cls.report_max_retry, debug=cls._debug)
+      for _ in range(3):
+        cls.slap.waitForReport(max_retry=cls.report_max_retry, debug=cls._debug)
     except:
       cls.logger.exception("Error during actual destruction")
       cls._storeSystemSnapshot(
@@ -731,7 +732,8 @@ class SlapOSInstanceTestCase(unittest.TestCase):
               "{}._cleanup leaked_partitions request destruction".format(
                   snapshot_name))
       try:
-        cls.slap.waitForReport(max_retry=cls.report_max_retry, debug=cls._debug)
+        for _ in range(3):
+          cls.slap.waitForReport(max_retry=cls.report_max_retry, debug=cls._debug)
       except:
         cls.logger.exception(
             "Error during leaked partitions actual destruction")

@@ -130,7 +130,7 @@ def makeModuleSetUpAndTestCaseClass(
   logger = logging.getLogger()
   console_handler = logging.StreamHandler()
   console_handler.setLevel(
-      logging.DEBUG if (verbose or debug) else logging.WARNING)
+      logging.DEBUG if verbose else logging.WARNING)
   logger.addHandler(console_handler)
 
   if debug:
@@ -415,7 +415,7 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=10, debug=False):
       cls._copySnapshot(path, name)
 
   try:
-    cls.logger.debug("Starting")
+    cls.logger.debug("Starting SlapOS")
     cls.slap.start()
     for software_url in software_url_list:
       cls.logger.debug("Supplying %s", software_url)

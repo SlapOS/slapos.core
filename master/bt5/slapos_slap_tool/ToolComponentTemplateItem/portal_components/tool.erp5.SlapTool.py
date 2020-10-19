@@ -181,12 +181,41 @@ class SlapTool(BaseTool):
     slap_computer._computer_partition_list = []
     slap_computer._software_release_list = \
        self._getSoftwareReleaseValueListForComputer(computer_id)
-    for computer_partition in self.getPortalObject().portal_catalog.unrestrictedSearchResults(
-                    parent_uid=parent_uid,
-                    validation_state="validated",
-                    portal_type="Computer Partition"):
+
+    unrestrictedSearchResults = self.getPortalObject().portal_catalog.unrestrictedSearchResults
+
+    computer_partition_list = unrestrictedSearchResults(
+      parent_uid=parent_uid,
+      validation_state="validated",
+      portal_type="Computer Partition"
+    )
+    computer_partition_uid_list = [x.uid for x in computer_partition_list]
+    grouped_software_instance_list = unrestrictedSearchResults(
+      portal_type="Software Instance",
+      default_aggregate_uid=computer_partition_uid_list,
+      validation_state="validated",
+      group_by_list=['default_aggregate_uid'],
+      select_list=['default_aggregate_uid', 'count(*)']
+    )
+    slave_software_instance_list = unrestrictedSearchResults(
+      default_aggregate_uid=computer_partition_uid_list,
+      portal_type='Slave Instance',
+      validation_state="validated",
+      select_list=['default_aggregate_uid'],
+      **{"slapos_item.slap_state": "start_requested"}
+    )
+
+    for computer_partition in computer_partition_list:
+      software_instance_list = [x for x in grouped_software_instance_list if (x.default_aggregate_uid == computer_partition.getUid())]
+      if (len(software_instance_list) == 1) and (software_instance_list[0]['count(*)'] > 1):
+        software_instance_list = software_instance_list + software_instance_list
       slap_computer._computer_partition_list.append(
-          self._getSlapPartitionByPackingList(_assertACI(computer_partition.getObject())))
+        self._getSlapPartitionByPackingList(
+          _assertACI(computer_partition.getObject()),
+          software_instance_list=software_instance_list,
+          slave_instance_sql_list=[x for x in slave_software_instance_list if (x.default_aggregate_uid == computer_partition.getUid())]
+        )
+      )
     return dumps(slap_computer)
 
   def _fillComputerInformationCache(self, computer_id, user):
@@ -918,7 +947,9 @@ class SlapTool(BaseTool):
       LOG('SlapTool', INFO, 'Issue during parsing xml:', error=True)
     return result_dict
 
-  def _getSlapPartitionByPackingList(self, computer_partition_document):
+  def _getSlapPartitionByPackingList(self, computer_partition_document,
+                                     software_instance_list=None,
+                                     slave_instance_sql_list=None):
     computer = computer_partition_document
     portal = self.getPortalObject()
     while computer.getPortalType() != 'Computer':
@@ -934,20 +965,20 @@ class SlapTool(BaseTool):
     software_instance = None
 
     if computer_partition_document.getSlapState() == 'busy':
-      software_instance_list = portal.portal_catalog.unrestrictedSearchResults(
-          portal_type="Software Instance",
-          default_aggregate_uid=computer_partition_document.getUid(),
-          validation_state="validated",
-          limit=2,
-          )
+      if software_instance_list is None:
+        software_instance_list = portal.portal_catalog.unrestrictedSearchResults(
+            portal_type="Software Instance",
+            default_aggregate_uid=computer_partition_document.getUid(),
+            validation_state="validated",
+            limit=2,
+            )
       software_instance_count = len(software_instance_list)
       if software_instance_count == 1:
         software_instance = _assertACI(software_instance_list[0].getObject())
       elif software_instance_count > 1:
         # XXX do not prevent the system to work if one partition is broken
-        raise NotImplementedError, "Too many instances %s linked to %s" % \
-          ([x.path for x in software_instance_list],
-           computer_partition_document.getRelativeUrl())
+        raise NotImplementedError, "Too many instances linked to %s" % \
+           computer_partition_document.getRelativeUrl()
 
     if software_instance is not None:
       state = software_instance.getSlapState()
@@ -965,7 +996,9 @@ class SlapTool(BaseTool):
       slap_partition._need_modification = 1
 
       parameter_dict = self._getSoftwareInstanceAsParameterDict(
-                                                       software_instance)
+        software_instance,
+        slave_instance_sql_list=slave_instance_sql_list
+      )
       # software instance has to define an xml parameter
       slap_partition._parameter_dict = self._instanceXmlToDict(
         parameter_dict.pop('xml'))
@@ -1515,7 +1548,7 @@ class SlapTool(BaseTool):
         return software_instance
 
   @UnrestrictedMethod
-  def _getSoftwareInstanceAsParameterDict(self, software_instance):
+  def _getSoftwareInstanceAsParameterDict(self, software_instance, slave_instance_sql_list=None):
     portal = software_instance.getPortalObject()
     computer_partition = software_instance.getAggregateValue(portal_type="Computer Partition")
     timestamp = int(computer_partition.getModificationDate())
@@ -1546,12 +1579,13 @@ class SlapTool(BaseTool):
     slave_instance_list = []
     if (software_instance.getPortalType() == "Software Instance"):
       append = slave_instance_list.append
-      slave_instance_sql_list = portal.portal_catalog.unrestrictedSearchResults(
-        default_aggregate_uid=computer_partition.getUid(),
-        portal_type='Slave Instance',
-        validation_state="validated",
-        **{"slapos_item.slap_state": "start_requested"}
-      )
+      if slave_instance_sql_list is None:
+        slave_instance_sql_list = portal.portal_catalog.unrestrictedSearchResults(
+          default_aggregate_uid=computer_partition.getUid(),
+          portal_type='Slave Instance',
+          validation_state="validated",
+          **{"slapos_item.slap_state": "start_requested"}
+        )
       for slave_instance in slave_instance_sql_list:
         slave_instance = _assertACI(slave_instance.getObject())
         # XXX Use catalog to filter more efficiently

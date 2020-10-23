@@ -30,6 +30,7 @@ import socket
 import hashlib
 import unittest
 import os
+import logging
 import multiprocessing
 import shutil
 import subprocess
@@ -194,6 +195,7 @@ class ManagedTemporaryDirectory(ManagedResource):
 
 class CrontabMixin(object):
   computer_partition_root_path = None # type: str
+  logger = None # type: logging.Logger
   def _getCrontabCommand(self, crontab_name):
     # type: (str) -> str
     """Read a crontab and return the command that is executed.
@@ -216,11 +218,12 @@ class CrontabMixin(object):
     be a relative time.
     """
     crontab_command =  self._getCrontabCommand(crontab_name)
-    subprocess.check_call(
+    crontab_output = subprocess.check_output(
         # XXX we unset PYTHONPATH set by `setup.py test`
         "env PYTHONPATH= faketime {date} bash -o pipefail -e -c '{crontab_command}'".format(**locals()),
         shell=True,
     )
+    self.logger.debug("crontab %s output: %s", crontab_command, crontab_output)
 
 
 class ImageComparisonTestCase(unittest.TestCase):

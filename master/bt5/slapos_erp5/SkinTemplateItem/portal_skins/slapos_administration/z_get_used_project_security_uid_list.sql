@@ -1,0 +1,1 @@
+SELECT DISTINCT project_security_uid FROM catalog

@@ -1,1 +1,4 @@
-DELETE FROM roles_and_users WHERE <dtml-sqltest uid type=int multiple>
+DELETE FROM
+  roles_and_users
+WHERE
+  uid = <dtml-sqlvar expr="security_uid" type="string">

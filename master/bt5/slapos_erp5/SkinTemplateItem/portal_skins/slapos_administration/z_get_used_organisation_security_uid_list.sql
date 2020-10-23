@@ -1,0 +1,1 @@
+SELECT DISTINCT organisation_security_uid FROM catalog

@@ -46,6 +46,7 @@ except ImportError:
   subprocess  # pyflakes
 
 from .utils import getPortFromPath
+from .utils import ManagedResource
 
 from ..slap.standalone import StandaloneSlapOS
 from ..slap.standalone import SlapOSNodeCommandError
@@ -54,7 +55,8 @@ from ..grid.utils import md5digest
 from ..util import mkdir_p
 
 try:
-  from typing import Iterable, Tuple, Callable, Type, Dict, List, Optional
+  from typing import Iterable, Tuple, Callable, Type, Dict, List, Optional, TypeVar
+  ManagedResourceType = TypeVar("ManagedResourceType", bound=ManagedResource)
 except ImportError:
   pass
 
@@ -127,7 +129,7 @@ def makeModuleSetUpAndTestCaseClass(
   logger = logging.getLogger()
   console_handler = logging.StreamHandler()
   console_handler.setLevel(
-      logging.DEBUG if (verbose or debug) else logging.WARNING)
+      logging.DEBUG if verbose else logging.WARNING)
   logger.addHandler(console_handler)
 
   if debug:
@@ -412,7 +414,7 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=10, debug=False):
       cls._copySnapshot(path, name)
 
   try:
-    cls.logger.debug("Starting")
+    cls.logger.debug("Starting SlapOS")
     cls.slap.start()
     for software_url in software_url_list:
       cls.logger.debug("Supplying %s", software_url)
@@ -484,6 +486,11 @@ class SlapOSInstanceTestCase(unittest.TestCase):
   _ipv4_address = ""
   _ipv6_address = ""
 
+  _resources = {} # type: Dict[str, ManagedResource]
+  _instance_parameter_dict = None # type: Dict
+  computer_partition = None # type: ComputerPartition
+  computer_partition_root_path = None # type: str
+
   # a short name of that software URL.
   # eg. helloworld instead of
   # https://lab.nexedi.com/nexedi/slapos/raw/software/helloworld/software.cfg
@@ -502,6 +509,29 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       '*/*cfg',
       'etc/',
   )
+
+  @classmethod
+  def getManagedResource(cls, resource_name, resource_class):
+    # type: (str, Type[ManagedResourceType]) -> ManagedResourceType
+    """Get the managed resource for this name.
+
+    If resouce was not created yet, it is created and `open`. The
+    resource will automatically be `close` at the end of the test
+    class.
+    """
+    try:
+      existing_resource = cls._resources[resource_name]
+    except KeyError:
+      resource = resource_class(cls, resource_name)
+      cls._resources[resource_name] = resource
+      resource.open()
+      return resource
+    else:
+      if not isinstance(existing_resource, resource_class):
+        raise ValueError(
+            "Resource %s is of unexpected class %s" %
+            (resource_name, existing_resource), )
+      return existing_resource
 
   # Methods to be defined by subclasses.
   @classmethod
@@ -540,7 +570,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     snapshot_name = "{}.{}.setUpClass".format(cls.__module__, cls.__name__)
 
     try:
-      cls.logger.debug("Starting")
+      cls.logger.debug("Starting setUpClass %s", cls)
       cls.slap.start()
       cls.logger.debug(
           "Formatting to remove old partitions XXX should not be needed because we delete ..."
@@ -692,6 +722,12 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     """Destroy all instances and stop subsystem.
     Catches and log all exceptions and take snapshot named `snapshot_name` + the failing step.
     """
+    for resource_name in list(cls._resources):
+      cls.logger.debug("closing resource %s", resource_name)
+      try:
+        cls._resources.pop(resource_name).close()
+      except:
+        cls.logger.exception("Error closing resource %s", resource_name)
     try:
       if hasattr(cls, '_instance_parameter_dict'):
         cls.requestDefaultInstance(state='destroyed')
@@ -700,8 +736,16 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       cls._storeSystemSnapshot(
           "{}._cleanup request destroy".format(snapshot_name))
     try:
+      # To make debug usable, we tolerate report_max_retry-1 errors and
+      # only debug the last.
       for _ in range(3):
-        cls.slap.waitForReport(max_retry=cls.report_max_retry, debug=cls._debug)
+        if cls._debug and cls.report_max_retry:
+          try:
+            cls.slap.waitForReport(max_retry=cls.report_max_retry - 1)
+          except SlapOSNodeCommandError:
+            cls.slap.waitForReport(debug=True)
+        else:
+          cls.slap.waitForReport(max_retry=cls.report_max_retry, debug=cls._debug)
     except:
       cls.logger.exception("Error during actual destruction")
       cls._storeSystemSnapshot(
@@ -732,8 +776,16 @@ class SlapOSInstanceTestCase(unittest.TestCase):
               "{}._cleanup leaked_partitions request destruction".format(
                   snapshot_name))
       try:
+        # To make debug usable, we tolerate report_max_retry-1 errors and
+        # only debug the last.
         for _ in range(3):
-          cls.slap.waitForReport(max_retry=cls.report_max_retry, debug=cls._debug)
+          if cls._debug and cls.report_max_retry:
+            try:
+              cls.slap.waitForReport(max_retry=cls.report_max_retry - 1)
+            except SlapOSNodeCommandError:
+              cls.slap.waitForReport(debug=True)
+          else:
+            cls.slap.waitForReport(max_retry=cls.report_max_retry, debug=cls._debug)
       except:
         cls.logger.exception(
             "Error during leaked partitions actual destruction")

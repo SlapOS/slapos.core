@@ -39,7 +39,7 @@ import sys
 import logging
 import psutil
 import time
-
+import threading
 import six
 
 from slapos.grid.exception import BuildoutFailedError, WrongPermissionError
@@ -108,7 +108,7 @@ class SlapPopen(subprocess.Popen):
     else:
       kwargs.setdefault('stdout', subprocess.PIPE)
       kwargs.setdefault('stderr', subprocess.STDOUT)
-      kwargs.update(stdin=subprocess.PIPE)
+      kwargs.update(stdin=subprocess.PIPE, bufsize=1)
 
     if sys.platform == 'cygwin' and kwargs.get('env') == {}:
       kwargs['env'] = None
@@ -125,14 +125,29 @@ class SlapPopen(subprocess.Popen):
     self.stdin.close()
     self.stdin = None
 
-    output_lines = []
-    for line in self.stdout:
-      if type(line) is not str:
-        line = line.decode(errors='replace')
-      output_lines.append(line)
-      logger.info(line.rstrip('\n'))
+    def copy_output_to_log(output_file, logger, output_buffer):
+      while True:
+        data = os.read(output_file.fileno(), 4096)
+        if not data:
+          return
+        if type(data) is not str:
+          data = data.decode(errors='replace')
+        output_buffer.append(data)
+        logger.info(data.rstrip('\n'))
+
+    output_buffer = []
+    logging_thread = threading.Thread(
+        target=copy_output_to_log,
+        args=(
+            self.stdout,
+            logger,
+            output_buffer,
+        ),
+    )
+    logging_thread.start()
+    logging_thread.join()
     self.wait()
-    self.output = ''.join(output_lines)
+    self.output = ''.join(output_buffer)
 
 
 def md5digest(url):

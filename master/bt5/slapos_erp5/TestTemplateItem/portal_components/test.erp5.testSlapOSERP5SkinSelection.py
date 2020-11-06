@@ -224,6 +224,7 @@ erp5_wechat_secure_payment
 erp5_workflow
 erp5_xhtml_style
 external_method
+slapos_disaster_recovery
 Images
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
@@ -344,6 +345,7 @@ erp5_web_widget_library
 erp5_wechat_secure_payment
 erp5_workflow
 external_method
+slapos_disaster_recovery
 Images
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
@@ -464,6 +466,7 @@ erp5_web_widget_library
 erp5_wechat_secure_payment
 erp5_workflow
 external_method
+slapos_disaster_recovery
 Images
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
@@ -584,6 +587,7 @@ erp5_wechat_secure_payment
 erp5_workflow
 erp5_xhtml_style
 external_method
+slapos_disaster_recovery
 Images
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
@@ -705,6 +709,7 @@ erp5_wechat_secure_payment
 erp5_workflow
 erp5_xhtml_style
 external_method
+slapos_disaster_recovery
 Images
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
@@ -823,6 +828,7 @@ erp5_web_widget_library
 erp5_wechat_secure_payment
 erp5_workflow
 external_method
+slapos_disaster_recovery
 Images
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
@@ -942,6 +948,7 @@ erp5_wechat_secure_payment
 erp5_workflow
 erp5_xhtml_style
 external_method
+slapos_disaster_recovery
 Images
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
@@ -1060,6 +1067,7 @@ erp5_web_widget_library
 erp5_wechat_secure_payment
 erp5_workflow
 external_method
+slapos_disaster_recovery
 Images
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
@@ -1178,6 +1186,7 @@ erp5_web_widget_library
 erp5_wechat_secure_payment
 erp5_workflow
 external_method
+slapos_disaster_recovery
 Images
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
@@ -1297,6 +1306,7 @@ erp5_web_widget_library
 erp5_wechat_secure_payment
 erp5_workflow
 external_method
+slapos_disaster_recovery
 Images
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
@@ -1417,6 +1427,7 @@ erp5_wechat_secure_payment
 erp5_workflow
 erp5_xhtml_style
 external_method
+slapos_disaster_recovery
 Images
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
@@ -1537,6 +1548,7 @@ erp5_wechat_secure_payment
 erp5_workflow
 erp5_xhtml_style
 external_method
+slapos_disaster_recovery
 Images
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)
@@ -1656,6 +1668,7 @@ erp5_web_widget_library
 erp5_wechat_secure_payment
 erp5_workflow
 external_method
+slapos_disaster_recovery
 Images
 """
     self.assertSameSkinSelection(skin_name, selection_string_list)

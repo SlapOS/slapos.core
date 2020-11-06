@@ -137,13 +137,24 @@ for hosting_subscription in portal.portal_catalog(
   hosting_subscription = hosting_subscription.getObject()
   if hosting_subscription.getCausalityState() == 'diverged':
     # Simply check that it has never been simulated
-    assert len(portal.portal_catalog(
-      portal_type='Open Sale Order Line',
-      default_aggregate_uid=hosting_subscription.getUid(),
-      limit=1)) == 0
-
-    # Let's add
-    add_line_list.append(hosting_subscription)
+    if hosting_subscription.getSlapState() == 'destroy_requested':
+      # Line should be deleted
+      open_order_line = portal.portal_catalog.getResultValue(
+        portal_type='Open Sale Order Line',
+        default_aggregate_uid=hosting_subscription.getUid())
+      if open_order_line is not None and open_order_line.getValidationState() == "invalidated":
+        hosting_subscription.converge(comment="Last open order: %s" % open_order_line.getRelativeUrl())
+      elif open_order_line is None:
+        # User has no Open Sale Order (likely), so we add the line to remove later. This allow us to charge
+        # eventual usage between the runs of the alarm.
+        add_line_list.append(hosting_subscription)
+    else:
+      assert len(portal.portal_catalog(
+        portal_type='Open Sale Order Line',
+        default_aggregate_uid=hosting_subscription.getUid(),
+        limit=1)) == 0
+      # Let's add
+      add_line_list.append(hosting_subscription)
   else:
     # Should be in the list of lines to remove
     assert (hosting_subscription.getRelativeUrl() in deleted_hosting_subscription_dict) or \

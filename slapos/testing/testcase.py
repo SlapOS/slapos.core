@@ -554,12 +554,12 @@ class SlapOSInstanceTestCase(unittest.TestCase):
 
   @classmethod
   def getInstanceSoftwareType(cls):
-    """Return software type for instance, default "".
+    """Return software type for instance, default None.
 
     To be defined by subclasses if they need to request instance with specific
     software type.
     """
-    return ""
+    return None
 
   # Unittest methods
   @classmethod

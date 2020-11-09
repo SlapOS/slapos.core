@@ -811,7 +811,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     software_url = cls.getSoftwareURL()
     software_type = cls.getInstanceSoftwareType()
     cls.logger.debug(
-        'requesting "%s" software:%s type:%s state:%s parameters:%s',
+        'requesting "%s" software:%s type:%r state:%s parameters:%s',
         cls.default_partition_reference, software_url, software_type, state,
         cls._instance_parameter_dict)
     return cls.slap.request(

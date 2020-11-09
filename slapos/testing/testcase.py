@@ -559,7 +559,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     To be defined by subclasses if they need to request instance with specific
     software type.
     """
-    return ""
+    return None
 
   # Unittest methods
   @classmethod

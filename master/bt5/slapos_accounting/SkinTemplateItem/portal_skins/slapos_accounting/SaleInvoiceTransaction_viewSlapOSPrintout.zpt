@@ -136,7 +136,7 @@
       </div>
     </aside-->
 
-    <tal:block tal:define="aggregated_reference python: context.getCausalityReference(portal_type='Sale Packing List', checked_permission='View');
+    <tal:block tal:define="aggregated_reference python: context.getCausalityReferenceList(portal_type='Sale Packing List', checked_permission='View');
                            item_dict python: {}">
       <p class='line' tal:condition="python: aggregated_reference">&nbsp;</p>
       <aside tal:condition="python: aggregated_reference">

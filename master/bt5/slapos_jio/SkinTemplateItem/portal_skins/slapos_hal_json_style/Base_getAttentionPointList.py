@@ -28,7 +28,7 @@ if portal_type in ["Hosting Subscription", "Computer"]:
     entry = addAttentionForTicket(ticket)
     if entry is not None:
       attention_point_list.append(entry)
-      
+
 # This is a limitation of the API that will consider that all tickets
 # Are from this module
 if portal_type in ["Support Request Module"]:
@@ -45,17 +45,17 @@ if portal_type in ["Support Request Module"]:
 
 if portal_type in ["Hosting Subscription Module", "Hosting Subscription", "Person"] and \
   portal.portal_preferences.getPreferredCloudContractEnabled():
-  
+
   person = portal.portal_membership.getAuthenticatedMember().getUserValue()
   contract = portal.portal_catalog.getResultValue(
     portal_type="Cloud Contract",
     default_destination_section_uid=person.getUid(),
     validation_state=['validated'],
   )
-  
+
   if contract is None:
     msg = context.Base_translateString(
-        "Your Contract is Desactivated")
-    attention_point_list.append({"text": msg, 'page': "gadget_erp5_page_slap_request_contract_activation"})
+        "Your Contract is Deactivated")
+    attention_point_list.append({"text": msg, 'page': "slap_request_contract_activation"})
 
 return dumps(attention_point_list)

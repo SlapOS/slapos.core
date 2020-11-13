@@ -49,18 +49,35 @@
     <article>
       <h2>To</h2>
       <address>
-        <p tal:content="python: context.getDestinationSectionTitle('')"></p>
         <tal:block tal:define="destination_section_organisation python: context.getDestinationSectionValue()">
-          <p tal:condition="python: destination_section_organisation is not None">
-            <tal:block tal:content="python: destination_section_organisation.getDefaultEmailText('')"></tal:block>
-          </p>
+          <tal:block tal:condition="python: destination_section_organisation is not None">
+            <tal:block tal:define="destination_section_subordination python: destination_section_organisation.getSubordinationValue()">
 
-          <p tal:condition="python: destination_section_organisation is not None">
-            <tal:block tal:repeat="line python: destination_section_organisation.getDefaultAddressText('').split('\n')">
-              <span style="display:block" tal:content="line"></span>
-            </tal:block>
-            <tal:block tal:content="python: destination_section_organisation.getDefaultRegionTitle()"></tal:block>
-          </p>
+              <tal:block tal:condition="python: destination_section_subordination is not None">
+                <p tal:content="python: destination_section_subordination.getCorporateName() or destination_section_subordination.getTitle() or ''"></p>
+                <p tal:content="python: destination_section_organisation.getTitle() or ''"></p>
+                <p tal:content="python: destination_section_subordination.getDefaultEmailText('') or destination_section_organisation.getDefaultEmailText('')"></p>
+                <p>
+                  <tal:block tal:repeat="line python: destination_section_subordination.getDefaultAddressText('').split('\n')">
+                    <span style="display:block" tal:content="line"></span>
+                  </tal:block>
+                  <tal:block tal:content="python: destination_section_subordination.getDefaultRegionTitle()"></tal:block>
+                </p>
+              </tal:block>
+
+              <tal:block tal:condition="python: destination_section_subordination is None">
+                <p tal:content="python: destination_section_organisation.getTitle() or ''"></p>
+                <p tal:content="python: destination_section_organisation.getDefaultEmailText('')"></p>
+                <p>
+                  <tal:block tal:repeat="line python: destination_section_organisation.getDefaultAddressText('').split('\n')">
+                    <span style="display:block" tal:content="line"></span>
+                  </tal:block>
+                  <tal:block tal:content="python: destination_section_organisation.getDefaultRegionTitle()"></tal:block>
+                </p>
+              </tal:block>
+          </tal:block>
+
+          </tal:block>
         </tal:block>
       </address>
       <table class="meta">
@@ -152,9 +169,9 @@
                                  stop_date python: line.getStopDate();
                                  quantity python: line.getQuantity();
                                  dummy_init python: item_dict.setdefault(item_uid, [item_title, start_date, stop_date, 0]);
-                                 dummy_update python: item_dict.update({item_uid: [item_title, 
-                                   min(item_dict[item_uid][1], start_date), 
-                                   max(item_dict[item_uid][2], stop_date), 
+                                 dummy_update python: item_dict.update({item_uid: [item_title,
+                                   min(item_dict[item_uid][1], start_date),
+                                   max(item_dict[item_uid][2], stop_date),
                                    sum([item_dict[item_uid][3], quantity])]});">
           </tal:block>
         </tal:block>
@@ -181,6 +198,6 @@
       <tal:block tal:condition="python: invoice_resource_document is not None" tal:content="structure python: invoice_resource_document.getData()">
       </tal:block>
     </tal:block>
-    <footer>Generated with ERP5 - Open Source ERP suite (www.erp5.org)</footer>
+    <footer>Generated with ERP5 - Open Source ERP suite (erp5.nexedi.com)</footer>
   </body>
 </html>

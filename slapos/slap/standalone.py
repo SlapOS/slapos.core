@@ -33,8 +33,6 @@ import logging
 import time
 import errno
 import socket
-import shutil
-import collections
 
 from six.moves import urllib
 from six.moves import http_client
@@ -142,6 +140,13 @@ class SupervisorConfigWriter(ConfigWriter):
         startretries = 0
         startsecs = 0
         redirect_stderr = true
+
+        [program:slapos-instance-supervisord]
+        command = supervisord --nodaemon --configuration {standalone_slapos._instance_root}/etc/supervisord.conf
+        startretries = 0
+        startsecs = 0
+        redirect_stderr = true
+
         """).format(**locals())
 
     for program, program_config in standalone_slapos._slapos_commands.items():
@@ -198,6 +203,7 @@ class SlapOSConfigWriter(ConfigWriter):
               pidfile_software = {standalone_slapos._instance_pid}
               pidfile_instance = {standalone_slapos._software_pid}
               pidfile_report =  {standalone_slapos._report_pid}
+              forbid_supervisord_automatic_launch = true
 
               [slapproxy]
               host = {standalone_slapos._server_ip}
@@ -607,42 +613,29 @@ class StandaloneSlapOS(object):
     self._ensureSupervisordStarted()
     self._ensureSlapOSAvailable()
 
-  def stop(self):
+  def stop(self, timeout=300):
+    # type: (int) -> None
     """Stops all services.
 
-    This methods blocks until services are stopped or a timeout is reached.
+    This methods blocks until the services are stopped or the timeout is reached.
+
+    Arguments:
+      * `timeout`: maximum duration, in seconds, to wait for services to
+      terminate.
 
     Error cases:
-      * `Exception` when unexpected error occurs trying to stop supervisors.
+      * `RuntimeError` when unexpected error occurs trying to stop supervisors.
     """
     self._logger.info("shutting down")
-
-    # shutdown slapos node instance supervisor, if it has been created.
-    instance_process_alive = []
-    if os.path.exists(os.path.join(self._instance_root, 'etc',
-                                   'supervisord.conf')):
-      try:
-        with self.instance_supervisor_rpc as instance_supervisor:
-          instance_supervisor_process = psutil.Process(
-              instance_supervisor.getPID())
-          instance_supervisor.stopAllProcesses()
-          instance_supervisor.shutdown()
-          # shutdown returns before process is completly stopped,
-          # so wait for process.
-          _, instance_process_alive = psutil.wait_procs(
-              [instance_supervisor_process], timeout=10)
-      except BaseException as e:
-        self._logger.info("Ignoring exception while stopping instances: %s", e)
 
     with self.system_supervisor_rpc as system_supervisor:
       system_supervisor_process = psutil.Process(system_supervisor.getPID())
       system_supervisor.stopAllProcesses()
       system_supervisor.shutdown()
-    _, alive = psutil.wait_procs([system_supervisor_process], timeout=10)
-    if alive + instance_process_alive:
+    _, alive = psutil.wait_procs([system_supervisor_process], timeout=timeout)
+    if alive:
       raise RuntimeError(
-          "Could not terminate some processes: {}".format(
-              alive + instance_process_alive))
+          "Could not terminate some processes: {}".format(alive))
 
   def waitForSoftware(self, max_retry=0, debug=False, error_lines=30):
     """Synchronously install or uninstall all softwares previously supplied/removed.

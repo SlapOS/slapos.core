@@ -283,6 +283,17 @@ class TestBasicSlapgridCP(BasicMixin, unittest.TestCase):
     os.mkdir(self.instance_root)
     self.assertRaises(ConnectionError, self.grid.processComputerPartitionList)
 
+  def test_environment_variable_HOME(self):
+    # When running instance, $HOME is set to the partition path
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    partition = computer.instance_list[0]
+    partition.requested_state = 'started'
+    partition.software.setBuildout('#!/bin/sh\n echo $HOME > env_HOME')
+    with httmock.HTTMock(computer.request_handler):
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+    with open(os.path.join(partition.partition_path, 'env_HOME')) as f:
+      self.assertEqual(f.read().strip(), partition.partition_path)
+
 
 class MasterMixin(BasicMixin):
 

@@ -294,6 +294,38 @@ class TestBasicSlapgridCP(BasicMixin, unittest.TestCase):
     with open(os.path.join(partition.partition_path, 'env_HOME')) as f:
       self.assertEqual(f.read().strip(), partition.partition_path)
 
+  def test_no_user_site_packages(self):
+    # When running instance buildout, python's user site packages are ignored
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    partition = computer.instance_list[0]
+    partition.requested_state = 'started'
+
+    # Make a broken user site package in this partition home, that will error
+    # as soon as site is initialized, making python unusable. While this is
+    # a bit unrealistic, real life problems were observed after installing a
+    # broken buildout with `pip install --editable --user`, because user site
+    # packages have priority over sys.path assignments in buildout generated
+    # scripts.
+    home_site_packages_dir = os.path.join(
+        partition.partition_path,
+        '.local',
+        'lib',
+        'python{version[0]}.{version[1]}'.format(version=sys.version_info),
+        'site-packages',
+    )
+    os.makedirs(home_site_packages_dir)
+    with open(os.path.join(home_site_packages_dir, 'dummy-nspkg.pth'),
+              'w') as f:
+      f.write('import sys; raise SystemExit("ahaha")')
+
+    partition.software.setBuildout(textwrap.dedent('''\
+      #!{sys.executable}
+      print("ok")
+    '''.format(sys=sys)))
+
+    with httmock.HTTMock(computer.request_handler):
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+
 
 class MasterMixin(BasicMixin):
 

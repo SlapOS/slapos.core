@@ -56,8 +56,6 @@ PYTHON_ENVIRONMENT_REMOVE_LIST = [
   'PYTHONDEBUG',
   'PYTHONDONTWRITEBYTECODE',
   'PYTHONINSPECT',
-  'PYTHONNOUSERSITE',
-  'PYTHONNOUSERSITE',
   'PYTHONUNBUFFERED',
   'PYTHONVERBOSE',
 ]
@@ -149,6 +147,7 @@ def getCleanEnvironment(logger, home_path='/tmp'):
     if old is not None:
       removed_env.append(k)
   changed_env['HOME'] = env['HOME'] = home_path
+  changed_env['PYTHONNOUSERSITE'] = env['PYTHONNOUSERSITE'] = 'true'
   for k, v in sorted(changed_env.items()):
     logger.debug('Overridden %s = %r', k, v)
   if removed_env:

@@ -63,22 +63,36 @@ if int(outstanding_amount) > 0:
 
   ticket.reindexObject(activate_kw={'tag': tag})
 
+  # Notify using user's language
+  language = context.getLanguage("en")
+
   notification_message = context.getPortalObject().portal_notifications.getDocumentValue(
-    reference="slapos-crm.create.regularisation.request")
+    reference="slapos-crm.create.regularisation.request",
+    language=language)
   if notification_message is None:
     subject = 'Invoice payment requested'
-    body = """Dear user,
+    body = """Dear %s,
 
 A new invoice has been generated. 
 You can access it in your invoice section at %s.
 
 Regards,
 The slapos team
-""" % portal.portal_preferences.getPreferredSlaposWebSiteUrl()
+""" % (context.getTitle(), portal.portal_preferences.getPreferredSlaposWebSiteUrl())
 
   else:
+    notification_mapping_dict = {
+     'user_name': context.getTitle()}
+
     subject = notification_message.getTitle()
-    body = notification_message.convert(format='text')[1]
+
+    # Preserve HTML else convert to text
+    if notification_message.getContentType() == "text/html":
+      body = notification_message.asEntireHTML(
+        substitution_method_parameter_dict={'mapping_dict':notification_mapping_dict})
+    else:
+      body = notification_message.asText(
+        substitution_method_parameter_dict={'mapping_dict':notification_mapping_dict})
 
   mail_message = ticket.RegularisationRequest_checkToSendUniqEvent(
     portal.portal_preferences.getPreferredRegularisationRequestResource(),

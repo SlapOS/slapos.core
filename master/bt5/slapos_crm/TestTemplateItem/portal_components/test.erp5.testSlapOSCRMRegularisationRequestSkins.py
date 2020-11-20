@@ -63,7 +63,7 @@ class TestSlapOSPerson_checkToCreateRegularisationRequest(SlapOSTestCaseMixinWit
                       person.getRelativeUrl())
     self.assertEqual(event.getSource(),
                       ticket.getSource())
-    expected_text_content = """Dear user,
+    expected_text_content = """Dear Member Template,
 
 A new invoice has been generated. 
 You can access it in your invoice section at http://foobar.org/.

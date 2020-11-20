@@ -32,10 +32,11 @@ import glob
 import os
 import six.moves.configparser as configparser
 
+from slapos.cli.command import check_root_user
 from slapos.cli.config import ConfigCommand
 from slapos.grid.slapgrid import merged_options
 from slapos.grid.utils import setRunning, setFinished
-from slapos.util import rmtree
+from slapos.util import rmtree, string_to_boolean
 
 
 class PruneCommand(ConfigCommand):
@@ -60,6 +61,9 @@ class PruneCommand(ConfigCommand):
     if not options.get('shared_part_list'):
       self.app.log.error('No shared_part_list options in slapos config')
       sys.exit(-1)
+
+    if string_to_boolean(options.get('root_check', 'True').lower()):
+      check_root_user(self)
 
     pidfile_software = options.get('pidfile_software')
     if not args.dry_run and pidfile_software and os.path.exists(

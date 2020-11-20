@@ -95,8 +95,8 @@ The slapos team
     notification_message = self.portal.notification_message_module.newContent(
       portal_type="Notification Message",
       title='Test NM title %s' % new_id,
-      text_content='Test NM content<br/>%s<br/>' % new_id,
-      content_type='text/html',
+      text_content='Test NM content\n%s\n' % new_id,
+      content_type='text/plain',
       )
     self.portal.REQUEST\
         ['test_addRegularisationRequest_notification_message'] = \
@@ -866,8 +866,8 @@ The slapos team
     notification_message = self.portal.notification_message_module.newContent(
       portal_type="Notification Message",
       title='Test NM title %s' % new_id,
-      text_content='Test NM content<br/>%s<br/>' % new_id,
-      content_type='text/html',
+      text_content='Test NM content\n%s\n' % new_id,
+      content_type='text/plain',
       )
     self.portal.REQUEST\
         ['test_checkToTriggerNextEscalationStep_notification_message'] = \
@@ -938,8 +938,8 @@ The slapos team
     notification_message = self.portal.notification_message_module.newContent(
       portal_type="Notification Message",
       title='Test NM title %s' % new_id,
-      text_content='Test NM content<br/>%s<br/>' % new_id,
-      content_type='text/html',
+      text_content='Test NM content\n%s\n' % new_id,
+      content_type='text/plain',
       )
     self.portal.REQUEST\
         ['test_checkToTriggerNextEscalationStep_notification_message'] = \
@@ -1010,8 +1010,8 @@ The slapos team
     notification_message = self.portal.notification_message_module.newContent(
       portal_type="Notification Message",
       title='Test NM title %s' % new_id,
-      text_content='Test NM content<br/>%s<br/>' % new_id,
-      content_type='text/html',
+      text_content='Test NM content\n%s\n' % new_id,
+      content_type='text/plain',
       )
     self.portal.REQUEST\
         ['test_checkToTriggerNextEscalationStep_notification_message'] = \
@@ -1082,8 +1082,8 @@ The slapos team
     notification_message = self.portal.notification_message_module.newContent(
       portal_type="Notification Message",
       title='Test NM title %s' % new_id,
-      text_content='Test NM content<br/>%s<br/>' % new_id,
-      content_type='text/html',
+      text_content='Test NM content\n%s\n' % new_id,
+      content_type='text/plain',
       )
     self.portal.REQUEST\
         ['test_checkToTriggerNextEscalationStep_notification_message'] = \

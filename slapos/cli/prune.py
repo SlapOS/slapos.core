@@ -34,6 +34,7 @@ import six.moves.configparser as configparser
 
 from slapos.cli.config import ConfigCommand
 from slapos.grid.slapgrid import merged_options
+from slapos.grid.utils import setRunning, setFinished
 from slapos.util import rmtree
 
 
@@ -66,7 +67,13 @@ class PruneCommand(ConfigCommand):
       self.app.log.error('Cannot prune while software is running')
       sys.exit(-1)
 
-    sys.exit(do_prune(self.app.log, options, args.dry_run))
+    if pidfile_software:
+      setRunning(logger=self.app.log, pidfile=pidfile_software)
+    try:
+      do_prune(self.app.log, options, args.dry_run)
+    finally:
+      if pidfile_software:
+        setFinished(pidfile_software)
 
 
 def _prune(

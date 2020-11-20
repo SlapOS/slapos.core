@@ -78,7 +78,7 @@ The slapos team
     self.assertEqual(event.getSimulationState(), 'delivered')
 
   @simulate('NotificationTool_getDocumentValue',
-            'reference=None',
+            'reference=None, language="en"',
   'assert reference == "slapos-crm.create.regularisation.request"\n' \
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_addRegularisationRequest_notification_message"])')
@@ -850,7 +850,7 @@ The slapos team
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
   @simulate('NotificationTool_getDocumentValue',
-            'reference=None',
+            'reference=None, language="en"',
   'assert reference == "slapos-crm.acknowledgment.escalation"\n' \
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_checkToTriggerNextEscalationStep_notification_message"])')
@@ -922,7 +922,7 @@ The slapos team
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
   @simulate('NotificationTool_getDocumentValue',
-            'reference=None',
+            'reference=None, language="en"',
   'assert reference == "slapos-crm.stop.reminder.escalation"\n' \
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_checkToTriggerNextEscalationStep_notification_message"])')
@@ -994,7 +994,7 @@ The slapos team
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
   @simulate('NotificationTool_getDocumentValue',
-            'reference=None',
+            'reference=None, language="en"',
   'assert reference == "slapos-crm.stop.acknowledgment.escalation"\n' \
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_checkToTriggerNextEscalationStep_notification_message"])')
@@ -1066,7 +1066,7 @@ The slapos team
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
   @simulate('NotificationTool_getDocumentValue',
-            'reference=None',
+            'reference=None, language="en"',
   'assert reference == "slapos-crm.delete.reminder.escalation"\n' \
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_checkToTriggerNextEscalationStep_notification_message"])')

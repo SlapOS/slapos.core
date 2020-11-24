@@ -1104,7 +1104,8 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
 
     self.tic()
     self.assertEqual(
-      subscription_request.SubscriptionRequest_processOrdered(), None)
+      subscription_request.SubscriptionRequest_processOrdered(),
+      'Skipped (Instance Requested)')
     self.tic()
 
     hosting_subscription = subscription_request.getAggregateValue(portal_type="Hosting Subscription")
@@ -1120,7 +1121,8 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
  
     
     self.assertEqual(
-      subscription_request.SubscriptionRequest_processOrdered(), None)
+      subscription_request.SubscriptionRequest_processOrdered(),
+      "Skipped (Payment isn't ready)") 
     self.tic()
 
     self.assertEqual('solved', hosting_subscription.getCausalityState())
@@ -1177,7 +1179,7 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
 
     self.tic()
     self.assertEqual(
-      subscription_request.SubscriptionRequest_processOrdered(), None)
+      subscription_request.SubscriptionRequest_processOrdered(),  'Skipped (Instance Requested)')
     self.tic()
 
     hosting_subscription = subscription_request.getAggregateValue(portal_type="Hosting Subscription")
@@ -1190,7 +1192,8 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
  
     
     self.assertEqual(
-      subscription_request.SubscriptionRequest_processOrdered(), None)
+      subscription_request.SubscriptionRequest_processOrdered(),
+      "Skipped (Payment isn't ready)")
     self.tic()
 
     self.assertEqual('solved', hosting_subscription.getCausalityState())
@@ -1256,7 +1259,8 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
 
     self.tic()
     self.assertEqual(
-      subscription_request.SubscriptionRequest_processOrdered(), None)
+      subscription_request.SubscriptionRequest_processOrdered(),
+      'Skipped (Instance Requested)')
     self.tic()
 
     hosting_subscription = subscription_request.getAggregateValue()
@@ -1264,13 +1268,14 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
     self.assertEqual('diverged', hosting_subscription.getCausalityState())
     
     self.assertEqual(
-      subscription_request.SubscriptionRequest_processOrdered(), None)
+      subscription_request.SubscriptionRequest_processOrdered(),
+      'Payment is ready for the user')
     self.tic()
 
     self.assertEqual('solved', hosting_subscription.getCausalityState())
 
     self.assertEqual(
-      subscription_request.SubscriptionRequest_processOrdered(), None)
+      subscription_request.SubscriptionRequest_processOrdered(), "Skipped (User isn't notified)")
     self.tic()
     self.assertEqual(
       subscription_request.getSimulationState(),
@@ -1428,7 +1433,8 @@ class TestSubscriptionRequest_processConfirmed(TestSubscriptionSkinsMixin):
 
     self.tic()
     self.assertEqual(
-      subscription_request.SubscriptionRequest_processConfirmed(), None)
+      subscription_request.SubscriptionRequest_processConfirmed(),
+       'Skipped (Payment is pending)')
     self.tic()
 
     self.assertEqual(subscription_request.getSimulationState(), "confirmed")
@@ -1466,7 +1472,8 @@ class TestSubscriptionRequest_processConfirmed(TestSubscriptionSkinsMixin):
 
     self.tic()
     self.assertEqual(
-      subscription_request.SubscriptionRequest_processConfirmed(), None)
+      subscription_request.SubscriptionRequest_processConfirmed(),
+      'Skipped (Started instance)')
     self.tic()
 
     self.assertEqual(subscription_request.getSimulationState(), "confirmed")

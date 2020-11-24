@@ -29,16 +29,22 @@ currency_uid_list = [
   portal.currency_module.CNY.getUid(),
 ]
 
+contract_line_list = contract.objectValues(
+    portal_type="Cloud Contract Line")
+if not len(contract_line_list):
+  return context.Entity_statOutstandingAmount(
+      at_date=at_date)
+
 for currency_uid in currency_uid_list:
-  for line in contract.objectValues(
-    portal_type="Cloud Contract Line"):
+  for line in contract_line_list:
     if line.getPriceCurrencyUid() == currency_uid:
       maximum_invoice_credit = line.getMaximumInvoiceCredit()
       amount_per_currency = context.Entity_statOutstandingAmount(
         at_date=at_date, resource_uid=currency_uid)
       if amount_per_currency > maximum_invoice_credit:
-        return amount_per_currency # We exceed maximum amount because
-                                   # user already requested too much
+        return amount_per_currency - maximum_invoice_credit
+                                    # We exceed maximum amount because
+                                    # user already requested too much
 
 if maximum_invoice_delay:
   # Recalculate now ignoring the all invoices from lastest days.

@@ -35,17 +35,18 @@ class TestDebianize(unittest.TestCase):
     def test_debian_major(self):
         """
         On debian, we only care about major release.
-        All the other tuples are unchanged.
+        All the other tuples are unchanged only distribution name is lower case.
         """
         for provided, expected in [
-            (('CentOS', '6.3', 'Final'), None),
-            (('Ubuntu', '12.04', 'precise'), None),
-            (('Ubuntu', '13.04', 'raring'), None),
-            (('Fedora', '17', 'Beefy Miracle'), None),
+            (('CentOS', '6.3', 'Final'), ('centos', '6.3', 'Final')),
+            (('Ubuntu', '12.04', 'precise'), ('ubuntu', '12.04', 'precise')),
+            (('Ubuntu', '13.04', 'raring'), ('ubuntu', '13.04', 'raring')),
+            (('Fedora', '17', 'Beefy Miracle'), ('fedora', '17', 'Beefy Miracle')),
             (('debian', '6.0.6', ''), ('debian', '6', '')),
             (('debian', '7.0', ''), ('debian', '7', '')),
+            (('Debian', '8.11', ''), ('debian', '8', '')),
         ]:
-            self.assertEqual(distribution._debianize(provided), expected or provided)
+            self.assertEqual(distribution._debianize(provided), expected)
 
 
 class TestOSMatches(unittest.TestCase):
@@ -70,3 +71,5 @@ class TestOSMatches(unittest.TestCase):
                                                 ('debian', '6.0.5', '')))
         self.assertTrue(distribution.os_matches(('debian', '6.0.6', ''),
                                                 ('debian', '6.1', '')))
+        self.assertTrue(distribution.os_matches(('Debian', '8.11', ''),
+                                                ('debian', '8.4', '')))

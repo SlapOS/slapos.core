@@ -26,6 +26,9 @@
  <portal_type id="Organisation">
   <item>GeographicOrganisation</item>
  </portal_type>
+ <portal_type id="Template Tool">
+  <item>TemplateToolBusinessApplicationModuleCategoryConstraint</item>
+ </portal_type>
  <portal_type id="Web Site Module">
   <item>WebSiteModuleShacacheConstraint</item>
  </portal_type>

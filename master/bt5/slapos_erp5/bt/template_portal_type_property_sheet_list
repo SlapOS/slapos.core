@@ -9,4 +9,5 @@ Invitation Token | Url
 Memcached Tool | MemcachedToolServerConstraint
 OAuth Tool | OAuthToolDefaultSlapOSConnector
 Organisation | GeographicOrganisation
+Template Tool | TemplateToolBusinessApplicationModuleCategoryConstraint
 Web Site Module | WebSiteModuleShacacheConstraint

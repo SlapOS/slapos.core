@@ -78,6 +78,12 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
         [ i for i in self.portal.portal_templates.checkConsistency()
                      if not ("(reinstall)" in i.message or "Update translation table" in i.message)], [])
 
+  def testConfiguredModuleBusinessApplication(self):
+    """ Make sure that Modules has proper business_application set
+        by TemplateToolBusinessApplicationModuleCategoryConstraint constraint """
+    
+    self.assertEqual([],
+      self.portal.portal_templates.TemplateTool_checkBusinessApplicationToModuleConsistency())
 
   def testConfiguredVolatileCache(self):
     """  Make sure Memcached is configured

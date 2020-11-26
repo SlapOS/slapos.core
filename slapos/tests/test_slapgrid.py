@@ -70,7 +70,7 @@ import httmock
 dummylogger = logging.getLogger()
 
 
-WATCHDOG_TEMPLATE = """#!{python_path} -S
+WATCHDOG_TEMPLATE = """#!{python_path}
 import sys
 sys.path={sys_path}
 import slapos.slap

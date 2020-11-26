@@ -58,8 +58,7 @@ def _debianize(os_):
     distname_lower = distname.lower()
     if distname_lower == 'debian' and '.' in version:
         version = version.split('.')[0]
-        distname = distname_lower
-    return distname, version, id_
+    return distname_lower, version, id_
 
 
 def os_matches(os1, os2):

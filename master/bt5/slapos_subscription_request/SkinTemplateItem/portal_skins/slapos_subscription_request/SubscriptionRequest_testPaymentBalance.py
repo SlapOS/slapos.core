@@ -2,7 +2,7 @@ portal = context.getPortalObject()
 payment = context.SubscriptionRequest_verifyPaymentBalanceIsReady()
 
 if payment is not None:
-  if payment.getSimulationState() in ['stopped', 'deliveried']:
+  if payment.getSimulationState() in ['stopped', 'delivered']:
     # Payment Transaction is payed
     return True
   

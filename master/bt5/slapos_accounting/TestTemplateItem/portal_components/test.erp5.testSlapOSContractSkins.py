@@ -1,5 +1,6 @@
 # Copyright (c) 2013 Nexedi SA and Contributors. All Rights Reserved.
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort, simulate
+from DateTime import DateTime
 
 from zExceptions import Unauthorized
 
@@ -306,3 +307,114 @@ class TestSlapOSPerson_isAllowedToAllocate(SlapOSTestCaseMixinWithAbort):
     # If Contract is disabled, anyone can allocate
     self.assertEqual(result, True)
 
+class TestSlapOSEntity_statSlapOSOutstandingAmount(SlapOSTestCaseMixinWithAbort):
+
+  def createPerson(self):
+    new_id = self.generateNewId()
+    return self.portal.person_module.newContent(
+      portal_type='Person',
+      title="Person %s" % new_id,
+      reference="TESTPERS-%s" % new_id,
+      )
+
+  def createCloudContract(self):
+    new_id = self.generateNewId()
+    return self.portal.cloud_contract_module.newContent(
+      portal_type='Cloud Contract',
+      title="Contract %s" % new_id,
+      reference="TESTCONTRACT-%s" % new_id,
+      )
+
+  @simulate("Entity_statOutstandingAmount", "*args, **kwargs",
+              "return 'simulated_result'")
+  def test_outstanding_amount_missing_cloud_contract(self):
+    person = self.createPerson()
+    self.assertEqual('simulated_result',
+      person.Entity_statSlapOSOutstandingAmount())
+
+  @simulate("Entity_statOutstandingAmount", "*args, **kwargs",
+              "return None")
+  def test_outstanding_with_cloud_contract_but_no_amount(self):
+    person = self.createPerson()
+    cloud_contract = self.createCloudContract()
+    cloud_contract.setDestinationSection(person.getRelativeUrl())
+    cloud_contract.validate()
+
+    # Provide contract w/o indexation
+    self.assertEqual(None,
+      person.Entity_statSlapOSOutstandingAmount(contract=cloud_contract))
+
+    self.tic()
+    # Provide contract w/o indexation
+    self.assertEqual(None,
+      person.Entity_statSlapOSOutstandingAmount())
+    
+  @simulate("Entity_statOutstandingAmount", "*args, **kwargs",
+              "return kwargs.get('at_date', 195.0)")
+  def test_outstanding_with_cloud_contract_but_no_line(self):
+    person = self.createPerson()
+    cloud_contract = self.createCloudContract()
+    cloud_contract.setDestinationSection(person.getRelativeUrl())
+    cloud_contract.validate()
+    
+    self.tic()
+
+    # Without Lines the result uses at_date
+    at_date=DateTime()
+    self.assertEqual(at_date,
+      person.Entity_statSlapOSOutstandingAmount(at_date=at_date))
+
+
+  @simulate("Entity_statOutstandingAmount", "at_date=None, resource_uid=None",
+              """
+from DateTime import DateTime
+assert at_date in (None, DateTime().earliestTime()-1)
+
+if at_date == DateTime().earliestTime()-1:
+  return -999 
+
+if resource_uid in (None, context.currency_module.EUR.getUid()):
+  return 195.0
+else:
+  return 0""")
+  def test_outstanding_with_cloud_contract_with_linein_euro(self):
+    person = self.createPerson()
+    cloud_contract = self.createCloudContract()
+    cloud_contract.setDestinationSection(person.getRelativeUrl())
+    cloud_contract.validate()
+    
+    line = cloud_contract.newContent(
+      price_currency_value=self.portal.currency_module.CNY,
+      maximum_invoice_credit=10.0
+    )
+    self.tic()
+
+    # Without Lines the result uses at_date
+    self.assertEqual(195.0,
+      person.Entity_statSlapOSOutstandingAmount())
+
+    line.edit(
+      price_currency_value=self.portal.currency_module.EUR,
+    )
+
+    # Without Lines the result uses at_date
+    self.assertEqual(185.0,
+      person.Entity_statSlapOSOutstandingAmount())
+
+    line.setMaximumInvoiceCredit(200)
+
+    # Without Lines the result uses at_date
+    self.assertEqual(195.0,
+      person.Entity_statSlapOSOutstandingAmount())
+
+    # We need at least one day
+    cloud_contract.setMaximumInvoiceDelay(1)
+
+    self.pinDateTime(DateTime().earliestTime())
+    self.addCleanup(self.unpinDateTime)
+
+    # Without Lines the result uses at_date
+    self.assertEqual(-999,
+      person.Entity_statSlapOSOutstandingAmount())
+    
+    self.unpinDateTime()

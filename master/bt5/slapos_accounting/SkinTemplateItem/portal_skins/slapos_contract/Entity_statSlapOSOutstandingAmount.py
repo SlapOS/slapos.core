@@ -1,10 +1,6 @@
 portal = context.getPortalObject()
 from DateTime import DateTime
 
-at_date = None
-if at_date in kw:
-  at_date = kw["at_date"]
-
 if contract is None:
   contract = portal.portal_catalog.getResultValue(
     portal_type="Cloud Contract",

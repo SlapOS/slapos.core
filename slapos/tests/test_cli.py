@@ -399,6 +399,28 @@ class TestCliNode(CliMixin):
           pidfile='/opt/slapos/slapgrid-cp.pid')
       processComputerPartitionList.assert_called_once()
 
+  def test_node_prune(self):
+    """slapos node prune command
+    """
+    app = slapos.cli.entry.SlapOSApp()
+
+    with patch('slapos.cli.prune.check_root_user', return_value=True) as checked_root_user, \
+         patch('slapos.cli.prune.setRunning') as write_pid_file, \
+         patch('slapos.cli.prune.merged_options', return_value={
+            'shared_part_list': 'something',
+            'root_check': 'true',
+            'pidfile_software': 'pidfile_software.pid',
+         }), \
+         patch('slapos.cli.prune.do_prune') as do_prune:
+
+      app.run(('node', 'prune'))
+
+      checked_root_user.assert_called_once()
+      write_pid_file.assert_called_once_with(
+          logger=mock.ANY,
+          pidfile='pidfile_software.pid')
+      do_prune.assert_called_once()
+
 
 class TestCliList(CliMixin):
   def test_list(self):

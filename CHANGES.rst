@@ -1,6 +1,18 @@
 Changes
 =======
 
+1.6.3 (2020-11-30)
+------------------
+
+  * slap/standalone: let standalone's supervisord control instance supervisord
+  * cli: Fix slapos node prune usages with root slapos
+  * slapgrid: compare os name in lower case,so that binary cache works with debian and Debian
+  * grid/utils: set PYTHONNOUSERSITE to prevent issues with broken user site package
+  * testing/testcase: Set proper default software type
+  * testing/testcase: check eggs for known vulnerabilities
+  * cli: fish shell completions
+  * proxy: support partitions destruction
+
 1.6.2 (2020-09-17)
 ------------------
 

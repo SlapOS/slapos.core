@@ -19,43 +19,18 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
-import unittest
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 import difflib
 
-class TestSlaposSkinSelection(SlapOSTestCaseMixin):
-  run_all_test = 1
 
+class TestSlaposSkinSelectionMixin(SlapOSTestCaseMixin):
   # Ignore these bt5 as they might be present on development instances
   # but not present on the test.
   ignore_list = [
     # UI testing folders not deployed by Configurator
-    "slapos_ui_test",
+    "slapos_ui_test"]
 
-    # Legacy and/or custom bt5 folders
-    "slapos_vifib", "rapid_space", "rapid_space_ui_test"]
-
-  def getTitle(self):
-    return "Slapos Skin Selection"
-
-  def test_01_defaultSkin(self, quiet=0, run=run_all_test):
-    """
-    Check default skin
-    """
-    if not run: return
-    self.assertSameSet(
-        self.portal.portal_skins.getDefaultSkin(),
-        'View')
-
-  def test_01_availableSkin(self, quiet=0, run=run_all_test):
-    """
-    Check that available skins are the same than production server
-    """
-    if not run: return
-    portal = self.getPortal()
-    self.assertSameSet(
-        [x[0] for x in portal.portal_skins.getSkinPaths()],
-        [
+  expected_available_skin = [
           'Deferred',
           'Deploy',
           'Download',
@@ -73,50 +48,8 @@ class TestSlaposSkinSelection(SlapOSTestCaseMixin):
           'SlideShow',
           'View'
         ]
-    )
 
-  def assertSameSkinSelection(self, skin_name, selection_string_list):
-    if selection_string_list.startswith('\n'):
-      selection_string_list = selection_string_list[1:]
-    if selection_string_list.endswith('\n'):
-      selection_string_list = selection_string_list[:-1]
-
-    installed_selection_string_list = \
-      self.portal.portal_skins.getSkinPath(skin_name)
-
-    selection_string_list = selection_string_list.split('\n')
-
-    installed_selection_string_list = \
-      [ i for i in installed_selection_string_list.split(',')
-                             if i not in self.ignore_list]
-    if selection_string_list != installed_selection_string_list:
-      message = '\nSkin "%s" is different from production server:\n' % skin_name
-      for line in difflib.unified_diff(
-              selection_string_list,
-              installed_selection_string_list
-      ):
-        message += '\t%s\n' % line
-
-      message += '\n'
-      message += 'Removed skin folder:\n'
-      for i in [x for x in selection_string_list if x not in
-          installed_selection_string_list]:
-        message += '\t - %s\n' % i
-      message += 'Added skin folder:\n'
-      for i in [x for x in installed_selection_string_list if x not in
-          selection_string_list]:
-        message += '\t + %s\n' % i
-      self.fail(message)
-
-
-  def test_092_RedirectAssist_selection(self, quiet=0, run=run_all_test):
-    """
-    Check the skin folder order
-    """
-    if not run: return
-
-    skin_name = 'RedirectAssist'
-    selection_string_list = \
+  redirect_assistant_selection_string_list = \
 """
 custom
 erp5_font
@@ -227,18 +160,8 @@ external_method
 slapos_disaster_recovery
 Images
 """
-    self.assertSameSkinSelection(skin_name, selection_string_list)
 
-
-
-  def test_091_Deffered_selection(self, quiet=0, run=run_all_test):
-    """
-    Check the skin folder order
-    """
-    if not run: return
-
-    skin_name = 'Deferred'
-    selection_string_list = \
+  deffered_selection_string_list = \
 """
 custom
 erp5_font
@@ -348,17 +271,8 @@ external_method
 slapos_disaster_recovery
 Images
 """
-    self.assertSameSkinSelection(skin_name, selection_string_list)
 
-
-  def test_09_Deploy_selection(self, quiet=0, run=run_all_test):
-    """
-    Check the skin folder order
-    """
-    if not run: return
-
-    skin_name = 'Deploy'
-    selection_string_list = \
+  deploy_selection_string_list = \
 """
 custom
 erp5_font
@@ -469,16 +383,8 @@ external_method
 slapos_disaster_recovery
 Images
 """
-    self.assertSameSkinSelection(skin_name, selection_string_list)
 
-  def test_08_View_selection(self, quiet=0, run=run_all_test):
-    """
-    Check the skin folder order
-    """
-    if not run: return
-
-    skin_name = 'View'
-    selection_string_list = \
+  view_selection_string_list = \
 """
 custom
 erp5_font
@@ -590,16 +496,8 @@ external_method
 slapos_disaster_recovery
 Images
 """
-    self.assertSameSkinSelection(skin_name, selection_string_list)
 
-  def test_10_KM_selection(self, quiet=0, run=run_all_test):
-    """
-    Check the skin folder order
-    """
-    if not run: return
-
-    skin_name = 'KM'
-    selection_string_list = \
+  km_selection_string_list = \
 """
 custom
 erp5_font
@@ -712,16 +610,8 @@ external_method
 slapos_disaster_recovery
 Images
 """
-    self.assertSameSkinSelection(skin_name, selection_string_list)
 
-  def test_11_Multiflex_selection(self, quiet=0, run=run_all_test):
-    """
-    Check the skin folder order
-    """
-    if not run: return
-
-    skin_name = 'Multiflex'
-    selection_string_list = \
+  multiflex_selection_string_list = \
 """
 custom
 erp5_font
@@ -831,16 +721,8 @@ external_method
 slapos_disaster_recovery
 Images
 """
-    self.assertSameSkinSelection(skin_name, selection_string_list)
 
-  def test_12_Download_selection(self, quiet=0, run=run_all_test):
-    """
-    Check the skin folder order
-    """
-    if not run: return
-
-    skin_name = 'Download'
-    selection_string_list = \
+  download_selection_string_list = \
 """
 custom
 erp5_font
@@ -951,16 +833,8 @@ external_method
 slapos_disaster_recovery
 Images
 """
-    self.assertSameSkinSelection(skin_name, selection_string_list)
 
-  def test_13_ODS_selection(self, quiet=0, run=run_all_test):
-    """
-    Check the skin folder order
-    """
-    if not run: return
-
-    skin_name = 'ODS'
-    selection_string_list = \
+  ods_selection_string_list = \
 """
 custom
 erp5_font
@@ -1070,16 +944,8 @@ external_method
 slapos_disaster_recovery
 Images
 """
-    self.assertSameSkinSelection(skin_name, selection_string_list)
 
-  def test_14_ODT_selection(self, quiet=0, run=run_all_test):
-    """
-    Check the skin folder order
-    """
-    if not run: return
-
-    skin_name = 'ODT'
-    selection_string_list = \
+  odt_selection_string_list = \
 """
 custom
 erp5_font
@@ -1189,16 +1055,8 @@ external_method
 slapos_disaster_recovery
 Images
 """
-    self.assertSameSkinSelection(skin_name, selection_string_list)
 
-  def test_15_RSS_selection(self, quiet=0, run=run_all_test):
-    """
-    Check the skin folder order
-    """
-    if not run: return
-
-    skin_name = 'RSS'
-    selection_string_list = \
+  rss_selection_string_list = \
 """
 custom
 erp5_font
@@ -1309,137 +1167,8 @@ external_method
 slapos_disaster_recovery
 Images
 """
-    self.assertSameSkinSelection(skin_name, selection_string_list)
 
-  def test_16_SHACACHE_selection(self, quiet=0, run=run_all_test):
-    """
-    Check the skin folder order
-    """
-    if not run: return
-
-    skin_name = 'SHACACHE'
-    selection_string_list = \
-"""
-custom
-erp5_font
-erp5_web_hal_json
-slapos_ecoallocation
-slapos_erp5
-slapos_upgrader
-slapos_base
-slapos_contract
-slapos_subscription_request
-slapos_crm_monitoring
-slapos_accounting
-slapos_administration
-slapos_cloud
-slapos_consumption
-slapos_core
-slapos_crm
-slapos_payzen
-slapos_pdm
-slapos_simulation
-slapos_slap_tool
-slapos_wechat
-slapos_configurator
-erp5_web_shacache
-erp5_km
-erp5_web_download_theme
-erp5_knowledge_pad
-erp5_simulation
-erp5_dms_base
-erp5_dms_web
-erp5_accounting_l10n_fr
-erp5_certificate_authority
-erp5_item
-erp5_item_trade
-erp5_upgrader
-erp5_access_tab
-erp5_access_token
-erp5_accounting
-erp5_accounting_eu
-erp5_accounting_fr
-erp5_administration
-erp5_authentication_policy
-erp5_auto_logout
-erp5_base
-erp5_bearer_token
-erp5_ckeditor
-erp5_code_mirror
-erp5_commerce
-erp5_commerce_widget_library
-erp5_computer_immobilisation
-erp5_configurator
-erp5_configurator_wizard
-erp5_content_translation
-erp5_core
-erp5_core_proxy_field_legacy
-erp5_credential
-erp5_credential_oauth2
-erp5_crm
-erp5_data_set
-erp5_deferred_style_core
-erp5_dhtml_style
-erp5_diff
-erp5_dms
-erp5_fckeditor
-erp5_forge
-erp5_forge_release
-erp5_gadget
-erp5_glossary
-erp5_immobilisation
-erp5_ingestion
-erp5_integration
-erp5_invoicing
-erp5_jquery_sheet_editor
-erp5_monaco_editor
-erp5_oauth
-erp5_oauth_facebook_login
-erp5_oauth_google_login
-erp5_ods_core
-erp5_odt_core
-erp5_ooo_import
-erp5_open_trade
-erp5_payzen_secure_payment
-erp5_pdm
-erp5_project
-erp5_project_trade
-erp5_rss_core
-erp5_run_my_doc
-erp5_secure_payment
-erp5_simplified_invoicing
-erp5_slideshow_core
-erp5_software_pdm
-erp5_svg_editor
-erp5_syncml
-erp5_system_event
-erp5_toolbox
-erp5_trade
-erp5_ui_test_core
-erp5_vcs
-erp5_web
-erp5_web_crm
-erp5_web_minimal_theme
-erp5_web_renderjs
-erp5_web_service
-erp5_web_widget_library
-erp5_wechat_secure_payment
-erp5_workflow
-erp5_xhtml_style
-external_method
-slapos_disaster_recovery
-Images
-"""
-    self.assertSameSkinSelection(skin_name, selection_string_list)
-
-  def test_17_SHADIR_selection(self, quiet=0, run=run_all_test):
-    """
-    Check the skin folder order
-    """
-    if not run: return
-
-    skin_name = 'SHADIR'
-    selection_string_list = \
+  shadir_selection_string_list = \
 """
 custom
 erp5_font
@@ -1551,16 +1280,121 @@ external_method
 slapos_disaster_recovery
 Images
 """
-    self.assertSameSkinSelection(skin_name, selection_string_list)
 
-  def test_18_RJS_selection(self, quiet=0, run=run_all_test):
-    """
-    Check the skin folder order
-    """
-    if not run: return
+  shacache_selection_string_list = \
+"""
+custom
+erp5_font
+erp5_web_hal_json
+slapos_ecoallocation
+slapos_erp5
+slapos_upgrader
+slapos_base
+slapos_contract
+slapos_subscription_request
+slapos_crm_monitoring
+slapos_accounting
+slapos_administration
+slapos_cloud
+slapos_consumption
+slapos_core
+slapos_crm
+slapos_payzen
+slapos_pdm
+slapos_simulation
+slapos_slap_tool
+slapos_wechat
+slapos_configurator
+erp5_web_shacache
+erp5_km
+erp5_web_download_theme
+erp5_knowledge_pad
+erp5_simulation
+erp5_dms_base
+erp5_dms_web
+erp5_accounting_l10n_fr
+erp5_certificate_authority
+erp5_item
+erp5_item_trade
+erp5_upgrader
+erp5_access_tab
+erp5_access_token
+erp5_accounting
+erp5_accounting_eu
+erp5_accounting_fr
+erp5_administration
+erp5_authentication_policy
+erp5_auto_logout
+erp5_base
+erp5_bearer_token
+erp5_ckeditor
+erp5_code_mirror
+erp5_commerce
+erp5_commerce_widget_library
+erp5_computer_immobilisation
+erp5_configurator
+erp5_configurator_wizard
+erp5_content_translation
+erp5_core
+erp5_core_proxy_field_legacy
+erp5_credential
+erp5_credential_oauth2
+erp5_crm
+erp5_data_set
+erp5_deferred_style_core
+erp5_dhtml_style
+erp5_diff
+erp5_dms
+erp5_fckeditor
+erp5_forge
+erp5_forge_release
+erp5_gadget
+erp5_glossary
+erp5_immobilisation
+erp5_ingestion
+erp5_integration
+erp5_invoicing
+erp5_jquery_sheet_editor
+erp5_monaco_editor
+erp5_oauth
+erp5_oauth_facebook_login
+erp5_oauth_google_login
+erp5_ods_core
+erp5_odt_core
+erp5_ooo_import
+erp5_open_trade
+erp5_payzen_secure_payment
+erp5_pdm
+erp5_project
+erp5_project_trade
+erp5_rss_core
+erp5_run_my_doc
+erp5_secure_payment
+erp5_simplified_invoicing
+erp5_slideshow_core
+erp5_software_pdm
+erp5_svg_editor
+erp5_syncml
+erp5_system_event
+erp5_toolbox
+erp5_trade
+erp5_ui_test_core
+erp5_vcs
+erp5_web
+erp5_web_crm
+erp5_web_minimal_theme
+erp5_web_renderjs
+erp5_web_service
+erp5_web_widget_library
+erp5_wechat_secure_payment
+erp5_workflow
+erp5_xhtml_style
+external_method
+slapos_disaster_recovery
+Images
+"""
 
-    skin_name = 'RJS'
-    selection_string_list = \
+  rjs_selection_string_list = \
 """
 custom
 erp5_font
@@ -1671,10 +1505,129 @@ external_method
 slapos_disaster_recovery
 Images
 """
-    self.assertSameSkinSelection(skin_name, selection_string_list)
+
+  def getTitle(self):
+    return "Slapos Skin Selection"
+
+  def test_01_defaultSkin(self):
+    """
+    Check default skin
+    """
+    self.assertSameSet(
+        self.portal.portal_skins.getDefaultSkin(),
+        'View')
+
+  def assertSameSkinSelection(self, skin_name, selection_string_list):
+    if selection_string_list.startswith('\n'):
+      selection_string_list = selection_string_list[1:]
+    if selection_string_list.endswith('\n'):
+      selection_string_list = selection_string_list[:-1]
+
+    installed_selection_string_list = \
+      self.portal.portal_skins.getSkinPath(skin_name)
+
+    selection_string_list = selection_string_list.split('\n')
+
+    installed_selection_string_list = \
+      [ i for i in installed_selection_string_list.split(',')
+                             if i not in self.ignore_list]
+    if selection_string_list != installed_selection_string_list:
+      message = '\nSkin "%s" is different from production server:\n' % skin_name
+      for line in difflib.unified_diff(
+              selection_string_list,
+              installed_selection_string_list
+      ):
+        message += '\t%s\n' % line
+
+      message += '\n'
+      message += 'Removed skin folder:\n'
+      for i in [x for x in selection_string_list if x not in
+          installed_selection_string_list]:
+        message += '\t - %s\n' % i
+      message += 'Added skin folder:\n'
+      for i in [x for x in installed_selection_string_list if x not in
+          selection_string_list]:
+        message += '\t + %s\n' % i
+      self.fail(message)
+
+  def _test_01_availableSkin(self):
+    """
+    Check that available skins are the same than production server
+    """
+    portal = self.getPortal()
+    self.assertSameSet(
+        [x[0] for x in portal.portal_skins.getSkinPaths()],
+        self.expected_available_skin
+    )
+
+  def _test_092_RedirectAssist_selection(self):
+    self.assertSameSkinSelection('RedirectAssist',
+      self.redirect_assistant_selection_string_list)
+
+  def _test_091_Deffered_selection(self):
+    self.assertSameSkinSelection('Deferred',
+      self.deffered_selection_string_list)
+
+  def _test_09_Deploy_selection(self):
+    self.assertSameSkinSelection("Deploy",
+      self.deploy_selection_string_list)
+
+  def _test_08_View_selection(self):
+    self.assertSameSkinSelection('View',
+      self.view_selection_string_list)
+
+  def _test_10_KM_selection(self):
+    self.assertSameSkinSelection("KM",
+      self.km_selection_string_list)
+
+  def _test_11_Multiflex_selection(self):
+    self.assertSameSkinSelection("Multiflex",
+      self.multiflex_selection_string_list)
+
+  def _test_12_Download_selection(self):
+    self.assertSameSkinSelection("Download",
+      self.download_selection_string_list)
+
+  def _test_13_ODS_selection(self):
+    self.assertSameSkinSelection("ODS",
+      self.ods_selection_string_list)
+
+  def _test_14_ODT_selection(self):
+    self.assertSameSkinSelection("ODT",
+      self.odt_selection_string_list)
+
+  def _test_15_RSS_selection(self):
+    self.assertSameSkinSelection("RSS",
+      self.rss_selection_string_list)
+
+  def _test_16_SHACACHE_selection(self):
+    self.assertSameSkinSelection("SHACACHE",
+      self.shacache_selection_string_list)
+
+  def _test_17_SHADIR_selection(self):
+    self.assertSameSkinSelection("SHADIR",
+      self.shadir_selection_string_list)
+
+  def _test_18_RJS_selection(self):
+    self.assertSameSkinSelection("RJS",
+      self.rjs_selection_string_list)
 
 
-def test_suite():
-  suite = unittest.TestSuite()
-  suite.addTest(unittest.makeSuite(TestSlaposSkinSelection))
-  return suite
+
+
+class TestSlaposSkinSelection(TestSlaposSkinSelectionMixin):
+
+  test_01_availableSkin = TestSlaposSkinSelectionMixin._test_01_availableSkin
+  test_092_RedirectAssist_selection = TestSlaposSkinSelectionMixin._test_092_RedirectAssist_selection
+  test_091_Deffered_selection = TestSlaposSkinSelectionMixin._test_091_Deffered_selection
+  test_09_Deploy_selection = TestSlaposSkinSelectionMixin._test_09_Deploy_selection
+  test_08_View_selection = TestSlaposSkinSelectionMixin._test_08_View_selection
+  test_10_KM_selection = TestSlaposSkinSelectionMixin._test_10_KM_selection
+  test_11_Multiflex_selection = TestSlaposSkinSelectionMixin._test_11_Multiflex_selection
+  test_12_Download_selection = TestSlaposSkinSelectionMixin._test_12_Download_selection
+  test_13_ODS_selection = TestSlaposSkinSelectionMixin._test_13_ODS_selection
+  test_14_ODT_selection = TestSlaposSkinSelectionMixin._test_14_ODT_selection
+  test_15_RSS_selection = TestSlaposSkinSelectionMixin._test_15_RSS_selection
+  test_16_SHACACHE_selection = TestSlaposSkinSelectionMixin._test_16_SHACACHE_selection
+  test_17_SHADIR_selection = TestSlaposSkinSelectionMixin._test_17_SHADIR_selection
+  test_18_RJS_selection = TestSlaposSkinSelectionMixin._test_18_RJS_selection

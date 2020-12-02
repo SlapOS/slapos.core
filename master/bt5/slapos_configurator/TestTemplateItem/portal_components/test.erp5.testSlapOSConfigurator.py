@@ -161,8 +161,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     module_list = [module.getId() for module in self.portal.objectValues() 
                      if getattr(module, "getIdGenerator", None) is not None and \
                                         module.getIdGenerator() == "_generatePerDayId"]
-    self.assertSameSet(module_list,
-                [
+    expected_module_list = [
        'access_token_module',
        'account_module',
        'accounting_module',
@@ -252,7 +251,13 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'web_page_module',
        'web_site_module',
        'workflow_module',
-     ])
+    ]
+    # If mixin contains a custom definition that introduce new business templated from
+    # the project scope, them include it on expected list.
+    expected_module_list += getattr(self,
+      "_testSlapOSConfigurator_custom_expected_module_list", [])
+
+    self.assertSameSet(module_list, expected_module_list)
 
 
   def testConfiguredBusinessTemplateList(self):
@@ -362,5 +367,11 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'slapos_web_deploy',
       'slapos_erp5',
     ]
+
+    # If mixin contains a custom definition that introduce new business templated from
+    # the project scope, them include it on expected list.
+    expected_business_template_list += getattr(self,
+      "_testSlapOSConfigurator_custom_additional_bt5_list", [])
+
     self.assertSameSet(expected_business_template_list,
       self.portal.portal_templates.getInstalledBusinessTemplateTitleList())

@@ -58,12 +58,6 @@
             <value> <string>Bonus granted to employees in payroll</string> </value>
         </item>
         <item>
-            <key> <string>effective_date</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
             <key> <string>id</string> </key>
             <value> <string>bonus</string> </value>
         </item>

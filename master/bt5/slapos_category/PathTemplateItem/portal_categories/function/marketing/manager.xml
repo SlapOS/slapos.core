@@ -55,10 +55,10 @@
         </item>
         <item>
             <key> <string>codification</string> </key>
-            <value> <string>F-MARKMAN</string> </value>
+            <value> <string>F-MKTMAN</string> </value>
         </item>
         <item>
-            <key> <string>effective_date</string> </key>
+            <key> <string>default_reference</string> </key>
             <value>
               <none/>
             </value>
@@ -66,6 +66,12 @@
         <item>
             <key> <string>id</string> </key>
             <value> <string>manager</string> </value>
+        </item>
+        <item>
+            <key> <string>int_index</string> </key>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>

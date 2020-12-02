@@ -76,12 +76,6 @@
             <value> <string>Certain services are used in the CRM to categorize tickets and events</string> </value>
         </item>
         <item>
-            <key> <string>effective_date</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
             <key> <string>id</string> </key>
             <value> <string>crm</string> </value>
         </item>

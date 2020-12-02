@@ -76,12 +76,6 @@
             <value> <string>Resources used in production</string> </value>
         </item>
         <item>
-            <key> <string>effective_date</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
             <key> <string>id</string> </key>
             <value> <string>production</string> </value>
         </item>

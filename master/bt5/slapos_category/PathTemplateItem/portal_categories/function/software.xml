@@ -76,6 +76,12 @@
             <value> <string>F-SOFTWARE</string> </value>
         </item>
         <item>
+            <key> <string>default_reference</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
             <key> <string>description</string> </key>
             <value> <string>An organisation which creates software or packages software into SlapOS profiles</string> </value>
         </item>
@@ -88,6 +94,12 @@
         <item>
             <key> <string>id</string> </key>
             <value> <string>software</string> </value>
+        </item>
+        <item>
+            <key> <string>int_index</string> </key>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>

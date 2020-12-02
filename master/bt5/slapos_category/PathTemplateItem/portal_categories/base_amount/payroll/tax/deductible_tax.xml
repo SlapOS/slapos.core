@@ -9,35 +9,25 @@
         <item>
             <key> <string>_Add_portal_content_Permission</string> </key>
             <value>
-              <tuple>
-                <string>Assignor</string>
-                <string>Manager</string>
-              </tuple>
+              <tuple/>
             </value>
         </item>
         <item>
             <key> <string>_Add_portal_folders_Permission</string> </key>
             <value>
-              <tuple>
-                <string>Assignor</string>
-                <string>Manager</string>
-              </tuple>
+              <tuple/>
             </value>
         </item>
         <item>
             <key> <string>_Copy_or_Move_Permission</string> </key>
             <value>
-              <tuple>
-                <string>Assignor</string>
-                <string>Manager</string>
-              </tuple>
+              <tuple/>
             </value>
         </item>
         <item>
             <key> <string>_Delete_objects_Permission</string> </key>
             <value>
               <tuple>
-                <string>Assignor</string>
                 <string>Manager</string>
               </tuple>
             </value>
@@ -46,21 +36,73 @@
             <key> <string>_Modify_portal_content_Permission</string> </key>
             <value>
               <tuple>
-                <string>Assignee</string>
-                <string>Assignor</string>
                 <string>Manager</string>
-                <string>Owner</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>_View_Permission</string> </key>
+            <value>
+              <tuple>
+                <string>Manager</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>_local_properties</string> </key>
+            <value>
+              <tuple>
+                <dictionary>
+                  <item>
+                      <key> <string>id</string> </key>
+                      <value> <string>sort_index</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>type</string> </key>
+                      <value> <string>string</string> </value>
+                  </item>
+                </dictionary>
               </tuple>
             </value>
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>TODO</string> </value>
+            <value> <string>Withholdings that are deducted from the base of income tax</string> </value>
         </item>
         <item>
             <key> <string>effective_date</string> </key>
             <value>
-              <none/>
+              <object>
+                <klass>
+                  <global id="1.1" name="DateTime" module="DateTime.DateTime"/>
+                </klass>
+                <tuple>
+                  <none/>
+                </tuple>
+                <state>
+                  <tuple>
+                    <float>1252530000.0</float>
+                    <string>GMT+3</string>
+                  </tuple>
+                </state>
+              </object>
+            </value>
+        </item>
+        <item>
+            <key> <string>expiration_date</string> </key>
+            <value>
+              <object>
+                <klass> <reference id="1.1"/> </klass>
+                <tuple>
+                  <none/>
+                </tuple>
+                <state>
+                  <tuple>
+                    <float>1262214000.0</float>
+                    <string>GMT+1</string>
+                  </tuple>
+                </state>
+              </object>
             </value>
         </item>
         <item>
@@ -68,20 +110,16 @@
             <value> <string>deductible_tax</string> </value>
         </item>
         <item>
-            <key> <string>int_index</string> </key>
-            <value> <int>1</int> </value>
-        </item>
-        <item>
             <key> <string>portal_type</string> </key>
             <value> <string>Category</string> </value>
         </item>
         <item>
-            <key> <string>short_title</string> </key>
-            <value> <string>Deductible</string> </value>
+            <key> <string>sort_index</string> </key>
+            <value> <string>1</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Payroll Deductible Tax</string> </value>
+            <value> <string>Deductible Withholdings</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -58,12 +58,6 @@
             <value> <string>Extra costs for sale operation</string> </value>
         </item>
         <item>
-            <key> <string>effective_date</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
             <key> <string>id</string> </key>
             <value> <string>surcharge</string> </value>
         </item>

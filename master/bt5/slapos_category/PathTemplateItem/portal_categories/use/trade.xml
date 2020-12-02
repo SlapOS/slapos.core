@@ -76,12 +76,6 @@
             <value> <string>Products or services traded</string> </value>
         </item>
         <item>
-            <key> <string>effective_date</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
             <key> <string>id</string> </key>
             <value> <string>trade</string> </value>
         </item>

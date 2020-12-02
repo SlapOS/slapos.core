@@ -58,12 +58,6 @@
             <value> <string>Work service from the employee to the employer</string> </value>
         </item>
         <item>
-            <key> <string>effective_date</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
             <key> <string>id</string> </key>
             <value> <string>labour</string> </value>
         </item>

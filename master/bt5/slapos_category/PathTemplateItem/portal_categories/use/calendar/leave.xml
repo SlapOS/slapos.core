@@ -55,13 +55,7 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>TODO</string> </value>
-        </item>
-        <item>
-            <key> <string>effective_date</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>Services for leave, such as vacation, sickness</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

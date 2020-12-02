@@ -73,13 +73,7 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Services used in time management (TODO)</string> </value>
-        </item>
-        <item>
-            <key> <string>effective_date</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>Services used in time management</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

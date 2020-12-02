@@ -58,12 +58,6 @@
             <value> <string>Categorizes all services which are listed in CRM Events. The value of this category must be set in the system preferences of the CRM</string> </value>
         </item>
         <item>
-            <key> <string>effective_date</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
             <key> <string>id</string> </key>
             <value> <string>event</string> </value>
         </item>

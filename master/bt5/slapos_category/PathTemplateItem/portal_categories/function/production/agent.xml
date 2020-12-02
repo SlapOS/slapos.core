@@ -55,10 +55,10 @@
         </item>
         <item>
             <key> <string>codification</string> </key>
-            <value> <string>F-PRODAGT</string> </value>
+            <value> <string>F-PRODAGNT</string> </value>
         </item>
         <item>
-            <key> <string>effective_date</string> </key>
+            <key> <string>default_reference</string> </key>
             <value>
               <none/>
             </value>
@@ -66,6 +66,12 @@
         <item>
             <key> <string>id</string> </key>
             <value> <string>agent</string> </value>
+        </item>
+        <item>
+            <key> <string>int_index</string> </key>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -77,7 +83,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Supervision Agent</string> </value>
+            <value> <string>Production Agent</string> </value>
         </item>
       </dictionary>
     </pickle>

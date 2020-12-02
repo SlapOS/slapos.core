@@ -76,11 +76,7 @@
             <value> <string>F-PRODUCTION</string> </value>
         </item>
         <item>
-            <key> <string>description</string> </key>
-            <value> <string>A division in charge of supervising system operation with the goal to ensure quality</string> </value>
-        </item>
-        <item>
-            <key> <string>effective_date</string> </key>
+            <key> <string>default_reference</string> </key>
             <value>
               <none/>
             </value>
@@ -90,12 +86,18 @@
             <value> <string>production</string> </value>
         </item>
         <item>
+            <key> <string>int_index</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
             <key> <string>portal_type</string> </key>
             <value> <string>Category</string> </value>
         </item>
         <item>
             <key> <string>short_title</string> </key>
-            <value> <string>Supervision</string> </value>
+            <value> <string>Production</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

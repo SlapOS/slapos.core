@@ -58,12 +58,6 @@
             <value> <string>Services used to classify support requests</string> </value>
         </item>
         <item>
-            <key> <string>effective_date</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
             <key> <string>id</string> </key>
             <value> <string>support_request</string> </value>
         </item>

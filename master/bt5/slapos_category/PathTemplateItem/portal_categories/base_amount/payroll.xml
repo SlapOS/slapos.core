@@ -60,6 +60,23 @@
             </value>
         </item>
         <item>
+            <key> <string>_local_properties</string> </key>
+            <value>
+              <tuple>
+                <dictionary>
+                  <item>
+                      <key> <string>id</string> </key>
+                      <value> <string>sort_index</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>type</string> </key>
+                      <value> <string>string</string> </value>
+                  </item>
+                </dictionary>
+              </tuple>
+            </value>
+        </item>
+        <item>
             <key> <string>_mt_index</string> </key>
             <value>
               <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
@@ -72,13 +89,22 @@
             </value>
         </item>
         <item>
-            <key> <string>description</string> </key>
-            <value> <string>TODO</string> </value>
-        </item>
-        <item>
             <key> <string>effective_date</string> </key>
             <value>
-              <none/>
+              <object>
+                <klass>
+                  <global name="DateTime" module="DateTime.DateTime"/>
+                </klass>
+                <tuple>
+                  <none/>
+                </tuple>
+                <state>
+                  <tuple>
+                    <float>1261004400.0</float>
+                    <string>GMT+1</string>
+                  </tuple>
+                </state>
+              </object>
             </value>
         </item>
         <item>
@@ -90,8 +116,8 @@
             <value> <string>Category</string> </value>
         </item>
         <item>
-            <key> <string>short_title</string> </key>
-            <value> <string>Payroll</string> </value>
+            <key> <string>sort_index</string> </key>
+            <value> <string>2</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>

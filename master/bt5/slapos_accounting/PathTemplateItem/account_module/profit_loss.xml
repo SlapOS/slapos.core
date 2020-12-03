@@ -65,6 +65,7 @@
             <value>
               <tuple>
                 <string>account_type/equity</string>
+                <string>gap/ias/ifrs/1/12</string>
                 <string>financial_section/equity/net_profit</string>
                 <string>gap/fr/pcg/1/12</string>
               </tuple>
@@ -86,7 +87,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Profit Loss</string> </value>
+            <value> <string>Profit or Loss</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>

@@ -65,6 +65,7 @@
             <value>
               <tuple>
                 <string>account_type/income</string>
+                <string>gap/ias/ifrs/7/70</string>
                 <string>financial_section/income/revenue</string>
                 <string>gap/fr/pcg/7</string>
               </tuple>

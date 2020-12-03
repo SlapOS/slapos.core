@@ -65,8 +65,9 @@
             <value>
               <tuple>
                 <string>account_type/asset/receivable</string>
-                <string>financial_section/asset/current_assets/receivables</string>
                 <string>gap/fr/pcg/4/41/411</string>
+                <string>gap/ias/ifrs/4/41</string>
+                <string>financial_section/asset/current_assets/receivables</string>
               </tuple>
             </value>
         </item>

@@ -65,6 +65,7 @@
             <value>
               <tuple>
                 <string>account_type/expense</string>
+                <string>gap/ias/ifrs/6/60/600</string>
                 <string>financial_section/expense/op_expense/cogs</string>
                 <string>gap/fr/pcg/6</string>
               </tuple>
@@ -86,7 +87,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Purchase</string> </value>
+            <value> <string>Purchases</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>

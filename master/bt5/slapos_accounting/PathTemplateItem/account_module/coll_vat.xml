@@ -65,6 +65,7 @@
             <value>
               <tuple>
                 <string>account_type/liability/payable/collected_vat</string>
+                <string>gap/ias/ifrs/4/44</string>
                 <string>financial_section/liability/current/other</string>
                 <string>gap/fr/pcg/4/44/445/4457/44571</string>
               </tuple>

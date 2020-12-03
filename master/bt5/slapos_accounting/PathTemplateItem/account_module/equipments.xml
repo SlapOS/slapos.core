@@ -65,6 +65,7 @@
             <value>
               <tuple>
                 <string>account_type/asset</string>
+                <string>gap/ias/ifrs/2/21</string>
                 <string>financial_section/asset/non_current/fixed_assets</string>
                 <string>gap/fr/pcg/2/21</string>
               </tuple>

@@ -66,6 +66,7 @@
               <tuple>
                 <string>account_type/equity</string>
                 <string>financial_section/equity/share_capital</string>
+                <string>gap/ias/ifrs/1/10/101</string>
                 <string>gap/fr/pcg/1/10/101</string>
               </tuple>
             </value>

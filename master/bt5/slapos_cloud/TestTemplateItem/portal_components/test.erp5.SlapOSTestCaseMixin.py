@@ -80,6 +80,12 @@ def withAbort(func):
 
 class SlapOSTestCaseMixin(testSlapOSMixin):
 
+  # Define few expected defaults
+  expected_invoice_en_notification_message = 'A new invoice has been generated'
+
+  # W/o notification messages the default is send message in english
+  expected_invoice_zh_notification_message = 'A new invoice has been generated'
+
   def afterSetUp(self):
     testSlapOSMixin.afterSetUp(self)
     self.changeSkin('View')

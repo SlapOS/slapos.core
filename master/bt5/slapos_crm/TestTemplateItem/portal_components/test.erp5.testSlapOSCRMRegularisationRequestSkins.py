@@ -30,6 +30,10 @@ import difflib
 
 class TestSlapOSPerson_checkToCreateRegularisationRequest(SlapOSTestCaseMixinWithAbort):
 
+  @simulate('NotificationTool_getDocumentValue',
+            'reference=None, language="en"',
+  'assert reference == "slapos-crm.create.regularisation.request"\n' \
+  'return')
   @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "1"')
   def test_addRegularisationRequest_payment_requested(self):
     for preference in \
@@ -637,6 +641,10 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
       0, ticket.getRelativeUrl(), '', '', '', ''
       )
 
+  @simulate('NotificationTool_getDocumentValue',
+            'reference=None, language="en"',
+  'assert reference == "slapos-crm.acknowledgment.escalation", reference\n' \
+  'return')
   @simulate('RegularisationRequest_checkToSendUniqEvent',
             'service_relative_url, title, text_content, comment, REQUEST=None',
   'context.portal_workflow.doActionFor(' \
@@ -822,6 +830,10 @@ class TestSlapOSRegularisationRequest_triggerAcknowledgmentEscalation(
       ticket.RegularisationRequest_triggerAcknowledgmentEscalation,
       REQUEST={})
 
+  @simulate('NotificationTool_getDocumentValue',
+            'reference=None, language="en"',
+  'assert reference == "slapos-crm.acknowledgment.escalation", reference\n' \
+  'return')
   @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
             'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
   'context.portal_workflow.doActionFor(' \
@@ -894,6 +906,10 @@ class TestSlapOSRegularisationRequest_triggerStopReminderEscalation(
       ticket.RegularisationRequest_triggerStopReminderEscalation,
       REQUEST={})
 
+  @simulate('NotificationTool_getDocumentValue',
+            'reference=None, language="en"',
+  'assert reference == "slapos-crm.stop.reminder.escalation", reference\n' \
+  'return')
   @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
             'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
   'context.portal_workflow.doActionFor(' \
@@ -966,6 +982,10 @@ class TestSlapOSRegularisationRequest_triggerStopAcknowledgmentEscalation(
       ticket.RegularisationRequest_triggerStopAcknowledgmentEscalation,
       REQUEST={})
 
+  @simulate('NotificationTool_getDocumentValue',
+            'reference=None, language="en"',
+  'assert reference == "slapos-crm.stop.acknowledgment.escalation", reference\n' \
+  'return')
   @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
             'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
   'context.portal_workflow.doActionFor(' \
@@ -1038,6 +1058,10 @@ class TestSlapOSRegularisationRequest_triggerDeleteReminderEscalation(
       ticket.RegularisationRequest_triggerDeleteReminderEscalation,
       REQUEST={})
 
+  @simulate('NotificationTool_getDocumentValue',
+            'reference=None, language="en"',
+  'assert reference == "slapos-crm.delete.reminder.escalation", reference\n' \
+  'return')
   @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
             'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
   'context.portal_workflow.doActionFor(' \

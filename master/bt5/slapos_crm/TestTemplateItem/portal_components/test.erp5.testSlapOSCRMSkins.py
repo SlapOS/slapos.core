@@ -1916,8 +1916,8 @@ class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
   @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
   @simulate('SupportRequest_trySendNotificationMessage',
             "message_title, message, source_relative_url",
-     'return "Visited by SupportRequest_trySendNotificationMessage '\
-  '%s %s %s" % (message_title, message, source_relative_url)')
+     """assert "destroyed" in message
+return "Visited by SupportRequest_trySendNotificationMessage %s %s" % (message_title, source_relative_url)""")
   def testSupportRequest_updateMonitoringDestroyRequestedState(self):
     support_request = self._makeSupportRequest()
     self.assertEqual(None,
@@ -1938,8 +1938,7 @@ class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
     self.commit()
 
     support_request.setDestinationDecisionValue(self.makePerson(user=0))
-    expected_text = """Visited by SupportRequest_trySendNotificationMessage Hosting Subscription was destroyed was destroyed by the user  Closing this ticket as the Hosting Subscription was destroyed by the user. 
-   %s""" % support_request.getDestinationDecision()
+    expected_text = """Visited by SupportRequest_trySendNotificationMessage Hosting Subscription was destroyed was destroyed by the user %s""" % support_request.getDestinationDecision()
     self.assertEqual(expected_text,
       support_request.SupportRequest_updateMonitoringDestroyRequestedState())
 

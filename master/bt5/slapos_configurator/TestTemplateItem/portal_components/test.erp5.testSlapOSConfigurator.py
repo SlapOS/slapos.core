@@ -254,8 +254,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     ]
     # If mixin contains a custom definition that introduce new business templated from
     # the project scope, them include it on expected list.
-    expected_module_list += getattr(self,
-      "_testSlapOSConfigurator_custom_expected_module_list", [])
+    expected_module_list.extend(self._custom_expected_module_list)
 
     self.assertSameSet(module_list, expected_module_list)
 
@@ -328,6 +327,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'erp5_simplified_invoicing',
       'erp5_credential_oauth2',
       'erp5_accounting_l10n_fr',
+      'erp5_accounting_l10n_ifrs',
       'erp5_code_mirror',
       'erp5_font',
       'erp5_hal_json_style',
@@ -370,8 +370,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
 
     # If mixin contains a custom definition that introduce new business templated from
     # the project scope, them include it on expected list.
-    expected_business_template_list += getattr(self,
-      "_testSlapOSConfigurator_custom_additional_bt5_list", [])
+    expected_business_template_list.extend(self._custom_additional_bt5_list)
 
     self.assertSameSet(expected_business_template_list,
       self.portal.portal_templates.getInstalledBusinessTemplateTitleList())

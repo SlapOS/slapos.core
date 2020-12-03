@@ -86,6 +86,10 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
   # W/o notification messages the default is send message in english
   expected_invoice_zh_notification_message = 'A new invoice has been generated'
 
+  # Allow customize extra bt5 and modules available on the deployed setup
+  _custom_expected_module_list = []
+  _custom_additional_bt5_list = []
+
   def afterSetUp(self):
     testSlapOSMixin.afterSetUp(self)
     self.changeSkin('View')

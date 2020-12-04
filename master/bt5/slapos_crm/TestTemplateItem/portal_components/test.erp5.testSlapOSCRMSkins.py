@@ -1183,11 +1183,9 @@ class TestSlapOSComputer_CheckState(TestCRMSkinsMixin):
     self._cancelTestSupportRequestList("% TESTCOMPT-%")
 
   def _makeSupportRequest(self):
-    support_request = self.portal.\
-      support_request_module.\
-      slapos_crm_support_request_template_for_monitoring.\
+    return self.portal.restrictedTraverse(
+        self.portal.portal_preferences.getPreferredSupportRequestTemplate()).\
        Base_createCloneDocument(batch_mode=1)
-    return support_request
 
   def _makeNotificationMessage(self, reference):
     notification_message = self.portal.notification_message_module.newContent(
@@ -1880,12 +1878,9 @@ class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
     return hosting_subscription
 
   def _makeSupportRequest(self):
-    support_request = self.portal.\
-      support_request_module.\
-      slapos_crm_support_request_template_for_monitoring.\
+    return self.portal.restrictedTraverse(
+        self.portal.portal_preferences.getPreferredSupportRequestTemplate()).\
        Base_createCloneDocument(batch_mode=1)
-    return support_request
-
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
   @simulate('SupportRequest_updateMonitoringDestroyRequestedState',

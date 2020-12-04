@@ -19,9 +19,10 @@ if transactional_event is not None:
     (transactional_event.getTitle() == message_title):
     return transactional_event
 
-event = portal.event_module.slapos_crm_web_message_template.\
-  Base_createCloneDocument(batch_mode=1)
+template = portal.restrictedTraverse(
+        portal.portal_preferences.getPreferredWebMessageTemplate())
 
+event = template.Base_createCloneDocument(batch_mode=1)
 event.edit(
   title=message_title,
   text_content=message,

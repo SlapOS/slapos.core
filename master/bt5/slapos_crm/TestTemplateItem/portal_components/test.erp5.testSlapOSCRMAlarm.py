@@ -691,9 +691,9 @@ class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixinWithAbort):
   def _makeSupportRequest(self):
     person = self.portal.person_module.template_member\
          .Base_createCloneDocument(batch_mode=1)
-    support_request = self.portal.support_request_module.\
-      slapos_crm_support_request_template_for_monitoring\
-         .Base_createCloneDocument(batch_mode=1)
+    support_request = self.portal.restrictedTraverse(
+        self.portal.portal_preferences.getPreferredSupportRequestTemplate()).\
+       Base_createCloneDocument(batch_mode=1)
     support_request.validate()
     new_id = self.generateNewId()
     support_request.edit(

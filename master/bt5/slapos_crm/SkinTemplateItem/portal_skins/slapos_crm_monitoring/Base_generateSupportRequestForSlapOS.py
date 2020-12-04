@@ -36,13 +36,14 @@ if support_request_in_progress is not None:
       support_request.getAggregateUid() == aggregate_value.getUid():
     return portal.restrictedTraverse(support_request_in_progress)
 
+# Ensure resoure is Monitoring
 resource = portal.service_module.\
                   slapos_crm_monitoring.getRelativeUrl()
 
-support_request = portal.\
-    support_request_module.\
-    slapos_crm_support_request_template_for_monitoring.\
-    Base_createCloneDocument(batch_mode=1)
+support_request = portal.restrictedTraverse(
+        portal.portal_preferences.getPreferredSupportRequestTemplate())\
+         .Base_createCloneDocument(batch_mode=1)
+
 support_request.edit(
     title = title,
     description = description,

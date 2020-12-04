@@ -53,6 +53,7 @@ from ..slap.standalone import SlapOSNodeCommandError
 from ..slap.standalone import PathTooDeepError
 from ..grid.utils import md5digest
 from ..util import mkdir_p
+from ..slap import ComputerPartition
 
 try:
   from typing import Iterable, Tuple, Callable, Type, Dict, List, Optional, TypeVar

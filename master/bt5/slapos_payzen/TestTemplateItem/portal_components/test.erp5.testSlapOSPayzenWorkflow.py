@@ -193,14 +193,9 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     self.portal.portal_secure_payments.slapos_payzen_test._getFieldList(data_dict)
     data_dict['action'] = 'https://secure.payzen.eu/vads-payment/'
 
+
     expected_html_page = \
-      '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w'\
-      '3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n<html xmlns="http://www.w3.or'\
-      'g/1999/xhtml" xml:lang="en" lang="en">\n<head>\n  <meta http-equiv="Co'\
-      'ntent-Type" content="text/html; charset=utf-8" />\n  <meta http-equiv='\
-      '"Content-Script-Type" content="text/javascript" />\n  <meta http-equiv'\
-      '="Content-Style-Type" content="text/css" />\n  <title>title</title>\n<'\
-      '/head>\n<body onload="document.payment.submit();">\n<form method="POST'\
+      '<form method="POST'\
       '" id="payment" name="payment"\n      action="%(action)s">\n\n  <input '\
       'type="hidden" name="vads_url_return"\n         value="'\
       '%(vads_url_return)s">\n\n\n  <input type="hidden" name="vads_site_id" '\
@@ -223,17 +218,18 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
       '\n  <input type="hidden" name="vads_language" value="%(vads_language)s">\n\n\n  <inpu'\
       't type="hidden" name="vads_currency" value="%(vads_currency)s">\n\n\n '\
       ' <input type="hidden" name="vads_amount" value="%(vads_amount)s">\n\n\n'\
-      '  <input type="hidden" name="vads_version" value="V2">\n\n<input type="s'\
-      'ubmit" value="Click to pay">\n</form>\n</body>\n</html>' % data_dict
+      '  <input type="hidden" name="vads_version" value="V2">\n\n<center>\n '\
+      ' <input type="submit" value="Click to pay">\n</center>\n</form>' % data_dict
 
     # Event message state
     event_message_list = event.contentValues(portal_type="Payzen Event Message")
     self.assertEqual(len(event_message_list), 1)
     message = event_message_list[0]
     self.assertEqual(message.getTitle(), 'Shown Page')
-    self.assertEqual(message.getTextContent(), expected_html_page,
+    self.assertIn(expected_html_page, message.getTextContent(),
       '\n'.join([q for q in difflib.unified_diff(expected_html_page.split('\n'),
         message.getTextContent().split('\n'))]))
+    self.assertIn('onload="document.payment.submit();"', message.getTextContent())
 
   def test_updateStatus_noAccountingTransaction(self):
     event = self.createPayzenEvent()

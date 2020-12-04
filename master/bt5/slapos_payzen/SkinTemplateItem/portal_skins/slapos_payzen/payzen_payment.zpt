@@ -11,7 +11,9 @@
 <tal:block tal:repeat="value here/field_list">
   <input type="hidden" tal:attributes="name python: value[0]; value python: value[1]">
 </tal:block>
-<input type="submit" tal:attributes="value here/pay">
+<center>
+  <input type="submit" tal:attributes="value here/pay">
+</center>
 </form>
 </body>
 </html>

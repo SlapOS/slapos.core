@@ -65,8 +65,9 @@ def makeModuleSetUpAndTestCaseClass(
             'SLAPOS_TEST_SHARED_PART_LIST', '').split(os.pathsep) if p
     ],
     snapshot_directory=os.environ.get('SLAPOS_TEST_LOG_DIRECTORY'),
+    software_id=None
 ):
-  # type: (str, str, str, str, bool, bool, Iterable[str], Optional[str]) -> Tuple[Callable[[], None], Type[SlapOSInstanceTestCase]]
+  # type: (str, str, str, str, bool, bool, Iterable[str], Optional[str], Optional[str]) -> Tuple[Callable[[], None], Type[SlapOSInstanceTestCase]]
   """Create a setup module function and a testcase for testing `software_url`.
 
   This function returns a tuple of two arguments:
@@ -93,6 +94,11 @@ def makeModuleSetUpAndTestCaseClass(
   This is controlled by SLAPOS_TEST_SHARED_PART_LIST environment variable,
   which should be a : separated list of path.
 
+  The framework will save snapshot and logs using `software_id` which is
+  by default computed automatically from the software URL, but can also
+  be passed explicitly, to use a different name for different kind of
+  tests, like for example upgrade tests.
+
   A note about paths:
     SlapOS itself and some services running in SlapOS uses unix sockets and
     (sometimes very) deep paths, which does not play very well together.
@@ -111,7 +117,8 @@ def makeModuleSetUpAndTestCaseClass(
         os.environ.get(
             'SLAPOS_TEST_WORKING_DIR', os.path.join(os.getcwd(), '.slapos')))
 
-  software_id = urlparse(software_url).path.split('/')[-2]
+  if not software_id:
+    software_id = urlparse(software_url).path.split('/')[-2]
 
   logging.basicConfig(
       level=logging.DEBUG,

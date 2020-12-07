@@ -3,6 +3,7 @@ if REQUEST is not None:
   raise Unauthorized
 
 portal = context.getPortalObject()
+ndays = 7
 language = "en"
 recipient = context.getDestinationSectionValue()
 if recipient is not None:
@@ -23,7 +24,8 @@ The slapos team
 """ % context.getPortalObject().portal_preferences.getPreferredSlaposWebSiteUrl()
 else:
   notification_mapping_dict = {
-     'user_name': context.getDestinationSectionTitle()}
+     'user_name': context.getDestinationSectionTitle(),
+     'days': ndays}
 
   subject = notification_message.getTitle()
 
@@ -36,7 +38,7 @@ else:
         substitution_method_parameter_dict={'mapping_dict':notification_mapping_dict})
 
 return context.RegularisationRequest_checkToTriggerNextEscalationStep(
-  delay_period_in_days=7,
+  delay_period_in_days=ndays,
   current_service_relative_url='service_module/slapos_crm_stop_reminder',
   next_service_relative_url='service_module/slapos_crm_stop_acknowledgement',
   title=subject,

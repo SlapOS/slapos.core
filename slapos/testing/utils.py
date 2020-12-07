@@ -218,11 +218,17 @@ class CrontabMixin(object):
     be a relative time.
     """
     crontab_command =  self._getCrontabCommand(crontab_name)
-    crontab_output = subprocess.check_output(
-        "faketime {date} bash -o pipefail -e -c '{crontab_command}'".format(**locals()),
-        shell=True,
-    )
-    self.logger.debug("crontab %s output: %s", crontab_command, crontab_output)
+    try:
+      crontab_output = subprocess.check_output(
+          "faketime {date} bash -o pipefail -e -c '{crontab_command}'".format(**locals()),
+          shell=True,
+          stderr=subprocess.STDOUT,
+      )
+    except subprocess.CalledProcessError as e:
+      self.logger.debug('error executing crontab %s output: %s', crontab_command, e.output)
+      raise
+    else:
+      self.logger.debug("crontab %s output: %s", crontab_command, crontab_output)
 
 
 class ImageComparisonTestCase(unittest.TestCase):

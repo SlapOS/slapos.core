@@ -1,0 +1,240 @@
+openapi: 3.0.0
+info: 
+  title: SlapOS
+  version: 0.1.0
+tags:
+  - name: Request
+    description: API used by users to request partitions or manage computers
+  - name: Node
+    description: API used by SlapOS nodes
+
+paths:
+  /getFullComputerInformation: 
+    get: 
+      tags:
+        - Request
+      operationId: getFullComputerInformation
+      summary: Retrieve information about a computer
+      parameters:
+        - in: query
+          name: computer_id
+          schema:
+            type: string
+          required: true
+          examples:
+            local:
+              value: "local"
+              summary: Local computer
+            comp-1234: 
+              summary: Computer COMP-1234
+              value: "COMP-1234"
+      responses: 
+        '200':
+          description: Information about the computer
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Computer'
+          links:
+            supplySupply:
+              $ref: '#/components/links/supplySupply'
+
+  /supplySupply:
+    post: 
+      tags:
+        - Request
+      operationId: supplySupply
+      summary: Install software on a computer
+      requestBody:
+        description: Request
+        required: true
+        content:
+          application/json:
+            schema:
+             $ref: '#/components/schemas/SupplyRequestBody'
+      responses: 
+        '200':
+          description: Software was supplied
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ComputerPartition'
+          links:
+            getComputerPartitionStatus:
+              $ref: '#/components/links/getComputerPartitionStatus'
+            destroyedComputerPartition:
+              $ref: '#/components/links/destroyedComputerPartition'
+  /requestComputerPartition: 
+    post: 
+      tags:
+        - Request
+      operationId: requestComputerPartition
+      summary: Request a service
+      requestBody:
+        description: Request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComputerPartitionRequestBody'
+            examples:
+              KVM:
+                description: Request a KVM
+                value:
+                  reference: kvm
+                  software_release_url: https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/kvm/software.cfg
+                  parameter_kw:
+                    memory: 40Go
+                    cpu_count: 12
+              ERP5:
+                description: Request an ERP5
+                value:
+                  reference: erp5
+                  software_release_url: https://lab.nexedi.com/nexedi/slapos/raw/1.0/software/erp5/software.cfg
+                  parameter_kw:
+
+      responses: 
+        '200':
+          description: Partition was created
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ComputerPartition'
+          links:
+            getComputerPartitionStatus:
+              $ref: '#/components/links/getComputerPartitionStatus'
+            destroyedComputerPartition:
+              $ref: '#/components/links/destroyedComputerPartition'
+
+  /destroyedComputerPartition:
+    post: 
+      tags:
+        - Node
+      operationId: destroyedComputerPartition
+      description: Called by SlapOS Node when partition is destroyed
+      requestBody:
+        description: Request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComputerPartitionDestroyRequestBody'
+      responses: 
+        '200':
+          description: Partition was created
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ComputerPartition'
+          links:
+            getComputerPartitionStatus:
+              $ref: '#/components/links/getComputerPartitionStatus'
+            destroyedComputerPartition:
+              $ref: '#/components/links/destroyedComputerPartition'
+
+
+components:
+  links:
+    getComputerPartitionStatus:
+      operationId: getComputerPartitionStatus
+    destroyedComputerPartition:
+      operationId: destroyedComputerPartition
+    supplySupply:
+      operationId: supplySupply
+      parameters:
+        computer_id: computer_id
+  schemas: 
+    ComputerPartition: 
+      type: object
+      properties: 
+        reference: 
+          type: string
+        title: 
+          type: string
+        software_release:
+          $ref: '#/components/schemas/SoftwareRelease'
+    SoftwareRelease: 
+      type: object
+      properties: 
+        url: 
+          type: string
+    Computer: 
+      type: object
+      properties: 
+        id: 
+          type: string
+        title: 
+          type: string
+        partitions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComputerPartition'
+        ip_addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/IPAddress'
+    IPAddress:
+      type: object
+      properties:
+        ip:
+          type: string
+        netmask:
+          type: string
+
+
+    ComputerPartitionRequestBody:
+      type: object
+      properties:
+        reference:
+          description: Name of the computer partition
+          type: string
+          example: erp5
+        software_release_url:
+          description: URL of the Software Release
+          type: string
+          example:
+            "https://lab.nexedi.com/nexedi/slapos/raw/1.0.170/software/erp5/software.cfg"
+        parameter_kw:
+          description: Parameters for the instance
+          type: object
+        filter_kw:
+          description: Parameters about where request the instance
+          type: object
+          example:
+            computer_guid: COMP-1234
+        requested_state:
+          type: string
+          enum:
+            - started
+            - destroyed
+          default:
+            started
+    SupplyRequestBody:
+      type: object
+      properties:
+        computer_id:
+          description: Reference of the computer
+          type: string
+          example: COMP-1234
+        url:
+          description: URL of the Software Release
+          type: string
+          example:
+            "https://lab.nexedi.com/nexedi/slapos/raw/1.0.170/software/erp5/software.cfg"
+        state:
+          description: state of the software
+          type: string
+          enum:
+            - available
+            - destroyed
+          default:
+            available
+    ComputerPartitionDestroyRequestBody:
+      type: object
+      properties:
+        computer_partition_id:
+          type: string
+          example: slappart7
+        computer_id:
+          type: string
+          example: COMP-1234

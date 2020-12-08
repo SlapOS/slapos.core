@@ -47,6 +47,20 @@ from six.moves import range
 from six.moves.urllib.parse import urlparse
 
 app = Flask(__name__)
+from flasgger import Swagger
+
+app.config['SWAGGER'] = {
+  'openapi': '3.0.0'
+}
+swagger = Swagger(app,
+    template_file=
+    '/srv/slapgrid/slappart9/srv/project/slapos.core/slapos-api.yaml',
+    parse=True,
+    # XXX "examples" with getFullComputerInformation causes validation errors
+    # is this bug ?
+    validation_function=lambda *args:True
+)
+
 
 EMPTY_DICT_XML = dumps({})
 

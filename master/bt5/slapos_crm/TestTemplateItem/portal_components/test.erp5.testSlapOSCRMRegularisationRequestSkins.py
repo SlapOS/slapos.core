@@ -280,7 +280,7 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
     person = self.makePerson(index=0, user=0)
     ticket = self.createRegularisationRequest()
     ticket.edit(
-      source='organisation_module/slapos',
+      source=self.expected_slapos_organisation,
       destination_value=person,
       source_project_value=person)
     ticket.validate()
@@ -300,7 +300,7 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
     self.assertEqual(event.getTitle(), "foo title")
     self.assertEqual(event.getResource(), 'service_module/slapos_crm_spam')
     self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
-    self.assertEqual(event.getSource(), "organisation_module/slapos")
+    self.assertEqual(event.getSource(), self.expected_slapos_organisation)
     self.assertEqual(event.getDestination(), person.getRelativeUrl())
     self.assertEqual(event.getTextContent(), 'foo content')
 
@@ -316,7 +316,7 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
     person = self.makePerson(index=0, user=0)
     ticket = self.createRegularisationRequest()
     ticket.edit(
-      source='organisation_module/slapos',
+      source=self.expected_slapos_organisation,
       destination_value=person,
       source_project_value=person)
     ticket.validate()
@@ -335,7 +335,7 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
     person = self.makePerson(index=0, user=0)
     ticket = self.createRegularisationRequest()
     ticket.edit(
-      source='organisation_module/slapos',
+      source=self.expected_slapos_organisation,
       destination_value=person,
       source_project_value=person)
     ticket.validate()
@@ -360,7 +360,7 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
     person = self.makePerson(index=0, user=0)
     ticket = self.createRegularisationRequest()
     ticket.edit(
-      source='organisation_module/slapos',
+      source=self.expected_slapos_organisation,
       destination_value=person,
       source_project_value=person)
     ticket.validate()
@@ -373,7 +373,7 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
     person = self.makePerson(index=0, user=0)
     ticket = self.createRegularisationRequest()
     ticket.edit(
-      source='organisation_module/slapos',
+      source=self.expected_slapos_organisation,
       destination_value=person,
       source_project_value=person)
     ticket.validate()

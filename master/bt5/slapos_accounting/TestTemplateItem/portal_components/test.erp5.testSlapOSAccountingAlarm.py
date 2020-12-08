@@ -1106,11 +1106,11 @@ class TestSlapOSStartConfirmedAggregatedSalePackingListAlarm(
       portal_type="Sale Packing List",
       start_date=DateTime("2012/04/22"),
       specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
-      source='organisation_module/slapos',
-      source_section='organisation_module/slapos',
-      destination='organisation_module/slapos',
-      destination_section='organisation_module/slapos',
-      destination_decision='organisation_module/slapos',
+      source=self.expected_slapos_organisation,
+      source_section=self.expected_slapos_organisation,
+      destination=self.expected_slapos_organisation,
+      destination_section=self.expected_slapos_organisation,
+      destination_decision=self.expected_slapos_organisation,
       price_currency='currency_module/EUR',
       )
     delivery.newContent(

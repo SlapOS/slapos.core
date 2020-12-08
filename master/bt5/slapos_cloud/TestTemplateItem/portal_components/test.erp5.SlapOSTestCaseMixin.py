@@ -80,6 +80,8 @@ def withAbort(func):
 
 class SlapOSTestCaseMixin(testSlapOSMixin):
 
+  expected_html_payzen_redirect_page = None
+  
   # Define few expected defaults
   expected_invoice_en_notification_message = 'A new invoice has been generated'
 
@@ -90,6 +92,9 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
   _custom_expected_module_list = []
   _custom_additional_bt5_list = []
 
+  # Expected organisation when generate invoices, tickets, etc...
+  expected_slapos_organisation = "organisation_module/slapos"
+
   def afterSetUp(self):
     testSlapOSMixin.afterSetUp(self)
     self.changeSkin('View')
@@ -97,7 +102,9 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     self.new_id = self.generateNewId()
     
     # Define default Organisation
-    self.slapos_organisation = self.portal.organisation_module.slapos
+    self.slapos_organisation = self.portal.restrictedTraverse(
+      self.expected_slapos_organisation
+    )
 
     instance_template = self.portal.software_instance_module.template_software_instance		 
     if len(instance_template.objectValues()):

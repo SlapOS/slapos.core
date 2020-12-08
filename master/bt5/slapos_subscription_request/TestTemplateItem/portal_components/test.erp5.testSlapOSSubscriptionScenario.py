@@ -37,8 +37,8 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.expected_reservation_tax = 4.166666666666667
     self.expected_price_currency = "currency_module/EUR"
     self.expected_notification_language = "en"
-    self.expected_source = "organisation_module/slapos"
-    self.expected_source_section = "organisation_module/slapos"
+    self.expected_source = self.expected_slapos_organisation
+    self.expected_source_section = self.expected_slapos_organisation
     self.cloud_invitation_token = None
     self.expected_free_reservation = 0
     self.skip_destroy_and_check = 0

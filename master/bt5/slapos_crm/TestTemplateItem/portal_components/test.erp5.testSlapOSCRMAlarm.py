@@ -723,6 +723,7 @@ class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixinWithAbort):
 
   def test_alarm_update_support_request_state(self):
     support_request = self._makeSupportRequest()
+    support_request.setResource("service_module/slapos_crm_monitoring")
     hs = self._makeHostingSubscription()
     support_request.setAggregateValue(hs)
     self.tic()

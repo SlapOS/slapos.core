@@ -913,6 +913,8 @@ class TestSlapOSisSupportRequestCreationClosed(TestCRMSkinsMixin):
     url = person.getRelativeUrl()
     self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed(url))
     self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed())
+    self.portal.portal_preferences.slapos_default_system_preference\
+      .setPreferredSupportRequestCreationLimit(5)
 
     def newSupportRequest():
       sr = self.portal.support_request_module.newContent(\

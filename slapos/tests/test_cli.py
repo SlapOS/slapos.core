@@ -339,6 +339,40 @@ class TestCliBoot(CliMixin):
       self.assertFalse(os.path.exists(timestamp),
               timestamp)
 
+  def test_boot_failure(self):
+    # In this test, node and bang command will fail two time each.
+    # `slapos node boot` command retries on failures.
+
+    app = slapos.cli.entry.SlapOSApp()
+    with patch('slapos.cli.boot.check_root_user', return_value=True) as check_root_user,\
+        patch('slapos.cli.boot.sleep') as sleep,\
+        patch('slapos.cli.boot.netifaces.ifaddresses',
+              return_value={socket.AF_INET6: ({'addr': '2000::1'},),},),\
+        patch('slapos.cli.boot._ping_hostname', return_value=0),\
+        patch('slapos.cli.format.check_root_user', return_value=True),\
+        patch('slapos.cli.format.logging.FileHandler', return_value=logging.NullHandler()),\
+        patch('slapos.cli.bang.check_root_user', return_value=True),\
+        patch('slapos.cli.format.do_format', side_effect=[Exception, Exception, None]) as do_format,\
+        patch('slapos.cli.bang.do_bang', side_effect=[Exception, Exception, None]) as do_bang:
+
+      app.run(('node', 'boot'))
+
+    check_root_user.assert_called_once()
+
+    self.assertEqual(do_format.call_count, 3)
+    self.assertEqual(do_bang.call_count, 3)
+
+    # between retries we sleep 15 seconds.
+    sleep.assert_called_with(15)
+
+    # we have only one logger on the console
+    from slapos.cli import coloredlogs
+    self.assertEqual(
+        len([
+            h for h in logging.getLogger('').handlers
+            if isinstance(h, coloredlogs.ColoredStreamHandler)
+        ]), 1)
+
 
 class TestCliNode(CliMixin):
 

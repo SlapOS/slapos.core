@@ -121,6 +121,8 @@ class SlapOSHelpAction(argparse.Action):
         return group, '  %-13s  %s\n' % (name, one_liner)
 
 
+_logging_configured = []
+
 class SlapOSApp(App):
 
     #
@@ -230,6 +232,11 @@ class SlapOSApp(App):
     def configure_logging(self):
         """Create logging handlers for any log output.
         """
+        if _logging_configured:
+            # This function is called again if "slapos node boot" failed.
+            # Don't add a handler again, otherwise the output becomes double.
+            return
+
         root_logger = logging.getLogger('')
         root_logger.setLevel(logging.DEBUG)
 
@@ -243,13 +250,6 @@ class SlapOSApp(App):
             root_logger.addHandler(file_handler)
 
         # Always send higher-level messages to the console via stderr
-
-        # This function is called again if "slapos node boot" failed.
-        # Don't add a handler again, otherwise the output becomes double.
-        if [handler for handler in root_logger.handlers
-            if isinstance(handler, logging.StreamHandler)]:
-          return
-
         if self.options.log_color:
             from slapos.cli import coloredlogs
             console = coloredlogs.ColoredStreamHandler(show_name=True,     # logger name (slapos) and PID
@@ -266,7 +266,8 @@ class SlapOSApp(App):
         formatter = logging.Formatter(self.CONSOLE_MESSAGE_FORMAT)
         console.setFormatter(formatter)
         root_logger.addHandler(console)
-        return
+        _logging_configured.append(True)
+
 
     def run(self, argv):
         # same as cliff.app.App.run except that it won't re-raise

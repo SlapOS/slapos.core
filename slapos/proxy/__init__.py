@@ -102,7 +102,6 @@ def connectDB():
 def do_proxy(conf):
   for handler in conf.logger.handlers:
     app.logger.addHandler(handler)
-  app.logger.setLevel(logging.INFO)
   setupFlaskConfiguration(conf)
   connectDB()
   app.run(host=conf.host, port=int(conf.port), threaded=True)

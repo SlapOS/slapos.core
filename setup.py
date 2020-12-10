@@ -58,7 +58,7 @@ setup(name=name,
       packages=find_packages(),
       include_package_data=True,
       install_requires=[
-          'Flask', # used by proxy
+          'Flask>=1.1.2', # used by proxy
           'lxml', # needed to play with XML trees
           'netaddr>=0.7.5', # to play safely with IPv6 prefixes
           'netifaces', # to fetch information about network devices

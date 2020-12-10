@@ -316,7 +316,7 @@ class TestCliBoot(CliMixin):
 
       # run slapos node boot
       app = slapos.cli.entry.SlapOSApp()
-      with patch('slapos.cli.command.check_root_user', return_value=True) as check_root_user,\
+      with patch('slapos.cli.boot.check_root_user', return_value=True) as check_root_user,\
           patch('slapos.cli.boot.SlapOSApp') as SlapOSApp,\
           patch('slapos.cli.boot.ConfigCommand.config_path', return_value=slapos_conf.name), \
           patch(

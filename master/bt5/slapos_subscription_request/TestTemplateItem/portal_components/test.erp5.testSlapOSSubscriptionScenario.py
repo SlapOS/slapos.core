@@ -265,7 +265,10 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     payment = subscription_request.SubscriptionRequest_verifyPaymentBalanceIsReady()
     self.assertNotEqual(payment, None)
     self.assertEqual(payment.getSimulationState(), 'started')
-    self.assertEqual(subscription_request.getSimulationState(), "confirmed")
+    self.assertEqual(subscription_request.getSimulationState(), "confirmed",
+      "%s != confirmed (%s)" % (subscription_request.getSimulationState(),
+                                subscription_request.SubscriptionRequest_processOrdered()))
+
     self.checkEmailPaymentNotification(subscription_request, notification_message)
 
   def checkStartedSubscriptionRequest(self, subscription_request, email,

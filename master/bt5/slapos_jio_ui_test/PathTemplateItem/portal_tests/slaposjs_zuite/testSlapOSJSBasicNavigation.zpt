@@ -31,7 +31,7 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//a[@data-i18n='Home']</td>
+        <td>//a[@data-i18n='Dashboard']</td>
         <td></td>
       </tr>
       <tr>
@@ -257,7 +257,7 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//a[@data-i18n='Home']</td>
+        <td>//a[@data-i18n='Dashboard']</td>
         <td></td>
       </tr>
       <tr>

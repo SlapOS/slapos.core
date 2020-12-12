@@ -7,8 +7,16 @@
   </role>
   <role id='Auditor'>
    <property id='title'>Member</property>
+   <property id='description'>User can only see SlapOS company for invoice purposes.</property>
+   <property id='condition'>python: here.getGroup() == "company"</property>
    <multi_property id='category'>role/member</multi_property>
    <multi_property id='base_category'>role</multi_property>
+  </role>
+  <role id='Assignee'>
+   <property id='title'>Organisation Member</property>
+   <property id='base_category_script'>ERP5Type_getSecurityCategoryFromSelf</property>
+   <multi_property id='categories'>local_role_group/organisation</multi_property>
+   <multi_property id='base_category'>destination</multi_property>
   </role>
   <role id='Assignee'>
    <property id='title'>Person Owner</property>

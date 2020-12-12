@@ -371,8 +371,6 @@ class TestDrawing(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(drawing, 'G-COMPANY', ['Assignor'])
     self.assertRoles(drawing, self.user_id, ['Owner'])
 
-  test_GroupCompany = test_SecurityForShacache
-
 class TestFile(TestSlapOSGroupRoleSecurityMixin):
   def test_SecurityForShacache(self):
     file_ = self.portal.document_module.newContent(portal_type='File')
@@ -386,8 +384,6 @@ class TestFile(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(file_, 'R-MEMBER', ['Auditor'])
     self.assertRoles(file_, 'G-COMPANY', ['Assignor'])
     self.assertRoles(file_, self.user_id, ['Owner'])
-
-  test_GroupCompany = test_SecurityForShacache
 
 class TestHostingSubscription(TestSlapOSGroupRoleSecurityMixin):
   def test_RelatedSoftwareInstanceGroup(self):
@@ -445,8 +441,6 @@ class TestImage(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(image, 'G-COMPANY', ['Assignor'])
     self.assertRoles(image, self.user_id, ['Owner'])
 
-  test_GroupCompany = test_SecurityForShacache
-
 class TestImageModule(TestSlapOSGroupRoleSecurityMixin):
   def test(self):
     module = self.portal.image_module
@@ -463,11 +457,12 @@ class TestOrganisation(TestSlapOSGroupRoleSecurityMixin):
   def test_GroupCompany(self):
     organisation = self.portal.organisation_module.newContent(
         portal_type='Organisation')
+    organisation.setReference("TESTORG-%s" % self.generateNewId())
     organisation.updateLocalRolesOnSecurityGroups()
     self.assertSecurityGroup(organisation,
-        ['G-COMPANY', self.user_id, 'R-MEMBER', 'R-SHADOW-PERSON'], False)
+        ['G-COMPANY', self.user_id, organisation.getReference(), 'R-SHADOW-PERSON'], False)
     self.assertRoles(organisation, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(organisation, 'R-MEMBER', ['Auditor'])
+    self.assertRoles(organisation, organisation.getReference(), ['Assignee'])
     self.assertRoles(organisation, 'R-SHADOW-PERSON', ['Auditor'])
     self.assertRoles(organisation, self.user_id, ['Owner', 'Assignee'])
 
@@ -498,14 +493,15 @@ class TestProjectModule(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(module, self.user_id, ['Owner'])
 
 class TestProject(TestSlapOSGroupRoleSecurityMixin):
-  def test_GroupCompany(self):
+
+  def test(self):
     project = self.portal.project_module.newContent(
         portal_type='Project')
     project.updateLocalRolesOnSecurityGroups()
     self.assertSecurityGroup(project,
-        ['G-COMPANY', self.user_id, 'R-MEMBER', 'R-SHADOW-PERSON'], False)
+        ['G-COMPANY', self.user_id, project.getReference(), 'R-SHADOW-PERSON'], False)
     self.assertRoles(project, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(project, 'R-MEMBER', ['Auditor'])
+    self.assertRoles(project, project.getReference(), ['Assignee'])
     self.assertRoles(project, 'R-SHADOW-PERSON', ['Auditor'])
     self.assertRoles(project, self.user_id, ['Owner', 'Assignee'])
 
@@ -522,8 +518,6 @@ class TestPDF(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(pdf, 'R-MEMBER', ['Auditor'])
     self.assertRoles(pdf, 'G-COMPANY', ['Assignor'])
     self.assertRoles(pdf, self.user_id, ['Owner'])
-
-  test_GroupCompany = test_SecurityForShacache
 
 class TestPerson(TestSlapOSGroupRoleSecurityMixin):
   def test_GroupCompany(self):
@@ -644,8 +638,6 @@ class TestPresentation(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(presentation, 'R-MEMBER', ['Auditor'])
     self.assertRoles(presentation, 'G-COMPANY', ['Assignor'])
     self.assertRoles(presentation, self.user_id, ['Owner'])
-
-  test_GroupCompany = test_SecurityForShacache
 
 class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
   def test_GroupCompany(self):
@@ -898,8 +890,6 @@ class TestSpreadsheet(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(spreadsheet, 'G-COMPANY', ['Assignor'])
     self.assertRoles(spreadsheet, self.user_id, ['Owner'])
 
-  test_GroupCompany = test_SecurityForShacache
-
 class TestText(TestSlapOSGroupRoleSecurityMixin):
   def test_SecurityForShacache(self):
     text = self.portal.document_module.newContent(
@@ -914,8 +904,6 @@ class TestText(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(text, 'R-MEMBER', ['Auditor'])
     self.assertRoles(text, 'G-COMPANY', ['Assignor'])
     self.assertRoles(text, self.user_id, ['Owner'])
-
-  test_GroupCompany = test_SecurityForShacache
 
 class TestContributionTool(TestSlapOSGroupRoleSecurityMixin):
   def test(self):

@@ -465,16 +465,37 @@ class TestOrganisation(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(organisation, 'R-SHADOW-PERSON', ['Auditor'])
     self.assertRoles(organisation, self.user_id, ['Owner', 'Assignee'])
 
-  def test_GroupCompany(self):
+  def test_without_reference(self):
+    organisation = self.portal.organisation_module.newContent(
+        portal_type='Organisation')
+    organisation.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(organisation,
+        ['G-COMPANY', self.user_id, 'R-SHADOW-PERSON'], False)
+    self.assertRoles(organisation, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(organisation, 'R-SHADOW-PERSON', ['Auditor'])
+    self.assertRoles(organisation, self.user_id, ['Owner', 'Assignee'])
+
+  def test_RoleAdmin(self):
     organisation = self.portal.organisation_module.newContent(
         portal_type='Organisation')
     organisation.setReference("TESTORG-%s" % self.generateNewId())
-    organisation.setGroup("company")
+    organisation.setRole("admin")
     organisation.updateLocalRolesOnSecurityGroups()
     self.assertSecurityGroup(organisation,
         ['G-COMPANY', self.user_id, organisation.getReference(), 'R-SHADOW-PERSON', 'R-MEMBER'], False)
     self.assertRoles(organisation, 'G-COMPANY', ['Assignor'])
     self.assertRoles(organisation, organisation.getReference(), ['Assignee'])
+    self.assertRoles(organisation, 'R-MEMBER', ['Auditor'])
+    self.assertRoles(organisation, 'R-SHADOW-PERSON', ['Auditor'])
+    self.assertRoles(organisation, self.user_id, ['Owner', 'Assignee'])
+
+  def test_defaultSlapOSOrganisation(self):
+    # Test to ensure slapos organisation is well configured by default
+    organisation = self.portal.organisation_module.slapos
+    organisation.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(organisation,
+        ['G-COMPANY', self.user_id, 'R-SHADOW-PERSON', 'R-MEMBER'], False)
+    self.assertRoles(organisation, 'G-COMPANY', ['Assignor'])
     self.assertRoles(organisation, 'R-MEMBER', ['Auditor'])
     self.assertRoles(organisation, 'R-SHADOW-PERSON', ['Auditor'])
     self.assertRoles(organisation, self.user_id, ['Owner', 'Assignee'])

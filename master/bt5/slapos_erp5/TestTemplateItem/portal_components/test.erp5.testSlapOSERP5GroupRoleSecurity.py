@@ -232,7 +232,6 @@ class TestComputerNetwork(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(network, 'R-SHADOW-PERSON', ['Auditor'])
     self.assertRoles(network, self.user_id, ['Assignee', 'Owner'])
 
-  test_PersonShadow = test_GroupCompany
 
   def test_ComputerAgent(self):
     reference = 'TESTPERSON-%s' % self.generateNewId()
@@ -454,7 +453,7 @@ class TestImageModule(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(module, self.user_id, ['Owner'])
 
 class TestOrganisation(TestSlapOSGroupRoleSecurityMixin):
-  def test_GroupCompany(self):
+  def test(self):
     organisation = self.portal.organisation_module.newContent(
         portal_type='Organisation')
     organisation.setReference("TESTORG-%s" % self.generateNewId())
@@ -466,7 +465,19 @@ class TestOrganisation(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(organisation, 'R-SHADOW-PERSON', ['Auditor'])
     self.assertRoles(organisation, self.user_id, ['Owner', 'Assignee'])
 
-  test_Member = test_GroupCompany
+  def test_GroupCompany(self):
+    organisation = self.portal.organisation_module.newContent(
+        portal_type='Organisation')
+    organisation.setReference("TESTORG-%s" % self.generateNewId())
+    organisation.setGroup("company")
+    organisation.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(organisation,
+        ['G-COMPANY', self.user_id, organisation.getReference(), 'R-SHADOW-PERSON', 'R-MEMBER'], False)
+    self.assertRoles(organisation, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(organisation, organisation.getReference(), ['Assignee'])
+    self.assertRoles(organisation, 'R-MEMBER', ['Auditor'])
+    self.assertRoles(organisation, 'R-SHADOW-PERSON', ['Auditor'])
+    self.assertRoles(organisation, self.user_id, ['Owner', 'Assignee'])
 
 class TestOrganisationModule(TestSlapOSGroupRoleSecurityMixin):
   def test(self):
@@ -649,8 +660,6 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(instance, 'G-COMPANY', ['Assignor'])
     self.assertRoles(instance, self.user_id, ['Owner'])
 
-  test_OwnerBecomeAssignee = test_GroupCompany
-
   def test_CustomerOfTheInstance(self):
     customer_reference = 'TESTPERSON-%s' % self.generateNewId()
     customer = self.portal.person_module.newContent(
@@ -672,8 +681,6 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(instance, customer.getUserId(), ['Assignee'])
     self.assertRoles(instance, subscription_reference, ['Assignee'])
     self.assertRoles(instance, self.user_id, ['Owner'])
-
-  test_InstanceRelatedByHostingSubscription = test_CustomerOfTheInstance
 
   def test_SoftwareInstanceWhichProvidesThisSlaveInstance(self):
     computer_reference = 'TESTCOMP-%s' % self.generateNewId()
@@ -703,8 +710,6 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(instance, computer.getUserId(), ['Assignor'])
     self.assertRoles(instance, self.user_id, ['Owner'])
 
-  test_Computer = test_SoftwareInstanceWhichProvidesThisSlaveInstance
-
 class TestSoftwareInstallation(TestSlapOSGroupRoleSecurityMixin):
   def test_GroupCompany(self):
     installation = self.portal.software_installation_module.newContent(
@@ -715,8 +720,6 @@ class TestSoftwareInstallation(TestSlapOSGroupRoleSecurityMixin):
         'G-COMPANY'], False)
     self.assertRoles(installation, 'G-COMPANY', ['Assignor'])
     self.assertRoles(installation, self.user_id, ['Owner'])
-
-  test_OwnerBecomeAssignee = test_GroupCompany
 
   def test_Computer(self):
     computer_reference = 'TESTCOMP-%s' % self.generateNewId()
@@ -772,8 +775,6 @@ class TestSoftwareInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(instance, 'G-COMPANY', ['Assignor'])
     self.assertRoles(instance, self.user_id, ['Owner'])
 
-  test_OwnerBecomeAssignee = test_GroupCompany
-
   def test_CustomerOfTheInstance(self):
     customer_reference = 'TESTPERSON-%s' % self.generateNewId()
     customer = self.portal.person_module.newContent(
@@ -795,8 +796,6 @@ class TestSoftwareInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(instance, customer.getUserId(), ['Assignee'])
     self.assertRoles(instance, subscription_reference, ['Assignee'])
     self.assertRoles(instance, self.user_id, ['Owner'])
-
-  test_InstanceRelatedByHostingSubscription = test_CustomerOfTheInstance
 
   def test_Computer(self):
     computer_reference = 'TESTCOMP-%s' % self.generateNewId()
@@ -840,8 +839,6 @@ class TestSoftwareProduct(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(product, 'R-MEMBER', ['Auditor'])
     self.assertRoles(product, self.user_id, ['Owner'])
 
-  test_Member = test_GroupCompany
-
 class TestSoftwareProductModule(TestSlapOSGroupRoleSecurityMixin):
   def test(self):
     module = self.portal.software_product_module
@@ -862,8 +859,6 @@ class TestSoftwareRelease(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(release, 'G-COMPANY', ['Assignor'])
     self.assertRoles(release, 'R-MEMBER', ['Auditor'])
     self.assertRoles(release, self.user_id, ['Owner'])
-
-  test_Member = test_GroupCompany
 
 class TestSoftwareReleaseModule(TestSlapOSGroupRoleSecurityMixin):
   def test(self):

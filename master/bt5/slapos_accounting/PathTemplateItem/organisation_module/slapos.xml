@@ -76,6 +76,7 @@
               <tuple>
                 <string>price_currency/currency_module/EUR</string>
                 <string>group/company</string>
+                <string>role/admin</string>
               </tuple>
             </value>
         </item>

@@ -302,7 +302,7 @@
                       "lines": lines_limit,
                       "list_method": "portal_catalog",
                       "query": "urn:jio:allDocs?query=portal_type%3A%20%28%22Support%20Request%22%2C%20%22Upgrade%20Decision%22%2C%20%22Regularisation%20Request%22%29%20AND%20" +
-                        "destination_decision_reference%3A" +  gadget.me_dict.reference + "%20AND%20simulation_state%3A%20%28%22suspended%22%2C%20%22validated%22%2C%20%22confirmed%22%29",
+                        "destination_decision_reference%3A" +  gadget.me_dict.reference + "%20AND%20simulation_state%3A%20%28%22suspended%22%2C%20%22confirmed%22%29",
                       "portal_type": [],
                       "search_column_list": column_list,
                       "sort_column_list": column_list,

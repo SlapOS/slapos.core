@@ -17,7 +17,7 @@ Inventory Line | -immobilisation_movement_interaction_workflow
 Inventory | -immobilisation_movement_interaction_workflow
 Invitation Token | edit_workflow
 Invitation Token | validation_workflow
-Organisation | slapos_erp5_interaction_workflow
+Organisation | local_permission_slapos_interaction_workflow
 Organisation | slapos_erp5_interaction_workflow
 Payment Transaction | local_permission_slapos_interaction_workflow
 Payzen Event | local_permission_slapos_interaction_workflow

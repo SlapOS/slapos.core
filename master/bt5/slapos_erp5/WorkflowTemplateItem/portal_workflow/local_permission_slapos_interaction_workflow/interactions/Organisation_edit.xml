@@ -69,6 +69,7 @@
             <value>
               <list>
                 <string>Organisation</string>
+                <string>Project</string>
               </list>
             </value>
         </item>

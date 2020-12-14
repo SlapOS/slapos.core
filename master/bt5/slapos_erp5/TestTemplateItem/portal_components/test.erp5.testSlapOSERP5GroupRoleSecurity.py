@@ -493,6 +493,7 @@ class TestOrganisation(TestSlapOSGroupRoleSecurityMixin):
     # Test to ensure slapos organisation is well configured by default
     organisation = self.portal.organisation_module.slapos
     self.changeOwnership(organisation)
+    organisation.updateLocalRolesOnSecurityGroups()
     self.assertSecurityGroup(organisation,
         ['G-COMPANY', self.user_id, 'R-SHADOW-PERSON', 'R-MEMBER'], False)
     self.assertRoles(organisation, 'G-COMPANY', ['Assignor'])

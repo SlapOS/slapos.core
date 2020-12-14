@@ -448,7 +448,7 @@ class TestSlapOSStandaloneInstance(SlapOSStandaloneTestCase):
         state='destroyed',
     )
     self.standalone.waitForInstance()
-    # instanciate does nothing, it will be deleted with `report`
+    # instantiate does nothing, it will be deleted with `report`
     self.assertTrue(
         os.path.exists(os.path.join(parition_directory, 'instance.check')))
     self.standalone.waitForReport()

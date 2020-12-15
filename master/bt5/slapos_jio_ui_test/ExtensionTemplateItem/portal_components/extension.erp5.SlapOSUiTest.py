@@ -1,5 +1,9 @@
 from ExtensionClass import pmc_init_of
-from Products.ERP5Type.tests.utils import DummyMailHostMixin
+from Products.ERP5Type.tests.utils import DummyMailHostMixin,\
+  createZODBPythonScript
+
+from Products.ERP5Security import SUPER_USER
+
 
 from AccessControl.SecurityManagement import getSecurityManager
 from AccessControl.SecurityManagement import setSecurityManager
@@ -111,3 +115,26 @@ def restoreDummyMailHost(self):
   pmc_init_of(cls)
 
   return True
+
+def ERP5Site_createFakeRegularisationRequest(self):
+  portal = self.getPortalObject()
+  person = portal.portal_membership.getAuthenticatedMember().getUserValue()
+  sm = getSecurityManager()
+  try:
+    newSecurityManager(None, portal.acl_users.getUser(SUPER_USER))
+    script_id = 'Entity_statSlapOSOutstandingAmount'
+    if script_id in portal.portal_skins.custom.objectIds():
+      portal.portal_skins.custom.manage_delObjects(script_id)
+    createZODBPythonScript(portal.portal_skins.custom,
+                          script_id, "", "return 1")
+    try:
+      person.Person_checkToCreateRegularisationRequest()
+      return "Done."
+    finally:
+      if script_id in portal.portal_skins.custom.objectIds():
+        portal.portal_skins.custom.manage_delObjects(script_id)
+  finally:
+    setSecurityManager(sm)
+  
+
+

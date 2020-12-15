@@ -265,6 +265,11 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     payment = subscription_request.SubscriptionRequest_verifyPaymentBalanceIsReady()
     self.assertNotEqual(payment, None)
     self.assertEqual(payment.getSimulationState(), 'started')
+
+    # Assert instance is allocated and without error
+    self.assertEqual(True,
+      subscription_request.SubscriptionRequest_verifyInstanceIsAllocated(verbose=True))
+
     self.assertEqual(subscription_request.getSimulationState(), "confirmed",
       "%s != confirmed (%s)" % (subscription_request.getSimulationState(),
                                 subscription_request.SubscriptionRequest_processOrdered()))

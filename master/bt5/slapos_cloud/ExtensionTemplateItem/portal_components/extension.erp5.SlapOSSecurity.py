@@ -186,8 +186,7 @@ def getSecurityCategoryFromAssignmentDestinationClientOrganisation(
         category_value_list = assignment.getAcquiredValueList(base_category)
         if category_value_list:
           for category_value in category_value_list:
-            if category_value.getPortalType() == "Organisation" and \
-              category_value.getRole() == "client":
+            if category_value.getPortalType() == "Organisation":
               category_dict.setdefault(base_category, []).append(category_value.getRelativeUrl())
       category_list.append(category_dict)
 

@@ -777,5 +777,84 @@ return %s""" % (script_name, fake_return ))
 
     return organisation
 
+  def redefineAccountingTemplatesonPreferencesWithDualOrganisation(self):
+    # Define a new set of templates and change organisation on them, in this way tests should
+    # behave the same.
+    self.login()
+    fr_organisation = self.makeCustomOrganisation()
+    zh_organisation = self.makeCustomOrganisation()
+
+    # Update Price currency for Chinese company
+    zh_organisation.setPriceCurrency("currency_module/CNY")
+    
+    accounting_module = self.portal.accounting_module
+    sale_packing_list_module = self.portal.sale_packing_list_module
+
+    preferred_zh_pre_payment_template = \
+      accounting_module.slapos_wechat_pre_payment_template.Base_createCloneDocument(batch_mode=1)
+    preferred_zh_pre_payment_template.edit(
+      source_section_value = zh_organisation,
+      source_payment_value=zh_organisation.bank_account
+    )
+    
+    preferred_default_pre_payment_template = \
+      accounting_module.slapos_pre_payment_template.Base_createCloneDocument(batch_mode=1)
+    preferred_default_pre_payment_template.edit(
+      source_section_value = fr_organisation,
+      source_payment_value=fr_organisation.bank_account
+    )
+
+    preferred_zh_pre_payment_subscription_invoice_template = \
+      accounting_module.template_wechat_pre_payment_subscription_sale_invoice_transaction.Base_createCloneDocument(batch_mode=1)
+
+    preferred_zh_pre_payment_subscription_invoice_template.edit(
+      source_section_value = zh_organisation,
+      source_value=zh_organisation
+    )
+    preferred_default_pre_payment_subscription_invoice_template = \
+      accounting_module.template_pre_payment_subscription_sale_invoice_transaction.Base_createCloneDocument(batch_mode=1)
+    
+    preferred_default_pre_payment_subscription_invoice_template.edit(
+      source_section_value=fr_organisation,
+      source_value=fr_organisation
+    )
+
+    preferred_instance_delivery_template = \
+      sale_packing_list_module.slapos_accounting_instance_delivery_template.Base_createCloneDocument(batch_mode=1)
+
+    preferred_instance_delivery_template.edit(
+      source_section_value=fr_organisation,
+      source_value=fr_organisation
+    )
+
+    open_sale_order_module = self.portal.open_sale_order_module
+
+    preferred_open_sale_order_template=\
+        open_sale_order_module.slapos_accounting_open_sale_order_template.Base_createCloneDocument(batch_mode=1)
+
+    preferred_open_sale_order_template.edit(
+      source_section_value=fr_organisation,
+      source_value=fr_organisation
+    )
+
+    system_preference = self.portal.portal_preferences.slapos_default_system_preference
+
+    system_preference.edit(
+      preferred_default_pre_payment_template=preferred_default_pre_payment_template.getRelativeUrl(),
+      preferred_zh_pre_payment_template=preferred_zh_pre_payment_template.getRelativeUrl(),
+      preferred_zh_pre_payment_subscription_invoice_template=\
+        preferred_zh_pre_payment_subscription_invoice_template.getRelativeUrl(),
+      preferred_default_pre_payment_subscription_invoice_template=\
+        preferred_default_pre_payment_subscription_invoice_template.getRelativeUrl(),
+      preferred_instance_delivery_template=\
+        preferred_instance_delivery_template.getRelativeUrl(),
+      preferred_open_sale_order_template=\
+        preferred_open_sale_order_template.getRelativeUrl()
+    )
+    self.tic()
+
+    return fr_organisation, zh_organisation
+
+
 class SlapOSTestCaseMixinWithAbort(SlapOSTestCaseMixin):
   abort_transaction = 1

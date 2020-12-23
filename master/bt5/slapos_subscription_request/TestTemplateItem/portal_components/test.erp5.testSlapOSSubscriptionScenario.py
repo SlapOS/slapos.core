@@ -203,7 +203,9 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       # Terms of service
       sla_xml='<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>',
       text_content='<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>',
-      user_input={}
+      user_input={},
+      source=self.expected_source,
+      source_section=self.expected_source_section
     )
     self.subscription_condition.validate()
     self.subscription_condition.updateLocalRolesOnSecurityGroups()

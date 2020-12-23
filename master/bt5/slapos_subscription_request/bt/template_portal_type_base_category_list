@@ -1,6 +1,8 @@
 Subscription Condition Module | business_application
 Subscription Condition | aggregate
 Subscription Condition | follow_up
+Subscription Condition | source
+Subscription Condition | source
 Subscription Condition | source_section
 Subscription Request Module | business_application
 Subscription Request | aggregate

@@ -2,6 +2,7 @@
  <portal_type id="Subscription Condition">
   <item>aggregate</item>
   <item>follow_up</item>
+  <item>source</item>
   <item>source_section</item>
  </portal_type>
  <portal_type id="Subscription Condition Module">

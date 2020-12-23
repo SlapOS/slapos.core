@@ -42,7 +42,11 @@ context.edit(
   root_slave=subscription_condition.getRootSlave(),
   specialise_value=subscription_condition,
   price=subscription_condition.getPrice(),
-  price_currency=subscription_condition.getPriceCurrency()
+  price_currency=subscription_condition.getPriceCurrency(),
+
+  # Set Provider from Subscription Condition
+  source=subscription_condition.getSource(),
+  source_section=subscription_condition.getSourceSection()
 )
 
 context.setSourceReference(subscription_condition.getSourceReference())

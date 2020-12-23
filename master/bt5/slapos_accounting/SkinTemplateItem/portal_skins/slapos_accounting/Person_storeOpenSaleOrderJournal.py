@@ -182,6 +182,14 @@ if (add_line_list):
     # Define the start date of the period, this can variates with the time.
     start_date_delta = 0
     if subscription_request is not None:
+
+      # Copy from Subscription Condition the source and Source Section into the line
+      # RAFAEL: As the model is use single Open Order, it isn't possible to use multiple
+      #  companies per region, so we rely on Subscription Conditions to Describe the
+      #  providers.
+      edit_kw["source"] = subscription_request.getSource()
+      edit_kw["source_section"] = subscription_request.getSourceSection()
+
       # Quantity is double because the first invoice has to
       # charge for 2 months
       edit_kw['quantity'] = subscription_request.getQuantity()

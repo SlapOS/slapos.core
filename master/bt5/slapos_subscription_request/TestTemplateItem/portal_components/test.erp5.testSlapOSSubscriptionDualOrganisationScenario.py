@@ -29,13 +29,22 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
 
     self.expected_source = fr_organisation.getRelativeUrl()
     self.expected_source_section = fr_organisation.getRelativeUrl()
+    self.expected_zh_reservation_fee = 188.00
+
     self.subscription_condition.edit(
       source=self.expected_source,
       source_section=self.expected_source_section
     )
 
-    self.expected_case2_source = zh_organisation.getRelativeUrl()
-    self.expected_case2_source_section = zh_organisation.getRelativeUrl()
+    self.subscription_condition_zh = self.createChineseSubscriptionCondition()
+    self.expected_zh_source = zh_organisation.getRelativeUrl()
+    self.expected_zh_source_section = zh_organisation.getRelativeUrl()
+
+    self.subscription_condition_zh.edit(
+      source=self.expected_zh_source,
+      source_section=self.expected_zh_source_section
+    )
+
     self.portal.portal_caches.clearAllCache()
     self.tic()
 
@@ -64,3 +73,194 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
     # Messages are in chinese, when subscribed via chinese website. Even if the english language is
     # english
     self._test_subscription_scenario_with_existing_user(amount=1, language="en")
+
+
+  def requestAndCheckDualHostingSubscription(self, amount, name, 
+              default_email_text, language_list=['en', 'en']):
+  
+    self.logout()
+
+    request_kw = dict(
+        subscription_reference=self.subscription_condition.getReference(),
+        amount=amount,
+        name=name,
+        default_email_text=default_email_text,
+        confirmation_required=False,
+        REQUEST=self.portal.REQUEST)
+
+    all_subscription_requested_list = []
+    for language in language_list:
+      if language == "zh":
+        self._requestSubscriptionViaChineseWebsite(**request_kw)
+        subscription_condition = self.subscription_condition_zh
+        expected_price_currency = "currency_module/CNY"
+        expected_source_section =  self.expected_zh_source_section   
+      else:
+        self._requestSubscription(**request_kw)
+        subscription_condition = self.subscription_condition
+        expected_price_currency = "currency_module/EUR"
+        expected_source_section =  self.expected_source_section        
+
+      self.login()
+      # I'm not sure if this is realistic
+      self.tic()
+
+      subscription_request_list = self.getSubscriptionRequestList(
+        default_email_text, subscription_condition)
+      for subscription_request in subscription_request_list:
+        self.assertEqual(language,
+                       subscription_request.getLanguage())
+
+        self.assertEqual(expected_price_currency,
+                         subscription_request.getPriceCurrency())
+
+        self.assertEqual(expected_source_section,
+                         subscription_request.getSourceSection())
+
+
+        self.checkDraftSubscriptionRequest(subscription_request,
+                      default_email_text,
+                      subscription_request.getSpecialiseValue(),
+                      amount=amount)
+        self.tic()
+      all_subscription_requested_list.extend(subscription_request_list)
+
+    self.checkAndPaySubscriptionPayment(all_subscription_requested_list)
+    self.tic()
+
+    # Call alarm to check payment and invoice and move foward to planned.
+    self.stepCallSlaposSubscriptionRequestProcessDraftAlarm()
+    self.tic()
+
+    for subscription_request in all_subscription_requested_list:
+      self.checkPlannedSubscriptionRequest(subscription_request,
+              default_email_text, 
+              subscription_request.getSpecialiseValue())
+
+    # Call alarm to mark subscription request as ordered, bootstrap the user
+    # and check if email is sent, once done move to ordered state.
+    self.stepCallSlaposSubscriptionRequestProcessPlannedAlarm()
+    self.tic()
+
+    for subscription_request in all_subscription_requested_list:
+      self.checkOrderedSubscriptionRequest(subscription_request,
+              default_email_text, 
+              subscription_request.getSpecialiseValue())
+
+    # Call alarm to make the request of the instance?
+    self.stepCallSlaposSubscriptionRequestProcessOrderedAlarm()
+    self.tic()
+
+    # The alarms might be called multiple times for move each step
+    self.stepCallSlaposSubscriptionRequestProcessOrderedAlarm()
+    self.tic()
+
+    for subscription_request in all_subscription_requested_list:
+      sale_packing_list_list = self.portal.portal_catalog(
+        causality_uid = subscription_request.getUid(),
+        title="Reservation Deduction",
+        portal_type="Sale Packing List"
+        )
+      self.assertEqual(len(sale_packing_list_list), 1)
+      sale_packing_list = sale_packing_list_list[0]
+
+      self.assertEqual(sale_packing_list.getPriceCurrency(),
+                       subscription_request.getPriceCurrency())
+      self.assertEqual(sale_packing_list.getSpecialise(),
+        "sale_trade_condition_module/slapos_reservation_refund_trade_condition")
+
+      if subscription_request.getPriceCurrency() == "currency_module/CNY":
+        expected_reservation_fee = self.expected_zh_reservation_fee
+      else:
+        expected_reservation_fee = self.expected_reservation_fee
+
+      self.assertEqual(round(sale_packing_list.getTotalPrice(), 2),
+                       -round(expected_reservation_fee*amount, 2))
+
+    return all_subscription_requested_list
+
+  def test_subscription_scenario_with_dual_organisation(self):
+    amount = 1
+    language = "en"
+    # Call as anonymous... check response?
+    default_email_text = "abc%s@nexedi.com" % self.new_id
+    name="ABC %s" % self.new_id
+
+    self.login()
+    self.createNormalUser(default_email_text, name, language)
+
+    self.tic()
+
+    self.subscription_server = self.createPublicServerForAdminUser()
+    self.login()
+    # Extra software from zh version
+    subscription_server_software = self.subscription_condition_zh.getUrlString()
+    self.supplySoftware(self.subscription_server, subscription_server_software)
+    self.tic()
+    self.logout()
+    
+
+    subscription_request_list = self.requestAndCheckDualHostingSubscription(
+      amount, name, default_email_text, language_list=["en", "zh"])
+
+    self._checkSubscriptionDeploymentAndSimulation(
+      subscription_request_list, default_email_text,
+      self.subscription_server)
+
+    if not self.expected_free_reservation:
+      for subscription_request in subscription_request_list:
+        if subscription_request.getPriceCurrency() == "currency_module/CNY":
+          self.checkAndPayFirstMonthViaWechat(subscription_request)
+        else:
+          self.checkAndPayFirstMonth(subscription_request)
+        self.tic()
+    
+    self.stepCallSlaposSubscriptionRequestProcessConfirmedAlarm()
+    self.tic()
+
+    for subscription_request in subscription_request_list:
+      self.assertTrue(
+        subscription_request.SubscriptionRequest_testPaymentBalance())
+      
+      self.assertEqual('start_requested',
+        subscription_request.getAggregateValue().getSlapState())
+
+    # On the second loop that email is send and state is moved to started
+    self.stepCallSlaposSubscriptionRequestProcessConfirmedAlarm()
+    self.tic()
+
+    for subscription_request in subscription_request_list:
+      self.assertTrue(
+        subscription_request.SubscriptionRequest_testPaymentBalance())
+      
+      self.assertEqual('start_requested',
+        subscription_request.getAggregateValue().getSlapState())
+
+      self.checkStartedSubscriptionRequest(subscription_request,
+               default_email_text,
+               subscription_request.getSpecialiseValue())
+
+    for subscription_request in subscription_request_list:
+      self.assertEqual(self.normal_user,
+                    subscription_request.getDestinationSectionValue())
+
+    if self.skip_destroy_and_check:
+      return
+
+    for subscription_request in subscription_request_list:
+      self.assertEqual('start_requested',
+        subscription_request.getAggregateValue().getSlapState())
+
+      # Destroy all instances and process 
+      hosting_subscription = subscription_request.getAggregateValue()
+      hosting_subscription.HostingSubscription_requestPerson('destroyed')
+      self.tic()
+
+    self.stepCallSlaposSubscriptionRequestProcessStartedAlarm()
+    self.tic()
+
+    self.checkStoppedSubscriptionRequest(subscription_request,
+               default_email_text,
+               subscription_request.getSpecialiseValue())
+
+    return default_email_text, name

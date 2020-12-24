@@ -51,6 +51,10 @@ class testSlapOSSubscriptionCloudInvitationTokenScenario(TestSlapOSSubscriptionC
     self.expected_reservation_quantity_tax = 0.0
     self.expected_reservation_tax = 0.0
     self.expected_free_reservation = 1
+    self.expected_zh_reservation_fee = 0.0
+    self.expected_zh_reservation_quantity_tax = 0.0
+    self.expected_zh_reservation_tax = 0.0
+    self.expected_zh_free_reservation = 1
 
     self.cloud_invitation_token = self.makeCloudInvitationToken(
       max_invoice_delay=99,
@@ -74,6 +78,11 @@ class testSlapOSSubscriptionCloudInvitationTokenScenario(TestSlapOSSubscriptionC
     self.expected_reservation_quantity_tax = 0.0
     self.expected_reservation_tax = 0.0
     self.expected_free_reservation = 1
+    self.expected_zh_reservation_fee = 0.0
+    self.expected_zh_reservation_quantity_tax = 0.0
+    self.expected_zh_reservation_tax = 0.0
+    self.expected_zh_free_reservation = 1
+    
     self._test_two_subscription_scenario(amount=1,
       create_invitation=True,
       max_invoice_delay=99,

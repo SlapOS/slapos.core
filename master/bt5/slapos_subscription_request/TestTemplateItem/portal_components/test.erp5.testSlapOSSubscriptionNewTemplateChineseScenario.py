@@ -29,6 +29,14 @@ class testSlapOSSubscriptionNewTemplateChineseScenario(TestSlapOSSubscriptionChi
 
     self.expected_source = organisation.getRelativeUrl()
     self.expected_source_section = organisation.getRelativeUrl()
+
+    # Set those values (source and source section) are only meaninfull if 
+    # the templates on preferences differ from Chinese and European organisations.
+    self.subscription_condition.edit(
+      source=None,
+      source_section=None
+    )
+
     self.portal.portal_caches.clearAllCache()
     self.tic()
 

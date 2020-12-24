@@ -21,6 +21,8 @@
 
 from erp5.component.test.SlapOSTestCaseDefaultScenarioMixin import DefaultScenarioMixin
 from erp5.component.test.SlapOSTestCaseMixin import changeSkin
+from Products.ERP5Type.tests.utils import createZODBPythonScript
+
 from DateTime import DateTime
 import datetime
 
@@ -36,6 +38,15 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.expected_reservation_quantity_tax = 20.833333333333333
     self.expected_reservation_tax = 4.166666666666667
     self.expected_price_currency = "currency_module/EUR"
+ 
+
+    self.expected_zh_individual_price_without_tax = 1573.3333333333335
+    self.expected_zh_individual_price_with_tax = 1888.00
+    self.expected_zh_reservation_fee = 188.00
+    self.expected_zh_reservation_fee_without_tax = 188
+    self.expected_zh_reservation_quantity_tax = 0
+    self.expected_zh_reservation_tax = 0
+ 
     self.expected_notification_language = "en"
     self.expected_source = self.expected_slapos_organisation
     self.expected_source_section = self.expected_slapos_organisation
@@ -76,6 +87,15 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.createNotificationMessage("subscription_request-payment-is-ready",
       text_content='${name} ${subscription_title} ${payment_relative_relative_url}')
     
+    self.createNotificationMessage("subscription_request-confirmation-with-password", language="zh",
+      text_content='CHINESE! ${name} ${login_name} ${login_password}')
+    self.createNotificationMessage("subscription_request-confirmation-without-password", language="zh",
+                               text_content='CHINESE! ${name} ${login_name}')
+    self.createNotificationMessage("subscription_request-instance-is-ready", language="zh",
+      text_content='CHINESE! ${name} ${subscription_title} ${hosting_subscription_relative_url}')
+    self.createNotificationMessage("subscription_request-payment-is-ready", language="zh",
+      text_content='CHINESE! ${name} ${subscription_title} ${payment_relative_relative_url}')
+
     self.cleanUpSubscriptionRequest()
     self.tic()
     
@@ -85,6 +105,33 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     # some preparation
     self.logout()
     self.web_site = self.portal.web_site_module.hostingjs
+
+
+  # The PaymentTransaction_getVADSUrlDict is required by the implementation
+  # wechat payments.
+  def _simulatePaymentTransaction_getVADSUrlDict(self):
+    script_name = 'PaymentTransaction_getVADSUrlDict'
+    if script_name in self.portal.portal_skins.custom.objectIds():
+      raise ValueError('Precondition failed: %s exists in custom' % script_name)
+    createZODBPythonScript(self.portal.portal_skins.custom,
+                        script_name,
+                        '*args, **kwargs',
+                        '# Script body\n'
+"""payment_transaction_url = context.getRelativeUrl()
+return dict(vads_url_already_registered="%s/already_registered" % (payment_transaction_url),
+  vads_url_cancel="%s/cancel" % (payment_transaction_url),
+  vads_url_error="%s/error" % (payment_transaction_url),
+  vads_url_referral="%s/referral" % (payment_transaction_url),
+  vads_url_refused="%s/refused" % (payment_transaction_url),
+  vads_url_success="%s/success" % (payment_transaction_url),
+  vads_url_return="%s/return" % (payment_transaction_url),
+)""")
+
+  def _dropPaymentTransaction_getVADSUrlDict(self):
+    script_name = 'PaymentTransaction_getVADSUrlDict'
+    if script_name in self.portal.portal_skins.custom.objectIds():
+      self.portal.portal_skins.custom.manage_delObjects(script_name)
+
 
   def cleanUpSubscriptionRequest(self):
     for subscription_request in self.portal.portal_catalog(
@@ -186,6 +233,31 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     else:
       self.normal_user = normal_user_login.getParentValue()
     self.normal_user.setLanguage(language)
+
+  def createChineseSubscriptionCondition(self, slave=False):
+    subscription_condition = self.portal.subscription_condition_module.newContent(
+      portal_type="Subscription Condition",
+      title="TestSubscriptionChineseScenario",
+      short_tile="Test Your Chinese Scenario",
+      description="This is a Chinese test",
+      url_string=self.generateNewSoftwareReleaseUrl(),
+      root_slave=slave,
+      price=1888.00,
+      price_currency="currency_module/CNY",
+      default_source_reference="default",
+      reference="rapidvm%s_zh" % self.new_id,
+      # Aggregate and Follow up to web pages for product description and
+      # Terms of service
+      sla_xml='<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>',
+      text_content='<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>',
+      user_input={},
+      source=self.expected_source,
+      source_section=self.expected_source_section
+    )
+    subscription_condition.validate()
+    subscription_condition.updateLocalRolesOnSecurityGroups()
+    self.tic()
+    return subscription_condition
 
   def createSubscriptionCondition(self, slave=False):
     self.subscription_condition = self.portal.subscription_condition_module.newContent(
@@ -313,6 +385,35 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.login()
     sale_transaction_invoice.SaleInvoiceTransaction_createReversalPayzenTransaction()
 
+  def checkSubscriptionRequestPayment(self, subscription_request, authAmount):
+    payment = self.portal.portal_catalog.getResultValue(
+      portal_type="Payment Transaction",
+      simulation_state="started")
+
+    if subscription_request.getSource() is not None:
+      self.assertNotEqual(subscription_request.getSourceSection(), None)
+      self.assertNotEqual(subscription_request.getSource(), None)
+      #expected_source = subscription_request.getSource()
+      expected_source_section = subscription_request.getSourceSection()
+    else:
+      self.assertEqual(subscription_request.getSourceSection(), None)
+      self.assertEqual(subscription_request.getSource(), None)
+      #expected_source = self.expected_source
+      expected_source_section = self.expected_source_section
+
+    self.assertEqual(payment.getSourceSection(),
+      expected_source_section)
+    self.assertEqual(payment.getSourcePayment(),
+      "%s/bank_account" % expected_source_section)
+
+    self.assertEqual(int(payment.PaymentTransaction_getTotalPayablePrice()*100),
+                     -authAmount)
+    
+    self.assertEqual(payment.getPriceCurrency(),
+        subscription_request.getPriceCurrency())
+
+    return payment
+
   def checkAndPayFirstMonth(self, subscription_request):
     self.login()
     person = subscription_request.getDestinationSectionValue()
@@ -321,42 +422,140 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.login(person.getUserId())
     self.usePayzenManually(self.web_site, person.getUserId(), is_email_expected=False)
 
-    payment = self.portal.portal_catalog.getResultValue(
-      portal_type="Payment Transaction",
-      simulation_state="started")
-
     # 195 is the month payment
     # 195*1 is the 1 months to pay upfront to use.
     # 25 is the reservation fee deduction.
     authAmount = (int(self.expected_individual_price_with_tax*100)*1-int(self.expected_reservation_fee*100))*quantity
-
-    self.assertEqual(payment.getSourceSection(), self.expected_source_section)
-    self.assertEqual(payment.getSourcePayment(),
-                     "%s/bank_account" % self.expected_source_section)
-    
-
-    self.assertEqual(int(payment.PaymentTransaction_getTotalPayablePrice()*100),
-                     -authAmount)
-    
-    self.assertEqual(payment.getPriceCurrency(), self.expected_price_currency)
+    payment = self.checkSubscriptionRequestPayment(subscription_request, authAmount)
 
     self.logout()
     self.login()
 
     data_kw = {
-        'errorCode': '0',
-        'transactionStatus': '6',
-        'authAmount': authAmount,
-        'authDevise': '978',
+      "status": "SUCCESS",
+      "answer": {
+        "transactions": [
+          {
+            "detailedStatus": "AUTHORISED",
+            "transactionDetails": {
+              "cardDetails": {
+                "authorizationResponse": {
+                  "amount": authAmount,
+                  "currency": "EUR",
+                },
+              },
+            },
+          }
+        ],
+      },
+    }
+    payment.PaymentTransaction_createPayzenEvent().PayzenEvent_processUpdate(data_kw)
+
+  def checkAndPaySecondMonth(self, subscription_request):
+    self.login()
+    person = subscription_request.getDestinationSectionValue()
+
+    quantity = subscription_request.getQuantity()
+    self.login(person.getUserId())
+    self.usePayzenManually(self.web_site, person.getUserId())
+
+    authAmount = int(self.expected_individual_price_with_tax*100)*quantity
+    payment = self.checkSubscriptionRequestPayment(subscription_request, authAmount)
+
+    self.logout()
+    self.login()
+
+    data_kw = {
+      "status": "SUCCESS",
+      "answer": {
+        "transactions": [
+          {
+            "detailedStatus": "AUTHORISED",
+            "transactionDetails": {
+              "cardDetails": {
+                "authorizationResponse": {
+                  "amount": authAmount,
+                  "currency": "EUR",
+                },
+              },
+            },
+          }
+        ],
+      },
+    }
+    payment.PaymentTransaction_createPayzenEvent().PayzenEvent_processUpdate(data_kw)
+
+  def checkAndPayFirstMonthViaWechat(self, subscription_request):
+    self.login()
+    original_mode = self.portal.portal_secure_payments.slapos_wechat_test.getWechatMode()
+    self._simulatePaymentTransaction_getVADSUrlDict()
+    try:
+      person = subscription_request.getDestinationSectionValue()
+
+      quantity = subscription_request.getQuantity()
+      self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode("UNITTEST")
+    
+      self.login(person.getUserId())
+      self.useWechatManually(self.web_site, person.getUserId(), is_email_expected=False)
+
+      authAmount = (int(self.expected_zh_individual_price_with_tax*100)*1-int(self.expected_zh_reservation_fee*100))*quantity
+      payment = self.checkSubscriptionRequestPayment(subscription_request, authAmount)
+
+      self.logout()
+      self.login()
+
+      data_kw = {
+        'result_code': 'SUCCESS',
+        'trade_state': 'SUCCESS',
+        'total_fee': authAmount,
+        'fee_type': 'CNY',
       }
-    payment.PaymentTransaction_createPayzenEvent().PayzenEvent_processUpdate(data_kw, True)
+
+      # Wechat_processUpdate will mark payment as payed by stopping it.
+      payment.PaymentTransaction_createWechatEvent().WechatEvent_processUpdate(data_kw)
+    finally:
+      self._dropPaymentTransaction_getVADSUrlDict()
+      self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode(original_mode)
+
+  def checkAndPaySecondMonthViaWechat(self, subscription_request):
+    self.login()
+    original_mode = self.portal.portal_secure_payments.slapos_wechat_test.getWechatMode()
+    self._simulatePaymentTransaction_getVADSUrlDict()
+    try:
+      person = subscription_request.getDestinationSectionValue()
+
+      quantity = subscription_request.getQuantity()
+      self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode("UNITTEST")
+    
+      self.login(person.getUserId())
+      self.useWechatManually(self.web_site, person.getUserId())
+
+      authAmount = int(self.expected_zh_individual_price_with_tax*100)*quantity
+      payment = self.checkSubscriptionRequestPayment(subscription_request, authAmount)
+
+      self.logout()
+      self.login()
+
+      data_kw = {
+        'result_code': 'SUCCESS',
+        'trade_state': 'SUCCESS',
+        'total_fee': authAmount,
+        'fee_type': 'CNY',
+      }
+
+      # Wechat_processUpdate will mark payment as payed by stopping it.
+      payment.PaymentTransaction_createWechatEvent().WechatEvent_processUpdate(data_kw)
+    finally:
+      self._dropPaymentTransaction_getVADSUrlDict()
+      self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode(original_mode)
 
   def _checkFreeReservationPayment(self, subscription_request):
     quantity = subscription_request.getQuantity()
     # Check Payment
     payment = self._getRelatedPaymentValue(subscription_request)
 
-    self.assertEqual(self.expected_price_currency, payment.getPriceCurrency())
+    self.assertEqual(subscription_request.getPriceCurrency(),
+      payment.getPriceCurrency())
     self.assertEqual(-self.expected_reservation_fee*quantity,
       payment.PaymentTransaction_getTotalPayablePrice())
     
@@ -368,47 +567,89 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     # Check Payment
     payment = self._getRelatedPaymentValue(subscription_request)
 
-    self.assertEqual(self.expected_price_currency, payment.getPriceCurrency())
-    self.assertEqual(-self.expected_reservation_fee*quantity,
-      payment.PaymentTransaction_getTotalPayablePrice())
-    
+    self.assertEqual(subscription_request.getPriceCurrency(),
+      payment.getPriceCurrency())
     self.assertEqual(payment.getSimulationState(), "started")
 
-    # Pay 25 euros per VM
-    data_kw = {
-        'errorCode': '0',
-        'transactionStatus': '6',
-        'authAmount': self.expected_reservation_fee*100*quantity,
-        'authDevise': '978',
-    }
-
-    # Payzen_processUpdate will mark payment as payed by stopping it.
-    payment.PaymentTransaction_createPayzenEvent().PayzenEvent_processUpdate(data_kw, True)
-    return payment
- 
-  def checkAndPaySubscriptionPayment(self, subscription_request):
-    quantity = subscription_request.getQuantity()
-    invoice = subscription_request.getCausalityValue(
-      portal_type="Sale Invoice Transaction")
-    self.assertEqual(invoice.getSimulationState(), "confirmed")
-    self.assertEqual(invoice.getCausalityState(), "building")
-
-    self.assertEqual(invoice.getSource(), self.expected_source)
-    self.assertEqual(invoice.getSourceSection(), self.expected_source_section)
+    # Pay with appropriate mode depending of the currency. 
+    if payment.getPriceCurrency() == "currency_module/CNY":
+      self.assertEqual(-self.expected_zh_reservation_fee*quantity,
+        payment.PaymentTransaction_getTotalPayablePrice())
     
-    # Pay Invoice if it is not Free
-    if not self.expected_free_reservation:
-      payment = self._payPayment(subscription_request)
+      # Pay 188 CNY per VM
+      data_kw = {
+        'result_code': 'SUCCESS',
+        'trade_state': 'SUCCESS',
+        'total_fee': self.expected_zh_reservation_fee*100*quantity,
+        'fee_type': 'CNY',
+      }
+
+      # Wechat_processUpdate will mark payment as payed by stopping it.
+      payment.PaymentTransaction_createWechatEvent().WechatEvent_processUpdate(data_kw)
     else:
-      payment = self._checkFreeReservationPayment(subscription_request)
-
-    # Check Payment
-    self.assertEqual(payment.getSourceSection(), self.expected_source_section)
-    self.assertEqual(payment.getSourcePayment(),
-                     "%s/bank_account" % self.expected_source_section)
+      self.assertEqual(-self.expected_reservation_fee*quantity,
+        payment.PaymentTransaction_getTotalPayablePrice())
     
-    self.tic()
-    self.assertEqual(payment.getSimulationState(), "stopped")
+      # Pay 25 euros per VM
+      data_kw = {
+        "status": "SUCCESS",
+        "answer": {
+          "transactions": [
+            {
+              "detailedStatus": "AUTHORISED",
+              "transactionDetails": {
+                "cardDetails": {
+                  "authorizationResponse": {
+                    "amount": self.expected_reservation_fee*100*quantity,
+                    "currency": "EUR",
+                  },
+                },
+              },
+            }
+          ],
+        },
+      }
+      # Payzen_processUpdate will mark payment as payed by stopping it.
+      payment.PaymentTransaction_createPayzenEvent().PayzenEvent_processUpdate(data_kw)
+    return payment
+
+  def checkAndPaySubscriptionPayment(self, subscription_request_list):
+    for subscription_request in subscription_request_list:
+      quantity = subscription_request.getQuantity()
+      invoice = subscription_request.getCausalityValue(
+        portal_type="Sale Invoice Transaction")
+
+      self.assertEqual(invoice.getSimulationState(), "confirmed")
+      self.assertEqual(invoice.getCausalityState(), "building")
+
+      if subscription_request.getSpecialiseValue().getSource() is not None:
+        self.assertNotEqual(subscription_request.getSourceSection(), None)
+        self.assertNotEqual(subscription_request.getSource(), None)
+
+        expected_source = subscription_request.getSource()
+        expected_source_section = subscription_request.getSourceSection()
+      else:
+        self.assertEqual(subscription_request.getSourceSection(), None)
+        self.assertEqual(subscription_request.getSource(), None)
+        expected_source = self.expected_source
+        expected_source_section = self.expected_source_section
+
+      self.assertEqual(invoice.getSource(), expected_source)
+      self.assertEqual(invoice.getSourceSection(), expected_source_section)
+
+      # Pay Invoice if it is not Free
+      if not self.expected_free_reservation:
+        payment = self._payPayment(subscription_request)
+      else:
+        payment = self._checkFreeReservationPayment(subscription_request)
+
+      # Check Payment
+      self.assertEqual(payment.getSourceSection(), expected_source_section)
+      self.assertEqual(payment.getSourcePayment(),
+                       "%s/bank_account" % expected_source_section)
+
+      self.tic()
+      self.assertEqual(payment.getSimulationState(), "stopped")
 
     # stabilise aggregated invoices and expand them
     self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
@@ -432,23 +673,40 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
     self.tic()
 
-    self.assertEqual(invoice.getSimulationState(), "stopped")
-    self.assertEqual(invoice.getCausalityState(), "solved")
-    self.assertEqual(invoice.getPriceCurrency(), self.expected_price_currency)
-    for line in invoice.objectValues():
-      if line.getResource() == "service_module/slapos_reservation_fee":
-        if self.expected_free_reservation:
-          self.assertEqual(line.getQuantity(), 0)
-        else:
-          self.assertEqual(line.getQuantity(), quantity)
-        self.assertEqual(round(line.getPrice(), 2),  self.expected_reservation_fee_without_tax)
-      if line.getResource() == "service_module/slapos_tax":
-        self.assertEqual(round(line.getQuantity(), 2),
-                         round(self.expected_reservation_quantity_tax*quantity, 2))
-        self.assertEqual(round(line.getTotalPrice(), 2),
-                         round(self.expected_reservation_tax*quantity, 2))
+    for subscription_request in subscription_request_list:
+      invoice = subscription_request.getCausalityValue(
+        portal_type="Sale Invoice Transaction")
 
-    self.assertEqual(round(invoice.getTotalPrice(), 2), self.expected_reservation_fee*quantity)
+      if subscription_request.getPriceCurrency() == "currency_module/CNY":
+        expected_reservation_fee_without_tax = self.expected_zh_reservation_fee_without_tax
+        expected_reservation_quantity_tax = self.expected_zh_reservation_quantity_tax
+        expected_reservation_tax = self.expected_zh_reservation_tax
+        expected_reservation_fee = self.expected_zh_reservation_fee
+      else:
+        expected_reservation_fee_without_tax = self.expected_reservation_fee_without_tax
+        expected_reservation_quantity_tax = self.expected_reservation_quantity_tax
+        expected_reservation_tax = self.expected_reservation_tax
+        expected_reservation_fee = self.expected_reservation_fee
+        
+
+      self.assertEqual(invoice.getSimulationState(), "stopped")
+      self.assertEqual(invoice.getCausalityState(), "solved")
+      self.assertEqual(invoice.getPriceCurrency(),
+        subscription_request.getPriceCurrency())
+      for line in invoice.objectValues():
+        if line.getResource() == "service_module/slapos_reservation_fee":
+          if self.expected_free_reservation:
+            self.assertEqual(line.getQuantity(), 0)
+          else:
+            self.assertEqual(line.getQuantity(), quantity)
+          self.assertEqual(round(line.getPrice(), 2),  expected_reservation_fee_without_tax)
+        if line.getResource() == "service_module/slapos_tax":
+          self.assertEqual(round(line.getQuantity(), 2),
+                           round(expected_reservation_quantity_tax*quantity, 2))
+          self.assertEqual(round(line.getTotalPrice(), 2),
+                           round(expected_reservation_tax*quantity, 2))
+
+      self.assertEqual(round(invoice.getTotalPrice(), 2), expected_reservation_fee*quantity)
 
   def checkSecondMonthAggregatedSalePackingList(self, subscription_request, sale_packing_list):
     sale_packing_list_line = [ i for i in sale_packing_list.objectValues()
@@ -456,11 +714,16 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
     quantity = subscription_request.getQuantity()
     # The values are without tax
+    if subscription_request.getPriceCurrency() == "currency_module/CNY":
+      expected_individual_price_without_tax = self.expected_zh_individual_price_without_tax
+    else:
+      expected_individual_price_without_tax = self.expected_individual_price_without_tax
+
     self.assertEqual(sale_packing_list_line.getQuantity(), 1*quantity)
     self.assertEqual(round(sale_packing_list_line.getPrice(), 2),
-      round(self.expected_individual_price_without_tax, 2))
+      round(expected_individual_price_without_tax, 2))
     self.assertEqual(round(sale_packing_list_line.getTotalPrice(), 2), 
-      round(1*self.expected_individual_price_without_tax*quantity, 2))
+      round(1*expected_individual_price_without_tax*quantity, 2))
 
     self.assertEqual(sale_packing_list.getCausality(),
                      subscription_request.getRelativeUrl())
@@ -469,7 +732,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
                      subscription_request.getRelativeUrl())
 
     self.assertEqual(sale_packing_list.getPriceCurrency(),
-                     self.expected_price_currency)
+                     subscription_request.getPriceCurrency())
 
   def _checkSecondMonthSimulation(self, subscription_request_list,
           default_email_text, subscription_server):
@@ -612,9 +875,12 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     subscriber = subscription_request.getDestinationSectionValue()
     self.assertEqual(subscriber.Entity_statOutstandingAmount(at_date=DateTime()),
       0.0)
-
     
-    expected_amount = round(self.expected_individual_price_with_tax*sum([i.getQuantity(0)
+    if subscription_request.getPriceCurrency() == "currency_module/CNY":
+      expected_individual_price_with_tax = self.expected_zh_individual_price_with_tax
+    else:
+      expected_individual_price_with_tax = self.expected_individual_price_with_tax
+    expected_amount = round(expected_individual_price_with_tax*sum([i.getQuantity(0)
      for i in subscription_request_list]),2)
 
     self.assertEqual(round(subscriber.Entity_statOutstandingAmount(), 2), expected_amount)
@@ -626,7 +892,10 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
     # Pay this new invoice
     for subscription_request in subscription_request_list:
-      self.checkAndPaySecondMonth(subscription_request)
+      if subscription_request.getPriceCurrency() == "currency_module/CNY":
+        self.checkAndPaySecondMonthViaWechat(subscription_request)
+      else:
+        self.checkAndPaySecondMonth(subscription_request)
       self.tic()
 
     # Here the invoice was payed before the date, so value is negative. 
@@ -640,41 +909,6 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       round(subscriber.Entity_statSlapOSOutstandingAmount(at_date=DateTime()+20), 2),
       0.0)
 
-
-  def checkAndPaySecondMonth(self, subscription_request):
-    self.login()
-    person = subscription_request.getDestinationSectionValue()
-
-    quantity = subscription_request.getQuantity()
-    self.login(person.getUserId())
-    self.usePayzenManually(self.web_site, person.getUserId())
-
-    payment = self.portal.portal_catalog.getResultValue(
-      portal_type="Payment Transaction",
-      simulation_state="started")
-
-    authAmount = int(self.expected_individual_price_with_tax*100)*quantity
-
-    self.assertEqual(payment.getSourceSection(), self.expected_source_section)
-    self.assertEqual(payment.getSourcePayment(),
-                     "%s/bank_account" % self.expected_source_section)
-    
-
-    self.assertEqual(int(payment.PaymentTransaction_getTotalPayablePrice()*100),
-                     -authAmount)
-    
-    self.assertEqual(payment.getPriceCurrency(), self.expected_price_currency)
-
-    self.logout()
-    self.login()
-
-    data_kw = {
-        'errorCode': '0',
-        'transactionStatus': '6',
-        'authAmount': authAmount,
-        'authDevise': '978',
-      }
-    payment.PaymentTransaction_createPayzenEvent().PayzenEvent_processUpdate(data_kw, True)
 
   def checkBootstrapUser(self, subscription_request):
     person = subscription_request.getDestinationSectionValue(portal_type="Person")
@@ -705,7 +939,8 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
     mail_message = mail_message_list[0]
     self.assertEqual(
-      "TestSubscriptionSkins Notification Message %s %s" % (self.expected_notification_language, notification_message),
+      "TestSubscriptionSkins Notification Message %s %s" % (
+        subscription_request.getLanguage(), notification_message),
       mail_message.getTitle())
     self.assertTrue(subscription_request.getDefaultEmailText() in \
                  mail_message.getTextContent())
@@ -720,7 +955,8 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.assertEqual(len(mail_message_list), 1)
     mail_message = mail_message_list[0]
     self.assertEqual(
-      "TestSubscriptionSkins Notification Message %s %s" % (self.expected_notification_language, notification_message),
+      "TestSubscriptionSkins Notification Message %s %s" % (
+         subscription_request.getLanguage(), notification_message),
       mail_message.getTitle())
     payment = subscription_request.SubscriptionRequest_verifyPaymentBalanceIsReady()
     self.assertEqual(payment.getSimulationState(), 'started')
@@ -738,7 +974,8 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.assertEqual(len(mail_message_list), 1)
     mail_message = mail_message_list[0]
     self.assertEqual(
-      "TestSubscriptionSkins Notification Message %s %s" % (self.expected_notification_language, notification_message),
+      "TestSubscriptionSkins Notification Message %s %s" % (
+        subscription_request.getLanguage(), notification_message),
       mail_message.getTitle())
     hosting_subscription = subscription_request.getAggregateValue()
     self.assertEqual(hosting_subscription.getSlapState(), 'start_requested')
@@ -782,12 +1019,19 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       if i.getResource() == "service_module/slapos_instance_subscription"][0]
 
     quantity = subscription_request.getQuantity()
+    if subscription_request.getPriceCurrency() == "currency_module/CNY":
+      expected_individual_price_without_tax = self.expected_zh_individual_price_without_tax
+      expected_reservation_fee = self.expected_zh_reservation_fee
+    else:
+      expected_individual_price_without_tax = self.expected_individual_price_without_tax
+      expected_reservation_fee = self.expected_reservation_fee
+      
     # The values are without tax
     self.assertEqual(sale_packing_list_line.getQuantity(), 1*quantity)
     self.assertEqual(round(sale_packing_list_line.getPrice(), 2),
-      round(self.expected_individual_price_without_tax, 2))
+      round(expected_individual_price_without_tax, 2))
     self.assertEqual(round(sale_packing_list_line.getTotalPrice(), 2), 
-      round(1*self.expected_individual_price_without_tax*quantity, 2))
+      round(1*expected_individual_price_without_tax*quantity, 2))
 
     self.assertEqual(sale_packing_list.getCausality(),
                      subscription_request.getRelativeUrl())
@@ -798,14 +1042,16 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     quantity = subscription_request.getQuantity()
     # The values are without tax
     self.assertEqual(sale_packing_list_line.getQuantity(), 1)
-    self.assertEqual(round(sale_packing_list_line.getPrice(), 2), -int(self.expected_reservation_fee*quantity))
-    self.assertEqual(round(sale_packing_list_line.getTotalPrice(), 2), -int(self.expected_reservation_fee*quantity))
+    self.assertEqual(round(sale_packing_list_line.getPrice(), 2),
+                     -int(expected_reservation_fee*quantity))
+    self.assertEqual(round(sale_packing_list_line.getTotalPrice(), 2),
+                   -int(expected_reservation_fee*quantity))
 
     self.assertEqual(sale_packing_list.getCausality(),
                      subscription_request.getRelativeUrl())
 
     self.assertEqual(sale_packing_list.getPriceCurrency(),
-                     self.expected_price_currency)
+                     subscription_request.getPriceCurrency())
 
   def makeCloudInvitationToken(self, max_invoice_delay=0, max_invoice_credit_eur=0.0,
                                     max_invoice_credit_cny=0.0):
@@ -835,6 +1081,27 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     if self.cloud_invitation_token is not None:
       kw["token"] = self.cloud_invitation_token.getId()
     return self.web_site.hateoas.SubscriptionRequestModule_requestSubscription(**kw)
+
+  @changeSkin('Hal')
+  def _requestSubscriptionViaChineseWebsite(self, **kw):
+    if self.cloud_invitation_token is not None:
+      kw["token"] = self.cloud_invitation_token.getId()
+    if 'target_language' not in kw:
+      kw["target_language"] = "zh"
+    kw["subscription_reference"] = self.subscription_condition.getReference().replace("_zh", "")
+
+    original_mode = self.portal.portal_secure_payments.slapos_wechat_test.getWechatMode()
+    self._simulatePaymentTransaction_getVADSUrlDict()
+    try:
+      self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode("UNITTEST")
+      self.logout()
+      self.changeSkin('Hal')
+      return self.web_site.hateoas.SubscriptionRequestModule_requestSubscription(**kw)
+    finally:
+      self._dropPaymentTransaction_getVADSUrlDict()
+      self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode(original_mode)
+
+
 
   def getAggregatedSalePackingList(self, subscription_request, specialise):
     person_uid = subscription_request.getDestinationSectionValue().getUid()
@@ -914,11 +1181,24 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
     subscription_request = self.getSubscriptionRequest(
       default_email_text, self.subscription_condition)
+
+    self.assertEqual(self.expected_price_currency,
+      subscription_request.getPriceCurrency())
+
+    self.assertEqual(self.subscription_condition.getSource(),
+      subscription_request.getSource())
+    
+    self.assertEqual(self.subscription_condition.getSourceSection(),
+      subscription_request.getSourceSection())
+    
+    self.assertEqual(self.expected_notification_language,
+      subscription_request.getLanguage())
+
     self.checkDraftSubscriptionRequest(subscription_request,
                       default_email_text, self.subscription_condition, amount=amount)
 
     # Check Payment and pay it.
-    self.checkAndPaySubscriptionPayment(subscription_request)
+    self.checkAndPaySubscriptionPayment([subscription_request])
     self.tic()
 
     # Call alarm to check payment and invoice and move foward to planned.
@@ -953,11 +1233,16 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     sale_packing_list = sale_packing_list_list[0]
 
     self.assertEqual(sale_packing_list.getPriceCurrency(),
-                     self.expected_price_currency)
+                     subscription_request.getPriceCurrency())
     self.assertEqual(sale_packing_list.getSpecialise(),
       "sale_trade_condition_module/slapos_reservation_refund_trade_condition")
 
-    self.assertEqual(round(sale_packing_list.getTotalPrice(), 2),
+    if subscription_request.getPriceCurrency() == "currency_module/CNY":
+      self.assertEqual(round(sale_packing_list.getTotalPrice(), 2),
+                     -round(self.expected_zh_reservation_fee*amount, 2))
+
+    else:
+      self.assertEqual(round(sale_packing_list.getTotalPrice(), 2),
                      -round(self.expected_reservation_fee*amount, 2))
 
     return subscription_request
@@ -1128,7 +1413,8 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     # Check if instance is on confirmed state
     for subscription_request in subscription_request_list:
       self.checkConfirmedSubscriptionRequest(subscription_request,
-               default_email_text, self.subscription_condition)
+               default_email_text,
+               subscription_request.getSpecialiseValue())
 
       self.assertEqual(expected_test_payment_balance,
           subscription_request.SubscriptionRequest_testPaymentBalance())
@@ -1193,7 +1479,10 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
 
     if not self.expected_free_reservation:
       for subscription_request in subscription_request_list:
-        self.checkAndPayFirstMonth(subscription_request)
+        if subscription_request.getPriceCurrency() == "currency_module/CNY":
+          self.checkAndPayFirstMonthViaWechat(subscription_request)
+        else:
+          self.checkAndPayFirstMonth(subscription_request)
         self.tic()
     
     self.stepCallSlaposSubscriptionRequestProcessConfirmedAlarm()
@@ -1333,7 +1622,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
                       default_email_text, self.subscription_condition, amount=amount)
 
     # Check Payment and pay it.
-    self.checkAndPaySubscriptionPayment(first_subscription_request)
+    self.checkAndPaySubscriptionPayment([first_subscription_request])
     self.tic()
 
     # Call alarm to check payment and invoice and move foward to planned.
@@ -1379,7 +1668,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
                         default_email_text, self.subscription_condition)
 
     # Check Payment and pay it.
-    self.checkAndPaySubscriptionPayment(second_subscription_request)
+    self.checkAndPaySubscriptionPayment([second_subscription_request])
     self.tic()
 
     # Call alarm to check payment and invoice and move foward to planned.

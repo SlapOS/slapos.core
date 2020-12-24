@@ -5,7 +5,7 @@ from DateTime import DateTime
 from Products.ERP5Type.tests.utils import createZODBPythonScript
 import difflib
 
-HARDCODED_PRICE = 99.6
+HARDCODED_PRICE = -99.6
 
 vads_url_cancel = 'http://example.org/cancel'
 vads_url_error = 'http://example.org/error'
@@ -187,6 +187,7 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
       'vads_amount': str(int(HARDCODED_PRICE * -100)),
       'vads_currency': 978,
       'vads_trans_id': transaction_id,
+      'vads_order_id': transaction_id,
       'vads_site_id': 'foo',
     }
     # Calculate the signature...
@@ -209,7 +210,8 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
       '" name="vads_trans_id" value="%(vads_trans_id)s">\n\n\n  <input type="'\
       'hidden" name="vads_action_mode"\n         value="INTERACTIVE">\n\n\n  '\
       '<input type="hidden" name="vads_url_success"\n         value="'\
-      '%(vads_url_success)s">\n\n\n  <input type="hidden" name="vads_url_refe'\
+      '%(vads_url_success)s">\n\n\n  <input type="hidden" name="vads_order_id'\
+      '" value="%(vads_trans_id)s">\n\n\n<input type="hidden" name="vads_url_refe'\
       'rral"\n         value="%(vads_url_referral)s">\n\n\n  <input type="hid'\
       'den" name="vads_page_action"\n         value="PAYMENT">\n\n\n  <input '\
       'type="hidden" name="vads_trans_date"\n         value="'\

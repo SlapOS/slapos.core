@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>data_kw, signature, REQUEST=None</string> </value>
+            <value> <string>data_kw, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

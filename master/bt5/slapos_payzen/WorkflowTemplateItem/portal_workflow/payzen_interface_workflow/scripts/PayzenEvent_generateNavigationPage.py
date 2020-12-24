@@ -29,6 +29,7 @@ payzen_dict = {
   'vads_amount': str(int(round((payment_transaction.PaymentTransaction_getTotalPayablePrice() * -100), 0))),
   'vads_trans_date': now.toZone('UTC').asdatetime().strftime('%Y%m%d%H%M%S'),
   'vads_trans_id': transaction_id,
+  'vads_order_id': transaction_id,
   'vads_language': 'en',
   'vads_url_cancel': vads_url_cancel,
   'vads_url_error': vads_url_error,

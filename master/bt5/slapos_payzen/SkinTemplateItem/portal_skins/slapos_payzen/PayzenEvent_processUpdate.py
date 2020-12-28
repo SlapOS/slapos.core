@@ -21,17 +21,17 @@ if status != "SUCCESS":
   error_code = answer["error_code"]
   if error_code == "PSP_010":
     # Transaction Not Found
-    transaction_date, _ = transaction.PaymentTransaction_getPayzenId()
     # Mark on payment transaction history log that transaction was not processed yet
+    transaction_date, _ = transaction.PaymentTransaction_getPayzenId()
+
     payzen_event.confirm()
     payzen_event.acknowledge(comment='Transaction not found on payzen side.')
-    #if int(DateTime()) - int(transaction_date) > 86400:
-    #  if isTransitionPossible(transaction, 'cancel'):
-    #    pass
-    #    transaction.cancel(comment='Aborting unknown payzen payment.')
-    #else:
-    # Comment the last part until all transaction are using the new REST Api and order_id
-    storeWorkflowComment(transaction,
+
+    if context.PayzenEvent_isPaymentExpired(transaction_date):
+      if isTransitionPossible(transaction, 'cancel'):
+        transaction.cancel(comment='Aborting unknown payzen payment.')
+    else:
+      storeWorkflowComment(transaction,
                          'Error code PSP_010 (Not found) did not changed the document state.')
     return
   else:

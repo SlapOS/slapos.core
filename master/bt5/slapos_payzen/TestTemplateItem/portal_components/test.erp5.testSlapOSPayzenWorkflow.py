@@ -254,17 +254,17 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     _ , _ = payment.PaymentTransaction_generatePayzenId()
     self.assertRaises(AttributeError, event.updateStatus)
 
-  def mockSoapGetInfo(self, method_to_call, expected_args, result_tuple):
+  def mockRestGetInfo(self, method_to_call, expected_args, result_tuple):
     payment_service = self.portal.portal_secure_payments.slapos_payzen_test
-    def mocksoad_getInfo(arg1, arg2):
+    def mockrest_getInfo(arg1, arg2):
       self.assertEqual(arg1, expected_args[0])
       self.assertEqual(arg2, expected_args[1])
       return result_tuple
-    setattr(payment_service, 'soap_getInfo', mocksoad_getInfo)
+    setattr(payment_service, 'rest_getInfo', mockrest_getInfo)
     try:
       return method_to_call()
     finally:
-      del payment_service.soap_getInfo
+      del payment_service.rest_getInfo
 
   def _simulatePayzenEvent_processUpdate(self):
     script_name = 'PayzenEvent_processUpdate'
@@ -295,16 +295,15 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by P
       payment.PaymentTransaction_generatePayzenId()
 
     mocked_data_kw = 'mocked_data_kw'
-    mocked_signature = 'mocked_signature'
     mocked_sent_text = 'mocked_sent_text'
     mocked_received_text = 'mocked_received_text'
 
     self._simulatePayzenEvent_processUpdate()
     try:
-      self.mockSoapGetInfo(
+      self.mockRestGetInfo(
         event.updateStatus,
         (transaction_date.toZone('UTC').asdatetime(), transaction_id),
-        (mocked_data_kw, mocked_signature, mocked_sent_text, mocked_received_text),
+        (mocked_data_kw, mocked_sent_text, mocked_received_text),
       )
     finally:
       self._dropPayzenEvent_processUpdate()
@@ -313,11 +312,11 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by P
     self.assertEqual(len(event_message_list), 2)
 
     sent_message = [x for x in event_message_list \
-                    if x.getTitle() == 'Sent SOAP'][0]
+                    if x.getTitle() == 'Sent Data'][0]
     self.assertEqual(sent_message.getTextContent(), mocked_sent_text)
 
     received_message = [x for x in event_message_list \
-                        if x.getTitle() == 'Received SOAP'][0]
+                        if x.getTitle() == 'Received Data'][0]
     self.assertEqual(received_message.getPredecessor(), 
                       sent_message.getRelativeUrl())
     self.assertEqual(received_message.getTextContent(), mocked_received_text)

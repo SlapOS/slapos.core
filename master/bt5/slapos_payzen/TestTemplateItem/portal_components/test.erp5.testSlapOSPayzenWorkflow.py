@@ -202,11 +202,10 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
       '%(vads_url_return)s">\n\n\n  <input type="hidden" name="vads_site_id" '\
       'value="%(vads_site_id)s">\n\n\n  <input type="hidden" name="vads_url_e'\
       'rror"\n         value="%(vads_url_error)s">\n\n\n  <input type="hidden'\
-      '" name="vads_trans_id" value="%(vads_trans_id)s">\n\n\n  <input type="'\
-      'hidden" name="vads_action_mode"\n         value="INTERACTIVE">\n\n\n  '\
+      '" name="vads_trans_id" value="%(vads_trans_id)s">\n\n\n  '\
       '<input type="hidden" name="vads_url_success"\n         value="'\
       '%(vads_url_success)s">\n\n\n  <input type="hidden" name="vads_order_id'\
-      '" value="%(vads_trans_id)s">\n\n\n<input type="hidden" name="vads_url_refe'\
+      '" value="%(vads_trans_id)s">\n\n\n  <input type="hidden" name="vads_url_refe'\
       'rral"\n         value="%(vads_url_referral)s">\n\n\n  <input type="hid'\
       'den" name="vads_page_action"\n         value="PAYMENT">\n\n\n  <input '\
       'type="hidden" name="vads_trans_date"\n         value="'\
@@ -220,7 +219,8 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
       '\n  <input type="hidden" name="vads_language" value="%(vads_language)s">\n\n\n  <inpu'\
       't type="hidden" name="vads_currency" value="%(vads_currency)s">\n\n\n '\
       ' <input type="hidden" name="vads_amount" value="%(vads_amount)s">\n\n\n'\
-      '  <input type="hidden" name="vads_version" value="V2">\n\n<center>\n '\
+      '  <input type="hidden" name="vads_version" value="V2">\n\n\n  <input type="'\
+      'hidden" name="vads_action_mode"\n         value="INTERACTIVE">\n\n<center>\n '\
       ' <input type="submit" value="Click to pay">\n</center>\n</form>' % data_dict
 
     # Event message state

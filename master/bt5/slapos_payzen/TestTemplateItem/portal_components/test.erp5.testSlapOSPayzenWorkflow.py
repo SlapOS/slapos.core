@@ -5,7 +5,7 @@ from DateTime import DateTime
 from Products.ERP5Type.tests.utils import createZODBPythonScript
 import difflib
 
-HARDCODED_PRICE = 99.6
+HARDCODED_PRICE = -99.6
 
 vads_url_cancel = 'http://example.org/cancel'
 vads_url_error = 'http://example.org/error'
@@ -187,6 +187,7 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
       'vads_amount': str(int(HARDCODED_PRICE * -100)),
       'vads_currency': 978,
       'vads_trans_id': transaction_id,
+      'vads_order_id': transaction_id,
       'vads_site_id': 'foo',
     }
     # Calculate the signature...
@@ -201,10 +202,10 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
       '%(vads_url_return)s">\n\n\n  <input type="hidden" name="vads_site_id" '\
       'value="%(vads_site_id)s">\n\n\n  <input type="hidden" name="vads_url_e'\
       'rror"\n         value="%(vads_url_error)s">\n\n\n  <input type="hidden'\
-      '" name="vads_trans_id" value="%(vads_trans_id)s">\n\n\n  <input type="'\
-      'hidden" name="vads_action_mode"\n         value="INTERACTIVE">\n\n\n  '\
+      '" name="vads_trans_id" value="%(vads_trans_id)s">\n\n\n  '\
       '<input type="hidden" name="vads_url_success"\n         value="'\
-      '%(vads_url_success)s">\n\n\n  <input type="hidden" name="vads_url_refe'\
+      '%(vads_url_success)s">\n\n\n  <input type="hidden" name="vads_order_id'\
+      '" value="%(vads_trans_id)s">\n\n\n  <input type="hidden" name="vads_url_refe'\
       'rral"\n         value="%(vads_url_referral)s">\n\n\n  <input type="hid'\
       'den" name="vads_page_action"\n         value="PAYMENT">\n\n\n  <input '\
       'type="hidden" name="vads_trans_date"\n         value="'\
@@ -218,7 +219,8 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
       '\n  <input type="hidden" name="vads_language" value="%(vads_language)s">\n\n\n  <inpu'\
       't type="hidden" name="vads_currency" value="%(vads_currency)s">\n\n\n '\
       ' <input type="hidden" name="vads_amount" value="%(vads_amount)s">\n\n\n'\
-      '  <input type="hidden" name="vads_version" value="V2">\n\n<center>\n '\
+      '  <input type="hidden" name="vads_version" value="V2">\n\n\n  <input type="'\
+      'hidden" name="vads_action_mode"\n         value="INTERACTIVE">\n\n<center>\n '\
       ' <input type="submit" value="Click to pay">\n</center>\n</form>' % data_dict
 
     # Event message state
@@ -252,17 +254,17 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
     _ , _ = payment.PaymentTransaction_generatePayzenId()
     self.assertRaises(AttributeError, event.updateStatus)
 
-  def mockSoapGetInfo(self, method_to_call, expected_args, result_tuple):
+  def mockRestGetInfo(self, method_to_call, expected_args, result_tuple):
     payment_service = self.portal.portal_secure_payments.slapos_payzen_test
-    def mocksoad_getInfo(arg1, arg2):
+    def mockrest_getInfo(arg1, arg2):
       self.assertEqual(arg1, expected_args[0])
       self.assertEqual(arg2, expected_args[1])
       return result_tuple
-    setattr(payment_service, 'soap_getInfo', mocksoad_getInfo)
+    setattr(payment_service, 'rest_getInfo', mockrest_getInfo)
     try:
       return method_to_call()
     finally:
-      del payment_service.soap_getInfo
+      del payment_service.rest_getInfo
 
   def _simulatePayzenEvent_processUpdate(self):
     script_name = 'PayzenEvent_processUpdate'
@@ -293,16 +295,15 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by P
       payment.PaymentTransaction_generatePayzenId()
 
     mocked_data_kw = 'mocked_data_kw'
-    mocked_signature = 'mocked_signature'
     mocked_sent_text = 'mocked_sent_text'
     mocked_received_text = 'mocked_received_text'
 
     self._simulatePayzenEvent_processUpdate()
     try:
-      self.mockSoapGetInfo(
+      self.mockRestGetInfo(
         event.updateStatus,
         (transaction_date.toZone('UTC').asdatetime(), transaction_id),
-        (mocked_data_kw, mocked_signature, mocked_sent_text, mocked_received_text),
+        (mocked_data_kw, mocked_sent_text, mocked_received_text),
       )
     finally:
       self._dropPayzenEvent_processUpdate()
@@ -311,11 +312,11 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by P
     self.assertEqual(len(event_message_list), 2)
 
     sent_message = [x for x in event_message_list \
-                    if x.getTitle() == 'Sent SOAP'][0]
+                    if x.getTitle() == 'Sent Data'][0]
     self.assertEqual(sent_message.getTextContent(), mocked_sent_text)
 
     received_message = [x for x in event_message_list \
-                        if x.getTitle() == 'Received SOAP'][0]
+                        if x.getTitle() == 'Received Data'][0]
     self.assertEqual(received_message.getPredecessor(), 
                       sent_message.getRelativeUrl())
     self.assertEqual(received_message.getTextContent(), mocked_received_text)

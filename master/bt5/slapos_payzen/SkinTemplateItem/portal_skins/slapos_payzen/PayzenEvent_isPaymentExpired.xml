@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>state_change</string> </value>
+            <value> <string>transaction_date</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>PayzenEvent_registerPayzen</string> </value>
+            <value> <string>PayzenEvent_isPaymentExpired</string> </value>
         </item>
       </dictionary>
     </pickle>

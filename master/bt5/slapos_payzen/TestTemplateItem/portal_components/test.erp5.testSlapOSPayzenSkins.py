@@ -183,7 +183,7 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
     self.assertRaises(
       Unauthorized,
       event.PayzenEvent_processUpdate,
-      'a', 'b',
+      'a',
       REQUEST={})
 
   def test_processUpdate_noTransaction(self):
@@ -191,27 +191,7 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
     self.assertRaises(
       ValueError,
       event.PayzenEvent_processUpdate,
-      'a', 'b')
-
-  def test_processUpdate_signatureBoolean(self):
-    event = self.createPayzenEvent()
-    payment = self.createPaymentTransaction()
-    event.edit(destination_value=payment)
-    self.assertRaises(
-      AssertionError,
-      event.PayzenEvent_processUpdate,
-      'a', 'b')
-
-  def test_processUpdate_falseSignature(self):
-    event = self.createPayzenEvent()
-    payment = self.createPaymentTransaction()
-    event.edit(destination_value=payment)
-
-    event.PayzenEvent_processUpdate('a', False)
-    self.assertEqual(event.getValidationState(), "confirmed")
-    self.assertEqual(
-        'Signature does not match',
-        event.workflow_history['system_event_workflow'][-1]['comment'])
+      'a')
 
   def test_processUpdate_wrongDataDictionnary(self):
     event = self.createPayzenEvent()
@@ -220,7 +200,7 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
     self.assertRaises(
       TypeError,
       event.PayzenEvent_processUpdate,
-      'a', True)
+      'a')
 
   def test_processUpdate_unknownErrorCode(self):
     event = self.createPayzenEvent()
@@ -228,29 +208,59 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
     event.edit(destination_value=payment)
 
     data_kw = {
-      'errorCode': 'foo',
+      'status': 'ERROR',
+      'answer':{
+          'error_code': "foo",
+      },
     }
 
-    event.PayzenEvent_processUpdate(data_kw, True)
+    event.PayzenEvent_processUpdate(data_kw)
     self.assertEqual(event.getValidationState(), "confirmed")
     self.assertEqual(
         "Unknown errorCode 'foo'",
         event.workflow_history['system_event_workflow'][-1]['comment'])
 
-  def test_processUpdate_unknownTransactionStatus(self):
+  def test_processUpdate_noTransactionsForOrder(self):
     event = self.createPayzenEvent()
     payment = self.createPaymentTransaction()
     event.edit(destination_value=payment)
 
     data_kw = {
-      'errorCode': '0',
-      'transactionStatus': 'foo',
+      "status": "SUCCESS",
+      "answer": {
+        "transactions": [],
+      },
     }
 
-    event.PayzenEvent_processUpdate(data_kw, True)
+    event.PayzenEvent_processUpdate(data_kw)
     self.assertEqual(event.getValidationState(), "confirmed")
     self.assertEqual(
-        "Unknown transactionStatus 'foo'",
+        "Unexpected Number of Transaction for this order",
+        event.workflow_history['system_event_workflow'][-1]['comment'])
+
+  def test_processUpdate_tooManyTransactionsForOrder(self):
+    event = self.createPayzenEvent()
+    payment = self.createPaymentTransaction()
+    event.edit(destination_value=payment)
+
+    data_kw = {
+      "status": "SUCCESS",
+      "answer": {
+        "transactions": [
+          {
+            "detailedStatus": "ACCEPTED",
+          },
+          {
+            "detailedStatus": "ACCEPTED",
+          },
+        ],
+      },
+    }
+
+    event.PayzenEvent_processUpdate(data_kw)
+    self.assertEqual(event.getValidationState(), "confirmed")
+    self.assertEqual(
+        "Unexpected Number of Transaction for this order",
         event.workflow_history['system_event_workflow'][-1]['comment'])
 
   def test_processUpdate_notSupportedTransactionStatus(self):
@@ -259,14 +269,20 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
     event.edit(destination_value=payment)
 
     data_kw = {
-      'errorCode': '0',
-      'transactionStatus': '2',
+      "status": "SUCCESS",
+      "answer": {
+        "transactions": [
+          {
+            "detailedStatus": "ACCEPTED",
+          }
+        ],
+      },
     }
 
-    event.PayzenEvent_processUpdate(data_kw, True)
+    event.PayzenEvent_processUpdate(data_kw)
     self.assertEqual(event.getValidationState(), "confirmed")
     self.assertEqual(
-        "Transaction status '2' ('To be forced - Contact issuer') " \
+        "Transaction status 'ACCEPTED' " \
         "is not supported",
         event.workflow_history['system_event_workflow'][-1]['comment'])
 
@@ -277,11 +293,17 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
     event.edit(destination_value=payment)
 
     data_kw = {
-      'errorCode': '0',
-      'transactionStatus': '0',
+      "status": "SUCCESS",
+      "answer": {
+        "transactions": [
+          {
+            "detailedStatus": "WAITING_AUTHORISATION_TO_VALIDATE",
+          }
+        ],
+      },
     }
 
-    event.PayzenEvent_processUpdate(data_kw, True)
+    event.PayzenEvent_processUpdate(data_kw, None)
 
     self.assertEqual(event.getValidationState(), "acknowledged")
     self.assertEqual(
@@ -290,7 +312,7 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
 
     self.assertEqual(payment.getSimulationState(), "confirmed")
     self.assertEqual(
-        'Transaction status 0 (Initial (being treated)) did not changed ' \
+        'Transaction status WAITING_AUTHORISATION_TO_VALIDATE did not changed ' \
         'the document state',
         payment.workflow_history['edit_workflow'][-1]['comment'])
     self.assertEqual(
@@ -305,10 +327,17 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
     event.edit(destination_value=payment)
 
     data_kw = {
-      'errorCode': '0',
-      'transactionStatus': '0',
+      "status": "SUCCESS",
+      "answer": {
+        "transactions": [
+          {
+            "detailedStatus": "WAITING_AUTHORISATION_TO_VALIDATE",
+          }
+        ],
+      },
     }
-    event.PayzenEvent_processUpdate(data_kw, True)
+
+    event.PayzenEvent_processUpdate(data_kw)
 
   def test_processUpdate_noAuthAmount(self):
     event = self.createPayzenEvent()
@@ -317,14 +346,26 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
     event.edit(destination_value=payment)
 
     data_kw = {
-      'errorCode': '0',
-      'transactionStatus': '6',
+      "status": "SUCCESS",
+      "answer": {
+        "transactions": [
+          {
+            "detailedStatus": "AUTHORISED",
+            "transactionDetails": {
+              "cardDetails": {
+                "authorizationResponse": {
+                },
+              },
+            },
+          }
+        ],
+      },
     }
 
     self.assertRaises(
       KeyError,
       event.PayzenEvent_processUpdate,
-      data_kw, True)
+      data_kw)
 
   def test_processUpdate_noAuthDevise(self):
     event = self.createPayzenEvent()
@@ -333,15 +374,27 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
     event.edit(destination_value=payment)
 
     data_kw = {
-      'errorCode': '0',
-      'transactionStatus': '6',
-      'authAmount': 1,
+      "status": "SUCCESS",
+      "answer": {
+        "transactions": [
+          {
+            "detailedStatus": "AUTHORISED",
+            "transactionDetails": {
+              "cardDetails": {
+                "authorizationResponse": {
+                  "amount": 1,
+                },
+              },
+            },
+          }
+        ],
+      },
     }
 
     self.assertRaises(
       KeyError,
       event.PayzenEvent_processUpdate,
-      data_kw, True)
+      data_kw)
 
   def test_processUpdate_differentAmount(self):
     event = self.createPayzenEvent()
@@ -350,14 +403,26 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
     event.edit(destination_value=payment)
 
     data_kw = {
-      'errorCode': '0',
-      'transactionStatus': '6',
-      'authAmount': 1,
-      'authDevise': 1,
+      "status": "SUCCESS",
+      "answer": {
+        "transactions": [
+          {
+            "detailedStatus": "AUTHORISED",
+            "transactionDetails": {
+              "cardDetails": {
+                "authorizationResponse": {
+                  "amount": 1,
+                  "currency": 1,
+                },
+              },
+            },
+          }
+        ],
+      },
     }
 
     self.assertEqual(payment.PaymentTransaction_getTotalPayablePrice(), 0)
-    event.PayzenEvent_processUpdate(data_kw, True)
+    event.PayzenEvent_processUpdate(data_kw)
 
     self.assertEqual(event.getValidationState(), "confirmed")
     self.assertEqual(
@@ -373,18 +438,30 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
     event.edit(destination_value=payment)
 
     data_kw = {
-      'errorCode': '0',
-      'transactionStatus': '6',
-      'authAmount': 0,
-      'authDevise': "dollars",
+      "status": "SUCCESS",
+      "answer": {
+        "transactions": [
+          {
+            "detailedStatus": "AUTHORISED",
+            "transactionDetails": {
+              "cardDetails": {
+                "authorizationResponse": {
+                  "amount": 0,
+                  "currency": "dollars",
+                },
+              },
+            },
+          }
+        ],
+      },
     }
 
     self.assertEqual(payment.PaymentTransaction_getTotalPayablePrice(), 0)
-    event.PayzenEvent_processUpdate(data_kw, True)
+    event.PayzenEvent_processUpdate(data_kw)
 
     self.assertEqual(event.getValidationState(), "confirmed")
     self.assertEqual(
-        "Received devise ('dollars') does not match stored on transaction ('978')",
+        "Received devise ('dollars') does not match stored on transaction ('EUR')",
         event.workflow_history['system_event_workflow'][-1]['comment'])
 
   def test_processUpdate_cancelledTransaction(self):
@@ -397,13 +474,25 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
     event.edit(destination_value=payment)
 
     data_kw = {
-      'errorCode': '0',
-      'transactionStatus': '6',
-      'authAmount': 0,
-      'authDevise': '978',
+      "status": "SUCCESS",
+      "answer": {
+        "transactions": [
+          {
+            "detailedStatus": "AUTHORISED",
+            "transactionDetails": {
+              "cardDetails": {
+                "authorizationResponse": {
+                  "amount": 0,
+                  "currency": "EUR",
+                },
+              },
+            },
+          }
+        ],
+      },
     }
 
-    event.PayzenEvent_processUpdate(data_kw, True)
+    event.PayzenEvent_processUpdate(data_kw)
 
     self.assertEqual(event.getValidationState(), "confirmed")
     self.assertEqual(
@@ -420,13 +509,25 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
     event.edit(destination_value=payment)
 
     data_kw = {
-      'errorCode': '0',
-      'transactionStatus': '6',
-      'authAmount': 0,
-      'authDevise': '978',
+      "status": "SUCCESS",
+      "answer": {
+        "transactions": [
+          {
+            "detailedStatus": "AUTHORISED",
+            "transactionDetails": {
+              "cardDetails": {
+                "authorizationResponse": {
+                  "amount": 0,
+                  "currency": "EUR",
+                },
+              },
+            },
+          }
+        ],
+      },
     }
 
-    event.PayzenEvent_processUpdate(data_kw, True)
+    event.PayzenEvent_processUpdate(data_kw)
 
     self.assertEqual(payment.getSimulationState(), "stopped")
     self.assertEqual(event.getValidationState(), "acknowledged")
@@ -466,12 +567,15 @@ return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'f
     event.edit(destination_value=payment)
 
     data_kw = {
-      'errorCode': '2',
+      "status": "ERROR",
+      "answer": {
+        "error_code": "PSP_010",
+      },
     }
 
     self._simulatePaymentTransaction_getRecentPayzenId()
     try:
-      event.PayzenEvent_processUpdate(data_kw, True)
+      event.PayzenEvent_processUpdate(data_kw)
     finally:
       self._dropPaymentTransaction_getPayzenId()
 
@@ -481,21 +585,27 @@ return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'f
         event.workflow_history['system_event_workflow'][-1]['comment'])
     self.assertNotEqual(payment.getSimulationState(), "cancelled")
     self.assertEqual(
-        'Error code 2 (Not found) did not changed the document state.',
+        'Error code PSP_010 (Not found) did not changed the document state.',
         payment.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_processUpdate_oldNotFoundOnPayzenSide(self):
+    """
+    This Test is supposed to Fail as for now we do not want to cancel automatically
+    """
     event = self.createPayzenEvent()
     payment = self.createPaymentTransaction()
     event.edit(destination_value=payment)
 
     data_kw = {
-      'errorCode': '2',
+      "status": "ERROR",
+      "answer": {
+        "error_code": "PSP_010",
+      },
     }
 
     self._simulatePaymentTransaction_getOldPayzenId()
     try:
-      event.PayzenEvent_processUpdate(data_kw, True)
+      event.PayzenEvent_processUpdate(data_kw)
     finally:
       self._dropPaymentTransaction_getPayzenId()
 
@@ -514,11 +624,17 @@ return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'f
     event.edit(destination_value=payment)
 
     data_kw = {
-      'errorCode': '0',
-      'transactionStatus': '8',
+      "status": "SUCCESS",
+      "answer": {
+        "transactions": [
+          {
+            "detailedStatus": "REFUSED",
+          }
+        ],
+      },
     }
 
-    event.PayzenEvent_processUpdate(data_kw, True)
+    event.PayzenEvent_processUpdate(data_kw)
 
     self.assertEqual(event.getValidationState(), "acknowledged")
     self.assertEqual(

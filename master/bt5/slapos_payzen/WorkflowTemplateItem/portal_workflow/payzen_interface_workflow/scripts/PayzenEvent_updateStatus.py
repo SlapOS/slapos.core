@@ -6,20 +6,20 @@ if transaction_id is None:
   raise ValueError('Transaction not registered in payzen integration tool')
 
 payment_service = payzen_event.getSourceValue(portal_type="Payzen Service")
-data_kw, signature, sent_text, received_text = payment_service.soap_getInfo(
+data_kw, sent_text, received_text = payment_service.rest_getInfo(
   transaction_date.toZone('UTC').asdatetime(),
   transaction_id)
 
 # SENT
 sent = payzen_event.newContent(
-  title='Sent SOAP', 
+  title='Sent Data', 
   portal_type='Payzen Event Message', 
   text_content=sent_text)
 
 # RECEIVED
 payzen_event.newContent(
-  title='Received SOAP', 
+  title='Received Data', 
   portal_type='Payzen Event Message', 
   text_content=received_text, 
   predecessor_value=sent)
-payzen_event.PayzenEvent_processUpdate(data_kw, signature)
+payzen_event.PayzenEvent_processUpdate(data_kw)

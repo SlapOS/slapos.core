@@ -18,7 +18,7 @@ isTransitionPossible = context.getPortalObject().portal_workflow.isTransitionPos
 status = data_kw['status']
 answer = data_kw['answer']
 if status != "SUCCESS":
-  error_code = answer["error_code"]
+  error_code = answer["errorCode"]
   if error_code == "PSP_010":
     # Transaction Not Found
     # Mark on payment transaction history log that transaction was not processed yet
@@ -36,7 +36,9 @@ if status != "SUCCESS":
     return
   else:
   # Unknown errorCode
-    payzen_event.confirm(comment='Unknown errorCode %r' % error_code)
+    # https://payzen.io/pt-BR/rest/V4.0/api/errors-reference.html
+    error_message = answer.get('errorMessage', '')
+    payzen_event.confirm(comment='Unknown errorCode %r, message: %s' % (error_code, error_message))
     return
 
 transaction_list = answer["transactions"]

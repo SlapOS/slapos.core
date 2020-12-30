@@ -210,14 +210,14 @@ class TestSlapOSPayzenEvent_processUpdate(SlapOSTestCaseMixinWithAbort):
     data_kw = {
       'status': 'ERROR',
       'answer':{
-          'error_code': "foo",
+          'errorCode': "foo",
       },
     }
 
     event.PayzenEvent_processUpdate(data_kw)
     self.assertEqual(event.getValidationState(), "confirmed")
     self.assertEqual(
-        "Unknown errorCode 'foo'",
+        "Unknown errorCode 'foo', message: ",
         event.workflow_history['system_event_workflow'][-1]['comment'])
 
   def test_processUpdate_noTransactionsForOrder(self):
@@ -569,7 +569,7 @@ return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'f
     data_kw = {
       "status": "ERROR",
       "answer": {
-        "error_code": "PSP_010",
+        "errorCode": "PSP_010",
       },
     }
 
@@ -599,7 +599,7 @@ return addToDate(DateTime(), to_add={'day': -1, 'second': -1}).toZone('UTC'), 'f
     data_kw = {
       "status": "ERROR",
       "answer": {
-        "error_code": "PSP_010",
+        "errorCode": "PSP_010",
       },
     }
 

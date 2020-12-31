@@ -6,6 +6,7 @@ portal.portal_catalog.searchAndActivate(
       default_resource_uid=[
         portal.service_module.slapos_crm_stop_acknowledgement.getUid(),
         portal.service_module.slapos_crm_delete_reminder.getUid(),
+        portal.service_module.slapos_crm_delete_acknowledgement.getUid(),
       ],
       method_id='RegularisationRequest_stopHostingSubscriptionList',
       method_args=(sub_tag,),

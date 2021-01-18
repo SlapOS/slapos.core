@@ -286,6 +286,29 @@ class SlapOSStandaloneTestCase(unittest.TestCase):
     self.standalone.format(1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
 
 
+class TestSlapOSStandaloneLogFile(SlapOSStandaloneTestCase):
+  def test_log_files(self):
+    log_directory = self.standalone._log_directory
+    with open(os.path.join(log_directory, 'slapos-proxy.log')) as f:
+      self.assertIn("Running on http", f.read())
+
+    self.standalone.waitForSoftware()
+    with open(os.path.join(log_directory, 'slapos-node-software.log')) as f:
+      self.assertIn("Processing software releases", f.read())
+
+    self.standalone.waitForInstance()
+    with open(os.path.join(log_directory, 'slapos-node-instance.log')) as f:
+      self.assertIn("Processing computer partitions", f.read())
+
+    self.standalone.waitForReport()
+    with open(os.path.join(log_directory, 'slapos-node-report.log')) as f:
+      self.assertIn("Aggregating and sending usage reports", f.read())
+
+    self.assertTrue(
+        os.path.exists(
+            os.path.join(log_directory, 'slapos-instance-supervisord.log')))
+
+
 class TestSlapOSStandaloneSoftware(SlapOSStandaloneTestCase):
   def test_install_software(self):
     with tempfile.NamedTemporaryFile(suffix="-%s.cfg" % self.id()) as f:

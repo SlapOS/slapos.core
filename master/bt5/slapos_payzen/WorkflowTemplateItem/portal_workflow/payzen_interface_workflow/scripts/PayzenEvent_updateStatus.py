@@ -1,9 +1,11 @@
 payzen_event = state_change['object']
 payment_transaction = payzen_event.getDestinationValue(portal_type="Payment Transaction")
 
-transaction_date, transaction_id = payment_transaction.PaymentTransaction_getPayzenId()
-if transaction_id is None:
+transaction_date, transaction_number = payment_transaction.PaymentTransaction_getPayzenId()
+if transaction_number is None:
   raise ValueError('Transaction not registered in payzen integration tool')
+
+transaction_id = transaction_date.Date().replace("/", "") + "-" + transaction_number
 
 payment_service = payzen_event.getSourceValue(portal_type="Payzen Service")
 data_kw, sent_text, received_text = payment_service.rest_getInfo(

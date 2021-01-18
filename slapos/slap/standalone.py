@@ -140,12 +140,14 @@ class SupervisorConfigWriter(ConfigWriter):
         startretries = 0
         startsecs = 0
         redirect_stderr = true
+        stdout_logfile = {standalone_slapos._log_directory}/slapos-proxy.log
 
         [program:slapos-instance-supervisord]
         command = supervisord --nodaemon --configuration {standalone_slapos._instance_root}/etc/supervisord.conf
         startretries = 0
         startsecs = 0
         redirect_stderr = true
+        stdout_logfile = {standalone_slapos._log_directory}/slapos-instance-supervisord.log
 
         """).format(**locals())
 
@@ -154,8 +156,7 @@ class SupervisorConfigWriter(ConfigWriter):
           program,
           program_config['command'].format(
               self=standalone_slapos, debug_args=''),
-          stdout_logfile=program_config.get(
-              'stdout_logfile', 'AUTO').format(self=standalone_slapos))
+          stdout_logfile=program_config['stdout_logfile'].format(self=standalone_slapos))
 
   def writeConfig(self, path):
     with open(path, 'w') as f:
@@ -342,7 +343,7 @@ class StandaloneSlapOS(object):
         'slapos-node-report': {
             'command':
                 'slapos node report --cfg {self._slapos_config} {debug_args}',
-            'log_file':
+            'stdout_logfile':
                 '{self._log_directory}/slapos-node-report.log',
         }
     }

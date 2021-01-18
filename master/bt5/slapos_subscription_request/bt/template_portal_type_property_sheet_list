@@ -11,8 +11,6 @@ Subscription Request | HostingSubscription
 Subscription Request | Person
 Subscription Request | Price
 Subscription Request | Reference
-Subscription Request | SlapOSAccountingHostingSubscriptionConstraint
-Subscription Request | SlaposHostingSubscriptionConstraint
 Subscription Request | SoftwareInstance
 Subscription Request | Task
 Subscription Request | TextDocument

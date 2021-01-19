@@ -10,6 +10,7 @@ if transaction_id is None:
   raise ValueError, "Transaction already registered"
 
 wechat_dict = {
+  'base_url': '../../wechat_payment/',
   'out_trade_no': payment_transaction.getId().encode('utf-8'),
   'total_fee': int(round((payment_transaction.PaymentTransaction_getTotalPayablePrice() * -100), 0)),
   'fee_type': payment_transaction.getResourceValue().Currency_getIntegrationMapping(),

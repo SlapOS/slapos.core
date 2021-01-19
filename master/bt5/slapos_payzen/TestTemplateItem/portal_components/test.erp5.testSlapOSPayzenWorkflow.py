@@ -187,7 +187,8 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
       'vads_amount': str(int(HARDCODED_PRICE * -100)),
       'vads_currency': 978,
       'vads_trans_id': transaction_id,
-      'vads_order_id': transaction_id,
+      'vads_order_id': "%s-%s" % (transaction_date.toZone('UTC')\
+                           .asdatetime().strftime('%Y%m%d'), transaction_id),
       'vads_site_id': 'foo',
     }
     # Calculate the signature...
@@ -302,7 +303,9 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by P
     try:
       self.mockRestGetInfo(
         event.updateStatus,
-        (transaction_date.toZone('UTC').asdatetime(), transaction_id),
+        (transaction_date.toZone('UTC').asdatetime(),
+          "%s-%s" % (transaction_date.toZone('UTC')\
+                           .asdatetime().strftime('%Y%m%d'), transaction_id)),
         (mocked_data_kw, mocked_sent_text, mocked_received_text),
       )
     finally:

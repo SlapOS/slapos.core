@@ -2340,11 +2340,7 @@ class TestCloudContract(TestSlapOSGroupRoleSecurityMixin):
     reference = 'TESTPERSON-%s' % self.generateNewId()
     person = self.portal.person_module.newContent(portal_type='Person',
         reference=reference)
-    contract = self.portal.cloud_contract_module.newContent(
-        portal_type='Cloud Contract',
-        destination_section_value=person,
-        )
-    contract.updateLocalRolesOnSecurityGroups()
+    contract = person.Person_generateCloudContract(batch=True)
     self.assertSecurityGroup(contract,
         ['G-COMPANY', person.getUserId(), self.user_id], False)
     self.assertRoles(contract, 'G-COMPANY', ['Assignor'])

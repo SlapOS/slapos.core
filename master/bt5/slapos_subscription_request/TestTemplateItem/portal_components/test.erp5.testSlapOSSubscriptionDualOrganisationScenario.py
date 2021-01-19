@@ -76,7 +76,7 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
 
 
   def requestAndCheckDualHostingSubscription(self, amount, name, 
-              default_email_text, language_list=['en', 'en']):
+              default_email_text, language_list):
   
     self.logout()
 

@@ -621,7 +621,7 @@ class TestPerson_newLogin(TestSlapOSHalJsonStyleMixin):
                                     password="b"))
     
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 406)
-    self.assertEqual(result, 'Password value doest not comply with password policy')
+    self.assertEqual(str(result), 'Password value does not comply with password policy')
     
   def test_Person_newLogin(self):
     person = self._makePerson(user=1)

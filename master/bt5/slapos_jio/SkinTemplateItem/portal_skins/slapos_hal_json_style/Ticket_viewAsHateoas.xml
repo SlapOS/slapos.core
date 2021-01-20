@@ -80,7 +80,10 @@
                 <item>
                     <key> <string>center</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>my_simulation_state_title</string>
+                        <string>my_translated_simulation_state_title</string>
+                      </list>
                     </value>
                 </item>
                 <item>
@@ -101,10 +104,8 @@
                         <string>my_resource</string>
                         <string>my_specialise</string>
                         <string>my_resource_title</string>
-                        <string>my_simulation_state_title</string>
                         <string>my_destination_decision</string>
                         <string>my_source</string>
-                        <string>my_translated_simulation_state_title</string>
                       </list>
                     </value>
                 </item>

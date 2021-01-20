@@ -206,7 +206,7 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
       '" name="vads_trans_id" value="%(vads_trans_id)s">\n\n\n  '\
       '<input type="hidden" name="vads_url_success"\n         value="'\
       '%(vads_url_success)s">\n\n\n  <input type="hidden" name="vads_order_id'\
-      '" value="%(vads_trans_id)s">\n\n\n  <input type="hidden" name="vads_url_refe'\
+      '"\n         value="%(vads_order_id)s">\n\n\n  <input type="hidden" name="vads_url_refe'\
       'rral"\n         value="%(vads_url_referral)s">\n\n\n  <input type="hid'\
       'den" name="vads_page_action"\n         value="PAYMENT">\n\n\n  <input '\
       'type="hidden" name="vads_trans_date"\n         value="'\

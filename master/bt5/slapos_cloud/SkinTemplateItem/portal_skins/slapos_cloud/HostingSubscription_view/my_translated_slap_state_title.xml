@@ -17,7 +17,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>my_slap_state_title</string> </value>
+            <value> <string>my_translated_slap_state_title</string> </value>
         </item>
         <item>
             <key> <string>message_values</string> </key>

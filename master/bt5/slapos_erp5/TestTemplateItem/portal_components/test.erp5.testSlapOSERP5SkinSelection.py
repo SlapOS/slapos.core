@@ -408,6 +408,7 @@ slapos_simulation
 slapos_slap_tool
 slapos_wechat
 slapos_configurator
+erp5_xhtml_disabled
 erp5_km
 erp5_knowledge_pad
 erp5_simulation

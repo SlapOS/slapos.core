@@ -28,6 +28,7 @@
 
 import unittest
 from Products.ERP5Type.tests.CodingStyleTestCase import CodingStyleTestCase
+from Products.ERP5Type import CodingStyle
 
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 
@@ -37,6 +38,12 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
     """
     def afterSetUp(self):
       CodingStyleTestCase.afterSetUp(self)
+      CodingStyle.ignored_skin_id_set.update({
+        'HostingSubscription_viewConsumptionReport',
+        'Person_viewResourceConsumptionReport',
+        'SystemPreference_viewSlapOS',
+        'Ticket_viewAsHateoas'})
+
       SlapOSTestCaseMixin.afterSetUp(self)
 
     def getBusinessTemplateList(self):

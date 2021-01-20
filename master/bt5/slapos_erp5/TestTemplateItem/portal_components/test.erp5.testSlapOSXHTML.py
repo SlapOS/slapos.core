@@ -37,7 +37,8 @@ class TestSlapOSXHTML(SlapOSTestCaseMixin, testXHTML.TestXHTML):
                           'erp5_monaco_editor', 'erp5_slideshow_core',
                           'erp5_run_my_doc', 'erp5_web_renderjs',
                           'erp5_corporate_identity',
-                          'erp5_corporate_identity_web')
+                          'erp5_corporate_identity_web',
+                          'erp5_notebook', 'erp5_officejs_notebook')
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     # Live tests all uses the same request. For now we remove cell from

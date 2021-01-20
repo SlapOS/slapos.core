@@ -346,6 +346,7 @@ class TestSlapOSStandaloneSoftware(SlapOSStandaloneTestCase):
               [instance]
               recipe = plone.recipe.command==1.1
               command = touch ${buildout:directory}/instance.cfg
+              update-command = touch ${buildout:directory}/updated
       ''').encode())
       f.flush()
       self.standalone.supply(f.name)
@@ -365,6 +366,19 @@ class TestSlapOSStandaloneSoftware(SlapOSStandaloneTestCase):
       self.assertTrue(
           os.path.exists(
               os.path.join(software_installation_path, 'instance.cfg')))
+
+      # install respect the .completed file, once software is installed,
+      # waitForSoftware will not process again software
+      self.standalone.waitForSoftware()
+      self.assertFalse(
+          os.path.exists(
+              os.path.join(software_installation_path, 'updated')))
+
+      # waitForSoftware has a way to "force" reinstalling all software
+      self.standalone.waitForSoftware(install_all=True)
+      self.assertTrue(
+          os.path.exists(
+              os.path.join(software_installation_path, 'updated')))
 
       # destroy
       self.standalone.supply(f.name, state='destroyed')

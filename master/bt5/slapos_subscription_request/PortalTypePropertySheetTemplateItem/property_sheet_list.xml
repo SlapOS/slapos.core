@@ -15,6 +15,7 @@
   <item>Person</item>
   <item>Price</item>
   <item>Reference</item>
+  <item>SlaposSubscriptionRequestAuditConstraint</item>
   <item>SoftwareInstance</item>
   <item>Task</item>
   <item>TextDocument</item>

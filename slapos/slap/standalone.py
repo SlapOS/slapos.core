@@ -346,6 +346,10 @@ class StandaloneSlapOS(object):
   Extends the existing `IRequester` and `ISupply`, with the special behavior that
   `IRequester.request` and `ISupply.supply` will only use the embedded computer.
   """
+  # an "hidden" flag to run slapos node instance and software with --all, for
+  # test suites for softwares with missing promises.
+  _force_slapos_node_instance_all = False
+
   def __init__(
       self,
       base_directory,
@@ -401,6 +405,14 @@ class StandaloneSlapOS(object):
     self._slapos_commands = {
         'slapos-node-software': {
             'command':
+                '{self._slapos_bin} node software --cfg {self._slapos_config} {debug_args}',
+            'debug_args':
+                '-v --buildout-debug',
+            'stdout_logfile':
+                '{self._log_directory}/slapos-node-software.log',
+        },
+        'slapos-node-software-all': {
+            'command':
                 '{self._slapos_bin} node software --cfg {self._slapos_config} --all {debug_args}',
             'debug_args':
                 '-v --buildout-debug',
@@ -408,6 +420,14 @@ class StandaloneSlapOS(object):
                 '{self._log_directory}/slapos-node-software.log',
         },
         'slapos-node-instance': {
+            'command':
+                '{self._slapos_bin} node instance --cfg {self._slapos_config} {debug_args}',
+            'debug_args':
+                '-v --buildout-debug',
+            'stdout_logfile':
+                '{self._log_directory}/slapos-node-instance.log',
+        },
+        'slapos-node-instance-all': {
             'command':
                 '{self._slapos_bin} node instance --cfg {self._slapos_config} --all {debug_args}',
             'debug_args':
@@ -734,7 +754,7 @@ class StandaloneSlapOS(object):
       raise RuntimeError(
           "Could not terminate some processes: {}".format(alive))
 
-  def waitForSoftware(self, max_retry=0, debug=False, error_lines=30):
+  def waitForSoftware(self, max_retry=0, debug=False, error_lines=30, install_all=False):
     """Synchronously install or uninstall all softwares previously supplied/removed.
 
     This method retries on errors. If after `max_retry` times there's
@@ -744,12 +764,16 @@ class StandaloneSlapOS(object):
     If `debug` is true, buildout is executed in the foreground, with flags to
     drop in a debugger session if error occurs.
 
+    If `install_all` is true, all softwares will be installed, even the ones
+    for which the installation was already completed. This is equivalent to
+    running `slapos node software --all`.
+
     Error cases:
       * `SlapOSNodeCommandError` when buildout error while installing software.
       * Unexpected `Exception` if unable to connect to embedded slap server.
     """
     return self._runSlapOSCommand(
-        'slapos-node-software',
+        'slapos-node-software-all' if install_all else 'slapos-node-software',
         max_retry=max_retry,
         debug=debug,
         error_lines=error_lines,
@@ -770,7 +794,7 @@ class StandaloneSlapOS(object):
       * Unexpected `Exception` if unable to connect to embedded slap server.
     """
     return self._runSlapOSCommand(
-        'slapos-node-instance',
+        'slapos-node-instance-all' if self._force_slapos_node_instance_all else 'slapos-node-instance',
         max_retry=max_retry,
         debug=debug,
         error_lines=error_lines,

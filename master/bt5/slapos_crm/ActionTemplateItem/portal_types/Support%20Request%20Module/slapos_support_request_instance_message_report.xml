@@ -73,7 +73,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>string:${object_url}/SupportRequestModule_viewInstanceMessageList</string> </value>
+            <value> <string>string:${object_url}/SupportRequestModule_viewInstanceMessageListDialog</string> </value>
         </item>
       </dictionary>
     </pickle>

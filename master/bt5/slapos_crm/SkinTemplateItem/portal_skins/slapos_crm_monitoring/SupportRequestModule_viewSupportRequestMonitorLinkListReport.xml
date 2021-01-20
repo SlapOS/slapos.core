@@ -7,27 +7,6 @@
     <pickle>
       <dictionary>
         <item>
-            <key> <string>_bind_names</string> </key>
-            <value>
-              <object>
-                <klass>
-                  <global name="NameAssignments" module="Shared.DC.Scripts.Bindings"/>
-                </klass>
-                <tuple/>
-                <state>
-                  <dictionary>
-                    <item>
-                        <key> <string>_asgns</string> </key>
-                        <value>
-                          <dictionary/>
-                        </value>
-                    </item>
-                  </dictionary>
-                </state>
-              </object>
-            </value>
-        </item>
-        <item>
             <key> <string>_objects</string> </key>
             <value>
               <tuple/>
@@ -35,7 +14,11 @@
         </item>
         <item>
             <key> <string>action</string> </key>
-            <value> <string>SupportRequestModule_viewInstanceMessageList</string> </value>
+            <value> <string></string> </value>
+        </item>
+        <item>
+            <key> <string>action_title</string> </key>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -108,7 +91,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SupportRequestModule_viewInstanceMessageList</string> </value>
+            <value> <string>SupportRequestModule_viewSupportRequestMonitorLinkListReport</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -116,11 +99,11 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>SupportRequestModule_viewInstanceMessageList</string> </value>
+            <value> <string>SupportRequestModule_viewSupportRequestMonitorLinkListReport</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>
-            <value> <string>form_dialog</string> </value>
+            <value> <string>report_view</string> </value>
         </item>
         <item>
             <key> <string>row_length</string> </key>
@@ -132,7 +115,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Update</string> </value>
+            <value> <string>Monitoring Links</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

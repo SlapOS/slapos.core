@@ -14,6 +14,10 @@
         </item>
         <item>
             <key> <string>action</string> </key>
+            <value> <string>SupportRequestModule_getMonitoringOPMLDescriptionList</string> </value>
+        </item>
+        <item>
+            <key> <string>action_title</string> </key>
             <value> <string></string> </value>
         </item>
         <item>
@@ -53,15 +57,15 @@
                 <item>
                     <key> <string>bottom</string> </key>
                     <value>
-                      <list>
-                        <string>listbox</string>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>
                     <key> <string>center</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>your_monitor_opml_description_list</string>
+                      </list>
                     </value>
                 </item>
                 <item>
@@ -87,7 +91,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SupportRequestModule_viewSupportRequestMonitorLinkList</string> </value>
+            <value> <string>SupportRequestModule_viewExportMonitorOPMLListDialog</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -95,11 +99,11 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>SupportRequestModule_viewSupportRequestMonitorLinkList</string> </value>
+            <value> <string>SupportRequestModule_viewExportMonitorOPMLListDialog</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>
-            <value> <string>report_view</string> </value>
+            <value> <string>form_dialog</string> </value>
         </item>
         <item>
             <key> <string>row_length</string> </key>
@@ -111,7 +115,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Monitoring Links</string> </value>
+            <value> <string>Export</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>
@@ -119,11 +123,11 @@
         </item>
         <item>
             <key> <string>update_action</string> </key>
-            <value> <string></string> </value>
+            <value> <string>SupportRequestModule_viewExportMonitorOPMLListDialog</string> </value>
         </item>
         <item>
             <key> <string>update_action_title</string> </key>
-            <value> <string></string> </value>
+            <value> <string>Update</string> </value>
         </item>
       </dictionary>
     </pickle>

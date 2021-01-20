@@ -231,6 +231,25 @@ class SlapOSCommandWriter(ConfigWriter):
     os.chmod(path, 0o755)
 
 
+class SlapOSNodeServiceWriter(ConfigWriter):
+  """Write a bin/slapos-node-service wrapper.
+  """
+  def writeConfig(self, path):
+    with open(path, 'w') as f:
+      f.write(
+          textwrap.dedent(
+              """\
+              #!/bin/sh
+              while true
+              do
+                supervisorctl start slapos-node-software &
+                supervisorctl start slapos-node-instance &
+                supervisorctl start slapos-node-report &
+                sleep 60
+              done
+      """).format(**locals()))
+    os.chmod(path, 0o755)
+
 class PartitionForwardConfiguration(object):
   """Specification of request forwarding to another master, requested as user.
   """
@@ -293,8 +312,9 @@ class StandaloneSlapOS(object):
       instance_root=None,
       shared_part_root=None,
       partition_forward_configuration=(),
+      auto_run=False,
     ):
-    # type: (str, str, int, str, Iterable[str], Optional[str], Optional[str], Optional[str], Iterable[Union[PartitionForwardConfiguration, PartitionForwardAsPartitionConfiguration]]) -> None
+    # type: (str, str, int, str, Iterable[str], Optional[str], Optional[str], Optional[str], Iterable[Union[PartitionForwardConfiguration, PartitionForwardAsPartitionConfiguration]], bool) -> None
     """Constructor, creates a standalone slapos in `base_directory`.
 
     Arguments:
@@ -306,6 +326,7 @@ class StandaloneSlapOS(object):
       * `instance_root` -- directory to create instances, default to "inst" in `base_directory`
       * `shared_part_root` -- directory to hold shared parts software, default to "shared" in `base_directory`.
       * `partition_forward_configuration` -- configuration of partition request forwarding to external SlapOS master.
+      * `auto_run` -- run slapos node in a loop to provision software and deploy instances automatically.
 
     Error cases:
       * `PathTooDeepError` when `base_directory` is too deep. Because of limitation
@@ -345,6 +366,11 @@ class StandaloneSlapOS(object):
                 'slapos node report --cfg {self._slapos_config} {debug_args}',
             'stdout_logfile':
                 '{self._log_directory}/slapos-node-report.log',
+        },
+        'slapos-node-service': {
+            'command': '{self._slapos_node_service_bin}',
+            'stdout_logfile':
+                '{self._log_directory}/slapos-node-service.log',
         }
     }
     self._computer_id = computer_id
@@ -352,6 +378,11 @@ class StandaloneSlapOS(object):
     self._slap.initializeConnection(self._master_url)
 
     self._initBaseDirectory(software_root, instance_root, shared_part_root)
+    if auto_run:
+      command = 'slapos-node-service'
+      with self.system_supervisor_rpc as supervisor:
+        self._logger.info("starting command %s", command)
+        supervisor.startProcess(command, False)
 
   def _initBaseDirectory(self, software_root, instance_root, shared_part_root):
     """Create the directory after checking it's not too deep.
@@ -396,6 +427,7 @@ class StandaloneSlapOS(object):
     ensureDirectoryExists(bin_directory)
 
     self._slapos_bin = os.path.join(bin_directory, 'slapos')
+    self._slapos_node_service_bin = os.path.join(bin_directory, 'slapos-node-service')
 
     self._log_directory = os.path.join(var_directory, 'log')
     ensureDirectoryExists(self._log_directory)
@@ -413,6 +445,7 @@ class StandaloneSlapOS(object):
     SupervisorConfigWriter(self).writeConfig(self._supervisor_config)
     SlapOSConfigWriter(self).writeConfig(self._slapos_config)
     SlapOSCommandWriter(self).writeConfig(self._slapos_bin)
+    SlapOSNodeServiceWriter(self).writeConfig(self._slapos_node_service_bin)
 
     self.start()
 

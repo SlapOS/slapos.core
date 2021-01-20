@@ -326,7 +326,7 @@ class StandaloneSlapOS(object):
     self._slapos_commands = {
         'slapos-node-software': {
             'command':
-                'slapos node software --cfg {self._slapos_config} --all {debug_args}',
+                'slapos node software --cfg {self._slapos_config} {debug_args}',
             'debug_args':
                 '-v --buildout-debug',
             'stdout_logfile':
@@ -334,7 +334,7 @@ class StandaloneSlapOS(object):
         },
         'slapos-node-instance': {
             'command':
-                'slapos node instance --cfg {self._slapos_config} --all {debug_args}',
+                'slapos node instance --cfg {self._slapos_config} {debug_args}',
             'debug_args':
                 '-v --buildout-debug',
             'stdout_logfile':

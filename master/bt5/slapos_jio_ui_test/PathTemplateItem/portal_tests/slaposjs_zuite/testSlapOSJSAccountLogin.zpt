@@ -63,7 +63,7 @@
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
       <tal:block tal:define="notification_configuration python: {'class': 'error',
-                                                           'text': 'Password value doest not comply with password policy'}">
+                                                           'text': 'Password does not comply with password policy'}">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
       </tal:block>
 

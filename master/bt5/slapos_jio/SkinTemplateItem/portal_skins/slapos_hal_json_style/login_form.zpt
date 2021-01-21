@@ -19,7 +19,7 @@
     <div data-gadget-scope='panel'>
       <div data-role="header">
         <div class="panel_img">
-          <img class="ui-title" alt="SlapOS logo" src="gadget_slapos_panel.png?format=png"/>
+          <img class="ui-title" alt="SlapOS logo" src="rapid_space_logo.svg?format="/>
         </div>
       </div>
     </div>

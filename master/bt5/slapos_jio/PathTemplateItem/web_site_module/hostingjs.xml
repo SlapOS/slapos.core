@@ -349,6 +349,16 @@
                       <value> <string>string</string> </value>
                   </item>
                 </dictionary>
+                <dictionary>
+                  <item>
+                      <key> <string>id</string> </key>
+                      <value> <string>configuration_icon_url</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>type</string> </key>
+                      <value> <string>string</string> </value>
+                  </item>
+                </dictionary>
               </tuple>
             </value>
         </item>
@@ -423,6 +433,10 @@
         <item>
             <key> <string>configuration_header_gadget_url</string> </key>
             <value> <string>gadget_slapos_header.html</string> </value>
+        </item>
+        <item>
+            <key> <string>configuration_icon_url</string> </key>
+            <value> <string>rapid_space_favicon.png?format=</string> </value>
         </item>
         <item>
             <key> <string>configuration_jio_gadget_url</string> </key>
@@ -701,7 +715,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>985.8936.26794.59579</string> </value>
+                      <value> <string>989.31863.56943.33894</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -719,7 +733,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1597354424.8</float>
+                              <float>1611240485.22</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

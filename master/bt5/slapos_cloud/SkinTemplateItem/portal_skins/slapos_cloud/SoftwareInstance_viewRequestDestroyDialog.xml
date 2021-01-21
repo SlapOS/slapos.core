@@ -35,7 +35,11 @@
         </item>
         <item>
             <key> <string>action</string> </key>
-            <value> <string>SoftwareInstallation_requestDestruction</string> </value>
+            <value> <string>SoftwareInstance_requestDestroy</string> </value>
+        </item>
+        <item>
+            <key> <string>action_title</string> </key>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -94,9 +98,9 @@
                     <value>
                       <list>
                         <string>Warnning</string>
-                        <string>my_aggregate_title</string>
+                        <string>my_title</string>
                         <string>my_reference</string>
-                        <string>my_url_string</string>
+                        <string>my_description</string>
                       </list>
                     </value>
                 </item>
@@ -111,7 +115,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SoftwareInstallation_viewRequestDestroy</string> </value>
+            <value> <string>SoftwareInstance_viewRequestDestroyDialog</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -119,7 +123,7 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>SoftwareInstallation_viewRequestDestroy</string> </value>
+            <value> <string>HostingSubscription_viewRequestDestroyDialog</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>

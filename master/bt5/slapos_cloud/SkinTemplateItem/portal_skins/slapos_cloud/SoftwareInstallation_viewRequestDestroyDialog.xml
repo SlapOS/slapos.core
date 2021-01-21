@@ -35,6 +35,10 @@
         </item>
         <item>
             <key> <string>action</string> </key>
+            <value> <string>SoftwareInstallation_requestDestruction</string> </value>
+        </item>
+        <item>
+            <key> <string>action_title</string> </key>
             <value> <string></string> </value>
         </item>
         <item>
@@ -74,10 +78,7 @@
                 <item>
                     <key> <string>bottom</string> </key>
                     <value>
-                      <list>
-                        <string>my_busy_computer_partition_list</string>
-                        <string>listbox</string>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>
@@ -89,39 +90,24 @@
                 <item>
                     <key> <string>hidden</string> </key>
                     <value>
-                      <list>
-                        <string>my_busy_computer_partition_list_image</string>
-                        <string>listbox_installation_state</string>
-                        <string>listbox_usage</string>
-                        <string>my_busy_computer_partition_list_creation_date</string>
-                        <string>my_busy_computer_partition_list_status</string>
-                        <string>listbox_installation_status</string>
-                        <string>my_busy_computer_partition_list_hosting_subscription_title</string>
-                        <string>my_busy_computer_partition_list_instance_title</string>
-                        <string>listbox_image</string>
-                        <string>listbox_software_release</string>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>
                     <key> <string>left</string> </key>
                     <value>
                       <list>
+                        <string>Warnning</string>
+                        <string>my_aggregate_title</string>
                         <string>my_reference</string>
-                        <string>your_free_partition_count</string>
+                        <string>my_url_string</string>
                       </list>
                     </value>
                 </item>
                 <item>
                     <key> <string>right</string> </key>
                     <value>
-                      <list>
-                        <string>my_last_contact_date</string>
-                        <string>my_os_type</string>
-                        <string>my_public_ipv4_address</string>
-                        <string>my_python_version</string>
-                        <string>my_slapos_version</string>
-                      </list>
+                      <list/>
                     </value>
                 </item>
               </dictionary>
@@ -129,7 +115,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Computer_viewCurrentUsage</string> </value>
+            <value> <string>SoftwareInstallation_viewRequestDestroyDialog</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -137,11 +123,11 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>Computer_viewCurrentUsage</string> </value>
+            <value> <string>SoftwareInstallation_viewRequestDestroyDialog</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>
-            <value> <string>report_view</string> </value>
+            <value> <string>form_dialog</string> </value>
         </item>
         <item>
             <key> <string>row_length</string> </key>
@@ -153,7 +139,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Usage</string> </value>
+            <value> <string>Request Destroy</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

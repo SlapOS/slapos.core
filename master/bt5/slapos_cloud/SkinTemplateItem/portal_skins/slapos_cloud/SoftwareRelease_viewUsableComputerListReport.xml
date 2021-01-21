@@ -35,7 +35,11 @@
         </item>
         <item>
             <key> <string>action</string> </key>
-            <value> <string>HostingSubscription_requestDestroy</string> </value>
+            <value> <string></string> </value>
+        </item>
+        <item>
+            <key> <string>action_title</string> </key>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -74,30 +78,33 @@
                 <item>
                     <key> <string>bottom</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>listbox</string>
+                      </list>
                     </value>
                 </item>
                 <item>
                     <key> <string>center</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>my_url_string</string>
+                        <string>your_free_partition_count</string>
+                      </list>
                     </value>
                 </item>
                 <item>
                     <key> <string>hidden</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>listbox_free_partition</string>
+                        <string>listbox_amount</string>
+                      </list>
                     </value>
                 </item>
                 <item>
                     <key> <string>left</string> </key>
                     <value>
-                      <list>
-                        <string>Warnning</string>
-                        <string>my_title</string>
-                        <string>my_reference</string>
-                        <string>my_description</string>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>
@@ -111,7 +118,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>HostingSubscription_viewRequestDestroy</string> </value>
+            <value> <string>SoftwareRelease_viewUsableComputerListReport</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -119,11 +126,11 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>HostingSubscription_viewRequestDestroy</string> </value>
+            <value> <string>SoftwareRelease_viewUsableComputerListReport</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>
-            <value> <string>form_dialog</string> </value>
+            <value> <string>report_view</string> </value>
         </item>
         <item>
             <key> <string>row_length</string> </key>
@@ -135,7 +142,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Request Destroy</string> </value>
+            <value> <string>Usage</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

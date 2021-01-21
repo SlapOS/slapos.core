@@ -12,7 +12,13 @@ except ValueError:
 web_site = context.getWebSiteValue()
 request_method = "POST"
 
-request_url = "%s/%s" % (web_site.absolute_url(), "Person_getCertificate")
+request_url = "%s/%s" % (
+  web_site.getLayoutProperty(
+    "configuration_slapos_master_web_url",
+    default="https://slapos.vifib.com"
+  ),
+  "Person_getCertificate"
+)
 
 access_token = portal.access_token_module.newContent(
   portal_type="One Time Restricted Access Token",

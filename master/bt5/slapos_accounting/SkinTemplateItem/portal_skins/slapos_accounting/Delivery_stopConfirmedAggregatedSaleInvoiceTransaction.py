@@ -8,6 +8,9 @@ if context.getSimulationState() == 'confirmed'\
   and context.getSpecialise() in [portal.portal_preferences.getPreferredAggregatedSaleTradeCondition(),
                                   portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()]:
   comment = 'Stopped by alarm as all actions in confirmed state are ready.'
+  now = DateTime()
+  context.setStartDate(now)
+  context.setStopDate(now)
   if isTransitionPossible(context, 'start'):
     context.start(comment=comment)
   if isTransitionPossible(context, 'stop'):

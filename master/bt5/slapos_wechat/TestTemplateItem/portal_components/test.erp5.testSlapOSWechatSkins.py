@@ -691,6 +691,37 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
         "%s do not start with %s" % (redirected_url, expected))
     transaction.abort()
 
+  def test_PaymentTransaction_redirectToManualWechatPayment_redirect_with_website(self):
+    person = self.makePerson()
+    invoice =  self.createWechatSaleInvoiceTransaction(
+      destination_section=person.getRelativeUrl())
+    self.tic()
+    payment = invoice.SaleInvoiceTransaction_getWechatPaymentRelatedValue()
+    payment.setResourceValue(self.portal.currency_module.EUR)
+    payment_transaction_id = payment.getId()
+    web_site = self.portal.web_site_module.newContent(portal_type='Web Site')
+
+    self.tic()
+    self.login(person.getUserId())
+    self._simulatePaymentTransaction_getVADSUrlDict()
+    try:
+      def callFakeWechatApi(self, URL, wechat_dict):
+        return {"result_code": 'SUCCESS', "code_url": 'weixin://wxpay/bizpayurl?pr=AAAAA' }
+      original_callWechatApi = WechatService.callWechatApi
+      WechatService.callWechatApi = callFakeWechatApi
+      try:
+        redirected_url = payment.PaymentTransaction_redirectToManualWechatPayment(web_site)
+      finally:
+        WechatService.callWechatApi = original_callWechatApi
+    finally:
+      self._dropPaymentTransaction_getVADSUrlDict()
+
+    self.assertEqual(payment.PaymentTransaction_getTotalPayablePrice(), 0)
+    expected = "%s/wechat_payment?trade_no=%s&price=0&payment_url=weixin://wxpay/bizpayurl?pr=" % (web_site.absolute_url(), payment_transaction_id)
+    self.assertTrue(redirected_url.startswith(expected),
+        "%s do not start with %s" % (redirected_url, expected))
+    transaction.abort()
+
 
   def test_PaymentTransaction_redirectToManualWechatPayment_already_registered(self):
     person = self.makePerson()

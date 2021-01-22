@@ -79,7 +79,7 @@ Examples
 
 * Request a kvm instance named "mykvm" on Node named "COMP-12345", specifying nbd-host and nbd-ip parameters::
 
-    $ slapos request mykvm kvm --node computer_guid=COMP-12345 --configuration \
+    $ slapos request mykvm kvm --node computer_guid=COMP-12345 --parameters \
         nbd-host=debian.nbd.vifib.net nbd-port=1024
 
 * Request a kvm instance specifying the full URL, with default settings::

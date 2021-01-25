@@ -231,6 +231,29 @@ class SlapOSCommandWriter(ConfigWriter):
     os.chmod(path, 0o755)
 
 
+class SlapOSNodeAutoWriter(ConfigWriter):
+  """Write a bin/slapos-node-auto wrapper.
+  """
+  def writeConfig(self, path):
+    with open(path, 'w') as f:
+      f.write(
+          textwrap.dedent(
+              """\
+              #!/bin/sh
+              while true
+              do
+                for i in $(seq 1 60)
+                do
+                  supervisorctl -c {self._standalone_slapos._supervisor_config} start slapos-node-software &
+                  supervisorctl -c {self._standalone_slapos._supervisor_config} start slapos-node-instance &
+                  sleep 60
+                done
+                supervisorctl -c {self._standalone_slapos._supervisor_config} start slapos-node-report &
+              done
+      """).format(**locals()))
+    os.chmod(path, 0o755)
+
+
 class PartitionForwardConfiguration(object):
   """Specification of request forwarding to another master, requested as user.
   """
@@ -345,6 +368,12 @@ class StandaloneSlapOS(object):
                 'slapos node report --cfg {self._slapos_config} {debug_args}',
             'stdout_logfile':
                 '{self._log_directory}/slapos-node-report.log',
+        },
+        'slapos-node-auto': {
+            'command':
+                '{self._slapos_node_auto_bin}',
+            'stdout_logfile':
+                '{self._log_directory}/slapos-node-auto.log',
         }
     }
     self._computer_id = computer_id
@@ -396,6 +425,7 @@ class StandaloneSlapOS(object):
     ensureDirectoryExists(bin_directory)
 
     self._slapos_bin = os.path.join(bin_directory, 'slapos')
+    self._slapos_node_auto_bin = os.path.join(bin_directory, 'slapos-node-auto')
 
     self._log_directory = os.path.join(var_directory, 'log')
     ensureDirectoryExists(self._log_directory)
@@ -413,6 +443,7 @@ class StandaloneSlapOS(object):
     SupervisorConfigWriter(self).writeConfig(self._supervisor_config)
     SlapOSConfigWriter(self).writeConfig(self._slapos_config)
     SlapOSCommandWriter(self).writeConfig(self._slapos_bin)
+    SlapOSNodeAutoWriter(self).writeConfig(self._slapos_node_auto_bin)
 
     self.start()
 

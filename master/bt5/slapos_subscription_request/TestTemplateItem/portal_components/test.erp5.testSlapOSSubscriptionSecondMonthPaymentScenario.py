@@ -53,3 +53,9 @@ class testSlapOSSubscriptionSecondMonthPaymentScenario(TestSlapOSSubscriptionSce
     self.skip_destroy_and_check = 1
     default_email_text, _ = self._test_subscription_scenario_with_existing_user(amount=1, language="en")
     self._test_second_month_scenario(default_email_text)
+
+  def test_subscription_scenario_with_existing_user_with_non_subscription_request(self):
+    self.skip_destroy_and_check = 1
+    default_email_text, _ =  \
+      self._test_subscription_scenario_with_existing_user_with_non_subscription_request(amount=1, language="en")
+    self._test_second_month_scenario(default_email_text)

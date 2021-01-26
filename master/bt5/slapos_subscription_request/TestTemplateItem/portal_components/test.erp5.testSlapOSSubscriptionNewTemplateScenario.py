@@ -61,6 +61,9 @@ class testSlapOSSubscriptionNewTemplateScenario(TestSlapOSSubscriptionScenarioMi
   def test_subscription_scenario_with_existing_user(self):
     self._test_subscription_scenario_with_existing_user(amount=1, language="zh")
 
+  def test_subscription_scenario_with_existing_user_with_non_subscription_request(self):
+    self._test_subscription_scenario_with_existing_user_with_non_subscription_request(amount=1, language="zh")
+
   def test_subscription_scenario_with_existing_english_user(self):
     # Messages are in chinese, when subscribed via chinese website. Even if the english language is
     # english

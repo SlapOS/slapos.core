@@ -52,6 +52,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.expected_source_section = self.expected_slapos_organisation
     self.cloud_invitation_token = None
     self.expected_free_reservation = 0
+    self.non_subscription_related_instance_amount = 0
     self.skip_destroy_and_check = 0
 
     self.login()
@@ -412,6 +413,27 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.assertEqual(payment.getPriceCurrency(),
         subscription_request.getPriceCurrency())
 
+    # Check related invoice Data
+    invoice_list = payment.getCausalityValueList()
+    self.assertEqual(len(invoice_list), 1)
+
+    invoice = invoice_list[0]
+
+    delivery_list = invoice.getCausalityValueList()
+    # Invoices related to Subscription Request don't merge
+    self.assertEqual(len(delivery_list), 1)
+    sale_packing_list = delivery_list[0]
+
+    grouping_reference = sale_packing_list.getReference()
+
+    subscription_delivery_line_list = self.portal.portal_catalog(
+      portal_type="Sale Packing List Line",
+      grouping_reference=grouping_reference
+    )
+
+    self.assertEqual(len(subscription_delivery_line_list), 1)
+    # Check more :)
+    
     return payment
 
   def checkAndPayFirstMonth(self, subscription_request):
@@ -909,7 +931,6 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       round(subscriber.Entity_statSlapOSOutstandingAmount(at_date=DateTime()+20), 2),
       0.0)
 
-
   def checkBootstrapUser(self, subscription_request):
     person = subscription_request.getDestinationSectionValue(portal_type="Person")
     self.assertEqual(person.getDefaultEmailText(),
@@ -1100,8 +1121,6 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     finally:
       self._dropPaymentTransaction_getVADSUrlDict()
       self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode(original_mode)
-
-
 
   def getAggregatedSalePackingList(self, subscription_request, specialise):
     person_uid = subscription_request.getDestinationSectionValue().getUid()
@@ -1304,8 +1323,10 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
       self.checkAggregatedSalePackingList(subscription_request, sale_packing_list_list[0])
 
-      expected_sale_packing_list_amount = len(subscription_request_list) * 1
-      self.assertEqual(expected_sale_packing_list_amount, 
+      expected_sale_packing_list_amount = len(subscription_request_list) +\
+        self.non_subscription_related_instance_amount
+
+      self.assertEqual(expected_sale_packing_list_amount,
         len(self.getSubscriptionSalePackingList(subscription_request)))
 
       self.assertEqual(0, len(self.getAggregatedSalePackingList(
@@ -1584,6 +1605,43 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     return default_email_text, name
 
+  def _test_subscription_scenario_with_existing_user_with_non_subscription_request(self, amount=1, language=None):
+    # Call as anonymous... check response?
+    default_email_text = "abc%s@nexedi.com" % self.new_id
+    name="ABC %s" % self.new_id
+
+    self.login()
+    self.createNormalUser(default_email_text, name, language)
+    self.tic()
+
+    self.subscription_server = self.createPublicServerForAdminUser()
+
+    self.login(self.normal_user.getUserId())
+    self.personRequestInstanceNotReady(
+      software_release=self.subscription_condition.getUrlString(),
+      software_type="default",
+      partition_reference="_test_subscription_scenario_with_existing_user_extra_instance",
+    )
+
+    self.non_subscription_related_instance_amount = 1
+    self.login()
+    self.requestAndCheckHostingSubscription(
+      amount, name, default_email_text)
+
+    self.checkSubscriptionDeploymentAndSimulation(
+        default_email_text, self.subscription_server)
+
+    subscription_request = self.getSubscriptionRequest(
+      default_email_text, self.subscription_condition)
+
+    self.assertEqual(self.normal_user,
+                    subscription_request.getDestinationSectionValue())
+
+    self.destroyAndCheckSubscription(
+      default_email_text, self.subscription_server
+    )
+
+    return default_email_text, name
 
   def _test_two_subscription_scenario(self, amount=1, create_invitation=False,
     max_invoice_delay=0, max_invoice_credit_eur=0.0, max_invoice_credit_cny=0.0):
@@ -1704,7 +1762,6 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     return default_email_text, name
 
-
   def _test_subscription_scenario_with_reversal_transaction(self, amount=1):
     """ The admin creates an computer, user can request instances on it"""
 
@@ -1763,6 +1820,9 @@ class TestSlapOSSubscriptionScenario(TestSlapOSSubscriptionScenarioMixin):
 
   def test_subscription_scenario_with_existing_user(self):
     self._test_subscription_scenario_with_existing_user(amount=1, language="en")
+
+  def test_subscription_scenario_with_existing_user_with_non_subscription_request(self):
+    self._test_subscription_scenario_with_existing_user_with_non_subscription_request(amount=1, language="en")
 
   def test_subscription_scenario_with_existing_chinese_user(self):
     # Messages are in english, when subscribed via english website. Even if the chinese language is

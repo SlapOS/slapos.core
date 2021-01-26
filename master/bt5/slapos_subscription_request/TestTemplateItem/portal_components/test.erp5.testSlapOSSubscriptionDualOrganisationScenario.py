@@ -74,6 +74,8 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
     # english
     self._test_subscription_scenario_with_existing_user(amount=1, language="en")
 
+  def test_subscription_scenario_with_existing_user_with_non_subscription_request(self):
+    self._test_subscription_scenario_with_existing_user_with_non_subscription_request(amount=1, language="en")
 
   def requestAndCheckDualHostingSubscription(self, amount, name, 
               default_email_text, language_list):

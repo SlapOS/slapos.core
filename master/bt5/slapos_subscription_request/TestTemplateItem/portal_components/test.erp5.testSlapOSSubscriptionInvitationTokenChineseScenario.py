@@ -42,6 +42,10 @@ class testSlapOSSubscriptionCloudInvitationTokenScenario(TestSlapOSSubscriptionC
     self.cloud_invitation_token = self.makeCloudInvitationToken()
     self._test_subscription_scenario_with_existing_user(amount=1, language="zh")
 
+  def test_subscription_scenario_with_existing_user_with_non_subscription_request_with_empty_invitation(self):
+    self.cloud_invitation_token = self.makeCloudInvitationToken()
+    self._test_subscription_scenario_with_existing_user_with_non_subscription_request(amount=1, language="en")
+
   def test_subscription_scenario_with_existing_english_user_and_empty_invitation(self):
     self.cloud_invitation_token = self.makeCloudInvitationToken()
     self._test_subscription_scenario_with_existing_user(amount=1, language="en")
@@ -97,5 +101,9 @@ class testSlapOSSubscriptionCloudInvitationTokenScenario(TestSlapOSSubscriptionC
   def test_subscription_scenario_with_existing_english_user_with_invitation(self):
     self._init_test_with_valid_invitation()
     self._test_subscription_scenario_with_existing_user(amount=1, language="en")
+
+  def test_subscription_scenario_with_existing_user_with_non_subscription_request_with_token(self):
+    self._init_test_with_valid_invitation()
+    self._test_subscription_scenario_with_existing_user_with_non_subscription_request(amount=1, language="en")
 
 

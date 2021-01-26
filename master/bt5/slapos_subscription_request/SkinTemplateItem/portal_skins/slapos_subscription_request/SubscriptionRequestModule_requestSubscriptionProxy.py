@@ -34,14 +34,14 @@ person, person_is_new = context.SubscriptionRequest_createUser(email, user_input
 # Check if user is already exist, otherwise redirect to ask confirmation
 if confirmation_required and not person_is_new:
   base_url = web_site.absolute_url()
-  redirect_url = "%s/#order_confirmation?name=%s&email=%s&amount=%s&subscription_reference=%s" % (
+  redirect_url = "%s/order_confirmation?field_your_reservation_name=%s&field_your_reservation_email=%s&field_your_reservation_number_of_machines=%s&field_your_reservation_network=%s" % (
        base_url,
        person.getTitle(),
        person.getDefaultEmailText(),
        user_input_dict["amount"],
        subscription_reference)
   if token:
-    redirect_url += "&token=%s" % token
+    redirect_url += "&field_your_reservation_invitation_token=%s" % token
   return context.REQUEST.RESPONSE.redirect(redirect_url)
 
 if target_language is None:

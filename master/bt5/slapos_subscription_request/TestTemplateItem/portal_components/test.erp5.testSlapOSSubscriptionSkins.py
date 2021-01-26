@@ -353,8 +353,9 @@ class Test0SubscriptionRequestModule_requestSubscriptionProxy(TestSubscriptionSk
       email=email, subscription_reference=subscription_reference,
       confirmation_required=True, user_input_dict=user_input_dict)
 
-    self.assertTrue(response.endswith("#order_confirmation?name=Member Template&email=%s&amount=1&subscription_reference=test_subscription_reference" % email), response)
-
+    self.assertTrue(
+      response.endswith(
+        "order_confirmation?field_your_reservation_name=Member Template&field_your_reservation_email=%s&field_your_reservation_number_of_machines=1&field_your_reservation_network=test_subscription_reference" % email), response)
 
     # Missing tests XXXX 
 class TestSubscriptionRequest_applyCondition(TestSubscriptionSkinsMixin):

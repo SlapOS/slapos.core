@@ -5,7 +5,6 @@ restrictedTraverse = portal.restrictedTraverse
 person = context.getDestination()
 reference = context.getReference()
 
-
 business_process_uid_list = [
   portal.business_process_module.slapos_reservation_refound_business_process.getUid(),
   portal.business_process_module.slapos_subscription_business_process.getUid()]
@@ -28,10 +27,22 @@ if trade_condition == consumption_specialise:
 elif trade_condition == subscription_request_specialise:
   specialise_filter_list = specialise_list
 
+def test_for_subscription(movement, causality):
+  hosting_subscription = movement.getAggregateValue(portal_type="Hosting Subscription")
+  if hosting_subscription is not None:
+    return hosting_subscription.getAggregateRelated(portal_type="Subscription Request") == causality
+
+  if movement.getCausality(portal_type="Subscription Request") is not None:
+    return movement.getCausality(portal_type="Subscription Request") == causality
+  
+  return movement.getCausality() == causality
+
+causality = context.getCausality(portal_type="Subscription Request")
 input_movement_list = [restrictedTraverse(q) for q in
     related_simulation_movement_path_list
     if restrictedTraverse(q).getDestination() == person and \
-      restrictedTraverse(q).getSpecialise() in specialise_filter_list]
+      restrictedTraverse(q).getSpecialise() in specialise_filter_list and \
+      test_for_subscription(restrictedTraverse(q), causality)]
 
 min_start_date = None
 for delivery_line in input_movement_list:

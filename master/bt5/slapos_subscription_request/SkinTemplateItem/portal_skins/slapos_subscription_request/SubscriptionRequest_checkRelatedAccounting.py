@@ -3,7 +3,7 @@ portal = context.getPortalObject()
 translate = portal.Base_translateString
 status_list = []
 
-def addToStatusList(status_text, mapping={}):
+def addToStatusList(status_text, mapping):
   status_list.append(translate(
     status_text,
     mapping=mapping
@@ -13,7 +13,7 @@ if not context.getSimulationState() in ("ordered", "confirmed", "started", "stop
   return []
 
 subscription_trade_condition = portal.sale_trade_condition_module.slapos_aggregated_subscription_trade_condition
-refund_service = portal.service_module.slapos_reservation_refund
+#refund_service = portal.service_module.slapos_reservation_refund
 
 sale_packing_list_list = portal.portal_catalog(
   portal_type="Sale Packing List",

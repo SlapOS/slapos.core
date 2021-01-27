@@ -50,8 +50,8 @@ class TestSlapOSPaymentTransactionOrderBuilderMixin(SlapOSTestCaseMixin):
     self.assertEqual(1, len(rec_list))
 
     def assertLine(line, quantity, category_list):
-      self.assertFalse(line.hasStartDate())
-      self.assertFalse(line.hasStopDate())
+      self.assertTrue(line.hasStartDate())
+      self.assertTrue(line.hasStopDate())
       self.assertEqual(quantity, line.getQuantity())
       self.assertSameSet(category_list, line.getCategoryList())
 

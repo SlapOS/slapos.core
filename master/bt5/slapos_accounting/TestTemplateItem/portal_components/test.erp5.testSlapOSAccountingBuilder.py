@@ -18,7 +18,7 @@ class TestSlapOSSalePackingListBuilder(SlapOSTestCaseMixin):
     self.assertNotEqual(None, simulation_movement.getDeliveryValue())
 
   def checkDeliveryLine(self, simulation_movement, delivery_line,
-      line_portal_type, cell_portal_type):
+      line_portal_type, cell_portal_type, has_date_on_line):
     self.assertEqual(line_portal_type, delivery_line.getPortalType())
     self.assertSameSet([
         'use/trade/sale',
@@ -35,8 +35,8 @@ class TestSlapOSSalePackingListBuilder(SlapOSTestCaseMixin):
         delivery_line.getQuantity())
     self.assertEqual(simulation_movement.getPrice(),
         delivery_line.getPrice())
-    self.assertFalse(delivery_line.hasStartDate())
-    self.assertFalse(delivery_line.hasStopDate())
+    self.assertEqual(delivery_line.hasStartDate(), has_date_on_line)
+    self.assertEqual(delivery_line.hasStopDate(), has_date_on_line)
     self.assertEqual([], delivery_line.contentValues(
         portal_type=cell_portal_type))
     self.assertSameSet([simulation_movement.getRelativeUrl()],
@@ -128,7 +128,8 @@ class TestSlapOSSalePackingListBuilder(SlapOSTestCaseMixin):
         delivery_line_2.getRelativeUrl())
 
     line_kw = dict(line_portal_type='Sale Packing List Line',
-        cell_portal_type='Sale Packing List Cell')
+        cell_portal_type='Sale Packing List Cell',
+        has_date_on_line=False)
     self.checkDeliveryLine(simulation_movement_1, delivery_line_1, **line_kw)
     self.checkDeliveryLine(simulation_movement_2, delivery_line_2, **line_kw)
 
@@ -325,7 +326,8 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         invoice_line_1_bis.getParentValue())
 
     line_kw = dict(line_portal_type='Invoice Line',
-        cell_portal_type='Invoice Cell')
+        cell_portal_type='Invoice Cell',
+        has_date_on_line=True)
     self.checkDeliveryLine(invoice_movement_1, invoice_line_1, **line_kw)
     self.checkDeliveryLine(invoice_movement_1_bis, invoice_line_1_bis,
         **line_kw)

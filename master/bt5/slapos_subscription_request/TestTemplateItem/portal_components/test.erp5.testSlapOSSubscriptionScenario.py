@@ -922,7 +922,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     # Here the invoice was payed before the date, so value is negative. 
     self.assertEqual(round(subscriber.Entity_statOutstandingAmount(at_date=DateTime()), 2),
-      -expected_amount)
+      0.0)
 
     self.assertEqual(round(subscriber.Entity_statOutstandingAmount(), 2), 0.0)
 

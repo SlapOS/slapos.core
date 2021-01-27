@@ -810,7 +810,9 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
       self.checkSecondMonthAggregatedSalePackingList(subscription_request, sale_packing_list_list[0])
 
-      expected_sale_packing_list_amount = len(subscription_request_list) * 2
+      expected_sale_packing_list_amount = (len(subscription_request_list) * 2)+\
+        self.non_subscription_related_instance_amount
+
       self.assertEqual(expected_sale_packing_list_amount, 
         len(self.getSubscriptionSalePackingList(subscription_request)))
 

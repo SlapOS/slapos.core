@@ -1,6 +1,10 @@
 from Products.ERP5Type.Message import translateString
 payment_transaction = context
 
+invoice = context.getCausalityValue()
+context.setStartDate(invoice.getStartDate())
+context.setStopDate(invoice.getStopDate())
+
 comment = translateString("Initialised by Order Builder.")
 payment_transaction.confirm(comment=comment)
 

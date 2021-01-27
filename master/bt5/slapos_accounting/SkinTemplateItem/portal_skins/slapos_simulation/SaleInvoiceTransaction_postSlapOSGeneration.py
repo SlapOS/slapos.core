@@ -10,16 +10,13 @@ invoice = context
 price_currency = invoice.getPriceCurrency()
 if invoice.getResource() != price_currency:
   invoice.setResource(price_currency)
+
 if invoice.getPaymentMode("") == "":
   invoice.setPaymentModeValue(invoice.getPortalObject().portal_categories.payment_mode.payzen)
-comment = translateString('Initialised by Delivery Builder.')
-if invoice.portal_workflow.isTransitionPossible(invoice, 'plan'):
-  invoice.plan(comment=comment)
-if invoice.portal_workflow.isTransitionPossible(invoice, 'confirm'):
-  invoice.confirm(comment=comment)
-
 
 causality_list = []
+min_start_date = None
+max_stop_date = None
 for line in invoice.objectValues():
   related_delivery = line.getDeliveryRelatedValue()
   if related_delivery is not None:
@@ -28,6 +25,37 @@ for line in invoice.objectValues():
       causality = root_applied_rule.getCausality()
       if causality is not None and causality not in causality_list:
         causality_list.append(causality)
+
+  if min_start_date is None:
+    min_start_date = line.getStartDate()
+  elif line.getStartDate() < min_start_date:
+    min_start_date = line.getStartDate()
+
+  if max_stop_date is None:
+    max_stop_date = line.getStopDate()
+  elif line.getStopDate() > max_stop_date:
+    max_stop_date = line.getStopDate()
+
+if context.getStartDate() is None:
+  if min_start_date is None:
+    min_start_date = DateTime().earliestTime()
+  context.setStartDate(min_start_date)
+
+  if max_stop_date is None:
+    if min_start_date is not None:
+      max_stop_date = min_start_date
+    else:
+      max_stop_date = DateTime().earliestTime()
+  context.setStopDate(max_stop_date)
+
+if context.getCausalityState() == 'draft':
+  context.startBuilding()
+
+comment = translateString('Initialised by Delivery Builder.')
+if invoice.portal_workflow.isTransitionPossible(invoice, 'plan'):
+  invoice.plan(comment=comment)
+if invoice.portal_workflow.isTransitionPossible(invoice, 'confirm'):
+  invoice.confirm(comment=comment)
 
 invoice.setCausalityList(causality_list)
 

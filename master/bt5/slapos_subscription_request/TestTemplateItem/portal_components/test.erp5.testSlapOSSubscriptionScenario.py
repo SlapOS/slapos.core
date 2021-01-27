@@ -1616,31 +1616,43 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     self.subscription_server = self.createPublicServerForAdminUser()
 
-    self.login(self.normal_user.getUserId())
-    self.personRequestInstanceNotReady(
-      software_release=self.subscription_condition.getUrlString(),
-      software_type="default",
-      partition_reference="_test_subscription_scenario_with_existing_user_extra_instance",
-    )
+    # Disable on this test the pricing on the template to not generate debt before 
+    # them expected
+    line = self.portal.open_sale_order_module.\
+      slapos_accounting_open_sale_order_line_template.\
+      slapos_accounting_open_sale_order_line_template
 
-    self.non_subscription_related_instance_amount = 1
-    self.login()
-    self.requestAndCheckHostingSubscription(
-      amount, name, default_email_text)
+    previous_price = line.getPrice()  
+    line.setPrice(0.0)
 
-    self.checkSubscriptionDeploymentAndSimulation(
-        default_email_text, self.subscription_server)
-
-    subscription_request = self.getSubscriptionRequest(
-      default_email_text, self.subscription_condition)
-
-    self.assertEqual(self.normal_user,
-                    subscription_request.getDestinationSectionValue())
-
-    self.destroyAndCheckSubscription(
-      default_email_text, self.subscription_server
-    )
-
+    try:
+      self.login(self.normal_user.getUserId())
+      self.personRequestInstanceNotReady(
+        software_release=self.subscription_condition.getUrlString(),
+        software_type="default",
+        partition_reference="_test_subscription_scenario_with_existing_user_extra_instance",
+      )
+  
+      self.non_subscription_related_instance_amount = 1
+      self.login()
+      self.requestAndCheckHostingSubscription(
+        amount, name, default_email_text)
+  
+      self.checkSubscriptionDeploymentAndSimulation(
+          default_email_text, self.subscription_server)
+  
+      subscription_request = self.getSubscriptionRequest(
+        default_email_text, self.subscription_condition)
+  
+      self.assertEqual(self.normal_user,
+                      subscription_request.getDestinationSectionValue())
+  
+      self.destroyAndCheckSubscription(
+        default_email_text, self.subscription_server
+      )
+    finally:
+      line.setPrice(previous_price)
+    
     return default_email_text, name
 
   def _test_two_subscription_scenario(self, amount=1, create_invitation=False,

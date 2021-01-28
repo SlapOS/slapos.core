@@ -16,6 +16,11 @@ wechat_dict = {
   'body': "Rapid Space Virtual Machine".encode('utf-8')
 }
 
+base_url = context.REQUEST.get('base_url', '')
+if base_url:
+  wechat_dict['base_url'] = base_url
+
+
 html_document = context.WechatEvent_callWechatServiceNavigation(state_change, wechat_dict)
 wechat_event.newContent(
   title='Shown Page',

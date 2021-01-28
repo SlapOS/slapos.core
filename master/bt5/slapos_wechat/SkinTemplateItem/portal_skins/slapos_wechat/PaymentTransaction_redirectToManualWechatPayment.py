@@ -18,7 +18,8 @@ def wrapWithShadow(payment_transaction, web_site, person_relative_url):
     title='User navigation script for %s' % payment_transaction.getTitle(),
     destination_section=person_relative_url,
   )
-
+  if web_site:
+    context.REQUEST.set('base_url', '%s/wechat_payment' % web_site.absolute_url())
   system_event.generateManualPaymentPage()
 
   return system_event.contentValues(

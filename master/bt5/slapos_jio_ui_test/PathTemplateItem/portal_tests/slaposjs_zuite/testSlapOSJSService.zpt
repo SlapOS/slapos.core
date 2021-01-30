@@ -100,14 +100,14 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//input[@name="//public-ipv4"]</td>
+        <td>//input[@name="//domain"]</td>
         <td></td>
       </tr>
 
       <tr>
         <td>type</td>
-        <td>//input[@name="//public-ipv4"]</td>
-        <td>http://www.erp5.com</td>
+        <td>//input[@name="//domain"]</td>
+        <td>www.erp5.com</td>
       </tr>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
@@ -179,14 +179,14 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
-        <td>//input[@name="//public-ipv4"]</td>
+        <td>//input[@name="//domain"]</td>
         <td></td>
       </tr>
 
       <tr>
         <td>verifyValue</td>
-        <td>//input[@name="//public-ipv4"]</td>
-        <td>http://www.erp5.com</td>
+        <td>//input[@name="//domain"]</td>
+        <td>www.erp5.com</td>
       </tr>
 
       <!-- Update Parameters -->

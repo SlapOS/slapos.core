@@ -54,29 +54,6 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
     self.portal.portal_caches.clearAllCache()
     self.tic()
 
-  def test_subscription_scenario_with_single_vm(self):
-    self._test_subscription_scenario(amount=1)
-
-  def test_subscription_with_3_vms_scenario(self):
-    self._test_subscription_scenario(amount=3)
-
-  def test_subscription_scenario_with_reversal_transaction(self):
-    self._test_subscription_scenario_with_reversal_transaction(amount=1)
-
-  def test_two_subscription_scenario(self):
-    self._test_two_subscription_scenario(amount=1)
-
-  def test_subscription_scenario_with_existing_user(self):
-    self._test_subscription_scenario_with_existing_user(amount=1, language="zh")
-
-  def test_subscription_scenario_with_existing_english_user(self):
-    # Messages are in chinese, when subscribed via chinese website. Even if the english language is
-    # english
-    self._test_subscription_scenario_with_existing_user(amount=1, language="en")
-
-  def test_subscription_scenario_with_existing_user_with_non_subscription_request(self):
-    self._test_subscription_scenario_with_existing_user_with_non_subscription_request(amount=1, language="en")
-
   def requestAndCheckDualHostingSubscription(self, amount, name, 
               default_email_text, language_list):
   
@@ -96,12 +73,12 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
         self._requestSubscriptionViaChineseWebsite(**request_kw)
         subscription_condition = self.subscription_condition_zh
         expected_price_currency = "currency_module/CNY"
-        expected_source_section =  self.expected_zh_source_section   
+        expected_source_section =  self.expected_zh_source_section
       else:
         self._requestSubscription(**request_kw)
         subscription_condition = self.subscription_condition
         expected_price_currency = "currency_module/EUR"
-        expected_source_section =  self.expected_source_section        
+        expected_source_section =  self.expected_source_section
 
       self.login()
       # I'm not sure if this is realistic
@@ -125,7 +102,8 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
                       subscription_request.getSpecialiseValue(),
                       amount=amount)
         self.tic()
-      all_subscription_requested_list.extend(subscription_request_list)
+        if subscription_request not in all_subscription_requested_list:
+          all_subscription_requested_list.append(subscription_request)
 
     self.checkAndPaySubscriptionPayment(all_subscription_requested_list)
     self.tic()
@@ -181,9 +159,8 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
 
     return all_subscription_requested_list
 
-  def test_subscription_scenario_with_dual_organisation(self):
-    amount = 1
-    language = "en"
+
+  def _test_subscription_scenario_with_dual_organisation(self, language_list, amount=1, language="en"):
     # Call as anonymous... check response?
     default_email_text = "abc%s@nexedi.com" % self.new_id
     name="ABC %s" % self.new_id
@@ -195,15 +172,15 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
 
     self.subscription_server = self.createPublicServerForAdminUser()
     self.login()
+
     # Extra software from zh version
     subscription_server_software = self.subscription_condition_zh.getUrlString()
     self.supplySoftware(self.subscription_server, subscription_server_software)
     self.tic()
     self.logout()
     
-
     subscription_request_list = self.requestAndCheckDualHostingSubscription(
-      amount, name, default_email_text, language_list=["en", "zh"])
+      amount, name, default_email_text, language_list=language_list)
 
     self._checkSubscriptionDeploymentAndSimulation(
       subscription_request_list, default_email_text,
@@ -266,3 +243,21 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
                subscription_request.getSpecialiseValue())
 
     return default_email_text, name
+
+  def test_subscription_scenario_with_dual_organisation_en(self):
+    self._test_subscription_scenario_with_dual_organisation(["en", "zh", "en"], amount=1, language="en")
+
+  def test_subscription_scenario_with_dual_organisation_zh(self):
+    self._test_subscription_scenario_with_dual_organisation(["en", "zh", "zh"], amount=1, language="zh")
+
+  def test_subscription_scenario_with_dual_organisation_en_2(self):
+    self._test_subscription_scenario_with_dual_organisation(["en", "zh"], amount=2, language="en")
+
+  def test_subscription_scenario_with_dual_organisation_zh_2(self):
+    self._test_subscription_scenario_with_dual_organisation(["en", "zh"], amount=2, language="zh")
+
+  def test_subscription_scenario_with_dual_organisation_en_only(self):
+    self._test_subscription_scenario_with_dual_organisation(["en", "en", "en"], amount=1, language="en")
+
+  def test_subscription_scenario_with_dual_organisation_zh_only(self):
+    self._test_subscription_scenario_with_dual_organisation(["zh", "zh", "zh"], amount=1, language="zh")

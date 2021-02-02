@@ -387,9 +387,6 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     sale_transaction_invoice.SaleInvoiceTransaction_createReversalPayzenTransaction()
 
   def checkSubscriptionRequestPayment(self, subscription_request, authAmount):
-    payment = self.portal.portal_catalog.getResultValue(
-      portal_type="Payment Transaction",
-      simulation_state="started")
 
     if subscription_request.getSource() is not None:
       self.assertNotEqual(subscription_request.getSourceSection(), None)
@@ -401,6 +398,13 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       self.assertEqual(subscription_request.getSource(), None)
       #expected_source = self.expected_source
       expected_source_section = self.expected_source_section
+
+    # Be accurate when select the payment
+    payment = self.portal.portal_catalog.getResultValue(
+      portal_type="Payment Transaction",
+      destination_section_uid=subscription_request.getDestinationSectionUid(),
+      source_section_uid=self.portal.restrictedTraverse(expected_source_section).getUid(),
+      simulation_state="started")
 
     self.assertEqual(payment.getSourceSection(),
       expected_source_section)

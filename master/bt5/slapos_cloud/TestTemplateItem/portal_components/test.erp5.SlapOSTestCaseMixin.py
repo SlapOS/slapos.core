@@ -94,6 +94,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
 
   # Expected organisation when generate invoices, tickets, etc...
   expected_slapos_organisation = "organisation_module/slapos"
+  expected_zh_slapos_organisation = "organisation_module/slapos"
 
   def afterSetUp(self):
     testSlapOSMixin.afterSetUp(self)

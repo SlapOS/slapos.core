@@ -30,6 +30,7 @@ class TestSlapOSSubscriptionChineseScenarioMixin(TestSlapOSSubscriptionScenarioM
     self.normal_user = None
     self.expected_notification_language = "zh"
     self.login()
+    self.expected_slapos_organisation = self.expected_zh_slapos_organisation
 
   @changeSkin('Hal')
   def _requestSubscription(self, **kw):

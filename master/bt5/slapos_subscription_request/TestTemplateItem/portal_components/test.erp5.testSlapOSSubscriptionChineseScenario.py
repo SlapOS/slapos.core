@@ -25,12 +25,12 @@ from erp5.component.test.SlapOSTestCaseMixin import changeSkin
 class TestSlapOSSubscriptionChineseScenarioMixin(TestSlapOSSubscriptionScenarioMixin):
 
   def afterSetUp(self):
+    self.expected_slapos_organisation = self.expected_zh_slapos_organisation
     TestSlapOSSubscriptionScenarioMixin.afterSetUp(self)
     self.expected_price_currency = "currency_module/CNY"
     self.normal_user = None
     self.expected_notification_language = "zh"
     self.login()
-    self.expected_slapos_organisation = self.expected_zh_slapos_organisation
 
   @changeSkin('Hal')
   def _requestSubscription(self, **kw):

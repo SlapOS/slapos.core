@@ -3,7 +3,7 @@
   <role id='G-COMPANY'>
    <item>Auditor</item>
   </role>
-  <role id='R-MEMBER'>
+  <role id='R-SHADOW-PERSON'>
    <item>Auditor</item>
   </role>
  </local_roles>
@@ -11,8 +11,8 @@
   <local_role_group_id id='group'>
     <principal id='G-COMPANY'>Auditor</principal>
   </local_role_group_id>
-  <local_role_group_id id='user'>
-    <principal id='R-MEMBER'>Auditor</principal>
+  <local_role_group_id id='shadow'>
+    <principal id='R-SHADOW-PERSON'>Auditor</principal>
   </local_role_group_id>
  </local_role_group_ids>
 </local_roles_item>

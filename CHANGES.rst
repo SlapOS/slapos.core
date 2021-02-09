@@ -1,6 +1,15 @@
 Changes
 =======
 
+1.6.4 (2021-02-09)
+------------------
+
+  * proxy: don't set app logger level
+  * slap/standalone: add slapos-node-auto service
+  * slap/standalone: normalize log files in supervisord
+  * cli: Output on the console even with --log-file
+  * testing: assorted fixes for software upgrade tests
+
 1.6.3 (2020-11-30)
 ------------------
 

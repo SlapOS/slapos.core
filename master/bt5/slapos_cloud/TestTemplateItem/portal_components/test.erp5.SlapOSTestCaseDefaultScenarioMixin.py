@@ -413,6 +413,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
   def checkCloudContract(self, person_user_id, person_reference,
       instance_title, software_release, software_type, server):
 
+    self.login()
     self.assertTrue(self.portal.portal_preferences.getPreferredCloudContractEnabled())
 
     self.stepCallSlaposContractRequestValidationPaymentAlarm()

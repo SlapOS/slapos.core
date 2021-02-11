@@ -428,14 +428,14 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.assertEqual(len(delivery_list), 1)
     sale_packing_list = delivery_list[0]
 
-    grouping_reference = sale_packing_list.getReference()
-
     subscription_delivery_line_list = self.portal.portal_catalog(
       portal_type="Sale Packing List Line",
-      grouping_reference=grouping_reference
+      default_resource_uid=self.portal.service_module.slapos_instance_subscription.getUid(),
+      grouping_reference=sale_packing_list.getReference()
     )
 
-    self.assertEqual(len(subscription_delivery_line_list), 1)
+    self.assertEqual(len(subscription_delivery_line_list), 1, 
+      "len(%s) is not 1" % [i.getObject() for i in subscription_delivery_line_list])
     # Check more :)
     
     return payment
@@ -448,14 +448,15 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.login(person.getUserId())
     self.usePayzenManually(self.web_site, person.getUserId(), is_email_expected=False)
 
+
+    self.logout()
+    self.login()
+
     # 195 is the month payment
     # 195*1 is the 1 months to pay upfront to use.
     # 25 is the reservation fee deduction.
     authAmount = (int(self.expected_individual_price_with_tax*100)*1-int(self.expected_reservation_fee*100))*quantity
     payment = self.checkSubscriptionRequestPayment(subscription_request, authAmount)
-
-    self.logout()
-    self.login()
 
     data_kw = {
       "status": "SUCCESS",
@@ -485,11 +486,11 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.login(person.getUserId())
     self.usePayzenManually(self.web_site, person.getUserId())
 
-    authAmount = int(self.expected_individual_price_with_tax*100)*quantity
-    payment = self.checkSubscriptionRequestPayment(subscription_request, authAmount)
-
     self.logout()
     self.login()
+
+    authAmount = int(self.expected_individual_price_with_tax*100)*quantity
+    payment = self.checkSubscriptionRequestPayment(subscription_request, authAmount)
 
     data_kw = {
       "status": "SUCCESS",
@@ -524,11 +525,11 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       self.login(person.getUserId())
       self.useWechatManually(self.web_site, person.getUserId(), is_email_expected=False)
 
-      authAmount = (int(self.expected_zh_individual_price_with_tax*100)*1-int(self.expected_zh_reservation_fee*100))*quantity
-      payment = self.checkSubscriptionRequestPayment(subscription_request, authAmount)
-
       self.logout()
       self.login()
+
+      authAmount = (int(self.expected_zh_individual_price_with_tax*100)*1-int(self.expected_zh_reservation_fee*100))*quantity
+      payment = self.checkSubscriptionRequestPayment(subscription_request, authAmount)
 
       data_kw = {
         'result_code': 'SUCCESS',
@@ -556,11 +557,11 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       self.login(person.getUserId())
       self.useWechatManually(self.web_site, person.getUserId())
 
-      authAmount = int(self.expected_zh_individual_price_with_tax*100)*quantity
-      payment = self.checkSubscriptionRequestPayment(subscription_request, authAmount)
-
       self.logout()
       self.login()
+
+      authAmount = int(self.expected_zh_individual_price_with_tax*100)*quantity
+      payment = self.checkSubscriptionRequestPayment(subscription_request, authAmount)
 
       data_kw = {
         'result_code': 'SUCCESS',

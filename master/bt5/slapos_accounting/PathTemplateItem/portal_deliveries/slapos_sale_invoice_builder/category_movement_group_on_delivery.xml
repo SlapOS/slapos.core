@@ -45,6 +45,7 @@
                 <string>price_currency</string>
                 <string>source_decision</string>
                 <string>destination_decision</string>
+                <string>causality</string>
               </tuple>
             </value>
         </item>

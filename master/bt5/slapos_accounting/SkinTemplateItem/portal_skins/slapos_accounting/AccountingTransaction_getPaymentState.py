@@ -9,10 +9,23 @@ elif simulation_state in ("planned", "confirmed", "ordered", "started"):
 else:
   portal = context.getPortalObject()
 
+  person = portal.portal_membership.getAuthenticatedMember().getUserValue()
   paid = True
-  for line in context.getMovementList(portal.getPortalAccountingMovementTypeList()):
+
+  def isNodeFromLineReceivable(line):
     node_value = line.getSourceValue(portal_type='Account')
-    if node_value.getAccountType() == 'asset/receivable':
+    return node_value.getAccountType() == 'asset/receivable'
+
+  for line in context.getMovementList(portal.getPortalAccountingMovementTypeList()):
+    if person is not None:
+      is_node_from_line_receivable = person.Person_restrictMethodAsShadowUser(
+        shadow_document=person,
+        callable_object=isNodeFromLineReceivable,
+        argument_list=[line])
+    else:
+      is_node_from_line_receivable = isNodeFromLineReceivable(line)
+
+    if is_node_from_line_receivable:
       if not line.hasGroupingReference():
         paid = False
         break
@@ -35,7 +48,6 @@ else:
       result = "Unpaid"
     else:
       # Check if mapping exists
-      person = portal.portal_membership.getAuthenticatedMember().getUserValue()
       external_payment_id = person.Person_restrictMethodAsShadowUser(
         shadow_document=person,
         callable_object=payment.PaymentTransaction_getExternalPaymentId,

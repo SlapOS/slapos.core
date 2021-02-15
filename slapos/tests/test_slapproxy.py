@@ -48,7 +48,7 @@ import slapos.proxy
 import slapos.proxy.views as views
 import slapos.slap
 import slapos.slap.slap
-from slapos.util import loads, dumps, sqlite_connect, bytes2str
+from slapos.util import loads, dumps, sqlite_connect, bytes2str, dict2xml
 
 import sqlite3
 import pkg_resources
@@ -1591,12 +1591,14 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     self.assertEqual('external_computer', partition.slap_computer_id)
     self.assertEqual('slappart0', partition.slap_computer_partition_id)
 
-  def _checkInstanceIsFowarded(self, name, partition_parameter_kw, software_release):
+  def _checkInstanceIsFowarded(self, name, requester, partition_parameter_kw, software_release):
     """
     Test there is no instance on local proxy.
     Test there is instance on external proxy.
     Test there is instance reference in external table of databse of local proxy.
     """
+    # Adjust name to match forwarding prefix
+    name = '%s_%s' % (requester or 'user', name)
     # Test it has been correctly added to local database
     forwarded_instance_list = slapos.proxy.views.execute_db('forwarded_partition_request', 'SELECT * from %s', db=self.db)
     self.assertEqual(len(forwarded_instance_list), 1)
@@ -1677,7 +1679,7 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     partition = self.request(self.software_release_not_in_list, None, instance_reference, 'slappart0',
                              filter_kw=filter_kw, partition_parameter_kw=dummy_parameter_dict)
 
-    self._checkInstanceIsFowarded(instance_reference, dummy_parameter_dict, self.software_release_not_in_list)
+    self._checkInstanceIsFowarded(instance_reference, 'slappart0', dummy_parameter_dict, self.software_release_not_in_list)
     self.assertEqual(
         partition._master_url,
         self.external_master_url
@@ -1708,7 +1710,7 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     partition = self.request(self.external_software_release, None, instance_reference, 'slappart0',
                              partition_parameter_kw=dummy_parameter_dict)
 
-    self._checkInstanceIsFowarded(instance_reference, dummy_parameter_dict, self.external_software_release)
+    self._checkInstanceIsFowarded(instance_reference, 'slappart0', dummy_parameter_dict, self.external_software_release)
 
     instance_parameter_dict = partition.getInstanceParameterDict()
     instance_parameter_dict.pop('timestamp')
@@ -1803,6 +1805,60 @@ database_uri = %(tempdir)s/lib/external_proxy.db
         self.software_release_not_in_list
     )
 
+  def testRequestsFromPartition_AntiCollision(self):
+    """
+    Request the same instance from different embedded partitions.
+    Test that the external master allocates one instance for each.
+    """
+    instance_reference = 'Eponymous Instance'
+    self.format_for_number_of_partitions(2)
+    self.external_proxy_format_for_number_of_partitions(4)
+    self.external_proxy_create_requested_partition()
+
+    for i, requester_id in enumerate(('slappart0', 'slappart1', None)):
+      dummy_parameter_dict = {'foo': str(i)}
+      partition = self.request(
+          'https://example.com/request/from/partition/software.cfg',
+          None,
+          instance_reference,
+          requester_id,
+          partition_parameter_kw=dummy_parameter_dict,
+      )
+
+      instance_parameter_dict = partition.getInstanceParameterDict()
+      instance_parameter_dict.pop('timestamp')
+      self.assertEqual(dummy_parameter_dict, instance_parameter_dict)
+      self.assertEqual('https://example.com/request/from/partition/software.cfg', partition.getSoftwareRelease())
+      self.assertEqual({}, partition.getConnectionParameterDict())
+
+    with sqlite3.connect(os.path.join(
+        self._tempdir,
+        'lib',
+        'external_proxy.db',
+    )) as db:
+      requested_by = slapos.proxy.views.execute_db(
+          "partition", "select reference, partition_reference, xml, requested_by from %s", db=db)
+    self.assertEqual([{
+        'reference': 'slappart0',
+        'partition_reference': 'instance',
+        'xml': dict2xml({}),
+        'requested_by': None
+    }, {
+        'reference': 'slappart1',
+        'partition_reference': 'slappart0_%s' % instance_reference,
+        'xml': dict2xml({'foo': '0'}),
+        'requested_by': 'slappart0'
+    }, {
+        'reference': 'slappart2',
+        'partition_reference': 'slappart1_%s' % instance_reference,
+        'xml': dict2xml({'foo': '1'}),
+        'requested_by': 'slappart0'
+    }, {
+        'reference': 'slappart3',
+        'partition_reference': 'user_%s' % instance_reference,
+        'xml': dict2xml({'foo': '2'}),
+        'requested_by': 'slappart0'
+    }], requested_by)
 
 
 class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMultiNodeSupport):

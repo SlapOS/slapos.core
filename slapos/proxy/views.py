@@ -595,7 +595,10 @@ def forwardRequestToExternalMaster(master_url, request_form):
   else:
     slap.initializeConnection(master_url)
 
-  partition_reference = unicode2str(request_form['partition_reference'])
+  # Prefix instance reference with id of requester (partition id (ends with a digit) or 'user' (cannot be a partition id))
+  requester_id = unicode2str(request_form.get('computer_partition_id', 'user'))
+  partition_reference = '%s_%s' % (requester_id, unicode2str(request_form['partition_reference']))
+
   filter_kw = loads(request_form['filter_xml'].encode('utf-8'))
   partition_parameter_kw = loads(request_form['partition_parameter_xml'].encode('utf-8'))
 

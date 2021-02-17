@@ -19,7 +19,7 @@ aggregated_spl_list = portal.portal_catalog(
   portal_type="Sale Packing List",
   simulation_state="delivered",
   # Hardcoded Value to only recover recent values
-  # Replace to acquite value from the template 
+  # Replace to acquite value from the template
   source_section_uid=context.organisation_module.rapidspace.getUid(),
   destination_section_uid=context.getDestinationSectionUid(),
   default_specialise_uid=specialise_uid)
@@ -30,7 +30,6 @@ for aggregated_sale_packing_list in aggregated_spl_list:
       portal_type="Sale Invoice Transaction")
 
   assert len(related_invoice_list) == 1, aggregated_sale_packing_list.absolute_url()
-
   invoice = related_invoice_list[0]
 
   invoice_dict = dict(
@@ -51,7 +50,16 @@ for aggregated_sale_packing_list in aggregated_spl_list:
   min_start_date = None
   max_stop_date = None
   quantity = 0
-  for sale_packing_list_line in portal.portal_catalog(**search_kw):
+
+  delivery_line_list = portal.portal_catalog(**search_kw)
+
+  if len(delivery_line_list) == 0:
+    if [i for i in aggregated_sale_packing_list.objectValues()
+         if i.getResource() != "service_module/slapos_reservation_refund"]:
+      raise ValueError(aggregated_sale_packing_list.getRelativeUrl())
+    continue
+
+  for sale_packing_list_line in delivery_line_list:
     if not min_start_date:
       min_start_date = sale_packing_list_line.getStartDate()
     else:

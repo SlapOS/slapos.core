@@ -6,6 +6,7 @@ account_module/coll_vat
 account_module/equipments
 account_module/inventories
 account_module/payable
+account_module/payment_to_encash
 account_module/profit_loss
 account_module/purchase
 account_module/receivable

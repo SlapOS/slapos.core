@@ -524,7 +524,7 @@ class TestSubscriptionRequest_requestPaymentTransaction(TestSubscriptionSkinsMix
     self.assertEqual(current_payment.getSimulationState(), "started")
 
     for line in current_payment.contentValues():
-      if line.getSource() == "account_module/bank":
+      if line.getSource() == "account_module/payment_to_encash":
         self.assertEqual(line.getQuantity(), -25*quantity)
       if line.getSource() == "account_module/receivable":
         self.assertEqual(line.getQuantity(), 25*quantity)
@@ -555,7 +555,7 @@ class TestSubscriptionRequest_requestPaymentTransaction(TestSubscriptionSkinsMix
     self.assertEqual(current_payment.getSimulationState(), "started")
 
     for line in current_payment.contentValues():
-      if line.getSource() == "account_module/bank":
+      if line.getSource() == "account_module/payment_to_encash":
         self.assertEqual(line.getQuantity(), -188*quantity)
       if line.getSource() == "account_module/receivable":
         self.assertEqual(line.getQuantity(), 188*quantity)

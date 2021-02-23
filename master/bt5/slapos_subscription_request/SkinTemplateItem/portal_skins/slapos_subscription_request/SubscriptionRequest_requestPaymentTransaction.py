@@ -28,7 +28,7 @@ if current_invoice is None:
     amount = 0
 
   for line in current_payment.contentValues():
-    if line.getSource() in ["account_module/bank", "account_module/receivable"]:
+    if line.getSource() in ["account_module/payment_to_encash", "account_module/receivable"]:
       quantity = int(amount) * line.getQuantity()
       line.setQuantity(quantity)
    

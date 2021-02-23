@@ -43,7 +43,7 @@ class TestSlapOSPaymentTransactionOrderBuilderMixin(SlapOSTestCaseMixin):
     movement_list = payment.getMovementList()
     self.assertEqual(2, len(movement_list))
     bank_list = [q for q in movement_list
-        if q.getSource() == 'account_module/bank']
+        if q.getSource() == 'account_module/payment_to_encash']
     rec_list = [q for q in movement_list
         if q.getSource() == 'account_module/receivable']
     self.assertEqual(1, len(bank_list))
@@ -57,8 +57,8 @@ class TestSlapOSPaymentTransactionOrderBuilderMixin(SlapOSTestCaseMixin):
 
     invoice_amount = self.sumReceivable(invoice)
     assertLine(bank_list[0], invoice_amount, [
-        'destination/account_module/bank',
-        'source/account_module/bank'])
+        'destination/account_module/payment_to_encash',
+        'source/account_module/payment_to_encash'])
     assertLine(rec_list[0], -1 * invoice_amount, [
         'destination/account_module/payable',
         'source/account_module/receivable'])

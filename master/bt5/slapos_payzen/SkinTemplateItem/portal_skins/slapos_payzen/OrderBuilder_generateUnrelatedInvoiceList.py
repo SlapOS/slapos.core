@@ -61,8 +61,8 @@ for invoice in portal.portal_catalog(**select_kw):
   temp_movement_bank = newTempSimulationMovement(
     temp_object=True, id=str(_id),
     quantity=1 * quantity,
-    source='account_module/bank',
-    destination='account_module/bank',
+    source='account_module/payment_to_encash',
+    destination='account_module/payment_to_encash',
     **temp_movement_kw
   )
   _id += 1

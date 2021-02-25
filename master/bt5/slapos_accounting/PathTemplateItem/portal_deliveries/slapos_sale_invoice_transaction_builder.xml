@@ -65,9 +65,7 @@
         </item>
         <item>
             <key> <string>delivery_after_generation_script_id</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>SaleInvoiceTransaction_postSlapOSSaleInvoiceTransactionLineGeneration</string> </value>
         </item>
         <item>
             <key> <string>delivery_cell_collect_order</string> </key>

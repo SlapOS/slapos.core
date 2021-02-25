@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.6.5 (2021-02-25)
+------------------
+
+  * proxy: prefix forwarded requests to disambiguate them
+
 1.6.4 (2021-02-09)
 ------------------
 

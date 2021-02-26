@@ -493,10 +493,11 @@ class TestSubscriptionRequest_requestPaymentTransaction(TestSubscriptionSkinsMix
     invoice_template = self.portal.restrictedTraverse(invoice_template_path)
 
     current_invoice = invoice_template.Base_createCloneDocument(batch_mode=1)
-    subscription_request.edit(causality_value=current_invoice)
+    subscription_request.edit(causality_value=current_invoice,
+                              quantity=1)
 
     self.assertEqual(None,
-      subscription_request.SubscriptionRequest_requestPaymentTransaction("1", "xx", "en"))
+      subscription_request.SubscriptionRequest_requestPaymentTransaction("xx", "en"))
 
   def _test_request_payment_transaction(self, quantity):
     email = "abc%s@nexedi.com" % self.new_id
@@ -509,7 +510,8 @@ class TestSubscriptionRequest_requestPaymentTransaction(TestSubscriptionSkinsMix
       quantity=quantity, destination_section_value=person,
       default_email_text="abc%s@nexedi.com" % self.new_id)
 
-    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction(quantity, "TAG", "en")
+    subscription_request.setQuantity(quantity)
+    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction("TAG", "en")
     self.tic()
     self.assertNotEqual(None, current_payment)
     self.assertEqual(current_payment.getTitle(), "Payment for Reservation Fee")
@@ -540,7 +542,7 @@ class TestSubscriptionRequest_requestPaymentTransaction(TestSubscriptionSkinsMix
       quantity=quantity, destination_section_value=person,
       default_email_text="abc%s@nexedi.com" % self.new_id)
 
-    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction(quantity, "TAG", "zh")
+    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction("TAG", "zh")
     self.tic()
     self.assertNotEqual(None, current_payment)
     self.assertEqual(current_payment.getTitle(), "Payment for Reservation Fee")
@@ -636,7 +638,7 @@ class TestSubscriptionRequest_createRelatedSaleInvoiceTransaction(TestSubscripti
 
     # The SubscriptionRequest_createRelatedSaleInvoiceTransaction is invoked up, as it proven on
     # test TestSubscriptionRequest_requestPaymentTransaction, so let's keep it simple, and just reinvoke
-    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction(quantity, "TAG", "en")
+    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction("TAG", "en")
 
     self.tic()
 
@@ -1175,7 +1177,7 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
 
     # The SubscriptionRequest_createRelatedSaleInvoiceTransaction is invoked up, as it proven on
     # test TestSubscriptionRequest_requestPaymentTransaction, so let's keep it simple, and just reinvoke
-    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction(1, "TAG", "en")
+    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction("TAG", "en")
     self.assertNotEqual(current_payment, None)
 
     self.tic()

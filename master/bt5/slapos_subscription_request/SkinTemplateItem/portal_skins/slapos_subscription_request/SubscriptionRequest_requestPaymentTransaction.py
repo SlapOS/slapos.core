@@ -23,6 +23,7 @@ if current_invoice is None:
         stop_date=DateTime()
       )
 
+  amount = context.getQuantity()
   if context.SubscriptionRequest_testSkippedReservationFree(contract):
     # Reservation is Free
     amount = 0

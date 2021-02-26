@@ -60,12 +60,11 @@ subscription_request = context.subscription_request_module.newContent(
 
 subscription_request.setDefaultEmailText(email)
 
-def wrapWithShadow(subscription_request, amount, subscription_reference,
+def wrapWithShadow(subscription_request, subscription_reference,
                    subscription_request_id, contract=contract):
   subscription_request.activate(tag="subscription_condition_%s" % subscription_request_id
                              ).SubscriptionRequest_applyCondition(subscription_reference, target_language)
   return subscription_request.SubscriptionRequest_requestPaymentTransaction(
-    amount=amount,
     tag="subscription_%s" % subscription_request_id,
     target_language=target_language,
     contract=contract
@@ -74,7 +73,7 @@ def wrapWithShadow(subscription_request, amount, subscription_reference,
 payment = person.Person_restrictMethodAsShadowUser(
   shadow_document=person,
   callable_object=wrapWithShadow,
-  argument_list=[subscription_request, user_input_dict["amount"],
+  argument_list=[subscription_request, 
                  subscription_reference, subscription_request.getId(),
                  contract])
 

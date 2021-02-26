@@ -25,7 +25,10 @@ if current_invoice is None:
         start_date=payment_transaction.getStartDate(),
         stop_date=payment_transaction.getStopDate(),
       )
-  current_invoice["1"].setQuantity(amount)
+  if not amount:
+    # this is supposed to be free, so turn price free.
+    current_invoice["1"].setPrice(0.0)
+  current_invoice["1"].setQuantity(context.getQuantity())
 
   comment = "Validation invoice for subscription request %s" % context.getRelativeUrl()
   current_invoice.plan(comment=comment)

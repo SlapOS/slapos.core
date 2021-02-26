@@ -714,7 +714,6 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
         expected_reservation_quantity_tax = self.expected_reservation_quantity_tax
         expected_reservation_tax = self.expected_reservation_tax
         expected_reservation_fee = self.expected_reservation_fee
-        
 
       self.assertEqual(invoice.getSimulationState(), "stopped")
       self.assertEqual(invoice.getCausalityState(), "solved")
@@ -722,11 +721,11 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
         subscription_request.getPriceCurrency())
       for line in invoice.objectValues():
         if line.getResource() == "service_module/slapos_reservation_fee":
+          self.assertEqual(line.getQuantity(), quantity)
           if self.expected_free_reservation:
-            self.assertEqual(line.getQuantity(), 0)
+            self.assertEqual(round(line.getPrice(), 2),  0.0)
           else:
-            self.assertEqual(line.getQuantity(), quantity)
-          self.assertEqual(round(line.getPrice(), 2),  expected_reservation_fee_without_tax)
+            self.assertEqual(round(line.getPrice(), 2),  expected_reservation_fee_without_tax)
         if line.getResource() == "service_module/slapos_tax":
           self.assertEqual(round(line.getQuantity(), 2),
                            round(expected_reservation_quantity_tax*quantity, 2))

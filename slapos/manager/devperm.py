@@ -4,6 +4,7 @@ import logging
 import os
 import pwd
 import grp
+import subprocess
 from zope.interface import implementer
 from slapos.manager import interface
 
@@ -60,6 +61,40 @@ class Manager(object):
     """
     self.instanceTearDown(partition)
 
+  def _getLsblkJsonDict(self):
+    try:
+      lsblk_json_dict = json.loads(subprocess.check_output([
+        'lsblk', '--json', '--output-all']))
+    except Exception:
+      logger.info('lsblk call failed', exc_info=True)
+      return {}
+    if not isinstance(lsblk_json_dict, dict):
+      logger.info('lsblk output not supported')
+      return {}
+    return lsblk_json_dict
+
+  def _getLsblkDiskList(self):
+    lsblk_dict = self._getLsblkJsonDict()
+
+    if 'blockdevices' not in lsblk_dict:
+      logger.info('lsblk output not supported')
+      return []
+
+    if not isinstance(lsblk_dict['blockdevices'], list):
+      logger.info('lsblk output not supported')
+
+    disk_list = []
+    for block_device in lsblk_dict['blockdevices']:
+      if 'path' in block_device and 'type' in block_device:
+        if block_device['type'] == 'disk':
+          disk_list.append(block_device['path'])
+        if 'children' in block_device and isinstance(block_device['children'], list):
+          for partition in block_device['children']:
+            if 'path' in partition and 'type' in partition:
+              if partition['type'] == 'part':
+                disk_list.append(partition['path'])
+    return disk_list
+
   def instanceTearDown(self, partition):
     """Method  called after `slapos node instance` phase.
 
@@ -77,6 +112,7 @@ class Manager(object):
         logger.warning('Bad disk configuration file', exc_info=True)
         return
 
+    lsblk_disk_list = self._getLsblkDiskList()
     for entry in disk_list:
       disk = entry.get("disk", None)
       if disk is None:
@@ -97,16 +133,8 @@ class Manager(object):
           logger.warning('Disk %s not in allowed disk list %s', disk, ', '.join(self.allowed_disk_for_vm))
           continue
 
-      if not disk.startswith("/dev/"):
-        logger.warning("Bad disk definition: %s " % disk_list, exc_info=True)
-        continue
-
-      if len(disk[len("/dev/"):]) > 6:
-        logger.warning("Bad disk definition: %s " % disk_list, exc_info=True)
-        continue
-
-      if not os.path.exists(disk):
-        logger.warning("Disk don't exist: %s " % disk_list, exc_info=True)
+      if disk not in lsblk_disk_list:
+        logger.warning("Disk %r is not detected by lsblk list %r", disk, lsblk_disk_list)
         continue
 
       uid = os.stat(partition.instance_path).st_uid

@@ -3148,8 +3148,20 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       self.assertNotIn('socat HTCPCP4-LISTEN:1234,fork HTCPCP4:127.0.0.1:4321', partition_supervisord_config)
 
 
-class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
+class TestSlapgridWithDevPermLsblk(MasterMixin, unittest.TestCase):
   config = {'manager_list': 'devperm'}
+
+  def _getLsblkJsonDict(self):
+    return {
+      "blockdevices": [{
+        "path": "/dev/tst",
+        "type": "disk",
+        "children": [{
+          "path": "/dev/toolong",
+          "type": "part"
+        }]
+      }]
+    }
 
   def setUpExpected(self):
     gid = grp.getgrnam("disk").gr_gid
@@ -3161,6 +3173,10 @@ class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
     self.test_link_os_chown_call_list = [
       ['/dev/tst', uid, gid],
       ['/dev/tst', uid, gid],
+    ]
+    self.test_link_os_chown_call_list_long = [
+      ['/dev/toolong', uid, gid],
+      ['/dev/toolong', uid, gid],
     ]
 
   def setUp(self):
@@ -3183,7 +3199,8 @@ class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
       patch.object(os, 'stat', new=self.os_stat),
       patch.object(os, 'chown', new=self.os_chown),
       patch.object(os, 'readlink', new=self.os_readlink),
-      patch.object(os.path, 'islink', new=self.os_path_islink)
+      patch.object(os.path, 'islink', new=self.os_path_islink),
+      patch.object(slapmanager.devperm.Manager, '_getLsblkJsonDict', new=self._getLsblkJsonDict)
     ]
     [q.start() for q in self.patcher_list]
 
@@ -3202,7 +3219,7 @@ class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
       return original(path)
 
   def os_stat(self, path, original=os.stat):
-    if path == '/dev/tst':
+    if path in ['/dev/tst', '/dev/toolong']:
       class dummy():
         pass
       mocked = dummy()
@@ -3212,7 +3229,7 @@ class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
       return original(path)
 
   def os_chown(self, path, uid, gid, original=os.chown):
-    if path.startswith('/dev/tst'):
+    if path.startswith('/dev/tst') or path.startswith('/dev/toolong'):
       self.os_chown_call_list.append([path, uid, gid])
       return
     else:
@@ -3289,7 +3306,7 @@ class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
 
       self.assertEqual(
         self.os_chown_call_list,
-        []
+        self.test_link_os_chown_call_list_long
       )
 
   def test_not_existing(self):
@@ -3308,14 +3325,14 @@ class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
       )
 
 
-class TestSlapgridWithDevPermManagerDevPermEmpty(TestSlapgridWithDevPerm):
+class TestSlapgridWithDevPermManagerDevPermEmptyLsblk(TestSlapgridWithDevPermLsblk):
   config = {
     'manager_list': 'devperm',
     'manager': {'devperm': {}}
   }
 
 
-class TestSlapgridWithDevPermManagerDevPermListEmpty(TestSlapgridWithDevPerm):
+class TestSlapgridWithDevPermManagerDevPermListEmptyLsblk(TestSlapgridWithDevPermLsblk):
   config = {
     'manager_list': 'devperm',
     'manager': {'devperm': {'allowed-disk-for-vm': ''}}
@@ -3325,9 +3342,11 @@ class TestSlapgridWithDevPermManagerDevPermListEmpty(TestSlapgridWithDevPerm):
     ]
     self.test_link_os_chown_call_list = [
     ]
+    self.test_link_os_chown_call_list_long = [
+    ]
 
 
-class TestSlapgridWithDevPermManagerDevPermDisallow(TestSlapgridWithDevPerm):
+class TestSlapgridWithDevPermManagerDevPermDisallowLsblk(TestSlapgridWithDevPermLsblk):
   config = {
     'manager_list': 'devperm',
     'manager': {'devperm': {'allowed-disk-for-vm': '/dev/quo'}}
@@ -3337,13 +3356,28 @@ class TestSlapgridWithDevPermManagerDevPermDisallow(TestSlapgridWithDevPerm):
     ]
     self.test_link_os_chown_call_list = [
     ]
+    self.test_link_os_chown_call_list_long = [
+    ]
 
 
-class TestSlapgridWithDevPermManagerDevPermAllow(TestSlapgridWithDevPerm):
+class TestSlapgridWithDevPermManagerDevPermAllowLsblk(TestSlapgridWithDevPermLsblk):
   config = {
     'manager_list': 'devperm',
     'manager': {'devperm': {'allowed-disk-for-vm': '/dev/tst'}}
   }
+  def setUpExpected(self):
+    gid = grp.getgrnam("disk").gr_gid
+    uid = os.stat(os.environ['HOME']).st_uid
+    self.test_os_chown_call_list = [
+      ['/dev/tst', uid, gid],
+      ['/dev/tst', uid, gid],
+    ]
+    self.test_link_os_chown_call_list = [
+      ['/dev/tst', uid, gid],
+      ['/dev/tst', uid, gid],
+    ]
+    self.test_link_os_chown_call_list_long = [
+    ]
 
 
 class TestSlapgridManagerLifecycle(MasterMixin, unittest.TestCase):

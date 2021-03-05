@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (c) 2020 Nexedi SA and Contributors. All Rights Reserved.
+# Copyright (c) 2008 Nexedi SA and Contributors. All Rights Reserved.
 #
 # WARNING: This program as such is intended to be used by professional
 # programmers who take the whole responsibility of assessing all potential
@@ -25,41 +25,26 @@
 #
 ##############################################################################
 
-from erp5.component.document.MovementGroup import MovementGroup
+from erp5.component.document.erp5_version.RootAppliedRuleCausalityMovementGroup\
+ import RootAppliedRuleCausalityMovementGroup as ERP5RootAppliedRuleCausalityMovementGroup
 
-class RootAppliedRuleCausalityCausalityMovementGroup(MovementGroup):
+class RootAppliedRuleCausalityMovementGroup(ERP5RootAppliedRuleCausalityMovementGroup):
   """
   The purpose of MovementGroup is to define how movements are grouped,
   and how values are updated from simulation movements.
 
   This movement group is used to group movements whose root apply rule
-  has the same causality of the causality.
-  """
-  meta_type = 'ERP5 Root Applied Rule Causality Causality Movement Group'
-  portal_type = 'Root Applied Rule Causality Causality Movement Group'
+  has the same causality.
 
-  def _getPropertyDict(self, movement, **kw):
-    property_dict = {}
-    root_causality_causality_value = self._getRootCausalityCausalityValue(movement)
-    property_dict['root_causality_causality_value_list'] = [root_causality_causality_value]
-    return property_dict
+  This overwrites the default for not always update, but check the information.
+  """
 
   def test(self, movement, property_dict, **kw):
-    if 'root_causality_causality_value_list' in property_dict:
-      root_causality_causality_value_list = property_dict['root_causality_causality_value_list']
-      if root_causality_causality_value_list[0] is None and not movement.getCausalityValueList():
-        return True, property_dict
-
-      for causality in movement.getCausalityValueList():
-        test_root_causality_causality_value = causality.getCausalityValue()
-        if test_root_causality_causality_value == root_causality_causality_value_list[0]:
+    if 'root_causality_value_list' in property_dict:
+      root_causality_value_list = property_dict['root_causality_value_list']
+      for simulation_movement in movement.getDeliveryRelatedValueList():
+        if self._getRootCausalityValue(simulation_movement) == root_causality_value_list[0]:
           return True, property_dict
     
-    # We can always update
+    # No don't update
     return False, property_dict
-
-  def _getRootCausalityCausalityValue(self, movement):
-    """ Get the causality value of the causality of the root applied rule for a movement """
-    root_causality = movement.getRootAppliedRule().getCausalityValue()
-    if root_causality is not None:
-      return root_causality.getCausalityValue()

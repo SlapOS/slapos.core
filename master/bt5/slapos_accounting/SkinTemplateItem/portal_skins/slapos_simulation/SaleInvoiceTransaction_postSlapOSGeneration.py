@@ -48,10 +48,12 @@ if context.getStartDate() is None:
       max_stop_date = DateTime().earliestTime()
   context.setStopDate(max_stop_date)
 
-if context.getCausalityState() == 'draft':
-  context.startBuilding()
 
 comment = translateString('Initialised by Delivery Builder.')
+
+if invoice.getCausalityState() == 'draft':
+  invoice.startBuilding(comment=comment)
+
 if invoice.portal_workflow.isTransitionPossible(invoice, 'plan'):
   invoice.plan(comment=comment)
 if invoice.portal_workflow.isTransitionPossible(invoice, 'confirm'):

@@ -3178,6 +3178,17 @@ class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
     self.disk_device_filename = os.path.join(
       self.partition.partition_path,
       slapmanager.devperm.Manager.disk_device_filename)
+    self.patcher_list = [
+      patch.object(os.path, 'exists', new=self.os_path_exists),
+      patch.object(os, 'stat', new=self.os_stat),
+      patch.object(os, 'chown', new=self.os_chown),
+      patch.object(os, 'readlink', new=self.os_readlink),
+      patch.object(os.path, 'islink', new=self.os_path_islink)
+    ]
+    [q.start() for q in self.patcher_list]
+
+  def tearDown(self):
+    [q.stop() for q in self.patcher_list]
 
   def _mock_requests(self):
     return httmock.HTTMock(self.computer.request_handler)
@@ -3229,11 +3240,7 @@ class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
       self.partition.requested_state = 'started'
       self.partition.software.setBuildout(WRAPPER_CONTENT)
 
-      with \
-          patch.object(os.path, 'exists', new=self.os_path_exists), \
-          patch.object(os, 'stat', new=self.os_stat), \
-          patch.object(os, 'chown', new=self.os_chown):
-        self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(
         self.os_chown_call_list,
@@ -3248,13 +3255,7 @@ class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
       self.partition.requested_state = 'started'
       self.partition.software.setBuildout(WRAPPER_CONTENT)
 
-      with \
-          patch.object(os.path, 'exists', new=self.os_path_exists), \
-          patch.object(os, 'stat', new=self.os_stat), \
-          patch.object(os, 'chown', new=self.os_chown), \
-          patch.object(os, 'readlink', new=self.os_readlink), \
-          patch.object(os.path, 'islink', new=self.os_path_islink):
-        self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(
         self.os_chown_call_list,
@@ -3269,13 +3270,7 @@ class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
       self.partition.requested_state = 'started'
       self.partition.software.setBuildout(WRAPPER_CONTENT)
 
-      with \
-          patch.object(os.path, 'exists', new=self.os_path_exists), \
-          patch.object(os, 'stat', new=self.os_stat), \
-          patch.object(os, 'chown', new=self.os_chown), \
-          patch.object(os, 'readlink', new=self.os_readlink), \
-          patch.object(os.path, 'islink', new=self.os_path_islink):
-        self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(
         self.os_chown_call_list,
@@ -3290,11 +3285,7 @@ class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
       self.partition.requested_state = 'started'
       self.partition.software.setBuildout(WRAPPER_CONTENT)
 
-      with \
-          patch.object(os.path, 'exists', new=self.os_path_exists), \
-          patch.object(os, 'stat', new=self.os_stat), \
-          patch.object(os, 'chown', new=self.os_chown):
-        self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(
         self.os_chown_call_list,
@@ -3309,11 +3300,7 @@ class TestSlapgridWithDevPerm(MasterMixin, unittest.TestCase):
       self.partition.requested_state = 'started'
       self.partition.software.setBuildout(WRAPPER_CONTENT)
 
-      with \
-          patch.object(os.path, 'exists', new=self.os_path_exists), \
-          patch.object(os, 'stat', new=self.os_stat), \
-          patch.object(os, 'chown', new=self.os_chown):
-        self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(
         self.os_chown_call_list,

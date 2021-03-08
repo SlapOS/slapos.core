@@ -561,43 +561,43 @@ class TestSubscriptionRequest_requestPaymentTransaction(TestSubscriptionSkinsMix
       if line.getSource() == "account_module/receivable":
         self.assertEqual(line.getQuantity(), 188*quantity)
 
-  @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'amount, tag, payment, target_language, REQUEST=None',"""assert REQUEST == None
+  @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'price, tag, payment, template, REQUEST=None',"""assert REQUEST == None
 assert payment
-assert amount == 1
+assert price == 20.8333333
 assert tag == 'TAG'
-assert target_language == 'en'""")
+assert template == context.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate()""")
   def test_request_payment_transaction_q1(self):
     self._test_request_payment_transaction(quantity=1)
 
-  @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'amount, tag, payment, target_language, REQUEST=None',"""assert REQUEST == None
+  @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'price, tag, payment, template, REQUEST=None',"""assert REQUEST == None
 assert payment
-assert amount == 2
+assert price == 20.8333333
 assert tag == 'TAG'
-assert target_language == 'en'""")
+assert template == context.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate()""")
   def test_request_payment_transaction_q2(self):
     self._test_request_payment_transaction(quantity=2)
 
-  @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'amount, tag, payment, target_language, REQUEST=None',"""assert REQUEST == None
+  @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'price, tag, payment, template, REQUEST=None',"""assert REQUEST == None
 assert payment
-assert amount == 10
+assert price == 20.8333333
 assert tag == 'TAG'
-assert target_language == 'en'""")
+assert template == context.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate()""")
   def test_request_payment_transaction_q10(self):
     self._test_request_payment_transaction(quantity=10)
 
-  @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'amount, tag, payment, target_language, REQUEST=None',"""assert REQUEST == None
+  @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'price, tag, payment, template, REQUEST=None',"""assert REQUEST == None
 assert payment
-assert amount == 1
+assert price == 188
 assert tag == 'TAG'
-assert target_language == 'zh'""")
+assert template == context.portal_preferences.getPreferredZhPrePaymentSubscriptionInvoiceTemplate()""")
   def test_request_payment_transaction_chinese_q1(self):
     self._test_request_payment_transaction_chinese(quantity=1)
 
-  @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'amount, tag, payment, target_language, REQUEST=None',"""assert REQUEST == None
+  @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'price, tag, payment, template, REQUEST=None',"""assert REQUEST == None
 assert payment
-assert amount == 10
+assert price == 188
 assert tag == 'TAG'
-assert target_language == 'zh'""")
+assert template == context.portal_preferences.getPreferredZhPrePaymentSubscriptionInvoiceTemplate()""")
   def test_request_payment_transaction_chinese_q10(self):
     self._test_request_payment_transaction_chinese(quantity=10)
 
@@ -621,7 +621,7 @@ class TestSubscriptionRequest_createRelatedSaleInvoiceTransaction(TestSubscripti
     subscription_request.edit(causality_value=current_invoice)
 
     self.assertEqual(current_invoice,
-      subscription_request.SubscriptionRequest_createRelatedSaleInvoiceTransaction(1, "xx", "___payment__", "en"))
+      subscription_request.SubscriptionRequest_createRelatedSaleInvoiceTransaction(1, "xx", "___payment__", invoice_template_path))
 
 
   def _test_creation_of_related_sale_invoice_transaction(self, quantity):

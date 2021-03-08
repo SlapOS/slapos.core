@@ -7,6 +7,10 @@
     <pickle>
       <dictionary>
         <item>
+            <key> <string>base_unit_price</string> </key>
+            <value> <float>0.0</float> </value>
+        </item>
+        <item>
             <key> <string>categories</string> </key>
             <value>
               <tuple>
@@ -54,7 +58,7 @@
         </item>
         <item>
             <key> <string>price</string> </key>
-            <value> <float>20.8333333333</float> </value>
+            <value> <float>0.0</float> </value>
         </item>
         <item>
             <key> <string>quantity</string> </key>

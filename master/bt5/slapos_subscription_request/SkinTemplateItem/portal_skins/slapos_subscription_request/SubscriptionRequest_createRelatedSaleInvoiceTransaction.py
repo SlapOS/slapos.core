@@ -3,20 +3,14 @@ if REQUEST is not None:
   raise Unauthorized
 
 portal = context.getPortalObject()
-
 current_invoice = context.getCausalityValue()
 
 if current_invoice is None:
-  if target_language == "zh": # Wechat payment
-    invoice_template_path = portal.portal_preferences.getPreferredZhPrePaymentSubscriptionInvoiceTemplate()
-  else:
-    invoice_template_path = portal.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate()
-  invoice_template = portal.restrictedTraverse(invoice_template_path)
-
+  invoice_template = portal.restrictedTraverse(template)
   current_invoice = invoice_template.Base_createCloneDocument(batch_mode=1)
   context.edit(causality_value=current_invoice)
 
-  payment_transaction = invoice_template = portal.restrictedTraverse(payment)
+  payment_transaction = portal.restrictedTraverse(payment)
   current_invoice.edit(
         title="Reservation Fee",
         destination_value=context.getDestinationSection(),
@@ -25,9 +19,8 @@ if current_invoice is None:
         start_date=payment_transaction.getStartDate(),
         stop_date=payment_transaction.getStopDate(),
       )
-  if not amount:
-    # this is supposed to be free, so turn price free.
-    current_invoice["1"].setPrice(0.0)
+
+  current_invoice["1"].setPrice(price)
   current_invoice["1"].setQuantity(context.getQuantity())
 
   comment = "Validation invoice for subscription request %s" % context.getRelativeUrl()

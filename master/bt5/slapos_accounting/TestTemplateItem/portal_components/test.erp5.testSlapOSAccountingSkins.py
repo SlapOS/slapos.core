@@ -29,12 +29,6 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       )
 
   @withAbort
-  def test_Service_getPriceCalculationOperandDict(self):
-    service = self.portal.service_module.newContent(portal_type='Service')
-    self.assertEqual({'price': 0.0},
-        service.Service_getPriceCalculationOperandDict())
-
-  @withAbort
   def test_HS_calculateSubscriptionStartDate_REQUEST_disallowed(self):
     item = self.createHostingSubscription()
     self.assertRaises(

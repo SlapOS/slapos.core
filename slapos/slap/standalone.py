@@ -418,7 +418,8 @@ class StandaloneSlapOS(object):
 
     var_directory = os.path.join(base_directory, 'var')
     ensureDirectoryExists(var_directory)
-    self._proxy_database = os.path.join(var_directory, 'proxy.db')
+
+    self._proxy_database = os.path.join(base_directory, 'proxy.db')
 
     # for convenience, make a slapos command for this instance
     bin_directory = os.path.join(base_directory, 'bin')

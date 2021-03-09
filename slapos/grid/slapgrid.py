@@ -795,6 +795,7 @@ stderr_logfile_backups=1
         raise Exception("Failed to load firewalld rules with command %s.\n%" % (
                         stderr, reload_cmd))
 
+    if reload_rules or not os.path.exists(firewall_rules_path):
       with open(firewall_rules_path, 'w') as frules:
         frules.write(json.dumps(json_list))
 

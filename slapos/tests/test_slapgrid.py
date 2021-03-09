@@ -44,6 +44,7 @@ from six.moves.urllib import parse
 import json
 import re
 import grp
+import hashlib
 
 import mock
 from mock import patch
@@ -3378,6 +3379,250 @@ class TestSlapgridWithDevPermManagerDevPermAllowLsblk(TestSlapgridWithDevPermLsb
     ]
     self.test_link_os_chown_call_list_long = [
     ]
+
+
+class TestSlapgridWithWhitelistfirewall(MasterMixin, unittest.TestCase):
+  config = {
+    'manager_list': 'whitelistfirewall',
+    'firewall':{
+      'firewall_cmd': 'firewall_cmd',
+    }
+  }
+
+  def setUp(self):
+    MasterMixin.setUp(self)
+    manager_list = slapmanager.from_config(self.config)
+    self.grid._manager_list = manager_list
+
+    self.computer = ComputerForTest(self.software_root, self.instance_root)
+    self.partition = self.computer.instance_list[0]
+
+    self.whitelist_firewall_filename = os.path.join(
+      self.partition.partition_path,
+      slapmanager.whitelistfirewall.Manager.whitelist_firewall_filename)
+
+    self.whitelist_firewall_md5sum = os.path.join(
+      self.partition.partition_path,
+      slapmanager.whitelistfirewall.Manager.whitelist_firewall_md5sum)
+
+    self.fexecute_call_list = []
+    self.fexecute_side_effect = {}
+    self.fexecute_returncode = 0
+    self.fexecute_result = ''
+    self.patcher_list = [
+      patch.object(slapmanager.whitelistfirewall, 'fexecute', new=self.fexecute)
+    ]
+    [q.start() for q in self.patcher_list]
+
+  def fexecute(self, arg_list):
+    self.fexecute_call_list.append(arg_list)
+    return self.fexecute_side_effect.get(str(arg_list), (0, ''))
+
+  def tearDown(self):
+    [q.stop() for q in self.patcher_list]
+
+  def _mock_requests(self):
+    return httmock.HTTMock(self.computer.request_handler)
+
+  def test(self):
+    with self._mock_requests():
+      with open(self.whitelist_firewall_filename, 'w+') as f:
+        json.dump(['127.0.0.1'], f)
+
+      self.partition.requested_state = 'started'
+      self.partition.software.setBuildout(WRAPPER_CONTENT)
+
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+
+      query_chain = ['firewall_cmd', '--direct', '--permanent', '--query-chain', 'ipv4', 'filter', '0-whitelist']
+      query_owner_rule = ['firewall_cmd', '--direct', '--permanent', '--query-rule', 'ipv4', 'filter', 'OUTPUT', '0', '-m', 'owner', '--uid-owner', '1000', '-j', '0-whitelist']
+      self.assertEqual(
+        self.fexecute_call_list,
+        [
+          query_chain,
+          ['firewall_cmd', '--direct', '--permanent', '--add-chain', 'ipv4', 'filter', '0-whitelist'],
+          ['firewall_cmd', '--direct', '--permanent', '--remove-rules', 'ipv4', 'filter', '0-whitelist'],
+          ['firewall_cmd', '--direct', '--permanent', '--add-rule', 'ipv4', 'filter', '0-whitelist', '0', '-d', u'127.0.0.1', '-j', 'ACCEPT'],
+          ['firewall_cmd', '--direct', '--permanent', '--add-rule', 'ipv4', 'filter', '0-whitelist', '0', '-j', 'REJECT'],
+          query_owner_rule,
+          ['firewall_cmd', '--direct', '--permanent', '--add-rule', 'ipv4', 'filter', 'OUTPUT', '0', '-m', 'owner', '--uid-owner', '1000', '-j', '0-whitelist'],
+          ['firewall_cmd', '--reload']
+        ]
+      )
+      with open(self.whitelist_firewall_filename, 'rb') as fh:
+        expected_md5sum = hashlib.md5(fh.read().strip()).hexdigest()
+      try:
+        with open(self.whitelist_firewall_md5sum, 'rb') as fh:
+          got_md5sum = fh.read().strip()
+      except Exception:
+        got_md5sum = None
+      self.assertEqual(expected_md5sum, got_md5sum)
+
+
+      # check no-op behaviour
+      self.fexecute_call_list = []
+      self.fexecute_side_effect[str(query_chain)] = (0, 'yes')
+      self.fexecute_side_effect[str(query_owner_rule)] = (0, 'yes')
+      self.partition.requested_state = 'started'
+      self.partition.software.setBuildout(WRAPPER_CONTENT)
+
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+
+      self.assertEqual(
+        self.fexecute_call_list,
+        [
+          query_chain
+        ]
+      )
+
+      # check update
+      self.fexecute_call_list = []
+      self.fexecute_side_effect[str(query_chain)] = (0, 'yes')
+      self.fexecute_side_effect[str(query_owner_rule)] = (0, 'yes')
+      with open(self.whitelist_firewall_filename, 'w+') as f:
+        json.dump(['127.0.0.1', '127.0.0.2'], f)
+      self.partition.requested_state = 'started'
+      self.partition.software.setBuildout(WRAPPER_CONTENT)
+
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+
+      self.assertEqual(
+        self.fexecute_call_list,
+        [
+          query_chain,
+          ['firewall_cmd', '--direct', '--permanent', '--remove-rules', 'ipv4', 'filter', '0-whitelist'],
+          ['firewall_cmd', '--direct', '--permanent', '--add-rule', 'ipv4', 'filter', '0-whitelist', '0', '-d', '127.0.0.1', '-j', 'ACCEPT'],
+          ['firewall_cmd', '--direct', '--permanent', '--add-rule', 'ipv4', 'filter', '0-whitelist', '0', '-d', '127.0.0.2', '-j', 'ACCEPT'],
+          ['firewall_cmd', '--direct', '--permanent', '--add-rule', 'ipv4', 'filter', '0-whitelist', '0', '-j', 'REJECT'],
+          query_owner_rule,
+          ['firewall_cmd', '--reload']]
+      )
+
+      # check behaviour after removing the configuration file
+      os.unlink(self.whitelist_firewall_filename)
+      # reset previous calls
+      self.fexecute_call_list = []
+      # setup side effects
+      self.fexecute_side_effect[str(query_chain)] = (0, 'yes')
+      self.fexecute_side_effect[str(query_owner_rule)] = (0, 'yes')
+      self.partition.requested_state = 'started'
+      self.partition.software.setBuildout(WRAPPER_CONTENT)
+
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+
+      self.assertEqual(
+        self.fexecute_call_list,
+        [
+          query_chain,
+          ['firewall_cmd', '--direct', '--permanent', '--remove-rules', 'ipv4', 'filter', '0-whitelist'],
+          ['firewall_cmd', '--direct', '--permanent', '--remove-chain', 'ipv4', 'filter', '0-whitelist'],
+          query_owner_rule,
+          ['firewall_cmd', '--direct', '--permanent', '--remove-rule', 'ipv4', 'filter', 'OUTPUT', '0', '-m', 'owner', '--uid-owner', '1000', '-j', '0-whitelist'],
+          ['firewall_cmd', '--reload']
+        ]
+      )
+      self.assertFalse(os.path.exists(self.whitelist_firewall_md5sum))
+
+  def test_damaged(self):
+    with self._mock_requests():
+      with open(self.whitelist_firewall_filename, 'w+') as f:
+        f.write('nothing')
+
+      self.partition.requested_state = 'started'
+      self.partition.software.setBuildout(WRAPPER_CONTENT)
+
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+
+      self.assertEqual(self.fexecute_call_list, [])
+      self.assertFalse(os.path.exists(self.whitelist_firewall_md5sum))
+
+  def test_not_list(self):
+    with self._mock_requests():
+      with open(self.whitelist_firewall_filename, 'w+') as f:
+        json.dump({'127.0.0.1': '127.0.0.2'}, f)
+
+      self.partition.requested_state = 'started'
+      self.partition.software.setBuildout(WRAPPER_CONTENT)
+
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+
+      self.assertEqual(self.fexecute_call_list, [])
+      self.assertFalse(os.path.exists(self.whitelist_firewall_md5sum))
+
+  def test_with_bad_entry(self):
+    with self._mock_requests():
+      with open(self.whitelist_firewall_filename, 'w+') as f:
+        json.dump(['127.0.0.1', 'superpaczynka127.0.0.1', '::1'], f)
+
+      self.partition.requested_state = 'started'
+      self.partition.software.setBuildout(WRAPPER_CONTENT)
+
+      self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
+
+      self.assertEqual(
+        self.fexecute_call_list,
+        [
+          ['firewall_cmd', '--direct', '--permanent', '--query-chain', 'ipv4', 'filter', '0-whitelist'],
+          ['firewall_cmd', '--direct', '--permanent', '--add-chain', 'ipv4', 'filter', '0-whitelist'],
+          ['firewall_cmd', '--direct', '--permanent', '--remove-rules', 'ipv4', 'filter', '0-whitelist'],
+          ['firewall_cmd', '--direct', '--permanent', '--add-rule', 'ipv4', 'filter', '0-whitelist', '0', '-d', u'127.0.0.1', '-j', 'ACCEPT'],
+          ['firewall_cmd', '--direct', '--permanent', '--add-rule', 'ipv4', 'filter', '0-whitelist', '0', '-j', 'REJECT'],
+          ['firewall_cmd', '--direct', '--permanent', '--query-rule', 'ipv4', 'filter', 'OUTPUT', '0', '-m', 'owner', '--uid-owner', '1000', '-j', '0-whitelist'],
+          ['firewall_cmd', '--direct', '--permanent', '--add-rule', 'ipv4', 'filter', 'OUTPUT', '0', '-m', 'owner', '--uid-owner', '1000', '-j', '0-whitelist'],
+          ['firewall_cmd', '--reload']]
+      )
+      with open(self.whitelist_firewall_filename, 'rb') as fh:
+        expected_md5sum = hashlib.md5(fh.read().strip()).hexdigest()
+      try:
+        with open(self.whitelist_firewall_md5sum, 'rb') as fh:
+          got_md5sum = fh.read().strip()
+      except Exception:
+        got_md5sum = None
+      self.assertEqual(expected_md5sum, got_md5sum)
+
+  def test_cleanup_on_destroy(self):
+    with self._mock_requests():
+      with open(self.whitelist_firewall_md5sum, 'w+') as fh:
+        fh.write('')
+      query_chain = ['firewall_cmd', '--direct', '--permanent', '--query-chain', 'ipv4', 'filter', '0-whitelist']
+      query_owner_rule = ['firewall_cmd', '--direct', '--permanent', '--query-rule', 'ipv4', 'filter', 'OUTPUT', '0', '-m', 'owner', '--uid-owner', '1000', '-j', '0-whitelist']
+      # setup side effects
+      self.fexecute_side_effect[str(query_chain)] = (0, 'yes')
+      self.fexecute_side_effect[str(query_owner_rule)] = (0, 'yes')
+      self.partition.requested_state = 'destroyed'
+      self.partition.software.setBuildout(WRAPPER_CONTENT)
+
+      self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
+
+      self.assertEqual(
+        self.fexecute_call_list,
+        [
+          query_chain,
+          ['firewall_cmd', '--direct', '--permanent', '--remove-rules', 'ipv4', 'filter', '0-whitelist'],
+          ['firewall_cmd', '--direct', '--permanent', '--remove-chain', 'ipv4', 'filter', '0-whitelist'],
+          query_owner_rule,
+          ['firewall_cmd', '--direct', '--permanent', '--remove-rule', 'ipv4', 'filter', 'OUTPUT', '0', '-m', 'owner', '--uid-owner', '1000', '-j', '0-whitelist'],
+          ['firewall_cmd', '--reload']
+        ]
+      )
+      self.assertFalse(os.path.exists(self.whitelist_firewall_md5sum))
+      # check cleanup no-op
+      self.fexecute_call_list = []
+      # setup side effects
+      self.fexecute_side_effect[str(query_chain)] = (0, 'no')
+      self.fexecute_side_effect[str(query_owner_rule)] = (0, 'no')
+      self.partition.requested_state = 'destroyed'
+      self.partition.software.setBuildout(WRAPPER_CONTENT)
+
+      self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
+
+      self.assertEqual(
+        self.fexecute_call_list,
+        [
+          query_chain,
+          query_owner_rule
+        ]
+      )
 
 
 class TestSlapgridManagerLifecycle(MasterMixin, unittest.TestCase):

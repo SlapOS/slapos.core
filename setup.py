@@ -75,7 +75,8 @@ setup(name=name,
           'cachecontrol',
           'lockfile',
           'uritemplate', # used by hateoas navigator
-          'subprocess32; python_version<"3"'
+          'subprocess32; python_version<"3"',
+          'ipaddress; python_version<"3"',  # used by whitelistfirewall
         ] + additional_install_requires,
       extras_require=extras_require,
       tests_require=extras_require['test'],

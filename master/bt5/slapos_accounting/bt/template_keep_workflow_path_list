@@ -7,6 +7,7 @@ service_module/slapos_netdrive_consumption
 service_module/slapos_account_validation
 service_module/slapos_instance_hosting
 service_module/slapos_reservation_fee
+service_module/slapos_reservation_fee/**
 service_module/slapos_reservation_refund
 account_module/bank
 account_module/capital

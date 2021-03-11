@@ -28,7 +28,7 @@ class TestSlapOSSubscriptionCDNScenarioMixin(TestSlapOSSubscriptionScenarioMixin
     self.expected_individual_price_without_tax = 4.16666666667
     self.expected_individual_price_with_tax = 5.0
     self.expected_reservation_fee = 1.0
-    self.expected_reservation_fee_without_tax = 0.83
+    self.expected_reservation_fee_without_tax = 0.833333333333333
     self.expected_reservation_quantity_tax = 0.833333333333333
     self.expected_reservation_tax = 0.166666666666667
     self.expected_price_currency = "currency_module/EUR"
@@ -86,6 +86,10 @@ class TestSlapOSSubscriptionCDNScenarioMixin(TestSlapOSSubscriptionScenarioMixin
     self.tic()
     self.login()
     self.setServerOpenSubscription(subscription_server)
+    self.setAccessToMemcached(subscription_server)
+    self.tic()
+    self.simulateSlapgridCP(subscription_server)
+
     self.logout()
     return subscription_server
 

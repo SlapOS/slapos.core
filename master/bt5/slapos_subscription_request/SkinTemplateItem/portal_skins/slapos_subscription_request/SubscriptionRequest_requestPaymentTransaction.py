@@ -50,7 +50,6 @@ if current_invoice is None:
     if 'base_amount/invoicing/taxable' in invoice_line.getBaseContributionList():
       tax = 0.2
 
-
   for line in current_payment.contentValues():
     if line.getSource() == "account_module/payment_to_encash":
       total = round((-int(amount) * price)+(-int(amount) * price*tax), 2)
@@ -63,7 +62,7 @@ if current_invoice is None:
   comment = "Validation payment for subscription request %s" % context.getRelativeUrl()
   current_payment.confirm(comment=comment)
   current_payment.start(comment=comment)
-  if not amount:
+  if not price:
     current_payment.stop(comment="%s (Free)" % comment)
   elif target_language != "zh":
     # Payzen don't require update like this.

@@ -7,6 +7,24 @@
     <pickle>
       <dictionary>
         <item>
+            <key> <string>_count</string> </key>
+            <value>
+              <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
+            </value>
+        </item>
+        <item>
+            <key> <string>_mt_index</string> </key>
+            <value>
+              <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
+            </value>
+        </item>
+        <item>
+            <key> <string>_tree</string> </key>
+            <value>
+              <persistent> <string encoding="base64">AAAAAAAAAAQ=</string> </persistent>
+            </value>
+        </item>
+        <item>
             <key> <string>base_unit_price</string> </key>
             <value> <float>0.0</float> </value>
         </item>
@@ -18,6 +36,7 @@
                 <string>resource/service_module/slapos_reservation_fee</string>
                 <string>quantity_unit/unit/piece</string>
                 <string>base_contribution/base_amount/invoicing</string>
+                <string>variation/service_module/slapos_reservation_fee/default</string>
               </tuple>
             </value>
         </item>
@@ -38,7 +57,7 @@
         <item>
             <key> <string>index</string> </key>
             <value>
-              <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
+              <persistent> <string encoding="base64">AAAAAAAAAAU=</string> </persistent>
             </value>
         </item>
         <item>
@@ -87,6 +106,28 @@
   </record>
   <record id="2" aka="AAAAAAAAAAI=">
     <pickle>
+      <global name="Length" module="BTrees.Length"/>
+    </pickle>
+    <pickle> <int>0</int> </pickle>
+  </record>
+  <record id="3" aka="AAAAAAAAAAM=">
+    <pickle>
+      <global name="OOBTree" module="BTrees.OOBTree"/>
+    </pickle>
+    <pickle>
+      <none/>
+    </pickle>
+  </record>
+  <record id="4" aka="AAAAAAAAAAQ=">
+    <pickle>
+      <global name="OOBTree" module="BTrees.OOBTree"/>
+    </pickle>
+    <pickle>
+      <none/>
+    </pickle>
+  </record>
+  <record id="5" aka="AAAAAAAAAAU=">
+    <pickle>
       <global name="PersistentMapping" module="Persistence.mapping"/>
     </pickle>
     <pickle>
@@ -98,7 +139,7 @@
                 <item>
                     <key> <string>movement</string> </key>
                     <value>
-                      <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
+                      <persistent> <string encoding="base64">AAAAAAAAAAY=</string> </persistent>
                     </value>
                 </item>
               </dictionary>
@@ -107,7 +148,7 @@
       </dictionary>
     </pickle>
   </record>
-  <record id="3" aka="AAAAAAAAAAM=">
+  <record id="6" aka="AAAAAAAAAAY=">
     <pickle>
       <global name="PersistentMapping" module="Persistence.mapping"/>
     </pickle>
@@ -116,7 +157,34 @@
         <item>
             <key> <string>data</string> </key>
             <value>
-              <dictionary/>
+              <dictionary>
+                <item>
+                    <key> <int>0</int> </key>
+                    <value>
+                      <persistent> <string encoding="base64">AAAAAAAAAAc=</string> </persistent>
+                    </value>
+                </item>
+              </dictionary>
+            </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="7" aka="AAAAAAAAAAc=">
+    <pickle>
+      <global name="PersistentMapping" module="Persistence.mapping"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>data</string> </key>
+            <value>
+              <dictionary>
+                <item>
+                    <key> <string>variation/service_module/slapos_reservation_fee/default</string> </key>
+                    <value> <int>0</int> </value>
+                </item>
+              </dictionary>
             </value>
         </item>
       </dictionary>

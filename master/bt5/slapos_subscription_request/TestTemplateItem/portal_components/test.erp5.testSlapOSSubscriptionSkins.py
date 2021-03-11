@@ -246,7 +246,7 @@ class TestSubscriptionRequestModule_requestSubscription(TestSubscriptionSkinsMix
 
     expected_argument_tuple = (('123@nexedi.com', 'subscription_reference'),
       {'confirmation_required': True, 'user_input_dict': {'name': "couscous", 'amount': 0},
-       'target_language': None, 'token': None, 'batch_mode': 0})
+       'variation_reference': None, 'target_language': None, 'token': None, 'batch_mode': 0})
 
     self.assertEqual(expected_argument_tuple, module.SubscriptionRequestModule_requestSubscription(
                        REQUEST=self.portal.REQUEST, default_email_text="123@nexedi.com",
@@ -657,7 +657,7 @@ class TestSubscriptionRequest_createRelatedSaleInvoiceTransaction(TestSubscripti
     self.assertEqual(current_invoice.getStartDate(), current_payment.getStartDate())
     self.assertEqual(current_invoice.getStopDate(), current_payment.getStopDate())
     self.assertEqual(current_invoice.getSimulationState(), "confirmed")
-    self.assertEqual(current_invoice["1"].getQuantity(), quantity)
+    self.assertEqual(current_invoice["1"].getTotalQuantity(), quantity)
 
   def test_creation_of_related_sale_invoice_transaction_q1(self):
     self._test_creation_of_related_sale_invoice_transaction(1)

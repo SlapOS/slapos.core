@@ -20,9 +20,16 @@ if current_invoice is None:
         stop_date=payment_transaction.getStopDate(),
       )
 
-  current_invoice["1"].setVariation(service_variation)
-  current_invoice["1"].setPrice(price)
-  current_invoice["1"].setQuantity(context.getQuantity())
+  if service_variation is not None:
+    current_invoice["1"].setVariation(service_variation)
+  
+  cell = current_invoice["1"]["movement_0"]
+  
+  cell.edit(
+    variation=current_invoice["1"].getVariation(),
+    quantity=context.getQuantity()
+  )
+  cell.setPrice(price)
 
   comment = "Validation invoice for subscription request %s" % context.getRelativeUrl()
   current_invoice.plan(comment=comment)

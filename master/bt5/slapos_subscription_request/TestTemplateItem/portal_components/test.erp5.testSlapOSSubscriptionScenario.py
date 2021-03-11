@@ -34,7 +34,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.expected_individual_price_without_tax = 162.50
     self.expected_individual_price_with_tax = 195.00
     self.expected_reservation_fee = 25.00
-    self.expected_reservation_fee_without_tax = 20.83
+    self.expected_reservation_fee_without_tax = 20.833333333333333
     self.expected_reservation_quantity_tax = 20.833333333333333
     self.expected_reservation_tax = 4.166666666666667
     self.expected_price_currency = "currency_module/EUR"
@@ -722,13 +722,14 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
         subscription_request.getPriceCurrency())
       for line in invoice.objectValues():
         if line.getResource() == "service_module/slapos_reservation_fee":
-          self.assertEqual(line.getQuantity(), quantity)
+          self.assertEqual(line.getTotalQuantity(), quantity)
           if self.expected_free_reservation:
-            self.assertEqual(round(line.getPrice(), 2),  0.0)
+            self.assertEqual(round(line.getTotalPrice(), 2),  0.0)
           else:
-            self.assertEqual(round(line.getPrice(), 2),  expected_reservation_fee_without_tax)
+            self.assertEqual(round(line.getTotalPrice(), 2),
+              round(expected_reservation_fee_without_tax*quantity, 2))
         if line.getResource() == "service_module/slapos_tax":
-          self.assertEqual(round(line.getQuantity(), 2),
+          self.assertEqual(round(line.getTotalQuantity(), 2),
                            round(expected_reservation_quantity_tax*quantity, 2))
           self.assertEqual(round(line.getTotalPrice(), 2),
                            round(expected_reservation_tax*quantity, 2))

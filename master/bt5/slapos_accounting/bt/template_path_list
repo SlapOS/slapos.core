@@ -98,5 +98,6 @@ service_module/slapos_instance_subscription/default_ssl
 service_module/slapos_instance_update
 service_module/slapos_netdrive_consumption
 service_module/slapos_reservation_fee
+service_module/slapos_reservation_fee/**
 service_module/slapos_reservation_refund
 service_module/slapos_tax

@@ -10,6 +10,7 @@ service_module/slapos_netdrive_consumption
 service_module/slapos_account_validation
 service_module/slapos_instance_hosting
 service_module/slapos_reservation_fee
+service_module/slapos_reservation_fee/**
 service_module/slapos_reservation_refund
 service_module/cpu_load_percent
 service_module/memory_used

@@ -44,10 +44,50 @@ class TestSlapOSSubscriptionCDNScenarioMixin(TestSlapOSSubscriptionScenarioMixin
   
     self.login()
     # Overwrite default Subscription Condition.
-    self.createSubscriptionCondition()
+    self.createSubscriptionCondition(slave=True)
 
     # some preparation
     self.logout()
+
+  def createPublicServerForAdminUser(self):
+
+    subscription_server = TestSlapOSSubscriptionScenarioMixin.createPublicServerForAdminUser(self)
+
+    self.login()
+
+    contract = self.admin_user.Person_generateCloudContract(batch=True)
+    if contract.getValidationState() in ["draft", "invalidated"]:
+      contract.validate()
+      self.tic()
+
+
+    # now instantiate it on computer and set some nice connection dict
+    self.setServerOpenPersonal(subscription_server)
+
+    self.login(self.admin_user.getUserId())
+    self.personRequestInstanceNotReady(
+      software_release=self.subscription_condition.getUrlString(),
+      software_type=self.subscription_condition.getSourceReference(),
+      partition_reference="InstanceForSlave%s" % self.new_id
+    )
+
+    self.stepCallSlaposAllocateInstanceAlarm()
+    self.tic()
+
+    self.personRequestInstance(
+      software_release=self.subscription_condition.getUrlString(),
+      software_type=self.subscription_condition.getSourceReference(),
+      partition_reference="InstanceForSlave%s" % self.new_id
+    )
+
+    # now instantiate it on computer and set some nice connection dict
+    self.simulateSlapgridCP(subscription_server)
+
+    self.tic()
+    self.login()
+    self.setServerOpenSubscription(subscription_server)
+    self.logout()
+    return subscription_server
 
 class TestSlapOSSubscriptionCDNScenario(TestSlapOSSubscriptionCDNScenarioMixin):
 

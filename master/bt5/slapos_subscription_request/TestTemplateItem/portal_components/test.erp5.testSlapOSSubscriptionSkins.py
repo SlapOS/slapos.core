@@ -621,7 +621,8 @@ class TestSubscriptionRequest_createRelatedSaleInvoiceTransaction(TestSubscripti
     subscription_request.edit(causality_value=current_invoice)
 
     self.assertEqual(current_invoice,
-      subscription_request.SubscriptionRequest_createRelatedSaleInvoiceTransaction(1, "xx", "___payment__", invoice_template_path))
+      subscription_request.SubscriptionRequest_createRelatedSaleInvoiceTransaction(
+        1, "xx", "___payment__", invoice_template_path, None))
 
 
   def _test_creation_of_related_sale_invoice_transaction(self, quantity):

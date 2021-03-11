@@ -1,0 +1,75 @@
+# -*- coding:utf-8 -*-
+##############################################################################
+#
+# Copyright (c) 2019 Nexedi SA and Contributors. All Rights Reserved.
+#
+# This program is Free Software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+##############################################################################
+
+from erp5.component.test.testSlapOSSubscriptionScenario import TestSlapOSSubscriptionScenarioMixin
+
+class TestSlapOSSubscriptionCDNScenarioMixin(TestSlapOSSubscriptionScenarioMixin):
+
+  def afterSetUp(self):
+    TestSlapOSSubscriptionScenarioMixin.afterSetUp(self)
+    self.expected_individual_price_without_tax = 4.16666666667
+    self.expected_individual_price_with_tax = 5.0
+    self.expected_reservation_fee = 1.0
+    self.expected_reservation_fee_without_tax = 0.83
+    self.expected_reservation_quantity_tax = 0.833333333333333
+    self.expected_reservation_tax = 0.166666666666667
+    self.expected_price_currency = "currency_module/EUR"
+
+    self.expected_zh_individual_price_without_tax = 33.333333333333333
+    self.expected_zh_individual_price_with_tax = 40.0
+    self.expected_zh_reservation_fee = 8.0
+    self.expected_zh_reservation_fee_without_tax = 8.0
+    self.expected_zh_reservation_quantity_tax = 0
+    self.expected_zh_reservation_tax = 0
+
+    self.resource_variation_reference = "CDN"
+  
+    self.login()
+    # Overwrite default Subscription Condition.
+    self.createSubscriptionCondition()
+
+    # some preparation
+    self.logout()
+
+class TestSlapOSSubscriptionCDNScenario(TestSlapOSSubscriptionCDNScenarioMixin):
+
+  def test_subscription_scenario_with_single_vm(self):
+    self._test_subscription_scenario(amount=1)
+
+  def test_subscription_with_3_vms_scenario(self):
+    self._test_subscription_scenario(amount=3)
+
+  def test_subscription_scenario_with_reversal_transaction(self):
+    self._test_subscription_scenario_with_reversal_transaction(amount=1)
+
+  def test_two_subscription_scenario(self):
+    self._test_two_subscription_scenario(amount=1)
+
+  def test_subscription_scenario_with_existing_user(self):
+    self._test_subscription_scenario_with_existing_user(amount=1, language="zh")
+
+  def test_subscription_scenario_with_existing_user_with_non_subscription_request(self):
+    self._test_subscription_scenario_with_existing_user_with_non_subscription_request(amount=1, language="en")
+
+  def test_subscription_scenario_with_existing_chinese_user(self):
+    # Messages are in chinese, when subscribed via chinese website. Even if the english language is
+    # english
+    self._test_subscription_scenario_with_existing_user(amount=1, language="zh")

@@ -6,6 +6,7 @@ portal = context.getPortalObject()
 
 current_invoice = context.getCausalityValue()
 current_payment = None
+service_variation = None
 
 if current_invoice is None:
   if target_language == "zh": # Wechat payment, reservation fee is 188 CNY
@@ -32,6 +33,13 @@ if current_invoice is None:
     tax = 0
   else:
     invoice_line = invoice_template["1"].asContext()
+    resource = invoice_line.getResourceValue()
+    if variation_reference is not None:
+      for variation in resource.objectValues(portal_type="Service Individual Variation"):
+        if variation.getReference() == variation_reference:
+          service_variation = variation.getRelativeUrl()
+          invoice_line.setVariation(service_variation)
+
     price = invoice_line.getResourceValue().getPrice(
                           context=invoice_line)
     
@@ -64,6 +72,7 @@ if current_invoice is None:
   context.reindexObject(activate_kw={'tag': tag})
 
   context.activate(tag=tag).SubscriptionRequest_createRelatedSaleInvoiceTransaction(
-    price, tag, current_payment.getRelativeUrl(), invoice_template.getRelativeUrl())
+    price, tag, current_payment.getRelativeUrl(), invoice_template.getRelativeUrl(),
+    service_variation)
 
 return current_payment

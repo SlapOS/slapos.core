@@ -61,13 +61,14 @@ subscription_request = context.subscription_request_module.newContent(
 subscription_request.setDefaultEmailText(email)
 
 def wrapWithShadow(subscription_request, subscription_reference,
-                   subscription_request_id, contract=contract):
+                   subscription_request_id, variation_reference, contract=contract):
   subscription_request.activate(tag="subscription_condition_%s" % subscription_request_id
                              ).SubscriptionRequest_applyCondition(subscription_reference, target_language)
   return subscription_request.SubscriptionRequest_requestPaymentTransaction(
     tag="subscription_%s" % subscription_request_id,
     target_language=target_language,
-    contract=contract
+    contract=contract,
+    variation_reference=variation_reference
   )
 
 payment = person.Person_restrictMethodAsShadowUser(
@@ -75,7 +76,7 @@ payment = person.Person_restrictMethodAsShadowUser(
   callable_object=wrapWithShadow,
   argument_list=[subscription_request, 
                  subscription_reference, subscription_request.getId(),
-                 contract])
+                 variation_reference, contract])
 
 if batch_mode:
   return {'subscription' : subscription_request.getRelativeUrl(),

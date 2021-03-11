@@ -51,6 +51,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.expected_source = self.expected_slapos_organisation
     self.expected_source_section = self.expected_slapos_organisation
     self.cloud_invitation_token = None
+    self.resource_variation_reference = None
     self.expected_free_reservation = 0
     self.non_subscription_related_instance_amount = 0
     self.skip_destroy_and_check = 0
@@ -243,7 +244,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       description="This is a Chinese test",
       url_string=self.generateNewSoftwareReleaseUrl(),
       root_slave=slave,
-      price=1888.00,
+      price=self.expected_zh_individual_price_with_tax,
       price_currency="currency_module/CNY",
       default_source_reference="default",
       reference="rapidvm%s_zh" % self.new_id,
@@ -268,7 +269,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       description="This is a test",
       url_string=self.generateNewSoftwareReleaseUrl(),
       root_slave=slave,
-      price=195.00,
+      price=self.expected_individual_price_with_tax,
       price_currency="currency_module/EUR",
       default_source_reference="default",
       reference="rapidvm%s" % self.new_id,
@@ -295,19 +296,19 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
               portal_type='Subscription Request')
     return subscription_request_list
 
-  def checkSubscriptionRequest(self, subscription_request, email, subscription_condition, slave=0):
+  def checkSubscriptionRequest(self, subscription_request, email, subscription_condition):
     self.assertNotEqual(subscription_request, None)
     self.assertEqual(subscription_request.getDefaultEmailText(), email)
     self.assertEqual(subscription_request.getUrlString(), subscription_condition.getUrlString())
-    self.assertEqual(subscription_request.getRootSlave(), slave)
+    self.assertEqual(subscription_request.getRootSlave(), subscription_condition.getRootSlave())
     self.assertEqual(subscription_request.getTextContent(),
       '<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>')
     #self.assertEqual(trial_request.getSlaXml(), '<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>')
     self.assertEqual(subscription_request.getSourceReference(), "default")
 
   def checkDraftSubscriptionRequest(self, subscription_request, email, subscription_condition,
-                                      slave=0, amount=1):
-    self.checkSubscriptionRequest(subscription_request, email, subscription_condition, slave=slave)
+                                       amount=1):
+    self.checkSubscriptionRequest(subscription_request, email, subscription_condition)
     # XXX This might be diferent
     self.assertEqual(subscription_request.getQuantity(), amount)
 
@@ -318,25 +319,25 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.assertNotEqual(payment, None)
 
   def checkPlannedSubscriptionRequest(self, subscription_request, email,
-                                            subscription_condition, slave=0):
+                                            subscription_condition):
     self.checkSubscriptionRequest(subscription_request, email,
-                                  subscription_condition, slave=slave)
+                                  subscription_condition)
     self.assertEqual(subscription_request.getSimulationState(), "planned")
 
   def checkOrderedSubscriptionRequest(self, subscription_request, email,
-                subscription_condition, slave=0,
+                subscription_condition, 
                 notification_message="subscription_request-confirmation-with-password"):
     self.checkSubscriptionRequest(subscription_request, email,
-                                  subscription_condition, slave=slave)
+                                  subscription_condition)
     self.assertEqual(subscription_request.getSimulationState(), "ordered")
     self.checkBootstrapUser(subscription_request)
     self.checkEmailNotification(subscription_request, notification_message)
 
   def checkConfirmedSubscriptionRequest(self, subscription_request, email,
-                      subscription_condition, slave=0,
+                      subscription_condition, 
                       notification_message="subscription_request-payment-is-ready"):
     self.checkSubscriptionRequest(subscription_request, email,
-                                  subscription_condition, slave=slave)
+                                  subscription_condition)
     payment = subscription_request.SubscriptionRequest_verifyPaymentBalanceIsReady()
     self.assertNotEqual(payment, None)
     self.assertEqual(payment.getSimulationState(), 'started')
@@ -352,17 +353,17 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.checkEmailPaymentNotification(subscription_request, notification_message)
 
   def checkStartedSubscriptionRequest(self, subscription_request, email,
-                        subscription_condition, slave=0,
+                        subscription_condition, 
                         notification_message="subscription_request-instance-is-ready"):
     self.checkSubscriptionRequest(subscription_request, email,
-                                  subscription_condition, slave=slave)
+                                  subscription_condition)
     self.assertEqual(subscription_request.getSimulationState(), "started")
     self.checkEmailInstanceNotification(subscription_request, notification_message)
 
   def checkStoppedSubscriptionRequest(self, subscription_request, email,
-                        subscription_condition, slave=0):
+                        subscription_condition):
     self.checkSubscriptionRequest(subscription_request, email,
-                                  subscription_condition, slave=slave)
+                                  subscription_condition)
     self.assertEqual(subscription_request.getSimulationState(), "stopped")
 
   def _getRelatedPaymentValue(self, subscription_request):
@@ -715,7 +716,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
         expected_reservation_tax = self.expected_reservation_tax
         expected_reservation_fee = self.expected_reservation_fee
 
-      self.assertEqual(invoice.getSimulationState(), "stopped")
+      self.assertEqual(invoice.getSimulationState(), "stopped", invoice.getRelativeUrl())
       self.assertEqual(invoice.getCausalityState(), "solved")
       self.assertEqual(invoice.getPriceCurrency(),
         subscription_request.getPriceCurrency())
@@ -1029,7 +1030,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.assertEqual(hosting_subscription.getSourceReference(), "default")
 
     instance_list = hosting_subscription.getSpecialiseRelatedValueList(
-              portal_type=["Software Instance", "Slave Instace"])
+              portal_type=["Software Instance", "Slave Instance"])
     self.assertEqual(1,len(instance_list))
 
     return instance_list[0]
@@ -1107,6 +1108,8 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
   def _requestSubscription(self, **kw):
     if self.cloud_invitation_token is not None:
       kw["token"] = self.cloud_invitation_token.getId()
+    if self.resource_variation_reference is not None:
+      kw["variation_reference"] = self.resource_variation_reference
     return self.web_site.hateoas.SubscriptionRequestModule_requestSubscription(**kw)
 
   @changeSkin('Hal')
@@ -1115,6 +1118,8 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       kw["token"] = self.cloud_invitation_token.getId()
     if 'target_language' not in kw:
       kw["target_language"] = "zh"
+    if self.resource_variation_reference is not None:
+      kw["variation_reference"] = self.resource_variation_reference
     kw["subscription_reference"] = self.subscription_condition.getReference().replace("_zh", "")
 
     original_mode = self.portal.portal_secure_payments.slapos_wechat_test.getWechatMode()
@@ -1220,7 +1225,8 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       subscription_request.getLanguage())
 
     self.checkDraftSubscriptionRequest(subscription_request,
-                      default_email_text, self.subscription_condition, amount=amount)
+                      default_email_text, self.subscription_condition,
+                      amount=amount)
 
     # Check Payment and pay it.
     self.checkAndPaySubscriptionPayment([subscription_request])

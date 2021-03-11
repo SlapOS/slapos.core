@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>name=None, default_email_text=None, subscription_reference=None, amount=0, token=None, confirmation_required=True, target_language=None, REQUEST=None, **kw</string> </value>
+            <value> <string>name=None, default_email_text=None, subscription_reference=None, amount=0, token=None, confirmation_required=True, variation_reference=None, target_language=None, REQUEST=None, **kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

@@ -20,6 +20,7 @@ if current_invoice is None:
         stop_date=payment_transaction.getStopDate(),
       )
 
+  current_invoice["1"].setVariation(service_variation)
   current_invoice["1"].setPrice(price)
   current_invoice["1"].setQuantity(context.getQuantity())
 

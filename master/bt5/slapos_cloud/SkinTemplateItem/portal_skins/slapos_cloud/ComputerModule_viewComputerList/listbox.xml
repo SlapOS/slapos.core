@@ -118,6 +118,10 @@
                           <string>Computer_getFreeComputerPartitionCount</string>
                           <string>Free Computer Partition</string>
                         </tuple>
+                        <tuple>
+                          <string>subordination_title</string>
+                          <string>Computer Network</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

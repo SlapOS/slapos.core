@@ -92,6 +92,11 @@ query_kw["capacity_scope_uid"] = portal.portal_categories.capacity_scope.open.ge
 if subscription_reference is not None and software_instance_portal_type != "Slave Instance":
   # Subscriptions uses a specific set of allocation scope
   query_kw["allocation_scope_uid"] = portal.portal_categories.allocation_scope.open.subscription.getUid()
+elif subscription_reference is not None and \
+     software_instance_portal_type == "Slave Instance" and \
+     is_root_slave:
+  # Subscriptions uses a specific set of allocation scope
+  query_kw["allocation_scope_uid"] = getOpenAllocationScopeUidList([])
 else:
   # else pic anything but open/subscription
   query_kw["allocation_scope_uid"] = getOpenAllocationScopeUidList(

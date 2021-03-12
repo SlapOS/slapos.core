@@ -94,14 +94,15 @@ def assignComputerPartition(software_instance, hosting_subscription):
         shadow_document=person,
         callable_object=person.Person_findPartition,
         argument_list=[software_instance.getUrlString(), software_instance.getSourceReference(),
-        software_instance.getPortalType(), sla_dict, computer_network_query, subscription_reference])
+        software_instance.getPortalType(), sla_dict, computer_network_query,
+        subscription_reference, hosting_subscription.isRootSlave()])
     return computer_partition_relative_url, tag
 
 software_instance = context
 if software_instance.getValidationState() != 'validated' \
   or software_instance.getSlapState() not in ('start_requested', 'stop_requested') \
   or software_instance.getAggregateValue(portal_type='Computer Partition') is not None:
-  return
+  return 
 
 hosting_subscription = software_instance.getSpecialiseValue()
 try:
@@ -113,9 +114,9 @@ try:
     hosting_subscription.activate(activity="SQLQueue", tag=tag,
         after_tag="allocate_%s" % computer_partition_url).getId()
 
-except ValueError:
+except ValueError, e:
   # It was not possible to find free Computer Partition
-  markHistory(software_instance, 'Allocation failed: no free Computer Partition')
+  markHistory(software_instance, 'Allocation failed: no free Computer Partition %s' % e)
 except Unauthorized, e:
   # user has bad balance
   markHistory(software_instance, 'Allocation failed: %s' % e)

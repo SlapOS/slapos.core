@@ -2298,9 +2298,10 @@ class TestCloudContract(TestSlapOSGroupRoleSecurityMixin):
         portal_type='Cloud Contract')
 
     self.assertSecurityGroup(contract,
-        ['G-COMPANY', self.user_id],
+        ['G-COMPANY', 'R-SHADOW-PERSON', self.user_id],
         False)
     self.assertRoles(contract, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(contract, 'R-SHADOW-PERSON', ['Auditor'])
     self.assertRoles(contract, self.user_id, ['Owner'])
 
   def test_Customer(self):
@@ -2309,9 +2310,10 @@ class TestCloudContract(TestSlapOSGroupRoleSecurityMixin):
         reference=reference)
     contract = person.Person_generateCloudContract(batch=True)
     self.assertSecurityGroup(contract,
-        ['G-COMPANY', person.getUserId(), self.user_id], False)
+        ['G-COMPANY', person.getUserId(), 'R-SHADOW-PERSON', self.user_id], False)
     self.assertRoles(contract, 'G-COMPANY', ['Assignor'])
     self.assertRoles(contract, person.getUserId(), ['Auditor'])
+    self.assertRoles(contract, 'R-SHADOW-PERSON', ['Auditor'])
     self.assertRoles(contract, self.user_id, ['Owner'])
 
 class TestUpgradeDecisionModule(TestSlapOSGroupRoleSecurityMixin):

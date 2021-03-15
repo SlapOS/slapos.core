@@ -80,6 +80,19 @@
             <value> <string>ERP5Type</string> </value>
         </item>
         <item>
+            <key> <string>searchable_text_property_id</string> </key>
+            <value>
+              <tuple>
+                <string>title</string>
+                <string>description</string>
+                <string>reference</string>
+                <string>short_title</string>
+                <string>text_content</string>
+                <string>sla_xml</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
             <key> <string>type_class</string> </key>
             <value> <string>SoftwareInstance</string> </value>
         </item>

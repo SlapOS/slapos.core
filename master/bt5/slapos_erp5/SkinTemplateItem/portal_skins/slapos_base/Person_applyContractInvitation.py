@@ -48,9 +48,9 @@ if cloud_invitation.getMaximumInvoiceDelay(0) > contract.getMaximumInvoiceDelay(
 for invitation_line in cloud_invitation.objectValues():
   has_line = False
   for line in contract.objectValues():
-    if line.getPriceCurrency() == invitation_line.getPriceCurrency() and \
-        invitation_line.getMaximumInvoiceCredit(0) > line.getMaximumInvoiceCredit(0):
-      line.edit(
+    if line.getPriceCurrency() == invitation_line.getPriceCurrency():
+      if invitation_line.getMaximumInvoiceCredit(0) > line.getMaximumInvoiceCredit(0):
+        line.edit(
          maximum_invoice_credit=invitation_line.getMaximumInvoiceCredit())
       has_line = True
       break

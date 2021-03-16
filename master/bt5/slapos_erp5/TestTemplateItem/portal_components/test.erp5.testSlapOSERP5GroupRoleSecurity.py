@@ -1294,6 +1294,44 @@ class TestCampaign(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(product, 'G-COMPANY', ['Assignor'])
     self.assertRoles(product, self.user_id, ['Owner'])
 
+class TestIncidentResponseModule(TestSlapOSGroupRoleSecurityMixin):
+  def test(self):
+    module = self.portal.incident_response_module
+    self.changeOwnership(module)
+    self.assertSecurityGroup(module,
+        ['G-COMPANY', self.user_id], False)
+    self.assertRoles(module, 'G-COMPANY', ['Auditor', 'Author'])
+    self.assertRoles(module, self.user_id, ['Owner'])
+
+class TestIncidentResponse(TestSlapOSGroupRoleSecurityMixin):
+  def test_GroupCompany(self):
+    incident_response = self.portal.incident_response_module.newContent(
+        portal_type='Incident Response')
+    incident_response.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(incident_response,
+        ['G-COMPANY', self.user_id], False)
+    self.assertRoles(incident_response, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(incident_response, self.user_id, ['Owner'])
+
+class TestSubscriptionRequestModule(TestSlapOSGroupRoleSecurityMixin):
+  def test(self):
+    module = self.portal.subscription_request_module
+    self.changeOwnership(module)
+    self.assertSecurityGroup(module,
+        ['G-COMPANY', self.user_id], False)
+    self.assertRoles(module, 'G-COMPANY', ['Auditor', 'Author'])
+    self.assertRoles(module, self.user_id, ['Owner'])
+
+class TestSubscriptionRequest(TestSlapOSGroupRoleSecurityMixin):
+  def test_GroupCompany(self):
+    subscription_request = self.portal.subscription_request_module.newContent(
+        portal_type='Subscription Request')
+    subscription_request.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(subscription_request,
+        ['G-COMPANY', self.user_id], False)
+    self.assertRoles(subscription_request, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(subscription_request, self.user_id, ['Owner'])
+
 class TestCashRegister(TestSlapOSGroupRoleSecurityMixin):
   def test_GroupCompany(self):
     product = self.portal.organisation_module.newContent(
@@ -2290,6 +2328,8 @@ class TestCloudContractModule(TestSlapOSGroupRoleSecurityMixin):
     self.assertSecurityGroup(module,
         [self.user_id, 'G-COMPANY', 'R-MEMBER', 'R-SHADOW-PERSON'], False)
     self.assertRoles(module, 'G-COMPANY', ['Author', 'Auditor'])
+    self.assertRoles(module, 'R-MEMBER', ['Auditor'])
+    self.assertRoles(module, 'R-SHADOW-PERSON', ['Auditor'])
     self.assertRoles(module, self.user_id, ['Owner'])
 
 class TestCloudContract(TestSlapOSGroupRoleSecurityMixin):

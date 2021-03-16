@@ -41,6 +41,7 @@ event_module
 event_module/slapos_crm_web_message_template
 hosting_subscription_module
 image_module
+incident_response_module
 inventory_module
 invitation_token_module
 knowledge_pad_module
@@ -97,6 +98,7 @@ software_installation_module
 software_instance_module
 software_product_module
 software_release_module
+subscription_request_module
 support_request_module
 support_request_module/slapos_crm_support_request_template
 system_event_module

@@ -33,7 +33,7 @@ assert payment.getPaymentMode() == 'wechat'
 assert payment.PaymentTransaction_getWechatId()[1] is None
 
 # Should be safe now to fix everything
-context.edit(payment_mode=None)
+context.SaleInvoiceTransaction_resetPaymentMode()
 payment.edit(payment_mode=None)
 reversal_transaction = context.Base_createCloneDocument(batch_mode=1)
 payment.cancel(

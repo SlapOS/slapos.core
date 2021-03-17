@@ -2091,7 +2091,7 @@ class TestPayzenEvent(TestSlapOSGroupRoleSecurityMixin):
     event.updateLocalRolesOnSecurityGroups()
     self.assertSecurityGroup(event,
         ['G-COMPANY', self.user_id], False)
-    self.assertRoles(event, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(event, 'G-COMPANY', ['Auditor'])
     self.assertRoles(event, self.user_id, ['Owner'])
 
   def test_ShadowUser(self):
@@ -2107,7 +2107,7 @@ class TestPayzenEvent(TestSlapOSGroupRoleSecurityMixin):
     shadow_user_id = 'SHADOW-%s' % person.getUserId()
     self.assertSecurityGroup(event,
         ['G-COMPANY', self.user_id, shadow_user_id], False)
-    self.assertRoles(event, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(event, 'G-COMPANY', ['Auditor'])
     self.assertRoles(event, shadow_user_id, ['Assignee'])
     self.assertRoles(event, self.user_id, ['Owner'])
 
@@ -2118,7 +2118,7 @@ class TestWechatEvent(TestSlapOSGroupRoleSecurityMixin):
     event.updateLocalRolesOnSecurityGroups()
     self.assertSecurityGroup(event,
         ['G-COMPANY', self.user_id], False)
-    self.assertRoles(event, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(event, 'G-COMPANY', ['Auditor'])
     self.assertRoles(event, self.user_id, ['Owner'])
 
   def test_ShadowUser(self):
@@ -2134,7 +2134,7 @@ class TestWechatEvent(TestSlapOSGroupRoleSecurityMixin):
     shadow_user_id = 'SHADOW-%s' % person.getUserId()
     self.assertSecurityGroup(event,
         ['G-COMPANY', self.user_id, shadow_user_id], False)
-    self.assertRoles(event, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(event, 'G-COMPANY', ['Auditor'])
     self.assertRoles(event, shadow_user_id, ['Assignee'])
     self.assertRoles(event, self.user_id, ['Owner'])
 

@@ -32,7 +32,6 @@ try:
   else:
     should_notify = False
 except KeyError:
-  ticket_title = "[MONITORING] No information about %s" % reference
   description = "The Computer %s (%s)  has not contacted the server (No Contact Information)" % (
                   computer_title, reference)
 

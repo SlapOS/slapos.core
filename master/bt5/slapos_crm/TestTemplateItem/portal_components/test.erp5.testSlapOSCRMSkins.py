@@ -1325,7 +1325,7 @@ class TestSlapOSComputer_CheckState(TestCRMSkinsMixin):
     computer.Computer_checkState()
     self.tic()
 
-    ticket_title = "[MONITORING] No information about %s" % computer.getReference()
+    ticket_title = "[MONITORING] Lost contact with computer %s" % computer.getReference()
     ticket = self._getGeneratedSupportRequest(computer.getUid(), ticket_title)
     self.assertNotEqual(ticket, None)
     self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \

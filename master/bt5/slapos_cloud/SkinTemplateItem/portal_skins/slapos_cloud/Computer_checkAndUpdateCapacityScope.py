@@ -96,7 +96,7 @@ if can_allocate:
     consumed_capacity += software_release_capacity
     if consumed_capacity >= computer_capacity_quantity:
       can_allocate = False
-      comment = 'Computer capacity limit exceeded'
+      comment = 'Computer capacity limit exceeded (%s >= %s)' % (consumed_capacity, computer_capacity_quantity)
 
   if can_allocate:
     for instance in portal.portal_catalog.portal_catalog(

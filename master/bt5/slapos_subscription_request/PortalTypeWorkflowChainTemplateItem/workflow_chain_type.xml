@@ -9,7 +9,7 @@
  </chain>
  <chain>
   <type>Subscription Request</type>
-  <workflow>edit_workflow, subscription_request_workflow, validation_workflow</workflow>
+  <workflow>audit_validation_workflow, edit_workflow, subscription_request_workflow</workflow>
  </chain>
  <chain>
   <type>Trial Condition</type>

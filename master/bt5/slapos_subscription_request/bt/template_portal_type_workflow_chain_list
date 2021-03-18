@@ -1,9 +1,9 @@
 Email | -coordinate_interaction_workflow
 Subscription Condition | commerce_validation_workflow
 Subscription Condition | edit_workflow
+Subscription Request | audit_validation_workflow
 Subscription Request | edit_workflow
 Subscription Request | subscription_request_workflow
-Subscription Request | validation_workflow
 Trial Condition | commerce_validation_workflow
 Trial Condition | edit_workflow
 Trial Request | edit_workflow

@@ -73,7 +73,7 @@ class RegisterCommand(Command):
                              ' (default: %(default)s)')
 
         ap.add_argument('--master-url-web',
-                        default='https://slapos.vifib.com',
+                        default='https://panel.rapid.space',
                         help='URL of SlapOS Master webservice to register certificates'
                              ' (default: %(default)s)')
 

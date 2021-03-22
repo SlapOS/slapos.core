@@ -363,7 +363,8 @@ def loadComputerConfigurationFromXML():
     partition['computer_reference'] = computer_dict['reference']
     execute_db('partition', 'INSERT OR IGNORE INTO %s (reference, computer_reference) values(:reference, :computer_reference)', partition)
     for address in partition['address_list']:
-      address['reference'] = partition['tap']['name']
+      # keep "or partition['reference']" for backward compatibility in webrunner
+      address['reference'] = partition['tap']['name'] or partition['reference']
       address['partition_reference'] = partition['reference']
       address['computer_reference'] = partition['computer_reference']
       execute_db('partition_network', 'INSERT OR REPLACE INTO %s (reference, partition_reference, computer_reference, address, netmask) values(:reference, :partition_reference, :computer_reference, :addr, :netmask)', address)

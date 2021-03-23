@@ -1710,7 +1710,7 @@ stderr_logfile_backups=1
         slap_computer_usage.reportUsage(usage)
         filename_delete_list.append(filename)
       else:
-        self.logger.info('XML file is invalid %s' % filename)
+        self.logger.info('XML file is invalid %s' % file_path)
 
     # After sending the aggregated file we remove all the valid xml reports
     for filename in filename_delete_list:

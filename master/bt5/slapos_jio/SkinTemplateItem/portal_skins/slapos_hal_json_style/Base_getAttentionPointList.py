@@ -58,4 +58,7 @@ if portal_type in ["Hosting Subscription Module", "Hosting Subscription", "Perso
         "Your Contract is Deactivated")
     attention_point_list.append({"text": msg, 'page': "slap_request_contract_activation"})
 
+if getattr(context, "Base_getCriticalAttentionPointList", None):
+  attention_point_list.extend(context.Base_getCriticalAttentionPointList())
+
 return dumps(attention_point_list)

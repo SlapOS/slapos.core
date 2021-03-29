@@ -1,6 +1,14 @@
 Changes
 =======
 
+1.6.8 (2021-03-29)
+------------------
+
+ * slapgrid: save firewalld rules also if no change, but file not present
+ * proxy: always give a name to partition addresses
+ * cli: use https://panel.rapid.space by default (instead of https://slapos.vifib.com)
+ * slapgrid: execute manager even if promise fails
+
 1.6.7 (2021-03-29)
 ------------------
 

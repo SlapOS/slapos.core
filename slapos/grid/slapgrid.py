@@ -1247,10 +1247,10 @@ stderr_logfile_backups=1
     finally:
       self.logger.removeHandler(partition_file_handler)
       partition_file_handler.close()
-
-    # Run manager tear down
-    for manager in self._manager_list:
-      manager.instanceTearDown(local_partition)
+      # Run manager tear down, even if something happened, like promise error,
+      # as manager might be used for this
+      for manager in self._manager_list:
+        manager.instanceTearDown(local_partition)
 
     # If partition has been successfully processed, write timestamp
     if timestamp:

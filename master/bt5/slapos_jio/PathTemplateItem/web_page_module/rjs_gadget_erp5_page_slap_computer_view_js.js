@@ -133,9 +133,10 @@
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
             gadget.jio_allDocs({
-              query: '(portal_type:"Computer Network")',
+              query: '(portal_type:"Computer Network") AND (validation_state:validated)',
               sort_on: [['reference', 'ascending']],
-              select_list: ['reference', 'title']
+              select_list: ['reference', 'title'],
+              limit: 100
             }),
             gadget.getTranslationList(translation_list)
           ]);

@@ -2,7 +2,6 @@
 CREATE TABLE IF NOT EXISTS local_software_release_root%(version)s (
   path VARCHAR(255)
 );
-INSERT INTO local_software_release_root%(version)s VALUES(NULL);
 
 CREATE TABLE IF NOT EXISTS software%(version)s (
   url VARCHAR(255),

@@ -196,12 +196,13 @@ def _updateHomePathIfNeeded():
   Update the home path if it changed,
   and rebase all URLs in the database relatively to the new home path.
   """
-  # Retrieve the current home path and replace it with the new one
-  current_home_path = execute_db('home', 'SELECT * from %s', one=True)['path'] or os.sep
+  # Retrieve the current (previous) home path and the new home path
+  current_home_row = execute_db('home', 'SELECT * FROM %s ORDER BY ROWID DESC LIMIT 1', one=True)
+  current_home_path = current_home_row['path'] if current_home_row else os.sep
   new_home_path = app.config['HOME'] or os.sep
-  execute_db('home', 'UPDATE %s SET path=?', [new_home_path])
-  # Rebase all URLs relative to the new home path
-  if current_home_path != new_home_path:
+  # Update the home path and all subpath URLs if the home path has changed
+  if new_home_path != current_home_path:
+    execute_db('home', 'INSERT INTO %s VALUES(?)', [new_home_path])
     def migrate_url(url):
       if not url or urlparse(url).scheme:
         return url

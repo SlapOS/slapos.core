@@ -1904,6 +1904,11 @@ class TestHomeMigration(MasterMixin):
   def assertPartitionUrl(self, partition_id, expected_url):
     self.assertEqual(self.getPartitionInformation(partition_id).getSoftwareRelease().getURI(), expected_url)
 
+  def assertHomeHistory(self, expected_history):
+    with sqlite3.connect(self.proxy_db) as db:
+      home_history = [row['path'] for row in slapos.proxy.views.execute_db('home', 'SELECT * from %s ORDER BY ROWID', db=db)]
+    self.assertEqual(home_history, expected_history)
+
   def checkSupplyUrl(self, initial_url, expected_url, rootdir=None):
     self.supply(initial_url)
     self.assertSoftwareUrls(initial_url)
@@ -1955,11 +1960,18 @@ class TestHomeMigration(MasterMixin):
 
   def checkMultipleMoves(self, checkUrl):
     initial_url = os.path.join(self._rootdir, 'opt', 'software.cfg')
+    rootdir_history = [self._rootdir]
     for _ in range(5):
       new_rootdir = self.newRootDir()
       expected_url = os.path.join(new_rootdir, 'opt', 'software.cfg')
       checkUrl(initial_url, expected_url, new_rootdir)
       initial_url = expected_url
+      rootdir_history.append(new_rootdir)
+    expected_home_history = [os.path.join(rootdir, 'opt') for rootdir in rootdir_history]
+    self.assertHomeHistory(expected_home_history)
+
+  def test_supply_multiple_moves(self):
+    self.checkMultipleMoves(self.checkSupplyUrl)
 
   def test_supply_multiple_moves(self):
     self.checkMultipleMoves(self.checkSupplyUrl)

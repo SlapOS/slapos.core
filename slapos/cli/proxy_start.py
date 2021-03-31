@@ -47,6 +47,8 @@ class ProxyStartCommand(ConfigCommand):
                         help='Port to use')
         ap.add_argument('--host',
                         help='Host to use')
+        ap.add_argument('--home',
+                        help='Home path')
 
         return ap
 

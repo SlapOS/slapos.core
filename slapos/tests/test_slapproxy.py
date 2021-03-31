@@ -75,35 +75,39 @@ class BasicMixin(object):
     Will set files and start slapproxy
     """
     self._tempdir = tempfile.mkdtemp()
+    self._rootdir = self.initRootDir()
     logging.basicConfig(level=logging.DEBUG)
     self.setFiles()
     self.startProxy()
     os.environ.pop('SLAPGRID_INSTANCE_ROOT', None)
 
+  def initRootDir(self):
+    return self._tempdir
+
   def createSlapOSConfigurationFile(self):
     with open(self.slapos_cfg, 'w') as f:
       f.write("""[slapos]
-software_root = %(tempdir)s/opt/slapgrid
-instance_root = %(tempdir)s/srv/slapgrid
+software_root = %(rootdir)s/opt/slapgrid
+instance_root = %(rootdir)s/srv/slapgrid
 master_url = %(proxyaddr)s
 computer_id = computer
 [slapproxy]
 host = 127.0.0.1
 port = 8080
-database_uri = %(tempdir)s/lib/proxy.db
-""" % {'tempdir': self._tempdir, 'proxyaddr': self.proxyaddr})
+database_uri = %(rootdir)s/lib/proxy.db
+""" % {'rootdir': self._rootdir, 'proxyaddr': self.proxyaddr})
 
   def setFiles(self):
     """
     Set environment to run slapproxy
     """
-    self.slapos_cfg = os.path.join(self._tempdir, 'slapos.cfg')
-    self.proxy_db = os.path.join(self._tempdir, 'lib', 'proxy.db')
+    self.slapos_cfg = os.path.join(self._rootdir, 'slapos.cfg')
+    self.proxy_db = os.path.join(self._rootdir, 'lib', 'proxy.db')
     self.proxyaddr = 'http://localhost:80/'
     self.computer_id = 'computer'
     self.createSlapOSConfigurationFile()
     for directory in ['opt', 'srv', 'lib']:
-      path = os.path.join(self._tempdir, directory)
+      path = os.path.join(self._rootdir, directory)
       os.mkdir(path)
 
   def startProxy(self):
@@ -1472,7 +1476,7 @@ class TestMultiMasterSupport(MasterMixin):
 
     self.db = sqlite_connect(self.proxy_db)
     self.external_slapproxy_configuration_file_location = os.path.join(
-        self._tempdir, 'external_slapos.cfg')
+        self._rootdir, 'external_slapos.cfg')
     self.createExternalProxyConfigurationFile()
     self.startExternalProxy()
 
@@ -1486,9 +1490,9 @@ computer_id = %(external_computer_id)s
 [slapproxy]
 host = %(host)s
 port = %(port)s
-database_uri = %(tempdir)s/lib/external_proxy.db
+database_uri = %(rootdir)s/lib/external_proxy.db
 """ % {
-    'tempdir': self._tempdir,
+    'rootdir': self._rootdir,
     'host': self.external_proxy_host,
     'port': self.external_proxy_port,
     'external_computer_id': self.external_computer_id
@@ -1533,7 +1537,7 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     configuration = bytes2str(pkg_resources.resource_string(
         'slapos.tests', os.path.join('test_slapproxy', 'slapos_multimaster.cfg.in')
     )) % {
-        'tempdir': self._tempdir, 'proxyaddr': self.proxyaddr,
+        'rootdir': self._rootdir, 'proxyaddr': self.proxyaddr,
         'external_proxy_host': self.external_proxy_host,
         'external_proxy_port': self.external_proxy_port
     }
@@ -1742,7 +1746,7 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     self.assertEqual({}, partition.getConnectionParameterDict())
 
     with sqlite3.connect(os.path.join(
-        self._tempdir,
+        self._rootdir,
         'lib',
         'external_proxy.db',
     )) as db:
@@ -1831,7 +1835,7 @@ database_uri = %(tempdir)s/lib/external_proxy.db
       self.assertEqual({}, partition.getConnectionParameterDict())
 
     with sqlite3.connect(os.path.join(
-        self._tempdir,
+        self._rootdir,
         'lib',
         'external_proxy.db',
     )) as db:
@@ -1858,6 +1862,107 @@ database_uri = %(tempdir)s/lib/external_proxy.db
         'xml': dict2xml({'foo': '2'}),
         'requested_by': 'slappart0'
     }], requested_by)
+
+
+class TestLocalSoftwareReleaseRootPathMigration(MasterMixin):
+  """
+  Test local URL adaptation based on the local software release root path.
+  """
+
+  def initRootDir(self):
+    rootdir = os.path.join(self._tempdir, '0')
+    os.mkdir(rootdir)
+    return rootdir
+
+  def newRootDir(self):
+    return os.path.join(self._tempdir, str(1 + int(os.path.basename(self._rootdir))))
+
+  def createSlapOSConfigurationFile(self):
+    super(TestLocalSoftwareReleaseRootPathMigration, self).createSlapOSConfigurationFile()
+    with open(self.slapos_cfg, 'a') as f:
+      f.write("\nlocal_software_release_root = %s/opt" % self._rootdir)
+
+  def moveProxy(self, rootdir=None):
+    if not rootdir:
+      rootdir = self.newRootDir()
+    os.rename(self._rootdir, rootdir)
+    self._rootdir = rootdir
+    self.slapos_cfg = os.path.join(self._rootdir, 'slapos.cfg')
+    self.proxy_db = os.path.join(self._rootdir, 'lib', 'proxy.db')
+    self.createSlapOSConfigurationFile()
+    views.is_schema_already_executed = False
+    self.startProxy()
+    os.environ.pop('SLAPGRID_INSTANCE_ROOT', None)
+
+  def assertSoftwareUrls(self, *expected_urls):
+    sr_list = tuple(sr.getURI() for sr in self.getFullComputerInformation()._software_release_list)
+    self.assertEqual(sr_list, expected_urls)
+
+  def assertPartitionUrl(self, partition_id, expected_url):
+    self.assertEqual(self.getPartitionInformation(partition_id).getSoftwareRelease().getURI(), expected_url)
+
+  def checkSupplyUrl(self, initial_url, expected_url, rootdir=None):
+    self.supply(initial_url)
+    self.assertSoftwareUrls(initial_url)
+    self.moveProxy(rootdir)
+    self.assertSoftwareUrls(expected_url)
+
+  def checkRequestUrl(self, initial_url, expected_url, rootdir=None):
+    self.format_for_number_of_partitions(1)
+    partition = self.request(initial_url, None, 'MyInstance', 'slappart0')
+    self.assertPartitionUrl(partition._partition_id, initial_url)
+    self.moveProxy(rootdir)
+    self.assertPartitionUrl(partition._partition_id, expected_url)
+
+  def test_supply_local_url(self):
+    initial_url = os.path.join(self._rootdir, 'opt', 'software.cfg')
+    new_rootdir = self.newRootDir()
+    expected_url = os.path.join(new_rootdir, 'opt', 'software.cfg')
+    self.checkSupplyUrl(initial_url, expected_url, new_rootdir)
+
+  def test_supply_not_in_root_url(self):
+    url = os.path.join(self._rootdir, 'srv', 'software.cfg')
+    self.checkSupplyUrl(url, url)
+
+  def test_supply_http_url(self):
+    url = "http://sr//"
+    self.checkSupplyUrl(url, url)
+
+  def test_supply_https_url(self):
+    url = "https://sr//"
+    self.checkSupplyUrl(url, url)
+
+  def test_request_local_url(self):
+    initial_url = os.path.join(self._rootdir, 'opt', 'software.cfg')
+    new_rootdir = self.newRootDir()
+    expected_url = os.path.join(new_rootdir, 'opt', 'software.cfg')
+    self.checkRequestUrl(initial_url, expected_url, new_rootdir)
+
+  def test_request_not_in_root_url(self):
+    url = os.path.join(self._rootdir, 'srv', 'software.cfg')
+    self.checkRequestUrl(url, url)
+
+  def test_request_http_url(self):
+    url = "http://sr//"
+    self.checkRequestUrl(url, url)
+
+  def test_request_https_url(self):
+    url = "https://sr//"
+    self.checkRequestUrl(url, url)
+
+  def checkMultipleMoves(self, checkUrl):
+    initial_url = os.path.join(self._rootdir, 'opt', 'software.cfg')
+    for _ in range(5):
+      new_rootdir = self.newRootDir()
+      expected_url = os.path.join(new_rootdir, 'opt', 'software.cfg')
+      checkUrl(initial_url, expected_url, new_rootdir)
+      initial_url = expected_url
+
+  def test_supply_multiple_moves(self):
+    self.checkMultipleMoves(self.checkSupplyUrl)
+
+  def test_request_multiple_moves(self):
+    self.checkMultipleMoves(self.checkRequestUrl)
 
 
 class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMultiNodeSupport):

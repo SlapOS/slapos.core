@@ -2084,6 +2084,16 @@ class TestLocalSoftwareReleaseRootPathMigration(MasterMixin):
   def assertPartitionUrl(self, partition_id, expected_url):
     self.assertEqual(self.getPartitionInformation(partition_id).getSoftwareRelease().getURI(), expected_url)
 
+  def assertPathHistory(self, expected_history):
+    with sqlite3.connect(self.proxy_db) as db:
+      rows = slapos.proxy.views.execute_db(
+        'local_software_release_root',
+        'SELECT * from %s ORDER BY ROWID',
+        db=db,
+      )
+      path_history = [row['path'] for row in rows]
+    self.assertEqual(path_history, expected_history)
+
   def checkSupplyUrl(self, initial_url, expected_url, rootdir=None):
     self.supply(initial_url)
     self.assertSoftwareUrls(initial_url)
@@ -2135,11 +2145,15 @@ class TestLocalSoftwareReleaseRootPathMigration(MasterMixin):
 
   def checkMultipleMoves(self, checkUrl):
     initial_url = os.path.join(self._rootdir, 'opt', 'software.cfg')
+    rootdir_history = [self._rootdir]
     for _ in range(5):
       new_rootdir = self.newRootDir()
       expected_url = os.path.join(new_rootdir, 'opt', 'software.cfg')
       checkUrl(initial_url, expected_url, new_rootdir)
       initial_url = expected_url
+      rootdir_history.append(new_rootdir)
+    expected_path_history = [os.path.join(rootdir, 'opt') for rootdir in rootdir_history]
+    self.assertPathHistory(expected_path_history)
 
   def test_supply_multiple_moves(self):
     self.checkMultipleMoves(self.checkSupplyUrl)

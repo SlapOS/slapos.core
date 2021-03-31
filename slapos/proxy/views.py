@@ -31,6 +31,7 @@
 import random
 import string
 import time
+import os
 from datetime import datetime
 from slapos.slap.slap import Computer, ComputerPartition, \
     SoftwareRelease, SoftwareInstance, NotFoundError
@@ -176,7 +177,10 @@ def _upgradeDatabaseIfNeeded():
 
   # Migrate all data to new tables
   app.logger.info('Old schema detected: Migrating old tables...')
-  for table in ('software', 'computer', 'partition', 'slave', 'partition_network'):
+  table_list = ('software', 'computer', 'partition', 'slave', 'partition_network')
+  if int(current_schema_version) >= 15:
+    table_list += ('home',)
+  for table in table_list:
     for row in execute_db(table, 'SELECT * from %s', db_version=current_schema_version):
       columns = ', '.join(row.keys())
       placeholders = ':'+', :'.join(row.keys())
@@ -187,6 +191,28 @@ def _upgradeDatabaseIfNeeded():
     g.db.execute("DROP table %s" % previous_table)
   g.db.commit()
 
+def _updateHomePathIfNeeded():
+  """
+  Update the home path if it changed,
+  and rebase all URLs in the database relatively to the new home path.
+  """
+  # Retrieve the current home path and replace it with the new one
+  current_home_path = execute_db('home', 'SELECT * from %s', one=True)['path'] or os.sep
+  new_home_path = app.config['HOME'] or os.sep
+  execute_db('home', 'UPDATE %s SET path=?', [new_home_path])
+  # Rebase all URLs relative to the new home path
+  if current_home_path != new_home_path:
+    def migrate_url(url):
+      if not url or urlparse(url).scheme:
+        return url
+      rel = os.path.relpath(url, current_home_path)
+      if rel.startswith(os.pardir + os.sep):
+        return url
+      return os.path.join(new_home_path, rel)
+    g.db.create_function('migrate_url', 1, migrate_url)
+    execute_db('software', 'UPDATE %s SET url=migrate_url(url)')
+    execute_db('partition', 'UPDATE %s SET software_release=migrate_url(software_release)')
+
 is_schema_already_executed = False
 @app.before_request
 def before_request():
@@ -194,6 +220,7 @@ def before_request():
   global is_schema_already_executed
   if not is_schema_already_executed:
     _upgradeDatabaseIfNeeded()
+    _updateHomePathIfNeeded()
     is_schema_already_executed = True
 
 

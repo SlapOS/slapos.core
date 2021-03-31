@@ -1499,16 +1499,15 @@ database_uri = %(tempdir)s/lib/external_proxy.db
     Start external slapproxy
     """
     logging.getLogger().info('Starting external proxy, listening to %s:%s' % (self.external_proxy_host, self.external_proxy_port))
-    # XXX This uses a hack to run current code of slapos.core
-    import slapos
     self.external_proxy_process = subprocess.Popen(
         [
-            sys.executable, '%s/../cli/entry.py' % os.path.dirname(slapos.tests.__file__),
+            sys.executable, '-m', 'slapos.cli.entry',
             'proxy', 'start', '--cfg', self.external_slapproxy_configuration_file_location
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
-        env={"PYTHONPATH": ':'.join(sys.path)}
+        env={"PYTHONPATH": ':'.join(sys.path)},
+        cwd=os.chdir(os.path.join(os.path.dirname(slapos.proxy.__file__), os.pardir, os.pardir)),
     )
     # Wait a bit for proxy to be started
     attempts = 0
@@ -1867,7 +1866,7 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
   """
   dump_filename = NotImplemented
   initial_table_list = NotImplemented
-  current_version = '14'
+  current_version = '15'
 
   def setUp(self):
     TestInformation.setUp(self)
@@ -1953,6 +1952,7 @@ class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMul
     self.assertEqual([x[0] for x in table_list],
        ['computer{}'.format(self.current_version),
         'forwarded_partition_request{}'.format(self.current_version),
+        'home{}'.format(self.current_version),
         'partition{}'.format(self.current_version),
         'partition_network{}'.format(self.current_version),
         'slave{}'.format(self.current_version),
@@ -1999,6 +1999,11 @@ class TestMigrateVersion12ToLatest(_MigrationTestCase):
 class TestMigrateVersion13ToLatest(_MigrationTestCase):
   dump_filename = 'database_dump_version_13.sql'
   initial_table_list = ['computer13', 'forwarded_partition_request13', 'partition13', 'partition_network13', 'slave13', 'software13', ]
+
+
+class TestMigrateVersion14ToLatest(_MigrationTestCase):
+  dump_filename = 'database_dump_version_14.sql'
+  initial_table_list = ['computer14', 'forwarded_partition_request14', 'partition14', 'partition_network14', 'slave14', 'software14', ]
 
 
 del _MigrationTestCase

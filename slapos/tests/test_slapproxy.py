@@ -44,6 +44,8 @@ import time
 import unittest
 import mock
 
+from distutils.dir_util import copy_tree
+
 import slapos.proxy
 import slapos.proxy.views as views
 import slapos.slap
@@ -1861,6 +1863,83 @@ database_uri = %(tempdir)s/lib/external_proxy.db
         'xml': dict2xml({'foo': '2'}),
         'requested_by': 'slappart0'
     }], requested_by)
+
+
+class TestHomeMigration(MasterMixin):
+  """
+  Test local URL adaptation based on home path.
+  """
+
+  def createSlapOSConfigurationFile(self):
+    super(TestHomeMigration, self).createSlapOSConfigurationFile()
+    with open(self.slapos_cfg, 'a') as f:
+      f.write("\nhome = %s/opt" % self._tempdir)
+
+  def moveProxy(self, tempdir):
+    copy_tree(self._tempdir, tempdir)
+    self.tearDown()
+    self._tempdir = tempdir
+    self.slapos_cfg = os.path.join(self._tempdir, 'slapos.cfg')
+    self.proxy_db = os.path.join(self._tempdir, 'lib', 'proxy.db')
+    self.createSlapOSConfigurationFile()
+    self.startProxy()
+    os.environ.pop('SLAPGRID_INSTANCE_ROOT', None)
+
+  def assertSoftwareUrls(self, *expected_urls):
+    sr_list = tuple(sr.getURI() for sr in self.getFullComputerInformation()._software_release_list)
+    self.assertEqual(sr_list, expected_urls)
+
+  def assertPartitionUrl(self, partition_id, expected_url):
+    self.assertEqual(self.getPartitionInformation(partition_id).getSoftwareRelease().getURI(), expected_url)
+
+  def checkSupplyUrl(self, initial_url, expected_url, tempdir=None):
+    self.supply(initial_url)
+    self.assertSoftwareUrls(initial_url)
+    self.moveProxy(tempdir or tempfile.mkdtemp())
+    self.assertSoftwareUrls(expected_url)
+
+  def checkRequestUrl(self, initial_url, expected_url, tempdir=None):
+    self.format_for_number_of_partitions(1)
+    partition = self.request(initial_url, None, 'MyInstance', 'slappart0')
+    self.assertPartitionUrl(partition._partition_id, initial_url)
+    self.moveProxy(tempdir or tempfile.mkdtemp())
+    self.assertPartitionUrl(partition._partition_id, expected_url)
+
+  def test_supply_home_url(self):
+    initial_url = os.path.join(self._tempdir, 'opt', 'software.cfg')
+    new_tempdir = tempfile.mkdtemp()
+    expected_url = os.path.join(new_tempdir, 'opt', 'software.cfg')
+    self.checkSupplyUrl(initial_url, expected_url, tempdir=new_tempdir)
+
+  def test_supply_external_url(self):
+    url = os.path.join(self._tempdir, 'srv', 'software.cfg')
+    self.checkSupplyUrl(url, url)
+
+  def test_supply_http_url(self):
+    url = "http://sr//"
+    self.checkSupplyUrl(url, url)
+
+  def test_supply_https_url(self):
+    url = "https://sr//"
+    self.checkSupplyUrl(url, url)
+
+  def test_request_home_url(self):
+    initial_url = os.path.join(self._tempdir, 'opt', 'software.cfg')
+    new_tempdir = tempfile.mkdtemp()
+    expected_url = os.path.join(new_tempdir, 'opt', 'software.cfg')
+    self.checkRequestUrl(initial_url, expected_url, tempdir=new_tempdir)
+
+  def test_request_external_url(self):
+    url = os.path.join(self._tempdir, 'srv', 'software.cfg')
+    self.checkRequestUrl(url, url)
+
+  def test_request_http_url(self):
+    url = "http://sr//"
+    self.checkRequestUrl(url, url)
+
+  def test_request_https_url(self):
+    url = "https://sr//"
+    self.checkRequestUrl(url, url)
 
 
 class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMultiNodeSupport):

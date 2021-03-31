@@ -31,6 +31,7 @@
 import random
 import string
 import time
+import os
 from datetime import datetime
 from slapos.slap.slap import Computer, ComputerPartition, \
     SoftwareRelease, SoftwareInstance, NotFoundError
@@ -179,6 +180,8 @@ def _upgradeDatabaseIfNeeded():
   table_list = ('software', 'computer', 'partition', 'slave', 'partition_network')
   if int(current_schema_version) >= 11:
     table_list += ('forwarded_partition_request',)
+  if int(current_schema_version) >= 15:
+    table_list += ('local_software_release_root',)
   for table in table_list:
     for row in execute_db(table, 'SELECT * from %s', db_version=current_schema_version):
       columns = ', '.join(row.keys())
@@ -190,6 +193,28 @@ def _upgradeDatabaseIfNeeded():
     g.db.execute("DROP table %s" % previous_table)
   g.db.commit()
 
+def _updateLocalSoftwareReleaseRootPathIfNeeded():
+  """
+  Update the local software release root path if it changed,
+  and rebase all URLs in the database relatively to the new path.
+  """
+  # Retrieve the current root path and replace it with the new one
+  current_root_path = execute_db('local_software_release_root', 'SELECT * from %s', one=True)['path'] or os.sep
+  new_root_path = app.config['local_software_release_root'] or os.sep
+  execute_db('local_software_release_root', 'UPDATE %s SET path=?', [new_root_path])
+  # Rebase all URLs relative to the new root path
+  if current_root_path != new_root_path:
+    def migrate_url(url):
+      if not url or urlparse(url).scheme:
+        return url
+      rel = os.path.relpath(url, current_root_path)
+      if rel.startswith(os.pardir + os.sep):
+        return url
+      return os.path.join(new_root_path, rel)
+    g.db.create_function('migrate_url', 1, migrate_url)
+    execute_db('software', 'UPDATE %s SET url=migrate_url(url)')
+    execute_db('partition', 'UPDATE %s SET software_release=migrate_url(software_release)')
+
 is_schema_already_executed = False
 @app.before_request
 def before_request():
@@ -197,6 +222,7 @@ def before_request():
   global is_schema_already_executed
   if not is_schema_already_executed:
     _upgradeDatabaseIfNeeded()
+    _updateLocalSoftwareReleaseRootPathIfNeeded()
     is_schema_already_executed = True
 
 

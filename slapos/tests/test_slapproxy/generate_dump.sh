@@ -41,6 +41,13 @@ EOF
 sqlite3 ${TMPD}/proxy.db < $DUMP_BEFORE
 
 slapos proxy start --cfg ${TMPD}/slapos.cfg &
+
+# If you have are running tests locally and you want to refer to the slapos being tested,
+# you can use the test python executable in this way:
+# cd ../../..
+# python -m slapos.cli.entry proxy start --cfg ${TMPD}/slapos.cfg &
+# cd -
+
 SLAPOS_PROXY_PID=$!
 
 curl --silent --retry-connrefused --retry 3 http://127.0.0.1:${PORT}/getComputerInformation?computer_id=$COMPUTER_ID

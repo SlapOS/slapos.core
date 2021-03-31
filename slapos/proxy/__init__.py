@@ -93,6 +93,7 @@ def setupFlaskConfiguration(conf):
   app.config['DATABASE_URI'] = conf.database_uri
   app.config['software_product_list'] = conf.software_product_list
   app.config['multimaster'] = conf.multimaster
+  app.config['HOME'] = getattr(conf,'home', None)
 
 def connectDB():
   # if first connection, create an empty db at DATABASE_URI path

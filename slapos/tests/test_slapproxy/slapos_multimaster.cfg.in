@@ -1,13 +1,13 @@
 [slapos]
-software_root = %(tempdir)s/opt/slapgrid
-instance_root = %(tempdir)s/srv/slapgrid
+software_root = %(rootdir)s/opt/slapgrid
+instance_root = %(rootdir)s/srv/slapgrid
 master_url = %(proxyaddr)s
 computer_id = computer
 
 [slapproxy]
 host = 127.0.0.1
 port = 8080
-database_uri = %(tempdir)s/lib/proxy.db
+database_uri = %(rootdir)s/lib/proxy.db
 
 # Here goes the list of slapos masters that slapproxy can contact
 # Each section beginning by multimaster is a different SlapOS Master, represented by arbitrary name.

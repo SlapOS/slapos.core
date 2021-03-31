@@ -198,12 +198,13 @@ def _updateLocalSoftwareReleaseRootPathIfNeeded():
   Update the local software release root path if it changed,
   and rebase all URLs in the database relatively to the new path.
   """
-  # Retrieve the current root path and replace it with the new one
-  current_root_path = execute_db('local_software_release_root', 'SELECT * from %s', one=True)['path'] or os.sep
+  # Retrieve the current (previous) root path and the new root path
+  current_root_row = execute_db('local_software_release_root', 'SELECT * FROM %s ORDER BY ROWID DESC LIMIT 1', one=True)
+  current_root_path = current_root_row['path'] if current_root_row else os.sep
   new_root_path = app.config['local_software_release_root'] or os.sep
-  execute_db('local_software_release_root', 'UPDATE %s SET path=?', [new_root_path])
-  # Rebase all URLs relative to the new root path
-  if current_root_path != new_root_path:
+  # Update the root path and all subpath URLs if the root path has changed
+  if new_root_path != current_root_path:
+    execute_db('local_software_release_root', 'INSERT INTO %s VALUES(?)', [new_root_path])
     def migrate_url(url):
       if not url or urlparse(url).scheme:
         return url

@@ -383,7 +383,7 @@ class SlapHateoasNavigator(HateoasNavigator):
     hosting_subscription_dict = {}
     for hosting_subscription in hosting_subscription_list:
       software_instance = TempDocument()
-      for key, value in hosting_subscription.iteritems():
+      for key, value in six.iteritems(hosting_subscription):
         if key in ['_links', 'url_string']:
           continue
         setattr(software_instance, '_%s' % key, value)
@@ -397,7 +397,7 @@ class SlapHateoasNavigator(HateoasNavigator):
     computer_dict = {}
     for computer_json  in computer_list:
       computer = TempDocument()
-      for key, value in computer_json.iteritems():
+      for key, value in six.iteritems(computer_json):
         if key in ['_links']:
           continue
         setattr(computer, '_%s' % key, value)
@@ -420,6 +420,7 @@ class SlapHateoasNavigator(HateoasNavigator):
     assert len(hosting_subscription_list) <= 1, \
       "There are more them one Hosting Subscription for this reference"
 
+    hosting_subscription_jio_key= None
     for hosting_subscription_candidate in hosting_subscription_list:
       if hosting_subscription_candidate.get('title') == reference:
         hosting_subscription_jio_key = hosting_subscription_candidate['relative_url']
@@ -437,6 +438,7 @@ class SlapHateoasNavigator(HateoasNavigator):
     assert len(computer_list) <= 1, \
       "There are more them one Computer for this reference"
 
+    computer_jio_key = None
     for computer_candidate in computer_list:
       if computer_candidate.get("reference") == reference:
         computer_jio_key = computer_candidate['relative_url']

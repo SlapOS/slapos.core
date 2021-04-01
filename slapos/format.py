@@ -560,19 +560,12 @@ class Computer(object):
       if self.address is not None:
         self.interface.addIPv6Address(self.address, self.netmask)
 
-      if create_tap:
-        if self.tap_gateway_interface:
-          gateway_addr_dict = getIfaceAddressIPv4(self.tap_gateway_interface)
-          tap_address_list = getIPv4SubnetAddressRange(gateway_addr_dict['addr'],
-                                gateway_addr_dict['netmask'],
-                                len(self.partition_list))
-          assert(len(self.partition_list) <= len(tap_address_list))
-        else:
-          gateway_addr_dict = {'peer': '10.0.0.1', 'netmask': '255.255.0.0',
-                               'addr': '10.0.0.1', 'network': '10.0.0.0'}
-          tap_address_list = getIPv4SubnetAddressRange(gateway_addr_dict['addr'],
-                                 gateway_addr_dict['netmask'],
-                                 len(self.partition_list))
+      if create_tap and self.tap_gateway_interface:
+        gateway_addr_dict = getIfaceAddressIPv4(self.tap_gateway_interface)
+        tap_address_list = getIPv4SubnetAddressRange(gateway_addr_dict['addr'],
+                              gateway_addr_dict['netmask'],
+                              len(self.partition_list))
+        assert(len(self.partition_list) <= len(tap_address_list))
 
       self._speedHackAddAllOldIpsToInterface()
 
@@ -597,16 +590,22 @@ class Computer(object):
           if create_tap:
             partition.tap.createWithOwner(owner)
 
-            # add addresses and create route for this tap
-            # Pop IP from tap_address_list and attach to tap if has no ipv4 yet
-            next_ipv4_addr = '%s' % tap_address_list.pop(0)
-            # skip to set this IP to tap if already exits
-            if not partition.tap.ipv4_addr:
-              # define new ipv4 address for this tap
-              partition.tap.ipv4_addr = next_ipv4_addr
-              partition.tap.ipv4_netmask = gateway_addr_dict['netmask']
-              partition.tap.ipv4_gateway = gateway_addr_dict['addr']
-              partition.tap.ipv4_network = gateway_addr_dict['network']
+            if self.tap_gateway_interface:
+              # add addresses and create route for this tap
+              # Pop IP from tap_address_list and attach to tap if has no ipv4 yet
+              next_ipv4_addr = '%s' % tap_address_list.pop(0)
+              # skip to set this IP to tap if already exits
+              if not partition.tap.ipv4_addr:
+                # define new ipv4 address for this tap
+                partition.tap.ipv4_addr = next_ipv4_addr
+                partition.tap.ipv4_netmask = gateway_addr_dict['netmask']
+                partition.tap.ipv4_gateway = gateway_addr_dict['addr']
+                partition.tap.ipv4_network = gateway_addr_dict['network']
+            else:
+              partition.tap.ipv4_addr = ''
+              partition.tap.ipv4_netmask = ''
+              partition.tap.ipv4_gateway = ''
+              partition.tap.ipv4_network = ''
 
             if self.tap_ipv6:
               if not partition.tap.ipv6_addr:

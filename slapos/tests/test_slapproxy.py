@@ -42,7 +42,11 @@ import sys
 import tempfile
 import time
 import unittest
+import json
 import mock
+
+import requests
+from six.moves.urllib.parse import urljoin
 
 import slapos.proxy
 import slapos.proxy.views as views
@@ -1161,6 +1165,153 @@ class TestSlaveRequest(MasterMixin):
     slave = self.request('http://sr//', None, 'MySlaveInstance', 'slappart1',
          shared=True, filter_kw=dict(instance_guid=partition._instance_guid))
     self.assertEqual(slave._partition_id, partition._partition_id)
+
+
+class TestAppSession(requests.Session):
+  """
+  A request session that exposes the necessary interface to seamlessly
+  replace the object returned by views.app.test_client().
+  """
+  def __init__(self, prefix_url, *args, **kwargs):
+    super(TestAppSession, self).__init__(*args, **kwargs)
+    self.prefix_url = prefix_url
+
+  def request(self, method, url, *args, **kwargs):
+    url = urljoin(self.prefix_url, url)
+    resp = super(TestAppSession, self).request(method, url, *args, **kwargs)
+    setattr(resp, '_status_code', resp.status_code)
+    setattr(resp, 'data', resp.content)
+    return resp
+
+class CliMasterMixin(MasterMixin):
+  """
+  Start a real proxy via the cli so that it will anwser to cli requests.
+  """
+  def createSlapOSConfigurationFile(self):
+    self.proxyaddr = 'http://127.0.0.1:8080'
+    with open(self.slapos_cfg, 'w') as f:
+      f.write("""[slapos]
+software_root = %(tempdir)s/opt/slapgrid
+instance_root = %(tempdir)s/srv/slapgrid
+master_url = %(proxyaddr)s
+master_rest_url = %(proxyaddr)s/hatoeas
+computer_id = computer
+[slapproxy]
+host = 127.0.0.1
+port = 8080
+database_uri = %(tempdir)s/lib/proxy.db
+""" % {'tempdir': self._tempdir, 'proxyaddr': self.proxyaddr})
+
+  def cliDoSlapos(self, command, method=subprocess.check_output, **kwargs):
+    return method(
+      (sys.executable, '-m', 'slapos.cli.entry') + command + ('--cfg', self.slapos_cfg),
+      env={"PYTHONPATH": ':'.join(sys.path)},
+      cwd=os.chdir(os.path.join(os.path.dirname(slapos.proxy.__file__), os.pardir, os.pardir)),
+      **kwargs
+    )
+
+  def startProxy(self):
+    self.proxy_process = self.cliDoSlapos(
+      ('proxy', 'start'),
+      method=subprocess.Popen,
+      stdout=subprocess.DEVNULL,
+      stderr=subprocess.DEVNULL,
+    )
+    self.app = TestAppSession(self.proxyaddr)
+    # Wait a bit for proxy to be started
+    for attempts in range(1, 20):
+      try:
+        self.app.get('/')
+      except requests.ConnectionError:
+        time.sleep(0.1 * attempts)
+      else:
+        break
+    else:
+      self.fail('Could not start proxy.')
+
+  def tearDown(self):
+    self.proxy_process.kill()
+    self.proxy_process.wait()
+    super(CliMasterMixin, self).tearDown()
+
+
+class TestCliInformation(CliMasterMixin):
+  """
+  Test minimal hatoeas support for cli.
+  """
+  def test_computer_list(self):
+    self.format_for_number_of_partitions(1)
+    self.format_for_number_of_partitions(1, 'COMP-1')
+    self.format_for_number_of_partitions(1, 'COMP-2')
+    output = self.cliDoSlapos(('computer', 'list'), stderr=subprocess.DEVNULL).splitlines()
+    self.assertEqual(len(output), 4)
+    self.assertEqual(output[0], b'List of Computers:')
+    self.assertEqual(
+      sorted(output[1:]),
+      [b'COMP-1 COMP-1', b'COMP-2 COMP-2', b'computer computer'],
+    )
+
+  def test_computer_info(self):
+    self.format_for_number_of_partitions(1)
+    self.format_for_number_of_partitions(1, 'COMP-1')
+    self.format_for_number_of_partitions(1, 'COMP-2')
+    output0 = self.cliDoSlapos(('computer', 'info', 'computer'), stderr=subprocess.DEVNULL)
+    self.assertEqual(
+      output0.splitlines(),
+      [b'Computer Reference: computer', b'Computer Title    : computer'],
+    )
+    output1 = self.cliDoSlapos(('computer', 'info', 'COMP-1'), stderr=subprocess.DEVNULL)
+    self.assertEqual(
+      output1.splitlines(),
+      [b'Computer Reference: COMP-1', b'Computer Title    : COMP-1'],
+    )
+    output2 = self.cliDoSlapos(('computer', 'info', 'COMP-2'), stderr=subprocess.DEVNULL)
+    self.assertEqual(
+      output2.splitlines(),
+      [b'Computer Reference: COMP-2', b'Computer Title    : COMP-2'],
+    )
+
+  def test_service_list(self):
+    self.format_for_number_of_partitions(3)
+    self.request('http://sr0//', None, 'MyInstance0', 'slappart0')
+    self.request('http://sr1//', None, 'MyInstance1', 'slappart1')
+    self.request('http://sr2//', None, 'MyInstance2', 'slappart2')
+    output = self.cliDoSlapos(('service', 'list'), stderr=subprocess.DEVNULL).splitlines()
+    self.assertEqual(len(output), 4)
+    self.assertEqual(output[0], b'List of services:')
+    self.assertEqual(
+      sorted(output[1:]),
+      [b'MyInstance0 http://sr0//', b'MyInstance1 http://sr1//', b'MyInstance2 http://sr2//'],
+    )
+
+  def test_service_info(self):
+    self.format_for_number_of_partitions(3)
+    self.request('http://sr0//', None, 'MyInstance0', 'slappart0')
+    self.request('http://sr1//', None, 'MyInstance1', 'slappart1', partition_parameter_kw={'couscous': 'hello'})
+    output0 = self.cliDoSlapos(('service', 'info', 'MyInstance0'), stderr=subprocess.DEVNULL)
+    self.assertEqual(
+      output0.splitlines(),
+      [
+        b'Software Release URL: http://sr0//',
+        b'Instance state: busy',
+        b'Instance parameters:',
+        b'{}',
+        b'Connection parameters:',
+        b'None'
+      ],
+    )
+    output1 = self.cliDoSlapos(('service', 'info', 'MyInstance1'), stderr=subprocess.DEVNULL)
+    self.assertEqual(
+      output1.splitlines(),
+      [
+        b'Software Release URL: http://sr1//',
+        b'Instance state: busy',
+        b'Instance parameters:',
+        b"{'couscous': 'hello'}",
+        b'Connection parameters:',
+        b'None'
+      ],
+    )
 
 
 class TestMultiNodeSupport(MasterMixin):

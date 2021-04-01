@@ -39,12 +39,12 @@ import slapos.slap
 from slapos.util import bytes2str, unicode2str, sqlite_connect, \
     xml2dict, dict2xml
 
-from flask import g, Flask, request, abort
+from flask import g, Flask, request, abort, redirect, url_for
 from slapos.util import loads, dumps
 
 import six
 from six.moves import range
-from six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import urlparse, unquote
 
 app = Flask(__name__)
 
@@ -930,3 +930,172 @@ def getSoftwareReleaseListFromSoftwareProduct():
       software_release_url_list = []
     return dumps(software_release_url_list)
 
+
+# hateoas routing
+# ---------------
+
+# We only need to handle the hateoas requests made by
+#   slapos service list
+#   slapos service info <reference>
+#   slapos computer list
+#   slapos computer info <reference>
+
+
+def unquoted_url_for(method, **kwargs):
+  return unquote(url_for(method, **kwargs))
+
+def busy_partitions_list(title):
+  partitions = []
+  query = 'SELECT * FROM %s WHERE slap_state<>"free"'
+  args = []
+  if title:
+    query += ' AND partition_reference=?'
+    args.append(title)
+  for row in execute_db('partition', query, args):
+    p = dict(row)
+    p['url_string'] = p['software_release']
+    p['title'] = p['partition_reference']
+    p['relative_url'] = url_for('hateoas_partitions', partition_reference=p['partition_reference'])
+    partitions.append(p)
+  return partitions
+
+def computers_list(reference):
+  computers = []
+  query = 'SELECT * FROM %s'
+  args = []
+  if reference:
+    query += ' WHERE reference=?'
+    args.append(reference)
+  for row in execute_db('computer', query, args):
+    c = dict(row)
+    c['title'] = c['reference']
+    c['relative_url'] = url_for('hateoas_computers', computer_reference=c['reference'])
+    computers.append(c)
+  return computers
+
+def parse_query(query):
+  query_fragments = [q.strip().split(':') for q in query.split('AND')]
+  if not all(len(q) == 2 for q in query_fragments):
+    return None
+  query_map = dict(query_fragments)
+  portal_type = query_map.get('portal_type', '').strip('"')
+  if portal_type == 'Hosting Subscription':
+    title = query_map.get('title', '').lstrip("=").strip('"')
+    return busy_partitions_list(title)
+  elif portal_type == 'Computer':
+    reference = query_map.get('reference', '').lstrip("=").strip('"')
+    return computers_list(reference)
+  return None
+
+@app.route('/hateoas/partitions/<partition_reference>', methods=['GET'])
+def hateoas_partitions(partition_reference):
+  partition = execute_db('partition', 'SELECT * FROM %s WHERE partition_reference=?', [partition_reference], one=True)
+  if partition is None:
+    abort(404)
+  return {
+    '_embedded': {
+      '_view': {
+        'form_id': {
+          'type': 'StringField',
+          'key': 'partition',
+          'default': partition['reference'],
+        },
+        'my_reference': {
+          'type': 'StringField',
+          'key': 'partition_reference',
+          'default': partition['partition_reference'],
+        },
+        'my_slap_state': {
+          'type': 'StringField',
+          'key': 'slap_state',
+          'default': partition['slap_state'],
+        },
+        'my_text_content': {
+          'type': 'StringField',
+          'key': 'xml',
+          'default': partition['xml'],
+        },
+        'my_connection_parameter_list': {
+          'type': 'StringField',
+          'key': 'connection_xml',
+          'default': partition['connection_xml'],
+        },
+        'my_url_string': {
+          'type': 'StringField',
+          'key': 'software_release',
+          'default': partition['software_release'],
+        },
+      },
+    },
+    '_links': {
+      'type': {
+        'name': 'Hosting Subscription',
+      },
+    },
+  }
+
+@app.route('/hateoas/computers/<computer_reference>', methods=['GET'])
+def hateoas_computers(computer_reference):
+  computer = execute_db('computer', 'SELECT * FROM %s WHERE reference=?', [computer_reference], one=True)
+  if computer is None:
+    abort(404)
+  return {
+    '_embedded': {
+      '_view': {
+        'form_id': {
+          'type': 'StringField',
+          'key': 'computer',
+          'default': computer['reference'],
+        },
+        'my_reference': {
+          'type': 'StringField',
+          'key': 'reference',
+          'default': computer['reference'],
+        },
+        'my_title': {
+          'type': 'StringField',
+          'key': 'reference',
+          'default': computer['reference'],
+        },
+      },
+    },
+    '_links': {
+      'type': {
+        'name': 'Computer',
+      },
+    },
+  }
+
+def hateoas_traverse():
+  return redirect(request.args.get('relative_url'))
+
+def hateoas_search():
+  contents = parse_query(request.args.get("query"))
+  if contents is None:
+    abort(400)
+  return { '_embedded': {'contents': contents} }
+
+def hateoas_root():
+  return {
+    '_links': {
+      'raw_search': {
+      'href': request.host_url[:-1] + unquoted_url_for('hateoas', mode='search', query='{query}', select_list='{select_list}')
+    },
+      'traverse': {
+        'href': request.host_url[:-1] + unquoted_url_for('hateoas', mode='traverse', relative_url='{relative_url}', view='{view}')
+      },
+    }
+  }
+
+mode_handlers = {
+  None: hateoas_root,
+  'search': hateoas_search,
+  'traverse': hateoas_traverse,
+}
+
+@app.route('/hateoas', methods=['GET'])
+def hateoas():
+  mode = request.args.get('mode')
+  handler = mode_handlers.get(mode, lambda: abort(400))
+  resp = handler()
+  return resp

@@ -30,6 +30,7 @@ if sale_packing_list_list:
     strict_causality_uid=[x.getUid() for x in sale_packing_list_list],
   )
   subscription_currency = subscription_request.getPriceCurrency()
+  subscription_source_section = subscription_request.getSourceSection()
   for sale_invoice in sale_invoice_list:
     sale_invoice = sale_invoice.getObject()
     if sale_invoice.getPriceCurrency() != subscription_currency:
@@ -42,11 +43,21 @@ if sale_packing_list_list:
         }
       )
 
+    if sale_invoice.getSourceSection() != subscription_source_section:
+      addToStatusList(
+        "${invoice_relative_url} Sale Invoice Source ${invoice_source_section} do not match subscription source section ${subscription_source_section}",
+        {
+          "invoice_relative_url": sale_invoice.getRelativeUrl(),
+          "invoice_source_section": sale_invoice.getSourceSection(),
+          "subscription_source_section": subscription_source_section,
+        }
+      )
+
     if sale_invoice.getSimulationState() not in ("stopped", "delivered", "cancelled"):
       addToStatusList(
         "${invoice_relative_url} Sale Invoice in unexpected simulation state: ${invoice_simulation_state}",
         {
-          "invoice_relative_url": sale_invoice.getRelativeUrl(),
+          "invoice_relative_url": sale_invoice.absolute_url(),
           "invoice_simulation_state": sale_invoice.getSimulationState(),
         }
       )

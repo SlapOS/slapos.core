@@ -27,8 +27,11 @@
 
 import logging
 import os
+import subprocess
 import time
 import unittest
+import shutil
+import tempfile
 
 from slapos.slap import ComputerPartition as SlapComputerPartition
 
@@ -332,6 +335,26 @@ class TestSoftwareNetworkCacheSlapObject(MasterMixin, unittest.TestCase):
     )
     software.install()
     self.assertTrue(getattr(self, 'uploaded', False))
+
+  def test_software_install_note_git_revision(self):
+    tmpdir = tempfile.mkdtemp()
+    self.addCleanup(shutil.rmtree, tmpdir)
+
+    subprocess.check_call(('git', 'init'), cwd=tmpdir)
+    profile_url = os.path.join(tmpdir, 'software.cfg')
+    open(profile_url, 'w').close()
+    subprocess.check_call(('git', 'add', 'software.cfg'), cwd=tmpdir)
+    subprocess.check_call(('git', 'commit', '-m', 'first commit'), cwd=tmpdir)
+
+    software = Software(
+        url=profile_url,
+        software_root=self.software_root,
+        buildout=self.buildout,
+        logger=logging.getLogger())
+    software.install()
+    with open(os.path.join(software.software_path, 'buildout.cfg')) as f:
+      self.assertIn("git revision: heads/master-0-g", f.read())
+
 
 class TestPartitionSlapObject(MasterMixin, unittest.TestCase):
   def setUp(self):

@@ -28,6 +28,7 @@
 #
 ##############################################################################
 
+import datetime
 import errno
 import os
 import pkg_resources
@@ -284,6 +285,7 @@ class Software(object):
       buildout_cfg = os.path.join(self.software_path, 'buildout.cfg')
       if not os.path.exists(buildout_cfg):
         self._create_buildout_profile(buildout_cfg, self.url, self.shared_part_list)
+      self._note_git_revision(buildout_cfg, self.url)
 
       additional_parameters = list(self._additional_buildout_parameters(extends_cache))
       additional_parameters.extend(['-c', buildout_cfg])
@@ -326,6 +328,32 @@ class Software(object):
     with open(buildout_cfg, 'w') as fout:
       parser.write(fout)
     self._set_ownership(buildout_cfg)
+
+  def _note_git_revision(self, buildout_cfg, url):
+    """Add a comment with the revision if the profile is a git checkout.
+
+    This makes it easier to rebuild the same revision.
+    """
+    git_revision = None
+    if os.path.exists(url):
+      try:
+        git_revision = subprocess.check_output(
+            ('git', 'describe', '--all', '--long', '--dirty'),
+            cwd=os.path.dirname(url),
+        ).decode()
+      except (OSError, subprocess.CalledProcessError):
+        self.logger.debug(
+            'Error guessing git revision for profile %s',
+            url,
+            exc_info=True)
+      if git_revision:
+        with open(buildout_cfg) as f:
+          if git_revision in f.readlines()[-1]:
+            self.logger.debug('Current revision was already noted')
+            return
+        with open(buildout_cfg, 'a') as f:
+          f.write(
+              "# %s git revision: %s" % (datetime.datetime.utcnow(), git_revision))
 
   def uploadSoftwareRelease(self, tarpath):
     """

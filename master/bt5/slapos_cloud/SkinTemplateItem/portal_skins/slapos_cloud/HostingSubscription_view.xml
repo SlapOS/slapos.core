@@ -97,6 +97,7 @@
                         <string>listbox_aggregate_parent_title</string>
                         <string>listbox_is_slave</string>
                         <string>listbox_aggregate_parent_reference</string>
+                        <string>my_list_image_url</string>
                       </list>
                     </value>
                 </item>
@@ -108,6 +109,7 @@
                         <string>my_short_title</string>
                         <string>my_reference</string>
                         <string>my_source_reference</string>
+                        <string>my_list_image</string>
                       </list>
                     </value>
                 </item>
@@ -119,6 +121,7 @@
                         <string>my_destination_section_title</string>
                         <string>my_translated_slap_state_title</string>
                         <string>my_translated_validation_state_title</string>
+                        <string>my_slap_state_title</string>
                       </list>
                     </value>
                 </item>

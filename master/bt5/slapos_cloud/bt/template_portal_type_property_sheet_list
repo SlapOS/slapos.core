@@ -9,6 +9,7 @@ Computer | SlaposComputerConstraint
 Computer | Url
 Email | SlaposEmailConstraint
 Hosting Subscription | HostingSubscription
+Hosting Subscription | HostingSubscriptionListImage
 Hosting Subscription | SlaposHostingSubscriptionConstraint
 Hosting Subscription | SoftwareInstance
 Hosting Subscription | TextDocument

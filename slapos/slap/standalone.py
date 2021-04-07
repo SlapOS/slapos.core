@@ -210,6 +210,7 @@ class SlapOSConfigWriter(ConfigWriter):
               host = {standalone_slapos._server_ip}
               port = {standalone_slapos._server_port}
               database_uri = {standalone_slapos._proxy_database}
+              home = {standalone_slapos._home_root}
 
               {partition_forward_configuration}
               """).format(**locals()))
@@ -317,6 +318,7 @@ class StandaloneSlapOS(object):
       shared_part_root=None,
       partition_forward_configuration=(),
       slapos_bin='slapos',
+      home_root=os.sep,
     ):
     # type: (str, str, int, str, Iterable[str], Optional[str], Optional[str], Optional[str], Iterable[Union[PartitionForwardConfiguration, PartitionForwardAsPartitionConfiguration]]) -> None
     """Constructor, creates a standalone slapos in `base_directory`.
@@ -331,6 +333,7 @@ class StandaloneSlapOS(object):
       * `shared_part_root` -- directory to hold shared parts software, default to "shared" in `base_directory`.
       * `partition_forward_configuration` -- configuration of partition request forwarding to external SlapOS master.
       * `slapos_bin` -- slapos executable to use, default to `slapos` in PATH.
+      * `home_root` -- home path for the SlapOS proxy, default to `/`.
 
     Error cases:
       * `PathTooDeepError` when `base_directory` is too deep. Because of limitation
@@ -343,6 +346,7 @@ class StandaloneSlapOS(object):
     self._server_ip = server_ip
     self._server_port = server_port
     self._master_url = "http://{server_ip}:{server_port}".format(**locals())
+    self._home_root = home_root
 
     self._base_directory = base_directory
     self._shared_part_list = list(shared_part_list)

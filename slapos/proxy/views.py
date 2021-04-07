@@ -176,7 +176,10 @@ def _upgradeDatabaseIfNeeded():
 
   # Migrate all data to new tables
   app.logger.info('Old schema detected: Migrating old tables...')
-  for table in ('software', 'computer', 'partition', 'slave', 'partition_network'):
+  table_list = ('software', 'computer', 'partition', 'slave', 'partition_network')
+  if int(current_schema_version) >= 11:
+    table_list += ('forwarded_partition_request',)
+  for table in table_list:
     for row in execute_db(table, 'SELECT * from %s', db_version=current_schema_version):
       columns = ', '.join(row.keys())
       placeholders = ':'+', :'.join(row.keys())

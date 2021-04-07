@@ -43,9 +43,9 @@
         </item>
         <item>
             <key> <string>edit_order</string> </key>
-            <value>
-              <list/>
-            </value>
+	    <value>
+	      <list/>
+	    </value>
         </item>
         <item>
             <key> <string>encoding</string> </key>
@@ -108,6 +108,7 @@
                         <string>my_short_title</string>
                         <string>my_reference</string>
                         <string>my_source_reference</string>
+                        <string>my_list_image</string>
                       </list>
                     </value>
                 </item>

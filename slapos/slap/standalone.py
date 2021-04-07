@@ -136,7 +136,7 @@ class SupervisorConfigWriter(ConfigWriter):
         supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 
         [program:slapos-proxy]
-        command = slapos proxy start --cfg {standalone_slapos._slapos_config} --verbose
+        command = {standalone_slapos._slapos_bin} proxy start --cfg {standalone_slapos._slapos_config} --verbose
         startretries = 0
         startsecs = 0
         redirect_stderr = true
@@ -226,7 +226,7 @@ class SlapOSCommandWriter(ConfigWriter):
               #!/bin/sh
               SLAPOS_CONFIGURATION={self._standalone_slapos._slapos_config} \\
               SLAPOS_CLIENT_CONFIGURATION=$SLAPOS_CONFIGURATION \\
-              exec slapos "$@"
+              exec {self._standalone_slapos._slapos_bin} "$@"
       """).format(**locals()))
     os.chmod(path, 0o755)
 
@@ -316,6 +316,7 @@ class StandaloneSlapOS(object):
       instance_root=None,
       shared_part_root=None,
       partition_forward_configuration=(),
+      slapos_bin='slapos',
     ):
     # type: (str, str, int, str, Iterable[str], Optional[str], Optional[str], Optional[str], Iterable[Union[PartitionForwardConfiguration, PartitionForwardAsPartitionConfiguration]]) -> None
     """Constructor, creates a standalone slapos in `base_directory`.
@@ -329,6 +330,7 @@ class StandaloneSlapOS(object):
       * `instance_root` -- directory to create instances, default to "inst" in `base_directory`
       * `shared_part_root` -- directory to hold shared parts software, default to "shared" in `base_directory`.
       * `partition_forward_configuration` -- configuration of partition request forwarding to external SlapOS master.
+      * `slapos_bin` -- slapos executable to use, default to `slapos` in PATH.
 
     Error cases:
       * `PathTooDeepError` when `base_directory` is too deep. Because of limitation
@@ -346,10 +348,12 @@ class StandaloneSlapOS(object):
     self._shared_part_list = list(shared_part_list)
     self._partition_forward_configuration = list(partition_forward_configuration)
 
+    self._slapos_bin = slapos_bin
+
     self._slapos_commands = {
         'slapos-node-software': {
             'command':
-                'slapos node software --cfg {self._slapos_config} --all {debug_args}',
+                '{self._slapos_bin} node software --cfg {self._slapos_config} --all {debug_args}',
             'debug_args':
                 '-v --buildout-debug',
             'stdout_logfile':
@@ -357,7 +361,7 @@ class StandaloneSlapOS(object):
         },
         'slapos-node-instance': {
             'command':
-                'slapos node instance --cfg {self._slapos_config} --all {debug_args}',
+                '{self._slapos_bin} node instance --cfg {self._slapos_config} --all {debug_args}',
             'debug_args':
                 '-v --buildout-debug',
             'stdout_logfile':
@@ -365,7 +369,7 @@ class StandaloneSlapOS(object):
         },
         'slapos-node-report': {
             'command':
-                'slapos node report --cfg {self._slapos_config} {debug_args}',
+                '{self._slapos_bin} node report --cfg {self._slapos_config} {debug_args}',
             'stdout_logfile':
                 '{self._log_directory}/slapos-node-report.log',
         },
@@ -424,7 +428,7 @@ class StandaloneSlapOS(object):
     bin_directory = os.path.join(base_directory, 'bin')
     ensureDirectoryExists(bin_directory)
 
-    self._slapos_bin = os.path.join(bin_directory, 'slapos')
+    self._slapos_wrapper = os.path.join(bin_directory, 'slapos')
     self._slapos_node_auto_bin = os.path.join(bin_directory, 'slapos-node-auto')
 
     self._log_directory = os.path.join(var_directory, 'log')
@@ -442,7 +446,7 @@ class StandaloneSlapOS(object):
 
     SupervisorConfigWriter(self).writeConfig(self._supervisor_config)
     SlapOSConfigWriter(self).writeConfig(self._slapos_config)
-    SlapOSCommandWriter(self).writeConfig(self._slapos_bin)
+    SlapOSCommandWriter(self).writeConfig(self._slapos_wrapper)
     SlapOSNodeAutoWriter(self).writeConfig(self._slapos_node_auto_bin)
 
     self.start()

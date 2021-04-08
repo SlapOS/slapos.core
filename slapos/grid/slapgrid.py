@@ -75,6 +75,12 @@ COMPUTER_PARTITION_DESTROYED_STATE = 'destroyed'
 COMPUTER_PARTITION_STARTED_STATE = 'started'
 COMPUTER_PARTITION_STOPPED_STATE = 'stopped'
 
+computer_partition_actions = {
+  COMPUTER_PARTITION_DESTROYED_STATE: 'destroy',
+  COMPUTER_PARTITION_STARTED_STATE: 'start',
+  COMPUTER_PARTITION_STOPPED_STATE: 'stop',
+}
+
 # Global variables about return state of slapgrid
 SLAPGRID_SUCCESS = 0
 SLAPGRID_FAIL = 1
@@ -294,7 +300,8 @@ def create_slapgrid_object(options, logger):
                   instance_storage_home=op.get('instance_storage_home'),
                   ipv4_global_network=op.get('ipv4_global_network'),
                   firewall_conf=op.get('firewall'),
-                  config=options)
+                  config=options,
+                  no_supervisord=op.get('no_supervisord', False))
 
 
 def check_required_only_partitions(existing, required):
@@ -353,7 +360,8 @@ class Slapgrid(object):
                firewall_conf={},
                config=None,
                buildout_debug=False,
-               shared_part_list=''
+               shared_part_list='',
+               no_supervisord=False,
                ):
     """Makes easy initialisation of class parameters"""
     # Parses arguments
@@ -422,6 +430,7 @@ class Slapgrid(object):
     self.config = config
     self._manager_list = slapmanager.from_config(config)
     self.shared_part_list = shared_part_list
+    self.no_supervisord = no_supervisord
 
   def _getWatchdogLine(self):
     invocation_list = [WATCHDOG_PATH]
@@ -1078,6 +1087,10 @@ stderr_logfile_backups=1
       software_path = None
 
     computer_partition_state = computer_partition.getState()
+    action = computer_partition_actions.get(computer_partition_state, None)
+    if self.no_supervisord and action in ('start', 'stop'):
+      action = 'install'
+
     periodicity = self.maximum_periodicity
     if software_path:
       periodicity_path = os.path.join(software_path, 'periodicity')
@@ -1137,7 +1150,7 @@ stderr_logfile_backups=1
             # should be processed at least every day.
             if time.time() <= last_runtime + periodicity or periodicity < 0:
               # check promises anomaly
-              if computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
+              if action == 'start':
                 self.logger.debug('Partition already up-to-date.')
                 self._checkPromiseAnomaly(local_partition, computer_partition)
               else:
@@ -1168,6 +1181,7 @@ stderr_logfile_backups=1
             )
     partition_file_handler.setFormatter(formatter)
     self.logger.addHandler(partition_file_handler)
+
     try:
       self.logger.info('Processing Computer Partition %s.' % computer_partition_id)
       self.logger.info('  Software URL: %s' % software_url)
@@ -1186,7 +1200,13 @@ stderr_logfile_backups=1
         partition_ip_list = parameter_dict['ip_list'] + parameter_dict.get(
                                                             'full_ip_list', [])
 
-      if computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
+      if action == 'install':
+        local_partition.install()
+        if self.firewall_conf:
+          self._setupComputerPartitionFirewall(computer_partition,
+                                              partition_ip_list)
+        self._endInstallationTransaction(computer_partition)
+      elif action == 'start':
         local_partition.install()
         local_partition.start()
         if self.firewall_conf:
@@ -1195,7 +1215,7 @@ stderr_logfile_backups=1
         self._checkPromiseList(local_partition)
         computer_partition.started()
         self._endInstallationTransaction(computer_partition)
-      elif computer_partition_state == COMPUTER_PARTITION_STOPPED_STATE:
+      elif action == 'stop':
         try:
           # We want to process the partition, even if stopped, because it should
           # propagate the state to children if any.
@@ -1214,7 +1234,7 @@ stderr_logfile_backups=1
         except Exception:
           pass
         self._endInstallationTransaction(computer_partition)
-      elif computer_partition_state == COMPUTER_PARTITION_DESTROYED_STATE:
+      elif action == 'destroy':
         local_partition.stop()
         if self.firewall_conf:
           self._setupComputerPartitionFirewall(computer_partition,
@@ -1237,7 +1257,7 @@ stderr_logfile_backups=1
         with open(error_output_file, 'w') as error_file:
           # Write error message in a log file assible to computer partition user
           error_file.write(str(e))
-        if computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
+        if action == 'start':
           try:
             self._checkPromiseList(local_partition)
           except PromiseError:
@@ -1253,7 +1273,7 @@ stderr_logfile_backups=1
         manager.instanceTearDown(local_partition)
 
     # If partition has been successfully processed, write timestamp
-    if timestamp:
+    if timestamp and not self.no_supervisord:
       with open(timestamp_path, 'w') as f:
         f.write(str(timestamp))
 

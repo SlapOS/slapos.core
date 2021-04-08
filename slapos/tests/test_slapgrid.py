@@ -151,7 +151,7 @@ class BasicMixin(object):
     logging.basicConfig(level=logging.DEBUG)
     self.setSlapgrid()
 
-  def setSlapgrid(self, develop=False):
+  def setSlapgrid(self, develop=False, setup_only=False):
     if getattr(self, 'master_url', None) is None:
       self.master_url = 'http://127.0.0.1:80/'
     self.computer_id = 'computer'
@@ -167,7 +167,8 @@ class BasicMixin(object):
                                   self.buildout,
                                   develop=develop,
                                   logger=logging.getLogger(),
-                                  shared_part_list=self.shared_parts_root)
+                                  shared_part_list=self.shared_parts_root,
+                                  setup_only=setup_only)
     self.grid._manager_list = self.manager_list
     # monkey patch buildout bootstrap
 
@@ -199,8 +200,8 @@ class BasicMixin(object):
         environment=USER="%(USER)s",LOGNAME="%(USER)s",HOME="%(HOME)s"
         """)
 
-  def launchSlapgrid(self, develop=False):
-    self.setSlapgrid(develop=develop)
+  def launchSlapgrid(self, develop=False, setup_only=False):
+    self.setSlapgrid(develop=develop, setup_only=setup_only)
     return self.grid.processComputerPartitionList()
 
   def launchSlapgridSoftware(self, develop=False):
@@ -1329,6 +1330,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       watchdog.handle_event(headers, payload)
       self.assertEqual(instance.sequence, [])
 
+
 class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
 
   def test_partition_timestamp(self):
@@ -1772,6 +1774,31 @@ echo %s; echo %s; exit 42""" % (line1, line2))
     self.assertEqual(
         dummyLogger.mock_calls[-1][1][0] % dummyLogger.mock_calls[-1][1][1:],
         "  2[(not ready)]: Promise 'failing_promise' failed with output: fake promise error")
+
+  def test_partition_setup_only(self):
+    """
+    Launch slapgrid in setup_only mode:
+    - buildout should be processed
+    - no timestamp should be generated
+    - supervisord should not be started
+    """
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.timestamp = str(int(time.time()))
+      partition_path = instance.partition_path
+
+      self.assertEqual(self.launchSlapgrid(setup_only=True), slapgrid.SLAPGRID_SUCCESS)
+
+      six.assertCountEqual(self,
+        os.listdir(partition_path),
+        ['.slapgrid', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay']
+      )
+
+      supervisord_pid_path = os.path.join(self.instance_root, 'var', 'run', 'supervisor.pid')
+      self.assertFalse(os.path.exists(supervisord_pid_path))
+
+      self.assertFalse(instance.sequence)
 
 
 class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):

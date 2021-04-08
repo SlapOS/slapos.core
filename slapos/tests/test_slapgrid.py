@@ -151,7 +151,7 @@ class BasicMixin(object):
     logging.basicConfig(level=logging.DEBUG)
     self.setSlapgrid()
 
-  def setSlapgrid(self, develop=False):
+  def setSlapgrid(self, develop=False, force_stop=False):
     if getattr(self, 'master_url', None) is None:
       self.master_url = 'http://127.0.0.1:80/'
     self.computer_id = 'computer'
@@ -167,7 +167,8 @@ class BasicMixin(object):
                                   self.buildout,
                                   develop=develop,
                                   logger=logging.getLogger(),
-                                  shared_part_list=self.shared_parts_root)
+                                  shared_part_list=self.shared_parts_root,
+                                  force_stop=force_stop)
     self.grid._manager_list = self.manager_list
     # monkey patch buildout bootstrap
 
@@ -199,8 +200,8 @@ class BasicMixin(object):
         environment=USER="%(USER)s",LOGNAME="%(USER)s",HOME="%(HOME)s"
         """)
 
-  def launchSlapgrid(self, develop=False):
-    self.setSlapgrid(develop=develop)
+  def launchSlapgrid(self, develop=False, force_stop=False):
+    self.setSlapgrid(develop=develop, force_stop=force_stop)
     return self.grid.processComputerPartitionList()
 
   def launchSlapgridSoftware(self, develop=False):
@@ -1329,6 +1330,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
       watchdog.handle_event(headers, payload)
       self.assertEqual(instance.sequence, [])
 
+
 class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
 
   def test_partition_timestamp(self):
@@ -1772,6 +1774,27 @@ echo %s; echo %s; exit 42""" % (line1, line2))
     self.assertEqual(
         dummyLogger.mock_calls[-1][1][0] % dummyLogger.mock_calls[-1][1][1:],
         "  2[(not ready)]: Promise 'failing_promise' failed with output: fake promise error")
+
+  def test_partition_force_stop(self):
+    """
+    Launch slapgrid with --force-stop:
+    - buildout should be processed
+    - no timestamp should be generated
+    - services should be stopped
+    """
+    computer = ComputerForTest(self.software_root, self.instance_root)
+    with httmock.HTTMock(computer.request_handler):
+      instance = computer.instance_list[0]
+      instance.requested_state = 'started'
+      instance.timestamp = str(int(time.time()))
+
+      self.assertEqual(self.launchSlapgrid(force_stop=True), slapgrid.SLAPGRID_SUCCESS)
+
+      six.assertCountEqual(self,
+        os.listdir(instance.partition_path),
+        ['.slapgrid', 'buildout.cfg', 'software_release', 'worked', '.slapos-retention-lock-delay']
+      )
+      self.assertEqual(instance.sequence, ['/stoppedComputerPartition'])
 
 
 class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):

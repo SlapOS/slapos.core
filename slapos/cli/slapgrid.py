@@ -157,6 +157,9 @@ class InstanceCommand(SlapgridCommand):
         ap.add_argument('--buildout-debug',
                         action='store_true',
                         help='Run buildout in debug mode (with -D command line switch)')
+        ap.add_argument('--setup-only',
+                        action='store_true',
+                        help='Run buildout and configure partitions only')
         only = ap.add_mutually_exclusive_group()
         only.add_argument('--all', action='store_true',
                           help='Process all Computer Partitions.')

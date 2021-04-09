@@ -117,6 +117,10 @@
                           <string>destination_section_title</string>
                           <string>Destination Section</string>
                         </tuple>
+                        <tuple>
+                          <string>list_image</string>
+                          <string>Image</string>
+                        </tuple>
                       </list>
                     </value>
                 </item>

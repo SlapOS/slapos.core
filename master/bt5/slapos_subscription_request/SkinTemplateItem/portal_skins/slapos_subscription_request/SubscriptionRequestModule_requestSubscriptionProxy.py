@@ -17,8 +17,8 @@ if token:
       error = "Token is invalid or it was already used"
 
   if error:
-    base_url = web_site.absolute_url()
-    redirect_url = "%s/order?field_your_reservation_name=%s&field_your_reservation_email=%s&field_your_reservation_number_of_machines=%s&field_your_reservation_network=%s&field_your_reservation_invitation_token=%s&portal_status_message=%s" % (
+    base_url = context.getWebSectionValue().absolute_url()
+    redirect_url = "%s?field_your_reservation_name=%s&field_your_reservation_email=%s&field_your_reservation_number_of_machines=%s&field_your_reservation_network=%s&field_your_reservation_invitation_token=%s&portal_status_message=%s" % (
       base_url,
       user_input_dict['name'],
       email,

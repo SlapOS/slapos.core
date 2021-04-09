@@ -4,6 +4,7 @@ if REQUEST is not None:
   raise Unauthorized
 
 portal = context.getPortalObject()
+
 web_site = context.getWebSiteValue()
 if token:
   error = ""
@@ -42,6 +43,8 @@ if confirmation_required and not person_is_new:
        subscription_reference)
   if token:
     redirect_url += "&field_your_reservation_invitation_token=%s" % token
+  if variation_reference:
+    redirect_url += "&field_your_variation_reference=%s" % variation_reference
   return context.REQUEST.RESPONSE.redirect(redirect_url)
 
 if target_language is None:

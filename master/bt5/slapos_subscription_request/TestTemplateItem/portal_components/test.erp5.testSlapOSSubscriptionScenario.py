@@ -1111,7 +1111,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       kw["token"] = self.cloud_invitation_token.getId()
     if self.resource_variation_reference is not None:
       kw["variation_reference"] = self.resource_variation_reference
-    return self.web_site.hateoas.SubscriptionRequestModule_requestSubscription(**kw)
+    return self.web_site.hateoas.SubscriptionRequestModule_requestSubscriptionProxy(**kw)
 
   @changeSkin('Hal')
   def _requestSubscriptionViaChineseWebsite(self, **kw):
@@ -1129,7 +1129,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode("UNITTEST")
       self.logout()
       self.changeSkin('Hal')
-      return self.web_site.hateoas.SubscriptionRequestModule_requestSubscription(**kw)
+      return self.web_site.hateoas.SubscriptionRequestModule_requestSubscriptionProxy(**kw)
     finally:
       self._dropPaymentTransaction_getVADSUrlDict()
       self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode(original_mode)
@@ -1198,11 +1198,13 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
               default_email_text):
   
     self.logout()
+    user_input_dict = {
+      "name": name,
+      "amount" : amount}
     self._requestSubscription(
       subscription_reference=self.subscription_condition.getReference(),
-      amount=amount,
-      name=name,
-      default_email_text=default_email_text,
+      user_input_dict=user_input_dict,
+      email=default_email_text,
       confirmation_required=False,
       REQUEST=self.portal.REQUEST)
 
@@ -1686,12 +1688,16 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       )
 
     self.logout()
+    user_input_dict = {
+      "name": name,
+      "amount" : amount}
     self._requestSubscription(
       subscription_reference=self.subscription_condition.getReference(),
-      amount=amount,
-      name=name,
-      default_email_text=default_email_text,
+      user_input_dict=user_input_dict,
+      email=default_email_text,
+      confirmation_required=False,
       REQUEST=self.portal.REQUEST)
+
 
     self.login()
 
@@ -1734,11 +1740,13 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.logout()
     # Request a second one, without require confirmation and verifing
     # the second subscription request
+    user_input_dict = {
+      "name": name,
+      "amount" : amount}
     self._requestSubscription(
       subscription_reference=self.subscription_condition.getReference(),
-      amount=amount,
-      name=name,
-      default_email_text=default_email_text,
+      user_input_dict=user_input_dict,
+      email=default_email_text,
       confirmation_required=False,
       REQUEST=self.portal.REQUEST)
 

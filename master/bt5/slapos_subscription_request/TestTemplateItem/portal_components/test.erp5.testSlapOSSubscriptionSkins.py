@@ -214,45 +214,6 @@ class TestSubscriptionCondition_renderParameter(TestSubscriptionSkinsMixin):
     subscription_condition.setTextContent(parameter_xml)
     self.assertEqual(parameter_xml, subscription_condition.SubscriptionCondition_renderParameter(amount=1))
 
-
-class TestSubscriptionRequestModule_requestSubscription(TestSubscriptionSkinsMixin):
-
-  @simulate('SubscriptionRequestModule_requestSubscriptionProxy', '*args, **kwargs','return args, kwargs')
-  def test_SubscriptionRequestModule_requestSubscription(self):
-    module = self.portal.subscription_request_module
-
-    # Request is None, so it can only be called via URL
-    self.assertRaises(Unauthorized, module.SubscriptionRequestModule_requestSubscription, REQUEST=None)
-
-    # Method is not get
-    self.assertRaises(ValueError, module.SubscriptionRequestModule_requestSubscription,
-                       REQUEST=self.portal.REQUEST)
-
-    # Method is not get
-    self.portal.REQUEST.other['method'] = "GET"
-
-    # default_email_text not defined
-    self.assertRaises(ValueError, module.SubscriptionRequestModule_requestSubscription,
-                       REQUEST=self.portal.REQUEST)
-
-    # name not defined
-    self.assertRaises(ValueError, module.SubscriptionRequestModule_requestSubscription,
-                       REQUEST=self.portal.REQUEST, default_email_text="123@nexedi.com")
-
-    # subscription_reference not defined
-    self.assertRaises(ValueError, module.SubscriptionRequestModule_requestSubscription,
-                       REQUEST=self.portal.REQUEST, default_email_text="123@nexedi.com",
-                       name="couscous")
-
-    expected_argument_tuple = (('123@nexedi.com', 'subscription_reference'),
-      {'confirmation_required': True, 'user_input_dict': {'name': "couscous", 'amount': 0},
-       'variation_reference': None, 'target_language': None, 'token': None, 'batch_mode': 0})
-
-    self.assertEqual(expected_argument_tuple, module.SubscriptionRequestModule_requestSubscription(
-                       REQUEST=self.portal.REQUEST, default_email_text="123@nexedi.com",
-                       name="couscous", subscription_reference="subscription_reference"))
-    self.tic()
-
 class TestSubscriptionRequest_init(TestSubscriptionSkinsMixin):
   def test_SubscriptionRequest_init(self):
     subscription_request = self.portal.subscription_request_module.newContent()

@@ -1,3 +1,7 @@
+if context.getSimulationState() != "ordered":
+  # Skip if the instance isn't ordered anymore
+  return
+
 hosting_subscription = context.getAggregateValue()
 
 # Don't request again if it is already requested.

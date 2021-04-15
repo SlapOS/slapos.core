@@ -1393,3 +1393,90 @@ class TestSlapOSGeneratePackingListFromTioXML(SlapOSTestCaseMixin):
 
     self._test_alarm_not_visited(
       alarm, document, script_name)
+
+
+class TestSlapOSCancelSaleTnvoiceTransactionPaiedPaymentListAlarm(SlapOSTestCaseMixin):
+
+  def _test_payment_is_draft(self, payment_mode):
+    new_id = self.generateNewId()
+    payment_transaction = self.portal.accounting_module.newContent(
+      portal_type='Payment Transaction',
+      title="Transaction %s" % new_id,
+      reference="TESTTRANS-%s" % new_id,
+      payment_mode=payment_mode
+      )
+    self.tic()
+
+    self.portal.portal_alarms.slapos_cancel_sale_invoice_transaction_paied_payment_list.activeSense()
+    self.tic()
+
+    self.assertNotEqual(
+        'Not visited by PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped',
+        payment_transaction.getTitle())
+
+  @simulateByTitlewMark('PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped')
+  def test_payment_is_draft_payzen(self):
+    self._test_payment_is_draft(payment_mode="payzen")
+
+  @simulateByTitlewMark('PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped')
+  def test_payment_is_draft_wechat(self):
+    self._test_payment_is_draft(payment_mode="wechat")
+
+  def _test_payment_is_stopped(self, payment_mode):
+    new_id = self.generateNewId()
+    payment_transaction = self.portal.accounting_module.newContent(
+      portal_type='Payment Transaction',
+      title="Transaction %s" % new_id,
+      reference="TESTTRANS-%s" % new_id,
+      payment_mode=payment_mode
+      )
+    payment_transaction.setStartDate(DateTime())
+    payment_transaction.confirm()
+    payment_transaction.start()
+    payment_transaction.stop()
+    self.tic()
+
+    self.portal.portal_alarms.slapos_cancel_sale_invoice_transaction_paied_payment_list.activeSense()
+    self.tic()
+
+    self.assertNotEqual(
+        'Not visited by PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped',
+        payment_transaction.getTitle())
+
+  @simulateByTitlewMark('PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped')
+  def test_payment_is_stopped_payzen(self):
+    self._test_payment_is_stopped(payment_mode="payzen")
+
+  @simulateByTitlewMark('PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped')
+  def test_payment_is_stopped_wechat(self):
+    self._test_payment_is_stopped(payment_mode="wechat")
+
+
+  def _test_payment_is_started(self, payment_mode):
+    new_id = self.generateNewId()
+    payment_transaction = self.portal.accounting_module.newContent(
+      portal_type='Payment Transaction',
+      title="Transaction %s" % new_id,
+      reference="TESTTRANS-%s" % new_id,
+      payment_mode=payment_mode
+      )
+    payment_transaction.setStartDate(DateTime())
+    payment_transaction.confirm()
+    payment_transaction.start()
+    self.tic()
+
+    self.portal.portal_alarms.slapos_cancel_sale_invoice_transaction_paied_payment_list.activeSense()
+    self.tic()
+
+    self.assertNotEqual(
+        'Visited by PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped',
+        payment_transaction.getTitle())
+
+  @simulateByTitlewMark('PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped')
+  def test_payment_is_started_payzen(self):
+    self._test_payment_is_started(payment_mode="payzen")
+
+  @simulateByTitlewMark('PaymentTransaction_cancelIfSaleInvoiceTransactionIsGrouped')
+  def test_payment_is_started_wechat(self):
+    self._test_payment_is_started(payment_mode="wechat")
+

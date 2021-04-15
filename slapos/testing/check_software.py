@@ -61,6 +61,7 @@ def checkSoftware(slap, software_url):
   # Also check that they are not linked against system libraries, except a white list of core
   # system libraries.
   system_lib_white_list = set((
+      'libanl',
       'libc',
       'libcrypt',
       'libdl',

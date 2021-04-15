@@ -1205,8 +1205,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       subscription_reference=self.subscription_condition.getReference(),
       user_input_dict=user_input_dict,
       email=default_email_text,
-      confirmation_required=False,
-      REQUEST=self.portal.REQUEST)
+      confirmation_required=False)
 
     self.login()
     # I'm not sure if this is realistic
@@ -1695,8 +1694,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       subscription_reference=self.subscription_condition.getReference(),
       user_input_dict=user_input_dict,
       email=default_email_text,
-      confirmation_required=False,
-      REQUEST=self.portal.REQUEST)
+      confirmation_required=False)
 
 
     self.login()
@@ -1747,8 +1745,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       subscription_reference=self.subscription_condition.getReference(),
       user_input_dict=user_input_dict,
       email=default_email_text,
-      confirmation_required=False,
-      REQUEST=self.portal.REQUEST)
+      confirmation_required=False)
 
     self.login()
     self.tic()

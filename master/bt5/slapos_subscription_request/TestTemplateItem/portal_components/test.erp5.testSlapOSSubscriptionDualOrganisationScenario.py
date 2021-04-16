@@ -59,13 +59,14 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
   
     self.logout()
 
+    user_input_dict = {
+      "name": name,
+      "amount" : amount}
     request_kw = dict(
         subscription_reference=self.subscription_condition.getReference(),
-        amount=amount,
-        name=name,
-        default_email_text=default_email_text,
-        confirmation_required=False,
-        REQUEST=self.portal.REQUEST)
+        user_input_dict=user_input_dict,
+        email=default_email_text,
+        confirmation_required=False)
 
     all_subscription_requested_list = []
     for language in language_list:

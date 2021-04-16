@@ -1066,6 +1066,14 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
     root_slave=False,
     source_reference="test_for_test_123")
 
+
+    self.tic()
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_processOrdered(),
+      None)
+    
+    subscription_request.plan()
+    subscription_request.order()
     self.tic()
     self.assertEqual(
       subscription_request.SubscriptionRequest_processOrdered(),
@@ -1110,7 +1118,7 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
     
     self.assertEqual(
       subscription_request.getSimulationState(),
-      "draft"
+      "ordered"
     )
 
   @simulate('SubscriptionRequest_verifyPaymentBalanceIsReady', '*args, **kwrgs', 'return None')
@@ -1140,6 +1148,13 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
     # test TestSubscriptionRequest_requestPaymentTransaction, so let's keep it simple, and just reinvoke
     current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction("TAG", "en")
     self.assertNotEqual(current_payment, None)
+
+
+    self.tic()
+    self.assertEqual(
+      subscription_request.SubscriptionRequest_processOrdered(),  None)
+    subscription_request.plan()
+    subscription_request.order()
 
     self.tic()
     self.assertEqual(
@@ -1181,7 +1196,7 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
 
     self.assertEqual(
       subscription_request.getSimulationState(),
-      "draft"
+      "ordered"
     )
 
   @simulate('SubscriptionRequest_verifyPaymentBalanceIsReady', '*args, **kwrgs', 'return context.fake_payment')
@@ -1237,10 +1252,6 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
     self.tic()
 
     self.assertEqual('solved', hosting_subscription.getCausalityState())
-
-    self.assertEqual(
-      subscription_request.SubscriptionRequest_processOrdered(), "Skipped (User isn't notified)")
-    self.tic()
     self.assertEqual(
       subscription_request.getSimulationState(),
       "confirmed"

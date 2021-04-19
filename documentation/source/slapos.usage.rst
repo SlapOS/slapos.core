@@ -162,9 +162,9 @@ Ask removal of a software from a specific node or group of nodes. Existing insta
 
 Examples
 
-* Ask installation of kvm Software Release on COMP-12345::
+* Ask removal of kvm Software Release on COMP-12345::
 
-    $ slapos supply kvm COMP-12345
+    $ slapos remove kvm COMP-12345
 
 In this example, ``kvm`` is an alias for the full URL, and is defined in :file:`slapos-client.cfg`.
 

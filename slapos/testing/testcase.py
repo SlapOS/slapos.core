@@ -474,6 +474,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     """
     if not cls._test_file_snapshot_directory:
       warnings.warn("No snapshot directory configured, skipping snapshot")
+      warnings.warn("Snapshot directory can be configured with SLAPOS_TEST_LOG_DIRECTORY environment")
       return
     # we cannot use os.path.commonpath on python2, so implement something similar
     common_path = os.path.commonprefix((source_file_name, cls._base_directory))

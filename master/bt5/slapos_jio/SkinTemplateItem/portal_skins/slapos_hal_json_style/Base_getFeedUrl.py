@@ -11,6 +11,9 @@ document_path = ""
 if context.getPortalType() in ["Hosting Subscription", "Computer"]:
   document_path = "/%s" % context.getRelativeUrl()
 
+if context.getPortalType() in ["Accounting Transaction Module"]:
+  document_path = "/invoice"
+
 web_site = context.getWebSiteValue()
 request_url = "%s/feed%s" % (web_site.absolute_url(), document_path)
 

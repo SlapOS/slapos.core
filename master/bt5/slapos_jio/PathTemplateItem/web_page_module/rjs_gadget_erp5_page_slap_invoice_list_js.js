@@ -181,7 +181,9 @@
         })
         .push(function (contract_relative_url) {
           var promise_list = [
-            gadget.getUrlFor({command: "change", options: {"page": "slapos"}})
+            gadget.getUrlFor({command: "change", options: {"page": "slapos"}}),
+            gadget.getUrlFor({command: "change", options: {"page": "slap_rss_ticket",
+                                                           "jio_key": "accounting_module"}})
           ];
           if (contract_relative_url) {
             promise_list.push(
@@ -195,10 +197,11 @@
           var header_dict = {
             page_title: invoices_translation,
             selection_url: result[0],
+            rss_url: result[1],
             filter_action: true
           };
-          if (result[1]) {
-            header_dict.contract_url = result[1];
+          if (result[2]) {
+            header_dict.contract_url = result[2];
           }
           return gadget.updateHeader(header_dict);
         });

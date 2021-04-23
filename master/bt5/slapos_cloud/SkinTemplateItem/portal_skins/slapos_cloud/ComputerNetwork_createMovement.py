@@ -18,10 +18,10 @@ if destination_project is None and source_project is not None:
   destination_project = source_project.getRelativeUrl()
 
 if source_section is None:
-  source_section = context.getSourceAdministration()
+  source_section = context.getSourceAdministrationValue()
 
 if destination_section is None:
-  destination_section = source_section
+  destination_section = source_section.getRelativeUrl()
 
 source = context.getSourceAdministration()
 destination = context.getSourceAdministration()
@@ -39,7 +39,7 @@ delivery = module.newContent(title="Transfer %s to %s" % (context.getTitle(), de
                              destination_section=destination_section,
                              source_decision=destination_section,
                              destination_decision=destination_section,
-                             destination_project_value=destination_project,
+                             destination_project=destination_project,
                              start_date=DateTime(),
                              stop_date=DateTime(),
                              portal_type=portal_type)

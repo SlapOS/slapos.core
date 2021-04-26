@@ -140,7 +140,10 @@ def makeModuleSetUpAndTestCaseClass(
         base_directory=base_directory,
         server_ip=ipv4_address,
         server_port=getPortFromPath(base_directory),
-        shared_part_list=shared_part_list)
+        computer_addr=(ipv4_address, '255.255.255.255'),
+        shared_part_list=shared_part_list,
+        partition_addr_list=[(ipv6_address, '64'), (ipv4_address, '255.255.255.255')],
+  )
   except PathTooDeepError:
     raise RuntimeError(
         'base directory ( {} ) is too deep, try setting '

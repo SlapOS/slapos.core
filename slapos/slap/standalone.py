@@ -33,6 +33,7 @@ import logging
 import time
 import errno
 import socket
+import pwd
 
 from six.moves import urllib
 from six.moves import http_client
@@ -207,6 +208,15 @@ class SlapOSConfigWriter(ConfigWriter):
               pidfile_report =  {standalone_slapos._report_pid}
               forbid_supervisord_automatic_launch = true
 
+              [slapformat]
+              input_definition_file = {standalone_slapos._slapformat_definition}
+              partition_amount = {standalone_slapos._partition_count}
+              alter_user = false
+              alter_network = false
+              create_tap = false
+              create_tun = false
+              computer_xml = {standalone_slapos._slapos_xml}
+
               [slapproxy]
               host = {standalone_slapos._server_ip}
               port = {standalone_slapos._server_port}
@@ -254,6 +264,34 @@ class SlapOSNodeAutoWriter(ConfigWriter):
               done
       """).format(**locals()))
     os.chmod(path, 0o755)
+
+
+class SlapformatDefinitionWriter(ConfigWriter):
+  """Write slapformat-definition.cfg configuration.
+  """
+  def writeConfig(self, path):
+    _computer_addr = '%s/%s' % self._standalone_slapos._computer_addr
+    _partition_base_name = self._standalone_slapos._partition_base_name
+    _partition_addresses = ' '.join(('%s/%s' % t
+        for t in self._standalone_slapos._partition_addr_list))
+    _user = pwd.getpwuid(os.getuid()).pw_name
+    with open(path, 'w') as f:
+      f.write(
+          textwrap.dedent(
+              """
+              [computer]
+              address = {_computer_addr}\n
+      """).format(**locals()))
+      for _partition_index in range(self._standalone_slapos._partition_count):
+        f.write(
+            textwrap.dedent(
+                """
+                [partition_{_partition_index}]
+                address = {_partition_addresses}
+                pathname = {_partition_base_name}{_partition_index}
+                user = {_user}
+                network_interface =\n
+        """).format(**locals()))
 
 
 class PartitionForwardConfiguration(object):
@@ -312,11 +350,15 @@ class StandaloneSlapOS(object):
       base_directory,
       server_ip,
       server_port,
+      computer_addr,
       computer_id='local',
       shared_part_list=(),
       software_root=None,
       instance_root=None,
       shared_part_root=None,
+      partition_count=20,
+      partition_base_name='slappart',
+      partition_addr_list=(),
       partition_forward_configuration=(),
       slapos_bin='slapos',
       local_software_release_root=os.sep,
@@ -327,11 +369,15 @@ class StandaloneSlapOS(object):
     Arguments:
       * `base_directory`  -- the directory which will contain softwares and instances.
       * `server_ip`, `server_port` -- the address this SlapOS proxy will listen to.
+      * `computer_addr` -- the network address and netmask tuple for this computer.
       * `computer_id` -- the id of this computer.
       * `shared_part_list` -- list of extra paths to use as read-only ${buildout:shared-part-list}.
       * `software_root` -- directory to install software, default to "soft" in `base_directory`
       * `instance_root` -- directory to create instances, default to "inst" in `base_directory`
       * `shared_part_root` -- directory to hold shared parts software, default to "shared" in `base_directory`.
+      * `partition_count` -- number of instance partitions.
+      * `partition_base_name` -- base name for the instance partitions.
+      * `partition_addr_list` -- network addresses and netmasks tuples for the instance partitions.
       * `partition_forward_configuration` -- configuration of partition request forwarding to external SlapOS master.
       * `slapos_bin` -- slapos executable to use, default to "slapos" (thus depending on the runtime PATH).
       * `local_software_release_root` -- root for local Software Releases paths in the SlapOS proxy, default to `/`.
@@ -354,6 +400,13 @@ class StandaloneSlapOS(object):
     self._partition_forward_configuration = list(partition_forward_configuration)
 
     self._slapos_bin = slapos_bin
+
+    # partitions configuration
+    self._partition_count = partition_count
+    self._partition_base_name = partition_base_name
+    self._partition_addr_list = partition_addr_list
+
+    self._computer_addr = computer_addr
 
     self._slapos_commands = {
         'slapos-node-software': {
@@ -424,6 +477,8 @@ class StandaloneSlapOS(object):
     ensureDirectoryExists(etc_directory)
     self._supervisor_config = os.path.join(etc_directory, 'supervisord.conf')
     self._slapos_config = os.path.join(etc_directory, 'slapos.cfg')
+    self._slapformat_definition = os.path.join(etc_directory, 'slapformat-definition.cfg')
+    self._slapos_xml = os.path.join(etc_directory, 'slapos.xml')
 
     var_directory = os.path.join(base_directory, 'var')
     ensureDirectoryExists(var_directory)
@@ -453,6 +508,7 @@ class StandaloneSlapOS(object):
     SlapOSConfigWriter(self).writeConfig(self._slapos_config)
     SlapOSCommandWriter(self).writeConfig(self._slapos_wrapper)
     SlapOSNodeAutoWriter(self).writeConfig(self._slapos_node_auto_bin)
+    SlapformatDefinitionWriter(self).writeConfig(self._slapformat_definition)
 
     self.start()
 

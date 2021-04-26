@@ -35,6 +35,7 @@ import hashlib
 import socket
 import errno
 import time
+import subprocess
 import multiprocessing
 from contextlib import closing
 from six.moves.configparser import ConfigParser
@@ -80,10 +81,38 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
     working_dir = tempfile.mkdtemp(prefix=__name__)
     self.addCleanup(shutil.rmtree, working_dir)
     standalone = StandaloneSlapOS(
-        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
+        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT,
+        (SLAPOS_TEST_IPV4, '255.255.255.255'),
+    )
     self.addCleanup(standalone.stop)
     standalone.format(3, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
 
+    self.assertTrue(os.path.exists(standalone.software_directory))
+    self.assertTrue(os.path.exists(standalone.instance_directory))
+    self.assertTrue(
+        os.path.exists(
+            os.path.join(standalone.instance_directory, 'slappart0')))
+    self.assertTrue(
+        os.path.exists(
+            os.path.join(standalone.instance_directory, 'slappart1')))
+    self.assertTrue(
+        os.path.exists(
+            os.path.join(standalone.instance_directory, 'slappart2')))
+
+  def test_slapos_node_format(self):
+    working_dir = tempfile.mkdtemp(prefix=__name__)
+    self.addCleanup(shutil.rmtree, working_dir)
+    standalone = StandaloneSlapOS(
+        working_dir,
+        SLAPOS_TEST_IPV4,
+        SLAPOS_TEST_PORT,
+        (SLAPOS_TEST_IPV4, '255.255.255.255'),
+        partition_count=3,
+        partition_addr_list=[(SLAPOS_TEST_IPV6, '64'), (SLAPOS_TEST_IPV4, '255.255.255.255')],
+    )
+    self.addCleanup(standalone.stop)
+    slapos_wrapper = standalone._slapos_wrapper
+    subprocess.check_call((slapos_wrapper, 'node', 'format', '--now'))
     self.assertTrue(os.path.exists(standalone.software_directory))
     self.assertTrue(os.path.exists(standalone.instance_directory))
     self.assertTrue(
@@ -100,7 +129,9 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
     working_dir = tempfile.mkdtemp(prefix=__name__)
     self.addCleanup(shutil.rmtree, working_dir)
     standalone = StandaloneSlapOS(
-        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
+        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT,
+        (SLAPOS_TEST_IPV4, '255.255.255.255'),
+    )
     self.addCleanup(standalone.stop)
     standalone.format(2, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
     standalone.format(1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
@@ -115,7 +146,9 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
     working_dir = tempfile.mkdtemp(prefix=__name__)
     self.addCleanup(shutil.rmtree, working_dir)
     standalone = StandaloneSlapOS(
-        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
+        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT,
+        (SLAPOS_TEST_IPV4, '255.255.255.255'),
+    )
     self.addCleanup(standalone.stop)
     standalone.format(2, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
     # removing this directory should not be a problem
@@ -132,7 +165,9 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
     working_dir = tempfile.mkdtemp(prefix=__name__)
     self.addCleanup(shutil.rmtree, working_dir)
     standalone = StandaloneSlapOS(
-        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
+        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT,
+        (SLAPOS_TEST_IPV4, '255.255.255.255'),
+    )
     self.addCleanup(standalone.stop)
     standalone.format(
         1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6, partition_base_name="a")
@@ -152,7 +187,9 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
     working_dir = tempfile.mkdtemp(prefix=__name__)
     self.addCleanup(shutil.rmtree, working_dir)
     standalone = StandaloneSlapOS(
-        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
+        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT,
+        (SLAPOS_TEST_IPV4, '255.255.255.255'),
+    )
     self.addCleanup(standalone.stop)
     standalone.format(1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
     with mock.patch("slapos.slap.ComputerPartition.getState", return_value="busy"),\
@@ -163,7 +200,9 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
     working_dir = tempfile.mkdtemp(prefix=__name__)
     self.addCleanup(shutil.rmtree, working_dir)
     standalone1 = StandaloneSlapOS(
-        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
+        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT,
+        (SLAPOS_TEST_IPV4, '255.255.255.255'),
+    )
 
     def maybestop():
       # try to stop anyway, not to leak processes if test fail
@@ -176,7 +215,9 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
 
     # create another class instance, will control the same standanlone slapos.
     standalone2 = StandaloneSlapOS(
-        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
+        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT,
+        (SLAPOS_TEST_IPV4, '255.255.255.255'),
+    )
     standalone2.stop()
 
     # stopping standalone2 stops everything
@@ -219,6 +260,7 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
         working_dir,
         SLAPOS_TEST_IPV4,
         SLAPOS_TEST_PORT,
+        (SLAPOS_TEST_IPV4, '255.255.255.255'),
         partition_forward_configuration=partition_forward_config,
     )
     self.addCleanup(standalone.stop)
@@ -280,7 +322,9 @@ class SlapOSStandaloneTestCase(unittest.TestCase):
     working_dir = tempfile.mkdtemp(prefix=__name__)
     self.addCleanup(shutil.rmtree, working_dir)
     self.standalone = StandaloneSlapOS(
-        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
+        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT,
+        (SLAPOS_TEST_IPV4, '255.255.255.255'),
+    )
     if self._auto_stop_standalone:
       self.addCleanup(self.standalone.stop)
     self.standalone.format(1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)

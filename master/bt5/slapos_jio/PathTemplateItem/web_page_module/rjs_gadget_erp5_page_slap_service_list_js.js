@@ -17,20 +17,22 @@
     .allowPublicAcquisition("jio_allDocs", function (param_list) {
       var gadget = this;
       param_list[0].select_list = ["uid", "title", "short_title",
-                                   "root_slave"];
+                                   "root_slave", "list_image_url"];
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
-          var i, value, news, len = result.data.total_rows;
+          var i, value, news, len = result.data.total_rows, list_image_url_value, list_image_url;
           for (i = 0; i < len; i += 1) {
             if (1 || (result.data.rows[i].value.hasOwnProperty("HostingSubscription_getNewsDict"))) {
               value = result.data.rows[i].id;
               news = result.data.rows[i].value.HostingSubscription_getNewsDict;
+              list_image_url = result.data.rows[i].value.list_image_url;
+              list_image_url_value = list_image_url ? list_image_url.split("/software_product_module") : null;
               result.data.rows[i].value.HostingSubscription_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
                   description: gadget.description_translation,
                   hidden: 0,
-                  "default": {jio_key: value, result: news},
+                  default: {jio_key: value, result: news},
                   key: "status",
                   url: "gadget_slapos_hosting_subscription_status.html",
                   title: gadget.title_translation,
@@ -42,6 +44,16 @@
                 value: 2713
               };
             }
+            result.data.rows[i].value.HostingSubscription_getDefaultImageRelativeUrl = {
+              field_gadget_param : {
+                description: "image",
+                hidden: 0,
+                default: list_image_url_value ? ('./software_product_module' + list_image_url_value.pop() + '?quality=75.0&display=thumbnail&format=png') : ("./preview_icon.png"),
+                key: "list_image_url",
+                title: "IMG",
+                type: "ImageField"
+              }
+            };
           }
           return result;
         });
@@ -83,7 +95,8 @@
           var column_list = [
             ['title', result[2][0]],
             ['short_title', result[2][1]],
-            ['HostingSubscription_getNewsDict', result[2][2]]
+            ['HostingSubscription_getNewsDict', result[2][2]],
+            ['HostingSubscription_getDefaultImageRelativeUrl', 'Image']
           ],
             form_list = result[0];
           lines_limit = result[1];

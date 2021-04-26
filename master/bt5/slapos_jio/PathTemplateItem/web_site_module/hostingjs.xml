@@ -692,7 +692,7 @@
                   <item>
                       <key> <string>comment</string> </key>
                       <value>
-                        <none/>
+                        <persistent> <string encoding="base64">AAAAAAAAAAs=</string> </persistent>
                       </value>
                   </item>
                   <item>
@@ -701,7 +701,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>985.8936.26794.59579</string> </value>
+                      <value> <string>991.47737.43465.46745</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -719,7 +719,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1597354424.8</float>
+                              <float>1619798227.63</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -729,6 +729,33 @@
                 </dictionary>
               </list>
             </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="11" aka="AAAAAAAAAAs=">
+    <pickle>
+      <global name="Message" module="Products.ERP5Type.Message"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>default</string> </key>
+            <value> <string>Translation data updated.</string> </value>
+        </item>
+        <item>
+            <key> <string>domain</string> </key>
+            <value> <string>erp5_ui</string> </value>
+        </item>
+        <item>
+            <key> <string>mapping</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>message</string> </key>
+            <value> <string>Translation data updated.</string> </value>
         </item>
       </dictionary>
     </pickle>

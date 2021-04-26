@@ -12,12 +12,11 @@
     .declareAcquiredMethod("setSetting", "setSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+    .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     .allowPublicAcquisition("jio_allDocs", function (param_list) {
       var gadget = this;
-      param_list[0].select_list = ["uid", "title", "short_title",
-                                   "root_slave"];
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
           var i, value, news, len = result.data.total_rows;
@@ -30,7 +29,7 @@
                   css_class: "",
                   description: gadget.description_translation,
                   hidden: 0,
-                  "default": {jio_key: value, result: news},
+                  default: {jio_key: value, result: news},
                   key: "status",
                   url: "gadget_slapos_hosting_subscription_status.html",
                   title: gadget.title_translation,
@@ -66,11 +65,16 @@
           "Short Title",
           "Status",
           "Services",
-          "The Status"
+          "The Status",
+          "Software Logo"
         ];
 
       return new RSVP.Queue()
         .push(function () {
+          return gadget.jio_getAttachment('hosting_subscription_module', 'view');
+        })
+        .push(function (result) {
+          gadget.hosting_subscription_module_view = result;
           return RSVP.all([
             gadget.getDeclaredGadget('form_list'),
             gadget.getSetting("listbox_lines_limit", 20),
@@ -83,41 +87,22 @@
           var column_list = [
             ['title', result[2][0]],
             ['short_title', result[2][1]],
-            ['HostingSubscription_getNewsDict', result[2][2]]
+            ['HostingSubscription_getNewsDict', result[2][2]],
+            ['list_image', result[2][5]]
           ],
+            parameter_dict = gadget.hosting_subscription_module_view._embedded._view.listbox,
             form_list = result[0];
           lines_limit = result[1];
           services_translation = result[2][3];
+          parameter_dict.title = services_translation;
+          parameter_dict.column_list = column_list;
+          parameter_dict.search_column_list = column_list;
+          parameter_dict.query = "urn:jio:allDocs?query=portal_type%3A%22" +
+                    "Hosting Subscription" + "%22%20AND%20validation_state%3Avalidated";
+          parameter_dict.lines = lines_limit;
+          parameter_dict.sort = [["title", "ascending"]];
           return form_list.render({
-            erp5_document: {
-              "_embedded": {"_view": {
-                "listbox": {
-                  "column_list": column_list,
-                  "show_anchor": 0,
-                  "default_params": {},
-                  "editable": 0,
-                  "editable_column_list": [],
-                  "key": "slap_service_listbox",
-                  "lines": lines_limit,
-                  "list_method": "portal_catalog",
-                  // XXX TODO Filter by   default_strict_allocation_scope_uid="!=%s" % context.getPortalObject().portal_categories.allocation_scope.close.forever.getUid(),
-                  "query": "urn:jio:allDocs?query=portal_type%3A%22" +
-                    "Hosting Subscription" + "%22%20AND%20validation_state%3Avalidated",
-                  "portal_type": [],
-                  "search_column_list": column_list,
-                  "sort_column_list": column_list,
-                  "sort": [["title", "ascending"]],
-                  "title": services_translation,
-                  "type": "ListBox"
-                }
-              }},
-              "_links": {
-                "type": {
-                  // form_list display portal_type in header
-                  name: ""
-                }
-              }
-            },
+            erp5_document: gadget.hosting_subscription_module_view,
             form_definition: {
               group_list: [[
                 "bottom",

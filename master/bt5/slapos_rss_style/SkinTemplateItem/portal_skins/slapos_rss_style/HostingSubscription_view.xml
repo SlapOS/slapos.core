@@ -91,7 +91,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Computer_viewAsWeb</string> </value>
+            <value> <string>HostingSubscription_view</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>

@@ -12,12 +12,11 @@
     .declareAcquiredMethod("setSetting", "setSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+    .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     .allowPublicAcquisition("jio_allDocs", function (param_list) {
       var gadget = this;
-      param_list[0].select_list = ["uid", "title", "short_title",
-                                   "root_slave"];
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
           var i, value, news, len = result.data.total_rows;
@@ -28,18 +27,12 @@
               result.data.rows[i].value.HostingSubscription_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
-                  description: gadget.description_translation,
                   hidden: 0,
-                  "default": {jio_key: value, result: news},
+                  default: {jio_key: value, result: news},
                   key: "status",
                   url: "gadget_slapos_hosting_subscription_status.html",
-                  title: gadget.title_translation,
                   type: "GadgetField"
                 }
-              };
-              result.data.rows[i].value["listbox_uid:list"] = {
-                key: "listbox_uid:list",
-                value: 2713
               };
             }
           }
@@ -59,65 +52,32 @@
     })
     .declareMethod("render", function () {
       var gadget = this,
-        lines_limit,
-        services_translation,
-        translation_list = [
-          "Title",
-          "Short Title",
-          "Status",
-          "Services",
-          "The Status"
-        ];
+        services_translation;
 
       return new RSVP.Queue()
         .push(function () {
+          return gadget.jio_getAttachment('hosting_subscription_module', 'view');
+        })
+        .push(function (result) {
+          gadget.hosting_subscription_module_view = result;
           return RSVP.all([
             gadget.getDeclaredGadget('form_list'),
             gadget.getSetting("listbox_lines_limit", 20),
-            gadget.getTranslationList(translation_list)
+            gadget.getTranslationList(["Services"])
           ]);
         })
         .push(function (result) {
           gadget.title_translation = result[2][2];
           gadget.description_translation = result[2][4];
-          var column_list = [
-            ['title', result[2][0]],
-            ['short_title', result[2][1]],
-            ['HostingSubscription_getNewsDict', result[2][2]]
-          ],
-            form_list = result[0];
-          lines_limit = result[1];
-          services_translation = result[2][3];
+          var form_list = result[0];
+          services_translation = result[2][0];
+          /**
+           * XXX should update every page on Panel
+           * Directly use a new created ERP5 form to display the list
+           * instead of using hard-corded JS 
+          **/
           return form_list.render({
-            erp5_document: {
-              "_embedded": {"_view": {
-                "listbox": {
-                  "column_list": column_list,
-                  "show_anchor": 0,
-                  "default_params": {},
-                  "editable": 0,
-                  "editable_column_list": [],
-                  "key": "slap_service_listbox",
-                  "lines": lines_limit,
-                  "list_method": "portal_catalog",
-                  // XXX TODO Filter by   default_strict_allocation_scope_uid="!=%s" % context.getPortalObject().portal_categories.allocation_scope.close.forever.getUid(),
-                  "query": "urn:jio:allDocs?query=portal_type%3A%22" +
-                    "Hosting Subscription" + "%22%20AND%20validation_state%3Avalidated",
-                  "portal_type": [],
-                  "search_column_list": column_list,
-                  "sort_column_list": column_list,
-                  "sort": [["title", "ascending"]],
-                  "title": services_translation,
-                  "type": "ListBox"
-                }
-              }},
-              "_links": {
-                "type": {
-                  // form_list display portal_type in header
-                  name: ""
-                }
-              }
-            },
+            erp5_document: gadget.hosting_subscription_module_view,
             form_definition: {
               group_list: [[
                 "bottom",

@@ -13,6 +13,7 @@
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
+    .declareAcquiredMethod("jio_get", "jio_get")
     .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
@@ -170,6 +171,19 @@
         ];
       return new RSVP.Queue()
         .push(function () {
+          return gadget.getSetting("hateoas_url");
+        })
+        .push(function (hateoas_url) {
+          return gadget.jio_getAttachment(gadget.state.jio_key,
+            hateoas_url + gadget.state.jio_key +
+            '/HostingSubscription_getDefaultImageAbsoluteUrl',
+            {});
+        })
+        .push(function (blob) {
+          return jIO.util.readBlobAsText(blob);
+        })
+        .push(function (result) {
+          gadget.state.doc.list_image = result.srcElement.result;
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
             gadget.getTranslationList(translation_list)
@@ -209,7 +223,7 @@
             ],
             parameter_dict = {
               'parameter' : {
-                'json_url': gadget.state.doc.url_string.split('?')[0] + ".json",
+                'json_url': gadget.state.doc.url_string + ".json",
                 'softwaretype': gadget.state.doc.source_reference,
                 'shared': gadget.state.doc.root_slave ? 1 : 0,
                 //'json_url': "https://lab.node.vifib.com/nexedi/slapos/raw/master/software/kvm/software.cfg.json",
@@ -444,6 +458,18 @@
                       "sort": [["title", "ascending"]],
                       "title": result[1][28],
                       "type": "ListBox"
+                    },
+                    "my_list_image": {
+                      "css_class": "",
+                      "default": gadget.state.doc.list_image +
+                        "?quality=75.0&amp;display=thumbnail&amp;format=png",
+                      "description": "",
+                      "editable": 1,
+                      "hidden": 0,
+                      "key": "list_image",
+                      "required": 0,
+                      "title": "Software Logo",
+                      "type": "ImageField"
                     }
                   }},
                   "_links": {
@@ -462,7 +488,7 @@
                     [["my_slap_state_title"],  ['my_monitoring_status'], ['my_monitor_scope'], ['my_upgrade_scope'], ['my_source_project'], ['my_source']]
 
                   ], ["center",
-                      [["my_source_reference"], ["my_url_string"]]
+                      [["my_source_reference"], ["my_url_string"], ["my_list_image"]]
                     ], [
                     "bottom",
                     [["ticket_listbox"], ["connection_listbox"], ["my_text_content"], ["listbox"]]

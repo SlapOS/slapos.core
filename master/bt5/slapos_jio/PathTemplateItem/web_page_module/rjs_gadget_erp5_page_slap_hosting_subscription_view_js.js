@@ -170,6 +170,10 @@
         ];
       return new RSVP.Queue()
         .push(function () {
+          return gadget.jio_getAttachment(gadget.state.jio_key, 'view');
+        })
+        .push(function (result) {
+          gadget.hosting_subscription_view = result._embedded._view;
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
             gadget.getTranslationList(translation_list)
@@ -444,7 +448,8 @@
                       "sort": [["title", "ascending"]],
                       "title": result[1][28],
                       "type": "ListBox"
-                    }
+                    },
+                    "my_list_image": gadget.hosting_subscription_view.my_list_image
                   }},
                   "_links": {
                     "type": {
@@ -462,7 +467,7 @@
                     [["my_slap_state_title"],  ['my_monitoring_status'], ['my_monitor_scope'], ['my_upgrade_scope'], ['my_source_project'], ['my_source']]
 
                   ], ["center",
-                      [["my_source_reference"], ["my_url_string"]]
+                      [["my_source_reference"], ["my_url_string"], ["my_list_image"]]
                     ], [
                     "bottom",
                     [["ticket_listbox"], ["connection_listbox"], ["my_text_content"], ["listbox"]]

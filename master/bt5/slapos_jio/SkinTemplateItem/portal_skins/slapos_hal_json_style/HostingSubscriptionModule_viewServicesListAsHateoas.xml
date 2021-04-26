@@ -35,7 +35,11 @@
         </item>
         <item>
             <key> <string>action</string> </key>
-            <value> <string>HostingSubscription_editWebMode</string> </value>
+            <value> <string>Base_doSelect</string> </value>
+        </item>
+        <item>
+            <key> <string>action_title</string> </key>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -59,7 +63,7 @@
             <key> <string>group_list</string> </key>
             <value>
               <list>
-                <string>normal</string>
+                <string>left</string>
                 <string>right</string>
                 <string>center</string>
                 <string>bottom</string>
@@ -74,7 +78,9 @@
                 <item>
                     <key> <string>bottom</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>listbox</string>
+                      </list>
                     </value>
                 </item>
                 <item>
@@ -86,31 +92,15 @@
                 <item>
                     <key> <string>hidden</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>listbox_list_image</string>
+                      </list>
                     </value>
                 </item>
                 <item>
-                    <key> <string>normal</string> </key>
+                    <key> <string>left</string> </key>
                     <value>
-                      <list>
-                        <string>my_title</string>
-                        <string>my_source_reference</string>
-                        <string>my_text_content</string>
-                        <string>my_reference</string>
-                        <string>my_url_string</string>
-                        <string>my_slap_state</string>
-                        <string>my_slap_state_title</string>
-                        <string>my_news</string>
-                        <string>my_short_title</string>
-                        <string>my_description</string>
-                        <string>my_root_slave</string>
-                        <string>my_monitor_scope</string>
-                        <string>my_connection_parameter_list</string>
-                        <string>my_upgrade_scope</string>
-                        <string>my_source_project_title</string>
-                        <string>my_source_title</string>
-                        <string>my_list_image</string>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>
@@ -124,7 +114,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>HostingSubscription_viewAsHateoas</string> </value>
+            <value> <string>HostingSubscriptionModule_viewServicesListAsHateoas</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -132,11 +122,11 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>HostingSubscription_viewAsWeb</string> </value>
+            <value> <string>HostingSubscriptionModule_viewServicesList</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>
-            <value> <string>form_view_editable</string> </value>
+            <value> <string>form_list</string> </value>
         </item>
         <item>
             <key> <string>row_length</string> </key>
@@ -148,7 +138,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string></string> </value>
+            <value> <string>Services List</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

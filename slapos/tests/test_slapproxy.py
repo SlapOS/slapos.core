@@ -2147,6 +2147,36 @@ class TestLocalSoftwareReleaseRootPathMigration(MasterMixin):
   def test_request_multiple_moves(self):
     self.checkMultipleMoves(self.checkRequestUrl)
 
+  def test_move_logs(self):
+    local_sr_root = os.path.join(self._rootdir, 'opt')
+    subpath_url = os.path.join(local_sr_root, 'software.cfg')
+    path_not_subpath_url = os.path.join(self._rootdir, 'srv', 'software.cfg')
+    http_url = "https://sr//"
+
+    self.format_for_number_of_partitions(3)
+    for i, initial_url in enumerate((subpath_url, path_not_subpath_url, http_url)):
+      self.supply(initial_url)
+      self.request(initial_url, None, 'instance%d' % i, None)
+    self.moveProxy()
+
+    new_local_sr_root = os.path.join(self._rootdir, 'opt')
+    new_subpath_url = os.path.join(new_local_sr_root, 'software.cfg')
+
+    with mock.patch.object(views.app, 'logger') as logger:
+      # Request something to trigger update
+      self.getFullComputerInformation()
+
+    logger.info.assert_called_once_with(
+      'Updating local software release root path: %s --> %s',
+      local_sr_root,
+      new_local_sr_root,
+    )
+    logger.debug.assert_has_calls([
+      mock.call('Migrate URL ? Y: %s -> %s', subpath_url, new_subpath_url),
+      mock.call('Migrate URL ? N: %s is not a subpath', path_not_subpath_url),
+      mock.call('Migrate URL ? N: %s is not a path', http_url)
+    ]*2, any_order=True)
+
 
 class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMultiNodeSupport):
   """

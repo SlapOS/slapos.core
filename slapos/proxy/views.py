@@ -205,13 +205,18 @@ def _updateLocalSoftwareReleaseRootPathIfNeeded():
   execute_db('local_software_release_root', 'UPDATE %s SET path=?', [new_root_path])
   # Rebase all URLs relative to the new root path
   if current_root_path != new_root_path:
+    app.logger.info('Updating local software release root path: %s --> %s', current_root_path, new_root_path)
     def migrate_url(url):
       if not url or urlparse(url).scheme:
+        app.logger.debug('Migrate URL ? N: %s is not a path', url)
         return url
       rel = os.path.relpath(url, current_root_path)
       if rel.startswith(os.pardir + os.sep):
+        app.logger.debug('Migrate URL ? N: %s is not a subpath', url)
         return url
-      return os.path.join(new_root_path, rel)
+      new = os.path.join(new_root_path, rel)
+      app.logger.debug('Migrate URL ? Y: %s -> %s', url, new)
+      return new
     g.db.create_function('migrate_url', 1, migrate_url)
     execute_db('software', 'UPDATE %s SET url=migrate_url(url)')
     execute_db('partition', 'UPDATE %s SET software_release=migrate_url(software_release)')

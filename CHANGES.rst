@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.6.9 (2021-04-27)
+------------------
+
+ * proxy: add minimal hateoas support (to support "slapos service list", "slapos computer list", ...)
+ * testing: add libanl to the list of whitelist libraries
+
 1.6.8 (2021-03-29)
 ------------------
 

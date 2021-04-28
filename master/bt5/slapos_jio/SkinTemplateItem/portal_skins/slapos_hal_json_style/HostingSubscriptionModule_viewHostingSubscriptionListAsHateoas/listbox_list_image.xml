@@ -11,14 +11,12 @@
             <value>
               <list>
                 <string>default</string>
-                <string>editable</string>
-                <string>enabled</string>
               </list>
             </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>my_list_image</string> </value>
+            <value> <string>listbox_list_image</string> </value>
         </item>
         <item>
             <key> <string>message_values</string> </key>
@@ -61,10 +59,6 @@
                     </value>
                 </item>
                 <item>
-                    <key> <string>enabled</string> </key>
-                    <value> <string></string> </value>
-                </item>
-                <item>
                     <key> <string>field_id</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -88,16 +82,8 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
-                    <key> <string>editable</string> </key>
-                    <value> <int>1</int> </value>
-                </item>
-                <item>
-                    <key> <string>enabled</string> </key>
-                    <value> <int>1</int> </value>
-                </item>
-                <item>
                     <key> <string>field_id</string> </key>
-                    <value> <string>my_view_mode_thumbnail</string> </value>
+                    <value> <string>my_view_mode_listbox_thumbnail</string> </value>
                 </item>
                 <item>
                     <key> <string>form_id</string> </key>
@@ -121,7 +107,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: here.HostingSubscription_getDefaultImageAbsoluteUrl()</string> </value>
+            <value> <string>python: cell.HostingSubscription_getDefaultImageAbsoluteUrl()</string> </value>
         </item>
       </dictionary>
     </pickle>

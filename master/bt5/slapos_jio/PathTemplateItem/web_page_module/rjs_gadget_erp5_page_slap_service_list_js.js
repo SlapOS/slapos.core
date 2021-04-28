@@ -12,15 +12,14 @@
     .declareAcquiredMethod("setSetting", "setSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
+    .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     .allowPublicAcquisition("jio_allDocs", function (param_list) {
       var gadget = this;
-      param_list[0].select_list = ["uid", "title", "short_title",
-                                   "root_slave", "list_image_url"];
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
-          var i, value, news, len = result.data.total_rows, list_image_url_value, list_image_url;
+          var i, value, news, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
             if (1 || (result.data.rows[i].value.hasOwnProperty("HostingSubscription_getNewsDict"))) {
               value = result.data.rows[i].id;
@@ -42,25 +41,6 @@
                 value: 2713
               };
             }
-            if (1 || (result.data.rows[i].value.hasOwnProperty("HostingSubscription_getDefaultImageRelativeUrl"))) {
-              list_image_url = result.data.rows[i].value.list_image_url;
-              list_image_url_value = list_image_url ? list_image_url.split("/software_product_module") : null;
-              result.data.rows[i].value.HostingSubscription_getDefaultImageRelativeUrl = {
-                field_gadget_param : {
-                  description: "image",
-                  hidden: list_image_url_value ? 0 : 1,
-                  default: list_image_url_value ? (
-                    './software_product_module' +
-                    list_image_url_value.pop() +
-                    '?quality=75.0&display=thumbnail&format=png'
-                  ) : null,
-                  key: "list_image_url",
-                  title: "IMG",
-                  type: "ImageField"
-                }
-              };
-            }
-
           }
           return result;
         });
@@ -85,11 +65,16 @@
           "Short Title",
           "Status",
           "Services",
-          "The Status"
+          "The Status",
+          "Thumbnail"
         ];
 
       return new RSVP.Queue()
         .push(function () {
+          return gadget.jio_getAttachment('hosting_subscription_module', 'view');
+        })
+        .push(function (result) {
+          gadget.form_list_view = result;
           return RSVP.all([
             gadget.getDeclaredGadget('form_list'),
             gadget.getSetting("listbox_lines_limit", 20),
@@ -103,41 +88,19 @@
             ['title', result[2][0]],
             ['short_title', result[2][1]],
             ['HostingSubscription_getNewsDict', result[2][2]],
-            ['HostingSubscription_getDefaultImageRelativeUrl', 'Image']
+            ['list_image', result[2][5]]
           ],
+            form_listbox = gadget.form_list_view._embedded._view.listbox,
             form_list = result[0];
           lines_limit = result[1];
           services_translation = result[2][3];
+          form_listbox.title = services_translation;
+          form_listbox.column_list = column_list;
+          form_listbox.query = "urn:jio:allDocs?query=portal_type%3A%22" +
+                    "Hosting Subscription" + "%22%20AND%20validation_state%3Avalidated";
+          form_listbox.lines = lines_limit;
           return form_list.render({
-            erp5_document: {
-              "_embedded": {"_view": {
-                "listbox": {
-                  "column_list": column_list,
-                  "show_anchor": 0,
-                  "default_params": {},
-                  "editable": 0,
-                  "editable_column_list": [],
-                  "key": "slap_service_listbox",
-                  "lines": lines_limit,
-                  "list_method": "portal_catalog",
-                  // XXX TODO Filter by   default_strict_allocation_scope_uid="!=%s" % context.getPortalObject().portal_categories.allocation_scope.close.forever.getUid(),
-                  "query": "urn:jio:allDocs?query=portal_type%3A%22" +
-                    "Hosting Subscription" + "%22%20AND%20validation_state%3Avalidated",
-                  "portal_type": [],
-                  "search_column_list": column_list,
-                  "sort_column_list": column_list,
-                  "sort": [["title", "ascending"]],
-                  "title": services_translation,
-                  "type": "ListBox"
-                }
-              }},
-              "_links": {
-                "type": {
-                  // form_list display portal_type in header
-                  name: ""
-                }
-              }
-            },
+            erp5_document: gadget.form_list_view,
             form_definition: {
               group_list: [[
                 "bottom",

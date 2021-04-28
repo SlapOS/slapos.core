@@ -199,6 +199,7 @@ class SlapOSConfigWriter(ConfigWriter):
                 {read_only_shared_part_list}
                 {standalone_slapos._shared_part_root}
               master_url = {standalone_slapos._master_url}
+              master_rest_url = {standalone_slapos._master_url}/hateoas
               computer_id = {standalone_slapos._computer_id}
               root_check = False
               pidfile_software = {standalone_slapos._instance_pid}

@@ -74,7 +74,7 @@
           return gadget.jio_getAttachment('hosting_subscription_module', 'view');
         })
         .push(function (result) {
-          gadget.form_list_view = result;
+          gadget.hosting_subscription_module_view = result;
           return RSVP.all([
             gadget.getDeclaredGadget('form_list'),
             gadget.getSetting("listbox_lines_limit", 20),
@@ -90,17 +90,19 @@
             ['HostingSubscription_getNewsDict', result[2][2]],
             ['list_image', result[2][5]]
           ],
-            form_listbox = gadget.form_list_view._embedded._view.listbox,
+            parameter_dict = gadget.hosting_subscription_module_view._embedded._view.listbox,
             form_list = result[0];
           lines_limit = result[1];
           services_translation = result[2][3];
-          form_listbox.title = services_translation;
-          form_listbox.column_list = column_list;
-          form_listbox.query = "urn:jio:allDocs?query=portal_type%3A%22" +
+          parameter_dict.title = services_translation;
+          parameter_dict.column_list = column_list;
+          parameter_dict.search_column_list = column_list;
+          parameter_dict.query = "urn:jio:allDocs?query=portal_type%3A%22" +
                     "Hosting Subscription" + "%22%20AND%20validation_state%3Avalidated";
-          form_listbox.lines = lines_limit;
+          parameter_dict.lines = lines_limit;
+          parameter_dict.sort = [["title", "ascending"]];
           return form_list.render({
-            erp5_document: gadget.form_list_view,
+            erp5_document: gadget.hosting_subscription_module_view,
             form_definition: {
               group_list: [[
                 "bottom",

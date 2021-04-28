@@ -61,6 +61,10 @@
                     </value>
                 </item>
                 <item>
+                    <key> <string>editable</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>enabled</string> </key>
                     <value> <string></string> </value>
                 </item>

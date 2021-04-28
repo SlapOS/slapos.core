@@ -86,9 +86,7 @@
                 <item>
                     <key> <string>hidden</string> </key>
                     <value>
-                      <list>
-                        <string>my_list_image_url</string>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>

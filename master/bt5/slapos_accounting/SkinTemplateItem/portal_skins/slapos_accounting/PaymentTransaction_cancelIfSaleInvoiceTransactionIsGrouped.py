@@ -20,12 +20,11 @@ if invoice is None:
 
 line_found = False
 line_list = invoice.getMovementList(portal.getPortalAccountingMovementTypeList())
-
 if not len(line_list):
   # Ignore since lines to group don't exist yet
   return
 
-for line in invoice.getMovementList(portal.getPortalAccountingMovementTypeList()):
+for line in line_list:
   if isNodeFromLineReceivable(line):
     line_found = True
     if line.hasGroupingReference():
@@ -40,7 +39,8 @@ if line_found and paid:
                           with grouping reference %s" % letter)
   
   # Should be safe now to fix everything XXXXXXX
-  context.SaleInvoiceTransaction_resetPaymentMode()
-  
+  invoice.SaleInvoiceTransaction_resetPaymentMode()
 
-  return
+  return "Payment Cancelled"
+
+return "Skipped"

@@ -6,7 +6,7 @@ from zExceptions import Unauthorized
 
 user = context.getPortalObject().portal_membership.getAuthenticatedMember().getUserValue()
 
-if user.getRelativeUrl() != context.getDestinationSection():
+if user is None or user.getRelativeUrl() != context.getDestinationSection():
   raise Unauthorized("Only the Hosting Scription owner can transfer it from one location to another.")
 
 portal_type = "Internal Packing List"

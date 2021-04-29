@@ -6,7 +6,7 @@ from zExceptions import Unauthorized
 
 user = context.getPortalObject().portal_membership.getAuthenticatedMember().getUserValue()
 
-if user.getRelativeUrl() != context.getSourceAdministration():
+if user is None or user.getRelativeUrl() != context.getSourceAdministration():
   raise Unauthorized("Only the computer owner can Transfer computer from one location to another.")
 
 portal_type = "Internal Packing List"

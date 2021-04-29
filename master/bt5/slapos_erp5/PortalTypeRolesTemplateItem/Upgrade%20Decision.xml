@@ -6,6 +6,24 @@
    <multi_property id='base_category'>group</multi_property>
   </role>
   <role id='Assignee'>
+   <property id='title'>Organisation Member (Computer)</property>
+   <property id='base_category_script'>Item_getSecurityCategoryFromMovementLineAggregateComputerDestinationSection</property>
+   <multi_property id='categories'>local_role_group/organisation</multi_property>
+   <multi_property id='base_category'>destination_section</multi_property>
+  </role>
+  <role id='Assignee'>
+   <property id='title'>Organisation Member (HS)</property>
+   <property id='base_category_script'>Item_getSecurityCategoryFromMovementLineAggregateDestination</property>
+   <multi_property id='categories'>local_role_group/organisation</multi_property>
+   <multi_property id='base_category'>destination</multi_property>
+  </role>
+  <role id='Assignee'>
+   <property id='title'>Project Member</property>
+   <property id='base_category_script'>Item_getSecurityCategoryFromMovementLineAggregateDestinationProject</property>
+   <multi_property id='categories'>local_role_group/project</multi_property>
+   <multi_property id='base_category'>destination_project</multi_property>
+  </role>
+  <role id='Assignee'>
    <property id='title'>User</property>
    <property id='description'>Monovalued role</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>

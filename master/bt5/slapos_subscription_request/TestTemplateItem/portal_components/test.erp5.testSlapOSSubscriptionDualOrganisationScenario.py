@@ -151,9 +151,9 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
         "sale_trade_condition_module/slapos_reservation_refund_trade_condition")
 
       if subscription_request.getPriceCurrency() == "currency_module/CNY":
-        expected_reservation_fee = self.expected_zh_reservation_fee
+        expected_reservation_fee = self.expected_zh_reservation_fee_without_tax
       else:
-        expected_reservation_fee = self.expected_reservation_fee
+        expected_reservation_fee = self.expected_reservation_fee_without_tax
 
       self.assertEqual(round(sale_packing_list.getTotalPrice(), 2),
                        -round(expected_reservation_fee*amount, 2))

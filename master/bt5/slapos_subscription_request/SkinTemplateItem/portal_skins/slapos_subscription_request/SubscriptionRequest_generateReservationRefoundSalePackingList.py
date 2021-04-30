@@ -37,6 +37,13 @@ if payment_transaction is None or payment_transaction.getSimulationState() != "s
   # Nothing to do bug wait the payment
   return
 
+price_without_tax = None
+for invoice_line in sale_invoice_transaction.objectValues(portal_type="Invoice Line"):
+  if invoice_line.getResource() == "service_module/slapos_reservation_fee":
+    price_without_tax = invoice_line.getTotalPrice()
+
+assert price_without_tax is not None, "Something is wrong since price wasn't found"
+
 # Time to create the PL
 person = sale_invoice_transaction.getDestinationValue(portal_type="Person")
 delivery_template = portal.restrictedTraverse(
@@ -65,7 +72,7 @@ line = delivery.newContent(
       destination_section_value=person,
       resource_value=service,
       quantity_unit=service.getQuantityUnit(),
-      price=-sale_invoice_transaction.getTotalPrice(),
+      price=-price_without_tax,
       causality_uid=context.getUid()
     )
 

@@ -51,6 +51,7 @@ class testSlapOSSubscriptionCloudInvitationTokenScenario(TestSlapOSSubscriptionS
     self._test_subscription_scenario_with_existing_user(amount=1, language="en")
 
   def _init_test_with_valid_invitation(self):
+    self.expected_reservation_fee_without_tax = 0.0
     self.expected_reservation_fee = 0.0
     self.expected_reservation_quantity_tax = 0.0
     self.expected_reservation_tax = 0.0
@@ -74,6 +75,7 @@ class testSlapOSSubscriptionCloudInvitationTokenScenario(TestSlapOSSubscriptionS
     self._test_subscription_scenario_with_reversal_transaction(amount=1)
 
   def test_two_subscription_scenario_with_invitation(self):
+    self.expected_reservation_fee_without_tax = 0.0
     self.expected_reservation_fee = 0.0
     self.expected_reservation_quantity_tax = 0.0
     self.expected_reservation_tax = 0.0

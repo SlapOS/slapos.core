@@ -1050,10 +1050,10 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     quantity = subscription_request.getQuantity()
     if subscription_request.getPriceCurrency() == "currency_module/CNY":
       expected_individual_price_without_tax = self.expected_zh_individual_price_without_tax
-      expected_reservation_fee = self.expected_zh_reservation_fee
+      expected_reservation_fee = self.expected_zh_reservation_fee_without_tax
     else:
       expected_individual_price_without_tax = self.expected_individual_price_without_tax
-      expected_reservation_fee = self.expected_reservation_fee
+      expected_reservation_fee = self.expected_reservation_fee_without_tax
       
     # The values are without tax
     self.assertEqual(sale_packing_list_line.getQuantity(), 1*quantity)
@@ -1072,9 +1072,9 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     # The values are without tax
     self.assertEqual(sale_packing_list_line.getQuantity(), 1)
     self.assertEqual(round(sale_packing_list_line.getPrice(), 2),
-                     -int(expected_reservation_fee*quantity))
+                     -round(expected_reservation_fee*quantity, 2))
     self.assertEqual(round(sale_packing_list_line.getTotalPrice(), 2),
-                   -int(expected_reservation_fee*quantity))
+                   -round(expected_reservation_fee*quantity, 2))
 
     self.assertEqual(sale_packing_list.getCausality(),
                      subscription_request.getRelativeUrl())
@@ -1272,11 +1272,11 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     if subscription_request.getPriceCurrency() == "currency_module/CNY":
       self.assertEqual(round(sale_packing_list.getTotalPrice(), 2),
-                     -round(self.expected_zh_reservation_fee*amount, 2))
+                     -round(self.expected_zh_reservation_fee_without_tax*amount, 2))
 
     else:
       self.assertEqual(round(sale_packing_list.getTotalPrice(), 2),
-                     -round(self.expected_reservation_fee*amount, 2))
+                     -round(self.expected_reservation_fee_without_tax*amount, 2))
 
     return subscription_request
 

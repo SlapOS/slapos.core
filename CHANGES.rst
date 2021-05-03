@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.6.10 (2021-05-03)
+------------------
+
+ * slap/standalone: enable hateoas support in proxy configuration
+
 1.6.9 (2021-04-27)
 ------------------
 

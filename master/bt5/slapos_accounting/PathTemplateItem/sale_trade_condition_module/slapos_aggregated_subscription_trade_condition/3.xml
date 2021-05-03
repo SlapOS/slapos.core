@@ -30,7 +30,7 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>VAT_EUR</string> </value>
+            <value> <string>VAT_CNY</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -40,7 +40,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>1</string> </value>
+            <value> <string>3</string> </value>
         </item>
         <item>
             <key> <string>int_index</string> </key>
@@ -53,6 +53,7 @@
             <value>
               <tuple>
                 <string>price_currency</string>
+                <string>resource</string>
               </tuple>
             </value>
         </item>
@@ -60,7 +61,8 @@
             <key> <string>membership_criterion_category</string> </key>
             <value>
               <tuple>
-                <string>price_currency/currency_module/EUR</string>
+                <string>price_currency/currency_module/CNY</string>
+                <string>resource/service_module/slapos_instance_subscription</string>
               </tuple>
             </value>
         </item>
@@ -94,7 +96,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>VAT (EURO)</string> </value>
+            <value> <string>VAT (CNY)</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -188,7 +190,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>991.53633.45708.36590</string> </value>
+                      <value> <string>991.53652.31735.11434</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -206,7 +208,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1620065392.55</float>
+                              <float>1620066600.95</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

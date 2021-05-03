@@ -1293,7 +1293,8 @@ stderr_logfile_backups=1
               else:
                 shutil.rmtree(garbage_path)
 
-          if os.listdir(computer_partition_path) != []:
+          # Ignore .slapos-resource file dumped by slapformat.
+          if os.listdir(computer_partition_path) not in ([], ['.slapos-resource']):
             self.logger.warning("Free partition %s contains file(s) in %s." % (
                 computer_partition.getId(), computer_partition_path))
           continue

@@ -1276,6 +1276,7 @@ stderr_logfile_backups=1
     Try to filter valid partitions to be processed from free partitions.
     """
     filtered_computer_partition_list = []
+    empty_partition_listdir = [], ['.slapos-resource']
     for computer_partition in computer_partition_list:
       try:
         computer_partition_path = os.path.join(self.instance_root,
@@ -1307,7 +1308,8 @@ stderr_logfile_backups=1
               else:
                 shutil.rmtree(garbage_path)
 
-          if os.listdir(computer_partition_path) != []:
+          # Ignore .slapos-resource file dumped by slapformat.
+          if os.listdir(computer_partition_path) not in empty_partition_listdir:
             self.logger.warning("Free partition %s contains file(s) in %s." % (
                 computer_partition.getId(), computer_partition_path))
           continue

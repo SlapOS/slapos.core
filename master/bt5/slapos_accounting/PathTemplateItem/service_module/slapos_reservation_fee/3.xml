@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>VPVPS</string> </value>
+            <value> <string>VPSBrute</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
@@ -20,7 +20,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>vpVPS Reservation Fee</string> </value>
+            <value> <string>VPSBrute Reservation Fee</string> </value>
         </item>
         <item>
             <key> <string>variation_base_category_list</string> </key>

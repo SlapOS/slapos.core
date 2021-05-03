@@ -13,6 +13,7 @@
                 <string>default</string>
                 <string>editable</string>
                 <string>enabled</string>
+                <string>title</string>
               </list>
             </value>
         </item>
@@ -110,6 +111,10 @@
                 <item>
                     <key> <string>target</string> </key>
                     <value> <string>Click to edit the target</string> </value>
+                </item>
+                <item>
+                    <key> <string>title</string> </key>
+                    <value> <string>Software Logo</string> </value>
                 </item>
               </dictionary>
             </value>

@@ -66,7 +66,7 @@
           "Status",
           "Services",
           "The Status",
-          "Thumbnail"
+          "Software Logo"
         ];
 
       return new RSVP.Queue()

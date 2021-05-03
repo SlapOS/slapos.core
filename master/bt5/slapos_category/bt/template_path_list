@@ -55,7 +55,12 @@ portal_categories/memory_type/**
 portal_categories/nationality/**
 portal_categories/order/**
 portal_categories/payment_mode/**
-portal_categories/product_line/**
+portal_categories/product_line/cloud**
+portal_categories/product_line/commodity**
+portal_categories/product_line/computer**
+portal_categories/product_line/network**
+portal_categories/product_line/shipping**
+portal_categories/product_line/software**
 portal_categories/publication_section/**
 portal_categories/quantity_unit/**
 portal_categories/region/**

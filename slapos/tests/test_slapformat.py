@@ -30,6 +30,9 @@ from __future__ import print_function
 
 import glob
 import logging
+import os
+import shutil
+import tempfile
 import slapos.format
 import slapos.util
 import slapos.manager.cpuset
@@ -682,6 +685,48 @@ class TestComputer(SlapformatMixin):
         'ip -6 addr list myinterface'
       ],
       self.fakeCallAndRead.external_command_list)
+
+
+class TestFormatDump(SlapformatMixin):
+  def setUp(self):
+    super(TestFormatDump, self).setUp()
+    self.restoreOs()
+    self._tempdir = tempfile.mkdtemp()
+
+  def test(self):
+    computer = slapos.format.Computer('computer',
+      instance_root=os.path.join(self._tempdir, 'instance_root'),
+      software_root=os.path.join(self._tempdir, 'software_root'),
+      tap_ipv6=True,
+      interface=slapos.format.Interface(
+        logger=self.logger, name='myinterface', ipv4_local_network='127.0.0.1/16'),
+      partition_list=[
+          slapos.format.Partition(
+            'partition', 'part_path', slapos.format.User('testuser'), [], tap=slapos.format.Tap('tap')),
+        ])
+    global USER_LIST
+    USER_LIST = ['testuser']
+    global INTERFACE_DICT
+    INTERFACE_DICT['myinterface'] = {
+      socket.AF_INET: [{'addr': '192.168.242.77', 'broadcast': '127.0.0.1',
+        'netmask': '255.255.255.0'}],
+      socket.AF_INET6: [{'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::'}]
+    }
+
+    computer.format(alter_user=False, alter_network=False, create_tap=False)
+
+    partition_path = os.path.join(self._tempdir, 'instance_root', 'partition')
+    self.assertTrue(os.path.exists(partition_path))
+    self.assertFalse(os.listdir(partition_path))
+
+    xml_path = os.path.join(self._tempdir, 'slapos.xml')
+    json_path = os.path.join(self._tempdir, 'slapos.json')
+    computer.dump(xml_path, json_path, self.logger)
+    self.assertEqual(os.listdir(partition_path), ['.slapos-resource'])
+
+  def tearDown(self):
+    shutil.rmtree(self._tempdir, True)
+    super(TestFormatDump, self).tearDown()
 
 
 class SlapGridPartitionMock:

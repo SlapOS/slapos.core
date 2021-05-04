@@ -364,8 +364,8 @@ class Computer(object):
     computer_dict = _getDict(self)
 
     if path_to_json:
-      with open(path_to_json, 'wb') as fout:
-        fout.write(json.dumps(computer_dict, sort_keys=True, indent=2))
+      with open(path_to_json, 'w') as fout:
+        json.dump(computer_dict, fout, sort_keys=True, indent=2)
 
     new_xml = dumps(computer_dict)
     new_pretty_xml = prettify_xml(new_xml)
@@ -767,7 +767,7 @@ class Partition(object):
           # dumped resources didn't change
           return
 
-    with open(file_path, "wb") as fo:
+    with open(file_path, "w") as fo:
       fo.write(content)
     owner_pw = pwd.getpwnam(self.user.name)
     os.chmod(file_path, 0o644)

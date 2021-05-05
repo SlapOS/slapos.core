@@ -41,7 +41,7 @@
         </item>
         <item>
             <key> <string>base_price</string> </key>
-            <value> <float>0.8333333333</float> </value>
+            <value> <float>1.0</float> </value>
         </item>
         <item>
             <key> <string>categories</string> </key>

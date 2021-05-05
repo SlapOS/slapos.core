@@ -31,12 +31,12 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
   def afterSetUp(self):
     self.unpinDateTime()
     self.normal_user = None
-    self.expected_individual_price_without_tax = 162.50
-    self.expected_individual_price_with_tax = 195.00
-    self.expected_reservation_fee = 25.00
-    self.expected_reservation_fee_without_tax = 20.833333333333333
-    self.expected_reservation_quantity_tax = 20.833333333333333
-    self.expected_reservation_tax = 4.166666666666667
+    self.expected_individual_price_without_tax = 195
+    self.expected_individual_price_with_tax = 234
+    self.expected_reservation_fee = 30.00
+    self.expected_reservation_fee_without_tax = 25
+    self.expected_reservation_quantity_tax = 25
+    self.expected_reservation_tax = 5.0
     self.expected_price_currency = "currency_module/EUR"
  
 
@@ -412,7 +412,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.assertEqual(payment.getSourcePayment(),
       "%s/bank_account" % expected_source_section)
 
-    self.assertEqual(int(payment.PaymentTransaction_getTotalPayablePrice()*100),
+    self.assertEqual(int(round(payment.PaymentTransaction_getTotalPayablePrice(), 2)*100),
                      -authAmount)
     
     self.assertEqual(payment.getPriceCurrency(),
@@ -601,8 +601,8 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     # Pay with appropriate mode depending of the currency. 
     if payment.getPriceCurrency() == "currency_module/CNY":
-      self.assertEqual(-self.expected_zh_reservation_fee*quantity,
-        payment.PaymentTransaction_getTotalPayablePrice())
+      self.assertEqual(-round(self.expected_zh_reservation_fee*quantity, 2),
+        round(payment.PaymentTransaction_getTotalPayablePrice(), 2))
     
       # Pay 188 CNY per VM
       data_kw = {
@@ -615,8 +615,8 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       # Wechat_processUpdate will mark payment as payed by stopping it.
       payment.PaymentTransaction_createWechatEvent().WechatEvent_processUpdate(data_kw)
     else:
-      self.assertEqual(-self.expected_reservation_fee*quantity,
-        payment.PaymentTransaction_getTotalPayablePrice())
+      self.assertEqual(-round(self.expected_reservation_fee*quantity, 2),
+        round(payment.PaymentTransaction_getTotalPayablePrice(), 2))
     
       # Pay 25 euros per VM
       data_kw = {
@@ -734,7 +734,8 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
           self.assertEqual(round(line.getTotalPrice(), 2),
                            round(expected_reservation_tax*quantity, 2))
 
-      self.assertEqual(round(invoice.getTotalPrice(), 2), expected_reservation_fee*quantity)
+      self.assertEqual(round(invoice.getTotalPrice(), 2),
+                       round(expected_reservation_fee*quantity, 2))
 
   def checkSecondMonthAggregatedSalePackingList(self, subscription_request, sale_packing_list):
     sale_packing_list_line = [ i for i in sale_packing_list.objectValues()

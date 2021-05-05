@@ -25,19 +25,19 @@ class TestSlapOSSubscriptionCDNScenarioMixin(TestSlapOSSubscriptionScenarioMixin
 
   def afterSetUp(self):
     TestSlapOSSubscriptionScenarioMixin.afterSetUp(self)
-    self.expected_individual_price_without_tax = 4.16666666667
-    self.expected_individual_price_with_tax = 5.0
-    self.expected_reservation_fee = 1.0
-    self.expected_reservation_fee_without_tax = 0.833333333333333
-    self.expected_reservation_quantity_tax = 0.833333333333333
-    self.expected_reservation_tax = 0.166666666666667
+    self.expected_individual_price_without_tax = 5
+    self.expected_individual_price_with_tax = 6.0
+    self.expected_reservation_fee = 1.2
+    self.expected_reservation_fee_without_tax = 1
+    self.expected_reservation_quantity_tax = 1.0
+    self.expected_reservation_tax = 0.2
     self.expected_price_currency = "currency_module/EUR"
 
     self.expected_zh_individual_price_without_tax = 40
     self.expected_zh_individual_price_with_tax = 40.4
     self.expected_zh_reservation_fee = 8.08
     self.expected_zh_reservation_fee_without_tax = 8.0
-    self.expected_zh_reservation_quantity_tax = 8.08
+    self.expected_zh_reservation_quantity_tax = 8.0
     self.expected_zh_reservation_tax = 0.08
 
     self.resource_variation_reference = "CDN"

@@ -488,9 +488,9 @@ class TestSubscriptionRequest_requestPaymentTransaction(TestSubscriptionSkinsMix
 
     for line in current_payment.contentValues():
       if line.getSource() == "account_module/payment_to_encash":
-        self.assertEqual(line.getQuantity(), -25*quantity)
+        self.assertEqual(line.getQuantity(), -30*quantity)
       if line.getSource() == "account_module/receivable":
-        self.assertEqual(line.getQuantity(), 25*quantity)
+        self.assertEqual(line.getQuantity(), 30*quantity)
 
   def _test_request_payment_transaction_chinese(self, quantity):
     email = "abc%s@nexedi.com" % self.new_id
@@ -518,13 +518,13 @@ class TestSubscriptionRequest_requestPaymentTransaction(TestSubscriptionSkinsMix
 
     for line in current_payment.contentValues():
       if line.getSource() == "account_module/payment_to_encash":
-        self.assertEqual(line.getQuantity(), -188*quantity)
+        self.assertEqual(line.getQuantity(), -189.88*quantity)
       if line.getSource() == "account_module/receivable":
-        self.assertEqual(line.getQuantity(), 188*quantity)
+        self.assertEqual(line.getQuantity(), 189.88*quantity)
 
   @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'price, tag, payment, template, REQUEST=None',"""assert REQUEST == None
 assert payment
-assert price == 20.8333333
+assert price == 25.0
 assert tag == 'TAG'
 assert template == context.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate()""")
   def test_request_payment_transaction_q1(self):
@@ -532,7 +532,7 @@ assert template == context.portal_preferences.getPreferredDefaultPrePaymentSubsc
 
   @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'price, tag, payment, template, REQUEST=None',"""assert REQUEST == None
 assert payment
-assert price == 20.8333333
+assert price == 25.0
 assert tag == 'TAG'
 assert template == context.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate()""")
   def test_request_payment_transaction_q2(self):
@@ -540,7 +540,7 @@ assert template == context.portal_preferences.getPreferredDefaultPrePaymentSubsc
 
   @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'price, tag, payment, template, REQUEST=None',"""assert REQUEST == None
 assert payment
-assert price == 20.8333333
+assert price == 25.0
 assert tag == 'TAG'
 assert template == context.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate()""")
   def test_request_payment_transaction_q10(self):

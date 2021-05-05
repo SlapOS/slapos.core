@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.6.12 (2021-05-05)
+-------------------
+
+ * slap/standalone: Add `slapos_bin` option to specify the path of the slapos executable
+
 1.6.11 (2021-05-05)
 -------------------
 

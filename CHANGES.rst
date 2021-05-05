@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.6.11 (2021-05-05)
+-------------------
+
+ * slapformat: Fix python3 bytes/str mismatch in dump
+
 1.6.10 (2021-05-03)
 -------------------
 

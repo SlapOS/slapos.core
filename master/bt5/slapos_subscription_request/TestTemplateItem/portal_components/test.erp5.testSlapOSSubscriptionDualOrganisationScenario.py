@@ -29,7 +29,7 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
 
     self.expected_source = fr_organisation.getRelativeUrl()
     self.expected_source_section = fr_organisation.getRelativeUrl()
-    self.expected_zh_reservation_fee = 188.00
+    self.expected_zh_reservation_fee = 189.88
 
     self.subscription_condition.edit(
       source=self.expected_source,

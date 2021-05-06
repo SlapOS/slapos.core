@@ -66,8 +66,12 @@ for movement in movement_list:
 
   # XXX Shamefully hardcoded values
   if movement.getResource() == 'service_module/slapos_instance_subscription':
-    # reduce tax from there directly
-    temp_movement.edit(price=movement.getPrice(0.0)/1.2)
+    if movement.getPriceCurrency() == "currency_module/CNY":
+      # reduce tax from there directly
+      temp_movement.edit(price=movement.getPrice(0.0)/1.01)
+    else:
+      # reduce tax from there directly
+      temp_movement.edit(price=movement.getPrice(0.0)/1.2)
   elif movement.getResource() == 'service_module/slapos_reservation_refund':
     temp_movement.edit(price=movement.getPrice(0.0))
   else:

@@ -40,7 +40,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>3</string> </value>
+            <value> <string>5</string> </value>
         </item>
         <item>
             <key> <string>int_index</string> </key>
@@ -53,6 +53,7 @@
             <value>
               <tuple>
                 <string>price_currency</string>
+                <string>resource</string>
               </tuple>
             </value>
         </item>
@@ -179,7 +180,7 @@
                   <item>
                       <key> <string>comment</string> </key>
                       <value>
-                        <none/>
+                        <persistent> <string encoding="base64">AAAAAAAAAAY=</string> </persistent>
                       </value>
                   </item>
                   <item>
@@ -188,7 +189,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>991.57855.43043.56797</string> </value>
+                      <value> <string>0.0.0.0</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -206,7 +207,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1620326231.38</float>
+                              <float>1620318743.66</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -216,6 +217,38 @@
                 </dictionary>
               </list>
             </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="6" aka="AAAAAAAAAAY=">
+    <pickle>
+      <global name="Message" module="Products.ERP5Type.Message"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>default</string> </key>
+            <value> <string>Object copied from ${source_item}</string> </value>
+        </item>
+        <item>
+            <key> <string>domain</string> </key>
+            <value> <string>erp5_ui</string> </value>
+        </item>
+        <item>
+            <key> <string>mapping</string> </key>
+            <value>
+              <dictionary>
+                <item>
+                    <key> <string>source_item</string> </key>
+                    <value> <string>/erp5/sale_trade_condition_module/slapos_aggregated_subscription_trade_condition/3</string> </value>
+                </item>
+              </dictionary>
+            </value>
+        </item>
+        <item>
+            <key> <string>message</string> </key>
+            <value> <string>Object copied from ${source_item}</string> </value>
         </item>
       </dictionary>
     </pickle>

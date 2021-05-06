@@ -280,9 +280,7 @@
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
-                      <value>
-                        <none/>
-                      </value>
+                      <value> <string>Deleted objects: [\'1\', \'2\']</string> </value>
                   </item>
                   <item>
                       <key> <string>error_message</string> </key>
@@ -290,7 +288,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>990.36941.15111.50278</string> </value>
+                      <value> <string>991.57853.29905.57463</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -308,7 +306,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1615227411.66</float>
+                              <float>1620318739.43</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

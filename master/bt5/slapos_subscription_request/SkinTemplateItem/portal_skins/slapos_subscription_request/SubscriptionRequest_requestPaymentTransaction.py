@@ -48,7 +48,12 @@ if current_invoice is None:
     # with taxes, but for now it is hardcoded.
     tax = 0
     if 'base_amount/invoicing/taxable' in invoice_line.getBaseContributionList():
-      tax = 0.2
+      specialise = invoice_line.getSpecialiseValue(portal_type='Sale Trade Condition')
+      if specialise is not None:
+        for trade_model_line in specialise.getAggregatedAmountList(invoice_line):
+          tax = trade_model_line.getPrice()
+          # For simplification consider tax is a single value.
+          break
 
   for line in current_payment.contentValues():
     if line.getSource() == "account_module/payment_to_encash":

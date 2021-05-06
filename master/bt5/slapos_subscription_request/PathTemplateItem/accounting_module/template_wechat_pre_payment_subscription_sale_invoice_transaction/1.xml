@@ -35,8 +35,8 @@
                 <string>use/trade/sale</string>
                 <string>resource/service_module/slapos_reservation_fee</string>
                 <string>quantity_unit/unit/piece</string>
-                <string>base_contribution/base_amount/invoicing</string>
                 <string>variation/service_module/slapos_reservation_fee/default</string>
+                <string>base_contribution/base_amount/invoicing/taxable</string>
               </tuple>
             </value>
         </item>

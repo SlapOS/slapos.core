@@ -462,7 +462,9 @@ def requestComputerPartition():
     requested_computer_id = parsed_request_dict['filter_kw'].get('computer_guid', app.config['computer_id'])
     matching_partition = getAllocatedSlaveInstance(slave_reference, requested_computer_id)
   else:
-    matching_partition = getAllocatedInstance(parsed_request_dict['partition_reference'])
+    matching_partition = getAllocatedInstance(
+      parsed_request_dict['partition_reference'],
+      parsed_request_dict['partition_id'])
 
   if matching_partition:
     # Then the instance is already allocated, just update it
@@ -644,34 +646,27 @@ def forwardRequestToExternalMaster(master_url, request_form):
   partition._software_release_document = request_form['software_release'] # type: ignore
   return dumps(partition)
 
-def getAllocatedInstance(partition_reference):
+def getAllocatedInstance(partition_reference, requested_by):
   """
   Look for existence of instance, if so return the
   corresponding partition dict, else return None
   """
-  args = []
-  a = args.append
-  table = 'partition'
-  q = 'SELECT * FROM %s WHERE partition_reference=?'
-  a(partition_reference)
-  return execute_db(table, q, args, one=True)
+  return execute_db('partition',
+    'SELECT * FROM %s WHERE partition_reference is ? AND requested_by is ?',
+    (partition_reference, requested_by or None), one=True)
 
-def getAllocatedSlaveInstance(slave_reference, requested_computer_id):
+def getAllocatedSlaveInstance(*args):
   """
   Look for existence of instance, if so return the
   corresponding partition dict, else return None
-  """
-  args = []
-  a = args.append
+
   # XXX: Scope currently depends on instance which requests slave.
   # Meaning that two different instances requesting the same slave will
   # result in two different allocated slaves.
-  table = 'slave'
-  q = 'SELECT * FROM %s WHERE reference=? and computer_reference=?'
-  a(slave_reference)
-  a(requested_computer_id)
-  # XXX: check there is only one result
-  return execute_db(table, q, args, one=True)
+  """
+  return execute_db('slave',
+    'SELECT * FROM %s WHERE reference is ? AND computer_reference is ?',
+    args, one=True)
 
 def getRootPartition(reference):
   """Climb the partitions tree up by 'requested_by' link to get the root partition."""
@@ -696,9 +691,7 @@ def requestNotSlave(software_release, software_type, partition_reference, partit
   instance_xml = dict2xml(partition_parameter_kw)
   requested_computer_id = filter_kw['computer_guid']
 
-  partition = execute_db('partition',
-    'SELECT * FROM %s WHERE partition_reference=?',
-    (partition_reference,), one=True)
+  partition = getAllocatedInstance(partition_reference, partition_id)
 
   args = []
   a = args.append

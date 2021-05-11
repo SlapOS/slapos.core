@@ -31,8 +31,7 @@ CREATE TABLE partition16 (
   slave_instance_list TEXT,
   software_type VARCHAR(255),
   partition_reference VARCHAR(255), -- name of the instance
-  requested_by VARCHAR(255), -- only used for debugging,
-                             -- slapproxy does not support proper scope
+  requested_by VARCHAR(255),
   requested_state VARCHAR(255) NOT NULL DEFAULT 'started',
   timestamp REAL,
   CONSTRAINT uniq PRIMARY KEY (reference, computer_reference)

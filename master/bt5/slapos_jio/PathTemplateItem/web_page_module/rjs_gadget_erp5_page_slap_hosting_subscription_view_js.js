@@ -209,7 +209,7 @@
             ],
             parameter_dict = {
               'parameter' : {
-                'json_url': gadget.state.doc.url_string + ".json",
+                'json_url': gadget.state.doc.url_string.split('?')[0] + ".json",
                 'softwaretype': gadget.state.doc.source_reference,
                 'shared': gadget.state.doc.root_slave ? 1 : 0,
                 //'json_url': "https://lab.node.vifib.com/nexedi/slapos/raw/master/software/kvm/software.cfg.json",

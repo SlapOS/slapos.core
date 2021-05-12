@@ -736,6 +736,18 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
     slave_instance = self.portal.software_instance_module.newContent(
         portal_type='Slave Instance')
     slave_instance.edit(specialise=hosting_subscription.getRelativeUrl())
+
+    support_request = self.portal.support_request_module.newContent(
+        portal_type="Support Request"
+    )
+    support_request.edit(aggregate=hosting_subscription.getRelativeUrl())
+    upgrade_decision = self.portal.upgrade_decision_module.newContent(
+        portal_type="Upgrade Decision"
+    )
+    upgrade_decision_line = upgrade_decision.newContent(
+      portal_type="Upgrade Decision Line"
+    )
+    upgrade_decision_line.edit(aggregate=hosting_subscription.getRelativeUrl())
     self.tic()
 
     self.assertSecurityGroup(internal_packing_list, [self.user_id,],
@@ -750,6 +762,10 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
 
     self.assertSecurityGroup(slave_instance, [self.user_id, 'G-COMPANY',
         hosting_subscription.getReference()], False)
+
+    self.assertSecurityGroup(support_request, [self.user_id, 'G-COMPANY'], False)
+
+    self.assertSecurityGroup(upgrade_decision, [self.user_id, 'G-COMPANY'], False)
 
     internal_packing_list_line.edit(
         #quantity_unit="unit",
@@ -774,6 +790,13 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
     self.assertSecurityGroup(slave_instance, [self.user_id, 'G-COMPANY',
         project.getReference(),
         hosting_subscription.getReference()], False)
+
+    self.assertSecurityGroup(support_request, [self.user_id, 'G-COMPANY',
+        project.getReference()], False)
+
+    self.assertSecurityGroup(upgrade_decision, [self.user_id, 'G-COMPANY',
+        project.getReference()], False)
+
 
   def test_InternalPackingListLine_setAggregate_computer(self):
     self._makePerson()
@@ -810,6 +833,18 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
     installation = self.portal.software_installation_module.newContent(
         portal_type='Software Installation')
     installation.edit(aggregate=computer.getRelativeUrl())
+
+    support_request = self.portal.support_request_module.newContent(
+        portal_type="Support Request"
+    )
+    support_request.edit(aggregate=computer.getRelativeUrl())
+    upgrade_decision = self.portal.upgrade_decision_module.newContent(
+        portal_type="Upgrade Decision"
+    )
+    upgrade_decision_line = upgrade_decision.newContent(
+      portal_type="Upgrade Decision Line"
+    )
+    upgrade_decision_line.edit(aggregate=computer.getRelativeUrl())
     self.tic()
 
     self.assertSecurityGroup(internal_packing_list, [self.user_id,],
@@ -821,6 +856,10 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
     
     self.assertSecurityGroup(installation, [self.user_id, 'G-COMPANY',
         computer.getUserId()], False)
+
+    self.assertSecurityGroup(support_request, [self.user_id, 'G-COMPANY'], False)
+
+    self.assertSecurityGroup(upgrade_decision, [self.user_id, 'G-COMPANY'], False)
 
     internal_packing_list_line.edit(
         #quantity_unit="unit",
@@ -839,3 +878,9 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
 
     self.assertSecurityGroup(installation, [self.user_id, 'G-COMPANY',
         project.getReference(), computer.getUserId()], False)
+
+    self.assertSecurityGroup(support_request, [self.user_id, 'G-COMPANY',
+        project.getReference()], False)
+
+    self.assertSecurityGroup(upgrade_decision, [self.user_id, 'G-COMPANY',
+        project.getReference()], False)

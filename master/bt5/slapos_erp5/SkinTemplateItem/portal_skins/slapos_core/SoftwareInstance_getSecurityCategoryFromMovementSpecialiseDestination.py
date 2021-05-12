@@ -36,7 +36,7 @@ if specialise_value is None:
   return []
 
 # Object on this case can be Hosting Subscription, Computer, or Computer Network
-organisation = specialise_value.Item_getCurrentOwnerValue()
+organisation = specialise_value.Item_getCurrentSiteValue()
 if organisation is not None and \
   organisation.getPortalType() == "Organisation":
   category_list.append({'destination': [organisation.getRelativeUrl()]})

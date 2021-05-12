@@ -86,6 +86,8 @@ class TestSlapOSGroupRoleSecurityMixin(SlapOSTestCaseMixinWithAbort):
       context.get_local_roles_for_userid(security_group)
     )
 
+
+
 class TestAssignment(TestSlapOSGroupRoleSecurityMixin):
   def test_Company_Group(self):
     assignment = self.portal.person_module.newContent(
@@ -106,6 +108,58 @@ class TestComputer(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(computer, self.user_id, ['Owner'])
     self.assertRoles(computer, computer.getUserId(), ['Assignor'])
 
+  def test_ProjectMember(self):
+    person = self.makePerson(user=1)
+    computer = self.portal.computer_module.newContent(
+        portal_type='Computer',
+        source_administration=person.getRelativeUrl())
+    project = self.portal.project_module.newContent(
+        portal_type='Project')
+
+    self.tic()
+    self.login(person.getUserId())
+    computer.Computer_createMovement(
+      destination=person.getRelativeUrl(),
+      destination_project=project.getRelativeUrl())
+    self.login()
+
+    self.tic()
+    computer.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(computer,
+        ['G-COMPANY',  self.user_id, person.getUserId(),
+         project.getReference(), computer.getUserId()], False)
+    self.assertRoles(computer, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(computer, self.user_id, ['Owner'])
+    self.assertRoles(computer, person.getUserId(), ['Assignee'])
+    self.assertRoles(computer, project.getReference(), ['Assignee'])
+
+  def test_OrganisationMember(self):
+    person = self.makePerson(user=1)
+    computer = self.portal.computer_module.newContent(
+        portal_type='Computer',
+        source_administration=person.getRelativeUrl())
+    organisation = self.portal.organisation_module.newContent(
+        portal_type='Organisation',
+        reference="TESTO-%s" % self.generateNewId())
+
+    self.tic()
+    self.login(person.getUserId())
+    computer.Computer_createMovement(
+      destination=person.getRelativeUrl(),
+      destination_section=organisation.getRelativeUrl())
+    self.login()
+
+    self.tic()
+    computer.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(computer,
+        ['G-COMPANY',  self.user_id, person.getUserId(),
+         organisation.getReference(), computer.getUserId()], False)
+    self.assertRoles(computer, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(computer, self.user_id, ['Owner'])
+    self.assertRoles(computer, person.getUserId(), ['Assignee'])
+    self.assertRoles(computer, organisation.getReference(), ['Assignee'])
+
+
   def test_ComputerAgent(self):
     reference = 'TESTPERSON-%s' % self.generateNewId()
     person = self.portal.person_module.newContent(portal_type='Person',
@@ -115,6 +169,7 @@ class TestComputer(TestSlapOSGroupRoleSecurityMixin):
     computer.updateLocalRolesOnSecurityGroups()
     self.assertSecurityGroup(computer,
         [self.user_id, 'G-COMPANY', person.getUserId(), computer.getUserId()], False)
+    self.assertRoles(computer, 'G-COMPANY', ['Assignor'])
     self.assertRoles(computer, person.getUserId(), ['Assignee'])
     self.assertRoles(computer, self.user_id, ['Owner'])
     self.assertRoles(computer, computer.getUserId(), ['Assignor'])
@@ -222,6 +277,58 @@ class TestComputerModule(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(module, self.user_id, ['Owner'])
 
 class TestComputerNetwork(TestSlapOSGroupRoleSecurityMixin):
+
+  def test_ProjectMember(self):
+    person = self.makePerson(user=1)
+    network = self.portal.computer_network_module.newContent(
+        portal_type='Computer Network',
+        source_administration=person.getRelativeUrl())
+    project = self.portal.project_module.newContent(
+        portal_type='Project')
+
+    self.tic()
+    self.login(person.getUserId())
+    network.ComputerNetwork_createMovement(
+      destination_project=project.getRelativeUrl())
+    self.login()
+
+    self.tic()
+    network.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(network,
+        ['G-COMPANY', 'R-SHADOW-PERSON', self.user_id, person.getUserId(),
+         project.getReference()], False)
+    self.assertRoles(network, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(network, 'R-SHADOW-PERSON', ['Auditor'])
+    self.assertRoles(network, self.user_id, ['Assignee', 'Owner'])
+    self.assertRoles(network, person.getUserId(), ['Assignee'])
+    self.assertRoles(network, project.getReference(), ['Assignee'])
+
+  def test_OrganisationMember(self):
+    person = self.makePerson(user=1)
+    network = self.portal.computer_network_module.newContent(
+        portal_type='Computer Network',
+        source_administration=person.getRelativeUrl())
+    organisation = self.portal.organisation_module.newContent(
+        portal_type='Organisation',
+        reference="TESTO-%s" % self.generateNewId())
+
+    self.tic()
+    self.login(person.getUserId())
+    network.ComputerNetwork_createMovement(
+      destination_section=organisation.getRelativeUrl())
+    self.login()
+
+    self.tic()
+    network.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(network,
+        ['G-COMPANY', 'R-SHADOW-PERSON', self.user_id, person.getUserId(),
+         organisation.getReference()], False)
+    self.assertRoles(network, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(network, 'R-SHADOW-PERSON', ['Auditor'])
+    self.assertRoles(network, self.user_id, ['Assignee', 'Owner'])
+    self.assertRoles(network, person.getUserId(), ['Assignee'])
+    self.assertRoles(network, organisation.getReference(), ['Assignee'])
+
   def test_GroupCompany(self):
     network = self.portal.computer_network_module.newContent(
         portal_type='Computer Network')
@@ -397,6 +504,59 @@ class TestHostingSubscription(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(subscription, customer.getUserId(), ['Assignee'])
     self.assertRoles(subscription, self.user_id, ['Owner'])
     self.assertRoles(subscription, 'G-COMPANY', ['Assignor'])
+
+  def test_ProjectMember(self):
+    person = self.makePerson(user=1)
+    reference = 'TESTHS-%s' % self.generateNewId()
+    subscription = self.portal.hosting_subscription_module.newContent(
+        portal_type='Hosting Subscription', reference=reference,
+        destination_section=person.getRelativeUrl())
+    project = self.portal.project_module.newContent(
+        portal_type='Project')
+
+    self.tic()
+    self.login(person.getUserId())
+    subscription.HostingSubscription_createMovement(
+      destination_project=project.getRelativeUrl())
+    self.login()
+
+    self.tic()
+    subscription.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(subscription, [self.user_id, reference,
+        person.getUserId(), 'G-COMPANY', project.getReference()], False)
+    self.assertRoles(subscription, reference, ['Assignee'])
+    self.assertRoles(subscription, person.getUserId(), ['Assignee'])
+    self.assertRoles(subscription, self.user_id, ['Owner'])
+    self.assertRoles(subscription, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(subscription, project.getReference(), ['Assignee'])
+
+
+  def test_OrganisationMember(self):
+    person = self.makePerson(user=1)
+    reference = 'TESTHS-%s' % self.generateNewId()
+    subscription = self.portal.hosting_subscription_module.newContent(
+        portal_type='Hosting Subscription', reference=reference,
+        destination_section=person.getRelativeUrl())
+    organisation = self.portal.organisation_module.newContent(
+        portal_type='Organisation',
+        reference="TESTO-%s" % self.generateNewId())
+
+    self.tic()
+    self.login(person.getUserId())
+    subscription.HostingSubscription_createMovement(
+      destination=organisation.getRelativeUrl())
+    self.login()
+
+    self.tic()
+    subscription.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(subscription, [self.user_id, reference,
+        person.getUserId(), 'G-COMPANY', organisation.getReference()], False)
+    self.assertRoles(subscription, reference, ['Assignee'])
+    self.assertRoles(subscription, person.getUserId(), ['Assignee'])
+    self.assertRoles(subscription, self.user_id, ['Owner'])
+    self.assertRoles(subscription, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(subscription, organisation.getReference(), ['Assignee'])
+
 
 class TestHostingSubscriptionModule(TestSlapOSGroupRoleSecurityMixin):
   def test(self):
@@ -676,6 +836,66 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(instance, subscription_reference, ['Assignee'])
     self.assertRoles(instance, self.user_id, ['Owner'])
 
+  def test_ProjectMember(self):
+    customer = self.makePerson(user=1)
+    subscription_reference = 'TESTHS-%s ' % self.generateNewId()
+    hosting_subscription = self.portal.hosting_subscription_module.newContent(
+        portal_type='Hosting Subscription',
+        reference=subscription_reference,
+        destination_section=customer.getRelativeUrl())
+    project = self.portal.project_module.newContent(
+        portal_type='Project')
+
+    self.tic()
+    self.login(customer.getUserId())
+    hosting_subscription.HostingSubscription_createMovement(
+      destination_project=project.getRelativeUrl())
+    self.login()
+    self.tic()
+
+    instance = self.portal.software_instance_module.newContent(
+        portal_type='Slave Instance', specialise=hosting_subscription.getRelativeUrl())
+    instance.updateLocalRolesOnSecurityGroups()
+
+    self.assertSecurityGroup(instance, ['G-COMPANY', customer.getUserId(),
+        subscription_reference, self.user_id, project.getReference()], False)
+    self.assertRoles(instance, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(instance, customer.getUserId(), ['Assignee'])
+    self.assertRoles(instance, subscription_reference, ['Assignee'])
+    self.assertRoles(instance, self.user_id, ['Owner'])
+    self.assertRoles(instance, project.getReference(), ['Assignee'])
+
+  def test_OrganisationMember(self):
+    customer = self.makePerson(user=1)
+    subscription_reference = 'TESTHS-%s ' % self.generateNewId()
+    hosting_subscription = self.portal.hosting_subscription_module.newContent(
+        portal_type='Hosting Subscription',
+        reference=subscription_reference,
+        destination_section=customer.getRelativeUrl())
+    organisation = self.portal.organisation_module.newContent(
+        portal_type='Organisation',
+        reference="TESTO-%s" % self.generateNewId())    
+
+    self.tic()
+    self.login(customer.getUserId())
+    hosting_subscription.HostingSubscription_createMovement(
+      destination=organisation.getRelativeUrl())
+    self.login()
+    self.tic()
+
+    instance = self.portal.software_instance_module.newContent(
+        portal_type='Slave Instance', specialise=hosting_subscription.getRelativeUrl())
+    instance.updateLocalRolesOnSecurityGroups()
+
+    self.assertSecurityGroup(instance, ['G-COMPANY', customer.getUserId(),
+        subscription_reference, self.user_id, organisation.getReference()], False)
+    self.assertRoles(instance, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(instance, customer.getUserId(), ['Assignee'])
+    self.assertRoles(instance, subscription_reference, ['Assignee'])
+    self.assertRoles(instance, self.user_id, ['Owner'])
+    self.assertRoles(instance, organisation.getReference(), ['Assignee'])
+
+
   def test_SoftwareInstanceWhichProvidesThisSlaveInstance(self):
     computer_reference = 'TESTCOMP-%s' % self.generateNewId()
     computer = self.portal.computer_module.template_computer\
@@ -732,6 +952,66 @@ class TestSoftwareInstallation(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(installation, computer.getUserId(), ['Assignor'])
     self.assertRoles(installation, self.user_id, ['Owner'])
 
+  def test_ProjectMember(self):
+    person = self.makePerson(user=1)
+    computer_reference = 'TESTCOMP-%s' % self.generateNewId()
+    computer = self.portal.computer_module.template_computer\
+        .Base_createCloneDocument(batch_mode=1)
+    computer.edit(reference=computer_reference,
+        source_administration=person.getRelativeUrl())
+    project = self.portal.project_module.newContent(
+        portal_type='Project')
+    
+    self.tic()
+    self.login(person.getUserId())
+    computer.Computer_createMovement(
+      destination=person.getRelativeUrl(),
+      destination_project=project.getRelativeUrl())
+    self.login()
+    self.tic()
+    installation = self.portal.software_installation_module.newContent(
+        portal_type='Software Installation',
+        aggregate=computer.getRelativeUrl())
+    installation.updateLocalRolesOnSecurityGroups()
+
+    self.assertSecurityGroup(installation, [self.user_id,
+        'G-COMPANY', computer.getUserId(), project.getReference()], False)
+    self.assertRoles(installation, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(installation, computer.getUserId(), ['Assignor'])
+    self.assertRoles(installation, self.user_id, ['Owner'])
+    self.assertRoles(installation, project.getReference(), ['Assignee'])
+
+  def test_OrganisationMember(self):
+    person = self.makePerson(user=1)
+    computer_reference = 'TESTCOMP-%s' % self.generateNewId()
+    computer = self.portal.computer_module.template_computer\
+        .Base_createCloneDocument(batch_mode=1)
+    computer.edit(reference=computer_reference,
+        source_administration=person.getRelativeUrl())
+    organisation = self.portal.organisation_module.newContent(
+        portal_type='Organisation',
+        reference="TESTO-%s" % self.generateNewId())    
+
+    self.tic()
+    self.login(person.getUserId())
+    computer.Computer_createMovement(
+      destination=person.getRelativeUrl(),
+      destination_section=organisation.getRelativeUrl())
+    self.login()
+    self.tic()
+    installation = self.portal.software_installation_module.newContent(
+        portal_type='Software Installation',
+        aggregate=computer.getRelativeUrl())
+    installation.updateLocalRolesOnSecurityGroups()
+
+    self.assertSecurityGroup(installation, [self.user_id,
+        'G-COMPANY', computer.getUserId(), organisation.getReference()], False)
+    self.assertRoles(installation, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(installation, computer.getUserId(), ['Assignor'])
+    self.assertRoles(installation, self.user_id, ['Owner'])
+    self.assertRoles(installation, organisation.getReference(), ['Assignee'])
+
+
   def test_ProviderOfTheInstallation(self):
     provider_reference = 'TESTPERSON-%s' % self.generateNewId()
     provider = self.portal.person_module.newContent(
@@ -745,7 +1025,7 @@ class TestSoftwareInstallation(TestSlapOSGroupRoleSecurityMixin):
     self.assertSecurityGroup(installation, [self.user_id,
         'G-COMPANY', provider.getUserId()], False)
     self.assertRoles(installation, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(installation, provider.getUserId(), ['Assignee'])
+    self.assertRoles(installation, provider.getUserId(), ['Assignor'])
     self.assertRoles(installation, self.user_id, ['Owner'])
 
 class TestSoftwareInstallationModule(TestSlapOSGroupRoleSecurityMixin):
@@ -790,6 +1070,66 @@ class TestSoftwareInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(instance, customer.getUserId(), ['Assignee'])
     self.assertRoles(instance, subscription_reference, ['Assignee'])
     self.assertRoles(instance, self.user_id, ['Owner'])
+
+  def test_ProjectMember(self):
+    customer = self.makePerson(user=1)
+
+    subscription_reference = 'TESTHS-%s ' % self.generateNewId()
+    hosting_subscription = self.portal.hosting_subscription_module.newContent(
+        portal_type='Hosting Subscription',
+        reference=subscription_reference,
+        destination_section=customer.getRelativeUrl())
+    project = self.portal.project_module.newContent(
+        portal_type='Project')
+
+    self.tic()
+    self.login(customer.getUserId())
+    hosting_subscription.HostingSubscription_createMovement(
+      destination_project=project.getRelativeUrl())
+    self.login()
+    self.tic()
+
+    instance = self.portal.software_instance_module.newContent(
+        portal_type='Software Instance', specialise=hosting_subscription.getRelativeUrl())
+    instance.updateLocalRolesOnSecurityGroups()
+
+    self.assertSecurityGroup(instance, ['G-COMPANY', customer.getUserId(),
+        subscription_reference, self.user_id, project.getReference()], False)
+    self.assertRoles(instance, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(instance, customer.getUserId(), ['Assignee'])
+    self.assertRoles(instance, subscription_reference, ['Assignee'])
+    self.assertRoles(instance, self.user_id, ['Owner'])
+    self.assertRoles(instance, project.getReference(), ['Assignee'])
+
+  def test_OrganisationMember(self):
+    customer = self.makePerson(user=1)
+    subscription_reference = 'TESTHS-%s ' % self.generateNewId()
+    hosting_subscription = self.portal.hosting_subscription_module.newContent(
+        portal_type='Hosting Subscription',
+        reference=subscription_reference,
+        destination_section=customer.getRelativeUrl())
+    organisation = self.portal.organisation_module.newContent(
+        portal_type='Organisation',
+        reference="TESTO-%s" % self.generateNewId())    
+
+    self.tic()
+    self.login(customer.getUserId())
+    hosting_subscription.HostingSubscription_createMovement(
+      destination=organisation.getRelativeUrl())
+    self.login()
+    self.tic()
+
+    instance = self.portal.software_instance_module.newContent(
+        portal_type='Software Instance', specialise=hosting_subscription.getRelativeUrl())
+    instance.updateLocalRolesOnSecurityGroups()
+
+    self.assertSecurityGroup(instance, ['G-COMPANY', customer.getUserId(),
+        subscription_reference, self.user_id, organisation.getReference()], False)
+    self.assertRoles(instance, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(instance, customer.getUserId(), ['Assignee'])
+    self.assertRoles(instance, subscription_reference, ['Assignee'])
+    self.assertRoles(instance, self.user_id, ['Owner'])
+    self.assertRoles(instance, organisation.getReference(), ['Assignee'])
 
   def test_Computer(self):
     computer_reference = 'TESTCOMP-%s' % self.generateNewId()
@@ -1978,41 +2318,160 @@ class TestSupportRequestModule(TestSlapOSGroupRoleSecurityMixin):
 
 class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):
   def test_GroupCompany(self):
-    product = self.portal.support_request_module.newContent(
+    support_request = self.portal.support_request_module.newContent(
         portal_type='Support Request')
-    product.updateLocalRolesOnSecurityGroups()
-    self.assertSecurityGroup(product,
+    support_request.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(support_request,
         ['G-COMPANY', self.user_id], False)
-    self.assertRoles(product, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(product, self.user_id, ['Owner'])
+    self.assertRoles(support_request, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(support_request, self.user_id, ['Owner'])
 
   def test_Customer(self):
     reference = 'TESTPERSON-%s' % self.generateNewId()
     person = self.portal.person_module.newContent(portal_type='Person',
         reference=reference)
-    product = self.portal.support_request_module.newContent(
+    support_request = self.portal.support_request_module.newContent(
         portal_type='Support Request',
         destination_decision_value=person,
         )
-    product.updateLocalRolesOnSecurityGroups()
-    self.assertSecurityGroup(product,
+    support_request.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(support_request,
         ['G-COMPANY', person.getUserId(), self.user_id], False)
-    self.assertRoles(product, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(product, person.getUserId(), ['Auditor'])
-    self.assertRoles(product, self.user_id, ['Owner'])
+    self.assertRoles(support_request, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(support_request, person.getUserId(), ['Auditor'])
+    self.assertRoles(support_request, self.user_id, ['Owner'])
 
   def test_Template(self):
-    product = self.portal.restrictedTraverse(
+    support_request = self.portal.restrictedTraverse(
         self.portal.portal_preferences.getPreferredSupportRequestTemplate())
-    assert product.getPortalType() == 'Support Request'
-    product.updateLocalRolesOnSecurityGroups()
-    self.assertSecurityGroup(product,
-        ['G-COMPANY', product.Base_getOwnerId(), 'R-MEMBER'], False)
-    self.assertRoles(product, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(product, product.Base_getOwnerId(), ['Owner'])
-    self.assertRoles(product, 'R-MEMBER', ['Auditor'])
-    self.assertPermissionsOfRole(product, 'Auditor',
+    assert support_request.getPortalType() == 'Support Request'
+    support_request.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(support_request,
+        ['G-COMPANY', support_request.Base_getOwnerId(), 'R-MEMBER'], False)
+    self.assertRoles(support_request, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(support_request, support_request.Base_getOwnerId(), ['Owner'])
+    self.assertRoles(support_request, 'R-MEMBER', ['Auditor'])
+    self.assertPermissionsOfRole(support_request, 'Auditor',
         ['Access contents information', 'View'])
+
+  def test_ProjectMember(self):
+    person = self.makePerson(user=1)
+    computer = self.portal.computer_module.newContent(
+        portal_type='Computer',
+        source_administration=person.getRelativeUrl())
+    project = self.portal.project_module.newContent(
+        portal_type='Project')
+
+    self.tic()
+    self.login(person.getUserId())
+    computer.Computer_createMovement(
+      destination=person.getRelativeUrl(),
+      destination_project=project.getRelativeUrl())
+    self.login()
+    self.tic()
+
+    support_request = self.portal.support_request_module.newContent(
+        portal_type='Support Request',
+        destination_decision_value=person,
+        aggregate=computer.getRelativeUrl()
+        )
+    support_request.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(support_request,
+        ['G-COMPANY', person.getUserId(), self.user_id, project.getReference()], False)
+    self.assertRoles(support_request, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(support_request, person.getUserId(), ['Auditor'])
+    self.assertRoles(support_request, self.user_id, ['Owner'])
+    self.assertRoles(support_request, project.getReference(), ['Auditor'])
+
+  def test_ProjectMember_HostingSubscription(self):
+    person = self.makePerson(user=1)
+    hosting_subscription = self.portal.hosting_subscription_module.newContent(
+        portal_type='Hosting Subscription',
+        destination_section=person.getRelativeUrl())
+    project = self.portal.project_module.newContent(
+        portal_type='Project')
+
+    self.tic()
+    self.login(person.getUserId())
+    hosting_subscription.HostingSubscription_createMovement(
+      destination_project=project.getRelativeUrl())
+    self.login()
+    self.tic()
+
+    support_request = self.portal.support_request_module.newContent(
+        portal_type='Support Request',
+        destination_decision_value=person,
+        aggregate=hosting_subscription.getRelativeUrl()
+        )
+    support_request.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(support_request,
+        ['G-COMPANY', person.getUserId(), self.user_id, project.getReference()], False)
+    self.assertRoles(support_request, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(support_request, person.getUserId(), ['Auditor'])
+    self.assertRoles(support_request, self.user_id, ['Owner'])
+    self.assertRoles(support_request, project.getReference(), ['Auditor'])
+
+
+  def test_OrganisationMember(self):
+    person = self.makePerson(user=1)
+    computer = self.portal.computer_module.newContent(
+        portal_type='Computer',
+        source_administration=person.getRelativeUrl())
+    organisation = self.portal.organisation_module.newContent(
+        portal_type='Organisation',
+        reference="TESTO-%s" % self.generateNewId())
+
+    self.tic()
+    self.login(person.getUserId())
+    computer.Computer_createMovement(
+      destination=person.getRelativeUrl(),
+      destination_section=organisation.getRelativeUrl())
+    self.login()
+    self.tic()
+
+    support_request = self.portal.support_request_module.newContent(
+        portal_type='Support Request',
+        destination_decision_value=person,
+        aggregate=computer.getRelativeUrl()
+        )
+    support_request.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(support_request,
+        ['G-COMPANY', person.getUserId(), self.user_id, organisation.getReference()], False)
+    self.assertRoles(support_request, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(support_request, person.getUserId(), ['Auditor'])
+    self.assertRoles(support_request, self.user_id, ['Owner'])
+    self.assertRoles(support_request, organisation.getReference(), ['Auditor'])
+
+  def test_OrganisationMember_HostingSubscription(self):
+    person = self.makePerson(user=1)
+    hosting_subscription = self.portal.hosting_subscription_module.newContent(
+        portal_type='Hosting Subscription',
+        destination_section=person.getRelativeUrl())
+    organisation = self.portal.organisation_module.newContent(
+        portal_type='Organisation',
+        reference="TESTO-%s" % self.generateNewId())
+
+
+    self.tic()
+    self.login(person.getUserId())
+    hosting_subscription.HostingSubscription_createMovement(
+      destination=organisation.getRelativeUrl())
+    self.login()
+    self.tic()
+
+    support_request = self.portal.support_request_module.newContent(
+        portal_type='Support Request',
+        destination_decision_value=person,
+        aggregate=hosting_subscription.getRelativeUrl()
+        )
+    support_request.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(support_request,
+        ['G-COMPANY', person.getUserId(), self.user_id, organisation.getReference()], False)
+    self.assertRoles(support_request, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(support_request, person.getUserId(), ['Auditor'])
+    self.assertRoles(support_request, self.user_id, ['Owner'])
+    self.assertRoles(support_request, organisation.getReference(), ['Auditor'])
+
 
 class TestTransformationModule(TestSlapOSGroupRoleSecurityMixin):
   def test(self):
@@ -2368,27 +2827,152 @@ class TestUpgradeDecisionModule(TestSlapOSGroupRoleSecurityMixin):
 
 class TestUpgradeDecision(TestSlapOSGroupRoleSecurityMixin):
   def test_GroupCompany(self):
-    product = self.portal.upgrade_decision_module.newContent(
+    upgrade_decision = self.portal.upgrade_decision_module.newContent(
         portal_type='Upgrade Decision')
-    product.updateLocalRolesOnSecurityGroups()
-    self.assertSecurityGroup(product,
+    upgrade_decision.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(upgrade_decision,
         ['G-COMPANY', self.user_id], False)
-    self.assertRoles(product, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(product, self.user_id, ['Owner'])
+    self.assertRoles(upgrade_decision, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(upgrade_decision, self.user_id, ['Owner'])
 
   def test_Customer(self):
     reference = 'TESTPERSON-%s' % self.generateNewId()
     person = self.portal.person_module.newContent(portal_type='Person',
         reference=reference)
-    product = self.portal.upgrade_decision_module.newContent(
+    upgrade_decision = self.portal.upgrade_decision_module.newContent(
         portal_type='Upgrade Decision',
         destination_decision_value=person,
         )
-    product.updateLocalRolesOnSecurityGroups()
-    self.assertSecurityGroup(product,
+    upgrade_decision.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(upgrade_decision,
         ['G-COMPANY', person.getUserId(), self.user_id], False)
-    self.assertRoles(product, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(product, person.getUserId(), ['Assignee'])
-    self.assertRoles(product, self.user_id, ['Owner'])
+    self.assertRoles(upgrade_decision, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(upgrade_decision, person.getUserId(), ['Assignee'])
+    self.assertRoles(upgrade_decision, self.user_id, ['Owner'])
 
-    
+  def test_ProjectMember(self):
+    person = self.makePerson(user=1)
+    computer = self.portal.computer_module.newContent(
+        portal_type='Computer',
+        source_administration=person.getRelativeUrl())
+    project = self.portal.project_module.newContent(
+        portal_type='Project')
+
+    self.tic()
+    self.login(person.getUserId())
+    computer.Computer_createMovement(
+      destination=person.getRelativeUrl(),
+      destination_project=project.getRelativeUrl())
+    self.login()
+    self.tic()
+
+    upgrade_decision = self.portal.upgrade_decision_module.newContent(
+        portal_type='Upgrade Decision',
+        destination_decision_value=person)
+
+    upgrade_decision.newContent(
+        portal_type="Upgrade Decision Line",
+        aggregate=computer.getRelativeUrl()
+        )
+    upgrade_decision.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(upgrade_decision,
+        ['G-COMPANY', person.getUserId(), self.user_id, project.getReference()], False)
+    self.assertRoles(upgrade_decision, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(upgrade_decision, person.getUserId(), ['Assignee'])
+    self.assertRoles(upgrade_decision, self.user_id, ['Owner'])
+    self.assertRoles(upgrade_decision, project.getReference(), ['Assignee'])
+
+  def test_ProjectMember_HostingSubscription(self):
+    person = self.makePerson(user=1)
+    hosting_subscription = self.portal.hosting_subscription_module.newContent(
+        portal_type='Hosting Subscription',
+        destination_section=person.getRelativeUrl())
+    project = self.portal.project_module.newContent(
+        portal_type='Project')
+
+    self.tic()
+    self.login(person.getUserId())
+    hosting_subscription.HostingSubscription_createMovement(
+      destination_project=project.getRelativeUrl())
+    self.login()
+    self.tic()
+
+    upgrade_decision = self.portal.upgrade_decision_module.newContent(
+        portal_type='Upgrade Decision',
+        destination_decision_value=person)
+    upgrade_decision.newContent(
+        portal_type="Upgrade Decision Line",
+        aggregate=hosting_subscription.getRelativeUrl()
+        )
+    upgrade_decision.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(upgrade_decision,
+        ['G-COMPANY', person.getUserId(), self.user_id, project.getReference()], False)
+    self.assertRoles(upgrade_decision, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(upgrade_decision, person.getUserId(), ['Assignee'])
+    self.assertRoles(upgrade_decision, self.user_id, ['Owner'])
+    self.assertRoles(upgrade_decision, project.getReference(), ['Assignee'])
+
+
+  def test_OrganisationMember(self):
+    person = self.makePerson(user=1)
+    computer = self.portal.computer_module.newContent(
+        portal_type='Computer',
+        source_administration=person.getRelativeUrl())
+    organisation = self.portal.organisation_module.newContent(
+        portal_type='Organisation',
+        reference="TESTO-%s" % self.generateNewId())
+
+    self.tic()
+    self.login(person.getUserId())
+    computer.Computer_createMovement(
+      destination=person.getRelativeUrl(),
+      destination_section=organisation.getRelativeUrl())
+    self.login()
+    self.tic()
+
+    upgrade_decision = self.portal.upgrade_decision_module.newContent(
+        portal_type='Upgrade Decision',
+        destination_decision_value=person)
+
+    upgrade_decision.newContent(
+        portal_type="Upgrade Decision Line",
+        aggregate=computer.getRelativeUrl()
+        )
+    upgrade_decision.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(upgrade_decision,
+        ['G-COMPANY', person.getUserId(), self.user_id, organisation.getReference()], False)
+    self.assertRoles(upgrade_decision, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(upgrade_decision, person.getUserId(), ['Assignee'])
+    self.assertRoles(upgrade_decision, self.user_id, ['Owner'])
+    self.assertRoles(upgrade_decision, organisation.getReference(), ['Assignee'])
+
+  def test_OrganisationMember_HostingSubscription(self):
+    person = self.makePerson(user=1)
+    hosting_subscription = self.portal.hosting_subscription_module.newContent(
+        portal_type='Hosting Subscription',
+        destination_section=person.getRelativeUrl())
+    organisation = self.portal.organisation_module.newContent(
+        portal_type='Organisation',
+        reference="TESTO-%s" % self.generateNewId())
+
+    self.tic()
+    self.login(person.getUserId())
+    hosting_subscription.HostingSubscription_createMovement(
+      destination=organisation.getRelativeUrl())
+    self.login()
+    self.tic()
+
+    upgrade_decision = self.portal.upgrade_decision_module.newContent(
+        portal_type='Upgrade Decision',
+        destination_decision_value=person)
+    upgrade_decision.newContent(
+        portal_type="Upgrade Decision Line",
+        aggregate=hosting_subscription.getRelativeUrl()
+        )
+    upgrade_decision.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(upgrade_decision,
+        ['G-COMPANY', person.getUserId(), self.user_id, organisation.getReference()], False)
+    self.assertRoles(upgrade_decision, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(upgrade_decision, person.getUserId(), ['Assignee'])
+    self.assertRoles(upgrade_decision, self.user_id, ['Owner'])
+    self.assertRoles(upgrade_decision, organisation.getReference(), ['Assignee'])

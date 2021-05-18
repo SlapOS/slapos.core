@@ -62,20 +62,20 @@
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//a[text()='Sun, 20 Oct 2019 00:00:00 GMT']</td>
+        <td>//p[text()='10/20/2019']</td>
         <td></td>
       </tr>
       <tr>
         <td>click</td>
-        <td>//a[text()='Sun, 20 Oct 2019 00:00:00 GMT']</td>
+        <td>//p[text()='10/20/2019']</td>
         <td></td>
       </tr>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
 
       <!-- check invoice view -->
-      <tal:block tal:define="header python: 'Invoice:${title}';
-                             dummy python: context.REQUEST.set('mapping', {'title': 'Sun, 20 Oct 2019 00:00:00 GMT'})">
+      <tal:block tal:define="header python: 'Invoice: ${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': '1'})">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 

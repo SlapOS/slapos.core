@@ -25,20 +25,22 @@
             if (result.data.rows[i].value.hasOwnProperty("start_date")) {
               value = new Date(result.data.rows[i].value.start_date);
               result.data.rows[i].value.start_date = {
-                allow_empty_time: 0,
-                ampm_time_style: 0,
-                css_class: "date_field",
-                date_only: 1,
-                description: "The Date",
-                editable: 0,
-                hidden: 0,
-                hidden_day_is_last_day: 0,
-                "default": value.toUTCString(),
-                key: "date",
-                required: 0,
-                timezone_style: 0,
-                title: "Status Date",
-                type: "DateTimeField"
+                "field_gadget_param": {
+                  allow_empty_time: 0,
+                  ampm_time_style: 0,
+                  css_class: "date_field",
+                  date_only: true,
+                  description: "The Date",
+                  editable: 0,
+                  hidden: 0,
+                  hidden_day_is_last_day: 0,
+                  "default": value.toUTCString(),
+                  key: "date",
+                  required: 0,
+                  timezone_style: 0,
+                  title: "Date",
+                  type: "DateTimeField"
+                }
               };
             }
 
@@ -105,7 +107,8 @@
           "Currency",
           "Payment",
           "Download",
-          "Invoices"
+          "Invoices",
+          "Reference"
         ];
 
       return new RSVP.Queue()
@@ -118,6 +121,7 @@
         })
         .push(function (result) {
           var column_list = [
+            ['reference', result[2][6]],
             ['start_date', result[2][0]],
             ['total_price', result[2][1]],
             ['resource_reference', result[2][2]],

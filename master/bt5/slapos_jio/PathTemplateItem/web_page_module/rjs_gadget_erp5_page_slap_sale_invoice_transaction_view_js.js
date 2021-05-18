@@ -83,6 +83,7 @@
             erp5_document: {
               "_embedded": {"_view": {
                 "my_start_date": {
+
                   "allow_empty_time": 0,
                   "ampm_time_style": 0,
                   "css_class": "date_field",
@@ -186,10 +187,9 @@
           ]);
         })
         .push(function (url_list) {
-          var start_date = new Date(gadget.state.doc.start_date),
-            header_dict = {
+          var header_dict = {
               selection_url: url_list[1],
-              page_title: page_title_translation + start_date.toUTCString()
+              page_title: page_title_translation + ' ' + gadget.state.doc.reference
             };
           if (!gadget.state.editable) {
             header_dict.edit_content = url_list[0];

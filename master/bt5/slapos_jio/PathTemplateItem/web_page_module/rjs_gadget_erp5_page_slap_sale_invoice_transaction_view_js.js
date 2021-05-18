@@ -17,7 +17,8 @@
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("jio_allDocs", "jio_allDocs")
-     .declareAcquiredMethod("getTranslationList", "getTranslationList")
+    .declareAcquiredMethod("getSetting", "getSetting")
+    .declareAcquiredMethod("getTranslationList", "getTranslationList")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -64,26 +65,36 @@
           "Payment State",
           "Download",
           "Invoice:",
-          "Data updated."
+          "Data updated.",
+          "Instance",
+          "From",
+          "To",
+          "Quantity"
         ];
       return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
-            gadget.getTranslationList(translation_list)
+            gadget.getTranslationList(translation_list),
+            gadget.getSetting("hateoas_url")
           ]);
         })
         .push(function (result) {
           gadget.message_translation = result[1][8];
           page_title_translation = result[1][7];
           var form_gadget = result[0],
+            column_list = [
+              ["title", result[1][9]],
+              ["start_date", result[1][10]],
+              ["stop_date", result[1][11]],
+              ["quantity", result[1][12]]
+            ],
             start_date = new Date(gadget.state.doc.start_date),
             total_price = window.parseFloat(gadget.state.doc.total_price).toFixed(2);
           return form_gadget.render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_start_date": {
-
                   "allow_empty_time": 0,
                   "ampm_time_style": 0,
                   "css_class": "date_field",
@@ -157,6 +168,26 @@
                   "key": "monitoring_status",
                   "hidden": 0,
                   "type": "GadgetField"
+                },
+                "listbox": {
+                  "column_list": column_list,
+                  "show_anchor": 0,
+                  "default_params": {},
+                  "editable": 1,
+                  "editable_column_list": column_list,
+                  "key": "listbox",
+                  "lines": 20,
+                  "list_method": "SaleInvoiceTransaction_getRelatedHostingSubscriptionReportLineList",
+                  "list_method_template": result[2] + gadget.state.jio_key + "/ERP5Document_getHateoas?mode=search&" +
+                    "list_method=SaleInvoiceTransaction_getRelatedHostingSubscriptionReportLineList" +
+                    "{&query,select_list*,limit*,sort_on*,local_roles*}",
+                  "query": "urn:jio:allDocs?query=",
+                  "portal_type": [],
+                  "search_column_list": column_list,
+                  "sort_column_list": column_list,
+                  "sort": [["start_date", "ASC"]],
+                  "title": "Subscriptions",
+                  "type": "ListBox"
                 }
               }},
               "_links": {
@@ -171,6 +202,9 @@
                 "left",
                 [["my_start_date"], ["my_reference"], ["my_total_price"],
                   ["my_resource_title"], ['my_payment_state'], ["my_download"]]
+              ],[
+                "bottom",
+                [["listbox"]]
               ]]
             }
           });

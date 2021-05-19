@@ -1,9 +1,10 @@
 portal = context.getPortalObject()
 
 portal.portal_catalog.searchAndActivate(
-  portal_type=["Software Instance", "Slave Instance"],
-  default_aggregate_relative_url="computer_module/%/%",
+  aggregate__uid="%",
   validation_state="invalidated",
+  slap_state="destroy_requested",
+  parent_uid=context.getPortalObject().software_instance_module.getUid(),
   method_id='SoftwareInstance_tryToUnallocatePartition',
   activate_kw={'tag': tag}
 )

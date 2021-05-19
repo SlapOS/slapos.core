@@ -2,7 +2,8 @@ kw = {}
 select_dict= {'delivery_uid': None}
 kw.update(
   portal_type='Simulation Movement',
-  select_dict=select_dict,
+  # This is an optimisation to help mariadb selecting a better index
+  simulation_state=['draft', 'planned', None],
   left_join_list=select_dict.keys(),
   delivery_uid=None
 )

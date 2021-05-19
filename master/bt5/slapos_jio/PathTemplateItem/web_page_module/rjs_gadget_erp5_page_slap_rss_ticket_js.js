@@ -98,7 +98,7 @@
         })
         .push(function () {
           return gadget.updatePanel({
-            jio_key: "support_request_module"
+            jio_key: options.jio_key
           });
         })
         .push(function () {

@@ -69,7 +69,8 @@
           "Instance",
           "From",
           "To",
-          "Quantity"
+          "Quantity",
+          "Payment Receipt Reference"
         ];
       return new RSVP.Queue()
         .push(function () {
@@ -119,6 +120,17 @@
                   "editable": 0,
                   "key": "reference",
                   "hidden": 0,
+                  "type": "StringField"
+                },
+                "my_payment_transaction_external_id": {
+                  "description": "",
+                  "title": result[1][13],
+                  "default": gadget.state.doc.payment_transaction_external_id,
+                  "css_class": "",
+                  "required": 0,
+                  "editable": 0,
+                  "key": "payment_transaction_external_id",
+                  "hidden": gadget.state.doc.payment_transaction_external_id === "",
                   "type": "StringField"
                 },
                 "my_total_price": {
@@ -201,7 +213,10 @@
               group_list: [[
                 "left",
                 [["my_start_date"], ["my_reference"], ["my_total_price"],
-                  ["my_resource_title"], ['my_payment_state'], ["my_download"]]
+                  ["my_resource_title"], ["my_download"]]
+              ],[
+                "right",
+                [["my_payment_transaction_external_id"], ['my_payment_state']]
               ],[
                 "bottom",
                 [["listbox"]]

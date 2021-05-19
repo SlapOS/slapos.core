@@ -12,7 +12,10 @@
               <list>
                 <string>all_columns</string>
                 <string>columns</string>
+                <string>default_params</string>
                 <string>selection_name</string>
+                <string>sort</string>
+                <string>style_columns</string>
                 <string>title</string>
               </list>
             </value>
@@ -56,6 +59,14 @@
             <value>
               <dictionary>
                 <item>
+                    <key> <string>all_columns</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>columns</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>field_id</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -64,7 +75,23 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
+                    <key> <string>selection_name</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>sort</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>style_columns</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>target</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>title</string> </key>
                     <value> <string></string> </value>
                 </item>
               </dictionary>
@@ -94,17 +121,6 @@
                           <string>list_image</string>
                           <string>Software Logo</string>
                         </tuple>
-                      </list>
-                    </value>
-                </item>
-                <item>
-                    <key> <string>columns</string> </key>
-                    <value>
-                      <list>
-                        <tuple>
-                          <string>title</string>
-                          <string>Title</string>
-                        </tuple>
                         <tuple>
                           <string>reference</string>
                           <string>Reference</string>
@@ -120,6 +136,40 @@
                         <tuple>
                           <string>destination_section_title</string>
                           <string>Destination Section</string>
+                        </tuple>
+                      </list>
+                    </value>
+                </item>
+                <item>
+                    <key> <string>columns</string> </key>
+                    <value>
+                      <list>
+                        <tuple>
+                          <string>title</string>
+                          <string>Title</string>
+                        </tuple>
+                        <tuple>
+                          <string>short_title</string>
+                          <string>Short Title</string>
+                        </tuple>
+                        <tuple>
+                          <string>HostingSubscription_getNewsDict</string>
+                          <string>Status</string>
+                        </tuple>
+                        <tuple>
+                          <string>list_image</string>
+                          <string>Software Logo</string>
+                        </tuple>
+                      </list>
+                    </value>
+                </item>
+                <item>
+                    <key> <string>default_params</string> </key>
+                    <value>
+                      <list>
+                        <tuple>
+                          <string>validation_state</string>
+                          <string>validated</string>
                         </tuple>
                       </list>
                     </value>
@@ -145,7 +195,37 @@
                 </item>
                 <item>
                     <key> <string>selection_name</string> </key>
-                    <value> <string>hosting_subscription_module_selection</string> </value>
+                    <value> <string>hosting_subscription_module_hateoas_selection</string> </value>
+                </item>
+                <item>
+                    <key> <string>sort</string> </key>
+                    <value>
+                      <list>
+                        <tuple>
+                          <string>title</string>
+                          <string>ascending</string>
+                        </tuple>
+                      </list>
+                    </value>
+                </item>
+                <item>
+                    <key> <string>style_columns</string> </key>
+                    <value>
+                      <list>
+                        <tuple>
+                          <string>title</string>
+                          <string>Title</string>
+                        </tuple>
+                        <tuple>
+                          <string>short_title</string>
+                          <string>Short Title</string>
+                        </tuple>
+                        <tuple>
+                          <string>HostingSubscription_getNewsDict</string>
+                          <string>Status</string>
+                        </tuple>
+                      </list>
+                    </value>
                 </item>
                 <item>
                     <key> <string>target</string> </key>
@@ -153,7 +233,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Hosting Subscriptions</string> </value>
+                    <value> <string>Services</string> </value>
                 </item>
               </dictionary>
             </value>

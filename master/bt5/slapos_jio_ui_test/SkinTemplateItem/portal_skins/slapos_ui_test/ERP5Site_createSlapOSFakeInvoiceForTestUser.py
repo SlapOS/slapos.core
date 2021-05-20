@@ -1,18 +1,63 @@
 from DateTime import DateTime
 
+
 portal = context.getPortalObject()
-accounting_module = portal.accounting_module
 portal_membership=portal.portal_membership
 
-demo_user_functional=portal_membership.getAuthenticatedMember().getUserValue()
+demo_user_functional = portal_membership.getAuthenticatedMember().getUserValue()
 
-accounting_module.newContent(
-  portal_type='Sale Invoice Transaction',
-  title='Fake Invoice for Demo User Functional',
-  simulation_state='delivered',
-  reference='1',
-  destination_section_value=demo_user_functional,
-  start_date=DateTime('2019/10/20'),
-)
+
+def wrapWithShadow():
+  payment_template = portal.restrictedTraverse(portal.portal_preferences.getPreferredDefaultPrePaymentTemplate())
+  payment = payment_template.Base_createCloneDocument(batch_mode=1)
+
+  for line in payment.contentValues():
+    if line.getSource() == "account_module/payment_to_encash":
+      line.setQuantity(-1)
+    elif line.getSource() == "account_module/receivable":
+      line.setQuantity(1)
+
+  payment.confirm()
+  payment.start()
+  payment.stop()
+
+  payment.PaymentTransaction_generatePayzenId()
+  
+  template = portal.restrictedTraverse(portal.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate())
+  current_invoice = template.Base_createCloneDocument(batch_mode=1)
+
+  current_invoice.edit(
+        destination_value=demo_user_functional,
+        destination_section_value=demo_user_functional,
+        destination_decision_value=demo_user_functional,
+        start_date=DateTime('2019/10/20'),
+        stop_date=DateTime('2019/10/20'),
+        title='Fake Invoice for Demo User Functional',
+        price_currency="currency_module/EUR",
+        reference='1')
+
+  cell = current_invoice["1"]["movement_0"]
+  
+  cell.edit(
+    variation=current_invoice["1"].getVariation(),
+    quantity=1
+  )
+  cell.setPrice(1)
+
+
+
+  return current_invoice, payment
+
+current_invoice, payment = demo_user_functional.Person_restrictMethodAsShadowUser(
+  shadow_document=demo_user_functional,
+  callable_object=wrapWithShadow,
+  argument_list=[])
+
+payment.setCausalityValue(current_invoice)
+current_invoice.plan()
+current_invoice.confirm()
+current_invoice.startBuilding()
+current_invoice.reindexObject()
+current_invoice.stop()
 
 return 'Done.'

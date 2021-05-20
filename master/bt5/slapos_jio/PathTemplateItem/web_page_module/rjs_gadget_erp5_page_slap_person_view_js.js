@@ -198,8 +198,8 @@
                   "lines": 20,
                   "list_method": "portal_catalog",
                   "query": "urn:jio:allDocs?query=%28portal_type%3A%28%22" +
-                    "ERP5 Login" + "%22%2C%20%22" +
-                    "Google Login" + "%22%2C%20%22" +
+                    "ERP5 Login" + "%22%20OR%20%22" +
+                    "Google Login" + "%22%20OR%20%22" +
                     "Facebook Login" + "%22%29%20AND%20" +
                     "validation_state%3Avalidated%29",
                   "portal_type": [],

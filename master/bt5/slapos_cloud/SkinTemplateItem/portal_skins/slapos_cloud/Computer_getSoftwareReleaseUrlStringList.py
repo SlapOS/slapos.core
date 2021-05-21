@@ -8,4 +8,4 @@ for software_installation in context.getPortalObject().portal_catalog(
     url_string = software_installation.getUrlString()
     if url_string:
       url_string_list.append(url_string)
-return url_string_list
+return list(set(url_string_list))

@@ -147,6 +147,10 @@ class MasterMixin(BasicMixin, unittest.TestCase):
         computer_id='bidon',
         partition_id=partition_id)
 
+    # XXX ensure the partition has a state
+    slap_computer_partition._requested_state = getattr(
+          slap_computer_partition, '_requested_state', 'started')
+
     instance_path = os.path.join(self.instance_root, partition_id)
     os.mkdir(instance_path)
     os.chmod(instance_path, 0o750)

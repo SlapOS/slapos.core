@@ -13,6 +13,7 @@ server-url = %(server_url)s
 software-release-url = %(software_release_url)s
 key-file = %(key_file)s
 cert-file = %(cert_file)s
+requested = %(requested_state)s
 
 [slap_connection]
 # Kept for backward compatiblity

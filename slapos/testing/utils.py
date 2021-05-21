@@ -194,8 +194,7 @@ class ManagedTemporaryDirectory(ManagedResource):
 
 
 class CrontabMixin(object):
-  computer_partition_root_path = None # type: str
-  logger = None # type: logging.Logger
+
   def _getCrontabCommand(self, crontab_name):
     # type: (str) -> str
     """Read a crontab and return the command that is executed.
@@ -207,8 +206,9 @@ class CrontabMixin(object):
             'cron.d',
             crontab_name,
         )) as f:
-      crontab_spec = f.read()
-    return " ".join(crontab_spec.split()[5:])
+      crontab_spec, = f.readlines()
+    self.assertNotEqual(crontab_spec[0], '@', crontab_spec)
+    return crontab_spec.split(None, 5)[-1]
 
   def _executeCrontabAtDate(self, crontab_name, date):
     # type: (str, str) -> None
@@ -220,15 +220,16 @@ class CrontabMixin(object):
     crontab_command =  self._getCrontabCommand(crontab_name)
     try:
       crontab_output = subprocess.check_output(
-          "faketime {date} bash -o pipefail -e -c '{crontab_command}'".format(**locals()),
-          shell=True,
-          stderr=subprocess.STDOUT,
+        ("faketime", date, '/bin/sh', '-c', crontab_command),
+        stderr=subprocess.STDOUT,
       )
     except subprocess.CalledProcessError as e:
-      self.logger.debug('error executing crontab %s output: %s', crontab_command, e.output)
+      self.logger.debug('error executing crontab %s output: %s',
+                        crontab_command, e.output)
       raise
     else:
-      self.logger.debug("crontab %s output: %s", crontab_command, crontab_output)
+      self.logger.debug("crontab %s output: %s",
+                        crontab_command, crontab_output)
 
 
 class ImageComparisonTestCase(unittest.TestCase):

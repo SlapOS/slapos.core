@@ -15,6 +15,7 @@ key-file = %(key_file)s
 cert-file = %(cert_file)s
 shared-part-list =
   %(shared_part_list)s
+requested-state = %(requested_state)s
 
 [slap_connection]
 # Kept for backward compatiblity

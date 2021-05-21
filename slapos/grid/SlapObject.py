@@ -638,6 +638,7 @@ class Partition(object):
             'software_release_url': self.software_release_url,
             'key_file': self.key_file,
             'cert_file': self.cert_file,
+            'requested_state': self.computer_partition.getState(),
             'storage_home': self.instance_storage_home,
             'global_ipv4_network_prefix': self.ipv4_global_network,
             'shared_part_list': '  '.join(self.shared_part_list.strip().splitlines(True))

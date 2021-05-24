@@ -39,7 +39,6 @@ def wrapWithShadow():
   cell = current_invoice["1"]["movement_0"]
   
   cell.edit(
-    variation=current_invoice["1"].getVariation(),
     quantity=1
   )
   cell.setPrice(1)

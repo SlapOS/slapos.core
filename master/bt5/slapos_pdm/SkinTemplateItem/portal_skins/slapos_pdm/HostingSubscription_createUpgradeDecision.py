@@ -6,9 +6,12 @@ upgrade_scope = context.getUpgradeScope()
 if upgrade_scope in ["never", "disabled"]:
   return
 
-root_instance = hosting_subscription.getPredecessorValue(portal_type=["Software Instance", "Slave Instance"])
-if root_instance is None:
+root_instance_list = [
+  q for q in hosting_subscription.getPredecessorValueList(portal_type=["Software Instance", "Slave Instance"])
+  if q.getSlapState() != 'destroy_requested']
+if len(root_instance_list) == 0:
   return
+root_instance = root_instance_list[0]
 
 slave_upgrade = False
 if root_instance.getPortalType() == 'Slave Instance':

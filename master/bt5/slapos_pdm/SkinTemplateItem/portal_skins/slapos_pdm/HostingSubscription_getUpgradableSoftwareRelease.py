@@ -11,9 +11,10 @@ slap_state = ['start_requested', 'stop_requested']
 if not hosting_subscription.getSlapState() in slap_state:
   return None
 
-source_instance = hosting_subscription.getPredecessorValue()
-if not source_instance or source_instance.getSlapState() not in slap_state:
+source_instance_list = [q for q in hosting_subscription.getPredecessorValueList() if q.getSlapState() in slap_state]
+if len(source_instance_list) == 0:
   return None
+source_instance = source_instance_list[0]
 
 software_release = hosting_subscription.HostingSubscription_getNewerSofwareRelease()
 if not software_release:

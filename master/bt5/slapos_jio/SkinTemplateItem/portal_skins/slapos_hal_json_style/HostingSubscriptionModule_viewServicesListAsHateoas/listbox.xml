@@ -13,6 +13,7 @@
                 <string>all_columns</string>
                 <string>columns</string>
                 <string>default_params</string>
+                <string>portal_types</string>
                 <string>selection_name</string>
                 <string>sort</string>
                 <string>style_columns</string>
@@ -104,40 +105,7 @@
                 <item>
                     <key> <string>all_columns</string> </key>
                     <value>
-                      <list>
-                        <tuple>
-                          <string>creation_date</string>
-                          <string>Creation Date</string>
-                        </tuple>
-                        <tuple>
-                          <string>modification_date</string>
-                          <string>Modification Date</string>
-                        </tuple>
-                        <tuple>
-                          <string>url_string</string>
-                          <string>Software Release</string>
-                        </tuple>
-                        <tuple>
-                          <string>list_image</string>
-                          <string>Software Logo</string>
-                        </tuple>
-                        <tuple>
-                          <string>reference</string>
-                          <string>Reference</string>
-                        </tuple>
-                        <tuple>
-                          <string>translated_validation_state_title</string>
-                          <string>Validation State</string>
-                        </tuple>
-                        <tuple>
-                          <string>translated_slap_state_title</string>
-                          <string>Slap State</string>
-                        </tuple>
-                        <tuple>
-                          <string>destination_section_title</string>
-                          <string>Destination Section</string>
-                        </tuple>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>
@@ -194,6 +162,17 @@
                     </value>
                 </item>
                 <item>
+                    <key> <string>portal_types</string> </key>
+                    <value>
+                      <list>
+                        <tuple>
+                          <string>Hosting Subscription</string>
+                          <string>Hosting Subscription</string>
+                        </tuple>
+                      </list>
+                    </value>
+                </item>
+                <item>
                     <key> <string>selection_name</string> </key>
                     <value> <string>hosting_subscription_module_hateoas_selection</string> </value>
                 </item>
@@ -211,20 +190,7 @@
                 <item>
                     <key> <string>style_columns</string> </key>
                     <value>
-                      <list>
-                        <tuple>
-                          <string>title</string>
-                          <string>Title</string>
-                        </tuple>
-                        <tuple>
-                          <string>short_title</string>
-                          <string>Short Title</string>
-                        </tuple>
-                        <tuple>
-                          <string>HostingSubscription_getNewsDict</string>
-                          <string>Status</string>
-                        </tuple>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>

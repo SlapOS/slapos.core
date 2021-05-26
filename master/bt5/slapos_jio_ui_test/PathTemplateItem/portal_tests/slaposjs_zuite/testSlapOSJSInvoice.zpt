@@ -62,12 +62,12 @@
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//p[text()='10/20/2019']</td>
+        <td>//p[@data-date='2019-10-20']</td>
         <td></td>
       </tr>
       <tr>
         <td>click</td>
-        <td>//p[text()='10/20/2019']</td>
+        <td>//p[@data-date='2019-10-20']</td>
         <td></td>
       </tr>
 

@@ -343,7 +343,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
       'erp5_workflow',
       'erp5_configurator',
       'slapos_configurator',
-      'erp5_ui_test_core'
     ]
     if int(os.environ.get('erp5_load_data_fs', 0)):
       result.extend(

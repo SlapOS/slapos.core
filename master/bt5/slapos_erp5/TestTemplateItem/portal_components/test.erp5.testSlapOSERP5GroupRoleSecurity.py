@@ -1025,7 +1025,7 @@ class TestSoftwareInstallation(TestSlapOSGroupRoleSecurityMixin):
     self.assertSecurityGroup(installation, [self.user_id,
         'G-COMPANY', provider.getUserId()], False)
     self.assertRoles(installation, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(installation, provider.getUserId(), ['Assignor'])
+    self.assertRoles(installation, provider.getUserId(), ['Assignee'])
     self.assertRoles(installation, self.user_id, ['Owner'])
 
 class TestSoftwareInstallationModule(TestSlapOSGroupRoleSecurityMixin):

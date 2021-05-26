@@ -145,7 +145,6 @@ erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
-erp5_ui_test_core
 erp5_vcs
 erp5_web
 erp5_web_crm
@@ -257,7 +256,6 @@ erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
-erp5_ui_test_core
 erp5_vcs
 erp5_web
 erp5_web_crm
@@ -369,7 +367,6 @@ erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
-erp5_ui_test_core
 erp5_vcs
 erp5_web
 erp5_web_crm
@@ -482,7 +479,6 @@ erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
-erp5_ui_test_core
 erp5_vcs
 erp5_web
 erp5_web_crm
@@ -596,7 +592,6 @@ erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
-erp5_ui_test_core
 erp5_vcs
 erp5_web
 erp5_web_crm
@@ -708,7 +703,6 @@ erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
-erp5_ui_test_core
 erp5_vcs
 erp5_web
 erp5_web_crm
@@ -819,7 +813,6 @@ erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
-erp5_ui_test_core
 erp5_vcs
 erp5_web
 erp5_web_crm
@@ -931,7 +924,6 @@ erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
-erp5_ui_test_core
 erp5_vcs
 erp5_web
 erp5_web_crm
@@ -1042,7 +1034,6 @@ erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
-erp5_ui_test_core
 erp5_vcs
 erp5_web
 erp5_web_crm
@@ -1154,7 +1145,6 @@ erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
-erp5_ui_test_core
 erp5_vcs
 erp5_web
 erp5_web_crm
@@ -1266,7 +1256,6 @@ erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
-erp5_ui_test_core
 erp5_vcs
 erp5_web
 erp5_web_crm
@@ -1379,7 +1368,6 @@ erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
-erp5_ui_test_core
 erp5_vcs
 erp5_web
 erp5_web_crm
@@ -1492,7 +1480,6 @@ erp5_syncml
 erp5_system_event
 erp5_toolbox
 erp5_trade
-erp5_ui_test_core
 erp5_vcs
 erp5_web
 erp5_web_crm

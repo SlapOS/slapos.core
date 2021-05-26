@@ -65,5 +65,6 @@ CREATE TABLE `catalog` (
   KEY `causality_state_portal_type` (`causality_state`, `portal_type`),
   KEY `invoice_state` (`invoice_state`),
   KEY `payment_state` (`payment_state`),
-  KEY `event_state` (`event_state`)
+  KEY `event_state` (`event_state`),
+  KEY `indexation_timestamp` (`indexation_timestamp`)
 ) ENGINE=InnoDB;

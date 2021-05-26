@@ -1,6 +1,7 @@
 portal = context.getPortalObject()
 url_string = context.getUrlString()
-image_url = ""
+# set default value of image_url to the panel's logo 
+image_url = "gadget_slapos_panel.png"
 
 release = portal.portal_catalog.getResultValue(
     portal_type="Software Release",
@@ -8,7 +9,6 @@ release = portal.portal_catalog.getResultValue(
 )
 if release is not None:
   software_product = release.getAggregateValue()
-  # set default value of image_url to the panel's logo 
-  image_url = software_product.getDefaultImageAbsoluteUrl() or "gadget_slapos_panel.png"
+  image_url = software_product.getDefaultImageAbsoluteUrl()
 
 return image_url

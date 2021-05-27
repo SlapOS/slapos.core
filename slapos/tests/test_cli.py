@@ -344,10 +344,13 @@ class TestCliBoot(CliMixin):
     # `slapos node boot` command retries on failures.
 
     app = slapos.cli.entry.SlapOSApp()
+    net1 = {socket.AF_INET: ({'addr': '2000::1'},),}
+    net2 = {socket.AF_INET6: ({'addr': 'fe80::1'},),}
+    net3 = {socket.AF_INET6: ({'addr': '2000::1'},),}
     with patch('slapos.cli.boot.check_root_user', return_value=True) as check_root_user,\
         patch('slapos.cli.boot.sleep') as sleep,\
         patch('slapos.cli.boot.netifaces.ifaddresses',
-              return_value={socket.AF_INET6: ({'addr': '2000::1'},),},),\
+              side_effect=[net1, net2, net3]),\
         patch('slapos.cli.boot._ping_hostname', return_value=0),\
         patch('slapos.cli.format.check_root_user', return_value=True),\
         patch('slapos.cli.format.logging.FileHandler', return_value=logging.NullHandler()),\
@@ -362,8 +365,9 @@ class TestCliBoot(CliMixin):
     self.assertEqual(do_format.call_count, 3)
     self.assertEqual(do_bang.call_count, 3)
 
-    # between retries we sleep 15 seconds.
-    sleep.assert_called_with(15)
+    # between retries of ping, we sleep 5 seconds
+    # between retries of bang, we sleep 15 seconds
+    self.assertEqual(sleep.mock_calls, [mock.call(5)]*2 + [mock.call(15)]*4)
 
     # we have only one logger on the console
     from slapos.cli import coloredlogs

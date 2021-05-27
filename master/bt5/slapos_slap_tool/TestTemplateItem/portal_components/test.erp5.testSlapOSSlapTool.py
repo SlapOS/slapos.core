@@ -14,7 +14,14 @@ import xml.dom.ext.reader.Sax
 import xml.dom.ext
 import StringIO
 import difflib
+import hashlib
+from binascii import hexlify
 from OFS.Traversable import NotFound
+
+
+def hashData(data):
+  return hexlify(hashlib.sha1(data).digest())
+
 
 class Simulator:
   def __init__(self, outfile, method):
@@ -63,6 +70,166 @@ class TestSlapOSSlapToolMixin(SlapOSTestCaseMixin):
     self.unpinDateTime()
     self._cleaupREQUEST()
 
+
+class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
+  def test_activate_getFullComputerInformation_first_access(self):
+    self._makeComplexComputer(with_slave=True)
+    self.portal.REQUEST['disable_isTestRun'] = True
+    self.tic()
+
+    self.login(self.computer_user_id)
+
+    # First access.
+    # Cache has been filled by interaction workflow
+    # (luckily, it seems the cache is filled after everything is indexed)
+    response = self.portal_slap.getFullComputerInformation(self.computer_id)
+    self.commit()
+    first_etag = self.portal_slap._calculateRefreshEtag()
+    first_body_fingerprint = hashData(
+      self.portal_slap._getCacheComputerInformation(self.computer_id,
+                                                    self.computer_id)
+    )
+    self.assertEqual(200, response.status)
+    self.assertTrue('last-modified' not in response.headers)
+    self.assertEqual(first_etag, response.headers.get('etag'))
+    self.assertEqual(first_body_fingerprint, hashData(response.body))
+    self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
+
+    # Trigger the computer reindexation
+    # This should trigger a new etag, but the body should be the same
+    self.computer.reindexObject()
+    self.commit()
+
+    # Second access
+    # Check that the result is stable, as the indexation timestamp is not changed yet
+    current_activity_count = len(self.portal.portal_activities.getMessageList())
+    response = self.portal_slap.getFullComputerInformation(self.computer_id)
+    self.commit()
+    self.assertEqual(200, response.status)
+    self.assertTrue('last-modified' not in response.headers)
+    self.assertEqual(first_etag, response.headers.get('etag'))
+    self.assertEqual(first_body_fingerprint, hashData(response.body))
+    self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
+
+    self.tic()
+
+    # Third access, new calculation expected
+    # The retrieved informations comes from the cache
+    # But a new cache modification activity is triggered
+    response = self.portal_slap.getFullComputerInformation(self.computer_id)
+    self.commit()
+    self.assertEqual(200, response.status)
+    self.assertTrue('last-modified' not in response.headers)
+    second_etag = self.portal_slap._calculateRefreshEtag()
+    second_body_fingerprint = hashData(
+      self.portal_slap._getCacheComputerInformation(self.computer_id,
+                                                    self.computer_id)
+    )
+    self.assertNotEqual(first_etag, second_etag)
+    # The indexation timestamp does not impact the response body
+    self.assertEqual(first_body_fingerprint, second_body_fingerprint)
+    self.assertEqual(first_etag, response.headers.get('etag'))
+    self.assertEqual(first_body_fingerprint, hashData(response.body))
+    self.assertEqual(1, len(self.portal.portal_activities.getMessageList()))
+
+    # Execute the cache modification activity
+    self.tic()
+
+    # 4th access
+    # The new etag value is now used
+    response = self.portal_slap.getFullComputerInformation(self.computer_id)
+    self.commit()
+    self.assertEqual(200, response.status)
+    self.assertTrue('last-modified' not in response.headers)
+    self.assertEqual(second_etag, response.headers.get('etag'))
+    self.assertEqual(first_body_fingerprint, hashData(response.body))
+    self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
+
+    # Edit the instance
+    # This should trigger a new etag and a new body
+    self.stop_requested_software_instance.edit(text_content=self.generateSafeXml())
+    self.commit()
+
+    # 5th access
+    # Check that the result is stable, as the indexation timestamp is not changed yet
+    current_activity_count = len(self.portal.portal_activities.getMessageList())
+    # Edition does not impact the etag
+    self.assertEqual(second_etag, self.portal_slap._calculateRefreshEtag())
+    third_body_fingerprint = hashData(
+      self.portal_slap._getCacheComputerInformation(self.computer_id,
+                                                    self.computer_id)
+    )
+    # The edition impacts the response body
+    self.assertNotEqual(first_body_fingerprint, third_body_fingerprint)
+    response = self.portal_slap.getFullComputerInformation(self.computer_id)
+    self.commit()
+    self.assertEqual(200, response.status)
+    self.assertTrue('last-modified' not in response.headers)
+    self.assertEqual(second_etag, response.headers.get('etag'))
+    self.assertEqual(first_body_fingerprint, hashData(response.body))
+    self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
+
+    self.tic()
+
+    # 6th, the instance edition triggered an interaction workflow
+    # which updated the cache
+    response = self.portal_slap.getFullComputerInformation(self.computer_id)
+    self.commit()
+    self.assertEqual(200, response.status)
+    self.assertTrue('last-modified' not in response.headers)
+    third_etag = self.portal_slap._calculateRefreshEtag()
+    self.assertNotEqual(second_etag, third_etag)
+    self.assertEqual(third_etag, response.headers.get('etag'))
+    self.assertEqual(third_body_fingerprint, hashData(response.body))
+    self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
+
+    # Remove the slave link to the partition
+    # Computer should loose permission to access the slave instance
+    self.start_requested_slave_instance.setAggregate('')
+    self.commit()
+
+    # 7th access
+    # Check that the result is stable, as the indexation timestamp is not changed yet
+    current_activity_count = len(self.portal.portal_activities.getMessageList())
+    # Edition does not impact the etag
+    self.assertEqual(third_etag, self.portal_slap._calculateRefreshEtag())
+    # The edition does not impact the response body yet, as the aggregate relation
+    # is not yet unindex
+    self.assertEqual(third_body_fingerprint, hashData(
+      self.portal_slap._getCacheComputerInformation(self.computer_id,
+                                                    self.computer_id)
+    ))
+    response = self.portal_slap.getFullComputerInformation(self.computer_id)
+    self.commit()
+    self.assertEqual(200, response.status)
+    self.assertTrue('last-modified' not in response.headers)
+    self.assertEqual(third_etag, response.headers.get('etag'))
+    self.assertEqual(third_body_fingerprint, hashData(response.body))
+    self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
+
+    self.tic()
+
+    # 8th access
+    # changing the aggregate relation trigger the partition reindexation
+    # which trigger cache modification activity
+    # So, we should get the correct cached value
+    response = self.portal_slap.getFullComputerInformation(self.computer_id)
+    self.commit()
+    self.assertEqual(200, response.status)
+    self.assertTrue('last-modified' not in response.headers)
+    fourth_etag = self.portal_slap._calculateRefreshEtag()
+    fourth_body_fingerprint = hashData(
+      self.portal_slap._getCacheComputerInformation(self.computer_id,
+                                                    self.computer_id)
+    )
+    self.assertNotEqual(third_etag, fourth_etag)
+    # The indexation timestamp does not impact the response body
+    self.assertNotEqual(third_body_fingerprint, fourth_body_fingerprint)
+    self.assertEqual(fourth_etag, response.headers.get('etag'))
+    self.assertEqual(fourth_body_fingerprint, hashData(response.body))
+    self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
+
+
 class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
   def test_getFullComputerInformation(self):
     self._makeComplexComputer(with_slave=True)
@@ -81,7 +248,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertTrue('etag' in response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
 
@@ -992,7 +1159,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         response.headers.get('cache-control'))
     self.assertEqual('REMOTE_USER',
         response.headers.get('vary'))
-    self.assertTrue('last-modified' in response.headers)
+    self.assertTrue('etag' in response.headers)
     self.assertEqual('text/xml; charset=utf-8',
         response.headers.get('content-type'))
     # check returned XML

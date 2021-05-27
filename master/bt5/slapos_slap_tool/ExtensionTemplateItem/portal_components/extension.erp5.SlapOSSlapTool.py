@@ -43,3 +43,15 @@ def Item_activateFillComputerInformationCache(state_change):
         computer_reference, computer_reference)
   finally:
     setSecurityManager(sm)
+
+
+@UnrestrictedMethod
+def reindexPartition(item):
+  partition = item.getAggregateValue(portal_type='Computer Partition')
+  if partition is not None:
+    partition.reindexObject()
+
+
+def Instance_reindexComputerPartition(state_change):
+  item = state_change['object']
+  reindexPartition(item)

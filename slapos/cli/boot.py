@@ -141,18 +141,16 @@ def _waitIpv6Ready(ipv6_interface):
   """
     test if ipv6 is ready on ipv6_interface
   """
-  ipv6_address = ""
   print("[BOOT] Checking if %r has IPv6..." % ipv6_interface)
-  while ipv6_address == "":
-    for inet_dict in netifaces.ifaddresses(ipv6_interface)[socket.AF_INET6]:
+  while True:
+    for inet_dict in netifaces.ifaddresses(ipv6_interface).get(socket.AF_INET6, ()):
       ipv6_address = inet_dict['addr'].split('%')[0]
       if isGlobalScopeAddress(ipv6_address):
-        break
-    else:
-      ipv6_address = ""
-      print("[BOOT] [ERROR] No IPv6 found on interface %r, "
-            "try again in 5 seconds..." % ipv6_interface)
-      sleep(5)
+        return
+
+    print("[BOOT] [ERROR] No IPv6 found on interface %r, "
+          "try again in 5 seconds..." % ipv6_interface)
+    sleep(5)
 
 class BootCommand(ConfigCommand):
     """

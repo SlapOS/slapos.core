@@ -1044,6 +1044,19 @@
     </tr>
   </tal:block>
 
+  <tal:block metal:define-macro="check_contextual_help">
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[@class="ui-content"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//div[@class="ui-content"]</td>
+      <td></td>
+    </tr>
+  </tal:block>
+
   <!-- the macro to set the language globally -->
   <tal:block metal:define-macro="set_default_available_language"
             tal:define="global lang python: here.web_site_module[web_site_id].getDefaultAvailableLanguage()">

@@ -79,38 +79,6 @@ class TestSlapOSCrmInvalidateSuspendedRegularisationRequest(SlapOSTestCaseMixinW
           slapos_crm_invalidate_suspended_regularisation_request
     self._test_alarm(alarm, ticket, "RegularisationRequest_invalidateIfPersonBalanceIsOk")
 
-
-class TestSlapOSCrmCancelInvoiceRelatedToSuspendedRegularisationRequest(SlapOSTestCaseMixinWithAbort):
-
-  def createRegularisationRequest(self):
-    new_id = self.generateNewId()
-    return self.portal.regularisation_request_module.newContent(
-      portal_type='Regularisation Request',
-      title="Test Reg. Req.%s" % new_id,
-      reference="TESTREGREQ-%s" % new_id,
-      )
-
-  def test_alarm_not_suspended_regularisation_request(self):
-    ticket = self.createRegularisationRequest()
-    ticket.validate()
-
-    self.tic()
-    alarm = self.portal.portal_alarms.\
-          slapos_crm_cancel_invoice
-    self._test_alarm_not_visited(alarm, ticket,
-      "RegularisationRequest_cancelInvoiceIfPersonOpenOrderIsEmpty")
-
-  def test_alarm_suspended_regularisation_request(self):
-    ticket = self.createRegularisationRequest()
-    ticket.validate()
-    ticket.suspend()
-
-    self.tic()
-    alarm = self.portal.portal_alarms.\
-          slapos_crm_cancel_invoice
-    self._test_alarm(alarm, ticket,
-      "RegularisationRequest_cancelInvoiceIfPersonOpenOrderIsEmpty")
-
 class TestSlapOSCrmTriggerEscalationOnAcknowledgmentRegularisationRequest(SlapOSTestCaseMixinWithAbort):
 
   def createRegularisationRequest(self):

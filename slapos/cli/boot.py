@@ -43,7 +43,9 @@ from slapos.cli.config import ConfigCommand
 from slapos.format import isGlobalScopeAddress
 from slapos.util import string_to_boolean
 import argparse
+import logging
 
+logger = logging.getLogger("slapos.boot")
 
 def _removeTimestamp(instancehome, partition_base_name):
     """
@@ -54,7 +56,7 @@ def _removeTimestamp(instancehome, partition_base_name):
         "%s*" % partition_base_name,
         ".timestamp")
     for timestamp_path in glob.glob(timestamp_glob_path):
-       print("Removing %s" % timestamp_path)
+       logger.info("Removing %s", timestamp_path)
        os.remove(timestamp_path)
 
 
@@ -62,7 +64,7 @@ def _runBang(app):
     """
     Launch slapos node format.
     """
-    print("[BOOT] Invoking slapos node bang...")
+    logger.info("[BOOT] Invoking slapos node bang...")
     result = app.run(['node', 'bang', '-m', 'Reboot'])
     if result == 1:
       return 0
@@ -73,7 +75,7 @@ def _runFormat(app):
     """
     Launch slapos node format.
     """
-    print("[BOOT] Invoking slapos node format...")
+    logger.info("[BOOT] Invoking slapos node format...")
     result = app.run(['node', 'format', '--now', '--verbose'])
     if result == 1:
       return 0
@@ -84,15 +86,15 @@ def _ping(hostname):
     """
     Ping a hostname
     """
-    print("[BOOT] Invoking ipv4 ping to %s..." % hostname)
+    logger.info("[BOOT] Invoking ipv4 ping to %s...", hostname)
     p = subprocess.Popen(["ping", "-c", "2", hostname],
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     if p.returncode == 0:
-      print("[BOOT] IPv4 network reachable...")
+      logger.info("[BOOT] IPv4 network reachable...")
       return 1
-    print("[BOOT] [ERROR] IPv4 network unreachable...")
+    logger.error("[BOOT] IPv4 network unreachable...")
     return 0
 
 
@@ -100,15 +102,15 @@ def _ping6(hostname):
     """
     Ping an ipv6 address
     """
-    print("[BOOT] Invoking ipv6 ping to %s..." % hostname)
+    logger.info("[BOOT] Invoking ipv6 ping to %s...", hostname)
     p = subprocess.Popen(
         ["ping6", "-c", "2", hostname],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     if p.returncode == 0:
-        print("[BOOT] IPv6 network reachable...")
+        logger.info("[BOOT] IPv6 network reachable...")
         return 1
-    print("[BOOT] [ERROR] IPv6 network unreachable...")
+    logger.error("[BOOT] IPv6 network unreachable...")
     return 0
 
 
@@ -141,15 +143,15 @@ def _waitIpv6Ready(ipv6_interface):
   """
     test if ipv6 is ready on ipv6_interface
   """
-  print("[BOOT] Checking if %r has IPv6..." % ipv6_interface)
+  logger.info("[BOOT] Checking if %r has IPv6...", ipv6_interface)
   while True:
     for inet_dict in netifaces.ifaddresses(ipv6_interface).get(socket.AF_INET6, ()):
       ipv6_address = inet_dict['addr'].split('%')[0]
       if isGlobalScopeAddress(ipv6_address):
         return
 
-    print("[BOOT] [ERROR] No IPv6 found on interface %r, "
-          "try again in 5 seconds..." % ipv6_interface)
+    logger.error("[BOOT] No IPv6 found on interface %r, "
+          "try again in 5 seconds...", ipv6_interface)
     sleep(5)
 
 class BootCommand(ConfigCommand):
@@ -206,12 +208,12 @@ class BootCommand(ConfigCommand):
         app = SlapOSApp()
         # Make sure slapos node format returns ok
         while not _runFormat(app):
-            print("[BOOT] [ERROR] Fail to format, try again in 15 seconds...")
+            logger.error("[BOOT] Fail to format, try again in 15 seconds...")
             sleep(15)
 
         # Make sure slapos node bang returns ok
         while not _runBang(app):
-            print("[BOOT] [ERROR] Fail to bang, try again in 15 seconds...")
+            logger.error("[BOOT] Fail to bang, try again in 15 seconds...")
             sleep(15)
 
         _removeTimestamp(instance_root, partition_base_name)

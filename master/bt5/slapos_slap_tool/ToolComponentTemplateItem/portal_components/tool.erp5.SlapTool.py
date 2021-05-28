@@ -163,6 +163,8 @@ class SlapTool(BaseTool):
   ####################################################
 
   def _isTestRun(self):
+    if self.REQUEST.get('disable_isTestRun', False):
+      return False
     if issubclass(self.getPortalObject().MailHost.__class__, DummyMailHostMixin) \
         or self.REQUEST.get('test_list'):
       return True

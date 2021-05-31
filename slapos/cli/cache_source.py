@@ -38,7 +38,7 @@ import prettytable
 
 from slapos.grid import networkcache
 from slapos.cli.config import ConfigCommand
-from slapos.cli.list import resetLogger
+from slapos.cli.command import resetLogger
 from slapos.util import str2bytes
 
 class CacheLookupCommand(ConfigCommand):

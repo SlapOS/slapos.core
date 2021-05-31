@@ -29,10 +29,16 @@
 
 import argparse
 import functools
+import logging
 import os
 import sys
 
 from cliff import command
+
+
+def resetLogger(logger):
+    logger.propagate = False
+    logger.addHandler(logging.StreamHandler(sys.stdout))
 
 
 class Command(command.Command):

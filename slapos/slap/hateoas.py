@@ -420,7 +420,7 @@ class SlapHateoasNavigator(HateoasNavigator):
     assert len(hosting_subscription_list) <= 1, \
       "There are more them one Hosting Subscription for this reference"
 
-    hosting_subscription_jio_key= None
+    hosting_subscription_jio_key = None
     for hosting_subscription_candidate in hosting_subscription_list:
       if hosting_subscription_candidate.get('title') == reference:
         hosting_subscription_jio_key = hosting_subscription_candidate['relative_url']

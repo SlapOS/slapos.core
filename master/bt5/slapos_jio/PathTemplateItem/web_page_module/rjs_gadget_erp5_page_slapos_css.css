@@ -41,3 +41,8 @@
   border-radius: 0.325em;
   margin-right: 6pt;
 }
+
+img, logo {
+  object-fit: cover;
+  max-height: 3.5em;
+}

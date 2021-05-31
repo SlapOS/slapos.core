@@ -10,6 +10,7 @@
             <key> <string>delegated_list</string> </key>
             <value>
               <list>
+                <string>css_class</string>
                 <string>default</string>
                 <string>image_display</string>
                 <string>image_quality</string>
@@ -85,6 +86,10 @@
             <value>
               <dictionary>
                 <item>
+                    <key> <string>css_class</string> </key>
+                    <value> <string>logo</string> </value>
+                </item>
+                <item>
                     <key> <string>default</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -98,7 +103,7 @@
                 </item>
                 <item>
                     <key> <string>image_display</string> </key>
-                    <value> <string>micro</string> </value>
+                    <value> <string>thumbnail</string> </value>
                 </item>
                 <item>
                     <key> <string>image_quality</string> </key>

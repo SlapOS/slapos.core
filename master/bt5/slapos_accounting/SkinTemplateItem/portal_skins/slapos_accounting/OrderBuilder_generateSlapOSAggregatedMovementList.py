@@ -17,6 +17,10 @@ consumption_specialise_uid_list = [q.getUid() for q in portal.portal_catalog(
   specialise_uid=portal.business_process_module.slapos_consumption_business_process.getUid(),
   portal_type='Sale Trade Condition')]
 
+aggregateable_service_uid_list = [service.getUid() for service in \
+  portal.portal_categories.base_amount.invoicing.getBaseContributionRelatedValueList(portal_type="Service")]
+
+
 select_dict= {'default_aggregate_portal_type': None}
 
 select_kw.update(
@@ -26,6 +30,7 @@ select_kw.update(
   parent_specialise_uid=specialise_uid_list+consumption_specialise_uid_list,
   select_dict=select_dict,
   left_join_list=select_dict.keys(),
+  resource__uid=aggregateable_service_uid_list,
   default_aggregate_portal_type=ComplexQuery(NegatedQuery(Query(default_aggregate_portal_type='Computer')),
     Query(default_aggregate_portal_type=None),logical_operator="OR"),
   grouping_reference=None,

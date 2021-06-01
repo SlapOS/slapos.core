@@ -1,6 +1,14 @@
 Changes
 =======
 
+1.6.13 (2021-06-01)
+-------------------
+
+ * cli/boot: use logger system to have time in logs
+ * cli/boot: prevent keyError when no IPv6 at boot
+ * slapgrid: note git revision when installing from a git checkout
+ * slapproxy: add --local-software-release-root option
+
 1.6.12 (2021-05-05)
 -------------------
 

@@ -10,7 +10,8 @@
             <key> <string>delegated_list</string> </key>
             <value>
               <list>
-                <string>editable</string>
+                <string>base_category</string>
+                <string>catalog_index</string>
                 <string>portal_type</string>
                 <string>title</string>
               </list>
@@ -18,7 +19,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>my_predecessor_title_list</string> </value>
+            <value> <string>my_successor_title_list</string> </value>
         </item>
         <item>
             <key> <string>message_values</string> </key>
@@ -74,8 +75,12 @@
             <value>
               <dictionary>
                 <item>
-                    <key> <string>editable</string> </key>
-                    <value> <int>0</int> </value>
+                    <key> <string>base_category</string> </key>
+                    <value> <string>successor</string> </value>
+                </item>
+                <item>
+                    <key> <string>catalog_index</string> </key>
+                    <value> <string>title</string> </value>
                 </item>
                 <item>
                     <key> <string>field_id</string> </key>
@@ -106,7 +111,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Predecessors</string> </value>
+                    <value> <string>Successors</string> </value>
                 </item>
               </dictionary>
             </value>

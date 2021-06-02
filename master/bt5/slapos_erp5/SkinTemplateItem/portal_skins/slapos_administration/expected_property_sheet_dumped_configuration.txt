@@ -16771,12 +16771,12 @@ SlaveInstanceConstraint
   reference: non_draft_property_existence
 
 SlaveInstanceConstraint
-  expression: python: len(context.getPredecessorRelatedList()) <= 1
-  id: predecessor_related_constraint
+  expression: python: len(context.getSuccessorRelatedList()) <= 1
+  id: successor_related_constraint
   message_expression_error: Error while evaluating expression: ${error}
-  message_expression_false: There is more then one related predecessor
+  message_expression_false: There is more then one related successor
   portal_type: TALES Constraint
-  reference: predecessor_related
+  reference: successor_related
 
 SlaveInstanceConstraint
   constraint_property_list: ['reference']
@@ -16817,9 +16817,9 @@ SoftwareInstance
   write_permission: Modify portal content
 
 SoftwareInstance
-  id: predecessor_category
+  id: successor_category
   portal_type: Category Property
-  reference: predecessor
+  reference: successor
 
 SoftwareInstance
   elementary_type: text
@@ -16889,12 +16889,12 @@ SoftwareInstanceConstraint
   reference: not_draft_propert_existence
 
 SoftwareInstanceConstraint
-  expression: python: len(context.getPredecessorRelatedList()) <= 1
-  id: predecessor_related_constraint
+  expression: python: len(context.getSuccessorRelatedList()) <= 1
+  id: successor_related_constraint
   message_expression_error: Error while evaluating expression: ${error}
-  message_expression_false: There is more then one related predecessor
+  message_expression_false: There is more then one related successor
   portal_type: TALES Constraint
-  reference: predecessor_related
+  reference: successor_related
 
 SoftwareInstanceConstraint
   constraint_property_list: ['destination_reference', 'reference']

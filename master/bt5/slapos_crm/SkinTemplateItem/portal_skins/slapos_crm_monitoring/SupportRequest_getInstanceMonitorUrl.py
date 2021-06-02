@@ -5,7 +5,7 @@ if hosting_subscription is None:
   return
 
 instance = None
-for possible_instance in hosting_subscription.getPredecessorValueList():
+for possible_instance in hosting_subscription.getSuccessorValueList():
   if possible_instance.getSlapState() != 'destroy_requested':
     instance = possible_instance
     break

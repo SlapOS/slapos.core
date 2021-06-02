@@ -356,7 +356,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.assertEqual(1, len(hosting_subscription_list))
     hosting_subscription = hosting_subscription_list[0]
 
-    software_instance = hosting_subscription.getPredecessorValue()
+    software_instance = hosting_subscription.getSuccessorValue()
     self.assertEqual(software_instance.getTitle(),
         hosting_subscription.getTitle())
     connection_dict = software_instance.getConnectionXmlAsDict()
@@ -523,7 +523,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.assertEqual(1, len(hosting_subscription_list))
     hosting_subscription = hosting_subscription_list[0]
 
-    software_instance = hosting_subscription.getPredecessorValue()
+    software_instance = hosting_subscription.getSuccessorValue()
     self.assertEqual(software_instance.getTitle(),
         hosting_subscription.getTitle())
     connection_dict = software_instance.getConnectionXmlAsDict()

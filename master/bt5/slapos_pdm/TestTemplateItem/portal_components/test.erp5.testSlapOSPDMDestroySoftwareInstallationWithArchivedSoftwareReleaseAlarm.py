@@ -45,7 +45,7 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     hosting_subscription.requestStart(**request_kw)
     hosting_subscription.requestInstance(**request_kw)
 
-    instance = hosting_subscription.getPredecessorValue()
+    instance = hosting_subscription.getSuccessorValue()
     self.tic()
     return instance
 

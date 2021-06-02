@@ -156,7 +156,7 @@ class TestSlapOSPDMMixinSkins(SlapOSTestCaseMixin):
         specialise=hosting_subscription.getRelativeUrl()
     )
     hosting_subscription.edit(
-        predecessor=software_instance.getRelativeUrl()
+        successor=software_instance.getRelativeUrl()
     )
     self.portal.portal_workflow._jumpToStateFor(software_instance, 'start_requested')
     software_instance.validate()
@@ -291,7 +291,7 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
                       None)
     
     self._makeFullSoftwareInstance(hs, oldest_software_url)
-    self._markComputerPartitionBusy(computer, hs.getPredecessorValue())
+    self._markComputerPartitionBusy(computer, hs.getSuccessorValue())
     self._makeCustomSoftwareRelease(software_product.getRelativeUrl(),
                                     newest_software_url)
     self.tic()
@@ -313,7 +313,7 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
                                     oldest_software_url, person)
     
     self._makeFullSoftwareInstance(hs, oldest_software_url)
-    self._markComputerPartitionBusy(computer, hs.getPredecessorValue())
+    self._markComputerPartitionBusy(computer, hs.getSuccessorValue())
     self._makeCustomSoftwareRelease(software_product.getRelativeUrl(),
                                     newest_software_url)
     self._makeSoftwareInstallation(computer,

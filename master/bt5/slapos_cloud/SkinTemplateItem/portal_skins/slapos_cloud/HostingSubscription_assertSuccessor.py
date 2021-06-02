@@ -1,7 +1,7 @@
 if context.getPortalType() != 'Hosting Subscription' \
   or context.getValidationState() != 'validated' \
   or context.getSlapState() not in ['start_requested', 'stop_requested'] \
-  or context.getTitle() in context.getPredecessorTitleList():
+  or context.getTitle() in context.getSuccessorTitleList():
   # nothing to do
   return
 

@@ -45,7 +45,7 @@ query_table="catalog"</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>z_related_predecessor_but_with_different_title_than_catalog_title</string> </value>
+            <value> <string>z_related_successor_but_with_different_title_than_catalog_title</string> </value>
         </item>
         <item>
             <key> <string>max_cache_</string> </key>
@@ -61,7 +61,7 @@ query_table="catalog"</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>z_related_predecessor_but_with_different_title_than_catalog_title</string> </value>
+            <value> <string>z_related_successor_but_with_different_title_than_catalog_title</string> </value>
         </item>
       </dictionary>
     </pickle>

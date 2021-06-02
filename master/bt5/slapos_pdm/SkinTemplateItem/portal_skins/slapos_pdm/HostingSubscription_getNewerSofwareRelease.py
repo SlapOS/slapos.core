@@ -1,6 +1,6 @@
 hosting_subscription = context
 
-software_instance = hosting_subscription.getPredecessorValue()
+software_instance = hosting_subscription.getSuccessorValue()
 if not software_instance:
   return None
 software_release_list = context.SoftwareProduct_getSortedSoftwareReleaseList(

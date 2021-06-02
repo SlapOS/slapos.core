@@ -20,7 +20,7 @@ portal_alarms/open_bugs_alarm;0;None;BugModule_sendOpenBugListReminder;None;None
 portal_alarms/promise_check_upgrade;0;None;Alarm_runFullUpgrader;None;None;None;();None;();None;();();None;2013/11/14 10:00:00 GMT;None;();None;None
 portal_alarms/slapos_accounting_generate_packing_list_from_tioxml;1;None;Alarm_searchSubmittedConsumptionTioXMLFileList;None;None;1;(4,);None;(0,);None;();();None;1970/01/01 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_allocate_instance;1;None;Alarm_allocateInstance;None;None;None;();None;();1;();();None;2010/10/26 00:00:00 GMT;None;();None;None
-portal_alarms/slapos_assert_hosting_subscription_predecessor;1;None;Alarm_assertHostingSubscriptionHasPredecessor;None;None;None;();None;();1;();();None;1980/01/01 00:00:00 GMT;None;();None;None
+portal_alarms/slapos_assert_hosting_subscription_successor;1;None;Alarm_assertHostingSubscriptionHasSuccessor;None;None;None;();None;();1;();();None;1980/01/01 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_check_duplicated_software_instance;0;None;Alarm_searchDuplicatedSoftwareInstance;None;None;None;None;None;None;None;None;None;None;1983/10/01 00:00:00 GMT;None;None;None;None
 portal_alarms/slapos_check_security_uid;0;None;Alarm_checkUnindexedSecurityUid;None;None;None;None;None;None;None;None;None;None;1983/10/01 00:00:00 GMT;None;None;None;None
 portal_alarms/slapos_cloud_invalidate_destroyed_instance;1;None;Alarm_invalidateDestroyedInstance;None;None;None;();1;();None;();();None;2010/10/26 00:00:00 GMT;None;();None;None

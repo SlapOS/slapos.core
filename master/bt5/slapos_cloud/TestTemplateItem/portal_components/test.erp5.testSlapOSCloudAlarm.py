@@ -9,26 +9,26 @@ from DateTime import DateTime
 from erp5.component.module.DateUtils import addToDate
 from App.Common import rfc1123_date
 
-class TestSlapOSCoreSlapOSAssertHostingSubscriptionPredecessorAlarm(
+class TestSlapOSCoreSlapOSAssertHostingSubscriptionSuccessorAlarm(
     SlapOSTestCaseMixin):
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     self._makeTree()
 
-  def test_HostingSubscription_assertPredecessor(self):
+  def test_HostingSubscription_assertSuccessor(self):
     self.software_instance.rename(new_name=self.generateNewSoftwareTitle())
     self.tic()
 
     # check that no interaction has recreated the instance
     self.assertFalse(self.hosting_subscription.getTitle() in
-        self.hosting_subscription.getPredecessorTitleList())
+        self.hosting_subscription.getSuccessorTitleList())
 
-    self.hosting_subscription.HostingSubscription_assertPredecessor()
+    self.hosting_subscription.HostingSubscription_assertSuccessor()
     self.assertTrue(self.hosting_subscription.getTitle() in
-        self.hosting_subscription.getPredecessorTitleList())
+        self.hosting_subscription.getSuccessorTitleList())
 
-  def test_HostingSubscription_assertPredecessor_stop_requested(self):
+  def test_HostingSubscription_assertSuccessor_stop_requested(self):
     self.software_instance.rename(new_name=self.generateNewSoftwareTitle())
     self.portal.portal_workflow._jumpToStateFor(self.hosting_subscription,
         'stop_requested')
@@ -36,13 +36,13 @@ class TestSlapOSCoreSlapOSAssertHostingSubscriptionPredecessorAlarm(
 
     # check that no interaction has recreated the instance
     self.assertFalse(self.hosting_subscription.getTitle() in
-        self.hosting_subscription.getPredecessorTitleList())
+        self.hosting_subscription.getSuccessorTitleList())
 
-    self.hosting_subscription.HostingSubscription_assertPredecessor()
+    self.hosting_subscription.HostingSubscription_assertSuccessor()
     self.assertTrue(self.hosting_subscription.getTitle() in
-        self.hosting_subscription.getPredecessorTitleList())
+        self.hosting_subscription.getSuccessorTitleList())
 
-  def test_HostingSubscription_assertPredecessor_destroy_requested(self):
+  def test_HostingSubscription_assertSuccessor_destroy_requested(self):
     self.software_instance.rename(new_name=self.generateNewSoftwareTitle())
     self.portal.portal_workflow._jumpToStateFor(self.hosting_subscription,
         'destroy_requested')
@@ -50,27 +50,27 @@ class TestSlapOSCoreSlapOSAssertHostingSubscriptionPredecessorAlarm(
 
     # check that no interaction has recreated the instance
     self.assertFalse(self.hosting_subscription.getTitle() in
-        self.hosting_subscription.getPredecessorTitleList())
+        self.hosting_subscription.getSuccessorTitleList())
 
-    self.hosting_subscription.HostingSubscription_assertPredecessor()
+    self.hosting_subscription.HostingSubscription_assertSuccessor()
     self.assertFalse(self.hosting_subscription.getTitle() in
-        self.hosting_subscription.getPredecessorTitleList())
+        self.hosting_subscription.getSuccessorTitleList())
 
-  def test_HostingSubscription_assertPredecessor_archived(self):
+  def test_HostingSubscription_assertSuccessor_archived(self):
     self.software_instance.rename(new_name=self.generateNewSoftwareTitle())
     self.hosting_subscription.archive()
     self.tic()
 
     # check that no interaction has recreated the instance
     self.assertFalse(self.hosting_subscription.getTitle() in
-        self.hosting_subscription.getPredecessorTitleList())
+        self.hosting_subscription.getSuccessorTitleList())
 
-    self.hosting_subscription.HostingSubscription_assertPredecessor()
+    self.hosting_subscription.HostingSubscription_assertSuccessor()
     self.assertFalse(self.hosting_subscription.getTitle() in
-        self.hosting_subscription.getPredecessorTitleList())
+        self.hosting_subscription.getSuccessorTitleList())
 
-  def _simulateHostingSubscription_assertPredecessor(self):
-    script_name = 'HostingSubscription_assertPredecessor'
+  def _simulateHostingSubscription_assertSuccessor(self):
+    script_name = 'HostingSubscription_assertSuccessor'
     if script_name in self.portal.portal_skins.custom.objectIds():
       raise ValueError('Precondition failed: %s exists in custom' % script_name)
     createZODBPythonScript(self.portal.portal_skins.custom,
@@ -78,11 +78,11 @@ class TestSlapOSCoreSlapOSAssertHostingSubscriptionPredecessorAlarm(
                         '*args, **kwargs',
                         '# Script body\n'
 """portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by HostingSubscription_assertPredecessor') """ )
+portal_workflow.doActionFor(context, action='edit_action', comment='Visited by HostingSubscription_assertSuccessor') """ )
     transaction.commit()
 
-  def _dropHostingSubscription_assertPredecessor(self):
-    script_name = 'HostingSubscription_assertPredecessor'
+  def _dropHostingSubscription_assertSuccessor(self):
+    script_name = 'HostingSubscription_assertSuccessor'
     if script_name in self.portal.portal_skins.custom.objectIds():
       self.portal.portal_skins.custom.manage_delObjects(script_name)
     transaction.commit()
@@ -90,25 +90,25 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by H
   def test_alarm_renamed(self):
     self.software_instance.edit(title=self.generateNewSoftwareTitle())
     self.tic()
-    self._simulateHostingSubscription_assertPredecessor()
+    self._simulateHostingSubscription_assertSuccessor()
     try:
-      self.portal.portal_alarms.slapos_assert_hosting_subscription_predecessor.activeSense()
+      self.portal.portal_alarms.slapos_assert_hosting_subscription_successor.activeSense()
       self.tic()
     finally:
-      self._dropHostingSubscription_assertPredecessor()
+      self._dropHostingSubscription_assertSuccessor()
     self.assertEqual(
-        'Visited by HostingSubscription_assertPredecessor',
+        'Visited by HostingSubscription_assertSuccessor',
         self.hosting_subscription.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_not_renamed(self):
-    self._simulateHostingSubscription_assertPredecessor()
+    self._simulateHostingSubscription_assertSuccessor()
     try:
-      self.portal.portal_alarms.slapos_assert_hosting_subscription_predecessor.activeSense()
+      self.portal.portal_alarms.slapos_assert_hosting_subscription_successor.activeSense()
       self.tic()
     finally:
-      self._dropHostingSubscription_assertPredecessor()
+      self._dropHostingSubscription_assertSuccessor()
     self.assertNotEqual(
-        'Visited by HostingSubscription_assertPredecessor',
+        'Visited by HostingSubscription_assertSuccessor',
         self.hosting_subscription.workflow_history['edit_workflow'][-1]['comment'])
 
 class TestSlapOSFreeComputerPartitionAlarm(SlapOSTestCaseMixin):
@@ -318,8 +318,8 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
     self.assertEqual('validated',
         self.requested_software_instance.getValidationState())
 
-  def test_SoftwareInstance_tryToGarbageCollect_unlinked_predecessor(self):
-    self.requested_software_instance.edit(predecessor_list=[])
+  def test_SoftwareInstance_tryToGarbageCollect_unlinked_successor(self):
+    self.requested_software_instance.edit(successor_list=[])
     self.hosting_subscription.archive()
     self.portal.portal_workflow._jumpToStateFor(self.hosting_subscription,
         'destroy_requested')
@@ -345,10 +345,10 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
       state='started'
     )
     self.requested_software_instance.requestInstance(**instance_kw)
-    sub_instance = self.requested_software_instance.getPredecessorValue()
+    sub_instance = self.requested_software_instance.getSuccessorValue()
     self.assertNotEqual(sub_instance, None)
 
-    self.requested_software_instance.edit(predecessor_list=[])
+    self.requested_software_instance.edit(successor_list=[])
     self.hosting_subscription.archive()
     self.portal.portal_workflow._jumpToStateFor(self.hosting_subscription,
         'destroy_requested')
@@ -364,7 +364,7 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
     self.assertEqual('validated',
         self.requested_software_instance.getValidationState())
 
-    self.assertEqual(self.requested_software_instance.getPredecessorValue(),
+    self.assertEqual(self.requested_software_instance.getSuccessorValue(),
                       None)
     self.assertEqual(sub_instance.getSlapState(), 'start_requested')
 
@@ -655,7 +655,7 @@ class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
     hosting_subscription.requestStart(**request_kw)
     hosting_subscription.requestInstance(**request_kw)
 
-    instance = hosting_subscription.getPredecessorValue()
+    instance = hosting_subscription.getSuccessorValue()
     self.tic()
     return instance
 
@@ -747,7 +747,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
     hosting_subscription.requestStart(**request_kw)
     hosting_subscription.requestInstance(**request_kw)
 
-    instance = hosting_subscription.getPredecessorValue()
+    instance = hosting_subscription.getSuccessorValue()
     return instance
 
   def createComputerPartition(self):
@@ -856,7 +856,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
       state='started'
     )
     instance.requestInstance(**request_kw)
-    sub_instance = instance.getPredecessorValue()
+    sub_instance = instance.getSuccessorValue()
     self.tic()
     sub_instance.workflow_history['edit_workflow'].append({
         'comment':'Allocation failed: no free Computer Partition',
@@ -884,7 +884,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
       state='started'
     )
     instance.requestInstance(**request_kw)
-    sub_instance = instance.getPredecessorValue()
+    sub_instance = instance.getSuccessorValue()
     self.tic()
     sub_instance.workflow_history['edit_workflow'].append({
         'comment':'Allocation failed: Allocation disallowed',
@@ -999,7 +999,7 @@ class TestSlapOSGarbageCollectUnlinkedInstanceAlarm(SlapOSTestCaseMixin):
     hosting_subscription.requestInstance(**request_kw)
     self.hosting_subscription = hosting_subscription
 
-    instance = hosting_subscription.getPredecessorValue()
+    instance = hosting_subscription.getSuccessorValue()
     return instance
 
   def createComputerPartition(self):
@@ -1024,7 +1024,7 @@ class TestSlapOSGarbageCollectUnlinkedInstanceAlarm(SlapOSTestCaseMixin):
     )
     instance.requestInstance(**instance_kw)
     self.tic()
-    sub_instance = instance.getPredecessorValue()
+    sub_instance = instance.getSuccessorValue()
     partition = self.createComputerPartition()
     sub_instance.edit(aggregate_value=partition)
     self.tic()
@@ -1056,12 +1056,12 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     instance.edit(aggregate_value=partition)
     self.tic()
     instance0 = self.doRequestInstance(instance, 'instance0')
-    self.assertEqual(instance0.getPredecessorRelatedTitle(), instance.getTitle())
+    self.assertEqual(instance0.getSuccessorRelatedTitle(), instance.getTitle())
 
-    # Remove predecessor link
-    instance.edit(predecessor_list=[])
+    # Remove successor link
+    instance.edit(successor_list=[])
     self.tic()
-    self.assertEqual(instance0.getPredecessorRelatedTitle(), None)
+    self.assertEqual(instance0.getSuccessorRelatedTitle(), None)
     instance0.SoftwareInstance_tryToGarbageUnlinkedInstance(delay_time=-1)
     self.tic()
     self.assertEqual(instance0.getSlapState(), 'destroy_requested')
@@ -1072,7 +1072,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     instance.edit(aggregate_value=partition)
     self.tic()
     instance0 = self.doRequestInstance(instance, 'instance0')
-    instance.edit(predecessor_list=[])
+    instance.edit(successor_list=[])
     self.tic()
 
     self.hosting_subscription.archive()
@@ -1093,18 +1093,18 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     self.tic()
     instance0 = self.doRequestInstance(instance, 'instance0')
     instance_instance0 = self.doRequestInstance(instance0, 'Subinstance0')
-    self.assertEqual(instance_instance0.getPredecessorRelatedTitle(),
+    self.assertEqual(instance_instance0.getSuccessorRelatedTitle(),
                      'instance0')
-    instance.edit(predecessor_list=[])
+    instance.edit(successor_list=[])
     self.tic()
-    self.assertEqual(instance0.getPredecessorRelatedTitle(), None)
+    self.assertEqual(instance0.getSuccessorRelatedTitle(), None)
 
     instance0.SoftwareInstance_tryToGarbageUnlinkedInstance(delay_time=-1)
     self.tic()
     self.assertEqual(instance0.getSlapState(), 'destroy_requested')
     self.assertEqual(instance_instance0.getSlapState(), 'start_requested')
     # Link of child removed
-    self.assertEqual(instance_instance0.getPredecessorRelatedTitle(), None)
+    self.assertEqual(instance_instance0.getSuccessorRelatedTitle(), None)
 
   def test_SoftwareInstance_tryToGarbageUnlinkedInstance_will_delay(self):
     instance = self.createInstance()
@@ -1113,11 +1113,11 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     self.tic()
     instance0 = self.doRequestInstance(instance, 'instance0')
     instance_instance0 = self.doRequestInstance(instance0, 'Subinstance0')
-    self.assertEqual(instance_instance0.getPredecessorRelatedTitle(),
+    self.assertEqual(instance_instance0.getSuccessorRelatedTitle(),
                      'instance0')
-    instance.edit(predecessor_list=[])
+    instance.edit(successor_list=[])
     self.tic()
-    self.assertEqual(instance0.getPredecessorRelatedTitle(), None)
+    self.assertEqual(instance0.getSuccessorRelatedTitle(), None)
 
     instance0.SoftwareInstance_tryToGarbageUnlinkedInstance()
     self.tic()
@@ -1133,7 +1133,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     self.assertEqual(instance0.getSlapState(), 'destroy_requested')
     self.assertEqual(instance_instance0.getSlapState(), 'start_requested')
     # Link of child removed
-    self.assertEqual(instance_instance0.getPredecessorRelatedTitle(), None)
+    self.assertEqual(instance_instance0.getSuccessorRelatedTitle(), None)
 
   def test_SoftwareInstance_tryToGarbageUnlinkedInstance_unlinked_root(self):
     instance = self.createInstance()
@@ -1143,10 +1143,10 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
 
     self.assertEqual(self.hosting_subscription.getTitle(), instance.getTitle())
 
-    # Remove predecessor link
-    self.hosting_subscription.edit(predecessor_list=[])
+    # Remove successor link
+    self.hosting_subscription.edit(successor_list=[])
     self.tic()
-    self.assertEqual(instance.getPredecessorRelatedTitle(), None)
+    self.assertEqual(instance.getSuccessorRelatedTitle(), None)
     # will not destroy
     self.assertRaises(
       ValueError,
@@ -1162,11 +1162,11 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     self.tic()
     instance0 = self.doRequestInstance(instance, 'instance0')
     instance_instance0 = self.doRequestInstance(instance0, 'Subinstance0')
-    self.assertEqual(instance_instance0.getPredecessorRelatedTitle(),
+    self.assertEqual(instance_instance0.getSuccessorRelatedTitle(),
                      'instance0')
     self.assertEqual(instance_instance0.getSlapState(), 'start_requested')
 
-    # Try to remove without delete predecessor link
+    # Try to remove without delete successor link
     instance_instance0.SoftwareInstance_tryToGarbageUnlinkedInstance(delay_time=-1)
     self.tic()
     self.assertEqual(instance_instance0.getSlapState(), 'start_requested')
@@ -1177,7 +1177,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     instance.edit(aggregate_value=partition)
     self.tic()
     instance0 = self.doRequestInstance(instance, 'instance0')
-    self.assertEqual(instance.getPredecessorReference(),
+    self.assertEqual(instance.getSuccessorReference(),
                       instance0.getReference())
     self._simulateSoftwareInstance_tryToGarbageUnlinkedInstance()
     try:
@@ -1189,8 +1189,8 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
         'Visited by SoftwareInstance_tryToGarbageUnlinkedInstance',
         instance0.workflow_history['edit_workflow'][-1]['comment'])
 
-    # Remove predecessor link
-    instance.edit(predecessor_list=[])
+    # Remove successor link
+    instance.edit(successor_list=[])
     self._simulateSoftwareInstance_tryToGarbageUnlinkedInstance()
     self.tic()
     try:
@@ -1208,9 +1208,9 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     instance.edit(aggregate_value=partition)
     self.tic()
     slave_instance0 = self.doRequestInstance(instance, 'slaveInstance0', True)
-    self.assertEqual(instance.getPredecessorTitle(), 'slaveInstance0')
+    self.assertEqual(instance.getSuccessorTitle(), 'slaveInstance0')
     self._simulateSoftwareInstance_tryToGarbageUnlinkedInstance()
-    instance.edit(predecessor_list=[])
+    instance.edit(successor_list=[])
     self.tic()
     try:
       self.portal.portal_alarms.slapos_garbage_collect_destroy_unlinked_instance.activeSense()

@@ -41,7 +41,7 @@ person.requestSoftwareInstance(**request_kw)
 assert hosting_subscription.getSlapState() == "destroy_requested",\
   "Hosting Subscription not destroyed!!"
 
-connection_dict = hosting_subscription.getPredecessorValue().getConnectionXmlAsDict()
+connection_dict = hosting_subscription.getSuccessorValue().getConnectionXmlAsDict()
 
 connection_key_list = context.getSubjectList()
 connection_string = '\n'.join(['%s: %s' % (x,y) for x,y in connection_dict.items() if x in connection_key_list])

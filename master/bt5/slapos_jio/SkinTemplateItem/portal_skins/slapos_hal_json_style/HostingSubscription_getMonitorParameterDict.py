@@ -21,7 +21,7 @@ hosting_subscription = context
 if hosting_subscription.getSlapState() == 'destroy_requested':
   return json.dumps({})
 
-instance = hosting_subscription.getPredecessorValue()
+instance = hosting_subscription.getSuccessorValue()
 if instance is None or instance.getSlapState() == 'destroy_requested':
   return json.dumps({})
 

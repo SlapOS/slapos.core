@@ -36,17 +36,17 @@ if (portal.portal_activities.countMessageWithTag(tag) > 0):
 
 # graph allows to "simulate" tree change after requested operation
 graph = {}
-predecessor_list = hosting_subscription.getPredecessorValueList()
-graph[hosting_subscription.getUid()] = [predecessor.getUid() for predecessor in predecessor_list]
+successor_list = hosting_subscription.getSuccessorValueList()
+graph[hosting_subscription.getUid()] = [successor.getUid() for successor in successor_list]
 while True:
   try:
-    current_software_instance = predecessor_list.pop(0)
+    current_software_instance = successor_list.pop(0)
   except IndexError:
     break
-  current_software_instance_predecessor_list = current_software_instance.getPredecessorValueList() or []
-  graph[current_software_instance.getUid()] = [predecessor.getUid()
-                                               for predecessor in current_software_instance_predecessor_list]
-  predecessor_list.extend(current_software_instance_predecessor_list)
+  current_software_instance_successor_list = current_software_instance.getSuccessorValueList() or []
+  graph[current_software_instance.getUid()] = [successor.getUid()
+                                               for successor in current_software_instance_successor_list]
+  successor_list.extend(current_software_instance_successor_list)
 
 # Check if it already exists
 request_software_instance_list = portal.portal_catalog(
@@ -110,24 +110,24 @@ if (request_software_instance is None):
 
 else:
   instance_found = True
-  # Update the predecessor category of the previous requester
-  predecessor = request_software_instance.getPredecessorRelatedValue(portal_type="Software Instance")
-  if (predecessor is None):
+  # Update the successor category of the previous requester
+  successor = request_software_instance.getSuccessorRelatedValue(portal_type="Software Instance")
+  if (successor is None):
     # Check if the precessor is a Hosting Subscription
-    hosting_subscription_precessesor = request_software_instance.getPredecessorRelatedValue(portal_type="Hosting Subscription")
+    hosting_subscription_precessesor = request_software_instance.getSuccessorRelatedValue(portal_type="Hosting Subscription")
     if (requester_instance.getPortalType() != "Hosting Subscription" and hosting_subscription_precessesor is not None):
       raise ValueError('It is disallowed to request root software instance %s' % request_software_instance.getRelativeUrl())
     else:
-      predecessor = requester_instance
+      successor = requester_instance
       # It was a loose node, so check if it ok:
       if request_software_instance.getUid() not in graph:
-        graph[request_software_instance.getUid()] = request_software_instance.getPredecessorUidList()
+        graph[request_software_instance.getUid()] = request_software_instance.getSuccessorUidList()
 
-  predecessor_uid_list = predecessor.getPredecessorUidList()
-  if request_software_instance.getUid() in predecessor_uid_list:
-    predecessor_uid_list.remove(request_software_instance.getUid())
-    predecessor.edit(predecessor_uid_list=predecessor_uid_list)
-  graph[predecessor.getUid()] = predecessor_uid_list
+  successor_uid_list = successor.getSuccessorUidList()
+  if request_software_instance.getUid() in successor_uid_list:
+    successor_uid_list.remove(request_software_instance.getUid())
+    successor.edit(successor_uid_list=successor_uid_list)
+  graph[successor.getUid()] = successor_uid_list
 
 if instance_found:
 
@@ -151,21 +151,21 @@ if instance_found:
   else:
     raise ValueError, "state should be started, stopped or destroyed"
 
-  predecessor_list = requester_instance.getPredecessorList() + [request_software_instance_url]
-  uniq_predecessor_list = list(set(predecessor_list))
-  predecessor_list.sort()
-  uniq_predecessor_list.sort()
+  successor_list = requester_instance.getSuccessorList() + [request_software_instance_url]
+  uniq_successor_list = list(set(successor_list))
+  successor_list.sort()
+  uniq_successor_list.sort()
 
-  assert predecessor_list == uniq_predecessor_list, "%s != %s" % (predecessor_list, uniq_predecessor_list)
+  assert successor_list == uniq_successor_list, "%s != %s" % (successor_list, uniq_successor_list)
 
   # update graph to reflect requested operation
-  graph[requester_instance.getUid()] = requester_instance.getPredecessorUidList() + [request_software_instance.getUid()]
+  graph[requester_instance.getUid()] = requester_instance.getSuccessorUidList() + [request_software_instance.getUid()]
 
   # check if all elements are still connected and if there is no cycle
   request_software_instance.checkConnected(graph, hosting_subscription.getUid())
   request_software_instance.checkNotCyclic(graph)
 
-  requester_instance.edit(predecessor_list=predecessor_list)
+  requester_instance.edit(successor_list=successor_list)
 
 else:
   context.REQUEST.set('request_instance', None)

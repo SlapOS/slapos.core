@@ -16,7 +16,7 @@ elif context.getPortalType() != "Hosting Subscription":
   response.setStatus(403)
   return ""
 
-instance_list = context.getPredecessorValueList()
+instance_list = context.getSuccessorValueList()
 for instance in instance_list:
   if instance.getTitle() == context.getTitle():
     root_instance = instance

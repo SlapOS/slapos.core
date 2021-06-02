@@ -599,7 +599,7 @@ class SlapTool(BaseTool):
                                                    computer_partition_id,
                                                    instance_reference_xml):
     """
-    Update Software Instance predecessor list
+    Update Software Instance successor list
     """
     return self._updateComputerPartitionRelatedInstanceList(computer_id,
                                                    computer_partition_id,
@@ -1430,9 +1430,9 @@ class SlapTool(BaseTool):
   def _updateComputerPartitionRelatedInstanceList(self, computer_id,
                               computer_partition_id, instance_reference_xml):
     """
-    Update Software Instance predecessor list to match the given list. If one
+    Update Software Instance successor list to match the given list. If one
     instance was not requested by this computer partition, it should be removed
-    in the predecessor_list of this instance.
+    in the successor_list of this instance.
     Once the link is removed, this instance will be trashed by Garbage Collect!
 
     instance_reference_xml contain list of title of sub-instances requested by
@@ -1446,21 +1446,21 @@ class SlapTool(BaseTool):
     if self._getLastData(cache_reference) != instance_reference_xml:
       instance_reference_list = loads(instance_reference_xml)
 
-      current_predecessor_list = software_instance_document.getPredecessorValueList(
+      current_successor_list = software_instance_document.getSuccessorValueList(
                             portal_type=['Software Instance', 'Slave Instance'])
-      current_predecessor_title_list = [i.getTitle() for i in
-                                        current_predecessor_list]
+      current_successor_title_list = [i.getTitle() for i in
+                                        current_successor_list]
 
       # If there are items to remove
-      if list(set(current_predecessor_title_list).difference(instance_reference_list)) != []:
-        predecessor_list = [instance.getRelativeUrl() for instance in
-                            current_predecessor_list if instance.getTitle()
+      if list(set(current_successor_title_list).difference(instance_reference_list)) != []:
+        successor_list = [instance.getRelativeUrl() for instance in
+                            current_successor_list if instance.getTitle()
                             in instance_reference_list]
 
-        LOG('SlapTool', INFO, '%s, %s: Updating predecessor list to %s' % (
-          computer_id, computer_partition_id, predecessor_list), error=False)
-        software_instance_document.edit(predecessor_list=predecessor_list,
-            comment='predecessor_list edited to unlink non commited instances')
+        LOG('SlapTool', INFO, '%s, %s: Updating successor list to %s' % (
+          computer_id, computer_partition_id, successor_list), error=False)
+        software_instance_document.edit(successor_list=successor_list,
+            comment='successor_list edited to unlink non commited instances')
       self._storeLastData(cache_reference, instance_reference_xml)
 
   ####################################################

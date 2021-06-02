@@ -1,7 +1,7 @@
 portal = context.getPortalObject()
 
 # This won't work well on clusters deployed on multiple computers.
-root_instance = context.getPredecessorValue(
+root_instance = context.getSuccessorValue(
   portal_type=["Software Instance", "Slave Instance"])
 if root_instance is not None and root_instance.getPortalType() == 'Slave Instance':
   return True

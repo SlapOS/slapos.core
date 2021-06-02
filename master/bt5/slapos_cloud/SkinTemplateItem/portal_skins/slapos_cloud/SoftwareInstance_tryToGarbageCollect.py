@@ -4,7 +4,7 @@ if (instance.getSlapState() != "destroy_requested"):
   hosting_subscription = instance.getSpecialiseValue(portal_type="Hosting Subscription")
   if (hosting_subscription.getValidationState() == "archived"):
     # Buildout didn't propagate the destruction request
-    requester = instance.getPredecessorRelatedValue()
+    requester = instance.getSuccessorRelatedValue()
     
     if instance.getPortalType() == 'Software Instance':
       is_slave = False
@@ -15,7 +15,7 @@ if (instance.getSlapState() != "destroy_requested"):
         (instance.getPortalType(), instance.getRelativeUrl())
 
     if requester is None:
-      # This instance has no predecessor (link removed) and should be trashed
+      # This instance has no successor (link removed) and should be trashed
       promise_kw = {
         'instance_xml': instance.getTextContent(),
         'software_type': instance.getSourceReference(),
@@ -25,8 +25,8 @@ if (instance.getSlapState() != "destroy_requested"):
       }
       instance.requestDestroy(**promise_kw)
       # Unlink all children of this instance
-      instance.edit(predecessor="", comment="Destroyed garbage collector!")
-    elif (instance.getRelativeUrl() in requester.getPredecessorList()) and \
+      instance.edit(successor="", comment="Destroyed garbage collector!")
+    elif (instance.getRelativeUrl() in requester.getSuccessorList()) and \
       (requester.getSlapState() == "destroy_requested"):
       # For security, only destroyed if parent is also destroyed
 

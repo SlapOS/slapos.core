@@ -215,7 +215,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by W
 
     received_message = [x for x in event_message_list \
                         if x.getTitle() == 'Received Order Status'][0]
-    self.assertEqual(received_message.getPredecessor(), 
+    self.assertEqual(received_message.getSuccessor(), 
                       sent_message.getRelativeUrl())
     self.assertEqual(received_message.getTextContent(), mocked_data_kw)
 

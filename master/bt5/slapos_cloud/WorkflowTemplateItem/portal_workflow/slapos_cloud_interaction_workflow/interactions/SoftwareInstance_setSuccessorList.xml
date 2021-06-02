@@ -28,7 +28,7 @@
             <key> <string>after_script_name</string> </key>
             <value>
               <list>
-                <string>SoftwareInstance_reindexRecursivelyPredecessorSoftwareInstanceList</string>
+                <string>SoftwareInstance_reindexRecursivelySuccessorSoftwareInstanceList</string>
               </list>
             </value>
         </item>
@@ -52,13 +52,13 @@ It will create duplicate activities, but only one for each will be fired.</strin
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SoftwareInstance_setPredecessorList</string> </value>
+            <value> <string>SoftwareInstance_setSuccessorList</string> </value>
         </item>
         <item>
             <key> <string>method_id</string> </key>
             <value>
               <list>
-                <string>_setPredecessor.*</string>
+                <string>_setSuccessor.*</string>
               </list>
             </value>
         </item>
@@ -78,7 +78,7 @@ It will create duplicate activities, but only one for each will be fired.</strin
             <key> <string>script_name</string> </key>
             <value>
               <list>
-                <string>SoftwareInstance_reindexRecursivelyPredecessorSoftwareInstanceList</string>
+                <string>SoftwareInstance_reindexRecursivelySuccessorSoftwareInstanceList</string>
               </list>
             </value>
         </item>

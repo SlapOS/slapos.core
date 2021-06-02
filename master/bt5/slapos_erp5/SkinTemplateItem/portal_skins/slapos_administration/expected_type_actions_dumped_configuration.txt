@@ -3459,9 +3459,9 @@ Drawing
   Index: 60.0
 
 Drawing
-  Reference: jump_to_predecessor
+  Reference: jump_to_successor
   Title: Reference Documents
-  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=related_predecessor&listbox_title=Reference Documents
+  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=related_successor&listbox_title=Reference Documents
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -3499,9 +3499,9 @@ Drawing
   Index: 30.0
 
 Drawing
-  Reference: jump_to_wiki_predecessor
-  Title: Wiki Predecessors
-  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=wiki_predecessor&listbox_title=Wiki Predecessors
+  Reference: jump_to_wiki_successor
+  Title: Wiki Successors
+  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=wiki_successor&listbox_title=Wiki Successors
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -3959,9 +3959,9 @@ File
   Index: 60.0
 
 File
-  Reference: jump_to_predecessor
+  Reference: jump_to_successor
   Title: Reference Documents
-  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=related_predecessor&listbox_title=Reference Documents
+  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=related_successor&listbox_title=Reference Documents
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -3999,9 +3999,9 @@ File
   Index: 30.0
 
 File
-  Reference: jump_to_wiki_predecessor
-  Title: Wiki Predecessors
-  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=wiki_predecessor&listbox_title=Wiki Predecessors
+  Reference: jump_to_wiki_successor
+  Title: Wiki Successors
+  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=wiki_successor&listbox_title=Wiki Successors
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -4569,9 +4569,9 @@ Image
   Index: 60.0
 
 Image
-  Reference: jump_to_predecessor
+  Reference: jump_to_successor
   Title: Reference Documents
-  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=related_predecessor&listbox_title=Reference Documents
+  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=related_successor&listbox_title=Reference Documents
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -4609,9 +4609,9 @@ Image
   Index: 30.0
 
 Image
-  Reference: jump_to_wiki_predecessor
-  Title: Wiki Predecessors
-  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=wiki_predecessor&listbox_title=Wiki Predecessors
+  Reference: jump_to_wiki_successor
+  Title: Wiki Successors
+  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=wiki_successor&listbox_title=Wiki Successors
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -7649,9 +7649,9 @@ PDF
   Index: 60.0
 
 PDF
-  Reference: jump_to_predecessor
+  Reference: jump_to_successor
   Title: Reference Documents
-  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=related_predecessor&listbox_title=Reference Documents
+  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=related_successor&listbox_title=Reference Documents
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -7689,9 +7689,9 @@ PDF
   Index: 30.0
 
 PDF
-  Reference: jump_to_wiki_predecessor
-  Title: Wiki Predecessors
-  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=wiki_predecessor&listbox_title=Wiki Predecessors
+  Reference: jump_to_wiki_successor
+  Title: Wiki Successors
+  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=wiki_successor&listbox_title=Wiki Successors
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -8719,9 +8719,9 @@ Presentation
   Index: 60.0
 
 Presentation
-  Reference: jump_to_predecessor
+  Reference: jump_to_successor
   Title: Reference Documents
-  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=related_predecessor&listbox_title=Reference Documents
+  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=related_successor&listbox_title=Reference Documents
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -8759,9 +8759,9 @@ Presentation
   Index: 30.0
 
 Presentation
-  Reference: jump_to_wiki_predecessor
-  Title: Wiki Predecessors
-  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=wiki_predecessor&listbox_title=Wiki Predecessors
+  Reference: jump_to_wiki_successor
+  Title: Wiki Successors
+  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=wiki_successor&listbox_title=Wiki Successors
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -13741,7 +13741,7 @@ Slave Instance
 Slave Instance
   Reference: jump_to_software_instance
   Title: Software Instance
-  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=predecessor&portal_type=Software+Instance
+  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=successor&portal_type=Software+Instance
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -13841,7 +13841,7 @@ Software Instance
 Software Instance
   Reference: jump_to_software_instance
   Title: Requester Instance
-  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=predecessor&portal_type:list=Software+Instance&portal_type:list=Hosting+Subscription
+  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=successor&portal_type:list=Software+Instance&portal_type:list=Hosting+Subscription
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -14459,9 +14459,9 @@ Spreadsheet
   Index: 60.0
 
 Spreadsheet
-  Reference: jump_to_predecessor
+  Reference: jump_to_successor
   Title: Reference Documents
-  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=related_predecessor&listbox_title=Reference Documents
+  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=related_successor&listbox_title=Reference Documents
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -14499,9 +14499,9 @@ Spreadsheet
   Index: 30.0
 
 Spreadsheet
-  Reference: jump_to_wiki_predecessor
-  Title: Wiki Predecessors
-  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=wiki_predecessor&listbox_title=Wiki Predecessors
+  Reference: jump_to_wiki_successor
+  Title: Wiki Successors
+  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=wiki_successor&listbox_title=Wiki Successors
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -15479,9 +15479,9 @@ Task
   Index: 60.0
 
 Task
-  Reference: jump_to_predecessor_task
-  Title: Predecessor Tasks
-  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=predecessor&portal_type=Task&related:int=0
+  Reference: jump_to_successor_task
+  Title: Successor Tasks
+  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=successor&portal_type=Task&related:int=0
   Icon: None
   Permission: View
   Action Type: object_jio_jump
@@ -15501,7 +15501,7 @@ Task
 Task
   Reference: jump_to_successor_task
   Title: Successor Tasks
-  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=predecessor&portal_type=Task
+  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=successor&portal_type=Task
   Icon: None
   Permission: View
   Action Type: object_jio_jump
@@ -16209,9 +16209,9 @@ Text
   Index: 60.0
 
 Text
-  Reference: jump_to_predecessor
+  Reference: jump_to_successor
   Title: Reference Documents
-  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=related_predecessor&listbox_title=Reference Documents
+  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=related_successor&listbox_title=Reference Documents
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -16249,9 +16249,9 @@ Text
   Index: 30.0
 
 Text
-  Reference: jump_to_wiki_predecessor
-  Title: Wiki Predecessors
-  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=wiki_predecessor&listbox_title=Wiki Predecessors
+  Reference: jump_to_wiki_successor
+  Title: Wiki Successors
+  Action: string:${object_url}/Document_jumpToRelatedDocumentList?relation_id=wiki_successor&listbox_title=Wiki Successors
   Icon: None
   Permission: View
   Action Type: object_jump

@@ -462,7 +462,7 @@ class TestSlapOSHostingSubscription_getHateoasRootSoftwareInstance(TestSlapOSHyp
     subscription = self._makeHostingSubscription()
     instance = self._makeInstance()
     instance.edit(specialise_value=subscription, title=subscription.getTitle())
-    subscription.edit(predecessor_value=instance)
+    subscription.edit(successor_value=instance)
     self.tic()
 
     fake_request = do_fake_request("GET")

@@ -235,7 +235,7 @@ class TestSlapOSSoftwareInstanceConstraint(TestSlapOSConstraintMixin):
     self.software_instance.edit(**{property_id:''})
     self.assertFalse(consistency_message in self.getMessageList(self.software_instance))
 
-  def test_predecessor_related(self):
+  def test_successor_related(self):
     software_instance2 = self.portal.software_instance_module.newContent(
       portal_type='Software Instance')
     software_instance3 = self.portal.software_instance_module.newContent(
@@ -244,25 +244,25 @@ class TestSlapOSSoftwareInstanceConstraint(TestSlapOSConstraintMixin):
     # fetch basic list of consistency messages
     current_message_list = self.getMessageList(self.software_instance)
 
-    consistency_message = "There is more then one related predecessor"
+    consistency_message = "There is more then one related successor"
 
     # test the test: no expected message found
     self.assertFalse(consistency_message in current_message_list)
 
     # if too many, it shall cry
-    software_instance2.edit(predecessor=self.software_instance.getRelativeUrl())
-    software_instance3.edit(predecessor=self.software_instance.getRelativeUrl())
+    software_instance2.edit(successor=self.software_instance.getRelativeUrl())
+    software_instance3.edit(successor=self.software_instance.getRelativeUrl())
     self.tic()
     self.assertTrue(consistency_message in self.getMessageList(self.software_instance))
 
     # one is good
-    software_instance2.edit(predecessor=None)
+    software_instance2.edit(successor=None)
     self.tic()
     self.assertFalse(consistency_message in self.getMessageList(self.software_instance))
     self.assertSameSet(current_message_list, self.getMessageList(self.software_instance))
 
     # none is good
-    software_instance3.edit(predecessor=None)
+    software_instance3.edit(successor=None)
     self.tic()
     self.assertFalse(consistency_message in self.getMessageList(self.software_instance))
     self.assertSameSet(current_message_list, self.getMessageList(self.software_instance))
@@ -374,7 +374,7 @@ class TestSlapOSSlaveInstanceConstraint(TestSlapOSConstraintMixin):
         'Property existence error for property reference, this document'
         ' has no such property or the property has never been set')
 
-  def test_predecessor_related(self):
+  def test_successor_related(self):
     software_instance2 = self.portal.software_instance_module.newContent(
       portal_type='Slave Instance')
     software_instance3 = self.portal.software_instance_module.newContent(
@@ -383,25 +383,25 @@ class TestSlapOSSlaveInstanceConstraint(TestSlapOSConstraintMixin):
     # fetch basic list of consistency messages
     current_message_list = self.getMessageList(self.software_instance)
 
-    consistency_message = "There is more then one related predecessor"
+    consistency_message = "There is more then one related successor"
 
     # test the test: no expected message found
     self.assertFalse(consistency_message in current_message_list)
 
     # if too many, it shall cry
-    software_instance2.edit(predecessor=self.software_instance.getRelativeUrl())
-    software_instance3.edit(predecessor=self.software_instance.getRelativeUrl())
+    software_instance2.edit(successor=self.software_instance.getRelativeUrl())
+    software_instance3.edit(successor=self.software_instance.getRelativeUrl())
     self.tic()
     self.assertTrue(consistency_message in self.getMessageList(self.software_instance))
 
     # one is good
-    software_instance2.edit(predecessor=None)
+    software_instance2.edit(successor=None)
     self.tic()
     self.assertFalse(consistency_message in self.getMessageList(self.software_instance))
     self.assertSameSet(current_message_list, self.getMessageList(self.software_instance))
 
     # none is good
-    software_instance3.edit(predecessor=None)
+    software_instance3.edit(successor=None)
     self.tic()
     self.assertFalse(consistency_message in self.getMessageList(self.software_instance))
     self.assertSameSet(current_message_list, self.getMessageList(self.software_instance))

@@ -5,6 +5,6 @@
   <item>source</item>
  </portal_type>
  <portal_type id="Payzen Event Message">
-  <item>predecessor</item>
+  <item>successor</item>
  </portal_type>
 </base_category_list>

@@ -1083,12 +1083,12 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
     hosting_subscription = subscription_request.getAggregateValue(portal_type="Hosting Subscription")
     self.assertNotEqual(hosting_subscription, None)
 
-    instance = hosting_subscription.getPredecessorValue()
+    instance = hosting_subscription.getSuccessorValue()
     self.assertNotEqual(instance, None)
 
     self.assertEqual('diverged', hosting_subscription.getCausalityState())
 
-    instance = hosting_subscription.getPredecessorValue()
+    instance = hosting_subscription.getSuccessorValue()
     self.assertNotEqual(instance, None)
  
     
@@ -1166,7 +1166,7 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
     self.assertEqual('diverged', hosting_subscription.getCausalityState())
     self.assertEqual('start_requested', hosting_subscription.getSlapState())
 
-    instance = hosting_subscription.getPredecessorValue()
+    instance = hosting_subscription.getSuccessorValue()
     self.assertNotEqual(instance, None)
  
     

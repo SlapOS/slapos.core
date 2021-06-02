@@ -1,7 +1,7 @@
 title = context.getTitle()
 result = []
 found = False
-for instance in context.getPredecessorValueList():
+for instance in context.getSuccessorValueList():
   if (instance.getTitle() == title) and (instance.getSlapState() != 'destroy_requested'):
     found = True
     break

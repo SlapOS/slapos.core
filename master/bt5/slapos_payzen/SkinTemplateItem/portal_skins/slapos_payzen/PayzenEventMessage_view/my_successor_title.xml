@@ -19,7 +19,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>my_predecessor_title</string> </value>
+            <value> <string>my_successor_title</string> </value>
         </item>
         <item>
             <key> <string>message_values</string> </key>
@@ -109,7 +109,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Predecessor</string> </value>
+                    <value> <string>Successor</string> </value>
                 </item>
               </dictionary>
             </value>

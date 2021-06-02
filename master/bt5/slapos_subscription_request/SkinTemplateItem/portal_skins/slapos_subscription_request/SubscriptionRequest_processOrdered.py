@@ -15,7 +15,7 @@ if hosting_subscription is not None:
     # Call it as soon as possible
     hosting_subscription.HostingSubscription_requestUpdateOpenSaleOrder()
 
-  instance = hosting_subscription.getPredecessorValue()
+  instance = hosting_subscription.getSuccessorValue()
 
   # This ensure that the user has a valid cloud contract.
   # At this stage he already have a paied invoice for the reservation,

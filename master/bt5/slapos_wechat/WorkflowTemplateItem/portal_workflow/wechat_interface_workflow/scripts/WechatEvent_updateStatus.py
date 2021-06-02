@@ -22,5 +22,5 @@ wechat_event.newContent(
   title='Received Order Status',
   portal_type='Wechat Event Message',
   text_content=wechat_answer_dict,
-  predecessor_value=sent)
+  successor_value=sent)
 wechat_event.WechatEvent_processUpdate(wechat_answer_dict)

@@ -38,7 +38,7 @@ sent = wechat_event.newContent(title='Sent SOAP',
 # RECEIVED
 wechat_event.newContent(title='Received SOAP',
                         text_content=received_text,
-                        predecessor_value=sent,
+                        successor_value=sent,
                         portal_type='Wechat Event Message')
 
 context.WechatEvent_processUpdate(state_change, data_kw, signature)

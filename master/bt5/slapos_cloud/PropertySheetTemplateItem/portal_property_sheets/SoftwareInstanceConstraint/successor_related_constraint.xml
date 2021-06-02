@@ -28,17 +28,17 @@
             <key> <string>expression</string> </key>
             <value> <string encoding="cdata"><![CDATA[
 
-python: len(context.getPredecessorRelatedList()) <= 1
+python: len(context.getSuccessorRelatedList()) <= 1
 
 ]]></string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>predecessor_related_constraint</string> </value>
+            <value> <string>successor_related_constraint</string> </value>
         </item>
         <item>
             <key> <string>message_expression_false</string> </key>
-            <value> <string>There is more then one related predecessor</string> </value>
+            <value> <string>There is more then one related successor</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>

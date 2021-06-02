@@ -215,7 +215,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         text_content=self.request_kw['instance_xml'],
         sla_xml=self.request_kw['sla_xml'],
         root_slave=self.request_kw['shared'],
-        predecessor=self.software_instance.getRelativeUrl(),
+        successor=self.software_instance.getRelativeUrl(),
         destination_section=self.person_user.getRelativeUrl()
     )
     self.hosting_subscription.validate()
@@ -231,7 +231,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         text_content=self.request_kw['instance_xml'],
         sla_xml=self.request_kw['sla_xml'],
         specialise=self.hosting_subscription.getRelativeUrl(),
-        predecessor=self.requested_software_instance.getRelativeUrl()
+        successor=self.requested_software_instance.getRelativeUrl()
     )
     self.portal.portal_workflow._jumpToStateFor(self.software_instance, 'start_requested')
     self.software_instance.validate()
@@ -368,7 +368,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     hosting_subscription.requestStart(**kw)
     hosting_subscription.requestInstance(**kw)
 
-    self.start_requested_software_instance = hosting_subscription.getPredecessorValue()
+    self.start_requested_software_instance = hosting_subscription.getSuccessorValue()
     self.start_requested_software_instance.edit(aggregate=self.computer.partition1.getRelativeUrl())
 
     if with_slave:
@@ -392,7 +392,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       hosting_subscription.requestStart(**slave_kw)
       hosting_subscription.requestInstance(**slave_kw)
 
-      self.start_requested_slave_instance = hosting_subscription.getPredecessorValue()
+      self.start_requested_slave_instance = hosting_subscription.getSuccessorValue()
       self.start_requested_slave_instance.edit(aggregate=self.computer.partition1.getRelativeUrl())
 
     hosting_subscription = self.portal.hosting_subscription_module\
@@ -416,7 +416,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     hosting_subscription.requestStop(**kw)
     hosting_subscription.requestInstance(**kw)
 
-    self.stop_requested_software_instance = hosting_subscription.getPredecessorValue()
+    self.stop_requested_software_instance = hosting_subscription.getSuccessorValue()
     self.stop_requested_software_instance.edit(
         aggregate=self.computer.partition2.getRelativeUrl()
     )
@@ -444,7 +444,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     kw['state'] = 'destroyed'
     hosting_subscription.requestDestroy(**kw)
 
-    self.destroy_requested_software_instance = hosting_subscription.getPredecessorValue()
+    self.destroy_requested_software_instance = hosting_subscription.getSuccessorValue()
     self.destroy_requested_software_instance.requestDestroy(**kw)
     self.destroy_requested_software_instance.edit(
         aggregate=self.computer.partition3.getRelativeUrl()
@@ -473,7 +473,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     kw['state'] = 'destroyed'
     hosting_subscription.requestDestroy(**kw)
 
-    self.destroyed_software_instance = hosting_subscription.getPredecessorValue()
+    self.destroyed_software_instance = hosting_subscription.getSuccessorValue()
     self.destroyed_software_instance.edit(
         aggregate=self.computer.partition4.getRelativeUrl()
     )

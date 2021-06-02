@@ -13741,7 +13741,7 @@ Slave Instance
 Slave Instance
   Reference: jump_to_software_instance
   Title: Software Instance
-  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=predecessor&portal_type=Software+Instance
+  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=successor&portal_type=Software+Instance
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -13841,7 +13841,7 @@ Software Instance
 Software Instance
   Reference: jump_to_software_instance
   Title: Requester Instance
-  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=predecessor&portal_type:list=Software+Instance&portal_type:list=Hosting+Subscription
+  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=successor&portal_type:list=Software+Instance&portal_type:list=Hosting+Subscription
   Icon: None
   Permission: View
   Action Type: object_jump

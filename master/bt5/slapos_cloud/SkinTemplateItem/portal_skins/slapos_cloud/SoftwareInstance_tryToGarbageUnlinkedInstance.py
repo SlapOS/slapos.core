@@ -8,7 +8,7 @@ instance = context
 
 def checkInstanceTree(instance_list):
   """
-  Check if predecessor link is really removed to this instance
+  Check if successor link is really removed to this instance
   """
   sub_instance_list = []
   if instance_list == []:
@@ -16,7 +16,7 @@ def checkInstanceTree(instance_list):
   for item in instance_list:
     if item.getUid() == instance.getUid():
       return item
-    sub_instance_list.extend(item.getPredecessorValueList())
+    sub_instance_list.extend(item.getSuccessorValueList())
 
   return checkInstanceTree(sub_instance_list)
 
@@ -28,7 +28,7 @@ if hosting_subscription is None or \
     hosting_subscription.getSlapState() == "destroy_requested":
   return
 
-root_instance = hosting_subscription.getPredecessorValue()
+root_instance = hosting_subscription.getSuccessorValue()
 if root_instance is None:
   # Refuse to destroy root instance
   raise ValueError("Hosting Subscription %s has no root instance, this should "\
@@ -53,6 +53,6 @@ if checkInstanceTree([root_instance]) is None:
   }
   instance.requestDestroy(**promise_kw)
   # Unlink all children of this instance
-  instance.edit(predecessor="", comment="Destroyed garbage collector!")
+  instance.edit(successor="", comment="Destroyed garbage collector!")
 
 return instance.getRelativeUrl()

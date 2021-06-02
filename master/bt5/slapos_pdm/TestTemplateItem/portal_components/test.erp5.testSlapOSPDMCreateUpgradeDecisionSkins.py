@@ -80,7 +80,7 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
     hosting_subscription.requestStart(**request_kw)
     hosting_subscription.requestInstance(**request_kw)
 
-    instance = hosting_subscription.getPredecessorValue()
+    instance = hosting_subscription.getSuccessorValue()
     self.tic()
     return hosting_subscription, instance
 
@@ -185,7 +185,7 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
     
     self._makeFullSoftwareInstance(hosting_subscription, url_string)
     self._markComputerPartitionBusy(computer,
-                                    hosting_subscription.getPredecessorValue())
+                                    hosting_subscription.getSuccessorValue())
     
     self._requestSoftwareRelease(software_product.getRelativeUrl())
     self.tic()
@@ -209,7 +209,7 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
                                     url_string, person)
     self._makeFullSoftwareInstance(hosting_subscription, url_string)
     self._markComputerPartitionBusy(computer,
-                                    hosting_subscription.getPredecessorValue())
+                                    hosting_subscription.getSuccessorValue())
     
     # Install the Newest software release
     software_release2 = self._requestSoftwareRelease(
@@ -237,7 +237,7 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
                                     url_string, person)
     self._makeFullSoftwareInstance(hosting_subscription, url_string)
     self._markComputerPartitionBusy(computer,
-                                    hosting_subscription.getPredecessorValue())
+                                    hosting_subscription.getSuccessorValue())
     
     # Install the Newest software release
     software_release2 = self._requestSoftwareRelease(
@@ -271,7 +271,7 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
                                     url_string, person)
     self._makeFullSoftwareInstance(hosting_subscription, url_string)
     self._markComputerPartitionBusy(computer,
-                                    hosting_subscription.getPredecessorValue())
+                                    hosting_subscription.getSuccessorValue())
     
     # Install the Newest software release
     software_release2 = self._requestSoftwareRelease(
@@ -311,7 +311,7 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
                                     url_string, person)
     self._makeFullSoftwareInstance(hosting_subscription, url_string)
     self._markComputerPartitionBusy(computer,
-                                    hosting_subscription.getPredecessorValue())
+                                    hosting_subscription.getSuccessorValue())
     
     # Install the Newest software release
     software_release2 = self._requestSoftwareRelease(
@@ -351,7 +351,7 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
                                     url_string, person)
     self._makeFullSoftwareInstance(hosting_subscription, url_string)
     self._markComputerPartitionBusy(computer,
-                                    hosting_subscription.getPredecessorValue())
+                                    hosting_subscription.getSuccessorValue())
     
     # Install the Newest software release
     software_release2 = self._requestSoftwareRelease(
@@ -390,7 +390,7 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
                                     url_string, person)
     self._makeFullSoftwareInstance(hosting_subscription, url_string)
     self._markComputerPartitionBusy(computer,
-                                    hosting_subscription.getPredecessorValue())
+                                    hosting_subscription.getSuccessorValue())
     
     # Install the Newest software release
     software_release2 = self._requestSoftwareRelease(

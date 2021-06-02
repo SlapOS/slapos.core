@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>active_sense_method_id</string> </key>
-            <value> <string>Alarm_assertHostingSubscriptionHasPredecessor</string> </value>
+            <value> <string>Alarm_assertHostingSubscriptionHasSuccessor</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -22,7 +22,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_assert_hosting_subscription_predecessor</string> </value>
+            <value> <string>slapos_assert_hosting_subscription_successor</string> </value>
         </item>
         <item>
             <key> <string>periodicity_hour</string> </key>
@@ -83,7 +83,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Asserts that Hosting Subscription has predecessor with same title</string> </value>
+            <value> <string>Asserts that Hosting Subscription has successor with same title</string> </value>
         </item>
       </dictionary>
     </pickle>

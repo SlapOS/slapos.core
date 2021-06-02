@@ -8,8 +8,8 @@ if (instance.getSlapState() == "start_requested"):
   hosting_subscription = instance.getSpecialiseValue(portal_type="Hosting Subscription")
   if (hosting_subscription.getSlapState() == "stop_requested"):
     # Buildout may not propagate the stop request
-    requester = instance.getPredecessorRelatedValue()
-    if (instance.getRelativeUrl() in requester.getPredecessorList()) and \
+    requester = instance.getSuccessorRelatedValue()
+    if (instance.getRelativeUrl() in requester.getSuccessorList()) and \
       (requester.getSlapState() == "stop_requested"):
       # For security, only stop if parent is also stopped
 

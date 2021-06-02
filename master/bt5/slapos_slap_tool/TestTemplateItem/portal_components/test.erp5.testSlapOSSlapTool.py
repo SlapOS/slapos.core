@@ -1897,7 +1897,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       if os.path.exists(self.instance_request_simulator):
         os.unlink(self.instance_request_simulator)
 
-  def test_updateInstancePredecessorList(self):
+  def test_updateInstanceSuccessorList(self):
     self._makeComplexComputer()
 
     partition_id = self.start_requested_software_instance.getAggregateValue(
@@ -1919,9 +1919,9 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     self.start_requested_software_instance.requestInstance(**instance_kw)
     self.tic()
 
-    self.assertEqual(len(self.start_requested_software_instance.getPredecessorList()), 2)
+    self.assertEqual(len(self.start_requested_software_instance.getSuccessorList()), 2)
     self.assertSameSet(['Instance0', 'Instance1'],
-            self.start_requested_software_instance.getPredecessorTitleList())
+            self.start_requested_software_instance.getSuccessorTitleList())
 
     # Update with no changes
     instance_list_xml = """
@@ -1934,7 +1934,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         instance_reference_xml=instance_list_xml)
     self.tic()
     self.assertSameSet(['Instance0', 'Instance1'],
-            self.start_requested_software_instance.getPredecessorTitleList())
+            self.start_requested_software_instance.getSuccessorTitleList())
 
     # Update Instance0 was not requested
     instance_list_xml = """
@@ -1947,9 +1947,9 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         instance_reference_xml=instance_list_xml)
     self.tic()
     self.assertSameSet(['Instance1'],
-            self.start_requested_software_instance.getPredecessorTitleList())
+            self.start_requested_software_instance.getSuccessorTitleList())
 
-  def test_updateInstancePredecessorList_one_child(self):
+  def test_updateInstanceSuccessorList_one_child(self):
     self._makeComplexComputer()
 
     partition_id = self.start_requested_software_instance.getAggregateValue(
@@ -1969,9 +1969,9 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     self.start_requested_software_instance.requestInstance(**instance_kw)
     self.tic()
 
-    self.assertEqual(len(self.start_requested_software_instance.getPredecessorList()), 1)
+    self.assertEqual(len(self.start_requested_software_instance.getSuccessorList()), 1)
     self.assertSameSet(['Instance0'],
-            self.start_requested_software_instance.getPredecessorTitleList())
+            self.start_requested_software_instance.getSuccessorTitleList())
 
     instance_list_xml = '<marshal><list id="i2" /></marshal>'
     self.portal_slap.updateComputerPartitionRelatedInstanceList(
@@ -1980,9 +1980,9 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         instance_reference_xml=instance_list_xml)
     self.tic()
     self.assertEqual([],
-              self.start_requested_software_instance.getPredecessorTitleList())
+              self.start_requested_software_instance.getSuccessorTitleList())
 
-  def test_updateInstancePredecessorList_no_child(self):
+  def test_updateInstanceSuccessorList_no_child(self):
     self._makeComplexComputer()
 
     partition_id = self.start_requested_software_instance.getAggregateValue(
@@ -1990,7 +1990,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     self.login(self.start_requested_software_instance.getUserId())
 
     self.assertEqual([],
-            self.start_requested_software_instance.getPredecessorTitleList())
+            self.start_requested_software_instance.getSuccessorTitleList())
 
     instance_list_xml = '<marshal><list id="i2" /></marshal>'
     self.portal_slap.updateComputerPartitionRelatedInstanceList(
@@ -1999,7 +1999,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         instance_reference_xml=instance_list_xml)
     self.tic()
     self.assertEqual([],
-              self.start_requested_software_instance.getPredecessorTitleList())
+              self.start_requested_software_instance.getSuccessorTitleList())
 
     # Try with something that doesn't exist
     instance_list_xml = """
@@ -2012,7 +2012,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         instance_reference_xml=instance_list_xml)
     self.tic()
     self.assertEqual([],
-              self.start_requested_software_instance.getPredecessorTitleList())
+              self.start_requested_software_instance.getSuccessorTitleList())
 
   def test_stoppedComputerPartition(self):
     self._makeComplexComputer()

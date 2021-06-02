@@ -7,7 +7,7 @@ if upgrade_scope in ["never", "disabled"]:
   return
 
 root_instance_list = [
-  q for q in hosting_subscription.getPredecessorValueList(portal_type=["Software Instance", "Slave Instance"])
+  q for q in hosting_subscription.getSuccessorValueList(portal_type=["Software Instance", "Slave Instance"])
   if q.getSlapState() != 'destroy_requested']
 if len(root_instance_list) == 0:
   return

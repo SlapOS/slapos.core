@@ -116,12 +116,12 @@ class TestSlapOSSupportRequestModule_getMonitoringUrlList(TestCRMSkinsMixin):
     self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])
     support_request.setAggregateValue(hosting_subscription)
     support_request.validate()
-    self.assertNotEqual(hosting_subscription.getPredecessorList(), [])
+    self.assertNotEqual(hosting_subscription.getSuccessorList(), [])
 
     self.tic()
     self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])
     
-    instance = hosting_subscription.getPredecessorValue()
+    instance = hosting_subscription.getSuccessorValue()
     instance.setConnectionXml("""<?xml version='1.0' encoding='utf-8'?>
 <instance>
   <parameter id="aa">xx</parameter>
@@ -153,7 +153,7 @@ class TestSlapOSSupportRequestModule_getMonitoringUrlList(TestCRMSkinsMixin):
                      "http://monitor.url/#/ABC")
     support_request.invalidate()
     self.tic()
-    self.assertNotEqual(hosting_subscription.getPredecessorList(), [])
+    self.assertNotEqual(hosting_subscription.getSuccessorList(), [])
 
 class TestSlapOSFolder_getOpenTicketList(TestCRMSkinsMixin):
 
@@ -1025,7 +1025,7 @@ class TestSlapOSGenerateSupportRequestForSlapOS(TestCRMSkinsMixin):
     self._makeSoftwareInstance(hosting_subscription,
                                self.generateNewSoftwareReleaseUrl())
 
-    instance = hosting_subscription.getPredecessorValue()
+    instance = hosting_subscription.getSuccessorValue()
     title = "Test Support Request %s" % instance.getReference()
     support_request = instance.Base_generateSupportRequestForSlapOS(
       title, title, instance.getRelativeUrl()
@@ -1517,7 +1517,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     hosting_subscription = self._makeHostingSubscription()
     self._makeSoftwareInstance(hosting_subscription, 
         self.generateNewSoftwareReleaseUrl())
-    instance = hosting_subscription.getPredecessorValue()
+    instance = hosting_subscription.getSuccessorValue()
 
     self._makeComputer()
     self._makeComputerPartitionList()
@@ -1590,7 +1590,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
       self._makeSoftwareInstance(hosting_subscription,
           self.generateNewSoftwareReleaseUrl())
-      instance = hosting_subscription.getPredecessorValue()
+      instance = hosting_subscription.getSuccessorValue()
 
       self.assertEqual(instance.getCreationDate(), date - 2)
 
@@ -1649,7 +1649,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
       self._makeSoftwareInstance(hosting_subscription,
           self.generateNewSoftwareReleaseUrl())
-      instance = hosting_subscription.getPredecessorValue()
+      instance = hosting_subscription.getSuccessorValue()
 
       self.assertEqual(instance.getCreationDate(), date - 2)
 
@@ -1698,7 +1698,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
       self._makeSoftwareInstance(hosting_subscription,
           self.generateNewSoftwareReleaseUrl())
-      instance = hosting_subscription.getPredecessorValue()
+      instance = hosting_subscription.getSuccessorValue()
 
       self.assertEqual(instance.getCreationDate(), date - 2)
 
@@ -1728,7 +1728,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
       self.assertEqual(
         'Visited by HostingSubscription_createSupportRequestEvent %s %s' % \
-        (instance.getPredecessor(portal_type="Software Instance"),
+        (instance.getSuccessor(portal_type="Software Instance"),
          "slapos-crm-hosting-subscription-instance-allocation.notification"),
         hosting_subscription.HostingSubscription_checkSoftwareInstanceState())
 
@@ -1752,7 +1752,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
     self._makeSoftwareInstance(hosting_subscription,
         self.generateNewSoftwareReleaseUrl())
-    instance = hosting_subscription.getPredecessorValue()
+    instance = hosting_subscription.getSuccessorValue()
 
 
     self._makeComputer()

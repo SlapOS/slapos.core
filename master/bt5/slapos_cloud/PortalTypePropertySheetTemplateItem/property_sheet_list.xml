@@ -23,6 +23,7 @@
   <item>HostingSubscription</item>
   <item>SlaposHostingSubscriptionConstraint</item>
   <item>SoftwareInstance</item>
+  <item>SoftwareInstanceUpgradeConstraint</item>
   <item>TextDocument</item>
   <item>Url</item>
   <item>VariationRange</item>
@@ -49,6 +50,7 @@
   <item>Reference</item>
   <item>SoftwareInstance</item>
   <item>SoftwareInstanceConstraint</item>
+  <item>SoftwareInstanceUpgradeConstraint</item>
   <item>TextDocument</item>
   <item>Url</item>
   <item>VariationRange</item>

@@ -22,9 +22,9 @@ if (int(DateTime()) - int(latest_edit_time)) < 259200:
 
 # Only destroy if the instance is the only one in the tree
 hosting_subscription = instance.getSpecialiseValue("Hosting Subscription")
-if (hosting_subscription.getPredecessor() != instance.getRelativeUrl()):
+if (hosting_subscription.getSuccessor() != instance.getRelativeUrl()):
   return
-if (len(hosting_subscription.getPredecessorList()) != 1):
+if (len(hosting_subscription.getSuccessorList()) != 1):
   return
 instance_list = portal.portal_catalog(
   portal_type=["Software Instance", "Slave Instance"],

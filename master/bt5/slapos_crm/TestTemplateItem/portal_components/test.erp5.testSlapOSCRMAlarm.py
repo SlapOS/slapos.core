@@ -1,4 +1,25 @@
-# Copyright (c) 2013 Nexedi SA and Contributors. All Rights Reserved.
+# -*- coding: utf-8 -*-
+##############################################################################
+#
+# Copyright (C) 2013-2021  Nexedi SA and Contributors.
+#
+# This program is free software: you can Use, Study, Modify and Redistribute
+# it under the terms of the GNU General Public License version 3, or (at your
+# option) any later version, as published by the Free Software Foundation.
+#
+# You can also Link and Combine this program with other software covered by
+# the terms of any of the Free Software licenses or any of the Open Source
+# Initiative approved licenses and Convey the resulting work. Corresponding
+# source of such a combination shall include the source code for all other
+# software used.
+#
+# This program is distributed WITHOUT ANY WARRANTY; without even the implied
+# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# See COPYING file for full licensing terms.
+# See https://www.nexedi.com/licensing for rationale and options.
+#
+##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import \
   SlapOSTestCaseMixin, SlapOSTestCaseMixinWithAbort
 from unittest import skip
@@ -10,41 +31,85 @@ class TestSlapOSCRMCreateRegularisationRequest(SlapOSTestCaseMixin):
     new_id = self.generateNewId()
     person = self.portal.person_module.newContent(
       portal_type='Person',
-      title="Test person %s" % new_id,
-      reference="TESTPERS_%s" % new_id,
-      default_email_text="%s@example.org" % new_id,
+      title="Test person %s" % new_id
       )
     person.validate()
+
+    payment = self.portal.accounting_module.newContent(
+      portal_type='Payment Transaction',
+      title="Payment Transaction for TestSlapOSCRMCreateRegularisationRequest  person %s" % new_id,
+      destination_section=person.getRelativeUrl(),
+      start_date=DateTime()
+      )
+    payment.confirm()
+    payment.start()
 
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_create_regularisation_request
     self._test_alarm(alarm, person, "Person_checkToCreateRegularisationRequest")
 
-  def test_alarm_no_email(self):
+  def test_alarm_not_validated(self):
     new_id = self.generateNewId()
     person = self.portal.person_module.newContent(
       portal_type='Person',
-      title="Test person %s" % new_id,
-      reference="TESTPERS_%s" % new_id,
+      title="Test person %s" % new_id
       )
     person.validate()
+    person.invalidate()
+
+    payment = self.portal.accounting_module.newContent(
+      portal_type='Payment Transaction',
+      title="Payment Transaction for TestSlapOSCRMCreateRegularisationRequest  person %s" % new_id,
+      destination_section=person.getRelativeUrl(),
+      start_date=DateTime()
+      )
+    payment.confirm()
+    payment.start()
 
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_create_regularisation_request
     self._test_alarm_not_visited(alarm, person, "Person_checkToCreateRegularisationRequest")
 
-  def test_alarm_not_validated(self):
+  def test_alarm_payment_stopped(self):
     new_id = self.generateNewId()
     person = self.portal.person_module.newContent(
       portal_type='Person',
-      title="Test person %s" % new_id,
-      reference="TESTPERS_%s" % new_id,
-      default_email_text="%s@example.org" % new_id,
+      title="Test person %s" % new_id
       )
     person.validate()
-    person.invalidate()
+
+    payment = self.portal.accounting_module.newContent(
+      portal_type='Payment Transaction',
+      title="Payment Transaction for TestSlapOSCRMCreateRegularisationRequest  person %s" % new_id,
+      destination_section=person.getRelativeUrl(),
+      start_date=DateTime()
+      )
+    payment.confirm()
+    payment.start()
+    payment.stop()
+
+    self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_create_regularisation_request
+    self._test_alarm_not_visited(alarm, person, "Person_checkToCreateRegularisationRequest")
+
+  def test_alarm_payment_confirmed(self):
+    new_id = self.generateNewId()
+    person = self.portal.person_module.newContent(
+      portal_type='Person',
+      title="Test person %s" % new_id
+      )
+    person.validate()
+
+    payment = self.portal.accounting_module.newContent(
+      portal_type='Payment Transaction',
+      title="Payment Transaction for TestSlapOSCRMCreateRegularisationRequest  person %s" % new_id,
+      destination_section=person.getRelativeUrl(),
+      start_date=DateTime()
+      )
+    payment.confirm()
 
     self.tic()
     alarm = self.portal.portal_alarms.\

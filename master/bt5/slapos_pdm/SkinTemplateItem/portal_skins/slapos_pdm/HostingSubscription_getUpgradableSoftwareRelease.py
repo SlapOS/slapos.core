@@ -11,7 +11,7 @@ slap_state = ['start_requested', 'stop_requested']
 if not hosting_subscription.getSlapState() in slap_state:
   return None
 
-source_instance_list = [q for q in hosting_subscription.getPredecessorValueList() if q.getSlapState() in slap_state]
+source_instance_list = [q for q in hosting_subscription.getSuccessorValueList() if q.getSlapState() in slap_state]
 if len(source_instance_list) == 0:
   return None
 source_instance = source_instance_list[0]

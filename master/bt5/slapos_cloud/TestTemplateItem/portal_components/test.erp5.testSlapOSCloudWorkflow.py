@@ -699,7 +699,7 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     hosting_subscription.requestStart(**self.request_kw)
     hosting_subscription.requestInstance(**self.request_kw)
 
-    self.instance = hosting_subscription.getPredecessorValue()
+    self.instance = hosting_subscription.getSuccessorValue()
     self.tic()
 
   def _countInstanceBang(self, instance, comment):
@@ -1102,7 +1102,7 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
         text_content=self.request_kw['instance_xml'],
         sla_xml=self.request_kw['sla_xml'],
         root_slave=self.request_kw['shared'],
-        predecessor=self.software_instance.getRelativeUrl()
+        successor=self.software_instance.getRelativeUrl()
     )
     hosting_subscription.validate()
     self.portal.portal_workflow._jumpToStateFor(hosting_subscription, 'start_requested')
@@ -1357,7 +1357,7 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
 
     self.software_instance.getSpecialiseValue(
         portal_type='Hosting Subscription').edit(
-            predecessor_list=[
+            successor_list=[
                 duplicate.getRelativeUrl(),
                 duplicate2.getRelativeUrl(),
                 self.software_instance.getRelativeUrl()
@@ -1405,7 +1405,7 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
       requested_instance2.getRelativeUrl())
 
     self.assertSameSet(
-        self.software_instance.getPredecessorList(),
+        self.software_instance.getSuccessorList(),
         [requested_instance.getRelativeUrl(),
         requested_instance2.getRelativeUrl()])
 
@@ -1440,7 +1440,7 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
     C_instance = self.software_instance.REQUEST.get('request_instance')
 
     self.assertSameSet(
-        self.software_instance.getPredecessorList(),
+        self.software_instance.getSuccessorList(),
         [B_instance.getRelativeUrl(), C_instance.getRelativeUrl()])
 
     self.tic() # in order to recalculate tree
@@ -1450,9 +1450,9 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
 
     self.assertEqual(C_instance.getRelativeUrl(), C1_instance.getRelativeUrl())
 
-    self.assertSameSet(self.software_instance.getPredecessorList(),
+    self.assertSameSet(self.software_instance.getSuccessorList(),
         [B_instance.getRelativeUrl()])
-    self.assertSameSet(B_instance.getPredecessorList(),
+    self.assertSameSet(B_instance.getSuccessorList(),
         [C_instance.getRelativeUrl()])
 
   def test_request_tree_change_not_indexed(self):
@@ -1479,7 +1479,7 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
     C_instance = self.software_instance.REQUEST.get('request_instance')
 
     self.assertSameSet(
-        self.software_instance.getPredecessorList(),
+        self.software_instance.getSuccessorList(),
         [B_instance.getRelativeUrl(), C_instance.getRelativeUrl()])
 
     transaction.commit()
@@ -1512,7 +1512,7 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
     C_instance = self.software_instance.REQUEST.get('request_instance')
 
     self.assertSameSet(
-        self.software_instance.getPredecessorList(),
+        self.software_instance.getSuccessorList(),
         [B_instance.getRelativeUrl(), C_instance.getRelativeUrl()])
 
     self.assertRaises(NotImplementedError, B_instance.requestInstance,
@@ -1582,7 +1582,7 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
 
     # in case of destruction instance is not returned, so fetch it
     # directly form document
-    requested_instance3 = self.software_instance.getPredecessorValue(
+    requested_instance3 = self.software_instance.getSuccessorValue(
         portal_type='Software Instance')
     self.assertEqual(request_kw['software_title'],
         requested_instance3.getTitle())
@@ -1665,7 +1665,7 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
     request_kw['state'] = 'destroyed'
     self.software_instance.requestInstance(**request_kw)
     transaction.commit()
-    requested_instance2 = self.software_instance.getPredecessorValue(
+    requested_instance2 = self.software_instance.getSuccessorValue(
         portal_type='Software Instance')
 
     self.assertEqual(requested_instance.getRelativeUrl(),
@@ -1704,7 +1704,7 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
     C_instance = self.software_instance.REQUEST.get('request_instance')
 
     self.assertSameSet(
-        self.software_instance.getPredecessorList(),
+        self.software_instance.getSuccessorList(),
         [B_instance.getRelativeUrl(), C_instance.getRelativeUrl()])
 
     self.tic() # in order to recalculate tree
@@ -1714,9 +1714,9 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
 
     self.assertEqual(C_instance.getRelativeUrl(), C1_instance.getRelativeUrl())
 
-    self.assertSameSet(self.software_instance.getPredecessorList(),
+    self.assertSameSet(self.software_instance.getSuccessorList(),
         [B_instance.getRelativeUrl()])
-    self.assertSameSet(B_instance.getPredecessorList(),
+    self.assertSameSet(B_instance.getSuccessorList(),
         [C_instance.getRelativeUrl()])
 
   def test_request_tree_change_not_indexed_shared(self):
@@ -1744,7 +1744,7 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
     C_instance = self.software_instance.REQUEST.get('request_instance')
 
     self.assertSameSet(
-        self.software_instance.getPredecessorList(),
+        self.software_instance.getSuccessorList(),
         [B_instance.getRelativeUrl(), C_instance.getRelativeUrl()])
 
     transaction.commit()
@@ -1778,7 +1778,7 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
     C_instance = self.software_instance.REQUEST.get('request_instance')
 
     self.assertSameSet(
-        self.software_instance.getPredecessorList(),
+        self.software_instance.getSuccessorList(),
         [B_instance.getRelativeUrl(), C_instance.getRelativeUrl()])
 
     self.assertRaises(NotImplementedError, B_instance.requestInstance,
@@ -1799,7 +1799,7 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
 
     request_kw['software_release'] = self.generateNewSoftwareReleaseUrl()
     self.software_instance.requestInstance(**request_kw)
-    requested_instance2 = self.software_instance.getPredecessorValue(
+    requested_instance2 = self.software_instance.getSuccessorValue(
         portal_type='Software Instance')
 
     transaction.commit()
@@ -1825,7 +1825,7 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
 
     request_kw['software_type'] = self.generateNewSoftwareReleaseUrl()
     self.software_instance.requestInstance(**request_kw)
-    requested_instance2 = self.software_instance.getPredecessorValue(
+    requested_instance2 = self.software_instance.getSuccessorValue(
         portal_type='Software Instance')
 
     transaction.commit()
@@ -1851,7 +1851,7 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
 
     request_kw['instance_xml'] = self.generateSafeXml()
     self.software_instance.requestInstance(**request_kw)
-    requested_instance2 = self.software_instance.getPredecessorValue(
+    requested_instance2 = self.software_instance.getSuccessorValue(
         portal_type='Software Instance')
 
     transaction.commit()
@@ -1877,7 +1877,7 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
 
     request_kw['sla_xml'] = self.generateSafeXml()
     self.software_instance.requestInstance(**request_kw)
-    requested_instance2 = self.software_instance.getPredecessorValue(
+    requested_instance2 = self.software_instance.getSuccessorValue(
         portal_type='Software Instance')
 
     transaction.commit()
@@ -2914,7 +2914,7 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
     return self.check_change_instance_parameter("Slave Instance",
                                                 'sla_xml')
 
-  def test_SoftwareInstance_setPredecessorList(self):
+  def test_SoftwareInstance_setSuccessorList(self):
     portal_type = "Software Instance"
 
     self.person_user = self.makePerson()
@@ -2938,7 +2938,7 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       destination_reference="TESTINST-%s" % new_id,
       ssl_certificate="foo",
       ssl_key="bar",
-      predecessor_value=instance3,
+      successor_value=instance3,
       )
 
     new_id = self.generateNewId()
@@ -2949,7 +2949,7 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       destination_reference="TESTINST-%s" % new_id,
       ssl_certificate="foo",
       ssl_key="bar",
-      predecessor_value=instance2,
+      successor_value=instance2,
       )
 
     self.tic()
@@ -2967,7 +2967,7 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
     Base.reindexObject_call = Base._reindexObject
     Base._reindexObject = verify_reindexObject_call
     try:
-      instance1.edit(predecessor_value=instance3)
+      instance1.edit(successor_value=instance3)
       self.tic()
     finally:
       Base._reindexObject = Base.reindexObject_call

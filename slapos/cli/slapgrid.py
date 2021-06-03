@@ -157,6 +157,9 @@ class InstanceCommand(SlapgridCommand):
         ap.add_argument('--buildout-debug',
                         action='store_true',
                         help='Run buildout in debug mode (with -D command line switch)')
+        ap.add_argument('--force-stop',
+                        action='store_true',
+                        help='Stop the services even for instances requested as started')
         only = ap.add_mutually_exclusive_group()
         only.add_argument('--all', action='store_true',
                           help='Process all Computer Partitions.')

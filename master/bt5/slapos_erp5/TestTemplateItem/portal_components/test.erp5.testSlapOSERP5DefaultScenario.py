@@ -523,8 +523,16 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
     self.stepCallSlaposRequestUpdateHostingSubscriptionOpenSaleOrderAlarm()
     self.tic()
 
-    # cancel the invoice
-    self.stepCallSlaposCrmCancelInvoiceAlarm()
+
+    # Manually cancel the users invoice
+    payment = self.portal.portal_catalog.getResultValue(
+      portal_type="Payment Transaction",
+      destination_section_uid=person.getUid(),
+      simulation_state="started")
+
+    invoice = payment.getCausalityValue(portal_type="Sale Invoice Transaction")
+    invoice.SaleInvoiceTransaction_createReversalPayzenTransaction()
+
     self.tic()
 
     # close the ticket

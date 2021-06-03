@@ -23,8 +23,7 @@
 ##############################################################################
 
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
-from wendelin import bigarray # pylint: disable=unused-import
-from bigarray.array_zodb import ZBigArray
+from wendelin.bigarray.array_zodb import ZBigArray
 from numpy.testing import assert_array_equal
 import transaction
 

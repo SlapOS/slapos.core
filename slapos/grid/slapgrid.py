@@ -294,7 +294,8 @@ def create_slapgrid_object(options, logger):
                   instance_storage_home=op.get('instance_storage_home'),
                   ipv4_global_network=op.get('ipv4_global_network'),
                   firewall_conf=op.get('firewall'),
-                  config=options)
+                  config=options,
+                  force_stop=op.get('force_stop', False))
 
 
 def check_required_only_partitions(existing, required):
@@ -353,7 +354,8 @@ class Slapgrid(object):
                firewall_conf={},
                config=None,
                buildout_debug=False,
-               shared_part_list=''
+               shared_part_list='',
+               force_stop=False,
                ):
     """Makes easy initialisation of class parameters"""
     # Parses arguments
@@ -422,6 +424,7 @@ class Slapgrid(object):
     self.config = config
     self._manager_list = slapmanager.from_config(config)
     self.shared_part_list = shared_part_list
+    self.force_stop = force_stop
 
   def _getWatchdogLine(self):
     invocation_list = [WATCHDOG_PATH]
@@ -1115,6 +1118,12 @@ stderr_logfile_backups=1
     for manager in self._manager_list:
       manager.instance(local_partition)
 
+    # Since --force-stop option alters the processing of started partitions:
+    # - the partition should be processed regardless of the previous timestamp
+    # - the timestamp should not be updated
+    if self.force_stop and computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
+      timestamp = None
+
     # Check if timestamp from server is more recent than local one.
     # If not: it's not worth processing this partition (nothing has
     # changed).
@@ -1137,7 +1146,8 @@ stderr_logfile_backups=1
             # should be processed at least every day.
             if time.time() <= last_runtime + periodicity or periodicity < 0:
               # check promises anomaly
-              if computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
+              if (computer_partition_state == COMPUTER_PARTITION_STARTED_STATE
+                  and not self.force_stop):
                 self.logger.debug('Partition already up-to-date.')
                 self._checkPromiseAnomaly(local_partition, computer_partition)
               else:
@@ -1188,12 +1198,16 @@ stderr_logfile_backups=1
 
       if computer_partition_state == COMPUTER_PARTITION_STARTED_STATE:
         local_partition.install()
-        local_partition.start()
+        if not self.force_stop:
+          local_partition.start()
+        else:
+          local_partition.stop()
         if self.firewall_conf:
           self._setupComputerPartitionFirewall(computer_partition,
                                               partition_ip_list)
-        self._checkPromiseList(local_partition)
-        computer_partition.started()
+        if not self.force_stop:
+          self._checkPromiseList(local_partition)
+          computer_partition.started()
         self._endInstallationTransaction(computer_partition)
       elif computer_partition_state == COMPUTER_PARTITION_STOPPED_STATE:
         try:

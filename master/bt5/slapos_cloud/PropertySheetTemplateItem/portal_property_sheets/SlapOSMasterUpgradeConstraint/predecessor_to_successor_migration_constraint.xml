@@ -22,7 +22,7 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>constraint_type/default</string>
+                <string>constraint_type/post_upgrade</string>
               </tuple>
             </value>
         </item>
@@ -42,7 +42,7 @@
         </item>
         <item>
             <key> <string>script_id</string> </key>
-            <value> <string>SoftwareInstance_checkPredecessorToSuccessorMigrationConsistency</string> </value>
+            <value> <string>AlarmTool_checkPredecessorToSuccessorMigrationConsistency</string> </value>
         </item>
       </dictionary>
     </pickle>

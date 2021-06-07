@@ -28,8 +28,11 @@
 ##############################################################################
 
 import os
+import logging
 from datetime import datetime, timedelta
 from slapos.collect.snapshot import FolderSizeSnapshot
+
+logger = logging.getLogger(__name__)
 
 def get_user_list(config):
   nb_user = int(config.get("slapformat", "partition_amount"))
@@ -38,14 +41,19 @@ def get_user_list(config):
   instance_root = config.get("slapos", "instance_root")
   # By default, enable disk snapshot,
   # and set time_cycle to 24hours after the first disk snapshot run
-  disk_snapshot_params = {'enable': False, 'time_cycle': 86400}
+  pid_folder_tmp = instance_root + "/var/run"
+  disk_snapshot_params = {'enable': True, 
+                          'time_cycle': 86400,
+                          'pid_folder': pid_folder_tmp, 
+                          'use_quota': False}
+
   if config.has_section('collect'):
     collect_section = dict(config.items("collect"))
     disk_snapshot_params = dict(
-      enable=collect_section.get("report_disk_usage", "False").lower() in ('true', 'on', '1'),
-      pid_folder=collect_section.get("disk_snapshot_process_pid_foder", None),
+      enable=collect_section.get("report_disk_usage", "True").lower() in ('true', 'on', '1'),
+      pid_folder=collect_section.get("disk_snapshot_process_pid_foder", pid_folder_tmp),
       time_cycle=int(collect_section.get("disk_snapshot_time_cycle", 86400)),
-      use_quota=collect_section.get("disk_snapshot_use_quota", "True").lower() in ('true', 'on', '1'),
+      use_quota=collect_section.get("disk_snapshot_use_quota", "False").lower() in ('true', 'on', '1'),
     )
   user_dict = {name: User(name, path, disk_snapshot_params)
       for name, path in [
@@ -72,6 +80,7 @@ class User(object):
   def _insertDiskSnapShot(self, database, collected_date, collected_time):
     if self.disk_snapshot_params['enable']:
       time_cycle = self.disk_snapshot_params.get('time_cycle', 0)
+
       database.connect()
       if time_cycle:
         for date_time in database.select(table="folder", columns="date, time",
@@ -79,18 +88,24 @@ class User(object):
                                     where="partition='%s'" % self.name):
           latest_date = datetime.strptime('%s %s' % date_time,
                                           "%Y-%m-%d %H:%M:%S")
-          if (datetime.utcnow() - latest_date).seconds < time_cycle:
+          time_spent = (datetime.utcnow() - latest_date).total_seconds()
+          if time_spent < time_cycle:
             # wait the time cycle
+            logger.info("Time cycle is not over (%s seconds remaining). No computation of " 
+                        "disk usage on the partition %s.", time_cycle - time_spent, self.name)
             return
           break
       pid_file = self.disk_snapshot_params.get('pid_folder', None)
       if pid_file is not None:
         pid_file = os.path.join(pid_file, '%s_disk_size.pid' % self.name)
+
       disk_snapshot = FolderSizeSnapshot(self.path, pid_file)
       disk_snapshot.update_folder_size()
       # Skeep insert empty partition: size <= 1Mb
       if disk_snapshot.disk_usage <= 1024.0 and \
                       not self.disk_snapshot_params.get('testing', False):
+        logger.debug("Disk usage of the partition %s: %s. "
+                  "Ignoring insertion in the dataset.", self.name, disk_snapshot.disk_usage)
         return
       database.inserFolderSnapshot(self.name,
                 disk_usage=disk_snapshot.get("disk_usage"),
@@ -102,7 +117,6 @@ class User(object):
   def save(self, database, collected_date, collected_time):
     """ Insert collected data on user collector """
     database.connect()
-    snapshot_counter = len(self.snapshot_list)
     for snapshot_item in self.snapshot_list:
       snapshot_item.update_cpu_percent()
       database.insertUserSnapshot(self.name,

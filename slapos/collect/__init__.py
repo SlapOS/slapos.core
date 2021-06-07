@@ -71,7 +71,7 @@ def current_state(user_dict):
   for i, process in enumerate(process_list):
     yield build_snapshot(process)
 
-def do_collect(conf):
+def do_collect(logger, conf):
   """
   Main function
   The idea here is to poll system every so many seconds
@@ -80,6 +80,7 @@ def do_collect(conf):
     Each user object is a dict, indexed on timestamp. We add every snapshot
     matching the user so that we get informations for each users
   """
+  logger.info('Collecting data...')
   try:
     collected_date, collected_time = _get_time()
     user_dict = get_user_list(conf)
@@ -94,16 +95,20 @@ def do_collect(conf):
     if conf.has_option("slapos", "collect_cache"):
       days_to_preserve = conf.getint("slapos", "collect_cache")
     log_directory = "%s/var/data-log" % conf.get("slapos", "instance_root")
+    
+    logger.debug("Log directory: %s", log_directory)
     mkdir_p(log_directory, 0o755)
     
     consumption_report_directory = "%s/var/consumption-report" % \
-                                        conf.get("slapos", "instance_root") 
+                                        conf.get("slapos", "instance_root")
     mkdir_p(consumption_report_directory, 0o755)
+    logger.debug("Consumption report directory: %s", consumption_report_directory)
 
     xml_report_directory = "%s/var/xml_report/%s" % \
                     (conf.get("slapos", "instance_root"), 
                      conf.get("slapos", "computer_id"))
     mkdir_p(xml_report_directory, 0o755)
+    logger.debug("XML report directory: %s", xml_report_directory)
 
     if stat.S_IMODE(os.stat(log_directory).st_mode) != 0o755:
       os.chmod(log_directory, 0o755)    
@@ -113,11 +118,12 @@ def do_collect(conf):
     if conf.has_option("slapformat", "computer_model_id"):
       computer_model_id = conf.get("slapformat", 
                                   "computer_model_id")
- 
     else:
       computer_model_id = "no_model"
+    logger.debug("Computer model id: %s", computer_model_id)
 
     uptime = _get_uptime()
+
     if conf.has_option("slapformat", "heating_sensor_id"):
       heating_sensor_id = conf.get("slapformat", 
                                   "heating_sensor_id")
@@ -130,21 +136,33 @@ def do_collect(conf):
     else:
       heating_sensor_id = "no_sensor"
       test_heating = False
+    logger.debug("Heating sensor id: %s", heating_sensor_id)
 
+    logger.info("Inserting computer information into database...")
     computer = Computer(ComputerSnapshot(model_id=computer_model_id, 
                                      sensor_id = heating_sensor_id,
                                      test_heating=test_heating))
 
+    # Insert computer's data
     computer.save(database, collected_date, collected_time)
 
+    logger.info("Done.")
+    logger.info("Inserting user information into database...")
+
+    # Insert TABLE user + TABLE folder
     for user in user_dict.values():
       user.save(database, collected_date, collected_time)
-    
+
+    logger.info("Done.")
+    logger.info("Writing csv, XML and JSON files...")
+    # Write a csv with dumped data in the log_directory
     SystemCSVReporterDumper(database).dump(log_directory)
     RawCSVDumper(database).dump(log_directory)
+
+    # Write xml files
     consumption_report = ConsumptionReport(
                       computer_id=conf.get("slapos", "computer_id"), 
-                      user_list=user_dict, 
+                      user_list=user_dict,
                       database=database,
                       location=consumption_report_directory)
     
@@ -156,16 +174,23 @@ def do_collect(conf):
       if report_file is not None:
         shutil.copy(report_file, xml_report_directory)
 
+    # write json
     partition_report = PartitionReport(
             database=database,
             user_list=user_dict)
 
     partition_report.buildJSONMonitorReport()
+
+    # Put dumped csv in a current_date.tar.gz
     compressLogFolder(log_directory)
+    logger.info("Done.")
 
     # Drop older entries already reported
     database.garbageCollect(days_to_preserve)
 
+    logger.info("Finished collecting.")
+    logger.info('=' * 80)
+
   except AccessDenied:
-    print("You HAVE TO execute this script with root permission.")
+    logger.error("You HAVE TO execute this script with root permission.")
 

@@ -31,6 +31,7 @@ from __future__ import print_function
 import psutil
 import os
 import subprocess
+import logging
 from .temperature import collectComputerTemperature, launchTemperatureTest
 
 from .temperature.heating import get_contribution_ratio
@@ -38,6 +39,8 @@ from .temperature.heating import get_contribution_ratio
 import six
 
 MEASURE_INTERVAL = 5
+
+logger = logging.getLogger(__name__)
 
 class _Snapshot(object):
   def get(self, property, default=None):
@@ -97,18 +100,21 @@ class FolderSizeSnapshot(_Snapshot):
           except OSError:
             pass
           else:
+            logger.warning("Process %s still in progress. Try after.", pid)
             return
 
     self.disk_usage = self._getSize(self.folder_path)
     # If extra disk added to partition
     data_dir = os.path.join(self.folder_path, 'DATA')
     if os.path.exists(data_dir):
+      logger.debug("Extra disk added to partition")
       for filename in os.listdir(data_dir):
         extra_path = os.path.join(data_dir, filename)
         if os.path.islink(extra_path) and os.path.isdir('%s/' % extra_path):
           self.disk_usage += self._getSize('%s/' % extra_path)
 
   def _getSize(self, file_path):
+
     size = 0
     command = 'du -s %s' % file_path
     process = subprocess.Popen(command, stdout=subprocess.PIPE, 
@@ -119,6 +125,7 @@ class FolderSizeSnapshot(_Snapshot):
     result = process.communicate()[0]
     if process.returncode == 0:
       size, _  = result.strip().split()
+
     return float(size)
 
 class SystemSnapshot(_Snapshot):
@@ -161,8 +168,7 @@ class HeatingContributionSnapshot(_Snapshot):
     
     result = launchTemperatureTest(sensor_id)
     if result is None:
-      print("Impossible to test sensor: %s " % sensor_id)
-      
+      logger.warning("Impossible to test sensor: %s", sensor_id)
 
     initial_temperature, final_temperature, duration = result 
     

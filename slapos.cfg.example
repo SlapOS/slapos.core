@@ -66,6 +66,12 @@ download-binary-dir-url = http://shadir.nxdcdn.com
 #shadir-cert-file = /etc/opt/slapos/shacache/shacache.cert
 #shadir-key-file = /etc/opt/slapos/shacache/shacache.key
 
+[collect]
+enable = True 
+time_cycle = 86400
+pid_folder = /srv/slapgrid/var/run
+use_quota = False
+
 # List of signatures of uploaders we trust:
 #   Sebastien Robin
 #   Kazuhiko Shiozaki

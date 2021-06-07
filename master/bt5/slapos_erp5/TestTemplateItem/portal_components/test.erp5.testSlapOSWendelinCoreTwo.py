@@ -30,6 +30,10 @@ import transaction
 # Minimal test to make sure that wendelin.core works at all.
 class TestWendelinCoreBasic(SlapOSTestCaseMixin):
 
+  def afterSetUp(self):
+    # We don't need to save here, since the test suite would save everything already.
+    self.portal.portal_activities.subscribe()
+
   def test(self):
     # create the array in temporary "root" placeholder.
     # NOTE we need created objects to enter ZODB for real, but

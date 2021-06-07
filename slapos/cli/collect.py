@@ -44,4 +44,5 @@ class CollectCommand(ConfigCommand):
     @must_be_root
     def take_action(self, args):
         configp = self.fetch_config(args)
+        print("Configuration file :", configp.sections())
         do_collect(configp)

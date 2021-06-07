@@ -103,22 +103,27 @@ class FolderSizeSnapshot(_Snapshot):
     # If extra disk added to partition
     data_dir = os.path.join(self.folder_path, 'DATA')
     if os.path.exists(data_dir):
+      print("extra disk added to partition")
       for filename in os.listdir(data_dir):
         extra_path = os.path.join(data_dir, filename)
         if os.path.islink(extra_path) and os.path.isdir('%s/' % extra_path):
           self.disk_usage += self._getSize('%s/' % extra_path)
+          print(self.disk_usage)
+          
 
   def _getSize(self, file_path):
+
     size = 0
     command = 'du -s %s' % file_path
     process = subprocess.Popen(command, stdout=subprocess.PIPE, 
                               stderr=subprocess.PIPE, shell=True)
+    # write pid process : du -s /srv/slapgrid/slappart[i]
     if self.pid_file:
       with open(self.pid_file, 'w') as fpid:
         pid = fpid.write(str(process.pid))
     result = process.communicate()[0]
     if process.returncode == 0:
-      size, _  = result.strip().split()
+      size, _  = result.strip().split() # retourne la taille + path
     return float(size)
 
 class SystemSnapshot(_Snapshot):
@@ -126,18 +131,19 @@ class SystemSnapshot(_Snapshot):
   """
   def __init__(self, interval=MEASURE_INTERVAL):
 
-    cpu_idle_percentage = psutil.cpu_times_percent(interval=interval).idle
+    # provides utilization percentages for each specific CPU time
+    cpu_idle_percentage = psutil.cpu_times_percent(interval=interval).idle # long
     load_percent = 100 - cpu_idle_percentage
 
     memory = psutil.virtual_memory()
-    net_io = psutil.net_io_counters()
+    net_io = psutil.net_io_counters() # system-wide network I/O statistics as a named tuple
 
     self.memory_free = available = memory.available
     self.memory_used = memory.total - available
     self.memory_percent = memory.percent
     #self.cpu_percent = psutil.cpu_percent()
     self.cpu_percent = load_percent
-    self.load = os.getloadavg()[0]
+    self.load = os.getloadavg()[0] # number of processes in the system run queue
     self.net_in_bytes = net_io.bytes_recv
     self.net_in_errors = net_io.errin
     self.net_in_dropped = net_io.dropin
@@ -208,14 +214,14 @@ class ComputerSnapshot(_Snapshot):
     self.cpu_num_core = psutil.cpu_count()
     self.cpu_frequency = 0
     self.cpu_type = 0
-    self.memory_size = psutil.virtual_memory().total
+    self.memory_size = psutil.virtual_memory().total #total physical memory (exclusive swap)
     self.memory_type = 0
 
     #
     # Include a SystemSnapshot and a list DiskPartitionSnapshot
     # on a Computer Snapshot
     #
-    self.system_snapshot = SystemSnapshot()
+    self.system_snapshot = SystemSnapshot() # take few seconds
     self.temperature_snapshot_list = self._get_temperature_snapshot_list()
     self._get_physical_disk_info()
 

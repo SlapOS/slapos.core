@@ -5941,9 +5941,9 @@ CertificateAuthorityToolConsistencyConstraint
   reference: certificate_authority_consistency_constraint
 
 Chain
-  id: successor_category
+  id: predecessor_category
   portal_type: Category Property
-  reference: successor
+  reference: predecessor
 
 Chain
   id: successor_category
@@ -8443,9 +8443,9 @@ Document
   reference: group
 
 Document
-  id: successor_category
+  id: predecessor_category
   portal_type: Category Property
-  reference: successor
+  reference: predecessor
 
 Document
   id: publication_section_category

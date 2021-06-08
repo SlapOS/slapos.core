@@ -104,7 +104,7 @@
             <value>
               <tuple>
                 <string>trade_phase/slapos/invoicing</string>
-                <string>successor/trade_state/delivered</string>
+                <string>predecessor/trade_state/delivered</string>
                 <string>successor/trade_state/invoiced</string>
                 <string>delivery_builder/portal_deliveries/slapos_sale_invoice_builder</string>
               </tuple>

@@ -88,3 +88,9 @@
   cursor: default;
   text-align: center;
 }
+
+/* for Software Logo*/
+div.editable_div.logo img {
+  object-fit: cover;
+  max-height: 3.5em;
+}

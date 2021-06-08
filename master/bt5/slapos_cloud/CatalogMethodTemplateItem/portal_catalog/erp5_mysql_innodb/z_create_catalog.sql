@@ -43,7 +43,7 @@ CREATE TABLE `catalog` (
   `has_cell_content` bool,
   `creation_date` datetime,
   `modification_date` datetime,
-  `indexation_timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `indexation_timestamp` TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   PRIMARY KEY  (`uid`),
   KEY `security_uid` (`security_uid`),
   KEY `group_security_uid` (`group_security_uid`),
@@ -65,5 +65,6 @@ CREATE TABLE `catalog` (
   KEY `causality_state_portal_type` (`causality_state`, `portal_type`),
   KEY `invoice_state` (`invoice_state`),
   KEY `payment_state` (`payment_state`),
-  KEY `event_state` (`event_state`)
+  KEY `event_state` (`event_state`),
+  KEY `indexation_timestamp` (`indexation_timestamp`)
 ) ENGINE=InnoDB;

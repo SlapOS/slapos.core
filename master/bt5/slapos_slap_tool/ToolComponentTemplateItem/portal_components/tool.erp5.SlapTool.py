@@ -163,6 +163,8 @@ class SlapTool(BaseTool):
   ####################################################
 
   def _isTestRun(self):
+    if self.REQUEST.get('disable_isTestRun', False):
+      return False
     if issubclass(self.getPortalObject().MailHost.__class__, DummyMailHostMixin) \
         or self.REQUEST.get('test_list'):
       return True
@@ -199,6 +201,7 @@ class SlapTool(BaseTool):
       self._getCachePlugin().set(key, DEFAULT_CACHE_SCOPE,
         dict (
           time=time.time(),
+          refresh_etag=self._calculateRefreshEtag(),
           data=self._getCacheComputerInformation(computer_id, user),
         ),
         cache_duration=self.getPortalObject().portal_caches\
@@ -273,8 +276,23 @@ class SlapTool(BaseTool):
         )
       )
 
-  def _getComputerInformation(self, computer_id, user):
-    user_document = _assertACI(self.getPortalObject().portal_catalog.unrestrictedGetResultValue(
+  def _calculateRefreshEtag(self):
+    # check max indexation timestamp
+    # it is unlikely to get an empty catalog
+    last_indexed_entry = self.getPortalObject().portal_catalog(
+      select_list=['indexation_timestamp'],
+      portal_type=['Computer', 'Computer Partition',
+                   'Software Instance', 'Slave Instance',
+                   'Software Installation'],
+      sort_on=[('indexation_timestamp', 'DESC')],
+      limit=1,
+    )[0]
+    return '%s_%s' % (last_indexed_entry.uid,
+                      last_indexed_entry.indexation_timestamp)
+
+  def _getComputerInformation(self, computer_id, user, refresh_etag):
+    portal = self.getPortalObject()
+    user_document = _assertACI(portal.portal_catalog.unrestrictedGetResultValue(
       reference=user, portal_type=['Person', 'Computer', 'Software Instance']))
     user_type = user_document.getPortalType()
     self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
@@ -285,21 +303,26 @@ class SlapTool(BaseTool):
     if user_type in ('Computer', 'Person'):
       if not self._isTestRun():
         cache_plugin = self._getCachePlugin()
+        key = '%s_%s' % (computer_id, user)
         try:
-          key = '%s_%s' % (computer_id, user)
           entry = cache_plugin.get(key, DEFAULT_CACHE_SCOPE)
         except KeyError:
           entry = None
+
         if entry is not None and isinstance(entry.getValue(), dict):
-          result = entry.getValue()['data']
-          self._activateFillComputerInformationCache(computer_id, user)
-          return result
+          cached_dict = entry.getValue()
+          cached_etag = cached_dict.get('refresh_etag', None)
+          if (refresh_etag != cached_etag):
+            # Do not recalculate the computer information
+            # if nothing changed
+            self._activateFillComputerInformationCache(computer_id, user)
+          return cached_dict['data'], cached_etag
         else:
           self._activateFillComputerInformationCache(computer_id, user)
           self.REQUEST.response.setStatus(503)
-          return self.REQUEST.response
+          return self.REQUEST.response, None
       else:
-        return self._getCacheComputerInformation(computer_id, user)
+        return self._getCacheComputerInformation(computer_id, user), None
     else:
       slap_computer._software_release_list = []
 
@@ -317,7 +340,7 @@ class SlapTool(BaseTool):
                     portal_type="Computer Partition")
 
     self._calculateSlapComputerInformation(slap_computer, computer_partition_list)
-    return dumps(slap_computer)
+    return dumps(slap_computer), None
 
   @UnrestrictedMethod
   def _getHostingSubscriptionIpList(self, computer_id, computer_partition_id):
@@ -358,7 +381,8 @@ class SlapTool(BaseTool):
     user = self.getPortalObject().portal_membership.getAuthenticatedMember().getUserName()
     if str(user) == computer_id:
       self._logAccess(user, user, '#access %s' % computer_id)
-    result = self._getComputerInformation(computer_id, user)
+    refresh_etag = self._calculateRefreshEtag()
+    body, etag = self._getComputerInformation(computer_id, user, refresh_etag)
 
     if self.REQUEST.response.getStatus() == 200:
       # Keep in cache server for 7 days
@@ -366,11 +390,12 @@ class SlapTool(BaseTool):
                                       'public, max-age=1, stale-if-error=604800')
       self.REQUEST.response.setHeader('Vary',
                                       'REMOTE_USER')
-      self.REQUEST.response.setHeader('Last-Modified', rfc1123_date(DateTime()))
-      self.REQUEST.response.setBody(result)
+      if etag is not None:
+        self.REQUEST.response.setHeader('Etag', etag)
+      self.REQUEST.response.setBody(body)
       return self.REQUEST.response
     else:
-      return result
+      return body
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'getHostingSubscriptionIpList')

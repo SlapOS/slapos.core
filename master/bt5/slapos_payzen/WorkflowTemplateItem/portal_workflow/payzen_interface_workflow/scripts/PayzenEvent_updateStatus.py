@@ -23,5 +23,5 @@ payzen_event.newContent(
   title='Received Data', 
   portal_type='Payzen Event Message', 
   text_content=received_text, 
-  successor_value=sent)
+  predecessor_value=sent)
 payzen_event.PayzenEvent_processUpdate(data_kw)

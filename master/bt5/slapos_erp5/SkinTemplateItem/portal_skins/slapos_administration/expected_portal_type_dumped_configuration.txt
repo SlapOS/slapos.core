@@ -3801,7 +3801,7 @@ Payzen Event Message
   Add Permission: None
   Acquire Local Roles: 1
   Property Sheets: ['TextDocument']
-  Base Categories: ['successor']
+  Base Categories: ['predecessor']
   Allowed Content Types: []
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
@@ -4061,7 +4061,7 @@ Project
   Add Permission: None
   Acquire Local Roles: 0
   Property Sheets: ['Codification', 'Project']
-  Base Categories: ['successor', 'requirement']
+  Base Categories: ['predecessor', 'requirement']
   Allowed Content Types: ['File', 'Image', 'Link', 'Project Line', 'Project Milestone']
   Hidden Content Types: ['File', 'Image']
   Searchable Property: ['description', 'reference', 'short_title', 'title']
@@ -4087,7 +4087,7 @@ Project Line
   Add Permission: None
   Acquire Local Roles: 1
   Property Sheets: ['Amount', 'OutcomeDescription', 'SortIndex']
-  Base Categories: ['successor', 'requirement']
+  Base Categories: ['predecessor', 'requirement']
   Allowed Content Types: ['File', 'Image', 'Project Cell', 'Project Line']
   Hidden Content Types: ['File', 'Image', 'Project Cell']
   Searchable Property: ['description', 'reference', 'short_title', 'title']
@@ -4100,7 +4100,7 @@ Project Milestone
   Add Permission: None
   Acquire Local Roles: 1
   Property Sheets: ['OutcomeDescription', 'SortIndex']
-  Base Categories: ['successor']
+  Base Categories: ['predecessor']
   Allowed Content Types: ['File', 'Image']
   Hidden Content Types: ['File', 'Image']
   Searchable Property: ['description', 'reference', 'short_title', 'title']
@@ -5127,7 +5127,7 @@ Sale Order Line
   Add Permission: None
   Acquire Local Roles: 1
   Property Sheets: ['OutcomeDescription']
-  Base Categories: ['successor', 'requirement']
+  Base Categories: ['predecessor', 'requirement']
   Allowed Content Types: ['Sale Order Cell', 'Sale Order Line']
   Hidden Content Types: ['Sale Order Cell']
   Searchable Property: ['description', 'short_title', 'title']
@@ -5140,7 +5140,7 @@ Sale Order Milestone
   Add Permission: None
   Acquire Local Roles: 1
   Property Sheets: ['OutcomeDescription', 'SortIndex']
-  Base Categories: ['successor', 'requirement']
+  Base Categories: ['predecessor', 'requirement']
   Allowed Content Types: []
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
@@ -5192,7 +5192,7 @@ Sale Packing List Line
   Add Permission: None
   Acquire Local Roles: 1
   Property Sheets: ['OutcomeDescription', 'SlapOSAccountingSalePackingListLineConstraint']
-  Base Categories: ['successor', 'requirement']
+  Base Categories: ['predecessor', 'requirement']
   Allowed Content Types: ['Sale Packing List Cell']
   Hidden Content Types: ['Sale Packing List Cell']
   Searchable Property: ['description', 'short_title', 'title']
@@ -6206,7 +6206,7 @@ Task
   Add Permission: None
   Acquire Local Roles: 0
   Property Sheets: ['OutcomeDescription', 'TaskOrder']
-  Base Categories: ['ledger', 'successor', 'requirement']
+  Base Categories: ['ledger', 'predecessor', 'requirement']
   Allowed Content Types: ['Payment Condition', 'Task Line']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
@@ -6245,7 +6245,7 @@ Task Report
   Add Permission: None
   Acquire Local Roles: 0
   Property Sheets: []
-  Base Categories: ['aggregate', 'ledger', 'successor', 'requirement']
+  Base Categories: ['aggregate', 'ledger', 'predecessor', 'requirement']
   Allowed Content Types: ['Payment Condition', 'Task Report Line']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
@@ -6336,7 +6336,7 @@ Test Page
   Add Permission: None
   Acquire Local Roles: False
   Property Sheets: ['SortIndex', 'TestPage']
-  Base Categories: ['follow_up', 'function', 'group', 'successor', 'publication_section', 'similar', 'site']
+  Base Categories: ['follow_up', 'function', 'group', 'predecessor', 'publication_section', 'similar', 'site']
   Allowed Content Types: []
   Hidden Content Types: []
   Searchable Property: ['description', 'filename', 'reference', 'short_title', 'subject_list', 'title', 'version']
@@ -6843,7 +6843,7 @@ Web Illustration
   Add Permission: None
   Acquire Local Roles: 0
   Property Sheets: ['Reference', 'SortIndex']
-  Base Categories: ['follow_up', 'function', 'group', 'successor', 'publication_section', 'similar', 'site', 'successor']
+  Base Categories: ['follow_up', 'function', 'group', 'predecessor', 'publication_section', 'similar', 'site', 'successor']
   Allowed Content Types: ['Image']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
@@ -6856,7 +6856,7 @@ Web Manifest
   Add Permission: None
   Acquire Local Roles: 0
   Property Sheets: ['Reference', 'SortIndex']
-  Base Categories: ['follow_up', 'function', 'group', 'successor', 'publication_section', 'similar', 'site', 'successor']
+  Base Categories: ['follow_up', 'function', 'group', 'predecessor', 'publication_section', 'similar', 'site', 'successor']
   Allowed Content Types: []
   Hidden Content Types: []
   Searchable Property: ['description', 'filename', 'reference', 'short_title', 'subject_list', 'title', 'version']
@@ -6882,7 +6882,7 @@ Web Page
   Add Permission: None
   Acquire Local Roles: 0
   Property Sheets: ['Reference', 'SortIndex']
-  Base Categories: ['follow_up', 'function', 'group', 'successor', 'publication_section', 'similar', 'site', 'successor']
+  Base Categories: ['follow_up', 'function', 'group', 'predecessor', 'publication_section', 'similar', 'site', 'successor']
   Allowed Content Types: ['Embedded File']
   Hidden Content Types: []
   Searchable Property: ['description', 'filename', 'reference', 'short_title', 'subject_list', 'title', 'version']
@@ -6908,7 +6908,7 @@ Web Script
   Add Permission: None
   Acquire Local Roles: 0
   Property Sheets: ['Reference', 'SortIndex']
-  Base Categories: ['follow_up', 'function', 'group', 'successor', 'publication_section', 'similar', 'site', 'successor']
+  Base Categories: ['follow_up', 'function', 'group', 'predecessor', 'publication_section', 'similar', 'site', 'successor']
   Allowed Content Types: []
   Hidden Content Types: []
   Searchable Property: ['description', 'filename', 'reference', 'short_title', 'subject_list', 'title', 'version']
@@ -7012,7 +7012,7 @@ Web Style
   Add Permission: None
   Acquire Local Roles: 0
   Property Sheets: ['Reference', 'SortIndex']
-  Base Categories: ['follow_up', 'function', 'group', 'successor', 'publication_section', 'similar', 'site', 'successor']
+  Base Categories: ['follow_up', 'function', 'group', 'predecessor', 'publication_section', 'similar', 'site', 'successor']
   Allowed Content Types: []
   Hidden Content Types: []
   Searchable Property: ['description', 'filename', 'reference', 'short_title', 'subject_list', 'title', 'version']
@@ -7025,7 +7025,7 @@ Web Table
   Add Permission: None
   Acquire Local Roles: 0
   Property Sheets: ['Reference', 'SortIndex']
-  Base Categories: ['follow_up', 'function', 'group', 'successor', 'publication_section', 'similar', 'site', 'successor']
+  Base Categories: ['follow_up', 'function', 'group', 'predecessor', 'publication_section', 'similar', 'site', 'successor']
   Allowed Content Types: []
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
@@ -7051,7 +7051,7 @@ Wechat Event Message
   Add Permission: None
   Acquire Local Roles: 1
   Property Sheets: ['TextDocument']
-  Base Categories: ['successor']
+  Base Categories: ['predecessor']
   Allowed Content Types: []
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']

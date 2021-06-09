@@ -33,6 +33,7 @@ import logging
 import time
 import errno
 import socket
+import pwd
 
 from six.moves import urllib
 from six.moves import http_client
@@ -207,6 +208,15 @@ class SlapOSConfigWriter(ConfigWriter):
               pidfile_report =  {standalone_slapos._report_pid}
               forbid_supervisord_automatic_launch = true
 
+              [slapformat]
+              input_definition_file = {standalone_slapos._slapformat_definition}
+              partition_amount = {standalone_slapos._partition_count}
+              alter_user = false
+              alter_network = false
+              create_tap = false
+              create_tun = false
+              computer_xml = {standalone_slapos._slapos_xml}
+
               [slapproxy]
               host = {standalone_slapos._server_ip}
               port = {standalone_slapos._server_port}
@@ -254,6 +264,35 @@ class SlapOSNodeAutoWriter(ConfigWriter):
               done
       """).format(**locals()))
     os.chmod(path, 0o755)
+
+
+class SlapformatDefinitionWriter(ConfigWriter):
+  """Write slapformat-definition.cfg configuration.
+  """
+  def writeConfig(self, path):
+    ipv4 = self._standalone_slapos._ipv4_address
+    ipv6 = self._standalone_slapos._ipv6_address
+    ipv4_cidr = ipv4 + '/255.255.255.255' if ipv4 else ''
+    ipv6_cidr = ipv6 + '/64' if ipv6 else ''
+    user = pwd.getpwuid(os.getuid()).pw_name
+    partition_base_name = self._standalone_slapos._partition_base_name
+    with open(path, 'w') as f:
+      f.write(
+          textwrap.dedent(
+              """
+              [computer]
+              address = {ipv4_cidr}\n
+      """).format(**locals()))
+      for i in range(self._standalone_slapos._partition_count):
+        f.write(
+            textwrap.dedent(
+                """
+                [partition_{i}]
+                address = {ipv6_cidr} {ipv4_cidr}
+                pathname = {partition_base_name}{i}
+                user = {user}
+                network_interface =\n
+        """).format(**locals()))
 
 
 class PartitionForwardConfiguration(object):
@@ -352,6 +391,10 @@ class StandaloneSlapOS(object):
     self._base_directory = base_directory
     self._shared_part_list = list(shared_part_list)
     self._partition_forward_configuration = list(partition_forward_configuration)
+    self._partition_count = 0
+    self._partition_base_name = 'slappart'
+    self._ipv4_address = None
+    self._ipv6_address = None
 
     self._slapos_bin = slapos_bin
 
@@ -424,6 +467,8 @@ class StandaloneSlapOS(object):
     ensureDirectoryExists(etc_directory)
     self._supervisor_config = os.path.join(etc_directory, 'supervisord.conf')
     self._slapos_config = os.path.join(etc_directory, 'slapos.cfg')
+    self._slapformat_definition = os.path.join(etc_directory, 'slapformat-definition.cfg')
+    self._slapos_xml = os.path.join(etc_directory, 'slapos.xml')
 
     var_directory = os.path.join(base_directory, 'var')
     ensureDirectoryExists(var_directory)
@@ -451,6 +496,7 @@ class StandaloneSlapOS(object):
 
     SupervisorConfigWriter(self).writeConfig(self._supervisor_config)
     SlapOSConfigWriter(self).writeConfig(self._slapos_config)
+    SlapformatDefinitionWriter(self).writeConfig(self._slapformat_definition)
     SlapOSCommandWriter(self).writeConfig(self._slapos_wrapper)
     SlapOSNodeAutoWriter(self).writeConfig(self._slapos_node_auto_bin)
 
@@ -606,6 +652,16 @@ class StandaloneSlapOS(object):
           "removing leftover supervisor config from destroyed partition at %s",
           supervisor_conf)
         os.unlink(supervisor_conf)
+
+    # update slapformat configuration
+    old_partition_count = self._partition_count
+    self._partition_count = partition_count
+    self._partition_base_name = partition_base_name
+    self._ipv4_address = ipv4_address
+    self._ipv6_address = ipv6_address
+    if old_partition_count != partition_count:
+      SlapOSConfigWriter(self).writeConfig(self._slapos_config)
+    SlapformatDefinitionWriter(self).writeConfig(self._slapformat_definition)
 
   def supply(self, software_url, computer_guid=None, state="available"):
     """Supply a software, see ISupply.supply

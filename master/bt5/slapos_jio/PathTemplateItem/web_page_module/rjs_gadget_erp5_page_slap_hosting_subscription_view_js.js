@@ -462,7 +462,7 @@
                     "my_list_image": {
                       "css_class": "",
                       "default": gadget.state.doc.list_image +
-                        "?%28quality=100.0%29%20AND%20%28display=thumbnail%29%20AND%20%28format=png%29",
+                        "?quality=75.0&amp;display=thumbnail&amp;format=png",
                       "description": "",
                       "editable": 1,
                       "hidden": 0,

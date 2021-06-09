@@ -35,6 +35,8 @@ import hashlib
 import socket
 import errno
 import time
+import glob
+import subprocess
 import multiprocessing
 from contextlib import closing
 from six.moves.configparser import ConfigParser
@@ -158,6 +160,29 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
     with mock.patch("slapos.slap.ComputerPartition.getState", return_value="busy"),\
        self.assertRaisesRegex(ValueError, "Cannot reformat to remove busy partition at .*slappart0"):
       standalone.format(0, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
+
+  def test_slapos_node_format(self):
+    working_dir = tempfile.mkdtemp(prefix=__name__)
+    self.addCleanup(shutil.rmtree, working_dir)
+    standalone = StandaloneSlapOS(
+        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
+    self.addCleanup(standalone.stop)
+    self.assertTrue(os.path.exists(standalone.instance_directory))
+    format_command = (standalone._slapos_wrapper, 'node', 'format', '--now')
+    glob_pattern = os.path.join(standalone.instance_directory, 'slappart*')
+    self.assertFalse(glob.glob(glob_pattern))
+    self.assertTrue(subprocess.call(format_command))
+    self.assertFalse(glob.glob(glob_pattern))
+    for partition_count in (3, 2):
+      standalone.format(partition_count, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
+      self.assertEqual(partition_count, len(glob.glob(glob_pattern)))
+      subprocess.check_call(format_command)
+      partitions = glob.glob(glob_pattern)
+      self.assertEqual(partition_count, len(partitions))
+      for path in partitions:
+        shutil.rmtree(path)
+      subprocess.check_call(format_command)
+      self.assertEqual(partition_count, len(glob.glob(glob_pattern)))
 
   def test_two_instance_from_same_directory(self):
     working_dir = tempfile.mkdtemp(prefix=__name__)

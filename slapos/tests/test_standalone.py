@@ -35,6 +35,8 @@ import hashlib
 import socket
 import errno
 import time
+import glob
+import subprocess
 import multiprocessing
 from contextlib import closing
 from six.moves.configparser import ConfigParser
@@ -158,6 +160,43 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
     with mock.patch("slapos.slap.ComputerPartition.getState", return_value="busy"),\
        self.assertRaisesRegex(ValueError, "Cannot reformat to remove busy partition at .*slappart0"):
       standalone.format(0, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
+
+  def test_slapos_node_format(self):
+    working_dir = tempfile.mkdtemp(prefix=__name__)
+    self.addCleanup(shutil.rmtree, working_dir)
+    standalone = StandaloneSlapOS(
+        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
+    self.addCleanup(standalone.stop)
+    self.assertTrue(os.path.exists(standalone.software_directory))
+    self.assertTrue(os.path.exists(standalone.instance_directory))
+    slapos_wrapper = standalone._slapos_wrapper
+    glob_pattern = os.path.join(standalone.instance_directory, 'slappart*')
+    self.assertFalse(glob.glob(glob_pattern))
+    with self.assertRaises(subprocess.CalledProcessError):
+      subprocess.check_call((slapos_wrapper, 'node', 'format', '--now'))
+    self.assertFalse(glob.glob(glob_pattern))
+    standalone.format(3, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
+    self.assertEquals(3,
+      len(glob.glob(os.path.join(standalone.instance_directory, 'slappart*'))))
+    subprocess.check_call((slapos_wrapper, 'node', 'format', '--now'))
+    partitions = glob.glob(os.path.join(standalone.instance_directory, 'slappart*'))
+    self.assertEquals(3, len(partitions))
+    for path in partitions:
+      shutil.rmtree(path)
+    subprocess.check_call((slapos_wrapper, 'node', 'format', '--now'))
+    self.assertEquals(3,
+      len(glob.glob(os.path.join(standalone.instance_directory, 'slappart*'))))
+    standalone.format(2, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)
+    self.assertEquals(2,
+      len(glob.glob(os.path.join(standalone.instance_directory, 'slappart*'))))
+    subprocess.check_call((slapos_wrapper, 'node', 'format', '--now'))
+    partitions = glob.glob(os.path.join(standalone.instance_directory, 'slappart*'))
+    self.assertEquals(2, len(partitions))
+    for path in partitions:
+      shutil.rmtree(path)
+    subprocess.check_call((slapos_wrapper, 'node', 'format', '--now'))
+    self.assertEquals(2,
+      len(glob.glob(os.path.join(standalone.instance_directory, 'slappart*'))))
 
   def test_two_instance_from_same_directory(self):
     working_dir = tempfile.mkdtemp(prefix=__name__)

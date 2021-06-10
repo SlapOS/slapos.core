@@ -6,6 +6,12 @@
    <multi_property id='base_category'>group</multi_property>
   </role>
   <role id='Auditor'>
+   <property id='title'>Project Member can see each other</property>
+   <property id='base_category_script'>ERP5Type_getSecurityCategoryFromChildAssignmentList</property>
+   <multi_property id='categories'>local_role_group/project</multi_property>
+   <multi_property id='base_category'>destination_project</multi_property>
+  </role>
+  <role id='Auditor'>
    <property id='title'>The Shadow User Himself</property>
    <property id='description'>Monovalued role</property>
    <property id='condition'>python: here.objectValues(portal_type=["ERP5 Login", "Google Login", "Facebook Login", "Certificate Login"])</property>

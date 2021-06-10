@@ -719,6 +719,29 @@ class TestPerson(TestSlapOSGroupRoleSecurityMixin):
   def test_TheUserHimself_Certificate(self):
     self.test_TheUserHimself(login_portal_type="Certificate Login")
 
+  def test_ProjectMember(self, login_portal_type="ERP5 Login"):
+    person = self.portal.person_module.newContent(portal_type='Person')
+    person.newContent(portal_type=login_portal_type)
+    project = self.portal.project_module.newContent(
+      portal_type="Project"
+    )
+    project.validate()
+    person.newContent(portal_type='Assignment',
+      destination_project_value=project).open()
+    self.tic()
+    person.updateLocalRolesOnSecurityGroups()
+
+    shadow_reference = 'SHADOW-%s' % person.getUserId()
+    self.assertSecurityGroup(person,
+        ['G-COMPANY', self.user_id, person.getUserId(), shadow_reference, 
+        project.getReference()], False)
+    self.assertRoles(person, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(person, person.getUserId(), ['Assignee'])
+    self.assertRoles(person, shadow_reference, ['Auditor'])
+    self.assertRoles(person, project.getReference(), ['Auditor'])
+    self.assertRoles(person, self.user_id, ['Owner'])
+
+
 
 class TestERP5Login(TestSlapOSGroupRoleSecurityMixin):
 

@@ -182,6 +182,7 @@ class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
     self.test_inactive(login_portal_type="ERP5 Login")
 
 class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
+
   def test_active(self, login_portal_type="Certificate Login"):    
     reference = self._generateRandomUniqueReference('Person')
     user_id = self._generateRandomUniqueUserId('Person')
@@ -233,6 +234,41 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
     user = getSecurityManager().getUser()
     self.assertTrue('Authenticated' in user.getRoles())
     self.assertSameSet(['R-MEMBER', 'G-COMPANY'], user.getGroups())
+
+    # add to role for project
+    self.login()
+    project = self.portal.project_module.newContent(
+      portal_type="Project"
+    )
+    project.validate()
+    person.newContent(portal_type='Assignment',
+      destination_project_value=project).open()
+    self.tic()
+
+    self.portal.portal_caches.clearAllCache()
+    self.login(person.getUserId())
+    user = getSecurityManager().getUser()
+    self.assertTrue('Authenticated' in user.getRoles())
+    self.assertSameSet(['R-MEMBER', 'G-COMPANY', project.getReference()], user.getGroups())
+
+    # add to role for project
+    self.login()
+    organisation = self.portal.organisation_module.newContent(
+      portal_type="Organisation",
+      reference="OTEST-%s" % person.getUserId()
+    )
+    organisation.validate()
+    person.newContent(portal_type='Assignment',
+      destination_value=organisation).open()
+    self.tic()
+
+    self.portal.portal_caches.clearAllCache()
+    self.login(person.getUserId())
+    user = getSecurityManager().getUser()
+    self.assertTrue('Authenticated' in user.getRoles())
+    self.assertSameSet(['R-MEMBER', 'G-COMPANY', organisation.getReference(),
+      project.getReference()], user.getGroups())
+
 
   def test_inactive(self, login_portal_type="Certificate Login"):
     reference = self._generateRandomUniqueReference('Person')

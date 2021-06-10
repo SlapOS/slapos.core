@@ -71,7 +71,7 @@ def current_state(user_dict):
   for i, process in enumerate(process_list):
     yield build_snapshot(process)
 
-def do_collect(conf):
+def do_collect(logger, conf):
   """
   Main function
   The idea here is to poll system every so many seconds
@@ -80,7 +80,7 @@ def do_collect(conf):
     Each user object is a dict, indexed on timestamp. We add every snapshot
     matching the user so that we get informations for each users
   """
-
+  logger.info('Collecting data...')
   try:
     collected_date, collected_time = _get_time()
     user_dict = get_user_list(conf)
@@ -88,9 +88,6 @@ def do_collect(conf):
       for snapshot in current_state(user_dict):
         if snapshot:
           user_dict[snapshot.username].append(snapshot)
-      for user, info in user_dict.items():
-        print(_get_time()[0], _get_time()[1], user, "\tprocesses in progress :", len(info.snapshot_list))
-        #print(user, "\t", '\n'.join([str(p.get("process")) for p in info.snapshot_list]))
     except (KeyboardInterrupt, SystemExit, NoSuchProcess):
       raise
     days_to_preserve =  15
@@ -98,37 +95,32 @@ def do_collect(conf):
     if conf.has_option("slapos", "collect_cache"):
       days_to_preserve = conf.getint("slapos", "collect_cache")
     log_directory = "%s/var/data-log" % conf.get("slapos", "instance_root")
-    print(_get_time()[0], _get_time()[1], "log_directory :", log_directory)
+    
+    logger.debug("Log directory: %s" % log_directory)
     mkdir_p(log_directory, 0o755)
     
     consumption_report_directory = "%s/var/consumption-report" % \
                                         conf.get("slapos", "instance_root")
     mkdir_p(consumption_report_directory, 0o755)
-
-    print(_get_time()[0], _get_time()[1], "consumption_report_directory :", consumption_report_directory)
+    logger.debug("Consumption report directory: %s" % consumption_report_directory)
 
     xml_report_directory = "%s/var/xml_report/%s" % \
                     (conf.get("slapos", "instance_root"), 
                      conf.get("slapos", "computer_id"))
     mkdir_p(xml_report_directory, 0o755)
-
-    print(_get_time()[0], _get_time()[1], "xml_report_directory :", xml_report_directory)
+    logger.debug("XML report directory: %s" % xml_report_directory)
 
     if stat.S_IMODE(os.stat(log_directory).st_mode) != 0o755:
       os.chmod(log_directory, 0o755)    
 
     database = Database(log_directory, create=True)
 
-    database.connect()
-    print(_get_time()[0], _get_time()[1], "Database tables :", database.getTableList())
-    database.close()
-
     if conf.has_option("slapformat", "computer_model_id"):
       computer_model_id = conf.get("slapformat", 
                                   "computer_model_id")
     else:
       computer_model_id = "no_model"
-    print(_get_time()[0], _get_time()[1], "computer model id :", computer_model_id)
+    logger.debug("Computer model id: %s" % computer_model_id)
 
     uptime = _get_uptime()
 
@@ -144,11 +136,9 @@ def do_collect(conf):
     else:
       heating_sensor_id = "no_sensor"
       test_heating = False
-    
-    print(_get_time()[0], _get_time()[1], "heating sensor id :", heating_sensor_id)
+    logger.debug("Heating sensor id: %s" % heating_sensor_id)
 
-    print(_get_time()[0], _get_time()[1], "Inserting computer information into database...")
-
+    logger.info("Inserting computer information into database...")
     computer = Computer(ComputerSnapshot(model_id=computer_model_id, 
                                      sensor_id = heating_sensor_id,
                                      test_heating=test_heating))
@@ -156,18 +146,15 @@ def do_collect(conf):
     # Insert computer's data
     computer.save(database, collected_date, collected_time)
 
-    print(_get_time()[0], _get_time()[1], "Done")
-
-    print(_get_time()[0], _get_time()[1], "Inserting user information into database...")
+    logger.info("Done.")
+    logger.info("Inserting user information into database...")
 
     # Insert TABLE user + TABLE folder
     for user in user_dict.values():
       user.save(database, collected_date, collected_time)
 
-    print(_get_time()[0], _get_time()[1], "Done")
-
-    print(_get_time()[0], _get_time()[1], "Writing csv, XML and JSON files...")
-    
+    logger.info("Done.")
+    logger.info("Writing csv, XML and JSON files...")
     # Write a csv with dumped data in the log_directory
     SystemCSVReporterDumper(database).dump(log_directory)
     RawCSVDumper(database).dump(log_directory)
@@ -194,14 +181,16 @@ def do_collect(conf):
 
     partition_report.buildJSONMonitorReport()
 
-    print(_get_time()[0], _get_time()[1], "Done")
-
     # Put dumped csv in a current_date.tar.gz
     compressLogFolder(log_directory)
+    logger.info("Done.")
 
     # Drop older entries already reported
     database.garbageCollect(days_to_preserve)
 
+    logger.info("Finished collecting.")
+    logger.info('=' * 80)
+
   except AccessDenied:
-    print("You HAVE TO execute this script with root permission.")
+    logger.error("You HAVE TO execute this script with root permission.")
 

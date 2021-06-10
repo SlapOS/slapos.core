@@ -127,8 +127,8 @@ class RawCSVDumper(RawDumper):
 
 def compressLogFolder(log_directory):
   
-    initial_folder = os.getcwd() # current working directory of a process
-    os.chdir(log_directory) # changes the current working directory to the given path
+    initial_folder = os.getcwd()
+    os.chdir(log_directory)
     try:
       for backup_to_archive in glob.glob("*-*-*/"):
         filename = '%s.tar.gz' % backup_to_archive.strip("/")

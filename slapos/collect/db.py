@@ -290,8 +290,6 @@ class Database:
       where_clause += " AND (date < '%s' " % min(date_list)
       where_clause += " OR date > '%s') " % max(date_list)
 
-    #print(where_clause)
-
     vacuum = False
     delete_sql = "DELETE FROM %s WHERE %s"
     select_sql = "SELECT date FROM %s WHERE %s LIMIT 1"

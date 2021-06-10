@@ -31,6 +31,7 @@ from __future__ import print_function
 import psutil
 import os
 import subprocess
+import logging
 from .temperature import collectComputerTemperature, launchTemperatureTest
 
 from .temperature.heating import get_contribution_ratio
@@ -38,6 +39,8 @@ from .temperature.heating import get_contribution_ratio
 import six
 
 MEASURE_INTERVAL = 5
+
+logger = logging.getLogger("slapos")
 
 class _Snapshot(object):
   def get(self, property, default=None):
@@ -97,19 +100,18 @@ class FolderSizeSnapshot(_Snapshot):
           except OSError:
             pass
           else:
+            logger.warning("Process %s still in progress. Try after." % pid)
             return
 
     self.disk_usage = self._getSize(self.folder_path)
     # If extra disk added to partition
     data_dir = os.path.join(self.folder_path, 'DATA')
     if os.path.exists(data_dir):
-      print("extra disk added to partition")
+      logger.debug("Extra disk added to partition")
       for filename in os.listdir(data_dir):
         extra_path = os.path.join(data_dir, filename)
         if os.path.islink(extra_path) and os.path.isdir('%s/' % extra_path):
           self.disk_usage += self._getSize('%s/' % extra_path)
-          print(self.disk_usage)
-          
 
   def _getSize(self, file_path):
 
@@ -117,13 +119,13 @@ class FolderSizeSnapshot(_Snapshot):
     command = 'du -s %s' % file_path
     process = subprocess.Popen(command, stdout=subprocess.PIPE, 
                               stderr=subprocess.PIPE, shell=True)
-    # write pid process : du -s /srv/slapgrid/slappart[i]
     if self.pid_file:
       with open(self.pid_file, 'w') as fpid:
         pid = fpid.write(str(process.pid))
     result = process.communicate()[0]
     if process.returncode == 0:
-      size, _  = result.strip().split() # retourne la taille + path
+      size, _  = result.strip().split()
+
     return float(size)
 
 class SystemSnapshot(_Snapshot):
@@ -131,19 +133,18 @@ class SystemSnapshot(_Snapshot):
   """
   def __init__(self, interval=MEASURE_INTERVAL):
 
-    # provides utilization percentages for each specific CPU time
-    cpu_idle_percentage = psutil.cpu_times_percent(interval=interval).idle # long
+    cpu_idle_percentage = psutil.cpu_times_percent(interval=interval).idle
     load_percent = 100 - cpu_idle_percentage
 
     memory = psutil.virtual_memory()
-    net_io = psutil.net_io_counters() # system-wide network I/O statistics as a named tuple
+    net_io = psutil.net_io_counters()
 
     self.memory_free = available = memory.available
     self.memory_used = memory.total - available
     self.memory_percent = memory.percent
     #self.cpu_percent = psutil.cpu_percent()
     self.cpu_percent = load_percent
-    self.load = os.getloadavg()[0] # number of processes in the system run queue
+    self.load = os.getloadavg()[0]
     self.net_in_bytes = net_io.bytes_recv
     self.net_in_errors = net_io.errin
     self.net_in_dropped = net_io.dropin
@@ -167,8 +168,7 @@ class HeatingContributionSnapshot(_Snapshot):
     
     result = launchTemperatureTest(sensor_id)
     if result is None:
-      print("Impossible to test sensor: %s " % sensor_id)
-      
+      logger.warning("Impossible to test sensor: %s " % sensor_id)
 
     initial_temperature, final_temperature, duration = result 
     
@@ -214,14 +214,14 @@ class ComputerSnapshot(_Snapshot):
     self.cpu_num_core = psutil.cpu_count()
     self.cpu_frequency = 0
     self.cpu_type = 0
-    self.memory_size = psutil.virtual_memory().total #total physical memory (exclusive swap)
+    self.memory_size = psutil.virtual_memory().total
     self.memory_type = 0
 
     #
     # Include a SystemSnapshot and a list DiskPartitionSnapshot
     # on a Computer Snapshot
     #
-    self.system_snapshot = SystemSnapshot() # take few seconds
+    self.system_snapshot = SystemSnapshot()
     self.temperature_snapshot_list = self._get_temperature_snapshot_list()
     self._get_physical_disk_info()
 

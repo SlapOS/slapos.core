@@ -31,6 +31,8 @@ from slapos.collect import do_collect
 from slapos.cli.command import must_be_root
 from slapos.cli.config import ConfigCommand
 
+import logging
+
 class CollectCommand(ConfigCommand):
     """
     Collect system consumption and data and store.
@@ -44,5 +46,5 @@ class CollectCommand(ConfigCommand):
     @must_be_root
     def take_action(self, args):
         configp = self.fetch_config(args)
-        print("Configuration file :", configp.sections())
-        do_collect(configp)
+        logger = self.app.log
+        do_collect(logger, configp)

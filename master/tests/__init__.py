@@ -1,4 +1,4 @@
-from test_suite import SavedTestSuite, ProjectTestSuite
+from test_suite import SavedTestSuite, ProjectTestSuite, ERP5TypeTestSuite
 from glob import glob
 import os, re
 import sys
@@ -126,3 +126,32 @@ class SlapOSCloud(SavedTestSuite, ProjectTestSuite):
       status_dict['test_count'] = int(group_dict['total'])
       status_dict['skip_count'] = int(group_dict['expected_failure'])
     return status_dict
+
+
+class SlapOSDocTestSuite(SlapOSCloud):
+  _product_list = []
+  _saved_test_id = 'erp5_slapos_tutorial:testFunctionalStandaloneSlapOSTutorial'
+  _bt_list = ['erp5_slapos_tutorial']
+
+  def getTestList(self):
+    test_list = []
+    path = sys.path[0]
+    erp5_doc_path = sys.path[1]
+    component_re = re.compile(".*/([^/]+)/TestTemplateItem/portal_components"
+                              "/test\.[^.]+\.([^.]+).py$")
+    for test_path in (
+        glob('%s/bt5/*/TestTemplateItem/portal_components/test.*.test*.py' % erp5_doc_path)):
+      component_re_match = component_re.match(test_path)
+      if component_re_match is not None:
+        test_case = "%s:%s" % (component_re_match.group(1),
+                               component_re_match.group(2))
+      else:
+        test_case = test_path.split(os.sep)[-1][:-3] # remove .py
+      test_list.append(test_case)
+    return test_list
+
+  def run(self, full_test):
+    test = ':' in full_test and full_test.split(':')[1] or full_test
+    if test.startswith('testFunctional'):
+      return self._updateFunctionalTestResponse(self.runUnitTest('--load', full_test))
+    return super(SlapOSDocTestSuite, self).run(full_test)

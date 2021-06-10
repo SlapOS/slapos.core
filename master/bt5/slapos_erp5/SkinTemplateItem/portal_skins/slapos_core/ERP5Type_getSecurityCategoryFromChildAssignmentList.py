@@ -22,10 +22,10 @@ NOTE: for now, this script requires proxy manager
 
 category_list = []
 
-if object is None:
+if obj is None:
   return []
 
-person_object = object
+person_object = obj
 
 # We look for every valid assignments of this user
 for assignment in person_object.contentValues(filter={'portal_type': 'Assignment'}):

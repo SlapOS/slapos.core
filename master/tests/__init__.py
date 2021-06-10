@@ -1,4 +1,4 @@
-from test_suite import SavedTestSuite, ProjectTestSuite
+from test_suite import SavedTestSuite, ProjectTestSuite, ERP5TypeTestSuite
 from glob import glob
 import os, re
 import sys
@@ -126,3 +126,52 @@ class SlapOSCloud(SavedTestSuite, ProjectTestSuite):
       status_dict['test_count'] = int(group_dict['total'])
       status_dict['skip_count'] = int(group_dict['expected_failure'])
     return status_dict
+
+
+class SlapOSDoc(ERP5TypeTestSuite):
+  def setup(self):
+    ERP5TypeTestSuite.setup(self)
+    return self.runUnitTest('--save', 'erp5_slapos_tutorial:testFunctionalStandaloneSlapOSTutorial')
+
+  def getTestList(self):
+    test_list = []
+    path = sys.path[0]
+    erp5_doc_path = sys.path[1]
+    component_re = re.compile(".*/([^/]+)/TestTemplateItem/portal_components"
+                              "/test\.[^.]+\.([^.]+).py$")
+    for test_path in (
+        glob('%s/bt5/*/TestTemplateItem/portal_components/test.*.test*.py' % erp5_doc_path)):
+      component_re_match = component_re.match(test_path)
+      if component_re_match is not None:
+        test_case = "%s:%s" % (component_re_match.group(1),
+                               component_re_match.group(2))
+      else:
+        test_case = test_path.split(os.sep)[-1][:-3] # remove .py
+      test_list.append(test_case)
+    return test_list
+
+  def run(self, full_test):
+    test = ':' in full_test and full_test.split(':')[1] or full_test
+    if test.startswith('testFunctional'):
+      return self._updateFunctionalTestResponse(self.runUnitTest('--load', full_test))
+    return super(SlapOSDoc, self).run(full_test)
+
+  def _updateFunctionalTestResponse(self, status_dict):
+    """ Convert the Unit Test output into more accurate information
+        related to funcional test run.
+    """
+    # Parse relevant information to update response information
+    try:
+      summary, html_test_result = status_dict['stderr'].split("-"*79)[1:3]
+    except ValueError:
+      # In case of error when parse the file, preserve the original
+      # informations. This prevents we have unfinished tests.
+      return status_dict
+    status_dict['html_test_result'] = html_test_result
+    search = self.FTEST_PASS_FAIL_RE.search(summary)
+    if search:
+      group_dict = search.groupdict()
+      status_dict['failure_count'] = int(group_dict['failures'])
+      status_dict['test_count'] = int(group_dict['total'])
+      status_dict['skip_count'] = int(group_dict['expected_failure'])
+      return status_dict

@@ -1,5 +1,4 @@
 request = context.REQUEST
-
 edit_kw = {}
 
 if monitor_scope is not None and monitor_scope != context.getMonitorScope():
@@ -29,4 +28,4 @@ if 'software_type' in request and isSoftwareTypeChanged(request['software_type']
   raise ValueError("Change Software Type is forbidden.")
 
 if context.getTextContent() != text_content:
-  context.HostingSubscription_requestPerson(instance_xml=request['text_content'])
+  context.HostingSubscription_requestPerson(instance_xml=text_content)

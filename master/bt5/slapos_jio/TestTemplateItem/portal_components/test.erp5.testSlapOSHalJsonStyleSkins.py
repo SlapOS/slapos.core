@@ -835,7 +835,332 @@ class TestBase_getComputerToken(TestSlapOSHalJsonStyleMixin):
     self.assertEqual("One Time Restricted Access Token", token.getPortalType())
 
 
+class TestHostingSubscription_edit(TestSlapOSHalJsonStyleMixin):
+
+  def afterSetUp(self):
+    TestSlapOSHalJsonStyleMixin.afterSetUp(self)
+    self.changeSkin('Hal')
+
+  def test_HostingSubscription_edit(self):
+    self._makeTree()
+    self.hosting_subscription.edit(
+      monitor_scope="enabled",
+      upgrade_scope="auto",
+      short_title="X",
+      description="Y"
+    )
+
+    original_parameter = self.hosting_subscription.getTextContent()
+    self.changeSkin("Hal")
+    self.hosting_subscription.HostingSubscription_edit(
+      text_content=self.hosting_subscription.getTextContent(),
+      short_title=self.hosting_subscription.getShortTitle(),
+      description=self.hosting_subscription.getDescription()
+    )
+
+    self.assertEqual("enabled", self.hosting_subscription.getMonitorScope())
+    self.assertEqual("auto", self.hosting_subscription.getUpgradeScope())
+    self.assertEqual("X", self.hosting_subscription.getShortTitle())
+    self.assertEqual("Y", self.hosting_subscription.getDescription())
+    self.assertEqual(original_parameter,
+      self.hosting_subscription.getTextContent())
+
+    self.hosting_subscription.HostingSubscription_edit(
+      text_content=self.hosting_subscription.getTextContent(),
+      short_title="X1",
+      description="Y1",
+      monitor_scope="disabled",
+      upgrade_scope="disabled"
+    )
+
+    self.assertEqual("disabled", self.hosting_subscription.getMonitorScope())
+    self.assertEqual("disabled", self.hosting_subscription.getUpgradeScope())
+    self.assertEqual("X1", self.hosting_subscription.getShortTitle())
+    self.assertEqual("Y1", self.hosting_subscription.getDescription())
+    self.assertEqual(original_parameter,
+      self.hosting_subscription.getTextContent())
+
+    # Check if owner can edit it 
+    self.logout()
+    self.login(self.person_user.getUserId())
+    self.changeSkin("Hal")
+    self.hosting_subscription.HostingSubscription_edit(
+      text_content=self.hosting_subscription.getTextContent(),
+      short_title=self.hosting_subscription.getShortTitle(),
+      description=self.hosting_subscription.getDescription()
+    )
+
+    self.assertEqual("disabled", self.hosting_subscription.getMonitorScope())
+    self.assertEqual("disabled", self.hosting_subscription.getUpgradeScope())
+    self.assertEqual("X1", self.hosting_subscription.getShortTitle())
+    self.assertEqual("Y1", self.hosting_subscription.getDescription())
+    self.assertEqual(original_parameter,
+      self.hosting_subscription.getTextContent())
+
+    self.hosting_subscription.HostingSubscription_edit(
+      text_content=self.hosting_subscription.getTextContent(),
+      short_title="X2",
+      description="Y2",
+      monitor_scope="enabled",
+      upgrade_scope="auto"
+    )
+
+    self.assertEqual("enabled", self.hosting_subscription.getMonitorScope())
+    self.assertEqual("auto", self.hosting_subscription.getUpgradeScope())
+    self.assertEqual("X2", self.hosting_subscription.getShortTitle())
+    self.assertEqual("Y2", self.hosting_subscription.getDescription())
+    self.assertEqual(original_parameter,
+      self.hosting_subscription.getTextContent())
+
+  def test_HostingSubscription_edit_request(self):
+    self._makeTree()
+    kw = dict(
+      text_content=self.hosting_subscription.getTextContent(),
+      short_title=self.hosting_subscription.getShortTitle(),
+      description=self.hosting_subscription.getDescription())
+
+    original_parameter = self.hosting_subscription.getTextContent()
+    self.changeSkin("Hal")
+    self.hosting_subscription.HostingSubscription_edit(**kw)
     
+    self.assertEqual(original_parameter,
+      self.hosting_subscription.getTextContent())
+
+    new_parameter = self.generateSafeXml()
+    kw['text_content'] = new_parameter
+
+    self.hosting_subscription.HostingSubscription_edit(**kw)
+
+    self.assertNotEqual(original_parameter,
+      self.hosting_subscription.getTextContent())
+
+    self.assertEqual(new_parameter,
+      self.hosting_subscription.getTextContent())
+
+    # Check if owner can edit it 
+    self.logout()
+    self.login(self.person_user.getUserId())
+    self.changeSkin("Hal")
+
+    original_parameter = new_parameter
+    new_parameter = self.generateSafeXml()
+    kw['text_content'] = new_parameter
+
+    self.hosting_subscription.HostingSubscription_edit(**kw)
+
+    self.assertNotEqual(original_parameter,
+      self.hosting_subscription.getTextContent())
+
+    self.assertEqual(new_parameter,
+      self.hosting_subscription.getTextContent())
+
+  def test_HostingSubscription_edit_shared_instance(self):
+    self._makeTree()
+    project = self._makeProject()
+    self.hosting_subscription.edit(
+      monitor_scope="enabled",
+      upgrade_scope="auto",
+      short_title="X",
+      description="Y"
+    )
+
+    self.person_user.newContent(
+      portal_type="Assignment",
+      destination_project_value=project
+    ).open()
+
+    another_person = self._makePerson(user=1)
+    another_person.newContent(
+      portal_type="Assignment",
+      destination_project_value=project
+    ).open()
+
+    # Place instances on the project
+    self.logout()
+    self.login(self.person_user.getUserId())
+    self.assertEqual(self.hosting_subscription.HostingSubscription_createMovement(
+      destination_project=project.getRelativeUrl()), None)
+    self.login()
+    self.tic()
+    self.assertEqual(self.hosting_subscription.Item_getCurrentProjectValue(), project)
+
+    original_parameter = self.hosting_subscription.getTextContent()
+    self.changeSkin("Hal")
+    self.hosting_subscription.HostingSubscription_edit(
+      text_content=self.hosting_subscription.getTextContent(),
+      short_title=self.hosting_subscription.getShortTitle(),
+      description=self.hosting_subscription.getDescription()
+    )
+
+    self.assertEqual("enabled", self.hosting_subscription.getMonitorScope())
+    self.assertEqual("auto", self.hosting_subscription.getUpgradeScope())
+    self.assertEqual("X", self.hosting_subscription.getShortTitle())
+    self.assertEqual("Y", self.hosting_subscription.getDescription())
+    self.assertEqual(original_parameter,
+      self.hosting_subscription.getTextContent())
+
+    self.hosting_subscription.HostingSubscription_edit(
+      text_content=self.hosting_subscription.getTextContent(),
+      short_title="X1",
+      description="Y1",
+      monitor_scope="disabled",
+      upgrade_scope="disabled"
+    )
+
+    self.assertEqual("disabled", self.hosting_subscription.getMonitorScope())
+    self.assertEqual("disabled", self.hosting_subscription.getUpgradeScope())
+    self.assertEqual("X1", self.hosting_subscription.getShortTitle())
+    self.assertEqual("Y1", self.hosting_subscription.getDescription())
+    self.assertEqual(original_parameter,
+      self.hosting_subscription.getTextContent())
+
+    # Check if owner can edit it 
+    self.logout()
+    self.login(self.person_user.getUserId())
+    self.changeSkin("Hal")
+    self.hosting_subscription.HostingSubscription_edit(
+      text_content=self.hosting_subscription.getTextContent(),
+      short_title=self.hosting_subscription.getShortTitle(),
+      description=self.hosting_subscription.getDescription()
+    )
+
+    self.assertEqual("disabled", self.hosting_subscription.getMonitorScope())
+    self.assertEqual("disabled", self.hosting_subscription.getUpgradeScope())
+    self.assertEqual("X1", self.hosting_subscription.getShortTitle())
+    self.assertEqual("Y1", self.hosting_subscription.getDescription())
+    self.assertEqual(original_parameter,
+      self.hosting_subscription.getTextContent())
+
+    self.hosting_subscription.HostingSubscription_edit(
+      text_content=self.hosting_subscription.getTextContent(),
+      short_title="X2",
+      description="Y2",
+      monitor_scope="enabled",
+      upgrade_scope="auto"
+    )
+
+    self.assertEqual("enabled", self.hosting_subscription.getMonitorScope())
+    self.assertEqual("auto", self.hosting_subscription.getUpgradeScope())
+    self.assertEqual("X2", self.hosting_subscription.getShortTitle())
+    self.assertEqual("Y2", self.hosting_subscription.getDescription())
+    self.assertEqual(original_parameter,
+      self.hosting_subscription.getTextContent())
+
+    self.logout()
+    self.login(another_person.getUserId())
+    self.changeSkin("Hal")
+    self.hosting_subscription.HostingSubscription_edit(
+      text_content=self.hosting_subscription.getTextContent(),
+      short_title=self.hosting_subscription.getShortTitle(),
+      description=self.hosting_subscription.getDescription()
+    )
+
+    self.assertEqual("enabled", self.hosting_subscription.getMonitorScope())
+    self.assertEqual("auto", self.hosting_subscription.getUpgradeScope())
+    self.assertEqual("X2", self.hosting_subscription.getShortTitle())
+    self.assertEqual("Y2", self.hosting_subscription.getDescription())
+    self.assertEqual(original_parameter,
+      self.hosting_subscription.getTextContent())
+
+    self.hosting_subscription.HostingSubscription_edit(
+      text_content=self.hosting_subscription.getTextContent(),
+      short_title="X3",
+      description="Y3",
+      monitor_scope="disabled",
+      upgrade_scope="disabled"
+    )
+
+    self.assertEqual("disabled", self.hosting_subscription.getMonitorScope())
+    self.assertEqual("disabled", self.hosting_subscription.getUpgradeScope())
+    self.assertEqual("X3", self.hosting_subscription.getShortTitle())
+    self.assertEqual("Y3", self.hosting_subscription.getDescription())
+    self.assertEqual(original_parameter,
+      self.hosting_subscription.getTextContent())
+
+
+  def test_HostingSubscription_edit_shared_instance_request(self):
+    self._makeTree()
+    project = self._makeProject()
+    self.hosting_subscription.edit(
+      monitor_scope="enabled",
+      upgrade_scope="auto",
+      short_title="X",
+      description="Y"
+    )
+
+    self.person_user.newContent(
+      portal_type="Assignment",
+      destination_project_value=project
+    ).open()
+
+    another_person = self._makePerson(user=1)
+    another_person.newContent(
+      portal_type="Assignment",
+      destination_project_value=project
+    ).open()
+
+    # Place instances on the project
+    self.logout()
+    self.login(self.person_user.getUserId())
+    self.assertEqual(self.hosting_subscription.HostingSubscription_createMovement(
+      destination_project=project.getRelativeUrl()), None)
+    self.login()
+    self.tic()
+    self.assertEqual(self.hosting_subscription.Item_getCurrentProjectValue(), project)
+    kw = dict(
+      text_content=self.hosting_subscription.getTextContent(),
+      short_title=self.hosting_subscription.getShortTitle(),
+      description=self.hosting_subscription.getDescription())
+
+    original_parameter = self.hosting_subscription.getTextContent()
+    self.changeSkin("Hal")
+    self.hosting_subscription.HostingSubscription_edit(**kw)
+    self.assertEqual(original_parameter,
+      self.hosting_subscription.getTextContent())
+
+    new_parameter = self.generateSafeXml()
+    kw['text_content'] = new_parameter
+
+    self.hosting_subscription.HostingSubscription_edit(**kw)
+    self.assertNotEqual(original_parameter,
+      self.hosting_subscription.getTextContent())
+    self.assertEqual(new_parameter,
+      self.hosting_subscription.getTextContent())
+
+    # Check if owner can edit it
+    self.logout()
+    self.login(self.person_user.getUserId())
+    self.changeSkin("Hal")
+
+    original_parameter = new_parameter
+    new_parameter = self.generateSafeXml()
+    kw['text_content'] = new_parameter
+
+    self.hosting_subscription.HostingSubscription_edit(**kw)
+
+    self.assertNotEqual(original_parameter,
+      self.hosting_subscription.getTextContent())
+
+    self.assertEqual(new_parameter,
+      self.hosting_subscription.getTextContent())
+
+    self.login(another_person.getUserId())
+    self.changeSkin("Hal")
+
+    original_parameter = new_parameter
+    new_parameter = self.generateSafeXml()
+    kw['text_content'] = new_parameter
+
+    self.hosting_subscription.HostingSubscription_edit(**kw)
+
+    self.assertNotEqual(original_parameter,
+      self.hosting_subscription.getTextContent())
+
+    self.assertEqual(new_parameter,
+      self.hosting_subscription.getTextContent())
+
+
+
 
 
 

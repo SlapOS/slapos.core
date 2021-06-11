@@ -40,7 +40,7 @@
           return gadget.getSetting("hateoas_url")
             .push(function (url) {
               return gadget.jio_putAttachment(doc.relative_url,
-                url + doc.relative_url + "/SoftwareRelease_requestHostingSubscription", doc);
+                url + doc.relative_url + "/SoftwareRelease_requestInstanceTree", doc);
             });
         })
         .push(function () {
@@ -116,7 +116,7 @@
         .push(function (jio_key) {
           if (options.auto === undefined) {
             return gadget.redirect({"command": "change",
-              "options": {"jio_key": jio_key, "page": "slap_add_hosting_subscription",
+              "options": {"jio_key": jio_key, "page": "slap_add_instance_tree",
                           "title": options.title}});
           }
           // The auto is set, so we move foward to auto request the SR
@@ -165,7 +165,7 @@
                 query.push("sla_xml=" + encodeURIComponent(doc.sla_xml));
               }
               return gadget.jio_getAttachment(doc.relative_url,
-                url + doc.relative_url + "/SoftwareRelease_requestHostingSubscription?" + query.join("&"));
+                url + doc.relative_url + "/SoftwareRelease_requestInstanceTree?" + query.join("&"));
             })
             .push(function (key) {
               return gadget.notifySubmitted({message: gadget.message_tranlation, status: 'success'})

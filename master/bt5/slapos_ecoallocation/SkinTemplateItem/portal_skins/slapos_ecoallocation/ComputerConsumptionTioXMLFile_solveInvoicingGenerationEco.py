@@ -49,7 +49,7 @@ else:
         validation_state="validated")
 
       subscription = instance.getSpecialiseValue(
-        portal_type="Hosting Subscription")
+        portal_type="Instance Tree")
 
       person = subscription.getDestinationSectionValue(
         portal_type="Person")

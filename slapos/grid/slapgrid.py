@@ -857,7 +857,7 @@ stderr_logfile_backups=1
                                                             other_ip, ip))
       cmd_list.append('%s FORWARD 900 -s %s -d %s -j REJECT' % (command,
                                                               other_ip, ip))
-    # Accept on this hosting subscription
+    # Accept on this instance tree
     for other_ip in hosting_ip_list:
       cmd_list.append('%s INPUT 0 -s %s -d %s -j ACCEPT' % (command,
                                                             other_ip, ip))
@@ -884,7 +884,7 @@ stderr_logfile_backups=1
   def _setupComputerPartitionFirewall(self, computer_partition, ip_list, drop_entries=False):
     """
     Using linux iptables, limit access to IP of this partition to all 
-    others partitions of the same Hosting Subscription
+    others partitions of the same Instance Tree
     """
     ipv4_list = []
     ipv6_list = []

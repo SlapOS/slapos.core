@@ -12,10 +12,10 @@ import time
 
 class TestSlapOSAccounting(SlapOSTestCaseMixin):
 
-  def createHostingSubscription(self):
+  def createInstanceTree(self):
     new_id = self.generateNewId()
-    return self.portal.hosting_subscription_module.newContent(
-      portal_type='Hosting Subscription',
+    return self.portal.instance_tree_module.newContent(
+      portal_type='Instance Tree',
       title="Subscription %s" % new_id,
       reference="TESTHS-%s" % new_id,
       )
@@ -30,22 +30,22 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
 
   @withAbort
   def test_HS_calculateSubscriptionStartDate_REQUEST_disallowed(self):
-    item = self.createHostingSubscription()
+    item = self.createInstanceTree()
     self.assertRaises(
       Unauthorized,
-      item.HostingSubscription_calculateSubscriptionStartDate,
+      item.InstanceTree_calculateSubscriptionStartDate,
       REQUEST={})
 
   @withAbort
   def test_HS_calculateSubscriptionStartDate_noWorkflow(self):
-    item = self.createHostingSubscription()
+    item = self.createInstanceTree()
     item.workflow_history['instance_slap_interface_workflow'] = []
-    date = item.HostingSubscription_calculateSubscriptionStartDate()
+    date = item.InstanceTree_calculateSubscriptionStartDate()
     self.assertEqual(date, item.getCreationDate().earliestTime())
 
   @withAbort
   def test_HS_calculateSubscriptionStartDate_withRequest(self):
-    item = self.createHostingSubscription()
+    item = self.createInstanceTree()
     item.workflow_history['instance_slap_interface_workflow'] = [{
         'comment':'Directly request the instance',
         'error_message': '',
@@ -54,12 +54,12 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
         'time': DateTime('2012/11/15 11:11'),
         'action': 'request_instance'
         }]
-    date = item.HostingSubscription_calculateSubscriptionStartDate()
+    date = item.InstanceTree_calculateSubscriptionStartDate()
     self.assertEqual(date, DateTime('2012/11/15'))
 
   @withAbort
   def test_HS_calculateSubscriptionStartDate_withRequestEndOfMonth(self):
-    item = self.createHostingSubscription()
+    item = self.createInstanceTree()
     item.workflow_history['instance_slap_interface_workflow'] = [{
         'comment':'Directly request the instance',
         'error_message': '',
@@ -68,12 +68,12 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
         'time': DateTime('2012/11/30 11:11'),
         'action': 'request_instance'
     }]
-    date = item.HostingSubscription_calculateSubscriptionStartDate()
+    date = item.InstanceTree_calculateSubscriptionStartDate()
     self.assertEqual(date, DateTime('2012/11/30'))
 
   @withAbort
   def test_HS_calculateSubscriptionStartDate_withRequestAfterDestroy(self):
-    item = self.createHostingSubscription()
+    item = self.createInstanceTree()
     destroy_date = DateTime('2012/10/30 11:11')
     request_date = DateTime('2012/11/30 11:11')
     item.workflow_history['instance_slap_interface_workflow'] = []
@@ -93,20 +93,20 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
         'time': request_date,
         'action': 'request_instance'
     })
-    date = item.HostingSubscription_calculateSubscriptionStartDate()
+    date = item.InstanceTree_calculateSubscriptionStartDate()
     self.assertEqual(date, DateTime('2012/10/30'))
 
   @withAbort
   def test_HS_calculateSubscriptionStopDate_REQUEST_disallowed(self):
-    item = self.createHostingSubscription()
+    item = self.createInstanceTree()
     self.assertRaises(
       Unauthorized,
-      item.HostingSubscription_calculateSubscriptionStopDate,
+      item.InstanceTree_calculateSubscriptionStopDate,
       REQUEST={})
 
   @withAbort
   def test_HS_calculateSubscriptionStopDate_withDestroy(self):
-    item = self.createHostingSubscription()
+    item = self.createInstanceTree()
     destroy_date = DateTime('2012/10/30')
     item.workflow_history['instance_slap_interface_workflow'].append({
         'comment':'Directly destroy',
@@ -116,14 +116,14 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
         'time': destroy_date,
         'action': 'request_destroy'
     })
-    date = item.HostingSubscription_calculateSubscriptionStopDate()
+    date = item.InstanceTree_calculateSubscriptionStopDate()
     self.assertEqual(date, DateTime('2012/10/31'))
 
   @withAbort
   def test_HS_calculateSubscriptionStopDate_noDestroy(self):
-    item = self.createHostingSubscription()
+    item = self.createInstanceTree()
     item.workflow_history['instance_slap_interface_workflow'] = []
-    date = item.HostingSubscription_calculateSubscriptionStopDate()
+    date = item.InstanceTree_calculateSubscriptionStopDate()
     self.assertEqual(date, None)
 
   def test_OpenSaleOrder_reindexIfIndexedBeforeLine_no_line(self):

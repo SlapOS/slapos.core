@@ -87,7 +87,7 @@
                     <key> <string>right</string> </key>
                     <value>
                       <list>
-                        <string>your_hosting_subscription_uid</string>
+                        <string>your_instance_tree_uid</string>
                         <string>your_hosting_validation_state</string>
                       </list>
                     </value>

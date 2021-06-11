@@ -4368,7 +4368,7 @@ HTTP Exchange
   Visible: 1
   Index: 1.0
 
-Hosting Subscription
+Instance Tree
   Reference: jump_to_related_open_order_line
   Title: Related Open Order Line
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=aggregate&portal_type=Open%20%Sale%20Order%20%Line&validation_state=validated
@@ -4378,7 +4378,7 @@ Hosting Subscription
   Visible: 1
   Index: 2.0
 
-Hosting Subscription
+Instance Tree
   Reference: jump_to_related_subscription_request
   Title: Related Subscription Request
   Action: string:${object_url}/Base_jumpToRelatedObject?base_category=aggregate&portal_type=Subscription%20Request
@@ -4388,7 +4388,7 @@ Hosting Subscription
   Visible: 1
   Index: 1.0
 
-Hosting Subscription
+Instance Tree
   Reference: jump_to_related_upgrade_decision_line
   Title: Related Upgrade Decision Line
   Action: string:${object_url}/Base_jumpToRelatedObjectList?base_category=aggregate&portal_type=Upgrade%20Decision%20%Line&simulation_state=confirmed
@@ -4398,7 +4398,7 @@ Hosting Subscription
   Visible: 1
   Index: 3.2
 
-Hosting Subscription
+Instance Tree
   Reference: periodicity
   Title: Periodicity
   Action: string:${object_url}/Periodicity_view
@@ -4408,77 +4408,77 @@ Hosting Subscription
   Visible: 1
   Index: 2.0
 
-Hosting Subscription
+Instance Tree
   Reference: request_hs_start
   Title: Request Start
-  Action: string:${object_url}/HostingSubscription_requestStart
+  Action: string:${object_url}/InstanceTree_requestStart
   Icon: None
   Permission: Modify portal content
   Action Type: object_action
   Visible: 1
   Index: 1.0
 
-Hosting Subscription
+Instance Tree
   Reference: request_hs_stop
   Title: Request Stop
-  Action: string:${object_url}/HostingSubscription_requestStop
+  Action: string:${object_url}/InstanceTree_requestStop
   Icon: None
   Permission: Modify portal content
   Action Type: object_action
   Visible: 1
   Index: 1.0
 
-Hosting Subscription
+Instance Tree
   Reference: slaposjs_view
   Title: View
-  Action: string:${object_url}/HostingSubscription_viewAsHateoas
+  Action: string:${object_url}/InstanceTree_viewAsHateoas
   Icon: None
   Permission: View
   Action Type: object_jio_view
   Visible: 1
   Index: 10.0
 
-Hosting Subscription
+Instance Tree
   Reference: view
   Title: View
-  Action: string:${object_url}/HostingSubscription_view
+  Action: string:${object_url}/InstanceTree_view
   Icon: None
   Permission: View
   Action Type: object_view
   Visible: 1
   Index: 1.0
 
-Hosting Subscription
+Instance Tree
   Reference: view_request_destroy
   Title: Request Destroy
-  Action: string:${object_url}/HostingSubscription_viewRequestDestroy
+  Action: string:${object_url}/InstanceTree_viewRequestDestroy
   Icon: None
   Permission: Modify portal content
   Action Type: object_action
   Visible: 1
   Index: 1.0
 
-Hosting Subscription
+Instance Tree
   Reference: view_ticket
   Title: Ticket
-  Action: string:${object_url}/HostingSubscription_viewTicket
+  Action: string:${object_url}/InstanceTree_viewTicket
   Icon: None
   Permission: View
   Action Type: object_view
   Visible: 1
   Index: 3.0
 
-Hosting Subscription Module
+Instance Tree Module
   Reference: slapos_resilience_usage_report
   Title: SlapOS Resilience Usage Report
-  Action: string:${object_url}/HostingSubscriptionModule_viewResilienceUsageReportDialog
+  Action: string:${object_url}/InstanceTreeModule_viewResilienceUsageReportDialog
   Icon: None
   Permission: View
   Action Type: object_report
   Visible: 1
   Index: 3.0
 
-Hosting Subscription Module
+Instance Tree Module
   Reference: slaposjs_view
   Title: View
   Action: string:${object_url}/Base_viewDummyAsHateoas
@@ -4488,10 +4488,10 @@ Hosting Subscription Module
   Visible: 1
   Index: 10.0
 
-Hosting Subscription Module
+Instance Tree Module
   Reference: view
   Title: View
-  Action: string:${object_url}/HostingSubscriptionModule_viewHostingSubscriptionList
+  Action: string:${object_url}/InstanceTreeModule_viewInstanceTreeList
   Icon: None
   Permission: View
   Action Type: object_list
@@ -8199,9 +8199,9 @@ Person
   Index: 30.2
 
 Person
-  Reference: jump_to_hosting_subscription
-  Title: Hosting Subscriptions
-  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=destination_section&portal_type=Hosting+Subscription
+  Reference: jump_to_instance_tree
+  Title: Instance Trees
+  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=destination_section&portal_type=Instance+Tree
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -8279,9 +8279,9 @@ Person
   Index: 23.0
 
 Person
-  Reference: request_hateoas_hosting_subscription
-  Title: requestHateoasHostingSubscription
-  Action: string:${object_url}/Person_requestHateoasHostingSubscription
+  Reference: request_hateoas_instance_tree
+  Title: requestHateoasInstanceTree
+  Action: string:${object_url}/Person_requestHateoasInstanceTree
   Icon: None
   Permission: View
   Action Type: object_slap_post
@@ -13729,9 +13729,9 @@ SlapOS Accounting Quantity Updating Order Builder
   Index: 2.0
 
 Slave Instance
-  Reference: jump_to_hosting_subscription
-  Title: Hosting Subscription
-  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=specialise&portal_type:list=Hosting+Subscription
+  Reference: jump_to_instance_tree
+  Title: Instance Tree
+  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=specialise&portal_type:list=Instance+Tree
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -13829,9 +13829,9 @@ Software Instance
   Index: 21.0
 
 Software Instance
-  Reference: jump_to_hosting_subscription
-  Title: Hosting Subscription
-  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=specialise&portal_type:list=Hosting+Subscription
+  Reference: jump_to_instance_tree
+  Title: Instance Tree
+  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=specialise&portal_type:list=Instance+Tree
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -13841,7 +13841,7 @@ Software Instance
 Software Instance
   Reference: jump_to_software_instance
   Title: Requester Instance
-  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=successor&portal_type:list=Software+Instance&portal_type:list=Hosting+Subscription
+  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=successor&portal_type:list=Software+Instance&portal_type:list=Instance+Tree
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -14960,8 +14960,8 @@ Support Request
 
 Support Request
   Reference: jump_related_slapos_item
-  Title: Related Hosting Subscription, Computer or Software Installation
-  Action: string:${object_url}/Base_jumpToRelationObject?base_category=aggregate&portal_type:list=Hosting%20Subscription&portal_type:list=Computer&portal_type:list=Software%20Installation
+  Title: Related Instance Tree, Computer or Software Installation
+  Action: string:${object_url}/Base_jumpToRelationObject?base_category=aggregate&portal_type:list=Instance%20Tree&portal_type:list=Computer&portal_type:list=Software%20Installation
   Icon: None
   Permission: View
   Action Type: object_jump

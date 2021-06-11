@@ -54,23 +54,23 @@ class TestCRMSkinsMixin(SlapOSTestCaseMixinWithAbort):
     assignment.open()
     return assignment
 
-  def _makeHostingSubscription(self):
+  def _makeInstanceTree(self):
     person = self.portal.person_module.template_member\
          .Base_createCloneDocument(batch_mode=1)
-    hosting_subscription = self.portal\
-      .hosting_subscription_module.template_hosting_subscription\
+    instance_tree = self.portal\
+      .instance_tree_module.template_instance_tree\
       .Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
+    instance_tree.validate()
     new_id = self.generateNewId()
-    hosting_subscription.edit(
+    instance_tree.edit(
         title= "Test hosting sub ticket %s" % new_id,
         reference="TESTHST-%s" % new_id,
         destination_section_value=person
     )
 
-    return hosting_subscription
+    return instance_tree
 
-  def _makeSoftwareInstance(self, hosting_subscription, software_url):
+  def _makeSoftwareInstance(self, instance_tree, software_url):
 
     kw = dict(
       software_release=software_url,
@@ -78,11 +78,11 @@ class TestCRMSkinsMixin(SlapOSTestCaseMixinWithAbort):
       instance_xml=self.generateSafeXml(),
       sla_xml=self.generateSafeXml(),
       shared=False,
-      software_title=hosting_subscription.getTitle(),
+      software_title=instance_tree.getTitle(),
       state='started'
     )
-    hosting_subscription.requestStart(**kw)
-    hosting_subscription.requestInstance(**kw)
+    instance_tree.requestStart(**kw)
+    instance_tree.requestInstance(**kw)
 
 
   def _makeSoftwareInstallation(self):
@@ -108,20 +108,20 @@ class TestSlapOSSupportRequestModule_getMonitoringUrlList(TestCRMSkinsMixin):
     # We assume here that several objects created by others tests don't influentiate
     # this test.
     self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])
-    hosting_subscription = self._makeHostingSubscription()
-    self._makeSoftwareInstance(hosting_subscription, "https://xxx/")
+    instance_tree = self._makeInstanceTree()
+    self._makeSoftwareInstance(instance_tree, "https://xxx/")
     support_request = module.newContent(portal_type="Support Request")
     self.tic()
 
     self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])
-    support_request.setAggregateValue(hosting_subscription)
+    support_request.setAggregateValue(instance_tree)
     support_request.validate()
-    self.assertNotEqual(hosting_subscription.getSuccessorList(), [])
+    self.assertNotEqual(instance_tree.getSuccessorList(), [])
 
     self.tic()
     self.assertEqual(module.SupportRequestModule_getMonitoringUrlList(), [])
     
-    instance = hosting_subscription.getSuccessorValue()
+    instance = instance_tree.getSuccessorValue()
     instance.setConnectionXml("""<?xml version='1.0' encoding='utf-8'?>
 <instance>
   <parameter id="aa">xx</parameter>
@@ -148,12 +148,12 @@ class TestSlapOSSupportRequestModule_getMonitoringUrlList(TestCRMSkinsMixin):
     monitor_url_temp_document_list = module.SupportRequestModule_getMonitoringUrlList()
     self.assertEqual(len(monitor_url_temp_document_list), 1)
     self.assertEqual(monitor_url_temp_document_list[0].title,
-                     hosting_subscription.getTitle())
+                     instance_tree.getTitle())
     self.assertEqual(monitor_url_temp_document_list[0].monitor_url,
                      "http://monitor.url/#/ABC")
     support_request.invalidate()
     self.tic()
-    self.assertNotEqual(hosting_subscription.getSuccessorList(), [])
+    self.assertNotEqual(instance_tree.getSuccessorList(), [])
 
 class TestSlapOSFolder_getOpenTicketList(TestCRMSkinsMixin):
 
@@ -274,9 +274,9 @@ class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
     self._test_getOpenRelatedTicketList_support_request_related(
       self._makeComputer()[0])
 
-  def test_getOpenRelatedTicketList_support_request_related_to_hosting_subscription(self):
+  def test_getOpenRelatedTicketList_support_request_related_to_instance_tree(self):
     self._test_getOpenRelatedTicketList_support_request_related(
-      self._makeHostingSubscription())
+      self._makeInstanceTree())
 
   def _test_getOpenRelatedTicketList_support_request_related(self, document):
     ticket = self.portal.support_request_module.newContent(\
@@ -321,9 +321,9 @@ class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
     self._test_getOpenRelatedTicketList_cancelled_support_request_related(
       self._makeComputer()[0])
 
-  def test_getOpenRelatedTicketList_cancelled_support_request_related_to_hosting_subscription(self):
+  def test_getOpenRelatedTicketList_cancelled_support_request_related_to_instance_tree(self):
     self._test_getOpenRelatedTicketList_cancelled_support_request_related(
-      self._makeHostingSubscription())
+      self._makeInstanceTree())
 
   def _test_getOpenRelatedTicketList_cancelled_support_request_related(self, document):
     ticket = self.portal.support_request_module.newContent(\
@@ -355,9 +355,9 @@ class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
     self._test_getOpenRelatedTicketList_upgrade_decision_related(
       self._makeComputer()[0])
 
-  def test_getOpenRelatedTicketList_upgrade_decision_related_to_hosting_subscription(self):
+  def test_getOpenRelatedTicketList_upgrade_decision_related_to_instance_tree(self):
     self._test_getOpenRelatedTicketList_upgrade_decision_related(
-      self._makeHostingSubscription())
+      self._makeInstanceTree())
 
   def _test_getOpenRelatedTicketList_upgrade_decision_related(self, document):
     def newUpgradeDecision():
@@ -417,9 +417,9 @@ class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
     self._test_getOpenRelatedTicketList_cancelled_upgrade_decision_related(
       self._makeComputer()[0])
 
-  def test_getOpenRelatedTicketList_cancelled_upgrade_decision_related_to_hosting_subscription(self):
+  def test_getOpenRelatedTicketList_cancelled_upgrade_decision_related_to_instance_tree(self):
     self._test_getOpenRelatedTicketList_cancelled_upgrade_decision_related(
-      self._makeHostingSubscription())
+      self._makeInstanceTree())
 
   def _test_getOpenRelatedTicketList_cancelled_upgrade_decision_related(self, document):
     def newUpgradeDecision():
@@ -1021,11 +1021,11 @@ class TestSlapOSGenerateSupportRequestForSlapOS(TestCRMSkinsMixin):
                       self.computer)
 
   def test_software_instance_Base_generateSupportRequestForSlapOS(self):
-    hosting_subscription = self._makeHostingSubscription()
-    self._makeSoftwareInstance(hosting_subscription,
+    instance_tree = self._makeInstanceTree()
+    self._makeSoftwareInstance(instance_tree,
                                self.generateNewSoftwareReleaseUrl())
 
-    instance = hosting_subscription.getSuccessorValue()
+    instance = instance_tree.getSuccessorValue()
     title = "Test Support Request %s" % instance.getReference()
     support_request = instance.Base_generateSupportRequestForSlapOS(
       title, title, instance.getRelativeUrl()
@@ -1040,18 +1040,18 @@ class TestSlapOSGenerateSupportRequestForSlapOS(TestCRMSkinsMixin):
 
     # The support request is added to computer owner.
     self.assertEqual(support_request.getDestinationDecision(),
-                      hosting_subscription.getDestinationSection())
+                      instance_tree.getDestinationSection())
     self.assertEqual(support_request.getTitle(), title)
     self.assertEqual(support_request.getDescription(), title)
     self.assertEqual(support_request.getAggregateValue(),
                       instance)
 
-  def test_hosting_subscription_Base_generateSupportRequestForSlapOS(self):
-    hosting_subscription = self._makeHostingSubscription()
+  def test_instance_tree_Base_generateSupportRequestForSlapOS(self):
+    instance_tree = self._makeInstanceTree()
 
-    title = "Test Support Request %s" % hosting_subscription.getReference()
-    support_request = hosting_subscription.Base_generateSupportRequestForSlapOS(
-      title, title, hosting_subscription.getRelativeUrl()
+    title = "Test Support Request %s" % instance_tree.getReference()
+    support_request = instance_tree.Base_generateSupportRequestForSlapOS(
+      title, title, instance_tree.getRelativeUrl()
     )
     self.tic()
 
@@ -1063,12 +1063,12 @@ class TestSlapOSGenerateSupportRequestForSlapOS(TestCRMSkinsMixin):
 
     # The support request is added to computer owner.
     self.assertEqual(support_request.getDestinationDecision(),
-                      hosting_subscription.getDestinationSection())
+                      instance_tree.getDestinationSection())
 
     self.assertEqual(support_request.getTitle(), title)
     self.assertEqual(support_request.getDescription(), title)
     self.assertEqual(support_request.getAggregateValue(),
-                      hosting_subscription)
+                      instance_tree)
 
   def test_software_installation_Base_generateSupportRequestForSlapOS(self):
     software_installation = self._makeSoftwareInstallation()
@@ -1336,7 +1336,7 @@ class TestSlapOSComputer_CheckState(TestCRMSkinsMixin):
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
 
-class TestSlapOSHostingSubscription_createSupportRequestEvent(SlapOSTestCaseMixin):
+class TestSlapOSInstanceTree_createSupportRequestEvent(SlapOSTestCaseMixin):
 
   def _makeNotificationMessage(self, reference):
     notification_message = self.portal.notification_message_module.newContent(
@@ -1348,27 +1348,27 @@ class TestSlapOSHostingSubscription_createSupportRequestEvent(SlapOSTestCaseMixi
 
     return notification_message.getRelativeUrl()
 
-  def _makeHostingSubscription(self):
+  def _makeInstanceTree(self):
     person = self.portal.person_module.template_member\
          .Base_createCloneDocument(batch_mode=1)
-    hosting_subscription = self.portal\
-      .hosting_subscription_module.template_hosting_subscription\
+    instance_tree = self.portal\
+      .instance_tree_module.template_instance_tree\
       .Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
+    instance_tree.validate()
     new_id = self.generateNewId()
-    hosting_subscription.edit(
+    instance_tree.edit(
         title= "Test hosting sub ticket %s" % new_id,
         reference="TESTHST-%s" % new_id,
         destination_section_value=person
     )
 
-    return hosting_subscription
+    return instance_tree
 
-  def _getGeneratedSupportRequest(self, hosting_suscription_uid):
+  def _getGeneratedSupportRequest(self, instance_tree_uid):
     support_request = self.portal.portal_catalog.getResultValue(
           portal_type = 'Support Request',
           simulation_state = "validated",
-          default_aggregate_uid = hosting_suscription_uid
+          default_aggregate_uid = instance_tree_uid
     )
     return support_request
 
@@ -1378,65 +1378,65 @@ class TestSlapOSHostingSubscription_createSupportRequestEvent(SlapOSTestCaseMixi
             'reference=None',
   'assert reference == "test-slapos-crm-check.notification"\n' \
   'return context.restrictedTraverse(' \
-  'context.REQUEST["testHostingSubscription_createSupportRequestEvent"])')
+  'context.REQUEST["testInstanceTree_createSupportRequestEvent"])')
   @simulate('SupportRequest_trySendNotificationMessage',
             'message_title, message, destination_relative_url',
   'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
   'comment="Visited by SupportRequest_trySendNotificationMessage ' \
   '%s %s %s" % (message_title, message, destination_relative_url))')
-  def testHostingSubscription_createSupportRequestEvent(self):
-    hosting_subscription = self._makeHostingSubscription()
-    person =  hosting_subscription.getDestinationSectionValue()
-    self.portal.REQUEST['testHostingSubscription_createSupportRequestEvent'] = \
-        self._makeNotificationMessage(hosting_subscription.getReference())
+  def testInstanceTree_createSupportRequestEvent(self):
+    instance_tree = self._makeInstanceTree()
+    person =  instance_tree.getDestinationSectionValue()
+    self.portal.REQUEST['testInstanceTree_createSupportRequestEvent'] = \
+        self._makeNotificationMessage(instance_tree.getReference())
 
-    hosting_subscription.HostingSubscription_createSupportRequestEvent(
-      hosting_subscription, "test-slapos-crm-check.notification")
+    instance_tree.InstanceTree_createSupportRequestEvent(
+      instance_tree, "test-slapos-crm-check.notification")
 
     self.tic()
-    ticket_title = "Hosting Subscription %s is failing." % hosting_subscription.getTitle()
+    ticket_title = "Instance Tree %s is failing." % instance_tree.getTitle()
     ticket = self._getGeneratedSupportRequest(
-      hosting_subscription.getUid())
+      instance_tree.getUid())
     self.assertNotEqual(ticket, None)
     self.assertEqual(ticket.getSimulationState(), "validated")
     self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \
       '%s %s %s' % ( \
       ticket_title,
-      'Test NM content\n%s\n' % hosting_subscription.getReference(),
+      'Test NM content\n%s\n' % instance_tree.getReference(),
       person.getRelativeUrl()),
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
     ticket.suspend()
     self.tic()
     self.assertEqual(None, self._getGeneratedSupportRequest(
-      hosting_subscription.getUid()))
+      instance_tree.getUid()))
 
-    hosting_subscription.HostingSubscription_createSupportRequestEvent(
-      hosting_subscription, "test-slapos-crm-check.notification")
+    instance_tree.InstanceTree_createSupportRequestEvent(
+      instance_tree, "test-slapos-crm-check.notification")
     self.tic()
 
     ticket = self._getGeneratedSupportRequest(
-      hosting_subscription.getUid())
+      instance_tree.getUid())
     # Do not reopen the ticket if it is suspended
     self.assertEqual(None, ticket)
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 1')
   @simulate('SoftwareInstance_hasReportedError', '*args, **kwargs','return "MSG"')
-  def testHostingSubscription_createSupportRequestEvent_closed(self):
-    hosting_subscription = self._makeHostingSubscription()
+  def testInstanceTree_createSupportRequestEvent_closed(self):
+    instance_tree = self._makeInstanceTree()
     self.assertEqual(None,
-      hosting_subscription.HostingSubscription_createSupportRequestEvent(
-         hosting_subscription, "test-slapos-crm-check.notification"))
+      instance_tree.InstanceTree_createSupportRequestEvent(
+         instance_tree, "test-slapos-crm-check.notification"))
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   @simulate('SoftwareInstance_hasReportedError', '*args, **kwargs','return "MSG"')
-  def testHostingSubscription_createSupportRequestEvent_no_person(self):
-    hosting_subscription = self._makeHostingSubscription()
-    hosting_subscription.setDestinationSectionValue(None)
+  def testInstanceTree_createSupportRequestEvent_no_person(self):
+    instance_tree = self._makeInstanceTree()
+    instance_tree.setDestinationSectionValue(None)
     self.assertEqual(None,
-      hosting_subscription.HostingSubscription_createSupportRequestEvent(
-         hosting_subscription, "test-slapos-crm-check.notification"))
+      instance_tree.InstanceTree_createSupportRequestEvent(
+         instance_tree, "test-slapos-crm-check.notification"))
 
 class TestSlapOSHasError(SlapOSTestCaseMixin):
 
@@ -1471,7 +1471,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
     return software_installation
 
-  def _makeSoftwareInstance(self, hosting_subscription, software_url):
+  def _makeSoftwareInstance(self, instance_tree, software_url):
 
     kw = dict(
       software_release=software_url,
@@ -1479,27 +1479,27 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
       instance_xml=self.generateSafeXml(),
       sla_xml=self.generateSafeXml(),
       shared=False,
-      software_title=hosting_subscription.getTitle(),
+      software_title=instance_tree.getTitle(),
       state='started'
     )
-    hosting_subscription.requestStart(**kw)
-    hosting_subscription.requestInstance(**kw)
+    instance_tree.requestStart(**kw)
+    instance_tree.requestInstance(**kw)
 
-  def _makeHostingSubscription(self):
+  def _makeInstanceTree(self):
     person = self.portal.person_module.template_member\
          .Base_createCloneDocument(batch_mode=1)
-    hosting_subscription = self.portal\
-      .hosting_subscription_module.template_hosting_subscription\
+    instance_tree = self.portal\
+      .instance_tree_module.template_instance_tree\
       .Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
+    instance_tree.validate()
     new_id = self.generateNewId()
-    hosting_subscription.edit(
+    instance_tree.edit(
         title= "Test hosting sub ticket %s" % new_id,
         reference="TESTHST-%s" % new_id,
         destination_section_value=person
     )
 
-    return hosting_subscription
+    return instance_tree
 
   def _makeComputerPartitionList(self):
     for i in range(1, 5):
@@ -1514,10 +1514,10 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
       p.validate()
 
   def test_SoftwareInstance_hasReportedError(self):
-    hosting_subscription = self._makeHostingSubscription()
-    self._makeSoftwareInstance(hosting_subscription, 
+    instance_tree = self._makeInstanceTree()
+    self._makeSoftwareInstance(instance_tree, 
         self.generateNewSoftwareReleaseUrl())
-    instance = hosting_subscription.getSuccessorValue()
+    instance = instance_tree.getSuccessorValue()
 
     self._makeComputer()
     self._makeComputerPartitionList()
@@ -1570,11 +1570,11 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     self.assertEqual(installation.SoftwareInstallation_hasReportedError(), None)
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
-  @simulate('HostingSubscription_createSupportRequestEvent',
+  @simulate('InstanceTree_createSupportRequestEvent',
             'instance, notification_message_reference',
-  'return "Visited by HostingSubscription_createSupportRequestEvent ' \
+  'return "Visited by InstanceTree_createSupportRequestEvent ' \
   '%s %s" % (instance.getUid(), notification_message_reference)')
-  def testHostingSubscription_checkSoftwareInstanceState(self):
+  def testInstanceTree_checkSoftwareInstanceState(self):
     date = DateTime()
     def getCreationDate(*args, **kwargs):
       return date - 2
@@ -1584,13 +1584,13 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     original_get_creation = Base.getCreationDate
     Base.getCreationDate = getCreationDate
     try:
-      hosting_subscription = self._makeHostingSubscription()
+      instance_tree = self._makeInstanceTree()
 
-      self.assertEqual(hosting_subscription.getCreationDate(), date - 2)
+      self.assertEqual(instance_tree.getCreationDate(), date - 2)
 
-      self._makeSoftwareInstance(hosting_subscription,
+      self._makeSoftwareInstance(instance_tree,
           self.generateNewSoftwareReleaseUrl())
-      instance = hosting_subscription.getSuccessorValue()
+      instance = instance_tree.getSuccessorValue()
 
       self.assertEqual(instance.getCreationDate(), date - 2)
 
@@ -1608,17 +1608,17 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
       )
 
       self.assertEqual(
-        'Visited by HostingSubscription_createSupportRequestEvent %s %s' % \
+        'Visited by InstanceTree_createSupportRequestEvent %s %s' % \
         (instance.getUid(),
-         "slapos-crm-hosting-subscription-instance-state.notification"),
-        hosting_subscription.HostingSubscription_checkSoftwareInstanceState())
+         "slapos-crm-instance-tree-instance-state.notification"),
+        instance_tree.InstanceTree_checkSoftwareInstanceState())
 
       memcached_dict[instance.getReference()] = json.dumps(
           {"created_at":"%s" % error_date, "text": "#access "}
       )
 
       self.assertEqual(None,
-        hosting_subscription.HostingSubscription_checkSoftwareInstanceState())
+        instance_tree.InstanceTree_checkSoftwareInstanceState())
 
 
     finally:
@@ -1629,11 +1629,11 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
-  @simulate('HostingSubscription_createSupportRequestEvent',
+  @simulate('InstanceTree_createSupportRequestEvent',
             'instance, notification_message_reference',
-  'return "Visited by HostingSubscription_createSupportRequestEvent ' \
+  'return "Visited by InstanceTree_createSupportRequestEvent ' \
   '%s %s" % (instance.getUid(), notification_message_reference)')
-  def testHostingSubscription_checkSoftwareInstanceState_tolerance(self):
+  def testInstanceTree_checkSoftwareInstanceState_tolerance(self):
     date = DateTime()
     def getCreationDate(*args, **kwargs):
       return date - 2
@@ -1643,13 +1643,13 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     original_get_creation = Base.getCreationDate
     Base.getCreationDate = getCreationDate
     try:
-      hosting_subscription = self._makeHostingSubscription()
+      instance_tree = self._makeInstanceTree()
 
-      self.assertEqual(hosting_subscription.getCreationDate(), date - 2)
+      self.assertEqual(instance_tree.getCreationDate(), date - 2)
 
-      self._makeSoftwareInstance(hosting_subscription,
+      self._makeSoftwareInstance(instance_tree,
           self.generateNewSoftwareReleaseUrl())
-      instance = hosting_subscription.getSuccessorValue()
+      instance = instance_tree.getSuccessorValue()
 
       self.assertEqual(instance.getCreationDate(), date - 2)
 
@@ -1668,7 +1668,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
       # With tolerance of 30 min this should create SupportRequests immediately
       self.assertEqual(None,
-        hosting_subscription.HostingSubscription_checkSoftwareInstanceState())
+        instance_tree.InstanceTree_checkSoftwareInstanceState())
 
     finally:
       Base.getCreationDate = original_get_creation
@@ -1678,11 +1678,11 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
-  @simulate('HostingSubscription_createSupportRequestEvent',
+  @simulate('InstanceTree_createSupportRequestEvent',
             'instance, notification_message_reference',
-  'return "Visited by HostingSubscription_createSupportRequestEvent ' \
+  'return "Visited by InstanceTree_createSupportRequestEvent ' \
   '%s %s" % (instance.getRelativeUrl(), notification_message_reference)')
-  def testHostingSubscription_checkSoftwareInstanceState_partially_allocation(self):
+  def testInstanceTree_checkSoftwareInstanceState_partially_allocation(self):
     date = DateTime()
     def getCreationDate(*args, **kwargs):
       return date - 2
@@ -1692,13 +1692,13 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     original_get_creation = Base.getCreationDate
     Base.getCreationDate = getCreationDate
     try:
-      hosting_subscription = self._makeHostingSubscription()
+      instance_tree = self._makeInstanceTree()
 
-      self.assertEqual(hosting_subscription.getCreationDate(), date - 2)
+      self.assertEqual(instance_tree.getCreationDate(), date - 2)
 
-      self._makeSoftwareInstance(hosting_subscription,
+      self._makeSoftwareInstance(instance_tree,
           self.generateNewSoftwareReleaseUrl())
-      instance = hosting_subscription.getSuccessorValue()
+      instance = instance_tree.getSuccessorValue()
 
       self.assertEqual(instance.getCreationDate(), date - 2)
 
@@ -1707,7 +1707,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
       instance.setAggregateValue(self.computer.partition1)
 
       kw = dict(
-        software_release=hosting_subscription.getUrlString(),
+        software_release=instance_tree.getUrlString(),
         software_type=self.generateNewSoftwareType(),
         instance_xml=self.generateSafeXml(),
         sla_xml=self.generateSafeXml(),
@@ -1727,10 +1727,10 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
       )
 
       self.assertEqual(
-        'Visited by HostingSubscription_createSupportRequestEvent %s %s' % \
+        'Visited by InstanceTree_createSupportRequestEvent %s %s' % \
         (instance.getSuccessor(portal_type="Software Instance"),
-         "slapos-crm-hosting-subscription-instance-allocation.notification"),
-        hosting_subscription.HostingSubscription_checkSoftwareInstanceState())
+         "slapos-crm-instance-tree-instance-allocation.notification"),
+        instance_tree.InstanceTree_checkSoftwareInstanceState())
 
       kw["state"] = "destroyed"
       instance.requestInstance(**kw)
@@ -1738,7 +1738,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
       self.assertEqual(
         None,
-        hosting_subscription.HostingSubscription_checkSoftwareInstanceState())
+        instance_tree.InstanceTree_checkSoftwareInstanceState())
 
     finally:
       Base.getCreationDate = original_get_creation
@@ -1747,12 +1747,12 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
       transaction.commit()
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
-  def testHostingSubscription_checkSoftwareInstanceState_too_early(self):
-    hosting_subscription = self._makeHostingSubscription()
+  def testInstanceTree_checkSoftwareInstanceState_too_early(self):
+    instance_tree = self._makeInstanceTree()
 
-    self._makeSoftwareInstance(hosting_subscription,
+    self._makeSoftwareInstance(instance_tree,
         self.generateNewSoftwareReleaseUrl())
-    instance = hosting_subscription.getSuccessorValue()
+    instance = instance_tree.getSuccessorValue()
 
 
     self._makeComputer()
@@ -1770,7 +1770,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
     self.assertEqual(
         None,
-        hosting_subscription.HostingSubscription_checkSoftwareInstanceState())
+        instance_tree.InstanceTree_checkSoftwareInstanceState())
 
 class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
 
@@ -1863,21 +1863,21 @@ class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
 
 class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
 
-  def _makeHostingSubscription(self):
+  def _makeInstanceTree(self):
     person = self.portal.person_module.template_member\
          .Base_createCloneDocument(batch_mode=1)
-    hosting_subscription = self.portal\
-      .hosting_subscription_module.template_hosting_subscription\
+    instance_tree = self.portal\
+      .instance_tree_module.template_instance_tree\
       .Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
+    instance_tree.validate()
     new_id = self.generateNewId()
-    hosting_subscription.edit(
+    instance_tree.edit(
         title= "Test hosting sub ticket %s" % new_id,
         reference="TESTHST-%s" % new_id,
         destination_section_value=person
     )
 
-    return hosting_subscription
+    return instance_tree
 
   def _makeSupportRequest(self):
     return self.portal.restrictedTraverse(
@@ -1897,7 +1897,7 @@ class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
     self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringState())
     
-    hs = self._makeHostingSubscription()
+    hs = self._makeInstanceTree()
     support_request.setAggregateValue(hs)
     hs.getSlapState = getFakeSlapState
 
@@ -1928,14 +1928,14 @@ return "Visited by SupportRequest_trySendNotificationMessage %s %s" % (message_t
     self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringDestroyRequestedState())
 
-    hs = self._makeHostingSubscription()
+    hs = self._makeInstanceTree()
     support_request.setAggregateValue(hs)
 
     hs.getSlapState = getFakeSlapState
     self.commit()
 
     support_request.setDestinationDecisionValue(self.makePerson(user=0))
-    expected_text = """Visited by SupportRequest_trySendNotificationMessage Hosting Subscription was destroyed was destroyed by the user %s""" % support_request.getDestinationDecision()
+    expected_text = """Visited by SupportRequest_trySendNotificationMessage Instance Tree was destroyed was destroyed by the user %s""" % support_request.getDestinationDecision()
     self.assertEqual(expected_text,
       support_request.SupportRequest_updateMonitoringDestroyRequestedState())
 

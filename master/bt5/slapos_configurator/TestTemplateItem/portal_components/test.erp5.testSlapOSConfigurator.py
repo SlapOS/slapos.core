@@ -186,7 +186,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'event_module',
        'external_source_module',
        'glossary_module',
-       'hosting_subscription_module',
+       'instance_tree_module',
        'image_module',
        'immobilisation_module',
        'implicit_item_movement_module',

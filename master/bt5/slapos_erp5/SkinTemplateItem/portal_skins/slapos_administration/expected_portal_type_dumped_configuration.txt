@@ -2338,20 +2338,20 @@ HTTP Exchange
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
-Hosting Subscription
+Instance Tree
   Short Title: None
   Class: SubscriptionItem
   Init Script: None
   Add Permission: None
   Acquire Local Roles: False
-  Property Sheets: ['HostingSubscription', 'SlapOSAccountingHostingSubscriptionConstraint', 'SlaposHostingSubscriptionConstraint', 'SoftwareInstance', 'TextDocument', 'Url', 'VariationRange']
+  Property Sheets: ['InstanceTree', 'SlapOSAccountingInstanceTreeConstraint', 'SlaposInstanceTreeConstraint', 'SoftwareInstance', 'TextDocument', 'Url', 'VariationRange']
   Base Categories: ['destination_section', 'monitor_scope', 'upgrade_scope']
   Allowed Content Types: []
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
-Hosting Subscription Module
+Instance Tree Module
   Short Title: None
   Class: Folder
   Init Script: 
@@ -2359,7 +2359,7 @@ Hosting Subscription Module
   Acquire Local Roles: False
   Property Sheets: []
   Base Categories: ['business_application']
-  Allowed Content Types: ['Hosting Subscription']
+  Allowed Content Types: ['Instance Tree']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -5542,7 +5542,7 @@ Slave Instance
   Init Script: None
   Add Permission: None
   Acquire Local Roles: False
-  Property Sheets: ['HostingSubscription', 'InstanceAccountingSynchronisation', 'Reference', 'SlaveInstanceConstraint', 'SoftwareInstance', 'TextDocument', 'Url', 'VariationRange']
+  Property Sheets: ['InstanceTree', 'InstanceAccountingSynchronisation', 'Reference', 'SlaveInstanceConstraint', 'SoftwareInstance', 'TextDocument', 'Url', 'VariationRange']
   Base Categories: ['aggregate', 'causality', 'specialise']
   Allowed Content Types: []
   Hidden Content Types: []
@@ -5581,7 +5581,7 @@ Software Instance
   Init Script: SoftwareInstance_init
   Add Permission: None
   Acquire Local Roles: False
-  Property Sheets: ['ERP5User', 'HostingSubscription', 'InstanceAccountingSynchronisation', 'Reference', 'SoftwareInstance', 'SoftwareInstanceConstraint', 'TextDocument', 'Url', 'VariationRange']
+  Property Sheets: ['ERP5User', 'InstanceTree', 'InstanceAccountingSynchronisation', 'Reference', 'SoftwareInstance', 'SoftwareInstanceConstraint', 'TextDocument', 'Url', 'VariationRange']
   Base Categories: ['aggregate', 'causality', 'specialise']
   Allowed Content Types: ['Certificate Login', 'ERP5 Login']
   Hidden Content Types: []
@@ -5958,7 +5958,7 @@ Subscription Condition
   Init Script: None
   Add Permission: None
   Acquire Local Roles: False
-  Property Sheets: ['HostingSubscription', 'Price', 'SlapOSSubscriptionCondition', 'SoftwareInstance', 'TextDocument', 'Url']
+  Property Sheets: ['InstanceTree', 'Price', 'SlapOSSubscriptionCondition', 'SoftwareInstance', 'TextDocument', 'Url']
   Base Categories: ['aggregate', 'follow_up', 'source_section']
   Allowed Content Types: []
   Hidden Content Types: []
@@ -5997,7 +5997,7 @@ Subscription Request
   Init Script: SubscriptionRequest_init
   Add Permission: None
   Acquire Local Roles: False
-  Property Sheets: ['Amount', 'CredentialRequest', 'DublinCore', 'HostingSubscription', 'Person', 'Price', 'Reference', 'SlapOSAccountingHostingSubscriptionConstraint', 'SlaposHostingSubscriptionConstraint', 'SoftwareInstance', 'Task', 'TextDocument', 'Url', 'VariationRange']
+  Property Sheets: ['Amount', 'CredentialRequest', 'DublinCore', 'InstanceTree', 'Person', 'Price', 'Reference', 'SlapOSAccountingInstanceTreeConstraint', 'SlaposInstanceTreeConstraint', 'SoftwareInstance', 'Task', 'TextDocument', 'Url', 'VariationRange']
   Base Categories: ['aggregate', 'causality', 'destination_section', 'source_section', 'specialise']
   Allowed Content Types: ['Email']
   Hidden Content Types: ['Email']
@@ -6634,7 +6634,7 @@ Trial Condition
   Init Script: None
   Add Permission: None
   Acquire Local Roles: False
-  Property Sheets: ['HostingSubscription', 'SoftwareInstance', 'TextDocument', 'TrialCondition', 'Url']
+  Property Sheets: ['InstanceTree', 'SoftwareInstance', 'TextDocument', 'TrialCondition', 'Url']
   Base Categories: ['aggregate', 'follow_up']
   Allowed Content Types: []
   Hidden Content Types: []
@@ -6660,7 +6660,7 @@ Trial Request
   Init Script: None
   Add Permission: None
   Acquire Local Roles: False
-  Property Sheets: ['HostingSubscription', 'Organisation', 'Reference', 'SoftwareInstance', 'Task', 'TextDocument', 'Url']
+  Property Sheets: ['InstanceTree', 'Organisation', 'Reference', 'SoftwareInstance', 'Task', 'TextDocument', 'Url']
   Base Categories: ['aggregate', 'causality', 'specialise']
   Allowed Content Types: ['Email']
   Hidden Content Types: ['Email']

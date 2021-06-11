@@ -10,7 +10,7 @@ web_site_id = web_site.getRelativeUrl().split('/')[1]
 if web_site_id not in ["rapidspacejs", "hostingjs"]:
   return json.dumps(contextual_help_list)
 
-if context.getPortalType() == "Hosting Subscription":
+if context.getPortalType() == "Instance Tree":
   if web_site_id == "hostingjs" and context.getSourceReference() == "kvm-cluster":
     contextual_help_list.extend([
       {"title": "Connect noVNC Over IPv4",
@@ -44,7 +44,7 @@ elif context.getPortalType() == "Accounting Transaction Module":
       {"title": "Payment Options",
        "href": "https://handbook.rapid.space/user/faq/rapidspace-Faq.What.Are.The.Payment.Options"}
     ])
-elif context.getPortalType() == "Hosting Subscription Module":
+elif context.getPortalType() == "Instance Tree Module":
   if web_site_id == "hostingjs":
     contextual_help_list.extend([
       {"title": "Access Services",

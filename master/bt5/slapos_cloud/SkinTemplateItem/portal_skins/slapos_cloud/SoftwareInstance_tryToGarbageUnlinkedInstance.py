@@ -23,16 +23,16 @@ def checkInstanceTree(instance_list):
 if instance.getSlapState() == "destroy_requested":
   return
 
-hosting_subscription = instance.getSpecialiseValue()
-if hosting_subscription is None or \
-    hosting_subscription.getSlapState() == "destroy_requested":
+instance_tree = instance.getSpecialiseValue()
+if instance_tree is None or \
+    instance_tree.getSlapState() == "destroy_requested":
   return
 
-root_instance = hosting_subscription.getSuccessorValue()
+root_instance = instance_tree.getSuccessorValue()
 if root_instance is None:
   # Refuse to destroy root instance
-  raise ValueError("Hosting Subscription %s has no root instance, this should "\
-                   "not happen!!" % hosting_subscription.getRelativeUrl())
+  raise ValueError("Instance Tree %s has no root instance, this should "\
+                   "not happen!!" % instance_tree.getRelativeUrl())
 
 # If instance modificationDate is too recent, skip
 # Delay destroy of unlinked instances

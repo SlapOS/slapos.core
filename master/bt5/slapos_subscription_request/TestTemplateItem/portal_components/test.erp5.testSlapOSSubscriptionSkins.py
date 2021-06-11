@@ -679,7 +679,7 @@ class SubscriptionRequest_processRequest(TestSubscriptionSkinsMixin):
     self.tic()
 
     subscription_request.SubscriptionRequest_processRequest()
-    software_instance = subscription_request.getAggregateValue(portal_type="Hosting Subscription")
+    software_instance = subscription_request.getAggregateValue(portal_type="Instance Tree")
 
     self.assertEqual(software_instance.getSourceReference(), "test_for_test_123")
     self.assertEqual(software_instance.getUrlString(), "https://%s/software.cfg" % self.new_id)
@@ -825,7 +825,7 @@ class TestSubscriptionRequest_sendAcceptedNotification(TestSubscriptionSkinsMixi
 class TestSubscriptionRequest_notifyInstanceIsReady(TestSubscriptionSkinsMixin):
 
   def _makeNotificationMessage(self, reference,
-      content_type='text/html', text_content="${name} ${subscription_title} ${hosting_subscription_relative_url}"):
+      content_type='text/html', text_content="${name} ${subscription_title} ${instance_tree_relative_url}"):
 
     notification_message = self.portal.notification_message_module.newContent(
       portal_type="Notification Message",
@@ -846,7 +846,7 @@ class TestSubscriptionRequest_notifyInstanceIsReady(TestSubscriptionSkinsMixin):
     name = "Cous Cous %s" % self.new_id
 
     self._makeNotificationMessage(reference='subscription_request-instance-is-ready',
-                                  text_content="${name} ${subscription_title} ${hosting_subscription_relative_url}")
+                                  text_content="${name} ${subscription_title} ${instance_tree_relative_url}")
     person, _ = self.portal.SubscriptionRequest_createUser(name=name, email=email)
     person.setDefaultEmailText(email)
 
@@ -860,8 +860,8 @@ class TestSubscriptionRequest_notifyInstanceIsReady(TestSubscriptionSkinsMixin):
     _, p2 = self._makeComputer()
 
     self.person_user = person
-    self.hosting_subscription.setDestinationSection(self.person_user.getRelativeUrl())
-    subscription_request.setAggregateValue(self.hosting_subscription)
+    self.instance_tree.setDestinationSection(self.person_user.getRelativeUrl())
+    subscription_request.setAggregateValue(self.instance_tree)
     self.software_instance.setAggregateValue(p1)
     self.requested_software_instance.setAggregateValue(p2)
     
@@ -882,7 +882,7 @@ class TestSubscriptionRequest_notifyInstanceIsReady(TestSubscriptionSkinsMixin):
 
     self.assertEqual(
       event.getTextContent(),'%s %s %s' % (person.getTitle(), subscription_request.getTitle(),
-        self.hosting_subscription.getRelativeUrl()))
+        self.instance_tree.getRelativeUrl()))
 
 class TestSubscriptionRequest_verifyReservationPaymentTransaction(TestSubscriptionSkinsMixin):
 
@@ -1080,15 +1080,15 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
       'Skipped (Instance Requested)')
     self.tic()
 
-    hosting_subscription = subscription_request.getAggregateValue(portal_type="Hosting Subscription")
-    self.assertNotEqual(hosting_subscription, None)
+    instance_tree = subscription_request.getAggregateValue(portal_type="Instance Tree")
+    self.assertNotEqual(instance_tree, None)
 
-    instance = hosting_subscription.getSuccessorValue()
+    instance = instance_tree.getSuccessorValue()
     self.assertNotEqual(instance, None)
 
-    self.assertEqual('diverged', hosting_subscription.getCausalityState())
+    self.assertEqual('diverged', instance_tree.getCausalityState())
 
-    instance = hosting_subscription.getSuccessorValue()
+    instance = instance_tree.getSuccessorValue()
     self.assertNotEqual(instance, None)
  
     
@@ -1097,7 +1097,7 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
       "Skipped (Payment isn't ready)") 
     self.tic()
 
-    self.assertEqual('solved', hosting_subscription.getCausalityState())
+    self.assertEqual('solved', instance_tree.getCausalityState())
     contract = self.portal.portal_catalog.getResultValue(
       portal_type=["Cloud Contract"],
       default_destination_section_uid=person.getUid(),
@@ -1122,7 +1122,7 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
     )
 
   @simulate('SubscriptionRequest_verifyPaymentBalanceIsReady', '*args, **kwrgs', 'return None')
-  @simulate('HostingSubscription_requestUpdateOpenSaleOrder', '*args, **kwargs', 'context.converge()')
+  @simulate('InstanceTree_requestUpdateOpenSaleOrder', '*args, **kwargs', 'context.converge()')
   @simulate('SubscriptionRequest_verifyInstanceIsAllocated', '*args, **kwargs','return True')
   def test_with_reservation_fee(self):
     person = self.makePerson()
@@ -1161,12 +1161,12 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
       subscription_request.SubscriptionRequest_processOrdered(),  'Skipped (Instance Requested)')
     self.tic()
 
-    hosting_subscription = subscription_request.getAggregateValue(portal_type="Hosting Subscription")
-    self.assertNotEqual(hosting_subscription, None)
-    self.assertEqual('diverged', hosting_subscription.getCausalityState())
-    self.assertEqual('start_requested', hosting_subscription.getSlapState())
+    instance_tree = subscription_request.getAggregateValue(portal_type="Instance Tree")
+    self.assertNotEqual(instance_tree, None)
+    self.assertEqual('diverged', instance_tree.getCausalityState())
+    self.assertEqual('start_requested', instance_tree.getSlapState())
 
-    instance = hosting_subscription.getSuccessorValue()
+    instance = instance_tree.getSuccessorValue()
     self.assertNotEqual(instance, None)
  
     
@@ -1175,7 +1175,7 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
       "Skipped (Payment isn't ready)")
     self.tic()
 
-    self.assertEqual('solved', hosting_subscription.getCausalityState())
+    self.assertEqual('solved', instance_tree.getCausalityState())
     contract = self.portal.portal_catalog.getResultValue(
       portal_type=["Cloud Contract"],
       default_destination_section_uid=person.getUid(),
@@ -1200,7 +1200,7 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
     )
 
   @simulate('SubscriptionRequest_verifyPaymentBalanceIsReady', '*args, **kwrgs', 'return context.fake_payment')
-  @simulate('HostingSubscription_requestUpdateOpenSaleOrder', '*args, **kwargs', 'context.converge()')
+  @simulate('InstanceTree_requestUpdateOpenSaleOrder', '*args, **kwargs', 'context.converge()')
   @simulate('SubscriptionRequest_verifyInstanceIsAllocated', '*args, **kwargs','return True')
   def test_confirmed(self):
     person = self.makePerson()
@@ -1242,16 +1242,16 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
       'Skipped (Instance Requested)')
     self.tic()
 
-    hosting_subscription = subscription_request.getAggregateValue()
-    self.assertNotEqual(None, hosting_subscription)
-    self.assertEqual('diverged', hosting_subscription.getCausalityState())
+    instance_tree = subscription_request.getAggregateValue()
+    self.assertNotEqual(None, instance_tree)
+    self.assertEqual('diverged', instance_tree.getCausalityState())
     
     self.assertEqual(
       subscription_request.SubscriptionRequest_processOrdered(),
       'Payment is ready for the user')
     self.tic()
 
-    self.assertEqual('solved', hosting_subscription.getCausalityState())
+    self.assertEqual('solved', instance_tree.getCausalityState())
     self.assertEqual(
       subscription_request.getSimulationState(),
       "confirmed"
@@ -1260,7 +1260,7 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
 class TestSubscriptionRequest_verifyInstanceIsAllocated(TestSubscriptionSkinsMixin):
 
   @simulate('SoftwareInstance_hasReportedError', '', 'return False')
-  def test_hosting_subscription(self):
+  def test_instance_tree(self):
     person = self.makePerson()
     subscription_request = self.newSubscriptionRequest(
       quantity=1, destination_section_value=person,
@@ -1280,7 +1280,7 @@ class TestSubscriptionRequest_verifyInstanceIsAllocated(TestSubscriptionSkinsMix
   
     self._makeTree()
     subscription_request.edit(
-      aggregate_value=self.hosting_subscription
+      aggregate_value=self.instance_tree
     )
 
     # Ensure the requested instances aren't allocated
@@ -1291,7 +1291,7 @@ class TestSubscriptionRequest_verifyInstanceIsAllocated(TestSubscriptionSkinsMix
     self.assertEqual(
       subscription_request.SubscriptionRequest_verifyInstanceIsAllocated(), False)
 
-  def _test_hosting_subscription(self, slave=False):
+  def _test_instance_tree(self, slave=False):
     person = self.makePerson()
     subscription_request = self.newSubscriptionRequest(
       quantity=1, destination_section_value=person,
@@ -1325,32 +1325,32 @@ class TestSubscriptionRequest_verifyInstanceIsAllocated(TestSubscriptionSkinsMix
       self.software_instance.setAggregateValue(p0)
 
     subscription_request.edit(
-      aggregate_value=self.hosting_subscription
+      aggregate_value=self.instance_tree
     )
     self.tic()
     return subscription_request
 
   @simulate('SoftwareInstance_hasReportedError', '', 'return True')
-  def test_hosting_subscription_instance_with_error(self):
-    subscription_request = self._test_hosting_subscription()
+  def test_instance_tree_instance_with_error(self):
+    subscription_request = self._test_instance_tree()
     self.assertEqual(
       subscription_request.SubscriptionRequest_verifyInstanceIsAllocated(), False)
 
   @simulate('SoftwareInstance_hasReportedError', '', 'return False')
-  def test_hosting_subscription_instance_without_error(self):
-    subscription_request = self._test_hosting_subscription()
+  def test_instance_tree_instance_without_error(self):
+    subscription_request = self._test_instance_tree()
     self.assertEqual(
       subscription_request.SubscriptionRequest_verifyInstanceIsAllocated(), True)
 
   @simulate('SoftwareInstance_hasReportedError', '', 'return True')
-  def test_hosting_subscription_slave_with_error(self):
-    subscription_request = self._test_hosting_subscription(slave=True)
+  def test_instance_tree_slave_with_error(self):
+    subscription_request = self._test_instance_tree(slave=True)
     self.assertEqual(
       subscription_request.SubscriptionRequest_verifyInstanceIsAllocated(), True)
 
 class TestSubscriptionRequest_processConfirmed(TestSubscriptionSkinsMixin):
 
-  def test_no_hosting_subscription(self):
+  def test_no_instance_tree(self):
     person = self.makePerson()
     subscription_request = self.newSubscriptionRequest(
       quantity=1, destination_section_value=person,
@@ -1379,7 +1379,7 @@ class TestSubscriptionRequest_processConfirmed(TestSubscriptionSkinsMixin):
     self.assertEqual(subscription_request.getSimulationState(), "confirmed")
 
   @simulate('SubscriptionRequest_testPaymentBalance', '', 'return False')
-  def test_hosting_subscription_is_stopped_due_unpaid_invoice(self):
+  def test_instance_tree_is_stopped_due_unpaid_invoice(self):
     person = self.makePerson()
     subscription_request = self.newSubscriptionRequest(
       quantity=1, destination_section_value=person,
@@ -1403,7 +1403,7 @@ class TestSubscriptionRequest_processConfirmed(TestSubscriptionSkinsMixin):
     self._makeTree()
 
     subscription_request.edit(
-      aggregate_value=self.hosting_subscription
+      aggregate_value=self.instance_tree
     )
 
     self.tic()
@@ -1413,10 +1413,10 @@ class TestSubscriptionRequest_processConfirmed(TestSubscriptionSkinsMixin):
     self.tic()
 
     self.assertEqual(subscription_request.getSimulationState(), "confirmed")
-    self.assertEqual(self.hosting_subscription.getSlapState(), "stop_requested")
+    self.assertEqual(self.instance_tree.getSlapState(), "stop_requested")
 
   @simulate('SubscriptionRequest_testPaymentBalance', '', 'return True')
-  def test_hosting_subscription_is_started_due_paid_invoice(self):
+  def test_instance_tree_is_started_due_paid_invoice(self):
     person = self.makePerson()
     subscription_request = self.newSubscriptionRequest(
       quantity=1, destination_section_value=person,
@@ -1440,10 +1440,10 @@ class TestSubscriptionRequest_processConfirmed(TestSubscriptionSkinsMixin):
     self._makeTree()
 
     subscription_request.edit(
-      aggregate_value=self.hosting_subscription
+      aggregate_value=self.instance_tree
     )
 
-    self.portal.portal_workflow._jumpToStateFor(self.hosting_subscription, 'stop_requested')
+    self.portal.portal_workflow._jumpToStateFor(self.instance_tree, 'stop_requested')
 
     self.tic()
     self.assertEqual(
@@ -1452,12 +1452,12 @@ class TestSubscriptionRequest_processConfirmed(TestSubscriptionSkinsMixin):
     self.tic()
 
     self.assertEqual(subscription_request.getSimulationState(), "confirmed")
-    self.assertEqual(self.hosting_subscription.getSlapState(), "start_requested")
+    self.assertEqual(self.instance_tree.getSlapState(), "start_requested")
 
 
 class TestSubscriptionRequest_processStarted(TestSubscriptionSkinsMixin):
 
-  def test_no_hosting_subscription(self):
+  def test_no_instance_tree(self):
     person = self.makePerson()
     subscription_request = self.newSubscriptionRequest(
       quantity=1, destination_section_value=person,
@@ -1487,7 +1487,7 @@ class TestSubscriptionRequest_processStarted(TestSubscriptionSkinsMixin):
     self.assertEqual(subscription_request.getSimulationState(), "started")
 
 
-  def test_hosting_subscription_started(self):
+  def test_instance_tree_started(self):
     person = self.makePerson()
     subscription_request = self.newSubscriptionRequest(
       quantity=1, destination_section_value=person,
@@ -1512,7 +1512,7 @@ class TestSubscriptionRequest_processStarted(TestSubscriptionSkinsMixin):
     self._makeTree()
 
     subscription_request.edit(
-      aggregate_value=self.hosting_subscription
+      aggregate_value=self.instance_tree
     )
 
     self.tic()
@@ -1522,7 +1522,7 @@ class TestSubscriptionRequest_processStarted(TestSubscriptionSkinsMixin):
 
     self.assertEqual(subscription_request.getSimulationState(), "started")
 
-  def test_hosting_subscription_stopped(self):
+  def test_instance_tree_stopped(self):
     person = self.makePerson()
     subscription_request = self.newSubscriptionRequest(
       quantity=1, destination_section_value=person,
@@ -1547,10 +1547,10 @@ class TestSubscriptionRequest_processStarted(TestSubscriptionSkinsMixin):
     self._makeTree()
 
     subscription_request.edit(
-      aggregate_value=self.hosting_subscription
+      aggregate_value=self.instance_tree
     )
 
-    self.portal.portal_workflow._jumpToStateFor(self.hosting_subscription, 'stop_requested')
+    self.portal.portal_workflow._jumpToStateFor(self.instance_tree, 'stop_requested')
 
     self.tic()
     self.assertEqual(
@@ -1559,7 +1559,7 @@ class TestSubscriptionRequest_processStarted(TestSubscriptionSkinsMixin):
 
     self.assertEqual(subscription_request.getSimulationState(), "started")
 
-  def test_hosting_subscription_destroyed(self):
+  def test_instance_tree_destroyed(self):
     person = self.makePerson()
     subscription_request = self.newSubscriptionRequest(
       quantity=1, destination_section_value=person,
@@ -1584,10 +1584,10 @@ class TestSubscriptionRequest_processStarted(TestSubscriptionSkinsMixin):
     self._makeTree()
 
     subscription_request.edit(
-      aggregate_value=self.hosting_subscription
+      aggregate_value=self.instance_tree
     )
 
-    self.portal.portal_workflow._jumpToStateFor(self.hosting_subscription, 'destroy_requested')
+    self.portal.portal_workflow._jumpToStateFor(self.instance_tree, 'destroy_requested')
 
     self.tic()
     self.assertEqual(

@@ -16,7 +16,7 @@
         </item>
         <item>
             <key> <string>expression</string> </key>
-            <value> <string>python: context.getPortalType() in (\'Email\', \'Fax\', \'Telephone\', \'Software Release\', \'Software Installation\', \'Software Instance\', \'Hosting Subscription\')</string> </value>
+            <value> <string>python: context.getPortalType() in (\'Email\', \'Fax\', \'Telephone\', \'Software Release\', \'Software Installation\', \'Software Instance\', \'Instance Tree\')</string> </value>
         </item>
         <item>
             <key> <string>expression_cache_key</string> </key>

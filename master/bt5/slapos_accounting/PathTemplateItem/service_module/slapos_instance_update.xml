@@ -74,7 +74,7 @@
             <key> <string>aggregated_portal_type</string> </key>
             <value>
               <tuple>
-                <string>Hosting Subscription</string>
+                <string>Instance Tree</string>
                 <string>Slave Instance</string>
                 <string>Software Instance</string>
               </tuple>

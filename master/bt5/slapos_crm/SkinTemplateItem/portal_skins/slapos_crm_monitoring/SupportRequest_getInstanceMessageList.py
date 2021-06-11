@@ -12,15 +12,15 @@ if document is None:
 
 aggregate_portal_type = document.getPortalType()
 
-if aggregate_portal_type in ["Computer", "Hosting Subscription"] and \
+if aggregate_portal_type in ["Computer", "Instance Tree"] and \
   document.getMonitorScope() == "disabled":
   return []
 
-if aggregate_portal_type == "Hosting Subscription":
+if aggregate_portal_type == "Instance Tree":
   message_list = []
-  hosting_subscription = document
+  instance_tree = document
 
-  software_instance_list = hosting_subscription.getSpecialiseRelatedValueList(
+  software_instance_list = instance_tree.getSpecialiseRelatedValueList(
                  portal_type=["Software Instance", "Slave Instance"])
 
   # Check if at least one software Instance is Allocated
@@ -40,7 +40,7 @@ if aggregate_portal_type == "Hosting Subscription":
             pasth=instance.getRelativeUrl(),
             uid=instance.getUid(),
             title= instance.getTitle(),
-            specialise_title= hosting_subscription.getTitle(),
+            specialise_title= instance_tree.getTitle(),
             software_release= instance.getUrlString(),
             computer_reference= computer.getReference(),
             allocation_scope= computer.getAllocationScope(),
@@ -54,7 +54,7 @@ if aggregate_portal_type == "Hosting Subscription":
           relative_url=instance.getRelativeUrl(),
           uid=instance.getUid(),
           title=instance.getTitle(),
-          specialise_title=hosting_subscription.getTitle(),
+          specialise_title=instance_tree.getTitle(),
           software_release=instance.getUrlString(),
           follow_up_title=context.getFollowUpTitle(),
           computer_reference="",

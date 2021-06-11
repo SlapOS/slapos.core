@@ -6,9 +6,9 @@ ticket_list = []
 person_notification_list = []
 for subscription_request in portal.subscription_request_module.searchFolder(
     portal_type="Subscription Request"):
-  hosting_subscription = subscription_request.getAggregateValue()
-  if hosting_subscription is None or \
-       hosting_subscription.getSlapState() == "destroy_requested":
+  instance_tree = subscription_request.getAggregateValue()
+  if instance_tree is None or \
+       instance_tree.getSlapState() == "destroy_requested":
     continue
 
   person_notification_list.append(subscription_request.getDestinationSectionValue())

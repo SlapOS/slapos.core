@@ -202,12 +202,12 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     self.person_user = self.makePerson(new_id=new_id, index=False)
     self.commit()
     # prepare part of tree
-    self.hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+    self.instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     self.software_instance = self.portal.software_instance_module\
         [requested_template_id].Base_createCloneDocument(batch_mode=1)
 
-    self.hosting_subscription.edit(
+    self.instance_tree.edit(
         title=self.request_kw['software_title'],
         reference="TESTHS-%s" % new_id,
         url_string=self.request_kw['software_release'],
@@ -218,8 +218,8 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         successor=self.software_instance.getRelativeUrl(),
         destination_section=self.person_user.getRelativeUrl()
     )
-    self.hosting_subscription.validate()
-    self.portal.portal_workflow._jumpToStateFor(self.hosting_subscription, 'start_requested')
+    self.instance_tree.validate()
+    self.portal.portal_workflow._jumpToStateFor(self.instance_tree, 'start_requested')
 
     self.requested_software_instance = self.portal.software_instance_module\
         .template_software_instance.Base_createCloneDocument(batch_mode=1)
@@ -230,7 +230,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         source_reference=self.request_kw['software_type'],
         text_content=self.request_kw['instance_xml'],
         sla_xml=self.request_kw['sla_xml'],
-        specialise=self.hosting_subscription.getRelativeUrl(),
+        specialise=self.instance_tree.getRelativeUrl(),
         successor=self.requested_software_instance.getRelativeUrl()
     )
     self.portal.portal_workflow._jumpToStateFor(self.software_instance, 'start_requested')
@@ -244,7 +244,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         source_reference=self.request_kw['software_type'],
         text_content=self.request_kw['instance_xml'],
         sla_xml=self.request_kw['sla_xml'],
-        specialise=self.hosting_subscription.getRelativeUrl(),
+        specialise=self.instance_tree.getRelativeUrl(),
     )
     self.portal.portal_workflow._jumpToStateFor(self.requested_software_instance, 'start_requested')
     self.requested_software_instance.validate()
@@ -347,10 +347,10 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     self.computer.partition3.markBusy()
 
     # prepare some trees
-    hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
-    hosting_subscription.edit(
+    instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    instance_tree.validate()
+    instance_tree.edit(
         title=self.generateNewSoftwareTitle(),
         reference="TESTSI-%s" % self.generateNewId(),
         destination_section_value=person,
@@ -362,20 +362,20 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       instance_xml=self.generateSafeXml(),
       sla_xml=self.generateSafeXml(),
       shared=False,
-      software_title=hosting_subscription.getTitle(),
+      software_title=instance_tree.getTitle(),
       state='started'
     )
-    hosting_subscription.requestStart(**kw)
-    hosting_subscription.requestInstance(**kw)
+    instance_tree.requestStart(**kw)
+    instance_tree.requestInstance(**kw)
 
-    self.start_requested_software_instance = hosting_subscription.getSuccessorValue()
+    self.start_requested_software_instance = instance_tree.getSuccessorValue()
     self.start_requested_software_instance.edit(aggregate=self.computer.partition1.getRelativeUrl())
 
     if with_slave:
-      hosting_subscription = self.portal.hosting_subscription_module\
-          .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
-      hosting_subscription.validate()
-      hosting_subscription.edit(
+      instance_tree = self.portal.instance_tree_module\
+          .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+      instance_tree.validate()
+      instance_tree.edit(
           title=self.generateNewSoftwareTitle(),
           reference="TESTSI-%s" % self.generateNewId(),
           destination_section_value=person,
@@ -386,19 +386,19 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         instance_xml=self.generateSafeXml(),
         sla_xml=self.generateSafeXml(),
         shared=True,
-        software_title=hosting_subscription.getTitle(),
+        software_title=instance_tree.getTitle(),
         state='started'
       )
-      hosting_subscription.requestStart(**slave_kw)
-      hosting_subscription.requestInstance(**slave_kw)
+      instance_tree.requestStart(**slave_kw)
+      instance_tree.requestInstance(**slave_kw)
 
-      self.start_requested_slave_instance = hosting_subscription.getSuccessorValue()
+      self.start_requested_slave_instance = instance_tree.getSuccessorValue()
       self.start_requested_slave_instance.edit(aggregate=self.computer.partition1.getRelativeUrl())
 
-    hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
-    hosting_subscription.edit(
+    instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    instance_tree.validate()
+    instance_tree.edit(
         title=self.generateNewSoftwareTitle(),
         reference="TESTSI-%s" % self.generateNewId(),
         destination_section_value=person,
@@ -410,21 +410,21 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       instance_xml=self.generateSafeXml(),
       sla_xml=self.generateSafeXml(),
       shared=False,
-      software_title=hosting_subscription.getTitle(),
+      software_title=instance_tree.getTitle(),
       state='stopped'
     )
-    hosting_subscription.requestStop(**kw)
-    hosting_subscription.requestInstance(**kw)
+    instance_tree.requestStop(**kw)
+    instance_tree.requestInstance(**kw)
 
-    self.stop_requested_software_instance = hosting_subscription.getSuccessorValue()
+    self.stop_requested_software_instance = instance_tree.getSuccessorValue()
     self.stop_requested_software_instance.edit(
         aggregate=self.computer.partition2.getRelativeUrl()
     )
 
-    hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
-    hosting_subscription.edit(
+    instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    instance_tree.validate()
+    instance_tree.edit(
         title=self.generateNewSoftwareTitle(),
         reference="TESTSI-%s" % self.generateNewId(),
     )
@@ -435,25 +435,25 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       instance_xml=self.generateSafeXml(),
       sla_xml=self.generateSafeXml(),
       shared=False,
-      software_title=hosting_subscription.getTitle(),
+      software_title=instance_tree.getTitle(),
       state='stopped'
     )
-    hosting_subscription.requestStop(**kw)
-    hosting_subscription.requestInstance(**kw)
+    instance_tree.requestStop(**kw)
+    instance_tree.requestInstance(**kw)
 
     kw['state'] = 'destroyed'
-    hosting_subscription.requestDestroy(**kw)
+    instance_tree.requestDestroy(**kw)
 
-    self.destroy_requested_software_instance = hosting_subscription.getSuccessorValue()
+    self.destroy_requested_software_instance = instance_tree.getSuccessorValue()
     self.destroy_requested_software_instance.requestDestroy(**kw)
     self.destroy_requested_software_instance.edit(
         aggregate=self.computer.partition3.getRelativeUrl()
     )
 
-    hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
-    hosting_subscription.edit(
+    instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    instance_tree.validate()
+    instance_tree.edit(
         title=self.generateNewSoftwareTitle(),
         reference="TESTSI-%s" % self.generateNewId(),
     )
@@ -464,16 +464,16 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       instance_xml=self.generateSafeXml(),
       sla_xml=self.generateSafeXml(),
       shared=False,
-      software_title=hosting_subscription.getTitle(),
+      software_title=instance_tree.getTitle(),
       state='stopped'
     )
-    hosting_subscription.requestStop(**kw)
-    hosting_subscription.requestInstance(**kw)
+    instance_tree.requestStop(**kw)
+    instance_tree.requestInstance(**kw)
 
     kw['state'] = 'destroyed'
-    hosting_subscription.requestDestroy(**kw)
+    instance_tree.requestDestroy(**kw)
 
-    self.destroyed_software_instance = hosting_subscription.getSuccessorValue()
+    self.destroyed_software_instance = instance_tree.getSuccessorValue()
     self.destroyed_software_instance.edit(
         aggregate=self.computer.partition4.getRelativeUrl()
     )

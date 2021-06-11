@@ -107,7 +107,7 @@
                 "organisation_href": result_list[2],
                 "support_request_href": result_list[3],
                 "accounting_href": result_list[4],
-                "hosting_subscription_href": result_list[5],
+                "instance_tree_href": result_list[5],
                 "computer_href": result_list[6],
                 "computer_network_href": result_list[7],
                 "project_href": result_list[8],

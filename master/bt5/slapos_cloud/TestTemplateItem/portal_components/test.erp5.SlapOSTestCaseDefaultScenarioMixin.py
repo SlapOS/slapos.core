@@ -91,12 +91,12 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     welcome_message = findMessage(email, "the creation of you new ERP5 account")
     self.assertNotEqual(None, welcome_message)
 
-  def _getCurrentHostingSubscriptionList(self):
+  def _getCurrentInstanceTreeList(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     if person is not None:
       return self.portal.portal_catalog(
-        portal_type="Hosting Subscription",
+        portal_type="Instance Tree",
         default_destination_section_uid=person.getUid(),
         validation_state='validated')
 
@@ -350,15 +350,15 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.simulateSlapgridCP(server)
 
     # let's find instances of user and check connection strings
-    hosting_subscription_list = [q.getObject() for q in
-        self._getCurrentHostingSubscriptionList()
+    instance_tree_list = [q.getObject() for q in
+        self._getCurrentInstanceTreeList()
         if q.getTitle() == instance_title]
-    self.assertEqual(1, len(hosting_subscription_list))
-    hosting_subscription = hosting_subscription_list[0]
+    self.assertEqual(1, len(instance_tree_list))
+    instance_tree = instance_tree_list[0]
 
-    software_instance = hosting_subscription.getSuccessorValue()
+    software_instance = instance_tree.getSuccessorValue()
     self.assertEqual(software_instance.getTitle(),
-        hosting_subscription.getTitle())
+        instance_tree.getTitle())
     connection_dict = software_instance.getConnectionXmlAsDict()
     self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
     self.login()
@@ -383,11 +383,11 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     )
 
     # let's find instances of user and check connection strings
-    hosting_subscription_list = [q.getObject() for q in
-        self._getCurrentHostingSubscriptionList()
+    instance_tree_list = [q.getObject() for q in
+        self._getCurrentInstanceTreeList()
         if q.getTitle() == instance_title]
 
-    self.assertEqual(0, len(hosting_subscription_list))
+    self.assertEqual(0, len(instance_tree_list))
 
   def checkInstanceUnallocation(self, person_user_id,
       person_reference, instance_title,
@@ -405,10 +405,10 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.simulateSlapgridUR(server)
 
     # let's find instances of user and check connection strings
-    hosting_subscription_list = [q.getObject() for q in
-        self._getCurrentHostingSubscriptionList()
+    instance_tree_list = [q.getObject() for q in
+        self._getCurrentInstanceTreeList()
         if q.getTitle() == instance_title]
-    self.assertEqual(0, len(hosting_subscription_list))
+    self.assertEqual(0, len(instance_tree_list))
 
   def checkCloudContract(self, person_user_id, person_reference,
       instance_title, software_release, software_type, server):
@@ -517,15 +517,15 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.simulateSlapgridCP(server)
 
     # let's find instances of user and check connection strings
-    hosting_subscription_list = [q.getObject() for q in
-        self._getCurrentHostingSubscriptionList()
+    instance_tree_list = [q.getObject() for q in
+        self._getCurrentInstanceTreeList()
         if q.getTitle() == instance_title]
-    self.assertEqual(1, len(hosting_subscription_list))
-    hosting_subscription = hosting_subscription_list[0]
+    self.assertEqual(1, len(instance_tree_list))
+    instance_tree = instance_tree_list[0]
 
-    software_instance = hosting_subscription.getSuccessorValue()
+    software_instance = instance_tree.getSuccessorValue()
     self.assertEqual(software_instance.getTitle(),
-        hosting_subscription.getTitle())
+        instance_tree.getTitle())
     connection_dict = software_instance.getConnectionXmlAsDict()
     self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
     self.login()
@@ -535,7 +535,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
             partition.contentValues(portal_type='Internet Protocol Address')],
         connection_dict.values())
 
-  def assertHostingSubscriptionSimulationCoverage(self, subscription):
+  def assertInstanceTreeSimulationCoverage(self, subscription):
     self.login()
     # this is document level assertion, as simulation and its specific delivery
     # is covered by unit tests
@@ -585,10 +585,10 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
   def assertPersonDocumentCoverage(self, person):
     self.login()
     subscription_list = self.portal.portal_catalog(
-        portal_type='Hosting Subscription',
+        portal_type='Instance Tree',
         default_destination_section_uid=person.getUid())
     for subscription in subscription_list:
-      self.assertHostingSubscriptionSimulationCoverage(
+      self.assertInstanceTreeSimulationCoverage(
           subscription.getObject())
 
     aggregated_delivery_list = self.portal.portal_catalog(
@@ -612,8 +612,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     person = self.portal.portal_catalog.getResultValue(
        portal_type='ERP5 Login',
        reference=person_reference).getParentValue()
-    hosting_subscription_list = self.portal.portal_catalog(
-        portal_type='Hosting Subscription',
+    instance_tree_list = self.portal.portal_catalog(
+        portal_type='Instance Tree',
         default_destination_section_uid=person.getUid()
     )
 
@@ -622,7 +622,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         default_destination_uid=person.getUid(),
     )
 
-    if len(hosting_subscription_list) == 0:
+    if len(instance_tree_list) == 0:
       self.assertEqual(0, len(open_sale_order_list))
       return
 
@@ -638,9 +638,9 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
     line_list = open_sale_order.contentValues(
         portal_type='Open Sale Order Line')
-    self.assertEqual(len(hosting_subscription_list), len(line_list))
+    self.assertEqual(len(instance_tree_list), len(line_list))
     self.assertSameSet(
-        [q.getRelativeUrl() for q in hosting_subscription_list],
+        [q.getRelativeUrl() for q in instance_tree_list],
         [q.getAggregate() for q in line_list]
     )
 
@@ -719,7 +719,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
   def assertSubscriptionStopped(self, person):
     self.login()
     subscription_list = self.portal.portal_catalog(
-        portal_type='Hosting Subscription',
+        portal_type='Instance Tree',
         default_destination_section_uid=person.getUid())
     self.assertEqual(len(subscription_list), 1)
     for subscription in subscription_list:
@@ -728,7 +728,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
   def assertSubscriptionDestroyed(self, person):
     self.login()
     subscription_list = self.portal.portal_catalog(
-        portal_type='Hosting Subscription',
+        portal_type='Instance Tree',
         default_destination_section_uid=person.getUid())
     self.assertEqual(len(subscription_list), 1)
     for subscription in subscription_list:

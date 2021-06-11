@@ -11,17 +11,17 @@ from unittest import skip
 
 import transaction
 
-class TestHostingSubscription(TestSlapOSConstraintMixin):
+class TestInstanceTree(TestSlapOSConstraintMixin):
 
   # use decrator in order to avoid fixing consistency of new object
   @WorkflowMethod.disable
-  def _createHostingSubscription(self):
-    self.subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription')
+  def _createInstanceTree(self):
+    self.subscription = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree')
 
   def afterSetUp(self):
     TestSlapOSConstraintMixin.afterSetUp(self)
-    self._createHostingSubscription()
+    self._createInstanceTree()
 
   def beforeTearDown(self):
     transaction.abort()
@@ -407,12 +407,12 @@ class TestSalePackingListLineConsumption(TestSlapOSConstraintMixin):
     delivery_line.edit(**{key: [aggregate_1]})
     self.assertFalse(message in self.getMessageList(delivery_line))
 
-  def test_aggregate_hosting_subscription(self):
-    self._test_aggregate("There should be one Hosting Subscription related",
-      self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription').getRelativeUrl(),
-      self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription').getRelativeUrl())
+  def test_aggregate_instance_tree(self):
+    self._test_aggregate("There should be one Instance Tree related",
+      self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree').getRelativeUrl(),
+      self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree').getRelativeUrl())
 
   def test_aggregate_software_instance(self):
     self._test_aggregate("There should be one Software or Slave Instance related",

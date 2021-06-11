@@ -170,7 +170,7 @@
 
       <tr>
         <td>open</td>
-        <td>${base_url}/web_site_module/hostingjs/#/hosting_subscription_module</td>
+        <td>${base_url}/web_site_module/hostingjs/#/instance_tree_module</td>
         <td></td>
       </tr>
 

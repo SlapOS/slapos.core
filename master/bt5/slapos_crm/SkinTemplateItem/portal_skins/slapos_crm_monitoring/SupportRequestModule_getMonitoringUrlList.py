@@ -7,22 +7,22 @@ support_request_list = portal.portal_catalog(
                 simulation_state=["validated", "suspended"],
                 )
 
-hosting_subscription_list = []
+instance_tree_list = []
 for support_request in support_request_list:
-  hosting_subscription_list.append(
-    support_request.getAggregateValue(portal_type="Hosting Subscription"))
+  instance_tree_list.append(
+    support_request.getAggregateValue(portal_type="Instance Tree"))
 
 monitor_instance_list = []
 
-for hosting_subscription in hosting_subscription_list:
+for instance_tree in instance_tree_list:
 
-  if hosting_subscription is None:
+  if instance_tree is None:
     continue
 
-  if hosting_subscription.getSlapState() == 'destroy_requested':
+  if instance_tree.getSlapState() == 'destroy_requested':
     continue
 
-  instance = hosting_subscription.getSuccessorValue()
+  instance = instance_tree.getSuccessorValue()
   if instance is None or instance.getSlapState() in ('destroy_requested', 'stop_requested'):
     continue
 

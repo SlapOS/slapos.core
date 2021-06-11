@@ -58,5 +58,5 @@ class TestSlapOSCloudUpgrader(SlapOSTestCaseMixin):
   def test_upgrade_software_instance_predecessor(self):
     return self.check_upgrade_instance_predecessor('Software Instance')
 
-  def test_upgrade_hosting_subscription_predecessor(self):
-    return self.check_upgrade_instance_predecessor('Hosting Subscription')
+  def test_upgrade_instance_tree_predecessor(self):
+    return self.check_upgrade_instance_predecessor('Instance Tree')

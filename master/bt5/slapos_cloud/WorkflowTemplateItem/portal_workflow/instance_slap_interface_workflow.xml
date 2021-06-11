@@ -20,7 +20,7 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>This workflow is used to ensure consistency in a instance (software instance, slave instance, hosting subscription) tree.\r\n
+            <value> <string>This workflow is used to ensure consistency in a instance (software instance, slave instance, instance tree) tree.\r\n
 It allows to request sub instances, rename, allocate, report promise status.</string> </value>
         </item>
         <item>

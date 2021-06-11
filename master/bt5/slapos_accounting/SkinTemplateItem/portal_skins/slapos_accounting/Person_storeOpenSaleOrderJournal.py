@@ -38,14 +38,14 @@ def newOpenOrder(open_sale_order):
 def storeWorkflowComment(document, comment):
   portal.portal_workflow.doActionFor(document, 'edit_action', comment=comment)
 
-def calculateOpenOrderLineStopDate(open_order_line, hosting_subscription, start_date_delta, next_stop_date_delta=0):
-  end_date = hosting_subscription.HostingSubscription_calculateSubscriptionStopDate()
+def calculateOpenOrderLineStopDate(open_order_line, instance_tree, start_date_delta, next_stop_date_delta=0):
+  end_date = instance_tree.InstanceTree_calculateSubscriptionStopDate()
   if end_date is None:
     # Be sure that start date is different from stop date
     # Consider the first period longer (delta), this allow us to change X days/months
     # On a first invoice.
-    next_stop_date = hosting_subscription.getNextPeriodicalDate(
-      hosting_subscription.HostingSubscription_calculateSubscriptionStartDate() + start_date_delta)
+    next_stop_date = instance_tree.getNextPeriodicalDate(
+      instance_tree.InstanceTree_calculateSubscriptionStartDate() + start_date_delta)
     current_stop_date = next_stop_date
 
     # Ensure the invoice is generated 15 days in advance of the next period.
@@ -53,7 +53,7 @@ def calculateOpenOrderLineStopDate(open_order_line, hosting_subscription, start_
       # Return result should be < now, it order to provide stability in simulation (destruction if it happen should be >= now)
       current_stop_date = next_stop_date
       next_stop_date = \
-         hosting_subscription.getNextPeriodicalDate(current_stop_date)
+         instance_tree.getNextPeriodicalDate(current_stop_date)
 
     return addToDate(current_stop_date, to_add={'second': -1})
   else:
@@ -81,8 +81,8 @@ else:
 delete_line_list = []
 add_line_list = []
 
-updated_hosting_subscription_dict = {}
-deleted_hosting_subscription_dict = {}
+updated_instance_tree_dict = {}
+deleted_instance_tree_dict = {}
 
 if open_sale_order is not None:
   for open_order_line in open_sale_order.contentValues(
@@ -95,18 +95,18 @@ if open_sale_order is not None:
     assert current_stop_date is not None
     assert current_start_date < current_stop_date
 
-    hosting_subscription = open_order_line.getAggregateValue(portal_type='Hosting Subscription')
-    assert current_start_date == hosting_subscription.HostingSubscription_calculateSubscriptionStartDate()
+    instance_tree = open_order_line.getAggregateValue(portal_type='Instance Tree')
+    assert current_start_date == instance_tree.InstanceTree_calculateSubscriptionStartDate()
 
 
-    subscription_request = hosting_subscription.getAggregateRelatedValue(portal_type="Subscription Request")
+    subscription_request = instance_tree.getAggregateRelatedValue(portal_type="Subscription Request")
     # Define the start date of the period, this can variates with the time.
     next_stop_date_delta = 0
     if subscription_request is not None:
       next_stop_date_delta = 46
 
-    # First check if the hosting subscription has been correctly simulated (this script may run only once per year...)
-    stop_date = calculateOpenOrderLineStopDate(open_order_line, hosting_subscription,
+    # First check if the instance tree has been correctly simulated (this script may run only once per year...)
+    stop_date = calculateOpenOrderLineStopDate(open_order_line, instance_tree,
                                                start_date_delta=0, next_stop_date_delta=next_stop_date_delta)
     if current_stop_date < stop_date:
       # Bingo, new subscription to generate
@@ -116,49 +116,49 @@ if open_sale_order is not None:
       storeWorkflowComment(open_order_line,
                            'Stop date updated to %s' % stop_date)
 
-    if hosting_subscription.getSlapState() == 'destroy_requested':
+    if instance_tree.getSlapState() == 'destroy_requested':
       # Line should be deleted
-      assert hosting_subscription.getCausalityState() == 'diverged'
+      assert instance_tree.getCausalityState() == 'diverged'
       delete_line_list.append(open_order_line.getId())
-      hosting_subscription.converge(comment="Last open order: %s" % open_order_line.getRelativeUrl())
-      deleted_hosting_subscription_dict[hosting_subscription.getRelativeUrl()] = None
-      updated_hosting_subscription_dict[hosting_subscription.getRelativeUrl()] = None
+      instance_tree.converge(comment="Last open order: %s" % open_order_line.getRelativeUrl())
+      deleted_instance_tree_dict[instance_tree.getRelativeUrl()] = None
+      updated_instance_tree_dict[instance_tree.getRelativeUrl()] = None
 
-    elif (hosting_subscription.getCausalityState() == 'diverged'):
-      hosting_subscription.converge(comment="Nothing to do on open order.")
-      updated_hosting_subscription_dict[hosting_subscription.getRelativeUrl()] = None
+    elif (instance_tree.getCausalityState() == 'diverged'):
+      instance_tree.converge(comment="Nothing to do on open order.")
+      updated_instance_tree_dict[instance_tree.getRelativeUrl()] = None
 
 # Time to check the open order line to add (remaining diverged Hosting
 # Subscription normally)
-for hosting_subscription in portal.portal_catalog(
-    portal_type='Hosting Subscription',
+for instance_tree in portal.portal_catalog(
+    portal_type='Instance Tree',
     default_destination_section_uid=context.getUid(),
     causality_state="diverged"):
-  hosting_subscription = hosting_subscription.getObject()
-  if hosting_subscription.getCausalityState() == 'diverged':
+  instance_tree = instance_tree.getObject()
+  if instance_tree.getCausalityState() == 'diverged':
     # Simply check that it has never been simulated
-    if hosting_subscription.getSlapState() == 'destroy_requested':
+    if instance_tree.getSlapState() == 'destroy_requested':
       # Line should be deleted
       open_order_line = portal.portal_catalog.getResultValue(
         portal_type='Open Sale Order Line',
-        default_aggregate_uid=hosting_subscription.getUid())
+        default_aggregate_uid=instance_tree.getUid())
       if open_order_line is not None and open_order_line.getValidationState() == "invalidated":
-        hosting_subscription.converge(comment="Last open order: %s" % open_order_line.getRelativeUrl())
+        instance_tree.converge(comment="Last open order: %s" % open_order_line.getRelativeUrl())
       elif open_order_line is None:
         # User has no Open Sale Order (likely), so we add the line to remove later. This allow us to charge
         # eventual usage between the runs of the alarm.
-        add_line_list.append(hosting_subscription)
+        add_line_list.append(instance_tree)
     else:
       assert len(portal.portal_catalog(
         portal_type='Open Sale Order Line',
-        default_aggregate_uid=hosting_subscription.getUid(),
+        default_aggregate_uid=instance_tree.getUid(),
         limit=1)) == 0
       # Let's add
-      add_line_list.append(hosting_subscription)
+      add_line_list.append(instance_tree)
   else:
     # Should be in the list of lines to remove
-    assert (hosting_subscription.getRelativeUrl() in deleted_hosting_subscription_dict) or \
-      (hosting_subscription.getRelativeUrl() in updated_hosting_subscription_dict)
+    assert (instance_tree.getRelativeUrl() in deleted_instance_tree_dict) or \
+      (instance_tree.getRelativeUrl() in updated_instance_tree_dict)
 
 manual_archive = False
 if (add_line_list):
@@ -172,13 +172,13 @@ if (add_line_list):
   added_line_list = []
   open_sale_order_line_template = portal.restrictedTraverse(
       portal.portal_preferences.getPreferredOpenSaleOrderLineTemplate())
-  for hosting_subscription in add_line_list:
+  for instance_tree in add_line_list:
     open_sale_order_line = open_sale_order_line_template.Base_createCloneDocument(batch_mode=1,
         destination=open_sale_order)
-    start_date = hosting_subscription.HostingSubscription_calculateSubscriptionStartDate()
+    start_date = instance_tree.InstanceTree_calculateSubscriptionStartDate()
 
     edit_kw = {}
-    subscription_request = hosting_subscription.getAggregateRelatedValue(portal_type="Subscription Request")
+    subscription_request = instance_tree.getAggregateRelatedValue(portal_type="Subscription Request")
     # Define the start date of the period, this can variates with the time.
     start_date_delta = 0
     if subscription_request is not None:
@@ -204,20 +204,20 @@ if (add_line_list):
 
     open_sale_order_line.edit(
       activate_kw=activate_kw,
-      title=hosting_subscription.getTitle(),
+      title=instance_tree.getTitle(),
       start_date=start_date,
       stop_date=calculateOpenOrderLineStopDate(open_sale_order_line,
-              hosting_subscription, start_date_delta=start_date_delta),
-      aggregate_value=hosting_subscription,
+              instance_tree, start_date_delta=start_date_delta),
+      aggregate_value=instance_tree,
       **edit_kw
       )
-    storeWorkflowComment(open_sale_order_line, "Created for %s" % hosting_subscription.getRelativeUrl())
-    if (hosting_subscription.getSlapState() == 'destroy_requested'):
+    storeWorkflowComment(open_sale_order_line, "Created for %s" % instance_tree.getRelativeUrl())
+    if (instance_tree.getSlapState() == 'destroy_requested'):
       # Added line to delete immediately
       delete_line_list.append(open_sale_order_line.getId())
-      hosting_subscription.converge(comment="Last open order: %s" % open_sale_order_line.getRelativeUrl())
+      instance_tree.converge(comment="Last open order: %s" % open_sale_order_line.getRelativeUrl())
     else:
-      hosting_subscription.converge(comment="First open order: %s" % open_sale_order_line.getRelativeUrl())
+      instance_tree.converge(comment="First open order: %s" % open_sale_order_line.getRelativeUrl())
     added_line_list.append(open_sale_order_line.getId())
   open_order_explanation += "Added %s." % str(added_line_list)
 

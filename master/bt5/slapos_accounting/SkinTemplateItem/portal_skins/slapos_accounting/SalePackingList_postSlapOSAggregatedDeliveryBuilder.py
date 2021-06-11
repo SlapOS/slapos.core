@@ -28,9 +28,9 @@ elif trade_condition == subscription_request_specialise:
   specialise_filter_list = specialise_list
 
 def test_for_subscription(movement, causality):
-  hosting_subscription = movement.getAggregateValue(portal_type="Hosting Subscription")
-  if hosting_subscription is not None:
-    return hosting_subscription.getAggregateRelated(portal_type="Subscription Request") == causality
+  instance_tree = movement.getAggregateValue(portal_type="Instance Tree")
+  if instance_tree is not None:
+    return instance_tree.getAggregateRelated(portal_type="Subscription Request") == causality
 
   if movement.getCausality(portal_type="Subscription Request") is not None:
     return movement.getCausality(portal_type="Subscription Request") == causality

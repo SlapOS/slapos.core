@@ -150,13 +150,13 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
 
   def checkSubmittedTrialRequest(self, trial_request, email, trial_condition, slave=0):
     self.checkTrialRequest(trial_request, email, trial_condition, slave=slave)
-    hosting_subscription = trial_request.getSpecialiseValue()
+    instance_tree = trial_request.getSpecialiseValue()
     software_instance = trial_request.getAggregateValue()
 
-    self.assertNotEqual(hosting_subscription, None)
+    self.assertNotEqual(instance_tree, None)
     self.assertNotEqual(software_instance, None)
     self.assertEqual(software_instance.getSpecialiseValue(),
-                     hosting_subscription)
+                     instance_tree)
 
     self.assertEqual(trial_request.getDefaultEmailText(), email)
 
@@ -168,15 +168,15 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
     #self.assertEqual(software_instance.getSlaXml(), '<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>')
     self.assertEqual(software_instance.getSourceReference(), "default")
 
-    self.assertEqual(hosting_subscription.getUrlString(),
+    self.assertEqual(instance_tree.getUrlString(),
                      trial_request.getUrlString())
-    self.assertEqual(hosting_subscription.getPortalType(),
-                     "Hosting Subscription")
-    self.assertEqual(hosting_subscription.getTextContent(),
+    self.assertEqual(instance_tree.getPortalType(),
+                     "Instance Tree")
+    self.assertEqual(instance_tree.getTextContent(),
                      '<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>')
-    #self.assertEqual(hosting_subscription.getSlaXml(),
+    #self.assertEqual(instance_tree.getSlaXml(),
     #                 '<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>')
-    self.assertEqual(hosting_subscription.getSourceReference(),
+    self.assertEqual(instance_tree.getSourceReference(),
                      "default")
 
     # Software instance not allocated yet
@@ -190,15 +190,15 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
     self.assertNotEqual(software_instance.getAggregate(), None)
 
   def checkInvalidatedTrialRequest(self, trial_request, email, trial_condition, slave=1):
-    hosting_subscription = trial_request.getSpecialiseValue()
+    instance_tree = trial_request.getSpecialiseValue()
     software_instance = trial_request.getAggregateValue()
-    self.assertNotEqual(hosting_subscription, None)
+    self.assertNotEqual(instance_tree, None)
     self.assertNotEqual(software_instance, None)
     self.assertEqual(software_instance.getSpecialiseValue(),
-                     hosting_subscription)
+                     instance_tree)
 
     self.assertEqual(trial_request.getDefaultEmailText(), email)
-    self.assertEqual(hosting_subscription.getSlapState(),
+    self.assertEqual(instance_tree.getSlapState(),
                      'destroy_requested', trial_request.getRelativeUrl())
 
     self.assertEqual(software_instance.getSlapState(),

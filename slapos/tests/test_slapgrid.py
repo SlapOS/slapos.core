@@ -403,7 +403,7 @@ class ComputerForTest(object):
               'status_code': 200,
               'content': dumps(slap_computer)
               }
-    elif url.path == '/getHostingSubscriptionIpList':
+    elif url.path == '/getInstanceTreeIpList':
       ip_address_list = self.ip_address_list
       return {
               'status_code': 200,

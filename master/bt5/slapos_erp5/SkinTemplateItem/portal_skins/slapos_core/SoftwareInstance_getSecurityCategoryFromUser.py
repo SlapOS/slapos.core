@@ -30,9 +30,9 @@ category_list = []
 if obj is None:
   return []
 
-hosting_subscription = obj.getSpecialiseValue(portal_type="Hosting Subscription")
-if hosting_subscription is not None:
-  person = hosting_subscription.getDestinationSectionValue(portal_type="Person")
+instance_tree = obj.getSpecialiseValue(portal_type="Instance Tree")
+if instance_tree is not None:
+  person = instance_tree.getDestinationSectionValue(portal_type="Person")
   if person is not None:
 
     for base_category in base_category_list:

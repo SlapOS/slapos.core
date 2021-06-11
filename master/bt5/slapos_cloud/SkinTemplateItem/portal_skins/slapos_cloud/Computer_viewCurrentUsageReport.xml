@@ -100,7 +100,7 @@
                         <string>my_busy_computer_partition_list_creation_date</string>
                         <string>my_busy_computer_partition_list_status</string>
                         <string>listbox_installation_status</string>
-                        <string>my_busy_computer_partition_list_hosting_subscription_title</string>
+                        <string>my_busy_computer_partition_list_instance_tree_title</string>
                         <string>my_busy_computer_partition_list_instance_title</string>
                         <string>listbox_image</string>
                         <string>listbox_software_release</string>

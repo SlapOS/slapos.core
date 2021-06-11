@@ -120,52 +120,52 @@ class TestOpenSaleOrderAlarm(SlapOSTestCaseMixin):
         portal_type='Open Sale Order',
         default_destination_uid=person.getUid()
     )
-    # No need to create any open order without hosting subscription
+    # No need to create any open order without instance tree
     self.assertEqual(0, len(open_sale_order_list))
 
-  @simulateByEditWorkflowMark('HostingSubscription_requestUpdateOpenSaleOrder')
+  @simulateByEditWorkflowMark('InstanceTree_requestUpdateOpenSaleOrder')
   def test_alarm_HS_diverged(self):
-    subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+    subscription = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     subscription.edit(reference='TESTHS-%s' % self.generateNewId())
     self.tic()
 
     self.portal.portal_alarms\
-        .slapos_request_update_hosting_subscription_open_sale_order\
+        .slapos_request_update_instance_tree_open_sale_order\
         .activeSense()
     self.tic()
     self.assertEqual(
-        'Visited by HostingSubscription_requestUpdateOpenSaleOrder',
+        'Visited by InstanceTree_requestUpdateOpenSaleOrder',
         subscription.workflow_history['edit_workflow'][-1]['comment'])
 
-class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
+class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
   def test_REQUEST_disallowed(self):
-    subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+    subscription = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     self.assertRaises(
       Unauthorized,
-      subscription.HostingSubscription_requestUpdateOpenSaleOrder,
+      subscription.InstanceTree_requestUpdateOpenSaleOrder,
       REQUEST={})
 
-  def test_solved_HostingSubscription(self):
-    subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+  def test_solved_InstanceTree(self):
+    subscription = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     self.portal.portal_workflow._jumpToStateFor(subscription, 'solved')
-    subscription.HostingSubscription_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
-  def test_empty_HostingSubscription(self):
+  def test_empty_InstanceTree(self):
     person = self.portal.person_module.template_member\
         .Base_createCloneDocument(batch_mode=1)
     self.tic()
-    subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+    subscription = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     subscription.edit(reference='TESTHS-%s' % self.generateNewId(),
         destination_section=person.getRelativeUrl())
     self.portal.portal_workflow._jumpToStateFor(subscription, 'validated')
     self.tic()
 
-    subscription.HostingSubscription_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder()
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -204,12 +204,12 @@ class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
       start_date = addToDate(start_date, to_add={'day': -1})
     self.assertEqual(start_date, line.getStopDate())
 
-  def test_usualLifetime_HostingSubscription(self):
+  def test_usualLifetime_InstanceTree(self):
     person = self.portal.person_module.template_member\
         .Base_createCloneDocument(batch_mode=1)
     self.tic()
-    subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+    subscription = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     subscription.edit(reference='TESTHS-%s' % self.generateNewId(),
         title='Test Title %s' % self.generateNewId(),
         destination_section=person.getRelativeUrl())
@@ -229,7 +229,7 @@ class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertEqual(subscription.getPeriodicityMonthDay(), 1)
     self.tic()
 
-    subscription.HostingSubscription_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder()
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -282,7 +282,7 @@ class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     subscription.diverge()
     self.tic()
 
-    subscription.HostingSubscription_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder()
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -332,12 +332,12 @@ class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertEqual(request_time, archived_line.getStartDate())
     self.assertEqual(DateTime('2112/02/02'), line.getStopDate())
 
-  def test_lateAnalysed_HostingSubscription(self):
+  def test_lateAnalysed_InstanceTree(self):
     person = self.portal.person_module.template_member\
         .Base_createCloneDocument(batch_mode=1)
     self.tic()
-    subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+    subscription = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     subscription.edit(reference='TESTHS-%s' % self.generateNewId(),
         title='Test Title %s' % self.generateNewId(),
         destination_section=person.getRelativeUrl())
@@ -367,7 +367,7 @@ class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     subscription.fixConsistency()
     self.tic()
 
-    subscription.HostingSubscription_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder()
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -423,12 +423,12 @@ class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
         portal_type='Open Sale Order Line')
     self.assertEqual(0, len(open_sale_order_line_list))
 
-  def test_two_HostingSubscription(self):
+  def test_two_InstanceTree(self):
     person = self.portal.person_module.template_member\
         .Base_createCloneDocument(batch_mode=1)
     self.tic()
-    subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+    subscription = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     subscription.edit(reference='TESTHS-%s' % self.generateNewId(),
         title='Test Title %s' % self.generateNewId(),
         destination_section=person.getRelativeUrl())
@@ -447,7 +447,7 @@ class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     subscription.fixConsistency()
     self.tic()
 
-    subscription.HostingSubscription_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder()
     self.tic()
 
     open_sale_order_list = self.portal.portal_catalog(
@@ -489,8 +489,8 @@ class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     stop_date = addToDate(stop_date, to_add={'second': -1})
     self.assertEqual(stop_date, line.getStopDate())
 
-    subscription2 = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+    subscription2 = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     subscription2.edit(reference='TESTHS-%s' % self.generateNewId(),
         title='Test Title %s' % self.generateNewId(),
         destination_section=person.getRelativeUrl())
@@ -509,7 +509,7 @@ class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     subscription2.fixConsistency()
     self.tic()
 
-    subscription2.HostingSubscription_requestUpdateOpenSaleOrder()
+    subscription2.InstanceTree_requestUpdateOpenSaleOrder()
     self.tic()
 
     open_sale_order_list = self.portal.portal_catalog(
@@ -570,20 +570,20 @@ class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertEqual(request_time_2, validated_line_2.getStartDate())
     self.assertEqual(stop_date_2, validated_line_2.getStopDate())
 
-  def test_hosting_subscription_start_date_not_changed(self):
+  def test_instance_tree_start_date_not_changed(self):
     # if there was no request_instance the getCreationDate has been used
     # but if request_instance appeared start_date is not changed
     person = self.portal.person_module.template_member\
         .Base_createCloneDocument(batch_mode=1)
     self.tic()
-    subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+    subscription = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     subscription.edit(reference='TESTHS-%s' % self.generateNewId(),
         destination_section=person.getRelativeUrl())
     self.portal.portal_workflow._jumpToStateFor(subscription, 'validated')
     self.tic()
 
-    subscription.HostingSubscription_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder()
     self.tic()
 
     request_time = DateTime('2112/01/01')
@@ -597,7 +597,7 @@ class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     })
     self.tic()
 
-    subscription.HostingSubscription_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder()
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -618,21 +618,21 @@ class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertEqual(subscription.getCreationDate().earliestTime(),
                      line.getStartDate())
 
-  def test_hosting_subscription_diverged_to_solve(self):
+  def test_instance_tree_diverged_to_solve(self):
     # check that HS becomes solved even if not modification is needed on open
     # order
     person = self.portal.person_module.template_member\
         .Base_createCloneDocument(batch_mode=1)
     self.tic()
-    subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+    subscription = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     subscription.edit(reference='TESTHS-%s' % self.generateNewId(),
         destination_section=person.getRelativeUrl())
     self.portal.portal_workflow._jumpToStateFor(subscription, 'validated')
     self.assertEqual(subscription.getCausalityState(), 'diverged')
     self.tic()
 
-    subscription.HostingSubscription_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder()
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -642,23 +642,23 @@ class TestHostingSubscription_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertEqual(subscription.getSlapState(), 'draft')
     self.tic()
 
-    subscription.HostingSubscription_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder()
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
-  def test_empty_destroyed_HostingSubscription(self):
+  def test_empty_destroyed_InstanceTree(self):
     person = self.portal.person_module.template_member\
         .Base_createCloneDocument(batch_mode=1)
     self.tic()
-    subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+    subscription = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     subscription.edit(reference='TESTHS-%s' % self.generateNewId(),
         destination_section=person.getRelativeUrl())
     self.portal.portal_workflow._jumpToStateFor(subscription, 'validated')
     self.portal.portal_workflow._jumpToStateFor(subscription, 'destroy_requested')
     self.tic()
 
-    subscription.HostingSubscription_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder()
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 

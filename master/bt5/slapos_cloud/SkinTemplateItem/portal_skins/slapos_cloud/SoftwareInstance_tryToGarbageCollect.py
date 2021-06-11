@@ -1,8 +1,8 @@
 instance = context
 
 if (instance.getSlapState() != "destroy_requested"):
-  hosting_subscription = instance.getSpecialiseValue(portal_type="Hosting Subscription")
-  if (hosting_subscription.getValidationState() == "archived"):
+  instance_tree = instance.getSpecialiseValue(portal_type="Instance Tree")
+  if (instance_tree.getValidationState() == "archived"):
     # Buildout didn't propagate the destruction request
     requester = instance.getSuccessorRelatedValue()
     

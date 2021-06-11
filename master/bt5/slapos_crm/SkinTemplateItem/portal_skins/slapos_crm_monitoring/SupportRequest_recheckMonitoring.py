@@ -1,7 +1,7 @@
 #
 # XXX This ticket contains dupplicated coded found arround SlapOS
 #     It is required to rewrite this in a generic way. 
-#     See also: HostingSubscription_checkSoftwareInstanceState
+#     See also: InstanceTree_checkSoftwareInstanceState
 #     See also: Computer_checkState
 #
 
@@ -60,14 +60,14 @@ if aggregate_portal_type == "Software Installation":
         (document.getUrlString(), computer_title, document.getCreationDate())
 
 
-if aggregate_portal_type == "Hosting Subscription":
+if aggregate_portal_type == "Instance Tree":
   if document.getMonitorScope() == "disabled":
     return "Monitor is disabled to the related %s." % document.getPortalType()
 
   message_list = []
-  hosting_subscription = document
+  instance_tree = document
 
-  software_instance_list = hosting_subscription.getSpecialiseRelatedValueList(
+  software_instance_list = instance_tree.getSpecialiseRelatedValueList(
                  portal_type=["Software Instance", "Slave Instance"])
 
   # Check if at least one software Instance is Allocated

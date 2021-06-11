@@ -9,7 +9,7 @@
   <role id='Auditor'>
    <property id='title'>Software Instance group related to Computer Partition</property>
    <property id='condition'>python: here.getSlapState() == "busy"</property>
-   <property id='base_category_script'>ERP5Type_getSecurityCategoryFromAggregateRelatedSoftwareInstanceHostingSubscription</property>
+   <property id='base_category_script'>ERP5Type_getSecurityCategoryFromAggregateRelatedSoftwareInstanceInstanceTree</property>
    <multi_property id='categories'>local_role_group/subscription</multi_property>
    <multi_property id='base_category'>aggregate</multi_property>
   </role>

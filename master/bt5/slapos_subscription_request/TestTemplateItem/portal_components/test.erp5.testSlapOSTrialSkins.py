@@ -7,15 +7,15 @@ import json
 
 class TestTrialSkinsMixin(SlapOSTestCaseMixinWithAbort):
 
-  def _makeHostingSubscription(self):
-    hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
-    hosting_subscription.edit(
+  def _makeInstanceTree(self):
+    instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    instance_tree.validate()
+    instance_tree.edit(
         title=self.generateNewSoftwareTitle(),
         reference="TESTSI-%s" % self.generateNewId(),
     )
-    return hosting_subscription
+    return instance_tree
 
   def _makeNotificationMessage(self, reference):
     notification_message = self.portal.notification_message_module.newContent(
@@ -291,14 +291,14 @@ class TestTrialRequest_processRequest(TestTrialSkinsMixin):
     self.assertNotEqual(None, trial_request)
 
     self.assertEqual(None, trial_request.TrialRequest_processRequest())
-    self.assertNotEqual(None, trial_request.getSpecialise(portal_type="Hosting Subscription"))
+    self.assertNotEqual(None, trial_request.getSpecialise(portal_type="Instance Tree"))
     self.assertNotEqual(None, trial_request.getAggregate(portal_type="Software Instance"))
     self.assertEqual("submitted", trial_request.getValidationState())
-    specialise = trial_request.getSpecialise(portal_type="Hosting Subscription")
+    specialise = trial_request.getSpecialise(portal_type="Instance Tree")
     aggregate = trial_request.getAggregate(portal_type="Software Instance")
 
     self.assertEqual(None, trial_request.TrialRequest_processRequest())
-    self.assertEqual(specialise, trial_request.getSpecialise(portal_type="Hosting Subscription"))
+    self.assertEqual(specialise, trial_request.getSpecialise(portal_type="Instance Tree"))
     self.assertEqual(aggregate, trial_request.getAggregate(portal_type="Software Instance"))
 
 class TestTrialRequest_processNotify(TestTrialSkinsMixin):
@@ -480,7 +480,7 @@ class TestTrialRequest_processDestroy(TestTrialSkinsMixin):
     try:
       trial_request = self.newTrialRequest()
       trial_request.edit(stop_date=DateTime()-10,
-                       specialise_value=self._makeHostingSubscription())
+                       specialise_value=self._makeInstanceTree())
 
       self.assertEqual(None, trial_request.TrialRequest_processDestroy())
     finally:
@@ -496,7 +496,7 @@ class TestTrialRequest_processDestroy(TestTrialSkinsMixin):
     self.makeFreeTrialUser()
     trial_request = self.newTrialRequest()
     trial_request.edit(stop_date=DateTime()-10,
-                       specialise_value=self._makeHostingSubscription())
+                       specialise_value=self._makeInstanceTree())
 
     self.assertEqual(None, trial_request.TrialRequest_processDestroy())
 
@@ -535,9 +535,9 @@ if "token" not in  mapping_dict:
     self.assertNotEqual(None, trial_request)
 
     self.assertEqual(None, trial_request.TrialRequest_processRequest())
-    hosting_subscription = trial_request.getSpecialiseValue(portal_type="Hosting Subscription")
+    instance_tree = trial_request.getSpecialiseValue(portal_type="Instance Tree")
     instance = trial_request.getAggregateValue(portal_type="Software Instance")
-    self.assertEqual("start_requested", hosting_subscription.getSlapState())
+    self.assertEqual("start_requested", instance_tree.getSlapState())
     self.assertEqual("start_requested", instance.getSlapState())
 
     trial_request.edit(stop_date=DateTime()-10)
@@ -554,7 +554,7 @@ if "token" not in  mapping_dict:
 
     self.assertEqual("invalidated", trial_request.getValidationState())
     self.tic()
-    self.assertEqual("destroy_requested", hosting_subscription.getSlapState(), hosting_subscription.getRelativeUrl())
+    self.assertEqual("destroy_requested", instance_tree.getSlapState(), instance_tree.getRelativeUrl())
     self.assertEqual("destroy_requested", instance.getSlapState())
 
 

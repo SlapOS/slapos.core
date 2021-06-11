@@ -7,7 +7,7 @@ if aggregate_value.getPortalType() == "Computer":
   destination_decision = aggregate_value.getSourceAdministration()
 elif aggregate_value.getPortalType() == "Software Instance":
   destination_decision = aggregate_value.getSpecialiseValue().getDestinationSection()
-elif aggregate_value.getPortalType() == "Hosting Subscription":
+elif aggregate_value.getPortalType() == "Instance Tree":
   destination_decision = aggregate_value.getDestinationSection()
 elif aggregate_value.getPortalType() == "Software Installation":
   destination_decision = aggregate_value.getDestinationSection()

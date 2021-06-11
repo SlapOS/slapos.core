@@ -9888,7 +9888,7 @@ Gpg
   translation_domain: None
   write_permission: Modify portal content
 
-HostingSubscription
+InstanceTree
   elementary_type: boolean
   id: root_slave_property
   multivaluated: None
@@ -9903,7 +9903,7 @@ HostingSubscription
   translation_domain: None
   write_permission: Modify portal content
 
-HostingSubscription
+InstanceTree
   elementary_type: string
   id: root_state_property
   multivaluated: None
@@ -15976,7 +15976,7 @@ SitePropertyConfiguratorItem
   translation_domain: None
   write_permission: Modify portal content
 
-SlapOSAccountingHostingSubscriptionConstraint
+SlapOSAccountingInstanceTreeConstraint
   id: periodicity_hour_list_value_constraint
   message_invalid_attribute_value: Attribute ${attribute_name} value is ${current_value} but should be ${expected_value}
   message_invalid_attribute_value_fixed: Attribute ${attribute_name} value is ${current_value} but should be ${expected_value} (Fixed)
@@ -15984,7 +15984,7 @@ SlapOSAccountingHostingSubscriptionConstraint
   portal_type: Attribute Equality Constraint
   reference: periodicity_hour_list_value
 
-SlapOSAccountingHostingSubscriptionConstraint
+SlapOSAccountingInstanceTreeConstraint
   id: periodicity_minute_list_value_constraint
   message_invalid_attribute_value: Attribute ${attribute_name} value is ${current_value} but should be ${expected_value}
   message_invalid_attribute_value_fixed: Attribute ${attribute_name} value is ${current_value} but should be ${expected_value} (Fixed)
@@ -15992,7 +15992,7 @@ SlapOSAccountingHostingSubscriptionConstraint
   portal_type: Attribute Equality Constraint
   reference: periodicity_minute_list_value
 
-SlapOSAccountingHostingSubscriptionConstraint
+SlapOSAccountingInstanceTreeConstraint
   expression: python: len(context.getPeriodicityMonthDayList()) == 1
   id: periodicity_month_day_list_lenght_constraint
   message_expression_error: Error while evaluating expression: ${error}
@@ -16000,7 +16000,7 @@ SlapOSAccountingHostingSubscriptionConstraint
   portal_type: TALES Constraint
   reference: periodicity_month_day_list_lenght
 
-SlapOSAccountingHostingSubscriptionConstraint
+SlapOSAccountingInstanceTreeConstraint
   expression: python: 1 <= context.getPeriodicityMonthDay() <= 28
   id: periodicity_month_day_value_range_constraint
   message_expression_error: Error while evaluating expression: ${error}
@@ -16008,7 +16008,7 @@ SlapOSAccountingHostingSubscriptionConstraint
   portal_type: TALES Constraint
   reference: periodicity_month_day_value_range
 
-SlapOSAccountingHostingSubscriptionConstraint
+SlapOSAccountingInstanceTreeConstraint
   constraint_property_list: ['periodicity_hour', 'periodicity_minute', 'periodicity_month_day']
   id: periodicity_property_constraint
   message_no_such_property: Property existence error for property ${property_id}, this document has no such property or the property has never been set
@@ -16162,13 +16162,13 @@ SlapOSAccountingSalePackingListConstraint
   reference: start_date_existence
 
 SlapOSAccountingSalePackingListLineConstraint
-  id: aggregate_hosting_subscription_constraint
-  message_arity_not_in_range: There should be one Hosting Subscription related
-  message_arity_too_small: There should be one Hosting Subscription related
-  message_arity_with_portal_type_not_in_range: There should be one Hosting Subscription related
-  message_arity_with_portal_type_too_small: There should be one Hosting Subscription related
+  id: aggregate_instance_tree_constraint
+  message_arity_not_in_range: There should be one Instance Tree related
+  message_arity_too_small: There should be one Instance Tree related
+  message_arity_with_portal_type_not_in_range: There should be one Instance Tree related
+  message_arity_with_portal_type_too_small: There should be one Instance Tree related
   portal_type: Category Membership Arity Constraint
-  reference: aggregate_hosting_subscription
+  reference: aggregate_instance_tree
 
 SlapOSAccountingSalePackingListLineConstraint
   id: aggregate_software_instance_constraint
@@ -16725,14 +16725,14 @@ SlaposEmailConstraint
   portal_type: TALES Constraint
   reference: email_not_empty
 
-SlaposHostingSubscriptionConstraint
+SlaposInstanceTreeConstraint
   constraint_property_list: ['reference', 'title']
   id: basic_property_constraint
   message_no_such_property: Property existence error for property ${property_id}, this document has no such property or the property has never been set
   portal_type: Property Existence Constraint
   reference: basic_property
 
-SlaposHostingSubscriptionConstraint
+SlaposInstanceTreeConstraint
   constraint_property_list: ['source_reference', 'root_slave', 'url_string']
   id: instance_property_constraint
   message_no_such_property: Property existence error for property ${property_id}, this document has no such property or the property has never been set

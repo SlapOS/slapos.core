@@ -14,25 +14,25 @@ if sale_invoice_transaction is not None:
     else:
       reservation_fee_state = "Paid"
 
-hosting_subscription = context.getAggregateValue(portal_type="Hosting Subscription")
-hosting_subscription_state = "Hosting Subscription Not Found"
+instance_tree = context.getAggregateValue(portal_type="Instance Tree")
+instance_tree_state = "Instance Tree Not Found"
 
-if hosting_subscription is not None:
+if instance_tree is not None:
   unallocated_instance_list = len([
-    x for x in hosting_subscription.getSpecialiseRelatedValueList(portal_type=["Software Instance", "Slave Instance"]) 
+    x for x in instance_tree.getSpecialiseRelatedValueList(portal_type=["Software Instance", "Slave Instance"]) 
       if x.getAggregateValue() is None])
 
   if  unallocated_instance_list > 0:
-    hosting_subscription_state = "Allocation Unfinished"
+    instance_tree_state = "Allocation Unfinished"
   else:
-    hosting_subscription_state = "OK"
+    instance_tree_state = "OK"
 
 return """
 Title: %s
 State: %s
 Reservation Fee State: %s
-Hosting Subscription State: %s
+Instance Tree State: %s
 """ % (context.getTitle(),
       context.getSimulationStateTitle(),
       reservation_fee_state,
-      hosting_subscription_state)
+      instance_tree_state)

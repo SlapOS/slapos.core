@@ -1,1 +1,1 @@
-return context.HostingSubscription_getDefaultImageAbsoluteUrl()
+return context.InstanceTree_getDefaultImageAbsoluteUrl()

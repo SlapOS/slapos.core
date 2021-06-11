@@ -505,10 +505,10 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     """
     Test that when mode is "unique_by_network", we deploy new instance on
     computer network not already used by any software instance of the
-    hosting subscription.
+    instance tree.
     Then test that we do NOT deploy new instance on
     computer network already used by any software instance of the
-    hosting subscription.
+    instance tree.
     """
     sla_xml = """<?xml version='1.0' encoding='utf-8'?>
         <instance>
@@ -541,7 +541,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
       source_reference=self.generateNewSoftwareType(),
       text_content=self.generateSafeXml(),
       sla_xml=sla_xml,
-      specialise=self.hosting_subscription.getRelativeUrl(),
+      specialise=self.instance_tree.getRelativeUrl(),
     )
     self.portal.portal_workflow._jumpToStateFor(software_instance2, 'start_requested')
     self.portal.portal_workflow._jumpToStateFor(software_instance2, 'validated')
@@ -582,10 +582,10 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     """
     Test that when mode is "unique_by_network", we deploy new instance on
     computer network not already used by any software instance of the
-    hosting subscription.
+    instance tree.
     Then test that we do NOT deploy new instance on
     computer network already used by any software instance of the
-    hosting subscription.
+    instance tree.
     Test with 3 instances and 3 existing computers on 2 different networks.
     """
     self.tic()
@@ -635,7 +635,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
       source_reference=self.generateNewSoftwareType(),
       text_content=self.generateSafeXml(),
       sla_xml=sla_xml,
-      specialise=self.hosting_subscription.getRelativeUrl(),
+      specialise=self.instance_tree.getRelativeUrl(),
     )
     self.portal.portal_workflow._jumpToStateFor(software_instance2, 'start_requested')
     software_instance2.validate()
@@ -655,7 +655,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
       source_reference=self.generateNewSoftwareType(),
       text_content=self.generateSafeXml(),
       sla_xml=sla_xml,
-      specialise=self.hosting_subscription.getRelativeUrl(),
+      specialise=self.instance_tree.getRelativeUrl(),
     )
     self.portal.portal_workflow._jumpToStateFor(software_instance3, 'start_requested')
     software_instance3.validate()
@@ -703,7 +703,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     def verify_serialize_call(self):
       # it is checking that anything below computer_module raises exception
       # thanks to this this test do not have to be destructive
-      if self.getPortalType() == "Hosting Subscription":
+      if self.getPortalType() == "Instance Tree":
         raise DummyTestException
       else:
         return self.serialize_call()
@@ -728,7 +728,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_mode_unique_by_network_no_parallel(self):
     """
-    Test that when we request two instances of the same Hosting Subscription
+    Test that when we request two instances of the same Instance Tree
     with mode as 'unique_by_network' at the same time, they don't get
     allocated to the same network.
     """
@@ -763,7 +763,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
       source_reference=self.generateNewSoftwareType(),
       text_content=self.generateSafeXml(),
       sla_xml=sla_xml,
-      specialise=self.hosting_subscription.getRelativeUrl(),
+      specialise=self.instance_tree.getRelativeUrl(),
     )
     self.portal.portal_workflow._jumpToStateFor(software_instance2, 'start_requested')
     self.portal.portal_workflow._jumpToStateFor(software_instance2, 'validated')

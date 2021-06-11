@@ -1,4 +1,4 @@
 portal_preferences/slapos_default_site_preference
 portal_preferences/slapos_default_system_preference
 person_module/template_member
-hosting_subscription_module/template_**
+instance_tree_module/template_**

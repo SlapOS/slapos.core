@@ -5,13 +5,13 @@ Computer Partition | unfiltered_tracking_list
 Computer | computer_usage
 Computer | tracking
 Computer | view_capacity
-Hosting Subscription Module | view
-Hosting Subscription | request_hs_start
-Hosting Subscription | request_hs_stop
-Hosting Subscription | view
-Hosting Subscription | view_request_destroy
-Person | jump_to_hosting_subscription
-Slave Instance | jump_to_hosting_subscription
+Instance Tree Module | view
+Instance Tree | request_hs_start
+Instance Tree | request_hs_stop
+Instance Tree | view
+Instance Tree | view_request_destroy
+Person | jump_to_instance_tree
+Slave Instance | jump_to_instance_tree
 Slave Instance | jump_to_software_instance
 Slave Instance | unfiltered_tracking_list
 Slave Instance | view
@@ -20,7 +20,7 @@ Software Installation | request_destroy
 Software Installation | view
 Software Instance Module | view
 Software Instance | jump_to_computer_partition
-Software Instance | jump_to_hosting_subscription
+Software Instance | jump_to_instance_tree
 Software Instance | jump_to_software_instance
 Software Instance | unfiltered_tracking_list
 Software Instance | view

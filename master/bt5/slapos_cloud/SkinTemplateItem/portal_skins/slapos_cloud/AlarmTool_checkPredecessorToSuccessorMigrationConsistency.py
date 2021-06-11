@@ -2,7 +2,7 @@ portal = context.getPortalObject()
 result_list = []
 
 migration_kw = {
-  'portal_type': ['Software Instance', 'Hosting Subscription'],
+  'portal_type': ['Software Instance', 'Instance Tree'],
   'predecessor__uid': '%'
 }
 

@@ -19,13 +19,13 @@ class TestSlapOSHypermediaMixin(SlapOSTestCaseMixinWithAbort):
     self.changeSkin('Hal')
     return person_user
 
-  def _makeHostingSubscription(self):
-    hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
+  def _makeInstanceTree(self):
+    instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    instance_tree.validate()
     self.tic()
     self.changeSkin('Hal')
-    return hosting_subscription
+    return instance_tree
 
   def _makeInstance(self):
     instance = self.portal.software_instance_module\
@@ -96,11 +96,11 @@ class TestSlapOSPersonERP5Document_getHateoas(TestSlapOSHypermediaMixin):
         u'title': u'getHateoasComputerList'
       },
       {
-        u'href': u'%s/Person_getHateoasHostingSubscriptionList' % \
+        u'href': u'%s/Person_getHateoasInstanceTreeList' % \
           person_user.absolute_url(),
-        u'name': u'get_hateoas_hosting_subscription_list',
+        u'name': u'get_hateoas_instance_tree_list',
         u'icon': u'',
-        u'title': u'getHateoasHostingSubscriptionList'
+        u'title': u'getHateoasInstanceTreeList'
       },
       {
         u'href': u'%s/Person_getHateoasInformation' % \
@@ -113,11 +113,11 @@ class TestSlapOSPersonERP5Document_getHateoas(TestSlapOSHypermediaMixin):
       self.assertTrue(action in action_object_slap, \
         "%s not in %s" % (action, action_object_slap))
     self.assertEqual(results['_links']['action_object_slap_post'], {
-        u"href": u'%s/Person_requestHateoasHostingSubscription' %  \
+        u"href": u'%s/Person_requestHateoasInstanceTree' %  \
           person_user.absolute_url(),
-        u"name": u"request_hateoas_hosting_subscription",
+        u"name": u"request_hateoas_instance_tree",
         u'icon': u'',
-        u"title": u"requestHateoasHostingSubscription"
+        u"title": u"requestHateoasInstanceTree"
     })
 
 
@@ -171,22 +171,22 @@ class TestSlapOSERP5Document_getHateoas_me(TestSlapOSHypermediaMixin):
       {"href": "urn:jio:get:%s" % computer.getRelativeUrl()}
     )
 
-class TestSlapOSPerson_requestHateoasHostingSubscription(TestSlapOSHypermediaMixin):
+class TestSlapOSPerson_requestHateoasInstanceTree(TestSlapOSHypermediaMixin):
 
   @changeSkin('Hal')
-  def test_requestHateoasHostingSubscription_REQUEST_mandatory(self):
+  def test_requestHateoasInstanceTree_REQUEST_mandatory(self):
     self.assertRaises(
       Unauthorized,
-      self.portal.Person_requestHateoasHostingSubscription
+      self.portal.Person_requestHateoasInstanceTree
     )
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/vnd+bar"')
   @changeSkin('Hal')
-  def test_requestHateoasHostingSubscription_wrong_CONTENT(self):
+  def test_requestHateoasInstanceTree_wrong_CONTENT(self):
     person_user = self._makePerson()
     fake_request = do_fake_request("POST")
-    result = person_user.Person_requestHateoasHostingSubscription(
+    result = person_user.Person_requestHateoasInstanceTree(
       REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 406)
     self.assertEqual(result, "")
@@ -194,10 +194,10 @@ class TestSlapOSPerson_requestHateoasHostingSubscription(TestSlapOSHypermediaMix
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/json"')
   @changeSkin('Hal')
-  def test_requestHateoasHostingSubscription_bad_method(self):
+  def test_requestHateoasInstanceTree_bad_method(self):
     person_user = self._makePerson()
     fake_request = do_fake_request("GET")
-    result = person_user.Person_requestHateoasHostingSubscription(
+    result = person_user.Person_requestHateoasInstanceTree(
       REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 405)
     self.assertEqual(result, "")
@@ -205,9 +205,9 @@ class TestSlapOSPerson_requestHateoasHostingSubscription(TestSlapOSHypermediaMix
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/json"')
   @changeSkin('Hal')
-  def test_requestHateoasHostingSubscription_not_person_context(self):
+  def test_requestHateoasInstanceTree_not_person_context(self):
     fake_request = do_fake_request("POST")
-    result = self.portal.Person_requestHateoasHostingSubscription(
+    result = self.portal.Person_requestHateoasInstanceTree(
       REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 403)
     self.assertEqual(result, "")
@@ -217,10 +217,10 @@ class TestSlapOSPerson_requestHateoasHostingSubscription(TestSlapOSHypermediaMix
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/json"')
   @changeSkin('Hal')
-  def test_requestHateoasHostingSubscription_no_json(self):
+  def test_requestHateoasInstanceTree_no_json(self):
     person_user = self._makePerson()
     fake_request = do_fake_request("POST")
-    result = person_user.Person_requestHateoasHostingSubscription(
+    result = person_user.Person_requestHateoasInstanceTree(
       REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 400)
     self.assertEqual(result, "")
@@ -231,10 +231,10 @@ class TestSlapOSPerson_requestHateoasHostingSubscription(TestSlapOSHypermediaMix
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/json"')
   @changeSkin('Hal')
-  def test_requestHateoasHostingSubscription_missing_parameter(self):
+  def test_requestHateoasInstanceTree_missing_parameter(self):
     person_user = self._makePerson()
     fake_request = do_fake_request("POST")
-    result = person_user.Person_requestHateoasHostingSubscription(
+    result = person_user.Person_requestHateoasInstanceTree(
       REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 400)
     self.assertEqual(result, "")
@@ -252,31 +252,31 @@ class TestSlapOSPerson_requestHateoasHostingSubscription(TestSlapOSHypermediaMix
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/json"')
   @changeSkin('Hal')
-  def test_requestHateoasHostingSubscription_result(self):
+  def test_requestHateoasInstanceTree_result(self):
     person_user = self._makePerson()
     fake_request = do_fake_request("POST")
-    result = person_user.Person_requestHateoasHostingSubscription(
+    result = person_user.Person_requestHateoasInstanceTree(
       REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 201)
     self.assertEqual(result, "")
     # XXX Test that person.request is called.
 
-class TestSlapOSPerson_getHateoasHostingSubscriptionList(TestSlapOSHypermediaMixin):
+class TestSlapOSPerson_getHateoasInstanceTreeList(TestSlapOSHypermediaMixin):
 
   @changeSkin('Hal')
-  def test_getHateoasHostingSubscriptionList_REQUEST_mandatory(self):
+  def test_getHateoasInstanceTreeList_REQUEST_mandatory(self):
     self.assertRaises(
       Unauthorized,
-      self.portal.Person_getHateoasHostingSubscriptionList
+      self.portal.Person_getHateoasInstanceTreeList
     )
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/vnd+bar"')
   @changeSkin('Hal')
-  def test_getHateoasHostingSubscriptionList_wrong_ACCEPT(self):
+  def test_getHateoasInstanceTreeList_wrong_ACCEPT(self):
     person_user = self._makePerson()
     fake_request = do_fake_request("GET")
-    result = person_user.Person_getHateoasHostingSubscriptionList(
+    result = person_user.Person_getHateoasInstanceTreeList(
         REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 406)
     self.assertEqual(result, "")
@@ -284,9 +284,9 @@ class TestSlapOSPerson_getHateoasHostingSubscriptionList(TestSlapOSHypermediaMix
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json')
   @changeSkin('Hal')
-  def test_getHateoasHostingSubscriptionList_bad_method(self):
+  def test_getHateoasInstanceTreeList_bad_method(self):
     fake_request = do_fake_request("POST")
-    result = self.portal.Person_getHateoasHostingSubscriptionList(
+    result = self.portal.Person_getHateoasInstanceTreeList(
         REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 405)
     self.assertEqual(result, "")
@@ -294,9 +294,9 @@ class TestSlapOSPerson_getHateoasHostingSubscriptionList(TestSlapOSHypermediaMix
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
   @changeSkin('Hal')
-  def test_getHateoasHostingSubscriptionList_not_person_context(self):
+  def test_getHateoasInstanceTreeList_not_person_context(self):
     fake_request = do_fake_request("GET")
-    result = self.portal.Person_getHateoasHostingSubscriptionList(
+    result = self.portal.Person_getHateoasInstanceTreeList(
       REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 403)
     self.assertEqual(result, "")
@@ -305,16 +305,16 @@ class TestSlapOSPerson_getHateoasHostingSubscriptionList(TestSlapOSHypermediaMix
       'return "http://example.org/foo"')
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
-  def test_getHateoasHostingSubscriptionList_person_result(self):
+  def test_getHateoasInstanceTreeList_person_result(self):
     person_user = self._makePerson()
-    hosting_subscription = self._makeHostingSubscription()
-    hosting_subscription.edit(destination_section_value=person_user)
+    instance_tree = self._makeInstanceTree()
+    instance_tree.edit(destination_section_value=person_user)
     self.tic()
 
     self.login(person_user.getUserId())
     self.changeSkin('Hal')
     fake_request = do_fake_request("GET")
-    result = person_user.Person_getHateoasHostingSubscriptionList(
+    result = person_user.Person_getHateoasInstanceTreeList(
         REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 200)
     self.assertEqual(fake_request.RESPONSE.getHeader('Content-Type'),
@@ -331,28 +331,28 @@ class TestSlapOSPerson_getHateoasHostingSubscriptionList(TestSlapOSHypermediaMix
         },
         "content": [{
           "href": "%s/ERP5Document_getHateoas" % \
-              hosting_subscription.absolute_url(),
-          "title": "Template Hosting Subscription"
+              instance_tree.absolute_url(),
+          "title": "Template Instance Tree"
         }],
       },
     }, indent=2))
 
-class TestSlapOSHostingSubscription_getHateoasInstanceList(TestSlapOSHypermediaMixin):
+class TestSlapOSInstanceTree_getHateoasInstanceList(TestSlapOSHypermediaMixin):
 
   @changeSkin('Hal')
   def test_getHateoasInstanceList_REQUEST_mandatory(self):
     self.assertRaises(
       Unauthorized,
-      self.portal.HostingSubscription_getHateoasInstanceList
+      self.portal.InstanceTree_getHateoasInstanceList
     )
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/vnd+bar"')
   @changeSkin('Hal')
   def test_getHateoasInstanceList_wrong_ACCEPT(self):
-    subscription = self._makeHostingSubscription()
+    subscription = self._makeInstanceTree()
     fake_request = do_fake_request("GET")
-    result = subscription.HostingSubscription_getHateoasInstanceList(
+    result = subscription.InstanceTree_getHateoasInstanceList(
         REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 406)
     self.assertEqual(result, "")
@@ -362,7 +362,7 @@ class TestSlapOSHostingSubscription_getHateoasInstanceList(TestSlapOSHypermediaM
   @changeSkin('Hal')
   def test_getHateoasInstanceList_bad_method(self):
     fake_request = do_fake_request("POST")
-    result = self.portal.HostingSubscription_getHateoasInstanceList(
+    result = self.portal.InstanceTree_getHateoasInstanceList(
         REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 405)
     self.assertEqual(result, "")
@@ -370,9 +370,9 @@ class TestSlapOSHostingSubscription_getHateoasInstanceList(TestSlapOSHypermediaM
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
   @changeSkin('Hal')
-  def test_getHateoasInstanceList_not_hosting_subscription_context(self):
+  def test_getHateoasInstanceList_not_instance_tree_context(self):
     fake_request = do_fake_request("GET")
-    result = self.portal.HostingSubscription_getHateoasInstanceList(
+    result = self.portal.InstanceTree_getHateoasInstanceList(
       REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 403)
     self.assertEqual(result, "")
@@ -383,13 +383,13 @@ class TestSlapOSHostingSubscription_getHateoasInstanceList(TestSlapOSHypermediaM
             'return "application/hal+json"')
   @changeSkin('Hal')
   def test_getHateoasInstanceList_person_result(self):
-    subscription = self._makeHostingSubscription()
+    subscription = self._makeInstanceTree()
     instance= self._makeInstance()
     instance.edit(specialise_value=subscription)
     self.tic()
 
     fake_request = do_fake_request("GET")
-    result = subscription.HostingSubscription_getHateoasInstanceList(
+    result = subscription.InstanceTree_getHateoasInstanceList(
         REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 200)
     self.assertEqual(fake_request.RESPONSE.getHeader('Content-Type'),
@@ -407,27 +407,27 @@ class TestSlapOSHostingSubscription_getHateoasInstanceList(TestSlapOSHypermediaM
         }],
         "index": {
           "href": "urn:jio:get:%s" % subscription.getRelativeUrl(),
-          "title": "Hosting Subscription"
+          "title": "Instance Tree"
         },
       },
     }, indent=2))
 
-class TestSlapOSHostingSubscription_getHateoasRootSoftwareInstance(TestSlapOSHypermediaMixin):
+class TestSlapOSInstanceTree_getHateoasRootSoftwareInstance(TestSlapOSHypermediaMixin):
 
   @changeSkin('Hal')
   def test_getHateoasRootSoftwareInstance_REQUEST_mandatory(self):
     self.assertRaises(
       Unauthorized,
-      self.portal.HostingSubscription_getHateoasRootSoftwareInstance
+      self.portal.InstanceTree_getHateoasRootSoftwareInstance
     )
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/vnd+bar"')
   @changeSkin('Hal')
   def test_getHateoasRootSoftwareInstance_wrong_ACCEPT(self):
-    subscription = self._makeHostingSubscription()
+    subscription = self._makeInstanceTree()
     fake_request = do_fake_request("GET")
-    result = subscription.HostingSubscription_getHateoasRootSoftwareInstance(
+    result = subscription.InstanceTree_getHateoasRootSoftwareInstance(
         REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 406)
     self.assertEqual(result, "")
@@ -437,7 +437,7 @@ class TestSlapOSHostingSubscription_getHateoasRootSoftwareInstance(TestSlapOSHyp
   @changeSkin('Hal')
   def test_getHateoasRootSoftwareInstance_bad_method(self):
     fake_request = do_fake_request("POST")
-    result = self.portal.HostingSubscription_getHateoasRootSoftwareInstance(
+    result = self.portal.InstanceTree_getHateoasRootSoftwareInstance(
         REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 405)
     self.assertEqual(result, "")
@@ -445,9 +445,9 @@ class TestSlapOSHostingSubscription_getHateoasRootSoftwareInstance(TestSlapOSHyp
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
   @changeSkin('Hal')
-  def test_getHateoasRootSoftwareInstance_not_hosting_subscription_context(self):
+  def test_getHateoasRootSoftwareInstance_not_instance_tree_context(self):
     fake_request = do_fake_request("GET")
-    result = self.portal.HostingSubscription_getHateoasRootSoftwareInstance(
+    result = self.portal.InstanceTree_getHateoasRootSoftwareInstance(
       REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 403)
     self.assertEqual(result, "")
@@ -459,14 +459,14 @@ class TestSlapOSHostingSubscription_getHateoasRootSoftwareInstance(TestSlapOSHyp
             'return "application/hal+json"')
   @changeSkin('Hal')
   def test_getHateoasRootSoftwareInstance_person_result(self):
-    subscription = self._makeHostingSubscription()
+    subscription = self._makeInstanceTree()
     instance = self._makeInstance()
     instance.edit(specialise_value=subscription, title=subscription.getTitle())
     subscription.edit(successor_value=instance)
     self.tic()
 
     fake_request = do_fake_request("GET")
-    result = subscription.HostingSubscription_getHateoasRootSoftwareInstance(
+    result = subscription.InstanceTree_getHateoasRootSoftwareInstance(
         REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 200)
     self.assertEqual(fake_request.RESPONSE.getHeader('Content-Type'),
@@ -483,7 +483,7 @@ class TestSlapOSHostingSubscription_getHateoasRootSoftwareInstance(TestSlapOSHyp
         }],
         "index": {
           "href": "urn:jio:get:%s" % subscription.getRelativeUrl(),
-          "title": "Hosting Subscription"
+          "title": "Instance Tree"
         },
       },
     }, indent=2))
@@ -576,7 +576,7 @@ class TestSlapOSInstance_getHateoasNews(TestSlapOSHypermediaMixin):
       },
     }, indent=2)))
 
-class TestSlapOSInstance_getHateoasRelatedHostingSubscription(TestSlapOSHypermediaMixin):
+class TestSlapOSInstance_getHateoasRelatedInstanceTree(TestSlapOSHypermediaMixin):
 
   def _makeInstance(self):
     instance = self.portal.software_instance_module\
@@ -595,19 +595,19 @@ class TestSlapOSInstance_getHateoasRelatedHostingSubscription(TestSlapOSHypermed
     return instance
 
   @changeSkin('Hal')
-  def test_getHateoasRelatedHostingSubscription_REQUEST_mandatory(self):
+  def test_getHateoasRelatedInstanceTree_REQUEST_mandatory(self):
     self.assertRaises(
       Unauthorized,
-      self.portal.Instance_getHateoasRelatedHostingSubscription
+      self.portal.Instance_getHateoasRelatedInstanceTree
     )
 
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/vnd+bar"')
   @changeSkin('Hal')
-  def test_getHateoasRelatedHostingSubscription_wrong_ACCEPT(self):
+  def test_getHateoasRelatedInstanceTree_wrong_ACCEPT(self):
     instance = self._makeInstance()
     fake_request = do_fake_request("GET")
-    result = instance.Instance_getHateoasRelatedHostingSubscription(
+    result = instance.Instance_getHateoasRelatedInstanceTree(
         REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 406)
     self.assertEqual(result, "")
@@ -615,10 +615,10 @@ class TestSlapOSInstance_getHateoasRelatedHostingSubscription(TestSlapOSHypermed
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
   @changeSkin('Hal')
-  def test_getHateoasRelatedHostingSubscription_bad_method(self):
+  def test_getHateoasRelatedInstanceTree_bad_method(self):
     instance = self._makeInstance()
     fake_request = do_fake_request("POST")
-    result = instance.Instance_getHateoasRelatedHostingSubscription(
+    result = instance.Instance_getHateoasRelatedInstanceTree(
         REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 405)
     self.assertEqual(result, "")
@@ -626,9 +626,9 @@ class TestSlapOSInstance_getHateoasRelatedHostingSubscription(TestSlapOSHypermed
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
   @changeSkin('Hal')
-  def test_getHateoasRelatedHostingSubscription_not_instance_context(self):
+  def test_getHateoasRelatedInstanceTree_not_instance_context(self):
     fake_request = do_fake_request("GET")
-    result = self.portal.Instance_getHateoasRelatedHostingSubscription(REQUEST=fake_request)
+    result = self.portal.Instance_getHateoasRelatedInstanceTree(REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 403)
     self.assertEqual(result, "")
 
@@ -637,13 +637,13 @@ class TestSlapOSInstance_getHateoasRelatedHostingSubscription(TestSlapOSHypermed
   @simulate('Base_getRequestHeader', '*args, **kwargs',
             'return "application/hal+json"')
   @changeSkin('Hal')
-  def test_getHateoasRelatedHostingSubscription_result(self):
-    subscription = self._makeHostingSubscription()
+  def test_getHateoasRelatedInstanceTree_result(self):
+    subscription = self._makeInstanceTree()
     instance= self._makeInstance()
     instance.edit(specialise_value=subscription)
     self.tic()
     fake_request = do_fake_request("GET")
-    result = instance.Instance_getHateoasRelatedHostingSubscription(
+    result = instance.Instance_getHateoasRelatedInstanceTree(
         REQUEST=fake_request)
     self.assertEqual(fake_request.RESPONSE.status, 200)
     self.assertEqual(fake_request.RESPONSE.getHeader('Content-Type'),
@@ -662,7 +662,7 @@ class TestSlapOSInstance_getHateoasRelatedHostingSubscription(TestSlapOSHypermed
         },
         "action_object_jump": {
           'href': "%s/ERP5Document_getHateoas" % subscription.getAbsoluteUrl(),
-          'title': "Hosting Subscription"
+          'title': "Instance Tree"
         }
       },
     }, indent=2)))

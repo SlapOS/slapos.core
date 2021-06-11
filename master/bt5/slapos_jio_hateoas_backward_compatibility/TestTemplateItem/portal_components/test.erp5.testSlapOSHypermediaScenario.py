@@ -106,12 +106,12 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
     user_hal = json.loads(response.read())
 
     #####################################################
-    # Run method to request an hosting subscription
+    # Run method to request an instance tree
     #####################################################
 
     request_link_dict = hateoasGetLinkFromLinks(
         user_hal['_links']['action_object_slap_post'],
-        'requestHateoasHostingSubscription'
+        'requestHateoasInstanceTree'
     )
     self.assertNotEqual(request_link_dict, None)
     connection = getNewHttpConnection(api_netloc)
@@ -139,11 +139,11 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
     self.tic()
 
     #####################################################
-    # Get user's hosting subscription list
+    # Get user's instance tree list
     #####################################################
     user_link_dict = hateoasGetLinkFromLinks(
         user_hal['_links']['action_object_slap'],
-        'getHateoasHostingSubscriptionList'
+        'getHateoasInstanceTreeList'
     )
     self.assertNotEqual(user_link_dict, None)
     connection = getNewHttpConnection(api_netloc)
@@ -163,7 +163,7 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
     subscription_collection_hal = json.loads(response.read())
 
     #####################################################
-    # Get user's hosting subscription
+    # Get user's instance tree
     #####################################################
     subscription_link_dict = subscription_collection_hal['_links']\
         ['content'][0]
@@ -185,7 +185,7 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
     subscription_hal = json.loads(response.read())
 
     #####################################################
-    # Get hosting subscription's instance list
+    # Get instance tree's instance list
     #####################################################
     user_link_dict = hateoasGetLinkFromLinks(
         subscription_hal['_links']['action_object_slap'],
@@ -524,12 +524,12 @@ class TestSlapOSHypermediaInstanceScenario(SlapOSTestCaseMixin):
     self.tic()
 
     #####################################################
-    # Get hosting subscription of instance
+    # Get instance tree of instance
     #####################################################
-    # XXX can be simpler and doesn't need getHateoasRelatedHostingSubscription script
+    # XXX can be simpler and doesn't need getHateoasRelatedInstanceTree script
     hosting_link_dict = hateoasGetLinkFromLinks(
         instance_hal['_links']['action_object_slap'],
-        'getHateoasRelatedHostingSubscription'
+        'getHateoasRelatedInstanceTree'
     )
     self.assertNotEqual(hosting_link_dict, None)
     connection = getNewHttpConnection(api_netloc)
@@ -553,7 +553,7 @@ class TestSlapOSHypermediaInstanceScenario(SlapOSTestCaseMixin):
 
     hosting_link_dict = hateoasGetLinkFromLinks(
         subscription_hal['_links']['action_object_jump'],
-        'Hosting Subscription'
+        'Instance Tree'
     )
     self.assertNotEqual(hosting_link_dict, None)
     connection = getNewHttpConnection(api_netloc)
@@ -575,7 +575,7 @@ class TestSlapOSHypermediaInstanceScenario(SlapOSTestCaseMixin):
     self.tic()
 
     #####################################################
-    # Get hosting subscription's instance list
+    # Get instance tree's instance list
     #####################################################
     user_link_dict = hateoasGetLinkFromLinks(
         subscription_hal['_links']['action_object_slap'],

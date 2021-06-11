@@ -38,12 +38,12 @@
 </tr>
 <tr>
   <td>storeLocation</td>
-  <td>hosting_subscription_url</td>
+  <td>instance_tree_url</td>
   <td></td>
 </tr>
 <tr>
   <td>echo</td>
-  <td>${hosting_subscription_url}</td>
+  <td>${instance_tree_url}</td>
   <td></td>
 </tr>
 <!--
@@ -61,7 +61,7 @@ It shall be maximum of reindexation.
 
 <tr>
   <td>open</td>
-  <td>${hosting_subscription_url}</td>
+  <td>${instance_tree_url}</td>
   <td></td>
 </tr>
 <tr>

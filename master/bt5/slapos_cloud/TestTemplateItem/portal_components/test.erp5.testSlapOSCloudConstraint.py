@@ -406,10 +406,10 @@ class TestSlapOSSlaveInstanceConstraint(TestSlapOSConstraintMixin):
     self.assertFalse(consistency_message in self.getMessageList(self.software_instance))
     self.assertSameSet(current_message_list, self.getMessageList(self.software_instance))
 
-class TestSlapOSHostingSubscriptionConstraint(TestSlapOSConstraintMixin):
+class TestSlapOSInstanceTreeConstraint(TestSlapOSConstraintMixin):
   def afterSetUp(self):
-    self.software_instance = self.portal.hosting_subscription_module.newContent(
-      portal_type='Hosting Subscription')
+    self.software_instance = self.portal.instance_tree_module.newContent(
+      portal_type='Instance Tree')
 
   def beforeTearDown(self):
     transaction.abort()

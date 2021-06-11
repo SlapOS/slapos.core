@@ -24,12 +24,12 @@ from erp5.component.test.testSlapOSAccountingAlarm import simulateByEditWorkflow
 
 class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(SlapOSTestCaseMixin):
   def createInstance(self, url_string):
-    hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.edit(
+    instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    instance_tree.edit(
     )
-    hosting_subscription.validate()
-    hosting_subscription.edit(
+    instance_tree.validate()
+    instance_tree.edit(
         title=self.generateNewSoftwareTitle(),
         reference="TESTHS-%s" % self.generateNewId(),
     )
@@ -39,13 +39,13 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
       instance_xml=self.generateSafeXml(),
       sla_xml=self.generateSafeXml(),
       shared=False,
-      software_title=hosting_subscription.getTitle(),
+      software_title=instance_tree.getTitle(),
       state='started'
     )
-    hosting_subscription.requestStart(**request_kw)
-    hosting_subscription.requestInstance(**request_kw)
+    instance_tree.requestStart(**request_kw)
+    instance_tree.requestInstance(**request_kw)
 
-    instance = hosting_subscription.getSuccessorValue()
+    instance = instance_tree.getSuccessorValue()
     self.tic()
     return instance
 

@@ -79,10 +79,10 @@ def SoftwareInstance_renameAndRequestDestroy(self, REQUEST=None):
   self.requestDestroy(**promise_kw)
   self.REQUEST.set('request_instance', None)
 
-  hosting_subscription = self.getSpecialise()
+  instance_tree = self.getSpecialise()
   for name in [title, new_title]:
     # reset request cache
-    key = '_'.join([hosting_subscription, name])
+    key = '_'.join([instance_tree, name])
     self.getPortalObject().portal_slap._storeLastData(key, {})
 
   # Them call bang to enforce tree to reprocess.

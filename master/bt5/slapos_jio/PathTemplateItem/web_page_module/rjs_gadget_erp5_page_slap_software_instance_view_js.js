@@ -103,7 +103,7 @@
           "Reference",
           "Monitoring Status",
           "Software Release",
-          "Hosting Subscription",
+          "Instance Tree",
           "Software Type",
           "Instance Parameters",
           "Connection Parameters",

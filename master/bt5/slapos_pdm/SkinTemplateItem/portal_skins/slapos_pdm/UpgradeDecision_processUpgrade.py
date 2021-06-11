@@ -1,4 +1,4 @@
-if context.UpgradeDecision_upgradeHostingSubscription():
+if context.UpgradeDecision_upgradeInstanceTree():
   return True
 
 if context.UpgradeDecision_upgradeComputer():

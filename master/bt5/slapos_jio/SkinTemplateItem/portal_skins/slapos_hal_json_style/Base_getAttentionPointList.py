@@ -21,7 +21,7 @@ def addAttentionForTicket(ticket):
     return {"text": msg, "link": ticket.getRelativeUrl()}
 
 # Display unresponded tickets on services or servers
-if portal_type in ["Hosting Subscription", "Computer"]:
+if portal_type in ["Instance Tree", "Computer"]:
   simulation_state = ["suspended", "confirmed"]
   for ticket in context.Base_getOpenRelatedTicketList(
    limit=3, simulation_state=simulation_state):
@@ -43,7 +43,7 @@ if portal_type in ["Support Request Module"]:
     if entry is not None:
       attention_point_list.append(entry)
 
-if portal_type in ["Hosting Subscription Module", "Hosting Subscription", "Person"] and \
+if portal_type in ["Instance Tree Module", "Instance Tree", "Person"] and \
   portal.portal_preferences.getPreferredCloudContractEnabled():
 
   person = portal.portal_membership.getAuthenticatedMember().getUserValue()

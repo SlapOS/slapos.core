@@ -117,7 +117,7 @@ list
 .. program-output:: python slapos help list
 
 List all deployed services owned by current user.
-From SlapOS Master point of view, it should return the list of all non-destroyed Hosting Subscriptions.
+From SlapOS Master point of view, it should return the list of all non-destroyed Instance Trees.
 
 ..
   search

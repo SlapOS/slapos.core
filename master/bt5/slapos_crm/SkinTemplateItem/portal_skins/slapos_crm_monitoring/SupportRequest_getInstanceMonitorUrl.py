@@ -1,11 +1,11 @@
 support_request = context
 
-hosting_subscription = support_request.getAggregateValue(portal_type="Hosting Subscription")
-if hosting_subscription is None:
+instance_tree = support_request.getAggregateValue(portal_type="Instance Tree")
+if instance_tree is None:
   return
 
 instance = None
-for possible_instance in hosting_subscription.getSuccessorValueList():
+for possible_instance in instance_tree.getSuccessorValueList():
   if possible_instance.getSlapState() != 'destroy_requested':
     instance = possible_instance
     break

@@ -21,16 +21,16 @@
         .push(function (result) {
           var i, value, news, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
-            if (1 || (result.data.rows[i].value.hasOwnProperty("HostingSubscription_getNewsDict"))) {
+            if (1 || (result.data.rows[i].value.hasOwnProperty("InstanceTree_getNewsDict"))) {
               value = result.data.rows[i].id;
-              news = result.data.rows[i].value.HostingSubscription_getNewsDict;
-              result.data.rows[i].value.HostingSubscription_getNewsDict = {
+              news = result.data.rows[i].value.InstanceTree_getNewsDict;
+              result.data.rows[i].value.InstanceTree_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
                   hidden: 0,
                   default: {jio_key: value, result: news},
                   key: "status",
-                  url: "gadget_slapos_hosting_subscription_status.html",
+                  url: "gadget_slapos_instance_tree_status.html",
                   type: "GadgetField"
                 }
               };
@@ -56,10 +56,10 @@
 
       return new RSVP.Queue()
         .push(function () {
-          return gadget.jio_getAttachment('hosting_subscription_module', 'view');
+          return gadget.jio_getAttachment('instance_tree_module', 'view');
         })
         .push(function (result) {
-          gadget.hosting_subscription_module_view = result;
+          gadget.instance_tree_module_view = result;
           return RSVP.all([
             gadget.getDeclaredGadget('form_list'),
             gadget.getSetting("listbox_lines_limit", 20),
@@ -77,7 +77,7 @@
              * Directly use a new created ERP5 form to display the list
              * instead of using hard-corded JS 
             **/
-            erp5_document: gadget.hosting_subscription_module_view,
+            erp5_document: gadget.instance_tree_module_view,
             form_definition: {
               group_list: [[
                 "bottom",
@@ -88,7 +88,7 @@
         })
         .push(function () {
           return gadget.updatePanel({
-            jio_key: "hosting_subscription_module"
+            jio_key: "instance_tree_module"
           });
         })
         .push(function () {

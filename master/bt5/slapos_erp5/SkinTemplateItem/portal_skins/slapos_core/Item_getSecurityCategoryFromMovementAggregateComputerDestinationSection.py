@@ -38,7 +38,7 @@ if aggregate_value is None:
 if aggregate_value.getPortalType() != "Computer":
   return []
 
-# Object on this case can be Hosting Subscription, Computer, or Computer Network
+# Object on this case can be Instance Tree, Computer, or Computer Network
 organisation = aggregate_value.Item_getCurrentOwnerValue()
 if organisation is not None and \
   organisation.getPortalType() == "Organisation":

@@ -897,39 +897,39 @@ The slapos team
        'Deleting acknowledgment.'),
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
-class TestSlapOSRegularisationRequest_stopHostingSubscriptionList(
+class TestSlapOSRegularisationRequest_stopInstanceTreeList(
                                                           SlapOSTestCaseMixinWithAbort):
 
-  def createHostingSubscription(self):
+  def createInstanceTree(self):
     new_id = self.generateNewId()
-    hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.edit(
+    instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    instance_tree.edit(
       reference="TESTHS-%s" % new_id,
     )
-    hosting_subscription.validate()
+    instance_tree.validate()
     self.portal.portal_workflow._jumpToStateFor(
-        hosting_subscription, 'start_requested')
-    return hosting_subscription
+        instance_tree, 'start_requested')
+    return instance_tree
 
-  def test_stopHostingSubscriptionList_REQUEST_disallowed(self):
+  def test_stopInstanceTreeList_REQUEST_disallowed(self):
     ticket = self.createRegularisationRequest()
     self.assertRaises(
       Unauthorized,
-      ticket.RegularisationRequest_stopHostingSubscriptionList,
+      ticket.RegularisationRequest_stopInstanceTreeList,
       'footag',
       REQUEST={})
 
-  @simulate('HostingSubscription_stopFromRegularisationRequest',
+  @simulate('InstanceTree_stopFromRegularisationRequest',
             'person, REQUEST=None',
   'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
-  'comment="Visited by HostingSubscription_stopFromRegularisationRequest ' \
+  'comment="Visited by InstanceTree_stopFromRegularisationRequest ' \
   '%s" % (person))')
-  def test_stopHostingSubscriptionList_matching_subscription(self):
+  def test_stopInstanceTreeList_matching_subscription(self):
     person = self.makePerson(index=0, user=0)
     ticket = self.createRegularisationRequest()
-    hosting_subscription = self.createHostingSubscription()
+    instance_tree = self.createInstanceTree()
 
     ticket.edit(
       source_project_value=person,
@@ -937,31 +937,31 @@ class TestSlapOSRegularisationRequest_stopHostingSubscriptionList(
     )
     ticket.validate()
     ticket.suspend()
-    hosting_subscription.edit(
+    instance_tree.edit(
       destination_section=person.getRelativeUrl(),
     )
     self.tic()
 
     result = ticket.\
-        RegularisationRequest_stopHostingSubscriptionList('footag')
+        RegularisationRequest_stopInstanceTreeList('footag')
     self.assertTrue(result)
 
     self.tic()
     self.assertEqual(
-      'Visited by HostingSubscription_stopFromRegularisationRequest ' \
+      'Visited by InstanceTree_stopFromRegularisationRequest ' \
       '%s' % person.getRelativeUrl(),
-      hosting_subscription.workflow_history['edit_workflow'][-1]['comment'])
+      instance_tree.workflow_history['edit_workflow'][-1]['comment'])
 
-  @simulate('HostingSubscription_stopFromRegularisationRequest',
+  @simulate('InstanceTree_stopFromRegularisationRequest',
             'person, REQUEST=None',
   'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
-  'comment="Visited by HostingSubscription_stopFromRegularisationRequest ' \
+  'comment="Visited by InstanceTree_stopFromRegularisationRequest ' \
   '%s" % (person))')
-  def test_stopHostingSubscriptionList_matching_subscription_2(self):
+  def test_stopInstanceTreeList_matching_subscription_2(self):
     person = self.makePerson(index=0, user=0)
     ticket = self.createRegularisationRequest()
-    hosting_subscription = self.createHostingSubscription()
+    instance_tree = self.createInstanceTree()
 
     ticket.edit(
       source_project_value=person,
@@ -969,28 +969,28 @@ class TestSlapOSRegularisationRequest_stopHostingSubscriptionList(
     )
     ticket.validate()
     ticket.suspend()
-    hosting_subscription.edit(
+    instance_tree.edit(
       destination_section=person.getRelativeUrl(),
     )
     self.tic()
 
     result = ticket.\
-        RegularisationRequest_stopHostingSubscriptionList('footag')
+        RegularisationRequest_stopInstanceTreeList('footag')
     self.assertTrue(result)
 
     self.tic()
     self.assertEqual(
-      'Visited by HostingSubscription_stopFromRegularisationRequest ' \
+      'Visited by InstanceTree_stopFromRegularisationRequest ' \
       '%s' % person.getRelativeUrl(),
-      hosting_subscription.workflow_history['edit_workflow'][-1]['comment'])
+      instance_tree.workflow_history['edit_workflow'][-1]['comment'])
 
-  @simulate('HostingSubscription_stopFromRegularisationRequest',
+  @simulate('InstanceTree_stopFromRegularisationRequest',
             '*args, **kwargs',
             'raise NotImplementedError, "Should not have been called"')
-  def test_stopHostingSubscriptionList_other_subscription(self):
+  def test_stopInstanceTreeList_other_subscription(self):
     person = self.makePerson(index=0, user=0)
     ticket = self.createRegularisationRequest()
-    self.createHostingSubscription()
+    self.createInstanceTree()
 
     ticket.edit(
       source_project_value=person,
@@ -1002,15 +1002,15 @@ class TestSlapOSRegularisationRequest_stopHostingSubscriptionList(
     self.tic()
 
     result = ticket.\
-        RegularisationRequest_stopHostingSubscriptionList('footag')
+        RegularisationRequest_stopInstanceTreeList('footag')
     self.assertTrue(result)
 
     self.tic()
 
-  @simulate('HostingSubscription_stopFromRegularisationRequest',
+  @simulate('InstanceTree_stopFromRegularisationRequest',
             '*args, **kwargs',
             'raise NotImplementedError, "Should not have been called"')
-  def test_stopHostingSubscriptionList_no_person(self):
+  def test_stopInstanceTreeList_no_person(self):
     ticket = self.createRegularisationRequest()
 
     ticket.edit(
@@ -1022,18 +1022,18 @@ class TestSlapOSRegularisationRequest_stopHostingSubscriptionList(
     self.tic()
 
     result = ticket.\
-        RegularisationRequest_stopHostingSubscriptionList('footag')
+        RegularisationRequest_stopInstanceTreeList('footag')
     self.assertFalse(result)
 
     self.tic()
 
-  @simulate('HostingSubscription_stopFromRegularisationRequest',
+  @simulate('InstanceTree_stopFromRegularisationRequest',
             '*args, **kwargs',
             'raise NotImplementedError, "Should not have been called"')
-  def test_stopHostingSubscriptionList_not_suspended(self):
+  def test_stopInstanceTreeList_not_suspended(self):
     person = self.makePerson(index=0, user=0)
     ticket = self.createRegularisationRequest()
-    self.createHostingSubscription()
+    self.createInstanceTree()
 
     ticket.edit(
       source_project_value=person,
@@ -1044,18 +1044,18 @@ class TestSlapOSRegularisationRequest_stopHostingSubscriptionList(
     self.tic()
 
     result = ticket.\
-        RegularisationRequest_stopHostingSubscriptionList('footag')
+        RegularisationRequest_stopInstanceTreeList('footag')
     self.assertFalse(result)
 
     self.tic()
 
-  @simulate('HostingSubscription_stopFromRegularisationRequest',
+  @simulate('InstanceTree_stopFromRegularisationRequest',
             '*args, **kwargs',
             'raise NotImplementedError, "Should not have been called"')
-  def test_stopHostingSubscriptionList_other_resource(self):
+  def test_stopInstanceTreeList_other_resource(self):
     person = self.makePerson(index=0, user=0)
     ticket = self.createRegularisationRequest()
-    self.createHostingSubscription()
+    self.createInstanceTree()
 
     ticket.edit(
       source_project_value=person,
@@ -1067,184 +1067,184 @@ class TestSlapOSRegularisationRequest_stopHostingSubscriptionList(
     self.tic()
 
     result = ticket.\
-        RegularisationRequest_stopHostingSubscriptionList('footag')
+        RegularisationRequest_stopInstanceTreeList('footag')
     self.assertFalse(result)
 
     self.tic()
 
-class TestSlapOSHostingSubscription_stopFromRegularisationRequest(
+class TestSlapOSInstanceTree_stopFromRegularisationRequest(
                                                           SlapOSTestCaseMixinWithAbort):
 
-  def createHostingSubscription(self):
+  def createInstanceTree(self):
     new_id = self.generateNewId()
-    hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.edit(
+    instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    instance_tree.edit(
       reference="TESTHS-%s" % new_id,
     )
-    hosting_subscription.validate()
+    instance_tree.validate()
     self.portal.portal_workflow._jumpToStateFor(
-        hosting_subscription, 'start_requested')
-    return hosting_subscription
+        instance_tree, 'start_requested')
+    return instance_tree
 
   def test_stopFromRegularisationRequest_REQUEST_disallowed(self):
     self.assertRaises(
       Unauthorized,
-      self.portal.HostingSubscription_stopFromRegularisationRequest,
+      self.portal.InstanceTree_stopFromRegularisationRequest,
       '',
       REQUEST={})
 
   def test_stopFromRegularisationRequest_matching_subscription(self):
     person = self.makePerson(index=0, user=0)
-    hosting_subscription = self.createHostingSubscription()
-    hosting_subscription.edit(
+    instance_tree = self.createInstanceTree()
+    instance_tree.edit(
       destination_section=person.getRelativeUrl(),
     )
     self.tic()
 
-    software_release = hosting_subscription.getUrlString()
-    software_title = hosting_subscription.getTitle()
-    software_type = hosting_subscription.getSourceReference()
-    instance_xml = hosting_subscription.getTextContent()
-    sla_xml = hosting_subscription.getSlaXml()
-    shared = hosting_subscription.isRootSlave()
-    self.assertEqual(hosting_subscription.getSlapState(), "start_requested")
+    software_release = instance_tree.getUrlString()
+    software_title = instance_tree.getTitle()
+    software_type = instance_tree.getSourceReference()
+    instance_xml = instance_tree.getTextContent()
+    sla_xml = instance_tree.getSlaXml()
+    shared = instance_tree.isRootSlave()
+    self.assertEqual(instance_tree.getSlapState(), "start_requested")
 
-    result = hosting_subscription.\
-        HostingSubscription_stopFromRegularisationRequest(person.getRelativeUrl())
+    result = instance_tree.\
+        InstanceTree_stopFromRegularisationRequest(person.getRelativeUrl())
 
     self.assertEqual(result, True)
-    self.assertEqual(hosting_subscription.getUrlString(), software_release)
-    self.assertEqual(hosting_subscription.getTitle(), software_title)
-    self.assertEqual(hosting_subscription.getSourceReference(), software_type)
-    self.assertEqual(hosting_subscription.getTextContent(), instance_xml)
-    self.assertEqual(hosting_subscription.getSlaXml(), sla_xml)
-    self.assertEqual(hosting_subscription.isRootSlave(), shared)
-    self.assertEqual(hosting_subscription.getSlapState(), "stop_requested")
+    self.assertEqual(instance_tree.getUrlString(), software_release)
+    self.assertEqual(instance_tree.getTitle(), software_title)
+    self.assertEqual(instance_tree.getSourceReference(), software_type)
+    self.assertEqual(instance_tree.getTextContent(), instance_xml)
+    self.assertEqual(instance_tree.getSlaXml(), sla_xml)
+    self.assertEqual(instance_tree.isRootSlave(), shared)
+    self.assertEqual(instance_tree.getSlapState(), "stop_requested")
 
   def test_stopFromRegularisationRequest_stopped_subscription(self):
     person = self.makePerson(index=0, user=0)
-    hosting_subscription = self.createHostingSubscription()
-    hosting_subscription.edit(
+    instance_tree = self.createInstanceTree()
+    instance_tree.edit(
       destination_section=person.getRelativeUrl(),
     )
     self.portal.portal_workflow._jumpToStateFor(
-        hosting_subscription, 'stop_requested')
+        instance_tree, 'stop_requested')
 
-    result = hosting_subscription.\
-        HostingSubscription_stopFromRegularisationRequest(person.getRelativeUrl())
+    result = instance_tree.\
+        InstanceTree_stopFromRegularisationRequest(person.getRelativeUrl())
 
     self.assertEqual(result, False)
 
   def test_stopFromRegularisationRequest_non_matching_person(self):
-    hosting_subscription = self.createHostingSubscription()
+    instance_tree = self.createInstanceTree()
     self.assertRaises(
       AssertionError,
-      hosting_subscription.HostingSubscription_stopFromRegularisationRequest,
+      instance_tree.InstanceTree_stopFromRegularisationRequest,
       'foobar')
 
-class TestSlapOSHostingSubscription_deleteFromRegularisationRequest(
+class TestSlapOSInstanceTree_deleteFromRegularisationRequest(
                                                           SlapOSTestCaseMixinWithAbort):
 
-  def createHostingSubscription(self):
+  def createInstanceTree(self):
     new_id = self.generateNewId()
-    hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.edit(
+    instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    instance_tree.edit(
       reference="TESTHS-%s" % new_id,
     )
-    hosting_subscription.validate()
+    instance_tree.validate()
     self.portal.portal_workflow._jumpToStateFor(
-        hosting_subscription, 'start_requested')
-    return hosting_subscription
+        instance_tree, 'start_requested')
+    return instance_tree
 
   def test_deleteFromRegularisationRequest_REQUEST_disallowed(self):
     self.assertRaises(
       Unauthorized,
-      self.portal.HostingSubscription_deleteFromRegularisationRequest,
+      self.portal.InstanceTree_deleteFromRegularisationRequest,
       '',
       REQUEST={})
 
   def test_deleteFromRegularisationRequest_started_subscription(self):
     person = self.makePerson(index=0, user=0)
-    hosting_subscription = self.createHostingSubscription()
-    hosting_subscription.edit(
+    instance_tree = self.createInstanceTree()
+    instance_tree.edit(
       destination_section=person.getRelativeUrl(),
     )
     self.tic()
 
-    software_release = hosting_subscription.getUrlString()
-    software_title = hosting_subscription.getTitle()
-    software_type = hosting_subscription.getSourceReference()
-    instance_xml = hosting_subscription.getTextContent()
-    sla_xml = hosting_subscription.getSlaXml()
-    shared = hosting_subscription.isRootSlave()
-    self.assertEqual(hosting_subscription.getSlapState(), "start_requested")
+    software_release = instance_tree.getUrlString()
+    software_title = instance_tree.getTitle()
+    software_type = instance_tree.getSourceReference()
+    instance_xml = instance_tree.getTextContent()
+    sla_xml = instance_tree.getSlaXml()
+    shared = instance_tree.isRootSlave()
+    self.assertEqual(instance_tree.getSlapState(), "start_requested")
 
-    result = hosting_subscription.\
-        HostingSubscription_deleteFromRegularisationRequest(person.getRelativeUrl())
+    result = instance_tree.\
+        InstanceTree_deleteFromRegularisationRequest(person.getRelativeUrl())
 
     self.assertEqual(result, True)
-    self.assertEqual(hosting_subscription.getUrlString(), software_release)
-    self.assertEqual(hosting_subscription.getTitle(), software_title)
-    self.assertEqual(hosting_subscription.getSourceReference(), software_type)
-    self.assertEqual(hosting_subscription.getTextContent(), instance_xml)
-    self.assertEqual(hosting_subscription.getSlaXml(), sla_xml)
-    self.assertEqual(hosting_subscription.isRootSlave(), shared)
-    self.assertEqual(hosting_subscription.getSlapState(), "destroy_requested")
+    self.assertEqual(instance_tree.getUrlString(), software_release)
+    self.assertEqual(instance_tree.getTitle(), software_title)
+    self.assertEqual(instance_tree.getSourceReference(), software_type)
+    self.assertEqual(instance_tree.getTextContent(), instance_xml)
+    self.assertEqual(instance_tree.getSlaXml(), sla_xml)
+    self.assertEqual(instance_tree.isRootSlave(), shared)
+    self.assertEqual(instance_tree.getSlapState(), "destroy_requested")
 
   def test_deleteFromRegularisationRequest_stopped_subscription(self):
     person = self.makePerson(index=0, user=0)
-    hosting_subscription = self.createHostingSubscription()
-    hosting_subscription.edit(
+    instance_tree = self.createInstanceTree()
+    instance_tree.edit(
       destination_section=person.getRelativeUrl(),
     )
     self.portal.portal_workflow._jumpToStateFor(
-        hosting_subscription, 'stop_requested')
+        instance_tree, 'stop_requested')
     self.tic()
 
-    software_release = hosting_subscription.getUrlString()
-    software_title = hosting_subscription.getTitle()
-    software_type = hosting_subscription.getSourceReference()
-    instance_xml = hosting_subscription.getTextContent()
-    sla_xml = hosting_subscription.getSlaXml()
-    shared = hosting_subscription.isRootSlave()
-    self.assertEqual(hosting_subscription.getSlapState(), "stop_requested")
+    software_release = instance_tree.getUrlString()
+    software_title = instance_tree.getTitle()
+    software_type = instance_tree.getSourceReference()
+    instance_xml = instance_tree.getTextContent()
+    sla_xml = instance_tree.getSlaXml()
+    shared = instance_tree.isRootSlave()
+    self.assertEqual(instance_tree.getSlapState(), "stop_requested")
 
-    result = hosting_subscription.\
-        HostingSubscription_deleteFromRegularisationRequest(person.getRelativeUrl())
+    result = instance_tree.\
+        InstanceTree_deleteFromRegularisationRequest(person.getRelativeUrl())
 
     self.assertEqual(result, True)
-    self.assertEqual(hosting_subscription.getUrlString(), software_release)
-    self.assertEqual(hosting_subscription.getTitle(), software_title)
-    self.assertEqual(hosting_subscription.getSourceReference(), software_type)
-    self.assertEqual(hosting_subscription.getTextContent(), instance_xml)
-    self.assertEqual(hosting_subscription.getSlaXml(), sla_xml)
-    self.assertEqual(hosting_subscription.isRootSlave(), shared)
-    self.assertEqual(hosting_subscription.getSlapState(), "destroy_requested")
+    self.assertEqual(instance_tree.getUrlString(), software_release)
+    self.assertEqual(instance_tree.getTitle(), software_title)
+    self.assertEqual(instance_tree.getSourceReference(), software_type)
+    self.assertEqual(instance_tree.getTextContent(), instance_xml)
+    self.assertEqual(instance_tree.getSlaXml(), sla_xml)
+    self.assertEqual(instance_tree.isRootSlave(), shared)
+    self.assertEqual(instance_tree.getSlapState(), "destroy_requested")
 
   def test_deleteFromRegularisationRequest_destroyed_subscription(self):
     person = self.makePerson(index=0, user=0)
-    hosting_subscription = self.createHostingSubscription()
-    hosting_subscription.edit(
+    instance_tree = self.createInstanceTree()
+    instance_tree.edit(
       destination_section=person.getRelativeUrl(),
     )
     self.portal.portal_workflow._jumpToStateFor(
-        hosting_subscription, 'destroy_requested')
+        instance_tree, 'destroy_requested')
 
-    result = hosting_subscription.\
-        HostingSubscription_deleteFromRegularisationRequest(person.getRelativeUrl())
+    result = instance_tree.\
+        InstanceTree_deleteFromRegularisationRequest(person.getRelativeUrl())
 
     self.assertEqual(result, False)
 
   def test_deleteFromRegularisationRequest_non_matching_person(self):
-    hosting_subscription = self.createHostingSubscription()
+    instance_tree = self.createInstanceTree()
     self.assertRaises(
       AssertionError,
-      hosting_subscription.HostingSubscription_deleteFromRegularisationRequest,
+      instance_tree.InstanceTree_deleteFromRegularisationRequest,
       'foobar')
 
-class TestSlapOSRegularisationRequest_deleteHostingSubscriptionList(
+class TestSlapOSRegularisationRequest_deleteInstanceTreeList(
                                                           SlapOSTestCaseMixinWithAbort):
 
   def createRegularisationRequest(self):
@@ -1256,36 +1256,36 @@ class TestSlapOSRegularisationRequest_deleteHostingSubscriptionList(
       resource='foo/bar',
       )
 
-  def createHostingSubscription(self):
+  def createInstanceTree(self):
     new_id = self.generateNewId()
-    hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.edit(
+    instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    instance_tree.edit(
       reference="TESTHS-%s" % new_id,
     )
-    hosting_subscription.validate()
+    instance_tree.validate()
     self.portal.portal_workflow._jumpToStateFor(
-        hosting_subscription, 'start_requested')
-    return hosting_subscription
+        instance_tree, 'start_requested')
+    return instance_tree
 
-  def test_deleteHostingSubscriptionList_REQUEST_disallowed(self):
+  def test_deleteInstanceTreeList_REQUEST_disallowed(self):
     ticket = self.createRegularisationRequest()
     self.assertRaises(
       Unauthorized,
-      ticket.RegularisationRequest_deleteHostingSubscriptionList,
+      ticket.RegularisationRequest_deleteInstanceTreeList,
       'footag',
       REQUEST={})
 
-  @simulate('HostingSubscription_deleteFromRegularisationRequest',
+  @simulate('InstanceTree_deleteFromRegularisationRequest',
             'person, REQUEST=None',
   'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
-  'comment="Visited by HostingSubscription_deleteFromRegularisationRequest ' \
+  'comment="Visited by InstanceTree_deleteFromRegularisationRequest ' \
   '%s" % (person))')
-  def test_deleteHostingSubscriptionList_matching_subscription(self):
+  def test_deleteInstanceTreeList_matching_subscription(self):
     person = self.makePerson(index=0, user=0)
     ticket = self.createRegularisationRequest()
-    hosting_subscription = self.createHostingSubscription()
+    instance_tree = self.createInstanceTree()
 
     ticket.edit(
       source_project_value=person,
@@ -1293,28 +1293,28 @@ class TestSlapOSRegularisationRequest_deleteHostingSubscriptionList(
     )
     ticket.validate()
     ticket.suspend()
-    hosting_subscription.edit(
+    instance_tree.edit(
       destination_section=person.getRelativeUrl(),
     )
     self.tic()
 
     result = ticket.\
-        RegularisationRequest_deleteHostingSubscriptionList('footag')
+        RegularisationRequest_deleteInstanceTreeList('footag')
     self.assertTrue(result)
 
     self.tic()
     self.assertEqual(
-      'Visited by HostingSubscription_deleteFromRegularisationRequest ' \
+      'Visited by InstanceTree_deleteFromRegularisationRequest ' \
       '%s' % person.getRelativeUrl(),
-      hosting_subscription.workflow_history['edit_workflow'][-1]['comment'])
+      instance_tree.workflow_history['edit_workflow'][-1]['comment'])
 
-  @simulate('HostingSubscription_deleteFromRegularisationRequest',
+  @simulate('InstanceTree_deleteFromRegularisationRequest',
             '*args, **kwargs',
             'raise NotImplementedError, "Should not have been called"')
-  def test_deleteHostingSubscriptionList_other_subscription(self):
+  def test_deleteInstanceTreeList_other_subscription(self):
     person = self.makePerson(index=0, user=0)
     ticket = self.createRegularisationRequest()
-    self.createHostingSubscription()
+    self.createInstanceTree()
 
     ticket.edit(
       source_project_value=person,
@@ -1326,15 +1326,15 @@ class TestSlapOSRegularisationRequest_deleteHostingSubscriptionList(
     self.tic()
 
     result = ticket.\
-        RegularisationRequest_deleteHostingSubscriptionList('footag')
+        RegularisationRequest_deleteInstanceTreeList('footag')
     self.assertTrue(result)
 
     self.tic()
 
-  @simulate('HostingSubscription_deleteFromRegularisationRequest',
+  @simulate('InstanceTree_deleteFromRegularisationRequest',
             '*args, **kwargs',
             'raise NotImplementedError, "Should not have been called"')
-  def test_deleteHostingSubscriptionList_no_person(self):
+  def test_deleteInstanceTreeList_no_person(self):
     ticket = self.createRegularisationRequest()
 
     ticket.edit(
@@ -1346,18 +1346,18 @@ class TestSlapOSRegularisationRequest_deleteHostingSubscriptionList(
     self.tic()
 
     result = ticket.\
-        RegularisationRequest_deleteHostingSubscriptionList('footag')
+        RegularisationRequest_deleteInstanceTreeList('footag')
     self.assertFalse(result)
 
     self.tic()
 
-  @simulate('HostingSubscription_deleteFromRegularisationRequest',
+  @simulate('InstanceTree_deleteFromRegularisationRequest',
             '*args, **kwargs',
             'raise NotImplementedError, "Should not have been called"')
-  def test_deleteHostingSubscriptionList_not_suspended(self):
+  def test_deleteInstanceTreeList_not_suspended(self):
     person = self.makePerson(index=0, user=0)
     ticket = self.createRegularisationRequest()
-    self.createHostingSubscription()
+    self.createInstanceTree()
 
     ticket.edit(
       source_project_value=person,
@@ -1368,18 +1368,18 @@ class TestSlapOSRegularisationRequest_deleteHostingSubscriptionList(
     self.tic()
 
     result = ticket.\
-        RegularisationRequest_deleteHostingSubscriptionList('footag')
+        RegularisationRequest_deleteInstanceTreeList('footag')
     self.assertFalse(result)
 
     self.tic()
 
-  @simulate('HostingSubscription_deleteFromRegularisationRequest',
+  @simulate('InstanceTree_deleteFromRegularisationRequest',
             '*args, **kwargs',
             'raise NotImplementedError, "Should not have been called"')
-  def test_deleteHostingSubscriptionList_other_resource(self):
+  def test_deleteInstanceTreeList_other_resource(self):
     person = self.makePerson(index=0, user=0)
     ticket = self.createRegularisationRequest()
-    self.createHostingSubscription()
+    self.createInstanceTree()
 
     ticket.edit(
       source_project_value=person,
@@ -1391,7 +1391,7 @@ class TestSlapOSRegularisationRequest_deleteHostingSubscriptionList(
     self.tic()
 
     result = ticket.\
-        RegularisationRequest_deleteHostingSubscriptionList('footag')
+        RegularisationRequest_deleteInstanceTreeList('footag')
     self.assertFalse(result)
 
     self.tic()

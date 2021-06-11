@@ -508,7 +508,7 @@ Computer Partition
   Condition: python: here.getSlapState() == "busy"
   Local Roles Group Id: subscription
   Base Categories: ['aggregate']
-  Base Category Script: ERP5Type_getSecurityCategoryFromAggregateRelatedSoftwareInstanceHostingSubscription
+  Base Category Script: ERP5Type_getSecurityCategoryFromAggregateRelatedSoftwareInstanceInstanceTree
   Categories: []
 
 Consumption Document Module
@@ -826,8 +826,8 @@ Google Login
   Base Category Script: ERP5Type_getSecurityCategoryFromParent
   Categories: []
 
-Hosting Subscription
-  Title: Customer of the Hosting Subscription
+Instance Tree
+  Title: Customer of the Instance Tree
   Roles: ['Assignee']
   Condition: None
   Local Roles Group Id: user
@@ -835,7 +835,7 @@ Hosting Subscription
   Base Category Script: ERP5Type_getSecurityCategoryFromContent
   Categories: []
 
-Hosting Subscription
+Instance Tree
   Title: Group Company
   Roles: ['Assignor']
   Condition: None
@@ -844,7 +844,7 @@ Hosting Subscription
   Base Category Script: None
   Categories: ['group/company']
 
-Hosting Subscription
+Instance Tree
   Title: Organisation Member
   Roles: ['Assignee']
   Condition: None
@@ -853,7 +853,7 @@ Hosting Subscription
   Base Category Script: Item_getSecurityCategoryFromMovementDestination
   Categories: []
 
-Hosting Subscription
+Instance Tree
   Title: Project Member
   Roles: ['Assignee']
   Condition: None
@@ -862,7 +862,7 @@ Hosting Subscription
   Base Category Script: Item_getSecurityCategoryFromMovementDestinationProject
   Categories: []
 
-Hosting Subscription
+Instance Tree
   Title: Related Software Instance Group
   Roles: ['Assignee']
   Condition: None
@@ -871,7 +871,7 @@ Hosting Subscription
   Base Category Script: ERP5Type_getSecurityCategoryFromSelf
   Categories: []
 
-Hosting Subscription Module
+Instance Tree Module
   Title: Computer
   Roles: ['Auditor']
   Condition: None
@@ -880,7 +880,7 @@ Hosting Subscription Module
   Base Category Script: None
   Categories: ['role/computer']
 
-Hosting Subscription Module
+Instance Tree Module
   Title: Group Company
   Roles: ['Author', 'Auditor']
   Condition: None
@@ -889,7 +889,7 @@ Hosting Subscription Module
   Base Category Script: None
   Categories: ['group/company']
 
-Hosting Subscription Module
+Instance Tree Module
   Title: Instance
   Roles: ['Auditor']
   Condition: None
@@ -898,7 +898,7 @@ Hosting Subscription Module
   Base Category Script: None
   Categories: ['role/instance']
 
-Hosting Subscription Module
+Instance Tree Module
   Title: Member
   Roles: ['Auditor', 'Author']
   Condition: None
@@ -1898,7 +1898,7 @@ Slave Instance
   Categories: ['group/company']
 
 Slave Instance
-  Title: Instance related by Hosting Subscription
+  Title: Instance related by Instance Tree
   Roles: ['Assignee']
   Condition: None
   Local Roles Group Id: subscription
@@ -2033,7 +2033,7 @@ Software Instance
   Categories: ['group/company']
 
 Software Instance
-  Title: Instance related by Hosting Subscription
+  Title: Instance related by Instance Tree
   Roles: ['Assignee']
   Condition: None
   Local Roles Group Id: subscription

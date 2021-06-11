@@ -1,11 +1,11 @@
 portal = context.getPortalObject()
 
-hosting_subscription = context.UpgradeDecision_getHostingSubscription()
+instance_tree = context.UpgradeDecision_getInstanceTree()
 computer = context.UpgradeDecision_getComputer()
 software_release = context.UpgradeDecision_getSoftwareRelease()
 
-if hosting_subscription is not None:
-  if hosting_subscription.getUrlString() == software_release.getUrlString():
+if instance_tree is not None:
+  if instance_tree.getUrlString() == software_release.getUrlString():
     return True
 
 elif computer is not None:

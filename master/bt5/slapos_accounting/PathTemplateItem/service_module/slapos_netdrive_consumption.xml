@@ -75,7 +75,7 @@
             <value>
               <tuple>
                 <string>Computer Partition</string>
-                <string>Hosting Subscription</string>
+                <string>Instance Tree</string>
                 <string>Software Instance</string>
                 <string>Software Release</string>
               </tuple>
@@ -122,7 +122,7 @@
             <value>
               <tuple>
                 <string>Computer Partition</string>
-                <string>Hosting Subscription</string>
+                <string>Instance Tree</string>
                 <string>Software Instance</string>
                 <string>Software Release</string>
               </tuple>

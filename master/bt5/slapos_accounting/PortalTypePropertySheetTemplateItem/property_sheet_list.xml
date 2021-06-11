@@ -8,8 +8,8 @@
  <portal_type id="Computer Consumption TioXML File">
   <item>SortIndex</item>
  </portal_type>
- <portal_type id="Hosting Subscription">
-  <item>SlapOSAccountingHostingSubscriptionConstraint</item>
+ <portal_type id="Instance Tree">
+  <item>SlapOSAccountingInstanceTreeConstraint</item>
  </portal_type>
  <portal_type id="Sale Invoice Transaction">
   <item>SlapOSAccountingSaleInvoiceTransactionConstraint</item>

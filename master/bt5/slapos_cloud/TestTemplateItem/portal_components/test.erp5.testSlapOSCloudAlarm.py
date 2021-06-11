@@ -9,68 +9,68 @@ from DateTime import DateTime
 from erp5.component.module.DateUtils import addToDate
 from App.Common import rfc1123_date
 
-class TestSlapOSCoreSlapOSAssertHostingSubscriptionSuccessorAlarm(
+class TestSlapOSCoreSlapOSAssertInstanceTreeSuccessorAlarm(
     SlapOSTestCaseMixin):
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     self._makeTree()
 
-  def test_HostingSubscription_assertSuccessor(self):
+  def test_InstanceTree_assertSuccessor(self):
     self.software_instance.rename(new_name=self.generateNewSoftwareTitle())
     self.tic()
 
     # check that no interaction has recreated the instance
-    self.assertFalse(self.hosting_subscription.getTitle() in
-        self.hosting_subscription.getSuccessorTitleList())
+    self.assertFalse(self.instance_tree.getTitle() in
+        self.instance_tree.getSuccessorTitleList())
 
-    self.hosting_subscription.HostingSubscription_assertSuccessor()
-    self.assertTrue(self.hosting_subscription.getTitle() in
-        self.hosting_subscription.getSuccessorTitleList())
+    self.instance_tree.InstanceTree_assertSuccessor()
+    self.assertTrue(self.instance_tree.getTitle() in
+        self.instance_tree.getSuccessorTitleList())
 
-  def test_HostingSubscription_assertSuccessor_stop_requested(self):
+  def test_InstanceTree_assertSuccessor_stop_requested(self):
     self.software_instance.rename(new_name=self.generateNewSoftwareTitle())
-    self.portal.portal_workflow._jumpToStateFor(self.hosting_subscription,
+    self.portal.portal_workflow._jumpToStateFor(self.instance_tree,
         'stop_requested')
     self.tic()
 
     # check that no interaction has recreated the instance
-    self.assertFalse(self.hosting_subscription.getTitle() in
-        self.hosting_subscription.getSuccessorTitleList())
+    self.assertFalse(self.instance_tree.getTitle() in
+        self.instance_tree.getSuccessorTitleList())
 
-    self.hosting_subscription.HostingSubscription_assertSuccessor()
-    self.assertTrue(self.hosting_subscription.getTitle() in
-        self.hosting_subscription.getSuccessorTitleList())
+    self.instance_tree.InstanceTree_assertSuccessor()
+    self.assertTrue(self.instance_tree.getTitle() in
+        self.instance_tree.getSuccessorTitleList())
 
-  def test_HostingSubscription_assertSuccessor_destroy_requested(self):
+  def test_InstanceTree_assertSuccessor_destroy_requested(self):
     self.software_instance.rename(new_name=self.generateNewSoftwareTitle())
-    self.portal.portal_workflow._jumpToStateFor(self.hosting_subscription,
+    self.portal.portal_workflow._jumpToStateFor(self.instance_tree,
         'destroy_requested')
     self.tic()
 
     # check that no interaction has recreated the instance
-    self.assertFalse(self.hosting_subscription.getTitle() in
-        self.hosting_subscription.getSuccessorTitleList())
+    self.assertFalse(self.instance_tree.getTitle() in
+        self.instance_tree.getSuccessorTitleList())
 
-    self.hosting_subscription.HostingSubscription_assertSuccessor()
-    self.assertFalse(self.hosting_subscription.getTitle() in
-        self.hosting_subscription.getSuccessorTitleList())
+    self.instance_tree.InstanceTree_assertSuccessor()
+    self.assertFalse(self.instance_tree.getTitle() in
+        self.instance_tree.getSuccessorTitleList())
 
-  def test_HostingSubscription_assertSuccessor_archived(self):
+  def test_InstanceTree_assertSuccessor_archived(self):
     self.software_instance.rename(new_name=self.generateNewSoftwareTitle())
-    self.hosting_subscription.archive()
+    self.instance_tree.archive()
     self.tic()
 
     # check that no interaction has recreated the instance
-    self.assertFalse(self.hosting_subscription.getTitle() in
-        self.hosting_subscription.getSuccessorTitleList())
+    self.assertFalse(self.instance_tree.getTitle() in
+        self.instance_tree.getSuccessorTitleList())
 
-    self.hosting_subscription.HostingSubscription_assertSuccessor()
-    self.assertFalse(self.hosting_subscription.getTitle() in
-        self.hosting_subscription.getSuccessorTitleList())
+    self.instance_tree.InstanceTree_assertSuccessor()
+    self.assertFalse(self.instance_tree.getTitle() in
+        self.instance_tree.getSuccessorTitleList())
 
-  def _simulateHostingSubscription_assertSuccessor(self):
-    script_name = 'HostingSubscription_assertSuccessor'
+  def _simulateInstanceTree_assertSuccessor(self):
+    script_name = 'InstanceTree_assertSuccessor'
     if script_name in self.portal.portal_skins.custom.objectIds():
       raise ValueError('Precondition failed: %s exists in custom' % script_name)
     createZODBPythonScript(self.portal.portal_skins.custom,
@@ -78,11 +78,11 @@ class TestSlapOSCoreSlapOSAssertHostingSubscriptionSuccessorAlarm(
                         '*args, **kwargs',
                         '# Script body\n'
 """portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by HostingSubscription_assertSuccessor') """ )
+portal_workflow.doActionFor(context, action='edit_action', comment='Visited by InstanceTree_assertSuccessor') """ )
     transaction.commit()
 
-  def _dropHostingSubscription_assertSuccessor(self):
-    script_name = 'HostingSubscription_assertSuccessor'
+  def _dropInstanceTree_assertSuccessor(self):
+    script_name = 'InstanceTree_assertSuccessor'
     if script_name in self.portal.portal_skins.custom.objectIds():
       self.portal.portal_skins.custom.manage_delObjects(script_name)
     transaction.commit()
@@ -90,26 +90,26 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by H
   def test_alarm_renamed(self):
     self.software_instance.edit(title=self.generateNewSoftwareTitle())
     self.tic()
-    self._simulateHostingSubscription_assertSuccessor()
+    self._simulateInstanceTree_assertSuccessor()
     try:
-      self.portal.portal_alarms.slapos_assert_hosting_subscription_successor.activeSense()
+      self.portal.portal_alarms.slapos_assert_instance_tree_successor.activeSense()
       self.tic()
     finally:
-      self._dropHostingSubscription_assertSuccessor()
+      self._dropInstanceTree_assertSuccessor()
     self.assertEqual(
-        'Visited by HostingSubscription_assertSuccessor',
-        self.hosting_subscription.workflow_history['edit_workflow'][-1]['comment'])
+        'Visited by InstanceTree_assertSuccessor',
+        self.instance_tree.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_not_renamed(self):
-    self._simulateHostingSubscription_assertSuccessor()
+    self._simulateInstanceTree_assertSuccessor()
     try:
-      self.portal.portal_alarms.slapos_assert_hosting_subscription_successor.activeSense()
+      self.portal.portal_alarms.slapos_assert_instance_tree_successor.activeSense()
       self.tic()
     finally:
-      self._dropHostingSubscription_assertSuccessor()
+      self._dropInstanceTree_assertSuccessor()
     self.assertNotEqual(
-        'Visited by HostingSubscription_assertSuccessor',
-        self.hosting_subscription.workflow_history['edit_workflow'][-1]['comment'])
+        'Visited by InstanceTree_assertSuccessor',
+        self.instance_tree.workflow_history['edit_workflow'][-1]['comment'])
 
 class TestSlapOSFreeComputerPartitionAlarm(SlapOSTestCaseMixin):
 
@@ -270,7 +270,7 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
     self._makeTree()
 
   def test_SoftwareInstance_tryToGarbageCollect(self):
-    self.hosting_subscription.archive()
+    self.instance_tree.archive()
     self.portal.portal_workflow._jumpToStateFor(self.software_instance,
         'destroy_requested')
     self.portal.portal_workflow._jumpToStateFor(self.software_instance,
@@ -320,8 +320,8 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
 
   def test_SoftwareInstance_tryToGarbageCollect_unlinked_successor(self):
     self.requested_software_instance.edit(successor_list=[])
-    self.hosting_subscription.archive()
-    self.portal.portal_workflow._jumpToStateFor(self.hosting_subscription,
+    self.instance_tree.archive()
+    self.portal.portal_workflow._jumpToStateFor(self.instance_tree,
         'destroy_requested')
     self.portal.portal_workflow._jumpToStateFor(self.software_instance,
         'destroy_requested')
@@ -349,8 +349,8 @@ class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
     self.assertNotEqual(sub_instance, None)
 
     self.requested_software_instance.edit(successor_list=[])
-    self.hosting_subscription.archive()
-    self.portal.portal_workflow._jumpToStateFor(self.hosting_subscription,
+    self.instance_tree.archive()
+    self.portal.portal_workflow._jumpToStateFor(self.instance_tree,
         'destroy_requested')
     self.portal.portal_workflow._jumpToStateFor(self.software_instance,
         'destroy_requested')
@@ -393,7 +393,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     transaction.commit()
 
   def test_alarm(self):
-    self.hosting_subscription.archive()
+    self.instance_tree.archive()
     self.tic()
     self._simulateScript('SoftwareInstance_tryToGarbageCollect')
     try:
@@ -406,7 +406,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
         self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_invalidated(self):
-    self.hosting_subscription.archive()
+    self.instance_tree.archive()
     self.software_instance.invalidate()
     self.tic()
     self._simulateScript('SoftwareInstance_tryToGarbageCollect')
@@ -633,12 +633,12 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by C
 class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
 
   def createInstance(self):
-    hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.edit(
+    instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    instance_tree.edit(
     )
-    hosting_subscription.validate()
-    hosting_subscription.edit(
+    instance_tree.validate()
+    instance_tree.edit(
         title=self.generateNewSoftwareTitle(),
         reference="TESTHS-%s" % self.generateNewId(),
     )
@@ -649,13 +649,13 @@ class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
       instance_xml=self.generateSafeXml(),
       sla_xml=self.generateSafeXml(),
       shared=False,
-      software_title=hosting_subscription.getTitle(),
+      software_title=instance_tree.getTitle(),
       state='started'
     )
-    hosting_subscription.requestStart(**request_kw)
-    hosting_subscription.requestInstance(**request_kw)
+    instance_tree.requestStart(**request_kw)
+    instance_tree.requestInstance(**request_kw)
 
-    instance = hosting_subscription.getSuccessorValue()
+    instance = instance_tree.getSuccessorValue()
     self.tic()
     return instance
 
@@ -667,9 +667,9 @@ class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
 
   def test_SoftwareInstance_tryToStopCollect_started_instance(self):
     instance = self.createInstance()
-    hosting_subscription = instance.getSpecialiseValue()
+    instance_tree = instance.getSpecialiseValue()
 
-    self.portal.portal_workflow._jumpToStateFor(hosting_subscription,
+    self.portal.portal_workflow._jumpToStateFor(instance_tree,
         'stop_requested')
     self.assertEqual('start_requested', instance.getSlapState())
 
@@ -678,9 +678,9 @@ class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
 
   def test_SoftwareInstance_tryToStopCollect_destroyed_instance(self):
     instance = self.createInstance()
-    hosting_subscription = instance.getSpecialiseValue()
+    instance_tree = instance.getSpecialiseValue()
 
-    self.portal.portal_workflow._jumpToStateFor(hosting_subscription,
+    self.portal.portal_workflow._jumpToStateFor(instance_tree,
         'stop_requested')
     self.portal.portal_workflow._jumpToStateFor(instance,
         'destroy_requested')
@@ -690,9 +690,9 @@ class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
 
   def test_SoftwareInstance_tryToStopCollect_started_subscription(self):
     instance = self.createInstance()
-    hosting_subscription = instance.getSpecialiseValue()
+    instance_tree = instance.getSpecialiseValue()
 
-    self.assertEqual('start_requested', hosting_subscription.getSlapState())
+    self.assertEqual('start_requested', instance_tree.getSlapState())
     self.assertEqual('start_requested', instance.getSlapState())
 
     instance.SoftwareInstance_tryToStopCollect()
@@ -727,10 +727,10 @@ class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
 class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
 
   def createInstance(self):
-    hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
-    hosting_subscription.edit(
+    instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    instance_tree.validate()
+    instance_tree.edit(
         title=self.generateNewSoftwareTitle(),
         reference="TESTHS-%s" % self.generateNewId(),
     )
@@ -741,13 +741,13 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
       instance_xml=self.generateSafeXml(),
       sla_xml=self.generateSafeXml(),
       shared=False,
-      software_title=hosting_subscription.getTitle(),
+      software_title=instance_tree.getTitle(),
       state='started'
     )
-    hosting_subscription.requestStart(**request_kw)
-    hosting_subscription.requestInstance(**request_kw)
+    instance_tree.requestStart(**request_kw)
+    instance_tree.requestInstance(**request_kw)
 
-    instance = hosting_subscription.getSuccessorValue()
+    instance = instance_tree.getSuccessorValue()
     return instance
 
   def createComputerPartition(self):
@@ -774,8 +774,8 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
 
     instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('start_requested', instance.getSlapState())
-    hosting_subscription = instance.getSpecialiseValue()
-    self.assertEqual('start_requested', hosting_subscription.getSlapState())
+    instance_tree = instance.getSpecialiseValue()
+    self.assertEqual('start_requested', instance_tree.getSlapState())
 
   def test_tryToGarbageCollect_destroyed_instance(self):
     instance = self.createInstance()
@@ -784,8 +784,8 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
 
     instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('destroy_requested', instance.getSlapState())
-    hosting_subscription = instance.getSpecialiseValue()
-    self.assertEqual('start_requested', hosting_subscription.getSlapState())
+    instance_tree = instance.getSpecialiseValue()
+    self.assertEqual('start_requested', instance_tree.getSlapState())
 
   def test_tryToGarbageCollect_allocated_instance(self):
     instance = self.createInstance()
@@ -795,8 +795,8 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
 
     instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('start_requested', instance.getSlapState())
-    hosting_subscription = instance.getSpecialiseValue()
-    self.assertEqual('start_requested', hosting_subscription.getSlapState())
+    instance_tree = instance.getSpecialiseValue()
+    self.assertEqual('start_requested', instance_tree.getSlapState())
 
   def test_tryToGarbageCollect_no_allocation_try_found(self):
     instance = self.createInstance()
@@ -804,8 +804,8 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
 
     instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('start_requested', instance.getSlapState())
-    hosting_subscription = instance.getSpecialiseValue()
-    self.assertEqual('start_requested', hosting_subscription.getSlapState())
+    instance_tree = instance.getSpecialiseValue()
+    self.assertEqual('start_requested', instance_tree.getSlapState())
 
   def test_tryToGarbageCollect_recent_allocation_try_found(self):
     instance = self.createInstance()
@@ -821,8 +821,8 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
 
     instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('start_requested', instance.getSlapState())
-    hosting_subscription = instance.getSpecialiseValue()
-    self.assertEqual('start_requested', hosting_subscription.getSlapState())
+    instance_tree = instance.getSpecialiseValue()
+    self.assertEqual('start_requested', instance_tree.getSlapState())
 
 
   def test_tryToGarbageCollect_recent_allocation_try_found_allocation_disallowed(self):
@@ -839,12 +839,12 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
 
     instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('start_requested', instance.getSlapState())
-    hosting_subscription = instance.getSpecialiseValue()
-    self.assertEqual('start_requested', hosting_subscription.getSlapState())
+    instance_tree = instance.getSpecialiseValue()
+    self.assertEqual('start_requested', instance_tree.getSlapState())
 
   def test_tryToGarbageCollect_complex_tree(self):
     instance = self.createInstance()
-    hosting_subscription = instance.getSpecialiseValue()
+    instance_tree = instance.getSpecialiseValue()
     request_kw = dict(
       software_release=\
           self.generateNewSoftwareReleaseUrl(),
@@ -852,7 +852,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
       instance_xml=self.generateSafeXml(),
       sla_xml=self.generateSafeXml(),
       shared=False,
-      software_title="another %s" % hosting_subscription.getTitle(),
+      software_title="another %s" % instance_tree.getTitle(),
       state='started'
     )
     instance.requestInstance(**request_kw)
@@ -868,11 +868,11 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
     })
 
     sub_instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
-    self.assertEqual('start_requested', hosting_subscription.getSlapState())
+    self.assertEqual('start_requested', instance_tree.getSlapState())
 
   def test_tryToGarbageCollect_complex_tree_allocation_disallowed(self):
     instance = self.createInstance()
-    hosting_subscription = instance.getSpecialiseValue()
+    instance_tree = instance.getSpecialiseValue()
     request_kw = dict(
       software_release=\
           self.generateNewSoftwareReleaseUrl(),
@@ -880,7 +880,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
       instance_xml=self.generateSafeXml(),
       sla_xml=self.generateSafeXml(),
       shared=False,
-      software_title="another %s" % hosting_subscription.getTitle(),
+      software_title="another %s" % instance_tree.getTitle(),
       state='started'
     )
     instance.requestInstance(**request_kw)
@@ -896,11 +896,11 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
     })
 
     sub_instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
-    self.assertEqual('start_requested', hosting_subscription.getSlapState())
+    self.assertEqual('start_requested', instance_tree.getSlapState())
 
   def test_tryToGarbageCollect_old_allocation_try_found(self):
     instance = self.createInstance()
-    hosting_subscription = instance.getSpecialiseValue()
+    instance_tree = instance.getSpecialiseValue()
     self.tic()
     instance.workflow_history['edit_workflow'].append({
         'comment':'Allocation failed: no free Computer Partition',
@@ -912,13 +912,13 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
     })
 
     instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
-    self.assertEqual('destroy_requested', hosting_subscription.getSlapState())
-    self.assertEqual('archived', hosting_subscription.getValidationState())
+    self.assertEqual('destroy_requested', instance_tree.getSlapState())
+    self.assertEqual('archived', instance_tree.getValidationState())
 
 
   def test_tryToGarbageCollect_old_allocation_try_found_allocation_disallowed(self):
     instance = self.createInstance()
-    hosting_subscription = instance.getSpecialiseValue()
+    instance_tree = instance.getSpecialiseValue()
     self.tic()
     instance.workflow_history['edit_workflow'].append({
         'comment':'Allocation failed: Allocation disallowed',
@@ -930,8 +930,8 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
     })
 
     instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
-    self.assertEqual('destroy_requested', hosting_subscription.getSlapState())
-    self.assertEqual('archived', hosting_subscription.getValidationState())
+    self.assertEqual('destroy_requested', instance_tree.getSlapState())
+    self.assertEqual('archived', instance_tree.getValidationState())
 
   def test_alarm(self):
     instance = self.createInstance()
@@ -978,10 +978,10 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
 class TestSlapOSGarbageCollectUnlinkedInstanceAlarm(SlapOSTestCaseMixin):
 
   def createInstance(self):
-    hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
-    hosting_subscription.edit(
+    instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    instance_tree.validate()
+    instance_tree.edit(
         title=self.generateNewSoftwareTitle(),
         reference="TESTHS-%s" % self.generateNewId(),
     )
@@ -992,14 +992,14 @@ class TestSlapOSGarbageCollectUnlinkedInstanceAlarm(SlapOSTestCaseMixin):
       instance_xml=self.generateSafeXml(),
       sla_xml=self.generateSafeXml(),
       shared=False,
-      software_title=hosting_subscription.getTitle(),
+      software_title=instance_tree.getTitle(),
       state='started'
     )
-    hosting_subscription.requestStart(**request_kw)
-    hosting_subscription.requestInstance(**request_kw)
-    self.hosting_subscription = hosting_subscription
+    instance_tree.requestStart(**request_kw)
+    instance_tree.requestInstance(**request_kw)
+    self.instance_tree = instance_tree
 
-    instance = hosting_subscription.getSuccessorValue()
+    instance = instance_tree.getSuccessorValue()
     return instance
 
   def createComputerPartition(self):
@@ -1028,7 +1028,7 @@ class TestSlapOSGarbageCollectUnlinkedInstanceAlarm(SlapOSTestCaseMixin):
     partition = self.createComputerPartition()
     sub_instance.edit(aggregate_value=partition)
     self.tic()
-    self.assertEqual(self.hosting_subscription.getRelativeUrl(),
+    self.assertEqual(self.instance_tree.getRelativeUrl(),
                     sub_instance.getSpecialise())  
     return sub_instance
 
@@ -1075,8 +1075,8 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     instance.edit(successor_list=[])
     self.tic()
 
-    self.hosting_subscription.archive()
-    self.portal.portal_workflow._jumpToStateFor(self.hosting_subscription,
+    self.instance_tree.archive()
+    self.portal.portal_workflow._jumpToStateFor(self.instance_tree,
         'destroy_requested')
     self.portal.portal_workflow._jumpToStateFor(instance, 'destroy_requested')
     self.tic()
@@ -1141,10 +1141,10 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     instance.edit(aggregate_value=partition)
     self.tic()
 
-    self.assertEqual(self.hosting_subscription.getTitle(), instance.getTitle())
+    self.assertEqual(self.instance_tree.getTitle(), instance.getTitle())
 
     # Remove successor link
-    self.hosting_subscription.edit(successor_list=[])
+    self.instance_tree.edit(successor_list=[])
     self.tic()
     self.assertEqual(instance.getSuccessorRelatedTitle(), None)
     # will not destroy

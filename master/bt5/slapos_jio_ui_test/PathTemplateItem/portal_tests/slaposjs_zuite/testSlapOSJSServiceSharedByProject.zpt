@@ -199,7 +199,7 @@
       </tr>
       <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-SHARED-BY-PROJECT 0'})">
         <td>waitForElementPresent</td>
-        <td tal:content="python: '//a[@data-i18n= \'%s\']' % (here.Base_translateString('Hosting Subscription: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
+        <td tal:content="python: '//a[@data-i18n= \'%s\']' % (here.Base_translateString('Instance Tree: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
         <td></td>
       </tr>
 
@@ -256,7 +256,7 @@
         <td></td>
       </tr>
 
-      <tal:block tal:define="header python: 'Hosting Subscription: ${title}';
+      <tal:block tal:define="header python: 'Instance Tree: ${title}';
                              dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-SHARED-BY-PROJECT 0'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
@@ -414,7 +414,7 @@
         <td></td>
       </tr>
 
-      <tal:block tal:define="header python: 'Hosting Subscription: ${title}';
+      <tal:block tal:define="header python: 'Instance Tree: ${title}';
                              dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-SHARED-BY-PROJECT 0'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>

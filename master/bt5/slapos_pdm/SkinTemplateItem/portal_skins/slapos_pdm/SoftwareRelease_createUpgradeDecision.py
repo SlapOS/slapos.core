@@ -10,7 +10,7 @@ if not source_product:
 portal_type = source_product.getPortalType()
 if portal_type == 'Computer':
   person_url = source_product.getSourceAdministration()
-elif portal_type == 'Hosting Subscription':
+elif portal_type == 'Instance Tree':
   person_url = source_product.getDestinationSection()
 else:
   return

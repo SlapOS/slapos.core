@@ -18,7 +18,7 @@
    <multi_property id='base_category'>group</multi_property>
   </role>
   <role id='Assignee'>
-   <property id='title'>Instance related by Hosting Subscription</property>
+   <property id='title'>Instance related by Instance Tree</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/subscription</multi_property>
    <multi_property id='base_category'>specialise</multi_property>

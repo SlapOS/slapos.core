@@ -22,9 +22,9 @@
  <portal_type id="Email">
   <item>SlaposEmailConstraint</item>
  </portal_type>
- <portal_type id="Hosting Subscription">
-  <item>HostingSubscription</item>
-  <item>SlaposHostingSubscriptionConstraint</item>
+ <portal_type id="Instance Tree">
+  <item>InstanceTree</item>
+  <item>SlaposInstanceTreeConstraint</item>
   <item>SoftwareInstance</item>
   <item>SoftwareInstanceUpgradeConstraint</item>
   <item>TextDocument</item>
@@ -35,7 +35,7 @@
   <item>SlaposPersonConstraint</item>
  </portal_type>
  <portal_type id="Slave Instance">
-  <item>HostingSubscription</item>
+  <item>InstanceTree</item>
   <item>Reference</item>
   <item>SlaveInstanceConstraint</item>
   <item>SoftwareInstance</item>
@@ -49,7 +49,7 @@
  </portal_type>
  <portal_type id="Software Instance">
   <item>ERP5User</item>
-  <item>HostingSubscription</item>
+  <item>InstanceTree</item>
   <item>Reference</item>
   <item>SoftwareInstance</item>
   <item>SoftwareInstanceConstraint</item>

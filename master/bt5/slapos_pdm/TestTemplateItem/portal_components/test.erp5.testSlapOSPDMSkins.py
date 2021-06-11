@@ -94,19 +94,19 @@ class TestSlapOSPDMMixinSkins(SlapOSTestCaseMixin):
 
     return software_installation
 
-  def _makeHostingSubscription(self):
-    hosting_subscription = self.portal\
-      .hosting_subscription_module.template_hosting_subscription\
+  def _makeInstanceTree(self):
+    instance_tree = self.portal\
+      .instance_tree_module.template_instance_tree\
       .Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
-    hosting_subscription.edit(
+    instance_tree.validate()
+    instance_tree.edit(
         title= "Test hosting sub start %s" % self.new_id,
         reference="TESTHSS-%s" % self.new_id,
     )
 
-    return hosting_subscription
+    return instance_tree
 
-  def _makeSoftwareInstance(self, hosting_subscription, software_url):
+  def _makeSoftwareInstance(self, instance_tree, software_url):
 
     kw = dict(
       software_release=software_url,
@@ -114,20 +114,20 @@ class TestSlapOSPDMMixinSkins(SlapOSTestCaseMixin):
       instance_xml=self.generateSafeXml(),
       sla_xml=self.generateSafeXml(),
       shared=False,
-      software_title=hosting_subscription.getTitle(),
+      software_title=instance_tree.getTitle(),
       state='started'
     )
-    hosting_subscription.requestStart(**kw)
-    hosting_subscription.requestInstance(**kw)
+    instance_tree.requestStart(**kw)
+    instance_tree.requestInstance(**kw)
     
-  def _makeFullHostingSubscription(self, software_url="", person=None):
+  def _makeFullInstanceTree(self, software_url="", person=None):
     if not person:
       person = self._makePerson()
     
-    hosting_subscription = self.portal\
-      .hosting_subscription_module.template_hosting_subscription\
+    instance_tree = self.portal\
+      .instance_tree_module.template_instance_tree\
       .Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.edit(
+    instance_tree.edit(
         title=self.request_kw['software_title'],
         reference="TESTHS-%s" % self.new_id,
         url_string=software_url,
@@ -137,12 +137,12 @@ class TestSlapOSPDMMixinSkins(SlapOSTestCaseMixin):
         root_slave=self.request_kw['shared'],
         destination_section=person.getRelativeUrl()
     )
-    hosting_subscription.validate()
-    self.portal.portal_workflow._jumpToStateFor(hosting_subscription, 'start_requested')
+    instance_tree.validate()
+    self.portal.portal_workflow._jumpToStateFor(instance_tree, 'start_requested')
 
-    return hosting_subscription
+    return instance_tree
 
-  def _makeFullSoftwareInstance(self, hosting_subscription, software_url):
+  def _makeFullSoftwareInstance(self, instance_tree, software_url):
 
     software_instance = self.portal.software_instance_module\
         .template_software_instance.Base_createCloneDocument(batch_mode=1)
@@ -153,9 +153,9 @@ class TestSlapOSPDMMixinSkins(SlapOSTestCaseMixin):
         source_reference=self.request_kw['software_type'],
         text_content=self.request_kw['instance_xml'],
         sla_xml=self.request_kw['sla_xml'],
-        specialise=hosting_subscription.getRelativeUrl()
+        specialise=instance_tree.getRelativeUrl()
     )
-    hosting_subscription.edit(
+    instance_tree.edit(
         successor=software_instance.getRelativeUrl()
     )
     self.portal.portal_workflow._jumpToStateFor(software_instance, 'start_requested')
@@ -248,7 +248,7 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
       ['http://example.org/1-%s.cfg' % self.new_id, 'http://example.org/2-%s.cfg' % self.new_id])
   
   
-  def test_HostingSubscription_getNewerSofwareRelease(self):
+  def test_InstanceTree_getNewerSofwareRelease(self):
     person = self._makePerson()
     computer, _ = self._makeComputer(owner=person)
     software_product = self._makeSoftwareProduct()
@@ -262,18 +262,18 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
                                     newest_software_url)
     self._makeSoftwareInstallation( computer, oldest_software_url)
     
-    hosting_subscription = self._makeFullHostingSubscription(
+    instance_tree = self._makeFullInstanceTree(
                                     oldest_software_url, person)
     self.tic()
-    self.assertEqual(hosting_subscription.HostingSubscription_getNewerSofwareRelease(),
+    self.assertEqual(instance_tree.InstanceTree_getNewerSofwareRelease(),
                             None)
     
-    self._makeFullSoftwareInstance(hosting_subscription, oldest_software_url)
+    self._makeFullSoftwareInstance(instance_tree, oldest_software_url)
     self.tic()
-    release = hosting_subscription.HostingSubscription_getNewerSofwareRelease()
+    release = instance_tree.InstanceTree_getNewerSofwareRelease()
     self.assertEqual(release.getUrlString(), newest_software_url)
 
-  def testHostingSubscription_getUpgradableSoftwareRelease_no_installation(self):
+  def testInstanceTree_getUpgradableSoftwareRelease_no_installation(self):
     person = self._makePerson()
     computer, _ = self._makeComputer(owner=person)
     self._makeComputerPartitions(computer)
@@ -284,10 +284,10 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
                                 software_product.getRelativeUrl(),
                                 oldest_software_url)
     self._makeSoftwareInstallation( computer, oldest_software_url)
-    hs = self._makeFullHostingSubscription(
+    hs = self._makeFullInstanceTree(
                                     oldest_software_url, person)
     self.tic()
-    self.assertEqual(hs.HostingSubscription_getUpgradableSoftwareRelease(),
+    self.assertEqual(hs.InstanceTree_getUpgradableSoftwareRelease(),
                       None)
     
     self._makeFullSoftwareInstance(hs, oldest_software_url)
@@ -295,10 +295,10 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     self._makeCustomSoftwareRelease(software_product.getRelativeUrl(),
                                     newest_software_url)
     self.tic()
-    self.assertEqual(hs.HostingSubscription_getUpgradableSoftwareRelease(),
+    self.assertEqual(hs.InstanceTree_getUpgradableSoftwareRelease(),
                       None)
   
-  def testHostingSubscription_getUpgradableSoftwareRelease(self):
+  def testInstanceTree_getUpgradableSoftwareRelease(self):
     person = self._makePerson()
     computer, _ = self._makeComputer(owner=person)
     self._makeComputerPartitions(computer)
@@ -309,7 +309,7 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
                                 software_product.getRelativeUrl(),
                                 oldest_software_url)
     self._makeSoftwareInstallation( computer, oldest_software_url)
-    hs = self._makeFullHostingSubscription(
+    hs = self._makeFullInstanceTree(
                                     oldest_software_url, person)
     
     self._makeFullSoftwareInstance(hs, oldest_software_url)
@@ -322,12 +322,12 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     software_release = self._makeSoftwareRelease()
     self._makeSoftwareInstallation(computer, software_release.getUrlString())
     self.tic()
-    release = hs.HostingSubscription_getUpgradableSoftwareRelease()
+    release = hs.InstanceTree_getUpgradableSoftwareRelease()
     self.assertEqual(release.getUrlString(), newest_software_url)
     
     self.portal.portal_workflow._jumpToStateFor(hs, 'destroy_requested')
     self.tic()
-    self.assertEqual(hs.HostingSubscription_getUpgradableSoftwareRelease(),
+    self.assertEqual(hs.InstanceTree_getUpgradableSoftwareRelease(),
                       None)
                       
 
@@ -375,50 +375,50 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     self.assertEqual(None, found_computer)
 
 
-  def testUpgradeDecision_getHostingSubscription(self):
-    hosting_subscription = self._makeHostingSubscription()
+  def testUpgradeDecision_getInstanceTree(self):
+    instance_tree = self._makeInstanceTree()
     upgrade_decision = self._makeUpgradeDecision()
 
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
-    upgrade_decision_line.setAggregateValue(hosting_subscription)
+    upgrade_decision_line.setAggregateValue(instance_tree)
 
-    found_hosting_subscription = upgrade_decision.UpgradeDecision_getHostingSubscription()
-    self.assertEqual(hosting_subscription.getRelativeUrl(),
-                      found_hosting_subscription.getRelativeUrl())
+    found_instance_tree = upgrade_decision.UpgradeDecision_getInstanceTree()
+    self.assertEqual(instance_tree.getRelativeUrl(),
+                      found_instance_tree.getRelativeUrl())
 
 
-  def testUpgradeDecision_getHostingSubscription_2_lines(self):
-    hosting_subscription = self._makeHostingSubscription()
+  def testUpgradeDecision_getInstanceTree_2_lines(self):
+    instance_tree = self._makeInstanceTree()
     upgrade_decision = self._makeUpgradeDecision()
 
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
-    upgrade_decision_line.setAggregateValue(hosting_subscription)
+    upgrade_decision_line.setAggregateValue(instance_tree)
 
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
 
-    found_hosting_subscription = upgrade_decision.UpgradeDecision_getHostingSubscription()
-    self.assertEqual(hosting_subscription.getRelativeUrl(),
-                      found_hosting_subscription.getRelativeUrl())
+    found_instance_tree = upgrade_decision.UpgradeDecision_getInstanceTree()
+    self.assertEqual(instance_tree.getRelativeUrl(),
+                      found_instance_tree.getRelativeUrl())
 
 
-  def testUpgradeDecision_getHostingSubscription_2_hosting(self):
-    hosting_subscription = self._makeHostingSubscription()
+  def testUpgradeDecision_getInstanceTree_2_hosting(self):
+    instance_tree = self._makeInstanceTree()
     upgrade_decision = self._makeUpgradeDecision()
 
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
-    upgrade_decision_line.setAggregateValue(hosting_subscription)
+    upgrade_decision_line.setAggregateValue(instance_tree)
 
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
-    upgrade_decision_line.setAggregateValue(hosting_subscription)
+    upgrade_decision_line.setAggregateValue(instance_tree)
 
-    self.assertRaises(ValueError, upgrade_decision.UpgradeDecision_getHostingSubscription)
+    self.assertRaises(ValueError, upgrade_decision.UpgradeDecision_getInstanceTree)
 
-  def testUpgradeDecision_getHostingSubscription_O_hosting(self):
+  def testUpgradeDecision_getInstanceTree_O_hosting(self):
     upgrade_decision = self._makeUpgradeDecision()
     self._makeUpgradeDecisionLine(upgrade_decision)
 
-    found_hosting_subscription = upgrade_decision.UpgradeDecision_getHostingSubscription()
-    self.assertEqual(None, found_hosting_subscription)
+    found_instance_tree = upgrade_decision.UpgradeDecision_getInstanceTree()
+    self.assertEqual(None, found_instance_tree)
 
      
   def testUpgradeDecision_getSoftwareRelease(self):
@@ -464,105 +464,105 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     found_software_release = upgrade_decision.UpgradeDecision_getSoftwareRelease()
     self.assertEqual(None, found_software_release)
 
-  @simulate('HostingSubscription_isUpgradePossible',
+  @simulate('InstanceTree_isUpgradePossible',
             'software_release_url', 'return 1')
-  def testUpgradeDecision_upgradeHostingSubscription(self):
+  def testUpgradeDecision_upgradeInstanceTree(self):
     person = self._makePerson()
-    hosting_subscription = self._makeHostingSubscription()
-    hosting_subscription.edit(
+    instance_tree = self._makeInstanceTree()
+    instance_tree.edit(
           destination_section_value = person.getRelativeUrl())
 
-    self._makeSoftwareInstance(hosting_subscription,
-                               hosting_subscription.getUrlString())
+    self._makeSoftwareInstance(instance_tree,
+                               instance_tree.getUrlString())
    
     software_release = self._makeSoftwareRelease()
     upgrade_decision = self._makeUpgradeDecision()
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValueList(
-       [software_release, hosting_subscription])
+       [software_release, instance_tree])
     self.tic()
    
-    slap_state = hosting_subscription.getSlapState()
+    slap_state = instance_tree.getSlapState()
     
-    self.assertFalse(upgrade_decision.UpgradeDecision_upgradeHostingSubscription())
+    self.assertFalse(upgrade_decision.UpgradeDecision_upgradeInstanceTree())
     self.assertNotEqual(software_release.getUrlString(),
-                     hosting_subscription.getUrlString())
+                     instance_tree.getUrlString())
 
     upgrade_decision.confirm()
     upgrade_decision.start()
 
     # Check that url_string change, but slap state doesn't
     self.assertNotEqual(software_release.getUrlString(),
-                     hosting_subscription.getUrlString())
+                     instance_tree.getUrlString())
 
-    self.assertTrue(upgrade_decision.UpgradeDecision_upgradeHostingSubscription())
+    self.assertTrue(upgrade_decision.UpgradeDecision_upgradeInstanceTree())
     self.assertEqual(software_release.getUrlString(),
-                     hosting_subscription.getUrlString())
+                     instance_tree.getUrlString())
 
-    self.assertEqual(slap_state, hosting_subscription.getSlapState())
+    self.assertEqual(slap_state, instance_tree.getSlapState())
     self.assertEqual('stopped', upgrade_decision.getSimulationState())
 
-  @simulate('HostingSubscription_isUpgradePossible',
+  @simulate('InstanceTree_isUpgradePossible',
             'software_release_url', 'return 1')
-  def testUpgradeDecision_processUpgradeeHostingSubscription(self):
+  def testUpgradeDecision_processUpgradeeInstanceTree(self):
     person = self._makePerson()
-    hosting_subscription = self._makeHostingSubscription()
-    hosting_subscription.edit(
+    instance_tree = self._makeInstanceTree()
+    instance_tree.edit(
           destination_section_value = person.getRelativeUrl())
 
-    self._makeSoftwareInstance(hosting_subscription,
-                               hosting_subscription.getUrlString())
+    self._makeSoftwareInstance(instance_tree,
+                               instance_tree.getUrlString())
    
     software_release = self._makeSoftwareRelease()
     upgrade_decision = self._makeUpgradeDecision()
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValueList(
-       [software_release, hosting_subscription])
+       [software_release, instance_tree])
     self.tic()
    
-    slap_state = hosting_subscription.getSlapState()
+    slap_state = instance_tree.getSlapState()
     
     self.assertFalse(upgrade_decision.UpgradeDecision_processUpgrade())
     self.assertNotEqual(software_release.getUrlString(),
-                     hosting_subscription.getUrlString())
+                     instance_tree.getUrlString())
 
     upgrade_decision.confirm()
     upgrade_decision.start()
 
     # Check that url_string change, but slap state doesn't
     self.assertNotEqual(software_release.getUrlString(),
-                     hosting_subscription.getUrlString())
+                     instance_tree.getUrlString())
 
     self.assertTrue(upgrade_decision.UpgradeDecision_processUpgrade())
     self.assertEqual(software_release.getUrlString(),
-                     hosting_subscription.getUrlString())
+                     instance_tree.getUrlString())
 
-    self.assertEqual(slap_state, hosting_subscription.getSlapState())
+    self.assertEqual(slap_state, instance_tree.getSlapState())
     self.assertEqual('stopped', upgrade_decision.getSimulationState())
 
 
-  def testUpgradeDecision_upgradeHostingSubscription_no_software_release(self):
+  def testUpgradeDecision_upgradeInstanceTree_no_software_release(self):
 
     person = self._makePerson()
-    hosting_subscription = self._makeHostingSubscription()
-    hosting_subscription.edit(
+    instance_tree = self._makeInstanceTree()
+    instance_tree.edit(
           destination_section_value = person.getRelativeUrl())
 
-    self._makeSoftwareInstance(hosting_subscription,
-                               hosting_subscription.getUrlString())
+    self._makeSoftwareInstance(instance_tree,
+                               instance_tree.getUrlString())
    
     upgrade_decision = self._makeUpgradeDecision()
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
-    upgrade_decision_line.setAggregateValueList([hosting_subscription])
+    upgrade_decision_line.setAggregateValueList([instance_tree])
     self.tic()
    
     upgrade_decision.confirm()
     upgrade_decision.start()
 
-    self.assertFalse(upgrade_decision.UpgradeDecision_upgradeHostingSubscription())
+    self.assertFalse(upgrade_decision.UpgradeDecision_upgradeInstanceTree())
     self.assertEqual('started', upgrade_decision.getSimulationState())
 
-  def testUpgradeDecision_upgradeHostingSubscription_no_hosting_subscripion(self):
+  def testUpgradeDecision_upgradeInstanceTree_no_hosting_subscripion(self):
 
     software_release = self._makeSoftwareRelease()
     upgrade_decision = self._makeUpgradeDecision()
@@ -573,7 +573,7 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     upgrade_decision.confirm()
     upgrade_decision.start()
 
-    self.assertFalse(upgrade_decision.UpgradeDecision_upgradeHostingSubscription())
+    self.assertFalse(upgrade_decision.UpgradeDecision_upgradeInstanceTree())
     self.assertEqual('started', upgrade_decision.getSimulationState())
     
   def testUpgradeDecision_upgradeComputer_no_software_release(self):
@@ -690,13 +690,13 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
   
   def testSoftwareRelease_createUpgradeDecision_hostingSubscription(self):
     person = self._makePerson()
-    hosting_subscription = self._makeHostingSubscription()
-    hosting_subscription.edit(
+    instance_tree = self._makeInstanceTree()
+    instance_tree.edit(
           destination_section_value = person.getRelativeUrl())
     software_release = self._makeSoftwareRelease()
     
     upgrade_decision = software_release.SoftwareRelease_createUpgradeDecision(
-          source_url=hosting_subscription.getRelativeUrl(),
+          source_url=instance_tree.getRelativeUrl(),
           title="TEST-SRUPDE-%s" % self.new_id)
     self.tic()
     
@@ -707,8 +707,8 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     decision_line = upgrade_decision.contentValues(
                     portal_type='Upgrade Decision Line')[0]
                     
-    self.assertEqual(decision_line.getAggregate(portal_type='Hosting Subscription'),
-                      hosting_subscription.getRelativeUrl())
+    self.assertEqual(decision_line.getAggregate(portal_type='Instance Tree'),
+                      instance_tree.getRelativeUrl())
     self.assertEqual(decision_line.getAggregate(portal_type='Software Release'),
                       software_release.getRelativeUrl())
   
@@ -804,8 +804,8 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
   
   def testSoftwareRelease_getUpgradeDecisionInProgress_hosting_subs(self):
     person = self._makePerson()
-    hosting_subscription = self._makeHostingSubscription()
-    hosting_subscription.edit(
+    instance_tree = self._makeInstanceTree()
+    instance_tree.edit(
           destination_section_value = person.getRelativeUrl())
     software_product = self._makeSoftwareProduct()
     software_release = self._requestSoftwareRelease(
@@ -813,20 +813,20 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     upgrade_decision = self._makeUpgradeDecision()
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValueList([software_release,
-                                                      hosting_subscription])
+                                                      instance_tree])
     upgrade_decision.confirm()
     reference = upgrade_decision.getReference()
     self.tic()
     
     in_progress = software_release.SoftwareRelease_getUpgradeDecisionInProgress(
-                                hosting_subscription.getUid())
+                                instance_tree.getUid())
     self.assertEqual(in_progress.getReference(), reference)
     
     upgrade_decision.cancel()
     self.tic()
     
     in_progress = software_release.SoftwareRelease_getUpgradeDecisionInProgress(
-                                hosting_subscription.getUid())
+                                instance_tree.getUid())
     self.assertEqual(in_progress, None)
   
   
@@ -861,8 +861,8 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
   
   def testSoftwareRelease_getUpgradeDecisionInProgress_software_product_hs(self):
     person = self._makePerson()
-    hosting_subscription = self._makeHostingSubscription()
-    hosting_subscription.edit(
+    instance_tree = self._makeInstanceTree()
+    instance_tree.edit(
           destination_section_value = person.getRelativeUrl())
     software_product = self._makeSoftwareProduct()
     software_release = self._requestSoftwareRelease(
@@ -873,7 +873,7 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     upgrade_decision = self._makeUpgradeDecision()
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValueList([software_release,
-                                                      hosting_subscription])
+                                                      instance_tree])
     upgrade_decision.confirm()
     reference = upgrade_decision.getReference()
     reference = upgrade_decision.getReference()
@@ -881,15 +881,15 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     self.tic()
     
     in_progress = software_release.SoftwareRelease_getUpgradeDecisionInProgress(
-                                hosting_subscription.getUid())
+                                instance_tree.getUid())
     self.assertEqual(in_progress.getReference(), reference)
     
     in_progress = software_release2.SoftwareRelease_getUpgradeDecisionInProgress(
-                                hosting_subscription.getUid())
+                                instance_tree.getUid())
     self.assertEqual(in_progress.getReference(), reference)
     
     in_progress = software_release3.SoftwareRelease_getUpgradeDecisionInProgress(
-                                hosting_subscription.getUid())
+                                instance_tree.getUid())
     self.assertEqual(in_progress, None)
   
   
@@ -1292,19 +1292,19 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     self.assertEqual(result, "Transition from state %s to %s is not permitted" % (
                       upgrade_decision.getSimulationState(), requested_state))
 
-  def testUpgradeDecision_isUpgradeFinished_hosting_subscription(self):
-    hosting_subscription = self._makeHostingSubscription()
+  def testUpgradeDecision_isUpgradeFinished_instance_tree(self):
+    instance_tree = self._makeInstanceTree()
     software_release = self._makeSoftwareRelease()
     upgrade_decision = self._makeUpgradeDecision()
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValueList([software_release,
-                                                hosting_subscription])
+                                                instance_tree])
 
     upgrade_decision.confirm()
     upgrade_decision.stop()
     
     self.assertFalse(upgrade_decision.UpgradeDecision_isUpgradeFinished())
-    hosting_subscription.setUrlString(software_release.getUrlString()) 
+    instance_tree.setUrlString(software_release.getUrlString()) 
     self.assertTrue(upgrade_decision.UpgradeDecision_isUpgradeFinished())
 
   @simulate('NotificationTool_getDocumentValue',
@@ -1369,12 +1369,12 @@ ${new_software_release_url}""",
 
   @simulate('NotificationTool_getDocumentValue',
             'reference=None',
-  'assert reference == "slapos-upgrade-hosting-subscription.notification"\n' \
+  'assert reference == "slapos-upgrade-instance-tree.notification"\n' \
   'return context.restrictedTraverse(' \
-  'context.REQUEST["testUpgradeDecision_notify_hosting_subscription"])')
-  def testUpgradeDecision_notify_hosting_subscription(self):
+  'context.REQUEST["testUpgradeDecision_notify_instance_tree"])')
+  def testUpgradeDecision_notify_instance_tree(self):
     person = self._makePerson()
-    hosting_subscription = self._makeHostingSubscription()
+    instance_tree = self._makeInstanceTree()
     software_release = self._makeSoftwareRelease()
     software_product = self._makeSoftwareProduct()
     software_release.setAggregateValue(software_product)
@@ -1382,9 +1382,9 @@ ${new_software_release_url}""",
     upgrade_decision.edit(destination_decision_value=person)
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValueList([software_release, 
-                                                hosting_subscription])
+                                                instance_tree])
 
-    old_url = hosting_subscription.getUrlString()
+    old_url = instance_tree.getUrlString()
 
     notification_message = self.portal.notification_message_module.newContent(
       portal_type="Notification Message",
@@ -1392,7 +1392,7 @@ ${new_software_release_url}""",
       text_content_substitution_mapping_method_id=
           "NotificationMessage_getSubstitutionMappingDictFromArgument",
       text_content="""${software_product_title}
-${hosting_subscription_title}
+${instance_tree_title}
 ${old_software_release_url}
 ${software_release_name}
 ${software_release_reference}
@@ -1400,7 +1400,7 @@ ${new_software_release_url}""",
       content_type='text/html',
       )
     self.portal.REQUEST\
-        ['testUpgradeDecision_notify_hosting_subscription'] = \
+        ['testUpgradeDecision_notify_instance_tree'] = \
         notification_message.getRelativeUrl()
     
     self.tic()
@@ -1420,10 +1420,10 @@ ${new_software_release_url}""",
     event = upgrade_decision.getFollowUpRelatedValue()
     
     self.assertEqual(event.getTitle(), 
-     "New Upgrade available for %s" % hosting_subscription.getTitle())
+     "New Upgrade available for %s" % instance_tree.getTitle())
      
     self.assertEqual(event.getTextContent().splitlines(),
-      [software_product.getTitle(), hosting_subscription.getTitle(), 
+      [software_product.getTitle(), instance_tree.getTitle(), 
        old_url, software_release.getTitle(), software_release.getReference(),
        software_release.getUrlString()])
 
@@ -1495,14 +1495,14 @@ ${new_software_release_url}""",
 
   @simulate('NotificationTool_getDocumentValue',
             'reference=None',
-  'assert reference == "slapos-upgrade-delivered-hosting-subscription.notification"\n' \
+  'assert reference == "slapos-upgrade-delivered-instance-tree.notification"\n' \
   'return context.restrictedTraverse(' \
-  'context.REQUEST["testUpgradeDecision_notifyDelivered_hosting_subscription"])')
+  'context.REQUEST["testUpgradeDecision_notifyDelivered_instance_tree"])')
   @simulate('UpgradeDecision_isUpgradeFinished',
             '', 'return 1')
-  def testUpgradeDecision_notifyDelivered_hosting_subscription(self):
+  def testUpgradeDecision_notifyDelivered_instance_tree(self):
     person = self._makePerson()
-    hosting_subscription = self._makeHostingSubscription()
+    instance_tree = self._makeInstanceTree()
     software_release = self._makeSoftwareRelease()
     software_product = self._makeSoftwareProduct()
     software_release.setAggregateValue(software_product)
@@ -1510,9 +1510,9 @@ ${new_software_release_url}""",
     upgrade_decision.edit(destination_decision_value=person)
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValueList([software_release, 
-                                                hosting_subscription])
+                                                instance_tree])
 
-    old_url = hosting_subscription.getUrlString()
+    old_url = instance_tree.getUrlString()
 
     notification_message = self.portal.notification_message_module.newContent(
       portal_type="Notification Message",
@@ -1520,7 +1520,7 @@ ${new_software_release_url}""",
       text_content_substitution_mapping_method_id=
           "NotificationMessage_getSubstitutionMappingDictFromArgument",
       text_content="""${software_product_title}
-${hosting_subscription_title}
+${instance_tree_title}
 ${old_software_release_url}
 ${software_release_name}
 ${software_release_reference}
@@ -1528,7 +1528,7 @@ ${new_software_release_url}""",
       content_type='text/html',
       )
     self.portal.REQUEST\
-        ['testUpgradeDecision_notifyDelivered_hosting_subscription'] = \
+        ['testUpgradeDecision_notifyDelivered_instance_tree'] = \
         notification_message.getRelativeUrl()
     
     self.tic()
@@ -1549,11 +1549,11 @@ ${new_software_release_url}""",
     event = upgrade_decision.getFollowUpRelatedValue()
     
     self.assertEqual(event.getTitle(),
-      "Upgrade Processed for %s (%s)" % (hosting_subscription.getTitle(), 
+      "Upgrade Processed for %s (%s)" % (instance_tree.getTitle(), 
                                               software_release.getReference()))
      
     self.assertEqual(event.getTextContent().splitlines(),
-      [software_product.getTitle(), hosting_subscription.getTitle(), 
+      [software_product.getTitle(), instance_tree.getTitle(), 
        old_url, software_release.getTitle(), software_release.getReference(),
        software_release.getUrlString()])
 
@@ -1589,14 +1589,14 @@ ${new_software_release_url}""",
             'reference=None',
   'assert reference == "slapos-upgrade-delivered-computer.notification"\n' \
   'return context.restrictedTraverse(' \
-  'context.REQUEST["testUpgradeDecisionLine_cancel_destroyed_hosting_subscription"])')
-  def testUpgradeDecisionLine_cancel_destroyed_hosting_subscription(self):
+  'context.REQUEST["testUpgradeDecisionLine_cancel_destroyed_instance_tree"])')
+  def testUpgradeDecisionLine_cancel_destroyed_instance_tree(self):
     software_release = self._makeSoftwareRelease()
-    hosting_subscription = self._makeFullHostingSubscription(software_release.getUrlString())
+    instance_tree = self._makeFullInstanceTree(software_release.getUrlString())
     upgrade_decision = self._makeUpgradeDecision()
 
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
-    upgrade_decision_line.setAggregateValueList([software_release, hosting_subscription])
+    upgrade_decision_line.setAggregateValueList([software_release, instance_tree])
 
     notification_message = self.portal.notification_message_module.newContent(
       portal_type="Notification Message",
@@ -1612,36 +1612,36 @@ ${new_software_release_url}""",
       content_type='text/html',
       )
     self.portal.REQUEST\
-        ['testUpgradeDecisionLine_cancel_destroyed_hosting_subscription'] = \
+        ['testUpgradeDecisionLine_cancel_destroyed_instance_tree'] = \
         notification_message.getRelativeUrl()
     self.tic()
 
     kw = dict(
-      software_release = hosting_subscription.getUrlString(),
-      software_type = hosting_subscription.getSourceReference(),
-      instance_xml = hosting_subscription.getTextContent(),
+      software_release = instance_tree.getUrlString(),
+      software_type = instance_tree.getSourceReference(),
+      instance_xml = instance_tree.getTextContent(),
       sla_xml = self.generateSafeXml(),
       shared = False
     )
-    hosting_subscription.requestDestroy(**kw)
+    instance_tree.requestDestroy(**kw)
     self.tic()
     upgrade_decision_line.UpgradeDecisionLine_cancel()
     self.assertEqual('cancelled', upgrade_decision.getSimulationState())
     workflow_history_list = upgrade_decision.Base_getWorkflowHistoryItemList('upgrade_decision_workflow', display=0)
-    self.assertEqual("Hosting Subscription is destroyed.", workflow_history_list[-1].comment)
+    self.assertEqual("Instance Tree is destroyed.", workflow_history_list[-1].comment)
 
   @simulate('NotificationTool_getDocumentValue',
             'reference=None',
   'assert reference == "slapos-upgrade-delivered-computer.notification"\n' \
   'return context.restrictedTraverse(' \
-  'context.REQUEST["testUpgradeDecisionLine_cancel_destroyed_hosting_subscription"])')
-  def testUpgradeDecisionLine_cancel_destroyed_hosting_subscription_and_disabled_monitor(self):
+  'context.REQUEST["testUpgradeDecisionLine_cancel_destroyed_instance_tree"])')
+  def testUpgradeDecisionLine_cancel_destroyed_instance_tree_and_disabled_monitor(self):
     software_release = self._makeSoftwareRelease()
-    hosting_subscription = self._makeFullHostingSubscription(software_release.getUrlString())
+    instance_tree = self._makeFullInstanceTree(software_release.getUrlString())
     upgrade_decision = self._makeUpgradeDecision()
 
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
-    upgrade_decision_line.setAggregateValueList([software_release, hosting_subscription])
+    upgrade_decision_line.setAggregateValueList([software_release, instance_tree])
 
     notification_message = self.portal.notification_message_module.newContent(
       portal_type="Notification Message",
@@ -1657,24 +1657,24 @@ ${new_software_release_url}""",
       content_type='text/html',
       )
     self.portal.REQUEST\
-        ['testUpgradeDecisionLine_cancel_destroyed_hosting_subscription'] = \
+        ['testUpgradeDecisionLine_cancel_destroyed_instance_tree'] = \
         notification_message.getRelativeUrl()
     self.tic()
 
     kw = dict(
-      software_release = hosting_subscription.getUrlString(),
-      software_type = hosting_subscription.getSourceReference(),
-      instance_xml = hosting_subscription.getTextContent(),
+      software_release = instance_tree.getUrlString(),
+      software_type = instance_tree.getSourceReference(),
+      instance_xml = instance_tree.getTextContent(),
       sla_xml = self.generateSafeXml(),
       shared = False
     )
-    hosting_subscription.requestDestroy(**kw)
-    hosting_subscription.setMonitorScope("disabled")
+    instance_tree.requestDestroy(**kw)
+    instance_tree.setMonitorScope("disabled")
     self.tic()
     upgrade_decision_line.UpgradeDecisionLine_cancel()
     self.assertEqual('cancelled', upgrade_decision.getSimulationState())
     workflow_history_list = upgrade_decision.Base_getWorkflowHistoryItemList('upgrade_decision_workflow', display=0)
-    self.assertEqual("Hosting Subscription is destroyed.", workflow_history_list[-1].comment)
+    self.assertEqual("Instance Tree is destroyed.", workflow_history_list[-1].comment)
 
   @simulate('NotificationTool_getDocumentValue',
             'reference=None',
@@ -1683,11 +1683,11 @@ ${new_software_release_url}""",
   'context.REQUEST["testUpgradeDecisionLine_cancel_destroyed_hs_archived_sr"])')
   def testUpgradeDecisionLine_cancel_destroyed_hs_archived_sr(self):
     software_release = self._makeSoftwareRelease()
-    hosting_subscription = self._makeFullHostingSubscription(software_release.getUrlString())
+    instance_tree = self._makeFullInstanceTree(software_release.getUrlString())
     upgrade_decision = self._makeUpgradeDecision()
 
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
-    upgrade_decision_line.setAggregateValueList([software_release, hosting_subscription])
+    upgrade_decision_line.setAggregateValueList([software_release, instance_tree])
 
     notification_message = self.portal.notification_message_module.newContent(
       portal_type="Notification Message",
@@ -1708,13 +1708,13 @@ ${new_software_release_url}""",
     self.tic()
 
     kw = dict(
-      software_release = hosting_subscription.getUrlString(),
-      software_type = hosting_subscription.getSourceReference(),
-      instance_xml = hosting_subscription.getTextContent(),
+      software_release = instance_tree.getUrlString(),
+      software_type = instance_tree.getSourceReference(),
+      instance_xml = instance_tree.getTextContent(),
       sla_xml = self.generateSafeXml(),
       shared = False
     )
-    hosting_subscription.requestDestroy(**kw)
+    instance_tree.requestDestroy(**kw)
     software_release.archive()
     self.tic()
     upgrade_decision_line.UpgradeDecisionLine_cancel()

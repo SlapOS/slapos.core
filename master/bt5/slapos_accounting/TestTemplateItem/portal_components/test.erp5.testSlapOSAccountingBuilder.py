@@ -74,18 +74,18 @@ class TestSlapOSSalePackingListBuilder(SlapOSTestCaseMixin):
       delivery.getCategoryList())
 
   def test(self):
-    hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+    instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     applied_rule = self.portal.portal_simulation.newContent(
       portal_type='Applied Rule',
-      causality=hosting_subscription.getRelativeUrl(),
+      causality=instance_tree.getRelativeUrl(),
       specialise='portal_rules/slapos_subscription_item_rule'
     )
     person = self.portal.person_module.template_member\
         .Base_createCloneDocument(batch_mode=1)
     simulation_movement_kw = dict(
         portal_type='Simulation Movement',
-        aggregate=hosting_subscription.getRelativeUrl(),
+        aggregate=instance_tree.getRelativeUrl(),
         base_contribution=['base_amount/invoicing/discounted',
             'base_amount/invoicing/taxable'],
         causality=['business_process_module/slapos_aggregated_business_process'

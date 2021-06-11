@@ -271,7 +271,7 @@ class OpenOrder(SlapRequester):
   def getInformation(self, partition_reference):
     if not getattr(self, '_hateoas_navigator', None):
       raise Exception('SlapOS Master Hateoas API required for this operation is not available.')
-    raw_information = self._hateoas_navigator.getHostingSubscriptionRootSoftwareInstanceInformation(partition_reference)
+    raw_information = self._hateoas_navigator.getInstanceTreeRootSoftwareInstanceInformation(partition_reference)
     software_instance = SoftwareInstance()
     # XXX redefine SoftwareInstance to be more consistent
     for key, value in six.iteritems(raw_information["data"]):
@@ -677,7 +677,7 @@ class ComputerPartition(SlapRequester):
     return loads(xml)
   
   def getFullHostingIpAddressList(self):
-    xml = self._connection_helper.GET('getHostingSubscriptionIpList',
+    xml = self._connection_helper.GET('getInstanceTreeIpList',
             params={
                 'computer_id': self._computer_id,
                 'computer_partition_id': self._partition_id,
@@ -847,7 +847,7 @@ class slap:
   def getOpenOrderDict(self):
     if not getattr(self, '_hateoas_navigator', None):
       raise Exception('SlapOS Master Hateoas API required for this operation is not available.')
-    return self._hateoas_navigator.getHostingSubscriptionDict()
+    return self._hateoas_navigator.getInstanceTreeDict()
 
   def getComputerDict(self): 
     if not getattr(self, '_hateoas_navigator', None):

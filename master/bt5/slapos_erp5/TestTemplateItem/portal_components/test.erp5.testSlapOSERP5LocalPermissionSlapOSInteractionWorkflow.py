@@ -130,33 +130,33 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
     self.assertEqual(comment,
         computer.workflow_history['edit_workflow'][-1]['comment'])
 
-  def test_HostingSubscription_setReference(self):
-    hosting_subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription')
-    self.assertSecurityGroup(hosting_subscription, [self.user_id,
-        hosting_subscription.getId(), 'G-COMPANY'],
+  def test_InstanceTree_setReference(self):
+    instance_tree = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree')
+    self.assertSecurityGroup(instance_tree, [self.user_id,
+        instance_tree.getId(), 'G-COMPANY'],
         False)
 
-    hosting_subscription.edit(reference='TESTHS-%s' % self.generateNewId())
+    instance_tree.edit(reference='TESTHS-%s' % self.generateNewId())
     self.commit()
 
-    self.assertSecurityGroup(hosting_subscription, [self.user_id,
-        hosting_subscription.getReference(), 'G-COMPANY'], False)
+    self.assertSecurityGroup(instance_tree, [self.user_id,
+        instance_tree.getReference(), 'G-COMPANY'], False)
 
-  def test_HostingSubscription_setDestinationSection(self):
+  def test_InstanceTree_setDestinationSection(self):
     self._makePerson()
-    hosting_subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription')
-    self.assertSecurityGroup(hosting_subscription, [self.user_id,
-        hosting_subscription.getId(), 'G-COMPANY'],
+    instance_tree = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree')
+    self.assertSecurityGroup(instance_tree, [self.user_id,
+        instance_tree.getId(), 'G-COMPANY'],
         False)
 
-    hosting_subscription.edit(
+    instance_tree.edit(
         destination_section=self.person_user.getRelativeUrl())
     self.commit()
 
-    self.assertSecurityGroup(hosting_subscription, [self.user_id,
-        hosting_subscription.getId(), self.person_user.getUserId(),
+    self.assertSecurityGroup(instance_tree, [self.user_id,
+        instance_tree.getId(), self.person_user.getUserId(),
         'G-COMPANY'],
         False)
 
@@ -216,24 +216,24 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
     self.assertSecurityGroup(software_instance, [self.user_id, 'G-COMPANY'],
         False)
 
-    hosting_subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription', reference='TESTHS-%s' %
+    instance_tree = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree', reference='TESTHS-%s' %
             self.generateNewId())
-    software_instance.edit(specialise=hosting_subscription.getRelativeUrl())
+    software_instance.edit(specialise=instance_tree.getRelativeUrl())
     self.commit()
 
     self.assertSecurityGroup(software_instance, [self.user_id, 'G-COMPANY',
-        hosting_subscription.getReference()], False)
+        instance_tree.getReference()], False)
 
   def test_SoftwareInstance_setAggregate(self):
-    hosting_subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription', reference='TESTHS-%s' %
+    instance_tree = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree', reference='TESTHS-%s' %
             self.generateNewId())
     software_instance = self.portal.software_instance_module.newContent(
         portal_type='Software Instance',
-        specialise=hosting_subscription.getRelativeUrl())
+        specialise=instance_tree.getRelativeUrl())
     self.assertSecurityGroup(software_instance, [self.user_id, 'G-COMPANY',
-        hosting_subscription.getReference()],
+        instance_tree.getReference()],
         False)
 
     computer = self.portal.computer_module.template_computer\
@@ -247,9 +247,9 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
     self.tic()
 
     self.assertSecurityGroup(software_instance, [self.user_id, 'G-COMPANY',
-        computer.getUserId(), hosting_subscription.getReference()], False)
+        computer.getUserId(), instance_tree.getReference()], False)
     self.assertSecurityGroup(partition, [self.user_id,
-        hosting_subscription.getReference()], True)
+        instance_tree.getReference()], True)
 
   def test_SlaveInstance_setSpecialise(self):
     slave_instance = self.portal.software_instance_module.newContent(
@@ -257,29 +257,29 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
     self.assertSecurityGroup(slave_instance, [self.user_id, 'G-COMPANY'],
         False)
 
-    hosting_subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription', reference='TESTHS-%s' %
+    instance_tree = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree', reference='TESTHS-%s' %
             self.generateNewId())
-    slave_instance.edit(specialise=hosting_subscription.getRelativeUrl())
+    slave_instance.edit(specialise=instance_tree.getRelativeUrl())
     self.commit()
 
     self.assertSecurityGroup(slave_instance, [self.user_id, 'G-COMPANY',
-        hosting_subscription.getReference()], False)
+        instance_tree.getReference()], False)
 
   def test_SlaveInstance_setAggregate(self):
-    hosting_subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription', reference='TESTHS-%s' %
+    instance_tree = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree', reference='TESTHS-%s' %
             self.generateNewId())
     software_instance = self.portal.software_instance_module.newContent(
         portal_type='Software Instance',
         reference='TESTSO-%s' % self.generateNewId(),
-        specialise=hosting_subscription.getRelativeUrl())
+        specialise=instance_tree.getRelativeUrl())
     software_instance.validate()
     slave_instance = self.portal.software_instance_module.newContent(
         portal_type='Slave Instance',
-        specialise=hosting_subscription.getRelativeUrl())
+        specialise=instance_tree.getRelativeUrl())
     self.assertSecurityGroup(slave_instance, [self.user_id, 'G-COMPANY',
-        hosting_subscription.getReference()],
+        instance_tree.getReference()],
         False)
 
     computer = self.portal.computer_module.template_computer\
@@ -294,7 +294,7 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
 
     self.assertSecurityGroup(slave_instance, [self.user_id, 'G-COMPANY',
         software_instance.getUserId(), computer.getUserId(),
-        hosting_subscription.getReference()], False)
+        instance_tree.getReference()], False)
 
   def test_PaymentTransaction_setDestinationSection(self):
     self._makePerson()
@@ -697,15 +697,15 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
         False)
 
 
-  def test_InternalPackingListLine_setAggregate_hosting_subscription(self):
+  def test_InternalPackingListLine_setAggregate_instance_tree(self):
     self._makePerson()
     
     project = self.portal.project_module.newContent(
       portal_type="Project",
     )
 
-    hosting_subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription',
+    instance_tree = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree',
         reference='TESTHS-%s' % self.generateNewId())
     
     internal_packing_list = self.portal.internal_packing_list_module.newContent(
@@ -731,37 +731,37 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
 
     software_instance = self.portal.software_instance_module.newContent(
         portal_type='Software Instance')
-    software_instance.edit(specialise=hosting_subscription.getRelativeUrl())
+    software_instance.edit(specialise=instance_tree.getRelativeUrl())
 
     slave_instance = self.portal.software_instance_module.newContent(
         portal_type='Slave Instance')
-    slave_instance.edit(specialise=hosting_subscription.getRelativeUrl())
+    slave_instance.edit(specialise=instance_tree.getRelativeUrl())
 
     support_request = self.portal.support_request_module.newContent(
         portal_type="Support Request"
     )
-    support_request.edit(aggregate=hosting_subscription.getRelativeUrl())
+    support_request.edit(aggregate=instance_tree.getRelativeUrl())
     upgrade_decision = self.portal.upgrade_decision_module.newContent(
         portal_type="Upgrade Decision"
     )
     upgrade_decision_line = upgrade_decision.newContent(
       portal_type="Upgrade Decision Line"
     )
-    upgrade_decision_line.edit(aggregate=hosting_subscription.getRelativeUrl())
+    upgrade_decision_line.edit(aggregate=instance_tree.getRelativeUrl())
     self.tic()
 
     self.assertSecurityGroup(internal_packing_list, [self.user_id,],
         False)
 
-    self.assertSecurityGroup(hosting_subscription, [self.user_id, 'G-COMPANY', 
-        hosting_subscription.getReference()],
+    self.assertSecurityGroup(instance_tree, [self.user_id, 'G-COMPANY', 
+        instance_tree.getReference()],
         False)
 
     self.assertSecurityGroup(software_instance, [self.user_id, 'G-COMPANY',
-        hosting_subscription.getReference()], False)
+        instance_tree.getReference()], False)
 
     self.assertSecurityGroup(slave_instance, [self.user_id, 'G-COMPANY',
-        hosting_subscription.getReference()], False)
+        instance_tree.getReference()], False)
 
     self.assertSecurityGroup(support_request, [self.user_id, 'G-COMPANY'], False)
 
@@ -772,24 +772,24 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
         resource_value=self.portal.product_module.computer,
         price=0.0,
         quantity=1.0,
-        aggregate_value=hosting_subscription)
+        aggregate_value=instance_tree)
     self.tic()
 
     self.assertSecurityGroup(internal_packing_list, [self.user_id,],
         False)
 
-    self.assertSecurityGroup(hosting_subscription, [self.user_id, 'G-COMPANY', 
+    self.assertSecurityGroup(instance_tree, [self.user_id, 'G-COMPANY', 
         project.getReference(),
-        hosting_subscription.getReference()],
+        instance_tree.getReference()],
         False)
 
     self.assertSecurityGroup(software_instance, [self.user_id, 'G-COMPANY',
         project.getReference(),
-        hosting_subscription.getReference()], False)
+        instance_tree.getReference()], False)
 
     self.assertSecurityGroup(slave_instance, [self.user_id, 'G-COMPANY',
         project.getReference(),
-        hosting_subscription.getReference()], False)
+        instance_tree.getReference()], False)
 
     self.assertSecurityGroup(support_request, [self.user_id, 'G-COMPANY',
         project.getReference()], False)

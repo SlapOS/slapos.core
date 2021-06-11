@@ -134,7 +134,7 @@
       </tr>
       <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-FRONTEND 0'})">
         <td>waitForElementPresent</td>
-        <td tal:content="python: '//a[@data-i18n= \'%s\']' % (here.Base_translateString('Hosting Subscription: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
+        <td tal:content="python: '//a[@data-i18n= \'%s\']' % (here.Base_translateString('Instance Tree: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
         <td></td>
       </tr>
 
@@ -148,7 +148,7 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
       </tal:block>
 
-      <tal:block tal:define="header python: 'Destroy Hosting Subscription: ${title}';
+      <tal:block tal:define="header python: 'Destroy Instance Tree: ${title}';
                              dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-FRONTEND 0'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>

@@ -1,6 +1,6 @@
 from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, ComplexQuery
 
-portal_type_list = ['Computer', 'Computer Network', 'Hosting Subscription']
+portal_type_list = ['Computer', 'Computer Network', 'Instance Tree']
 portal = context.getPortalObject()
 internal_packing_list_line = state_change['object']
 after_tag = (internal_packing_list_line.getPath(), ('immediateReindexObject', 'recursiveImmediateReindexObject'))
@@ -16,7 +16,7 @@ for object_ in internal_packing_list_line.getAggregateValueList(portal_type=port
       activate_kw={"after_path_and_method_id": after_tag}
     )
     
-  elif object_.getPortalType() == "Hosting Subscription":
+  elif object_.getPortalType() == "Instance Tree":
     query = ComplexQuery(
       ComplexQuery(
         SimpleQuery(portal_type=["Software instance", "Slave Instance"]),

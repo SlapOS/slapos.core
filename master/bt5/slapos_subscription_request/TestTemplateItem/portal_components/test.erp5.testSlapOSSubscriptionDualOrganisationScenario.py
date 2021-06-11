@@ -54,7 +54,7 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
     self.portal.portal_caches.clearAllCache()
     self.tic()
 
-  def requestAndCheckDualHostingSubscription(self, amount, name, 
+  def requestAndCheckDualInstanceTree(self, amount, name, 
               default_email_text, language_list):
   
     self.logout()
@@ -180,7 +180,7 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
     self.tic()
     self.logout()
     
-    subscription_request_list = self.requestAndCheckDualHostingSubscription(
+    subscription_request_list = self.requestAndCheckDualInstanceTree(
       amount, name, default_email_text, language_list=language_list)
 
     self._checkSubscriptionDeploymentAndSimulation(
@@ -232,8 +232,8 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
         subscription_request.getAggregateValue().getSlapState())
 
       # Destroy all instances and process 
-      hosting_subscription = subscription_request.getAggregateValue()
-      hosting_subscription.HostingSubscription_requestPerson('destroyed')
+      instance_tree = subscription_request.getAggregateValue()
+      instance_tree.InstanceTree_requestPerson('destroyed')
       self.tic()
 
     self.stepCallSlaposSubscriptionRequestProcessStartedAlarm()

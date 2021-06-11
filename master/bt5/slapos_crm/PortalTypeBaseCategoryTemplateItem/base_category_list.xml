@@ -3,7 +3,7 @@
   <item>monitor_scope</item>
   <item>upgrade_scope</item>
  </portal_type>
- <portal_type id="Hosting Subscription">
+ <portal_type id="Instance Tree">
   <item>monitor_scope</item>
   <item>upgrade_scope</item>
  </portal_type>

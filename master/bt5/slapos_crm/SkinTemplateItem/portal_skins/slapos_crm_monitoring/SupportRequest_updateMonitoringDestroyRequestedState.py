@@ -16,7 +16,7 @@ if document is not None and document.getSlapState() == "destroy_requested":
     context.invalidate()
 
   # Send Notification message
-  message = """ Closing this ticket as the Hosting Subscription was destroyed by the user. 
+  message = """ Closing this ticket as the Instance Tree was destroyed by the user. 
   """
 
   notification_reference = "slapos-crm-support-request-close-destroyed-notification"
@@ -26,10 +26,10 @@ if document is not None and document.getSlapState() == "destroy_requested":
                  reference=notification_reference)
 
   if notification_message is not None:
-    mapping_dict = {'hosting_subscription_title':document.getTitle()}
+    mapping_dict = {'instance_tree_title':document.getTitle()}
 
     message = notification_message.asText(
               substitution_method_parameter_dict={'mapping_dict':mapping_dict})
   
   return context.SupportRequest_trySendNotificationMessage(
-              "Hosting Subscription was destroyed was destroyed by the user", message, person)
+              "Instance Tree was destroyed was destroyed by the user", message, person)

@@ -1,6 +1,6 @@
 <property_sheet_list>
  <portal_type id="Subscription Condition">
-  <item>HostingSubscription</item>
+  <item>InstanceTree</item>
   <item>Price</item>
   <item>SlapOSSubscriptionCondition</item>
   <item>SoftwareInstance</item>
@@ -11,7 +11,7 @@
   <item>Amount</item>
   <item>CredentialRequest</item>
   <item>DublinCore</item>
-  <item>HostingSubscription</item>
+  <item>InstanceTree</item>
   <item>Person</item>
   <item>Price</item>
   <item>Reference</item>
@@ -23,14 +23,14 @@
   <item>VariationRange</item>
  </portal_type>
  <portal_type id="Trial Condition">
-  <item>HostingSubscription</item>
+  <item>InstanceTree</item>
   <item>SoftwareInstance</item>
   <item>TextDocument</item>
   <item>TrialCondition</item>
   <item>Url</item>
  </portal_type>
  <portal_type id="Trial Request">
-  <item>HostingSubscription</item>
+  <item>InstanceTree</item>
   <item>Organisation</item>
   <item>Reference</item>
   <item>SoftwareInstance</item>

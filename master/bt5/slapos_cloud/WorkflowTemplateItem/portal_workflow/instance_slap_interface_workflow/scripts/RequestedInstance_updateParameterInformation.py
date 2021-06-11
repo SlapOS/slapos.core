@@ -24,7 +24,7 @@ edit_kw = {
 if is_slave not in [True, False]:
   raise ValueError, "shared should be a boolean"
 instance_portal_type = instance.getPortalType()
-if instance_portal_type == "Hosting Subscription":
+if instance_portal_type == "Instance Tree":
   edit_kw['root_slave'] = is_slave
 elif instance_portal_type == "Software Instance":
   if is_slave:

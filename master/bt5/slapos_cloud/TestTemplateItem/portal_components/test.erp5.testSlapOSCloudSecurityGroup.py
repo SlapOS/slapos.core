@@ -148,9 +148,9 @@ class TestSlapOSSoftwareInstanceSecurity(TestSlapOSSecurityMixin):
 
     self.login()
     subscription_reference = self._generateRandomUniqueReference(
-        'Hosting Suscription')
-    subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription',
+        'Instance Tree')
+    subscription = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree',
         reference=subscription_reference)
     subscription.validate()
     instance.setSpecialise(subscription.getRelativeUrl())

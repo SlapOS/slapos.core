@@ -343,16 +343,16 @@ class SlapTool(BaseTool):
     return dumps(slap_computer), None
 
   @UnrestrictedMethod
-  def _getHostingSubscriptionIpList(self, computer_id, computer_partition_id):
+  def _getInstanceTreeIpList(self, computer_id, computer_partition_id):
     software_instance = self._getSoftwareInstanceForComputerPartition(
                                           computer_id, computer_partition_id)
     
     if software_instance is None or \
                         software_instance.getSlapState() == 'destroy_requested':
       return dumps([])
-    # Search hosting subscription
+    # Search instance tree
     hosting = software_instance.getSpecialiseValue()
-    while hosting and hosting.getPortalType() != "Hosting Subscription":
+    while hosting and hosting.getPortalType() != "Instance Tree":
       hosting = hosting.getSpecialiseValue()
     ip_address_list = []
     for instance in hosting.getSpecialiseRelatedValueList(
@@ -398,13 +398,13 @@ class SlapTool(BaseTool):
       return body
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'getHostingSubscriptionIpList')
-  def getHostingSubscriptionIpList(self, computer_id, computer_partition_id):
+    'getInstanceTreeIpList')
+  def getInstanceTreeIpList(self, computer_id, computer_partition_id):
     """
     Search and return all Computer Partition IP address related to one 
-    Hosting Subscription
+    Instance Tree
     """
-    result =  self._getHostingSubscriptionIpList(computer_id,
+    result =  self._getInstanceTreeIpList(computer_id,
                                                       computer_partition_id)
     
     if self.REQUEST.response.getStatus() == 200:
@@ -1345,8 +1345,8 @@ class SlapTool(BaseTool):
       software_instance_document = self.\
         _getSoftwareInstanceForComputerPartition(computer_id,
         computer_partition_id)
-      hosting_subscription = software_instance_document.getSpecialiseValue()
-      if hosting_subscription is not None and hosting_subscription.getSlapState() == "stop_requested":
+      instance_tree = software_instance_document.getSpecialiseValue()
+      if instance_tree is not None and instance_tree.getSlapState() == "stop_requested":
         state = 'stopped'
       kw = dict(software_release=software_release,
               software_type=software_type,
@@ -1582,7 +1582,7 @@ class SlapTool(BaseTool):
     if (newtimestamp > timestamp):
       timestamp = newtimestamp
 
-    hosting_subscription = software_instance.getSpecialiseValue()
+    instance_tree = software_instance.getSpecialiseValue()
 
     ip_list = []
     full_ip_list = []
@@ -1630,8 +1630,8 @@ class SlapTool(BaseTool):
     return {
       'instance_guid': software_instance.getReference().decode("UTF-8"),
       'instance_title': software_instance.getTitle().decode("UTF-8"),
-      'root_instance_title': hosting_subscription.getTitle().decode("UTF-8"),
-      'root_instance_short_title': hosting_subscription.getShortTitle().decode("UTF-8"),
+      'root_instance_title': instance_tree.getTitle().decode("UTF-8"),
+      'root_instance_short_title': instance_tree.getShortTitle().decode("UTF-8"),
       'xml': software_instance.getTextContent(),
       'connection_xml': software_instance.getConnectionXml(),
       'filter_xml': software_instance.getSlaXml(),

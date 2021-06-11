@@ -2,20 +2,20 @@ if context.getSimulationState() != "ordered":
   # Skip if the instance isn't ordered anymore
   return
 
-hosting_subscription = context.getAggregateValue()
+instance_tree = context.getAggregateValue()
 
 # Don't request again if it is already requested.
-if hosting_subscription is None:
+if instance_tree is None:
   context.SubscriptionRequest_processRequest()
   # Don't perform everything on the same transaction
   return "Skipped (Instance Requested)"
 
-if hosting_subscription is not None:
-  if hosting_subscription.getCausalityState() == "diverged":
+if instance_tree is not None:
+  if instance_tree.getCausalityState() == "diverged":
     # Call it as soon as possible
-    hosting_subscription.HostingSubscription_requestUpdateOpenSaleOrder()
+    instance_tree.InstanceTree_requestUpdateOpenSaleOrder()
 
-  instance = hosting_subscription.getSuccessorValue()
+  instance = instance_tree.getSuccessorValue()
 
   # This ensure that the user has a valid cloud contract.
   # At this stage he already have a paied invoice for the reservation,
@@ -26,8 +26,8 @@ if hosting_subscription is not None:
   context.SubscriptionRequest_generateReservationRefoundSalePackingList()
 
   # Instance is already destroyed so move into stopped state diretly.
-  if hosting_subscription.getValidationState() == "archived":
-    comment="Hosting Subscription is Destroyed and archived, Stop the Subscription Request"
+  if instance_tree.getValidationState() == "archived":
+    comment="Instance Tree is Destroyed and archived, Stop the Subscription Request"
     context.confirm(comment=comment)
     context.start(comment=comment)
     context.stop(comment=comment)

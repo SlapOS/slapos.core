@@ -19,7 +19,7 @@ except KeyError:
 if is_slave not in [True, False]:
   raise ValueError, "shared should be a boolean"
 
-hosting_subscription_portal_type = "Hosting Subscription"
+instance_tree_portal_type = "Instance Tree"
 
 tag = "%s_%s_inProgress" % (person.getUid(),
                                software_title)
@@ -30,32 +30,32 @@ if (portal.portal_activities.countMessageWithTag(tag) > 0):
   raise NotImplementedError(tag)
 
 # Check if it already exists
-request_hosting_subscription_list = portal.portal_catalog(
-  portal_type=hosting_subscription_portal_type,
+request_instance_tree_list = portal.portal_catalog(
+  portal_type=instance_tree_portal_type,
   title={'query': software_title, 'key': 'ExactMatch'},
   validation_state="validated",
   default_destination_section_uid=person.getUid(),
   limit=2,
   )
-if len(request_hosting_subscription_list) > 1:
-  raise NotImplementedError, "Too many hosting subscription %s found %s" % (software_title, [x.path for x in request_hosting_subscription_list])
-elif len(request_hosting_subscription_list) == 1:
-  request_hosting_subscription = request_hosting_subscription_list[0].getObject()
-  if (request_hosting_subscription.getSlapState() == "destroy_requested") or \
-     (request_hosting_subscription.getTitle() != software_title) or \
-     (request_hosting_subscription.getValidationState() != "validated") or \
-     (request_hosting_subscription.getDestinationSection() != person.getRelativeUrl()):
-    raise NotImplementedError, "The system was not able to get the expected hosting subscription"
+if len(request_instance_tree_list) > 1:
+  raise NotImplementedError, "Too many instance tree %s found %s" % (software_title, [x.path for x in request_instance_tree_list])
+elif len(request_instance_tree_list) == 1:
+  request_instance_tree = request_instance_tree_list[0].getObject()
+  if (request_instance_tree.getSlapState() == "destroy_requested") or \
+     (request_instance_tree.getTitle() != software_title) or \
+     (request_instance_tree.getValidationState() != "validated") or \
+     (request_instance_tree.getDestinationSection() != person.getRelativeUrl()):
+    raise NotImplementedError, "The system was not able to get the expected instance tree"
 else:
   if (root_state == "destroyed"):
     # No need to create destroyed subscription.
-    context.REQUEST.set('request_hosting_subscription', None)
+    context.REQUEST.set('request_instance_tree', None)
     return
-  hosting_subscription_reference = "HOSTSUBS-%s" % context.getPortalObject().portal_ids\
-      .generateNewId(id_group='slap_hosting_subscription_reference', id_generator='uid')
-  request_hosting_subscription = portal.getDefaultModule(portal_type=hosting_subscription_portal_type).newContent(
-    portal_type=hosting_subscription_portal_type,
-    reference=hosting_subscription_reference,
+  instance_tree_reference = "HOSTSUBS-%s" % context.getPortalObject().portal_ids\
+      .generateNewId(id_group='slap_instance_tree_reference', id_generator='uid')
+  request_instance_tree = portal.getDefaultModule(portal_type=instance_tree_portal_type).newContent(
+    portal_type=instance_tree_portal_type,
+    reference=instance_tree_reference,
     title=software_title,
     destination_section=person.getRelativeUrl(),
     activate_kw={'tag': tag},
@@ -69,19 +69,19 @@ promise_kw = {
   'shared': is_slave,
 }
 
-context.REQUEST.set('request_hosting_subscription', request_hosting_subscription)
+context.REQUEST.set('request_instance_tree', request_instance_tree)
 # Change desired state
 if (root_state == "started"):
-  request_hosting_subscription.requestStart(**promise_kw)
+  request_instance_tree.requestStart(**promise_kw)
 elif (root_state == "stopped"):
-  request_hosting_subscription.requestStop(**promise_kw)
+  request_instance_tree.requestStop(**promise_kw)
 elif (root_state == "destroyed"):
-  request_hosting_subscription.requestDestroy(**promise_kw)
-  context.REQUEST.set('request_hosting_subscription', None)
+  request_instance_tree.requestDestroy(**promise_kw)
+  context.REQUEST.set('request_instance_tree', None)
 else:
   raise ValueError, "state should be started, stopped or destroyed"
 
-request_hosting_subscription.requestInstance(
+request_instance_tree.requestInstance(
   software_release=software_release_url_string,
   software_title=software_title,
   software_type=software_type,
@@ -92,12 +92,12 @@ request_hosting_subscription.requestInstance(
 )
 
 # Change the state at the end to allow to execute updateLocalRoles only once in the transaction
-validation_state = request_hosting_subscription.getValidationState()
-slap_state = request_hosting_subscription.getSlapState()
+validation_state = request_instance_tree.getValidationState()
+slap_state = request_instance_tree.getSlapState()
 if validation_state == 'draft':
-  request_hosting_subscription.portal_workflow.doActionFor(request_hosting_subscription,
+  request_instance_tree.portal_workflow.doActionFor(request_instance_tree,
                                            'validate_action')
 if (validation_state != 'archived') and \
    (slap_state == 'destroy_requested'):
   # XXX TODO do not use validation workflow to filter destroyed subscription
-  request_hosting_subscription.archive()
+  request_instance_tree.archive()

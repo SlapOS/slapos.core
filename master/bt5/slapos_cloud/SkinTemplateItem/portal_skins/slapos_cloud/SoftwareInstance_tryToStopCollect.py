@@ -5,8 +5,8 @@ if REQUEST is not None:
 instance = context
 
 if (instance.getSlapState() == "start_requested"):
-  hosting_subscription = instance.getSpecialiseValue(portal_type="Hosting Subscription")
-  if (hosting_subscription.getSlapState() == "stop_requested"):
+  instance_tree = instance.getSpecialiseValue(portal_type="Instance Tree")
+  if (instance_tree.getSlapState() == "stop_requested"):
     # Buildout may not propagate the stop request
     requester = instance.getSuccessorRelatedValue()
     if (instance.getRelativeUrl() in requester.getSuccessorList()) and \

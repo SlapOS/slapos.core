@@ -139,17 +139,17 @@
       </tr>
       <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-FRONTEND 0'})">
         <td>waitForElementPresent</td>
-        <td tal:content="python: '//a[@data-i18n=\'%s\']' % (here.Base_translateString('Hosting Subscription: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
+        <td tal:content="python: '//a[@data-i18n=\'%s\']' % (here.Base_translateString('Instance Tree: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>storeLocation</td>
-        <td>hosting_subscription_link</td>
+        <td>instance_tree_link</td>
         <td></td>
       </tr>
       <tr>
         <td>echo</td>
-        <td>${hosting_subscription_link}</td>
+        <td>${instance_tree_link}</td>
         <td></td>
       </tr>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_logout" />
@@ -286,10 +286,10 @@
         <td></td>
       </tr>
 
-      <!-- Go to hosting subscription, it should show the login page because we are not logged in yet, and then login with the "wrong" user to see if the error message is correctly displayed -->
+      <!-- Go to instance tree, it should show the login page because we are not logged in yet, and then login with the "wrong" user to see if the error message is correctly displayed -->
       <tr>
         <td>open</td>
-        <td>${hosting_subscription_link}</td>
+        <td>${instance_tree_link}</td>
         <td></td>
       </tr>
       <tr>

@@ -319,7 +319,7 @@ class TestSlapOSCrmTriggerEscalationOnDeleteReminderRegularisationRequest(SlapOS
           slapos_crm_trigger_delete_reminder_escalation
     self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_triggerDeleteReminderEscalation")
 
-class TestSlapOSCrmStopHostingSubscription(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSCrmStopInstanceTree(SlapOSTestCaseMixinWithAbort):
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()
@@ -337,8 +337,8 @@ class TestSlapOSCrmStopHostingSubscription(SlapOSTestCaseMixinWithAbort):
 
     self.tic()
     alarm = self.portal.portal_alarms.\
-          slapos_crm_stop_hosting_subscription
-    self._test_alarm(alarm, ticket, "RegularisationRequest_stopHostingSubscriptionList")
+          slapos_crm_stop_instance_tree
+    self._test_alarm(alarm, ticket, "RegularisationRequest_stopInstanceTreeList")
 
   def test_alarm_matching_regularisation_request_2(self):
     ticket = self.createRegularisationRequest()
@@ -348,8 +348,8 @@ class TestSlapOSCrmStopHostingSubscription(SlapOSTestCaseMixinWithAbort):
 
     self.tic()
     alarm = self.portal.portal_alarms.\
-          slapos_crm_stop_hosting_subscription
-    self._test_alarm(alarm, ticket, "RegularisationRequest_stopHostingSubscriptionList")
+          slapos_crm_stop_instance_tree
+    self._test_alarm(alarm, ticket, "RegularisationRequest_stopInstanceTreeList")
 
   def test_alarm_not_suspended(self):
     ticket = self.createRegularisationRequest()
@@ -358,8 +358,8 @@ class TestSlapOSCrmStopHostingSubscription(SlapOSTestCaseMixinWithAbort):
 
     self.tic()
     alarm = self.portal.portal_alarms.\
-          slapos_crm_stop_hosting_subscription
-    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_stopHostingSubscriptionList")
+          slapos_crm_stop_instance_tree
+    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_stopInstanceTreeList")
 
 
   def test_alarm_other_resource(self):
@@ -370,11 +370,11 @@ class TestSlapOSCrmStopHostingSubscription(SlapOSTestCaseMixinWithAbort):
 
     self.tic()
     alarm = self.portal.portal_alarms.\
-          slapos_crm_stop_hosting_subscription
-    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_stopHostingSubscriptionList")
+          slapos_crm_stop_instance_tree
+    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_stopInstanceTreeList")
 
 
-class TestSlapOSCrmDeleteHostingSubscription(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSCrmDeleteInstanceTree(SlapOSTestCaseMixinWithAbort):
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()
@@ -392,8 +392,8 @@ class TestSlapOSCrmDeleteHostingSubscription(SlapOSTestCaseMixinWithAbort):
 
     self.tic()
     alarm = self.portal.portal_alarms.\
-          slapos_crm_delete_hosting_subscription
-    self._test_alarm(alarm, ticket, "RegularisationRequest_deleteHostingSubscriptionList")
+          slapos_crm_delete_instance_tree
+    self._test_alarm(alarm, ticket, "RegularisationRequest_deleteInstanceTreeList")
 
   def test_alarm_not_suspended(self):
     ticket = self.createRegularisationRequest()
@@ -402,8 +402,8 @@ class TestSlapOSCrmDeleteHostingSubscription(SlapOSTestCaseMixinWithAbort):
 
     self.tic()
     alarm = self.portal.portal_alarms.\
-          slapos_crm_delete_hosting_subscription
-    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_deleteHostingSubscriptionList")
+          slapos_crm_delete_instance_tree
+    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_deleteInstanceTreeList")
 
 
   def test_alarm_other_resource(self):
@@ -414,8 +414,8 @@ class TestSlapOSCrmDeleteHostingSubscription(SlapOSTestCaseMixinWithAbort):
 
     self.tic()
     alarm = self.portal.portal_alarms.\
-          slapos_crm_delete_hosting_subscription
-    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_deleteHostingSubscriptionList")
+          slapos_crm_delete_instance_tree
+    self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_deleteInstanceTreeList")
 
 
 class TestSlapOSCrmMonitoringCheckComputerState(SlapOSTestCaseMixinWithAbort):
@@ -659,64 +659,64 @@ class TestSlapOSCrmMonitoringCheckComputerPersonalAllocationScope(SlapOSTestCase
 
 class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):
 
-  def _makeHostingSubscription(self):
+  def _makeInstanceTree(self):
     person = self.portal.person_module.template_member\
          .Base_createCloneDocument(batch_mode=1)
-    hosting_subscription = self.portal\
-      .hosting_subscription_module.template_hosting_subscription\
+    instance_tree = self.portal\
+      .instance_tree_module.template_instance_tree\
       .Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
+    instance_tree.validate()
     new_id = self.generateNewId()
-    hosting_subscription.edit(
+    instance_tree.edit(
         title= "Test hosting sub ticket %s" % new_id,
         reference="TESTHST-%s" % new_id,
         destination_section_value=person,
         monitor_scope="enabled"
     )
 
-    return hosting_subscription
+    return instance_tree
 
-  def _makeSoftwareInstance(self, hosting_subscription):
+  def _makeSoftwareInstance(self, instance_tree):
 
     kw = dict(
-      software_release=hosting_subscription.getUrlString(),
+      software_release=instance_tree.getUrlString(),
       software_type=self.generateNewSoftwareType(),
       instance_xml=self.generateSafeXml(),
       sla_xml=self.generateSafeXml(),
       shared=False,
-      software_title=hosting_subscription.getTitle(),
+      software_title=instance_tree.getTitle(),
       state='started'
     )
-    hosting_subscription.requestStart(**kw)
-    hosting_subscription.requestInstance(**kw)
+    instance_tree.requestStart(**kw)
+    instance_tree.requestInstance(**kw)
 
-  def test_alarm_check_instance_in_error_validated_hosting_subscription(self):
-    host_sub = self._makeHostingSubscription()
+  def test_alarm_check_instance_in_error_validated_instance_tree(self):
+    host_sub = self._makeInstanceTree()
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_check_instance_in_error
-    self._test_alarm(alarm, host_sub, "HostingSubscription_checkSoftwareInstanceState")
+    self._test_alarm(alarm, host_sub, "InstanceTree_checkSoftwareInstanceState")
 
-  def test_alarm_check_instance_in_error_validated_hosting_subscription_with_monitor_disabled(self):
-    host_sub = self._makeHostingSubscription()
+  def test_alarm_check_instance_in_error_validated_instance_tree_with_monitor_disabled(self):
+    host_sub = self._makeInstanceTree()
     host_sub.edit(monitor_scope="disabled")
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_check_instance_in_error
-    self._test_alarm(alarm, host_sub, "HostingSubscription_checkSoftwareInstanceState")
+    self._test_alarm(alarm, host_sub, "InstanceTree_checkSoftwareInstanceState")
 
     # This is an un-optimal case, as the query cannot be used in negated form
     # on the searchAndActivate, so we end up callind the script in any situation.
-    self.assertEqual('Visited by HostingSubscription_checkSoftwareInstanceState',
+    self.assertEqual('Visited by InstanceTree_checkSoftwareInstanceState',
       host_sub.workflow_history['edit_workflow'][-1]['comment'])
 
-  def test_alarm_check_instance_in_error_archived_hosting_subscription(self):
-    host_sub = self._makeHostingSubscription()
+  def test_alarm_check_instance_in_error_archived_instance_tree(self):
+    host_sub = self._makeInstanceTree()
     host_sub.archive()
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_check_instance_in_error
-    self._test_alarm_not_visited(alarm, host_sub, "HostingSubscription_checkSoftwareInstanceState")
+    self._test_alarm_not_visited(alarm, host_sub, "InstanceTree_checkSoftwareInstanceState")
 
 
 class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixinWithAbort):
@@ -737,27 +737,27 @@ class TestSlaposCrmUpdateSupportRequestState(SlapOSTestCaseMixinWithAbort):
 
     return support_request
 
-  def _makeHostingSubscription(self):
+  def _makeInstanceTree(self):
     person = self.portal.person_module.template_member\
          .Base_createCloneDocument(batch_mode=1)
-    hosting_subscription = self.portal\
-      .hosting_subscription_module.template_hosting_subscription\
+    instance_tree = self.portal\
+      .instance_tree_module.template_instance_tree\
       .Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
+    instance_tree.validate()
     new_id = self.generateNewId()
-    hosting_subscription.edit(
+    instance_tree.edit(
         title= "Test hosting sub ticket %s" % new_id,
         reference="TESTHST-%s" % new_id,
         destination_section_value=person,
         monitor_scope="enabled"
     )
 
-    return hosting_subscription
+    return instance_tree
 
   def test_alarm_update_support_request_state(self):
     support_request = self._makeSupportRequest()
     support_request.setResource("service_module/slapos_crm_monitoring")
-    hs = self._makeHostingSubscription()
+    hs = self._makeInstanceTree()
     support_request.setAggregateValue(hs)
     self.tic()
     alarm = self.portal.portal_alarms.\

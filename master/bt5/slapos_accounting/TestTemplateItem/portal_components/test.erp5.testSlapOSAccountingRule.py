@@ -38,8 +38,8 @@ class TestDefaultInvoiceTransactionRule(SlapOSTestCaseMixin):
           .Base_createCloneDocument(batch_mode=1)
       destination = self.portal.person_module.template_member\
           .Base_createCloneDocument(batch_mode=1)
-      aggregate = self.portal.hosting_subscription_module\
-          .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+      aggregate = self.portal.instance_tree_module\
+          .template_instance_tree.Base_createCloneDocument(batch_mode=1)
       resource = self.portal.service_module.slapos_instance_subscription
       start_date = DateTime('2011/02/16')
       stop_date = DateTime('2011/03/16')
@@ -244,8 +244,8 @@ class TestDefaultInvoicingRule(SlapOSTestCaseMixin):
           .Base_createCloneDocument(batch_mode=1)
       destination = self.portal.person_module.template_member\
           .Base_createCloneDocument(batch_mode=1)
-      aggregate = self.portal.hosting_subscription_module\
-          .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+      aggregate = self.portal.instance_tree_module\
+          .template_instance_tree.Base_createCloneDocument(batch_mode=1)
       resource = self.portal.service_module.slapos_instance_subscription
       start_date = DateTime('2011/02/16')
       stop_date = DateTime('2011/03/16')
@@ -417,12 +417,12 @@ class TestDefaultPaymentRule(SlapOSTestCaseMixin):
       SimulationMovement.getSimulationState = SimulationMovement\
         .original_getSimulationState
 
-class TestHostingSubscriptionSimulation(SlapOSTestCaseMixin):
+class TestInstanceTreeSimulation(SlapOSTestCaseMixin):
   def _prepare(self):
     person = self.portal.person_module.template_member\
         .Base_createCloneDocument(batch_mode=1)
-    self.subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+    self.subscription = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     self.initial_date = DateTime('2011/02/16')
     stop_date = DateTime('2011/04/16')
     self.subscription.edit(
@@ -677,8 +677,8 @@ class TestDefaultTradeModelRule(SlapOSTestCaseMixin):
           .Base_createCloneDocument(batch_mode=1)
       destination = self.portal.person_module.template_member\
           .Base_createCloneDocument(batch_mode=1)
-      aggregate = self.portal.hosting_subscription_module\
-          .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+      aggregate = self.portal.instance_tree_module\
+          .template_instance_tree.Base_createCloneDocument(batch_mode=1)
       resource = self.portal.service_module.slapos_instance_subscription
       start_date = DateTime('2011/02/16')
       stop_date = DateTime('2011/03/16')
@@ -801,8 +801,8 @@ class TestDefaultDeliveryRule(SlapOSTestCaseMixin):
         use='trade/sale',
         quantity_unit='unit/piece',
         aggregate_list=[
-            self.portal.hosting_subscription_module.newContent(
-                portal_type='Hosting Subscription').getRelativeUrl(),
+            self.portal.instance_tree_module.newContent(
+                portal_type='Instance Tree').getRelativeUrl(),
             self.portal.service_module.newContent(
                 portal_type='Service').getRelativeUrl()
         ],
@@ -889,8 +889,8 @@ class TestDefaultDeliveryRuleConsumption(SlapOSTestCaseMixin):
         use='trade/sale',
         quantity_unit='unit/piece',
         aggregate_list=[
-            self.portal.hosting_subscription_module.newContent(
-                portal_type='Hosting Subscription').getRelativeUrl(),
+            self.portal.instance_tree_module.newContent(
+                portal_type='Instance Tree').getRelativeUrl(),
             self.portal.service_module.newContent(
                 portal_type='Service').getRelativeUrl()
         ],

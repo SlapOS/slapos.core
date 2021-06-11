@@ -15,20 +15,20 @@ class TestSlapOSUpgradeDecisionProcess(SlapOSTestCaseMixin):
       upgrade_decision.confirm()
     return upgrade_decision
 
-  def _makeHostingSubscription(self, slap_state="start_requested"):
-    hosting_subscription = self.portal\
-      .hosting_subscription_module.template_hosting_subscription\
+  def _makeInstanceTree(self, slap_state="start_requested"):
+    instance_tree = self.portal\
+      .instance_tree_module.template_instance_tree\
       .Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
-    hosting_subscription.edit(
+    instance_tree.validate()
+    instance_tree.edit(
         title= "Test hosting sub start %s" % self.new_id,
         reference="TESTHSS-%s" % self.new_id,
     )
-    self.portal.portal_workflow._jumpToStateFor(hosting_subscription, slap_state)
+    self.portal.portal_workflow._jumpToStateFor(instance_tree, slap_state)
 
-    return hosting_subscription
+    return instance_tree
 
-  def test_alarm_upgrade_decision_process_hosting_subscription(self):
+  def test_alarm_upgrade_decision_process_instance_tree(self):
     upgrade_decision = self._makeUpgradeDecision()
     upgrade_decision.start()
     self.tic()
@@ -100,48 +100,48 @@ class TestSlapOSUpgradeDecisionProcess(SlapOSTestCaseMixin):
     self.assertEqual('Visited by Computer_checkAndCreateUpgradeDecision',
       computer3.workflow_history['edit_workflow'][-1]['comment'])
   
-  def test_alarm_hosting_subscription_create_upgrade_decision(self):
-    hosting_subscription = self._makeHostingSubscription()
-    hosting_subscription2 = self._makeHostingSubscription()
-    hosting_subscription3 = self._makeHostingSubscription()
+  def test_alarm_instance_tree_create_upgrade_decision(self):
+    instance_tree = self._makeInstanceTree()
+    instance_tree2 = self._makeInstanceTree()
+    instance_tree3 = self._makeInstanceTree()
 
     self.tic()
 
-    self._simulateScript('HostingSubscription_createUpgradeDecision', 'True')
+    self._simulateScript('InstanceTree_createUpgradeDecision', 'True')
     try:
-      self.portal.portal_alarms.slapos_pdm_hosting_subscription_create_upgrade_decision.\
+      self.portal.portal_alarms.slapos_pdm_instance_tree_create_upgrade_decision.\
         activeSense()
       self.tic()
     finally:
-      self._dropScript('HostingSubscription_createUpgradeDecision')
+      self._dropScript('InstanceTree_createUpgradeDecision')
 
-    self.assertEqual('Visited by HostingSubscription_createUpgradeDecision',
-      hosting_subscription.workflow_history['edit_workflow'][-1]['comment'])
+    self.assertEqual('Visited by InstanceTree_createUpgradeDecision',
+      instance_tree.workflow_history['edit_workflow'][-1]['comment'])
     
-    self.assertEqual('Visited by HostingSubscription_createUpgradeDecision',
-      hosting_subscription2.workflow_history['edit_workflow'][-1]['comment'])
+    self.assertEqual('Visited by InstanceTree_createUpgradeDecision',
+      instance_tree2.workflow_history['edit_workflow'][-1]['comment'])
 
-    self.assertEqual('Visited by HostingSubscription_createUpgradeDecision',
-      hosting_subscription3.workflow_history['edit_workflow'][-1]['comment'])
+    self.assertEqual('Visited by InstanceTree_createUpgradeDecision',
+      instance_tree3.workflow_history['edit_workflow'][-1]['comment'])
 
-  def test_alarm_create_upgrade_decision_destroyed_hosting_subscription(self):
-    hosting_subscription = self._makeHostingSubscription(slap_state="destroy_requested")
-    hosting_subscription2 = self._makeHostingSubscription(slap_state="destroy_requested")
+  def test_alarm_create_upgrade_decision_destroyed_instance_tree(self):
+    instance_tree = self._makeInstanceTree(slap_state="destroy_requested")
+    instance_tree2 = self._makeInstanceTree(slap_state="destroy_requested")
     self.tic()
 
-    self._simulateScript('HostingSubscription_createUpgradeDecision', 'True')
+    self._simulateScript('InstanceTree_createUpgradeDecision', 'True')
     try:
-      self.portal.portal_alarms.slapos_pdm_hosting_subscription_create_upgrade_decision.\
+      self.portal.portal_alarms.slapos_pdm_instance_tree_create_upgrade_decision.\
         activeSense()
       self.tic()
     finally:
-      self._dropScript('HostingSubscription_createUpgradeDecision')
+      self._dropScript('InstanceTree_createUpgradeDecision')
 
-    self.assertNotEqual('Visited by HostingSubscription_createUpgradeDecision',
-      hosting_subscription.workflow_history['edit_workflow'][-1]['comment'])
+    self.assertNotEqual('Visited by InstanceTree_createUpgradeDecision',
+      instance_tree.workflow_history['edit_workflow'][-1]['comment'])
     
-    self.assertNotEqual('Visited by HostingSubscription_createUpgradeDecision',
-      hosting_subscription2.workflow_history['edit_workflow'][-1]['comment'])
+    self.assertNotEqual('Visited by InstanceTree_createUpgradeDecision',
+      instance_tree2.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_create_upgrade_decision_closed_computer(self):
     computer = self._makeComputer(allocation_scope='close/oudtated')[0]

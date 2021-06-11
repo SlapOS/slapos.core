@@ -40,8 +40,8 @@ class TestSlapOSSoftwareInstance_requestValidationPayment(SlapOSTestCaseMixinWit
       title="Person %s" % new_id,
       reference="TESTPERS-%s" % new_id,
       )
-    subscription = self.portal.hosting_subscription_module.newContent(
-      portal_type='Hosting Subscription',
+    subscription = self.portal.instance_tree_module.newContent(
+      portal_type='Instance Tree',
       title="Subscription %s" % new_id,
       reference="TESTSUB-%s" % new_id,
       destination_section_value=person,

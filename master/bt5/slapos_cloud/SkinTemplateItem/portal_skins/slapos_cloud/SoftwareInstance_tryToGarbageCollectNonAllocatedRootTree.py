@@ -21,27 +21,27 @@ if (int(DateTime()) - int(latest_edit_time)) < 259200:
   return
 
 # Only destroy if the instance is the only one in the tree
-hosting_subscription = instance.getSpecialiseValue("Hosting Subscription")
-if (hosting_subscription.getSuccessor() != instance.getRelativeUrl()):
+instance_tree = instance.getSpecialiseValue("Instance Tree")
+if (instance_tree.getSuccessor() != instance.getRelativeUrl()):
   return
-if (len(hosting_subscription.getSuccessorList()) != 1):
+if (len(instance_tree.getSuccessorList()) != 1):
   return
 instance_list = portal.portal_catalog(
   portal_type=["Software Instance", "Slave Instance"],
-  default_specialise_uid=hosting_subscription.getUid(),
+  default_specialise_uid=instance_tree.getUid(),
   limit=2)
 if len(instance_list) != 1:
   return
 
-# OK, destroy hosting subscription
-hosting_subscription.requestDestroy(
-  software_release=hosting_subscription.getUrlString(),
-  software_title=hosting_subscription.getTitle(),
-  software_type=hosting_subscription.getSourceReference(),
-  instance_xml=hosting_subscription.getTextContent(),
-  sla_xml=hosting_subscription.getSlaXml(),
-  shared=hosting_subscription.isRootSlave(),
+# OK, destroy instance tree
+instance_tree.requestDestroy(
+  software_release=instance_tree.getUrlString(),
+  software_title=instance_tree.getTitle(),
+  software_type=instance_tree.getSourceReference(),
+  instance_xml=instance_tree.getTextContent(),
+  sla_xml=instance_tree.getSlaXml(),
+  shared=instance_tree.isRootSlave(),
   state='destroyed',
   comment="Garbage collect %s not allocated for more than 3 days" % instance.getRelativeUrl(),
 )
-hosting_subscription.archive()
+instance_tree.archive()

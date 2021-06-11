@@ -677,12 +677,12 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
 
-    hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.edit(
+    instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    instance_tree.edit(
     )
-    hosting_subscription.validate()
-    hosting_subscription.edit(
+    instance_tree.validate()
+    instance_tree.edit(
         title=self.generateNewSoftwareTitle(),
         reference="TESTHS-%s" % self.generateNewId(),
     )
@@ -693,13 +693,13 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
       instance_xml=self.generateSafeXml(),
       sla_xml=self.generateSafeXml(),
       shared=False,
-      software_title=hosting_subscription.getTitle(),
+      software_title=instance_tree.getTitle(),
       state='started'
     )
-    hosting_subscription.requestStart(**self.request_kw)
-    hosting_subscription.requestInstance(**self.request_kw)
+    instance_tree.requestStart(**self.request_kw)
+    instance_tree.requestInstance(**self.request_kw)
 
-    self.instance = hosting_subscription.getSuccessorValue()
+    self.instance = instance_tree.getSuccessorValue()
     self.tic()
 
   def _countInstanceBang(self, instance, comment):
@@ -1089,12 +1089,12 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
     )
 
     # prepare part of tree
-    hosting_subscription = portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+    instance_tree = portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     self.software_instance = portal.software_instance_module\
         .template_software_instance.Base_createCloneDocument(batch_mode=1)
 
-    hosting_subscription.edit(
+    instance_tree.edit(
         title=self.request_kw['software_title'],
         reference="TESTHS-%s" % new_id,
         url_string=self.request_kw['software_release'],
@@ -1104,8 +1104,8 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
         root_slave=self.request_kw['shared'],
         successor=self.software_instance.getRelativeUrl()
     )
-    hosting_subscription.validate()
-    self.portal.portal_workflow._jumpToStateFor(hosting_subscription, 'start_requested')
+    instance_tree.validate()
+    self.portal.portal_workflow._jumpToStateFor(instance_tree, 'start_requested')
 
     self.software_instance.edit(
         title=self.request_kw['software_title'],
@@ -1114,7 +1114,7 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
         source_reference=self.request_kw['software_type'],
         text_content=self.request_kw['instance_xml'],
         sla_xml=self.request_kw['sla_xml'],
-        specialise=hosting_subscription.getRelativeUrl()
+        specialise=instance_tree.getRelativeUrl()
     )
     self.portal.portal_workflow._jumpToStateFor(self.software_instance, 'start_requested')
     self.software_instance.validate()
@@ -1356,7 +1356,7 @@ class TestSlapOSCoreSoftwareInstanceRequest(SlapOSTestCaseMixin):
     self.portal.portal_workflow._jumpToStateFor(duplicate2, 'start_requested')
 
     self.software_instance.getSpecialiseValue(
-        portal_type='Hosting Subscription').edit(
+        portal_type='Instance Tree').edit(
             successor_list=[
                 duplicate.getRelativeUrl(),
                 duplicate2.getRelativeUrl(),
@@ -2054,8 +2054,8 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
       shared=shared,
       state="started",
     )
-    hosting_subscription = person.REQUEST.get('request_hosting_subscription')
-    self.assertEqual("start_requested", hosting_subscription.getSlapState())
+    instance_tree = person.REQUEST.get('request_instance_tree')
+    self.assertEqual("start_requested", instance_tree.getSlapState())
 
     person.requestSoftwareInstance(
       software_release=software_release,
@@ -2066,8 +2066,8 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
       shared=shared,
       state="stopped",
     )
-    hosting_subscription = person.REQUEST.get('request_hosting_subscription')
-    self.assertEqual("stop_requested", hosting_subscription.getSlapState())
+    instance_tree = person.REQUEST.get('request_instance_tree')
+    self.assertEqual("stop_requested", instance_tree.getSlapState())
 
     person.requestSoftwareInstance(
       software_release=software_release,
@@ -2078,10 +2078,10 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
       shared=shared,
       state="destroyed",
     )
-    hosting_subscription = person.REQUEST.get('request_hosting_subscription')
-    self.assertEqual(None, hosting_subscription)
+    instance_tree = person.REQUEST.get('request_instance_tree')
+    self.assertEqual(None, instance_tree)
 
-  def test_Person_requestSoftwareInstance_returnHostingSubscriptionUrl(self):
+  def test_Person_requestSoftwareInstance_returnInstanceTreeUrl(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     software_release = self.generateNewSoftwareReleaseUrl()
@@ -2104,11 +2104,11 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
       shared=shared,
       state=state,
     )
-    hosting_subscription = person.REQUEST.get('request_hosting_subscription')
-    self.assertEqual("Hosting Subscription",
-                      hosting_subscription.getPortalType())
+    instance_tree = person.REQUEST.get('request_instance_tree')
+    self.assertEqual("Instance Tree",
+                      instance_tree.getPortalType())
 
-  def test_Person_requestSoftwareInstance_createHostingSubscription(self):
+  def test_Person_requestSoftwareInstance_createInstanceTree(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     software_release = self.generateNewSoftwareReleaseUrl()
@@ -2123,7 +2123,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     state = "started"
 
     previous_id = self.getPortalObject().portal_ids\
-        .generateNewId(id_group='slap_hosting_subscription_reference',
+        .generateNewId(id_group='slap_instance_tree_reference',
                        id_generator='uid')
 
     person.requestSoftwareInstance(
@@ -2135,20 +2135,20 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
       shared=shared,
       state=state,
     )
-    hosting_subscription = person.REQUEST.get('request_hosting_subscription')
+    instance_tree = person.REQUEST.get('request_instance_tree')
     self.assertEqual(software_release,
-                      hosting_subscription.getUrlString())
-    self.assertEqual(software_title, hosting_subscription.getTitle())
-    self.assertEqual(software_type, hosting_subscription.getSourceReference())
-    self.assertEqual(instance_xml, hosting_subscription.getTextContent())
-    self.assertEqual(sla_xml, hosting_subscription.getSlaXml())
-    self.assertEqual(shared, hosting_subscription.getRootSlave())
-    self.assertEqual("start_requested", hosting_subscription.getSlapState())
+                      instance_tree.getUrlString())
+    self.assertEqual(software_title, instance_tree.getTitle())
+    self.assertEqual(software_type, instance_tree.getSourceReference())
+    self.assertEqual(instance_xml, instance_tree.getTextContent())
+    self.assertEqual(sla_xml, instance_tree.getSlaXml())
+    self.assertEqual(shared, instance_tree.getRootSlave())
+    self.assertEqual("start_requested", instance_tree.getSlapState())
     self.assertEqual("HOSTSUBS-%s" % (previous_id+1),
-                      hosting_subscription.getReference())
-    self.assertEqual("validated", hosting_subscription.getValidationState())
+                      instance_tree.getReference())
+    self.assertEqual("validated", instance_tree.getValidationState())
 
-  def test_Person_requestSoftwareInstance_HostingSubscriptionNotReindexed(self):
+  def test_Person_requestSoftwareInstance_InstanceTreeNotReindexed(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     software_release = self.generateNewSoftwareReleaseUrl()
@@ -2184,7 +2184,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     )
 
   @expectedFailure
-  def test_Person_requestSoftwareInstance_updateHostingSubscription(self):
+  def test_Person_requestSoftwareInstance_updateInstanceTree(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     software_release = self.generateNewSoftwareReleaseUrl()
@@ -2207,8 +2207,8 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
       shared=shared,
       state=state,
     )
-    hosting_subscription = person.REQUEST.get('request_hosting_subscription')
-    hosting_subscription_reference = hosting_subscription.getReference()
+    instance_tree = person.REQUEST.get('request_instance_tree')
+    instance_tree_reference = instance_tree.getReference()
 
     transaction.commit()
     self.tic()
@@ -2236,23 +2236,23 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
       state=state2,
     )
 
-    hosting_subscription2 = person.REQUEST.get('request_hosting_subscription')
-    self.assertEqual(hosting_subscription.getRelativeUrl(),
-                      hosting_subscription2.getRelativeUrl())
-    self.assertEqual(hosting_subscription_reference,
-                      hosting_subscription2.getReference())
+    instance_tree2 = person.REQUEST.get('request_instance_tree')
+    self.assertEqual(instance_tree.getRelativeUrl(),
+                      instance_tree2.getRelativeUrl())
+    self.assertEqual(instance_tree_reference,
+                      instance_tree2.getReference())
 
     self.assertEqual(software_release2,
-                      hosting_subscription.getUrlString())
-    self.assertEqual(software_title, hosting_subscription.getTitle())
-    self.assertEqual(software_type2, hosting_subscription.getSourceReference())
-    self.assertEqual(instance_xml2, hosting_subscription.getTextContent())
-    self.assertEqual(sla_xml2, hosting_subscription.getSlaXml())
-    self.assertEqual(shared2, hosting_subscription.getRootSlave())
-    self.assertEqual("stop_requested", hosting_subscription.getSlapState())
-    self.assertEqual("validated", hosting_subscription.getValidationState())
+                      instance_tree.getUrlString())
+    self.assertEqual(software_title, instance_tree.getTitle())
+    self.assertEqual(software_type2, instance_tree.getSourceReference())
+    self.assertEqual(instance_xml2, instance_tree.getTextContent())
+    self.assertEqual(sla_xml2, instance_tree.getSlaXml())
+    self.assertEqual(shared2, instance_tree.getRootSlave())
+    self.assertEqual("stop_requested", instance_tree.getSlapState())
+    self.assertEqual("validated", instance_tree.getValidationState())
 
-  def test_Person_requestSoftwareInstance_duplicatedHostingSubscription(self):
+  def test_Person_requestSoftwareInstance_duplicatedInstanceTree(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     software_release = self.generateNewSoftwareReleaseUrl()
@@ -2275,11 +2275,11 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
       shared=shared,
       state=state,
     )
-    hosting_subscription = person.REQUEST.get('request_hosting_subscription')
+    instance_tree = person.REQUEST.get('request_instance_tree')
     transaction.commit()
-    hosting_subscription2 = hosting_subscription.Base_createCloneDocument(
+    instance_tree2 = instance_tree.Base_createCloneDocument(
                                                                 batch_mode=1)
-    hosting_subscription2.validate()
+    instance_tree2.validate()
 
     transaction.commit()
     self.tic()
@@ -2294,7 +2294,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
       state=state,
     )
 
-  def test_Person_requestSoftwareInstance_HostingSubscriptionNewTitle(self):
+  def test_Person_requestSoftwareInstance_InstanceTreeNewTitle(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     software_release = self.generateNewSoftwareReleaseUrl()
@@ -2318,7 +2318,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
       shared=shared,
       state=state,
     )
-    hosting_subscription = person.REQUEST.get('request_hosting_subscription')
+    instance_tree = person.REQUEST.get('request_instance_tree')
 
     transaction.commit()
 
@@ -2346,23 +2346,23 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
       state=state2,
     )
 
-    hosting_subscription2 = person.REQUEST.get('request_hosting_subscription')
-    self.assertNotEqual(hosting_subscription.getRelativeUrl(),
-                      hosting_subscription2.getRelativeUrl())
-    self.assertNotEqual(hosting_subscription.getReference(),
-                      hosting_subscription2.getReference())
+    instance_tree2 = person.REQUEST.get('request_instance_tree')
+    self.assertNotEqual(instance_tree.getRelativeUrl(),
+                      instance_tree2.getRelativeUrl())
+    self.assertNotEqual(instance_tree.getReference(),
+                      instance_tree2.getReference())
 
     self.assertEqual(software_release2,
-                      hosting_subscription2.getUrlString())
-    self.assertEqual(software_title2, hosting_subscription2.getTitle())
-    self.assertEqual(software_type2, hosting_subscription2.getSourceReference())
-    self.assertEqual(instance_xml2, hosting_subscription2.getTextContent())
-    self.assertEqual(sla_xml2, hosting_subscription2.getSlaXml())
-    self.assertEqual(shared2, hosting_subscription2.getRootSlave())
-    self.assertEqual("stop_requested", hosting_subscription2.getSlapState())
-    self.assertEqual("validated", hosting_subscription2.getValidationState())
+                      instance_tree2.getUrlString())
+    self.assertEqual(software_title2, instance_tree2.getTitle())
+    self.assertEqual(software_type2, instance_tree2.getSourceReference())
+    self.assertEqual(instance_xml2, instance_tree2.getTextContent())
+    self.assertEqual(sla_xml2, instance_tree2.getSlaXml())
+    self.assertEqual(shared2, instance_tree2.getRootSlave())
+    self.assertEqual("stop_requested", instance_tree2.getSlapState())
+    self.assertEqual("validated", instance_tree2.getValidationState())
 
-  def test_Person_requestSoftwareInstance_deletedHostingSubscription(self):
+  def test_Person_requestSoftwareInstance_deletedInstanceTree(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     software_release = self.generateNewSoftwareReleaseUrl()
@@ -2384,7 +2384,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
       shared=shared,
       state="stopped",
     )
-    hosting_subscription = person.REQUEST.get('request_hosting_subscription')
+    instance_tree = person.REQUEST.get('request_instance_tree')
     transaction.commit()
     self.tic()
 
@@ -2397,11 +2397,11 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
       shared=shared,
       state="destroyed",
     )
-    hosting_subscription2 = person.REQUEST.get('request_hosting_subscription')
-    self.assertEqual(None, hosting_subscription2)
-    self.assertEqual("destroy_requested", hosting_subscription.getSlapState())
+    instance_tree2 = person.REQUEST.get('request_instance_tree')
+    self.assertEqual(None, instance_tree2)
+    self.assertEqual("destroy_requested", instance_tree.getSlapState())
 
-  def test_Person_requestSoftwareInstance_noConflictWithDeletedHostingSubscription(self):
+  def test_Person_requestSoftwareInstance_noConflictWithDeletedInstanceTree(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     software_release = self.generateNewSoftwareReleaseUrl()
@@ -2423,7 +2423,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
       shared=shared,
       state="stopped",
     )
-    hosting_subscription = person.REQUEST.get('request_hosting_subscription')
+    instance_tree = person.REQUEST.get('request_instance_tree')
     transaction.commit()
     self.tic()
     person.requestSoftwareInstance(
@@ -2435,7 +2435,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
       shared=shared,
       state="destroyed",
     )
-    self.assertEqual("destroy_requested", hosting_subscription.getSlapState())
+    self.assertEqual("destroy_requested", instance_tree.getSlapState())
     transaction.commit()
     self.tic()
 
@@ -2448,10 +2448,10 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
       shared=shared,
       state="started",
     )
-    hosting_subscription2 = person.REQUEST.get('request_hosting_subscription')
-    self.assertEqual("start_requested", hosting_subscription2.getSlapState())
-    self.assertNotEqual(hosting_subscription.getRelativeUrl(),
-                         hosting_subscription2.getRelativeUrl())
+    instance_tree2 = person.REQUEST.get('request_instance_tree')
+    self.assertEqual("start_requested", instance_tree2.getSlapState())
+    self.assertNotEqual(instance_tree.getRelativeUrl(),
+                         instance_tree2.getRelativeUrl())
 
 class TestSlapOSCorePersonRequestComputer(SlapOSTestCaseMixin):
 
@@ -2674,9 +2674,9 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
     self.person_user = self.makePerson()
     self.login(self.person_user.getUserId())
 
-    # Hosting Subscription required for security.
-    hs = self.portal.hosting_subscription_module.newContent(
-      portal_type='Hosting Subscription',
+    # Instance Tree required for security.
+    hs = self.portal.instance_tree_module.newContent(
+      portal_type='Instance Tree',
       title="HS %s for %s" % (self.new_id, self.person_user.getReference()),
       reference="TESTHS-%s" % self.new_id,
       destination_reference="TESTHS-%s" % self.new_id,
@@ -2723,9 +2723,9 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
     self.person_user = self.makePerson()
     self.login(self.person_user.getUserId())
 
-    # Hosting Subscription required for security.
-    hs = self.portal.hosting_subscription_module.newContent(
-      portal_type='Hosting Subscription',
+    # Instance Tree required for security.
+    hs = self.portal.instance_tree_module.newContent(
+      portal_type='Instance Tree',
       title="HS %s for %s" % (self.new_id, self.person_user.getReference()),
       reference="TESTHS-%s" % self.new_id,
       destination_reference="TESTHS-%s" % self.new_id,

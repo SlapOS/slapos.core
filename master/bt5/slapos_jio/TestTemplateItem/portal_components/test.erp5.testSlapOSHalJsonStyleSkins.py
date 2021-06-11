@@ -58,13 +58,13 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
     self.changeSkin('Hal')
     return person_user
 
-  def _makeHostingSubscription(self):
-    hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
+  def _makeInstanceTree(self):
+    instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    instance_tree.validate()
     self.tic()
     self.changeSkin('Hal')
-    return hosting_subscription
+    return instance_tree
 
   def _makeInstance(self):
     instance = self.portal.software_instance_module\
@@ -135,50 +135,50 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
     self.changeSkin('Hal')
     return software_installation
 
-class TestHostingSubscription_getNewsDict(TestSlapOSHalJsonStyleMixin):
+class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
 
   def test(self):
-    hosting_subscription = self._makeHostingSubscription()
-    news_dict = hosting_subscription.HostingSubscription_getNewsDict()
+    instance_tree = self._makeInstanceTree()
+    news_dict = instance_tree.InstanceTree_getNewsDict()
     expected_news_dict = {'instance': []}
     self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
   def test_slave(self):
-    hosting_subscription = self._makeHostingSubscription()
-    hosting_subscription.setRootSlave(1)
-    news_dict = hosting_subscription.HostingSubscription_getNewsDict()
+    instance_tree = self._makeInstanceTree()
+    instance_tree.setRootSlave(1)
+    news_dict = instance_tree.InstanceTree_getNewsDict()
     expected_news_dict = {'instance': [], 'is_slave': 1}
     self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
   def test_stopped(self):
-    hosting_subscription = self._makeHostingSubscription()
-    hosting_subscription.getSlapState = fakeStopRequestedSlapState
-    news_dict = hosting_subscription.HostingSubscription_getNewsDict()
+    instance_tree = self._makeInstanceTree()
+    instance_tree.getSlapState = fakeStopRequestedSlapState
+    news_dict = instance_tree.InstanceTree_getNewsDict()
     expected_news_dict = {'instance': [], 'is_stopped': 1}
     self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
   def test_destroyed(self):
-    hosting_subscription = self._makeHostingSubscription()
-    hosting_subscription.getSlapState = fakeDestroyRequestedSlapState
-    news_dict = hosting_subscription.HostingSubscription_getNewsDict()
+    instance_tree = self._makeInstanceTree()
+    instance_tree.getSlapState = fakeDestroyRequestedSlapState
+    news_dict = instance_tree.InstanceTree_getNewsDict()
     expected_news_dict = {'instance': [], 'is_destroyed': 1}
     self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
   def test_with_instance(self):
-    hosting_subscription = self._makeHostingSubscription()
+    instance_tree = self._makeInstanceTree()
     instance = self._makeInstance()
-    instance.edit(specialise_value=hosting_subscription)
+    instance.edit(specialise_value=instance_tree)
     self.tic()
     self.changeSkin('Hal')
-    news_dict = hosting_subscription.HostingSubscription_getNewsDict()
+    news_dict = instance_tree.InstanceTree_getNewsDict()
     expected_news_dict = {'instance': [{'no_data': 1,
                 'text': '#error no data found for %s' % instance.getReference(),
                 'user': 'SlapOS Master'}]}
@@ -187,27 +187,27 @@ class TestHostingSubscription_getNewsDict(TestSlapOSHalJsonStyleMixin):
     json.dumps(news_dict)
 
   def test_with_slave_instance(self):
-    hosting_subscription = self._makeHostingSubscription()
+    instance_tree = self._makeInstanceTree()
     instance = self._makeSlaveInstance()
-    instance.edit(specialise_value=hosting_subscription)
+    instance.edit(specialise_value=instance_tree)
     self.tic()
     self.changeSkin('Hal')
-    news_dict = hosting_subscription.HostingSubscription_getNewsDict()
+    news_dict = instance_tree.InstanceTree_getNewsDict()
     expected_news_dict = {'instance': []}
     self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
   def test_with_two_instance(self):
-    hosting_subscription = self._makeHostingSubscription()
+    instance_tree = self._makeInstanceTree()
     instance = self._makeInstance()
-    instance.edit(specialise_value=hosting_subscription)
+    instance.edit(specialise_value=instance_tree)
     instance0 = self._makeInstance()
-    instance0.edit(specialise_value=hosting_subscription)
+    instance0.edit(specialise_value=instance_tree)
     
     self.tic()
     self.changeSkin('Hal')
-    news_dict = hosting_subscription.HostingSubscription_getNewsDict()
+    news_dict = instance_tree.InstanceTree_getNewsDict()
     expected_news_dict = {'instance': [{'no_data': 1,
                 'text': '#error no data found for %s' % instance0.getReference(),
                 'user': 'SlapOS Master'},

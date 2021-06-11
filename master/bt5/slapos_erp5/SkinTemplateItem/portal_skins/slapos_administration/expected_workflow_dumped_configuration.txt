@@ -296,13 +296,13 @@ Google Login,edit_workflow
 Google Login,validation_workflow
 HTTP Exchange,edit_workflow
 HTTP Exchange,system_event_workflow
-Hosting Subscription,edit_workflow
-Hosting Subscription,hosting_subscription_workflow
-Hosting Subscription,instance_slap_interface_workflow
-Hosting Subscription,local_permission_slapos_interaction_workflow
-Hosting Subscription,slapos_accounting_interaction_workflow
-Hosting Subscription,slapos_api_invoicing_workflow
-Hosting Subscription Module,(Default)
+Instance Tree,edit_workflow
+Instance Tree,instance_tree_workflow
+Instance Tree,instance_slap_interface_workflow
+Instance Tree,local_permission_slapos_interaction_workflow
+Instance Tree,slapos_accounting_interaction_workflow
+Instance Tree,slapos_api_invoicing_workflow
+Instance Tree Module,(Default)
 Id Tool,(Default)
 Image,document_conversion_interaction_workflow
 Image,document_publication_workflow

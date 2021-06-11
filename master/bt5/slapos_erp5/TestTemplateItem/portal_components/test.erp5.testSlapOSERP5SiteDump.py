@@ -23,8 +23,8 @@ class TestSlapOSDump(SlapOSTestCaseMixin):
     # test or a development instance. So the code bellow is to ajust the delta.
 
     for alarm_id in ['slapos_crm_check_update_personal_allocation_scope',
-                     'slapos_crm_stop_hosting_subscription',
-                     'slapos_crm_delete_hosting_subscription']:
+                     'slapos_crm_stop_instance_tree',
+                     'slapos_crm_delete_instance_tree']:
       self.portal.portal_alarms[alarm_id].setEnabled(1)
     #####
     issue_count = 0

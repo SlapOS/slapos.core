@@ -379,8 +379,8 @@ class TestComputerPartition(TestSlapOSGroupRoleSecurityMixin):
         portal_type='Person', reference=slave_customer_reference)
 
     instance_subscription_reference = 'TESTHS-%s' % self.generateNewId()
-    instance_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+    instance_subscription = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     instance_subscription.edit(
         destination_section=instance_customer.getRelativeUrl(),
         reference=instance_subscription_reference)
@@ -391,8 +391,8 @@ class TestComputerPartition(TestSlapOSGroupRoleSecurityMixin):
     instance.validate()
     self.commit()
 
-    slave_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
+    slave_subscription = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     slave_subscription.edit(
         destination_section=slave_customer.getRelativeUrl())
     slave = self.portal.software_instance_module.template_slave_instance\
@@ -475,11 +475,11 @@ class TestFile(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(file_, 'G-COMPANY', ['Assignor'])
     self.assertRoles(file_, self.user_id, ['Owner'])
 
-class TestHostingSubscription(TestSlapOSGroupRoleSecurityMixin):
+class TestInstanceTree(TestSlapOSGroupRoleSecurityMixin):
   def test_RelatedSoftwareInstanceGroup(self):
     reference = 'TESTHS-%s' % self.generateNewId()
-    subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription', reference=reference)
+    subscription = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree', reference=reference)
     subscription.updateLocalRolesOnSecurityGroups()
 
     self.assertSecurityGroup(subscription, [self.user_id, reference,
@@ -488,13 +488,13 @@ class TestHostingSubscription(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(subscription, self.user_id, ['Owner'])
     self.assertRoles(subscription, 'G-COMPANY', ['Assignor'])
 
-  def test_CustomOfTheHostingSubscription(self):
+  def test_CustomOfTheInstanceTree(self):
     customer_reference = 'TESTPERSON-%s' % self.generateNewId()
     customer = self.portal.person_module.newContent(
         portal_type='Person', reference=customer_reference)
     reference = 'TESTHS-%s' % self.generateNewId()
-    subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription', reference=reference,
+    subscription = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree', reference=reference,
         destination_section=customer.getRelativeUrl())
     subscription.updateLocalRolesOnSecurityGroups()
 
@@ -508,15 +508,15 @@ class TestHostingSubscription(TestSlapOSGroupRoleSecurityMixin):
   def test_ProjectMember(self):
     person = self.makePerson(user=1)
     reference = 'TESTHS-%s' % self.generateNewId()
-    subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription', reference=reference,
+    subscription = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree', reference=reference,
         destination_section=person.getRelativeUrl())
     project = self.portal.project_module.newContent(
         portal_type='Project')
 
     self.tic()
     self.login(person.getUserId())
-    subscription.HostingSubscription_createMovement(
+    subscription.InstanceTree_createMovement(
       destination_project=project.getRelativeUrl())
     self.login()
 
@@ -534,8 +534,8 @@ class TestHostingSubscription(TestSlapOSGroupRoleSecurityMixin):
   def test_OrganisationMember(self):
     person = self.makePerson(user=1)
     reference = 'TESTHS-%s' % self.generateNewId()
-    subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription', reference=reference,
+    subscription = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree', reference=reference,
         destination_section=person.getRelativeUrl())
     organisation = self.portal.organisation_module.newContent(
         portal_type='Organisation',
@@ -543,7 +543,7 @@ class TestHostingSubscription(TestSlapOSGroupRoleSecurityMixin):
 
     self.tic()
     self.login(person.getUserId())
-    subscription.HostingSubscription_createMovement(
+    subscription.InstanceTree_createMovement(
       destination=organisation.getRelativeUrl())
     self.login()
 
@@ -558,9 +558,9 @@ class TestHostingSubscription(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(subscription, organisation.getReference(), ['Assignee'])
 
 
-class TestHostingSubscriptionModule(TestSlapOSGroupRoleSecurityMixin):
+class TestInstanceTreeModule(TestSlapOSGroupRoleSecurityMixin):
   def test(self):
-    module = self.portal.hosting_subscription_module
+    module = self.portal.instance_tree_module
     self.changeOwnership(module)
     self.assertSecurityGroup(module,
         ['G-COMPANY', 'R-COMPUTER', 'R-MEMBER', 'R-INSTANCE', self.user_id], False)
@@ -843,8 +843,8 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
         portal_type='Person', reference=customer_reference)
 
     subscription_reference = 'TESTHS-%s ' % self.generateNewId()
-    subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription',
+    subscription = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree',
         reference=subscription_reference,
         destination_section=customer.getRelativeUrl())
 
@@ -862,8 +862,8 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
   def test_ProjectMember(self):
     customer = self.makePerson(user=1)
     subscription_reference = 'TESTHS-%s ' % self.generateNewId()
-    hosting_subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription',
+    instance_tree = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree',
         reference=subscription_reference,
         destination_section=customer.getRelativeUrl())
     project = self.portal.project_module.newContent(
@@ -871,13 +871,13 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
 
     self.tic()
     self.login(customer.getUserId())
-    hosting_subscription.HostingSubscription_createMovement(
+    instance_tree.InstanceTree_createMovement(
       destination_project=project.getRelativeUrl())
     self.login()
     self.tic()
 
     instance = self.portal.software_instance_module.newContent(
-        portal_type='Slave Instance', specialise=hosting_subscription.getRelativeUrl())
+        portal_type='Slave Instance', specialise=instance_tree.getRelativeUrl())
     instance.updateLocalRolesOnSecurityGroups()
 
     self.assertSecurityGroup(instance, ['G-COMPANY', customer.getUserId(),
@@ -891,8 +891,8 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
   def test_OrganisationMember(self):
     customer = self.makePerson(user=1)
     subscription_reference = 'TESTHS-%s ' % self.generateNewId()
-    hosting_subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription',
+    instance_tree = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree',
         reference=subscription_reference,
         destination_section=customer.getRelativeUrl())
     organisation = self.portal.organisation_module.newContent(
@@ -901,13 +901,13 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
 
     self.tic()
     self.login(customer.getUserId())
-    hosting_subscription.HostingSubscription_createMovement(
+    instance_tree.InstanceTree_createMovement(
       destination=organisation.getRelativeUrl())
     self.login()
     self.tic()
 
     instance = self.portal.software_instance_module.newContent(
-        portal_type='Slave Instance', specialise=hosting_subscription.getRelativeUrl())
+        portal_type='Slave Instance', specialise=instance_tree.getRelativeUrl())
     instance.updateLocalRolesOnSecurityGroups()
 
     self.assertSecurityGroup(instance, ['G-COMPANY', customer.getUserId(),
@@ -1078,8 +1078,8 @@ class TestSoftwareInstance(TestSlapOSGroupRoleSecurityMixin):
         portal_type='Person', reference=customer_reference)
 
     subscription_reference = 'TESTHS-%s ' % self.generateNewId()
-    subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription',
+    subscription = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree',
         reference=subscription_reference,
         destination_section=customer.getRelativeUrl())
 
@@ -1098,8 +1098,8 @@ class TestSoftwareInstance(TestSlapOSGroupRoleSecurityMixin):
     customer = self.makePerson(user=1)
 
     subscription_reference = 'TESTHS-%s ' % self.generateNewId()
-    hosting_subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription',
+    instance_tree = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree',
         reference=subscription_reference,
         destination_section=customer.getRelativeUrl())
     project = self.portal.project_module.newContent(
@@ -1107,13 +1107,13 @@ class TestSoftwareInstance(TestSlapOSGroupRoleSecurityMixin):
 
     self.tic()
     self.login(customer.getUserId())
-    hosting_subscription.HostingSubscription_createMovement(
+    instance_tree.InstanceTree_createMovement(
       destination_project=project.getRelativeUrl())
     self.login()
     self.tic()
 
     instance = self.portal.software_instance_module.newContent(
-        portal_type='Software Instance', specialise=hosting_subscription.getRelativeUrl())
+        portal_type='Software Instance', specialise=instance_tree.getRelativeUrl())
     instance.updateLocalRolesOnSecurityGroups()
 
     self.assertSecurityGroup(instance, ['G-COMPANY', customer.getUserId(),
@@ -1127,8 +1127,8 @@ class TestSoftwareInstance(TestSlapOSGroupRoleSecurityMixin):
   def test_OrganisationMember(self):
     customer = self.makePerson(user=1)
     subscription_reference = 'TESTHS-%s ' % self.generateNewId()
-    hosting_subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription',
+    instance_tree = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree',
         reference=subscription_reference,
         destination_section=customer.getRelativeUrl())
     organisation = self.portal.organisation_module.newContent(
@@ -1137,13 +1137,13 @@ class TestSoftwareInstance(TestSlapOSGroupRoleSecurityMixin):
 
     self.tic()
     self.login(customer.getUserId())
-    hosting_subscription.HostingSubscription_createMovement(
+    instance_tree.InstanceTree_createMovement(
       destination=organisation.getRelativeUrl())
     self.login()
     self.tic()
 
     instance = self.portal.software_instance_module.newContent(
-        portal_type='Software Instance', specialise=hosting_subscription.getRelativeUrl())
+        portal_type='Software Instance', specialise=instance_tree.getRelativeUrl())
     instance.updateLocalRolesOnSecurityGroups()
 
     self.assertSecurityGroup(instance, ['G-COMPANY', customer.getUserId(),
@@ -2249,17 +2249,17 @@ class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(support_request, self.user_id, ['Owner'])
     self.assertRoles(support_request, project.getReference(), ['Auditor'])
 
-  def test_ProjectMember_HostingSubscription(self):
+  def test_ProjectMember_InstanceTree(self):
     person = self.makePerson(user=1)
-    hosting_subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription',
+    instance_tree = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree',
         destination_section=person.getRelativeUrl())
     project = self.portal.project_module.newContent(
         portal_type='Project')
 
     self.tic()
     self.login(person.getUserId())
-    hosting_subscription.HostingSubscription_createMovement(
+    instance_tree.InstanceTree_createMovement(
       destination_project=project.getRelativeUrl())
     self.login()
     self.tic()
@@ -2267,7 +2267,7 @@ class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):
     support_request = self.portal.support_request_module.newContent(
         portal_type='Support Request',
         destination_decision_value=person,
-        aggregate=hosting_subscription.getRelativeUrl()
+        aggregate=instance_tree.getRelativeUrl()
         )
     support_request.updateLocalRolesOnSecurityGroups()
     self.assertSecurityGroup(support_request,
@@ -2308,10 +2308,10 @@ class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(support_request, self.user_id, ['Owner'])
     self.assertRoles(support_request, organisation.getReference(), ['Auditor'])
 
-  def test_OrganisationMember_HostingSubscription(self):
+  def test_OrganisationMember_InstanceTree(self):
     person = self.makePerson(user=1)
-    hosting_subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription',
+    instance_tree = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree',
         destination_section=person.getRelativeUrl())
     organisation = self.portal.organisation_module.newContent(
         portal_type='Organisation',
@@ -2320,7 +2320,7 @@ class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):
 
     self.tic()
     self.login(person.getUserId())
-    hosting_subscription.HostingSubscription_createMovement(
+    instance_tree.InstanceTree_createMovement(
       destination=organisation.getRelativeUrl())
     self.login()
     self.tic()
@@ -2328,7 +2328,7 @@ class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):
     support_request = self.portal.support_request_module.newContent(
         portal_type='Support Request',
         destination_decision_value=person,
-        aggregate=hosting_subscription.getRelativeUrl()
+        aggregate=instance_tree.getRelativeUrl()
         )
     support_request.updateLocalRolesOnSecurityGroups()
     self.assertSecurityGroup(support_request,
@@ -2748,17 +2748,17 @@ class TestUpgradeDecision(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(upgrade_decision, self.user_id, ['Owner'])
     self.assertRoles(upgrade_decision, project.getReference(), ['Assignee'])
 
-  def test_ProjectMember_HostingSubscription(self):
+  def test_ProjectMember_InstanceTree(self):
     person = self.makePerson(user=1)
-    hosting_subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription',
+    instance_tree = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree',
         destination_section=person.getRelativeUrl())
     project = self.portal.project_module.newContent(
         portal_type='Project')
 
     self.tic()
     self.login(person.getUserId())
-    hosting_subscription.HostingSubscription_createMovement(
+    instance_tree.InstanceTree_createMovement(
       destination_project=project.getRelativeUrl())
     self.login()
     self.tic()
@@ -2768,7 +2768,7 @@ class TestUpgradeDecision(TestSlapOSGroupRoleSecurityMixin):
         destination_decision_value=person)
     upgrade_decision.newContent(
         portal_type="Upgrade Decision Line",
-        aggregate=hosting_subscription.getRelativeUrl()
+        aggregate=instance_tree.getRelativeUrl()
         )
     upgrade_decision.updateLocalRolesOnSecurityGroups()
     self.assertSecurityGroup(upgrade_decision,
@@ -2812,10 +2812,10 @@ class TestUpgradeDecision(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(upgrade_decision, self.user_id, ['Owner'])
     self.assertRoles(upgrade_decision, organisation.getReference(), ['Assignee'])
 
-  def test_OrganisationMember_HostingSubscription(self):
+  def test_OrganisationMember_InstanceTree(self):
     person = self.makePerson(user=1)
-    hosting_subscription = self.portal.hosting_subscription_module.newContent(
-        portal_type='Hosting Subscription',
+    instance_tree = self.portal.instance_tree_module.newContent(
+        portal_type='Instance Tree',
         destination_section=person.getRelativeUrl())
     organisation = self.portal.organisation_module.newContent(
         portal_type='Organisation',
@@ -2823,7 +2823,7 @@ class TestUpgradeDecision(TestSlapOSGroupRoleSecurityMixin):
 
     self.tic()
     self.login(person.getUserId())
-    hosting_subscription.HostingSubscription_createMovement(
+    instance_tree.InstanceTree_createMovement(
       destination=organisation.getRelativeUrl())
     self.login()
     self.tic()
@@ -2833,7 +2833,7 @@ class TestUpgradeDecision(TestSlapOSGroupRoleSecurityMixin):
         destination_decision_value=person)
     upgrade_decision.newContent(
         portal_type="Upgrade Decision Line",
-        aggregate=hosting_subscription.getRelativeUrl()
+        aggregate=instance_tree.getRelativeUrl()
         )
     upgrade_decision.updateLocalRolesOnSecurityGroups()
     self.assertSecurityGroup(upgrade_decision,

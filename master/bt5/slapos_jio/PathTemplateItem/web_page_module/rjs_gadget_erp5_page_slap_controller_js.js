@@ -54,7 +54,7 @@
 
           if (result.portal_type === "Support Request Module") {
             child_gadget_url = "gadget_erp5_page_slap_ticket_list.html";
-          } else if (result.portal_type === "Hosting Subscription Module") {
+          } else if (result.portal_type === "Instance Tree Module") {
             child_gadget_url = "gadget_erp5_page_slap_service_list.html";
           } else if (result.portal_type === "Accounting Transaction Module") {
             child_gadget_url = "gadget_erp5_page_slap_invoice_list.html";

@@ -9,7 +9,7 @@ def filter_per_portal_type(document):
   if document.getPortalType() == "Computer" \
       and document.getAllocationScope() != "close/forever":
     return document
-  elif document.getPortalType() == "Hosting Subscription" \
+  elif document.getPortalType() == "Instance Tree" \
       and document.getSlapState() != "destroy_requested":
     return document
   elif document.getPortalType() == "Computer Network" \

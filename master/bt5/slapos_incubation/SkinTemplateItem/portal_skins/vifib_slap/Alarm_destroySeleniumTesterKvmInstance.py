@@ -9,12 +9,12 @@ person_reference = person.getReference()
 setup_service = portal.restrictedTraverse(portal.portal_preferences.getPreferredInstanceSetupResource())
 
 # XXX Owner column should not be used to fetch the list!
-# Data model of hosting subscription should be fixed to allow direct query
+# Data model of instance tree should be fixed to allow direct query
 portal.portal_catalog.searchAndActivate(
-  portal_type="Hosting Subscription",
+  portal_type="Instance Tree",
   owner=person_reference,
   validation_state="validated",
-  method_id='HostingSubcription_requestDestructionSeleniumTester',
+  method_id='InstanceTree_requestDestructionSeleniumTester',
   method_kw={'tag': tag},
   activate_kw={'tag': tag},
 )

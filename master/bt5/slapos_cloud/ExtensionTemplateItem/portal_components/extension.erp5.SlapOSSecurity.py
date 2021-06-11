@@ -79,9 +79,9 @@ def getSoftwareInstanceSecurityCategory(self, base_category_list, user_name,
         category_dict.setdefault(base_category, []).extend(['role/instance'])
       if base_category == "aggregate":
         software_instance = software_instance_list[0]
-        hosting_item = software_instance.getSpecialiseValue(portal_type='Hosting Subscription')
-        if hosting_item is not None:
-          category_dict.setdefault(base_category, []).append(hosting_item.getRelativeUrl())
+        instance_tree = software_instance.getSpecialiseValue(portal_type='Instance Tree')
+        if instance_tree is not None:
+          category_dict.setdefault(base_category, []).append(instance_tree.getRelativeUrl())
     category_list.append(category_dict)
   elif len(software_instance_list) > 1:
     raise ConsistencyError("Error: There is more than one Software Instance " \

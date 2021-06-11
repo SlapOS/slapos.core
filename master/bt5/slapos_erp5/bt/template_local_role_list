@@ -39,7 +39,7 @@ document_ingestion_module
 document_module
 event_module
 event_module/slapos_crm_web_message_template
-hosting_subscription_module
+instance_tree_module
 image_module
 incident_response_module
 inventory_module

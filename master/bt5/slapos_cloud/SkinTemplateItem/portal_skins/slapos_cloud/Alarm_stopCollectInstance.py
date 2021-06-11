@@ -1,7 +1,7 @@
 portal = context.getPortalObject()
 
 # TODO: We should filter for the specialise related
-# (Hosting Subscription) which are on stop_requested
+# (Instance Tree) which are on stop_requested
 # state too.
 
 portal.portal_catalog.searchAndActivate(

@@ -8,7 +8,7 @@ if person is None:
 
 document_path = ""
 
-if context.getPortalType() in ["Hosting Subscription", "Computer"]:
+if context.getPortalType() in ["Instance Tree", "Computer"]:
   document_path = "/%s" % context.getRelativeUrl()
 
 if context.getPortalType() in ["Accounting Transaction Module"]:

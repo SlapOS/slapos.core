@@ -11,7 +11,8 @@ for object_ in internal_packing_list_line.getAggregateValueList(portal_type=port
     portal.portal_catalog.searchAndActivate(
       portal_type=["Software Installation", "Support Request","Upgrade Decision"],
       default_or_child_aggregate_uid=object_.getUid(),
-      method_id="updateLocalRolesOnSecurityGroups",
+      method_id="Base_updateSlapOSLocalRolesOnSecurityGroups",
+      method_kw=dict(activate_kw={"after_path_and_method_id": after_tag}),
       activate_kw={"after_path_and_method_id": after_tag}
     )
     
@@ -29,6 +30,7 @@ for object_ in internal_packing_list_line.getAggregateValueList(portal_type=port
     )
     portal.portal_catalog.searchAndActivate(
       query=query,
-      method_id="updateLocalRolesOnSecurityGroups",
+      method_id="Base_updateSlapOSLocalRolesOnSecurityGroups",
+      method_kw=dict(activate_kw={"after_path_and_method_id": after_tag}),
       activate_kw={"after_path_and_method_id": after_tag}
     )

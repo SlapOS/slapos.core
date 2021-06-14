@@ -4,6 +4,7 @@ SlaposComputerPartitionConstraint
 SlaposInstanceTreeConstraint
 SlaveInstanceConstraint
 InternetProtocolAddress
+HostingSubscriptionUpgradeConstraint
 ComputerPartition
 SoftwareInstance
 SoftwareInstanceUpgradeConstraint

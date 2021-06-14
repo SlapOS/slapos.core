@@ -31,6 +31,10 @@ from Products.ERP5Security import SUPER_USER
 
 from zExceptions import Unauthorized
 from DateTime import DateTime
+from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
+from Acquisition import aq_base
+# from erp5.portal_type import InstanceTree
+
 
 
 def SoftwareInstance_bangAsSelf(self, relative_url=None, reference=None,
@@ -92,3 +96,41 @@ def SoftwareInstance_renameAndRequestDestroy(self, REQUEST=None):
   if (self.portal_slap._getLastData(key) != timestamp):
     self.bang(bang_tree=True, comment="Instance was destroyed.")
   self.portal_slap._storeLastData(key, str(int(self.getModificationDate())))
+
+
+def HostingSubscription_checkInstanceTreeMigrationConsistency(self, fixit=False):
+  error_list = []
+
+  portal = self.getPortalObject()
+
+  # Do not use accessor, as backward compatibility will not be kept
+  if ('instance_slap_interface_workflow' in self.workflow_history) or \
+     (self.getProperty('sla_xml', None) is not None) or \
+     ([x for x in self.getCategoryList() if (x.startswith('predecessor/') or
+                                             x.startswith('successor/'))]):
+    error_list.append('Hosting Subscription must be migrated to an Instance Tree')
+    if fixit:
+      assert self.getPortalType() == 'Hosting Subscription'
+      hosting_subscription_id = self.getId()
+      hosting_subscription_relative_url = self.getRelativeUrl()
+
+      self.getParentValue()._delObject(hosting_subscription_id)
+
+      mod = __import__('erp5.portal_type', globals(), locals(),  ['Instance Tree'])
+      klass = getattr(mod, 'Instance Tree')
+
+      self.__class__ = klass
+      # self.upgradeObjectClass(returnTrue, 'erp5.portal_type.Hosting Subscription', 'erp5.portal_type.Instance Tree', returnTrue)
+      self.portal_type = 'Instance Tree'
+      assert self.getPortalType() == 'Instance Tree'
+
+      self.workflow_history['instance_tree_workflow'] = self.workflow_history.pop('hosting_subscription_workflow')
+
+      portal.instance_tree_module._setOb(hosting_subscription_id, aq_base(self))
+      instance_tree = portal.instance_tree_module._getOb(hosting_subscription_id)
+
+      UnrestrictedMethod(instance_tree.updateRelatedContent)(hosting_subscription_relative_url, instance_tree.getRelativeUrl())
+      # raise NotImplementedError('couscous')
+
+  return error_list
+

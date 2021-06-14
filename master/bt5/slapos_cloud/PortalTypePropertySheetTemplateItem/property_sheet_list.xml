@@ -22,6 +22,9 @@
  <portal_type id="Email">
   <item>SlaposEmailConstraint</item>
  </portal_type>
+ <portal_type id="Hosting Subscription">
+  <item>HostingSubscriptionUpgradeConstraint</item>
+ </portal_type>
  <portal_type id="Instance Tree">
   <item>InstanceTree</item>
   <item>SlaposInstanceTreeConstraint</item>

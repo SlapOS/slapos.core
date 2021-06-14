@@ -5,6 +5,8 @@ Computer Partition | unfiltered_tracking_list
 Computer | computer_usage
 Computer | tracking
 Computer | view_capacity
+Hosting Subscription Module | view
+Hosting Subscription | view
 Instance Tree Module | view
 Instance Tree | create_hs_upgrade
 Instance Tree | request_hs_start

@@ -3,6 +3,9 @@
   <item>Certificate Login</item>
   <item>ERP5 Login</item>
  </portal_type>
+ <portal_type id="Hosting Subscription Module">
+  <item>Hosting Subscription</item>
+ </portal_type>
  <portal_type id="Instance Tree Module">
   <item>Instance Tree</item>
  </portal_type>

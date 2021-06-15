@@ -6,6 +6,7 @@ Computer | computer_usage
 Computer | tracking
 Computer | view_capacity
 Hosting Subscription Module | view
+Hosting Subscription | create_hs_upgrade
 Hosting Subscription | request_hs_start
 Hosting Subscription | request_hs_stop
 Hosting Subscription | view

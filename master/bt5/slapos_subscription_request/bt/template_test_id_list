@@ -15,3 +15,4 @@ test.erp5.testSlapOSSubscriptionDualOrganisationScenario
 test.erp5.testSlapOSSubscriptionCancellationScenario
 test.erp5.testSlapOSSubscriptionCDNScenario
 test.erp5.testSlapOSSubscriptionCDNChineseScenario
+test.erp5.testSlapOSSubscriptionPerUserTradeConditionScenario

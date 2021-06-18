@@ -802,15 +802,16 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     # check if Packing list is generated with the right trade condition
     preference_tool = self.portal.portal_preferences
-    specialise_subscription_uid = preference_tool.getPreferredAggregatedSubscriptionSaleTradeCondition()
-    specialise_uid = preference_tool.getPreferredAggregatedSaleTradeCondition()
+    aggregate_subscription_condition = \
+      preference_tool.getPreferredAggregatedSubscriptionSaleTradeCondition()
+    trade_condition = preference_tool.getPreferredAggregatedSaleTradeCondition()
 
     for subscription_request in subscription_request_list:
       sale_packing_list_list = self.getAggregatedSalePackingList(
-        subscription_request, specialise_subscription_uid)
+        subscription_request, aggregate_subscription_condition)
       if not len(sale_packing_list_list):
         diverged_sale_packing_list_list = self.getDivergedAggregatedSalePackingList(
-          subscription_request, specialise_subscription_uid)
+          subscription_request, aggregate_subscription_condition)
         self.assertEqual(0, len(diverged_sale_packing_list_list))
 
       self.assertEqual(1, len(sale_packing_list_list))
@@ -824,7 +825,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
         len(self.getSubscriptionSalePackingList(subscription_request)))
 
       self.assertEqual(0, len(self.getAggregatedSalePackingList(
-        subscription_request, specialise_uid)))
+        subscription_request, trade_condition)))
 
     # Call this alarm shouldn't affect the delivery
     self.stepCallSlaposStartConfirmedAggregatedSalePackingListAlarm(
@@ -833,7 +834,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     for subscription_request in subscription_request_list:
       self.assertEqual(1, len(self.getAggregatedSalePackingList(
-        subscription_request, specialise_subscription_uid)))
+        subscription_request, aggregate_subscription_condition)))
 
     # Call this alarm shouldn't affect the delivery
     self.stepCallSlaposStartConfirmedAggregatedSubscriptionSalePackingListAlarm()
@@ -841,7 +842,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     for subscription_request in subscription_request_list:
       self.assertEqual(0, len(self.getAggregatedSalePackingList(
-        subscription_request, specialise_uid)))
+        subscription_request, trade_condition)))
 
     # stabilise aggregated deliveries and expand them
     self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
@@ -1136,8 +1137,11 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       self.portal.portal_secure_payments.slapos_wechat_test.setWechatMode(original_mode)
 
   def getAggregatedSalePackingList(self, subscription_request, specialise):
-    person_uid = subscription_request.getDestinationSectionValue().getUid()
-    specialise_uid = self.portal.restrictedTraverse(specialise).getUid()
+    person = subscription_request.getDestinationSectionValue()
+    person_uid = person.getUid()
+
+    trade_condition = person.Person_getAggregatedSubscriptionSaleTradeConditionValue(specialise)
+    specialise_uid = self.portal.restrictedTraverse(trade_condition).getUid()
 
     return self.portal.portal_catalog(
       portal_type='Sale Packing List',
@@ -1325,15 +1329,16 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     # check if Packing list is generated with the right trade condition
     preference_tool = self.portal.portal_preferences
-    specialise_subscription_uid = preference_tool.getPreferredAggregatedSubscriptionSaleTradeCondition()
-    specialise_uid = preference_tool.getPreferredAggregatedSaleTradeCondition()
+    aggregate_subscription_condition = \
+      preference_tool.getPreferredAggregatedSubscriptionSaleTradeCondition()
+    trade_condition = preference_tool.getPreferredAggregatedSaleTradeCondition()
 
     for subscription_request in subscription_request_list:
       hosting_subscription = subscription_request.getAggregateValue()
       self.assertEqual(hosting_subscription.getCausalityState(), "solved")
 
       sale_packing_list_list = self.getAggregatedSalePackingList(
-        subscription_request, specialise_subscription_uid)
+        subscription_request, aggregate_subscription_condition)
       self.assertEqual(1, len(sale_packing_list_list))
 
       self.checkAggregatedSalePackingList(subscription_request, sale_packing_list_list[0])
@@ -1345,7 +1350,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
         len(self.getSubscriptionSalePackingList(subscription_request)))
 
       self.assertEqual(0, len(self.getAggregatedSalePackingList(
-        subscription_request, specialise_uid)))
+        subscription_request, trade_condition)))
 
     # Call this alarm shouldn't affect the delivery
     self.stepCallSlaposStartConfirmedAggregatedSalePackingListAlarm(
@@ -1354,7 +1359,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     for subscription_request in subscription_request_list:
       self.assertEqual(1, len(self.getAggregatedSalePackingList(
-        subscription_request, specialise_subscription_uid)))
+        subscription_request, aggregate_subscription_condition)))
 
     # Call this alarm shouldn't affect the delivery
     self.stepCallSlaposStartConfirmedAggregatedSubscriptionSalePackingListAlarm()
@@ -1362,7 +1367,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     for subscription_request in subscription_request_list:
       self.assertEqual(0, len(self.getAggregatedSalePackingList(
-        subscription_request, specialise_uid)))
+        subscription_request, trade_condition)))
 
     # stabilise aggregated deliveries and expand them
     self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()

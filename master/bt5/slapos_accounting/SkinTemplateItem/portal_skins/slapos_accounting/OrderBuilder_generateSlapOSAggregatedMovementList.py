@@ -84,9 +84,11 @@ for movement in movement_list:
 
   hosting_subscription = movement.getAggregateValue(portal_type="Hosting Subscription")
 
-  specialise_to_set = subscription_request_specialise
   if movement.getSpecialiseUid() in consumption_specialise_uid_list:
     specialise_to_set = consumption_specialise
+  else:
+    person = movement.getDestinationValue()
+    specialise_to_set = person.Person_getAggregatedSubscriptionSaleTradeConditionValue(subscription_request_specialise)
 
   if hosting_subscription is not None:
     subscription = hosting_subscription.getAggregateRelated(portal_type="Subscription Request")

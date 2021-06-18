@@ -7,22 +7,53 @@
     <pickle>
       <dictionary>
         <item>
-            <key> <string>_identity_criterion</string> </key>
+            <key> <string>_count</string> </key>
             <value>
               <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
             </value>
         </item>
         <item>
-            <key> <string>_range_criterion</string> </key>
+            <key> <string>_identity_criterion</string> </key>
             <value>
               <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
             </value>
         </item>
         <item>
+            <key> <string>_mt_index</string> </key>
+            <value>
+              <persistent> <string encoding="base64">AAAAAAAAAAQ=</string> </persistent>
+            </value>
+        </item>
+        <item>
+            <key> <string>_range_criterion</string> </key>
+            <value>
+              <persistent> <string encoding="base64">AAAAAAAAAAU=</string> </persistent>
+            </value>
+        </item>
+        <item>
+            <key> <string>_tree</string> </key>
+            <value>
+              <persistent> <string encoding="base64">AAAAAAAAAAY=</string> </persistent>
+            </value>
+        </item>
+        <item>
+            <key> <string>base_price</string> </key>
+            <value> <float>25.0</float> </value>
+        </item>
+        <item>
+            <key> <string>base_price_per_slice</string> </key>
+            <value> <int>0</int> </value>
+        </item>
+        <item>
+            <key> <string>base_unit_price</string> </key>
+            <value> <float>0.0</float> </value>
+        </item>
+        <item>
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>resource/service_module/slapos_instance_subscription</string>
+                <string>resource/service_module/slapos_reservation_fee</string>
+                <string>price_currency/currency_module/EUR</string>
               </tuple>
             </value>
         </item>
@@ -34,7 +65,13 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>2</string> </value>
+            <value> <string>4</string> </value>
+        </item>
+        <item>
+            <key> <string>index</string> </key>
+            <value>
+              <persistent> <string encoding="base64">AAAAAAAAAAc=</string> </persistent>
+            </value>
         </item>
         <item>
             <key> <string>mapped_value_property_list</string> </key>
@@ -54,13 +91,21 @@
             </value>
         </item>
         <item>
+            <key> <string>p_variation_base_category</string> </key>
+            <value>
+              <tuple>
+                <string>variation</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
             <key> <string>portal_type</string> </key>
             <value> <string>Sale Supply Line</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
             <value>
-              <persistent> <string encoding="base64">AAAAAAAAAAQ=</string> </persistent>
+              <persistent> <string encoding="base64">AAAAAAAAAAg=</string> </persistent>
             </value>
         </item>
       </dictionary>
@@ -68,18 +113,9 @@
   </record>
   <record id="2" aka="AAAAAAAAAAI=">
     <pickle>
-      <global name="PersistentMapping" module="Persistence.mapping"/>
+      <global name="Length" module="BTrees.Length"/>
     </pickle>
-    <pickle>
-      <dictionary>
-        <item>
-            <key> <string>data</string> </key>
-            <value>
-              <dictionary/>
-            </value>
-        </item>
-      </dictionary>
-    </pickle>
+    <pickle> <int>0</int> </pickle>
   </record>
   <record id="3" aka="AAAAAAAAAAM=">
     <pickle>
@@ -98,6 +134,59 @@
   </record>
   <record id="4" aka="AAAAAAAAAAQ=">
     <pickle>
+      <global name="OOBTree" module="BTrees.OOBTree"/>
+    </pickle>
+    <pickle>
+      <none/>
+    </pickle>
+  </record>
+  <record id="5" aka="AAAAAAAAAAU=">
+    <pickle>
+      <global name="PersistentMapping" module="Persistence.mapping"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>data</string> </key>
+            <value>
+              <dictionary/>
+            </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="6" aka="AAAAAAAAAAY=">
+    <pickle>
+      <global name="OOBTree" module="BTrees.OOBTree"/>
+    </pickle>
+    <pickle>
+      <none/>
+    </pickle>
+  </record>
+  <record id="7" aka="AAAAAAAAAAc=">
+    <pickle>
+      <global name="PersistentMapping" module="Persistence.mapping"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>data</string> </key>
+            <value>
+              <dictionary>
+                <item>
+                    <key> <string>path</string> </key>
+                    <value>
+                      <persistent> <string encoding="base64">AAAAAAAAAAk=</string> </persistent>
+                    </value>
+                </item>
+              </dictionary>
+            </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="8" aka="AAAAAAAAAAg=">
+    <pickle>
       <global name="PersistentMapping" module="Persistence.mapping"/>
     </pickle>
     <pickle>
@@ -109,7 +198,7 @@
                 <item>
                     <key> <string>edit_workflow</string> </key>
                     <value>
-                      <persistent> <string encoding="base64">AAAAAAAAAAU=</string> </persistent>
+                      <persistent> <string encoding="base64">AAAAAAAAAAo=</string> </persistent>
                     </value>
                 </item>
               </dictionary>
@@ -118,7 +207,29 @@
       </dictionary>
     </pickle>
   </record>
-  <record id="5" aka="AAAAAAAAAAU=">
+  <record id="9" aka="AAAAAAAAAAk=">
+    <pickle>
+      <global name="PersistentMapping" module="Persistence.mapping"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>data</string> </key>
+            <value>
+              <dictionary>
+                <item>
+                    <key> <int>0</int> </key>
+                    <value>
+                      <persistent> <string encoding="base64">AAAAAAAAAAs=</string> </persistent>
+                    </value>
+                </item>
+              </dictionary>
+            </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="10" aka="AAAAAAAAAAo=">
     <pickle>
       <global name="WorkflowHistoryList" module="Products.ERP5Type.Workflow"/>
     </pickle>
@@ -149,7 +260,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>989.57955.38476.51182</string> </value>
+                      <value> <string>992.63001.55132.4829</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -167,7 +278,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1612806017.07</float>
+                              <float>1624560648.64</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -176,6 +287,34 @@
                   </item>
                 </dictionary>
               </list>
+            </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="11" aka="AAAAAAAAAAs=">
+    <pickle>
+      <global name="PersistentMapping" module="Persistence.mapping"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>data</string> </key>
+            <value>
+              <dictionary>
+                <item>
+                    <key> <string>variation/service_module/slapos_reservation_fee/1</string> </key>
+                    <value> <int>0</int> </value>
+                </item>
+                <item>
+                    <key> <string>variation/service_module/slapos_reservation_fee/3</string> </key>
+                    <value> <int>2</int> </value>
+                </item>
+                <item>
+                    <key> <string>variation/service_module/slapos_reservation_fee/default</string> </key>
+                    <value> <int>1</int> </value>
+                </item>
+              </dictionary>
             </value>
         </item>
       </dictionary>

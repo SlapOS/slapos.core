@@ -7,29 +7,29 @@ reservation_fee_invoice = context.getCausalityValue(
 if reservation_fee_invoice is None:
   return
 
-reservation_fee_total_price = reservation_fee_invoice.getTotalPrice()
-subscription_request_total_price = context.getPrice() * context.getQuantity()
+specialise_uid = portal.restrictedTraverse(
+    portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()).getUid()
 
-remaining_to_pay = subscription_request_total_price - reservation_fee_total_price
+trade_condition_uid_list = [specialise_uid]
+trade_condition_uid_list.extend([
+    i.uid for i in portal.portal_catalog(
+    portal_type="Sale Trade Condition",
+    specialise__uid=specialise_uid,
+    validation_state="validated")])
 
 # This is normally one, but we navegate in case
 for packing_list in portal.portal_catalog(
   portal_type="Sale Packing List",
   causality_uid=context.getUid(),
-  specialise_uid=portal.restrictedTraverse(
-    portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()).getUid(),
+  specialise_uid=trade_condition_uid_list
   ):
   for invoice in packing_list.getCausalityRelatedValueList(
     portal_type="Sale Invoice Transaction"):
     for payment in invoice.getCausalityRelatedValueList(
       portal_type=["Payment Transaction", "Sale Invoice Transaction"]):
-      if payment.getSimulationState() in ["stopped", "delivered"]:
+      if payment.getSimulationState() in ["stopped", "delivered", "started"]:
         # Invoice is already paied so we just move foward
-        return payment
-      elif payment.getSimulationState() in ["started"]:
-        payment_total_price = payment.PaymentTransaction_getTotalPayablePrice()
-        if not(round(payment_total_price, 2) + round(remaining_to_pay, 2)):
-          # Payment contains the expected value
+        if not payment.checkConsistency():
           return payment
 
 # Payment isn't ready

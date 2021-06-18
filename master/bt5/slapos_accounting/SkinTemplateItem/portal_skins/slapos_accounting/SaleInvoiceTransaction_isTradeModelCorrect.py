@@ -1,6 +1,6 @@
 specialise = context.getSpecialiseValue(portal_type='Sale Trade Condition')
 amount_list = specialise.getAggregatedAmountList(context)
-if len(amount_list) != 1:
+if len(amount_list) < 1:
   return False
 
 precision = context.getPriceCurrencyValue().getQuantityPrecision()

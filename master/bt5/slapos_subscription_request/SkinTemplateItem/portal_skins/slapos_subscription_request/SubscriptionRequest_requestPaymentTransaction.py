@@ -32,7 +32,19 @@ if current_invoice is None:
     price = 0
     tax = 0
   else:
-    invoice_line = invoice_template["1"].asContext()
+    invoice_line = invoice_template["1"].asContext(
+      destination_section=context.getDestinationSection()
+    )
+
+    subscription_trade_condition = portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()
+    user_trade_condition = context.getDestinationSectionValue().\
+       Person_getAggregatedSubscriptionSaleTradeConditionValue(subscription_trade_condition)
+
+    if user_trade_condition:
+      invoice_line.edit(
+        specialise=user_trade_condition,
+        destination_section=context.getDestinationSection())
+  
     resource = invoice_line.getResourceValue()
     if variation_reference is not None:
       for variation in resource.objectValues(portal_type="Service Individual Variation"):

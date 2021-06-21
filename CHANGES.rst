@@ -1,6 +1,13 @@
 Changes
 =======
 
+1.6.14 (2021-06-21)
+-------------------
+
+ * collect: enable disk usage by default
+ * slap/standalone: enable `slapos node format`
+ * slapgrid: add `--force-stop` option
+
 1.6.13 (2021-06-01)
 -------------------
 

@@ -9,13 +9,12 @@ for object_ in internal_packing_list_line.getAggregateValueList(portal_type=port
   object_.activate(after_path_and_method_id=after_tag).updateLocalRolesOnSecurityGroups()
   if object_.getPortalType() == "Computer":
     portal.portal_catalog.searchAndActivate(
-      portal_type=["Software Installation", "Support Request","Upgrade Decision"],
-      default_or_child_aggregate_uid=object_.getUid(),
+      portal_type=["Software Installation", "Support Request","Upgrade Decision Line"],
+      aggregate__uid=object_.getUid(),
       method_id="Base_updateSlapOSLocalRolesOnSecurityGroups",
       method_kw=dict(activate_kw={"after_path_and_method_id": after_tag}),
       activate_kw={"after_path_and_method_id": after_tag}
     )
-    
   elif object_.getPortalType() == "Hosting Subscription":
     query = ComplexQuery(
       ComplexQuery(
@@ -23,8 +22,8 @@ for object_ in internal_packing_list_line.getAggregateValueList(portal_type=port
         SimpleQuery(default_specialise_uid=object_.getUid()),
         logical_operator="AND"),
       ComplexQuery(
-        SimpleQuery(portal_type=["Support Request", "Upgrade Decision"]),
-        SimpleQuery(default_or_child_aggregate_uid=object_.getUid()),
+        SimpleQuery(portal_type=["Support Request", "Upgrade Decision Line"]),
+        SimpleQuery(aggregate__uid=object_.getUid()),
         logical_operator="AND"),
       logical_operator="OR"
     )

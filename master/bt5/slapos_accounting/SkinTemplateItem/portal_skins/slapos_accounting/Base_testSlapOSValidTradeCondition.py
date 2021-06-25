@@ -1,5 +1,8 @@
 root_trade_condition_list = ["sale_trade_condition_module/slapos_aggregated_trade_condition",
-                             "sale_trade_condition_module/slapos_aggregated_subscription_trade_condition"]
+                             "sale_trade_condition_module/slapos_aggregated_subscription_trade_condition",
+                             
+                             # Valid trade condition for payments
+                             "sale_trade_condition_module/slapos_manual_accounting_trade_condition"]
 
 if context.getSpecialise() in root_trade_condition_list:
   return True

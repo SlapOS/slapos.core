@@ -1560,9 +1560,10 @@ class TestSaleTradeConditionModule(TestSlapOSGroupRoleSecurityMixin):
     module = self.portal.sale_trade_condition_module
     self.changeOwnership(module)
     self.assertSecurityGroup(module,
-        ['G-COMPANY', self.user_id, 'R-MEMBER'], False)
+        ['G-COMPANY', self.user_id, 'R-MEMBER', 'R-SHADOW-PERSON'], False)
     self.assertRoles(module, 'G-COMPANY', ['Auditor', 'Author'])
     self.assertRoles(module, 'R-MEMBER', ['Auditor'])
+    self.assertRoles(module, 'R-SHADOW-PERSON', ['Assignor'])
     self.assertRoles(module, self.user_id, ['Owner'])
 
 class TestSaleTradeCondition(TestSlapOSGroupRoleSecurityMixin):

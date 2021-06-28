@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="TALES Constraint" module="erp5.portal_type"/>
+      <global name="Script Constraint" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -19,30 +19,30 @@
             </value>
         </item>
         <item>
+            <key> <string>categories</string> </key>
+            <value>
+              <tuple>
+                <string>constraint_type/default</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
             <key> <string>description</string> </key>
             <value>
               <none/>
             </value>
         </item>
         <item>
-            <key> <string>expression</string> </key>
-            <value> <string encoding="cdata"><![CDATA[
-
-python: len(context.getPredecessorRelatedList()) <= 1
-
-]]></string> </value>
-        </item>
-        <item>
             <key> <string>id</string> </key>
-            <value> <string>predecessor_related_constraint</string> </value>
-        </item>
-        <item>
-            <key> <string>message_expression_false</string> </key>
-            <value> <string>There is more then one related predecessor</string> </value>
+            <value> <string>predecessor_to_successor_migration_constraint</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
-            <value> <string>TALES Constraint</string> </value>
+            <value> <string>Script Constraint</string> </value>
+        </item>
+        <item>
+            <key> <string>script_id</string> </key>
+            <value> <string>SoftwareInstance_checkPredecessorToSuccessorMigrationConsistency</string> </value>
         </item>
       </dictionary>
     </pickle>

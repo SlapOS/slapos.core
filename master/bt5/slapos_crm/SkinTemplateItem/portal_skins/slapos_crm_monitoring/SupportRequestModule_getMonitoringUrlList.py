@@ -22,7 +22,7 @@ for hosting_subscription in hosting_subscription_list:
   if hosting_subscription.getSlapState() == 'destroy_requested':
     continue
 
-  instance = hosting_subscription.getPredecessorValue()
+  instance = hosting_subscription.getSuccessorValue()
   if instance is None or instance.getSlapState() in ('destroy_requested', 'stop_requested'):
     continue
 

@@ -125,13 +125,13 @@
       <tr>
         <td>waitForElementPresent</td>
         <td>//div[contains(@data-gadget-url,
-          'gadget_html5_element.html')]//img[contains(@src, 'gadget_slapos_panel.png')]</td>
+          'gadget_slapos_panel.html')]//img[contains(@src, 'gadget_slapos_panel.png?format=png')]</td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
         <td>//div[contains(@data-gadget-url,
-          'gadget_html5_element.html')]//img[contains(@src, 'gadget_slapos_panel.png')]</td>
+          'gadget_slapos_panel.html')]//img[contains(@src, 'gadget_slapos_panel.png?format=png')]</td>
         <td></td>
       </tr>
 

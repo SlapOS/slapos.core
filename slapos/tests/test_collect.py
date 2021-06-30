@@ -569,11 +569,12 @@ class TestCollectSnapshot(unittest.TestCase):
 
         date = datetime.utcnow().date()
         time = datetime.utcnow().time().strftime("%H:%M:%S")
-        time_earlier = (datetime.utcnow() - \
-          timedelta(hours=3)).time().strftime("%H:%M:%S")
+        datetime_earlier = datetime.utcnow() - timedelta(hours=3)
+        date_earlier = datetime_earlier.date()
+        time_earlier = datetime_earlier.time().strftime("%H:%M:%S")
 
         database.connect()
-        database.inserFolderSnapshot('fakeuser0', '1.0', date, time_earlier)
+        database.inserFolderSnapshot('fakeuser0', '1.0', date_earlier, time_earlier)
         database.commit()
         database.close()
 
@@ -583,11 +584,12 @@ class TestCollectSnapshot(unittest.TestCase):
           user._insertDiskSnapShot(database, date, time)
           update_folder_size_call.assert_called_once()
 
-        time_earlier = (datetime.utcnow() - \
-          timedelta(minutes=10)).time().strftime("%H:%M:%S")
+        datetime_earlier = datetime.utcnow() - timedelta(minutes=10)
+        date_earlier = datetime_earlier.date()
+        time_earlier = datetime_earlier.time().strftime("%H:%M:%S")
         
         database.connect()
-        database.inserFolderSnapshot('fakeuser0', '1.0', date, time_earlier)
+        database.inserFolderSnapshot('fakeuser0', '1.0', date_earlier, time_earlier)
         database.commit()
         database.close()
 

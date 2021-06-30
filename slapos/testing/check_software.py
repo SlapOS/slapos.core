@@ -74,6 +74,9 @@ def checkSoftware(slap, software_url):
       'librt',
       'libstdc++',
       'libutil',
+      # references to liblibgolang.so from projects outside of pygolang are resolved at runtime for now.
+      # https://github.com/mdavidsaver/setuptools_dso/issues/11#issuecomment-808258994
+      'liblibgolang',
   ))
 
   # we also ignore a few patterns for part that are known to be binary distributions,

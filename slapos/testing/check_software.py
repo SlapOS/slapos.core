@@ -98,6 +98,8 @@ def checkSoftware(slap, software_url):
       '*/node_modules/puppeteer/*',
       # left over of compilation failures
       '*/*__compile__/*',
+      # build dir for packages built in-place
+      '*/parts/wendelin.core/build/*',
   ))
 
   software_hash = md5digest(software_url)

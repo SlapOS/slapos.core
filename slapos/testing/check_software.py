@@ -100,6 +100,14 @@ def checkSoftware(slap, software_url):
       '*/*__compile__/*',
       # build dir for packages built in-place
       '*/parts/wendelin.core/build/*',
+      # wendelin have libraries are linked against pygolang, but they are resolved at runtime
+      '*/parts/wendelin.core/bigfile/liblibvirtmem.so',
+      '*/parts/wendelin.core/bigfile/_bigfile.so',
+      '*/parts/wendelin.core/bigfile/_file_zodb.so',
+      '*/parts/wendelin.core/wcfs/client/liblibwcfs.so',
+      '*/parts/wendelin.core/wcfs/client/_wcfs.so',
+      '*/parts/wendelin.core/wcfs/client/_wczsync.so',
+      '*/parts/wendelin.core/wcfs/internal/wcfs_test.so',
   ))
 
   software_hash = md5digest(software_url)

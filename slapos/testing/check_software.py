@@ -58,9 +58,9 @@ def checkSoftware(slap, software_url):
   with software installations.
   """
   # Check that all components set rpath correctly and we don't have miss linking any libraries.
-  # Also check that they are not linked against system libraries, except a white list of core
+  # Also check that they are not linked against system libraries, except a list of core
   # system libraries.
-  system_lib_white_list = set((
+  system_lib_allowed_list = set((
       'libanl',
       'libc',
       'libcrypt',
@@ -74,6 +74,10 @@ def checkSoftware(slap, software_url):
       'librt',
       'libstdc++',
       'libutil',
+  ))
+
+  # Some libraries might also not be found statically but provided at run time.
+  missing_lib_allowed_list = set((
   ))
 
   # we also ignore a few patterns for part that are known to be binary distributions,
@@ -109,7 +113,7 @@ def checkSoftware(slap, software_url):
   ldd_so_resolved_re = re.compile(
       r'\t(?P<library_name>.*) => (?P<library_path>.*) \(0x')
   ldd_already_loaded_re = re.compile(r'\t(?P<library_name>.*) \(0x')
-  ldd_not_found_re = re.compile(r'.*not found.*')
+  ldd_not_found_re = re.compile(r'\t(?P<library_name>.*) => not found.*')
 
   class DynamicLibraryNotFound(Exception):
     """Exception raised when ldd cannot resolve a library.
@@ -150,7 +154,9 @@ def checkSoftware(slap, software_url):
         # VDSO or ELF, ignore . See https://stackoverflow.com/a/35805410/7294664 for more about this
         pass
       elif not_found_match:
-        not_found.append(line)
+        library_name = not_found_match.group('library_name')
+        if library_name.split('.')[0] not in missing_lib_allowed_list:
+          not_found.append(line)
       else:
         raise RuntimeError('Unknown ldd line %s for %s.' % (line, path))
     if not_found:
@@ -182,7 +188,7 @@ def checkSoftware(slap, software_url):
               executable_link_error_list.append(str(e))
             else:
               for lib, lib_path in libs.items():
-                if lib.split('.')[0] in system_lib_white_list:
+                if lib.split('.')[0] in system_lib_allowed_list:
                   continue
                 lib_path = os.path.realpath(lib_path)
                 # dynamically linked programs can only be linked with libraries

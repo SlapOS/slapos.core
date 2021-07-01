@@ -150,8 +150,10 @@ class SlapOSDocTestSuite(SlapOSCloud):
       test_list.append(test_case)
     return test_list
 
+'''
   def run(self, full_test):
     test = ':' in full_test and full_test.split(':')[1] or full_test
     if test.startswith('testFunctional'):
       return self._updateFunctionalTestResponse(self.runUnitTest('--load', full_test))
     return super(SlapOSDocTestSuite, self).run(full_test)
+    '''

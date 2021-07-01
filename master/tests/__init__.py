@@ -6,7 +6,6 @@ import sys
 slapos_bt_list = [
     'erp5_web_shacache',
     'erp5_web_shadir',
-    'erp5_slapos_tutorial',
     'slapos_accounting',
     'slapos_cache',
     'slapos_subscription_request',
@@ -32,8 +31,6 @@ class SlapOSCloud(SavedTestSuite, ProjectTestSuite):
     test_list = []
     path = sys.path[0]
     erp5_path = sys.path[1]
-    erp5_doc_path = sys.path[2]
-    raise NotImplementedError(sys.path)
     component_re = re.compile(".*/([^/]+)/TestTemplateItem/portal_components"
                               "/test\.[^.]+\.([^.]+).py$")
     for test_path in (
@@ -41,8 +38,7 @@ class SlapOSCloud(SavedTestSuite, ProjectTestSuite):
         glob('%s/bt5/*/TestTemplateItem/test*.py' % path) +
         glob('%s/bt5/*/TestTemplateItem/portal_components/test.*.test*.py' % path) +
         glob('%s/bt5/*/TestTemplateItem/test*.py' % erp5_path) +
-        glob('%s/bt5/*/TestTemplateItem/portal_components/test.*.test*.py' % erp5_path) +
-        glob('%s/bt5/*/TestTemplateItem/portal_components/test.*.test*.py' % erp5_doc_path)):
+        glob('%s/bt5/*/TestTemplateItem/portal_components/test.*.test*.py' % erp5_path)):
       component_re_match = component_re.match(test_path)
       if component_re_match is not None:
         test_case = "%s:%s" % (component_re_match.group(1),
@@ -158,4 +154,4 @@ class SlapOSDocTestSuite(SlapOSCloud):
     test = ':' in full_test and full_test.split(':')[1] or full_test
     if test.startswith('testFunctional'):
       return self._updateFunctionalTestResponse(self.runUnitTest('--load', full_test))
-    return super(SlapOSDoc, self).run(full_test)
+    return super(SlapOSDocTestSuite, self).run(full_test)

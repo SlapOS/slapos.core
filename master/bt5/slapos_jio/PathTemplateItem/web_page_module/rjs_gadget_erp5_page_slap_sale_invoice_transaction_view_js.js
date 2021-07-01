@@ -189,9 +189,9 @@
                   "editable_column_list": column_list,
                   "key": "listbox",
                   "lines": 20,
-                  "list_method": "SaleInvoiceTransaction_getRelatedHostingSubscriptionReportLineList",
+                  "list_method": "SaleInvoiceTransaction_getRelatedInstanceTreeReportLineList",
                   "list_method_template": result[2] + gadget.state.jio_key + "/ERP5Document_getHateoas?mode=search&" +
-                    "list_method=SaleInvoiceTransaction_getRelatedHostingSubscriptionReportLineList" +
+                    "list_method=SaleInvoiceTransaction_getRelatedInstanceTreeReportLineList" +
                     "{&query,select_list*,limit*,sort_on*,local_roles*}",
                   "query": "urn:jio:allDocs?query=",
                   "portal_type": [],

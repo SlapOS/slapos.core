@@ -1,7 +1,7 @@
 Computer | monitor_scope
 Computer | upgrade_scope
-Hosting Subscription | monitor_scope
-Hosting Subscription | upgrade_scope
+Instance Tree | monitor_scope
+Instance Tree | upgrade_scope
 Incident Response Module | business_application
 Incident Response | aggregate
 Incident Response | specialise

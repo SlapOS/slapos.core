@@ -43,7 +43,7 @@ getSlapState</string> </value>
         </item>
         <item>
             <key> <string>expression</string> </key>
-            <value> <string>python: context.getPortalType() in [\'Software Instance\', \'Slave Instance\', \'Hosting Subscription\', \'Software Installation\']</string> </value>
+            <value> <string>python: context.getPortalType() in [\'Software Instance\', \'Slave Instance\', \'Instance Tree\', \'Software Installation\']</string> </value>
         </item>
         <item>
             <key> <string>expression_cache_key</string> </key>

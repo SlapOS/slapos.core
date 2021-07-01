@@ -103,8 +103,8 @@
                           <string>User</string>
                         </tuple>
                         <tuple>
-                          <string>hosting_subscription_title</string>
-                          <string>Hosting Subscription</string>
+                          <string>instance_tree_title</string>
+                          <string>Instance Tree</string>
                         </tuple>
                         <tuple>
                           <string>software_release_url</string>
@@ -126,8 +126,8 @@
                     <value>
                       <list>
                         <tuple>
-                          <string>hosting_subscription_title</string>
-                          <string>Hosting Subscription</string>
+                          <string>instance_tree_title</string>
+                          <string>Instance Tree</string>
                         </tuple>
                         <tuple>
                           <string>software_release_url</string>

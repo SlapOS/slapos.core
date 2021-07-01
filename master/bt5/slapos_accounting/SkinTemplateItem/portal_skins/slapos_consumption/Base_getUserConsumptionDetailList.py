@@ -37,10 +37,10 @@ def getPackingListLineForResource(resource_uid_list):
 
 def setDetailLine(packing_list_line):
   start_date = DateTime(packing_list_line.getStartDate()).strftime('%Y/%m/%d')
-  hosting_reference = packing_list_line.getAggregateReference(
-                                            portal_type='Hosting Subscription')
-  hosting_title = packing_list_line.getAggregateTitle(
-                                            portal_type='Hosting Subscription')
+  instance_tree_reference = packing_list_line.getAggregateReference(
+                                            portal_type='Instance Tree')
+  instance_tree_title = packing_list_line.getAggregateTitle(
+                                            portal_type='Instance Tree')
   software_instance = packing_list_line.getAggregateValue(
                                             portal_type='Software Instance')
   if software_instance is None:
@@ -50,8 +50,8 @@ def setDetailLine(packing_list_line):
   #default_line = {'date': {'hosting_ref': ['hs_title', {'instance_ref': ['inst_title', ['res1', 'res2', 'resN'] ] } ] } }
   if not start_date in consumption_dict:
     # Add new date line
-    consumption_dict[start_date] = {hosting_reference: 
-                                      [hosting_title, 
+    consumption_dict[start_date] = {instance_tree_reference: 
+                                      [instance_tree_title, 
                                         {instance_reference: 
                                           [software_instance.getTitle(), 
                                             [0.0, 0.0]
@@ -60,8 +60,8 @@ def setDetailLine(packing_list_line):
                                       ]
                                     }
   # Add new Hosting line
-  if not hosting_reference in consumption_dict[start_date]:
-    consumption_dict[start_date][hosting_reference] = [hosting_title, 
+  if not instance_tree_reference in consumption_dict[start_date]:
+    consumption_dict[start_date][instance_tree_reference] = [instance_tree_title, 
                                                         {instance_reference: 
                                                           [software_instance.getTitle(), 
                                                             [0.0, 0.0]
@@ -69,16 +69,16 @@ def setDetailLine(packing_list_line):
                                                         }
                                                       ]
   # Add new instance line
-  if not instance_reference in consumption_dict[start_date][hosting_reference][1]:
-    consumption_dict[start_date][hosting_reference][1][instance_reference] = [
+  if not instance_reference in consumption_dict[start_date][instance_tree_reference][1]:
+    consumption_dict[start_date][instance_tree_reference][1][instance_reference] = [
         software_instance.getTitle(),  [0.0, 0.0]
       ]
   if packing_list_line.getResourceUid() == cpu_resource_uid:
     quantity = round(float(packing_list_line.getQuantity()), 3)
-    consumption_dict[start_date][hosting_reference][1][instance_reference][1][0] = quantity
+    consumption_dict[start_date][instance_tree_reference][1][instance_reference][1][0] = quantity
   elif packing_list_line.getResourceUid() == memory_resource_uid:
     quantity = round( (float(packing_list_line.getQuantity())/1024.0), 3)
-    consumption_dict[start_date][hosting_reference][1][instance_reference][1][1] = quantity
+    consumption_dict[start_date][instance_tree_reference][1][instance_reference][1][1] = quantity
 
 
 # Add CPU_LOAD consumption details
@@ -89,9 +89,9 @@ for packing_list_line in getPackingListLineForResource([cpu_resource_uid,
 consumption_list = []
 for date in sorted(consumption_dict):
   for hosting_key in sorted(consumption_dict[date]):
-    hosting_title, instance_dict = consumption_dict[date][hosting_key]
+    instance_tree_title, instance_dict = consumption_dict[date][hosting_key]
     for instance_value_list in instance_dict.values():
       instance_title, values = instance_value_list
-      consumption_list.append([date, hosting_title, instance_title, values[0], values[1]])
+      consumption_list.append([date, instance_tree_title, instance_title, values[0], values[1]])
 
 return consumption_list

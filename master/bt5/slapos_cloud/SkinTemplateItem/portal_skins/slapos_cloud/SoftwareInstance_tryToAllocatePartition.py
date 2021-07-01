@@ -12,24 +12,24 @@ def markHistory(document, comment):
   if last_workflow_item != comment:
     portal_workflow.doActionFor(document, action='edit_action', comment=comment)
 
-def assignComputerPartition(software_instance, hosting_subscription):
+def assignComputerPartition(software_instance, instance_tree):
   computer_partition = software_instance.getAggregateValue(
       portal_type="Computer Partition")
   if computer_partition is None:
-    hosting_subscription = software_instance.getSpecialiseValue(
-        portal_type='Hosting Subscription')
+    instance_tree = software_instance.getSpecialiseValue(
+        portal_type='Instance Tree')
 
-    if hosting_subscription is None:
-      raise ValueError('%s does not have related hosting subscription' % software_instance.getRelativeUrl())
+    if instance_tree is None:
+      raise ValueError('%s does not have related instance tree' % software_instance.getRelativeUrl())
 
-    person = hosting_subscription.getDestinationSectionValue(portal_type='Person')
+    person = instance_tree.getDestinationSectionValue(portal_type='Person')
     if person is None:
-      raise ValueError('%s does not have person related' % hosting_subscription.getRelativeUrl())
+      raise ValueError('%s does not have person related' % instance_tree.getRelativeUrl())
     if not person.Person_isAllowedToAllocate():
       raise Unauthorized('Allocation disallowed')
 
     subscription_reference = None
-    subscription_request = hosting_subscription.getAggregateRelatedValue(
+    subscription_request = instance_tree.getAggregateRelatedValue(
         portal_type="Subscription Request")
     if subscription_request is not None:
       subscription_reference = subscription_request.getReference()
@@ -48,21 +48,21 @@ def assignComputerPartition(software_instance, hosting_subscription):
       computer_network_query = None
       if sla_dict.get('mode', None) == 'unique_by_network':
         # Prevent creating two instances in the same computer_network
-        hosting_subscription_uid = hosting_subscription.getUid()
-        tag = "%s_inProgress" % hosting_subscription_uid
+        instance_tree_uid = instance_tree.getUid()
+        tag = "%s_inProgress" % instance_tree_uid
         if (context.getPortalObject().portal_activities.countMessageWithTag(tag) > 0):
           # The software instance is already under creation but can not be fetched from catalog
           # As it is not possible to fetch informations, just ignore
           markHistory(software_instance,
-              'Allocation failed: blocking activites in progress for %s' % hosting_subscription_uid)
+              'Allocation failed: blocking activites in progress for %s' % instance_tree_uid)
 
         sla_dict.pop('mode')
-        # XXX: does NOT scale if hosting subscription contains many SoftwareInstance
-        hosting_subscription = software_instance.getSpecialiseValue()
+        # XXX: does NOT scale if instance tree contains many SoftwareInstance
+        instance_tree = software_instance.getSpecialiseValue()
         software_instance_tree_list = [sql_obj.getObject() \
             for sql_obj in context.getPortalObject().portal_catalog(
                 portal_type=['Software Instance', 'Slave Instance'],
-                default_specialise_uid=hosting_subscription.getUid(),
+                default_specialise_uid=instance_tree.getUid(),
             )
         ]
         computer_network_query_list = []
@@ -85,7 +85,7 @@ def assignComputerPartition(software_instance, hosting_subscription):
             ))
 
         computer_network_query = ComplexQuery(*computer_network_query_list)
-        hosting_subscription.serialize()
+        instance_tree.serialize()
 
       elif sla_dict.get('mode'):
         computer_network_query = '-1'
@@ -95,7 +95,7 @@ def assignComputerPartition(software_instance, hosting_subscription):
         callable_object=person.Person_findPartition,
         argument_list=[software_instance.getUrlString(), software_instance.getSourceReference(),
         software_instance.getPortalType(), sla_dict, computer_network_query,
-        subscription_reference, hosting_subscription.isRootSlave()])
+        subscription_reference, instance_tree.isRootSlave()])
     return computer_partition_relative_url, tag
 
 software_instance = context
@@ -104,14 +104,14 @@ if software_instance.getValidationState() != 'validated' \
   or software_instance.getAggregateValue(portal_type='Computer Partition') is not None:
   return 
 
-hosting_subscription = software_instance.getSpecialiseValue()
+instance_tree = software_instance.getSpecialiseValue()
 try:
   computer_partition_url, tag = assignComputerPartition(software_instance,
-      hosting_subscription)
+      instance_tree)
 
   # XXX: We create a dummy activity to prevent to allocations on the same network
   if tag:
-    hosting_subscription.activate(activity="SQLQueue", tag=tag,
+    instance_tree.activate(activity="SQLQueue", tag=tag,
         after_tag="allocate_%s" % computer_partition_url).getId()
 
 except ValueError, e:

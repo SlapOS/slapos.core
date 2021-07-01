@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>active_sense_method_id</string> </key>
-            <value> <string>Alarm_checkHostingSubscriptionState</string> </value>
+            <value> <string>Alarm_checkInstanceTreeState</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>

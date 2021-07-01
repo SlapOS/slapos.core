@@ -20,15 +20,15 @@ except KeyError:
 if is_slave not in [True, False]:
   raise ValueError, "shared should be a boolean"
 
-# Hosting subscriptin is used as the root of the instance tree
-if requester_instance.getPortalType() == "Hosting Subscription":
-  hosting_subscription = requester_instance
+# Instance tree is used as the root of the instance tree
+if requester_instance.getPortalType() == "Instance Tree":
+  instance_tree = requester_instance
 else:
-  hosting_subscription = requester_instance.getSpecialiseValue(portal_type="Hosting Subscription")
+  instance_tree = requester_instance.getSpecialiseValue(portal_type="Instance Tree")
 
 # Instance can be moved from one requester to another
 # Prevent creating two instances with the same title
-tag = "%s_%s_inProgress" % (hosting_subscription.getUid(), software_title)
+tag = "%s_%s_inProgress" % (instance_tree.getUid(), software_title)
 if (portal.portal_activities.countMessageWithTag(tag) > 0):
   # The software instance is already under creation but can not be fetched from catalog
   # As it is not possible to fetch informations, it is better to raise an error
@@ -36,8 +36,8 @@ if (portal.portal_activities.countMessageWithTag(tag) > 0):
 
 # graph allows to "simulate" tree change after requested operation
 graph = {}
-successor_list = hosting_subscription.getSuccessorValueList()
-graph[hosting_subscription.getUid()] = [successor.getUid() for successor in successor_list]
+successor_list = instance_tree.getSuccessorValueList()
+graph[instance_tree.getUid()] = [successor.getUid() for successor in successor_list]
 while True:
   try:
     current_software_instance = successor_list.pop(0)
@@ -53,7 +53,7 @@ request_software_instance_list = portal.portal_catalog(
   # Fetch all portal type, as it is not allowed to change it
   portal_type=["Software Instance", "Slave Instance"],
   title={'query': software_title, 'key': 'ExactMatch'},
-  specialise_uid=hosting_subscription.getUid(),
+  specialise_uid=instance_tree.getUid(),
   # Do not fetch destroyed instances
   # XXX slap_state=["start_requested", "stop_requested"],
   validation_state="validated",
@@ -93,7 +93,7 @@ if (request_software_instance is None):
     request_software_instance = module.newContent(
       portal_type=software_instance_portal_type,
       title=software_title,
-      specialise_value=hosting_subscription,
+      specialise_value=instance_tree,
       reference=reference,
       activate_kw={'tag': tag},
       **new_content_kw
@@ -113,9 +113,9 @@ else:
   # Update the successor category of the previous requester
   successor = request_software_instance.getSuccessorRelatedValue(portal_type="Software Instance")
   if (successor is None):
-    # Check if the precessor is a Hosting Subscription
-    hosting_subscription_precessesor = request_software_instance.getSuccessorRelatedValue(portal_type="Hosting Subscription")
-    if (requester_instance.getPortalType() != "Hosting Subscription" and hosting_subscription_precessesor is not None):
+    # Check if the precessor is a Instance Tree
+    instance_tree_precessesor = request_software_instance.getSuccessorRelatedValue(portal_type="Instance Tree")
+    if (requester_instance.getPortalType() != "Instance Tree" and instance_tree_precessesor is not None):
       raise ValueError('It is disallowed to request root software instance %s' % request_software_instance.getRelativeUrl())
     else:
       successor = requester_instance
@@ -162,7 +162,7 @@ if instance_found:
   graph[requester_instance.getUid()] = requester_instance.getSuccessorUidList() + [request_software_instance.getUid()]
 
   # check if all elements are still connected and if there is no cycle
-  request_software_instance.checkConnected(graph, hosting_subscription.getUid())
+  request_software_instance.checkConnected(graph, instance_tree.getUid())
   request_software_instance.checkNotCyclic(graph)
 
   requester_instance.edit(successor_list=successor_list)

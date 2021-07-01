@@ -82,7 +82,7 @@ for movement in movement_list:
   else:
     temp_movement.edit(price=0.0)
 
-  hosting_subscription = movement.getAggregateValue(portal_type="Hosting Subscription")
+  instance_tree = movement.getAggregateValue(portal_type="Instance Tree")
 
   if movement.getSpecialiseUid() in consumption_specialise_uid_list:
     specialise_to_set = consumption_specialise
@@ -90,8 +90,8 @@ for movement in movement_list:
     person = movement.getDestinationValue()
     specialise_to_set = person.Person_getAggregatedSubscriptionSaleTradeConditionValue(subscription_request_specialise)
 
-  if hosting_subscription is not None:
-    subscription = hosting_subscription.getAggregateRelated(portal_type="Subscription Request")
+  if instance_tree is not None:
+    subscription = instance_tree.getAggregateRelated(portal_type="Subscription Request")
     if subscription is not None:
       temp_movement.edit(
           specialise=specialise_to_set,

@@ -12,7 +12,7 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Search for Duplicated Software Instance on a Single Hosting Subscription</string> </value>
+            <value> <string>Search for Duplicated Software Instance on a Single Instance Tree</string> </value>
         </item>
         <item>
             <key> <string>enabled</string> </key>

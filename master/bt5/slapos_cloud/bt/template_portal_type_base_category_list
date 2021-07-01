@@ -2,8 +2,8 @@ Computer Model | source_administration
 Computer Network | source_administration
 Computer | destination_section
 Computer | source_administration
-Hosting Subscription Module | business_application
-Hosting Subscription | destination_section
+Instance Tree Module | business_application
+Instance Tree | destination_section
 Slave Instance | aggregate
 Slave Instance | specialise
 Software Installation Module | business_application

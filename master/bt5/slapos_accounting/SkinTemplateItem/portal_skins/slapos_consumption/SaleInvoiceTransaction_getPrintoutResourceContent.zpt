@@ -9,7 +9,7 @@
         <tr>
           <th><span>N&#x00b0;</span></th>
           <th><span>Date</span></th>
-          <th><span>Hosting Subscription</span></th>
+          <th><span>Instance Tree</span></th>
           <th><span>Instance Name</span></th>
           <th><span>CPU Load</span></th>
           <th><span>Memory Used</span></th>

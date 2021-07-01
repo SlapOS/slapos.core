@@ -60,7 +60,7 @@ class testSlapOSSubscriptionPerUserTradeConditionScenario(TestSlapOSSubscription
 
     self.subscription_server = self.createPublicServerForAdminUser()
 
-    self.requestAndCheckHostingSubscription(
+    self.requestAndCheckInstanceTree(
       amount, name, default_email_text)
 
     self.checkSubscriptionDeploymentAndSimulation(
@@ -140,7 +140,7 @@ class testSlapOSSubscriptionPerUserTradeConditionScenarioDetaxed(TestSlapOSSubsc
 
     self.subscription_server = self.createPublicServerForAdminUser()
 
-    self.requestAndCheckHostingSubscription(
+    self.requestAndCheckInstanceTree(
       amount, name, default_email_text)
 
     self.checkSubscriptionDeploymentAndSimulation(

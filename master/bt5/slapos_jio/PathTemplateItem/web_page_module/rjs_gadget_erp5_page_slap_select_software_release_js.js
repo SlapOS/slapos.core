@@ -27,7 +27,7 @@
             promise_list[0][index].options.page = "slap_add_software_installation";
             promise_list[0][index].options.computer_jio_key = gadget.computer_jio_key;
           } else {
-            promise_list[0][index].options.page = "slap_add_hosting_subscription";
+            promise_list[0][index].options.page = "slap_add_instance_tree";
           }
         }
       }

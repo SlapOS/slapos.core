@@ -68,7 +68,7 @@
                     <key> <string>hidden</string> </key>
                     <value>
                       <list>
-                        <string>listbox_hosting_subscription_title</string>
+                        <string>listbox_instance_tree_title</string>
                         <string>listbox_software_release_url</string>
                       </list>
                     </value>

@@ -471,14 +471,14 @@ class TestComputercreateMovement(SlapOSTestCaseMixin):
     )
 
 
-class TestHostingSubscriptioncreateMovement(SlapOSTestCaseMixin):
+class TestInstanceTreecreateMovement(SlapOSTestCaseMixin):
 
-  def _makeHostingSubscription(self):
-    hosting_subscription = self.portal.hosting_subscription_module\
-        .template_hosting_subscription.Base_createCloneDocument(batch_mode=1)
-    hosting_subscription.validate()
+  def _makeInstanceTree(self):
+    instance_tree = self.portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    instance_tree.validate()
     self.tic()
-    return hosting_subscription
+    return instance_tree
 
   def _makeProject(self):
     project = self.portal.project_module.newContent()
@@ -497,34 +497,34 @@ class TestHostingSubscriptioncreateMovement(SlapOSTestCaseMixin):
     return organisation
 
   def testUnauthorized(self):
-    hosting_subscription = self._makeHostingSubscription()
+    instance_tree = self._makeInstanceTree()
     
-    self.assertRaises(Unauthorized, hosting_subscription.HostingSubscription_createMovement)
+    self.assertRaises(Unauthorized, instance_tree.InstanceTree_createMovement)
 
     destination_section = self.makePerson(user=1)
     self.assertEqual(1 , len(destination_section.objectValues( portal_type="ERP5 Login")))
 
     self.login(destination_section.getUserId())
-    self.assertRaises(Unauthorized, hosting_subscription.HostingSubscription_createMovement)
+    self.assertRaises(Unauthorized, instance_tree.InstanceTree_createMovement)
 
     self.login()
     other_user = self.makePerson(user=1)
     self.assertEqual(1 , len(other_user.objectValues(portal_type="ERP5 Login")))
 
-    hosting_subscription.setDestinationSectionValue(destination_section)
+    instance_tree.setDestinationSectionValue(destination_section)
     self.tic()
 
-    self.assertRaises(Unauthorized, hosting_subscription.HostingSubscription_createMovement)
+    self.assertRaises(Unauthorized, instance_tree.InstanceTree_createMovement)
     self.login(other_user.getUserId())
-    self.assertRaises(Unauthorized, hosting_subscription.HostingSubscription_createMovement)
+    self.assertRaises(Unauthorized, instance_tree.InstanceTree_createMovement)
 
     self.login(destination_section.getUserId())
-    self.assertEqual(hosting_subscription.HostingSubscription_createMovement(), None)
+    self.assertEqual(instance_tree.InstanceTree_createMovement(), None)
 
   def test_project(self):
-    hosting_subscription = self._makeHostingSubscription()
+    instance_tree = self._makeInstanceTree()
     destination_section = self.makePerson(user=1)
-    hosting_subscription.setDestinationSectionValue(destination_section)
+    instance_tree.setDestinationSectionValue(destination_section)
 
     project = self._makeProject()
     other_project = self._makeProject()
@@ -532,22 +532,22 @@ class TestHostingSubscriptioncreateMovement(SlapOSTestCaseMixin):
 
     self.login(destination_section.getUserId())
 
-    self.assertEqual(hosting_subscription.Item_getCurrentProjectValue(), None)
-    self.assertEqual(hosting_subscription.Item_getCurrentOwnerValue(), None)
-    self.assertEqual(hosting_subscription.Item_getCurrentSiteValue(), None)
+    self.assertEqual(instance_tree.Item_getCurrentProjectValue(), None)
+    self.assertEqual(instance_tree.Item_getCurrentOwnerValue(), None)
+    self.assertEqual(instance_tree.Item_getCurrentSiteValue(), None)
 
     # Place in a project    
-    self.assertEqual(hosting_subscription.HostingSubscription_createMovement(
+    self.assertEqual(instance_tree.InstanceTree_createMovement(
       destination_project=project.getRelativeUrl()), None)
 
     self.tic()
     
-    self.assertEqual(hosting_subscription.Item_getCurrentProjectValue(), project)
-    self.assertEqual(hosting_subscription.Item_getCurrentOwnerValue(), destination_section)
-    self.assertEqual(hosting_subscription.Item_getCurrentSiteValue(), None)
+    self.assertEqual(instance_tree.Item_getCurrentProjectValue(), project)
+    self.assertEqual(instance_tree.Item_getCurrentOwnerValue(), destination_section)
+    self.assertEqual(instance_tree.Item_getCurrentSiteValue(), None)
 
     self.assertEqual(1,
-      len(hosting_subscription.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(instance_tree.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
 
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
@@ -556,30 +556,30 @@ class TestHostingSubscriptioncreateMovement(SlapOSTestCaseMixin):
     self.login(destination_section.getUserId())
 
     # We don't remove from Project if destination project is not provided
-    self.assertEqual(hosting_subscription.HostingSubscription_createMovement(), None)
+    self.assertEqual(instance_tree.InstanceTree_createMovement(), None)
     self.tic()
 
-    self.assertEqual(hosting_subscription.Item_getCurrentProjectValue(), project)
-    self.assertEqual(hosting_subscription.Item_getCurrentOwnerValue(), destination_section)
+    self.assertEqual(instance_tree.Item_getCurrentProjectValue(), project)
+    self.assertEqual(instance_tree.Item_getCurrentOwnerValue(), destination_section)
     self.assertEqual(2,
-      len(hosting_subscription.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(instance_tree.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
 
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
     sleep(3)
     
     # Place in another project    
-    self.assertEqual(hosting_subscription.HostingSubscription_createMovement(
+    self.assertEqual(instance_tree.InstanceTree_createMovement(
       destination_project=other_project.getRelativeUrl()), None)
 
     self.tic()
     
-    self.assertEqual(hosting_subscription.Item_getCurrentProjectValue(), other_project)
-    self.assertEqual(hosting_subscription.Item_getCurrentOwnerValue(), destination_section)
-    self.assertEqual(hosting_subscription.Item_getCurrentSiteValue(), None)
+    self.assertEqual(instance_tree.Item_getCurrentProjectValue(), other_project)
+    self.assertEqual(instance_tree.Item_getCurrentOwnerValue(), destination_section)
+    self.assertEqual(instance_tree.Item_getCurrentSiteValue(), None)
 
     self.assertEqual(3,
-      len(hosting_subscription.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(instance_tree.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
     self.login(destination_section.getUserId())
 
@@ -587,84 +587,84 @@ class TestHostingSubscriptioncreateMovement(SlapOSTestCaseMixin):
     sleep(3)
     
     # We don't remove from Project if destination project is not provided
-    self.assertEqual(hosting_subscription.HostingSubscription_createMovement(), None)
+    self.assertEqual(instance_tree.InstanceTree_createMovement(), None)
     self.tic()
 
-    self.assertEqual(hosting_subscription.Item_getCurrentProjectValue(), other_project)
-    self.assertEqual(hosting_subscription.Item_getCurrentOwnerValue(), destination_section)
-    self.assertEqual(hosting_subscription.Item_getCurrentSiteValue(), None)
+    self.assertEqual(instance_tree.Item_getCurrentProjectValue(), other_project)
+    self.assertEqual(instance_tree.Item_getCurrentOwnerValue(), destination_section)
+    self.assertEqual(instance_tree.Item_getCurrentSiteValue(), None)
 
     self.assertEqual(4,
-      len(hosting_subscription.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(instance_tree.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
 
   def test_owner(self):
-    hosting_subscription = self._makeHostingSubscription()
+    instance_tree = self._makeInstanceTree()
     destination_section = self.makePerson(user=1)
-    hosting_subscription.setDestinationSectionValue(destination_section)
+    instance_tree.setDestinationSectionValue(destination_section)
     organisation = self._makeOrganisation()
     other_organisation = self._makeOrganisation()
     self.tic()
 
     self.login(destination_section.getUserId())
 
-    self.assertEqual(hosting_subscription.Item_getCurrentProjectValue(), None)
-    self.assertEqual(hosting_subscription.Item_getCurrentOwnerValue(), None)
+    self.assertEqual(instance_tree.Item_getCurrentProjectValue(), None)
+    self.assertEqual(instance_tree.Item_getCurrentOwnerValue(), None)
 
-    self.assertEqual(hosting_subscription.HostingSubscription_createMovement(
+    self.assertEqual(instance_tree.InstanceTree_createMovement(
        destination=organisation.getRelativeUrl()), None)
 
     self.tic()
     
-    self.assertEqual(hosting_subscription.Item_getCurrentProjectValue(), None)
-    self.assertEqual(hosting_subscription.Item_getCurrentOwnerValue(), destination_section)
-    self.assertEqual(hosting_subscription.Item_getCurrentSiteValue(), organisation)
+    self.assertEqual(instance_tree.Item_getCurrentProjectValue(), None)
+    self.assertEqual(instance_tree.Item_getCurrentOwnerValue(), destination_section)
+    self.assertEqual(instance_tree.Item_getCurrentSiteValue(), organisation)
 
     self.assertEqual(1,
-      len(hosting_subscription.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(instance_tree.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
     sleep(3)
     self.login(destination_section.getUserId())
 
-    self.assertEqual(hosting_subscription.HostingSubscription_createMovement(), None)
+    self.assertEqual(instance_tree.InstanceTree_createMovement(), None)
     self.tic()
 
-    self.assertEqual(hosting_subscription.Item_getCurrentProjectValue(), None)
-    self.assertEqual(hosting_subscription.Item_getCurrentOwnerValue(), destination_section)
-    self.assertEqual(hosting_subscription.Item_getCurrentSiteValue(), organisation)
+    self.assertEqual(instance_tree.Item_getCurrentProjectValue(), None)
+    self.assertEqual(instance_tree.Item_getCurrentOwnerValue(), destination_section)
+    self.assertEqual(instance_tree.Item_getCurrentSiteValue(), organisation)
 
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
     sleep(3)
     
     # Place in another project    
-    self.assertEqual(hosting_subscription.HostingSubscription_createMovement(
+    self.assertEqual(instance_tree.InstanceTree_createMovement(
       destination=other_organisation.getRelativeUrl()), None)
 
     self.tic()
         
     self.assertEqual(3,
-      len(hosting_subscription.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(instance_tree.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
-    self.assertEqual(hosting_subscription.Item_getCurrentProjectValue(), None)
-    self.assertEqual(hosting_subscription.Item_getCurrentOwnerValue(), destination_section)
-    self.assertEqual(hosting_subscription.Item_getCurrentSiteValue(), other_organisation)
+    self.assertEqual(instance_tree.Item_getCurrentProjectValue(), None)
+    self.assertEqual(instance_tree.Item_getCurrentOwnerValue(), destination_section)
+    self.assertEqual(instance_tree.Item_getCurrentSiteValue(), other_organisation)
 
     self.assertEqual(3,
-      len(hosting_subscription.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(instance_tree.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
     self.login(destination_section.getUserId())
 
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
     sleep(3)
     # We don't remove from Project if destination project is not provided
-    self.assertEqual(hosting_subscription.HostingSubscription_createMovement(), None)
+    self.assertEqual(instance_tree.InstanceTree_createMovement(), None)
     self.tic()
 
-    self.assertEqual(hosting_subscription.Item_getCurrentProjectValue(), None)
-    self.assertEqual(hosting_subscription.Item_getCurrentOwnerValue(), destination_section)
-    self.assertEqual(hosting_subscription.Item_getCurrentSiteValue(), other_organisation)
+    self.assertEqual(instance_tree.Item_getCurrentProjectValue(), None)
+    self.assertEqual(instance_tree.Item_getCurrentOwnerValue(), destination_section)
+    self.assertEqual(instance_tree.Item_getCurrentSiteValue(), other_organisation)
 
     self.assertEqual(4,
-      len(hosting_subscription.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(instance_tree.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )

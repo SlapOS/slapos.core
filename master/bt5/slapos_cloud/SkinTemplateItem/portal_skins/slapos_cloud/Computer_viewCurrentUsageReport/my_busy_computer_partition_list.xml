@@ -406,8 +406,8 @@
                           <string>Instance</string>
                         </tuple>
                         <tuple>
-                          <string>hosting_subscription_title</string>
-                          <string>Hosting Subscription</string>
+                          <string>instance_tree_title</string>
+                          <string>Instance Tree</string>
                         </tuple>
                         <tuple>
                           <string>image</string>
@@ -646,8 +646,8 @@
                           <string>ComputerPartition_getInstanceUrlString</string>
                         </tuple>
                         <tuple>
-                          <string>hosting_subscription_title</string>
-                          <string>ComputerPartition_getHostingSubscriptionUrlString</string>
+                          <string>instance_tree_title</string>
+                          <string>ComputerPartition_getInstanceTreeUrlString</string>
                         </tuple>
                         <tuple>
                           <string>creation_date</string>

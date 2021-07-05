@@ -344,10 +344,10 @@ class SlapHateoasNavigator(HateoasNavigator):
   ###############################################################
   # API for Client as a Person
   ###############################################################
-  def _getHostingSubscriptionList(self, title=None, select_list=["title", "url_string"]):
-    query_str = 'portal_type:"Hosting Subscription" AND validation_state:validated'
+  def _getInstanceTreeList(self, title=None, select_list=["title", "url_string"]):
+    query_str = 'portal_type:"Instance Tree" AND validation_state:validated'
     if title is not None:
-      query_str = 'portal_type:"Hosting Subscription" AND validation_state:validated AND title:="%s"' % title
+      query_str = 'portal_type:"Instance Tree" AND validation_state:validated AND title:="%s"' % title
 
     result = self.jio_allDocs(
       query={"query" : query_str, "select_list": select_list})
@@ -367,7 +367,7 @@ class SlapHateoasNavigator(HateoasNavigator):
 
     return result['data']['rows']
 
-  def getHostingSubscriptionInstanceList(self, title):
+  def getInstanceTreeInstanceList(self, title):
     select_list = ['uid', 'title', 'relative_url', 'portal_type', 
             'url_string', 'text_content', 'getConnectionXmlAsDict',
             'SoftwareInstance_getNewsDict']
@@ -378,19 +378,19 @@ class SlapHateoasNavigator(HateoasNavigator):
 
     return result['data']['rows']
 
-  def getHostingSubscriptionDict(self, title=None):
-    hosting_subscription_list = self._getHostingSubscriptionList(title=title)
-    hosting_subscription_dict = {}
-    for hosting_subscription in hosting_subscription_list:
+  def getInstanceTreeDict(self, title=None):
+    instance_tree_list = self._getInstanceTreeList(title=title)
+    instance_tree_dict = {}
+    for instance_tree in instance_tree_list:
       software_instance = TempDocument()
-      for key, value in six.iteritems(hosting_subscription):
+      for key, value in six.iteritems(instance_tree):
         if key in ['_links', 'url_string']:
           continue
         setattr(software_instance, '_%s' % key, value)
-      setattr(software_instance, '_software_release_url', hosting_subscription["url_string"])
-      hosting_subscription_dict[software_instance._title] = software_instance
+      setattr(software_instance, '_software_release_url', instance_tree["url_string"])
+      instance_tree_dict[software_instance._title] = software_instance
 
-    return hosting_subscription_dict
+    return instance_tree_dict
 
   def getComputerDict(self):
     computer_list = self._getComputerList()
@@ -413,23 +413,23 @@ class SlapHateoasNavigator(HateoasNavigator):
 
     return token_json["access_token"]
 
-  def getHostingSubscriptionRootSoftwareInstanceInformation(self, reference):
-    hosting_subscription_list = self._getHostingSubscriptionList(title=reference,
+  def getInstanceTreeRootSoftwareInstanceInformation(self, reference):
+    instance_tree_list = self._getInstanceTreeList(title=reference,
       select_list=["title", "relative_url"])
 
-    assert len(hosting_subscription_list) <= 1, \
-      "There are more them one Hosting Subscription for this reference"
+    assert len(instance_tree_list) <= 1, \
+      "There are more them one Instance Tree for this reference"
 
-    hosting_subscription_jio_key = None
-    for hosting_subscription_candidate in hosting_subscription_list:
-      if hosting_subscription_candidate.get('title') == reference:
-        hosting_subscription_jio_key = hosting_subscription_candidate['relative_url']
+    instance_tree_jio_key = None
+    for instance_tree_candidate in instance_tree_list:
+      if instance_tree_candidate.get('title') == reference:
+        instance_tree_jio_key = instance_tree_candidate['relative_url']
         break
 
-    if hosting_subscription_jio_key is None:
+    if instance_tree_jio_key is None:
       raise NotFoundError('This document does not exist.')
 
-    return self.jio_get(hosting_subscription_jio_key)
+    return self.jio_get(instance_tree_jio_key)
 
   def _getComputer(self, reference):
     computer_list = self._getComputerList(reference=reference,

@@ -1,9 +1,9 @@
-hosting_subscription = context.getAggregateValue()
+instance_tree = context.getAggregateValue()
 portal = context.getPortalObject()
 
 software_instance_list = portal.portal_catalog(
   portal_type=["Software Instance", "Slave Instance"],
-  specialise_uid=hosting_subscription.getUid())
+  specialise_uid=instance_tree.getUid())
 
 # Check if at least one software Instance is Allocated
 for instance in software_instance_list:

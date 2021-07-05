@@ -23,25 +23,25 @@ if context.getValidationState() != "validated":
 
 state = 'destroyed'
 
-hosting_subscription = context.getSpecialiseValue()
+instance_tree = context.getSpecialiseValue()
 
 request_kw = {}
 request_kw.update(
-    software_release=hosting_subscription.getUrlString(),
-    software_title=hosting_subscription.getTitle(),
-    software_type=hosting_subscription.getSourceReference(),
-    instance_xml=hosting_subscription.getTextContent(),
+    software_release=instance_tree.getUrlString(),
+    software_title=instance_tree.getTitle(),
+    software_type=instance_tree.getSourceReference(),
+    instance_xml=instance_tree.getTextContent(),
     sla_xml="",
-    shared=hosting_subscription.getRootSlave(),
+    shared=instance_tree.getRootSlave(),
     state=state,
   )
 
 person.requestSoftwareInstance(**request_kw)
 
-assert hosting_subscription.getSlapState() == "destroy_requested",\
-  "Hosting Subscription not destroyed!!"
+assert instance_tree.getSlapState() == "destroy_requested",\
+  "Instance Tree not destroyed!!"
 
-connection_dict = hosting_subscription.getSuccessorValue().getConnectionXmlAsDict()
+connection_dict = instance_tree.getSuccessorValue().getConnectionXmlAsDict()
 
 connection_key_list = context.getSubjectList()
 connection_string = '\n'.join(['%s: %s' % (x,y) for x,y in connection_dict.items() if x in connection_key_list])

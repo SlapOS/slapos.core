@@ -9,7 +9,11 @@
  </chain>
  <chain>
   <type>Hosting Subscription</type>
-  <workflow>edit_workflow, hosting_subscription_workflow, instance_slap_interface_workflow</workflow>
+  <workflow>edit_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Instance Tree</type>
+  <workflow>edit_workflow, instance_slap_interface_workflow, instance_tree_workflow</workflow>
  </chain>
  <chain>
   <type>Person</type>

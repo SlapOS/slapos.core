@@ -7,9 +7,9 @@ comment = state_change.kwargs['comment'] # comment is required to pass the trans
 if state_change.kwargs['bang_tree']:
   from Products.ZSQLCatalog.SQLCatalog import Query, NegatedQuery
   portal = instance.getPortalObject()
-  hosting_subscription = instance.getSpecialiseValue(portal_type="Hosting Subscription")
+  instance_tree = instance.getSpecialiseValue(portal_type="Instance Tree")
   portal.portal_catalog.searchAndActivate(
-    default_specialise_uid=hosting_subscription.getUid(),
+    default_specialise_uid=instance_tree.getUid(),
     path=NegatedQuery(Query(path=instance.getPath())),
     portal_type=["Slave Instance", "Software Instance"],
     method_id='bang',

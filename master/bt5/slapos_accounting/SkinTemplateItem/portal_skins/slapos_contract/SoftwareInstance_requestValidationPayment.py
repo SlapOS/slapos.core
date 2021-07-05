@@ -3,10 +3,10 @@ if REQUEST is not None:
   raise Unauthorized
 
 software_instance = context
-hosting_subscription = software_instance.getSpecialiseValue()
-if hosting_subscription is None:
+instance_tree = software_instance.getSpecialiseValue()
+if instance_tree is None:
   return
-person = hosting_subscription.getDestinationSectionValue(portal_type='Person')
+person = instance_tree.getDestinationSectionValue(portal_type='Person')
 if person is None:
   return
 

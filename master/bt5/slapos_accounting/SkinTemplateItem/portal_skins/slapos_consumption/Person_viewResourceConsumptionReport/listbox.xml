@@ -401,7 +401,7 @@
                       <list>
                         <tuple>
                           <string>title</string>
-                          <string>Hosting Subscription</string>
+                          <string>Instance Tree</string>
                         </tuple>
                         <tuple>
                           <string>instance_title</string>
@@ -598,15 +598,15 @@
                       <list>
                         <tuple>
                           <string>cpu_load</string>
-                          <string>HostingSubscription_getCPUStat</string>
+                          <string>InstanceTree_getCPUStat</string>
                         </tuple>
                         <tuple>
                           <string>memory_used</string>
-                          <string>HostingSubscription_getMemoryStat</string>
+                          <string>InstanceTree_getMemoryStat</string>
                         </tuple>
                         <tuple>
                           <string>disk_used</string>
-                          <string>HostingSubscription_getDiskStat</string>
+                          <string>InstanceTree_getDiskStat</string>
                         </tuple>
                       </list>
                     </value>
@@ -666,7 +666,7 @@
       <dictionary>
         <item>
             <key> <string>method_name</string> </key>
-            <value> <string>HostingSubscription_getResourceConsumptionDetailList</string> </value>
+            <value> <string>InstanceTree_getResourceConsumptionDetailList</string> </value>
         </item>
       </dictionary>
     </pickle>
@@ -679,7 +679,7 @@
       <dictionary>
         <item>
             <key> <string>method_name</string> </key>
-            <value> <string>HostingSubscription_getResourceConsumptionDetailList</string> </value>
+            <value> <string>InstanceTree_getResourceConsumptionDetailList</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -134,7 +134,7 @@
                 <string>credential_update_module</string>
                 <string>tax_module</string>
                 <string>software_instance_module</string>
-                <string>hosting_subscription_module</string>
+                <string>instance_tree_module</string>
                 <string>system_event_module</string>
                 <string>software_publication_module</string>
                 <string>software_product_module</string>

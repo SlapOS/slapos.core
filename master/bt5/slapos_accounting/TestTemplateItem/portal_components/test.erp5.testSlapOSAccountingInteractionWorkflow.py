@@ -9,8 +9,8 @@ class TestSlapOSAccountingInteractionWorkflow(SlapOSTestCaseMixin):
   def beforeTearDown(self):
     transaction.abort()
 
-  def _simulateHostingSubscription_calculateSubscriptionStartDate(self, date):
-    script_name = 'HostingSubscription_calculateSubscriptionStartDate'
+  def _simulateInstanceTree_calculateSubscriptionStartDate(self, date):
+    script_name = 'InstanceTree_calculateSubscriptionStartDate'
     if script_name in self.portal.portal_skins.custom.objectIds():
       raise ValueError('Precondition failed: %s exists in custom' % script_name)
     createZODBPythonScript(self.portal.portal_skins.custom,
@@ -21,17 +21,17 @@ class TestSlapOSAccountingInteractionWorkflow(SlapOSTestCaseMixin):
 return DateTime('%s') """ % date.ISO())
     transaction.commit()
 
-  def _dropHostingSubscription_calculateSubscriptionStartDate(self):
-    script_name = 'HostingSubscription_calculateSubscriptionStartDate'
+  def _dropInstanceTree_calculateSubscriptionStartDate(self):
+    script_name = 'InstanceTree_calculateSubscriptionStartDate'
     if script_name in self.portal.portal_skins.custom.objectIds():
       self.portal.portal_skins.custom.manage_delObjects(script_name)
     transaction.commit()
 
-  def test_HostingSubscription_fixConsistency(self,
+  def test_InstanceTree_fixConsistency(self,
         date=DateTime('2012/01/15'), day=15):
     new_id = self.generateNewId()
-    item = self.portal.hosting_subscription_module.newContent(
-      portal_type='Hosting Subscription',
+    item = self.portal.instance_tree_module.newContent(
+      portal_type='Instance Tree',
       title="Subscription %s" % new_id,
       reference="TESTSUB-%s" % new_id,
       periodicity_hour_list=None,
@@ -43,48 +43,48 @@ return DateTime('%s') """ % date.ISO())
     self.assertEqual(item.getPeriodicityMinute(), None)
     self.assertEqual(item.getPeriodicityMonthDay(), None)
 
-    self._simulateHostingSubscription_calculateSubscriptionStartDate(date)
+    self._simulateInstanceTree_calculateSubscriptionStartDate(date)
     try:
       item.fixConsistency()
     finally:
-      self._dropHostingSubscription_calculateSubscriptionStartDate()
+      self._dropInstanceTree_calculateSubscriptionStartDate()
 
     self.assertEqual(item.getPeriodicityHourList(), [0])
     self.assertEqual(item.getPeriodicityMinuteList(), [0])
     self.assertEqual(item.getPeriodicityMonthDay(), day)
 
-  def test_HostingSubscription_fixConsistency_today_after_28(self):
-    self.test_HostingSubscription_fixConsistency(DateTime('2012/01/29'), 28)
+  def test_InstanceTree_fixConsistency_today_after_28(self):
+    self.test_InstanceTree_fixConsistency(DateTime('2012/01/29'), 28)
 
-  def test_HostingSubscription_manageAfter(self):
+  def test_InstanceTree_manageAfter(self):
     class DummyTestException(Exception):
       pass
 
     def verify_fixConsistency_call(self):
-      # Check that fixConsistency is called on hosting subscription
-      if self.getRelativeUrl().startswith('hosting_subscription_module/'):
+      # Check that fixConsistency is called on instance tree
+      if self.getRelativeUrl().startswith('instance_tree_module/'):
         raise DummyTestException
       else:
         return self.fixConsistency_call()
 
     # Replace serialize by a dummy method
-    HostingSubscriptionClass = self.portal.portal_types.getPortalTypeClass(
-        'Hosting Subscription')
-    HostingSubscriptionClass.fixConsistency_call = HostingSubscriptionClass.\
+    InstanceTreeClass = self.portal.portal_types.getPortalTypeClass(
+        'Instance Tree')
+    InstanceTreeClass.fixConsistency_call = InstanceTreeClass.\
         fixConsistency
-    HostingSubscriptionClass.fixConsistency = verify_fixConsistency_call
+    InstanceTreeClass.fixConsistency = verify_fixConsistency_call
 
     try:
       # manage_afterAdd
       self.assertRaises(
         DummyTestException, 
-        self.portal.hosting_subscription_module.newContent,
-        portal_type='Hosting Subscription')
+        self.portal.instance_tree_module.newContent,
+        portal_type='Instance Tree')
       # manage_afterClone
       self.assertRaises(
         DummyTestException, 
-        self.portal.hosting_subscription_module.\
-          template_hosting_subscription.Base_createCloneDocument,
+        self.portal.instance_tree_module.\
+          template_instance_tree.Base_createCloneDocument,
         batch_mode=1)
     finally:
       self.portal.portal_types.resetDynamicDocumentsOnceAtTransactionBoundary()
@@ -183,10 +183,10 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by D
     self._test_calculate(new_id, newContent, portal_type=portal_type,
         start_date='2011/01/01')
 
-  def test_HostingSubscription_changePromise(self):
+  def test_InstanceTree_changePromise(self):
     new_id = self.generateNewId()
-    subscription = self.portal.hosting_subscription_module.newContent(
-      portal_type='Hosting Subscription',
+    subscription = self.portal.instance_tree_module.newContent(
+      portal_type='Instance Tree',
       title="Subscription %s" % new_id,
       reference="TESTSUB-%s" % new_id,
       )
@@ -208,10 +208,10 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by D
     subscription.requestDestroy(**request_kw)
     self.assertEqual(subscription.getCausalityState(), 'diverged')
 
-  def test_HostingSubscription_changePromiseInDivergedState(self):
+  def test_InstanceTree_changePromiseInDivergedState(self):
     new_id = self.generateNewId()
-    subscription = self.portal.hosting_subscription_module.newContent(
-      portal_type='Hosting Subscription',
+    subscription = self.portal.instance_tree_module.newContent(
+      portal_type='Instance Tree',
       title="Subscription %s" % new_id,
       reference="TESTSUB-%s" % new_id,
       )

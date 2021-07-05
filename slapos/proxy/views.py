@@ -1016,7 +1016,7 @@ def is_valid(name):
     return True
   return False
 
-p_service_list = 'portal_type:"Hosting Subscription" AND validation_state:validated'
+p_service_list = 'portal_type:"Instance Tree" AND validation_state:validated'
 p_service_info = p_service_list + ' AND title:='
 p_computer_list = 'portal_type:"Computer" AND validation_state:validated'
 p_computer_info = p_computer_list + ' AND reference:='
@@ -1078,7 +1078,7 @@ def hateoas_partitions(partition_reference):
     },
     '_links': {
       'type': {
-        'name': 'Hosting Subscription',
+        'name': 'Instance Tree',
       },
     },
   }

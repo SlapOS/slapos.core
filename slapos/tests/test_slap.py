@@ -1260,11 +1260,11 @@ class TestOpenOrder(SlapMixin):
 
     link_keys = {
         "type": {
-          "href": "urn:jio:get:portal_types/Hosting Subscription",
-          "name": "Hosting Subscription"
+          "href": "urn:jio:get:portal_types/Instance Tree",
+          "name": "Instance Tree"
           },
         }
-    hosting_subscription_info_dict = {
+    instance_tree_info_dict = {
         "connection_parameter_list": {
           "title": "my_connection_parameter_dict",
           "default": [
@@ -1312,42 +1312,42 @@ class TestOpenOrder(SlapMixin):
             }
         }
     view_dict = {}
-    for k in hosting_subscription_info_dict:
-      view_dict["my_%s" % k] = hosting_subscription_info_dict[k]
+    for k in instance_tree_info_dict:
+      view_dict["my_%s" % k] = instance_tree_info_dict[k]
     view_dict["_embedded"] = {
         "form_definition": {
           "update_action_title": "",
           "_debug": "traverse",
           "pt": "form_view_editable",
-          "title": "HostingSubscription_viewAsHateoas",
+          "title": "InstanceTree_viewAsHateoas",
           "_links": {
             "portal": {
                 "href": "urn:jio:get:erp5",
                 "name": "ERP5"
                 },
             },
-          "action": "HostingSubscription_editWebMode",
+          "action": "InstanceTree_editWebMode",
           "update_action": ""
         }
       }
     view_dict["form_id"] = {
         "title": "form_id",
-        "default": "HostingSubscription_viewAsHateoas",
+        "default": "InstanceTree_viewAsHateoas",
         "key": "form_id",
         "type": "StringField"
         }
     view_dict["_links"] = {
         "traversed_document": {
-          "href": "urn:jio:get:hosting_subscription_module/my_refe_id",
-          "name": "hosting_subscription_module/my_refe_id",
+          "href": "urn:jio:get:instance_tree_module/my_refe_id",
+          "name": "instance_tree_module/my_refe_id",
           "title": "myrefe"
           },
         "self": {
-          "href": "https://localhost/hosting_subscription_module/my_refe_id/HostingSubscription_viewAsHateoas"
+          "href": "https://localhost/instance_tree_module/my_refe_id/InstanceTree_viewAsHateoas"
           },
         "form_definition": {
-          "href": "urn:jio:get:portal_skins/slapos_hal_json_style/HostingSubscription_viewAsHateoas",
-          "name": "HostingSubscription_viewAsHateoas"
+          "href": "urn:jio:get:portal_skins/slapos_hal_json_style/InstanceTree_viewAsHateoas",
+          "name": "InstanceTree_viewAsHateoas"
           }
         }
     hateoas_url = "/custom_hateoas_url"
@@ -1390,10 +1390,10 @@ class TestOpenOrder(SlapMixin):
                     {
                       "_links": {
                         "self": {
-                          "href": "urn:jio:get:hosting_subscription_module/my_refe_id"
+                          "href": "urn:jio:get:instance_tree_module/my_refe_id"
                           }
                         },
-                      "relative_url": "hosting_subscription_module/my_refe_id",
+                      "relative_url": "instance_tree_module/my_refe_id",
                       "title": "myrefe"
                       }
                     ]
@@ -1401,7 +1401,7 @@ class TestOpenOrder(SlapMixin):
                 "_debug": "search",
                 "_limit": "200",
                 "_local_roles": "",
-                "_query": "portal_type:\"Hosting Subscription\" AND validation_state:validated AND title:=\"myrefe\"",
+                "_query": "portal_type:\"Instance Tree\" AND validation_state:validated AND title:=\"myrefe\"",
                 "_select_list": [
                   "title",
                   "relative_url"
@@ -1444,13 +1444,13 @@ class TestOpenOrder(SlapMixin):
       requested_partition_id = self.id()
       software_instance = open_order.getInformation('myrefe')
       self.assertIsInstance(software_instance, slapos.slap.SoftwareInstance)
-      for key in hosting_subscription_info_dict:
+      for key in instance_tree_info_dict:
         if key not in link_keys:
-          self.assertEqual(getattr(software_instance, '_' + key), hosting_subscription_info_dict[key]["default"])
+          self.assertEqual(getattr(software_instance, '_' + key), instance_tree_info_dict[key]["default"])
       self.assertEqual(software_instance._parameter_dict, {'_': parameter_dict})
-      self.assertEqual(software_instance._requested_state, hosting_subscription_info_dict['slap_state']["default"])
-      self.assertEqual(software_instance._connection_dict, hosting_subscription_info_dict['connection_parameter_list']["default"])
-      self.assertEqual(software_instance._software_release_url, hosting_subscription_info_dict['url_string']["default"])
+      self.assertEqual(software_instance._requested_state, instance_tree_info_dict['slap_state']["default"])
+      self.assertEqual(software_instance._connection_dict, instance_tree_info_dict['connection_parameter_list']["default"])
+      self.assertEqual(software_instance._software_release_url, instance_tree_info_dict['url_string']["default"])
 
 
 class TestSoftwareProductCollection(SlapMixin):

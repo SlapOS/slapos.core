@@ -9,15 +9,16 @@ Computer | SlaposCapacity
 Computer | SlaposComputerConstraint
 Computer | Url
 Email | SlaposEmailConstraint
-Hosting Subscription | HostingSubscription
-Hosting Subscription | SlaposHostingSubscriptionConstraint
-Hosting Subscription | SoftwareInstance
-Hosting Subscription | SoftwareInstanceUpgradeConstraint
-Hosting Subscription | TextDocument
-Hosting Subscription | Url
-Hosting Subscription | VariationRange
+Hosting Subscription | HostingSubscriptionUpgradeConstraint
+Instance Tree | InstanceTree
+Instance Tree | SlaposInstanceTreeConstraint
+Instance Tree | SoftwareInstance
+Instance Tree | SoftwareInstanceUpgradeConstraint
+Instance Tree | TextDocument
+Instance Tree | Url
+Instance Tree | VariationRange
 Person | SlaposPersonConstraint
-Slave Instance | HostingSubscription
+Slave Instance | InstanceTree
 Slave Instance | Reference
 Slave Instance | SlaveInstanceConstraint
 Slave Instance | SoftwareInstance
@@ -27,7 +28,7 @@ Slave Instance | VariationRange
 Software Installation | Url
 Software Installation | VariationRange
 Software Instance | ERP5User
-Software Instance | HostingSubscription
+Software Instance | InstanceTree
 Software Instance | Reference
 Software Instance | SoftwareInstance
 Software Instance | SoftwareInstanceConstraint

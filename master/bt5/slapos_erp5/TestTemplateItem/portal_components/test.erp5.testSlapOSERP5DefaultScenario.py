@@ -165,7 +165,7 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     self.simulateSlapgridSR(friend_server)
 
     # check the Open Sale Order coverage
-    self.stepCallSlaposRequestUpdateHostingSubscriptionOpenSaleOrderAlarm()
+    self.stepCallSlaposRequestUpdateInstanceTreeOpenSaleOrderAlarm()
     self.tic()
 
     self.login()
@@ -301,8 +301,8 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
     person = self.portal.portal_catalog.getResultValue(
        portal_type='ERP5 Login',
        reference=person_reference).getParentValue()
-    hosting_subscription_list = self.portal.portal_catalog(
-        portal_type='Hosting Subscription',
+    instance_tree_list = self.portal.portal_catalog(
+        portal_type='Instance Tree',
         default_destination_section_uid=person.getUid()
     )
 
@@ -311,7 +311,7 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
         default_destination_uid=person.getUid(),
     )
 
-    if len(hosting_subscription_list) == 0:
+    if len(instance_tree_list) == 0:
       self.assertEqual(0, len(open_sale_order_list))
       return
 
@@ -320,9 +320,9 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
     open_sale_order = open_sale_order_list[0]
     line_list = open_sale_order.contentValues(
         portal_type='Open Sale Order Line')
-    self.assertEqual(len(hosting_subscription_list), len(line_list))
+    self.assertEqual(len(instance_tree_list), len(line_list))
     self.assertSameSet(
-        [q.getRelativeUrl() for q in hosting_subscription_list],
+        [q.getRelativeUrl() for q in instance_tree_list],
         [q.getAggregate() for q in line_list]
     )
 
@@ -397,7 +397,7 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
         public_server_software, public_instance_type)
 
     # check the Open Sale Order coverage
-    self.stepCallSlaposRequestUpdateHostingSubscriptionOpenSaleOrderAlarm()
+    self.stepCallSlaposRequestUpdateInstanceTreeOpenSaleOrderAlarm()
     self.tic()
 
     self.login()
@@ -500,7 +500,7 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
     self.tic()
 
     # stop the subscription
-    self.stepCallSlaposCrmStopHostingSubscriptionAlarm()
+    self.stepCallSlaposCrmStopInstanceTreeAlarm()
     self.tic()
     self.assertSubscriptionStopped(person)
 
@@ -515,12 +515,12 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
     self.tic()
 
     # delete the subscription
-    self.stepCallSlaposCrmDeleteHostingSubscriptionAlarm()
+    self.stepCallSlaposCrmDeleteInstanceTreeAlarm()
     self.tic()
     self.assertSubscriptionDestroyed(person)
 
     # check the Open Sale Order coverage
-    self.stepCallSlaposRequestUpdateHostingSubscriptionOpenSaleOrderAlarm()
+    self.stepCallSlaposRequestUpdateInstanceTreeOpenSaleOrderAlarm()
     self.tic()
 
 

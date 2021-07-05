@@ -85,7 +85,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.createNotificationMessage("subscription_request-confirmation-without-password",
                                text_content='${name} ${login_name}')
     self.createNotificationMessage("subscription_request-instance-is-ready", 
-      text_content='${name} ${subscription_title} ${hosting_subscription_relative_url}')
+      text_content='${name} ${subscription_title} ${instance_tree_relative_url}')
     self.createNotificationMessage("subscription_request-payment-is-ready",
       text_content='${name} ${subscription_title} ${payment_relative_relative_url}')
     
@@ -94,7 +94,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.createNotificationMessage("subscription_request-confirmation-without-password", language="zh",
                                text_content='CHINESE! ${name} ${login_name}')
     self.createNotificationMessage("subscription_request-instance-is-ready", language="zh",
-      text_content='CHINESE! ${name} ${subscription_title} ${hosting_subscription_relative_url}')
+      text_content='CHINESE! ${name} ${subscription_title} ${instance_tree_relative_url}')
     self.createNotificationMessage("subscription_request-payment-is-ready", language="zh",
       text_content='CHINESE! ${name} ${subscription_title} ${payment_relative_relative_url}')
 
@@ -1008,9 +1008,9 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       "TestSubscriptionSkins Notification Message %s %s" % (
         subscription_request.getLanguage(), notification_message),
       mail_message.getTitle())
-    hosting_subscription = subscription_request.getAggregateValue()
-    self.assertEqual(hosting_subscription.getSlapState(), 'start_requested')
-    self.assertTrue(hosting_subscription.getRelativeUrl() in \
+    instance_tree = subscription_request.getAggregateValue()
+    self.assertEqual(instance_tree.getSlapState(), 'start_requested')
+    self.assertTrue(instance_tree.getRelativeUrl() in \
                  mail_message.getTextContent())
     self.assertTrue(subscription_request.getDestinationSectionTitle() in \
       mail_message.getTextContent())
@@ -1020,19 +1020,19 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.assertEqual(instance.getAggregate(), None)
 
   def _checkRelatedInstance(self, subscription_request):
-    hosting_subscription = subscription_request.getAggregateValue()
-    self.assertNotEqual(hosting_subscription, None)
+    instance_tree = subscription_request.getAggregateValue()
+    self.assertNotEqual(instance_tree, None)
 
     self.assertEqual(subscription_request.getUrlString(),
-                     hosting_subscription.getUrlString())
+                     instance_tree.getUrlString())
     self.assertEqual(subscription_request.getRootSlave(),
-                     hosting_subscription.getRootSlave())
-    self.assertEqual(hosting_subscription.getTextContent(),
+                     instance_tree.getRootSlave())
+    self.assertEqual(instance_tree.getTextContent(),
       '<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>')
     #self.assertEqual(trial_request.getSlaXml(), '<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>')
-    self.assertEqual(hosting_subscription.getSourceReference(), "default")
+    self.assertEqual(instance_tree.getSourceReference(), "default")
 
-    instance_list = hosting_subscription.getSpecialiseRelatedValueList(
+    instance_list = instance_tree.getSpecialiseRelatedValueList(
               portal_type=["Software Instance", "Slave Instance"])
     self.assertEqual(1,len(instance_list))
 
@@ -1199,7 +1199,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.logout()
     return subscription_server
 
-  def requestAndCheckHostingSubscription(self, amount, name, 
+  def requestAndCheckInstanceTree(self, amount, name, 
               default_email_text):
   
     self.logout()
@@ -1334,8 +1334,8 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     trade_condition = preference_tool.getPreferredAggregatedSaleTradeCondition()
 
     for subscription_request in subscription_request_list:
-      hosting_subscription = subscription_request.getAggregateValue()
-      self.assertEqual(hosting_subscription.getCausalityState(), "solved")
+      instance_tree = subscription_request.getAggregateValue()
+      self.assertEqual(instance_tree.getCausalityState(), "solved")
 
       sale_packing_list_list = self.getAggregatedSalePackingList(
         subscription_request, aggregate_subscription_condition)
@@ -1563,8 +1563,8 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
         subscription_request.getAggregateValue().getSlapState())
 
       # Destroy all instances and process 
-      hosting_subscription = subscription_request.getAggregateValue()
-      hosting_subscription.HostingSubscription_requestPerson('destroyed')
+      instance_tree = subscription_request.getAggregateValue()
+      instance_tree.InstanceTree_requestPerson('destroyed')
       self.tic()
 
     self.stepCallSlaposSubscriptionRequestProcessStartedAlarm()
@@ -1582,7 +1582,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     default_email_text = "abc%s@nexedi.com" % self.new_id
     name="ABC %s" % self.new_id
 
-    self.requestAndCheckHostingSubscription(
+    self.requestAndCheckInstanceTree(
       amount, name, default_email_text)
 
     self.checkSubscriptionDeploymentAndSimulation(
@@ -1607,7 +1607,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     self.subscription_server = self.createPublicServerForAdminUser()
 
-    self.requestAndCheckHostingSubscription(
+    self.requestAndCheckInstanceTree(
       amount, name, default_email_text)
 
     self.checkSubscriptionDeploymentAndSimulation(
@@ -1655,7 +1655,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
   
       self.non_subscription_related_instance_amount = 1
       self.login()
-      self.requestAndCheckHostingSubscription(
+      self.requestAndCheckInstanceTree(
         amount, name, default_email_text)
   
       self.checkSubscriptionDeploymentAndSimulation(
@@ -1806,7 +1806,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     # Call as anonymous... check response?
     default_email_text = "abc%s@nexedi.com" % self.new_id
     name="ABC %s" % self.new_id
-    self.requestAndCheckHostingSubscription(amount, name, default_email_text)
+    self.requestAndCheckInstanceTree(amount, name, default_email_text)
 
     self.checkSubscriptionDeploymentAndSimulationWithReversalTransaction(
         default_email_text, self.subscription_server)
@@ -1824,8 +1824,8 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     # Ensure periodicity is correct
     for subscription_request in subscription_request_list:
-      hosting_subscription = subscription_request.getAggregateValue()
-      self.assertEqual(hosting_subscription.getPeriodicityMonthDay(),
+      instance_tree = subscription_request.getAggregateValue()
+      self.assertEqual(instance_tree.getPeriodicityMonthDay(),
         min(DateTime().day(), 28))
 
     self.pinDateTime(DateTime(DateTime().asdatetime() + datetime.timedelta(days=17)))

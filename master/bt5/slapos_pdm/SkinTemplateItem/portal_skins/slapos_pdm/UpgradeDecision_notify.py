@@ -10,7 +10,7 @@ person = context.getDestinationDecisionValue(portal_type="Person")
 if not person:
   raise ValueError("Inconsistent Upgrade Decision, No Destination Decision")
 
-hosting_subscription = context.UpgradeDecision_getHostingSubscription()
+instance_tree = context.UpgradeDecision_getInstanceTree()
 computer = context.UpgradeDecision_getComputer()
 software_release = context.UpgradeDecision_getSoftwareRelease()
 software_product_title = software_release.getAggregateTitle(
@@ -23,12 +23,12 @@ mapping_dict = {
   'new_software_release_url': software_release.getUrlString(),
 
 }
-if hosting_subscription is not None:
-  notification_message_reference = 'slapos-upgrade-hosting-subscription.notification'
-  title = "New Upgrade available for %s" % hosting_subscription.getTitle()
+if instance_tree is not None:
+  notification_message_reference = 'slapos-upgrade-instance-tree.notification'
+  title = "New Upgrade available for %s" % instance_tree.getTitle()
   mapping_dict.update(**{
-     'hosting_subscription_title': hosting_subscription.getTitle(),
-     'old_software_release_url': hosting_subscription.getUrlString()})
+     'instance_tree_title': instance_tree.getTitle(),
+     'old_software_release_url': instance_tree.getUrlString()})
 
 
 elif computer is not None:

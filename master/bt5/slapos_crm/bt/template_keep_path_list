@@ -12,4 +12,3 @@ service_module/slapos_crm_upgrade
 portal_types/Support Request Module/6
 sale_trade_condition_module/slapos_ticket_trade_condition
 sale_trade_condition_module/slapos_ticket_trade_condition/**
-portal_alarms/slapos_crm_*

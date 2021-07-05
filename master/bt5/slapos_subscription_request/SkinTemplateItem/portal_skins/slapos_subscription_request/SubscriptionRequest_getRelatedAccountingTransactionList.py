@@ -42,7 +42,7 @@ for aggregated_sale_packing_list in aggregated_spl_list:
   search_kw = {
     'portal_type': 'Sale Packing List Line',
     'simulation_state': 'delivered',
-    # Default Aggregate UID to the hosting subscription?
+    # Default Aggregate UID to the instance tree?
     "parent_specialise_uid": subscription_delivery_specialise_uid_list,
     "default_aggregate_uid": context.getAggregateUid(),
     'grouping_reference' : aggregated_sale_packing_list.getReference()}

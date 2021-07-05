@@ -64,7 +64,7 @@ else:
         continue
 
       subscription = instance.getSpecialiseValue(
-        portal_type="Hosting Subscription")
+        portal_type="Instance Tree")
 
       try:
         person = subscription.getDestinationSectionValue(

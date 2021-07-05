@@ -162,7 +162,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: context.getAggregateValue(portal_type="Hosting Subscription").getTitle() + " Monitor"</string> </value>
+            <value> <string>python: context.getAggregateValue(portal_type="Instance Tree").getTitle() + " Monitor"</string> </value>
         </item>
       </dictionary>
     </pickle>

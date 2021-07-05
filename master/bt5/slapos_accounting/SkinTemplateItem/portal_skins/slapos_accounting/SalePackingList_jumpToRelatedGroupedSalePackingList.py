@@ -10,7 +10,7 @@ subscription_delivery_specialise_uid_list = [q.getUid() for q in portal.portal_c
 search_kw = {
   'portal_type': 'Sale Packing List Line',
   'simulation_state': 'delivered',
-  # Default Aggregate UID to the hosting subscription?
+  # Default Aggregate UID to the instance tree?
   "parent_specialise_uid": subscription_delivery_specialise_uid_list,
   'grouping_reference' : context.getReference()}
 

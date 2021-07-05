@@ -1,6 +1,6 @@
-hosting_subscription = context.getAggregateValue()
+instance_tree = context.getAggregateValue()
 
-if hosting_subscription is not None and \
-    hosting_subscription.getSlapState() == "destroy_requested":
+if instance_tree is not None and \
+    instance_tree.getSlapState() == "destroy_requested":
 
   context.stop(comment="Instance is Destroyed")

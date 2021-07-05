@@ -35,5 +35,5 @@ requested_software_instance = context.REQUEST.get('request_instance')
 if requested_software_instance is None:
   return
 
-# Save the requested hosting subscription
+# Save the requested instance tree
 context.setAggregate(requested_software_instance.getSpecialise())

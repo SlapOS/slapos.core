@@ -251,7 +251,6 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'upgrade_decision_module',
        'web_page_module',
        'web_site_module',
-       'workflow_module',
     ]
     # If mixin contains a custom definition that introduce new business templated from
     # the project scope, them include it on expected list.

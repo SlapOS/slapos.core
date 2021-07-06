@@ -64,7 +64,7 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>resource/workflow_module/slapos_master_configuration_workflow</string>
+                <string>resource/portal_workflow/slapos_master_configuration_workflow</string>
               </tuple>
             </value>
         </item>

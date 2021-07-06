@@ -101,7 +101,6 @@ Deferred,erp5_web_renderjs
 Deferred,erp5_web_service
 Deferred,erp5_web_widget_library
 Deferred,erp5_wechat_secure_payment
-Deferred,erp5_workflow
 Deferred,external_method
 Deferred,Images
 Deploy,custom
@@ -208,7 +207,6 @@ Deploy,erp5_web_renderjs
 Deploy,erp5_web_service
 Deploy,erp5_web_widget_library
 Deploy,erp5_wechat_secure_payment
-Deploy,erp5_workflow
 Deploy,external_method
 Deploy,Images
 Download,custom
@@ -314,7 +312,6 @@ Download,erp5_web_renderjs
 Download,erp5_web_service
 Download,erp5_web_widget_library
 Download,erp5_wechat_secure_payment
-Download,erp5_workflow
 Download,erp5_xhtml_style
 Download,external_method
 Download,Images
@@ -422,7 +419,6 @@ Hal,erp5_web_renderjs
 Hal,erp5_web_service
 Hal,erp5_web_widget_library
 Hal,erp5_wechat_secure_payment
-Hal,erp5_workflow
 Hal,erp5_xhtml_style
 Hal,external_method
 Hal,Images
@@ -531,7 +527,6 @@ HalRestricted,erp5_web_renderjs
 HalRestricted,erp5_web_service
 HalRestricted,erp5_web_widget_library
 HalRestricted,erp5_wechat_secure_payment
-HalRestricted,erp5_workflow
 HalRestricted,erp5_xhtml_style
 HalRestricted,external_method
 HalRestricted,Images
@@ -640,7 +635,6 @@ KM,erp5_web_renderjs
 KM,erp5_web_service
 KM,erp5_web_widget_library
 KM,erp5_wechat_secure_payment
-KM,erp5_workflow
 KM,erp5_xhtml_style
 KM,external_method
 KM,Images
@@ -747,7 +741,6 @@ Multiflex,erp5_web_renderjs
 Multiflex,erp5_web_service
 Multiflex,erp5_web_widget_library
 Multiflex,erp5_wechat_secure_payment
-Multiflex,erp5_workflow
 Multiflex,external_method
 Multiflex,Images
 ODS,custom
@@ -853,7 +846,6 @@ ODS,erp5_web_renderjs
 ODS,erp5_web_service
 ODS,erp5_web_widget_library
 ODS,erp5_wechat_secure_payment
-ODS,erp5_workflow
 ODS,external_method
 ODS,Images
 ODT,custom
@@ -959,7 +951,6 @@ ODT,erp5_web_renderjs
 ODT,erp5_web_service
 ODT,erp5_web_widget_library
 ODT,erp5_wechat_secure_payment
-ODT,erp5_workflow
 ODT,external_method
 ODT,Images
 RJS,custom
@@ -1066,7 +1057,6 @@ RJS,erp5_web_renderjs
 RJS,erp5_web_service
 RJS,erp5_web_widget_library
 RJS,erp5_wechat_secure_payment
-RJS,erp5_workflow
 RJS,external_method
 RJS,Images
 RSS,custom
@@ -1173,7 +1163,6 @@ RSS,erp5_web_renderjs
 RSS,erp5_web_service
 RSS,erp5_web_widget_library
 RSS,erp5_wechat_secure_payment
-RSS,erp5_workflow
 RSS,external_method
 RSS,Images
 RedirectAssist,custom
@@ -1279,7 +1268,6 @@ RedirectAssist,erp5_web_renderjs
 RedirectAssist,erp5_web_service
 RedirectAssist,erp5_web_widget_library
 RedirectAssist,erp5_wechat_secure_payment
-RedirectAssist,erp5_workflow
 RedirectAssist,erp5_xhtml_style
 RedirectAssist,external_method
 RedirectAssist,Images
@@ -1387,7 +1375,6 @@ SHACACHE,erp5_web_renderjs
 SHACACHE,erp5_web_service
 SHACACHE,erp5_web_widget_library
 SHACACHE,erp5_wechat_secure_payment
-SHACACHE,erp5_workflow
 SHACACHE,erp5_xhtml_style
 SHACACHE,external_method
 SHACACHE,Images
@@ -1495,7 +1482,6 @@ SHADIR,erp5_web_renderjs
 SHADIR,erp5_web_service
 SHADIR,erp5_web_widget_library
 SHADIR,erp5_wechat_secure_payment
-SHADIR,erp5_workflow
 SHADIR,erp5_xhtml_style
 SHADIR,external_method
 SHADIR,Images
@@ -1602,7 +1588,6 @@ SlideShow,erp5_web_renderjs
 SlideShow,erp5_web_service
 SlideShow,erp5_web_widget_library
 SlideShow,erp5_wechat_secure_payment
-SlideShow,erp5_workflow
 SlideShow,erp5_xhtml_style
 SlideShow,external_method
 SlideShow,Images
@@ -1710,7 +1695,6 @@ View,erp5_web_renderjs
 View,erp5_web_service
 View,erp5_web_widget_library
 View,erp5_wechat_secure_payment
-View,erp5_workflow
 View,erp5_xhtml_style
 View,external_method
 View,Images

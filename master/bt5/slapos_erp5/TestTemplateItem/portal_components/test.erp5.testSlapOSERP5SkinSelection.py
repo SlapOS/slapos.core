@@ -154,7 +154,6 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
-erp5_workflow
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
@@ -265,7 +264,6 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
-erp5_workflow
 external_method
 slapos_disaster_recovery
 Images
@@ -376,7 +374,6 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
-erp5_workflow
 external_method
 slapos_disaster_recovery
 Images
@@ -488,7 +485,6 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
-erp5_workflow
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
@@ -601,7 +597,6 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
-erp5_workflow
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
@@ -712,7 +707,6 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
-erp5_workflow
 external_method
 slapos_disaster_recovery
 Images
@@ -822,7 +816,6 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
-erp5_workflow
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
@@ -933,7 +926,6 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
-erp5_workflow
 external_method
 slapos_disaster_recovery
 Images
@@ -1043,7 +1035,6 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
-erp5_workflow
 external_method
 slapos_disaster_recovery
 Images
@@ -1154,7 +1145,6 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
-erp5_workflow
 external_method
 slapos_disaster_recovery
 Images
@@ -1265,7 +1255,6 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
-erp5_workflow
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
@@ -1377,7 +1366,6 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
-erp5_workflow
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
@@ -1489,7 +1477,6 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
-erp5_workflow
 external_method
 slapos_disaster_recovery
 Images
@@ -1601,7 +1588,6 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
-erp5_workflow
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery

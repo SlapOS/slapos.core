@@ -242,7 +242,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
             'erp5_core_proxy_field_legacy',
             'erp5_base',
             'erp5_administration',
-            'erp5_workflow',
             'erp5_configurator',
             'slapos_configurator',
             'erp5_simulation',
@@ -340,7 +339,6 @@ class testSlapOSMixin(ERP5TypeTestCase):
       'erp5_base',
       'erp5_simulation',
       'erp5_accounting',
-      'erp5_workflow',
       'erp5_configurator',
       'slapos_configurator',
     ]

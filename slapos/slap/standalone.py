@@ -360,7 +360,7 @@ class StandaloneSlapOS(object):
       slapos_bin='slapos',
       local_software_release_root=os.sep,
     ):
-    # type: (str, str, int, str, Iterable[str], Optional[str], Optional[str], Optional[str], Iterable[Union[PartitionForwardConfiguration, PartitionForwardAsPartitionConfiguration]]) -> None
+    # type: (str, str, int, str, Iterable[str], Optional[str], Optional[str], Optional[str], Iterable[Union[PartitionForwardConfiguration, PartitionForwardAsPartitionConfiguration]], str, str) -> None
     """Constructor, creates a standalone slapos in `base_directory`.
 
     Arguments:

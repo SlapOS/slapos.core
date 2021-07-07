@@ -157,7 +157,6 @@ erp5_wechat_secure_payment
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
-Images
 """
 
   deffered_selection_string_list = \
@@ -266,7 +265,6 @@ erp5_web_widget_library
 erp5_wechat_secure_payment
 external_method
 slapos_disaster_recovery
-Images
 """
 
   deploy_selection_string_list = \
@@ -376,7 +374,6 @@ erp5_web_widget_library
 erp5_wechat_secure_payment
 external_method
 slapos_disaster_recovery
-Images
 """
 
   view_selection_string_list = \
@@ -488,7 +485,6 @@ erp5_wechat_secure_payment
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
-Images
 """
 
   km_selection_string_list = \
@@ -600,7 +596,6 @@ erp5_wechat_secure_payment
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
-Images
 """
 
   multiflex_selection_string_list = \
@@ -709,7 +704,6 @@ erp5_web_widget_library
 erp5_wechat_secure_payment
 external_method
 slapos_disaster_recovery
-Images
 """
 
   download_selection_string_list = \
@@ -819,7 +813,6 @@ erp5_wechat_secure_payment
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
-Images
 """
 
   ods_selection_string_list = \
@@ -928,7 +921,6 @@ erp5_web_widget_library
 erp5_wechat_secure_payment
 external_method
 slapos_disaster_recovery
-Images
 """
 
   odt_selection_string_list = \
@@ -1037,7 +1029,6 @@ erp5_web_widget_library
 erp5_wechat_secure_payment
 external_method
 slapos_disaster_recovery
-Images
 """
 
   rss_selection_string_list = \
@@ -1147,7 +1138,6 @@ erp5_web_widget_library
 erp5_wechat_secure_payment
 external_method
 slapos_disaster_recovery
-Images
 """
 
   shadir_selection_string_list = \
@@ -1258,7 +1248,6 @@ erp5_wechat_secure_payment
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
-Images
 """
 
   shacache_selection_string_list = \
@@ -1369,7 +1358,6 @@ erp5_wechat_secure_payment
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
-Images
 """
 
   rjs_selection_string_list = \
@@ -1479,7 +1467,6 @@ erp5_web_widget_library
 erp5_wechat_secure_payment
 external_method
 slapos_disaster_recovery
-Images
 """
 
   slapos_hal_restricted_selection_string_list = \
@@ -1591,7 +1578,6 @@ erp5_wechat_secure_payment
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
-Images
 """
 
   def getTitle(self):

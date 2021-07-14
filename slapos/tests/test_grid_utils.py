@@ -1,5 +1,5 @@
 ##############################################################################
-#
+# coding: utf-8
 # Copyright (c) 2018 Vifib SARL and Contributors. All Rights Reserved.
 #
 # WARNING: This program as such is intended to be used by professional
@@ -24,14 +24,15 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
+from __future__ import unicode_literals
+import logging
 import os
 import sys
 import tempfile
+import textwrap
 import unittest
-import logging
+
 import mock
-
-
 import slapos.grid.utils
 
 
@@ -61,6 +62,37 @@ class SlapPopenTestCase(unittest.TestCase):
 
     # output is also logged "live"
     logger.info.assert_called_with('hello')
+
+  def test_exec_multiline(self):
+    self.script.write(textwrap.dedent('''\
+      #!/bin/sh
+      echo -n he
+      echo -n l
+      sleep 0.1
+      echo lo
+      echo world
+    ''').encode())
+    self.script.close()
+
+    logger = mock.MagicMock()
+    program = slapos.grid.utils.SlapPopen(
+        self.script.name,
+        logger=logger)
+
+    self.assertEqual('hello\nworld\n', program.output)
+    self.assertEqual(logger.info.call_args_list, [mock.call('hello'), mock.call('world')])
+
+  def test_exec_non_ascii(self):
+    self.script.write(b'#!/bin/sh\necho h\xc3\xa9h\xc3\xa9')
+    self.script.close()
+
+    logger = mock.MagicMock()
+    program = slapos.grid.utils.SlapPopen(
+        self.script.name,
+        logger=logger)
+
+    self.assertEqual('héhé\n', program.output)
+    logger.info.assert_called_with('héhé')
 
   def test_debug(self):
     """Test debug=True, which keeps interactive.

@@ -18,7 +18,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
   def afterSetUp(self):
     TestSlapOSSecurityMixin.afterSetUp(self)
-    preference = self.portal.portal_preferences.getActiveSystemPreference()
+    preference = self.portal.portal_preferences.slapos_default_system_preference
 
     preference.edit(
       preferred_credential_alarm_automatic_call=0,

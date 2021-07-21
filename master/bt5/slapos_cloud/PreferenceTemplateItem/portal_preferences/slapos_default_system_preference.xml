@@ -112,6 +112,10 @@
             </value>
         </item>
         <item>
+            <key> <string>preferred_credential_alarm_automatic_call</string> </key>
+            <value> <int>1</int> </value>
+        </item>
+        <item>
             <key> <string>preferred_credential_recovery_automatic_approval</string> </key>
             <value> <int>1</int> </value>
         </item>

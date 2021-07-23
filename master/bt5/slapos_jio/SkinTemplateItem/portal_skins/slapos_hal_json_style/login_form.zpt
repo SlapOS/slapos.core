@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="zocial.min.css">
   </head>
 
-  <body tal:define="form_action string:WebSite_login;">
+  <body tal:define="form_action string:WebSite_login;
+                    portal here/getPortalObject">
   <div data-role='page'>
 
     <div data-gadget-scope='header'>
@@ -39,7 +40,13 @@
             </tal:block>
           </section>
         </div>
-        <section>
+          <section tal:condition="not: portal/portal_membership/isAnonymousUser">
+              <p i18n:domain="ui" i18n:translate="" >It seems you're already authenticated.</p>
+              <p><a tal:condition="exists: request/came_from"
+                     tal:attributes="href request/came_from" >Go back</a></p>
+          </section>
+
+          <section tal:condition="portal/portal_membership/isAnonymousUser">
           <form method="post" tal:attributes="action python: '%s/' % context.absolute_url()">
 
             <div class="ui-field-contain">

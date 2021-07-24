@@ -562,14 +562,15 @@ class SlapTool(BaseTool):
       raise NotFound
     if not url:
       raise NotFound
-    # Keep in cache server for 7 days
+    # Keep in cache server for 1 hour
     self.REQUEST.response.setStatus(200)
     self.REQUEST.response.setHeader('Cache-Control',
-                                    'public, max-age=1, stale-if-error=604800')
+                                    'public, max-age=3600, stale-if-error=604800')
     self.REQUEST.response.setHeader('Vary',
                                     'REMOTE_USER')
-    self.REQUEST.response.setHeader('Last-Modified', rfc1123_date(DateTime()))
     self.REQUEST.response.setHeader('content-type', 'text; charset=utf-8')
+    self.REQUEST.response.setHeader('Etag',
+      calculate_dict_hash({"etag": url}))
     self.REQUEST.response.setBody(url)
     return self.REQUEST.response
 

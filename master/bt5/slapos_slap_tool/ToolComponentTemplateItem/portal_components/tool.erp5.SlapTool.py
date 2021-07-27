@@ -932,11 +932,13 @@ class SlapTool(BaseTool):
     previous = self._getCachedAccessInfo(context_reference)
     created_at = rfc1123_date(DateTime())
     since = created_at
+    status_changed = True
     if previous is not None:
       previous_json = json.loads(previous)
       if text.split(" ")[0] == previous_json.get("text", "").split(" ")[0]:
         since = previous_json.get("since",
           previous_json.get("created_at", rfc1123_date(DateTime())))
+        status_changed = False
       if state == "":
         state = previous_json.get("state", "")
 
@@ -949,6 +951,7 @@ class SlapTool(BaseTool):
       'state': state
     })
     memcached_dict[context_reference] = value
+    return status_changed
 
   def _validateXML(self, to_be_validated, xsd_model):
     """Will validate the xml file"""
@@ -1107,10 +1110,11 @@ class SlapTool(BaseTool):
         computer_partition_id)
     user = self.getPortalObject().portal_membership.getAuthenticatedMember()\
                                                    .getUserName()
-    self._logAccess(user, instance.getReference(),
+    status_changed = self._logAccess(user, instance.getReference(),
                     '#error while instanciating: %s' % error_log[-80:])
 
-    #return instance.reportComputerPartitionError()
+    if status_changed:
+      instance.reindexObject()
 
   @convertToREST
   def _softwareInstanceRename(self, new_name, computer_id,
@@ -1219,8 +1223,10 @@ class SlapTool(BaseTool):
         computer_partition_id)
     user = self.getPortalObject().portal_membership.getAuthenticatedMember()\
                                                    .getUserName()
-    self._logAccess(user, instance.getReference(),
+    status_changed = self._logAccess(user, instance.getReference(),
                     '#access Instance correctly started', "started")
+    if status_changed:
+      instance.reindexObject()
 
   @convertToREST
   def _stoppedComputerPartition(self, computer_id, computer_partition_id):
@@ -1232,8 +1238,10 @@ class SlapTool(BaseTool):
         computer_partition_id)
     user = self.getPortalObject().portal_membership.getAuthenticatedMember()\
                                                    .getUserName()
-    self._logAccess(user, instance.getReference(),
+    status_changed = self._logAccess(user, instance.getReference(),
                     '#access Instance correctly stopped', "stopped")
+    if status_changed:
+      instance.reindexObject()
 
   @convertToREST
   def _destroyedComputerPartition(self, computer_id, computer_partition_id):

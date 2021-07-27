@@ -954,9 +954,11 @@ stderr_logfile_backups=1
     except PromiseError as e:
       self.logger.error(e)
       if partition_access_status is None or not status_error:
+        local_partition._updateCertificate()
         computer_partition.error(e, logger=self.logger)
     else:
       if partition_access_status is None or status_error:
+        local_partition._updateCertificate()
         computer_partition.started()
 
   def processPromise(self, computer_partition):
@@ -1183,6 +1185,9 @@ stderr_logfile_backups=1
       self.logger.info('  Software URL: %s' % software_url)
       self.logger.info('  Software path: %s' % software_path)
       self.logger.info('  Instance path: %s' % instance_path)
+
+      # Update certifcate at late as possible
+      local_partition._updateCertificate()
 
       # XXX this line breaks 37 tests
       # self.logger.info('  Instance type: %s' % computer_partition.getType())
@@ -1788,6 +1793,7 @@ stderr_logfile_backups=1
             ipv4_global_network=self.ipv4_global_network,
           )
           local_partition.stop()
+          local_partition._updateCertificate()
           try:
             computer_partition.stopped()
           except (SystemExit, KeyboardInterrupt):

@@ -452,7 +452,6 @@ class Partition(object):
           self.partition_id + '.key')
       self.cert_file = os.path.join(certificate_repository_path,
           self.partition_id + '.crt')
-      self._updateCertificate()
 
     try:
       self.retention_delay = float(retention_delay)
@@ -485,6 +484,10 @@ class Partition(object):
                                       required=bytes2human(required)))
 
   def _updateCertificate(self):
+    if not self.key_file or not self.cert_file:
+      # Certificate files are unset, skip.
+      return
+
     try:
       partition_certificate = self.computer_partition.getCertificate()
     except NotFoundError:

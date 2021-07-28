@@ -40,14 +40,17 @@ import os
 import logging
 import re
 from functools import wraps
+import warnings
 
 import json
+import jsonschema
 import six
 
 from .exception import ResourceNotReady, ServerError, NotFoundError, \
           ConnectionError
 from .hateoas import SlapHateoasNavigator, ConnectionHelper
-from slapos.util import loads, dumps, bytes2str, unicode2str, xml2dict, dict2xml, calculate_dict_hash
+from slapos.util import loads, dumps, bytes2str, unicode2str, xml2dict, \
+          dict2xml, calculate_dict_hash, SoftwareReleaseSchema
 
 from xml.sax import saxutils
 from zope.interface import implementer
@@ -87,6 +90,27 @@ class SlapRequester(SlapDocument):
   """
 
   def _requestComputerPartition(self, request_dict):
+
+    try:
+      SoftwareReleaseSchema(
+          request_dict['software_release'],
+          request_dict['software_type']
+      ).validateInstanceParameterDict(
+          loads(request_dict['partition_parameter_xml']))
+    except jsonschema.ValidationError as e:
+      warnings.warn(
+        "Request parameters do not validate against schema definition:\n{e}".format(e=e),
+        UserWarning,
+      )
+    except Exception as e:
+      # note that we intentionally catch wide exceptions, so that if anything
+      # is wrong with fetching the schema or the schema itself this does not
+      # prevent users from requesting instances.
+      warnings.warn(
+        "Error validating request parameters against schema definition:\n{e.__class__.__name__} {e}".format(e=e),
+        UserWarning,
+      )
+
     try:
       xml = self._connection_helper.POST('requestComputerPartition', data=request_dict)
     except ResourceNotReady:

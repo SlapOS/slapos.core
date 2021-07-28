@@ -19,7 +19,13 @@ elif code is not None:
   if response_dict is not None:
     access_token = response_dict['access_token'].encode('utf-8')
     hash_str = context.Base_getHMAC(access_token, access_token)
-    context.REQUEST.RESPONSE.setCookie('__ac_google_hash', hash_str, path='/')
+    context.REQUEST.RESPONSE.setCookie(name='__ac_google_hash',
+                                       value=hash_str,
+                                       path='/',
+                                       secure=context.absolute_url().startswith('https:'),
+                                       http_only=True,
+                                       same_site=None
+                                       )
     # store timestamp in second since the epoch in UTC is enough
     response_dict["response_timestamp"] = time.time()
     context.Base_setBearerToken(hash_str,

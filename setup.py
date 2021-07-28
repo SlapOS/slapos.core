@@ -75,6 +75,7 @@ setup(name=name,
           'cachecontrol',
           'lockfile',
           'jsonschema',
+          'PyYAML',
           'uritemplate', # used by hateoas navigator
           'subprocess32; python_version<"3"',
           'ipaddress; python_version<"3"',  # used by whitelistfirewall

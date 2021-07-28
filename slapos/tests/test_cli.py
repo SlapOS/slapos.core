@@ -25,6 +25,7 @@
 #
 ##############################################################################
 
+import json
 import logging
 import pprint
 import unittest
@@ -40,6 +41,7 @@ from contextlib import contextmanager
 from mock import patch, create_autospec
 import mock
 from slapos.util import sqlite_connect, bytes2str
+from slapos.slap.slap import DEFAULT_SOFTWARE_TYPE
 
 import slapos.cli.console
 import slapos.cli.entry
@@ -690,6 +692,59 @@ class TestCliRequest(CliMixin):
         'instance reference',
         'software URL',
     )
+
+  def test_request_json_in_xml_published_parameters(self):
+    tmpdir = tempfile.mkdtemp()
+    self.addCleanup(shutil.rmtree, tmpdir)
+    with open(os.path.join(tmpdir, 'software.cfg.json'), 'w') as f:
+      json.dump(
+          {
+              "name": "Test Software",
+              "description": "Dummy software for Test",
+              "serialisation": "json-in-xml",
+              "software-type": {
+                  DEFAULT_SOFTWARE_TYPE: {
+                      "title": "Default",
+                      "description": "Default type",
+                      "request": "instance-default-input-schema.json",
+                      "response": "instance-default-output-schema.json",
+                      "index": 0
+                  },
+              }
+          }, f)
+
+    self.conf.reference = 'instance reference'
+    self.conf.software_url = os.path.join(tmpdir, 'software.cfg')
+    self.conf.parameters = {'key': 'value'}
+    self.conf.parameters_file = None
+    self.conf.node = {'computer_guid': 'COMP-1234'}
+    self.conf.type = None
+    self.conf.state = None
+    self.conf.slave = False
+
+    cp = slapos.slap.ComputerPartition(
+        'computer_%s' % self.id(),
+        'partition_%s' % self.id())
+    cp._requested_state = 'started'
+    cp._connection_dict = {'_': json.dumps({'foo': 'bar'})}
+
+    with patch.object(
+        slapos.slap.slap,
+        'registerOpenOrder',
+        return_value=mock.create_autospec(slapos.slap.OpenOrder)) as registerOpenOrder:
+      registerOpenOrder().request.return_value = cp
+      slapos.cli.request.do_request(self.logger, self.conf, self.local)
+
+    registerOpenOrder().request.assert_called_once()
+
+    self.assertEqual(self.logger.info.mock_calls, [
+        mock.call('Requesting %s as instance of %s...', self.conf.reference,
+                  self.conf.software_url),
+        mock.call('Instance requested.\nState is : %s.', 'started'),
+        mock.call('Connection parameters of instance are:'),
+        mock.call("{'foo': 'bar'}"),
+        mock.call('You can rerun the command to get up-to-date information.'),
+    ])
 
 
 class TestCliRequestParametersFileJson(CliMixin):

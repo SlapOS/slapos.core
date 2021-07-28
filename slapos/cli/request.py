@@ -163,7 +163,11 @@ def do_request(logger, conf, local):
         )
         logger.info('Instance requested.\nState is : %s.', partition.getState())
         logger.info('Connection parameters of instance are:')
-        logger.info(pprint.pformat(partition.getConnectionParameterDict()))
+        connection_parameter_dict = partition.getConnectionParameterDict()
+        if software_schema_serialisation == SoftwareReleaseSerialisation.JsonInXml:
+            if '_' in connection_parameter_dict:
+                connection_parameter_dict = json.loads(connection_parameter_dict['_'])
+        logger.info(pprint.pformat(connection_parameter_dict))
         logger.info('You can rerun the command to get up-to-date information.')
     except ResourceNotReady:
         logger.warning('Instance requested. Master is provisioning it. Please rerun in a '

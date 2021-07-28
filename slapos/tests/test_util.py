@@ -24,13 +24,24 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
+import functools
+import json
+import logging
 import os
-import slapos.util
-from slapos.util import string_to_boolean, unicode2str
-import tempfile
-import unittest
 import shutil
+import tempfile
+import textwrap
+import typing
+import unittest
 from pwd import getpwnam
+
+import jsonschema
+import slapos.util
+from slapos.slap.slap import DEFAULT_SOFTWARE_TYPE
+from slapos.testing.utils import ManagedHTTPServer, findFreeTCPPort
+from slapos.util import (SoftwareReleaseSchema, SoftwareReleaseSerialisation,
+                         string_to_boolean, unicode2str)
+
 
 class TestUtil(unittest.TestCase):
   """
@@ -230,6 +241,223 @@ class TestUtil(unittest.TestCase):
     class Nasty(object):
       pass
     self.assertRaises(Exception, slapos.util.dumps, Nasty())
+
+
+class SoftwareReleaseSchemaTestXmlSerialisationMixin:
+  serialisation = SoftwareReleaseSerialisation.Xml
+
+
+class SoftwareReleaseSchemaTestJsonInXmlSerialisationMixin:
+  serialisation = SoftwareReleaseSerialisation.JsonInXml
+
+
+class SoftwareReleaseSchemaTestMixin:
+  """Mixin with test methods
+  """
+  software_url = None # type: str
+  serialisation = None # type: SoftwareReleaseSerialisation
+
+
+  def test_software_schema(self):
+    schema = SoftwareReleaseSchema(self.software_url, None)
+    software_schema = schema.getSoftwareSchema()
+    self.assertEqual(software_schema['name'], 'Test Software')
+    self.assertEqual(len(software_schema['software-type']), 2)
+
+  def test_serialisation(self):
+    schema = SoftwareReleaseSchema(self.software_url, None)
+    self.assertEqual(schema.getSerialisation(), self.serialisation)
+
+  def test_instance_request_parameter_schema_default_software_type(self):
+    schema = SoftwareReleaseSchema(self.software_url, None)
+    self.assertTrue(schema.getInstanceRequestParameterSchemaURL())
+    instance_parameter_schema = schema.getInstanceRequestParameterSchema()
+    self.assertEqual(instance_parameter_schema['description'],
+                     "Simple instance parameters schema for tests")
+
+  def test_connection_parameter_schema(self):
+    schema = SoftwareReleaseSchema(self.software_url, None)
+    self.assertTrue(schema.getInstanceConnectionParameterSchemaURL())
+    instance_parameter_schema = schema.getInstanceConnectionParameterSchema()
+    self.assertEqual(instance_parameter_schema['description'],
+                     "Simple connection parameters schema for tests")
+
+  def test_instance_request_parameter_validate_default_software_type(self):
+    schema = SoftwareReleaseSchema(self.software_url, None)
+    self.assertTrue(schema.getInstanceRequestParameterSchemaURL())
+    instance_ok = {'key': 'value', 'type': 'default'}
+    schema.validateInstanceParameterDict(instance_ok)
+
+    if self.serialisation == SoftwareReleaseSerialisation.JsonInXml:
+      # already serialized values are also tolerated
+      schema.validateInstanceParameterDict({'_': json.dumps(instance_ok)})
+
+    with self.assertRaises(jsonschema.ValidationError):
+      schema.validateInstanceParameterDict({"wrong": True})
+    instance_ok['key'] = False # wrong type
+    with self.assertRaises(jsonschema.ValidationError):
+      schema.validateInstanceParameterDict(instance_ok)
+    with self.assertRaises(jsonschema.ValidationError):
+      schema.validateInstanceParameterDict({'_': json.dumps(instance_ok)})
+
+  def test_instance_request_parameter_validate_alternate_software_type(self):
+    schema = SoftwareReleaseSchema(self.software_url, 'alternate')
+    self.assertTrue(schema.getInstanceRequestParameterSchemaURL())
+    instance_ok = {'key': 'value', 'type': 'alternate'}
+    schema.validateInstanceParameterDict(instance_ok)
+
+    if self.serialisation == SoftwareReleaseSerialisation.JsonInXml:
+      # already serialized values are also tolerated
+      schema.validateInstanceParameterDict({'_': json.dumps(instance_ok)})
+
+    with self.assertRaises(jsonschema.ValidationError):
+      schema.validateInstanceParameterDict({"wrong": True})
+    instance_ok['type'] = 'wrong'
+    with self.assertRaises(jsonschema.ValidationError):
+      schema.validateInstanceParameterDict(instance_ok)
+    with self.assertRaises(jsonschema.ValidationError):
+      schema.validateInstanceParameterDict({'_': json.dumps(instance_ok)})
+
+  def test_instance_request_parameter_schema_alternate_software_type(self):
+    schema = SoftwareReleaseSchema(self.software_url, 'alternate')
+    self.assertTrue(schema.getInstanceRequestParameterSchemaURL())
+    instance_parameter_schema = schema.getInstanceRequestParameterSchema()
+    self.assertEqual(instance_parameter_schema['description'],
+                     "Simple instance parameters schema for tests")
+
+
+class SoftwareReleaseSchemaTestFileSoftwareReleaseMixin(SoftwareReleaseSchemaTestMixin):
+  """Mixin with tests and software release profiles and schema in a
+  temporary directory.
+  """
+  def setUp(self):
+    self.tmpdir = tempfile.mkdtemp()
+    self.addCleanup(shutil.rmtree, self.tmpdir)
+    tmpfile = functools.partial(os.path.join, self.tmpdir)
+    with open(tmpfile('software.cfg'), 'w') as f:
+      f.write(
+        textwrap.dedent("""\
+          [buildout]
+          """))
+    with open(tmpfile('software.cfg.json'), 'w') as f:
+      json.dump(
+          {
+              "name": "Test Software",
+              "description": "Dummy software for Test",
+              "serialisation": self.serialisation,
+              "software-type": {
+                  DEFAULT_SOFTWARE_TYPE: {
+                      "title": "Default",
+                      "description": "Default type",
+                      "request": "instance-default-input-schema.json",
+                      "response": "instance-default-output-schema.json",
+                      "index": 0
+                  },
+                  "alternate": {
+                      "title": "Alternate",
+                      "description": "Alternate type",
+                      "request": "instance-alternate-input-schema.json",
+                      "response": "instance-alternate-output-schema.json",
+                      "index": 0
+                  },
+              }
+          }, f)
+
+    for software_type in ('default', 'alternate'):
+      with open(
+          tmpfile('instance-{software_type}-input-schema.json'.format(
+              software_type=software_type)), 'w') as f:
+        json.dump(
+            {
+                "$schema": "http://json-schema.org/draft-07/schema",
+                "description": "Simple instance parameters schema for tests",
+                "required": ["key", "type"],
+                "properties": {
+                    "key": {
+                        "$ref": "./schemas-definitions.json#/key"
+                    },
+                    "type": {
+                        "type": "string",
+                        "const": software_type
+                    }
+                },
+                "type": "object"
+            }, f)
+      with open(
+          tmpfile('instance-{software_type}-output-schema.json'.format(
+              software_type=software_type)), 'w') as f:
+        json.dump(
+            {
+                "$schema": "http://json-schema.org/draft-07/schema",
+                "description": "Simple connection parameters schema for tests",
+            }, f)
+
+    with open(tmpfile('schemas-definitions.json'), 'w') as f:
+      json.dump({"key": {"type": "string"}}, f)
+
+    self.software_url = tmpfile('software.cfg')
+
+
+class SoftwareReleaseSchemaTestHTTPSoftwareReleaseMixin(SoftwareReleaseSchemaTestFileSoftwareReleaseMixin):
+  """Mixin serving software release files over http.
+  """
+  def setUp(self):
+    super(SoftwareReleaseSchemaTestHTTPSoftwareReleaseMixin, self).setUp()
+
+    class ProfileHTTPServer(ManagedHTTPServer):
+      hostname = os.environ['SLAPOS_TEST_IPV4']
+      working_directory = self.tmpdir
+      RequestHandler = SimpleHTTPServer.SimpleHTTPRequestHandler
+
+    self.logger = logging.getLogger(self.id())
+    self.logger.propagate = False
+
+    server = ProfileHTTPServer(self, 'server')
+    server.open()
+    self.addCleanup(server.close)
+
+    self.software_url = server.url + '/software.cfg'
+
+
+class TestSoftwareReleaseSchemaFileSoftwareReleaseXmlSerialisation(
+    SoftwareReleaseSchemaTestXmlSerialisationMixin,
+    SoftwareReleaseSchemaTestFileSoftwareReleaseMixin,
+    unittest.TestCase):
+  pass
+
+
+class TestSoftwareReleaseSchemaFileSoftwareReleaseJsonInXmlSerialisation(
+    SoftwareReleaseSchemaTestJsonInXmlSerialisationMixin,
+    SoftwareReleaseSchemaTestFileSoftwareReleaseMixin,
+    unittest.TestCase):
+  pass
+
+
+class TestSoftwareReleaseSchemaHTTPSoftwareReleaseXmlSerialisation(
+    SoftwareReleaseSchemaTestXmlSerialisationMixin,
+    SoftwareReleaseSchemaTestHTTPSoftwareReleaseMixin,
+    unittest.TestCase):
+  pass
+
+
+class TestSoftwareReleaseSchemaHTTPSoftwareReleaseJsonInXmlSerialisation(
+    SoftwareReleaseSchemaTestJsonInXmlSerialisationMixin,
+    SoftwareReleaseSchemaTestHTTPSoftwareReleaseMixin,
+    unittest.TestCase):
+  pass
+
+
+
+class TestSoftwareReleaseSchemaEdgeCases(unittest.TestCase):
+
+  def test_software_schema_file_not_exist(self):
+    schema = SoftwareReleaseSchema('/file/not/exist', None)
+    self.assertIsNone(schema.getSoftwareSchema())
+
+  def test_software_schema_wrong_URL(self):
+    schema = SoftwareReleaseSchema('http://slapos.invalid/software.cfg', None)
+    self.assertIsNone(schema.getSoftwareSchema())
+
 
 
 if __name__ == '__main__':

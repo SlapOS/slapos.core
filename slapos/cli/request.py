@@ -33,6 +33,7 @@ import os.path
 import pprint
 
 import lxml.etree
+import yaml
 
 from slapos.cli.config import ClientConfigCommand
 from slapos.client import (ClientConfig, _getSoftwareReleaseFromSoftwareString,
@@ -49,7 +50,9 @@ except ImportError:
 def getParametersFromFile(file, serialisation):
     # type: (IO[str], SoftwareReleaseSerialisation) -> Dict
     extension = os.path.splitext(file.name)[1]
-    if extension == '.xml':
+    if extension in ('.yaml', '.yml'):
+        params = yaml.safe_load(file)
+    elif extension == '.xml':
         tree = lxml.etree.parse(file)
         params = {e.attrib['id']: e.text for e in tree.findall('/parameter')}
         # because the use case of xml files is to copy paste existing XML parameters

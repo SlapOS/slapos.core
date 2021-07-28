@@ -785,6 +785,20 @@ class TestCliRequestParametersFileJsonJsonInXMLSerialisationAlreadySerialised(
           self).test_request_parameters_file()
 
 
+class TestCliRequestParametersFileYaml(TestCliRequestParametersFileJson):
+  """Request with --parameter-file, with a .yaml file. This behaves like json.
+  """
+  def _makeParameterFile(self):
+    f = tempfile.NamedTemporaryFile(suffix='.yaml', mode='w', delete=False)
+    self.addCleanup(os.unlink, f.name)
+    f.write(textwrap.dedent('''\
+      foo:
+      - bar
+    '''))
+    f.flush()
+    return f.name
+
+
 class TestCliRequestParametersFileXml(TestCliRequestParametersFileJson):
   """Request with --parameter-file, with a .xml file
   """

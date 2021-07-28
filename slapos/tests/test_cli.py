@@ -740,6 +740,18 @@ class TestCliRequestParametersFileJson(CliMixin):
     )
 
 
+class TestCliRequestParametersFileYaml(TestCliRequestParametersFileJson):
+  def _makeParameterFile(self):
+    f = tempfile.NamedTemporaryFile(suffix='.yaml', mode='w', delete=False)
+    f.write(textwrap.dedent('''\
+      foo:
+      - bar
+    '''))
+    f.flush()
+    self.addCleanup(os.unlink, f.name)
+    return f.name
+
+
 class TestCliRequestParametersFileXml(TestCliRequestParametersFileJson):
   expected_partition_parameter_kw = {'foo': 'bar'}
   def _makeParameterFile(self):

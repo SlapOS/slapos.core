@@ -66,12 +66,6 @@ download-binary-dir-url = http://shadir.nxdcdn.com
 #shadir-cert-file = /etc/opt/slapos/shacache/shacache.cert
 #shadir-key-file = /etc/opt/slapos/shacache/shacache.key
 
-[collect]
-enable = True 
-time_cycle = 86400
-pid_folder = /srv/slapgrid/var/run
-use_quota = False
-
 # List of signatures of uploaders we trust:
 #   Sebastien Robin
 #   Kazuhiko Shiozaki
@@ -173,3 +167,10 @@ upload-to-binary-cache-url-blacklist =
 #download-from-binary-cache-force-url-list =
 #  https://lab.nexedi.com/nexedi/slapos/raw/1.0.
 #  https://lab.node.vifib.com/nexedi/slapos/raw/1.0.
+
+[collect]
+enable = True 
+time_cycle = 86400
+pid_folder = /srv/slapgrid/var/run
+use_quota = False
+

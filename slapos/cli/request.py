@@ -27,15 +27,45 @@
 #
 ##############################################################################
 
+import argparse
+import json
+import os.path
 import pprint
 
-from slapos.cli.config import ClientConfigCommand
-from slapos.client import init, ClientConfig, _getSoftwareReleaseFromSoftwareString
-from slapos.slap import ResourceNotReady
+import lxml.etree
 
+from slapos.cli.config import ClientConfigCommand
+from slapos.client import (ClientConfig, _getSoftwareReleaseFromSoftwareString,
+                           init)
+from slapos.slap import ResourceNotReady
+from slapos.util import SoftwareReleaseSchema, SoftwareReleaseSerialisation
+
+try:
+    from typing import IO, Dict
+except ImportError:
+    pass
+
+
+def getParametersFromFile(file, serialisation):
+    # type: (IO[str], SoftwareReleaseSerialisation) -> Dict
+    extension = os.path.splitext(file.name)[1]
+    if extension == '.xml':
+        tree = lxml.etree.parse(file)
+        params = {e.attrib['id']: e.text for e in tree.findall('/parameter')}
+        # because the use case of xml files is to copy paste existing XML parameters
+        # as found on slapos web interface, we don't be clever regarding the
+        # serialisation and assume they are already correct.
+        serialisation = None
+    else:
+        params = json.load(file)
+
+    if serialisation == SoftwareReleaseSerialisation.JsonInXml:
+        params = {'_': json.dumps(params)}
+    return params
 
 
 def parse_option_dict(options):
+    # type: (str) -> Dict
     """
     Parse a list of option strings like foo=bar baz=qux and return a dictionary.
     Will raise if keys are repeated.
@@ -80,8 +110,12 @@ class RequestCommand(ClientConfigCommand):
 
         ap.add_argument('--parameters',
                         nargs='+',
-                        help="Give your configuration 'option1=value1 option2=value2'")
+                        help="Instance parameters, in the form 'option1=value1 option2=value2'.")
 
+        ap.add_argument('--parameters-file',
+                        type=argparse.FileType('r'),
+                        help="Instance parameters, in a file.\n"
+                        "The file will be interpreted as json, yaml or xml depending on the file extension.")
         return ap
 
     def take_action(self, args):
@@ -104,11 +138,17 @@ def do_request(logger, conf, local):
 
     if conf.software_url in local:
         conf.software_url = local[conf.software_url]
+
+    software_schema = SoftwareReleaseSchema(conf.software_url, conf.type)
+    software_schema_serialisation = software_schema.getSerialisation()
+    parameters = conf.parameters
+    if conf.parameters_file:
+        parameters = getParametersFromFile(conf.parameters_file, software_schema_serialisation)
     try:
         partition = local['slap'].registerOpenOrder().request(
             software_release=conf.software_url,
             partition_reference=conf.reference,
-            partition_parameter_kw=conf.parameters,
+            partition_parameter_kw=parameters,
             software_type=conf.type,
             filter_kw=conf.node,
             state=conf.state,

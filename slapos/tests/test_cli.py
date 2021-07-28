@@ -690,3 +690,113 @@ class TestCliRequest(CliMixin):
         'instance reference',
         'software URL',
     )
+
+
+class TestCliRequestParametersFileJson(CliMixin):
+  """Request with --parameter-file, with a .json file.
+  """
+  expected_partition_parameter_kw = {'foo': ['bar']}
+
+  def _makeParameterFile(self):
+    f = tempfile.NamedTemporaryFile(suffix='.json', mode='w', delete=False)
+    self.addCleanup(os.unlink, f.name)
+    f.write(textwrap.dedent('''\
+    {
+      "foo": ["bar"]
+    }
+    '''))
+    f.flush()
+    return f.name
+
+  def test_request_parameters_file(self):
+    self.conf.reference = 'instance reference'
+    self.conf.software_url = 'software URL'
+    self.conf.parameters =  None
+    f = open(self._makeParameterFile())
+    self.addCleanup(f.close)
+    self.conf.parameters_file = f
+    self.conf.node = {'computer_guid': 'COMP-1234'}
+    self.conf.type = None
+    self.conf.state = None
+    self.conf.slave = False
+
+    with patch.object(
+        slapos.slap.slap,
+        'registerOpenOrder',
+        return_value=mock.create_autospec(slapos.slap.OpenOrder)) as registerOpenOrder:
+      slapos.cli.request.do_request(self.logger, self.conf, self.local)
+
+    registerOpenOrder().request.assert_called_once_with(
+        software_release='software URL',
+        partition_reference='instance reference',
+        partition_parameter_kw=self.expected_partition_parameter_kw,
+        software_type=None,
+        filter_kw={'computer_guid': 'COMP-1234'},
+        state=None,
+        shared=False,
+    )
+    self.logger.info.assert_any_call(
+        'Requesting %s as instance of %s...',
+        'instance reference',
+        'software URL',
+    )
+
+
+class TestCliRequestParametersFileJsonJsonInXMLSerialisation(
+    TestCliRequestParametersFileJson):
+  """Request with --parameter-file, with a .json file and a software using
+  json-in-xml for serialisation. In that case, the parameters are automatically
+  serialised with {'_': json.dumps(params)}
+  """
+  expected_partition_parameter_kw = {"_": "{\"foo\": [\"bar\"]}"}
+
+  def test_request_parameters_file(self):
+    with mock.patch(
+        'slapos.cli.request.SoftwareReleaseSchema.getSerialisation',
+        return_value='json-in-xml'):
+      super(TestCliRequestParametersFileJsonJsonInXMLSerialisation,
+            self).test_request_parameters_file()
+
+
+class TestCliRequestParametersFileJsonJsonInXMLSerialisationAlreadySerialised(
+    TestCliRequestParametersFileJson):
+  """Request with --parameter-file, with a .json file and a software using
+  json-in-xml for serialisation and parameters already serialised with
+  {'_': json.dumps(params)}. In that case, parameters are not serialized one
+  more time.
+  """
+  expected_partition_parameter_kw = {"_": "{\"foo\": [\"bar\"]}"}
+
+  def _makeParameterFile(self):
+    f = tempfile.NamedTemporaryFile(suffix='.json', mode='w', delete=False)
+    self.addCleanup(os.unlink, f.name)
+    f.write(textwrap.dedent(r'''
+      {"_": "{\"foo\": [\"bar\"]}"}
+    '''))
+    f.flush()
+    return f.name
+
+  def test_request_parameters_file(self):
+    with mock.patch(
+        'slapos.cli.request.SoftwareReleaseSchema.getSerialisation',
+        return_value='json-in-xml'):
+      super(
+          TestCliRequestParametersFileJsonJsonInXMLSerialisationAlreadySerialised,
+          self).test_request_parameters_file()
+
+
+class TestCliRequestParametersFileXml(TestCliRequestParametersFileJson):
+  """Request with --parameter-file, with a .xml file
+  """
+  expected_partition_parameter_kw = {'foo': 'bar'}
+  def _makeParameterFile(self):
+    f = tempfile.NamedTemporaryFile(suffix='.xml', mode='w', delete=False)
+    f.write(textwrap.dedent('''\
+      <?xml version="1.0" encoding="utf-8"?>
+      <instance>
+          <parameter id="foo">bar</parameter>
+      </instance>
+    '''))
+    f.flush()
+    self.addCleanup(os.unlink, f.name)
+    return f.name

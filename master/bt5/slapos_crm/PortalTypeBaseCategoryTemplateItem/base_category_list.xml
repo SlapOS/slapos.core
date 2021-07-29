@@ -3,16 +3,16 @@
   <item>monitor_scope</item>
   <item>upgrade_scope</item>
  </portal_type>
- <portal_type id="Instance Tree">
-  <item>monitor_scope</item>
-  <item>upgrade_scope</item>
- </portal_type>
  <portal_type id="Incident Response">
   <item>aggregate</item>
   <item>specialise</item>
  </portal_type>
  <portal_type id="Incident Response Module">
   <item>business_application</item>
+ </portal_type>
+ <portal_type id="Instance Tree">
+  <item>monitor_scope</item>
+  <item>upgrade_scope</item>
  </portal_type>
  <portal_type id="Regularisation Request">
   <item>specialise</item>

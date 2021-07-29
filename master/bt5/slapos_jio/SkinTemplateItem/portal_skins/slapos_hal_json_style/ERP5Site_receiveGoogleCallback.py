@@ -20,7 +20,7 @@ elif code is not None:
     access_token = response_dict['access_token'].encode('utf-8')
     hash_str = context.Base_getHMAC(access_token, access_token)
     response = context.REQUEST.RESPONSE
-    context.setAuthCookie(response, name='__ac_google_hash', value=hash_str)
+    context.setAuthCookie(response, '__ac_google_hash', hash_str)
     # store timestamp in second since the epoch in UTC is enough
     response_dict["response_timestamp"] = time.time()
     context.Base_setBearerToken(hash_str,

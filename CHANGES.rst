@@ -5,6 +5,11 @@ Changes
 -------------------
 
  * slapos.cfg.example: Fix bug introduced in 1.6.14
+ * slapgrid: Update certificates as late as possible
+ * slap/standalone: don't use --all in waitForSoftware / waitForInstance
+ * slapos_*: rename Hosting Subscription to Instance Tree
+ * testing/check_software: many improvements
+ * collect: fix test
 
 1.6.14 (2021-06-21)
 -------------------

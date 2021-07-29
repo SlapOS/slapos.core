@@ -1,0 +1,1 @@
+return context.ERP5Workflow_reindexComputerPartition(sci)

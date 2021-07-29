@@ -15,7 +15,9 @@ elif code is not None:
     access_token = response_dict['access_token'].encode('utf-8')
     hash_str = context.Base_getHMAC(access_token, access_token)
 
-    context.REQUEST.RESPONSE.setCookie('__ac_facebook_hash', hash_str, path='/')
+    response = context.REQUEST.RESPONSE
+    context.setAuthCookie(response, '__ac_facebook_hash', hash_str)
+
     # store timestamp in second since the epoch in UTC is enough
     response_dict["response_timestamp"] = time.time()
 
@@ -37,7 +39,7 @@ elif code is not None:
     person_relative_url = context.ERP5Site_getPersonFromFacebookLogin(user_reference)
 
     came_from = portal.absolute_url() + "/#!login?n.me=%s" % (person_relative_url)
-    context.REQUEST.RESPONSE.setHeader('Location', came_from)
-    context.REQUEST.RESPONSE.setStatus(303)
+    response.setHeader('Location', came_from)
+    response.setStatus(303)
 else:
   return handleError('')

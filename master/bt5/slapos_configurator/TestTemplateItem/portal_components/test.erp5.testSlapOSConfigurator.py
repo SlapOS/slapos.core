@@ -352,6 +352,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'erp5_slapos_tutorial_data',	
       'erp5_slideshow_style',
       'erp5_authentication_policy',
+      'slapos_mysql_innodb_catalog',
       'slapos_cloud',
       'slapos_slap_tool',
       'slapos_category',

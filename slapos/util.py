@@ -332,7 +332,7 @@ def _readAsJson(url):
       r = requests.get(url)
       r.raise_for_status()
       return r.json()
-    except (requests.exceptions.HTTPError, ValueError):
+    except (requests.exceptions.RequestException, ValueError):
       return None
   return None
 
@@ -442,7 +442,12 @@ class SoftwareReleaseSchema(object):
     """
     schema_url = self.getInstanceRequestParameterSchemaURL()
     if schema_url:
-      instance = parameter_dict if self.getSerialisation() == SoftwareReleaseSerialisation.Xml else json.loads(parameter_dict['_'])
+      instance = parameter_dict
+      if self.getSerialisation() == SoftwareReleaseSerialisation.JsonInXml:
+        try:
+          instance = json.loads(parameter_dict['_'])
+        except KeyError:
+          instance = parameter_dict
       instance.pop('$schema', None)
       jsonschema.validate(
           instance=instance,

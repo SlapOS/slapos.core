@@ -1,7 +1,7 @@
 Changes
 =======
 
-1.6.15 (2021-06-29)
+1.6.16 (2021-07-30)
 -------------------
 
  * slapos.cfg.example: Fix bug introduced in 1.6.14

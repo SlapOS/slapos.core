@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.6.17 (2021-08-02)
+-------------------
+
+ * Fix a problem introduced in 1.6.16 ( core: Update certificates as late as possible )
+
 1.6.16 (2021-07-30)
 -------------------
 
@@ -10,6 +15,8 @@ Changes
  * slapos_*: rename Hosting Subscription to Instance Tree
  * testing/check_software: many improvements
  * collect: fix test
+ * core: Update certificates as late as possible
+
 
 1.6.14 (2021-06-21)
 -------------------

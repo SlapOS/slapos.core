@@ -107,6 +107,10 @@ def checkSoftware(slap, software_url):
       '*/*__compile__/*',
       # build dir for packages built in-place
       '*/parts/wendelin.core/build/*',
+      # the depot_tools package used to build Chromium installs some
+      # Python libraries lacking an rpath; these are not actually used
+      # by Chromium itself
+      '*/.vpython-root/*',
   ))
 
   software_hash = md5digest(software_url)

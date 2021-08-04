@@ -1,0 +1,61 @@
+Accounting Transaction Line | -delivery_movement_simulation_interaction_workflow
+Accounting Transaction | -delivery_simulation_interaction_workflow
+Amortisation Transaction Line | -delivery_movement_simulation_interaction_workflow
+Amortisation Transaction | -delivery_simulation_interaction_workflow
+Container Cell | -container_interaction_workflow
+Container Line | -container_interaction_workflow
+Delivery Cell | -delivery_movement_simulation_interaction_workflow
+Internal Order Cell | -delivery_movement_simulation_interaction_workflow
+Internal Order Line | -delivery_movement_simulation_interaction_workflow
+Internal Order | -delivery_simulation_interaction_workflow
+Internal Packing List Cell | -delivery_movement_simulation_interaction_workflow
+Internal Packing List Line | -delivery_movement_simulation_interaction_workflow
+Internal Packing List | -delivery_simulation_interaction_workflow
+Invoice Cell | -delivery_movement_simulation_interaction_workflow
+Invoice Line | -delivery_movement_simulation_interaction_workflow
+Open Internal Order Cell | -open_order_path_simulation_interaction_workflow
+Open Internal Order Line | -open_order_path_simulation_interaction_workflow
+Open Internal Order | -open_order_simulation_interaction_workflow
+Open Purchase Order Cell | -open_order_path_simulation_interaction_workflow
+Open Purchase Order Line | -open_order_path_simulation_interaction_workflow
+Open Purchase Order | -open_order_simulation_interaction_workflow
+Open Sale Order Cell | -open_order_path_simulation_interaction_workflow
+Open Sale Order Line | -open_order_path_simulation_interaction_workflow
+Open Sale Order | -open_order_simulation_interaction_workflow
+Payment Transaction | -delivery_simulation_interaction_workflow
+Purchase Invoice Transaction Line | -delivery_movement_simulation_interaction_workflow
+Purchase Invoice Transaction | -delivery_simulation_interaction_workflow
+Purchase Order Cell | -delivery_movement_simulation_interaction_workflow
+Purchase Order Line | -delivery_movement_simulation_interaction_workflow
+Purchase Order | -delivery_simulation_interaction_workflow
+Purchase Packing List Cell | -delivery_movement_simulation_interaction_workflow
+Purchase Packing List Line | -delivery_movement_simulation_interaction_workflow
+Purchase Packing List | -delivery_simulation_interaction_workflow
+Returned Purchase Order Cell | -delivery_movement_simulation_interaction_workflow
+Returned Purchase Order Line | -delivery_movement_simulation_interaction_workflow
+Returned Purchase Order | -delivery_simulation_interaction_workflow
+Returned Purchase Packing List Cell | -delivery_movement_simulation_interaction_workflow
+Returned Purchase Packing List Line | -delivery_movement_simulation_interaction_workflow
+Returned Purchase Packing List | -delivery_simulation_interaction_workflow
+Returned Sale Order Cell | -delivery_movement_simulation_interaction_workflow
+Returned Sale Order Line | -delivery_movement_simulation_interaction_workflow
+Returned Sale Order | -delivery_simulation_interaction_workflow
+Returned Sale Packing List Cell | -delivery_movement_simulation_interaction_workflow
+Returned Sale Packing List Line | -delivery_movement_simulation_interaction_workflow
+Returned Sale Packing List | -delivery_simulation_interaction_workflow
+Sale Invoice Transaction Line | -delivery_movement_simulation_interaction_workflow
+Sale Invoice Transaction | -delivery_simulation_interaction_workflow
+Sale Order Cell | -delivery_movement_simulation_interaction_workflow
+Sale Order Line | -delivery_movement_simulation_interaction_workflow
+Sale Order | -delivery_simulation_interaction_workflow
+Sale Packing List Cell | -container_interaction_workflow
+Sale Packing List Cell | -delivery_movement_simulation_interaction_workflow
+Sale Packing List Line | -container_interaction_workflow
+Sale Packing List Line | -delivery_movement_simulation_interaction_workflow
+Sale Packing List | -delivery_simulation_interaction_workflow
+Task Line | -delivery_movement_simulation_interaction_workflow
+Task Report Line | -delivery_movement_simulation_interaction_workflow
+Task Report | -delivery_simulation_interaction_workflow
+Task | -delivery_simulation_interaction_workflow
+Trade Model Line | -trade_model_line_interaction_workflow
+Transformation | -transformation_interaction_workflow

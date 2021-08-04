@@ -1,0 +1,238 @@
+<workflow_chain>
+ <chain>
+  <type>Accounting Transaction</type>
+  <workflow>-delivery_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Accounting Transaction Line</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Amortisation Transaction</type>
+  <workflow>-delivery_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Amortisation Transaction Line</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Container Cell</type>
+  <workflow>-container_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Container Line</type>
+  <workflow>-container_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Delivery Cell</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Internal Order</type>
+  <workflow>-delivery_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Internal Order Cell</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Internal Order Line</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Internal Packing List</type>
+  <workflow>-delivery_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Internal Packing List Cell</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Internal Packing List Line</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Invoice Cell</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Invoice Line</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Open Internal Order</type>
+  <workflow>-open_order_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Open Internal Order Cell</type>
+  <workflow>-open_order_path_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Open Internal Order Line</type>
+  <workflow>-open_order_path_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Open Purchase Order</type>
+  <workflow>-open_order_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Open Purchase Order Cell</type>
+  <workflow>-open_order_path_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Open Purchase Order Line</type>
+  <workflow>-open_order_path_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Open Sale Order</type>
+  <workflow>-open_order_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Open Sale Order Cell</type>
+  <workflow>-open_order_path_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Open Sale Order Line</type>
+  <workflow>-open_order_path_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Payment Transaction</type>
+  <workflow>-delivery_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Purchase Invoice Transaction</type>
+  <workflow>-delivery_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Purchase Invoice Transaction Line</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Purchase Order</type>
+  <workflow>-delivery_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Purchase Order Cell</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Purchase Order Line</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Purchase Packing List</type>
+  <workflow>-delivery_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Purchase Packing List Cell</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Purchase Packing List Line</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Returned Purchase Order</type>
+  <workflow>-delivery_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Returned Purchase Order Cell</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Returned Purchase Order Line</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Returned Purchase Packing List</type>
+  <workflow>-delivery_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Returned Purchase Packing List Cell</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Returned Purchase Packing List Line</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Returned Sale Order</type>
+  <workflow>-delivery_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Returned Sale Order Cell</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Returned Sale Order Line</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Returned Sale Packing List</type>
+  <workflow>-delivery_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Returned Sale Packing List Cell</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Returned Sale Packing List Line</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Sale Invoice Transaction</type>
+  <workflow>-delivery_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Sale Invoice Transaction Line</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Sale Order</type>
+  <workflow>-delivery_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Sale Order Cell</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Sale Order Line</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Sale Packing List</type>
+  <workflow>-delivery_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Sale Packing List Cell</type>
+  <workflow>-container_interaction_workflow, -delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Sale Packing List Line</type>
+  <workflow>-container_interaction_workflow, -delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Task</type>
+  <workflow>-delivery_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Task Line</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Task Report</type>
+  <workflow>-delivery_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Task Report Line</type>
+  <workflow>-delivery_movement_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Trade Model Line</type>
+  <workflow>-trade_model_line_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Transformation</type>
+  <workflow>-transformation_interaction_workflow</workflow>
+ </chain>
+</workflow_chain>

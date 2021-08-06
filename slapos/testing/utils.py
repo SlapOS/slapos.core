@@ -113,8 +113,10 @@ class ManagedHTTPServer(ManagedResource):
   proto = 'http'
   # hostname to listen to, default to ipv4 address of the current test
   hostname = None # type: str
-  # port to listen to, default
+  # port to listen to, default to a free port selected with `findFreeTCPPort`
   port = None # type: int
+  # current working directory of the server process
+  working_directory = None # type: str
 
   @property
   def url(self):
@@ -160,10 +162,19 @@ class ManagedHTTPServer(ManagedResource):
     if not self.port:
       self.port = findFreeTCPPort(self.hostname)
 
+    def serve_forever(server, cwd):
+      if cwd:
+        os.chdir(cwd)
+      server.serve_forever()
+
     server = self._makeServer()
     self._process = multiprocessing.Process(
-        target=server.serve_forever,
+        target=serve_forever,
         name=self._name,
+        kwargs={
+            'server': server,
+            'cwd': self.working_directory,
+        }
     )
     self._process.start()
 

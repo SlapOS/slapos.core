@@ -54,6 +54,7 @@ class TestSlaposSkinSelectionMixin(SlapOSTestCaseMixin):
 """
 custom
 erp5_font
+erp5_interaction_drop
 erp5_web_hal_json
 slapos_ecoallocation
 slapos_erp5
@@ -163,6 +164,7 @@ slapos_disaster_recovery
 """
 custom
 erp5_font
+erp5_interaction_drop
 erp5_web_hal_json
 slapos_ecoallocation
 slapos_erp5
@@ -271,6 +273,7 @@ slapos_disaster_recovery
 """
 custom
 erp5_font
+erp5_interaction_drop
 slapos_deploy_theme
 erp5_web_hal_json
 erp5_web_renderjs_ui
@@ -380,6 +383,7 @@ slapos_disaster_recovery
 """
 custom
 erp5_font
+erp5_interaction_drop
 erp5_web_hal_json
 slapos_ecoallocation
 slapos_erp5
@@ -491,6 +495,7 @@ slapos_disaster_recovery
 """
 custom
 erp5_font
+erp5_interaction_drop
 erp5_web_hal_json
 slapos_ecoallocation
 slapos_erp5
@@ -602,6 +607,7 @@ slapos_disaster_recovery
 """
 custom
 erp5_font
+erp5_interaction_drop
 erp5_web_hal_json
 slapos_ecoallocation
 slapos_erp5
@@ -710,6 +716,7 @@ slapos_disaster_recovery
 """
 custom
 erp5_font
+erp5_interaction_drop
 erp5_web_hal_json
 slapos_ecoallocation
 slapos_erp5
@@ -819,6 +826,7 @@ slapos_disaster_recovery
 """
 custom
 erp5_font
+erp5_interaction_drop
 erp5_web_hal_json
 slapos_ecoallocation
 slapos_erp5
@@ -927,6 +935,7 @@ slapos_disaster_recovery
 """
 custom
 erp5_font
+erp5_interaction_drop
 erp5_web_hal_json
 slapos_ecoallocation
 slapos_erp5
@@ -1035,6 +1044,7 @@ slapos_disaster_recovery
 """
 custom
 erp5_font
+erp5_interaction_drop
 erp5_web_hal_json
 slapos_ecoallocation
 slapos_erp5
@@ -1144,6 +1154,7 @@ slapos_disaster_recovery
 """
 custom
 erp5_font
+erp5_interaction_drop
 erp5_web_hal_json
 slapos_ecoallocation
 slapos_erp5
@@ -1254,6 +1265,7 @@ slapos_disaster_recovery
 """
 custom
 erp5_font
+erp5_interaction_drop
 erp5_web_hal_json
 slapos_ecoallocation
 slapos_erp5
@@ -1364,6 +1376,7 @@ slapos_disaster_recovery
 """
 custom
 erp5_font
+erp5_interaction_drop
 slapos_hal_json_style
 erp5_web_hal_json
 erp5_web_renderjs_ui
@@ -1474,6 +1487,7 @@ slapos_disaster_recovery
 custom
 erp5_font
 slapos_hal_json_restricted_compatibility_style
+erp5_interaction_drop
 erp5_hal_json_restricted_style
 erp5_hal_json_style
 erp5_web_hal_json

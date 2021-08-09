@@ -158,20 +158,17 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
   def testInteractionDropped(self):
     """ Make sure that no portal type uses interaction workflow for simulation """
     for pt in self.portal.portal_types.objectValues():
-      self.assertNotIn("delivery_movement_simulation_interaction_workflow",
-              pt.getTypeWorkflowList())
-      self.assertNotIn("delivery_simulation_interaction_workflow",
-              pt.getTypeWorkflowList())
-      self.assertNotIn("open_order_simulation_interaction_workflow",
-              pt.getTypeWorkflowList())
-      self.assertNotIn("open_order_path_simulation_interaction_workflow",
-              pt.getTypeWorkflowList())
-      self.assertNotIn("container_interaction_workflow",
-              pt.getTypeWorkflowList())
-      self.assertNotIn("transformation_interaction_workflow",
-              pt.getTypeWorkflowList())
-      self.assertNotIn("trade_model_line_interaction_workflow",
-              pt.getTypeWorkflowList())
+      for dropped_workflow in ["delivery_movement_simulation_interaction_workflow",
+            "delivery_simulation_interaction_workflow",
+            "open_order_simulation_interaction_workflow",
+            "open_order_path_simulation_interaction_workflow",
+            "container_interaction_workflow",
+            "transformation_interaction_workflow",
+            "trade_model_line_interaction_workflow"]:
+        self.assertNotIn(dropped_workflow,
+              pt.getTypeWorkflowList(),
+              "Workflow %s still present on %s Portal Type" % \
+                      (dropped_workflow, pt, pt.getTypeWorkflowList()))
 
   def testModuleHasIdGeneratorByDay(self):
     """ Ensure the Constraint sets appropriate id generator on all modules.

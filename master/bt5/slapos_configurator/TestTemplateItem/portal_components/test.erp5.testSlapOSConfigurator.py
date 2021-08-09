@@ -155,6 +155,21 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
     """ Make sure portal_alarms is subscribed. """
     self.assertTrue(self.portal.portal_alarms.isSubscribed())
 
+  def testInteractionDropped(self):
+    """ Make sure that no portal type uses interaction workflow for simulation """
+    for pt in self.portal.portal_types.objectValues():
+      for dropped_workflow in ["delivery_movement_simulation_interaction_workflow",
+            "delivery_simulation_interaction_workflow",
+            "open_order_simulation_interaction_workflow",
+            "open_order_path_simulation_interaction_workflow",
+            "container_interaction_workflow",
+            "transformation_interaction_workflow",
+            "trade_model_line_interaction_workflow"]:
+        self.assertNotIn(dropped_workflow,
+              pt.getTypeWorkflowList(),
+              "Workflow %s still present on %s Portal Type (%s)" % \
+                      (dropped_workflow, pt, pt.getTypeWorkflowList()))
+
   def testModuleHasIdGeneratorByDay(self):
     """ Ensure the Constraint sets appropriate id generator on all modules.
     """
@@ -352,6 +367,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'erp5_slapos_tutorial_data',	
       'erp5_slideshow_style',
       'erp5_authentication_policy',
+      'erp5_interaction_drop',
       'slapos_mysql_innodb_catalog',
       'slapos_cloud',
       'slapos_slap_tool',

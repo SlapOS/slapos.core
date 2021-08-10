@@ -40,9 +40,7 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
       CodingStyleTestCase.afterSetUp(self)
       CodingStyle.ignored_skin_id_set.update({
         'InstanceTree_viewConsumptionReport',
-        'Person_viewResourceConsumptionReport',
-        'SystemPreference_viewSlapOS',
-        'Ticket_viewAsHateoas'})
+        'Person_viewResourceConsumptionReport'})
 
       SlapOSTestCaseMixin.afterSetUp(self)
 

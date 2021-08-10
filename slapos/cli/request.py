@@ -33,6 +33,7 @@ import os.path
 import pprint
 
 import lxml.etree
+import six
 import yaml
 
 from slapos.cli.config import ClientConfigCommand
@@ -132,6 +133,16 @@ class RequestCommand(ClientConfigCommand):
         do_request(self.app.log, conf, local)
 
 
+# BBB on python3 we can use pprint.pformat
+class StrPrettyPrinter(pprint.PrettyPrinter):
+  """A PrettyPrinter which produces consistent output on python 2 and 3
+  """
+  def format(self, object, context, maxlevels, level):
+    if six.PY2 and isinstance(object, six.text_type):
+      object = object.encode('utf-8')
+    return pprint.PrettyPrinter.format(self, object, context, maxlevels, level)
+
+
 def do_request(logger, conf, local):
     logger.info('Requesting %s as instance of %s...',
                 conf.reference, conf.software_url)
@@ -163,7 +174,7 @@ def do_request(logger, conf, local):
         if software_schema_serialisation == SoftwareReleaseSerialisation.JsonInXml:
             if '_' in connection_parameter_dict:
                 connection_parameter_dict = json.loads(connection_parameter_dict['_'])
-        logger.info(pprint.pformat(connection_parameter_dict))
+        logger.info(StrPrettyPrinter().pformat(connection_parameter_dict))
         logger.info('You can rerun the command to get up-to-date information.')
     except ResourceNotReady:
         logger.warning('Instance requested. Master is provisioning it. Please rerun in a '

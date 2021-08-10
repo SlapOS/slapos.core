@@ -167,7 +167,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
             "trade_model_line_interaction_workflow"]:
         self.assertNotIn(dropped_workflow,
               pt.getTypeWorkflowList(),
-              "Workflow %s still present on %s Portal Type" % \
+              "Workflow %s still present on %s Portal Type (%s)" % \
                       (dropped_workflow, pt, pt.getTypeWorkflowList()))
 
   def testModuleHasIdGeneratorByDay(self):

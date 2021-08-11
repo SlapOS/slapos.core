@@ -151,7 +151,7 @@ def getUsageSignaturesFromSubInstance(logger, instance_root):
   for slapos_cfg in getInstanceSlaposCfgList(logger, instance_root):
     cfg = readSlaposCfg(logger, slapos_cfg)
     if not cfg:
-      return {}
+      continue
     shared_root = None
     if cfg['shared_part_list']:
       shared_root = cfg['shared_part_list'][-1]

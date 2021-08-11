@@ -255,3 +255,37 @@ shared_part_list = NOT EXIST SHARED PART
             'NOT EXIST SHARED PART',
             instance_slapos_cfg),
         self.logger.debug.mock_calls)
+
+  def test_recursive_instance_broken_slapos_cfg_does_not_cause_instance_to_be_ignored(self):
+    used_in_software_from_instance = self._createSharedPart('used_in_software_from_instance')
+
+    instance = os.path.join(self.instance_root, 'slappart0')
+    instance_software = os.path.join(instance, 'software')
+    os.makedirs(instance_software)
+    software_in_instance = self._createFakeSoftware(
+        'soft_in_instance',
+        using=used_in_software_from_instance,
+        software_root=instance_software
+    )
+
+    # a broken slapos.cfg
+    folder_containing_wrong_slapos_cfg = os.path.join(instance, 'aaa')
+    os.makedirs(folder_containing_wrong_slapos_cfg)
+    wrong_slapos_cfg = os.path.join(folder_containing_wrong_slapos_cfg, 'slapos.cfg')
+    with open(wrong_slapos_cfg, 'w') as f:
+      f.write("broken")
+
+    # a "real" slapos.cfg
+    instance_etc = os.path.join(instance, 'etc')
+    os.makedirs(instance_etc)
+    instance_slapos_cfg = os.path.join(instance_etc, 'slapos.cfg')
+    with open(instance_slapos_cfg, 'w') as f:
+      f.write('''
+[slapos]
+software_root = {instance_software}
+instance_root = anything
+shared_part_list = anything
+'''.format(**locals()))
+
+    do_prune(self.logger, self.config, False)
+    self.assertTrue(os.path.exists(used_in_software_from_instance))

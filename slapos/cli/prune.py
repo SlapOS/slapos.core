@@ -106,7 +106,7 @@ def _prune(
         if not dry_run:
           rmtree(shared_part)
         logger.warning(
-            'Unusued shared parts at %s%s', shared_part,
+            'Unused shared parts at %s%s', shared_part,
             '' if dry_run else ' ... removed')
         yield shared_part
 

@@ -484,8 +484,9 @@ class Partition(object):
                                       required=bytes2human(required)))
 
   def _updateCertificate(self):
-    if self.key_file and self.cert_file:
-      return 
+    if not self.key_file or not self.cert_file:
+      # Certificate files are unset, skip.
+      return
 
     try:
       partition_certificate = self.computer_partition.getCertificate()

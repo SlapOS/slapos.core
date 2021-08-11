@@ -87,7 +87,7 @@ class TestPrune(unittest.TestCase):
     self.assertTrue(os.path.exists(used))
     self.assertFalse(os.path.exists(not_used))
     self.logger.warning.assert_called_with(
-        'Unusued shared parts at %s%s', not_used, ' ... removed')
+        'Unused shared parts at %s%s', not_used, ' ... removed')
 
   def test_dry_run(self):
     not_used = self._createSharedPart('not_used')
@@ -97,7 +97,7 @@ class TestPrune(unittest.TestCase):
     self.assertTrue(os.path.exists(used))
     self.assertTrue(os.path.exists(not_used))
     self.logger.warning.assert_called_with(
-        'Unusued shared parts at %s%s', not_used, '')
+        'Unused shared parts at %s%s', not_used, '')
 
   def test_shared_part_used_in_another_shared_part(self):
     not_used = self._createSharedPart('not_used')
@@ -109,28 +109,28 @@ class TestPrune(unittest.TestCase):
     self.assertTrue(os.path.exists(directly_used_part))
     self.assertFalse(os.path.exists(not_used))
     self.logger.warning.assert_called_with(
-        'Unusued shared parts at %s%s', not_used, ' ... removed')
+        'Unused shared parts at %s%s', not_used, ' ... removed')
 
   def test_shared_part_not_used_recursive_dependencies(self):
-    used_only_by_orphean_part = self._createSharedPart(
-        'used_only_by_orphean_part')
+    used_only_by_orphan_part = self._createSharedPart(
+        'used_only_by_orphan_part')
     not_used = self._createSharedPart(
-        'not_used', using=used_only_by_orphean_part)
+        'not_used', using=used_only_by_orphan_part)
     used_directly = self._createSharedPart('used_directly')
 
     self._createFakeSoftware(self.id(), using=used_directly)
     do_prune(self.logger, self.config, True)
     self.assertIn(
-        mock.call('Unusued shared parts at %s%s', not_used, ''),
+        mock.call('Unused shared parts at %s%s', not_used, ''),
         self.logger.warning.mock_calls)
     self.assertIn(
         mock.call(
-            'Unusued shared parts at %s%s', used_only_by_orphean_part, ''),
+            'Unused shared parts at %s%s', used_only_by_orphan_part, ''),
         self.logger.warning.mock_calls)
     do_prune(self.logger, self.config, False)
     self.assertTrue(os.path.exists(used_directly))
     self.assertFalse(os.path.exists(not_used))
-    self.assertFalse(os.path.exists(used_only_by_orphean_part))
+    self.assertFalse(os.path.exists(used_only_by_orphan_part))
 
   def test_shared_part_used_in_buildout_script(self):
     not_used = self._createSharedPart('not_used')
@@ -148,7 +148,7 @@ class TestPrune(unittest.TestCase):
     self.assertTrue(os.path.exists(used_in_script))
     self.assertFalse(os.path.exists(not_used))
     self.logger.warning.assert_called_with(
-        'Unusued shared parts at %s%s', not_used, ' ... removed')
+        'Unused shared parts at %s%s', not_used, ' ... removed')
     if six.PY3:
       self.logger.debug.assert_any_call(
         'Skipping script %s that could not be decoded', binary_script)
@@ -205,7 +205,7 @@ shared_part_list =
     self.assertFalse(os.path.exists(not_used))
 
     self.logger.warning.assert_called_with(
-        'Unusued shared parts at %s%s', not_used, ' ... removed')
+        'Unused shared parts at %s%s', not_used, ' ... removed')
 
   def test_recursive_instance_broken_slapos_cfg(self):
     instance = os.path.join(self.instance_root, 'slappart0')

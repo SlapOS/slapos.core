@@ -346,6 +346,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'erp5_hal_json_style',
       'erp5_immobilisation',
       'erp5_l10n_fr',
+      'erp5_l10n_ja',
       'erp5_l10n_zh',
       'erp5_monaco_editor',
       'erp5_movement_table_catalog',

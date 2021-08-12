@@ -299,6 +299,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
             'erp5_font',
             'erp5_hal_json_style',
             'erp5_l10n_fr',
+            'erp5_l10n_ja',
             'erp5_l10n_zh',
             'erp5_movement_table_catalog',
             'erp5_web_renderjs_ui',

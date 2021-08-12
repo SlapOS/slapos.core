@@ -42,7 +42,6 @@ import slapos.slap
 import psutil
 import sqlite3
 import subprocess
-from time import strftime
 from slapos.collect import entity, snapshot, db, reporter
 from slapos.cli.entry import SlapOSApp
 from six.moves.configparser import ConfigParser
@@ -247,7 +246,7 @@ class TestCollectDatabase(unittest.TestCase):
         self.assertEqual(len(database._getGarbageCollectionDateList(0)), 0)
 
         self.assertEqual(database._getGarbageCollectionDateList(1), 
-                           [strftime("%Y-%m-%d")])
+                           [datetime.utcnow().strftime("%Y-%m-%d")])
 
     def test_garbage(self):
 
@@ -378,9 +377,9 @@ class TestCollectReport(unittest.TestCase):
             self.assertEqual([i for i in csv.reader(csv_file)], csv_path_dict[f_path])
 
     def test_system_json_report(self):
-        database = self.getPopulatedDB(strftime("%Y-%m-%d"), amount=2)
+        database = self.getPopulatedDB(datetime.utcnow().strftime("%Y-%m-%d"), amount=2)
         reporter.SystemJSONReporterDumper(database).dump(self.instance_root)
-        date_to_test = strftime("%Y-%m-%d")
+        date_to_test = datetime.utcnow().strftime("%Y-%m-%d")
         json_path_dict = {
           '%s/system_memory_used.json' % self.instance_root: 
             '[  {    "entry": 0.09765625,     "time": "%s TIME"  }]' % date_to_test,
@@ -418,9 +417,9 @@ class TestCollectReport(unittest.TestCase):
 
 
     def test_system_csv_report(self):
-        database = self.getPopulatedDB(strftime("%Y-%m-%d"), amount=2)
+        database = self.getPopulatedDB(datetime.utcnow().strftime("%Y-%m-%d"), amount=2)
         reporter.SystemCSVReporterDumper(database).dump(self.instance_root)
-        date_for_test = strftime("%Y-%m-%d")
+        date_for_test = datetime.utcnow().strftime("%Y-%m-%d")
         csv_path_dict = {'%s/system_memory_used.csv' % self.instance_root:
                            [['time','entry'], ['%s TIME' % date_for_test,'0.09765625']],
                          '%s/system_cpu_percent.csv' % self.instance_root:

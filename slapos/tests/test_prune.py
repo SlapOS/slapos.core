@@ -289,3 +289,41 @@ shared_part_list = anything
 
     do_prune(self.logger, self.config, False)
     self.assertTrue(os.path.exists(used_in_software_from_instance))
+
+  def test_recursive_instance_multiple_levels(self):
+    used_in_software_from_instance = self._createSharedPart('used_in_software_from_instance')
+
+    instance_level1 = os.path.join(self.instance_root, 'slappart0')
+    instance_level1_etc = os.path.join(instance_level1, 'etc')
+    os.makedirs(instance_level1_etc)
+    instance_level1_slapos_cfg = os.path.join(instance_level1_etc, 'slapos.cfg')
+    with open(instance_level1_slapos_cfg, 'w') as f:
+      f.write('''
+[slapos]
+software_root = anything
+instance_root = {instance_level1}
+shared_part_list = anything
+'''.format(**locals()))
+
+    instance_level2 = os.path.join(instance_level1, 'srv', 'runner')
+    instance_level2_etc = os.path.join(instance_level2, 'etc')
+    os.makedirs(instance_level2_etc)
+    instance_level2_software = os.path.join(instance_level2, 'software')
+    os.makedirs(instance_level2_software)
+    software_in_instance = self._createFakeSoftware(
+        'soft_in_instance_level2',
+        using=used_in_software_from_instance,
+        software_root=instance_level2_software
+    )
+
+    instance_level2_slapos_cfg = os.path.join(instance_level2_etc, 'slapos.cfg')
+    with open(instance_level2_slapos_cfg, 'w') as f:
+      f.write('''
+[slapos]
+software_root = {instance_level2_software}
+instance_root = {instance_level2}
+shared_part_list = anything
+'''.format(**locals()))
+
+    do_prune(self.logger, self.config, False)
+    self.assertTrue(os.path.exists(used_in_software_from_instance))

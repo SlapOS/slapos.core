@@ -92,7 +92,7 @@ def _prune(
       logger, software_root, shared_root, ignored_shared_parts)
 
   # recursively look in instance
-  signatures.update(getUsageSignaturesFromSubInstance(logger, instance_root))
+  signatures.update(getUsageSignaturesFromSubInstance(logger, instance_root, set([])))
 
   for shared_part in glob.glob(os.path.join(shared_root, '*', '*')):
     if shared_part not in ignored_shared_parts:
@@ -140,7 +140,7 @@ def do_prune(logger, options, dry_run):
   )
 
 
-def getUsageSignaturesFromSubInstance(logger, instance_root):
+def getUsageSignaturesFromSubInstance(logger, instance_root, visited):
   """Look at instances in instance_root to find used shared parts,
   if instances are recursive slapos.
 
@@ -148,6 +148,11 @@ def getUsageSignaturesFromSubInstance(logger, instance_root):
   this is a recursive slapos.
   """
   signatures = {}
+  # prevent infinite loops
+  if instance_root in visited:
+    return signatures
+  visited.add(instance_root)
+
   for slapos_cfg in getInstanceSlaposCfgList(logger, instance_root):
     cfg = readSlaposCfg(logger, slapos_cfg)
     if not cfg:
@@ -181,7 +186,7 @@ def getUsageSignaturesFromSubInstance(logger, instance_root):
       )
     else:
       signatures.update(
-          getUsageSignaturesFromSubInstance(logger, cfg['instance_root']))
+          getUsageSignaturesFromSubInstance(logger, cfg['instance_root'], visited))
   return signatures
 
 

@@ -1,6 +1,15 @@
 Changes
 =======
 
+
+1.6.18 (2021-08-13)
+-------------------
+
+ * core: Update certificates as late as possible (re-implemented)
+ * cli/prune: Fix a possible infinite recursion
+ * grid: log buildout output in realtime 
+ * cli/prune: fix a case where parts where not detected as used from a recursive instance
+/opt/slapgrid/01ce71861bb9c5883cdbdf8af74c5d1f/parts/bash/bin/bash: q: command not found
 1.6.17 (2021-08-02)
 -------------------
 

@@ -133,8 +133,9 @@ def HostingSubscription_checkInstanceTreeMigrationConsistency(self, fixit=False)
       instance_tree = portal.instance_tree_module._getOb(hosting_subscription_id)
 
       instance_tree.reindexObject()
+      # Migrate Predecessor/Successor if the instance wasn't migrated before.
+      instance_tree.SoftwareInstance_checkPredecessorToSuccessorMigrationConsistency(fixit=True)
       UnrestrictedMethod(instance_tree.updateRelatedContent)(hosting_subscription_relative_url, instance_tree.getRelativeUrl())
-      # raise NotImplementedError('couscous')
 
   return error_list
 

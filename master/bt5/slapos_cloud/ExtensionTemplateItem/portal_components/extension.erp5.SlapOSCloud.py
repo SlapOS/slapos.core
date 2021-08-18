@@ -135,7 +135,63 @@ def HostingSubscription_checkInstanceTreeMigrationConsistency(self, fixit=False)
       instance_tree.reindexObject()
       # Migrate Predecessor/Successor if the instance wasn't migrated before.
       instance_tree.SoftwareInstance_checkPredecessorToSuccessorMigrationConsistency(fixit=True)
-      UnrestrictedMethod(instance_tree.updateRelatedContent)(hosting_subscription_relative_url, instance_tree.getRelativeUrl())
+      UnrestrictedMethod(instance_tree.Base_updateRelatedContentWithoutReindextion)(hosting_subscription_relative_url, instance_tree.getRelativeUrl())
 
   return error_list
+
+
+def Base_updateRelatedContentWithoutReindextion(self, previous_category_url, new_category_url, REQUEST=None):
+  """ This method indeed reimplements the updateRelatedContent but it uses 
+    _edit(reindex_object=0) to skip reindexation.
+  """
+  if REQUEST is not None:
+    raise Unauthorized("You cannot call this script")
+    
+  portal = self.getPortalObject()
+  activate_kw = {'tag':'%s_updateRelatedContent' % self.getPath()}
+
+  # Update category related objects
+  kw = {'category.category_uid': self.getUid(), 'limit': None}
+  for related_object in portal.portal_catalog(**kw):
+    related_object = related_object.getObject()
+    category_list = []
+    for category in related_object.getCategoryList():
+      new_category = portal.portal_categories.updateRelatedCategory(category,
+                                                previous_category_url,
+                                                new_category_url)
+      category_list.append(new_category)
+
+    # Call _edit to not reindex the object
+    related_object._edit(categories=category_list)
+
+  # udpate all predicates membership
+  kw = {'predicate_category.category_uid': self.getUid(), 'limit': None}
+  for predicate in portal.portal_catalog(**kw):
+    predicate = predicate.getObject()
+    membership_list = []
+    for category in predicate.getMembershipCriterionCategoryList():
+      new_category = portal.portal_categories.updateRelatedCategory(category,
+                                                previous_category_url,
+                                                new_category_url)
+      membership_list.append(new_category)
+    
+    # I'm preserving reindexation here in case, since I'm not entire sure the 
+    # Impact
+    predicate.edit(membership_criterion_category_list=membership_list,
+                       activate_kw=activate_kw)
+
+  # update related recursively if required
+  aq_context = aq_base(self)
+  if getattr(aq_context, 'listFolderContents', None) is not None:
+    for o in self.listFolderContents():
+      new_o_category_url = o.getRelativeUrl()
+      # Relative Url is based on parent new_category_url so we must
+      # replace new_category_url with previous_category_url to find
+      # the new category_url for the subobject
+      previous_o_category_url = portal.portal_categories.updateRelatedCategory(
+              new_o_category_url,
+              new_category_url,
+              previous_category_url)
+      o.Base_updateRelatedContentWithoutReindextion(previous_o_category_url,
+                                    new_o_category_url)
 

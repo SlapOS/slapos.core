@@ -112,10 +112,17 @@ class TestSlapOSCloudUpgrader(SlapOSTestCaseMixin):
     # To migrate
     self.assertTrue(migration_message in getMessageList(hosting_subscription_to_migrate))
     hosting_subscription_to_migrate.fixConsistency()
-    self.tic()
+
+    self.commit()
+    self.assertTrue(hosting_subscription_to_migrate.hasActivity())
 
     instance_tree_module = self.portal.getDefaultModule('Instance Tree')
     migrated_instance_tree = instance_tree_module.restrictedTraverse(hosting_subscription_to_migrate_id)
+
+    self.assertTrue(migrated_instance_tree.hasActivity())
+    self.assertFalse(software_instance.hasActivity())
+    self.tic()
+
     self.assertEqual('Instance Tree',
                      migrated_instance_tree.getPortalType())
     self.assertEqual(self.portal.instance_tree_module,

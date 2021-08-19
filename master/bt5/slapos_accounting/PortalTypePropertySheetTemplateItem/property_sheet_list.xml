@@ -5,7 +5,7 @@
  <portal_type id="Cloud Contract Line">
   <item>SlapOSCloudContractLineAccounting</item>
  </portal_type>
- <portal_type id="Computer Consumption TioXML File">
+ <portal_type id="Compute Node Consumption TioXML File">
   <item>SortIndex</item>
  </portal_type>
  <portal_type id="Instance Tree">

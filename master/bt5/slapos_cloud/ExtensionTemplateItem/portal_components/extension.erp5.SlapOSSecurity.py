@@ -31,28 +31,28 @@ from AccessControl.SecurityManagement import getSecurityManager, \
 from AccessControl import Unauthorized
 from DateTime import DateTime
 
-def getComputerSecurityCategory(self, base_category_list, user_name,
+def getComputeNodeSecurityCategory(self, base_category_list, user_name,
                                 ob, portal_type):
   """
   This script returns a list of dictionaries which represent
-  the security groups which a computer is member of.
+  the security groups which a compute_node is member of.
   """
   category_list = []
 
-  computer_list = self.portal_catalog.unrestrictedSearchResults(
-    portal_type='Computer',
+  compute_node_list = self.portal_catalog.unrestrictedSearchResults(
+    portal_type='Compute Node',
     user_id=user_name,
     validation_state="validated",
     limit=2,
   )
 
-  if len(computer_list) == 1:
+  if len(compute_node_list) == 1:
     for base_category in base_category_list:
       if base_category == "role":
         category_list.append(
          {base_category: ['role/computer']})
-  elif len(computer_list) > 1:
-    raise ConsistencyError("Error: There is more than one Computer " \
+  elif len(compute_node_list) > 1:
+    raise ConsistencyError("Error: There is more than one Compute Node " \
                             "with reference '%s'" % user_name)
 
   return category_list
@@ -103,7 +103,7 @@ def restrictMethodAsShadowUser(self, shadow_document=None, callable_object=None,
     raise TypeError('shadow_document and callable_object cannot be None')
   relative_url = shadow_document.getRelativeUrl()
   if shadow_document.getPortalType() not in ('Person', 'Software Instance',
-      'Computer'):
+      'Compute Node'):
     raise Unauthorized("%s portal type %r is not supported" % (relative_url,
       shadow_document.getPortalType()))
   else:

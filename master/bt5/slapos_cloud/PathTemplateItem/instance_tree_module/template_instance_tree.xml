@@ -149,7 +149,7 @@
 
 <?xml version=\'1.0\' encoding=\'utf-8\'?>\n
 <instance>\n
-<parameter id="computer_guid">SOMECOMP</parameter>\n
+<parameter id="compute_node_guid">SOMECOMP</parameter>\n
 </instance>\n
 
 

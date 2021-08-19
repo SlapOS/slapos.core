@@ -21,7 +21,7 @@ Notes
 
 
 ..
-  XXX TODO software_group?, computer_group?
+  XXX TODO software_group?, compute_node_group?
 
 
 
@@ -75,11 +75,11 @@ Examples
 
 * Request a wordpress instance named "My Beautiful Instance" on Node named "COMP-12345"::
 
-    $ slapos request "My Beautiful Instance" wordpress --node computer_guid=COMP-12345
+    $ slapos request "My Beautiful Instance" wordpress --node compute_node_guid=COMP-12345
 
 * Request a kvm instance named "mykvm" on Node named "COMP-12345", specifying nbd-host and nbd-ip parameters::
 
-    $ slapos request mykvm kvm --node computer_guid=COMP-12345 --parameters \
+    $ slapos request mykvm kvm --node compute_node_guid=COMP-12345 --parameters \
         nbd-host=debian.nbd.vifib.net nbd-port=1024
 
 * Request a kvm instance specifying the full URL, with default settings::
@@ -124,7 +124,7 @@ From SlapOS Master point of view, it should return the list of all non-destroyed
   ~~~~~~
   Note: Not yet implemented.
   Usage:
-    slapos search <search parameters ex. computer region, instance reference, source_section, etc.>
+    slapos search <search parameters ex. compute_node region, instance reference, source_section, etc.>
 
   Returns visible instances matching search parameters.
 
@@ -173,7 +173,7 @@ In this example, ``kvm`` is an alias for the full URL, and is defined in :file:`
   ~~~~~~~~~~
   Note: Not yet implemented.
   Usage:
-    slapos autosupply <software | software_group> <computer_guid | computer_group>
+    slapos autosupply <software | software_group> <compute_node_guid | compute_node_group>
 
   Like "slapos suppply", but on-demand. Software will be (re)installed only when at least one instance
   of this software is requested. When no instance of this software is deployed on the node, it will be uninstalled.
@@ -233,7 +233,7 @@ A token is valid for a single ``node register`` command and will expire after on
 ..
   XXX-Cedric should be like this: If desired node name is already taken, will raise an error.
   XXX-Cedric: --master-url-web url will disappear in REST API. Currently, "register" uses
-              SlapOS master web URL to register computer, so it needs the web URL (like http://www.slapos.org)
+              SlapOS master web URL to register compute_node, so it needs the web URL (like http://www.slapos.org)
 
 If the Node is already registered (:file:`slapos.cfg` and certificate are already present), the command
 issues a warning, backups the original configuration and creates a new one.
@@ -249,26 +249,26 @@ Notes:
 
 Examples
 
-* Register computer named "mycomputer" to SlapOS Master::
+* Register compute_node named "mycompute_node" to SlapOS Master::
 
-    $ slapos node register mycomputer
+    $ slapos node register mycompute_node
 
-* Register computer named "mycomputer" to SlapOS Master using br0 as primary interface,
+* Register compute_node named "mycompute_node" to SlapOS Master using br0 as primary interface,
   tap0 as IPv6 interface and different local ipv4 subnet::
 
-    $ slapos node register mycomputer --interface-name br0 --ipv6-interface tap0 \
+    $ slapos node register mycompute_node --interface-name br0 --ipv6-interface tap0 \
         --ipv4-local-network 11.0.0.0/16
 
-* Register computer named "mycomputer" to another SlapOS master accessible via https://www.myownslaposmaster.com,
+* Register compute_node named "mycompute_node" to another SlapOS master accessible via https://www.myownslaposmaster.com,
   and SLAP webservice accessible via https://slap.myownslaposmaster.com (note that this address should be the
   "slap" webservice URL, not web URL)::
 
-    $ slapos node register mycomputer --master-url https://slap.myownslaposmaster.com \
+    $ slapos node register mycompute_node --master-url https://slap.myownslaposmaster.com \
         --master-url-web https://www.myownslaposmaster.com
 
-* Register computer named "mycomputer" to SlapOS Master, and ask to create tap interface to be able to host KVMs::
+* Register compute_node named "mycompute_node" to SlapOS Master, and ask to create tap interface to be able to host KVMs::
 
-    $ slapos node register mycomputer --create-tap
+    $ slapos node register mycompute_node --create-tap
 
 
 node software
@@ -312,7 +312,7 @@ Return values:
 **************
 
 * 0    Everything went fine.
-* 1    Fail to collect computer information.
+* 1    Fail to collect compute_node information.
 
 
 node report

@@ -25,11 +25,11 @@ slap interface documentation
    :members:
    :undoc-members:
 
-.. autointerface:: slapos.slap.interface.slap.IComputerPartition
+.. autointerface:: slapos.slap.interface.slap.IComputePartition
    :members:
    :undoc-members:
 
-.. autointerface:: slapos.slap.interface.slap.IComputer
+.. autointerface:: slapos.slap.interface.slap.IComputeNode
    :members:
    :undoc-members:
 

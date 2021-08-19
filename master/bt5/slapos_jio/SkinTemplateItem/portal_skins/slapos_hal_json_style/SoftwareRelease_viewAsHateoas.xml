@@ -98,7 +98,7 @@
                         <string>my_url_string</string>
                         <string>my_aggregate_title</string>
                         <string>my_version</string>
-                        <string>my_computer_guid</string>
+                        <string>my_compute_node_guid</string>
                       </list>
                     </value>
                 </item>

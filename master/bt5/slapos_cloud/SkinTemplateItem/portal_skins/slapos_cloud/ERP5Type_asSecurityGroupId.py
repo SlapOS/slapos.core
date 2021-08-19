@@ -70,7 +70,7 @@ for base_category in category_order:
     if category_object is None:
       raise RuntimeError("Security definition error (category %r not found)" % (category_path,))
     portal_type = category_object.getPortalType()
-    if portal_type in ['Person', 'Computer', 'Software Instance']:
+    if portal_type in ['Person', 'Compute Node', 'Software Instance']:
       # We define a person here
       user_name = category_object.Person_getUserId()
       if user_name is not None:

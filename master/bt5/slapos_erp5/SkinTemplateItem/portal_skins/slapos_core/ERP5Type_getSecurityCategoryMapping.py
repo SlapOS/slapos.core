@@ -13,8 +13,8 @@ return (
   ('ERP5Type_getSecurityCategoryFromAssignment', ['destination_project']),
   ('ERP5Type_getSecurityCategoryFromAssignmentDestinationClientOrganisation', ['destination']),
   
-  # Computer security
-  ('ERP5Type_getComputerSecurityCategory', ['role']),
+  # Compute Node security
+  ('ERP5Type_getComputeNodeSecurityCategory', ['role']),
 
   # Instance security
   ('ERP5Type_getSoftwareInstanceSecurityCategory', ['role']),

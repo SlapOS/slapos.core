@@ -35,11 +35,11 @@ for instance in software_instance_list:
   if instance.getSlapState() != "start_requested":
     continue
 
-  computer_partition = instance.getAggregateValue()
-  if computer_partition is not None:
+  compute_partition = instance.getAggregateValue()
+  if compute_partition is not None:
     has_newest_allocated_instance = True
     if instance.getPortalType() == "Software Instance" and \
-        computer_partition.getParentValue().getMonitorScope() == "enabled" and \
+        compute_partition.getParentValue().getMonitorScope() == "enabled" and \
         instance.SoftwareInstance_hasReportedError(tolerance=30):
       return context.InstanceTree_createSupportRequestEvent(
         instance, 'slapos-crm-instance-tree-instance-state.notification')

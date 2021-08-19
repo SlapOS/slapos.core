@@ -30,18 +30,18 @@ from zExceptions import Unauthorized
 import pkg_resources
 import StringIO
 
-def ComputerConsumptionTioXMLFile_parseXml(self, REQUEST=None):
+def ComputeNodeConsumptionTioXMLFile_parseXml(self, REQUEST=None):
   """Call bang on self."""
   if REQUEST is not None:
     raise Unauthorized
   xml = self.getData("")
 
-  computer_consumption_model = \
+  compute_node_consumption_model = \
     pkg_resources.resource_string(
       'slapos.slap', 'doc/computer_consumption.xsd')
 
   # Validate against the xsd
-  xsd_model = StringIO.StringIO(computer_consumption_model)
+  xsd_model = StringIO.StringIO(compute_node_consumption_model)
   xmlschema_doc = etree.parse(xsd_model)
   xmlschema = etree.XMLSchema(xmlschema_doc)
 

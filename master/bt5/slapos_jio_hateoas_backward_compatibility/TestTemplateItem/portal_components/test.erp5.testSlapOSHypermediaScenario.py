@@ -280,27 +280,27 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
     self.assertEqual(response.getheader('Content-Type'), content_type)
     news_hal = json.loads(response.read())
 
-    # We are going to check computer and software
-    # First create a computer and a software. We could alternatively later
+    # We are going to check compute_node and software
+    # First create a compute_node and a software. We could alternatively later
     # create them through hypermedia links
     self.login(erp5_person.getUserId())
-    self.portal.portal_slap.requestComputer(
-                       "computer %s" % erp5_person.getReference())
+    self.portal.portal_slap.requestComputeNode(
+                       "compute node %s" % erp5_person.getReference())
     self.tic()
-    computer = self.portal.portal_catalog(portal_type="Computer",
+    compute_node = self.portal.portal_catalog(portal_type="Compute Node",
                    sort_on=[('creation_date','descending')])[0].getObject()
     self.tic()
     self.portal.portal_slap.supplySupply("http://foo.com/software.cfg",
-                                         computer.getReference(), "available")
+                                         compute_node.getReference(), "available")
     self.tic()
     self.logout()
 
     #####################################################
-    # Get user's computer list
+    # Get user's compute_node list
     #####################################################
     user_link_dict = hateoasGetLinkFromLinks(
         user_hal['_links']['action_object_slap'],
-        'getHateoasComputerList'
+        'getHateoasComputeNodeList'
     )
     self.assertNotEqual(user_link_dict, None)
     connection = getNewHttpConnection(api_netloc)
@@ -317,18 +317,18 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
  
     self.assertEqual(response.status, 200)
     self.assertEqual(response.getheader('Content-Type'), content_type)
-    computer_collection_hal = json.loads(response.read())
+    compute_node_collection_hal = json.loads(response.read())
 
     #####################################################
-    # Get user's computer
+    # Get user's compute_node
     #####################################################
-    computer_link_dict = computer_collection_hal['_links']\
+    compute_node_link_dict = compute_node_collection_hal['_links']\
         ['content'][0]
-    self.assertNotEqual(computer_link_dict, None)
+    self.assertNotEqual(compute_node_link_dict, None)
     connection = getNewHttpConnection(api_netloc)
     connection.request(
-      method=computer_link_dict.get('method', 'GET'),
-      url=computer_link_dict['href'],
+      method=compute_node_link_dict.get('method', 'GET'),
+      url=compute_node_link_dict['href'],
       headers={
        'Authorization': authorization,
        'Accept': content_type,
@@ -339,20 +339,20 @@ class TestSlapOSHypermediaPersonScenario(SlapOSTestCaseMixin):
  
     self.assertEqual(response.status, 200)
     self.assertEqual(response.getheader('Content-Type'), content_type)
-    computer_hal = json.loads(response.read())
+    compute_node_hal = json.loads(response.read())
 
     #####################################################
-    # Get computer's software list
+    # Get compute_node's software list
     #####################################################
-    computer_link_dict = hateoasGetLinkFromLinks(
-        computer_hal['_links']['action_object_slap'],
+    compute_node_link_dict = hateoasGetLinkFromLinks(
+        compute_node_hal['_links']['action_object_slap'],
         'getHateoasSoftwareInstallationList'
     )
-    self.assertNotEqual(computer_link_dict, None)
+    self.assertNotEqual(compute_node_link_dict, None)
     connection = getNewHttpConnection(api_netloc)
     connection.request(
-      method=computer_link_dict.get('method', 'GET'),
-      url=computer_link_dict['href'],
+      method=compute_node_link_dict.get('method', 'GET'),
+      url=compute_node_link_dict['href'],
       headers={
        'Authorization': authorization,
        'Accept': content_type,

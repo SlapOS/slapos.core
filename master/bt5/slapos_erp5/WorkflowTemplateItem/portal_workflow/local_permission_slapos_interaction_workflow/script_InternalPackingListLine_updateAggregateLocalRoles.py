@@ -1,13 +1,13 @@
 from Products.ZSQLCatalog.SQLCatalog import SimpleQuery, ComplexQuery
 
-portal_type_list = ['Computer', 'Computer Network', 'Instance Tree']
+portal_type_list = ['Compute Node', 'Computer Network', 'Instance Tree']
 portal = context.getPortalObject()
 internal_packing_list_line = state_change['object']
 after_tag = (internal_packing_list_line.getPath(), ('immediateReindexObject', 'recursiveImmediateReindexObject'))
 internal_packing_list_line.getParentValue().reindexObject()
 for object_ in internal_packing_list_line.getAggregateValueList(portal_type=portal_type_list):
   object_.activate(after_path_and_method_id=after_tag).updateLocalRolesOnSecurityGroups()
-  if object_.getPortalType() == "Computer":
+  if object_.getPortalType() == "Compute Node":
     portal.portal_catalog.searchAndActivate(
       portal_type=["Software Installation", "Support Request","Upgrade Decision Line"],
       aggregate__uid=object_.getUid(),

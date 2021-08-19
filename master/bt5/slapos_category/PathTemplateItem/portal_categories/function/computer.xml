@@ -107,11 +107,11 @@
         </item>
         <item>
             <key> <string>short_title</string> </key>
-            <value> <string>Computer Maintenance</string> </value>
+            <value> <string>Compute Node Maintenance</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Computer Installation and Maintenance</string> </value>
+            <value> <string>Compute Node Installation and Maintenance</string> </value>
         </item>
       </dictionary>
     </pickle>

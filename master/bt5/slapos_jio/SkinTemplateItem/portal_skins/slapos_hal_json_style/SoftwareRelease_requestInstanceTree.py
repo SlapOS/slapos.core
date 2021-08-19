@@ -60,7 +60,7 @@ request_kw.update(
 )
 
 for sla_category_id, sla_category in [
-  ('computer_guid', computer_guid),
+  ('compute_node_guid', compute_node_guid),
 ]:
   if sla_category:
     sla_xml += '<parameter id="%s">%s</parameter>' % (sla_category_id, sla_category)

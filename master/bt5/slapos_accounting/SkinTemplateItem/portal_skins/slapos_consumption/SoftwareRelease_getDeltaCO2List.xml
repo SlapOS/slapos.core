@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>computer_partition_list, simulated_cpu_load=None</string> </value>
+            <value> <string>compute_partition_list, simulated_cpu_load=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

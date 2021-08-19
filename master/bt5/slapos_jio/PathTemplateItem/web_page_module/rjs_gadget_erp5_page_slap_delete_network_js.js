@@ -63,7 +63,7 @@
         translation_list = [
           "Network to be removed:",
           "Warning",
-          "You cannot delete this object because you have associated Computers and/or services.",
+          "You cannot delete this object because you have associated Compute Nodes and/or services.",
           "Parent Relative Url",
           "Delete Network:",
           "Network is Deleted."
@@ -76,7 +76,7 @@
                 gadget.getDeclaredGadget('form_view'),
                 gadget.jio_get(options.jio_key),
                 gadget.jio_getAttachment(options.jio_key,
-                  url + options.jio_key + "/ComputerNetwork_hasComputer"),
+                  url + options.jio_key + "/ComputerNetwork_hasComputeNode"),
                 gadget.getTranslationList(translation_list)
               ]);
             });

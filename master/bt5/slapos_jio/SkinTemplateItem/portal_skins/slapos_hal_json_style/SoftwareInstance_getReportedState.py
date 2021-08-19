@@ -20,11 +20,11 @@ FAILING_STOP = _translate("Failing to stop")
 FAILING_START = _translate("Failing to start")
 UNKNOWN = _translate("Waiting contact from the instance")
 
-computer_partition = context.getAggregateValue(portal_type="Computer Partition")
-if computer_partition is not None:
+compute_partition = context.getAggregateValue(portal_type="Compute Partition")
+if compute_partition is not None:
   instance = context
   if instance.getPortalType() == "Slave Instance":
-    instance = computer_partition.getAggregateRelatedValue(portal_type="Software Instance")
+    instance = compute_partition.getAggregateRelatedValue(portal_type="Software Instance")
 
   memcached_dict = instance.Base_getSlapToolMemcachedDict()
   try:

@@ -45,18 +45,18 @@ import time
 from Products.ERP5Type.tests.utils import DummyMailHostMixin
 try:
   from slapos.slap.slap import (
-    Computer,
-    ComputerPartition as SlapComputerPartition,
+    Computer as ComputeNode,
+    ComputerPartition as SlapComputePartition,
     SoftwareInstance,
     SoftwareRelease)
   from slapos.util import dict2xml, xml2dict, calculate_dict_hash, loads, dumps
 except ImportError:
   # Do no prevent instance from starting
   # if libs are not installed
-  class Computer:
+  class ComputeNode:
     def __init__(self):
       raise ImportError
-  class SlapComputerPartition:
+  class SlapComputePartition:
     def __init__(self):
       raise ImportError
   class SoftwareInstance:
@@ -172,40 +172,40 @@ class SlapTool(BaseTool):
 
   def _getCachePlugin(self):
     return self.getPortalObject().portal_caches\
-      .getRamCacheRoot().get('computer_information_cache_factory')\
+      .getRamCacheRoot().get('compute_node_information_cache_factory')\
       .getCachePluginList()[0]
 
-  def _getCacheComputerInformation(self, computer_id, user):
+  def _getCacheComputeNodeInformation(self, compute_node_id, user):
     self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
-    slap_computer = Computer(computer_id.decode("UTF-8"))
-    parent_uid = self._getComputerUidByReference(computer_id)
+    slap_compute_node = ComputeNode(compute_node_id.decode("UTF-8"))
+    parent_uid = self._getComputeNodeUidByReference(compute_node_id)
 
-    slap_computer._computer_partition_list = []
-    slap_computer._software_release_list = \
-       self._getSoftwareReleaseValueListForComputer(computer_id)
+    slap_compute_node._computer_partition_list = []
+    slap_compute_node._software_release_list = \
+       self._getSoftwareReleaseValueListForComputeNode(compute_node_id)
 
     unrestrictedSearchResults = self.getPortalObject().portal_catalog.unrestrictedSearchResults
 
-    computer_partition_list = unrestrictedSearchResults(
+    compute_partition_list = unrestrictedSearchResults(
       parent_uid=parent_uid,
       validation_state="validated",
-      portal_type="Computer Partition"
+      portal_type="Compute Partition"
     )
-    self._calculateSlapComputerInformation(slap_computer, computer_partition_list)
+    self._calculateSlapComputeNodeInformation(slap_compute_node, compute_partition_list)
 
-    return dumps(slap_computer)
+    return dumps(slap_compute_node)
 
-  def _fillComputerInformationCache(self, computer_id, user):
-    key = '%s_%s' % (computer_id, user)
+  def _fillComputeNodeInformationCache(self, compute_node_id, user):
+    key = '%s_%s' % (compute_node_id, user)
     try:
       self._getCachePlugin().set(key, DEFAULT_CACHE_SCOPE,
         dict (
           time=time.time(),
           refresh_etag=self._calculateRefreshEtag(),
-          data=self._getCacheComputerInformation(computer_id, user),
+          data=self._getCacheComputeNodeInformation(compute_node_id, user),
         ),
         cache_duration=self.getPortalObject().portal_caches\
-            .getRamCacheRoot().get('computer_information_cache_factory'\
+            .getRamCacheRoot().get('compute_node_information_cache_factory'\
               ).cache_duration
         )
     except (Unauthorized, IndexError):
@@ -236,43 +236,43 @@ class SlapTool(BaseTool):
       entry = entry.getValue()
     return entry
 
-  def _activateFillComputerInformationCache(self, computer_id, user):
-    tag = 'computer_information_cache_fill_%s_%s' % (computer_id, user)
+  def _activateFillComputeNodeInformationCache(self, compute_node_id, user):
+    tag = 'compute_node_information_cache_fill_%s_%s' % (compute_node_id, user)
     if self.getPortalObject().portal_activities.countMessageWithTag(tag) == 0:
-      self.activate(activity='SQLQueue', tag=tag)._fillComputerInformationCache(
-        computer_id, user)
+      self.activate(activity='SQLQueue', tag=tag)._fillComputeNodeInformationCache(
+        compute_node_id, user)
 
-  def _calculateSlapComputerInformation(self, slap_computer, computer_partition_list):
-    if len(computer_partition_list) == 0:
+  def _calculateSlapComputeNodeInformation(self, slap_compute_node, compute_partition_list):
+    if len(compute_partition_list) == 0:
       return
 
     unrestrictedSearchResults = self.getPortalObject().portal_catalog.unrestrictedSearchResults
 
-    computer_partition_uid_list = [x.uid for x in computer_partition_list]
+    compute_partition_uid_list = [x.uid for x in compute_partition_list]
     grouped_software_instance_list = unrestrictedSearchResults(
       portal_type="Software Instance",
-      default_aggregate_uid=computer_partition_uid_list,
+      default_aggregate_uid=compute_partition_uid_list,
       validation_state="validated",
       group_by_list=['default_aggregate_uid'],
       select_list=['default_aggregate_uid', 'count(*)']
     )
     slave_software_instance_list = unrestrictedSearchResults(
-      default_aggregate_uid=computer_partition_uid_list,
+      default_aggregate_uid=compute_partition_uid_list,
       portal_type='Slave Instance',
       validation_state="validated",
       select_list=['default_aggregate_uid'],
       **{"slapos_item.slap_state": "start_requested"}
     )
 
-    for computer_partition in computer_partition_list:
-      software_instance_list = [x for x in grouped_software_instance_list if (x.default_aggregate_uid == computer_partition.getUid())]
+    for compute_partition in compute_partition_list:
+      software_instance_list = [x for x in grouped_software_instance_list if (x.default_aggregate_uid == compute_partition.getUid())]
       if (len(software_instance_list) == 1) and (software_instance_list[0]['count(*)'] > 1):
         software_instance_list = software_instance_list + software_instance_list
-      slap_computer._computer_partition_list.append(
+      slap_compute_node._computer_partition_list.append(
         self._getSlapPartitionByPackingList(
-          _assertACI(computer_partition.getObject()),
+          _assertACI(compute_partition.getObject()),
           software_instance_list,
-          [x for x in slave_software_instance_list if (x.default_aggregate_uid == computer_partition.getUid())]
+          [x for x in slave_software_instance_list if (x.default_aggregate_uid == compute_partition.getUid())]
         )
       )
 
@@ -281,7 +281,7 @@ class SlapTool(BaseTool):
     # it is unlikely to get an empty catalog
     last_indexed_entry = self.getPortalObject().portal_catalog(
       select_list=['indexation_timestamp'],
-      portal_type=['Computer', 'Computer Partition',
+      portal_type=['Compute Node', 'Compute Partition',
                    'Software Instance', 'Slave Instance',
                    'Software Installation'],
       sort_on=[('indexation_timestamp', 'DESC')],
@@ -290,20 +290,20 @@ class SlapTool(BaseTool):
     return '%s_%s' % (last_indexed_entry.uid,
                       last_indexed_entry.indexation_timestamp)
 
-  def _getComputerInformation(self, computer_id, user, refresh_etag):
+  def _getComputeNodeInformation(self, compute_node_id, user, refresh_etag):
     portal = self.getPortalObject()
     user_document = _assertACI(portal.portal_catalog.unrestrictedGetResultValue(
-      reference=user, portal_type=['Person', 'Computer', 'Software Instance']))
+      reference=user, portal_type=['Person', 'Compute Node', 'Software Instance']))
     user_type = user_document.getPortalType()
     self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
-    slap_computer = Computer(computer_id.decode("UTF-8"))
-    parent_uid = self._getComputerUidByReference(computer_id)
+    slap_compute_node = ComputeNode(compute_node_id.decode("UTF-8"))
+    parent_uid = self._getComputeNodeUidByReference(compute_node_id)
 
-    slap_computer._computer_partition_list = []
-    if user_type in ('Computer', 'Person'):
+    slap_compute_node._computer_partition_list = []
+    if user_type in ('Compute Node', 'Person'):
       if not self._isTestRun():
         cache_plugin = self._getCachePlugin()
-        key = '%s_%s' % (computer_id, user)
+        key = '%s_%s' % (compute_node_id, user)
         try:
           entry = cache_plugin.get(key, DEFAULT_CACHE_SCOPE)
         except KeyError:
@@ -313,39 +313,39 @@ class SlapTool(BaseTool):
           cached_dict = entry.getValue()
           cached_etag = cached_dict.get('refresh_etag', None)
           if (refresh_etag != cached_etag):
-            # Do not recalculate the computer information
+            # Do not recalculate the compute_node information
             # if nothing changed
-            self._activateFillComputerInformationCache(computer_id, user)
+            self._activateFillComputeNodeInformationCache(compute_node_id, user)
           return cached_dict['data'], cached_etag
         else:
-          self._activateFillComputerInformationCache(computer_id, user)
+          self._activateFillComputeNodeInformationCache(compute_node_id, user)
           self.REQUEST.response.setStatus(503)
           return self.REQUEST.response, None
       else:
-        return self._getCacheComputerInformation(computer_id, user), None
+        return self._getCacheComputeNodeInformation(compute_node_id, user), None
     else:
-      slap_computer._software_release_list = []
+      slap_compute_node._software_release_list = []
 
     if user_type == 'Software Instance':
-      computer = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
-        portal_type='Computer', reference=computer_id,
+      compute_node = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
+        portal_type='Compute Node', reference=compute_node_id,
         validation_state="validated")[0].getObject()
-      computer_partition_list = computer.contentValues(
-        portal_type="Computer Partition",
+      compute_partition_list = compute_node.contentValues(
+        portal_type="Compute Partition",
         checked_permission="View")
     else:
-      computer_partition_list = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
+      compute_partition_list = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
                     parent_uid=parent_uid,
                     validation_state="validated",
-                    portal_type="Computer Partition")
+                    portal_type="Compute Partition")
 
-    self._calculateSlapComputerInformation(slap_computer, computer_partition_list)
-    return dumps(slap_computer), None
+    self._calculateSlapComputeNodeInformation(slap_compute_node, compute_partition_list)
+    return dumps(slap_compute_node), None
 
   @UnrestrictedMethod
-  def _getInstanceTreeIpList(self, computer_id, computer_partition_id):
-    software_instance = self._getSoftwareInstanceForComputerPartition(
-                                          computer_id, computer_partition_id)
+  def _getInstanceTreeIpList(self, compute_node_id, compute_partition_id):
+    software_instance = self._getSoftwareInstanceForComputePartition(
+                                          compute_node_id, compute_partition_id)
     
     if software_instance is None or \
                         software_instance.getSlapState() == 'destroy_requested':
@@ -357,10 +357,10 @@ class SlapTool(BaseTool):
     ip_address_list = []
     for instance in hosting.getSpecialiseRelatedValueList(
                                               portal_type="Software Instance"):
-      computer_partition = instance.getAggregateValue(portal_type="Computer Partition")
-      if not computer_partition:
+      compute_partition = instance.getAggregateValue(portal_type="Compute Partition")
+      if not compute_partition:
         continue
-      for internet_protocol_address in computer_partition.contentValues(
+      for internet_protocol_address in compute_partition.contentValues(
                                       portal_type='Internet Protocol Address'):
         ip_address_list.append(
               (internet_protocol_address.getNetworkInterface('').decode("UTF-8"),
@@ -370,19 +370,19 @@ class SlapTool(BaseTool):
     return dumps(ip_address_list)
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'getFullComputerInformation')
-  def getFullComputerInformation(self, computer_id):
-    """Returns marshalled XML of all needed information for computer
+    'getFullComputeNodeInformation')
+  def getFullComputeNodeInformation(self, compute_node_id):
+    """Returns marshalled XML of all needed information for compute_node
 
     Includes Software Releases, which may contain Software Instances.
 
     Reuses slap library for easy marshalling.
     """
     user = self.getPortalObject().portal_membership.getAuthenticatedMember().getUserName()
-    if str(user) == computer_id:
-      self._logAccess(user, user, '#access %s' % computer_id)
+    if str(user) == compute_node_id:
+      self._logAccess(user, user, '#access %s' % compute_node_id)
     refresh_etag = self._calculateRefreshEtag()
-    body, etag = self._getComputerInformation(computer_id, user, refresh_etag)
+    body, etag = self._getComputeNodeInformation(compute_node_id, user, refresh_etag)
 
     if self.REQUEST.response.getStatus() == 200:
       # Keep in cache server for 7 days
@@ -399,13 +399,13 @@ class SlapTool(BaseTool):
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'getInstanceTreeIpList')
-  def getInstanceTreeIpList(self, computer_id, computer_partition_id):
+  def getInstanceTreeIpList(self, compute_node_id, compute_partition_id):
     """
-    Search and return all Computer Partition IP address related to one 
+    Search and return all Compute Partition IP address related to one 
     Instance Tree
     """
-    result =  self._getInstanceTreeIpList(computer_id,
-                                                      computer_partition_id)
+    result =  self._getInstanceTreeIpList(compute_node_id,
+                                                      compute_partition_id)
     
     if self.REQUEST.response.getStatus() == 200:
       # Keep in cache server for 7 days
@@ -420,12 +420,12 @@ class SlapTool(BaseTool):
       return result
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'getComputerPartitionCertificate')
-  def getComputerPartitionCertificate(self, computer_id, computer_partition_id):
+    'getComputePartitionCertificate')
+  def getComputePartitionCertificate(self, compute_node_id, compute_partition_id):
     """Method to fetch certificate"""
     self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
-    software_instance = self._getSoftwareInstanceForComputerPartition(
-      computer_id, computer_partition_id)
+    software_instance = self._getSoftwareInstanceForComputePartition(
+      compute_node_id, compute_partition_id)
     certificate_dict = dict(
       key=software_instance.getSslKey(),
       certificate=software_instance.getSslCertificate()
@@ -443,52 +443,52 @@ class SlapTool(BaseTool):
     return self.REQUEST.response
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'getComputerInformation')
-  getComputerInformation = getFullComputerInformation
+    'getComputeNodeInformation')
+  getComputeNodeInformation = getFullComputeNodeInformation
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'getComputerPartitionStatus')
-  def getComputerPartitionStatus(self, computer_id, computer_partition_id):
+    'getComputePartitionStatus')
+  def getComputePartitionStatus(self, compute_node_id, compute_partition_id):
     """
     Get the connection status of the partition
     """
     try:
-      instance = self._getSoftwareInstanceForComputerPartition(
-          computer_id,
-          computer_partition_id)
+      instance = self._getSoftwareInstanceForComputePartition(
+          compute_node_id,
+          compute_partition_id)
     except NotFound:
       return self._getAccessStatus(None)
     else:
       return self._getAccessStatus(instance.getReference())
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'getComputerStatus')
-  def getComputerStatus(self, computer_id):
+    'getComputeNodeStatus')
+  def getComputeNodeStatus(self, compute_node_id):
     """
     Get the connection status of the partition
     """
-    computer = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
-      portal_type='Computer', reference=computer_id,
+    compute_node = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
+      portal_type='Compute Node', reference=compute_node_id,
       validation_state="validated")[0].getObject()
     # Be sure to prevent accessing information to disallowed users
-    computer = _assertACI(computer)
-    return self._getAccessStatus(computer_id)
+    compute_node = _assertACI(compute_node)
+    return self._getAccessStatus(compute_node_id)
   
   security.declareProtected(Permissions.AccessContentsInformation,
     'getSoftwareInstallationStatus')
-  def getSoftwareInstallationStatus(self, url, computer_id):
+  def getSoftwareInstallationStatus(self, url, compute_node_id):
     """
     Get the connection status of the software installation
     """
-    computer = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
-      portal_type='Computer', reference=computer_id,
+    compute_node = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
+      portal_type='Compute Node', reference=compute_node_id,
       validation_state="validated")[0].getObject()
     # Be sure to prevent accessing information to disallowed users
-    computer = _assertACI(computer)
+    compute_node = _assertACI(compute_node)
     try:
-      software_installation = self._getSoftwareInstallationForComputer(
+      software_installation = self._getSoftwareInstallationForComputeNode(
           url,
-          computer)
+          compute_node)
     except NotFound:
       return self._getAccessStatus(None)
     else:
@@ -579,9 +579,9 @@ class SlapTool(BaseTool):
   ####################################################
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'setComputerPartitionConnectionXml')
-  def setComputerPartitionConnectionXml(self, computer_id,
-                                        computer_partition_id,
+    'setComputePartitionConnectionXml')
+  def setComputePartitionConnectionXml(self, compute_node_id,
+                                        compute_partition_id,
                                         connection_xml, slave_reference=None):
     """
     Set instance parameter informations on the slagrid server
@@ -589,173 +589,173 @@ class SlapTool(BaseTool):
     # When None is passed in POST, it is converted to string
     if slave_reference is not None and slave_reference.lower() == "none":
       slave_reference = None
-    return self._setComputerPartitionConnectionXml(computer_id,
-                                                   computer_partition_id,
+    return self._setComputePartitionConnectionXml(compute_node_id,
+                                                   compute_partition_id,
                                                    connection_xml,
                                                    slave_reference)
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'updateComputerPartitionRelatedInstanceList')
-  def updateComputerPartitionRelatedInstanceList(self, computer_id,
-                                                   computer_partition_id,
+    'updateComputePartitionRelatedInstanceList')
+  def updateComputePartitionRelatedInstanceList(self, compute_node_id,
+                                                   compute_partition_id,
                                                    instance_reference_xml):
     """
     Update Software Instance successor list
     """
-    return self._updateComputerPartitionRelatedInstanceList(computer_id,
-                                                   computer_partition_id,
+    return self._updateComputePartitionRelatedInstanceList(compute_node_id,
+                                                   compute_partition_id,
                                                    instance_reference_xml)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'supplySupply')
-  def supplySupply(self, url, computer_id, state='available'):
+  def supplySupply(self, url, compute_node_id, state='available'):
     """
     Request Software Release installation
     """
-    return self._supplySupply(url, computer_id, state)
+    return self._supplySupply(url, compute_node_id, state)
 
   @convertToREST
-  def _requestComputer(self, computer_title):
+  def _requestComputeNode(self, compute_node_title):
     portal = self.getPortalObject()
     person = portal.portal_membership.getAuthenticatedMember().getUserValue()
-    person.requestComputer(computer_title=computer_title)
-    computer = Computer(self.REQUEST.get('computer_reference').decode("UTF-8"))
-    return dumps(computer)
+    person.requestComputeNode(compute_node_title=compute_node_title)
+    compute_node = ComputeNode(self.REQUEST.get('compute_node_reference').decode("UTF-8"))
+    return dumps(compute_node)
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'requestComputer')
-  def requestComputer(self, computer_title):
+    'requestComputeNode')
+  def requestComputeNode(self, compute_node_title):
     """
-    Request Computer
+    Request Compute Node
     """
-    return self._requestComputer(computer_title)
+    return self._requestComputeNode(compute_node_title)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'buildingSoftwareRelease')
-  def buildingSoftwareRelease(self, url, computer_id):
+  def buildingSoftwareRelease(self, url, compute_node_id):
     """
     Reports that Software Release is being build
     """
-    return self._buildingSoftwareRelease(url, computer_id)
+    return self._buildingSoftwareRelease(url, compute_node_id)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'availableSoftwareRelease')
-  def availableSoftwareRelease(self, url, computer_id):
+  def availableSoftwareRelease(self, url, compute_node_id):
     """
     Reports that Software Release is available
     """
-    return self._availableSoftwareRelease(url, computer_id)
+    return self._availableSoftwareRelease(url, compute_node_id)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'destroyedSoftwareRelease')
-  def destroyedSoftwareRelease(self, url, computer_id):
+  def destroyedSoftwareRelease(self, url, compute_node_id):
     """
     Reports that Software Release is available
     """
-    return self._destroyedSoftwareRelease(url, computer_id)
+    return self._destroyedSoftwareRelease(url, compute_node_id)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'softwareReleaseError')
-  def softwareReleaseError(self, url, computer_id, error_log):
+  def softwareReleaseError(self, url, compute_node_id, error_log):
     """
     Add an error for a software Release workflow
     """
-    return self._softwareReleaseError(url, computer_id, error_log)
+    return self._softwareReleaseError(url, compute_node_id, error_log)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'softwareInstanceError')
-  def softwareInstanceError(self, computer_id,
-                            computer_partition_id, error_log):
+  def softwareInstanceError(self, compute_node_id,
+                            compute_partition_id, error_log):
     """
     Add an error for the software Instance Workflow
     """
-    return self._softwareInstanceError(computer_id, computer_partition_id,
+    return self._softwareInstanceError(compute_node_id, compute_partition_id,
                                        error_log)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'softwareInstanceRename')
-  def softwareInstanceRename(self, new_name, computer_id,
-                             computer_partition_id, slave_reference=None):
+  def softwareInstanceRename(self, new_name, compute_node_id,
+                             compute_partition_id, slave_reference=None):
     """
     Change the title of a Software Instance using Workflow.
     """
-    return self._softwareInstanceRename(new_name, computer_id,
-                                        computer_partition_id,
+    return self._softwareInstanceRename(new_name, compute_node_id,
+                                        compute_partition_id,
                                         slave_reference)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'softwareInstanceBang')
-  def softwareInstanceBang(self, computer_id,
-                            computer_partition_id, message):
+  def softwareInstanceBang(self, compute_node_id,
+                            compute_partition_id, message):
     """
     Fire up bang on this Software Instance
     """
-    return self._softwareInstanceBang(computer_id, computer_partition_id,
+    return self._softwareInstanceBang(compute_node_id, compute_partition_id,
                                        message)
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'startedComputerPartition')
-  def startedComputerPartition(self, computer_id, computer_partition_id):
+    'startedComputePartition')
+  def startedComputePartition(self, compute_node_id, compute_partition_id):
     """
-    Reports that Computer Partition is started
+    Reports that Compute Partition is started
     """
-    return self._startedComputerPartition(computer_id, computer_partition_id)
+    return self._startedComputePartition(compute_node_id, compute_partition_id)
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'stoppedComputerPartition')
-  def stoppedComputerPartition(self, computer_id, computer_partition_id):
+    'stoppedComputePartition')
+  def stoppedComputePartition(self, compute_node_id, compute_partition_id):
     """
-    Reports that Computer Partition is stopped
+    Reports that Compute Partition is stopped
     """
-    return self._stoppedComputerPartition(computer_id, computer_partition_id)
+    return self._stoppedComputePartition(compute_node_id, compute_partition_id)
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'destroyedComputerPartition')
-  def destroyedComputerPartition(self, computer_id, computer_partition_id):
+    'destroyedComputePartition')
+  def destroyedComputePartition(self, compute_node_id, compute_partition_id):
     """
-    Reports that Computer Partition is destroyed
+    Reports that Compute Partition is destroyed
     """
-    return self._destroyedComputerPartition(computer_id, computer_partition_id)
+    return self._destroyedComputePartition(compute_node_id, compute_partition_id)
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'requestComputerPartition')
-  def requestComputerPartition(self, computer_id=None,
-      computer_partition_id=None, software_release=None, software_type=None,
+    'requestComputePartition')
+  def requestComputePartition(self, compute_node_id=None,
+      compute_partition_id=None, software_release=None, software_type=None,
       partition_reference=None, partition_parameter_xml=None,
       filter_xml=None, state=None, shared_xml=_MARKER):
     """
-    Asynchronously requests creation of computer partition for assigned
+    Asynchronously requests creation of compute partition for assigned
     parameters
 
     Returns XML representation of partition with HTTP code 200 OK
 
     In case if this request is still being processed data contain
-    "Computer Partition is being processed" and HTTP code is 408 Request Timeout
+    "Compute Partition is being processed" and HTTP code is 408 Request Timeout
 
     In any other case returns not important data and HTTP code is 403 Forbidden
     """
-    return self._requestComputerPartition(computer_id, computer_partition_id,
+    return self._requestComputePartition(compute_node_id, compute_partition_id,
         software_release, software_type, partition_reference,
         shared_xml, partition_parameter_xml, filter_xml, state)
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'useComputer')
-  def useComputer(self, computer_id, use_string):
+    'useComputeNode')
+  def useComputeNode(self, compute_node_id, use_string):
     """
-    Entry point to reporting usage of a computer.
+    Entry point to reporting usage of a compute_node.
     """
-    computer_consumption_model = \
+    compute_node_consumption_model = \
       pkg_resources.resource_string(
         'slapos.slap',
         'doc/computer_consumption.xsd')
 
-    if self._validateXML(use_string, computer_consumption_model):
-      computer = self._getComputerDocument(computer_id)
+    if self._validateXML(use_string, compute_node_consumption_model):
+      compute_node = self._getComputeNodeDocument(compute_node_id)
       tree = etree.fromstring(use_string)
       source_reference = \
           tree.find('transaction').find('reference').text or ""
       source_reference = source_reference.encode("UTF-8")
-      computer.Computer_reportComputerConsumption(
+      compute_node.ComputeNode_reportComputeNodeConsumption(
         source_reference,
         use_string)
       self.REQUEST.response.setStatus(200)
@@ -767,96 +767,96 @@ class SlapTool(BaseTool):
       return self.REQUEST.response
 
   @convertToREST
-  def _computerBang(self, computer_id, message):
+  def _compute_nodeBang(self, compute_node_id, message):
     """
-    Fire up bung on Computer
+    Fire up bung on Compute Node
     """
     user = self.getPortalObject().portal_membership.getAuthenticatedMember()\
                                                    .getUserName()
-    self._logAccess(user, computer_id, '#error bang')
-    return self._getComputerDocument(computer_id).reportComputerBang(
+    self._logAccess(user, compute_node_id, '#error bang')
+    return self._getComputeNodeDocument(compute_node_id).reportComputeNodeBang(
                                      comment=message)
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'computerBang')
-  def computerBang(self, computer_id, message):
+    'compute_nodeBang')
+  def compute_nodeBang(self, compute_node_id, message):
     """
     Fire up bang on this Software Instance
     """
-    return self._computerBang(computer_id, message)
+    return self._compute_nodeBang(compute_node_id, message)
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'loadComputerConfigurationFromXML')
-  def loadComputerConfigurationFromXML(self, xml):
-    "Load the given xml as configuration for the computer object"
-    computer_dict = loads(xml)
-    computer = self._getComputerDocument(computer_dict['reference'])
-    computer.Computer_updateFromDict(computer_dict)
+    'loadComputeNodeConfigurationFromXML')
+  def loadComputeNodeConfigurationFromXML(self, xml):
+    "Load the given xml as configuration for the compute_node object"
+    compute_node_dict = loads(xml)
+    compute_node = self._getComputeNodeDocument(compute_node_dict['reference'])
+    compute_node.ComputeNode_updateFromDict(compute_node_dict)
     return 'Content properly posted.'
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'useComputerPartition')
-  def useComputerPartition(self, computer_id, computer_partition_id,
+    'useComputePartition')
+  def useComputePartition(self, compute_node_id, compute_partition_id,
     use_string):
     """Warning : deprecated method."""
-    computer_document = self._getComputerDocument(computer_id)
-    computer_partition_document = self._getComputerPartitionDocument(
-      computer_document.getReference(), computer_partition_id)
+    compute_node_document = self._getComputeNodeDocument(compute_node_id)
+    compute_partition_document = self._getComputePartitionDocument(
+      compute_node_document.getReference(), compute_partition_id)
     # easy way to start to store usage messages sent by client in related Web
     # Page text_content...
-    self._reportUsage(computer_partition_document, use_string)
+    self._reportUsage(compute_partition_document, use_string)
     return """Content properly posted.
-              WARNING : this method is deprecated. Please use useComputer."""
+              WARNING : this method is deprecated. Please use useComputeNode."""
 
   @convertToREST
-  def _generateComputerCertificate(self, computer_id):
-    self._getComputerDocument(computer_id).generateCertificate()
+  def _generateComputeNodeCertificate(self, compute_node_id):
+    self._getComputeNodeDocument(compute_node_id).generateCertificate()
     result = {
-     'certificate': self.REQUEST.get('computer_certificate').decode("UTF-8"),
-     'key': self.REQUEST.get('computer_key').decode("UTF-8")
+     'certificate': self.REQUEST.get('compute_node_certificate').decode("UTF-8"),
+     'key': self.REQUEST.get('compute_node_key').decode("UTF-8")
      }
     return dumps(result)
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'generateComputerCertificate')
-  def generateComputerCertificate(self, computer_id):
-    """Fetches new computer certificate"""
-    return self._generateComputerCertificate(computer_id)
+    'generateComputeNodeCertificate')
+  def generateComputeNodeCertificate(self, compute_node_id):
+    """Fetches new compute_node certificate"""
+    return self._generateComputeNodeCertificate(compute_node_id)
 
   @convertToREST
-  def _revokeComputerCertificate(self, computer_id):
-    self._getComputerDocument(computer_id).revokeCertificate()
+  def _revokeComputeNodeCertificate(self, compute_node_id):
+    self._getComputeNodeDocument(compute_node_id).revokeCertificate()
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'revokeComputerCertificate')
-  def revokeComputerCertificate(self, computer_id):
-    """Revokes existing computer certificate"""
-    return self._revokeComputerCertificate(computer_id)
+    'revokeComputeNodeCertificate')
+  def revokeComputeNodeCertificate(self, compute_node_id):
+    """Revokes existing compute_node certificate"""
+    return self._revokeComputeNodeCertificate(compute_node_id)
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'registerComputerPartition')
-  def registerComputerPartition(self, computer_reference,
-                                computer_partition_reference):
+    'registerComputePartition')
+  def registerComputePartition(self, compute_node_reference,
+                                compute_partition_reference):
     """
-    Registers connected representation of computer partition and
-    returns Computer Partition class object
+    Registers connected representation of compute partition and
+    returns Compute Partition class object
     """
-    # Try to get the computer partition to raise an exception if it doesn't
+    # Try to get the compute partition to raise an exception if it doesn't
     # exist
     portal = self.getPortalObject()
-    computer_partition_document = self._getComputerPartitionDocument(
-          computer_reference, computer_partition_reference)
-    slap_partition = SlapComputerPartition(computer_reference.decode("UTF-8"),
-        computer_partition_reference.decode("UTF-8"))
+    compute_partition_document = self._getComputePartitionDocument(
+          compute_node_reference, compute_partition_reference)
+    slap_partition = SlapComputePartition(compute_node_reference.decode("UTF-8"),
+        compute_partition_reference.decode("UTF-8"))
     slap_partition._software_release_document = None
     slap_partition._requested_state = 'destroyed'
     slap_partition._need_modification = 0
     software_instance = None
 
-    if computer_partition_document.getSlapState() == 'busy':
+    if compute_partition_document.getSlapState() == 'busy':
       software_instance_list = portal.portal_catalog.unrestrictedSearchResults(
           portal_type="Software Instance",
-          default_aggregate_uid=computer_partition_document.getUid(),
+          default_aggregate_uid=compute_partition_document.getUid(),
           validation_state="validated",
           limit=2,
           )
@@ -867,7 +867,7 @@ class SlapTool(BaseTool):
         # XXX do not prevent the system to work if one partition is broken
         raise NotImplementedError, "Too many instances %s linked to %s" % \
           ([x.path for x in software_instance_list],
-           computer_partition_document.getRelativeUrl())
+           compute_partition_document.getRelativeUrl())
 
     if software_instance is not None:
       # trick client side, that data has been synchronised already for given
@@ -881,7 +881,7 @@ class SlapTool(BaseTool):
 
       slap_partition._software_release_document = SoftwareRelease(
             software_release=software_instance.getUrlString().decode("UTF-8"),
-            computer_guid=computer_reference.decode("UTF-8"))
+            computer_guid=compute_node_reference.decode("UTF-8"))
 
       slap_partition._need_modification = 1
 
@@ -984,15 +984,15 @@ class SlapTool(BaseTool):
       LOG('SlapTool', INFO, 'Issue during parsing xml:', error=True)
     return result_dict
 
-  def _getSlapPartitionByPackingList(self, computer_partition_document,
+  def _getSlapPartitionByPackingList(self, compute_partition_document,
                                      software_instance_list,
                                      slave_instance_sql_list):
-    computer = computer_partition_document
-    while computer.getPortalType() != 'Computer':
-      computer = computer.getParentValue()
-    computer_id = computer.getReference().decode("UTF-8")
-    slap_partition = SlapComputerPartition(computer_id,
-      computer_partition_document.getReference().decode("UTF-8"))
+    compute_node = compute_partition_document
+    while compute_node.getPortalType() != 'Compute Node':
+      compute_node = compute_node.getParentValue()
+    compute_node_id = compute_node.getReference().decode("UTF-8")
+    slap_partition = SlapComputePartition(compute_node_id,
+      compute_partition_document.getReference().decode("UTF-8"))
 
     slap_partition._software_release_document = None
     slap_partition._requested_state = 'destroyed'
@@ -1000,14 +1000,14 @@ class SlapTool(BaseTool):
 
     software_instance = None
 
-    if computer_partition_document.getSlapState() == 'busy':
+    if compute_partition_document.getSlapState() == 'busy':
       software_instance_count = len(software_instance_list)
       if software_instance_count == 1:
         software_instance = _assertACI(software_instance_list[0].getObject())
       elif software_instance_count > 1:
         # XXX do not prevent the system to work if one partition is broken
         raise NotImplementedError, "Too many instances linked to %s" % \
-           computer_partition_document.getRelativeUrl()
+           compute_partition_document.getRelativeUrl()
 
     if software_instance is not None:
       state = software_instance.getSlapState()
@@ -1020,7 +1020,7 @@ class SlapTool(BaseTool):
 
       slap_partition._software_release_document = SoftwareRelease(
             software_release=software_instance.getUrlString().decode("UTF-8"),
-            computer_guid=computer_id)
+            computer_guid=compute_node_id)
 
       slap_partition._need_modification = 1
 
@@ -1048,47 +1048,47 @@ class SlapTool(BaseTool):
     return slap_partition
 
   @convertToREST
-  def _supplySupply(self, url, computer_id, state):
+  def _supplySupply(self, url, compute_node_id, state):
     """
     Request Software Release installation
     """
-    computer_document = self._getComputerDocument(computer_id)
-    computer_document.requestSoftwareRelease(software_release_url=url, state=state)
+    compute_node_document = self._getComputeNodeDocument(compute_node_id)
+    compute_node_document.requestSoftwareRelease(software_release_url=url, state=state)
 
   @convertToREST
-  def _buildingSoftwareRelease(self, url, computer_id):
+  def _buildingSoftwareRelease(self, url, compute_node_id):
     """
     Log the software release status
     """
-    computer_document = self._getComputerDocument(computer_id)
+    compute_node_document = self._getComputeNodeDocument(compute_node_id)
     software_installation_reference = self._getSoftwareInstallationReference(url,
-      computer_document)
+      compute_node_document)
     user = self.getPortalObject().portal_membership.\
         getAuthenticatedMember().getUserName()
     self._logAccess(user, software_installation_reference,
       '#building software release %s' % url, "building")
 
   @convertToREST
-  def _availableSoftwareRelease(self, url, computer_id):
+  def _availableSoftwareRelease(self, url, compute_node_id):
     """
     Log the software release status
     """
-    computer_document = self._getComputerDocument(computer_id)
+    compute_node_document = self._getComputeNodeDocument(compute_node_id)
     software_installation_reference = self._getSoftwareInstallationReference(url,
-      computer_document)
+      compute_node_document)
     user = self.getPortalObject().portal_membership.\
         getAuthenticatedMember().getUserName()
     self._logAccess(user, software_installation_reference,
         '#access software release %s available' % url, "available")
 
   @convertToREST
-  def _destroyedSoftwareRelease(self, url, computer_id):
+  def _destroyedSoftwareRelease(self, url, compute_node_id):
     """
     Reports that Software Release is destroyed
     """
-    computer_document = self._getComputerDocument(computer_id)
-    software_installation = self._getSoftwareInstallationForComputer(url,
-      computer_document)
+    compute_node_document = self._getComputeNodeDocument(compute_node_id)
+    software_installation = self._getSoftwareInstallationForComputeNode(url,
+      compute_node_document)
     if software_installation.getSlapState() != 'destroy_requested':
       raise NotFound
     if self.getPortalObject().portal_workflow.isTransitionPossible(software_installation,
@@ -1097,17 +1097,17 @@ class SlapTool(BaseTool):
         comment="Software Release destroyed report.")
 
   @convertToREST
-  def _softwareInstanceError(self, computer_id,
-                            computer_partition_id, error_log=""):
+  def _softwareInstanceError(self, compute_node_id,
+                            compute_partition_id, error_log=""):
     """
     Add an error for the software Instance Workflow
     """
     if error_log is None:
       error_log = ""
 
-    instance = self._getSoftwareInstanceForComputerPartition(
-        computer_id,
-        computer_partition_id)
+    instance = self._getSoftwareInstanceForComputePartition(
+        compute_node_id,
+        compute_partition_id)
     user = self.getPortalObject().portal_membership.getAuthenticatedMember()\
                                                    .getUserName()
     status_changed = self._logAccess(user, instance.getReference(),
@@ -1117,10 +1117,10 @@ class SlapTool(BaseTool):
       instance.reindexObject()
 
   @convertToREST
-  def _softwareInstanceRename(self, new_name, computer_id,
-                              computer_partition_id, slave_reference):
-    software_instance = self._getSoftwareInstanceForComputerPartition(
-      computer_id, computer_partition_id,
+  def _softwareInstanceRename(self, new_name, compute_node_id,
+                              compute_partition_id, slave_reference):
+    software_instance = self._getSoftwareInstanceForComputePartition(
+      compute_node_id, compute_partition_id,
       slave_reference)
     hosting = software_instance.getSpecialise()
     for name in [software_instance.getTitle(), new_name]:
@@ -1131,15 +1131,15 @@ class SlapTool(BaseTool):
       comment="Rename %s into %s" % (software_instance.title, new_name))
 
   @convertToREST
-  def _softwareInstanceBang(self, computer_id,
-                            computer_partition_id, message):
+  def _softwareInstanceBang(self, compute_node_id,
+                            compute_partition_id, message):
     """
     Fire up bang on Software Instance
     Add an error for the software Instance Workflow
     """
-    software_instance = self._getSoftwareInstanceForComputerPartition(
-        computer_id,
-        computer_partition_id)
+    software_instance = self._getSoftwareInstanceForComputePartition(
+        compute_node_id,
+        compute_partition_id)
     user = self.getPortalObject().portal_membership.\
         getAuthenticatedMember().getUserName()
     self._logAccess(user, software_instance.getReference(),
@@ -1214,13 +1214,13 @@ class SlapTool(BaseTool):
     return self.REQUEST.response
 
   @convertToREST
-  def _startedComputerPartition(self, computer_id, computer_partition_id):
+  def _startedComputePartition(self, compute_node_id, compute_partition_id):
     """
-    Log the computer status
+    Log the compute_node status
     """
-    instance = self._getSoftwareInstanceForComputerPartition(
-        computer_id,
-        computer_partition_id)
+    instance = self._getSoftwareInstanceForComputePartition(
+        compute_node_id,
+        compute_partition_id)
     user = self.getPortalObject().portal_membership.getAuthenticatedMember()\
                                                    .getUserName()
     status_changed = self._logAccess(user, instance.getReference(),
@@ -1229,13 +1229,13 @@ class SlapTool(BaseTool):
       instance.reindexObject()
 
   @convertToREST
-  def _stoppedComputerPartition(self, computer_id, computer_partition_id):
+  def _stoppedComputePartition(self, compute_node_id, compute_partition_id):
     """
-    Log the computer status
+    Log the compute_node status
     """
-    instance = self._getSoftwareInstanceForComputerPartition(
-        computer_id,
-        computer_partition_id)
+    instance = self._getSoftwareInstanceForComputePartition(
+        compute_node_id,
+        compute_partition_id)
     user = self.getPortalObject().portal_membership.getAuthenticatedMember()\
                                                    .getUserName()
     status_changed = self._logAccess(user, instance.getReference(),
@@ -1244,13 +1244,13 @@ class SlapTool(BaseTool):
       instance.reindexObject()
 
   @convertToREST
-  def _destroyedComputerPartition(self, computer_id, computer_partition_id):
+  def _destroyedComputePartition(self, compute_node_id, compute_partition_id):
     """
-    Reports that Computer Partition is destroyed
+    Reports that Compute Partition is destroyed
     """
-    instance = self._getSoftwareInstanceForComputerPartition(
-        computer_id,
-        computer_partition_id)
+    instance = self._getSoftwareInstanceForComputePartition(
+        compute_node_id,
+        compute_partition_id)
     if instance.getSlapState() == 'destroy_requested':
       # remove certificate from SI
       if instance.getSslKey() is not None or instance.getSslCertificate() is not None:
@@ -1276,16 +1276,16 @@ class SlapTool(BaseTool):
 
 
   @convertToREST
-  def _setComputerPartitionConnectionXml(self, computer_id,
-                                         computer_partition_id,
+  def _setComputePartitionConnectionXml(self, compute_node_id,
+                                         compute_partition_id,
                                          connection_xml,
                                          slave_reference=None):
     """
-    Sets Computer Partition connection Xml
+    Sets Compute Partition connection Xml
     """
-    software_instance = self._getSoftwareInstanceForComputerPartition(
-        computer_id,
-        computer_partition_id,
+    software_instance = self._getSoftwareInstanceForComputePartition(
+        compute_node_id,
+        compute_partition_id,
         slave_reference)
     connection_xml = dict2xml(loads(connection_xml))
     reference = software_instance.getReference()
@@ -1296,17 +1296,17 @@ class SlapTool(BaseTool):
       self._storeLastData(reference, connection_xml)
 
   @convertToREST
-  def _requestComputerPartition(self, computer_id, computer_partition_id,
+  def _requestComputePartition(self, compute_node_id, compute_partition_id,
         software_release, software_type, partition_reference,
         shared_xml, partition_parameter_xml, filter_xml, state):
     """
-    Asynchronously requests creation of computer partition for assigned
+    Asynchronously requests creation of compute partition for assigned
     parameters
 
     Returns XML representation of partition with HTTP code 200 OK
 
     In case if this request is still being processed data contain
-    "Computer Partition is being processed" and HTTP code is 408 Request
+    "Compute Partition is being processed" and HTTP code is 408 Request
     Timeout
 
     In any other case returns not important data and HTTP code is 403 Forbidden
@@ -1349,11 +1349,11 @@ class SlapTool(BaseTool):
                                   xml_declaration=True, encoding='utf-8')
 
     portal = self.getPortalObject()
-    if computer_id and computer_partition_id:
+    if compute_node_id and compute_partition_id:
       # requested by Software Instance, there is already top part of tree
       software_instance_document = self.\
-        _getSoftwareInstanceForComputerPartition(computer_id,
-        computer_partition_id)
+        _getSoftwareInstanceForComputePartition(compute_node_id,
+        compute_partition_id)
       instance_tree = software_instance_document.getSpecialiseValue()
       if instance_tree is not None and instance_tree.getSlapState() == "stop_requested":
         state = 'stopped'
@@ -1413,7 +1413,7 @@ class SlapTool(BaseTool):
     if requested_software_instance is None:
       raise SoftwareInstanceNotReady
     else:
-      if not requested_software_instance.getAggregate(portal_type="Computer Partition"):
+      if not requested_software_instance.getAggregate(portal_type="Compute Partition"):
         raise SoftwareInstanceNotReady
       else:
         parameter_dict = self._getSoftwareInstanceAsParameterDict(requested_software_instance)
@@ -1436,11 +1436,11 @@ class SlapTool(BaseTool):
         return dumps(software_instance)
 
   @UnrestrictedMethod
-  def _updateComputerPartitionRelatedInstanceList(self, computer_id,
-                              computer_partition_id, instance_reference_xml):
+  def _updateComputePartitionRelatedInstanceList(self, compute_node_id,
+                              compute_partition_id, instance_reference_xml):
     """
     Update Software Instance successor list to match the given list. If one
-    instance was not requested by this computer partition, it should be removed
+    instance was not requested by this compute partition, it should be removed
     in the successor_list of this instance.
     Once the link is removed, this instance will be trashed by Garbage Collect!
 
@@ -1448,8 +1448,8 @@ class SlapTool(BaseTool):
     this instance.
     """
     software_instance_document = self.\
-                          _getSoftwareInstanceForComputerPartition(computer_id,
-                          computer_partition_id)
+                          _getSoftwareInstanceForComputePartition(compute_node_id,
+                          compute_partition_id)
 
     cache_reference = '%s-PREDLIST' % software_instance_document.getReference()
     if self._getLastData(cache_reference) != instance_reference_xml:
@@ -1467,7 +1467,7 @@ class SlapTool(BaseTool):
                             in instance_reference_list]
 
         LOG('SlapTool', INFO, '%s, %s: Updating successor list to %s' % (
-          computer_id, computer_partition_id, successor_list), error=False)
+          compute_node_id, compute_partition_id, successor_list), error=False)
         software_instance_document.edit(successor_list=successor_list,
             comment='successor_list edited to unlink non commited instances')
       self._storeLastData(cache_reference, instance_reference_xml)
@@ -1485,53 +1485,53 @@ class SlapTool(BaseTool):
     else:
       return _assertACI(l[0].getObject())
 
-  def _getNonCachedComputerDocument(self, computer_reference):
+  def _getNonCachedComputeNodeDocument(self, compute_node_reference):
     return self._getDocument(
-        portal_type='Computer',
+        portal_type='Compute Node',
         # XXX Hardcoded validation state
         validation_state="validated",
-        reference=computer_reference).getRelativeUrl()
+        reference=compute_node_reference).getRelativeUrl()
 
-  def _getComputerDocument(self, computer_reference):
+  def _getComputeNodeDocument(self, compute_node_reference):
     """
-    Get the validated computer with this reference.
+    Get the validated compute_node with this reference.
     """
-    result = CachingMethod(self._getNonCachedComputerDocument,
-        id='_getComputerDocument',
-        cache_factory='slap_cache_factory')(computer_reference)
+    result = CachingMethod(self._getNonCachedComputeNodeDocument,
+        id='_getComputeNodeDocument',
+        cache_factory='slap_cache_factory')(compute_node_reference)
     return self.getPortalObject().restrictedTraverse(result)
 
   @UnrestrictedMethod
-  def _getComputerUidByReference(self, computer_reference):
+  def _getComputeNodeUidByReference(self, compute_node_reference):
     """
-    Get the validated computer with this reference.
+    Get the validated compute_node with this reference.
     """
-    result = CachingMethod(self._getNonCachedComputerUidByReference,
-        id='_getNonCachedComputerUidByReference',
-        cache_factory='slap_cache_factory')(computer_reference)
+    result = CachingMethod(self._getNonCachedComputeNodeUidByReference,
+        id='_getNonCachedComputeNodeUidByReference',
+        cache_factory='slap_cache_factory')(compute_node_reference)
     return result
 
   @UnrestrictedMethod
-  def _getNonCachedComputerUidByReference(self, computer_reference):
+  def _getNonCachedComputeNodeUidByReference(self, compute_node_reference):
     return self.getPortalObject().portal_catalog.unrestrictedSearchResults(
-      portal_type='Computer', reference=computer_reference,
+      portal_type='Compute Node', reference=compute_node_reference,
       validation_state="validated")[0].UID
 
-  def _getComputerPartitionDocument(self, computer_reference,
-                                    computer_partition_reference):
+  def _getComputePartitionDocument(self, compute_node_reference,
+                                    compute_partition_reference):
     """
-    Get the computer partition defined in an available computer
+    Get the compute partition defined in an available compute_node
     """
     # Related key might be nice
-    return self._getDocument(portal_type='Computer Partition',
-                             reference=computer_partition_reference,
-                             parent_uid=self._getComputerUidByReference(
-                                computer_reference))
+    return self._getDocument(portal_type='Compute Partition',
+                             reference=compute_partition_reference,
+                             parent_uid=self._getComputeNodeUidByReference(
+                                compute_node_reference))
 
-  def _getSoftwareInstallationForComputer(self, url, computer_document):
+  def _getSoftwareInstallationForComputeNode(self, url, compute_node_document):
     software_installation_list = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
       portal_type='Software Installation',
-      default_aggregate_uid=computer_document.getUid(),
+      default_aggregate_uid=compute_node_document.getUid(),
       validation_state='validated',
       limit=2,
       url_string={'query': url, 'key': 'ExactMatch'},
@@ -1541,33 +1541,33 @@ class SlapTool(BaseTool):
     if l == 1:
       return _assertACI(software_installation_list[0].getObject())
     elif l == 0:
-      raise NotFound('No software release %r found on computer %r' % (url,
-        computer_document.getReference()))
+      raise NotFound('No software release %r found on compute_node %r' % (url,
+        compute_node_document.getReference()))
     else:
       raise ValueError('Wrong list of software releases on %r: %s' % (
-        computer_document.getReference(), ', '.join([q.getRelativeUrl() for q \
+        compute_node_document.getReference(), ', '.join([q.getRelativeUrl() for q \
           in software_installation_list])
       ))
   
-  def _getSoftwareInstallationReference(self, url, computer_document):
-    return self._getSoftwareInstallationForComputer(url,
-              computer_document).getReference()
+  def _getSoftwareInstallationReference(self, url, compute_node_document):
+    return self._getSoftwareInstallationForComputeNode(url,
+              compute_node_document).getReference()
   
-  def _getSoftwareInstanceForComputerPartition(self, computer_id,
-      computer_partition_id, slave_reference=None):
-    computer_partition_document = self._getComputerPartitionDocument(
-      computer_id, computer_partition_id)
-    if computer_partition_document.getSlapState() != 'busy':
-      LOG('SlapTool::_getSoftwareInstanceForComputerPartition', INFO,
-          'Computer partition %s shall be busy, is free' %
-          computer_partition_document.getRelativeUrl())
-      raise NotFound, "No software instance found for: %s - %s" % (computer_id,
-          computer_partition_id)
+  def _getSoftwareInstanceForComputePartition(self, compute_node_id,
+      compute_partition_id, slave_reference=None):
+    compute_partition_document = self._getComputePartitionDocument(
+      compute_node_id, compute_partition_id)
+    if compute_partition_document.getSlapState() != 'busy':
+      LOG('SlapTool::_getSoftwareInstanceForComputePartition', INFO,
+          'Compute partition %s shall be busy, is free' %
+          compute_partition_document.getRelativeUrl())
+      raise NotFound, "No software instance found for: %s - %s" % (compute_node_id,
+          compute_partition_id)
     else:
       query_kw = {
         'validation_state': 'validated',
         'portal_type': 'Slave Instance',
-        'default_aggregate_uid': computer_partition_document.getUid(),
+        'default_aggregate_uid': compute_partition_document.getUid(),
       }
       if slave_reference is None:
         query_kw['portal_type'] = "Software Instance"
@@ -1577,15 +1577,15 @@ class SlapTool(BaseTool):
       software_instance = _assertACI(self.getPortalObject().portal_catalog.unrestrictedGetResultValue(**query_kw))
       if software_instance is None:
         raise NotFound, "No software instance found for: %s - %s" % (
-          computer_id, computer_partition_id)
+          compute_node_id, compute_partition_id)
       else:
         return software_instance
 
   @UnrestrictedMethod
   def _getSoftwareInstanceAsParameterDict(self, software_instance, slave_instance_sql_list=None):
     portal = software_instance.getPortalObject()
-    computer_partition = software_instance.getAggregateValue(portal_type="Computer Partition")
-    timestamp = int(computer_partition.getModificationDate())
+    compute_partition = software_instance.getAggregateValue(portal_type="Compute Partition")
+    timestamp = int(compute_partition.getModificationDate())
 
     newtimestamp = int(software_instance.getBangTimestamp(int(software_instance.getModificationDate())))
     if (newtimestamp > timestamp):
@@ -1595,7 +1595,7 @@ class SlapTool(BaseTool):
 
     ip_list = []
     full_ip_list = []
-    for internet_protocol_address in computer_partition.contentValues(portal_type='Internet Protocol Address'):
+    for internet_protocol_address in compute_partition.contentValues(portal_type='Internet Protocol Address'):
       # XXX - There is new values, and we must keep compatibility
       address_tuple = (
           internet_protocol_address.getNetworkInterface('').decode("UTF-8"),
@@ -1615,7 +1615,7 @@ class SlapTool(BaseTool):
       append = slave_instance_list.append
       if slave_instance_sql_list is None:
         slave_instance_sql_list = portal.portal_catalog.unrestrictedSearchResults(
-          default_aggregate_uid=computer_partition.getUid(),
+          default_aggregate_uid=compute_partition.getUid(),
           portal_type='Slave Instance',
           validation_state="validated",
           **{"slapos_item.slap_state": "start_requested"}
@@ -1645,9 +1645,9 @@ class SlapTool(BaseTool):
       'connection_xml': software_instance.getConnectionXml(),
       'filter_xml': software_instance.getSlaXml(),
       'slap_computer_id': \
-        computer_partition.getParentValue().getReference().decode("UTF-8"),
+        compute_partition.getParentValue().getReference().decode("UTF-8"),
       'slap_computer_partition_id': \
-        computer_partition.getReference().decode("UTF-8"),
+        compute_partition.getReference().decode("UTF-8"),
       'slap_software_type': \
         software_instance.getSourceReference().decode("UTF-8"),
       'slap_software_release_url': \
@@ -1659,20 +1659,20 @@ class SlapTool(BaseTool):
     }
 
   @UnrestrictedMethod
-  def _getSoftwareReleaseValueListForComputer(self, computer_reference):
-    """Returns list of Software Releases documentsfor computer"""
-    computer_document = self._getComputerDocument(computer_reference)
+  def _getSoftwareReleaseValueListForComputeNode(self, compute_node_reference):
+    """Returns list of Software Releases documentsfor compute_node"""
+    compute_node_document = self._getComputeNodeDocument(compute_node_reference)
     portal = self.getPortalObject()
     software_release_list = []
     for software_installation in portal.portal_catalog.unrestrictedSearchResults(
       portal_type='Software Installation',
-      default_aggregate_uid=computer_document.getUid(),
+      default_aggregate_uid=compute_node_document.getUid(),
       validation_state='validated',
       ):
       software_installation = _assertACI(software_installation.getObject())
       software_release_response = SoftwareRelease(
           software_release=software_installation.getUrlString().decode('UTF-8'),
-          computer_guid=computer_reference.decode('UTF-8'))
+          computer_guid=compute_node_reference.decode('UTF-8'))
       if software_installation.getSlapState() == 'destroy_requested':
         software_release_response._requested_state = 'destroyed'
       else:
@@ -1690,13 +1690,13 @@ class SlapTool(BaseTool):
     return software_release_list
 
   @convertToREST
-  def _softwareReleaseError(self, url, computer_id, error_log):
+  def _softwareReleaseError(self, url, compute_node_id, error_log):
     """
-    Log the computer status
+    Log the compute_node status
     """
-    computer_document = self._getComputerDocument(computer_id)
+    compute_node_document = self._getComputeNodeDocument(compute_node_id)
     software_installation_reference = self._getSoftwareInstallationReference(url,
-      computer_document)
+      compute_node_document)
     user = self.getPortalObject().portal_membership.\
         getAuthenticatedMember().getUserName()
     self._logAccess(user, software_installation_reference,

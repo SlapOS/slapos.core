@@ -61,7 +61,7 @@ class TestSlapOSSubscriptionCDNScenarioMixin(TestSlapOSSubscriptionScenarioMixin
       self.tic()
 
 
-    # now instantiate it on computer and set some nice connection dict
+    # now instantiate it on compute_node and set some nice connection dict
     self.setServerOpenPersonal(subscription_server)
 
     self.login(self.admin_user.getUserId())
@@ -80,7 +80,7 @@ class TestSlapOSSubscriptionCDNScenarioMixin(TestSlapOSSubscriptionScenarioMixin
       partition_reference="InstanceForSlave%s" % self.new_id
     )
 
-    # now instantiate it on computer and set some nice connection dict
+    # now instantiate it on compute_node and set some nice connection dict
     self.simulateSlapgridCP(subscription_server)
 
     self.tic()

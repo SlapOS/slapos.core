@@ -82,7 +82,7 @@
           "Software Release URL",
           "Title",
           "Instance Parameter",
-          "Computer",
+          "Compute Node",
           "SLA",
           "Parent Relative Url",
           "3/3 Request Service:",
@@ -158,15 +158,15 @@
                   "hidden": 0,
                   "type": "GadgetField"
                 },
-                "your_computer_guid": {
+                "your_compute_node_guid": {
                   "description": result[2][2],
                   "title": result[2][6],
                   "default": "",
-                  "items": doc.computer_guid,
+                  "items": doc.compute_node_guid,
                   "css_class": "",
                   "required": 0,
                   "editable": 1,
-                  "key": "computer_guid",
+                  "key": "compute_node_guid",
                   "hidden": options.sla_xml !== undefined ? 1 : 0,
                   "type": "ListField"
                 },
@@ -204,7 +204,7 @@
               group_list: [[
                 "center",
                 [["my_url_string"], ["your_title"], ["your_text_content"],
-                  ["your_computer_guid"], ["your_sla_xml"], ["my_portal_type"], ["my_relative_url"]]
+                  ["your_compute_node_guid"], ["your_sla_xml"], ["my_portal_type"], ["my_relative_url"]]
               ]]
             }
           })

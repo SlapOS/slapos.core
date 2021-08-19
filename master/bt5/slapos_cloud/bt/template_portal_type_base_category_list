@@ -1,7 +1,7 @@
 Computer Model | source_administration
 Computer Network | source_administration
-Computer | destination_section
-Computer | source_administration
+Compute Node | destination_section
+Compute Node | source_administration
 Instance Tree Module | business_application
 Instance Tree | destination_section
 Slave Instance | aggregate

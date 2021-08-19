@@ -2378,37 +2378,37 @@ Component Tool
   Visible: 1
   Index: 1.0
 
-Computer
+ComputeNode
   Reference: apply_computer_model
   Title: Apply Computer Model
-  Action: string:${object_url}/Computer_applyComputerModel
+  Action: string:${object_url}/ComputeNode_applyComputerModel
   Icon: None
   Permission: Modify portal content
   Action Type: object_action
   Visible: 1
   Index: 1.0
 
-Computer
-  Reference: computer_partition
-  Title: Computer Partitions
-  Action: string:${object_url}/Computer_viewComputerPartitionList
+ComputeNode
+  Reference: compute_partition
+  Title: Compute Partitions
+  Action: string:${object_url}/ComputeNode_viewComputePartitionList
   Icon: None
   Permission: View
   Action Type: object_view
   Visible: 1
   Index: 2.0
 
-Computer
-  Reference: computer_usage
-  Title: Computer Usage
-  Action: string:${object_url}/Computer_viewCurrentUsage
+ComputeNode
+  Reference: compute_node_usage
+  Title: Compute Node Usage
+  Action: string:${object_url}/ComputeNode_viewCurrentUsage
   Icon: None
   Permission: View
   Action Type: object_view
   Visible: 1
   Index: 50.0
 
-Computer
+ComputeNode
   Reference: jump_to_consumption_report_view
   Title: Jump to Latest Consumption Report View
   Action: string:${object_url}/Base_jumpToViewLatestDayConsumption
@@ -2418,117 +2418,117 @@ Computer
   Visible: 1
   Index: 0.5
 
-Computer
+ComputeNode
   Reference: model
   Title: Model
-  Action: string:${object_url}/Computer_viewModel
+  Action: string:${object_url}/ComputeNode_viewModel
   Icon: None
   Permission: View
   Action Type: object_view
   Visible: 1
   Index: 3.0
 
-Computer
+ComputeNode
   Reference: new_ticket
   Title: New Ticket
-  Action: string:${object_url}/Computer_viewNewTicketDialog
+  Action: string:${object_url}/ComputeNode_viewNewTicketDialog
   Icon: None
   Permission: View
   Action Type: object_action_jio
   Visible: 1
   Index: 0.5
 
-Computer
+ComputeNode
   Reference: request_certificate_action
   Title: Request Certificate
-  Action: string:${object_url}/Computer_viewCertificateRequestDialog
+  Action: string:${object_url}/ComputeNode_viewCertificateRequestDialog
   Icon: None
   Permission: View
   Action Type: object_action_jio
   Visible: 1
   Index: 0.5
 
-Computer
+ComputeNode
   Reference: revoke_certificate
   Title: Revoke Certificate
-  Action: string:${object_url}/Computer_viewRevokeComputerCertificate
+  Action: string:${object_url}/ComputeNode_viewRevokeComputeNodeCertificate
   Icon: None
   Permission: View
   Action Type: object_action_jio
   Visible: 1
   Index: 0.4
 
-Computer
+ComputeNode
   Reference: slaposjs_view
   Title: SlapOS View
-  Action: string:${object_url}/Computer_viewAsHateoas
+  Action: string:${object_url}/ComputeNode_viewAsHateoas
   Icon: None
   Permission: View
   Action Type: object_jio_view
   Visible: 1
   Index: 1000.0
 
-Computer
+ComputeNode
   Reference: tcp_port_number
   Title: Tcp Port Numbers
-  Action: string:${object_url}/Computer_viewTcpPortNumberList
+  Action: string:${object_url}/ComputeNode_viewTcpPortNumberList
   Icon: None
   Permission: View
   Action Type: object_view
   Visible: 1
   Index: 10.0
 
-Computer
+ComputeNode
   Reference: update_allocation_scope
   Title: Update Allocation Scope
-  Action: string:${object_url}/Computer_viewAllocationScopeUpdateDialog
+  Action: string:${object_url}/ComputeNode_viewAllocationScopeUpdateDialog
   Icon: None
   Permission: View
   Action Type: object_action_jio
   Visible: 1
   Index: 0.8
 
-Computer
+ComputeNode
   Reference: update_category
-  Title: Update Computer Categories
-  Action: string:${object_url}/Computer_viewCategoryAsWeb
+  Title: Update Compute Node Categories
+  Action: string:${object_url}/ComputeNode_viewCategoryAsWeb
   Icon: None
   Permission: View
   Action Type: object_action_jio
   Visible: 1
   Index: 0.81
 
-Computer
+ComputeNode
   Reference: view
   Title: View
-  Action: string:${object_url}/Computer_view
+  Action: string:${object_url}/ComputeNode_view
   Icon: None
   Permission: View
   Action Type: object_view
   Visible: 1
   Index: 1.0
 
-Computer
+ComputeNode
   Reference: view_capacity
   Title: Capacity
-  Action: string:${object_url}/Computer_viewCapacity
+  Action: string:${object_url}/ComputeNode_viewCapacity
   Icon: None
   Permission: View
   Action Type: object_view
   Visible: 1
   Index: 5.0
 
-Computer
+ComputeNode
   Reference: view_related_support_request
   Title: Ticket
-  Action: string:${object_url}/Computer_viewRelatedSupportRequest
+  Action: string:${object_url}/ComputeNode_viewRelatedSupportRequest
   Icon: None
   Permission: View
   Action Type: object_view
   Visible: 1
   Index: 5.0
 
-Computer Consumption TioXML File
+Compute Node Consumption TioXML File
   Reference: download
   Title: Download
   Action: string:${object_url}/Base_download
@@ -2538,7 +2538,7 @@ Computer Consumption TioXML File
   Visible: 1
   Index: 3.0
 
-Computer Consumption TioXML File
+Compute Node Consumption TioXML File
   Reference: view
   Title: View
   Action: string:${object_url}/File_view
@@ -2578,17 +2578,17 @@ Computer Model Module
   Visible: 1
   Index: 1.0
 
-Computer Module
+ComputeNode Module
   Reference: slapos_ticket_activity_report
   Title: SlapOS Ticket Activity Report
-  Action: string:${object_url}/ComputerModule_viewTicketActivityReportDialog
+  Action: string:${object_url}/ComputeNodeModule_viewTicketActivityReportDialog
   Icon: None
   Permission: View
   Action Type: object_report
   Visible: 1
   Index: 2.0
 
-Computer Module
+ComputeNode Module
   Reference: slaposjs_view
   Title: View
   Action: string:${object_url}/Base_viewDummyAsHateoas
@@ -2598,10 +2598,10 @@ Computer Module
   Visible: 1
   Index: 10.0
 
-Computer Module
+ComputeNode Module
   Reference: view
   Title: View
-  Action: string:${object_url}/ComputerModule_viewComputerList
+  Action: string:${object_url}/ComputeNodeModule_viewComputeNodeList
   Icon: None
   Permission: View
   Action Type: object_list
@@ -2629,9 +2629,9 @@ Computer Network
   Index: 1.0
 
 Computer Network
-  Reference: view_computer_list
-  Title: Computers
-  Action: string:${object_url}/ComputerNetwork_viewComputerList
+  Reference: view_compute_node_list
+  Title: Compute Nodes
+  Action: string:${object_url}/ComputerNetwork_viewComputeNodeList
   Icon: None
   Permission: View
   Action Type: object_view
@@ -2668,17 +2668,17 @@ Computer Network Module
   Visible: 1
   Index: 1.0
 
-Computer Partition
+Compute Partition
   Reference: model
   Title: Model
-  Action: string:${object_url}/Computer_viewModel
+  Action: string:${object_url}/ComputeNode_viewModel
   Icon: None
   Permission: View
   Action Type: object_view
   Visible: 1
   Index: 2.0
 
-Computer Partition
+Compute Partition
   Reference: unfiltered_tracking_list
   Title: Item Tracking
   Action: string:${object_url}/Item_viewTrackingList?current:int=0
@@ -2688,10 +2688,10 @@ Computer Partition
   Visible: 1
   Index: 3.0
 
-Computer Partition
+Compute Partition
   Reference: view
   Title: View
-  Action: string:${object_url}/Computer_view
+  Action: string:${object_url}/ComputeNode_view
   Icon: None
   Permission: View
   Action Type: object_view
@@ -13819,9 +13819,9 @@ Software Installation Module
   Index: 1.0
 
 Software Instance
-  Reference: jump_to_computer_partition
-  Title: Computer Partition
-  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=aggregate&portal_type:list=Computer+Partition
+  Reference: jump_to_compute_partition
+  Title: Compute Partition
+  Action: string:${object_url}/Base_jumpToRelatedObject?base_category=aggregate&portal_type:list=Compute+Partition
   Icon: None
   Permission: View
   Action Type: object_jump
@@ -14169,9 +14169,9 @@ Software Release
   Index: 1000.0
 
 Software Release
-  Reference: usable_computer
-  Title: Usable Computer
-  Action: string:${object_url}/SoftwareRelease_viewUsableComputerList
+  Reference: usable_compute_node
+  Title: Usable Compute Node
+  Action: string:${object_url}/SoftwareRelease_viewUsableComputeNodeList
   Icon: None
   Permission: View
   Action Type: object_view
@@ -14960,8 +14960,8 @@ Support Request
 
 Support Request
   Reference: jump_related_slapos_item
-  Title: Related Instance Tree, Computer or Software Installation
-  Action: string:${object_url}/Base_jumpToRelationObject?base_category=aggregate&portal_type:list=Instance%20Tree&portal_type:list=Computer&portal_type:list=Software%20Installation
+  Title: Related Instance Tree, Compute Node or Software Installation
+  Action: string:${object_url}/Base_jumpToRelationObject?base_category=aggregate&portal_type:list=Instance%20Tree&portal_type:list=Compute%20Node&portal_type:list=Software%20Installation
   Icon: None
   Permission: View
   Action Type: object_jump

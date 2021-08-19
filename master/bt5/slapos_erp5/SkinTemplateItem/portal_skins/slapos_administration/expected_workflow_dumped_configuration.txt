@@ -133,29 +133,29 @@ Component,validation_workflow
 Component Individual Variation,(Default)
 Component Module,(Default)
 Component Tool,(Default)
-Computer,computer_slap_interface_workflow
-Computer,edit_workflow
-Computer,local_permission_slapos_interaction_workflow
-Computer,slapos_cloud_interaction_workflow
-Computer,slapos_erp5_interaction_workflow
-Computer,validation_workflow
-Computer Consumption TioXML File,document_conversion_interaction_workflow
-Computer Consumption TioXML File,document_publication_workflow
-Computer Consumption TioXML File,edit_workflow
+ComputeNode,compute_node_slap_interface_workflow
+ComputeNode,edit_workflow
+ComputeNode,local_permission_slapos_interaction_workflow
+ComputeNode,slapos_cloud_interaction_workflow
+ComputeNode,slapos_erp5_interaction_workflow
+ComputeNode,validation_workflow
+Compute Node Consumption TioXML File,document_conversion_interaction_workflow
+Compute Node Consumption TioXML File,document_publication_workflow
+Compute Node Consumption TioXML File,edit_workflow
 Computer Model,edit_workflow
 Computer Model,local_permission_slapos_interaction_workflow
 Computer Model,validation_workflow
 Computer Model Module,(Default)
-Computer Module,(Default)
+ComputeNode Module,(Default)
 Computer Network,edit_workflow
 Computer Network,local_permission_slapos_interaction_workflow
 Computer Network,slapos_erp5_interaction_workflow
 Computer Network,validation_workflow
 Computer Network Module,(Default)
-Computer Partition,computer_partition_slap_interface_workflow
-Computer Partition,edit_workflow
-Computer Partition,slapos_slap_tool_interaction_workflow
-Computer Partition,validation_workflow
+Compute Partition,compute_partition_slap_interface_workflow
+Compute Partition,edit_workflow
+Compute Partition,slapos_slap_tool_interaction_workflow
+Compute Partition,validation_workflow
 Conceptual Id Generator,(Default)
 Configuration Save,edit_workflow
 Configurator Tool,(Default)

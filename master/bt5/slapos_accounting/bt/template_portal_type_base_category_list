@@ -1,7 +1,7 @@
 Cloud Contract Module | business_application
 Cloud Contract | causality
 Cloud Contract | destination_section
-Computer Consumption TioXML File | contributor
+Compute Node Consumption TioXML File | contributor
 Consumption Document Module | business_application
 Slave Instance | causality
 Software Instance | causality

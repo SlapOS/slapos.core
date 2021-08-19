@@ -30,7 +30,7 @@ category_list = []
 if obj is None:
   return []
 
-# Object on this case can be Instance Tree, Computer, or Computer Network
+# Object on this case can be Instance Tree, Compute Node, or Computer Network
 project = obj.Item_getCurrentProjectValue()
 if project is not None:
   category_list.append({'destination_project': [project.getRelativeUrl()]})

@@ -1,10 +1,10 @@
 [slapos]
-# Replace computer_id by the unique identifier of your computer on your SlapOS,
+# Replace compute_node_id by the unique identifier of your compute_node on your SlapOS,
 # Master, usually starting by COMP-
-computer_id = COMP-123456789
+compute_node_id = COMP-123456789
 master_url = https://slap.vifib.com/
-key_file = /etc/opt/slapos/ssl/computer.key
-cert_file =  /etc/opt/slapos/ssl/computer.crt
+key_file = /etc/opt/slapos/ssl/compute_node.key
+cert_file =  /etc/opt/slapos/ssl/compute_node.crt
 certificate_repository_path = /etc/opt/slapos/ssl/partition_pki
 software_root = /opt/slapgrid
 instance_root = /srv/slapgrid
@@ -21,7 +21,7 @@ interface_name = lo
 # Change "create_tap" into "true" if you need to host KVM services
 create_tap = false
 partition_amount = 10
-computer_xml = /opt/slapos/slapos.xml
+compute_node_xml = /opt/slapos/slapos.xml
 log_file = /opt/slapos/log/slapos-node-format.log
 partition_base_name = slappart
 user_base_name = slapuser

@@ -120,8 +120,8 @@
                     <value>
                       <list>
                         <tuple>
-                          <string>Computer</string>
-                          <string>Computer</string>
+                          <string>Compute Node</string>
+                          <string>Compute Node</string>
                         </tuple>
                       </list>
                     </value>
@@ -132,7 +132,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Computers</string> </value>
+                    <value> <string>Compute Nodes</string> </value>
                 </item>
               </dictionary>
             </value>

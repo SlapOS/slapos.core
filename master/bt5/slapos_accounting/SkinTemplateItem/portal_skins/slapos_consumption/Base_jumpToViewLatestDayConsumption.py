@@ -1,6 +1,6 @@
 portal = context.getPortalObject()
 
-if context.getPortalType() == "Computer":
+if context.getPortalType() == "Compute Node":
 
   # Get the Latest Sale Packing List
   sale_packing_list_line = portal.portal_catalog.getResultValue(
@@ -17,4 +17,4 @@ if context.getPortalType() == "Computer":
     return sale_packing_list.Base_redirect('Base_viewListMode?proxy_form_id=SalePackingList_view&proxy_field_id=listbox')
 
 # Redirect to web site to hide the indexation process
-context.Base_redirect('view', keep_items={'portal_status_message':context.Base_translateString('No Consumption Report for this computer.')})
+context.Base_redirect('view', keep_items={'portal_status_message':context.Base_translateString('No Consumption Report for this compute_node.')})

@@ -1,9 +1,9 @@
 Cloud Contract Line | edit_workflow
 Cloud Contract | edit_workflow
 Cloud Contract | item_workflow
-Computer Consumption TioXML File | document_conversion_interaction_workflow
-Computer Consumption TioXML File | document_publication_workflow
-Computer Consumption TioXML File | edit_workflow
+Compute Node Consumption TioXML File | document_conversion_interaction_workflow
+Compute Node Consumption TioXML File | document_publication_workflow
+Compute Node Consumption TioXML File | edit_workflow
 Instance Tree | slapos_accounting_interaction_workflow
 Instance Tree | slapos_api_invoicing_workflow
 Sale Invoice Transaction | slapos_accounting_interaction_workflow

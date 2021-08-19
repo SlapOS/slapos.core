@@ -1,15 +1,15 @@
 Accounting Transaction Module | slaposjs_view
 Category | slaposjs_view
 Cloud Contract | slaposjs_view
-Computer Module | slaposjs_view
+Compute Node Module | slaposjs_view
 Computer Network Module | slaposjs_view
 Computer Network | slaposjs_view
-Computer | new_ticket
-Computer | request_certificate_action
-Computer | revoke_certificate
-Computer | slaposjs_view
-Computer | update_allocation_scope
-Computer | update_category
+Compute Node | new_ticket
+Compute Node | request_certificate_action
+Compute Node | revoke_certificate
+Compute Node | slaposjs_view
+Compute Node | update_allocation_scope
+Compute Node | update_category
 ERP5 Login | slaposjs_view
 Facebook Login | slaposjs_view
 Google Login | slaposjs_view

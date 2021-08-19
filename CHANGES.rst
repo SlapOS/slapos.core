@@ -60,7 +60,7 @@ Changes
 1.6.9 (2021-04-27)
 ------------------
 
- * proxy: add minimal hateoas support (to support "slapos service list", "slapos computer list", ...)
+ * proxy: add minimal hateoas support (to support "slapos service list", "slapos compute_node list", ...)
  * testing: add libanl to the list of whitelist libraries
 
 1.6.8 (2021-03-29)
@@ -196,7 +196,7 @@ Changes
 -------------------
 
   * slapos/grid/promise: increase default promise timeout from 3 to 20 seconds
-  * slapos/proxy: fix loadComputerConfigurationFromXML
+  * slapos/proxy: fix loadComputeNodeConfigurationFromXML
   * slapos/cli: minor improvements in commands' help messages
 
 
@@ -207,7 +207,7 @@ Changes
   * slapos/grid/promise: Extend promise system to generate history and stats
   * testcase: Snapshot on setUpClass failure
   * slapos/collect: getint don't support fallback
-  * slapos/proxy: setComputerPartitionConnectionXml don't update timestamp
+  * slapos/proxy: setComputePartitionConnectionXml don't update timestamp
 
 
 1.5.1 (2019-10-30)
@@ -276,7 +276,7 @@ Changes
   * slap: New API using hateoas
   * slap: Use cachecontrol to be http cache friendly 
   * New command: slapos cache source to check source cache
-  * New command: slapos computer [info|list|token]
+  * New command: slapos compute_node [info|list|token]
   * grid: Stabilize service list to prevent supervisord restart
 
 
@@ -375,7 +375,7 @@ Changes
 
 1.4.8 (2018-06-26)
 ------------------
- * format: fix brokend parse_computer_definition
+ * format: fix brokend parse_compute_node_definition
  * grid.promise: kill timed out promise process if terminate is not enough
  * grid.promise: avoid blocking process while sending or receiving message from queue
  * grid.promise: on promise timeout fail only if the problem is occurring a second time
@@ -412,7 +412,7 @@ Changes
 ------------------
  * slapos.cli.grid: Allow definition of different pidfiles for each software subcommand in config file
  * slapos.cli.configure_local: Get template locally instead do an http request.
- * slapos.cli: Update API for get person certificates and register computer
+ * slapos.cli: Update API for get person certificates and register compute_node
  * format: fix some conflicts about tun interfaces when changing the number of partitions
 
 1.4.2 (2017-10-02)
@@ -517,7 +517,7 @@ Changes
  * supervisord: allow to start with --nodaemon.
  * rename : zc.buildout-bootstap.py -> zc.buildout-bootstrap.py.
  * update bootstrap.py.
- * slapproxy: add missing getComputerPartitionCertificate method
+ * slapproxy: add missing getComputePartitionCertificate method
  * slapos boot: fix error reporting when ipv6 is not available
 
 1.3.5 (2014-12-03)
@@ -596,7 +596,7 @@ Changes
 Note: not officially released as egg.
 
  * slapproxy: add correct support for slaves, instance_guid, state.
- * slapproxy: add getComputerPartitionStatus dummy support.
+ * slapproxy: add getComputePartitionStatus dummy support.
  * slapproxy: add multi-nodes support
 
 1.1.2 (2014-06-02)
@@ -682,8 +682,8 @@ Other fixes:
 
 New features:
 
- * Add ComputerPartition._instance_guid getter in SLAP library. [Cedric de Saint Martin]
- * Add ComputerPartition._instance_guid support in slapproxy. [Cedric de Saint Martin]
+ * Add ComputePartition._instance_guid getter in SLAP library. [Cedric de Saint Martin]
+ * Add ComputePartition._instance_guid support in slapproxy. [Cedric de Saint Martin]
 
 Fixes:
 
@@ -720,7 +720,7 @@ Fixes:
  * Watchdog: Fix watchdog call. [Cedric le Ninivin]
  * Add a symlink of the used software release in each partitions. [Marco Mariani]
  * slapformat is verbose by default. [Cedric de Saint Martin]
- * slapproxy: Filter by instance_guid, allow computer partition renames
+ * slapproxy: Filter by instance_guid, allow compute partition renames
               and change of software_type and requested_state. [Marco Mariani]
  * slapproxy: Stop instance even if buildout/reporting is wrong. [Cedric de Saint Martin]
  * slapproxy: implement softwareInstanceRename method. [Marco Mariani]
@@ -751,7 +751,7 @@ Fixes:
 
  * slapgrid: Adopt new return value strategy (0=OK, 1=failed, 2=promise failed)
    (commit 5d4e1522). [Cedric de Saint Martin]
- * slaplib: add requestComputer (commits 6cbe82e0, aafb86eb). [Łukasz Nowak]
+ * slaplib: add requestComputeNode (commits 6cbe82e0, aafb86eb). [Łukasz Nowak]
  * slapgrid: Add stopasgroup and killasgroup to supervisor (commit 36e0ccc0).
    [Cedric de Saint Martin]
  * slapproxy: don't start in debug mode by default (commit e32259c8).
@@ -891,7 +891,7 @@ Fixes:
 0.28 (2012-08-17)
 -----------------
 
- * Introduce "slapos node register" command, that will register computer to
+ * Introduce "slapos node register" command, that will register compute_node to
    SlapOS Master (vifib.net by default) for you. [Cédric Le Ninivin]
  * Set .timestamp in partitions ONLY after slapgrid thinks it's okay (promises,
    ...). [Cedric de Saint Martin]
@@ -906,11 +906,11 @@ Fixes:
  * slapgrid: Introduce --only_sr and --only_cp.
      - only_sr filter and force the run of a single SR, and uses url_md5
        (folder_id)
-     - only_cp filter which computer patition, will be runned. it can be a
+     - only_cp filter which compute_node patition, will be runned. it can be a
        list, splited by comman (slappartX,slappartY ...) [Rafael Monnerat]
  * slapgrid: Cleanup unused option (--usage-report-periodicity). [Cedric de
    Saint Martin]
- * slapgrid: --develop will work also for Computer Partitions. [Cedric de Saint
+ * slapgrid: --develop will work also for Compute Partitions. [Cedric de Saint
    Martin]
  * slaplib: setConnectionDict won't call Master if parameters haven't changed.
    [Cedric de Saint Martin]
@@ -927,8 +927,8 @@ Fixes:
  * SLAP library: it is now possible to fetch whole dict of connection
    parameters.
  * SLAP library: it is now possible to fetch single instance parameter.
- * SLAP library: change Computer and ComputerPartition behavior to have proper
-   caching of computer partition parameters.
+ * SLAP library: change Compute Node and ComputePartition behavior to have proper
+   caching of compute partition parameters.
 
 0.26 (2012-07-05)
 -----------------
@@ -939,9 +939,9 @@ Fixes:
  * Add delay for slapformat. [Cedric Le Ninivin]
  * If no software_type is given, use default one (i.e fix "error 500" when
    requesting new instance). [Cedric de Saint Martin]
- * slapgrid: promise based software release, new api to fetch full computer
+ * slapgrid: promise based software release, new api to fetch full compute_node
    information from server. [Yingjie Xu]
- * slapproxy: new api to mock full computer information [Yingjie Xu]
+ * slapproxy: new api to mock full compute_node information [Yingjie Xu]
  * slapgrid: minor fix randomise delay feature. [Yingjie Xu]
  * slapgrid: optimise slapgrid-cp, run buildout only if there is an update
    on server side. [Yingjie Xu]
@@ -994,7 +994,7 @@ Fixes:
 0.19 (2011-11-07)
 -----------------
 
- * bang: Executable to be called by being banged computer. [Łukasz Nowak]
+ * bang: Executable to be called by being banged compute_node. [Łukasz Nowak]
 
 0.18 (2011-10-18)
 -----------------
@@ -1005,9 +1005,9 @@ Fixes:
 -----------------
 
  * slap: Avoid request under the hood. [Łukasz Nowak]
- * slap: ComputerPartition.bang provided. It allows to update all instances
+ * slap: ComputePartition.bang provided. It allows to update all instances
    in tree. [Łukasz Nowak]
- * slap: Computer.bang provided. It allows to bang all instances on computer.
+ * slap: ComputeNode.bang provided. It allows to bang all instances on compute_node.
    [Łukasz Nowak]
 
 0.16 (2011-10-03)
@@ -1035,7 +1035,7 @@ Fixes:
 
  * slapgrid: Implement software signing and shacache upload. [Lucas Carvalho]
  * slap: Support slave instances [Gabriel Monnerat]
- * slapformat: Generate always address for computer [Łukasz Nowak]
+ * slapformat: Generate always address for compute_node [Łukasz Nowak]
  * slapgrid: Support promises scripts [Antoine Catton]
  * general: slapos.core gets tests. [many contributors]
 

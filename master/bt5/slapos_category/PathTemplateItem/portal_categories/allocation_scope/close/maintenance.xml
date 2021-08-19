@@ -55,7 +55,7 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Allocation of services is closed due to scheduled maintenance of the computer</string> </value>
+            <value> <string>Allocation of services is closed due to scheduled maintenance of the compute_node</string> </value>
         </item>
         <item>
             <key> <string>effective_date</string> </key>

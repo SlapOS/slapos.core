@@ -7,23 +7,23 @@ from Products.DCWorkflow.DCWorkflow import ValidationFailed
 from AccessControl.SecurityManagement import getSecurityManager, \
              setSecurityManager
 
-class TestSlapOSCoreComputerPartitionSlapInterfaceWorkflow(SlapOSTestCaseMixin):
+class TestSlapOSCoreComputePartitionSlapInterfaceWorkflow(SlapOSTestCaseMixin):
   def afterSetUp(self):
     self.login()
     SlapOSTestCaseMixin.afterSetUp(self)
-    # Clone computer document
-    self.computer = self.portal.computer_module.template_computer\
+    # Clone compute_node document
+    self.compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
-    self.computer.edit(
-      title="computer %s" % (self.new_id, ),
+    self.compute_node.edit(
+      title="compute node %s" % (self.new_id, ),
       reference="TESTCOMP-%s" % (self.new_id, ),
       allocation_scope='open/personal',
       capacity_scope='open',
     )
-    self.computer.validate()
-    login = self.computer.newContent(
+    self.compute_node.validate()
+    login = self.compute_node.newContent(
       portal_type="ERP5 Login",
-      reference=self.computer.getReference()
+      reference=self.compute_node.getReference()
     )
     login.validate()
 
@@ -31,165 +31,165 @@ class TestSlapOSCoreComputerPartitionSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.software_installation = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',
         url_string=self.generateNewSoftwareReleaseUrl(),
-        aggregate=self.computer.getRelativeUrl())
+        aggregate=self.compute_node.getRelativeUrl())
     self.software_installation.validate()
     self.software_installation.requestStart()
 
     self.tic()
-    self.login(self.computer.getUserId())
+    self.login(self.compute_node.getUserId())
 
   def test_markFree(self):
-    partition = self.computer.newContent(portal_type='Computer Partition',
+    partition = self.compute_node.newContent(portal_type='Compute Partition',
         reference='PART-%s' % self.generateNewId())
     partition.validate()
     partition.markFree()
     self.tic()
     self.assertEqual(1, self.portal.portal_catalog.countResults(
-        parent_uid=self.computer.getUid(), free_for_request=1)[0][0])
+        parent_uid=self.compute_node.getUid(), free_for_request=1)[0][0])
 
   def test_markFree_markBusy(self):
-    partition = self.computer.newContent(portal_type='Computer Partition',
+    partition = self.compute_node.newContent(portal_type='Compute Partition',
         reference='PART-%s' % self.generateNewId())
     partition.validate()
     partition.markFree()
     self.tic()
     self.assertEqual(1, self.portal.portal_catalog.countResults(
-        parent_uid=self.computer.getUid(), free_for_request=1)[0][0])
+        parent_uid=self.compute_node.getUid(), free_for_request=1)[0][0])
     partition.markBusy()
     self.tic()
     self.assertEqual(0, self.portal.portal_catalog.countResults(
-        parent_uid=self.computer.getUid(), free_for_request=1)[0][0])
+        parent_uid=self.compute_node.getUid(), free_for_request=1)[0][0])
 
   def test_markFree_markBusy_markFree(self):
-    partition = self.computer.newContent(portal_type='Computer Partition',
+    partition = self.compute_node.newContent(portal_type='Compute Partition',
         reference='PART-%s' % self.generateNewId())
     partition.validate()
     partition.markFree()
     self.tic()
     self.assertEqual(1, self.portal.portal_catalog.countResults(
-        parent_uid=self.computer.getUid(), free_for_request=1)[0][0])
+        parent_uid=self.compute_node.getUid(), free_for_request=1)[0][0])
     partition.markBusy()
     self.tic()
     self.assertEqual(0, self.portal.portal_catalog.countResults(
-        parent_uid=self.computer.getUid(), free_for_request=1)[0][0])
+        parent_uid=self.compute_node.getUid(), free_for_request=1)[0][0])
     partition.markFree()
     self.tic()
     self.assertEqual(1, self.portal.portal_catalog.countResults(
-        parent_uid=self.computer.getUid(), free_for_request=1)[0][0])
+        parent_uid=self.compute_node.getUid(), free_for_request=1)[0][0])
 
   def test_markInactive(self):
-    partition = self.computer.newContent(portal_type='Computer Partition',
+    partition = self.compute_node.newContent(portal_type='Compute Partition',
         reference='PART-%s' % self.generateNewId())
     partition.validate()
     partition.markInactive()
     self.tic()
     self.assertEqual(0, self.portal.portal_catalog.countResults(
-        parent_uid=self.computer.getUid(), free_for_request=1)[0][0])
+        parent_uid=self.compute_node.getUid(), free_for_request=1)[0][0])
 
   def test_markInactive_markFree(self):
-    partition = self.computer.newContent(portal_type='Computer Partition',
+    partition = self.compute_node.newContent(portal_type='Compute Partition',
         reference='PART-%s' % self.generateNewId())
     partition.validate()
     partition.markInactive()
     self.tic()
     self.assertEqual(0, self.portal.portal_catalog.countResults(
-        parent_uid=self.computer.getUid(), free_for_request=1)[0][0])
+        parent_uid=self.compute_node.getUid(), free_for_request=1)[0][0])
     partition.markFree()
     self.tic()
     self.assertEqual(1, self.portal.portal_catalog.countResults(
-        parent_uid=self.computer.getUid(), free_for_request=1)[0][0])
+        parent_uid=self.compute_node.getUid(), free_for_request=1)[0][0])
 
-class TestSlapOSCoreComputerSlapInterfaceWorkflow(SlapOSTestCaseMixin):
+class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
-    # Clone computer document
-    self.computer = self.portal.computer_module.template_computer\
+    # Clone compute_node document
+    self.compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
     new_id = self.generateNewId()
-    self.computer.edit(
-      title="computer %s" % (new_id, ),
+    self.compute_node.edit(
+      title="compute node %s" % (new_id, ),
       reference="TESTCOMP-%s" % (new_id, )
     )
-    self.computer.validate()
+    self.compute_node.validate()
     self.tic()
 
   def beforeTearDown(self):
     SlapOSTestCaseMixin.beforeTearDown(self)
-    self.portal.REQUEST['computer_key'] = None
-    self.portal.REQUEST['computer_certificate'] = None
+    self.portal.REQUEST['compute_node_key'] = None
+    self.portal.REQUEST['compute_node_certificate'] = None
 
   def test_generateCertificate(self):
-    self.login(self.computer.getUserId())
-    self.computer.generateCertificate()
-    computer_key = self.portal.REQUEST.get('computer_key')
-    computer_certificate = self.portal.REQUEST.get('computer_certificate')
-    self.assertNotEqual(None, computer_key)
-    self.assertNotEqual(None, computer_certificate)
-    self.assertNotEqual(None, self.computer.getDestinationReference())
-    serial = '0x%x' % int(self.computer.getDestinationReference(), 16)
-    self.assertTrue(serial in computer_certificate)
-    self.assertTrue(self.computer.getReference() in computer_certificate.decode('string_escape'))
+    self.login(self.compute_node.getUserId())
+    self.compute_node.generateCertificate()
+    compute_node_key = self.portal.REQUEST.get('compute_node_key')
+    compute_node_certificate = self.portal.REQUEST.get('compute_node_certificate')
+    self.assertNotEqual(None, compute_node_key)
+    self.assertNotEqual(None, compute_node_certificate)
+    self.assertNotEqual(None, self.compute_node.getDestinationReference())
+    serial = '0x%x' % int(self.compute_node.getDestinationReference(), 16)
+    self.assertTrue(serial in compute_node_certificate)
+    self.assertTrue(self.compute_node.getReference() in compute_node_certificate.decode('string_escape'))
 
   def test_generateCertificate_twice(self):
-    self.login(self.computer.getUserId())
-    self.computer.generateCertificate()
-    computer_key = self.portal.REQUEST.get('computer_key')
-    computer_certificate = self.portal.REQUEST.get('computer_certificate')
-    self.assertNotEqual(None, computer_key)
-    self.assertNotEqual(None, computer_certificate)
-    self.assertNotEqual(None, self.computer.getDestinationReference())
-    serial = '0x%x' % int(self.computer.getDestinationReference(), 16)
-    self.assertTrue(serial in computer_certificate)
-    self.assertTrue(self.computer.getReference() in computer_certificate.decode('string_escape'))
+    self.login(self.compute_node.getUserId())
+    self.compute_node.generateCertificate()
+    compute_node_key = self.portal.REQUEST.get('compute_node_key')
+    compute_node_certificate = self.portal.REQUEST.get('compute_node_certificate')
+    self.assertNotEqual(None, compute_node_key)
+    self.assertNotEqual(None, compute_node_certificate)
+    self.assertNotEqual(None, self.compute_node.getDestinationReference())
+    serial = '0x%x' % int(self.compute_node.getDestinationReference(), 16)
+    self.assertTrue(serial in compute_node_certificate)
+    self.assertTrue(self.compute_node.getReference() in compute_node_certificate.decode('string_escape'))
 
-    self.assertRaises(ValueError, self.computer.generateCertificate)
-    self.assertEqual(None, self.portal.REQUEST.get('computer_key'))
-    self.assertEqual(None, self.portal.REQUEST.get('computer_certificate'))
+    self.assertRaises(ValueError, self.compute_node.generateCertificate)
+    self.assertEqual(None, self.portal.REQUEST.get('compute_node_key'))
+    self.assertEqual(None, self.portal.REQUEST.get('compute_node_certificate'))
 
-  def test_approveComputerRegistration(self):
+  def test_approveComputeNodeRegistration(self):
     self.person_user = self.makePerson()
     self.login(self.person_user.getUserId())
-    computer = self.portal.computer_module.newContent(portal_type='Computer',
-      title="Computer %s for %s" % (self.new_id, self.person_user.getReference()),
+    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node',
+      title="Compute Node %s for %s" % (self.new_id, self.person_user.getReference()),
       reference="TESTCOMP-%s" % self.new_id)
-    computer.requestComputerRegistration()
-    computer.approveComputerRegistration()
-    self.assertEqual('open/personal', computer.getAllocationScope())
+    compute_node.requestComputeNodeRegistration()
+    compute_node.approveComputeNodeRegistration()
+    self.assertEqual('open/personal', compute_node.getAllocationScope())
     self.assertEqual(self.person_user.getRelativeUrl(),
-        computer.getSourceAdministration())
-    self.assertEqual('validated', computer.getValidationState())
+        compute_node.getSourceAdministration())
+    self.assertEqual('validated', compute_node.getValidationState())
 
   def _countInstanceBang(self, instance, comment):
     return len([q for q in instance.workflow_history[
         'instance_slap_interface_workflow'] if q['action'] == 'bang' and \
             q['comment'] == comment])
 
-  def _countComputereBang(self, computer, comment):
-    return len([q for q in computer.workflow_history[
-        'computer_slap_interface_workflow'] if q['action'] == \
-            'report_computer_bang' and q['comment'] == comment])
+  def _countComputeNodeeBang(self, compute_node, comment):
+    return len([q for q in compute_node.workflow_history[
+        'compute_node_slap_interface_workflow'] if q['action'] == \
+            'report_compute_node_bang' and q['comment'] == comment])
 
-  def test_reportComputerBang(self):
-    self._makeComplexComputer()
-    self.login(self.computer.getUserId())
-    comment = 'Bang from computer'
-    started_instance = self.computer.partition1.getAggregateRelatedValue(
+  def test_reportComputeNodeBang(self):
+    self._makeComplexComputeNode()
+    self.login(self.compute_node.getUserId())
+    comment = 'Bang from compute_node'
+    started_instance = self.compute_node.partition1.getAggregateRelatedValue(
         portal_type='Software Instance')
-    stopped_instance = self.computer.partition2.getAggregateRelatedValue(
+    stopped_instance = self.compute_node.partition2.getAggregateRelatedValue(
         portal_type='Software Instance')
-    destroyed_instance1 = self.computer.partition3.getAggregateRelatedValue(
+    destroyed_instance1 = self.compute_node.partition3.getAggregateRelatedValue(
         portal_type='Software Instance')
-    destroyed_instance2 = self.computer.partition4.getAggregateRelatedValue(
+    destroyed_instance2 = self.compute_node.partition4.getAggregateRelatedValue(
         portal_type='Software Instance')
 
-    # test sanity check -- do not trust _makeComplexComputer
+    # test sanity check -- do not trust _makeComplexComputeNode
     self.assertEqual('start_requested', started_instance.getSlapState())
     self.assertEqual('stop_requested', stopped_instance.getSlapState())
     self.assertEqual('destroy_requested', destroyed_instance1.getSlapState())
     self.assertEqual('destroy_requested', destroyed_instance2.getSlapState())
 
     # store counts before bang
-    computer_bang_count = self._countComputereBang(self.computer, comment)
+    compute_node_bang_count = self._countComputeNodeeBang(self.compute_node, comment)
     started_instance_bang_count = self._countInstanceBang(started_instance,
         comment)
     stopped_instance_bang_count = self._countInstanceBang(stopped_instance,
@@ -199,11 +199,11 @@ class TestSlapOSCoreComputerSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     destroyed_instance2_bang_count = self._countInstanceBang(
         destroyed_instance2, comment)
 
-    self.computer.reportComputerBang(comment=comment)
+    self.compute_node.reportComputeNodeBang(comment=comment)
     self.tic()
 
-    self.assertEqual(1+computer_bang_count,
-        self._countComputereBang(self.computer, comment))
+    self.assertEqual(1+compute_node_bang_count,
+        self._countComputeNodeeBang(self.compute_node, comment))
     self.assertEqual(1+started_instance_bang_count,
         self._countInstanceBang(started_instance, comment))
     self.assertEqual(1+stopped_instance_bang_count,
@@ -215,34 +215,34 @@ class TestSlapOSCoreComputerSlapInterfaceWorkflow(SlapOSTestCaseMixin):
 
   def test_requestSoftwareRelease_software_release_url_required(self):
     self.person_user = self.makePerson()
-    self.computer.edit(source_administration=self.person_user.getRelativeUrl())
+    self.compute_node.edit(source_administration=self.person_user.getRelativeUrl())
     self.tic()
     self.login(self.person_user.getUserId())
-    self.assertRaises(TypeError, self.computer.requestSoftwareRelease,
+    self.assertRaises(TypeError, self.compute_node.requestSoftwareRelease,
         state='available')
     transaction.abort()
 
   def test_requestSoftwareRelease_state_required(self):
     self.person_user = self.makePerson()
-    self.computer.edit(source_administration=self.person_user.getRelativeUrl())
+    self.compute_node.edit(source_administration=self.person_user.getRelativeUrl())
     self.tic()
     self.login(self.person_user.getUserId())
     url = self.generateNewSoftwareReleaseUrl()
-    self.assertRaises(TypeError, self.computer.requestSoftwareRelease,
+    self.assertRaises(TypeError, self.compute_node.requestSoftwareRelease,
         software_release_url=url)
     transaction.abort()
 
   def test_requestSoftwareRelease_available(self):
     self.person_user = self.makePerson()
-    self.computer.edit(source_administration=self.person_user.getRelativeUrl())
+    self.compute_node.edit(source_administration=self.person_user.getRelativeUrl())
     self.tic()
     self.login(self.person_user.getUserId())
     url = self.generateNewSoftwareReleaseUrl()
-    self.computer.requestSoftwareRelease(software_release_url=url,
+    self.compute_node.requestSoftwareRelease(software_release_url=url,
         state='available')
     self.tic()
     self.login()
-    software_installation = self.computer.getAggregateRelatedValue(
+    software_installation = self.compute_node.getAggregateRelatedValue(
         portal_type='Software Installation')
     self.assertEqual('start_requested', software_installation.getSlapState())
     self.assertEqual(url, software_installation.getUrlString())
@@ -250,41 +250,41 @@ class TestSlapOSCoreComputerSlapInterfaceWorkflow(SlapOSTestCaseMixin):
 
   def test_requestSoftwareRelease_destroyed(self):
     self.person_user = self.makePerson()
-    self.computer.edit(source_administration=self.person_user.getRelativeUrl())
+    self.compute_node.edit(source_administration=self.person_user.getRelativeUrl())
     self.tic()
     self.login(self.person_user.getUserId())
     url = self.generateNewSoftwareReleaseUrl()
-    self.computer.requestSoftwareRelease(software_release_url=url,
+    self.compute_node.requestSoftwareRelease(software_release_url=url,
         state='destroyed')
     self.tic()
     self.login()
-    software_installation = self.computer.getAggregateRelatedValue(
+    software_installation = self.compute_node.getAggregateRelatedValue(
         portal_type='Software Installation')
     self.assertEqual(None, software_installation)
 
   def test_requestSoftwareRelease_available_destroyed(self):
     self.person_user = self.makePerson()
-    self.computer.edit(source_administration=self.person_user.getRelativeUrl())
+    self.compute_node.edit(source_administration=self.person_user.getRelativeUrl())
     self.tic()
     self.login(self.person_user.getUserId())
     url = self.generateNewSoftwareReleaseUrl()
-    self.computer.requestSoftwareRelease(software_release_url=url,
+    self.compute_node.requestSoftwareRelease(software_release_url=url,
         state='available')
     self.tic()
     self.login()
-    software_installation = self.computer.getAggregateRelatedValue(
+    software_installation = self.compute_node.getAggregateRelatedValue(
         portal_type='Software Installation')
     self.assertEqual('start_requested', software_installation.getSlapState())
     self.assertEqual(url, software_installation.getUrlString())
     self.assertEqual('validated', software_installation.getValidationState())
 
     self.login(self.person_user.getUserId())
-    self.computer.requestSoftwareRelease(software_release_url=url,
+    self.compute_node.requestSoftwareRelease(software_release_url=url,
         state='destroyed')
 
     self.tic()
     self.login()
-    software_installation = self.computer.getAggregateRelatedValue(
+    software_installation = self.compute_node.getAggregateRelatedValue(
         portal_type='Software Installation')
     self.assertEqual('destroy_requested', software_installation.getSlapState())
     self.assertEqual(url, software_installation.getUrlString())
@@ -292,99 +292,99 @@ class TestSlapOSCoreComputerSlapInterfaceWorkflow(SlapOSTestCaseMixin):
 
   def test_requestSoftwareRelease_not_indexed(self):
     self.person_user = self.makePerson()
-    self.computer.edit(source_administration=self.person_user.getRelativeUrl())
+    self.compute_node.edit(source_administration=self.person_user.getRelativeUrl())
     self.tic()
     self.login(self.person_user.getUserId())
     url = self.generateNewSoftwareReleaseUrl()
-    self.computer.requestSoftwareRelease(software_release_url=url,
+    self.compute_node.requestSoftwareRelease(software_release_url=url,
         state='available')
     transaction.commit()
     self.assertRaises(NotImplementedError,
-        self.computer.requestSoftwareRelease, software_release_url=url,
+        self.compute_node.requestSoftwareRelease, software_release_url=url,
         state='available')
     transaction.abort()
 
   @expectedFailure
   def test_requestSoftwareRelease_same_transaction(self):
     self.person_user = self.makePerson()
-    self.computer.edit(source_administration=self.person_user.getRelativeUrl())
+    self.compute_node.edit(source_administration=self.person_user.getRelativeUrl())
     self.tic()
     self.login(self.person_user.getUserId())
     url = self.generateNewSoftwareReleaseUrl()
-    self.computer.requestSoftwareRelease(software_release_url=url,
+    self.compute_node.requestSoftwareRelease(software_release_url=url,
         state='available')
     self.assertRaises(NotImplementedError,
-        self.computer.requestSoftwareRelease, software_release_url=url,
+        self.compute_node.requestSoftwareRelease, software_release_url=url,
         state='available')
     transaction.abort()
 
   def test_revokeCertificate(self):
-    self.login(self.computer.getUserId())
-    self.computer.generateCertificate()
-    computer_key = self.portal.REQUEST.get('computer_key')
-    computer_certificate = self.portal.REQUEST.get('computer_certificate')
-    self.assertNotEqual(None, computer_key)
-    self.assertNotEqual(None, computer_certificate)
-    self.assertNotEqual(None, self.computer.getDestinationReference())
-    serial = '0x%x' % int(self.computer.getDestinationReference(), 16)
-    self.assertTrue(serial in computer_certificate)
-    self.assertTrue(self.computer.getReference() in computer_certificate.decode('string_escape'))
+    self.login(self.compute_node.getUserId())
+    self.compute_node.generateCertificate()
+    compute_node_key = self.portal.REQUEST.get('compute_node_key')
+    compute_node_certificate = self.portal.REQUEST.get('compute_node_certificate')
+    self.assertNotEqual(None, compute_node_key)
+    self.assertNotEqual(None, compute_node_certificate)
+    self.assertNotEqual(None, self.compute_node.getDestinationReference())
+    serial = '0x%x' % int(self.compute_node.getDestinationReference(), 16)
+    self.assertTrue(serial in compute_node_certificate)
+    self.assertTrue(self.compute_node.getReference() in compute_node_certificate.decode('string_escape'))
 
-    self.computer.revokeCertificate()
-    self.assertEqual(None, self.portal.REQUEST.get('computer_key'))
-    self.assertEqual(None, self.portal.REQUEST.get('computer_certificate'))
+    self.compute_node.revokeCertificate()
+    self.assertEqual(None, self.portal.REQUEST.get('compute_node_key'))
+    self.assertEqual(None, self.portal.REQUEST.get('compute_node_certificate'))
 
-    self.assertEqual(None, self.computer.getDestinationReference())
+    self.assertEqual(None, self.compute_node.getDestinationReference())
 
   def test_revokeCertificateNoCertificate(self):
-    self.login(self.computer.getUserId())
-    self.assertRaises(ValueError, self.computer.revokeCertificate)
-    self.assertEqual(None, self.portal.REQUEST.get('computer_key'))
-    self.assertEqual(None, self.portal.REQUEST.get('computer_certificate'))
-    self.assertEqual(None, self.computer.getDestinationReference())
+    self.login(self.compute_node.getUserId())
+    self.assertRaises(ValueError, self.compute_node.revokeCertificate)
+    self.assertEqual(None, self.portal.REQUEST.get('compute_node_key'))
+    self.assertEqual(None, self.portal.REQUEST.get('compute_node_certificate'))
+    self.assertEqual(None, self.compute_node.getDestinationReference())
 
   def test_revokeCertificate_twice(self):
-    self.login(self.computer.getUserId())
-    self.computer.generateCertificate()
-    computer_key = self.portal.REQUEST.get('computer_key')
-    computer_certificate = self.portal.REQUEST.get('computer_certificate')
-    self.assertNotEqual(None, computer_key)
-    self.assertNotEqual(None, computer_certificate)
-    self.assertNotEqual(None, self.computer.getDestinationReference())
-    serial = '0x%x' % int(self.computer.getDestinationReference(), 16)
-    self.assertTrue(serial in computer_certificate)
-    self.assertTrue(self.computer.getReference() in computer_certificate.decode('string_escape'))
+    self.login(self.compute_node.getUserId())
+    self.compute_node.generateCertificate()
+    compute_node_key = self.portal.REQUEST.get('compute_node_key')
+    compute_node_certificate = self.portal.REQUEST.get('compute_node_certificate')
+    self.assertNotEqual(None, compute_node_key)
+    self.assertNotEqual(None, compute_node_certificate)
+    self.assertNotEqual(None, self.compute_node.getDestinationReference())
+    serial = '0x%x' % int(self.compute_node.getDestinationReference(), 16)
+    self.assertTrue(serial in compute_node_certificate)
+    self.assertTrue(self.compute_node.getReference() in compute_node_certificate.decode('string_escape'))
 
-    self.computer.revokeCertificate()
-    self.assertEqual(None, self.portal.REQUEST.get('computer_key'))
-    self.assertEqual(None, self.portal.REQUEST.get('computer_certificate'))
+    self.compute_node.revokeCertificate()
+    self.assertEqual(None, self.portal.REQUEST.get('compute_node_key'))
+    self.assertEqual(None, self.portal.REQUEST.get('compute_node_certificate'))
 
-    self.assertEqual(None, self.computer.getDestinationReference())
+    self.assertEqual(None, self.compute_node.getDestinationReference())
 
-    self.assertRaises(ValueError, self.computer.revokeCertificate)
-    self.assertEqual(None, self.portal.REQUEST.get('computer_key'))
-    self.assertEqual(None, self.portal.REQUEST.get('computer_certificate'))
-    self.assertEqual(None, self.computer.getDestinationReference())
+    self.assertRaises(ValueError, self.compute_node.revokeCertificate)
+    self.assertEqual(None, self.portal.REQUEST.get('compute_node_key'))
+    self.assertEqual(None, self.portal.REQUEST.get('compute_node_certificate'))
+    self.assertEqual(None, self.compute_node.getDestinationReference())
 
-class TestSlapOSCorePersonComputerSupply(SlapOSTestCaseMixin):
+class TestSlapOSCorePersonComputeNodeSupply(SlapOSTestCaseMixin):
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     portal = self.getPortalObject()
 
-    # Clone computer document
-    computer = portal.computer_module.template_computer\
+    # Clone compute_node document
+    compute_node = portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
     # Clone person document
     person_user = self.makePerson(new_id=self.new_id, index=0)
 
-    computer.edit(
-      title="Computer %s for %s" % (self.new_id, person_user.getReference()),
+    compute_node.edit(
+      title="Compute Node %s for %s" % (self.new_id, person_user.getReference()),
       reference="TESTCOMP-%s" % self.new_id,
       source_administration=person_user.getRelativeUrl()
     )
-    computer.validate()
-    self.computer = computer
+    compute_node.validate()
+    self.compute_node = compute_node
 
     self.tic()
 
@@ -394,40 +394,40 @@ class TestSlapOSCorePersonComputerSupply(SlapOSTestCaseMixin):
     self.assertEqual(person_user.getRelativeUrl(), new_person.getRelativeUrl())
 
   def beforeTearDown(self):
-    if 'software_installation_url' in self.computer.REQUEST:
-      self.computer.REQUEST['software_installation_url'] = None
+    if 'software_installation_url' in self.compute_node.REQUEST:
+      self.compute_node.REQUEST['software_installation_url'] = None
 
   def test_supply_requiredParameter(self):
     software_release = self.generateNewSoftwareReleaseUrl()
-    self.assertRaises(TypeError, self.computer.requestSoftwareRelease)
-    self.assertRaises(TypeError, self.computer.requestSoftwareRelease,
+    self.assertRaises(TypeError, self.compute_node.requestSoftwareRelease)
+    self.assertRaises(TypeError, self.compute_node.requestSoftwareRelease,
         state="available")
-    self.assertRaises(TypeError, self.computer.requestSoftwareRelease,
+    self.assertRaises(TypeError, self.compute_node.requestSoftwareRelease,
         software_release_url=software_release)
-    self.assertRaises(ValueError, self.computer.requestSoftwareRelease,
+    self.assertRaises(ValueError, self.compute_node.requestSoftwareRelease,
         state="mana", software_release_url=software_release)
 
   def test_supply_available(self):
     software_release = self.generateNewSoftwareReleaseUrl()
 
-    self.computer.requestSoftwareRelease(state="available",
+    self.compute_node.requestSoftwareRelease(state="available",
         software_release_url=software_release)
 
-    software_installation_url = self.computer.REQUEST.get(
+    software_installation_url = self.compute_node.REQUEST.get(
         'software_installation_url')
 
     self.assertNotEqual(None, software_installation_url)
-    software_installation = self.computer.restrictedTraverse(
+    software_installation = self.compute_node.restrictedTraverse(
         software_installation_url)
     self.assertEqual(software_release, software_installation.getUrlString())
 
   def test_supply_destroyed(self):
     software_release = self.generateNewSoftwareReleaseUrl()
 
-    self.computer.requestSoftwareRelease(state="destroyed",
+    self.compute_node.requestSoftwareRelease(state="destroyed",
         software_release_url=software_release)
 
-    software_installation_url = self.computer.REQUEST.get(
+    software_installation_url = self.compute_node.REQUEST.get(
         'software_installation_url')
 
     self.assertEqual(None, software_installation_url)
@@ -435,41 +435,41 @@ class TestSlapOSCorePersonComputerSupply(SlapOSTestCaseMixin):
   def test_supply_available_nonIndexed(self):
     software_release = self.generateNewSoftwareReleaseUrl()
 
-    self.computer.requestSoftwareRelease(state="available",
+    self.compute_node.requestSoftwareRelease(state="available",
         software_release_url=software_release)
 
-    software_installation_url = self.computer.REQUEST.get(
+    software_installation_url = self.compute_node.REQUEST.get(
         'software_installation_url')
 
     self.assertNotEqual(None, software_installation_url)
-    software_installation = self.computer.restrictedTraverse(
+    software_installation = self.compute_node.restrictedTraverse(
         software_installation_url)
     self.assertEqual(software_release, software_installation.getUrlString())
 
     transaction.commit()
 
     self.assertRaises(NotImplementedError,
-        self.computer.requestSoftwareRelease, state="available",
+        self.compute_node.requestSoftwareRelease, state="available",
         software_release_url=software_release)
 
   def test_supply_available_destroyed_nonIndexed(self):
     software_release = self.generateNewSoftwareReleaseUrl()
 
-    self.computer.requestSoftwareRelease(state="available",
+    self.compute_node.requestSoftwareRelease(state="available",
         software_release_url=software_release)
 
-    software_installation_url = self.computer.REQUEST.get(
+    software_installation_url = self.compute_node.REQUEST.get(
         'software_installation_url')
 
     self.assertNotEqual(None, software_installation_url)
-    software_installation = self.computer.restrictedTraverse(
+    software_installation = self.compute_node.restrictedTraverse(
         software_installation_url)
     self.assertEqual(software_release, software_installation.getUrlString())
 
     transaction.commit()
 
     self.assertRaises(NotImplementedError,
-        self.computer.requestSoftwareRelease, state="destroyed",
+        self.compute_node.requestSoftwareRelease, state="destroyed",
         software_release_url=software_release)
 
   def test_supply_available_createdSoftwareInstallation(self):
@@ -478,14 +478,14 @@ class TestSlapOSCorePersonComputerSupply(SlapOSTestCaseMixin):
                        id_generator='uid')
     software_release = self.generateNewSoftwareReleaseUrl()
 
-    self.computer.requestSoftwareRelease(state="available",
+    self.compute_node.requestSoftwareRelease(state="available",
         software_release_url=software_release)
 
-    software_installation_url = self.computer.REQUEST.get(
+    software_installation_url = self.compute_node.REQUEST.get(
         'software_installation_url')
 
     self.assertNotEqual(None, software_installation_url)
-    software_installation = self.computer.restrictedTraverse(
+    software_installation = self.compute_node.restrictedTraverse(
         software_installation_url)
     self.assertEqual(software_release, software_installation.getUrlString())
 
@@ -502,14 +502,14 @@ class TestSlapOSCorePersonComputerSupply(SlapOSTestCaseMixin):
                        id_generator='uid')
     software_release = self.generateNewSoftwareReleaseUrl()
 
-    self.computer.requestSoftwareRelease(state="available",
+    self.compute_node.requestSoftwareRelease(state="available",
         software_release_url=software_release)
 
-    software_installation_url = self.computer.REQUEST.get(
+    software_installation_url = self.compute_node.REQUEST.get(
         'software_installation_url')
 
     self.assertNotEqual(None, software_installation_url)
-    software_installation = self.computer.restrictedTraverse(
+    software_installation = self.compute_node.restrictedTraverse(
         software_installation_url)
     self.assertEqual(software_release, software_installation.getUrlString())
 
@@ -521,10 +521,10 @@ class TestSlapOSCorePersonComputerSupply(SlapOSTestCaseMixin):
         software_installation.getReference())
 
     self.tic()
-    self.computer.requestSoftwareRelease(state="available",
+    self.compute_node.requestSoftwareRelease(state="available",
         software_release_url=software_release)
 
-    software_installation_url2 = self.computer.REQUEST.get(
+    software_installation_url2 = self.compute_node.REQUEST.get(
         'software_installation_url')
     self.assertEqual(software_installation_url, software_installation_url2)
 
@@ -534,14 +534,14 @@ class TestSlapOSCorePersonComputerSupply(SlapOSTestCaseMixin):
                        id_generator='uid')
     software_release = self.generateNewSoftwareReleaseUrl()
 
-    self.computer.requestSoftwareRelease(state="available",
+    self.compute_node.requestSoftwareRelease(state="available",
         software_release_url=software_release)
 
-    software_installation_url = self.computer.REQUEST.get(
+    software_installation_url = self.compute_node.REQUEST.get(
         'software_installation_url')
 
     self.assertNotEqual(None, software_installation_url)
-    software_installation = self.computer.restrictedTraverse(
+    software_installation = self.compute_node.restrictedTraverse(
         software_installation_url)
     self.assertEqual(software_release, software_installation.getUrlString())
 
@@ -553,14 +553,14 @@ class TestSlapOSCorePersonComputerSupply(SlapOSTestCaseMixin):
         software_installation.getReference())
 
     self.tic()
-    self.computer.requestSoftwareRelease(state="destroyed",
+    self.compute_node.requestSoftwareRelease(state="destroyed",
         software_release_url=software_release)
 
-    software_installation_url2 = self.computer.REQUEST.get(
+    software_installation_url2 = self.compute_node.REQUEST.get(
         'software_installation_url')
     self.assertEqual(software_installation_url, software_installation_url2)
 
-    software_installation = self.computer.restrictedTraverse(
+    software_installation = self.compute_node.restrictedTraverse(
         software_installation_url2)
     self.assertEqual('Software Installation',
         software_installation.getPortalType())
@@ -575,14 +575,14 @@ class TestSlapOSCorePersonComputerSupply(SlapOSTestCaseMixin):
                        id_generator='uid')
     software_release = self.generateNewSoftwareReleaseUrl()
 
-    self.computer.requestSoftwareRelease(state="available",
+    self.compute_node.requestSoftwareRelease(state="available",
         software_release_url=software_release)
 
-    software_installation_url = self.computer.REQUEST.get(
+    software_installation_url = self.compute_node.REQUEST.get(
         'software_installation_url')
 
     self.assertNotEqual(None, software_installation_url)
-    software_installation = self.computer.restrictedTraverse(
+    software_installation = self.compute_node.restrictedTraverse(
         software_installation_url)
     self.assertEqual(software_release, software_installation.getUrlString())
 
@@ -594,14 +594,14 @@ class TestSlapOSCorePersonComputerSupply(SlapOSTestCaseMixin):
         software_installation.getReference())
 
     self.tic()
-    self.computer.requestSoftwareRelease(state="destroyed",
+    self.compute_node.requestSoftwareRelease(state="destroyed",
         software_release_url=software_release)
 
-    software_installation_url2 = self.computer.REQUEST.get(
+    software_installation_url2 = self.compute_node.REQUEST.get(
         'software_installation_url')
     self.assertEqual(software_installation_url, software_installation_url2)
 
-    software_installation = self.computer.restrictedTraverse(
+    software_installation = self.compute_node.restrictedTraverse(
         software_installation_url2)
     self.assertEqual('Software Installation',
         software_installation.getPortalType())
@@ -613,7 +613,7 @@ class TestSlapOSCorePersonComputerSupply(SlapOSTestCaseMixin):
     self.tic()
     # XXX: This scenario shall be discussed...
     self.assertRaises(UnsupportedWorkflowMethod,
-        self.computer.requestSoftwareRelease, state="available",
+        self.compute_node.requestSoftwareRelease, state="available",
         software_release_url=software_release)
 
   def test_supply_available_destroyed_finalised_available(self):
@@ -622,14 +622,14 @@ class TestSlapOSCorePersonComputerSupply(SlapOSTestCaseMixin):
                        id_generator='uid')
     software_release = self.generateNewSoftwareReleaseUrl()
 
-    self.computer.requestSoftwareRelease(state="available",
+    self.compute_node.requestSoftwareRelease(state="available",
         software_release_url=software_release)
 
-    software_installation_url = self.computer.REQUEST.get(
+    software_installation_url = self.compute_node.REQUEST.get(
         'software_installation_url')
 
     self.assertNotEqual(None, software_installation_url)
-    software_installation = self.computer.restrictedTraverse(
+    software_installation = self.compute_node.restrictedTraverse(
         software_installation_url)
     self.assertEqual(software_release, software_installation.getUrlString())
 
@@ -641,14 +641,14 @@ class TestSlapOSCorePersonComputerSupply(SlapOSTestCaseMixin):
         software_installation.getReference())
 
     self.tic()
-    self.computer.requestSoftwareRelease(state="destroyed",
+    self.compute_node.requestSoftwareRelease(state="destroyed",
         software_release_url=software_release)
 
-    software_installation_url2 = self.computer.REQUEST.get(
+    software_installation_url2 = self.compute_node.REQUEST.get(
         'software_installation_url')
     self.assertEqual(software_installation_url, software_installation_url2)
 
-    software_installation = self.computer.restrictedTraverse(
+    software_installation = self.compute_node.restrictedTraverse(
         software_installation_url2)
     self.assertEqual('Software Installation',
         software_installation.getPortalType())
@@ -659,12 +659,12 @@ class TestSlapOSCorePersonComputerSupply(SlapOSTestCaseMixin):
 
     software_installation.invalidate()
     self.tic()
-    self.computer.requestSoftwareRelease(state="available",
+    self.compute_node.requestSoftwareRelease(state="available",
         software_release_url=software_release)
-    software_installation_url3 = self.computer.REQUEST.get(
+    software_installation_url3 = self.compute_node.REQUEST.get(
         'software_installation_url')
     self.assertNotEqual(software_installation_url, software_installation_url3)
-    software_installation = self.computer.restrictedTraverse(
+    software_installation = self.compute_node.restrictedTraverse(
         software_installation_url3)
     self.assertEqual('Software Installation',
         software_installation.getPortalType())
@@ -744,49 +744,49 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertEqual(count2+1, self._countInstanceBang(request_instance,
         comment))
 
-  def test_allocatePartition_computer_partition_url_required(self):
+  def test_allocatePartition_compute_partition_url_required(self):
     self.login(self.instance.getUserId())
     self.assertRaises(TypeError, self.instance.allocatePartition)
 
   def test_allocatePartition(self):
-    computer = self.portal.computer_module.template_computer\
+    compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
-    computer.validate()
-    computer_partition = computer.newContent(portal_type='Computer Partition')
-    computer_partition.validate()
-    computer_partition.markFree()
-    computer_partition_url = computer_partition.getRelativeUrl()
+    compute_node.validate()
+    compute_partition = compute_node.newContent(portal_type='Compute Partition')
+    compute_partition.validate()
+    compute_partition.markFree()
+    compute_partition_url = compute_partition.getRelativeUrl()
     self.instance.allocatePartition(
-        computer_partition_url=computer_partition_url)
-    self.assertEqual(self.instance.getAggregate(), computer_partition_url)
+        compute_partition_url=compute_partition_url)
+    self.assertEqual(self.instance.getAggregate(), compute_partition_url)
 
   def test_unallocatePartition(self):
-    computer = self.portal.computer_module.template_computer\
+    compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
-    computer.validate()
-    computer_partition = computer.newContent(portal_type='Computer Partition')
-    computer_partition.validate()
-    computer_partition.markFree()
-    computer_partition_url = computer_partition.getRelativeUrl()
+    compute_node.validate()
+    compute_partition = compute_node.newContent(portal_type='Compute Partition')
+    compute_partition.validate()
+    compute_partition.markFree()
+    compute_partition_url = compute_partition.getRelativeUrl()
     self.instance.allocatePartition(
-        computer_partition_url=computer_partition_url)
-    self.assertEqual(self.instance.getAggregate(), computer_partition_url)
+        compute_partition_url=compute_partition_url)
+    self.assertEqual(self.instance.getAggregate(), compute_partition_url)
 
     self.instance.requestDestroy(**self.request_kw)
     self.instance.unallocatePartition()
     self.assertEqual(None, self.instance.getAggregate())
 
   def test_unallocatePartition_twice(self):
-    computer = self.portal.computer_module.template_computer\
+    compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
-    computer.validate()
-    computer_partition = computer.newContent(portal_type='Computer Partition')
-    computer_partition.validate()
-    computer_partition.markFree()
-    computer_partition_url = computer_partition.getRelativeUrl()
+    compute_node.validate()
+    compute_partition = compute_node.newContent(portal_type='Compute Partition')
+    compute_partition.validate()
+    compute_partition.markFree()
+    compute_partition_url = compute_partition.getRelativeUrl()
     self.instance.allocatePartition(
-        computer_partition_url=computer_partition_url)
-    self.assertEqual(self.instance.getAggregate(), computer_partition_url)
+        compute_partition_url=compute_partition_url)
+    self.assertEqual(self.instance.getAggregate(), compute_partition_url)
 
     self.instance.requestDestroy(**self.request_kw)
     self.instance.unallocatePartition()
@@ -2453,9 +2453,9 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     self.assertNotEqual(instance_tree.getRelativeUrl(),
                          instance_tree2.getRelativeUrl())
 
-class TestSlapOSCorePersonRequestComputer(SlapOSTestCaseMixin):
+class TestSlapOSCorePersonRequestComputeNode(SlapOSTestCaseMixin):
 
-  def generateNewComputerTitle(self):
+  def generateNewComputeNodeTitle(self):
     return 'My Comp %s' % self.generateNewId()
 
   def afterSetUp(self):
@@ -2474,200 +2474,200 @@ class TestSlapOSCorePersonRequestComputer(SlapOSTestCaseMixin):
   def test_request_requiredParameter(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
-    # computer_title is mandatory
-    self.assertRaises(TypeError, person.requestComputer)
+    # compute_node_title is mandatory
+    self.assertRaises(TypeError, person.requestComputeNode)
 
     # if provided does not raise
-    computer_title = self.generateNewComputerTitle()
-    person.requestComputer(computer_title=computer_title)
+    compute_node_title = self.generateNewComputeNodeTitle()
+    person.requestComputeNode(compute_node_title=compute_node_title)
 
   def test_request(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
-    computer_title = self.generateNewComputerTitle()
-    person.requestComputer(computer_title=computer_title)
+    compute_node_title = self.generateNewComputeNodeTitle()
+    person.requestComputeNode(compute_node_title=compute_node_title)
 
     # check what is returned via request
-    computer_url = person.REQUEST.get('computer')
-    computer_absolute_url = person.REQUEST.get('computer_url')
-    computer_reference = person.REQUEST.get('computer_reference')
+    compute_node_url = person.REQUEST.get('compute_node')
+    compute_node_absolute_url = person.REQUEST.get('compute_node_url')
+    compute_node_reference = person.REQUEST.get('compute_node_reference')
 
-    self.assertNotEqual(None, computer_url)
-    self.assertNotEqual(None, computer_absolute_url)
-    self.assertNotEqual(None, computer_reference)
+    self.assertNotEqual(None, compute_node_url)
+    self.assertNotEqual(None, compute_node_absolute_url)
+    self.assertNotEqual(None, compute_node_reference)
 
-  def test_request_createdComputer(self):
+  def test_request_createdComputeNode(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     previous_id = self.getPortalObject().portal_ids\
-        .generateNewId(id_group='slap_computer_reference',
+        .generateNewId(id_group='slap_compute_node_reference',
                        id_generator='uid')
 
-    computer_title = self.generateNewComputerTitle()
-    person.requestComputer(computer_title=computer_title)
+    compute_node_title = self.generateNewComputeNodeTitle()
+    person.requestComputeNode(compute_node_title=compute_node_title)
 
     # check what is returned via request
-    computer_url = person.REQUEST.get('computer')
-    computer_absolute_url = person.REQUEST.get('computer_url')
-    computer_reference = person.REQUEST.get('computer_reference')
+    compute_node_url = person.REQUEST.get('compute_node')
+    compute_node_absolute_url = person.REQUEST.get('compute_node_url')
+    compute_node_reference = person.REQUEST.get('compute_node_reference')
 
-    self.assertNotEqual(None, computer_url)
-    self.assertNotEqual(None, computer_absolute_url)
-    self.assertNotEqual(None, computer_reference)
+    self.assertNotEqual(None, compute_node_url)
+    self.assertNotEqual(None, compute_node_absolute_url)
+    self.assertNotEqual(None, compute_node_reference)
 
     # check that title is ok
-    computer = person.restrictedTraverse(computer_url)
-    self.assertEqual(computer_title, computer.getTitle())
+    compute_node = person.restrictedTraverse(compute_node_url)
+    self.assertEqual(compute_node_title, compute_node.getTitle())
 
     # check that data are sane
-    self.assertEqual(computer_absolute_url, computer.absolute_url())
-    self.assertEqual(computer_reference, computer.getReference())
-    self.assertEqual('COMP-%s' % (previous_id + 1), computer.getReference())
-    self.assertEqual('validated', computer.getValidationState())
-    self.assertEqual('open/personal', computer.getAllocationScope())
-    self.assertEqual('open', computer.getCapacityScope())
+    self.assertEqual(compute_node_absolute_url, compute_node.absolute_url())
+    self.assertEqual(compute_node_reference, compute_node.getReference())
+    self.assertEqual('COMP-%s' % (previous_id + 1), compute_node.getReference())
+    self.assertEqual('validated', compute_node.getValidationState())
+    self.assertEqual('open/personal', compute_node.getAllocationScope())
+    self.assertEqual('open', compute_node.getCapacityScope())
 
   def test_request_notReindexedCompute(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
-    computer_title = self.generateNewComputerTitle()
-    person.requestComputer(computer_title=computer_title)
+    compute_node_title = self.generateNewComputeNodeTitle()
+    person.requestComputeNode(compute_node_title=compute_node_title)
     transaction.commit()
-    self.assertRaises(NotImplementedError, person.requestComputer,
-                      computer_title=computer_title)
+    self.assertRaises(NotImplementedError, person.requestComputeNode,
+                      compute_node_title=compute_node_title)
 
-  def test_multiple_request_createdComputer(self):
+  def test_multiple_request_createdComputeNode(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
     previous_id = self.getPortalObject().portal_ids\
-        .generateNewId(id_group='slap_computer_reference',
+        .generateNewId(id_group='slap_compute_node_reference',
                        id_generator='uid')
 
-    computer_title = self.generateNewComputerTitle()
-    computer_title2 = self.generateNewComputerTitle()
-    person.requestComputer(computer_title=computer_title)
+    compute_node_title = self.generateNewComputeNodeTitle()
+    compute_node_title2 = self.generateNewComputeNodeTitle()
+    person.requestComputeNode(compute_node_title=compute_node_title)
 
     # check what is returned via request
-    computer_url = person.REQUEST.get('computer')
-    computer_absolute_url = person.REQUEST.get('computer_url')
-    computer_reference = person.REQUEST.get('computer_reference')
+    compute_node_url = person.REQUEST.get('compute_node')
+    compute_node_absolute_url = person.REQUEST.get('compute_node_url')
+    compute_node_reference = person.REQUEST.get('compute_node_reference')
 
-    self.assertNotEqual(None, computer_url)
-    self.assertNotEqual(None, computer_absolute_url)
-    self.assertNotEqual(None, computer_reference)
+    self.assertNotEqual(None, compute_node_url)
+    self.assertNotEqual(None, compute_node_absolute_url)
+    self.assertNotEqual(None, compute_node_reference)
 
     # check that title is ok
-    computer = person.restrictedTraverse(computer_url)
-    self.assertEqual(computer_title, computer.getTitle())
+    compute_node = person.restrictedTraverse(compute_node_url)
+    self.assertEqual(compute_node_title, compute_node.getTitle())
 
     # check that data are sane
-    self.assertEqual(computer_absolute_url, computer.absolute_url())
-    self.assertEqual(computer_reference, computer.getReference())
-    self.assertEqual('COMP-%s' % (previous_id + 1), computer.getReference())
-    self.assertEqual('validated', computer.getValidationState())
-    self.assertEqual('open/personal', computer.getAllocationScope())
-    self.assertEqual('open', computer.getCapacityScope())
+    self.assertEqual(compute_node_absolute_url, compute_node.absolute_url())
+    self.assertEqual(compute_node_reference, compute_node.getReference())
+    self.assertEqual('COMP-%s' % (previous_id + 1), compute_node.getReference())
+    self.assertEqual('validated', compute_node.getValidationState())
+    self.assertEqual('open/personal', compute_node.getAllocationScope())
+    self.assertEqual('open', compute_node.getCapacityScope())
 
     self.tic()
 
-    # request again the same computer
-    person.requestComputer(computer_title=computer_title)
+    # request again the same compute_node
+    person.requestComputeNode(compute_node_title=compute_node_title)
 
     # check what is returned via request
-    computer_url = person.REQUEST.get('computer')
-    computer_absolute_url = person.REQUEST.get('computer_url')
-    computer_reference = person.REQUEST.get('computer_reference')
+    compute_node_url = person.REQUEST.get('compute_node')
+    compute_node_absolute_url = person.REQUEST.get('compute_node_url')
+    compute_node_reference = person.REQUEST.get('compute_node_reference')
 
-    self.assertNotEqual(None, computer_url)
-    self.assertNotEqual(None, computer_absolute_url)
-    self.assertNotEqual(None, computer_reference)
+    self.assertNotEqual(None, compute_node_url)
+    self.assertNotEqual(None, compute_node_absolute_url)
+    self.assertNotEqual(None, compute_node_reference)
 
     # check that title is ok
-    computer = person.restrictedTraverse(computer_url)
-    self.assertEqual(computer_title, computer.getTitle())
+    compute_node = person.restrictedTraverse(compute_node_url)
+    self.assertEqual(compute_node_title, compute_node.getTitle())
 
     # check that data are sane
-    self.assertEqual(computer_absolute_url, computer.absolute_url())
-    self.assertEqual(computer_reference, computer.getReference())
-    self.assertEqual('COMP-%s' % (previous_id + 1), computer.getReference())
-    self.assertEqual('validated', computer.getValidationState())
-    self.assertEqual('open/personal', computer.getAllocationScope())
-    self.assertEqual('open', computer.getCapacityScope())
+    self.assertEqual(compute_node_absolute_url, compute_node.absolute_url())
+    self.assertEqual(compute_node_reference, compute_node.getReference())
+    self.assertEqual('COMP-%s' % (previous_id + 1), compute_node.getReference())
+    self.assertEqual('validated', compute_node.getValidationState())
+    self.assertEqual('open/personal', compute_node.getAllocationScope())
+    self.assertEqual('open', compute_node.getCapacityScope())
 
     # and now another one
-    person.requestComputer(computer_title=computer_title2)
+    person.requestComputeNode(compute_node_title=compute_node_title2)
 
     # check what is returned via request
-    computer_url2 = person.REQUEST.get('computer')
-    computer_absolute_url2 = person.REQUEST.get('computer_url')
-    computer_reference2 = person.REQUEST.get('computer_reference')
+    compute_node_url2 = person.REQUEST.get('compute_node')
+    compute_node_absolute_url2 = person.REQUEST.get('compute_node_url')
+    compute_node_reference2 = person.REQUEST.get('compute_node_reference')
 
-    self.assertNotEqual(None, computer_url2)
-    self.assertNotEqual(None, computer_absolute_url2)
-    self.assertNotEqual(None, computer_reference2)
+    self.assertNotEqual(None, compute_node_url2)
+    self.assertNotEqual(None, compute_node_absolute_url2)
+    self.assertNotEqual(None, compute_node_reference2)
 
-    # check that computers are really different objects
-    self.assertNotEqual(computer_url2, computer_url)
+    # check that compute_nodes are really different objects
+    self.assertNotEqual(compute_node_url2, compute_node_url)
 
     # check that title is ok
-    computer2 = person.restrictedTraverse(computer_url2)
-    self.assertEqual(computer_title2, computer2.getTitle())
+    compute_node2 = person.restrictedTraverse(compute_node_url2)
+    self.assertEqual(compute_node_title2, compute_node2.getTitle())
 
     # check that data are sane
-    self.assertEqual(computer_absolute_url2, computer2.absolute_url())
-    self.assertEqual(computer_reference2, computer2.getReference())
-    self.assertEqual('COMP-%s' % (previous_id + 2), computer2.getReference())
-    self.assertEqual('validated', computer2.getValidationState())
-    self.assertEqual('open/personal', computer2.getAllocationScope())
-    self.assertEqual('open', computer2.getCapacityScope())
+    self.assertEqual(compute_node_absolute_url2, compute_node2.absolute_url())
+    self.assertEqual(compute_node_reference2, compute_node2.getReference())
+    self.assertEqual('COMP-%s' % (previous_id + 2), compute_node2.getReference())
+    self.assertEqual('validated', compute_node2.getValidationState())
+    self.assertEqual('open/personal', compute_node2.getAllocationScope())
+    self.assertEqual('open', compute_node2.getCapacityScope())
 
-  def test_request_duplicatedComputer(self):
+  def test_request_duplicatedComputeNode(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
 
-    computer_title = self.generateNewComputerTitle()
-    person.requestComputer(computer_title=computer_title)
+    compute_node_title = self.generateNewComputeNodeTitle()
+    person.requestComputeNode(compute_node_title=compute_node_title)
 
     # check what is returned via request
-    computer_url = person.REQUEST.get('computer')
-    computer_absolute_url = person.REQUEST.get('computer_url')
-    computer_reference = person.REQUEST.get('computer_reference')
+    compute_node_url = person.REQUEST.get('compute_node')
+    compute_node_absolute_url = person.REQUEST.get('compute_node_url')
+    compute_node_reference = person.REQUEST.get('compute_node_reference')
 
-    self.assertNotEqual(None, computer_url)
-    self.assertNotEqual(None, computer_absolute_url)
-    self.assertNotEqual(None, computer_reference)
+    self.assertNotEqual(None, compute_node_url)
+    self.assertNotEqual(None, compute_node_absolute_url)
+    self.assertNotEqual(None, compute_node_reference)
 
     # check that title is ok
-    computer = person.restrictedTraverse(computer_url)
+    compute_node = person.restrictedTraverse(compute_node_url)
 
     sm = getSecurityManager()
     try:
       self.login()
-      computer2 = computer.Base_createCloneDocument(batch_mode=1)
-      computer2.validate()
+      compute_node2 = compute_node.Base_createCloneDocument(batch_mode=1)
+      compute_node2.validate()
     finally:
       setSecurityManager(sm)
     self.tic()
 
-    self.assertRaises(NotImplementedError, person.requestComputer,
-                      computer_title=computer_title)
+    self.assertRaises(NotImplementedError, person.requestComputeNode,
+                      compute_node_title=compute_node_title)
 
 class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
 
-  def test_Computer_setSubjectList(self):
+  def test_ComputeNode_setSubjectList(self):
     self.person_user = self.makePerson()
     self.login(self.person_user.getUserId())
 
     new_id = self.generateNewId()
-    computer = self.portal.computer_module.newContent(
-      portal_type='Computer',
-      title="Computer %s for %s" % (new_id, self.person_user.getReference()),
+    compute_node = self.portal.compute_node_module.newContent(
+      portal_type='Compute Node',
+      title="Compute Node %s for %s" % (new_id, self.person_user.getReference()),
       reference="TESTCOMP-%s" % new_id)
     self.tic()
-    assert computer.getDestinationSectionValue() is None
+    assert compute_node.getDestinationSectionValue() is None
 
-    computer.edit(subject_list=[self.person_user.getDefaultEmailText()])
+    compute_node.edit(subject_list=[self.person_user.getDefaultEmailText()])
     self.tic()
-    assert computer.getDestinationSection() == \
+    assert compute_node.getDestinationSection() == \
       self.person_user.getRelativeUrl()
 
   def check_Instance_validate(self, portal_type):
@@ -2757,22 +2757,22 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
   def check_SoftwareInstallation_changeState(self, method_id):
     self.person_user = self.makePerson()
     self.login(self.person_user.getUserId())
-    computer = self.portal.computer_module.newContent(
-      portal_type='Computer',
-      title="Computer %s for %s" % (self.new_id, self.person_user.getReference()),
+    compute_node = self.portal.compute_node_module.newContent(
+      portal_type='Compute Node',
+      title="Compute Node %s for %s" % (self.new_id, self.person_user.getReference()),
       reference="TESTCOMP-%s" % self.new_id)
-    self._addERP5Login(computer)
+    self._addERP5Login(compute_node)
 
     installation = self.portal.software_installation_module.newContent(
       portal_type='Software Installation',
       title="Installation %s for %s" % (self.new_id, self.person_user.getReference()),
-      aggregate_value=computer,
+      aggregate_value=compute_node,
       )
     self.tic()
 
     def verify_reindexObject_call(self, *args, **kw):
-      if self.getRelativeUrl() == computer.getRelativeUrl():
-        computer.portal_workflow.doActionFor(computer, action='edit_action',
+      if self.getRelativeUrl() == compute_node.getRelativeUrl():
+        compute_node.portal_workflow.doActionFor(compute_node, action='edit_action',
           comment='reindexObject triggered on %s' % method_id)
       else:
         return self.reindexObject_call(*args, **kw)
@@ -2787,7 +2787,7 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       Base._reindexObject = Base.reindexObject_call
     self.assertEqual(
         'reindexObject triggered on %s' % method_id,
-        computer.workflow_history['edit_workflow'][-1]['comment'])
+        compute_node.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_SoftwareInstallation_changeState_onStart(self):
     return self.check_SoftwareInstallation_changeState('requestStart')
@@ -2800,14 +2800,14 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
     self.login(self.person_user.getUserId())
 
     new_id = self.generateNewId()
-    computer = self.portal.computer_module.newContent(
-      portal_type='Computer',
-      title="Computer %s for %s" % (new_id, self.person_user.getReference()),
+    compute_node = self.portal.compute_node_module.newContent(
+      portal_type='Compute Node',
+      title="Compute Node %s for %s" % (new_id, self.person_user.getReference()),
       reference="TESTCOMP-%s" % new_id)
-    self._addERP5Login(computer)
-    partition = computer.newContent(
-      portal_type='Computer Partition',
-      title="Partition Computer %s for %s" % (new_id,
+    self._addERP5Login(compute_node)
+    partition = compute_node.newContent(
+      portal_type='Compute Partition',
+      title="Partition Compute Node %s for %s" % (new_id,
         self.person_user.getReference()),
       reference="TESTPART-%s" % new_id)
     instance = self.portal.software_instance_module.newContent(

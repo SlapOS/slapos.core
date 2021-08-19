@@ -94,8 +94,8 @@
                     <value>
                       <list>
                         <tuple>
-                          <string>Computer Partition</string>
-                          <string>Computer Partition</string>
+                          <string>Compute Partition</string>
+                          <string>Compute Partition</string>
                         </tuple>
                       </list>
                     </value>
@@ -106,7 +106,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Computer Partition</string> </value>
+                    <value> <string>Compute Partition</string> </value>
                 </item>
               </dictionary>
             </value>

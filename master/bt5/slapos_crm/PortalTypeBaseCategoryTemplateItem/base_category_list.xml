@@ -1,5 +1,5 @@
 <base_category_list>
- <portal_type id="Computer">
+ <portal_type id="Compute Node">
   <item>monitor_scope</item>
   <item>upgrade_scope</item>
  </portal_type>

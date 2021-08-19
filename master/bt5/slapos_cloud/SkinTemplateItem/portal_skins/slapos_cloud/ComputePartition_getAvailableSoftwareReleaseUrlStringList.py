@@ -1,0 +1,21 @@
+slap_state = context.getSlapState()
+portal = context.getPortalObject()
+
+if slap_state == 'free':
+  compute_node = context.getParentValue()
+  return compute_node.ComputeNode_getSoftwareReleaseUrlStringList()
+
+elif slap_state == 'busy':
+
+  instance = portal.portal_catalog.getResultValue(
+    portal_type="Software Instance",
+    validation_state="validated",
+    default_aggregate_uid=context.getUid(),
+  )
+  if (instance is None) or (instance.getSlapState() not in ["start_requested", "stop_requested"]):
+    return []
+  else:
+    return [instance.getUrlString()]
+
+else:
+  return []

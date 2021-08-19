@@ -1,7 +1,7 @@
 <type_roles>
   <role id='Assignee'>
    <property id='title'>The User Himself</property>
-   <property id='condition'>python: here.getParentValue().getPortalType() in ("Person", "Software Instance", "Computer")</property>
+   <property id='condition'>python: here.getParentValue().getPortalType() in ("Person", "Software Instance", "Compute Node")</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromParent</property>
    <multi_property id='categories'>local_role_group/user</multi_property>
    <multi_property id='base_category'>group</multi_property>

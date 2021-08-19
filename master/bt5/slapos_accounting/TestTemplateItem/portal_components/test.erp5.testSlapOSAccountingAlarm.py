@@ -1378,7 +1378,7 @@ class TestSlapOSGeneratePackingListFromTioXML(SlapOSTestCaseMixin):
     document.submit()
     self.tic()
 
-    script_name = "ComputerConsumptionTioXMLFile_solveInvoicingGeneration"
+    script_name = "ComputeNodeConsumptionTioXMLFile_solveInvoicingGeneration"
     alarm = self.portal.portal_alarms.slapos_accounting_generate_packing_list_from_tioxml
 
     self._test_alarm(
@@ -1388,7 +1388,7 @@ class TestSlapOSGeneratePackingListFromTioXML(SlapOSTestCaseMixin):
     document = self.createTioXMLFile()
     self.tic()
     
-    script_name = "ComputerConsumptionTioXMLFile_solveInvoicingGeneration"
+    script_name = "ComputeNodeConsumptionTioXMLFile_solveInvoicingGeneration"
     alarm = self.portal.portal_alarms.slapos_accounting_generate_packing_list_from_tioxml
 
     self._test_alarm_not_visited(

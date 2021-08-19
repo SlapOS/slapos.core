@@ -98,45 +98,45 @@ class TestAssignment(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(assignment, 'G-COMPANY', ['Auditor', 'Assignor'])
     self.assertRoles(assignment, self.user_id, ['Owner'])
 
-class TestComputer(TestSlapOSGroupRoleSecurityMixin):
+class TestComputeNode(TestSlapOSGroupRoleSecurityMixin):
   def test_GroupCompany(self):
-    computer = self.portal.computer_module.newContent(portal_type='Computer')
-    computer.updateLocalRolesOnSecurityGroups()
-    self.assertSecurityGroup(computer,
-        ['G-COMPANY', self.user_id, computer.getUserId()], False)
-    self.assertRoles(computer, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(computer, self.user_id, ['Owner'])
-    self.assertRoles(computer, computer.getUserId(), ['Assignor'])
+    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node')
+    compute_node.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(compute_node,
+        ['G-COMPANY', self.user_id, compute_node.getUserId()], False)
+    self.assertRoles(compute_node, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(compute_node, self.user_id, ['Owner'])
+    self.assertRoles(compute_node, compute_node.getUserId(), ['Assignor'])
 
   def test_ProjectMember(self):
     person = self.makePerson(user=1)
-    computer = self.portal.computer_module.newContent(
-        portal_type='Computer',
+    compute_node = self.portal.compute_node_module.newContent(
+        portal_type='Compute Node',
         source_administration=person.getRelativeUrl())
     project = self.portal.project_module.newContent(
         portal_type='Project')
 
     self.tic()
     self.login(person.getUserId())
-    computer.Computer_createMovement(
+    compute_node.ComputeNode_createMovement(
       destination=person.getRelativeUrl(),
       destination_project=project.getRelativeUrl())
     self.login()
 
     self.tic()
-    computer.updateLocalRolesOnSecurityGroups()
-    self.assertSecurityGroup(computer,
+    compute_node.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(compute_node,
         ['G-COMPANY',  self.user_id, person.getUserId(),
-         project.getReference(), computer.getUserId()], False)
-    self.assertRoles(computer, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(computer, self.user_id, ['Owner'])
-    self.assertRoles(computer, person.getUserId(), ['Assignee'])
-    self.assertRoles(computer, project.getReference(), ['Assignee'])
+         project.getReference(), compute_node.getUserId()], False)
+    self.assertRoles(compute_node, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(compute_node, self.user_id, ['Owner'])
+    self.assertRoles(compute_node, person.getUserId(), ['Assignee'])
+    self.assertRoles(compute_node, project.getReference(), ['Assignee'])
 
   def test_OrganisationMember(self):
     person = self.makePerson(user=1)
-    computer = self.portal.computer_module.newContent(
-        portal_type='Computer',
+    compute_node = self.portal.compute_node_module.newContent(
+        portal_type='Compute Node',
         source_administration=person.getRelativeUrl())
     organisation = self.portal.organisation_module.newContent(
         portal_type='Organisation',
@@ -144,91 +144,91 @@ class TestComputer(TestSlapOSGroupRoleSecurityMixin):
 
     self.tic()
     self.login(person.getUserId())
-    computer.Computer_createMovement(
+    compute_node.ComputeNode_createMovement(
       destination=person.getRelativeUrl(),
       destination_section=organisation.getRelativeUrl())
     self.login()
 
     self.tic()
-    computer.updateLocalRolesOnSecurityGroups()
-    self.assertSecurityGroup(computer,
+    compute_node.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(compute_node,
         ['G-COMPANY',  self.user_id, person.getUserId(),
-         organisation.getReference(), computer.getUserId()], False)
-    self.assertRoles(computer, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(computer, self.user_id, ['Owner'])
-    self.assertRoles(computer, person.getUserId(), ['Assignee'])
-    self.assertRoles(computer, organisation.getReference(), ['Assignee'])
+         organisation.getReference(), compute_node.getUserId()], False)
+    self.assertRoles(compute_node, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(compute_node, self.user_id, ['Owner'])
+    self.assertRoles(compute_node, person.getUserId(), ['Assignee'])
+    self.assertRoles(compute_node, organisation.getReference(), ['Assignee'])
 
 
-  def test_ComputerAgent(self):
+  def test_ComputeNodeAgent(self):
     reference = 'TESTPERSON-%s' % self.generateNewId()
     person = self.portal.person_module.newContent(portal_type='Person',
         reference=reference)
-    computer = self.portal.computer_module.newContent(portal_type='Computer',
+    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node',
         source_administration=person.getRelativeUrl())
-    computer.updateLocalRolesOnSecurityGroups()
-    self.assertSecurityGroup(computer,
-        [self.user_id, 'G-COMPANY', person.getUserId(), computer.getUserId()], False)
-    self.assertRoles(computer, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(computer, person.getUserId(), ['Assignee'])
-    self.assertRoles(computer, self.user_id, ['Owner'])
-    self.assertRoles(computer, computer.getUserId(), ['Assignor'])
+    compute_node.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(compute_node,
+        [self.user_id, 'G-COMPANY', person.getUserId(), compute_node.getUserId()], False)
+    self.assertRoles(compute_node, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(compute_node, person.getUserId(), ['Assignee'])
+    self.assertRoles(compute_node, self.user_id, ['Owner'])
+    self.assertRoles(compute_node, compute_node.getUserId(), ['Assignor'])
 
   def test_AllocationScope(self):
-    computer = self.portal.computer_module.newContent(portal_type='Computer')
+    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node')
 
     # open/public
-    computer.edit(allocation_scope='open/public')
-    computer.updateLocalRolesOnSecurityGroups()
-    self.assertSecurityGroup(computer,
-        [self.user_id, 'G-COMPANY', 'R-SHADOW-PERSON', computer.getUserId()], False)
-    self.assertRoles(computer, 'R-SHADOW-PERSON', ['Auditor'])
-    self.assertRoles(computer, self.user_id, ['Owner'])
-    self.assertRoles(computer, computer.getUserId(), ['Assignor'])
+    compute_node.edit(allocation_scope='open/public')
+    compute_node.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(compute_node,
+        [self.user_id, 'G-COMPANY', 'R-SHADOW-PERSON', compute_node.getUserId()], False)
+    self.assertRoles(compute_node, 'R-SHADOW-PERSON', ['Auditor'])
+    self.assertRoles(compute_node, self.user_id, ['Owner'])
+    self.assertRoles(compute_node, compute_node.getUserId(), ['Assignor'])
 
     # open/personal
     reference = 'TESTPERSON-%s' % self.generateNewId()
     person = self.portal.person_module.newContent(portal_type='Person',
         reference=reference)
-    computer.edit(allocation_scope='open/personal',
+    compute_node.edit(allocation_scope='open/personal',
         source_administration=person.getRelativeUrl()
     )
-    computer.updateLocalRolesOnSecurityGroups()
+    compute_node.updateLocalRolesOnSecurityGroups()
     shadow_user_id = 'SHADOW-%s' % person.getUserId()
 
-    self.assertSecurityGroup(computer,
+    self.assertSecurityGroup(compute_node,
         [self.user_id, 'G-COMPANY', shadow_user_id,
-         person.getUserId(), computer.getUserId()], False)
-    self.assertRoles(computer, shadow_user_id, ['Auditor'])
-    self.assertRoles(computer, self.user_id, ['Owner'])
-    self.assertRoles(computer, computer.getUserId(), ['Assignor'])
+         person.getUserId(), compute_node.getUserId()], False)
+    self.assertRoles(compute_node, shadow_user_id, ['Auditor'])
+    self.assertRoles(compute_node, self.user_id, ['Owner'])
+    self.assertRoles(compute_node, compute_node.getUserId(), ['Assignor'])
 
     # open/friend
     friend_reference = 'TESTPERSON-%s' % self.generateNewId()
     friend_person = self.portal.person_module.newContent(portal_type='Person',
         reference=friend_reference)
-    computer.edit(allocation_scope='open/friend',
+    compute_node.edit(allocation_scope='open/friend',
         destination_section=friend_person.getRelativeUrl()
     )
-    computer.updateLocalRolesOnSecurityGroups()
+    compute_node.updateLocalRolesOnSecurityGroups()
     shadow_friend_user_id = 'SHADOW-%s' % friend_person.getUserId()
-    self.assertSecurityGroup(computer,
+    self.assertSecurityGroup(compute_node,
         [self.user_id, 'G-COMPANY', shadow_friend_user_id,
-         person.getUserId(), computer.getUserId()], False)
-    self.assertRoles(computer, shadow_friend_user_id, ['Auditor'])
-    self.assertRoles(computer, self.user_id, ['Owner'])
-    self.assertRoles(computer, computer.getUserId(), ['Assignor'])
+         person.getUserId(), compute_node.getUserId()], False)
+    self.assertRoles(compute_node, shadow_friend_user_id, ['Auditor'])
+    self.assertRoles(compute_node, self.user_id, ['Owner'])
+    self.assertRoles(compute_node, compute_node.getUserId(), ['Assignor'])
 
 
-  def test_selfComputer(self):
+  def test_selfComputeNode(self):
     reference = 'TESTCOMP-%s' % self.generateNewId()
-    computer = self.portal.computer_module.newContent(portal_type='Computer',
+    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node',
         reference=reference)
-    computer.updateLocalRolesOnSecurityGroups()
-    self.assertSecurityGroup(computer,
-        [self.user_id, 'G-COMPANY', computer.getUserId()], False)
-    self.assertRoles(computer, computer.getUserId(), ['Assignor'])
-    self.assertRoles(computer, self.user_id, ['Owner'])
+    compute_node.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(compute_node,
+        [self.user_id, 'G-COMPANY', compute_node.getUserId()], False)
+    self.assertRoles(compute_node, compute_node.getUserId(), ['Assignor'])
+    self.assertRoles(compute_node, self.user_id, ['Owner'])
 
 class TestComputerModel(TestSlapOSGroupRoleSecurityMixin):
   def test_GroupCompany(self):
@@ -240,7 +240,7 @@ class TestComputerModel(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(model, 'G-COMPANY', ['Assignor'])
     self.assertRoles(model, self.user_id, ['Owner'])
 
-  def test_ComputerAgent(self):
+  def test_ComputeNodeAgent(self):
     reference = 'TESTPERSON-%s' % self.generateNewId()
     person = self.portal.person_module.newContent(portal_type='Person',
         reference=reference)
@@ -263,9 +263,9 @@ class TestComputerModelModule(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(module, 'G-COMPANY', ['Auditor', 'Author'])
     self.assertRoles(module, self.user_id, ['Owner'])
 
-class TestComputerModule(TestSlapOSGroupRoleSecurityMixin):
+class TestComputeNodeModule(TestSlapOSGroupRoleSecurityMixin):
   def test(self):
-    module = self.portal.computer_module
+    module = self.portal.compute_node_module
     self.changeOwnership(module)
     self.assertSecurityGroup(module,
         ['G-COMPANY', 'R-COMPUTER', 'R-MEMBER', 'R-SHADOW-PERSON', self.user_id],
@@ -340,7 +340,7 @@ class TestComputerNetwork(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(network, self.user_id, ['Assignee', 'Owner'])
 
 
-  def test_ComputerAgent(self):
+  def test_ComputeNodeAgent(self):
     reference = 'TESTPERSON-%s' % self.generateNewId()
     person = self.portal.person_module.newContent(portal_type='Person',
         reference=reference)
@@ -364,10 +364,10 @@ class TestComputerNetworkModule(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(module, 'R-SHADOW-PERSON', ['Auditor'])
     self.assertRoles(module, self.user_id, ['Owner'])
 
-class TestComputerPartition(TestSlapOSGroupRoleSecurityMixin):
+class TestComputePartition(TestSlapOSGroupRoleSecurityMixin):
   def test_CustomerOfThePartition(self):
-    partition = self.portal.computer_module.newContent(
-        portal_type='Computer').newContent(portal_type='Computer Partition')
+    partition = self.portal.compute_node_module.newContent(
+        portal_type='Compute Node').newContent(portal_type='Compute Partition')
     self.portal.portal_workflow._jumpToStateFor(partition, 'busy')
     self.commit()
 
@@ -412,7 +412,7 @@ class TestComputerPartition(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(partition, instance_subscription_reference, ['Auditor'])
     self.assertRoles(partition, self.user_id, ['Owner'])
 
-  test_SoftwareInstanceGroupRelatedToComputerPartition = \
+  test_SoftwareInstanceGroupRelatedToComputePartition = \
       test_CustomerOfThePartition
 
 class TestCredentialUpdateModule(TestSlapOSGroupRoleSecurityMixin):
@@ -758,15 +758,15 @@ class TestERP5Login(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(login, person.getUserId(), ['Assignee'])
     self.assertRoles(login, self.user_id, ['Owner'])
 
-  def test_ComputerCanAccessLoginDocument(self):
-    computer = self.portal.computer_module.newContent(portal_type='Computer')
-    login = computer.newContent(portal_type=self.login_portal_type)
-    computer.updateLocalRolesOnSecurityGroups()
+  def test_ComputeNodeCanAccessLoginDocument(self):
+    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node')
+    login = compute_node.newContent(portal_type=self.login_portal_type)
+    compute_node.updateLocalRolesOnSecurityGroups()
     login.updateLocalRolesOnSecurityGroups()
 
     self.assertSecurityGroup(login,
-        [self.user_id, computer.getUserId()], False)
-    self.assertRoles(login, computer.getUserId(), ['Assignee'])
+        [self.user_id, compute_node.getUserId()], False)
+    self.assertRoles(login, compute_node.getUserId(), ['Assignee'])
     self.assertRoles(login, self.user_id, ['Owner'])
 
   def test_SoftwareInstanceCanAccessLoginDocument(self):
@@ -786,8 +786,8 @@ class TestCertificateLogin(TestERP5Login):
 
 class TestGoogleLogin(TestERP5Login):
   login_portal_type = "Google Login"
-  def test_ComputerCanAccessLoginDocument(self):
-    # Not supported to add google login inside Computer
+  def test_ComputeNodeCanAccessLoginDocument(self):
+    # Not supported to add google login inside Compute Node
     pass
   
   def test_SoftwareInstanceCanAccessLoginDocument(self):
@@ -796,8 +796,8 @@ class TestGoogleLogin(TestERP5Login):
 
 class TestFacebookLogin(TestERP5Login):
   login_portal_type = "Facebook Login"
-  def test_ComputerCanAccessLoginDocument(self):
-    # Not supported to add google login inside Computer
+  def test_ComputeNodeCanAccessLoginDocument(self):
+    # Not supported to add google login inside Compute Node
     pass
   
   def test_SoftwareInstanceCanAccessLoginDocument(self):
@@ -920,11 +920,11 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
 
 
   def test_SoftwareInstanceWhichProvidesThisSlaveInstance(self):
-    computer_reference = 'TESTCOMP-%s' % self.generateNewId()
-    computer = self.portal.computer_module.template_computer\
+    compute_node_reference = 'TESTCOMP-%s' % self.generateNewId()
+    compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
-    computer.edit(reference=computer_reference)
-    partition = computer.newContent(portal_type='Computer Partition')
+    compute_node.edit(reference=compute_node_reference)
+    partition = compute_node.newContent(portal_type='Compute Partition')
 
     provider_reference = 'TESTSI-%s' % self.generateNewId()
 
@@ -941,10 +941,10 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
         portal_type='Slave Instance', aggregate=partition.getRelativeUrl())
     instance.updateLocalRolesOnSecurityGroups()
     self.assertSecurityGroup(instance, ['G-COMPANY', provider.getUserId(),
-        computer.getUserId(), self.user_id], False)
+        compute_node.getUserId(), self.user_id], False)
     self.assertRoles(instance, 'G-COMPANY', ['Assignor'])
     self.assertRoles(instance, provider.getUserId(), ['Assignor'])
-    self.assertRoles(instance, computer.getUserId(), ['Assignor'])
+    self.assertRoles(instance, compute_node.getUserId(), ['Assignor'])
     self.assertRoles(instance, self.user_id, ['Owner'])
 
 class TestSoftwareInstallation(TestSlapOSGroupRoleSecurityMixin):
@@ -958,58 +958,58 @@ class TestSoftwareInstallation(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(installation, 'G-COMPANY', ['Assignor'])
     self.assertRoles(installation, self.user_id, ['Owner'])
 
-  def test_Computer(self):
-    computer_reference = 'TESTCOMP-%s' % self.generateNewId()
-    computer = self.portal.computer_module.template_computer\
+  def test_ComputeNode(self):
+    compute_node_reference = 'TESTCOMP-%s' % self.generateNewId()
+    compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
-    computer.edit(reference=computer_reference)
+    compute_node.edit(reference=compute_node_reference)
 
     installation = self.portal.software_installation_module.newContent(
         portal_type='Software Installation',
-        aggregate=computer.getRelativeUrl())
+        aggregate=compute_node.getRelativeUrl())
     installation.updateLocalRolesOnSecurityGroups()
 
     self.assertSecurityGroup(installation, [self.user_id,
-        'G-COMPANY', computer.getUserId()], False)
+        'G-COMPANY', compute_node.getUserId()], False)
     self.assertRoles(installation, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(installation, computer.getUserId(), ['Assignor'])
+    self.assertRoles(installation, compute_node.getUserId(), ['Assignor'])
     self.assertRoles(installation, self.user_id, ['Owner'])
 
   def test_ProjectMember(self):
     person = self.makePerson(user=1)
-    computer_reference = 'TESTCOMP-%s' % self.generateNewId()
-    computer = self.portal.computer_module.template_computer\
+    compute_node_reference = 'TESTCOMP-%s' % self.generateNewId()
+    compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
-    computer.edit(reference=computer_reference,
+    compute_node.edit(reference=compute_node_reference,
         source_administration=person.getRelativeUrl())
     project = self.portal.project_module.newContent(
         portal_type='Project')
     
     self.tic()
     self.login(person.getUserId())
-    computer.Computer_createMovement(
+    compute_node.ComputeNode_createMovement(
       destination=person.getRelativeUrl(),
       destination_project=project.getRelativeUrl())
     self.login()
     self.tic()
     installation = self.portal.software_installation_module.newContent(
         portal_type='Software Installation',
-        aggregate=computer.getRelativeUrl())
+        aggregate=compute_node.getRelativeUrl())
     installation.updateLocalRolesOnSecurityGroups()
 
     self.assertSecurityGroup(installation, [self.user_id,
-        'G-COMPANY', computer.getUserId(), project.getReference()], False)
+        'G-COMPANY', compute_node.getUserId(), project.getReference()], False)
     self.assertRoles(installation, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(installation, computer.getUserId(), ['Assignor'])
+    self.assertRoles(installation, compute_node.getUserId(), ['Assignor'])
     self.assertRoles(installation, self.user_id, ['Owner'])
     self.assertRoles(installation, project.getReference(), ['Assignee'])
 
   def test_OrganisationMember(self):
     person = self.makePerson(user=1)
-    computer_reference = 'TESTCOMP-%s' % self.generateNewId()
-    computer = self.portal.computer_module.template_computer\
+    compute_node_reference = 'TESTCOMP-%s' % self.generateNewId()
+    compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
-    computer.edit(reference=computer_reference,
+    compute_node.edit(reference=compute_node_reference,
         source_administration=person.getRelativeUrl())
     organisation = self.portal.organisation_module.newContent(
         portal_type='Organisation',
@@ -1017,20 +1017,20 @@ class TestSoftwareInstallation(TestSlapOSGroupRoleSecurityMixin):
 
     self.tic()
     self.login(person.getUserId())
-    computer.Computer_createMovement(
+    compute_node.ComputeNode_createMovement(
       destination=person.getRelativeUrl(),
       destination_section=organisation.getRelativeUrl())
     self.login()
     self.tic()
     installation = self.portal.software_installation_module.newContent(
         portal_type='Software Installation',
-        aggregate=computer.getRelativeUrl())
+        aggregate=compute_node.getRelativeUrl())
     installation.updateLocalRolesOnSecurityGroups()
 
     self.assertSecurityGroup(installation, [self.user_id,
-        'G-COMPANY', computer.getUserId(), organisation.getReference()], False)
+        'G-COMPANY', compute_node.getUserId(), organisation.getReference()], False)
     self.assertRoles(installation, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(installation, computer.getUserId(), ['Assignor'])
+    self.assertRoles(installation, compute_node.getUserId(), ['Assignor'])
     self.assertRoles(installation, self.user_id, ['Owner'])
     self.assertRoles(installation, organisation.getReference(), ['Assignee'])
 
@@ -1154,12 +1154,12 @@ class TestSoftwareInstance(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(instance, self.user_id, ['Owner'])
     self.assertRoles(instance, organisation.getReference(), ['Assignee'])
 
-  def test_Computer(self):
-    computer_reference = 'TESTCOMP-%s' % self.generateNewId()
-    computer = self.portal.computer_module.template_computer\
+  def test_ComputeNode(self):
+    compute_node_reference = 'TESTCOMP-%s' % self.generateNewId()
+    compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
-    computer.edit(reference=computer_reference)
-    partition = computer.newContent(portal_type='Computer Partition')
+    compute_node.edit(reference=compute_node_reference)
+    partition = compute_node.newContent(portal_type='Compute Partition')
 
     self.commit()
 
@@ -1167,10 +1167,10 @@ class TestSoftwareInstance(TestSlapOSGroupRoleSecurityMixin):
         portal_type='Software Instance', aggregate=partition.getRelativeUrl())
     instance.updateLocalRolesOnSecurityGroups()
 
-    self.assertSecurityGroup(instance, ['G-COMPANY', computer.getUserId(),
+    self.assertSecurityGroup(instance, ['G-COMPANY', compute_node.getUserId(),
         self.user_id], False)
     self.assertRoles(instance, 'G-COMPANY', ['Assignor'])
-    self.assertRoles(instance, computer.getUserId(), ['Assignor'])
+    self.assertRoles(instance, compute_node.getUserId(), ['Assignor'])
     self.assertRoles(instance, self.user_id, ['Owner'])
 
 class TestSoftwareInstanceModule(TestSlapOSGroupRoleSecurityMixin):
@@ -1867,15 +1867,15 @@ class TestMailMessage(TestSlapOSGroupRoleSecurityMixin):
 
   def test_ProjectMember(self):
     person = self.makePerson(user=1)
-    computer = self.portal.computer_module.newContent(
-        portal_type='Computer',
+    compute_node = self.portal.compute_node_module.newContent(
+        portal_type='Compute Node',
         source_administration=person.getRelativeUrl())
     project = self.portal.project_module.newContent(
         portal_type='Project')
 
     self.tic()
     self.login(person.getUserId())
-    computer.Computer_createMovement(
+    compute_node.ComputeNode_createMovement(
       destination=person.getRelativeUrl(),
       destination_project=project.getRelativeUrl())
     self.login()
@@ -1884,7 +1884,7 @@ class TestMailMessage(TestSlapOSGroupRoleSecurityMixin):
     support_request = self.portal.support_request_module.newContent(
         portal_type='Support Request',
         destination_decision_value=person,
-        aggregate=computer.getRelativeUrl()
+        aggregate=compute_node.getRelativeUrl()
         )
 
     event = self.portal.event_module.newContent(
@@ -1942,8 +1942,8 @@ class TestMailMessage(TestSlapOSGroupRoleSecurityMixin):
 
   def test_OrganisationMember(self):
     person = self.makePerson(user=1)
-    computer = self.portal.computer_module.newContent(
-        portal_type='Computer',
+    compute_node = self.portal.compute_node_module.newContent(
+        portal_type='Compute Node',
         source_administration=person.getRelativeUrl())
     organisation = self.portal.organisation_module.newContent(
         portal_type='Organisation',
@@ -1951,7 +1951,7 @@ class TestMailMessage(TestSlapOSGroupRoleSecurityMixin):
 
     self.tic()
     self.login(person.getUserId())
-    computer.Computer_createMovement(
+    compute_node.ComputeNode_createMovement(
       destination=person.getRelativeUrl(),
       destination_section=organisation.getRelativeUrl())
     self.login()
@@ -1960,7 +1960,7 @@ class TestMailMessage(TestSlapOSGroupRoleSecurityMixin):
     support_request = self.portal.support_request_module.newContent(
         portal_type='Support Request',
         destination_decision_value=person,
-        aggregate=computer.getRelativeUrl()
+        aggregate=compute_node.getRelativeUrl()
         )
 
     event = self.portal.event_module.newContent(
@@ -2223,15 +2223,15 @@ class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):
 
   def test_ProjectMember(self):
     person = self.makePerson(user=1)
-    computer = self.portal.computer_module.newContent(
-        portal_type='Computer',
+    compute_node = self.portal.compute_node_module.newContent(
+        portal_type='Compute Node',
         source_administration=person.getRelativeUrl())
     project = self.portal.project_module.newContent(
         portal_type='Project')
 
     self.tic()
     self.login(person.getUserId())
-    computer.Computer_createMovement(
+    compute_node.ComputeNode_createMovement(
       destination=person.getRelativeUrl(),
       destination_project=project.getRelativeUrl())
     self.login()
@@ -2240,7 +2240,7 @@ class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):
     support_request = self.portal.support_request_module.newContent(
         portal_type='Support Request',
         destination_decision_value=person,
-        aggregate=computer.getRelativeUrl()
+        aggregate=compute_node.getRelativeUrl()
         )
     support_request.updateLocalRolesOnSecurityGroups()
     self.assertSecurityGroup(support_request,
@@ -2281,8 +2281,8 @@ class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):
 
   def test_OrganisationMember(self):
     person = self.makePerson(user=1)
-    computer = self.portal.computer_module.newContent(
-        portal_type='Computer',
+    compute_node = self.portal.compute_node_module.newContent(
+        portal_type='Compute Node',
         source_administration=person.getRelativeUrl())
     organisation = self.portal.organisation_module.newContent(
         portal_type='Organisation',
@@ -2290,7 +2290,7 @@ class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):
 
     self.tic()
     self.login(person.getUserId())
-    computer.Computer_createMovement(
+    compute_node.ComputeNode_createMovement(
       destination=person.getRelativeUrl(),
       destination_section=organisation.getRelativeUrl())
     self.login()
@@ -2299,7 +2299,7 @@ class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):
     support_request = self.portal.support_request_module.newContent(
         portal_type='Support Request',
         destination_decision_value=person,
-        aggregate=computer.getRelativeUrl()
+        aggregate=compute_node.getRelativeUrl()
         )
     support_request.updateLocalRolesOnSecurityGroups()
     self.assertSecurityGroup(support_request,
@@ -2609,10 +2609,10 @@ class TestConsumptionDocumentModule(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(module, 'G-COMPANY', ['Author', 'Auditor'])
     self.assertRoles(module, self.user_id, ['Owner'])
 
-class TestComputerConsumptionTioXMLFile(TestSlapOSGroupRoleSecurityMixin):
+class TestComputeNodeConsumptionTioXMLFile(TestSlapOSGroupRoleSecurityMixin):
   def test_GroupCompany(self):
     text = self.portal.consumption_document_module.newContent(
-        portal_type='Computer Consumption TioXML File')
+        portal_type='Compute Node Consumption TioXML File')
 
     self.assertSecurityGroup(text,
         ['G-COMPANY', self.user_id],
@@ -2719,15 +2719,15 @@ class TestUpgradeDecision(TestSlapOSGroupRoleSecurityMixin):
 
   def test_ProjectMember(self):
     person = self.makePerson(user=1)
-    computer = self.portal.computer_module.newContent(
-        portal_type='Computer',
+    compute_node = self.portal.compute_node_module.newContent(
+        portal_type='Compute Node',
         source_administration=person.getRelativeUrl())
     project = self.portal.project_module.newContent(
         portal_type='Project')
 
     self.tic()
     self.login(person.getUserId())
-    computer.Computer_createMovement(
+    compute_node.ComputeNode_createMovement(
       destination=person.getRelativeUrl(),
       destination_project=project.getRelativeUrl())
     self.login()
@@ -2739,7 +2739,7 @@ class TestUpgradeDecision(TestSlapOSGroupRoleSecurityMixin):
 
     upgrade_decision.newContent(
         portal_type="Upgrade Decision Line",
-        aggregate=computer.getRelativeUrl()
+        aggregate=compute_node.getRelativeUrl()
         )
     upgrade_decision.updateLocalRolesOnSecurityGroups()
     self.assertSecurityGroup(upgrade_decision,
@@ -2782,8 +2782,8 @@ class TestUpgradeDecision(TestSlapOSGroupRoleSecurityMixin):
 
   def test_OrganisationMember(self):
     person = self.makePerson(user=1)
-    computer = self.portal.computer_module.newContent(
-        portal_type='Computer',
+    compute_node = self.portal.compute_node_module.newContent(
+        portal_type='Compute Node',
         source_administration=person.getRelativeUrl())
     organisation = self.portal.organisation_module.newContent(
         portal_type='Organisation',
@@ -2791,7 +2791,7 @@ class TestUpgradeDecision(TestSlapOSGroupRoleSecurityMixin):
 
     self.tic()
     self.login(person.getUserId())
-    computer.Computer_createMovement(
+    compute_node.ComputeNode_createMovement(
       destination=person.getRelativeUrl(),
       destination_section=organisation.getRelativeUrl())
     self.login()
@@ -2803,7 +2803,7 @@ class TestUpgradeDecision(TestSlapOSGroupRoleSecurityMixin):
 
     upgrade_decision.newContent(
         portal_type="Upgrade Decision Line",
-        aggregate=computer.getRelativeUrl()
+        aggregate=compute_node.getRelativeUrl()
         )
     upgrade_decision.updateLocalRolesOnSecurityGroups()
     self.assertSecurityGroup(upgrade_decision,

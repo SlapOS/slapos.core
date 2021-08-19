@@ -3,7 +3,7 @@
 [slapos]
 instance_root = /srv/slapgrid
 software_root = /opt/slapgrid
-computer_id = local_computer
+compute_node_id = local_compute_node
 
 [slapproxy]
 host = 127.0.0.1

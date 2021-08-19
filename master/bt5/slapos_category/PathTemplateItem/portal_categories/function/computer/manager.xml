@@ -89,7 +89,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Computer Maintenance Manager</string> </value>
+            <value> <string>Compute Node Maintenance Manager</string> </value>
         </item>
       </dictionary>
     </pickle>

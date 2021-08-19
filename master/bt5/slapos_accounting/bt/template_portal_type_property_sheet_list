@@ -1,6 +1,6 @@
 Cloud Contract Line | SlapOSCloudContractLineAccounting
 Cloud Contract | SlapOSCloudContractAccounting
-Computer Consumption TioXML File | SortIndex
+Compute Node Consumption TioXML File | SortIndex
 Instance Tree | SlapOSAccountingInstanceTreeConstraint
 Sale Invoice Transaction | SlapOSAccountingSaleInvoiceTransactionConstraint
 Sale Packing List Line | SlapOSAccountingSalePackingListLineConstraint

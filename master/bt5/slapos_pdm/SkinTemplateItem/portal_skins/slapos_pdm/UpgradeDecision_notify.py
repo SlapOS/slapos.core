@@ -11,7 +11,7 @@ if not person:
   raise ValueError("Inconsistent Upgrade Decision, No Destination Decision")
 
 instance_tree = context.UpgradeDecision_getInstanceTree()
-computer = context.UpgradeDecision_getComputer()
+compute_node = context.UpgradeDecision_getComputeNode()
 software_release = context.UpgradeDecision_getSoftwareRelease()
 software_product_title = software_release.getAggregateTitle(
                                portal_type="Software Product")
@@ -31,13 +31,13 @@ if instance_tree is not None:
      'old_software_release_url': instance_tree.getUrlString()})
 
 
-elif computer is not None:
+elif compute_node is not None:
 
-  notification_message_reference = 'slapos-upgrade-computer.notification' 
+  notification_message_reference = 'slapos-upgrade-compute-node.notification' 
 
-  title = "New Software available for Installation at %s" % computer.getTitle()
-  mapping_dict.update(**{'computer_title': computer.getTitle(),
-                         'computer_reference': computer.getReference()})
+  title = "New Software available for Installation at %s" % compute_node.getTitle()
+  mapping_dict.update(**{'compute_node_title': compute_node.getTitle(),
+                         'compute_node_reference': compute_node.getReference()})
 
 
 if notification_message_reference is None:

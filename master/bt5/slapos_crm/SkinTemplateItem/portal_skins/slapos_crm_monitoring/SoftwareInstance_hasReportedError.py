@@ -1,7 +1,7 @@
 from DateTime import DateTime
 import json
 
-if context.getAggregateValue(portal_type="Computer Partition") is not None:
+if context.getAggregateValue(portal_type="Compute Partition") is not None:
   memcached_dict = context.Base_getSlapToolMemcachedDict()
   try:
     d = memcached_dict[context.getReference()]

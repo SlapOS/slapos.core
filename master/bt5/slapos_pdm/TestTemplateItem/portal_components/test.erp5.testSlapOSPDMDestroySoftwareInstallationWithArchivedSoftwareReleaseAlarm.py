@@ -53,7 +53,7 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     preference =  self.portal.portal_preferences.getActiveSystemPreference()
     preference.setPreferredCloudContractEnabled(True)
     self.tic()
-    computer, partition = self._makeComputer()
+    compute_node, partition = self._makeComputeNode()
     archived_url_string = self.generateNewSoftwareReleaseUrl()
     # create software release
     archived_software_release = self.portal.software_release_module.newContent(
@@ -68,7 +68,7 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     archived_software_installation = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',
         url_string=archived_url_string,
-        aggregate=computer.getRelativeUrl())
+        aggregate=compute_node.getRelativeUrl())
     archived_software_installation.validate()
     archived_software_installation.requestStart()
 
@@ -86,7 +86,7 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     archived_used_software_installation = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',
         url_string=archived_used_url_string,
-        aggregate=computer.getRelativeUrl())
+        aggregate=compute_node.getRelativeUrl())
     archived_used_software_installation.validate()
     archived_used_software_installation.requestStart()
 
@@ -109,7 +109,7 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     published_software_installation = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',
         url_string=published_url_string,
-        aggregate=computer.getRelativeUrl())
+        aggregate=compute_node.getRelativeUrl())
     published_software_installation.validate()
     published_software_installation.requestStart()
 
@@ -188,7 +188,7 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     preference.setPreferredCloudContractEnabled(True)
     self.tic()
 
-    computer, partition = self._makeComputer()
+    compute_node, partition = self._makeComputeNode()
     partition.invalidate()
     partition.markBusy()
 
@@ -205,14 +205,14 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     software_installation_validated_request_start = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',
         url_string=url_string,
-        aggregate=computer.getRelativeUrl())
+        aggregate=compute_node.getRelativeUrl())
     software_installation_validated_request_start.validate()
     software_installation_validated_request_start.requestStart()
 
     software_installation_validated_request_destroy = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',
         url_string=url_string,
-        aggregate=computer.getRelativeUrl())
+        aggregate=compute_node.getRelativeUrl())
     software_installation_validated_request_destroy.validate()
     software_installation_validated_request_destroy.requestStart()
     software_installation_validated_request_destroy.requestDestroy()
@@ -220,7 +220,7 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     software_installation_invalidated_request_destroy = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',
         url_string=url_string,
-        aggregate=computer.getRelativeUrl())
+        aggregate=compute_node.getRelativeUrl())
     software_installation_invalidated_request_destroy.validate()
     software_installation_invalidated_request_destroy.requestStart()
     software_installation_invalidated_request_destroy.requestDestroy()

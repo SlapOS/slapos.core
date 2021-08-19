@@ -837,9 +837,9 @@
     </tr>
   </tal:block>
 
-  <tal:block metal:define-macro="create_simple_computer">
+  <tal:block metal:define-macro="create_simple_compute_node">
     <tr>
-      <td colspan="3"><p>Create Simple Computer</p></td>
+      <td colspan="3"><p>Create Simple Compute Node</p></td>
     </tr>
 
     <tal:block define="menu_item python: 'Servers'; header menu_item">
@@ -854,7 +854,7 @@
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
     </tal:block>
 
-    <tal:block define="header python: 'New Computer'; ">
+    <tal:block define="header python: 'New Compute Node'; ">
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
     </tal:block>
 
@@ -872,13 +872,13 @@
     <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
     <tal:block tal:define="notification_configuration python: {'class': 'success',
-                                                           'text': 'New Computer created.'}">
+                                                           'text': 'New Compute Node created.'}">
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
     </tal:block>
 
     <tr>
       <td>waitForElementPresent</td>
-      <td>//a[text()=" Click here to access your computer "]</td>
+      <td>//a[text()=" Click here to access your compute_node "]</td>
       <td></td>
     </tr>
     <tr>
@@ -893,11 +893,11 @@
     </tr>
     <tr>
       <td>click</td>
-      <td>//a[text()=" Click here to access your computer "]</td>
+      <td>//a[text()=" Click here to access your compute_node "]</td>
       <td></td>
     </tr>
 
-    <tal:block tal:define="header python: 'Computer: ${title}';
+    <tal:block tal:define="header python: 'Compute Node: ${title}';
                            dummy python: context.REQUEST.set('mapping', {'title': document_title})">
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
     </tal:block>

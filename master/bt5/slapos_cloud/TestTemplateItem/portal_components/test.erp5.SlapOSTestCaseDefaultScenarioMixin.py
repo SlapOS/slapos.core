@@ -112,14 +112,14 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         {"created_at":"%s" % access_date, "text": "#access "}
     )
 
-  def requestComputer(self, title):
+  def requestComputeNode(self, title):
     requestXml = self.portal.portal_slap.requestComputer(title)
     self.tic()
     self.assertTrue('marshal' in requestXml)
-    computer = xml_marshaller.xml_marshaller.loads(requestXml)
-    computer_id = getattr(computer, '_computer_id', None)
-    self.assertNotEqual(None, computer_id)
-    return computer_id.encode('UTF-8')
+    compute_node = xml_marshaller.xml_marshaller.loads(requestXml)
+    compute_node_id = getattr(compute_node, '_computer_id', None)
+    self.assertNotEqual(None, compute_node_id)
+    return compute_node_id.encode('UTF-8')
 
   def supplySoftware(self, server, url, state='available'):
     self.portal.portal_slap.supplySupply(url, server.getReference(), state)
@@ -174,16 +174,16 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.assertSameSet(friend_list, server.getSubjectList())
     self.tic()
 
-  def formatComputer(self, computer, partition_count=10):
-    computer_dict = dict(
+  def formatComputeNode(self, compute_node, partition_count=10):
+    compute_node_dict = dict(
       software_root='/opt',
-      reference=computer.getReference(),
+      reference=compute_node.getReference(),
       netmask='255.255.255.0',
       address='128.0.0.1',
       instance_root='/srv'
     )
-    computer_dict['partition_list'] = []
-    a = computer_dict['partition_list'].append
+    compute_node_dict['partition_list'] = []
+    a = compute_node_dict['partition_list'].append
     for i in range(1, partition_count+1):
       a(dict(
         reference='part%s' % i,
@@ -195,83 +195,83 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       ))
     sm = getSecurityManager()
     try:
-      self.login(computer.getUserId())
+      self.login(compute_node.getUserId())
       self.portal.portal_slap.loadComputerConfigurationFromXML(
-          xml_marshaller.xml_marshaller.dumps(computer_dict))
+          xml_marshaller.xml_marshaller.dumps(compute_node_dict))
       self.tic()
       self.assertEqual(partition_count,
-          len(computer.contentValues(portal_type='Computer Partition')))
+          len(compute_node.contentValues(portal_type='Compute Partition')))
     finally:
       setSecurityManager(sm)
 
-  def simulateSlapgridSR(self, computer):
+  def simulateSlapgridSR(self, compute_node):
     sm = getSecurityManager()
-    computer_user_id = computer.getUserId()
+    compute_node_user_id = compute_node.getUserId()
     try:
-      self.login(computer_user_id)
-      computer_xml = self.portal.portal_slap.getFullComputerInformation(
-          computer_id=computer.getReference())
-      if not isinstance(computer_xml, str):
-        computer_xml = computer_xml.getBody()
-      slap_computer = xml_marshaller.xml_marshaller.loads(computer_xml)
-      self.assertEqual('Computer', slap_computer.__class__.__name__)
-      for software_release in slap_computer._software_release_list:
+      self.login(compute_node_user_id)
+      compute_node_xml = self.portal.portal_slap.getFullComputerInformation(
+          computer_id=compute_node.getReference())
+      if not isinstance(compute_node_xml, str):
+        compute_node_xml = compute_node_xml.getBody()
+      slap_compute_node = xml_marshaller.xml_marshaller.loads(compute_node_xml)
+      self.assertEqual('Computer', slap_compute_node.__class__.__name__)
+      for software_release in slap_compute_node._software_release_list:
         if software_release._requested_state == 'destroyed':
           self.portal.portal_slap.destroyedSoftwareRelease(
             software_release._software_release,
-						computer.getReference())
+						compute_node.getReference())
         else:
           self.portal.portal_slap.availableSoftwareRelease(
             software_release._software_release,
-						computer.getReference())
+						compute_node.getReference())
     finally:
       setSecurityManager(sm)
     self.tic()
 
-  def simulateSlapgridUR(self, computer):
+  def simulateSlapgridUR(self, compute_node):
     sm = getSecurityManager()
-    computer_user_id = computer.getUserId()
+    compute_node_user_id = compute_node.getUserId()
     try:
-      self.login(computer_user_id)
-      computer_xml = self.portal.portal_slap.getFullComputerInformation(
-          computer_id=computer.getReference())
-      if not isinstance(computer_xml, str):
-        computer_xml = computer_xml.getBody()
-      slap_computer = xml_marshaller.xml_marshaller.loads(computer_xml)
-      self.assertEqual('Computer', slap_computer.__class__.__name__)
+      self.login(compute_node_user_id)
+      compute_node_xml = self.portal.portal_slap.getFullComputerInformation(
+          computer_id=compute_node.getReference())
+      if not isinstance(compute_node_xml, str):
+        compute_node_xml = compute_node_xml.getBody()
+      slap_compute_node = xml_marshaller.xml_marshaller.loads(compute_node_xml)
+      self.assertEqual('Computer', slap_compute_node.__class__.__name__)
       destroyed_partition_id_list = []
-      for partition in slap_computer._computer_partition_list:
+      for partition in slap_compute_node._computer_partition_list:
         if partition._requested_state == 'destroyed' \
               and partition._need_modification == 1:
-          self.portal.portal_slap.destroyedComputerPartition(computer.getReference(),
+          self.portal.portal_slap.destroyedComputerPartition(compute_node.getReference(),
               partition._partition_id.encode("UTF-8")
               )
           destroyed_partition_id_list.append(partition._partition_id.encode("UTF-8"))
     finally:
       setSecurityManager(sm)
     self.tic()
-    self.stepCallSlaposFreeComputerPartitionAlarm()
+    self.stepCallSlaposFreeComputePartitionAlarm()
     self.tic()
     free_partition_id_list = []
-    for partition in computer.contentValues(portal_type='Computer Partition'):
+    for partition in compute_node.contentValues(portal_type='Compute Partition'):
       if partition.getReference() in destroyed_partition_id_list \
           and partition.getSlapState() == 'free':
         free_partition_id_list.append(partition.getReference())
     self.assertSameSet(destroyed_partition_id_list, free_partition_id_list)
 
-  def simulateSlapgridCP(self, computer):
+  def simulateSlapgridCP(self, compute_node):
     sm = getSecurityManager()
-    computer_reference = computer.getReference()
-    computer_user_id = computer.getUserId()
+    compute_node_reference = compute_node.getReference()
+    compute_node_user_id = compute_node.getUserId()
     try:
-      self.login(computer_user_id)
-      computer_xml = self.portal.portal_slap.getFullComputerInformation(
-        computer_id=computer.getReference())
-      if not isinstance(computer_xml, str):
-        computer_xml = computer_xml.getBody()
-      slap_computer = xml_marshaller.xml_marshaller.loads(computer_xml)
-      self.assertEqual('Computer', slap_computer.__class__.__name__)
-      for partition in slap_computer._computer_partition_list:
+      self.login(compute_node_user_id)
+      compute_node_xml = self.portal.portal_slap.getFullComputerInformation(
+        computer_id=compute_node.getReference())
+      if not isinstance(compute_node_xml, str):
+        compute_node_xml = compute_node_xml.getBody()
+      slap_compute_node = xml_marshaller.xml_marshaller.loads(compute_node_xml)
+      self.assertEqual('Computer', slap_compute_node.__class__.__name__)
+      for partition in slap_compute_node._computer_partition_list:
         if partition._requested_state in ('started', 'stopped') \
               and partition._need_modification == 1:
           instance_reference = partition._instance_guid.encode('UTF-8')
@@ -288,7 +288,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
           try:
             self.login(instance_user_id)
             self.portal.portal_slap.setComputerPartitionConnectionXml(
-              computer_id=computer_reference,
+              computer_id=compute_node_reference,
               computer_partition_id=partition._partition_id,
               connection_xml=connection_xml
             )
@@ -299,7 +299,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
                 url_2 = 'http://%s/%s' % (ip_list[1][1], slave_reference)
               ))
               self.portal.portal_slap.setComputerPartitionConnectionXml(
-                computer_id=computer_reference,
+                computer_id=compute_node_reference,
                 computer_partition_id=partition._partition_id,
                 connection_xml=connection_xml,
                 slave_reference=slave_reference
@@ -346,7 +346,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       shared_xml='<marshal><bool>1</bool></marshal>'
     )
 
-    # now instantiate it on computer and set some nice connection dict
+    # now instantiate it on compute_node and set some nice connection dict
     self.simulateSlapgridCP(server)
 
     # let's find instances of user and check connection strings
@@ -401,7 +401,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       state='<marshal><string>destroyed</string></marshal>'
     )
 
-    # now instantiate it on computer and set some nice connection dict
+    # now instantiate it on compute_node and set some nice connection dict
     self.simulateSlapgridUR(server)
 
     # let's find instances of user and check connection strings
@@ -513,7 +513,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       partition_reference=instance_title,
     )
 
-    # now instantiate it on computer and set some nice connection dict
+    # now instantiate it on compute_node and set some nice connection dict
     self.simulateSlapgridCP(server)
 
     # let's find instances of user and check connection strings

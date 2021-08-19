@@ -133,18 +133,18 @@
                         </tuple>
                         <tuple>
                           <string>aggregate_parent_title</string>
-                          <string>Computer</string>
+                          <string>Compute Node</string>
                         </tuple>
                         <tuple>
                           <string>aggregate_parent_reference</string>
-                          <string>Computer Ref.</string>
+                          <string>Compute Node Ref.</string>
                         </tuple>
                         <tuple>
                           <string>aggregate_title</string>
-                          <string>Computer Partition</string>
+                          <string>Compute Partition</string>
                         </tuple>
                         <tuple>
-                          <string>SoftwareInstance_getComputerPartitionIPv6</string>
+                          <string>SoftwareInstance_getComputePartitionIPv6</string>
                           <string>IPv6</string>
                         </tuple>
                         <tuple>
@@ -239,11 +239,11 @@
                         </tuple>
                         <tuple>
                           <string>aggregate_parent_title</string>
-                          <string>SoftwareInstance_getComputerUrl</string>
+                          <string>SoftwareInstance_getComputeNodeUrl</string>
                         </tuple>
                         <tuple>
                           <string>aggregate_parent_reference</string>
-                          <string>SoftwareInstance_getComputerUrl</string>
+                          <string>SoftwareInstance_getComputeNodeUrl</string>
                         </tuple>
                       </list>
                     </value>

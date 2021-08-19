@@ -86,15 +86,15 @@ class TestCRMSkinsMixin(SlapOSTestCaseMixinWithAbort):
 
 
   def _makeSoftwareInstallation(self):
-    self._makeComputer()
+    self._makeComputeNode()
     software_installation = self.portal\
        .software_installation_module.template_software_installation\
        .Base_createCloneDocument(batch_mode=1)
     software_installation.edit(
        url_string=self.generateNewSoftwareReleaseUrl(),
-       aggregate=self.computer.getRelativeUrl(),
+       aggregate=self.compute_node.getRelativeUrl(),
        reference='TESTSOFTINSTS-%s' % self.generateNewId(),
-       title='Start requested for %s' % self.computer.getUid()
+       title='Start requested for %s' % self.compute_node.getUid()
      )
     software_installation.validate()
     software_installation.requestStart()
@@ -270,9 +270,9 @@ class TestSlapOSFolder_getOpenTicketList(TestCRMSkinsMixin):
 
 class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
 
-  def test_getOpenRelatedTicketList_support_request_related_to_computer(self):
+  def test_getOpenRelatedTicketList_support_request_related_to_compute_node(self):
     self._test_getOpenRelatedTicketList_support_request_related(
-      self._makeComputer()[0])
+      self._makeComputeNode()[0])
 
   def test_getOpenRelatedTicketList_support_request_related_to_instance_tree(self):
     self._test_getOpenRelatedTicketList_support_request_related(
@@ -317,9 +317,9 @@ class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
 
-  def test_getOpenRelatedTicketList_cancelled_support_request_related_to_computer(self):
+  def test_getOpenRelatedTicketList_cancelled_support_request_related_to_compute_node(self):
     self._test_getOpenRelatedTicketList_cancelled_support_request_related(
-      self._makeComputer()[0])
+      self._makeComputeNode()[0])
 
   def test_getOpenRelatedTicketList_cancelled_support_request_related_to_instance_tree(self):
     self._test_getOpenRelatedTicketList_cancelled_support_request_related(
@@ -351,9 +351,9 @@ class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
     open_related_ticket_list = document.Base_getOpenRelatedTicketList()
     self.assertEqual(len(open_related_ticket_list), 0)
 
-  def test_getOpenRelatedTicketList_upgrade_decision_related_to_computer(self):
+  def test_getOpenRelatedTicketList_upgrade_decision_related_to_compute_node(self):
     self._test_getOpenRelatedTicketList_upgrade_decision_related(
-      self._makeComputer()[0])
+      self._makeComputeNode()[0])
 
   def test_getOpenRelatedTicketList_upgrade_decision_related_to_instance_tree(self):
     self._test_getOpenRelatedTicketList_upgrade_decision_related(
@@ -413,9 +413,9 @@ class TestSlapOSBase_getOpenRelatedTicketList(TestCRMSkinsMixin):
     self.assertEqual(len(open_related_ticket_list), 1)
     self.assertEqual(open_related_ticket_list[0].getUid(), ticket.getUid())
 
-  def test_getOpenRelatedTicketList_cancelled_upgrade_decision_related_to_computer(self):
+  def test_getOpenRelatedTicketList_cancelled_upgrade_decision_related_to_compute_node(self):
     self._test_getOpenRelatedTicketList_cancelled_upgrade_decision_related(
-      self._makeComputer()[0])
+      self._makeComputeNode()[0])
 
   def test_getOpenRelatedTicketList_cancelled_upgrade_decision_related_to_instance_tree(self):
     self._test_getOpenRelatedTicketList_cancelled_upgrade_decision_related(
@@ -616,20 +616,20 @@ class TestSlapOSTicket_getLatestEvent(TestSlapOSTicketEvent):
     ticket.immediateReindexObject()
     self._test_event(ticket)
 
-class TestSlapOSComputer_notifyWrongAllocationScope(TestCRMSkinsMixin):
+class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
 
   def afterSetUp(self):
     TestCRMSkinsMixin.afterSetUp(self)
     self._cancelTestSupportRequestList(title="%%TESTCOMPT-%")
 
-  def _getGeneratedSupportRequest(self, computer):
+  def _getGeneratedSupportRequest(self, compute_node):
     request_title = '%%We have changed allocation scope for %s' % \
-                        computer.getReference()
+                        compute_node.getReference()
     support_request = self.portal.portal_catalog.getResultValue(
           portal_type = 'Support Request',
           title = request_title,
           simulation_state = 'suspended',
-          default_aggregate_uid = computer.getUid()
+          default_aggregate_uid = compute_node.getUid()
     )
     return support_request
 
@@ -647,9 +647,9 @@ class TestSlapOSComputer_notifyWrongAllocationScope(TestCRMSkinsMixin):
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None',
-  'assert reference == "slapos-crm-computer_allocation_scope.notification"\n' \
+  'assert reference == "slapos-crm-compute_node_allocation_scope.notification"\n' \
   'return context.restrictedTraverse(' \
-  'context.REQUEST["test_computerNotAllowedAllocationScope_OpenPublic"])')
+  'context.REQUEST["test_compute_nodeNotAllowedAllocationScope_OpenPublic"])')
   @simulate('SupportRequest_trySendNotificationMessage',
             'message_title, message, destination_relative_url',
   'context.portal_workflow.doActionFor(' \
@@ -657,35 +657,35 @@ class TestSlapOSComputer_notifyWrongAllocationScope(TestCRMSkinsMixin):
   'comment="Visited by SupportRequest_trySendNotificationMessage ' \
   '%s %s %s" % (message_title, message, destination_relative_url))\n' \
   'return 1')
-  def test_computerNotAllowedAllocationScope_OpenPublic(self):
-    computer = self._makeComputer(owner=self.makePerson(user=0))[0]
-    person = computer.getSourceAdministrationValue()
+  def test_compute_nodeNotAllowedAllocationScope_OpenPublic(self):
+    compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
+    person = compute_node.getSourceAdministrationValue()
 
-    self.portal.REQUEST['test_computerNotAllowedAllocationScope_OpenPublic'] = \
-        self._makeNotificationMessage(computer.getReference())
+    self.portal.REQUEST['test_compute_nodeNotAllowedAllocationScope_OpenPublic'] = \
+        self._makeNotificationMessage(compute_node.getReference())
 
-    computer.edit(allocation_scope='open/public')
-    ticket = computer.Computer_checkAndUpdateAllocationScope()
+    compute_node.edit(allocation_scope='open/public')
+    ticket = compute_node.ComputeNode_checkAndUpdateAllocationScope()
     self.tic()
-    self.assertEqual(computer.getAllocationScope(), 'open/personal')
-    #ticket = self._getGeneratedSupportRequest(computer)
+    self.assertEqual(compute_node.getAllocationScope(), 'open/personal')
+    #ticket = self._getGeneratedSupportRequest(compute_node)
     self.assertNotEqual(None, ticket)
     self.assertEqual(ticket.getSimulationState(), 'suspended')
 
     self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \
       '%s %s %s' % \
-      ('Allocation scope of %s changed to %s' % (computer.getReference(),
+      ('Allocation scope of %s changed to %s' % (compute_node.getReference(),
                                                   'open/personal'),
-       'Test NM content\n%s\n' % computer.getReference(), person.getRelativeUrl()),
+       'Test NM content\n%s\n' % compute_node.getReference(), person.getRelativeUrl()),
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None',
-  'assert reference == "slapos-crm-computer_allocation_scope.notification"\n' \
+  'assert reference == "slapos-crm-compute_node_allocation_scope.notification"\n' \
   'return context.restrictedTraverse(' \
-  'context.REQUEST["test_computerNotAllowedAllocationScope_OpenFriend"])')
+  'context.REQUEST["test_compute_nodeNotAllowedAllocationScope_OpenFriend"])')
   @simulate('SupportRequest_trySendNotificationMessage',
             'message_title, message, destination_relative_url',
   'context.portal_workflow.doActionFor(' \
@@ -693,34 +693,34 @@ class TestSlapOSComputer_notifyWrongAllocationScope(TestCRMSkinsMixin):
   'comment="Visited by SupportRequest_trySendNotificationMessage ' \
   '%s %s %s" % (message_title, message, destination_relative_url))\n' \
   'return 1')
-  def test_computerNotAllowedAllocationScope_OpenFriend(self):
-    computer = self._makeComputer(owner=self.makePerson(user=0))[0]
-    person = computer.getSourceAdministrationValue()
+  def test_compute_nodeNotAllowedAllocationScope_OpenFriend(self):
+    compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
+    person = compute_node.getSourceAdministrationValue()
 
-    self.portal.REQUEST['test_computerNotAllowedAllocationScope_OpenFriend'] = \
-        self._makeNotificationMessage(computer.getReference())
+    self.portal.REQUEST['test_compute_nodeNotAllowedAllocationScope_OpenFriend'] = \
+        self._makeNotificationMessage(compute_node.getReference())
 
     friend_person = self.makePerson()
-    computer.edit(allocation_scope='open/friend',
+    compute_node.edit(allocation_scope='open/friend',
         destination_section=friend_person.getRelativeUrl())
-    ticket = computer.Computer_checkAndUpdateAllocationScope()
+    ticket = compute_node.ComputeNode_checkAndUpdateAllocationScope()
     self.tic()
-    self.assertEqual(computer.getAllocationScope(), 'open/personal')
+    self.assertEqual(compute_node.getAllocationScope(), 'open/personal')
     self.assertEqual(ticket.getSimulationState(), 'suspended')
     self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \
       '%s %s %s' % \
-      ('Allocation scope of %s changed to %s' % (computer.getReference(),
+      ('Allocation scope of %s changed to %s' % (compute_node.getReference(),
                                                   'open/personal'),
-       'Test NM content\n%s\n' % computer.getReference(), person.getRelativeUrl()),
+       'Test NM content\n%s\n' % compute_node.getReference(), person.getRelativeUrl()),
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
-  @simulate('Computer_hasContactedRecently', '*args, **kwargs','return False')
+  @simulate('ComputeNode_hasContactedRecently', '*args, **kwargs','return False')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None',
-  'assert reference == "slapos-crm-computer-allocation-scope-closed.notification"\n' \
+  'assert reference == "slapos-crm-compute-node-allocation-scope-closed.notification"\n' \
   'return context.restrictedTraverse(' \
-  'context.REQUEST["test_computerToCloseAllocationScope_OpenPersonal"])')
+  'context.REQUEST["test_compute_nodeToCloseAllocationScope_OpenPersonal"])')
   @simulate('SupportRequest_trySendNotificationMessage',
             'message_title, message, destination_relative_url',
   'context.portal_workflow.doActionFor(' \
@@ -728,149 +728,149 @@ class TestSlapOSComputer_notifyWrongAllocationScope(TestCRMSkinsMixin):
   'comment="Visited by SupportRequest_trySendNotificationMessage ' \
   '%s %s %s" % (message_title, message, destination_relative_url))\n' \
   'return 1')
-  def test_computerToCloseAllocationScope_OpenPersonal(self):
-    computer = self._makeComputer(owner=self.makePerson(user=0))[0]
-    person = computer.getSourceAdministrationValue()
+  def test_compute_nodeToCloseAllocationScope_OpenPersonal(self):
+    compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
+    person = compute_node.getSourceAdministrationValue()
     target_allocation_scope = 'close/outdated'
 
-    self.portal.REQUEST['test_computerToCloseAllocationScope_OpenPersonal'] = \
-        self._makeNotificationMessage(computer.getReference())
+    self.portal.REQUEST['test_compute_nodeToCloseAllocationScope_OpenPersonal'] = \
+        self._makeNotificationMessage(compute_node.getReference())
 
-    computer.edit(allocation_scope='open/personal')
-    support_request = computer.Computer_checkAndUpdatePersonalAllocationScope()
+    compute_node.edit(allocation_scope='open/personal')
+    support_request = compute_node.ComputeNode_checkAndUpdatePersonalAllocationScope()
     self.tic()
 
     self.assertEqual('suspended', support_request.getSimulationState())
-    self.assertEqual(computer.getAllocationScope(), target_allocation_scope)
+    self.assertEqual(compute_node.getAllocationScope(), target_allocation_scope)
     self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \
       '%s %s %s' % \
-      ('Allocation scope of %s changed to %s' % (computer.getReference(),
+      ('Allocation scope of %s changed to %s' % (compute_node.getReference(),
                                                   target_allocation_scope),
-       'Test NM content\n%s\n' % computer.getReference(), person.getRelativeUrl()),
+       'Test NM content\n%s\n' % compute_node.getReference(), person.getRelativeUrl()),
       support_request.workflow_history['edit_workflow'][-1]['comment'])
 
-  def test_computerNormalAllocationScope_OpenPersonal(self):
-    computer = self._makeComputer(owner=self.makePerson(user=0))[0]
-    person = computer.getSourceAdministrationValue()
+  def test_compute_nodeNormalAllocationScope_OpenPersonal(self):
+    compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
+    person = compute_node.getSourceAdministrationValue()
     self._updatePersonAssignment(person, 'role/service_provider')
 
-    computer.edit(allocation_scope='open/personal')
-    computer.Computer_checkAndUpdateAllocationScope()
+    compute_node.edit(allocation_scope='open/personal')
+    compute_node.ComputeNode_checkAndUpdateAllocationScope()
     self.tic()
-    self.assertEqual(computer.getAllocationScope(), 'open/personal')
+    self.assertEqual(compute_node.getAllocationScope(), 'open/personal')
 
-  def test_computerAllowedAllocationScope_OpenPublic(self):
-    computer = self._makeComputer(owner=self.makePerson(user=0))[0]
-    person = computer.getSourceAdministrationValue()
+  def test_compute_nodeAllowedAllocationScope_OpenPublic(self):
+    compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
+    person = compute_node.getSourceAdministrationValue()
     self._updatePersonAssignment(person, 'role/service_provider')
 
-    computer.edit(allocation_scope='open/public')
-    computer.Computer_checkAndUpdateAllocationScope()
+    compute_node.edit(allocation_scope='open/public')
+    compute_node.ComputeNode_checkAndUpdateAllocationScope()
     self.tic()
-    self.assertEqual(computer.getAllocationScope(), 'open/public')
+    self.assertEqual(compute_node.getAllocationScope(), 'open/public')
 
-  def test_computerAllowedAllocationScope_OpenFriend(self):
-    computer = self._makeComputer(owner=self.makePerson(user=0))[0]
+  def test_compute_nodeAllowedAllocationScope_OpenFriend(self):
+    compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
     friend_person = self.makePerson()
-    person = computer.getSourceAdministrationValue()
+    person = compute_node.getSourceAdministrationValue()
     self._updatePersonAssignment(person, 'role/service_provider')
 
-    computer.edit(allocation_scope='open/friend',
+    compute_node.edit(allocation_scope='open/friend',
         destination_section=friend_person.getRelativeUrl())
-    computer.Computer_checkAndUpdateAllocationScope()
+    compute_node.ComputeNode_checkAndUpdateAllocationScope()
     self.tic()
-    self.assertEqual(computer.getAllocationScope(), 'open/friend')
+    self.assertEqual(compute_node.getAllocationScope(), 'open/friend')
 
 
-class TestComputer_hasContactedRecently(SlapOSTestCaseMixinWithAbort):
+class TestComputeNode_hasContactedRecently(SlapOSTestCaseMixinWithAbort):
 
-  def createSPL(self, computer):
+  def createSPL(self, compute_node):
     delivery_template = self.portal.restrictedTraverse(
       self.portal.portal_preferences.getPreferredInstanceDeliveryTemplate())
     delivery = delivery_template.Base_createCloneDocument(batch_mode=1)
 
     delivery.edit(
-      title="TEST SPL COMP %s" % computer.getReference(),
-      start_date=computer.getCreationDate(),
+      title="TEST SPL COMP %s" % compute_node.getReference(),
+      start_date=compute_node.getCreationDate(),
     )
 
     delivery.newContent(
       portal_type="Sale Packing List Line",
-      title="SPL Line for %s" % computer.getReference(),
+      title="SPL Line for %s" % compute_node.getReference(),
       quantity=1,
-      aggregate_value_list=computer,
+      aggregate_value_list=compute_node,
     )
-    delivery.confirm(comment="Created from %s" % computer.getRelativeUrl())
+    delivery.confirm(comment="Created from %s" % compute_node.getRelativeUrl())
     delivery.start()
     delivery.stop()
     delivery.deliver()
     return delivery
 
-  def test_Computer_hasContactedRecently_newly_created(self):
-    computer = self._makeComputer()[0]
+  def test_ComputeNode_hasContactedRecently_newly_created(self):
+    compute_node = self._makeComputeNode()[0]
     self.tic()
-    has_contacted = computer.Computer_hasContactedRecently()
+    has_contacted = compute_node.ComputeNode_hasContactedRecently()
     self.assertTrue(has_contacted)
 
-  @simulate('Computer_getCreationDate', '*args, **kwargs','return DateTime() - 32')
-  def test_Computer_hasContactedRecently_no_data(self):
-    computer = self._makeComputer()[0]
+  @simulate('ComputeNode_getCreationDate', '*args, **kwargs','return DateTime() - 32')
+  def test_ComputeNode_hasContactedRecently_no_data(self):
+    compute_node = self._makeComputeNode()[0]
     self.tic()
 
-    computer.getCreationDate = self.portal.Computer_getCreationDate
-    has_contacted = computer.Computer_hasContactedRecently()
+    compute_node.getCreationDate = self.portal.ComputeNode_getCreationDate
+    has_contacted = compute_node.ComputeNode_hasContactedRecently()
     self.assertFalse(has_contacted)
 
-  @simulate('Computer_getCreationDate', '*args, **kwargs','return DateTime() - 32')
-  def test_Computer_hasContactedRecently_memcached(self):
-    computer = self._makeComputer()[0]
+  @simulate('ComputeNode_getCreationDate', '*args, **kwargs','return DateTime() - 32')
+  def test_ComputeNode_hasContactedRecently_memcached(self):
+    compute_node = self._makeComputeNode()[0]
     memcached_dict = self.portal.portal_memcached.getMemcachedDict(
         key_prefix='slap_tool',
         plugin_path='portal_memcached/default_memcached_plugin')
 
-    memcached_dict[computer.getReference()] = json.dumps({
+    memcached_dict[compute_node.getReference()] = json.dumps({
       "created_at": DateTime().strftime("%Y/%m/%d %H:%M")
     })
     self.tic()
 
-    computer.getCreationDate = self.portal.Computer_getCreationDate
+    compute_node.getCreationDate = self.portal.ComputeNode_getCreationDate
 
-    has_contacted = computer.Computer_hasContactedRecently()
+    has_contacted = compute_node.ComputeNode_hasContactedRecently()
     self.assertTrue(has_contacted)
 
-  @simulate('Computer_getCreationDate', '*args, **kwargs','return DateTime() - 32')
-  def test_Computer_hasContactedRecently_memcached_oudated_no_spl(self):
-    computer = self._makeComputer()[0]
+  @simulate('ComputeNode_getCreationDate', '*args, **kwargs','return DateTime() - 32')
+  def test_ComputeNode_hasContactedRecently_memcached_oudated_no_spl(self):
+    compute_node = self._makeComputeNode()[0]
     memcached_dict = self.portal.portal_memcached.getMemcachedDict(
         key_prefix='slap_tool',
         plugin_path='portal_memcached/default_memcached_plugin')
 
-    memcached_dict[computer.getReference()] = json.dumps({
+    memcached_dict[compute_node.getReference()] = json.dumps({
       "created_at": (DateTime() - 32).strftime("%Y/%m/%d %H:%M")
     })
     self.tic()
 
-    computer.getCreationDate = self.portal.Computer_getCreationDate
+    compute_node.getCreationDate = self.portal.ComputeNode_getCreationDate
 
-    has_contacted = computer.Computer_hasContactedRecently()
+    has_contacted = compute_node.ComputeNode_hasContactedRecently()
     self.assertFalse(has_contacted)
 
-  @simulate('Computer_getCreationDate', '*args, **kwargs','return DateTime() - 32')
-  def test_Computer_hasContactedRecently_memcached_oudated_with_spl(self):
-    computer = self._makeComputer()[0]
+  @simulate('ComputeNode_getCreationDate', '*args, **kwargs','return DateTime() - 32')
+  def test_ComputeNode_hasContactedRecently_memcached_oudated_with_spl(self):
+    compute_node = self._makeComputeNode()[0]
     memcached_dict = self.portal.portal_memcached.getMemcachedDict(
         key_prefix='slap_tool',
         plugin_path='portal_memcached/default_memcached_plugin')
 
-    memcached_dict[computer.getReference()] = json.dumps({
+    memcached_dict[compute_node.getReference()] = json.dumps({
       "created_at": (DateTime() - 32).strftime("%Y/%m/%d %H:%M")
     })
-    self.createSPL(computer)
+    self.createSPL(compute_node)
     self.tic()
 
-    computer.getCreationDate = self.portal.Computer_getCreationDate
+    compute_node.getCreationDate = self.portal.ComputeNode_getCreationDate
 
-    has_contacted = computer.Computer_hasContactedRecently()
+    has_contacted = compute_node.ComputeNode_hasContactedRecently()
     self.assertFalse(has_contacted)
 
 class TestSlapOSPerson_isServiceProvider(SlapOSTestCaseMixin):
@@ -998,11 +998,11 @@ class TestSlapOSGenerateSupportRequestForSlapOS(TestCRMSkinsMixin):
     self.tic()
     self._cancelTestSupportRequestList()
 
-  def test_computer_Base_generateSupportRequestForSlapOS(self):
-    self._makeComputer()
-    title = "Test Support Request %s" % self.computer.getReference()
-    support_request = self.computer.Base_generateSupportRequestForSlapOS(
-      title, title, self.computer.getRelativeUrl()
+  def test_compute_node_Base_generateSupportRequestForSlapOS(self):
+    self._makeComputeNode()
+    title = "Test Support Request %s" % self.compute_node.getReference()
+    support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
+      title, title, self.compute_node.getRelativeUrl()
     )
     self.tic()
 
@@ -1012,13 +1012,13 @@ class TestSlapOSGenerateSupportRequestForSlapOS(TestCRMSkinsMixin):
     self.assertEqual(support_request.getRelativeUrl(),
       self.portal.REQUEST.get("support_request_in_progress", None))
 
-    # The support request is added to computer owner.
+    # The support request is added to compute_node owner.
     self.assertEqual(support_request.getDestinationDecision(),
-                      self.computer.getSourceAdministration())
+                      self.compute_node.getSourceAdministration())
     self.assertEqual(support_request.getTitle(), title)
     self.assertEqual(support_request.getDescription(), title)
     self.assertEqual(support_request.getAggregateValue(),
-                      self.computer)
+                      self.compute_node)
 
   def test_software_instance_Base_generateSupportRequestForSlapOS(self):
     instance_tree = self._makeInstanceTree()
@@ -1038,7 +1038,7 @@ class TestSlapOSGenerateSupportRequestForSlapOS(TestCRMSkinsMixin):
     self.assertEqual(support_request.getRelativeUrl(),
       self.portal.REQUEST.get("support_request_in_progress", None))
 
-    # The support request is added to computer owner.
+    # The support request is added to compute_node owner.
     self.assertEqual(support_request.getDestinationDecision(),
                       instance_tree.getDestinationSection())
     self.assertEqual(support_request.getTitle(), title)
@@ -1061,7 +1061,7 @@ class TestSlapOSGenerateSupportRequestForSlapOS(TestCRMSkinsMixin):
     self.assertEqual(support_request.getRelativeUrl(),
       self.portal.REQUEST.get("support_request_in_progress", None))
 
-    # The support request is added to computer owner.
+    # The support request is added to compute_node owner.
     self.assertEqual(support_request.getDestinationDecision(),
                       instance_tree.getDestinationSection())
 
@@ -1085,7 +1085,7 @@ class TestSlapOSGenerateSupportRequestForSlapOS(TestCRMSkinsMixin):
     self.assertEqual(support_request.getRelativeUrl(),
       self.portal.REQUEST.get("support_request_in_progress", None))
 
-    # The support request is added to computer owner.
+    # The support request is added to compute_node owner.
     self.assertEqual(support_request.getDestinationDecision(),
                       software_installation.getDestinationSection())
 
@@ -1096,43 +1096,43 @@ class TestSlapOSGenerateSupportRequestForSlapOS(TestCRMSkinsMixin):
 
 
   def test_Base_generateSupportRequestForSlapOS_do_not_recreate_if_open(self):
-    self._makeComputer(owner=self.makePerson(user=0))
-    title = "Test Support Request %s" % self.computer.getReference()
-    support_request = self.computer.Base_generateSupportRequestForSlapOS(
-      title, title, self.computer.getRelativeUrl()
+    self._makeComputeNode(owner=self.makePerson(user=0))
+    title = "Test Support Request %s" % self.compute_node.getReference()
+    support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
+      title, title, self.compute_node.getRelativeUrl()
     )
     self.tic()
     self.portal.REQUEST.set("support_request_in_progress", None)
 
-    same_support_request = self.computer.Base_generateSupportRequestForSlapOS(
-      title, title, self.computer.getRelativeUrl()
+    same_support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
+      title, title, self.compute_node.getRelativeUrl()
     )
 
     self.assertEqual(support_request, same_support_request)
 
 
   def test_Base_generateSupportRequestForSlapOS_do_not_recreate_if_suspended(self):
-    self._makeComputer(owner=self.makePerson(user=0))
-    title = "Test Support Request %s" % self.computer.getReference()
-    support_request = self.computer.Base_generateSupportRequestForSlapOS(
-      title, title, self.computer.getRelativeUrl()
+    self._makeComputeNode(owner=self.makePerson(user=0))
+    title = "Test Support Request %s" % self.compute_node.getReference()
+    support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
+      title, title, self.compute_node.getRelativeUrl()
     )
 
     support_request.suspend()
     self.tic()
     self.portal.REQUEST.set("support_request_in_progress", None)
 
-    same_support_request = self.computer.Base_generateSupportRequestForSlapOS(
-      title, title, self.computer.getRelativeUrl()
+    same_support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
+      title, title, self.compute_node.getRelativeUrl()
     )
 
     self.assertEqual(support_request, same_support_request)
 
   def test_Base_generateSupportRequestForSlapOS_recreate_if_closed(self):
-    self._makeComputer(owner=self.makePerson(user=0))
-    title = "Test Support Request %s" % self.computer.getReference()
-    support_request = self.computer.Base_generateSupportRequestForSlapOS(
-      title, title, self.computer.getRelativeUrl())
+    self._makeComputeNode(owner=self.makePerson(user=0))
+    title = "Test Support Request %s" % self.compute_node.getReference()
+    support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
+      title, title, self.compute_node.getRelativeUrl())
     self.tic()
 
     support_request.invalidate()
@@ -1140,41 +1140,41 @@ class TestSlapOSGenerateSupportRequestForSlapOS(TestCRMSkinsMixin):
 
     self.portal.REQUEST.set("support_request_in_progress", None)
 
-    support_request = self.computer.Base_generateSupportRequestForSlapOS(
-      title, title, self.computer.getRelativeUrl()
+    support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
+      title, title, self.compute_node.getRelativeUrl()
     )
     self.tic()
 
     self.assertNotEqual(support_request, None)
 
   def test_Base_generateSupportRequestForSlapOS_recreate(self):
-    self._makeComputer(owner=self.makePerson(user=0))
-    title = "Test Support Request %s" % self.computer.getRelativeUrl()
-    support_request = self.computer.Base_generateSupportRequestForSlapOS(
-      title, title, self.computer.getRelativeUrl())
+    self._makeComputeNode(owner=self.makePerson(user=0))
+    title = "Test Support Request %s" % self.compute_node.getRelativeUrl()
+    support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
+      title, title, self.compute_node.getRelativeUrl())
 
-    same_support_request = self.computer.Base_generateSupportRequestForSlapOS(
-      title, title, self.computer.getRelativeUrl()
+    same_support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
+      title, title, self.compute_node.getRelativeUrl()
     )
 
     self.assertEqual(support_request, same_support_request)
 
   def test_Base_generateSupportRequestForSlapOS_inprogress(self):
-    self._makeComputer(owner=self.makePerson(user=0))
-    title = "Test Support Request %s" % self.computer.getRelativeUrl()
-    support_request = self.computer.Base_generateSupportRequestForSlapOS(
-      title, title, self.computer.getRelativeUrl())
+    self._makeComputeNode(owner=self.makePerson(user=0))
+    title = "Test Support Request %s" % self.compute_node.getRelativeUrl()
+    support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
+      title, title, self.compute_node.getRelativeUrl())
 
     in_progress = support_request.getRelativeUrl()
     self.portal.REQUEST.set("support_request_in_progress", in_progress)
 
-    title = "Test Support Request %s" % self.computer.getRelativeUrl()
-    support_request = self.computer.Base_generateSupportRequestForSlapOS(
-      title, title, self.computer.getRelativeUrl())
+    title = "Test Support Request %s" % self.compute_node.getRelativeUrl()
+    support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
+      title, title, self.compute_node.getRelativeUrl())
 
     self.assertEqual(support_request.getRelativeUrl(), in_progress)
 
-class TestSlapOSComputer_CheckState(TestCRMSkinsMixin):
+class TestSlapOSComputeNode_CheckState(TestCRMSkinsMixin):
 
   def beforeTearDown(self):
     self._cancelTestSupportRequestList()
@@ -1192,19 +1192,19 @@ class TestSlapOSComputer_CheckState(TestCRMSkinsMixin):
   def _makeNotificationMessage(self, reference):
     notification_message = self.portal.notification_message_module.newContent(
       portal_type="Notification Message",
-      title='The Computer %s has not contacted the server for more than 24 hours' % reference,
+      title='The Compute Node %s has not contacted the server for more than 24 hours' % reference,
       text_content='Test NM content<br/>%s<br/>' % reference,
       content_type='text/html',
       )
 
     return notification_message.getRelativeUrl()
 
-  def _getGeneratedSupportRequest(self, computer_uid, request_title):
+  def _getGeneratedSupportRequest(self, compute_node_uid, request_title):
     support_request = self.portal.portal_catalog.getResultValue(
           portal_type = 'Support Request',
           title = request_title,
           simulation_state = 'validated',
-          default_aggregate_uid = computer_uid
+          default_aggregate_uid = compute_node_uid
     )
     return support_request
 
@@ -1220,13 +1220,13 @@ class TestSlapOSComputer_CheckState(TestCRMSkinsMixin):
     transaction.commit()
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
-  def test_Computer_checkState_call_support_request(self):
-    computer = self._makeComputer(owner=self.makePerson(user=0))[0]
+  def test_ComputeNode_checkState_call_support_request(self):
+    compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
     memcached_dict = self.portal.portal_memcached.getMemcachedDict(
       key_prefix='slap_tool',
       plugin_path='portal_memcached/default_memcached_plugin')
 
-    memcached_dict[computer.getReference()] = json.dumps(
+    memcached_dict[compute_node.getReference()] = json.dumps(
         {"created_at":"%s" % (DateTime() - 1.1)}
     )
 
@@ -1236,17 +1236,17 @@ class TestSlapOSComputer_CheckState(TestCRMSkinsMixin):
                                support_request)
 
     try:
-      computer_support_request = computer.Computer_checkState()
+      compute_node_support_request = compute_node.ComputeNode_checkState()
     finally:
       self._dropScript("Base_generateSupportRequestForSlapOS")
 
     self.assertEqual(support_request,
-      computer_support_request)
+      compute_node_support_request)
 
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
-  def test_Computer_checkState_empty_cache(self):
-    computer = self._makeComputer(owner=self.makePerson(user=0))[0]
+  def test_ComputeNode_checkState_empty_cache(self):
+    compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
 
     self._simulateBase_generateSupportRequestForSlapOS()
     support_request = self._makeSupportRequest()
@@ -1254,51 +1254,51 @@ class TestSlapOSComputer_CheckState(TestCRMSkinsMixin):
                                support_request)
 
     try:
-      computer_support_request = computer.Computer_checkState()
+      compute_node_support_request = compute_node.ComputeNode_checkState()
     finally:
       self._dropScript("Base_generateSupportRequestForSlapOS")
 
     self.assertEqual(support_request,
-      computer_support_request)
+      compute_node_support_request)
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None',
-  'assert reference == "slapos-crm-computer_check_state.notification"\n' \
+  'assert reference == "slapos-crm-compute_node_check_state.notification"\n' \
   'return context.restrictedTraverse(' \
-  'context.REQUEST["test_Computer_checkState_notify"])')
+  'context.REQUEST["test_ComputeNode_checkState_notify"])')
   @simulate('SupportRequest_trySendNotificationMessage',
             'message_title, message, destination_relative_url',
   'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
   'comment="Visited by SupportRequest_trySendNotificationMessage ' \
   '%s %s %s" % (message_title, message, destination_relative_url))')
-  def test_Computer_checkState_notify(self):
-    computer = self._makeComputer(owner=self.makePerson(user=0))[0]
-    person = computer.getSourceAdministrationValue()
+  def test_ComputeNode_checkState_notify(self):
+    compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
+    person = compute_node.getSourceAdministrationValue()
 
 
     memcached_dict = self.portal.portal_memcached.getMemcachedDict(
       key_prefix='slap_tool',
       plugin_path='portal_memcached/default_memcached_plugin')
 
-    memcached_dict[computer.getReference()] = json.dumps(
+    memcached_dict[compute_node.getReference()] = json.dumps(
         {"created_at":"%s" % (DateTime() - 0.1)}
     )
 
-    self.portal.REQUEST['test_Computer_checkState_notify'] = \
-        self._makeNotificationMessage(computer.getReference())
+    self.portal.REQUEST['test_ComputeNode_checkState_notify'] = \
+        self._makeNotificationMessage(compute_node.getReference())
 
-    computer.Computer_checkState()
+    compute_node.ComputeNode_checkState()
     self.tic()
 
-    ticket_title = "[MONITORING] Lost contact with computer %s" % computer.getReference()
-    ticket = self._getGeneratedSupportRequest(computer.getUid(), ticket_title)
+    ticket_title = "[MONITORING] Lost contact with compute_node %s" % compute_node.getReference()
+    ticket = self._getGeneratedSupportRequest(compute_node.getUid(), ticket_title)
     self.assertNotEqual(ticket, None)
     self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \
       '%s %s %s' % ( \
       ticket_title,
-      'Test NM content\n%s\n' % computer.getReference(),
+      'Test NM content\n%s\n' % compute_node.getReference(),
       person.getRelativeUrl()),
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
@@ -1306,32 +1306,32 @@ class TestSlapOSComputer_CheckState(TestCRMSkinsMixin):
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None',
-  'assert reference == "slapos-crm-computer_check_state.notification"\n' \
+  'assert reference == "slapos-crm-compute_node_check_state.notification"\n' \
   'return context.restrictedTraverse(' \
-  'context.REQUEST["test_Computer_checkState_empty_cache_notify"])')
+  'context.REQUEST["test_ComputeNode_checkState_empty_cache_notify"])')
   @simulate('SupportRequest_trySendNotificationMessage',
             'message_title, message, destination_relative_url',
   'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
   'comment="Visited by SupportRequest_trySendNotificationMessage ' \
   '%s %s %s" % (message_title, message, destination_relative_url))')
-  def test_Computer_checkState_empty_cache_notify(self):
-    computer = self._makeComputer(owner=self.makePerson(user=0))[0]
-    person = computer.getSourceAdministrationValue()
+  def test_ComputeNode_checkState_empty_cache_notify(self):
+    compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
+    person = compute_node.getSourceAdministrationValue()
 
-    self.portal.REQUEST['test_Computer_checkState_empty_cache_notify'] = \
-        self._makeNotificationMessage(computer.getReference())
+    self.portal.REQUEST['test_ComputeNode_checkState_empty_cache_notify'] = \
+        self._makeNotificationMessage(compute_node.getReference())
 
-    computer.Computer_checkState()
+    compute_node.ComputeNode_checkState()
     self.tic()
 
-    ticket_title = "[MONITORING] Lost contact with computer %s" % computer.getReference()
-    ticket = self._getGeneratedSupportRequest(computer.getUid(), ticket_title)
+    ticket_title = "[MONITORING] Lost contact with compute_node %s" % compute_node.getReference()
+    ticket = self._getGeneratedSupportRequest(compute_node.getUid(), ticket_title)
     self.assertNotEqual(ticket, None)
     self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \
       '%s %s %s' % ( \
       ticket_title,
-      'Test NM content\n%s\n' % computer.getReference(),
+      'Test NM content\n%s\n' % compute_node.getReference(),
       person.getRelativeUrl()),
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
@@ -1462,9 +1462,9 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     new_id = self.generateNewId()
     software_installation.edit(
        url_string=software_release_url,
-       aggregate=self.computer.getRelativeUrl(),
+       aggregate=self.compute_node.getRelativeUrl(),
        reference='TESTSOFTINSTS-%s' % new_id,
-       title='Start requested for %s' % self.computer.getUid()
+       title='Start requested for %s' % self.compute_node.getUid()
      )
     software_installation.validate()
     software_installation.requestStart()
@@ -1501,10 +1501,10 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
     return instance_tree
 
-  def _makeComputerPartitionList(self):
+  def _makeComputePartitionList(self):
     for i in range(1, 5):
       id_ = 'partition%s' % (i, )
-      p = self.computer.newContent(portal_type='Computer Partition',
+      p = self.compute_node.newContent(portal_type='Compute Partition',
         id=id_,
         title=id_,
         reference=id_,
@@ -1519,8 +1519,8 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
         self.generateNewSoftwareReleaseUrl())
     instance = instance_tree.getSuccessorValue()
 
-    self._makeComputer()
-    self._makeComputerPartitionList()
+    self._makeComputeNode()
+    self._makeComputePartitionList()
 
     memcached_dict = self.portal.portal_memcached.getMemcachedDict(
       key_prefix='slap_tool',
@@ -1533,7 +1533,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
     self.assertEqual(instance.SoftwareInstance_hasReportedError(), None)
 
-    instance.setAggregateValue(self.computer.partition1)
+    instance.setAggregateValue(self.compute_node.partition1)
 
     self.assertEqual(str(instance.SoftwareInstance_hasReportedError()), '#error ')
 
@@ -1545,7 +1545,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
   def test_SoftwareInstallation_hasReportedError(self):
     software_release = self._makeSoftwareRelease()
-    self._makeComputer()
+    self._makeComputeNode()
     installation = self._makeSoftwareInstallation(
       software_release.getUrlString()
     )
@@ -1594,9 +1594,9 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
       self.assertEqual(instance.getCreationDate(), date - 2)
 
-      self._makeComputer()
-      self._makeComputerPartitionList()
-      instance.setAggregateValue(self.computer.partition1)
+      self._makeComputeNode()
+      self._makeComputePartitionList()
+      instance.setAggregateValue(self.compute_node.partition1)
 
       memcached_dict = self.portal.portal_memcached.getMemcachedDict(
         key_prefix='slap_tool',
@@ -1653,9 +1653,9 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
       self.assertEqual(instance.getCreationDate(), date - 2)
 
-      self._makeComputer()
-      self._makeComputerPartitionList()
-      instance.setAggregateValue(self.computer.partition1)
+      self._makeComputeNode()
+      self._makeComputePartitionList()
+      instance.setAggregateValue(self.compute_node.partition1)
 
       memcached_dict = self.portal.portal_memcached.getMemcachedDict(
         key_prefix='slap_tool',
@@ -1702,9 +1702,9 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
       self.assertEqual(instance.getCreationDate(), date - 2)
 
-      self._makeComputer()
-      self._makeComputerPartitionList()
-      instance.setAggregateValue(self.computer.partition1)
+      self._makeComputeNode()
+      self._makeComputePartitionList()
+      instance.setAggregateValue(self.compute_node.partition1)
 
       kw = dict(
         software_release=instance_tree.getUrlString(),
@@ -1755,9 +1755,9 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     instance = instance_tree.getSuccessorValue()
 
 
-    self._makeComputer()
-    self._makeComputerPartitionList()
-    instance.setAggregateValue(self.computer.partition1)
+    self._makeComputeNode()
+    self._makeComputePartitionList()
+    instance.setAggregateValue(self.compute_node.partition1)
 
     memcached_dict = self.portal.portal_memcached.getMemcachedDict(
       key_prefix='slap_tool',
@@ -1775,15 +1775,15 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
 
   def test_SupportRequest_trySendNotificationMessage(self):
-    self._makeComputer(owner=self.makePerson(user=0))
-    person = self.computer.getSourceAdministrationValue()
-    title = "Test Support Request %s" % self.computer.getReference()
-    text_content='Test NM content<br/>%s<br/>' % self.computer.getReference()
+    self._makeComputeNode(owner=self.makePerson(user=0))
+    person = self.compute_node.getSourceAdministrationValue()
+    title = "Test Support Request %s" % self.compute_node.getReference()
+    text_content='Test NM content<br/>%s<br/>' % self.compute_node.getReference()
 
     support_request = self.portal.support_request_module.newContent(\
             title=title, description=title,
-            destination_decision=self.computer.getSourceAdministration(),
-            aggregate_value=self.computer.getRelativeUrl())
+            destination_decision=self.compute_node.getSourceAdministration(),
+            aggregate_value=self.compute_node.getRelativeUrl())
     support_request.validate()
     self.tic()
 
@@ -1834,8 +1834,8 @@ class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
 
     another_support_request = self.portal.support_request_module.newContent(\
             title=title, description=title,
-            destination_decision=self.computer.getSourceAdministration(),
-            aggregate_value=self.computer.getRelativeUrl())
+            destination_decision=self.compute_node.getSourceAdministration(),
+            aggregate_value=self.compute_node.getRelativeUrl())
     another_support_request.validate()
     self.tic()
 
@@ -1924,7 +1924,7 @@ return "Visited by SupportRequest_trySendNotificationMessage %s %s" % (message_t
       support_request.SupportRequest_updateMonitoringDestroyRequestedState())
 
     support_request.setAggregateValue(
-      self._makeComputer(owner=self.makePerson(user=0))[0])
+      self._makeComputeNode(owner=self.makePerson(user=0))[0])
     self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringDestroyRequestedState())
 

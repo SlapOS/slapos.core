@@ -1,6 +1,6 @@
 <type_roles>
   <role id='Assignee'>
-   <property id='title'>Computer Agent</property>
+   <property id='title'>Compute Node Agent</property>
    <property id='description'>Monovalued role</property>
    <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/user</multi_property>

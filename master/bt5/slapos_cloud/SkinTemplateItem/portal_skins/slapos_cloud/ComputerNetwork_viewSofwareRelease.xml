@@ -72,7 +72,7 @@
                         <string>listbox_status</string>
                         <string>listbox_title</string>
                         <string>listbox_version</string>
-                        <string>listbox_computer_reference</string>
+                        <string>listbox_compute_node_reference</string>
                       </list>
                     </value>
                 </item>

@@ -10,7 +10,7 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>activate_script/portal_workflow/slapos_slap_tool_interaction_workflow/script_Item_activateFillComputerInformationCache</string>
+                <string>activate_script/portal_workflow/slapos_slap_tool_interaction_workflow/script_Item_activateFillComputeNodeInformationCache</string>
               </tuple>
             </value>
         </item>
@@ -32,7 +32,7 @@
             <key> <string>portal_type_filter</string> </key>
             <value>
               <tuple>
-                <string>Computer Partition</string>
+                <string>Compute Partition</string>
                 <string>Slave Instance</string>
                 <string>Software Installation</string>
                 <string>Software Instance</string>

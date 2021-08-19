@@ -18,7 +18,7 @@ else:
     else:
       packing_list_dict[reference] = [movement_dict]
 
-  computer = context.getContributorValue(portal_type="Computer")
+  compute_node = context.getContributorValue(portal_type="Compute Node")
   for reference, movement_list in packing_list_dict.items():
 
     # Time to create the PL
@@ -26,20 +26,20 @@ else:
         portal.portal_preferences.getPreferredInstanceDeliveryTemplate())
     delivery = delivery_template.Base_createCloneDocument(batch_mode=1)
 
-    # It had been reported for the computer itself so it is pure
+    # It had been reported for the compute_node itself so it is pure
     # informative.
-    if computer.getReference() == reference:
-      person = computer.getSourceAdministrationValue(portal_type="Person")
-      aggregate_value_list = [computer]
-      delivery_title = "%s Information Report" % computer.getReference()
+    if compute_node.getReference() == reference:
+      person = compute_node.getSourceAdministrationValue(portal_type="Person")
+      aggregate_value_list = [compute_node]
+      delivery_title = "%s Information Report" % compute_node.getReference()
     else:
       if reference.startswith("slapuser"):
         reference = reference.replace("slapuser", "slappart") 
       # Find the partition / software instance / user
       partition = portal.portal_catalog.getResultValue(
-        parent_uid=computer.getUid(),
+        parent_uid=compute_node.getUid(),
         reference=reference,
-        portal_type="Computer Partition",
+        portal_type="Compute Partition",
         validation_state="validated")
       assert partition.getSlapState() == 'busy'
 

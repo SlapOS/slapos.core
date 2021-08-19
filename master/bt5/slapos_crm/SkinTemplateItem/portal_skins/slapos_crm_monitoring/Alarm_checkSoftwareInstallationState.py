@@ -9,10 +9,10 @@ monitor_enabled_category = portal.restrictedTraverse(
 
 if monitor_enabled_category is not None:
   portal.portal_catalog.searchAndActivate(
-    portal_type = 'Computer',
+    portal_type = 'Compute Node',
     validation_state = 'validated',
     default_monitor_scope_uid = monitor_enabled_category.getUid(),
-    method_id = 'Computer_checkSoftwareInstallationState',
+    method_id = 'ComputeNode_checkSoftwareInstallationState',
     activate_kw = {'tag':tag}
   )
 

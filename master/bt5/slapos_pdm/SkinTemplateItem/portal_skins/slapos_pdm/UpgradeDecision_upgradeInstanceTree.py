@@ -14,7 +14,7 @@ if software_release is None:
 software_release_url = software_release.getUrlString()
 person = instance_tree.getDestinationSectionValue(portal_type="Person")
 
-# Test if the Software is available at the Computer.
+# Test if the Software is available at the ComputeNode.
 if not instance_tree.InstanceTree_isUpgradePossible(
   software_release_url=software_release_url):
   return

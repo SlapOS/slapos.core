@@ -253,11 +253,11 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
   def _makeSlaveTree(self, requested_template_id='template_slave_instance'):
     return self._makeTree(requested_template_id=requested_template_id)
 
-  def _makeComputer(self, owner=None, allocation_scope='open/public'):
-    self.computer = self.portal.computer_module.template_computer\
+  def _makeComputeNode(self, owner=None, allocation_scope='open/public'):
+    self.compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
     reference = 'TESTCOMP-%s' % self.generateNewId()
-    self.computer.edit(
+    self.compute_node.edit(
         allocation_scope=allocation_scope,
         reference=reference,
         title=reference
@@ -265,10 +265,10 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     # The edit above will update capacity scope due the interaction workflow
     # The line above force capacity scope to be open, keeping the previous
     # behaviour.
-    self.computer.edit(capacity_scope='open')
-    self.computer.validate()
+    self.compute_node.edit(capacity_scope='open')
+    self.compute_node.validate()
     reference = 'TESTPART-%s' % self.generateNewId()
-    self.partition = self.computer.newContent(portal_type='Computer Partition',
+    self.partition = self.compute_node.newContent(portal_type='Compute Partition',
       reference=reference,
       title=reference
     )
@@ -277,11 +277,11 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     self.tic()
 
     if owner is not None:
-      self.computer.edit(
+      self.compute_node.edit(
         source_administration_value=owner,
       )
 
-    return self.computer, self.partition
+    return self.compute_node, self.partition
 
   def _makeComputerNetwork(self):
     reference = 'TESTCOMPNETWORK-%s' % self.generateNewId()
@@ -294,10 +294,10 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     self.tic()
     return self.computer_network
 
-  def _makeComplexComputer(self, person=None, with_slave=False):
+  def _makeComplexComputeNode(self, person=None, with_slave=False):
     for i in range(1, 5):
       id_ = 'partition%s' % i
-      p = self.computer.newContent(portal_type='Computer Partition',
+      p = self.compute_node.newContent(portal_type='Compute Partition',
         id=id_,
         title=id_,
         reference=id_,
@@ -310,9 +310,9 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         .template_software_installation.Base_createCloneDocument(batch_mode=1)
     self.start_requested_software_installation.edit(
         url_string=self.generateNewSoftwareReleaseUrl(),
-        aggregate=self.computer.getRelativeUrl(),
+        aggregate=self.compute_node.getRelativeUrl(),
         reference='TESTSOFTINST-%s' % self.generateNewId(),
-        title='Start requested for %s' % self.computer.getTitle()
+        title='Start requested for %s' % self.compute_node.getTitle()
     )
     self.start_requested_software_installation.validate()
     self.start_requested_software_installation.requestStart()
@@ -321,9 +321,9 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         .template_software_installation.Base_createCloneDocument(batch_mode=1)
     self.destroy_requested_software_installation.edit(
         url_string=self.generateNewSoftwareReleaseUrl(),
-        aggregate=self.computer.getRelativeUrl(),
+        aggregate=self.compute_node.getRelativeUrl(),
         reference='TESTSOFTINST-%s' % self.generateNewId(),
-        title='Destroy requested for %s' % self.computer.getTitle()
+        title='Destroy requested for %s' % self.compute_node.getTitle()
     )
     self.destroy_requested_software_installation.validate()
     self.destroy_requested_software_installation.requestStart()
@@ -333,18 +333,18 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         .template_software_installation.Base_createCloneDocument(batch_mode=1)
     self.destroyed_software_installation.edit(
         url_string=self.generateNewSoftwareReleaseUrl(),
-        aggregate=self.computer.getRelativeUrl(),
+        aggregate=self.compute_node.getRelativeUrl(),
         reference='TESTSOFTINST-%s' % self.generateNewId(),
-        title='Destroyed for %s' % self.computer.getTitle()
+        title='Destroyed for %s' % self.compute_node.getTitle()
     )
     self.destroyed_software_installation.validate()
     self.destroyed_software_installation.requestStart()
     self.destroyed_software_installation.requestDestroy()
     self.destroyed_software_installation.invalidate()
 
-    self.computer.partition1.markBusy()
-    self.computer.partition2.markBusy()
-    self.computer.partition3.markBusy()
+    self.compute_node.partition1.markBusy()
+    self.compute_node.partition2.markBusy()
+    self.compute_node.partition3.markBusy()
 
     # prepare some trees
     instance_tree = self.portal.instance_tree_module\
@@ -369,7 +369,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     instance_tree.requestInstance(**kw)
 
     self.start_requested_software_instance = instance_tree.getSuccessorValue()
-    self.start_requested_software_instance.edit(aggregate=self.computer.partition1.getRelativeUrl())
+    self.start_requested_software_instance.edit(aggregate=self.compute_node.partition1.getRelativeUrl())
 
     if with_slave:
       instance_tree = self.portal.instance_tree_module\
@@ -393,7 +393,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       instance_tree.requestInstance(**slave_kw)
 
       self.start_requested_slave_instance = instance_tree.getSuccessorValue()
-      self.start_requested_slave_instance.edit(aggregate=self.computer.partition1.getRelativeUrl())
+      self.start_requested_slave_instance.edit(aggregate=self.compute_node.partition1.getRelativeUrl())
 
     instance_tree = self.portal.instance_tree_module\
         .template_instance_tree.Base_createCloneDocument(batch_mode=1)
@@ -418,7 +418,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
 
     self.stop_requested_software_instance = instance_tree.getSuccessorValue()
     self.stop_requested_software_instance.edit(
-        aggregate=self.computer.partition2.getRelativeUrl()
+        aggregate=self.compute_node.partition2.getRelativeUrl()
     )
 
     instance_tree = self.portal.instance_tree_module\
@@ -447,7 +447,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     self.destroy_requested_software_instance = instance_tree.getSuccessorValue()
     self.destroy_requested_software_instance.requestDestroy(**kw)
     self.destroy_requested_software_instance.edit(
-        aggregate=self.computer.partition3.getRelativeUrl()
+        aggregate=self.compute_node.partition3.getRelativeUrl()
     )
 
     instance_tree = self.portal.instance_tree_module\
@@ -475,7 +475,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
 
     self.destroyed_software_instance = instance_tree.getSuccessorValue()
     self.destroyed_software_instance.edit(
-        aggregate=self.computer.partition4.getRelativeUrl()
+        aggregate=self.compute_node.partition4.getRelativeUrl()
     )
     self.destroyed_software_instance.requestDestroy(**kw)
     self.destroyed_software_instance.invalidate()

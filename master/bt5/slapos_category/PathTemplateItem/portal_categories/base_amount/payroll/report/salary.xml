@@ -89,7 +89,7 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>used with getTotalPrice to computer the total of certain prices in an invoice</string> </value>
+            <value> <string>used with getTotalPrice to compute_node the total of certain prices in an invoice</string> </value>
         </item>
         <item>
             <key> <string>effective_date</string> </key>

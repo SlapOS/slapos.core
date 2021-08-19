@@ -312,7 +312,7 @@
                 <dictionary>
                   <item>
                       <key> <string>id</string> </key>
-                      <value> <string>configuration_computer_install_command_line</string> </value>
+                      <value> <string>configuration_compute_node_install_command_line</string> </value>
                   </item>
                   <item>
                       <key> <string>type</string> </key>
@@ -397,7 +397,7 @@
             <value> <string>ERP5</string> </value>
         </item>
         <item>
-            <key> <string>configuration_computer_install_command_line</string> </key>
+            <key> <string>configuration_compute_node_install_command_line</string> </key>
             <value> <string>wget https://deploy.erp5.net/slapos ; bash slapos</string> </value>
         </item>
         <item>

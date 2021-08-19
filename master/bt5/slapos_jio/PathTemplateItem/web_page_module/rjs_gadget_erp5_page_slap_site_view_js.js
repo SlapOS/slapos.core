@@ -30,17 +30,17 @@
         .push(function (result) {
           var i, value, value_jio_key, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
-            if (1 || (result.data.rows[i].value.hasOwnProperty("Computer_getNewsDict"))) {
+            if (1 || (result.data.rows[i].value.hasOwnProperty("ComputeNode_getNewsDict"))) {
               value_jio_key = result.data.rows[i].id;
-              value = result.data.rows[i].value.Computer_getNewsDict;
-              result.data.rows[i].value.Computer_getNewsDict = {
+              value = result.data.rows[i].value.ComputeNode_getNewsDict;
+              result.data.rows[i].value.ComputeNode_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
                   description: gadget.description_translation,
                   hidden: 0,
                   "default": {jio_key: value_jio_key, result: value},
                   key: "status",
-                  url: "gadget_slapos_computer_status.html",
+                  url: "gadget_slapos_compute_node_status.html",
                   title: gadget.title_translation,
                   type: "GadgetField"
                 }
@@ -117,7 +117,7 @@
             column_list = [
               ['title', result[2][0]],
               ['reference', result[2][1]],
-              ['Computer_getNewsDict', result[2][9]]
+              ['ComputeNode_getNewsDict', result[2][9]]
             ];
           return result[0].render({
             erp5_document: {
@@ -195,7 +195,7 @@
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
-                  "url": "gadget_slapos_computer_map.html",
+                  "url": "gadget_slapos_compute_node_map.html",
                   "sandbox": "",
                   "key": "monitoring_status",
                   "hidden": 0,
@@ -207,11 +207,11 @@
                   "default_params": {},
                   "editable": 0,
                   "editable_column_list": [],
-                  "key": "slap_organisation_computer_listbox",
+                  "key": "slap_organisation_compute_node_listbox",
                   "lines": 10,
-                  "list_method": "Organisation_getComputerTrackingList",
+                  "list_method": "Organisation_getComputeNodeTrackingList",
                   "list_method_template": result[1] + "ERP5Document_getHateoas?mode=search&" +
-                            "list_method=Organisation_getComputerTrackingList&relative_url=" +
+                            "list_method=Organisation_getComputeNodeTrackingList&relative_url=" +
                             gadget.state.jio_key + "&default_param_json=eyJpZ25vcmVfdW5rbm93bl9jb2x1bW5zIjogdHJ1ZX0={&query,select_list*,limit*,sort_on*,local_roles*}",
                   "query": "urn:jio:allDocs?query=",
                   "portal_type": [],

@@ -22,8 +22,8 @@
    <multi_property id='base_category'>group</multi_property>
   </role>
   <role id='Auditor'>
-   <property id='title'>Organisation Member (Computer)</property>
-   <property id='base_category_script'>Event_getSecurityCategoryFromMovementFollowUpAggregateComputerDestinationSection</property>
+   <property id='title'>Organisation Member (Compute Node)</property>
+   <property id='base_category_script'>Event_getSecurityCategoryFromMovementFollowUpAggregateComputeNodeDestinationSection</property>
    <multi_property id='categories'>local_role_group/organisation</multi_property>
    <multi_property id='base_category'>destination_section</multi_property>
   </role>

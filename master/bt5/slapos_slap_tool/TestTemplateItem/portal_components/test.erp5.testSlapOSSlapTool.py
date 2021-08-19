@@ -45,25 +45,25 @@ class TestSlapOSSlapToolMixin(SlapOSTestCaseMixin):
     SlapOSTestCaseMixin.afterSetUp(self)
     self.portal_slap = self.portal.portal_slap
 
-    # Prepare computer
-    self.computer = self.portal.computer_module.template_computer\
+    # Prepare compute_node
+    self.compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
-    self.computer.edit(
-      title="Computer %s" % self.new_id,
+    self.compute_node.edit(
+      title="Compute Node %s" % self.new_id,
       reference="TESTCOMP-%s" % self.new_id
     )
     if getattr(self, "person", None) is not None:
-      self.computer.edit(
+      self.compute_node.edit(
         source_administration_value=getattr(self, "person", None),
         )
-    self.computer.validate()
+    self.compute_node.validate()
 
-    self._addERP5Login(self.computer)
+    self._addERP5Login(self.compute_node)
 
     self.tic()
 
-    self.computer_id = self.computer.getReference()
-    self.computer_user_id = self.computer.getUserId()
+    self.compute_node_id = self.compute_node.getReference()
+    self.compute_node_user_id = self.compute_node.getUserId()
     self.pinDateTime(DateTime())
 
   def beforeTearDown(self):
@@ -73,21 +73,21 @@ class TestSlapOSSlapToolMixin(SlapOSTestCaseMixin):
 
 class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
   def test_activate_getFullComputerInformation_first_access(self):
-    self._makeComplexComputer(with_slave=True)
+    self._makeComplexComputeNode(with_slave=True)
     self.portal.REQUEST['disable_isTestRun'] = True
     self.tic()
 
-    self.login(self.computer_user_id)
+    self.login(self.compute_node_user_id)
 
     # First access.
     # Cache has been filled by interaction workflow
     # (luckily, it seems the cache is filled after everything is indexed)
-    response = self.portal_slap.getFullComputerInformation(self.computer_id)
+    response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     first_etag = self.portal_slap._calculateRefreshEtag()
     first_body_fingerprint = hashData(
-      self.portal_slap._getCacheComputerInformation(self.computer_id,
-                                                    self.computer_id)
+      self.portal_slap._getCacheComputeNodeInformation(self.compute_node_id,
+                                                    self.compute_node_id)
     )
     self.assertEqual(200, response.status)
     self.assertTrue('last-modified' not in response.headers)
@@ -95,15 +95,15 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     self.assertEqual(first_body_fingerprint, hashData(response.body))
     self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
 
-    # Trigger the computer reindexation
+    # Trigger the compute_node reindexation
     # This should trigger a new etag, but the body should be the same
-    self.computer.reindexObject()
+    self.compute_node.reindexObject()
     self.commit()
 
     # Second access
     # Check that the result is stable, as the indexation timestamp is not changed yet
     current_activity_count = len(self.portal.portal_activities.getMessageList())
-    response = self.portal_slap.getFullComputerInformation(self.computer_id)
+    response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
     self.assertTrue('last-modified' not in response.headers)
@@ -116,14 +116,14 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     # Third access, new calculation expected
     # The retrieved informations comes from the cache
     # But a new cache modification activity is triggered
-    response = self.portal_slap.getFullComputerInformation(self.computer_id)
+    response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
     self.assertTrue('last-modified' not in response.headers)
     second_etag = self.portal_slap._calculateRefreshEtag()
     second_body_fingerprint = hashData(
-      self.portal_slap._getCacheComputerInformation(self.computer_id,
-                                                    self.computer_id)
+      self.portal_slap._getCacheComputeNodeInformation(self.compute_node_id,
+                                                    self.compute_node_id)
     )
     self.assertNotEqual(first_etag, second_etag)
     # The indexation timestamp does not impact the response body
@@ -137,7 +137,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
 
     # 4th access
     # The new etag value is now used
-    response = self.portal_slap.getFullComputerInformation(self.computer_id)
+    response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
     self.assertTrue('last-modified' not in response.headers)
@@ -156,12 +156,12 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     # Edition does not impact the etag
     self.assertEqual(second_etag, self.portal_slap._calculateRefreshEtag())
     third_body_fingerprint = hashData(
-      self.portal_slap._getCacheComputerInformation(self.computer_id,
-                                                    self.computer_id)
+      self.portal_slap._getCacheComputeNodeInformation(self.compute_node_id,
+                                                    self.compute_node_id)
     )
     # The edition impacts the response body
     self.assertNotEqual(first_body_fingerprint, third_body_fingerprint)
-    response = self.portal_slap.getFullComputerInformation(self.computer_id)
+    response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
     self.assertTrue('last-modified' not in response.headers)
@@ -173,7 +173,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
 
     # 6th, the instance edition triggered an interaction workflow
     # which updated the cache
-    response = self.portal_slap.getFullComputerInformation(self.computer_id)
+    response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
     self.assertTrue('last-modified' not in response.headers)
@@ -184,7 +184,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
 
     # Remove the slave link to the partition
-    # Computer should loose permission to access the slave instance
+    # Compute Node should loose permission to access the slave instance
     self.start_requested_slave_instance.setAggregate('')
     self.commit()
 
@@ -196,10 +196,10 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     # The edition does not impact the response body yet, as the aggregate relation
     # is not yet unindex
     self.assertEqual(third_body_fingerprint, hashData(
-      self.portal_slap._getCacheComputerInformation(self.computer_id,
-                                                    self.computer_id)
+      self.portal_slap._getCacheComputeNodeInformation(self.compute_node_id,
+                                                    self.compute_node_id)
     ))
-    response = self.portal_slap.getFullComputerInformation(self.computer_id)
+    response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
     self.assertTrue('last-modified' not in response.headers)
@@ -213,14 +213,14 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     # changing the aggregate relation trigger the partition reindexation
     # which trigger cache modification activity
     # So, we should get the correct cached value
-    response = self.portal_slap.getFullComputerInformation(self.computer_id)
+    response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
     self.assertEqual(200, response.status)
     self.assertTrue('last-modified' not in response.headers)
     fourth_etag = self.portal_slap._calculateRefreshEtag()
     fourth_body_fingerprint = hashData(
-      self.portal_slap._getCacheComputerInformation(self.computer_id,
-                                                    self.computer_id)
+      self.portal_slap._getCacheComputeNodeInformation(self.compute_node_id,
+                                                    self.compute_node_id)
     )
     self.assertNotEqual(third_etag, fourth_etag)
     # The indexation timestamp does not impact the response body
@@ -230,19 +230,19 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
 
 
-class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
+class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
   def test_getFullComputerInformation(self):
-    self._makeComplexComputer(with_slave=True)
+    self._makeComplexComputeNode(with_slave=True)
 
-    partition_1_root_instance_title = self.computer.partition1.getAggregateRelatedValue(
+    partition_1_root_instance_title = self.compute_node.partition1.getAggregateRelatedValue(
       portal_type='Software Instance').getSpecialiseValue().getTitle()
-    partition_2_root_instance_title = self.computer.partition2.getAggregateRelatedValue(
+    partition_2_root_instance_title = self.compute_node.partition2.getAggregateRelatedValue(
       portal_type='Software Instance').getSpecialiseValue().getTitle()
-    partition_3_root_instance_title = self.computer.partition3.getAggregateRelatedValue(
+    partition_3_root_instance_title = self.compute_node.partition3.getAggregateRelatedValue(
       portal_type='Software Instance').getSpecialiseValue().getTitle()
 
-    self.login(self.computer_user_id)
-    response = self.portal_slap.getFullComputerInformation(self.computer_id)
+    self.login(self.compute_node_user_id)
+    response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.assertEqual(200, response.status)
     self.assertEqual('public, max-age=1, stale-if-error=604800',
         response.headers.get('cache-control'))
@@ -263,21 +263,21 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
 <marshal>
   <object id='i2' module='slapos.slap.slap' class='Computer'>
     <tuple>
-      <string>%(computer_id)s</string>
+      <string>%(compute_node_id)s</string>
     </tuple>
     <dictionary id='i3'>
       <string>_computer_id</string>
-      <string>%(computer_id)s</string>
+      <string>%(compute_node_id)s</string>
       <string>_computer_partition_list</string>
       <list id='i4'>
         <object id='i5' module='slapos.slap.slap' class='ComputerPartition'>
           <tuple>
-            <string>%(computer_id)s</string>
+            <string>%(compute_node_id)s</string>
             <string>partition4</string>
           </tuple>
           <dictionary id='i6'>
             <string>_computer_id</string>
-            <string>%(computer_id)s</string>
+            <string>%(compute_node_id)s</string>
             <string>_need_modification</string>
             <int>0</int>
             <string>_partition_id</string>
@@ -292,14 +292,14 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
         </object>
         <object id='i7' module='slapos.slap.slap' class='ComputerPartition'>
           <tuple>
-            <string>%(computer_id)s</string>
+            <string>%(compute_node_id)s</string>
             <string>partition3</string>
           </tuple>
           <dictionary id='i8'>
             <string>_access_status</string>
             <string>%(access_status)s</string>
             <string>_computer_id</string>
-            <string>%(computer_id)s</string>
+            <string>%(compute_node_id)s</string>
             <string>_connection_dict</string>
             <dictionary id='i9'/>
             <string>_filter_dict</string>
@@ -331,7 +331,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
               <string>root_instance_title</string>
               <string>%(partition_3_root_instance_title)s</string>
               <string>slap_computer_id</string>
-              <string>%(computer_id)s</string>
+              <string>%(compute_node_id)s</string>
               <string>slap_computer_partition_id</string>
               <string>partition3</string>
               <string>slap_software_release_url</string>
@@ -353,11 +353,11 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
             <object id='i15' module='slapos.slap.slap' class='SoftwareRelease'>
               <tuple>
                 <string>%(partition_3_software_release_url)s</string>
-                <string>%(computer_id)s</string>
+                <string>%(compute_node_id)s</string>
               </tuple>
               <dictionary id='i16'>
                 <string>_computer_guid</string>
-                <string>%(computer_id)s</string>
+                <string>%(compute_node_id)s</string>
                 <string>_software_instance_list</string>
                 <list id='i17'/>
                 <string>_software_release</string>
@@ -368,14 +368,14 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
         </object>
         <object id='i18' module='slapos.slap.slap' class='ComputerPartition'>
           <tuple>
-            <string>%(computer_id)s</string>
+            <string>%(compute_node_id)s</string>
             <string>partition2</string>
           </tuple>
           <dictionary id='i19'>
             <string>_access_status</string>
             <string>%(access_status)s</string>
             <string>_computer_id</string>
-            <string>%(computer_id)s</string>
+            <string>%(compute_node_id)s</string>
             <string>_connection_dict</string>
             <dictionary id='i20'/>
             <string>_filter_dict</string>
@@ -407,7 +407,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
               <string>root_instance_title</string>
               <string>%(partition_2_root_instance_title)s</string>
               <string>slap_computer_id</string>
-              <string>%(computer_id)s</string>
+              <string>%(compute_node_id)s</string>
               <string>slap_computer_partition_id</string>
               <string>partition2</string>
               <string>slap_software_release_url</string>
@@ -429,11 +429,11 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
             <object id='i26' module='slapos.slap.slap' class='SoftwareRelease'>
               <tuple>
                 <string>%(partition_2_software_release_url)s</string>
-                <string>%(computer_id)s</string>
+                <string>%(compute_node_id)s</string>
               </tuple>
               <dictionary id='i27'>
                 <string>_computer_guid</string>
-                <string>%(computer_id)s</string>
+                <string>%(compute_node_id)s</string>
                 <string>_software_instance_list</string>
                 <list id='i28'/>
                 <string>_software_release</string>
@@ -444,14 +444,14 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
         </object>
         <object id='i29' module='slapos.slap.slap' class='ComputerPartition'>
           <tuple>
-            <string>%(computer_id)s</string>
+            <string>%(compute_node_id)s</string>
             <string>partition1</string>
           </tuple>
           <dictionary id='i30'>
             <string>_access_status</string>
             <string>%(access_status)s</string>
             <string>_computer_id</string>
-            <string>%(computer_id)s</string>
+            <string>%(compute_node_id)s</string>
             <string>_connection_dict</string>
             <dictionary id='i31'/>
             <string>_filter_dict</string>
@@ -483,7 +483,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
               <string>root_instance_title</string>
               <string>%(partition_1_root_instance_title)s</string>
               <string>slap_computer_id</string>
-              <string>%(computer_id)s</string>
+              <string>%(compute_node_id)s</string>
               <string>slap_computer_partition_id</string>
               <string>partition1</string>
               <string>slap_software_release_url</string>
@@ -518,11 +518,11 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
             <object id='i38' module='slapos.slap.slap' class='SoftwareRelease'>
               <tuple>
                 <string>%(partition_1_software_release_url)s</string>
-                <string>%(computer_id)s</string>
+                <string>%(compute_node_id)s</string>
               </tuple>
               <dictionary id='i39'>
                 <string>_computer_guid</string>
-                <string>%(computer_id)s</string>
+                <string>%(compute_node_id)s</string>
                 <string>_software_instance_list</string>
                 <list id='i40'/>
                 <string>_software_release</string>
@@ -537,11 +537,11 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
         <object id='i42' module='slapos.slap.slap' class='SoftwareRelease'>
           <tuple>
             <string>%(destroy_requested_url)s</string>
-            <string>%(computer_id)s</string>
+            <string>%(compute_node_id)s</string>
           </tuple>
           <dictionary id='i43'>
             <string>_computer_guid</string>
-            <string>%(computer_id)s</string>
+            <string>%(compute_node_id)s</string>
             <string>_known_state</string>
             <string>error</string>
             <string>_requested_state</string>
@@ -555,11 +555,11 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
         <object id='i45' module='slapos.slap.slap' class='SoftwareRelease'>
           <tuple>
             <string>%(start_requested_url)s</string>
-            <string>%(computer_id)s</string>
+            <string>%(compute_node_id)s</string>
           </tuple>
           <dictionary id='i46'>
             <string>_computer_guid</string>
-            <string>%(computer_id)s</string>
+            <string>%(compute_node_id)s</string>
             <string>_known_state</string>
             <string>error</string>
             <string>_requested_state</string>
@@ -575,32 +575,32 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
   </object>
 </marshal>
 """ % dict(
-  computer_id=self.computer_id,
+  compute_node_id=self.compute_node_id,
   destroy_requested_url=self.destroy_requested_software_installation.getUrlString(),
-  partition_1_instance_guid=self.computer.partition1.getAggregateRelatedValue(portal_type='Software Instance').getReference(),
-  partition_1_instance_title=self.computer.partition1.getAggregateRelatedValue(portal_type='Software Instance').getTitle(),
+  partition_1_instance_guid=self.compute_node.partition1.getAggregateRelatedValue(portal_type='Software Instance').getReference(),
+  partition_1_instance_title=self.compute_node.partition1.getAggregateRelatedValue(portal_type='Software Instance').getTitle(),
   partition_1_root_instance_title=partition_1_root_instance_title,
-  partition_1_instance_software_type=self.computer.partition1.getAggregateRelatedValue(portal_type='Software Instance').getSourceReference(),
-  partition_1_param=self.computer.partition1.getAggregateRelatedValue(portal_type='Software Instance').getInstanceXmlAsDict()['paramé'],
-  partition_1_sla=self.computer.partition1.getAggregateRelatedValue(portal_type='Software Instance').getSlaXmlAsDict()['paramé'],
-  partition_1_software_release_url=self.computer.partition1.getAggregateRelatedValue(portal_type='Software Instance').getUrlString(),
-  partition_1_timestamp=int(self.computer.partition1.getAggregateRelatedValue(portal_type='Software Instance').getModificationDate()),
-  partition_2_instance_guid=self.computer.partition2.getAggregateRelatedValue(portal_type='Software Instance').getReference(),
-  partition_2_instance_title=self.computer.partition2.getAggregateRelatedValue(portal_type='Software Instance').getTitle(),
+  partition_1_instance_software_type=self.compute_node.partition1.getAggregateRelatedValue(portal_type='Software Instance').getSourceReference(),
+  partition_1_param=self.compute_node.partition1.getAggregateRelatedValue(portal_type='Software Instance').getInstanceXmlAsDict()['paramé'],
+  partition_1_sla=self.compute_node.partition1.getAggregateRelatedValue(portal_type='Software Instance').getSlaXmlAsDict()['paramé'],
+  partition_1_software_release_url=self.compute_node.partition1.getAggregateRelatedValue(portal_type='Software Instance').getUrlString(),
+  partition_1_timestamp=int(self.compute_node.partition1.getAggregateRelatedValue(portal_type='Software Instance').getModificationDate()),
+  partition_2_instance_guid=self.compute_node.partition2.getAggregateRelatedValue(portal_type='Software Instance').getReference(),
+  partition_2_instance_title=self.compute_node.partition2.getAggregateRelatedValue(portal_type='Software Instance').getTitle(),
   partition_2_root_instance_title=partition_2_root_instance_title,
-  partition_2_instance_software_type=self.computer.partition2.getAggregateRelatedValue(portal_type='Software Instance').getSourceReference(),
-  partition_2_param=self.computer.partition2.getAggregateRelatedValue(portal_type='Software Instance').getInstanceXmlAsDict()['paramé'],
-  partition_2_sla=self.computer.partition2.getAggregateRelatedValue(portal_type='Software Instance').getSlaXmlAsDict()['paramé'],
-  partition_2_software_release_url=self.computer.partition2.getAggregateRelatedValue(portal_type='Software Instance').getUrlString(),
-  partition_2_timestamp=int(self.computer.partition2.getAggregateRelatedValue(portal_type='Software Instance').getModificationDate()),
-  partition_3_instance_guid=self.computer.partition3.getAggregateRelatedValue(portal_type='Software Instance').getReference(),
-  partition_3_instance_title=self.computer.partition3.getAggregateRelatedValue(portal_type='Software Instance').getTitle(),
+  partition_2_instance_software_type=self.compute_node.partition2.getAggregateRelatedValue(portal_type='Software Instance').getSourceReference(),
+  partition_2_param=self.compute_node.partition2.getAggregateRelatedValue(portal_type='Software Instance').getInstanceXmlAsDict()['paramé'],
+  partition_2_sla=self.compute_node.partition2.getAggregateRelatedValue(portal_type='Software Instance').getSlaXmlAsDict()['paramé'],
+  partition_2_software_release_url=self.compute_node.partition2.getAggregateRelatedValue(portal_type='Software Instance').getUrlString(),
+  partition_2_timestamp=int(self.compute_node.partition2.getAggregateRelatedValue(portal_type='Software Instance').getModificationDate()),
+  partition_3_instance_guid=self.compute_node.partition3.getAggregateRelatedValue(portal_type='Software Instance').getReference(),
+  partition_3_instance_title=self.compute_node.partition3.getAggregateRelatedValue(portal_type='Software Instance').getTitle(),
   partition_3_root_instance_title=partition_3_root_instance_title,
-  partition_3_instance_software_type=self.computer.partition3.getAggregateRelatedValue(portal_type='Software Instance').getSourceReference(),
-  partition_3_param=self.computer.partition3.getAggregateRelatedValue(portal_type='Software Instance').getInstanceXmlAsDict()['paramé'],
-  partition_3_sla=self.computer.partition3.getAggregateRelatedValue(portal_type='Software Instance').getSlaXmlAsDict()['paramé'],
-  partition_3_software_release_url=self.computer.partition3.getAggregateRelatedValue(portal_type='Software Instance').getUrlString(),
-  partition_3_timestamp=int(self.computer.partition3.getAggregateRelatedValue(portal_type='Software Instance').getModificationDate()),
+  partition_3_instance_software_type=self.compute_node.partition3.getAggregateRelatedValue(portal_type='Software Instance').getSourceReference(),
+  partition_3_param=self.compute_node.partition3.getAggregateRelatedValue(portal_type='Software Instance').getInstanceXmlAsDict()['paramé'],
+  partition_3_sla=self.compute_node.partition3.getAggregateRelatedValue(portal_type='Software Instance').getSlaXmlAsDict()['paramé'],
+  partition_3_software_release_url=self.compute_node.partition3.getAggregateRelatedValue(portal_type='Software Instance').getUrlString(),
+  partition_3_timestamp=int(self.compute_node.partition3.getAggregateRelatedValue(portal_type='Software Instance').getModificationDate()),
   slave_1_param=self.start_requested_slave_instance.getInstanceXmlAsDict()['paramé'],
   slave_1_software_type=self.start_requested_slave_instance.getSourceReference(),
   slave_1_instance_guid=self.start_requested_slave_instance.getReference(),
@@ -611,15 +611,15 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     self.assertEqual(expected_xml, got_xml,
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
-  def test_getComputerInformation(self):
+  def test_getComputeNodeInformation(self):
     self.assertEqual('getFullComputerInformation',
       self.portal_slap.getComputerInformation.im_func.func_name)
 
   def test_not_accessed_getComputerStatus(self):
-    self.login(self.computer_user_id)
+    self.login(self.compute_node_user_id)
     created_at = rfc1123_date(DateTime())
     since = created_at
-    response = self.portal_slap.getComputerStatus(self.computer_id)
+    response = self.portal_slap.getComputerStatus(self.compute_node_id)
     self.assertEqual(200, response.status)
     self.assertEqual('public, max-age=60, stale-if-error=604800',
         response.headers.get('cache-control'))
@@ -647,7 +647,7 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     <string>state</string>
     <string/>
     <string>text</string>
-    <string>#error no data found for %(computer_id)s</string>
+    <string>#error no data found for %(compute_node_id)s</string>
     <string>user</string>
     <string>SlapOS Master</string>
   </dictionary>
@@ -655,18 +655,18 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
 """ % dict(
   created_at=created_at,
   since=since,
-  computer_id=self.computer_id
+  compute_node_id=self.compute_node_id
 )
     self.assertEqual(expected_xml, got_xml,
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def test_accessed_getComputerStatus(self):
-    self.login(self.computer_user_id)
+    self.login(self.compute_node_user_id)
 
-    self.portal_slap.getFullComputerInformation(self.computer_id)
+    self.portal_slap.getFullComputerInformation(self.compute_node_id)
     created_at = rfc1123_date(DateTime())
     since = created_at
-    response = self.portal_slap.getComputerStatus(self.computer_id)
+    response = self.portal_slap.getComputerStatus(self.compute_node_id)
     self.assertEqual(200, response.status)
     self.assertEqual('public, max-age=60, stale-if-error=604800',
         response.headers.get('cache-control'))
@@ -695,41 +695,41 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     <string>state</string>
     <string/>
     <string>text</string>
-    <string>#access %(computer_id)s</string>
+    <string>#access %(compute_node_id)s</string>
     <string>user</string>
-    <string>%(computer_id)s</string>
+    <string>%(compute_node_id)s</string>
   </dictionary>
 </marshal>
 """ % dict(
   created_at=created_at,
   since=since,
-  computer_id=self.computer_id
+  compute_node_id=self.compute_node_id
 )
     self.assertEqual(expected_xml, got_xml,
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
-  def assertComputerBangSimulator(self, args, kwargs):
-    stored = eval(open(self.computer_bang_simulator).read()) #pylint: disable=eval-used
+  def assertComputeNodeBangSimulator(self, args, kwargs):
+    stored = eval(open(self.compute_node_bang_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     kwargs['comment'] = kwargs.pop('comment')
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,
-      'recmethod': 'reportComputerBang'}])
+      'recmethod': 'reportComputeNodeBang'}])
 
-  def test_computerBang(self):
-    self._makeComplexComputer()
-    self.computer_bang_simulator = tempfile.mkstemp()[1]
+  def test_compute_nodeBang(self):
+    self._makeComplexComputeNode()
+    self.compute_node_bang_simulator = tempfile.mkstemp()[1]
     try:
-      self.login(self.computer_user_id)
-      self.computer.reportComputerBang = Simulator(
-        self.computer_bang_simulator, 'reportComputerBang')
+      self.login(self.compute_node_user_id)
+      self.compute_node.reportComputeNodeBang = Simulator(
+        self.compute_node_bang_simulator, 'reportComputeNodeBang')
       error_log = 'Please bang me'
-      response = self.portal_slap.computerBang(self.computer_id,
+      response = self.portal_slap.compute_nodeBang(self.compute_node_id,
         error_log)
       self.assertEqual('None', response)
       created_at = rfc1123_date(DateTime())
       since = created_at
-      response = self.portal_slap.getComputerStatus(self.computer_id)
+      response = self.portal_slap.getComputerStatus(self.compute_node_id)
       # check returned XML
       xml_fp = StringIO.StringIO()
 
@@ -750,64 +750,64 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     <string>text</string>
     <string>#error bang</string>
     <string>user</string>
-    <string>%(computer_id)s</string>
+    <string>%(compute_node_id)s</string>
   </dictionary>
 </marshal>
 """ % dict(
     created_at=created_at,
     since=since,
-    computer_id=self.computer_id,
+    compute_node_id=self.compute_node_id,
   )
       self.assertEqual(expected_xml, got_xml,
           '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
-      self.assertComputerBangSimulator((), {'comment': error_log})
+      self.assertComputeNodeBangSimulator((), {'comment': error_log})
     finally:
-      if os.path.exists(self.computer_bang_simulator):
-        os.unlink(self.computer_bang_simulator)
+      if os.path.exists(self.compute_node_bang_simulator):
+        os.unlink(self.compute_node_bang_simulator)
 
-  def assertLoadComputerConfigurationFromXML(self, args, kwargs):
-    stored = eval(open(self.computer_load_configuration_simulator).read()) #pylint: disable=eval-used
+  def assertLoadComputeNodeConfigurationFromXML(self, args, kwargs):
+    stored = eval(open(self.compute_node_load_configuration_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,
-      'recmethod': 'Computer_updateFromDict'}])
+      'recmethod': 'ComputeNode_updateFromDict'}])
 
   def test_loadComputerConfigurationFromXML(self):
-    self.computer_load_configuration_simulator = tempfile.mkstemp()[1]
+    self.compute_node_load_configuration_simulator = tempfile.mkstemp()[1]
     try:
-      self.login(self.computer_user_id)
-      self.computer.Computer_updateFromDict = Simulator(
-        self.computer_load_configuration_simulator, 'Computer_updateFromDict')
+      self.login(self.compute_node_user_id)
+      self.compute_node.ComputeNode_updateFromDict = Simulator(
+        self.compute_node_load_configuration_simulator, 'ComputeNode_updateFromDict')
 
-      computer_xml = """\
+      compute_node_xml = """\
 <?xml version='1.0' encoding='UTF-8'?>
 <marshal>
   <dictionary id='i2'>
     <string>reference</string>
-    <string>%(computer_reference)s</string>
+    <string>%(compute_node_reference)s</string>
   </dictionary>
 </marshal>
-""" % {'computer_reference': self.computer.getReference()}
+""" % {'compute_node_reference': self.compute_node.getReference()}
 
       response = self.portal_slap.loadComputerConfigurationFromXML(
-        computer_xml)
+        compute_node_xml)
       self.assertEqual('Content properly posted.', response)
-      self.assertLoadComputerConfigurationFromXML(
-        ({'reference': self.computer.getReference()},), {})
+      self.assertLoadComputeNodeConfigurationFromXML(
+        ({'reference': self.compute_node.getReference()},), {})
     finally:
-      if os.path.exists(self.computer_load_configuration_simulator):
-        os.unlink(self.computer_load_configuration_simulator)
+      if os.path.exists(self.compute_node_load_configuration_simulator):
+        os.unlink(self.compute_node_load_configuration_simulator)
   
   def test_not_accessed_getSoftwareInstallationStatus(self):
-    self._makeComplexComputer()
-    self.computer_bang_simulator = tempfile.mkstemp()[1]
-    self.login(self.computer_user_id)
+    self._makeComplexComputeNode()
+    self.compute_node_bang_simulator = tempfile.mkstemp()[1]
+    self.login(self.compute_node_user_id)
     created_at = rfc1123_date(DateTime())
     since = created_at
     software_installation = self.start_requested_software_installation
     url_string = software_installation.getUrlString()
     response = self.portal_slap.getSoftwareInstallationStatus(url_string,
-                            self.computer_id)
+                            self.compute_node_id)
     self.assertEqual(200, response.status)
     self.assertEqual('public, max-age=60, stale-if-error=604800',
         response.headers.get('cache-control'))
@@ -850,41 +850,41 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     
 
   def test_destroyedSoftwareRelease_noSoftwareInstallation(self):
-    self.login(self.computer_user_id)
+    self.login(self.compute_node_user_id)
     self.assertRaises(NotFound,
         self.portal_slap.destroyedSoftwareRelease,
-        "http://example.org/foo", self.computer_id)
+        "http://example.org/foo", self.compute_node_id)
 
   def test_destroyedSoftwareRelease_noDestroyRequested(self):
-    self._makeComplexComputer()
-    self.login(self.computer_user_id)
+    self._makeComplexComputeNode()
+    self.login(self.compute_node_user_id)
     self.assertRaises(NotFound,
         self.portal_slap.destroyedSoftwareRelease,
         self.start_requested_software_installation.getUrlString(),
-        self.computer_id)
+        self.compute_node_id)
 
   def test_destroyedSoftwareRelease_destroyRequested(self):
-    self._makeComplexComputer()
-    self.login(self.computer_user_id)
+    self._makeComplexComputeNode()
+    self.login(self.compute_node_user_id)
     destroy_requested = self.destroy_requested_software_installation
     self.assertEqual(destroy_requested.getValidationState(), "validated")
     self.portal_slap.destroyedSoftwareRelease(
-        destroy_requested.getUrlString(), self.computer_id)
+        destroy_requested.getUrlString(), self.compute_node_id)
     self.assertEqual(destroy_requested.getValidationState(), "invalidated")
 
   def test_availableSoftwareRelease(self):
-    self._makeComplexComputer()
-    self.computer_bang_simulator = tempfile.mkstemp()[1]
-    self.login(self.computer_user_id)
+    self._makeComplexComputeNode()
+    self.compute_node_bang_simulator = tempfile.mkstemp()[1]
+    self.login(self.compute_node_user_id)
     software_installation = self.start_requested_software_installation
     url_string = software_installation.getUrlString()
     response = self.portal_slap.availableSoftwareRelease(
-                  url_string, self.computer_id)
+                  url_string, self.compute_node_id)
     self.assertEqual('None', response)
     created_at = rfc1123_date(DateTime())
     since = created_at
     response = self.portal_slap.getSoftwareInstallationStatus(
-                      url_string, self.computer_id)
+                      url_string, self.compute_node_id)
     # check returned XML
     xml_fp = StringIO.StringIO()
 
@@ -905,31 +905,31 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     <string>text</string>
     <string>#access software release %(url_string)s available</string>
     <string>user</string>
-    <string>%(computer_id)s</string>
+    <string>%(compute_node_id)s</string>
   </dictionary>
 </marshal>
 """ % dict(
     created_at=created_at,
     since=since,
     url_string=url_string,
-    computer_id=self.computer_id,
+    compute_node_id=self.compute_node_id,
   )
     self.assertEqual(expected_xml, got_xml,
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def test_buildingSoftwareRelease(self):
-    self._makeComplexComputer()
-    self.computer_bang_simulator = tempfile.mkstemp()[1]
-    self.login(self.computer_user_id)
+    self._makeComplexComputeNode()
+    self.compute_node_bang_simulator = tempfile.mkstemp()[1]
+    self.login(self.compute_node_user_id)
     software_installation = self.start_requested_software_installation
     url_string = software_installation.getUrlString()
     response = self.portal_slap.buildingSoftwareRelease(
-                  url_string, self.computer_id)
+                  url_string, self.compute_node_id)
     self.assertEqual('None', response)
     created_at = rfc1123_date(DateTime())
     since = created_at
     response = self.portal_slap.getSoftwareInstallationStatus(
-                      url_string, self.computer_id)
+                      url_string, self.compute_node_id)
     # check returned XML
     xml_fp = StringIO.StringIO()
 
@@ -950,31 +950,31 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     <string>text</string>
     <string>#building software release %(url_string)s</string>
     <string>user</string>
-    <string>%(computer_id)s</string>
+    <string>%(compute_node_id)s</string>
   </dictionary>
 </marshal>
 """ % dict(
     created_at=created_at,
     since=since,
     url_string=url_string,
-    computer_id=self.computer_id,
+    compute_node_id=self.compute_node_id,
   )
     self.assertEqual(expected_xml, got_xml,
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def test_softwareReleaseError(self):
-    self._makeComplexComputer()
-    self.computer_bang_simulator = tempfile.mkstemp()[1]
-    self.login(self.computer_user_id)
+    self._makeComplexComputeNode()
+    self.compute_node_bang_simulator = tempfile.mkstemp()[1]
+    self.login(self.compute_node_user_id)
     software_installation = self.start_requested_software_installation
     url_string = software_installation.getUrlString()
     response = self.portal_slap.softwareReleaseError(
-                  url_string, self.computer_id, 'error log')
+                  url_string, self.compute_node_id, 'error log')
     self.assertEqual('None', response)
     created_at = rfc1123_date(DateTime())
     since = created_at
     response = self.portal_slap.getSoftwareInstallationStatus(
-                      url_string, self.computer_id)
+                      url_string, self.compute_node_id)
     # check returned XML
     xml_fp = StringIO.StringIO()
 
@@ -995,39 +995,39 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
     <string>text</string>
     <string>#error while installing %(url_string)s</string>
     <string>user</string>
-    <string>%(computer_id)s</string>
+    <string>%(compute_node_id)s</string>
   </dictionary>
 </marshal>
 """ % dict(
     created_at=created_at,
     since=since,
     url_string=url_string,
-    computer_id=self.computer_id,
+    compute_node_id=self.compute_node_id,
   )
     self.assertEqual(expected_xml, got_xml,
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def test_useComputer_wrong_xml(self):
-    self.login(self.computer_user_id)
+    self.login(self.compute_node_user_id)
     response = self.portal_slap.useComputer(
-        self.computer_id, "foobar")
+        self.compute_node_id, "foobar")
     self.assertEqual(400, response.status)
     self.assertEqual("", response.body)
 
-  def assertReportComputerConsumption(self, args, kwargs):
-    stored = eval(open(self.computer_use_computer_simulator).read()) #pylint: disable=eval-used
+  def assertReportComputeNodeConsumption(self, args, kwargs):
+    stored = eval(open(self.compute_node_use_compute_node_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,
-      'recmethod': 'Computer_reportComputerConsumption'}])
+      'recmethod': 'ComputeNode_reportComputeNodeConsumption'}])
 
   def test_useComputer_expected_xml(self):
-    self.computer_use_computer_simulator = tempfile.mkstemp()[1]
+    self.compute_node_use_compute_node_simulator = tempfile.mkstemp()[1]
     try:
-      self.login(self.computer_user_id)
-      self.computer.Computer_reportComputerConsumption = Simulator(
-        self.computer_use_computer_simulator,
-        'Computer_reportComputerConsumption')
+      self.login(self.compute_node_user_id)
+      self.compute_node.ComputeNode_reportComputeNodeConsumption = Simulator(
+        self.compute_node_use_compute_node_simulator,
+        'ComputeNode_reportComputeNodeConsumption')
   
       consumption_xml = """<?xml version='1.0' encoding='utf-8'?>
 <journal>
@@ -1056,22 +1056,22 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
 </journal>"""
   
       response = self.portal_slap.useComputer(
-        self.computer_id, consumption_xml)
+        self.compute_node_id, consumption_xml)
       self.assertEqual(200, response.status)
       self.assertEqual("OK", response.body)
-      self.assertReportComputerConsumption(
+      self.assertReportComputeNodeConsumption(
         ("testusagé", consumption_xml,), {})
     finally:
-      if os.path.exists(self.computer_use_computer_simulator):
-        os.unlink(self.computer_use_computer_simulator)
+      if os.path.exists(self.compute_node_use_compute_node_simulator):
+        os.unlink(self.compute_node_use_compute_node_simulator)
 
   def test_useComputer_empty_reference(self):
-    self.computer_use_computer_simulator = tempfile.mkstemp()[1]
+    self.compute_node_use_compute_node_simulator = tempfile.mkstemp()[1]
     try:
-      self.login(self.computer_user_id)
-      self.computer.Computer_reportComputerConsumption = Simulator(
-        self.computer_use_computer_simulator,
-        'Computer_reportComputerConsumption')
+      self.login(self.compute_node_user_id)
+      self.compute_node.ComputeNode_reportComputeNodeConsumption = Simulator(
+        self.compute_node_use_compute_node_simulator,
+        'ComputeNode_reportComputeNodeConsumption')
   
       consumption_xml = """<?xml version='1.0' encoding='utf-8'?>
 <journal>
@@ -1100,23 +1100,23 @@ class TestSlapOSSlapToolComputerAccess(TestSlapOSSlapToolMixin):
 </journal>"""
   
       response = self.portal_slap.useComputer(
-        self.computer_id, consumption_xml)
+        self.compute_node_id, consumption_xml)
       self.assertEqual(200, response.status)
       self.assertEqual("OK", response.body)
-      self.assertReportComputerConsumption(
+      self.assertReportComputeNodeConsumption(
         ("", consumption_xml,), {})
     finally:
-      if os.path.exists(self.computer_use_computer_simulator):
-        os.unlink(self.computer_use_computer_simulator)
+      if os.path.exists(self.compute_node_use_compute_node_simulator):
+        os.unlink(self.compute_node_use_compute_node_simulator)
 
 
 class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   def test_getComputerPartitionCertificate(self):
-    self._makeComplexComputer()
+    self._makeComplexComputeNode()
     partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     self.login(self.start_requested_software_instance.getUserId())
-    response = self.portal_slap.getComputerPartitionCertificate(self.computer_id,
+    response = self.portal_slap.getComputerPartitionCertificate(self.compute_node_id,
         partition_id)
     self.assertEqual(200, response.status)
     self.assertEqual( 'public, max-age=0, must-revalidate',
@@ -1151,9 +1151,9 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def test_getFullComputerInformation(self):
-    self._makeComplexComputer(with_slave=True)
+    self._makeComplexComputeNode(with_slave=True)
     self.login(self.start_requested_software_instance.getUserId())
-    response = self.portal_slap.getFullComputerInformation(self.computer_id)
+    response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.assertEqual(200, response.status)
     self.assertEqual('public, max-age=1, stale-if-error=604800',
         response.headers.get('cache-control'))
@@ -1174,23 +1174,23 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 <marshal>
   <object id='i2' module='slapos.slap.slap' class='Computer'>
     <tuple>
-      <string>%(computer_id)s</string>
+      <string>%(compute_node_id)s</string>
     </tuple>
     <dictionary id='i3'>
       <string>_computer_id</string>
-      <string>%(computer_id)s</string>
+      <string>%(compute_node_id)s</string>
       <string>_computer_partition_list</string>
       <list id='i4'>
         <object id='i5' module='slapos.slap.slap' class='ComputerPartition'>
           <tuple>
-            <string>%(computer_id)s</string>
+            <string>%(compute_node_id)s</string>
             <string>partition1</string>
           </tuple>
           <dictionary id='i6'>
             <string>_access_status</string>
             <string>%(access_status)s</string>
             <string>_computer_id</string>
-            <string>%(computer_id)s</string>
+            <string>%(compute_node_id)s</string>
             <string>_connection_dict</string>
             <dictionary id='i7'/>
             <string>_filter_dict</string>
@@ -1222,7 +1222,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
               <string>root_instance_title</string>
               <string>%(root_instance_title)s</string>
               <string>slap_computer_id</string>
-              <string>%(computer_id)s</string>
+              <string>%(compute_node_id)s</string>
               <string>slap_computer_partition_id</string>
               <string>partition1</string>
               <string>slap_software_release_url</string>
@@ -1257,11 +1257,11 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
             <object id='i14' module='slapos.slap.slap' class='SoftwareRelease'>
               <tuple>
                 <string>%(software_release_url)s</string>
-                <string>%(computer_id)s</string>
+                <string>%(compute_node_id)s</string>
               </tuple>
               <dictionary id='i15'>
                 <string>_computer_guid</string>
-                <string>%(computer_id)s</string>
+                <string>%(compute_node_id)s</string>
                 <string>_software_instance_list</string>
                 <list id='i16'/>
                 <string>_software_release</string>
@@ -1277,7 +1277,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   </object>
 </marshal>
 """ % dict(
-    computer_id=self.computer_id,
+    compute_node_id=self.compute_node_id,
     instance_guid=self.start_requested_software_instance.getReference(),
     instance_title=self.start_requested_software_instance.getTitle(),
     root_instance_title=self.start_requested_software_instance.getSpecialiseValue().getTitle(),
@@ -1296,13 +1296,13 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def test_getComputerPartitionStatus(self):
-    self._makeComplexComputer()
+    self._makeComplexComputeNode()
     partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     created_at = rfc1123_date(DateTime())
     since = created_at
     self.login(self.start_requested_software_instance.getUserId())
-    response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
+    response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
       partition_id)
     self.assertEqual(200, response.status)
     self.assertEqual( 'public, max-age=60, stale-if-error=604800',
@@ -1344,14 +1344,14 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def test_getComputerPartitionStatus_visited(self):
-    self._makeComplexComputer()
+    self._makeComplexComputeNode()
     partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     created_at = rfc1123_date(DateTime())
     since = created_at
     self.login(self.start_requested_software_instance.getUserId())
-    self.portal_slap.registerComputerPartition(self.computer_id, partition_id)
-    response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
+    self.portal_slap.registerComputerPartition(self.compute_node_id, partition_id)
+    response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
       partition_id)
     self.assertEqual(200, response.status)
     self.assertEqual( 'public, max-age=60, stale-if-error=604800',
@@ -1388,18 +1388,18 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   created_at=created_at,
   since=since,
   instance_guid=self.start_requested_software_instance.getReference(),
-  computer_id=self.computer_id,
+  compute_node_id=self.compute_node_id,
   partition_id=partition_id
 )
     self.assertEqual(expected_xml, got_xml,
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def test_registerComputerPartition_withSlave(self):
-    self._makeComplexComputer(with_slave=True)
+    self._makeComplexComputeNode(with_slave=True)
     partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     self.login(self.start_requested_software_instance.getUserId())
-    response = self.portal_slap.registerComputerPartition(self.computer_id, partition_id)
+    response = self.portal_slap.registerComputerPartition(self.compute_node_id, partition_id)
     self.assertEqual(200, response.status)
     self.assertEqual( 'public, max-age=1, stale-if-error=604800',
         response.headers.get('cache-control'))
@@ -1420,12 +1420,12 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 <marshal>
   <object id='i2' module='slapos.slap.slap' class='ComputerPartition'>
     <tuple>
-      <string>%(computer_id)s</string>
+      <string>%(compute_node_id)s</string>
       <string>partition1</string>
     </tuple>
     <dictionary id='i3'>
       <string>_computer_id</string>
-      <string>%(computer_id)s</string>
+      <string>%(compute_node_id)s</string>
       <string>_connection_dict</string>
       <dictionary id='i4'/>
       <string>_filter_dict</string>
@@ -1457,7 +1457,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         <string>root_instance_title</string>
         <string>%(root_instance_title)s</string>
         <string>slap_computer_id</string>
-        <string>%(computer_id)s</string>
+        <string>%(compute_node_id)s</string>
         <string>slap_computer_partition_id</string>
         <string>partition1</string>
         <string>slap_software_release_url</string>
@@ -1494,11 +1494,11 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       <object id='i11' module='slapos.slap.slap' class='SoftwareRelease'>
         <tuple>
           <string>%(software_release_url)s</string>
-          <string>%(computer_id)s</string>
+          <string>%(compute_node_id)s</string>
         </tuple>
         <dictionary id='i12'>
           <string>_computer_guid</string>
-          <string>%(computer_id)s</string>
+          <string>%(compute_node_id)s</string>
           <string>_software_instance_list</string>
           <list id='i13'/>
           <string>_software_release</string>
@@ -1511,7 +1511,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   </object>
 </marshal>
 """ % dict(
-  computer_id=self.computer_id,
+  compute_node_id=self.compute_node_id,
   param=self.start_requested_software_instance.getInstanceXmlAsDict()['paramé'],
   sla=self.start_requested_software_instance.getSlaXmlAsDict()['paramé'],
   software_release_url=self.start_requested_software_instance.getUrlString(),
@@ -1529,11 +1529,11 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def test_registerComputerPartition(self):
-    self._makeComplexComputer()
+    self._makeComplexComputeNode()
     partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     self.login(self.start_requested_software_instance.getUserId())
-    response = self.portal_slap.registerComputerPartition(self.computer_id, partition_id)
+    response = self.portal_slap.registerComputerPartition(self.compute_node_id, partition_id)
     self.assertEqual(200, response.status)
     self.assertEqual( 'public, max-age=1, stale-if-error=604800',
         response.headers.get('cache-control'))
@@ -1554,12 +1554,12 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 <marshal>
   <object id='i2' module='slapos.slap.slap' class='ComputerPartition'>
     <tuple>
-      <string>%(computer_id)s</string>
+      <string>%(compute_node_id)s</string>
       <string>partition1</string>
     </tuple>
     <dictionary id='i3'>
       <string>_computer_id</string>
-      <string>%(computer_id)s</string>
+      <string>%(compute_node_id)s</string>
       <string>_connection_dict</string>
       <dictionary id='i4'/>
       <string>_filter_dict</string>
@@ -1591,7 +1591,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         <string>root_instance_title</string>
         <string>%(root_instance_title)s</string>
         <string>slap_computer_id</string>
-        <string>%(computer_id)s</string>
+        <string>%(compute_node_id)s</string>
         <string>slap_computer_partition_id</string>
         <string>partition1</string>
         <string>slap_software_release_url</string>
@@ -1613,11 +1613,11 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       <object id='i10' module='slapos.slap.slap' class='SoftwareRelease'>
         <tuple>
           <string>%(software_release_url)s</string>
-          <string>%(computer_id)s</string>
+          <string>%(compute_node_id)s</string>
         </tuple>
         <dictionary id='i11'>
           <string>_computer_guid</string>
-          <string>%(computer_id)s</string>
+          <string>%(compute_node_id)s</string>
           <string>_software_instance_list</string>
           <list id='i12'/>
           <string>_software_release</string>
@@ -1630,7 +1630,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   </object>
 </marshal>
 """ % dict(
-  computer_id=self.computer_id,
+  compute_node_id=self.compute_node_id,
   param=self.start_requested_software_instance.getInstanceXmlAsDict()['paramé'],
   sla=self.start_requested_software_instance.getSlaXmlAsDict()['paramé'],
   software_release_url=self.start_requested_software_instance.getUrlString(),
@@ -1652,9 +1652,9 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       'recmethod': 'updateConnection'}])
 
   def test_setConnectionXml_withSlave(self):
-    self._makeComplexComputer(with_slave=True)
+    self._makeComplexComputeNode(with_slave=True)
     partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     slave_reference = self.start_requested_slave_instance.getReference()
     connection_xml = """<marshal>
   <dictionary id="i2">
@@ -1677,7 +1677,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       self.start_requested_slave_instance.updateConnection = Simulator(
         self.instance_update_connection_simulator, 'updateConnection')
       response = self.portal_slap.setComputerPartitionConnectionXml(
-        self.computer_id, partition_id, connection_xml, slave_reference)
+        self.compute_node_id, partition_id, connection_xml, slave_reference)
       self.assertEqual('None', response)
       self.assertInstanceUpdateConnectionSimulator((),
           {'connection_xml': stored_xml})
@@ -1686,9 +1686,9 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         os.unlink(self.instance_update_connection_simulator)
 
   def test_setConnectionXml(self):
-    self._makeComplexComputer()
+    self._makeComplexComputeNode()
     partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     connection_xml = """<marshal>
   <dictionary id="i2">
     <string>p1é</string>
@@ -1710,7 +1710,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       self.start_requested_software_instance.updateConnection = Simulator(
         self.instance_update_connection_simulator, 'updateConnection')
       response = self.portal_slap.setComputerPartitionConnectionXml(
-          self.computer_id, partition_id, connection_xml)
+          self.compute_node_id, partition_id, connection_xml)
       self.assertEqual('None', response)
       self.assertInstanceUpdateConnectionSimulator((),
           {'connection_xml': stored_xml})
@@ -1719,17 +1719,17 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         os.unlink(self.instance_update_connection_simulator)
 
   def test_softwareInstanceError(self):
-    self._makeComplexComputer()
+    self._makeComplexComputeNode()
     partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     self.login(self.start_requested_software_instance.getUserId())
     error_log = 'The error'
-    response = self.portal_slap.softwareInstanceError(self.computer_id,
+    response = self.portal_slap.softwareInstanceError(self.compute_node_id,
       partition_id, error_log)
     self.assertEqual('None', response)
     created_at = rfc1123_date(DateTime())
     since = created_at
-    response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
+    response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
       partition_id)
     # check returned XML
     xml_fp = StringIO.StringIO()
@@ -1763,17 +1763,17 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def test_softwareInstanceError_twice(self):
-    self._makeComplexComputer()
+    self._makeComplexComputeNode()
     partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     self.login(self.start_requested_software_instance.getUserId())
     error_log = 'The error'
-    response = self.portal_slap.softwareInstanceError(self.computer_id,
+    response = self.portal_slap.softwareInstanceError(self.compute_node_id,
       partition_id, error_log)
     self.assertEqual('None', response)
     created_at = rfc1123_date(DateTime())
     since = created_at
-    response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
+    response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
       partition_id)
     # check returned XML
     xml_fp = StringIO.StringIO()
@@ -1810,11 +1810,11 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     time.sleep(1)
     self.pinDateTime(DateTime())
 
-    response = self.portal_slap.softwareInstanceError(self.computer_id,
+    response = self.portal_slap.softwareInstanceError(self.compute_node_id,
       partition_id, error_log)
     self.assertEqual('None', response)
     ncreated_at = rfc1123_date(DateTime())
-    response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
+    response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
       partition_id)
     # check returned XML
     xml_fp = StringIO.StringIO()
@@ -1861,21 +1861,21 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       'recmethod': 'bang'}])
 
   def test_softwareInstanceBang(self):
-    self._makeComplexComputer()
+    self._makeComplexComputeNode()
     self.instance_bang_simulator = tempfile.mkstemp()[1]
     try:
       partition_id = self.start_requested_software_instance.getAggregateValue(
-          portal_type='Computer Partition').getReference()
+          portal_type='Compute Partition').getReference()
       self.login(self.start_requested_software_instance.getUserId())
       self.start_requested_software_instance.bang = Simulator(
         self.instance_bang_simulator, 'bang')
       error_log = 'Please bang me'
-      response = self.portal_slap.softwareInstanceBang(self.computer_id,
+      response = self.portal_slap.softwareInstanceBang(self.compute_node_id,
         partition_id, error_log)
       self.assertEqual('OK', response)
       created_at = rfc1123_date(DateTime())
       since = created_at
-      response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
+      response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
         partition_id)
       # check returned XML
       xml_fp = StringIO.StringIO()
@@ -1920,16 +1920,16 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       'recmethod': 'rename'}])
 
   def test_softwareInstanceRename(self):
-    self._makeComplexComputer()
+    self._makeComplexComputeNode()
     self.instance_rename_simulator = tempfile.mkstemp()[1]
     try:
       partition_id = self.start_requested_software_instance.getAggregateValue(
-          portal_type='Computer Partition').getReference()
+          portal_type='Compute Partition').getReference()
       self.login(self.start_requested_software_instance.getUserId())
       self.start_requested_software_instance.rename = Simulator(
         self.instance_rename_simulator, 'rename')
       new_name = 'new me'
-      response = self.portal_slap.softwareInstanceRename(new_name, self.computer_id,
+      response = self.portal_slap.softwareInstanceRename(new_name, self.compute_node_id,
         partition_id)
       self.assertEqual('None', response)
       self.assertInstanceRenameSimulator((), {
@@ -1939,12 +1939,12 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       if os.path.exists(self.instance_rename_simulator):
         os.unlink(self.instance_rename_simulator)
       
-  def test_destroyedComputerPartition(self):
-    self._makeComplexComputer()
+  def test_destroyedComputePartition(self):
+    self._makeComplexComputeNode()
     partition_id = self.destroy_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     self.login(self.destroy_requested_software_instance.getUserId())
-    response = self.portal_slap.destroyedComputerPartition(self.computer_id,
+    response = self.portal_slap.destroyedComputerPartition(self.compute_node_id,
       partition_id)
     self.assertEqual('None', response)
     self.assertEqual('invalidated',
@@ -1960,16 +1960,16 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
       'recmethod': 'requestInstance'}])
 
   def test_request_withSlave(self):
-    self._makeComplexComputer()
+    self._makeComplexComputeNode()
     self.instance_request_simulator = tempfile.mkstemp()[1]
     try:
       partition_id = self.start_requested_software_instance.getAggregateValue(
-          portal_type='Computer Partition').getReference()
+          portal_type='Compute Partition').getReference()
       self.login(self.start_requested_software_instance.getUserId())
       self.start_requested_software_instance.requestInstance = Simulator(
         self.instance_request_simulator, 'requestInstance')
       response = self.portal_slap.requestComputerPartition(
-          computer_id=self.computer_id,
+          computer_id=self.compute_node_id,
           computer_partition_id=partition_id,
           software_release='req_release',
           software_type='req_type',
@@ -1995,16 +1995,16 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         os.unlink(self.instance_request_simulator)
 
   def test_request(self):
-    self._makeComplexComputer()
+    self._makeComplexComputeNode()
     self.instance_request_simulator = tempfile.mkstemp()[1]
     try:
       partition_id = self.start_requested_software_instance.getAggregateValue(
-          portal_type='Computer Partition').getReference()
+          portal_type='Compute Partition').getReference()
       self.login(self.start_requested_software_instance.getUserId())
       self.start_requested_software_instance.requestInstance = Simulator(
         self.instance_request_simulator, 'requestInstance')
       response = self.portal_slap.requestComputerPartition(
-          computer_id=self.computer_id,
+          computer_id=self.compute_node_id,
           computer_partition_id=partition_id,
           software_release='req_release',
           software_type='req_type',
@@ -2030,16 +2030,16 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         os.unlink(self.instance_request_simulator)
 
   def test_request_stopped(self):
-    self._makeComplexComputer()
+    self._makeComplexComputeNode()
     self.instance_request_simulator = tempfile.mkstemp()[1]
     try:
       partition_id = self.stop_requested_software_instance.getAggregateValue(
-          portal_type='Computer Partition').getReference()
+          portal_type='Compute Partition').getReference()
       self.login(self.stop_requested_software_instance.getUserId())
       self.stop_requested_software_instance.requestInstance = Simulator(
         self.instance_request_simulator, 'requestInstance')
       response = self.portal_slap.requestComputerPartition(
-          computer_id=self.computer_id,
+          computer_id=self.compute_node_id,
           computer_partition_id=partition_id,
           software_release='req_release',
           software_type='req_type',
@@ -2065,10 +2065,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
         os.unlink(self.instance_request_simulator)
 
   def test_updateInstanceSuccessorList(self):
-    self._makeComplexComputer()
+    self._makeComplexComputeNode()
 
     partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     self.login(self.start_requested_software_instance.getUserId())
 
     # Atach two software instances
@@ -2096,7 +2096,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   <list id="i2"><string>Instance0</string><string>Instance1</string></list>
 </marshal>"""
     self.portal_slap.updateComputerPartitionRelatedInstanceList(
-        computer_id=self.computer_id,
+        computer_id=self.compute_node_id,
         computer_partition_id=partition_id,
         instance_reference_xml=instance_list_xml)
     self.tic()
@@ -2109,7 +2109,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   <list id="i2"><string>Instance1</string></list>
 </marshal>"""
     self.portal_slap.updateComputerPartitionRelatedInstanceList(
-        computer_id=self.computer_id,
+        computer_id=self.compute_node_id,
         computer_partition_id=partition_id,
         instance_reference_xml=instance_list_xml)
     self.tic()
@@ -2117,10 +2117,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
             self.start_requested_software_instance.getSuccessorTitleList())
 
   def test_updateInstanceSuccessorList_one_child(self):
-    self._makeComplexComputer()
+    self._makeComplexComputeNode()
 
     partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     self.login(self.start_requested_software_instance.getUserId())
 
     # Atach one software instance
@@ -2142,7 +2142,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 
     instance_list_xml = '<marshal><list id="i2" /></marshal>'
     self.portal_slap.updateComputerPartitionRelatedInstanceList(
-        computer_id=self.computer_id,
+        computer_id=self.compute_node_id,
         computer_partition_id=partition_id,
         instance_reference_xml=instance_list_xml)
     self.tic()
@@ -2150,10 +2150,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
               self.start_requested_software_instance.getSuccessorTitleList())
 
   def test_updateInstanceSuccessorList_no_child(self):
-    self._makeComplexComputer()
+    self._makeComplexComputeNode()
 
     partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     self.login(self.start_requested_software_instance.getUserId())
 
     self.assertEqual([],
@@ -2161,7 +2161,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 
     instance_list_xml = '<marshal><list id="i2" /></marshal>'
     self.portal_slap.updateComputerPartitionRelatedInstanceList(
-        computer_id=self.computer_id,
+        computer_id=self.compute_node_id,
         computer_partition_id=partition_id,
         instance_reference_xml=instance_list_xml)
     self.tic()
@@ -2174,24 +2174,24 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
 <list id="i2"><string>instance0</string></list>
 </marshal>"""
     self.portal_slap.updateComputerPartitionRelatedInstanceList(
-        computer_id=self.computer_id,
+        computer_id=self.compute_node_id,
         computer_partition_id=partition_id,
         instance_reference_xml=instance_list_xml)
     self.tic()
     self.assertEqual([],
               self.start_requested_software_instance.getSuccessorTitleList())
 
-  def test_stoppedComputerPartition(self):
-    self._makeComplexComputer()
+  def test_stoppedComputePartition(self):
+    self._makeComplexComputeNode()
     partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     self.login(self.start_requested_software_instance.getUserId())
-    response = self.portal_slap.stoppedComputerPartition(self.computer_id,
+    response = self.portal_slap.stoppedComputerPartition(self.compute_node_id,
       partition_id)
     self.assertEqual('None', response)
     created_at = rfc1123_date(DateTime())
     since = created_at
-    response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
+    response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
       partition_id)
     # check returned XML
     xml_fp = StringIO.StringIO()
@@ -2224,17 +2224,17 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     self.assertEqual(expected_xml, got_xml,
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
-  def test_startedComputerPartition(self):
-    self._makeComplexComputer()
+  def test_startedComputePartition(self):
+    self._makeComplexComputeNode()
     partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     self.login(self.start_requested_software_instance.getUserId())
-    response = self.portal_slap.startedComputerPartition(self.computer_id,
+    response = self.portal_slap.startedComputerPartition(self.compute_node_id,
       partition_id)
     self.assertEqual('None', response)
     created_at = rfc1123_date(DateTime())
     since = created_at
-    response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
+    response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
       partition_id)
     # check returned XML
     xml_fp = StringIO.StringIO()
@@ -2470,7 +2470,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     self.login(self.person_user_id)
     created_at = rfc1123_date(DateTime())
     since = created_at
-    response = self.portal_slap.getComputerStatus(self.computer_id)
+    response = self.portal_slap.getComputerStatus(self.compute_node_id)
     self.assertEqual(200, response.status)
     self.assertEqual('public, max-age=60, stale-if-error=604800',
         response.headers.get('cache-control'))
@@ -2498,7 +2498,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     <string>state</string>
     <string/>
     <string>text</string>
-    <string>#error no data found for %(computer_id)s</string>
+    <string>#error no data found for %(compute_node_id)s</string>
     <string>user</string>
     <string>SlapOS Master</string>
   </dictionary>
@@ -2506,18 +2506,18 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
 """ % dict(
   created_at=created_at,
   since=since,
-  computer_id=self.computer_id
+  compute_node_id=self.compute_node_id
 )
     self.assertEqual(expected_xml, got_xml,
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def test_accessed_getComputerStatus(self):
-    self.login(self.computer_user_id)
-    self.portal_slap.getFullComputerInformation(self.computer_id)
+    self.login(self.compute_node_user_id)
+    self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.login(self.person_user_id)
     created_at = rfc1123_date(DateTime())
     since = created_at
-    response = self.portal_slap.getComputerStatus(self.computer_id)
+    response = self.portal_slap.getComputerStatus(self.compute_node_id)
     self.assertEqual(200, response.status)
     self.assertEqual('public, max-age=60, stale-if-error=604800',
         response.headers.get('cache-control'))
@@ -2546,40 +2546,40 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     <string>state</string>
     <string/>
     <string>text</string>
-    <string>#access %(computer_id)s</string>
+    <string>#access %(compute_node_id)s</string>
     <string>user</string>
-    <string>%(computer_id)s</string>
+    <string>%(compute_node_id)s</string>
   </dictionary>
 </marshal>
 """ % dict(
   created_at=created_at,
   since=since,
-  computer_id=self.computer_id
+  compute_node_id=self.compute_node_id
 )
     self.assertEqual(expected_xml, got_xml,
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
-  def assertComputerBangSimulator(self, args, kwargs):
-    stored = eval(open(self.computer_bang_simulator).read()) #pylint: disable=eval-used
+  def assertComputeNodeBangSimulator(self, args, kwargs):
+    stored = eval(open(self.compute_node_bang_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     kwargs['comment'] = kwargs.pop('comment')
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,
-      'recmethod': 'reportComputerBang'}])
+      'recmethod': 'reportComputeNodeBang'}])
 
-  def test_computerBang(self):
+  def test_compute_nodeBang(self):
     self.login(self.person_user_id)
-    self.computer_bang_simulator = tempfile.mkstemp()[1]
+    self.compute_node_bang_simulator = tempfile.mkstemp()[1]
     try:
-      self.computer.reportComputerBang = Simulator(
-        self.computer_bang_simulator, 'reportComputerBang')
+      self.compute_node.reportComputeNodeBang = Simulator(
+        self.compute_node_bang_simulator, 'reportComputeNodeBang')
       error_log = 'Please bang me'
-      response = self.portal_slap.computerBang(self.computer_id,
+      response = self.portal_slap.compute_nodeBang(self.compute_node_id,
         error_log)
       self.assertEqual('None', response)
       created_at = rfc1123_date(DateTime())
       since = created_at
-      response = self.portal_slap.getComputerStatus(self.computer_id)
+      response = self.portal_slap.getComputerStatus(self.compute_node_id)
       # check returned XML
       xml_fp = StringIO.StringIO()
 
@@ -2610,20 +2610,20 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   )
       self.assertEqual(expected_xml, got_xml,
           '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
-      self.assertComputerBangSimulator((), {'comment': error_log})
+      self.assertComputeNodeBangSimulator((), {'comment': error_log})
     finally:
-      if os.path.exists(self.computer_bang_simulator):
-        os.unlink(self.computer_bang_simulator)
+      if os.path.exists(self.compute_node_bang_simulator):
+        os.unlink(self.compute_node_bang_simulator)
 
   def test_getComputerPartitionStatus(self):
-    self._makeComplexComputer()
+    self._makeComplexComputeNode()
     self.login(self.person_user_id)
     partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     created_at = rfc1123_date(DateTime())
     since = created_at
     self.login(self.start_requested_software_instance.getUserId())
-    response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
+    response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
       partition_id)
     self.assertEqual(200, response.status)
     self.assertEqual( 'public, max-age=60, stale-if-error=604800',
@@ -2665,16 +2665,16 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def test_getComputerPartitionStatus_visited(self):
-    self._makeComplexComputer(person=self.person)
+    self._makeComplexComputeNode(person=self.person)
     self.login(self.person_user_id)
     partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     created_at = rfc1123_date(DateTime())
     since = created_at
     self.login(self.start_requested_software_instance.getUserId())
-    self.portal_slap.registerComputerPartition(self.computer_id, partition_id)
+    self.portal_slap.registerComputerPartition(self.compute_node_id, partition_id)
     self.login(self.person_user_id)
-    response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
+    response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
       partition_id)
     self.assertEqual(200, response.status)
     self.assertEqual( 'public, max-age=60, stale-if-error=604800',
@@ -2711,18 +2711,18 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   created_at=created_at,
   since=since,
   instance_guid=self.start_requested_software_instance.getReference(),
-  computer_id=self.computer_id,
+  compute_node_id=self.compute_node_id,
   partition_id=partition_id
 )
     self.assertEqual(expected_xml, got_xml,
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def test_registerComputerPartition_withSlave(self):
-    self._makeComplexComputer(person=self.person, with_slave=True)
+    self._makeComplexComputeNode(person=self.person, with_slave=True)
     partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     self.login(self.person_user_id)
-    response = self.portal_slap.registerComputerPartition(self.computer_id, partition_id)
+    response = self.portal_slap.registerComputerPartition(self.compute_node_id, partition_id)
     self.assertEqual(200, response.status)
     self.assertEqual( 'public, max-age=1, stale-if-error=604800',
         response.headers.get('cache-control'))
@@ -2743,12 +2743,12 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
 <marshal>
   <object id='i2' module='slapos.slap.slap' class='ComputerPartition'>
     <tuple>
-      <string>%(computer_id)s</string>
+      <string>%(compute_node_id)s</string>
       <string>partition1</string>
     </tuple>
     <dictionary id='i3'>
       <string>_computer_id</string>
-      <string>%(computer_id)s</string>
+      <string>%(compute_node_id)s</string>
       <string>_connection_dict</string>
       <dictionary id='i4'/>
       <string>_filter_dict</string>
@@ -2780,7 +2780,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         <string>root_instance_title</string>
         <string>%(root_instance_title)s</string>
         <string>slap_computer_id</string>
-        <string>%(computer_id)s</string>
+        <string>%(compute_node_id)s</string>
         <string>slap_computer_partition_id</string>
         <string>partition1</string>
         <string>slap_software_release_url</string>
@@ -2817,11 +2817,11 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       <object id='i11' module='slapos.slap.slap' class='SoftwareRelease'>
         <tuple>
           <string>%(software_release_url)s</string>
-          <string>%(computer_id)s</string>
+          <string>%(compute_node_id)s</string>
         </tuple>
         <dictionary id='i12'>
           <string>_computer_guid</string>
-          <string>%(computer_id)s</string>
+          <string>%(compute_node_id)s</string>
           <string>_software_instance_list</string>
           <list id='i13'/>
           <string>_software_release</string>
@@ -2834,7 +2834,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   </object>
 </marshal>
 """ % dict(
-  computer_id=self.computer_id,
+  compute_node_id=self.compute_node_id,
   param=self.start_requested_software_instance.getInstanceXmlAsDict()['paramé'],
   sla=self.start_requested_software_instance.getSlaXmlAsDict()['paramé'],
   software_release_url=self.start_requested_software_instance.getUrlString(),
@@ -2852,11 +2852,11 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
 
   def test_registerComputerPartition(self):
-    self._makeComplexComputer(person=self.person)
+    self._makeComplexComputeNode(person=self.person)
     partition_id = self.start_requested_software_instance.getAggregateValue(
-        portal_type='Computer Partition').getReference()
+        portal_type='Compute Partition').getReference()
     self.login(self.person_user_id)
-    response = self.portal_slap.registerComputerPartition(self.computer_id, partition_id)
+    response = self.portal_slap.registerComputerPartition(self.compute_node_id, partition_id)
     self.assertEqual(200, response.status)
     self.assertEqual( 'public, max-age=1, stale-if-error=604800',
         response.headers.get('cache-control'))
@@ -2877,12 +2877,12 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
 <marshal>
   <object id='i2' module='slapos.slap.slap' class='ComputerPartition'>
     <tuple>
-      <string>%(computer_id)s</string>
+      <string>%(compute_node_id)s</string>
       <string>partition1</string>
     </tuple>
     <dictionary id='i3'>
       <string>_computer_id</string>
-      <string>%(computer_id)s</string>
+      <string>%(compute_node_id)s</string>
       <string>_connection_dict</string>
       <dictionary id='i4'/>
       <string>_filter_dict</string>
@@ -2914,7 +2914,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
         <string>root_instance_title</string>
         <string>%(root_instance_title)s</string>
         <string>slap_computer_id</string>
-        <string>%(computer_id)s</string>
+        <string>%(compute_node_id)s</string>
         <string>slap_computer_partition_id</string>
         <string>partition1</string>
         <string>slap_software_release_url</string>
@@ -2936,11 +2936,11 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       <object id='i10' module='slapos.slap.slap' class='SoftwareRelease'>
         <tuple>
           <string>%(software_release_url)s</string>
-          <string>%(computer_id)s</string>
+          <string>%(compute_node_id)s</string>
         </tuple>
         <dictionary id='i11'>
           <string>_computer_guid</string>
-          <string>%(computer_id)s</string>
+          <string>%(compute_node_id)s</string>
           <string>_software_instance_list</string>
           <list id='i12'/>
           <string>_software_release</string>
@@ -2953,7 +2953,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   </object>
 </marshal>
 """ % dict(
-  computer_id=self.computer_id,
+  compute_node_id=self.compute_node_id,
   param=self.start_requested_software_instance.getInstanceXmlAsDict()['paramé'],
   sla=self.start_requested_software_instance.getSlaXmlAsDict()['paramé'],
   software_release_url=self.start_requested_software_instance.getUrlString(),
@@ -2975,21 +2975,21 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       'recmethod': 'bang'}])
 
   def test_softwareInstanceBang(self):
-    self._makeComplexComputer(person=self.person)
+    self._makeComplexComputeNode(person=self.person)
     self.instance_bang_simulator = tempfile.mkstemp()[1]
     try:
       partition_id = self.start_requested_software_instance.getAggregateValue(
-          portal_type='Computer Partition').getReference()
+          portal_type='Compute Partition').getReference()
       self.login(self.person_user_id)
       self.start_requested_software_instance.bang = Simulator(
         self.instance_bang_simulator, 'bang')
       error_log = 'Please bang me'
-      response = self.portal_slap.softwareInstanceBang(self.computer_id,
+      response = self.portal_slap.softwareInstanceBang(self.compute_node_id,
         partition_id, error_log)
       self.assertEqual('OK', response)
       created_at = rfc1123_date(DateTime())
       since = created_at
-      response = self.portal_slap.getComputerPartitionStatus(self.computer_id,
+      response = self.portal_slap.getComputerPartitionStatus(self.compute_node_id,
         partition_id)
       # check returned XML
       xml_fp = StringIO.StringIO()
@@ -3034,16 +3034,16 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       'recmethod': 'rename'}])
 
   def test_softwareInstanceRename(self):
-    self._makeComplexComputer(person=self.person)
+    self._makeComplexComputeNode(person=self.person)
     self.instance_rename_simulator = tempfile.mkstemp()[1]
     try:
       partition_id = self.start_requested_software_instance.getAggregateValue(
-          portal_type='Computer Partition').getReference()
+          portal_type='Compute Partition').getReference()
       self.login(self.person_user_id)
       self.start_requested_software_instance.rename = Simulator(
         self.instance_rename_simulator, 'rename')
       new_name = 'new me'
-      response = self.portal_slap.softwareInstanceRename(new_name, self.computer_id,
+      response = self.portal_slap.softwareInstanceRename(new_name, self.compute_node_id,
         partition_id)
       self.assertEqual('None', response)
       self.assertInstanceRenameSimulator((), {
@@ -3126,7 +3126,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       default_email_coordinate_text="%s@example.org" % self.person.getReference(),
       career_role='member',
     )
-    self._makeComplexComputer(person=self.person)
+    self._makeComplexComputeNode(person=self.person)
     self.start_requested_software_instance.updateLocalRolesOnSecurityGroups()
     self.tic()
     self.login(self.person_user_id)
@@ -3179,7 +3179,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       <string>root_instance_title</string>
       <string>%(root_instance_title)s</string>
       <string>slap_computer_id</string>
-      <string>%(computer_id)s</string>
+      <string>%(compute_node_id)s</string>
       <string>slap_computer_partition_id</string>
       <string>%(partition_id)s</string>
       <string>slap_software_release_url</string>
@@ -3201,7 +3201,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     url_string=self.start_requested_software_instance.getUrlString(),
     type=self.start_requested_software_instance.getSourceReference(),
     timestamp=int(self.start_requested_software_instance.getModificationDate()),
-    computer_id=self.computer_id,
+    compute_node_id=self.compute_node_id,
     partition_id=self.start_requested_software_instance.getAggregateId(),
     ip=self.start_requested_software_instance.getAggregateValue()\
                .getDefaultNetworkAddressIpAddress(),
@@ -3211,7 +3211,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
                                                  got_xml.split('\n'))]))
 
   def assertSupplySimulator(self, args, kwargs):
-    stored = eval(open(self.computer_supply_simulator).read()) #pylint: disable=eval-used
+    stored = eval(open(self.compute_node_supply_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     kwargs['software_release_url'] = kwargs.pop('software_release_url')
     kwargs['state'] = kwargs.pop('state')
@@ -3219,44 +3219,44 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       [{'recargs': args, 'reckwargs': kwargs,
       'recmethod': 'requestSoftwareRelease'}])
 
-  def test_computerSupply(self):
-    self.computer_supply_simulator = tempfile.mkstemp()[1]
+  def test_compute_nodeSupply(self):
+    self.compute_node_supply_simulator = tempfile.mkstemp()[1]
     try:
       self.login(self.person_user_id)
-      self.computer.requestSoftwareRelease = Simulator(
-        self.computer_supply_simulator, 'requestSoftwareRelease')
+      self.compute_node.requestSoftwareRelease = Simulator(
+        self.compute_node_supply_simulator, 'requestSoftwareRelease')
       software_url = 'live_test_url_%s' % self.generateNewId()
       response = self.portal_slap.supplySupply(
           software_url,
-          self.computer_id,
+          self.compute_node_id,
           state='destroyed')
       self.assertEqual('None', response)
       self.assertSupplySimulator((), {
         'software_release_url': software_url,
         'state': 'destroyed'})
     finally:
-      if os.path.exists(self.computer_supply_simulator):
-        os.unlink(self.computer_supply_simulator)
+      if os.path.exists(self.compute_node_supply_simulator):
+        os.unlink(self.compute_node_supply_simulator)
 
-  def assertRequestComputerSimulator(self, args, kwargs):
-    stored = eval(open(self.computer_request_computer_simulator).read()) #pylint: disable=eval-used
+  def assertRequestComputeNodeSimulator(self, args, kwargs):
+    stored = eval(open(self.compute_node_request_compute_node_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
-    kwargs['computer_title'] = kwargs.pop('computer_title')
+    kwargs['compute_node_title'] = kwargs.pop('compute_node_title')
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,
-      'recmethod': 'requestComputer'}])
+      'recmethod': 'requestComputeNode'}])
 
-  def test_requestComputer(self):
-    self.computer_request_computer_simulator = tempfile.mkstemp()[1]
+  def test_requestComputeNode(self):
+    self.compute_node_request_compute_node_simulator = tempfile.mkstemp()[1]
     try:
       self.login(self.person_user_id)
-      self.person.requestComputer = Simulator(
-        self.computer_request_computer_simulator, 'requestComputer')
+      self.person.requestComputeNode = Simulator(
+        self.compute_node_request_compute_node_simulator, 'requestComputeNode')
 
-      computer_id = 'Foo Computer'
-      computer_reference = 'live_comp_%s' % self.generateNewId()
-      self.portal.REQUEST.set('computer_reference', computer_reference)
-      response = self.portal_slap.requestComputer(computer_id)
+      compute_node_id = 'Foo Compute Node'
+      compute_node_reference = 'live_comp_%s' % self.generateNewId()
+      self.portal.REQUEST.set('compute_node_reference', compute_node_reference)
+      response = self.portal_slap.requestComputer(compute_node_id)
 
       # check returned XML
       xml_fp = StringIO.StringIO()
@@ -3270,43 +3270,43 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
 <marshal>
   <object id='i2' module='slapos.slap.slap' class='Computer'>
     <tuple>
-      <string>%(computer_id)s</string>
+      <string>%(compute_node_id)s</string>
     </tuple>
     <dictionary id='i3'>
       <string>_computer_id</string>
-      <string>%(computer_id)s</string>
+      <string>%(compute_node_id)s</string>
     </dictionary>
   </object>
 </marshal>
-""" % {'computer_id': computer_reference}
+""" % {'compute_node_id': compute_node_reference}
 
       self.assertEqual(expected_xml, got_xml,
           '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
-      self.assertRequestComputerSimulator((), {'computer_title': computer_id})
+      self.assertRequestComputeNodeSimulator((), {'compute_node_title': compute_node_id})
     finally:
-      if os.path.exists(self.computer_request_computer_simulator):
-        os.unlink(self.computer_request_computer_simulator)
+      if os.path.exists(self.compute_node_request_compute_node_simulator):
+        os.unlink(self.compute_node_request_compute_node_simulator)
 
-  def assertGenerateComputerCertificateSimulator(self, args, kwargs):
-    stored = eval(open(self.generate_computer_certificate_simulator).read()) #pylint: disable=eval-used
+  def assertGenerateComputeNodeCertificateSimulator(self, args, kwargs):
+    stored = eval(open(self.generate_compute_node_certificate_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,
       'recmethod': 'generateComputerCertificate'}])
 
   def test_generateComputerCertificate(self):
-    self.generate_computer_certificate_simulator = tempfile.mkstemp()[1]
+    self.generate_compute_node_certificate_simulator = tempfile.mkstemp()[1]
     try:
       self.login(self.person_user_id)
-      self.computer.generateCertificate = Simulator(
-        self.generate_computer_certificate_simulator, 
+      self.compute_node.generateCertificate = Simulator(
+        self.generate_compute_node_certificate_simulator, 
         'generateComputerCertificate')
 
-      computer_certificate = 'live_\ncertificate_%s' % self.generateNewId()
-      computer_key = 'live_\nkey_%s' % self.generateNewId()
-      self.portal.REQUEST.set('computer_certificate', computer_certificate)
-      self.portal.REQUEST.set('computer_key', computer_key)
-      response = self.portal_slap.generateComputerCertificate(self.computer_id)
+      compute_node_certificate = 'live_\ncertificate_%s' % self.generateNewId()
+      compute_node_key = 'live_\nkey_%s' % self.generateNewId()
+      self.portal.REQUEST.set('compute_node_certificate', compute_node_certificate)
+      self.portal.REQUEST.set('compute_node_key', compute_node_key)
+      response = self.portal_slap.generateComputerCertificate(self.compute_node_id)
 
       # check returned XML
       xml_fp = StringIO.StringIO()
@@ -3320,41 +3320,41 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
 <marshal>
   <dictionary id='i2'>
     <string>certificate</string>
-    <string>%(computer_certificate)s</string>
+    <string>%(compute_node_certificate)s</string>
     <string>key</string>
-    <string>%(computer_key)s</string>
+    <string>%(compute_node_key)s</string>
   </dictionary>
 </marshal>
-""" % {'computer_key': computer_key, 'computer_certificate': computer_certificate}
+""" % {'compute_node_key': compute_node_key, 'compute_node_certificate': compute_node_certificate}
 
       self.assertEqual(expected_xml, got_xml,
           '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
-      self.assertGenerateComputerCertificateSimulator((), {})
+      self.assertGenerateComputeNodeCertificateSimulator((), {})
     finally:
-      if os.path.exists(self.generate_computer_certificate_simulator):
-        os.unlink(self.generate_computer_certificate_simulator)
+      if os.path.exists(self.generate_compute_node_certificate_simulator):
+        os.unlink(self.generate_compute_node_certificate_simulator)
 
-  def assertRevokeComputerCertificateSimulator(self, args, kwargs):
-    stored = eval(open(self.revoke_computer_certificate_simulator).read()) #pylint: disable=eval-used
+  def assertRevokeComputeNodeCertificateSimulator(self, args, kwargs):
+    stored = eval(open(self.revoke_compute_node_certificate_simulator).read()) #pylint: disable=eval-used
     # do the same translation magic as in workflow
     self.assertEqual(stored,
       [{'recargs': args, 'reckwargs': kwargs,
       'recmethod': 'revokeComputerCertificate'}])
 
   def test_revokeComputerCertificate(self):
-    self.revoke_computer_certificate_simulator = tempfile.mkstemp()[1]
+    self.revoke_compute_node_certificate_simulator = tempfile.mkstemp()[1]
     try:
       self.login(self.person_user_id)
-      self.computer.revokeCertificate = Simulator(
-        self.revoke_computer_certificate_simulator,
+      self.compute_node.revokeCertificate = Simulator(
+        self.revoke_compute_node_certificate_simulator,
         'revokeComputerCertificate')
 
-      response = self.portal_slap.revokeComputerCertificate(self.computer_id)
+      response = self.portal_slap.revokeComputerCertificate(self.compute_node_id)
       self.assertEqual('None', response)
-      self.assertRevokeComputerCertificateSimulator((), {})
+      self.assertRevokeComputeNodeCertificateSimulator((), {})
     finally:
-      if os.path.exists(self.revoke_computer_certificate_simulator):
-        os.unlink(self.revoke_computer_certificate_simulator)
+      if os.path.exists(self.revoke_compute_node_certificate_simulator):
+        os.unlink(self.revoke_compute_node_certificate_simulator)
 
   def test_getHateoasUrl_NotConfigured(self):
     for preference in \

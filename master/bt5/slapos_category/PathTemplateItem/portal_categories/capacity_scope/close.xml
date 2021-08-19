@@ -55,7 +55,7 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Computer is overloaded</string> </value>
+            <value> <string>Compute Node is overloaded</string> </value>
         </item>
         <item>
             <key> <string>effective_date</string> </key>

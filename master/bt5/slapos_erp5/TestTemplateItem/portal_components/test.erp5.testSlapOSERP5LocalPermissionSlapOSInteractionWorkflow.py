@@ -60,60 +60,60 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
         ['G-COMPANY', self.user_id, self.person_user_id, 'R-SHADOW-PERSON'],
         False)
 
-  def test_Computer_setUserId(self):
-    computer = self.portal.computer_module.newContent(portal_type='Computer')
-    self.assertSecurityGroup(computer, ['G-COMPANY', self.user_id, computer.getUserId()], False)
+  def test_ComputeNode_setUserId(self):
+    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node')
+    self.assertSecurityGroup(compute_node, ['G-COMPANY', self.user_id, compute_node.getUserId()], False)
 
-    computer.edit(user_id=None)
+    compute_node.edit(user_id=None)
     self.commit()
 
-    self.assertSecurityGroup(computer, ['G-COMPANY', self.user_id], False)
+    self.assertSecurityGroup(compute_node, ['G-COMPANY', self.user_id], False)
 
-  def test_Computer_setSourceAdministration(self):
+  def test_ComputeNode_setSourceAdministration(self):
     self._makePerson()
-    computer = self.portal.computer_module.newContent(
-        portal_type='Computer')
-    self.assertSecurityGroup(computer, ['G-COMPANY', self.user_id, computer.getUserId()], False)
+    compute_node = self.portal.compute_node_module.newContent(
+        portal_type='Compute Node')
+    self.assertSecurityGroup(compute_node, ['G-COMPANY', self.user_id, compute_node.getUserId()], False)
 
-    computer.edit(source_administration=self.person_user.getRelativeUrl())
+    compute_node.edit(source_administration=self.person_user.getRelativeUrl())
     self.commit()
 
-    self.assertSecurityGroup(computer, ['G-COMPANY', self.user_id,
-        self.person_user_id, computer.getUserId()], False)
+    self.assertSecurityGroup(compute_node, ['G-COMPANY', self.user_id,
+        self.person_user_id, compute_node.getUserId()], False)
 
-  def test_Computer_setAllocationScope(self):
-    computer = self.portal.computer_module.newContent(portal_type='Computer')
-    self.assertSecurityGroup(computer, ['G-COMPANY', self.user_id,
-                                        computer.getUserId()], False)
+  def test_ComputeNode_setAllocationScope(self):
+    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node')
+    self.assertSecurityGroup(compute_node, ['G-COMPANY', self.user_id,
+                                        compute_node.getUserId()], False)
 
-    computer.edit(allocation_scope='open/public')
+    compute_node.edit(allocation_scope='open/public')
     self.commit()
 
-    self.assertSecurityGroup(computer, ['G-COMPANY', self.user_id,
-        'R-SHADOW-PERSON', computer.getUserId()], False)
+    self.assertSecurityGroup(compute_node, ['G-COMPANY', self.user_id,
+        'R-SHADOW-PERSON', compute_node.getUserId()], False)
 
-  def test_Computer_setDestinationSection(self):
+  def test_ComputeNode_setDestinationSection(self):
     self._makePerson()
-    computer = self.portal.computer_module.newContent(
-        portal_type='Computer')
-    self.assertSecurityGroup(computer, ['G-COMPANY', self.user_id,
-                                        computer.getUserId()], False)
+    compute_node = self.portal.compute_node_module.newContent(
+        portal_type='Compute Node')
+    self.assertSecurityGroup(compute_node, ['G-COMPANY', self.user_id,
+                                        compute_node.getUserId()], False)
 
-    computer.edit(source_administration=self.person_user.getRelativeUrl())
+    compute_node.edit(source_administration=self.person_user.getRelativeUrl())
     self.commit()
 
-    self.assertSecurityGroup(computer, ['G-COMPANY', self.user_id,
-        self.person_user_id, computer.getUserId()], False)
+    self.assertSecurityGroup(compute_node, ['G-COMPANY', self.user_id,
+        self.person_user_id, compute_node.getUserId()], False)
 
-  def test_Computer_reindexObject(self):
-    computer = self.portal.computer_module.template_computer\
+  def test_ComputeNode_reindexObject(self):
+    compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
     self.tic()
     comment = 'recursiveReindexObject triggered on reindexObject'
     def verify_recursiveReindexObject_call(self, *args, **kw):
-      if self.getRelativeUrl() == computer.getRelativeUrl():
-        if computer.workflow_history['edit_workflow'][-1]['comment'] != comment:
-          computer.portal_workflow.doActionFor(computer, action='edit_action',
+      if self.getRelativeUrl() == compute_node.getRelativeUrl():
+        if compute_node.workflow_history['edit_workflow'][-1]['comment'] != comment:
+          compute_node.portal_workflow.doActionFor(compute_node, action='edit_action',
           comment=comment)
       else:
         return self.recursiveReindexObject_call(*args, **kw)
@@ -123,12 +123,12 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
     Folder.recursiveReindexObject_call = Folder.recursiveReindexObject
     Folder.recursiveReindexObject = verify_recursiveReindexObject_call
     try:
-      computer.reindexObject()
+      compute_node.reindexObject()
       self.tic()
     finally:
       Folder.recursiveReindexObject = Folder.recursiveReindexObject_call
     self.assertEqual(comment,
-        computer.workflow_history['edit_workflow'][-1]['comment'])
+        compute_node.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_InstanceTree_setReference(self):
     instance_tree = self.portal.instance_tree_module.newContent(
@@ -187,14 +187,14 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
         portal_type='Software Installation')
     self.assertSecurityGroup(installation, [self.user_id, 'G-COMPANY'], False)
 
-    computer = self.portal.computer_module.newContent(portal_type='Computer',
+    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node',
         reference='TESTC-%s' % self.generateNewId())
 
-    installation.edit(aggregate=computer.getRelativeUrl())
+    installation.edit(aggregate=compute_node.getRelativeUrl())
     self.commit()
 
     self.assertSecurityGroup(installation, [self.user_id, 'G-COMPANY',
-        computer.getUserId()], False)
+        compute_node.getUserId()], False)
 
 
   def test_SoftwareInstallation_setDestinationSection(self):
@@ -236,10 +236,10 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
         instance_tree.getReference()],
         False)
 
-    computer = self.portal.computer_module.template_computer\
+    compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
-    computer.edit(reference='TESTC-%s' % self.generateNewId())
-    partition = computer.newContent(portal_type='Computer Partition')
+    compute_node.edit(reference='TESTC-%s' % self.generateNewId())
+    partition = compute_node.newContent(portal_type='Compute Partition')
     self.portal.portal_workflow._jumpToStateFor(partition, 'busy')
     self.assertSecurityGroup(partition, [self.user_id],
         True)
@@ -247,7 +247,7 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
     self.tic()
 
     self.assertSecurityGroup(software_instance, [self.user_id, 'G-COMPANY',
-        computer.getUserId(), instance_tree.getReference()], False)
+        compute_node.getUserId(), instance_tree.getReference()], False)
     self.assertSecurityGroup(partition, [self.user_id,
         instance_tree.getReference()], True)
 
@@ -282,10 +282,10 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
         instance_tree.getReference()],
         False)
 
-    computer = self.portal.computer_module.template_computer\
+    compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
-    computer.edit(reference='TESTC-%s' % self.generateNewId())
-    partition = computer.newContent(portal_type='Computer Partition')
+    compute_node.edit(reference='TESTC-%s' % self.generateNewId())
+    partition = compute_node.newContent(portal_type='Compute Partition')
     software_instance.edit(aggregate=partition.getRelativeUrl())
     self.portal.portal_workflow._jumpToStateFor(partition, 'busy')
     self.tic()
@@ -293,7 +293,7 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
     slave_instance.edit(aggregate=partition.getRelativeUrl())
 
     self.assertSecurityGroup(slave_instance, [self.user_id, 'G-COMPANY',
-        software_instance.getUserId(), computer.getUserId(),
+        software_instance.getUserId(), compute_node.getUserId(),
         instance_tree.getReference()], False)
 
   def test_PaymentTransaction_setDestinationSection(self):
@@ -769,7 +769,7 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
 
     internal_packing_list_line.edit(
         #quantity_unit="unit",
-        resource_value=self.portal.product_module.computer,
+        resource_value=self.portal.product_module.compute_node,
         price=0.0,
         quantity=1.0,
         aggregate_value=instance_tree)
@@ -798,15 +798,15 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
         project.getReference()], False)
 
 
-  def test_InternalPackingListLine_setAggregate_computer(self):
+  def test_InternalPackingListLine_setAggregate_compute_node(self):
     self._makePerson()
     
     project = self.portal.project_module.newContent(
       portal_type="Project",
     )
     
-    computer = self.portal.computer_module.newContent(
-        portal_type='Computer',
+    compute_node = self.portal.compute_node_module.newContent(
+        portal_type='Compute Node',
         reference='TESTCOMP-%s' % self.generateNewId())
     
     internal_packing_list = self.portal.internal_packing_list_module.newContent(
@@ -832,30 +832,30 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
 
     installation = self.portal.software_installation_module.newContent(
         portal_type='Software Installation')
-    installation.edit(aggregate=computer.getRelativeUrl())
+    installation.edit(aggregate=compute_node.getRelativeUrl())
 
     support_request = self.portal.support_request_module.newContent(
         portal_type="Support Request"
     )
-    support_request.edit(aggregate=computer.getRelativeUrl())
+    support_request.edit(aggregate=compute_node.getRelativeUrl())
     upgrade_decision = self.portal.upgrade_decision_module.newContent(
         portal_type="Upgrade Decision"
     )
     upgrade_decision_line = upgrade_decision.newContent(
       portal_type="Upgrade Decision Line"
     )
-    upgrade_decision_line.edit(aggregate=computer.getRelativeUrl())
+    upgrade_decision_line.edit(aggregate=compute_node.getRelativeUrl())
     self.tic()
 
     self.assertSecurityGroup(internal_packing_list, [self.user_id,],
         False)
 
-    self.assertSecurityGroup(computer, [self.user_id, 'G-COMPANY',
-        computer.getUserId()],
+    self.assertSecurityGroup(compute_node, [self.user_id, 'G-COMPANY',
+        compute_node.getUserId()],
         False)
     
     self.assertSecurityGroup(installation, [self.user_id, 'G-COMPANY',
-        computer.getUserId()], False)
+        compute_node.getUserId()], False)
 
     self.assertSecurityGroup(support_request, [self.user_id, 'G-COMPANY'], False)
 
@@ -863,21 +863,21 @@ class TestSlapOSLocalPermissionSlapOSInteractionWorkflow(
 
     internal_packing_list_line.edit(
         #quantity_unit="unit",
-        resource_value=self.portal.product_module.computer,
+        resource_value=self.portal.product_module.compute_node,
         price=0.0,
         quantity=1.0,
-        aggregate_value=computer)
+        aggregate_value=compute_node)
     self.tic()
 
     self.assertSecurityGroup(internal_packing_list, [self.user_id,],
         False)
 
-    self.assertSecurityGroup(computer, [self.user_id, 'G-COMPANY',
-        project.getReference(), computer.getUserId()],
+    self.assertSecurityGroup(compute_node, [self.user_id, 'G-COMPANY',
+        project.getReference(), compute_node.getUserId()],
         False)
 
     self.assertSecurityGroup(installation, [self.user_id, 'G-COMPANY',
-        project.getReference(), computer.getUserId()], False)
+        project.getReference(), compute_node.getUserId()], False)
 
     self.assertSecurityGroup(support_request, [self.user_id, 'G-COMPANY',
         project.getReference()], False)

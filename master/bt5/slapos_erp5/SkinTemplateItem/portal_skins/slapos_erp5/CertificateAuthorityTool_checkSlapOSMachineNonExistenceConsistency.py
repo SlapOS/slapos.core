@@ -7,7 +7,7 @@ if plugin_id not in acl_users.plugins.getAllPlugins(plugin_type='IExtractionPlug
   if fixit:
     tag = 'slapos_login_migration'
     portal.portal_catalog.activate(tag=tag, activity='SQLQueue').searchAndActivate(
-      portal_type=('Computer', 'Software Instance'),
+      portal_type=('Compute Node', 'Software Instance'),
       activate_kw={'tag': tag, 'priority': 6},
       method_id='Instance_migrateToERP5Login',
     )

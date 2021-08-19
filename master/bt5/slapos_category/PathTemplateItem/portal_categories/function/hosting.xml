@@ -83,7 +83,7 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>A division in charge of providing location for hosting SlapOS computers</string> </value>
+            <value> <string>A division in charge of providing location for hosting SlapOS compute_nodes</string> </value>
         </item>
         <item>
             <key> <string>effective_date</string> </key>

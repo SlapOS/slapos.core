@@ -116,7 +116,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: here.getAggregateValue(portal_type=\'Computer\').Computer_getSoftwareReleaseState(context.portal_catalog.getResultValue(url_string={\'query\': here.getUrlString(), \'key\': \'ExactMatch\'}, portal_type=\'Software Release\').getUid())</string> </value>
+            <value> <string>python: here.getAggregateValue(portal_type=\'Compute Node\').ComputeNode_getSoftwareReleaseState(context.portal_catalog.getResultValue(url_string={\'query\': here.getUrlString(), \'key\': \'ExactMatch\'}, portal_type=\'Software Release\').getUid())</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -29,16 +29,16 @@
         .push(function (result) {
           var i, value, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
-            if (1 || (result.data.rows[i].value.hasOwnProperty("Computer_getNewsDict"))) {
-              value = result.data.rows[i].value.Computer_getNewsDict;
-              result.data.rows[i].value.Computer_getNewsDict = {
+            if (1 || (result.data.rows[i].value.hasOwnProperty("ComputeNode_getNewsDict"))) {
+              value = result.data.rows[i].value.ComputeNode_getNewsDict;
+              result.data.rows[i].value.ComputeNode_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
                   description: "The Status",
                   hidden: 0,
                   "default": {jio_key: value, result: value},
                   key: "status",
-                  url: "gadget_slapos_computer_status.html",
+                  url: "gadget_slapos_compute_node_status.html",
                   title: gadget.title_translation,
                   type: "GadgetField"
                 }
@@ -114,7 +114,7 @@
               ['title', result[1][1]],
               ['reference', result[1][2]],
               ['allocation_scope_translated_title', result[1][3]],
-              ['Computer_getNewsDict', result[1][4]]
+              ['ComputeNode_getNewsDict', result[1][4]]
             ];
           return result[0].render({
             erp5_document: {
@@ -184,12 +184,12 @@
                   "default_params": {},
                   "editable": 0,
                   "editable_column_list": [],
-                  "key": "slap_project_computer_listbox",
+                  "key": "slap_project_compute_node_listbox",
                   "lines": 10,
                   "list_method": "portal_catalog",
                   // XXX TODO Filter by   default_strict_allocation_scope_uid="!=%s" % context.getPortalObject().portal_categories.allocation_scope.close.forever.getUid(),
                   "query": "urn:jio:allDocs?query=portal_type%3A%22" +
-                    "Computer" + "%22%20AND%20" +
+                    "Compute Node" + "%22%20AND%20" +
                     "subordination_reference%3A" + gadget.state.doc.reference,
                   "portal_type": [],
                   "search_column_list": column_list,

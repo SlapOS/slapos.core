@@ -9,7 +9,7 @@
                          .innerHTML,
     inline_status_template = Handlebars.compile(inline_status_source);
 
-  function checkComputerStatus(options) {
+  function checkComputeNodeStatus(options) {
     if (!options) {
       return 'ui-btn-no-data';
     }
@@ -30,9 +30,9 @@
     }
   }
 
-  function checkComputerPartitionStatus(options) {
+  function checkComputePartitionStatus(options) {
     var message,
-        computer_partition,
+        compute_partition,
         partition_class = 'ui-btn-ok',
         error_amount = 0,
         total_amount = 0;
@@ -41,8 +41,8 @@
       return 'ui-btn-no-data';
     }
 
-    for (computer_partition in options) {
-      message = options[computer_partition].text;
+    for (compute_partition in options) {
+      message = options[compute_partition].text;
       if (message.startsWith("#error")) {
         partition_class = 'ui-btn-warning';
         error_amount++;
@@ -68,8 +68,8 @@
     var previous_status = "START",
         status = 'ui-btn-no-data',
         i;
-    for (i in options.news.computer) {
-      status = checkComputerStatus(options.news.computer[i]);
+    for (i in options.news.compute_node) {
+      status = checkComputeNodeStatus(options.news.compute_node[i]);
       if (previous_status === "START") {
         previous_status = status;
       }
@@ -89,12 +89,12 @@
   }
 
   function checkNetworkPartitionStatus(options) {
-    var computer_reference,
+    var compute_node_reference,
         status = 'ui-btn-no-data',
         previous_status = "START";
-    for (computer_reference in options.news.partition) {
-      status = checkComputerPartitionStatus(
-        options.news.partition[computer_reference]);
+    for (compute_node_reference in options.news.partition) {
+      status = checkComputePartitionStatus(
+        options.news.partition[compute_node_reference]);
       if (previous_status === "START") {
         previous_status = status;
       }
@@ -119,7 +119,7 @@
 
   function getStatus(gadget, result) {
     var status_class = 'ui-btn-no-data',
-      status_title = 'Computer',
+      status_title = 'Compute Node',
       right_title = 'Partitions',
       right_class = 'ui-btn-no-data';
 

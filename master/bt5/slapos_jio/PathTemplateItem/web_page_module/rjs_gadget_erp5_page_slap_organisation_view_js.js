@@ -154,7 +154,7 @@
                   "default_params": {},
                   "editable": 1,
                   "editable_column_list": [],
-                  "key": "slap_organisation_computer_listbox",
+                  "key": "slap_organisation_compute_node_listbox",
                   "lines": 10,
                   "list_method": "Organisation_getAssociatedPersonList",
                   "list_method_template": result[1] + "ERP5Document_getHateoas?mode=search&" +

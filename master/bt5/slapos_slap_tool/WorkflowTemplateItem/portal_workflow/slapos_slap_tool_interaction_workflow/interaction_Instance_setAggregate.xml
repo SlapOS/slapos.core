@@ -10,7 +10,7 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>before_script/portal_workflow/slapos_slap_tool_interaction_workflow/script_Instance_reindexComputerPartition</string>
+                <string>before_script/portal_workflow/slapos_slap_tool_interaction_workflow/script_Instance_reindexComputePartition</string>
               </tuple>
             </value>
         </item>

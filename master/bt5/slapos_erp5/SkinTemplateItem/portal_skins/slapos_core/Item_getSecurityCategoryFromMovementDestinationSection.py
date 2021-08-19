@@ -30,7 +30,7 @@ category_list = []
 if obj is None:
   return []
 
-# Object on this case can be Instance Tree, Computer, or Computer Network
+# Object on this case can be Instance Tree, Compute Node, or Computer Network
 organisation = obj.Item_getCurrentOwnerValue()
 if organisation is not None and \
   organisation.getPortalType() == "Organisation":

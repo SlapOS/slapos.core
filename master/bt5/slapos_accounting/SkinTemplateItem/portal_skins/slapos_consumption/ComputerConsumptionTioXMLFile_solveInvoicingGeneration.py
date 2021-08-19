@@ -19,33 +19,33 @@ if tioxml_dict is None:
   document.reject(comment="Not usable TioXML data")
 else:
 
-  computer = context.getContributorValue(portal_type="Computer")
-  computer_project_document = computer.Item_getCurrentProjectValue()
+  compute_node = context.getContributorValue(portal_type="Compute Node")
+  compute_node_project_document = compute_node.Item_getCurrentProjectValue()
   delivery_title = tioxml_dict['title']
 
-  computer_project = None
-  if computer_project_document is not None:
-    computer_project = computer_project_document.getRelativeUrl()
+  compute_node_project = None
+  if compute_node_project_document is not None:
+    compute_node_project = compute_node_project_document.getRelativeUrl()
 
   movement_list = []
   for movement in tioxml_dict["movement"]:
     reference = movement['reference']
 
-    # It had been reported for the computer itself so it is pure
+    # It had been reported for the compute_node itself so it is pure
     # informative.
-    if computer.getReference() == reference:
-      aggregate_value_list = [computer]
-      person = computer.getSourceAdministrationValue(portal_type="Person")
-      project = computer_project
+    if compute_node.getReference() == reference:
+      aggregate_value_list = [compute_node]
+      person = compute_node.getSourceAdministrationValue(portal_type="Person")
+      project = compute_node_project
     else:
       project = None # For now, else we should calculate this too.
       if reference.startswith("slapuser"):
         reference = reference.replace("slapuser", "slappart") 
       # Find the partition / software instance / user
       partition = portal.portal_catalog.getResultValue(
-        parent_uid=computer.getUid(),
+        parent_uid=compute_node.getUid(),
         reference=reference,
-        portal_type="Computer Partition",
+        portal_type="Compute Partition",
         validation_state="validated")
 
       if partition.getSlapState() != 'busy':
@@ -85,7 +85,7 @@ else:
         )
 
   # Time to create the PL
-  person = computer.getSourceAdministrationValue(portal_type="Person")
+  person = compute_node.getSourceAdministrationValue(portal_type="Person")
   delivery_template = portal.restrictedTraverse(
       portal.portal_preferences.getPreferredInstanceDeliveryTemplate())
   delivery = delivery_template.Base_createCloneDocument(batch_mode=1)

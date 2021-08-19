@@ -1,5 +1,5 @@
-Computer | monitor_scope
-Computer | upgrade_scope
+Compute Node | monitor_scope
+Compute Node | upgrade_scope
 Incident Response Module | business_application
 Incident Response | aggregate
 Incident Response | specialise

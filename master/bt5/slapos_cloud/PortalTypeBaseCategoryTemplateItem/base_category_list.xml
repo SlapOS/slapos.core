@@ -1,5 +1,5 @@
 <base_category_list>
- <portal_type id="Computer">
+ <portal_type id="Compute Node">
   <item>destination_section</item>
   <item>source_administration</item>
  </portal_type>

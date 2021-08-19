@@ -16,7 +16,7 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Create Upgrade Decision for computers to upgrade Instance Trees to a newer version.</string> </value>
+            <value> <string>Create Upgrade Decision for compute_nodes to upgrade Instance Trees to a newer version.</string> </value>
         </item>
         <item>
             <key> <string>enabled</string> </key>

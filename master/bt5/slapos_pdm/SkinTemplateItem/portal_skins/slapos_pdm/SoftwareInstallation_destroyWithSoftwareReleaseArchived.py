@@ -14,13 +14,13 @@ software_release = software_installation.portal_catalog.getResultValue(
 if software_release is None:
   return
 
-computer = software_installation.getAggregateValue(portal_type='Computer')
-if computer is None:
+compute_node = software_installation.getAggregateValue(portal_type='Compute Node')
+if compute_node is None:
   return
-if computer.Computer_getSoftwareReleaseUsage(url_string) != 0:
+if compute_node.ComputeNode_getSoftwareReleaseUsage(url_string) != 0:
   return
-if computer.getAllocationScope() not in ['open/public', 'open/subscription', 'close/forever']:
-  # handle only some specific computers: public ones and removed
+if compute_node.getAllocationScope() not in ['open/public', 'open/subscription', 'close/forever']:
+  # handle only some specific compute_nodes: public ones and removed
   return
 
 software_installation.requestDestroy(

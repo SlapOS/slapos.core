@@ -23,9 +23,9 @@
         if ((promise_list[0].hasOwnProperty(index)) &&
             (promise_list[0][index].command === "display_with_history_and_cancel") && (promise_list[0][index].options.jio_key) &&
             (promise_list[0][index].options.jio_key.startsWith("software_release_module"))) {
-          if (gadget.computer_jio_key !== undefined) {
+          if (gadget.compute_node_jio_key !== undefined) {
             promise_list[0][index].options.page = "slap_add_software_installation";
-            promise_list[0][index].options.computer_jio_key = gadget.computer_jio_key;
+            promise_list[0][index].options.compute_node_jio_key = gadget.compute_node_jio_key;
           } else {
             promise_list[0][index].options.page = "slap_add_instance_tree";
           }
@@ -55,8 +55,8 @@
           "2/3 Select one Release"
         ];
 
-      if (options.computer_jio_key !== undefined) {
-        gadget.computer_jio_key = options.computer_jio_key;
+      if (options.compute_node_jio_key !== undefined) {
+        gadget.compute_node_jio_key = options.compute_node_jio_key;
       }
       return gadget.jio_get(options.jio_key)
         .push(function (doc) {

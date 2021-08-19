@@ -3,29 +3,29 @@ from AccessControl.SecurityManagement import getSecurityManager, \
     setSecurityManager, newSecurityManager
 
 @UnrestrictedMethod
-def getComputerReferenceAndUserId(item):
+def getComputeNodeReferenceAndUserId(item):
   portal_type = item.getPortalType()
-  computer = None
+  compute_node = None
 
   if portal_type == 'Software Installation':
-    computer = item.getAggregateValue(portal_type='Computer')
-  elif portal_type == 'Computer Partition':
-    computer = item.getParentValue()
+    compute_node = item.getAggregateValue(portal_type='Compute Node')
+  elif portal_type == 'Compute Partition':
+    compute_node = item.getParentValue()
   elif portal_type in ['Software Instance', 'Slave Instance']:
-    partition = item.getAggregateValue(portal_type='Computer Partition')
+    partition = item.getAggregateValue(portal_type='Compute Partition')
     if partition is not None:
-      computer = partition.getParentValue()
+      compute_node = partition.getParentValue()
 
-  if computer is not None and computer.getValidationState() == 'validated':
-    return computer.getReference(), computer.getUserId()
+  if compute_node is not None and compute_node.getValidationState() == 'validated':
+    return compute_node.getReference(), compute_node.getUserId()
   return None, None
 
 
-def Item_activateFillComputerInformationCache(state_change):
+def Item_activateFillComputeNodeInformationCache(state_change):
   item = state_change['object']
   portal = item.getPortalObject()
-  computer_reference, user_id = getComputerReferenceAndUserId(item)
-  if computer_reference is None:
+  compute_node_reference, user_id = getComputeNodeReferenceAndUserId(item)
+  if compute_node_reference is None:
     return None
 
   if user_id is None:
@@ -39,19 +39,19 @@ def Item_activateFillComputerInformationCache(state_change):
   sm = getSecurityManager()
   try:
     newSecurityManager(None, user)
-    portal.portal_slap._activateFillComputerInformationCache(
-        computer_reference, computer_reference)
+    portal.portal_slap._activateFillComputeNodeInformationCache(
+        compute_node_reference, compute_node_reference)
   finally:
     setSecurityManager(sm)
 
 
 @UnrestrictedMethod
 def reindexPartition(item):
-  partition = item.getAggregateValue(portal_type='Computer Partition')
+  partition = item.getAggregateValue(portal_type='Compute Partition')
   if partition is not None:
     partition.reindexObject()
 
 
-def Instance_reindexComputerPartition(state_change):
+def Instance_reindexComputePartition(state_change):
   item = state_change['object']
   reindexPartition(item)

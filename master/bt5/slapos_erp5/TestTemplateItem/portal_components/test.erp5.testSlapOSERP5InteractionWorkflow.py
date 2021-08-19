@@ -20,300 +20,300 @@
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, simulate
 
-class TestSlapOSERP5InteractionWorkflowComputerSetAllocationScope(
+class TestSlapOSERP5InteractionWorkflowComputeNodeSetAllocationScope(
     SlapOSTestCaseMixin):
 
-  def _test_Computer_setAllocationScope_public(self,
+  def _test_ComputeNode_setAllocationScope_public(self,
                                               upgrade_scope=None,
                                               allocation_scope="open/public",
                                               source_administration=None,
                                               expected_upgrade_scope='auto'):
-    computer = self.portal.computer_module.newContent(portal_type='Computer')
+    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node')
 
-    computer.edit(capacity_scope=None,
+    compute_node.edit(capacity_scope=None,
                   monitor_scope=None,
                   upgrade_scope=upgrade_scope,
                   source_administration=source_administration)
     self.commit()
-    computer.edit(allocation_scope=allocation_scope)
+    compute_node.edit(allocation_scope=allocation_scope)
 
     self.commit()
-    self.assertEqual(computer.getCapacityScope(), 'close')
-    self.assertEqual(computer.getMonitorScope(), 'enabled')
-    self.assertEqual(computer.getUpgradeScope(), expected_upgrade_scope)
-    return computer
+    self.assertEqual(compute_node.getCapacityScope(), 'close')
+    self.assertEqual(compute_node.getMonitorScope(), 'enabled')
+    self.assertEqual(compute_node.getUpgradeScope(), expected_upgrade_scope)
+    return compute_node
 
-  def test_Computer_setAllocationScope_public_no_source_adm(self):
-    self._test_Computer_setAllocationScope_public()
+  def test_ComputeNode_setAllocationScope_public_no_source_adm(self):
+    self._test_ComputeNode_setAllocationScope_public()
 
-  def test_Computer_setAllocationScope_subscription_no_source_adm(self):
-    self._test_Computer_setAllocationScope_public(
+  def test_ComputeNode_setAllocationScope_subscription_no_source_adm(self):
+    self._test_ComputeNode_setAllocationScope_public(
       allocation_scope="open/subscription"
     )
 
-  def test_Computer_setAllocationScope_public_ask_confirmation(self):
-    self._test_Computer_setAllocationScope_public(
+  def test_ComputeNode_setAllocationScope_public_ask_confirmation(self):
+    self._test_ComputeNode_setAllocationScope_public(
       upgrade_scope="ask_confirmation")
 
-  def test_Computer_setAllocationScope_subscription_ask_confirmation(self):
-    self._test_Computer_setAllocationScope_public(
+  def test_ComputeNode_setAllocationScope_subscription_ask_confirmation(self):
+    self._test_ComputeNode_setAllocationScope_public(
       allocation_scope="open/subscription",
       upgrade_scope="ask_confirmation"
     )
 
-  def test_Computer_setAllocationScope_public_upgrade_disabled(self):
-    self._test_Computer_setAllocationScope_public(
+  def test_ComputeNode_setAllocationScope_public_upgrade_disabled(self):
+    self._test_ComputeNode_setAllocationScope_public(
       upgrade_scope="disabled",
       expected_upgrade_scope="disabled")
 
-  def test_Computer_setAllocationScope_subscription_upgrade_disabled(self):
-    self._test_Computer_setAllocationScope_public(
+  def test_ComputeNode_setAllocationScope_subscription_upgrade_disabled(self):
+    self._test_ComputeNode_setAllocationScope_public(
       allocation_scope="open/subscription",
       upgrade_scope="disabled",
       expected_upgrade_scope="disabled")
 
-  def test_Computer_setAllocationScope_public_with_source_adm(self):
+  def test_ComputeNode_setAllocationScope_public_with_source_adm(self):
     person = self.makePerson()
     self.assertNotIn(person.getDefaultEmailCoordinateText(), [None, ""])
 
-    computer = self._test_Computer_setAllocationScope_public(
+    compute_node = self._test_ComputeNode_setAllocationScope_public(
       source_administration=person.getRelativeUrl())
 
-    self.assertEqual(computer.getSubjectList(), [''])
-    self.assertEqual(computer.getDestinationSection(), None)
+    self.assertEqual(compute_node.getSubjectList(), [''])
+    self.assertEqual(compute_node.getDestinationSection(), None)
 
-  def test_Computer_setAllocationScope_subscription_with_source_adm(self):
+  def test_ComputeNode_setAllocationScope_subscription_with_source_adm(self):
     person = self.makePerson()
     self.assertNotIn(person.getDefaultEmailCoordinateText(), [None, ""])
 
-    computer = self._test_Computer_setAllocationScope_public(
+    compute_node = self._test_ComputeNode_setAllocationScope_public(
       source_administration=person.getRelativeUrl(),
       allocation_scope="open/subscription")
 
-    self.assertEqual(computer.getSubjectList(), [''])
-    self.assertEqual(computer.getDestinationSection(), None)
+    self.assertEqual(compute_node.getSubjectList(), [''])
+    self.assertEqual(compute_node.getDestinationSection(), None)
 
 
-  def _test_Computer_setAllocationScope_personal(self,
+  def _test_ComputeNode_setAllocationScope_personal(self,
                                               upgrade_scope=None,
                                               source_administration=None,
                                               subject_list=None):
-    computer = self.portal.computer_module.newContent(portal_type='Computer',
+    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node',
                   capacity_scope=None,
                   monitor_scope=None,
                   upgrade_scope=upgrade_scope,
                   source_administration=source_administration)
     if subject_list:
-      computer.setSubjectList(subject_list)
+      compute_node.setSubjectList(subject_list)
     self.commit()
-    computer.edit(allocation_scope='open/personal')
+    compute_node.edit(allocation_scope='open/personal')
 
     self.commit()
-    self.assertEqual(computer.getCapacityScope(), 'open')
-    self.assertEqual(computer.getMonitorScope(), 'disabled')
-    return computer
+    self.assertEqual(compute_node.getCapacityScope(), 'open')
+    self.assertEqual(compute_node.getMonitorScope(), 'disabled')
+    return compute_node
 
-  def test_Computer_setAllocationScope_personal(self):
-    computer = self._test_Computer_setAllocationScope_personal()
-    self.assertEqual(computer.getUpgradeScope(), 'ask_confirmation')
-    self.assertEqual(computer.getSubjectList(), [])
-    self.assertEqual(computer.getDestinationSection(), None)
+  def test_ComputeNode_setAllocationScope_personal(self):
+    compute_node = self._test_ComputeNode_setAllocationScope_personal()
+    self.assertEqual(compute_node.getUpgradeScope(), 'ask_confirmation')
+    self.assertEqual(compute_node.getSubjectList(), [])
+    self.assertEqual(compute_node.getDestinationSection(), None)
 
-  def test_Computer_setAllocationScope_personal_upgrade_disabled(self):
-    computer = self._test_Computer_setAllocationScope_personal(
+  def test_ComputeNode_setAllocationScope_personal_upgrade_disabled(self):
+    compute_node = self._test_ComputeNode_setAllocationScope_personal(
       upgrade_scope="disabled")
-    self.assertEqual(computer.getUpgradeScope(), 'disabled')
-    self.assertEqual(computer.getSubjectList(), [])
-    self.assertEqual(computer.getDestinationSection(), None)
+    self.assertEqual(compute_node.getUpgradeScope(), 'disabled')
+    self.assertEqual(compute_node.getSubjectList(), [])
+    self.assertEqual(compute_node.getDestinationSection(), None)
 
-  def test_Computer_setAllocationScope_personal_upgrade_auto(self):
-    computer = self._test_Computer_setAllocationScope_personal(
+  def test_ComputeNode_setAllocationScope_personal_upgrade_auto(self):
+    compute_node = self._test_ComputeNode_setAllocationScope_personal(
       upgrade_scope="auto")
-    self.assertEqual(computer.getUpgradeScope(), 'auto')
-    self.assertEqual(computer.getSubjectList(), [])
-    self.assertEqual(computer.getDestinationSection(), None)
+    self.assertEqual(compute_node.getUpgradeScope(), 'auto')
+    self.assertEqual(compute_node.getSubjectList(), [])
+    self.assertEqual(compute_node.getDestinationSection(), None)
 
-  def test_Computer_setAllocationScope_personal_with_source_adm(self):
+  def test_ComputeNode_setAllocationScope_personal_with_source_adm(self):
     person = self.makePerson()
     self.tic()
 
     self.assertNotIn(person.getDefaultEmailCoordinateText(), [None, ""])
-    computer = self._test_Computer_setAllocationScope_personal(
+    compute_node = self._test_ComputeNode_setAllocationScope_personal(
       source_administration=person.getRelativeUrl(),
     )
-    self.assertEqual(computer.getUpgradeScope(), 'ask_confirmation')
-    self.assertEqual(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
-    self.assertEqual(computer.getDestinationSectionList(),
+    self.assertEqual(compute_node.getUpgradeScope(), 'ask_confirmation')
+    self.assertEqual(compute_node.getSubjectList(), [person.getDefaultEmailCoordinateText()])
+    self.assertEqual(compute_node.getDestinationSectionList(),
      [person.getRelativeUrl()])
 
-  def test_Computer_setAllocationScope_personal_with_subject_list(self):
+  def test_ComputeNode_setAllocationScope_personal_with_subject_list(self):
     person = self.makePerson()
     self.tic()
 
     self.assertNotIn(person.getDefaultEmailCoordinateText(), [None, ""])
-    computer = self._test_Computer_setAllocationScope_personal(
+    compute_node = self._test_ComputeNode_setAllocationScope_personal(
       source_administration=person.getRelativeUrl(),
       subject_list=["some@example.com"]
     )
-    self.assertEqual(computer.getUpgradeScope(), 'ask_confirmation')
-    self.assertEqual(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
-    self.assertEqual(computer.getDestinationSectionList(),
+    self.assertEqual(compute_node.getUpgradeScope(), 'ask_confirmation')
+    self.assertEqual(compute_node.getSubjectList(), [person.getDefaultEmailCoordinateText()])
+    self.assertEqual(compute_node.getDestinationSectionList(),
      [person.getRelativeUrl()])
 
-  def _test_Computer_setAllocationScope_friend(self,
+  def _test_ComputeNode_setAllocationScope_friend(self,
                                               upgrade_scope=None,
                                               source_administration=None,
                                               subject_list=None,
                                               expected_upgrade_scope='auto'):
-    computer = self.portal.computer_module.newContent(portal_type='Computer')
+    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node')
 
-    computer.edit(capacity_scope=None,
+    compute_node.edit(capacity_scope=None,
                   monitor_scope=None,
                   upgrade_scope=upgrade_scope,
                   source_administration=source_administration)
 
     if subject_list:
-      computer.setSubjectList(subject_list)
+      compute_node.setSubjectList(subject_list)
 
     self.commit()
-    computer.edit(allocation_scope='open/friend')
+    compute_node.edit(allocation_scope='open/friend')
 
     self.commit()
-    self.assertEqual(computer.getCapacityScope(), 'open')
-    self.assertEqual(computer.getMonitorScope(), 'enabled')
-    self.assertEqual(computer.getUpgradeScope(), expected_upgrade_scope)
-    return computer
+    self.assertEqual(compute_node.getCapacityScope(), 'open')
+    self.assertEqual(compute_node.getMonitorScope(), 'enabled')
+    self.assertEqual(compute_node.getUpgradeScope(), expected_upgrade_scope)
+    return compute_node
 
-  def test_Computer_setAllocationScope_friend_no_source_adm(self):
-    self._test_Computer_setAllocationScope_friend()
+  def test_ComputeNode_setAllocationScope_friend_no_source_adm(self):
+    self._test_ComputeNode_setAllocationScope_friend()
 
-  def test_Computer_setAllocationScope_friend_ask_confirmation(self):
-    self._test_Computer_setAllocationScope_friend(
+  def test_ComputeNode_setAllocationScope_friend_ask_confirmation(self):
+    self._test_ComputeNode_setAllocationScope_friend(
       upgrade_scope="ask_confirmation")
 
-  def test_Computer_setAllocationScope_friend_upgrade_disabled(self):
-    self._test_Computer_setAllocationScope_friend(
+  def test_ComputeNode_setAllocationScope_friend_upgrade_disabled(self):
+    self._test_ComputeNode_setAllocationScope_friend(
       upgrade_scope="disabled",
       expected_upgrade_scope="disabled")
 
-  def test_Computer_setAllocationScope_friend_with_source_adm(self):
+  def test_ComputeNode_setAllocationScope_friend_with_source_adm(self):
     person = self.makePerson()
     self.tic()
     self.assertNotIn(person.getDefaultEmailCoordinateText(), [None, ""])
 
-    computer = self._test_Computer_setAllocationScope_friend(
+    compute_node = self._test_ComputeNode_setAllocationScope_friend(
       source_administration=person.getRelativeUrl())
 
-    self.assertEqual(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
-    self.assertEqual(computer.getDestinationSectionList(),
+    self.assertEqual(compute_node.getSubjectList(), [person.getDefaultEmailCoordinateText()])
+    self.assertEqual(compute_node.getDestinationSectionList(),
      [person.getRelativeUrl()])
 
-  def test_Computer_setAllocationScope_friend_with_subject_list(self):
+  def test_ComputeNode_setAllocationScope_friend_with_subject_list(self):
     person = self.makePerson()
     self.tic()
     self.assertNotIn(person.getDefaultEmailCoordinateText(), [None, ""])
 
-    computer = self._test_Computer_setAllocationScope_friend(
+    compute_node = self._test_ComputeNode_setAllocationScope_friend(
       source_administration=person.getRelativeUrl(),
       subject_list=["some@example.com"]
     )
 
-    self.assertSameSet(computer.getSubjectList(),
+    self.assertSameSet(compute_node.getSubjectList(),
                       ['some@example.com', person.getDefaultEmailCoordinateText()])
 
-    self.assertEqual(computer.getDestinationSectionList(),
+    self.assertEqual(compute_node.getDestinationSectionList(),
      [person.getRelativeUrl()])
 
 
-  def _test_Computer_setAllocationScope_closed(self,
+  def _test_ComputeNode_setAllocationScope_closed(self,
                                               upgrade_scope=None,
                                               source_administration=None,
                                               allocation_scope="close/forever",
                                               subject_list=None):
-    computer = self.portal.computer_module.newContent(portal_type='Computer',
+    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node',
                   capacity_scope=None,
                   monitor_scope=None,
                   upgrade_scope=upgrade_scope,
                   source_administration=source_administration)
     if subject_list:
-      computer.setSubjectList(subject_list)
+      compute_node.setSubjectList(subject_list)
     self.commit()
-    computer.edit(allocation_scope=allocation_scope)
+    compute_node.edit(allocation_scope=allocation_scope)
 
     self.commit()
-    self.assertEqual(computer.getCapacityScope(), 'close')
-    self.assertEqual(computer.getMonitorScope(), 'disabled')
-    self.assertEqual(computer.getUpgradeScope(), upgrade_scope)
-    return computer
+    self.assertEqual(compute_node.getCapacityScope(), 'close')
+    self.assertEqual(compute_node.getMonitorScope(), 'disabled')
+    self.assertEqual(compute_node.getUpgradeScope(), upgrade_scope)
+    return compute_node
 
 
-  def test_Computer_setAllocationScope_closed_forever_no_source_adm(self):
-    self._test_Computer_setAllocationScope_closed()
+  def test_ComputeNode_setAllocationScope_closed_forever_no_source_adm(self):
+    self._test_ComputeNode_setAllocationScope_closed()
 
-  def test_Computer_setAllocationScope_closed_forever_with_source_adm(self):
+  def test_ComputeNode_setAllocationScope_closed_forever_with_source_adm(self):
     person = self.makePerson()
     self.tic()
     self.assertNotIn(person.getDefaultEmailCoordinateText(), [None, ""])
 
-    computer = self._test_Computer_setAllocationScope_closed(
+    compute_node = self._test_ComputeNode_setAllocationScope_closed(
       source_administration=person.getRelativeUrl())
 
-    self.assertEqual(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
-    self.assertEqual(computer.getDestinationSectionList(),
+    self.assertEqual(compute_node.getSubjectList(), [person.getDefaultEmailCoordinateText()])
+    self.assertEqual(compute_node.getDestinationSectionList(),
      [person.getRelativeUrl()])
 
-  def test_Computer_setAllocationScope_closed_termination_no_source_adm(self):
-    self._test_Computer_setAllocationScope_closed(
+  def test_ComputeNode_setAllocationScope_closed_termination_no_source_adm(self):
+    self._test_ComputeNode_setAllocationScope_closed(
       allocation_scope="close/termination",
     )
 
-  def test_Computer_setAllocationScope_closed_termination_with_source_adm(self):
+  def test_ComputeNode_setAllocationScope_closed_termination_with_source_adm(self):
     person = self.makePerson()
     self.tic()
     self.assertNotIn(person.getDefaultEmailCoordinateText(), [None, ""])
 
-    computer = self._test_Computer_setAllocationScope_closed(
+    compute_node = self._test_ComputeNode_setAllocationScope_closed(
       allocation_scope="close/termination",
       source_administration=person.getRelativeUrl())
 
-    self.assertEqual(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
-    self.assertEqual(computer.getDestinationSectionList(),
+    self.assertEqual(compute_node.getSubjectList(), [person.getDefaultEmailCoordinateText()])
+    self.assertEqual(compute_node.getDestinationSectionList(),
      [person.getRelativeUrl()])
 
-  def test_Computer_setAllocationScope_closed_outdated_no_source_adm(self):
-    self._test_Computer_setAllocationScope_closed(
+  def test_ComputeNode_setAllocationScope_closed_outdated_no_source_adm(self):
+    self._test_ComputeNode_setAllocationScope_closed(
       allocation_scope="close/outdated",
     )
 
-  def test_Computer_setAllocationScope_closed_outdated_with_source_adm(self):
+  def test_ComputeNode_setAllocationScope_closed_outdated_with_source_adm(self):
     person = self.makePerson()
     self.tic()
     self.assertNotIn(person.getDefaultEmailCoordinateText(), [None, ""])
 
-    computer = self._test_Computer_setAllocationScope_closed(
+    compute_node = self._test_ComputeNode_setAllocationScope_closed(
       allocation_scope="close/outdated",
       source_administration=person.getRelativeUrl())
 
-    self.assertEqual(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
-    self.assertEqual(computer.getDestinationSectionList(),
+    self.assertEqual(compute_node.getSubjectList(), [person.getDefaultEmailCoordinateText()])
+    self.assertEqual(compute_node.getDestinationSectionList(),
      [person.getRelativeUrl()])
 
-  def test_Computer_setAllocationScope_closed_maintenance_no_source_adm(self):
-    self._test_Computer_setAllocationScope_closed(
+  def test_ComputeNode_setAllocationScope_closed_maintenance_no_source_adm(self):
+    self._test_ComputeNode_setAllocationScope_closed(
       allocation_scope="close/maintenance",
     )
 
-  def test_Computer_setAllocationScope_closed_maintenance_with_source_adm(self):
+  def test_ComputeNode_setAllocationScope_closed_maintenance_with_source_adm(self):
     person = self.makePerson()
     self.tic()
     self.assertNotIn(person.getDefaultEmailCoordinateText(), [None, ""])
 
-    computer = self._test_Computer_setAllocationScope_closed(
+    compute_node = self._test_ComputeNode_setAllocationScope_closed(
       allocation_scope="close/maintenance",
       source_administration=person.getRelativeUrl())
 
-    self.assertEqual(computer.getSubjectList(), [person.getDefaultEmailCoordinateText()])
-    self.assertEqual(computer.getDestinationSectionList(),
+    self.assertEqual(compute_node.getSubjectList(), [person.getDefaultEmailCoordinateText()])
+    self.assertEqual(compute_node.getDestinationSectionList(),
      [person.getRelativeUrl()])
 
 

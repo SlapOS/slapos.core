@@ -8,11 +8,11 @@ def getOpenAllocationScopeUidList(exclude_uid_list):
            if scope.getUid() not in exclude_uid_list]
 
 
-computer_partition = None
+compute_partition = None
 filter_kw_copy = filter_kw.copy()
 query_kw = {
   'software_release_url': software_release_url,
-  'portal_type': 'Computer Partition',
+  'portal_type': 'Compute Partition',
 }
 if software_instance_portal_type == "Slave Instance":
   query_kw['free_for_request'] = 0
@@ -41,12 +41,12 @@ if 'project_guid' in filter_kw:
   project_reference = filter_kw.pop("project_guid")
 
   if 'parent_reference' not in query_kw:
-    # Get Computer list from Tracking API
+    # Get Compute Node list from Tracking API
     from DateTime import DateTime
     project = context.portal_catalog.getResultValue(portal_type="Project", reference=project_reference)
 
     if project is not None:
-      query_kw["parent_reference"] = SimpleQuery(parent_reference=project.Project_getComputerReferenceList())
+      query_kw["parent_reference"] = SimpleQuery(parent_reference=project.Project_getComputeNodeReferenceList())
 
 if computer_network_query:
   if query_kw.get("default_subordination_reference"):
@@ -65,7 +65,7 @@ for item in extra_item_list:
   if item in filter_kw:
     filter_kw.pop(item)
 
-computer_base_category_list = [
+compute_node_base_category_list = [
   'group',
   'cpu_core',
   'cpu_frequency',
@@ -78,7 +78,7 @@ computer_base_category_list = [
   'storage_interface',
   'storage_redundancy',
 ]
-for base_category in computer_base_category_list:
+for base_category in compute_node_base_category_list:
   if base_category in filter_kw:
     category_relative_url = "%s" % filter_kw.pop(base_category)
     # XXX Small protection to prevent entering strange strings
@@ -103,7 +103,7 @@ else:
     exclude_uid_list=[portal.portal_categories.allocation_scope.open.subscription.getUid()])
 
 
-extra_query_kw = context.ComputerPartition_getCustomAllocationParameterDict(
+extra_query_kw = context.ComputePartition_getCustomAllocationParameterDict(
       software_release_url, software_type, software_instance_portal_type,
       filter_kw_copy, computer_network_query, test_mode)
 
@@ -119,7 +119,7 @@ if test_mode:
 
 SQL_WINDOW_SIZE = 50
 
-# fetch at mot 50 random Computer Partitions, and check if they are ok
+# fetch at mot 50 random Compute Partitions, and check if they are ok
 isTransitionPossible = person.getPortalObject().portal_workflow.isTransitionPossible
 result_count = person.portal_catalog.countResults(**query_kw)[0][0]
 offset = max(0, result_count-1)
@@ -129,28 +129,28 @@ else:
   limit = (0, SQL_WINDOW_SIZE)
 
 
-for computer_partition_candidate in context.portal_catalog(
+for compute_partition_candidate in context.portal_catalog(
                                          limit=limit, **query_kw):
-  computer_partition_candidate = computer_partition_candidate.getObject()
-  if computer_partition_candidate.getParentValue().getCapacityScope() == "close":
-    # The computer was closed on this partition, so skip it.
+  compute_partition_candidate = compute_partition_candidate.getObject()
+  if compute_partition_candidate.getParentValue().getCapacityScope() == "close":
+    # The compute_node was closed on this partition, so skip it.
     continue
 
   if software_instance_portal_type == "Software Instance":
-    # Check if the computer partition can be marked as busy
-    if isTransitionPossible(computer_partition_candidate, 'mark_busy'):
-      computer_partition = computer_partition_candidate
-      computer_partition.markBusy()
+    # Check if the compute partition can be marked as busy
+    if isTransitionPossible(compute_partition_candidate, 'mark_busy'):
+      compute_partition = compute_partition_candidate
+      compute_partition.markBusy()
       break
-  elif computer_partition_candidate.getSlapState() == "busy":
+  elif compute_partition_candidate.getSlapState() == "busy":
     # Only assign slave instance on busy partition
-    computer_partition = computer_partition_candidate
+    compute_partition = compute_partition_candidate
     break
 
-if computer_partition is None:
-  raise ValueError('It was not possible to find free Computer Partition')
+if compute_partition is None:
+  raise ValueError('It was not possible to find free Compute Partition')
 
-# lock computer partition
-computer_partition.serialize()
+# lock compute partition
+compute_partition.serialize()
 
-return computer_partition.getRelativeUrl()
+return compute_partition.getRelativeUrl()

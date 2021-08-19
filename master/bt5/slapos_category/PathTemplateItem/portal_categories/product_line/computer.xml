@@ -87,11 +87,11 @@
         </item>
         <item>
             <key> <string>short_title</string> </key>
-            <value> <string>Computer</string> </value>
+            <value> <string>Compute Node</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Computer Hardware</string> </value>
+            <value> <string>Compute Node Hardware</string> </value>
         </item>
       </dictionary>
     </pickle>

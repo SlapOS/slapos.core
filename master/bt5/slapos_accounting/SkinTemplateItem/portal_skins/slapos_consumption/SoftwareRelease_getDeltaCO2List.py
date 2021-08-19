@@ -9,22 +9,22 @@ else:
 
 partition_delta_co2_dict = {} 
 
-for computer_partition in computer_partition_list:
-  computer = computer_partition.getParentValue()
-  computer_zero_emission_ratio = computer.Computer_getZeroEmissionRatio()
-  computer_cpu_load_percentage = computer.Computer_getLatestCPUPercentLoad()
-  computer_watt = computer.Computer_getWattConsumption(computer_cpu_load_percentage)
+for compute_partition in compute_partition_list:
+  compute_node = compute_partition.getParentValue()
+  compute_node_zero_emission_ratio = compute_node.ComputeNode_getZeroEmissionRatio()
+  compute_node_cpu_load_percentage = compute_node.ComputeNode_getLatestCPUPercentLoad()
+  compute_node_watt = compute_node.ComputeNode_getWattConsumption(compute_node_cpu_load_percentage)
 
-  partition_watt = computer.Computer_getWattConsumption(
-                computer_cpu_load_percentage + partition_average_cpu_load)
+  partition_watt = compute_node.ComputeNode_getWattConsumption(
+                compute_node_cpu_load_percentage + partition_average_cpu_load)
 
-  delta_watt = (partition_watt-computer_watt)
+  delta_watt = (partition_watt-compute_node_watt)
 
-  delta_co2 = delta_watt - delta_watt*(computer_zero_emission_ratio/100)
+  delta_co2 = delta_watt - delta_watt*(compute_node_zero_emission_ratio/100)
 
   if delta_co2 in partition_delta_co2_dict:
-    partition_delta_co2_dict[delta_co2].append(computer_partition)
+    partition_delta_co2_dict[delta_co2].append(compute_partition)
   else:
-    partition_delta_co2_dict[delta_co2] = [computer_partition]
+    partition_delta_co2_dict[delta_co2] = [compute_partition]
 
 return partition_delta_co2_dict

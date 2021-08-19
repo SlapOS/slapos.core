@@ -1,6 +1,6 @@
 network_list = []
-for computer in context.SoftwareRelease_getUsableComputerList():
-  network = computer.getSubordinationValue()
+for compute_node in context.SoftwareRelease_getUsableComputeNodeList():
+  network = compute_node.getSubordinationValue()
   if network and not network in network_list:
     network_list.append(network)
 

@@ -41,7 +41,7 @@ elif context.getPortalType() == 'Person':
   else:
     return []
 elif context.getPortalType() in ['Software Instance', 'Instance Tree',
-                                  'Computer']:
+                                  'Compute Node']:
   query_kw['aggregate_uid'] = context.getUid()
 else:
   return []
@@ -69,17 +69,17 @@ def setDetailLine(packing_list_line):
                                             portal_type='Instance Tree')
   software_instance = packing_list_line.getAggregateValue(
                                             portal_type='Software Instance')
-  computer_partition = packing_list_line.getAggregateValue(
-                                            portal_type='Computer Partition')
+  compute_partition = packing_list_line.getAggregateValue(
+                                            portal_type='Compute Partition')
   if software_instance is None:
     # In case we found SPL line not aggregated to instance and hosting
     return
   instance_tree_reference = hosting_s.getReference()
   instance_reference = software_instance.getReference()
-  computer_title = ""
-  if computer_partition is not None:
-    computer = computer_partition.getParent()
-    computer_title = computer.getTitle() if computer.getCpuCore() is None else '%s (%s CPU Cores)' % (computer.getTitle(), computer.getCpuCore())
+  compute_node_title = ""
+  if compute_partition is not None:
+    compute_node = compute_partition.getParent()
+    compute_node_title = compute_node.getTitle() if compute_node.getCpuCore() is None else '%s (%s CPU Cores)' % (compute_node.getTitle(), compute_node.getCpuCore())
   #default_line = {'date': {'hosting_ref': ['hs_title', {'instance_ref': ['inst_title', ['res1', 'res2', 'resN'] ] } ] } }
   if not start_date in consumption_dict:
     # Add new date line
@@ -89,7 +89,7 @@ def setDetailLine(packing_list_line):
                                           [software_instance.getTitle(), 
                                             [0.0, 0.0, 0.0],
                                             software_instance.getRelativeUrl(),
-                                            computer_title
+                                            compute_node_title
                                           ]
                                         },
                                         hosting_s.getRelativeUrl()
@@ -102,7 +102,7 @@ def setDetailLine(packing_list_line):
                                                           [software_instance.getTitle(), 
                                                             [0.0, 0.0, 0.0],
                                                             software_instance.getRelativeUrl(),
-                                                            computer_title
+                                                            compute_node_title
                                                           ]
                                                         },
                                                         hosting_s.getRelativeUrl()
@@ -111,7 +111,7 @@ def setDetailLine(packing_list_line):
   if not instance_reference in consumption_dict[start_date][instance_tree_reference][1]:
     consumption_dict[start_date][instance_tree_reference][1][instance_reference] = [
         software_instance.getTitle(),  [0.0, 0.0, 0.0], software_instance.getRelativeUrl(),
-        computer_title
+        compute_node_title
       ]
   if packing_list_line.getResourceUid() == cpu_resource_uid:
     quantity = round(float(packing_list_line.getQuantity()), 3)
@@ -134,7 +134,7 @@ for date in sorted(consumption_dict, reverse=True):
   for hosting_key in sorted(consumption_dict[date]):
     instance_tree_title, instance_dict, hs_url = consumption_dict[date][hosting_key]
     for instance_value_list in instance_dict.values():
-      instance_title, values, instance_url, computer_title = instance_value_list
+      instance_title, values, instance_url, compute_node_title = instance_value_list
       line = newTempBase(portal, instance_url, uid="%s_%s" % (context.getUid(), i))
       line.edit(
         title=instance_tree_title,
@@ -143,7 +143,7 @@ for date in sorted(consumption_dict, reverse=True):
         cpu_load=values[0],
         memory_used=values[1],
         disk_used=values[2],
-        computer_title=computer_title,
+        compute_node_title=compute_node_title,
         hosting_url=hs_url,
         instance_url=instance_url
       )

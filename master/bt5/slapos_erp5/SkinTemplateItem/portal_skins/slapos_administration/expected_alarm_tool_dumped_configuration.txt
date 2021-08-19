@@ -26,12 +26,12 @@ portal_alarms/slapos_check_security_uid;0;None;Alarm_checkUnindexedSecurityUid;N
 portal_alarms/slapos_cloud_invalidate_destroyed_instance;1;None;Alarm_invalidateDestroyedInstance;None;None;None;();1;();None;();();None;2010/10/26 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_contract_request_validation_payment;1;None;Alarm_requestValidationPayment;None;None;None;();None;();1;();();None;2010/10/26 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_crm_cancel_invoice;1;None;Alarm_cancelInvoiceRelatedToSuspendedRegularisationRequest;None;None;None;();1;();None;();();None;2010/10/26 00:00:00 GMT;None;();None;None
-portal_alarms/slapos_crm_check_computer_state;0;None;Alarm_checkComputerState;None;None;None;();None;();30;();();None;2010/10/26 00:00:00 GMT;None;();None;None
+portal_alarms/slapos_crm_check_compute_node_state;0;None;Alarm_checkComputeNodeState;None;None;None;();None;();30;();();None;2010/10/26 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_crm_check_instance_in_error;0;None;Alarm_checkInstanceTreeState;None;None;None;(0,);None;(0,);30;();();None;2014/07/23 00:00:00 GMT;None;();None;None
-portal_alarms/slapos_crm_check_instance_on_closed_computer;0;None;Alarm_searchInstanceOnClosedComputer;None;None;None;(1,);None;(0,);None;();();None;None;None;();('Monday',);None
+portal_alarms/slapos_crm_check_instance_on_closed_compute_node;0;None;Alarm_searchInstanceOnClosedComputeNode;None;None;None;(1,);None;(0,);None;();();None;None;None;();('Monday',);None
 portal_alarms/slapos_crm_check_software_installation_state;0;None;Alarm_checkSoftwareInstallationState;None;None;None;();None;();30;();();None;2010/10/26 00:00:00 GMT;None;();None;None
-portal_alarms/slapos_crm_check_update_allocation_scope;0;None;Alarm_checkAndUpdateComputerAllocationScope;None;None;None;();None;(5,);1;();();None;2014/05/07 00:00:00 GMT;None;();None;None
-portal_alarms/slapos_crm_check_update_personal_allocation_scope;1;None;Alarm_checkAndUpdatePersonalComputerAllocationScope;None;None;None;();None;(5,);1;();();None;2014/05/07 00:00:00 GMT;None;();None;None
+portal_alarms/slapos_crm_check_update_allocation_scope;0;None;Alarm_checkAndUpdateComputeNodeAllocationScope;None;None;None;();None;(5,);1;();();None;2014/05/07 00:00:00 GMT;None;();None;None
+portal_alarms/slapos_crm_check_update_personal_allocation_scope;1;None;Alarm_checkAndUpdatePersonalComputeNodeAllocationScope;None;None;None;();None;(5,);1;();();None;2014/05/07 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_crm_create_regularisation_request;1;None;Alarm_createRegularisationRequest;None;None;None;();2;();None;();();None;2010/10/26 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_crm_delete_instance_tree;1;None;Alarm_deleteInstanceTreeFromRegularisationRequest;None;None;None;();None;();30;();();None;2010/10/26 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_crm_invalidate_suspended_regularisation_request;1;None;Alarm_invalidateSuspendedRegularisationRequest;None;None;None;();1;();None;();();None;2010/10/26 00:00:00 GMT;None;();None;None
@@ -44,7 +44,7 @@ portal_alarms/slapos_crm_update_support_request_state;1;None;Alarm_updateSupport
 portal_alarms/slapos_deliver_started_aggregated_sale_packing_list;1;None;Alarm_deliverStartedAggregatedSalePackingList;None;None;None;();None;();1;();();None;1970/01/01 01:01:00 GMT;None;();None;None
 portal_alarms/slapos_erp5_cleanup_active_process;1;None;Alarm_initiateActiveProcessCleanup;None;None;7;();None;();None;();();None;1983/01/10 12:00:00 GMT;None;();None;None
 portal_alarms/slapos_erp5_cleanup_business_template;0;None;Alarm_cleanupBusinessTemplate;None;None;None;None;None;None;None;None;None;None;1983/10/01 00:00:00 GMT;None;None;None;None
-portal_alarms/slapos_free_computer_partition;1;None;Alarm_searchComputerPartitionAndMarkFree;None;None;None;();None;();1;();();None;2010/10/26 00:00:00 GMT;None;();None;None
+portal_alarms/slapos_free_compute_partition;1;None;Alarm_searchComputePartitionAndMarkFree;None;None;None;();None;();1;();();None;2010/10/26 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_garbage_collect_destroy_unlinked_instance;0;None;Alarm_garbageCollectDestroyUnlinkedInstance;None;None;None;();1;();None;();();None;1970/07/01 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_garbage_collect_destroyed_root_tree;1;None;Alarm_garbageCollectDestroyedRootTree;None;None;None;();None;();1;();();None;2012/06/26 16:24:00 GMT;None;();None;None
 portal_alarms/slapos_garbage_collect_non_allocated_root_tree;1;None;Alarm_garbageCollectNonAllocatedRootTree;None;None;1;(5,);None;(26,);None;();();None;2012/12/12 12:12:00 GMT;None;();None;None
@@ -53,7 +53,7 @@ portal_alarms/slapos_manage_software_catalog;1;None;Alarm_manageSoftwareCatalog;
 portal_alarms/slapos_payzen_update_confirmed_payment;1;None;Alarm_updatePayzenConfirmedPaymentTransaction;None;None;None;();None;();5;();();None;2010/10/26 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_payzen_update_started_payment;1;None;Alarm_updatePayzenStartedPaymentTransaction;None;None;None;();None;();2;();();None;2010/10/26 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_pdm_auto_cancel_upgrade_decision;1;None;Alarm_cancelUpgradeDecision;None;None;1;(5,);None;(0,);None;();();None;2014/07/23 00:00:00 GMT;None;();None;None
-portal_alarms/slapos_pdm_computer_create_upgrade_decision;1;None;Alarm_computerCheckUpgradeSoftwareRelease;None;None;1;(0,);None;(8,);None;();();None;2014/07/23 00:00:00 GMT;None;();None;None
+portal_alarms/slapos_pdm_compute_node_create_upgrade_decision;1;None;Alarm_compute_nodeCheckUpgradeSoftwareRelease;None;None;1;(0,);None;(8,);None;();();None;2014/07/23 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_pdm_destroy_software_installation_with_archived_software_release;1;None;Alarm_destroySoftwareInstallationWithArchivedSoftwareRelease;None;None;None;();2;(0,);None;();();None;1970/01/01 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_pdm_instance_tree_create_upgrade_decision;1;None;Alarm_checkAndUpgradeInstanceTree;None;None;1;(5,);None;(0,);None;();();None;2014/07/23 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_pdm_upgrade_decision_process_planned;1;None;Alarm_processPlannedUpgradeDecision;None;None;None;();None;();5;();();None;1970/01/01 01:01:00 GMT;None;();None;None
@@ -77,7 +77,7 @@ portal_alarms/slapos_trial_process_validated_trial_request;1;None;Alarm_processV
 portal_alarms/slapos_trigger_aggregated_delivery_order_builder;1;None;Alarm_triggerSlapOSAggregatedDeliveryOrderBuilder;None;None;None;();None;();1;();();None;1987/05/24 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_trigger_build;1;None;Alarm_buildSlapOSPath;None;None;None;();None;();1;();();None;1987/05/24 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_trigger_payment_transaction_order_builder;1;None;Alarm_triggerPaymentTransactionOrderBuilder;None;None;None;();None;();1;();();None;1987/05/24 00:00:00 GMT;None;();None;None
-portal_alarms/slapos_update_computer_capacity_scope;1;None;Alarm_managePublicComputerCapacityScope;None;None;None;();None;();5;();();None;1970/01/01 01:01:00 GMT;None;();None;None
+portal_alarms/slapos_update_compute_node_capacity_scope;1;None;Alarm_managePublicComputeNodeCapacityScope;None;None;None;();None;();5;();();None;1970/01/01 01:01:00 GMT;None;();None;None
 portal_alarms/slapos_update_open_sale_order_period;1;None;Alarm_requestUpdateOpenSaleOrderPeriod;None;None;1;(4,);None;(4,);None;();();None;1815/12/10 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_wechat_update_confirmed_payment;1;None;Alarm_updateWechatConfirmedPaymentTransaction;None;None;None;();None;();5;();();None;2010/10/26 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_wechat_update_started_payment;1;None;Alarm_updateWechatStartedPaymentTransaction;None;None;None;();8;();None;();();None;2010/10/26 00:00:00 GMT;None;();None;None

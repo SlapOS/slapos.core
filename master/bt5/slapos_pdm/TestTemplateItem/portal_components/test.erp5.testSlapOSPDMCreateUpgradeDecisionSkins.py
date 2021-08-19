@@ -47,12 +47,12 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
     )
     self.tic()
 
-  def _installSoftwareOnTheComputer(self, software_release_url_list):
+  def _installSoftwareOnTheComputeNode(self, software_release_url_list):
     for software_release in software_release_url_list:
       software_installation = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',
         url_string=software_release,
-        aggregate=self.computer.getRelativeUrl())
+        aggregate=self.compute_node.getRelativeUrl())
       software_installation.validate()
       software_installation.requestStart()
     self.tic()
@@ -97,9 +97,9 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
     preference =  self.portal.portal_preferences.getActiveSystemPreference()
     preference.setPreferredCloudContractEnabled(True)
     self.tic()
-    self._makeComputer()
+    self._makeComputeNode()
     self._makeSoftwareProductCatalog()
-    self._installSoftwareOnTheComputer([
+    self._installSoftwareOnTheComputeNode([
       self.previous_software_release.getUrlString(),
       self.new_software_release.getUrlString()
     ])
@@ -166,13 +166,13 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
 
   def testInstanceTree_createUpgradeDecision_no_newer(self):
     person = self._makePerson()
-    computer, _ = self._makeComputer(owner=person)
-    self._makeComputerPartitions(computer)
+    compute_node, _ = self._makeComputeNode(owner=person)
+    self._makeComputePartitions(compute_node)
     software_product = self._makeSoftwareProduct()
     software_release = self._requestSoftwareRelease(
                                     software_product.getRelativeUrl())
     url_string = software_release.getUrlString()
-    self._makeSoftwareInstallation(computer, url_string)
+    self._makeSoftwareInstallation(compute_node, url_string)
     self.tic()
 
     # Create Instance Tree
@@ -184,7 +184,7 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
     self.assertEqual(upgrade_decision, None)
     
     self._makeFullSoftwareInstance(instance_tree, url_string)
-    self._markComputerPartitionBusy(computer,
+    self._markComputePartitionBusy(compute_node,
                                     instance_tree.getSuccessorValue())
     
     self._requestSoftwareRelease(software_product.getRelativeUrl())
@@ -193,28 +193,28 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
     upgrade_decision = instance_tree.InstanceTree_createUpgradeDecision()
     self.assertEqual(upgrade_decision, None)
 
-  def testInstanceTree_createUpgradeDecision_closed_computer(self):
+  def testInstanceTree_createUpgradeDecision_closed_compute_node(self):
     person = self._makePerson()
-    computer, _ = self._makeComputer(owner=person, allocation_scope="close/outdated")
-    self._makeComputerPartitions(computer)
+    compute_node, _ = self._makeComputeNode(owner=person, allocation_scope="close/outdated")
+    self._makeComputePartitions(compute_node)
     software_product = self._makeSoftwareProduct()
     software_release = self._requestSoftwareRelease(
                                     software_product.getRelativeUrl())
     url_string = software_release.getUrlString()
     
-    self._makeSoftwareInstallation( computer, url_string)
+    self._makeSoftwareInstallation( compute_node, url_string)
     
     # Create Instance Tree and Software Instance
     instance_tree = self._makeFullInstanceTree(
                                     url_string, person)
     self._makeFullSoftwareInstance(instance_tree, url_string)
-    self._markComputerPartitionBusy(computer,
+    self._markComputePartitionBusy(compute_node,
                                     instance_tree.getSuccessorValue())
     
     # Install the Newest software release
     software_release2 = self._requestSoftwareRelease(
                                       software_product.getRelativeUrl())
-    self._makeSoftwareInstallation(computer,
+    self._makeSoftwareInstallation(compute_node,
                                     software_release2.getUrlString())
     self.tic()
     
@@ -223,26 +223,26 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
 
   def testInstanceTree_createUpgradeDecision_create_once_transaction(self):
     person = self._makePerson()
-    computer, _ = self._makeComputer(owner=person, allocation_scope="open/personal")
-    self._makeComputerPartitions(computer)
+    compute_node, _ = self._makeComputeNode(owner=person, allocation_scope="open/personal")
+    self._makeComputePartitions(compute_node)
     software_product = self._makeSoftwareProduct()
     software_release = self._requestSoftwareRelease(
                                     software_product.getRelativeUrl())
     url_string = software_release.getUrlString()
     
-    self._makeSoftwareInstallation( computer, url_string)
+    self._makeSoftwareInstallation( compute_node, url_string)
     
     # Create Instance Tree and Software Instance
     instance_tree = self._makeFullInstanceTree(
                                     url_string, person)
     self._makeFullSoftwareInstance(instance_tree, url_string)
-    self._markComputerPartitionBusy(computer,
+    self._markComputePartitionBusy(compute_node,
                                     instance_tree.getSuccessorValue())
     
     # Install the Newest software release
     software_release2 = self._requestSoftwareRelease(
                                       software_product.getRelativeUrl())
-    self._makeSoftwareInstallation(computer,
+    self._makeSoftwareInstallation(compute_node,
                                     software_release2.getUrlString())
     self.tic()
     
@@ -257,26 +257,26 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
 
   def testInstanceTree_createUpgradeDecision(self):
     person = self._makePerson()
-    computer, _ = self._makeComputer(owner=person)
-    self._makeComputerPartitions(computer)
+    compute_node, _ = self._makeComputeNode(owner=person)
+    self._makeComputePartitions(compute_node)
     software_product = self._makeSoftwareProduct()
     software_release = self._requestSoftwareRelease(
                                     software_product.getRelativeUrl())
     url_string = software_release.getUrlString()
     
-    self._makeSoftwareInstallation( computer, url_string)
+    self._makeSoftwareInstallation( compute_node, url_string)
     
     # Create Instance Tree and Software Instance
     instance_tree = self._makeFullInstanceTree(
                                     url_string, person)
     self._makeFullSoftwareInstance(instance_tree, url_string)
-    self._markComputerPartitionBusy(computer,
+    self._markComputePartitionBusy(compute_node,
                                     instance_tree.getSuccessorValue())
     
     # Install the Newest software release
     software_release2 = self._requestSoftwareRelease(
                                       software_product.getRelativeUrl())
-    self._makeSoftwareInstallation(computer,
+    self._makeSoftwareInstallation(compute_node,
                                     software_release2.getUrlString())
     self.tic()
     
@@ -297,26 +297,26 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
   
   def testInstanceTree_createUpgradeDecision_with_exist(self):
     person = self._makePerson()
-    computer, _ = self._makeComputer(owner=person)
-    self._makeComputerPartitions(computer)
+    compute_node, _ = self._makeComputeNode(owner=person)
+    self._makeComputePartitions(compute_node)
     software_product = self._makeSoftwareProduct()
     software_release = self._requestSoftwareRelease(
                                     software_product.getRelativeUrl())
     url_string = software_release.getUrlString()
     
-    self._makeSoftwareInstallation( computer, url_string)
+    self._makeSoftwareInstallation( compute_node, url_string)
     
     # Create Instance Tree and Software Instance
     instance_tree = self._makeFullInstanceTree(
                                     url_string, person)
     self._makeFullSoftwareInstance(instance_tree, url_string)
-    self._markComputerPartitionBusy(computer,
+    self._markComputePartitionBusy(compute_node,
                                     instance_tree.getSuccessorValue())
     
     # Install the Newest software release
     software_release2 = self._requestSoftwareRelease(
                                       software_product.getRelativeUrl())
-    self._makeSoftwareInstallation(computer, software_release2.getUrlString())
+    self._makeSoftwareInstallation(compute_node, software_release2.getUrlString())
     self.tic()
     
     up_decision = instance_tree.InstanceTree_createUpgradeDecision()
@@ -325,7 +325,7 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
     # Install the another software release
     software_release3 = self._requestSoftwareRelease(
       software_product.getRelativeUrl())
-    self._makeSoftwareInstallation(computer, software_release3.getUrlString())
+    self._makeSoftwareInstallation(compute_node, software_release3.getUrlString())
     self.tic()
     
     up_decision2 = instance_tree.InstanceTree_createUpgradeDecision()
@@ -337,26 +337,26 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
 
   def testInstanceTree_createUpgradeDecision_rejected(self):
     person = self._makePerson()
-    computer, _ = self._makeComputer(owner=person)
-    self._makeComputerPartitions(computer)
+    compute_node, _ = self._makeComputeNode(owner=person)
+    self._makeComputePartitions(compute_node)
     software_product = self._makeSoftwareProduct()
     software_release = self._requestSoftwareRelease(
                                     software_product.getRelativeUrl())
     url_string = software_release.getUrlString()
     
-    self._makeSoftwareInstallation(computer, url_string)
+    self._makeSoftwareInstallation(compute_node, url_string)
     
     # Create Instance Tree and Software Instance
     instance_tree = self._makeFullInstanceTree(
                                     url_string, person)
     self._makeFullSoftwareInstance(instance_tree, url_string)
-    self._markComputerPartitionBusy(computer,
+    self._markComputePartitionBusy(compute_node,
                                     instance_tree.getSuccessorValue())
     
     # Install the Newest software release
     software_release2 = self._requestSoftwareRelease(
                                       software_product.getRelativeUrl())
-    self._makeSoftwareInstallation(computer, software_release2.getUrlString())
+    self._makeSoftwareInstallation(compute_node, software_release2.getUrlString())
     self.tic()
     
     up_decision = instance_tree.InstanceTree_createUpgradeDecision()
@@ -376,26 +376,26 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
 
   def testInstanceTree_createUpgradeDecision_rejected_2(self):
     person = self._makePerson()
-    computer, _ = self._makeComputer(owner=person)
-    self._makeComputerPartitions(computer)
+    compute_node, _ = self._makeComputeNode(owner=person)
+    self._makeComputePartitions(compute_node)
     software_product = self._makeSoftwareProduct()
     software_release = self._requestSoftwareRelease(
                                     software_product.getRelativeUrl())
     url_string = software_release.getUrlString()
     
-    self._makeSoftwareInstallation(computer, url_string)
+    self._makeSoftwareInstallation(compute_node, url_string)
     
     # Create Instance Tree and Software Instance
     instance_tree = self._makeFullInstanceTree(
                                     url_string, person)
     self._makeFullSoftwareInstance(instance_tree, url_string)
-    self._markComputerPartitionBusy(computer,
+    self._markComputePartitionBusy(compute_node,
                                     instance_tree.getSuccessorValue())
     
     # Install the Newest software release
     software_release2 = self._requestSoftwareRelease(
                                       software_product.getRelativeUrl())
-    self._makeSoftwareInstallation(computer, software_release2.getUrlString())
+    self._makeSoftwareInstallation(compute_node, software_release2.getUrlString())
     self.tic()
     
     up_decision = instance_tree.InstanceTree_createUpgradeDecision()
@@ -408,7 +408,7 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
     # Install the another software release
     software_release3 = self._requestSoftwareRelease(
                                       software_product.getRelativeUrl())
-    self._makeSoftwareInstallation(computer, software_release3.getUrlString())
+    self._makeSoftwareInstallation(compute_node, software_release3.getUrlString())
     self.tic()
     
     decision2 = instance_tree.InstanceTree_createUpgradeDecision()

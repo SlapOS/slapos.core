@@ -12,10 +12,10 @@ def markHistory(document, comment):
   if last_workflow_item != comment:
     portal_workflow.doActionFor(document, action='edit_action', comment=comment)
 
-def assignComputerPartition(software_instance, instance_tree):
-  computer_partition = software_instance.getAggregateValue(
-      portal_type="Computer Partition")
-  if computer_partition is None:
+def assignComputePartition(software_instance, instance_tree):
+  compute_partition = software_instance.getAggregateValue(
+      portal_type="Compute Partition")
+  if compute_partition is None:
     instance_tree = software_instance.getSpecialiseValue(
         portal_type='Instance Tree')
 
@@ -41,7 +41,7 @@ def assignComputerPartition(software_instance, instance_tree):
       sla_dict = software_instance.getSlaXmlAsDict()
     except Exception:
       # Note: it is impossible to import module exceptions from python scripts
-      computer_partition_relative_url = None
+      compute_partition_relative_url = None
     else:
 
       # "Each instance should be allocated to a different network." (i.e at most one instance of the tree per network)
@@ -66,17 +66,17 @@ def assignComputerPartition(software_instance, instance_tree):
             )
         ]
         computer_network_query_list = []
-        # Don't deploy in computer with no network
+        # Don't deploy in compute_node with no network
         computer_network_query_list.append(ComplexQuery(
             SimpleQuery(
             default_subordination_uid=''),
             logical_operator='not',
         ))
         for other_software_instance in software_instance_tree_list:
-          computer_partition = other_software_instance.getAggregateValue()
-          if not computer_partition:
+          compute_partition = other_software_instance.getAggregateValue()
+          if not compute_partition:
             continue
-          computer_network = computer_partition.getParentValue().getSubordinationValue()
+          computer_network = compute_partition.getParentValue().getSubordinationValue()
           if computer_network:
             computer_network_query_list.append(ComplexQuery(
                 SimpleQuery(
@@ -90,33 +90,33 @@ def assignComputerPartition(software_instance, instance_tree):
       elif sla_dict.get('mode'):
         computer_network_query = '-1'
 
-      computer_partition_relative_url = person.Person_restrictMethodAsShadowUser(
+      compute_partition_relative_url = person.Person_restrictMethodAsShadowUser(
         shadow_document=person,
         callable_object=person.Person_findPartition,
         argument_list=[software_instance.getUrlString(), software_instance.getSourceReference(),
         software_instance.getPortalType(), sla_dict, computer_network_query,
         subscription_reference, instance_tree.isRootSlave()])
-    return computer_partition_relative_url, tag
+    return compute_partition_relative_url, tag
 
 software_instance = context
 if software_instance.getValidationState() != 'validated' \
   or software_instance.getSlapState() not in ('start_requested', 'stop_requested') \
-  or software_instance.getAggregateValue(portal_type='Computer Partition') is not None:
+  or software_instance.getAggregateValue(portal_type='Compute Partition') is not None:
   return 
 
 instance_tree = software_instance.getSpecialiseValue()
 try:
-  computer_partition_url, tag = assignComputerPartition(software_instance,
+  compute_partition_url, tag = assignComputePartition(software_instance,
       instance_tree)
 
   # XXX: We create a dummy activity to prevent to allocations on the same network
   if tag:
     instance_tree.activate(activity="SQLQueue", tag=tag,
-        after_tag="allocate_%s" % computer_partition_url).getId()
+        after_tag="allocate_%s" % compute_partition_url).getId()
 
 except ValueError, e:
-  # It was not possible to find free Computer Partition
-  markHistory(software_instance, 'Allocation failed: no free Computer Partition %s' % e)
+  # It was not possible to find free Compute Partition
+  markHistory(software_instance, 'Allocation failed: no free Compute Partition %s' % e)
 except Unauthorized, e:
   # user has bad balance
   markHistory(software_instance, 'Allocation failed: %s' % e)
@@ -124,11 +124,11 @@ except NotImplementedError, e:
   # user has bad balance
   markHistory(software_instance, 'Allocation failed: %s' % e)
 else:
-  if computer_partition_url is not None:
+  if compute_partition_url is not None:
     try:
       software_instance.Base_checkConsistency()
     except ValidationFailed:
       # order not ready yet
       markHistory(software_instance, 'Allocation failed: consistency failed')
     else:
-      software_instance.allocatePartition(computer_partition_url=computer_partition_url)
+      software_instance.allocatePartition(compute_partition_url=compute_partition_url)

@@ -1,7 +1,7 @@
 network = context
 
 # XXX - The use of current authenticated person will return always 'Close' if
-#       the person is administrator (such as 'zope' user) but not the owner of computer
+#       the person is administrator (such as 'zope' user) but not the owner of compute_node
 #
 #       person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
@@ -9,9 +9,9 @@ allocation_state = 'Close'
 software_type = ''
 filter_kw = {}
 
-for computer in network.getSubordinationRelatedValueList():
-  person = computer.getSourceAdministrationValue()
-  filter_kw['computer_guid']=computer.getReference()
+for compute_node in network.getSubordinationRelatedValueList():
+  person = compute_node.getSourceAdministrationValue()
+  filter_kw['computer_guid']=compute_node.getReference()
   try:
     isAllowed =  person.Person_restrictMethodAsShadowUser(shadow_document=person,
           callable_object=person.Person_findPartition,

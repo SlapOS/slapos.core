@@ -39,7 +39,7 @@
           return gadget.getSetting("hateoas_url")
             .push(function (url) {
               return gadget.jio_getAttachment(doc.relative_url,
-                url + doc.relative_url + "/SoftwareRelease_requestSoftwareInstallation?computer=" + doc.computer);
+                url + doc.relative_url + "/SoftwareRelease_requestSoftwareInstallation?compute_node=" + doc.compute_node);
             });
         })
         .push(function (key) {
@@ -64,9 +64,9 @@
           "New Software Installation created.",
           "The name of a document in ERP5",
           "Software Release to be Installed",
-          "Target Computer Title",
-          "Target Computer Reference",
-          "Computer",
+          "Target Compute Node Title",
+          "Target Compute Node Reference",
+          "Compute Node",
           "Parent Relative Url",
           "Proceed to Supply Software"
         ];
@@ -75,7 +75,7 @@
           return RSVP.all([
             gadget.getDeclaredGadget('form_view'),
             gadget.jio_get(options.jio_key),
-            gadget.jio_get(options.computer_jio_key),
+            gadget.jio_get(options.compute_node_jio_key),
             gadget.getTranslationList(translation_list)
           ]);
         })
@@ -83,7 +83,7 @@
           gadget.message_translation = result[3][0];
           page_title_translation = result[3][7];
           var doc = result[1],
-            computer = result[2];
+            compute_node = result[2];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
@@ -98,10 +98,10 @@
                   "hidden": 0,
                   "type": "StringField"
                 },
-                "your_computer_title": {
+                "your_compute_node_title": {
                   "description": result[3][1],
                   "title": result[3][3],
-                  "default": computer.title,
+                  "default": compute_node.title,
                   "css_class": "",
                   "required": 0,
                   "editable": 0,
@@ -109,25 +109,25 @@
                   "hidden": 0,
                   "type": "StringField"
                 },
-                "your_computer_reference": {
+                "your_compute_node_reference": {
                   "description": result[3][1],
                   "title": result[3][4],
-                  "default": computer.reference,
+                  "default": compute_node.reference,
                   "css_class": "",
                   "required": 0,
                   "editable": 0,
-                  "key": "computer_reference",
+                  "key": "compute_node_reference",
                   "hidden": 0,
                   "type": "StringField"
                 },
-                "your_computer": {
+                "your_compute_node": {
                   "description": result[3][5],
                   "title": result[3][5],
-                  "default": options.computer_jio_key,
+                  "default": options.compute_node_jio_key,
                   "css_class": "",
                   "required": 1,
                   "editable": 1,
-                  "key": "computer",
+                  "key": "compute_node",
                   "hidden": 1,
                   "type": "StringField"
                 },
@@ -153,8 +153,8 @@
             form_definition: {
               group_list: [[
                 "center",
-                [["my_url_string"], ["your_computer_title"], ["your_computer_reference"],
-                  ["your_computer"], ["my_relative_url"]]
+                [["my_url_string"], ["your_compute_node_title"], ["your_compute_node_reference"],
+                  ["your_compute_node"], ["my_relative_url"]]
               ]]
             }
           })
@@ -170,7 +170,7 @@
             })
             .push(function (url_list) {
               return gadget.updateHeader({
-                page_title: page_title_translation + " " + doc.title + " on " +  computer.reference,
+                page_title: page_title_translation + " " + doc.title + " on " +  compute_node.reference,
                 selection_url: url_list[0],
                 submit_action: true
               });

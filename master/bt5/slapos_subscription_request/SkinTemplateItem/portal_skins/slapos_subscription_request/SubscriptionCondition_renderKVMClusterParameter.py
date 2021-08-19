@@ -27,7 +27,7 @@ KVM0 = json_parameter["kvm-partition-dict"]["KVM0"]
 for i in range(amount):
   if i == 0:
     k = KVM0.copy()
-    k["sticky-computer"] = True
+    k["sticky-compute-node"] = True
     json_parameter["kvm-partition-dict"]["KVM" + str(i)] = k
   else:
     json_parameter["kvm-partition-dict"]["KVM" + str(i)] = KVM0

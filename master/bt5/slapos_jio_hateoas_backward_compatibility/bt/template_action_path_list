@@ -1,7 +1,7 @@
-Computer | get_hateoas_software_installation_list
+Compute Node | get_hateoas_software_installation_list
 Instance Tree | get_hateoas_instance_list
 Instance Tree | get_hateoas_root_instance
-Person | get_hateoas_computer_list
+Person | get_hateoas_compute_node_list
 Person | get_hateoas_instance_tree_list
 Person | get_hateoas_information
 Slave Instance | get_hateoas_information

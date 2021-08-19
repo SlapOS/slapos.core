@@ -27,7 +27,7 @@ if portal.portal_activities.countMessageWithTag(tag) > 0:
   # nothing to do
   return
 
-partition = root_instance.getAggregateValue(portal_type="Computer Partition")
+partition = root_instance.getAggregateValue(portal_type="Compute Partition")
 if partition is None:
   return
 

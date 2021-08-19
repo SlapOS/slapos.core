@@ -73,21 +73,21 @@ class TestSlapOSShadowPerson(TestSlapOSSecurityMixin):
     self._assertUserDoesNotExists(user_id, reference, password)
     self._assertUserDoesNotExists(shadow_user_id, reference, None)
 
-class TestSlapOSShadowComputer(TestSlapOSSecurityMixin):
+class TestSlapOSShadowComputeNode(TestSlapOSSecurityMixin):
   def test_active(self):
-    reference = self._generateRandomUniqueReference('Computer')
-    user_id = self._generateRandomUniqueUserId('Computer')
+    reference = self._generateRandomUniqueReference('Compute Node')
+    user_id = self._generateRandomUniqueUserId('Compute Node')
 
     shadow_user_id = 'SHADOW-%s' % user_id
 
-    computer = self.portal.computer_module.newContent(portal_type='Computer',
+    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node',
       reference=reference)
-    computer.setUserId(user_id)
+    compute_node.setUserId(user_id)
 
-    computer.newContent(portal_type='ERP5 Login',
+    compute_node.newContent(portal_type='ERP5 Login',
           reference=reference).validate()
 
-    computer.validate()
+    compute_node.validate()
     self.tic()
 
     self._assertUserExists(user_id, reference, None)
@@ -96,18 +96,18 @@ class TestSlapOSShadowComputer(TestSlapOSSecurityMixin):
     self.login(shadow_user_id)
     user = getSecurityManager().getUser()
     self.assertTrue('Authenticated' in user.getRoles())
-    self.assertSameSet(['R-SHADOW-COMPUTER', 'SHADOW-%s' % user_id],
+    self.assertSameSet(['R-SHADOW-COMPUTENODE', 'SHADOW-%s' % user_id],
       user.getGroups())
 
   def test_inactive(self):
-    reference = self._generateRandomUniqueReference('Computer')
-    user_id = self._generateRandomUniqueUserId('Computer')
+    reference = self._generateRandomUniqueReference('Compute Node')
+    user_id = self._generateRandomUniqueUserId('Compute Node')
 
     shadow_reference = 'SHADOW-%s' % reference
 
-    computer = self.portal.computer_module.newContent(portal_type='Computer',
+    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node',
       reference=reference)
-    computer.setUserId(user_id)
+    compute_node.setUserId(user_id)
 
     self.tic()
 
@@ -156,6 +156,6 @@ class TestSlapOSShadowSoftwareInstance(TestSlapOSSecurityMixin):
 def test_suite():
   suite = unittest.TestSuite()
   suite.addTest(unittest.makeSuite(TestSlapOSShadowPerson))
-  suite.addTest(unittest.makeSuite(TestSlapOSShadowComputer))
+  suite.addTest(unittest.makeSuite(TestSlapOSShadowComputeNode))
   suite.addTest(unittest.makeSuite(TestSlapOSShadowSoftwareInstance))
   return suite

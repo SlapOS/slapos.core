@@ -8,11 +8,11 @@
       <dictionary>
         <item>
             <key> <string>active_sense_method_id</string> </key>
-            <value> <string>Alarm_checkAndUpdatePersonalComputerAllocationScope</string> </value>
+            <value> <string>Alarm_checkAndUpdatePersonalComputeNodeAllocationScope</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Automatically turn allocation scope of personal computer to closed if the computer were never used.</string> </value>
+            <value> <string>Automatically turn allocation scope of personal compute_node to closed if the compute_node were never used.</string> </value>
         </item>
         <item>
             <key> <string>enabled</string> </key>
@@ -93,7 +93,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Check and Update Personal Computer Allocation Scope</string> </value>
+            <value> <string>Check and Update Personal Compute Node Allocation Scope</string> </value>
         </item>
       </dictionary>
     </pickle>

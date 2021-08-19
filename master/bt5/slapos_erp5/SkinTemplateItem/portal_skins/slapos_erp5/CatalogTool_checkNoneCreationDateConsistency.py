@@ -7,7 +7,7 @@ catalog_query_kw = {
   "creation_date" : None,
   "select_list" : {"creation_date": None},
   "query": ComplexQuery(
-    Query(portal_type=('Software Instance', 'Slave Instance', 'Computer', 'Computer Partition'),
+    Query(portal_type=('Software Instance', 'Slave Instance', 'Compute Node', 'Compute Partition'),
           validation_state=('validated', 'invalidated'),),
     ComplexQuery(
           SimpleQuery(portal_type=('Sale Order',)),

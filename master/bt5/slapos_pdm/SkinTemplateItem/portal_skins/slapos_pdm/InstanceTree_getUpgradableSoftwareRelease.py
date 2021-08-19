@@ -20,8 +20,8 @@ software_release = instance_tree.InstanceTree_getNewerSofwareRelease()
 if not software_release:
   return None
 
-computer = source_instance.getAggregateValue().getParentValue()
-if computer.getValidationState() != 'validated':
+compute_node = source_instance.getAggregateValue().getParentValue()
+if compute_node.getValidationState() != 'validated':
   return None
       
 #Find Software Installation
@@ -29,7 +29,7 @@ software_installation_list = portal.portal_catalog(
     portal_type="Software Installation",
     validation_state="validated",
     url_string=software_release.getUrlString(),
-    default_aggregate_uid=computer.getUid(),
+    default_aggregate_uid=compute_node.getUid(),
   )
 # check again slap_state because it might be ignored in previous request!
 if 'start_requested' in [software_installation.getSlapState() \

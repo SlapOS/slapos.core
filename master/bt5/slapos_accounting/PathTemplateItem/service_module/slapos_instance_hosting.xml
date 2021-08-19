@@ -74,7 +74,7 @@
             <key> <string>aggregated_portal_type</string> </key>
             <value>
               <tuple>
-                <string>Computer Partition</string>
+                <string>Compute Partition</string>
                 <string>Instance Tree</string>
                 <string>Software Instance</string>
                 <string>Software Release</string>
@@ -121,7 +121,7 @@
             <key> <string>required_aggregated_portal_type</string> </key>
             <value>
               <tuple>
-                <string>Computer Partition</string>
+                <string>Compute Partition</string>
                 <string>Instance Tree</string>
                 <string>Software Instance</string>
                 <string>Software Release</string>

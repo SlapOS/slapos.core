@@ -35,7 +35,7 @@ specialise_value = obj.getSpecialiseValue()
 if specialise_value is None:
   return []
 
-# Object on this case can be Instance Tree, Computer, or Computer Network
+# Object on this case can be Instance Tree, Compute Node, or Computer Network
 organisation = specialise_value.Item_getCurrentSiteValue()
 if organisation is not None and \
   organisation.getPortalType() == "Organisation":

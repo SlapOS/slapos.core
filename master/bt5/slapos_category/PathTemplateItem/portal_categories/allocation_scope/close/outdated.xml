@@ -63,7 +63,7 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Allocation of services is closed because computer didn\'t communicate with master for too long</string> </value>
+            <value> <string>Allocation of services is closed because compute_node didn\'t communicate with master for too long</string> </value>
         </item>
         <item>
             <key> <string>effective_date</string> </key>

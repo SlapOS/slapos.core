@@ -3,7 +3,7 @@ from DateTime import DateTime
 portal = context.getPortalObject()
 aggregate_value = portal.restrictedTraverse(source_relative_url)
 
-if aggregate_value.getPortalType() == "Computer":
+if aggregate_value.getPortalType() == "Compute Node":
   destination_decision = aggregate_value.getSourceAdministration()
 elif aggregate_value.getPortalType() == "Software Instance":
   destination_decision = aggregate_value.getSpecialiseValue().getDestinationSection()

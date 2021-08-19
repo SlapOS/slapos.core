@@ -11,7 +11,7 @@ for software_release in portal.portal_catalog(
     software_release_url=software_release.getUrlString(),
     allocation_scope_uid=portal.portal_categories.allocation_scope.open.public.getUid(),
     capacity_scope_uid=portal.portal_categories.capacity_scope.open.getUid(),
-    portal_type='Computer Partition',
+    portal_type='Compute Partition',
     free_for_request=1,
     limit=1,
   )

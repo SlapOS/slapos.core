@@ -108,9 +108,9 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
       document=person,
       login_portal_type="ERP5 Login")
 
-  def test_block_ERP5Login_without_password_on_computer(self):
+  def test_block_ERP5Login_without_password_on_compute_node(self):
     self._test_login_block_if_password_is_set(
-      document=self._makeComputer()[0],
+      document=self._makeComputeNode()[0],
       login_portal_type="ERP5 Login"
     )
   
@@ -130,9 +130,9 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
       login_portal_type="Certificate Login"
     )
 
-  def test_block_CertificateLogin_without_password_on_computer(self):
+  def test_block_CertificateLogin_without_password_on_compute_node(self):
     self._test_login_donot_block(
-      document=self._makeComputer()[0],
+      document=self._makeComputeNode()[0],
       login_portal_type="Certificate Login")
   
   def test_block_CertificateLogin_without_password_on_software_instance(self):
@@ -223,9 +223,9 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
       document=person,
       login_portal_type="ERP5 Login")
 
-  def test_expire_ERP5Login_without_password_on_computer(self):
+  def test_expire_ERP5Login_without_password_on_compute_node(self):
     self._test_expire_when_passoword_is_set(
-      document=self._makeComputer()[0],
+      document=self._makeComputeNode()[0],
       login_portal_type="ERP5 Login"
     )
   
@@ -245,9 +245,9 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
       login_portal_type="Certificate Login"
     )
 
-  def test_expire_CertificateLogin_without_password_on_computer(self):
+  def test_expire_CertificateLogin_without_password_on_compute_node(self):
     self._test_dont_expire_when_password_isnt_set(
-      document=self._makeComputer()[0],
+      document=self._makeComputeNode()[0],
       login_portal_type="Certificate Login")
   
   def test_expire_CertificateLogin_without_password_on_software_instance(self):

@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>acquisition_portal_type</string> </key>
-            <value> <string>python: [\'Career\', \'Computer\']</string> </value>
+            <value> <string>python: [\'Career\', \'Compute Node\']</string> </value>
         </item>
         <item>
             <key> <string>acquisition_sync_value</string> </key>

@@ -8,7 +8,7 @@ if not source_product:
   return
 
 portal_type = source_product.getPortalType()
-if portal_type == 'Computer':
+if portal_type == 'Compute Node':
   person_url = source_product.getSourceAdministration()
 elif portal_type == 'Instance Tree':
   person_url = source_product.getDestinationSection()

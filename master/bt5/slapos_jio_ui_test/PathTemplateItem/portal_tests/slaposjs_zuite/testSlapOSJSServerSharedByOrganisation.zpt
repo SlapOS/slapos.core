@@ -25,7 +25,7 @@
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
 
       <tal:block define="document_title python: 'TEST-SLAPOSJS-COMPUTER-SHARED-BY-ORGANISATION 0';">
-        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/create_simple_computer" />
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/create_simple_compute_node" />
       </tal:block>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
@@ -51,19 +51,19 @@
       </tr>
       <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-COMPUTER-SHARED-BY-ORGANISATION 0'})">
         <td>waitForElementPresent</td>
-        <td tal:content="python: '//a[@data-i18n=\'%s\']' % (here.Base_translateString('Computer: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
+        <td tal:content="python: '//a[@data-i18n=\'%s\']' % (here.Base_translateString('Compute Node: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
         <td></td>
       </tr>
 
       <tr>
-        <td colspan="3"><b tal:content="python: 'Transfer Computer to a Organisation'"> Menu Item </b></td>
+        <td colspan="3"><b tal:content="python: 'Transfer Compute Node to a Organisation'"> Menu Item </b></td>
       </tr>
 
       <tal:block tal:define="menu_action python: 'Transfer'">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
       </tal:block>
 
-      <tal:block define="header python: 'Transfer Computer'; ">
+      <tal:block define="header python: 'Transfer Compute Node'; ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
@@ -82,7 +82,7 @@
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
       <tal:block tal:define="notification_configuration python: {'class': 'success',
-                                                           'text': 'Computer is transferred.'}">
+                                                           'text': 'Compute Node is transferred.'}">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
       </tal:block>
 
@@ -108,7 +108,7 @@
         <td></td>
       </tr>
 
-      <tal:block tal:define="header python: 'Computer: ${title}';
+      <tal:block tal:define="header python: 'Compute Node: ${title}';
                              dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-COMPUTER-SHARED-BY-ORGANISATION 0'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
@@ -267,7 +267,7 @@
   <td></td>
 </tr>
 
-<tal:block tal:define="header python: 'Computer: ${title}';
+<tal:block tal:define="header python: 'Compute Node: ${title}';
                        dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-COMPUTER-SHARED-BY-ORGANISATION 0'}) ">
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
 </tal:block>

@@ -111,14 +111,14 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by I
         'Visited by InstanceTree_assertSuccessor',
         self.instance_tree.workflow_history['edit_workflow'][-1]['comment'])
 
-class TestSlapOSFreeComputerPartitionAlarm(SlapOSTestCaseMixin):
+class TestSlapOSFreeComputePartitionAlarm(SlapOSTestCaseMixin):
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     self._makeTree()
 
   def test_SoftwareInstance_tryToUnallocatePartition(self):
-    self._makeComputer()
+    self._makeComputeNode()
     self.software_instance.setAggregate(self.partition.getRelativeUrl())
     self.partition.markBusy()
     self.portal.portal_workflow._jumpToStateFor(self.software_instance,
@@ -131,7 +131,7 @@ class TestSlapOSFreeComputerPartitionAlarm(SlapOSTestCaseMixin):
     self.assertEqual('free', self.partition.getSlapState())
 
   def test_SoftwareInstance_tryToUnallocatePartition_concurrency(self):
-    self._makeComputer()
+    self._makeComputeNode()
     self.software_instance.setAggregate(self.partition.getRelativeUrl())
     self.partition.markBusy()
     self.portal.portal_workflow._jumpToStateFor(self.software_instance,
@@ -151,7 +151,7 @@ class TestSlapOSFreeComputerPartitionAlarm(SlapOSTestCaseMixin):
     software_instance = self.portal.software_instance_module\
         .template_software_instance.Base_createCloneDocument(batch_mode=1)
 
-    self._makeComputer()
+    self._makeComputeNode()
     self.software_instance.setAggregate(self.partition.getRelativeUrl())
     software_instance.setAggregate(self.partition.getRelativeUrl())
     self.partition.markBusy()
@@ -166,7 +166,7 @@ class TestSlapOSFreeComputerPartitionAlarm(SlapOSTestCaseMixin):
     self.assertEqual(self.partition.getRelativeUrl(), software_instance.getAggregate())
 
   def test_alarm_allocated(self):
-    self._makeComputer()
+    self._makeComputeNode()
     self.software_instance.setAggregate(self.partition.getRelativeUrl())
     self.partition.markBusy()
     self.portal.portal_workflow._jumpToStateFor(self.software_instance,
@@ -175,7 +175,7 @@ class TestSlapOSFreeComputerPartitionAlarm(SlapOSTestCaseMixin):
     self.tic()
     self._simulateScript('SoftwareInstance_tryToUnallocatePartition')
     try:
-      self.portal.portal_alarms.slapos_free_computer_partition.activeSense()
+      self.portal.portal_alarms.slapos_free_compute_partition.activeSense()
       self.tic()
     finally:
       self._dropScript('SoftwareInstance_tryToUnallocatePartition')
@@ -184,7 +184,7 @@ class TestSlapOSFreeComputerPartitionAlarm(SlapOSTestCaseMixin):
         self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_unallocated(self):
-    self._makeComputer()
+    self._makeComputeNode()
     self.partition.markBusy()
     self.portal.portal_workflow._jumpToStateFor(self.software_instance,
         'destroy_requested')
@@ -192,7 +192,7 @@ class TestSlapOSFreeComputerPartitionAlarm(SlapOSTestCaseMixin):
     self.tic()
     self._simulateScript('SoftwareInstance_tryToUnallocatePartition')
     try:
-      self.portal.portal_alarms.slapos_free_computer_partition.activeSense()
+      self.portal.portal_alarms.slapos_free_compute_partition.activeSense()
       self.tic()
     finally:
       self._dropScript('SoftwareInstance_tryToUnallocatePartition')
@@ -201,7 +201,7 @@ class TestSlapOSFreeComputerPartitionAlarm(SlapOSTestCaseMixin):
         self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_validated(self):
-    self._makeComputer()
+    self._makeComputeNode()
     self.software_instance.setAggregate(self.partition.getRelativeUrl())
     self.partition.markBusy()
     self.portal.portal_workflow._jumpToStateFor(self.software_instance,
@@ -209,7 +209,7 @@ class TestSlapOSFreeComputerPartitionAlarm(SlapOSTestCaseMixin):
     self.tic()
     self._simulateScript('SoftwareInstance_tryToUnallocatePartition')
     try:
-      self.portal.portal_alarms.slapos_free_computer_partition.activeSense()
+      self.portal.portal_alarms.slapos_free_compute_partition.activeSense()
       self.tic()
     finally:
       self._dropScript('SoftwareInstance_tryToUnallocatePartition')
@@ -218,13 +218,13 @@ class TestSlapOSFreeComputerPartitionAlarm(SlapOSTestCaseMixin):
         self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_start_requested(self):
-    self._makeComputer()
+    self._makeComputeNode()
     self.software_instance.setAggregate(self.partition.getRelativeUrl())
     self.partition.markBusy()
     self.tic()
     self._simulateScript('SoftwareInstance_tryToUnallocatePartition')
     try:
-      self.portal.portal_alarms.slapos_free_computer_partition.activeSense()
+      self.portal.portal_alarms.slapos_free_compute_partition.activeSense()
       self.tic()
     finally:
       self._dropScript('SoftwareInstance_tryToUnallocatePartition')
@@ -232,13 +232,13 @@ class TestSlapOSFreeComputerPartitionAlarm(SlapOSTestCaseMixin):
         'Visited by SoftwareInstance_tryToUnallocatePartition',
         self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
-class TestSlapOSFreeComputerPartitionAlarmWithSlave(SlapOSTestCaseMixin):
+class TestSlapOSFreeComputePartitionAlarmWithSlave(SlapOSTestCaseMixin):
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     self._makeTree(requested_template_id='template_slave_instance')
 
   def test_SoftwareInstance_tryToUnallocatePartition(self):
-    self._makeComputer()
+    self._makeComputeNode()
     self.software_instance.setAggregate(self.partition.getRelativeUrl())
     self.partition.markBusy()
     self.portal.portal_workflow._jumpToStateFor(self.software_instance,
@@ -251,7 +251,7 @@ class TestSlapOSFreeComputerPartitionAlarmWithSlave(SlapOSTestCaseMixin):
     self.assertEqual('free', self.partition.getSlapState())
 
   def test_SoftwareInstance_tryToUnallocatePartition_nonDestroyed(self):
-    self._makeComputer()
+    self._makeComputeNode()
     self.software_instance.setAggregate(self.partition.getRelativeUrl())
     self.partition.markBusy()
     self.tic()
@@ -431,30 +431,30 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
         'Visited by SoftwareInstance_tryToGarbageCollect',
         self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
-class TestSlapOSUpdateComputerCapacityScopeAlarm(SlapOSTestCaseMixin):
+class TestSlapOSUpdateComputeNodeCapacityScopeAlarm(SlapOSTestCaseMixin):
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
-    self.computer = self.portal.computer_module.template_computer\
+    self.compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
-    self.computer.edit(
+    self.compute_node.edit(
         allocation_scope='open/public',
         reference='TESTC-%s' % self.generateNewId(),
     )
-    self.computer.edit(capacity_scope='open')
-    self.computer.validate()
+    self.compute_node.edit(capacity_scope='open')
+    self.compute_node.validate()
     memcached_dict = self.portal.portal_memcached.getMemcachedDict(
         key_prefix='slap_tool',
         plugin_path='portal_memcached/default_memcached_plugin')
-    memcached_dict[self.computer.getReference()] = json.dumps({
+    memcached_dict[self.compute_node.getReference()] = json.dumps({
         'text': '#access ok',
         'created_at': rfc1123_date(DateTime())
     })
     transaction.commit()
 
-  def test_Computer_checkAndUpdateCapacityScope(self):
-    self.computer.Computer_checkAndUpdateCapacityScope()
-    self.assertEqual('open', self.computer.getCapacityScope())
+  def test_ComputeNode_checkAndUpdateCapacityScope(self):
+    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('open', self.compute_node.getCapacityScope())
 
   def _newComputerModel(self, quantity=None):
     computer_model = self.portal.computer_model_module.\
@@ -464,8 +464,8 @@ class TestSlapOSUpdateComputerCapacityScopeAlarm(SlapOSTestCaseMixin):
     )
     return computer_model
 
-  def _addPartitionToComputer(self):
-    partition = self.computer.newContent(portal_type='Computer Partition',
+  def _addPartitionToComputeNode(self):
+    partition = self.compute_node.newContent(portal_type='Compute Partition',
         reference='part1')
     partition.markFree()
     partition.markBusy()
@@ -473,109 +473,109 @@ class TestSlapOSUpdateComputerCapacityScopeAlarm(SlapOSTestCaseMixin):
     self.software_instance.setAggregate(partition.getRelativeUrl())
     self.tic()
 
-  def test_Computer_checkAndUpdateCapacityScope_model(self):
+  def test_ComputeNode_checkAndUpdateCapacityScope_model(self):
     computer_model = self._newComputerModel(9999)
 
-    self.computer.edit(specialise_value=computer_model,
+    self.compute_node.edit(specialise_value=computer_model,
                        capacity_quantity=None)
     transaction.commit()
 
-    self.computer.Computer_checkAndUpdateCapacityScope()
-    self.assertEqual('open', self.computer.getCapacityScope())
+    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('open', self.compute_node.getCapacityScope())
     self.assertEqual(computer_model.getCapacityQuantity(),
-                     self.computer.getCapacityQuantity())
+                     self.compute_node.getCapacityQuantity())
 
-  def test_Computer_checkAndUpdateCapacityScope_model_no_capacity(self):
+  def test_ComputeNode_checkAndUpdateCapacityScope_model_no_capacity(self):
     self._makeTree()
 
     computer_model = self._newComputerModel(1)
-    self.computer.edit(specialise_value=computer_model,
+    self.compute_node.edit(specialise_value=computer_model,
                        capacity_quantity=None)
 
-    self._addPartitionToComputer()
-    self.computer.Computer_checkAndUpdateCapacityScope()
-    self.assertEqual('close', self.computer.getCapacityScope())
-    self.assertEqual('Computer capacity limit exceeded',
-        self.computer.workflow_history['edit_workflow'][-1]['comment'])
+    self._addPartitionToComputeNode()
+    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('close', self.compute_node.getCapacityScope())
+    self.assertEqual('Compute Node capacity limit exceeded',
+        self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
 
     self.assertEqual(computer_model.getCapacityQuantity(),
-                     self.computer.getCapacityQuantity())
+                     self.compute_node.getCapacityQuantity())
 
-  def test_Computer_checkAndUpdateCapacityScope_model_has_capacity(self):
-    # If capacity is set on computer, model value is ignored.
+  def test_ComputeNode_checkAndUpdateCapacityScope_model_has_capacity(self):
+    # If capacity is set on compute_node, model value is ignored.
     self._makeTree()
 
     computer_model = self._newComputerModel(1)
-    self.computer.edit(specialise_value=computer_model,
+    self.compute_node.edit(specialise_value=computer_model,
                        capacity_quantity=2)
 
-    self._addPartitionToComputer()
-    self.computer.Computer_checkAndUpdateCapacityScope()
-    self.assertEqual('open', self.computer.getCapacityScope())
+    self._addPartitionToComputeNode()
+    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('open', self.compute_node.getCapacityScope())
 
     self.assertNotEqual(computer_model.getCapacityQuantity(),
-                     self.computer.getCapacityQuantity())
+                     self.compute_node.getCapacityQuantity())
 
-  def test_Computer_checkAndUpdateCapacityScope_with_old_access(self):
+  def test_ComputeNode_checkAndUpdateCapacityScope_with_old_access(self):
     memcached_dict = self.portal.portal_memcached.getMemcachedDict(
         key_prefix='slap_tool',
         plugin_path='portal_memcached/default_memcached_plugin')
-    memcached_dict[self.computer.getReference()] = json.dumps({
+    memcached_dict[self.compute_node.getReference()] = json.dumps({
         'text': '#access ok',
         'created_at': rfc1123_date(addToDate(DateTime(),
                                              to_add={'minute': -11}))
     })
-    self.computer.Computer_checkAndUpdateCapacityScope()
-    self.assertEqual('close', self.computer.getCapacityScope())
-    self.assertEqual("Computer didn't contact for more than 10 minutes",
-        self.computer.workflow_history['edit_workflow'][-1]['comment'])
+    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('close', self.compute_node.getCapacityScope())
+    self.assertEqual("Compute Node didn't contact for more than 10 minutes",
+        self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
 
-  def test_Computer_checkAndUpdateCapacityScope_no_capacity_quantity(self):
+  def test_ComputeNode_checkAndUpdateCapacityScope_no_capacity_quantity(self):
     self._makeTree()
-    self.computer.edit(capacity_quantity=1)
-    self._addPartitionToComputer()
-    self.computer.Computer_checkAndUpdateCapacityScope()
-    self.assertEqual('close', self.computer.getCapacityScope())
-    self.assertEqual('Computer capacity limit exceeded',
-        self.computer.workflow_history['edit_workflow'][-1]['comment'])
+    self.compute_node.edit(capacity_quantity=1)
+    self._addPartitionToComputeNode()
+    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('close', self.compute_node.getCapacityScope())
+    self.assertEqual('Compute Node capacity limit exceeded',
+        self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
 
-  def test_Computer_checkAndUpdateCapacityScope_no_access(self):
-    self.computer.edit(reference='TESTC-%s' % self.generateNewId())
-    self.computer.Computer_checkAndUpdateCapacityScope()
-    self.assertEqual('close', self.computer.getCapacityScope())
-    self.assertEqual("Computer didn't contact the server",
-        self.computer.workflow_history['edit_workflow'][-1]['comment'])
+  def test_ComputeNode_checkAndUpdateCapacityScope_no_access(self):
+    self.compute_node.edit(reference='TESTC-%s' % self.generateNewId())
+    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('close', self.compute_node.getCapacityScope())
+    self.assertEqual("Compute Node didn't contact the server",
+        self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
 
-  def test_Computer_checkAndUpdateCapacityScope_close(self):
-    self.computer.edit(capacity_scope='close')
-    self.computer.Computer_checkAndUpdateCapacityScope()
-    self.assertEqual('open', self.computer.getCapacityScope())
+  def test_ComputeNode_checkAndUpdateCapacityScope_close(self):
+    self.compute_node.edit(capacity_scope='close')
+    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('open', self.compute_node.getCapacityScope())
 
-  def test_Computer_checkAndUpdateCapacityScope_with_error(self):
+  def test_ComputeNode_checkAndUpdateCapacityScope_with_error(self):
     memcached_dict = self.portal.portal_memcached.getMemcachedDict(
         key_prefix='slap_tool',
         plugin_path='portal_memcached/default_memcached_plugin')
-    memcached_dict[self.computer.getReference()] = json.dumps({
+    memcached_dict[self.compute_node.getReference()] = json.dumps({
         'text': '#error not ok'
     })
-    self.computer.Computer_checkAndUpdateCapacityScope()
-    self.assertEqual('close', self.computer.getCapacityScope())
-    self.assertEqual("Computer reported an error",
-        self.computer.workflow_history['edit_workflow'][-1]['comment'])
+    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('close', self.compute_node.getCapacityScope())
+    self.assertEqual("Compute Node reported an error",
+        self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
 
-  def test_Computer_checkAndUpdateCapacityScope_with_error_non_public(self):
+  def test_ComputeNode_checkAndUpdateCapacityScope_with_error_non_public(self):
     memcached_dict = self.portal.portal_memcached.getMemcachedDict(
         key_prefix='slap_tool',
         plugin_path='portal_memcached/default_memcached_plugin')
-    memcached_dict[self.computer.getReference()] = json.dumps({
+    memcached_dict[self.compute_node.getReference()] = json.dumps({
         'text': '#error not ok'
     })
-    self.computer.edit(allocation_scope='open/personal')
-    self.computer.Computer_checkAndUpdateCapacityScope()
-    self.assertEqual('open', self.computer.getCapacityScope())
+    self.compute_node.edit(allocation_scope='open/personal')
+    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('open', self.compute_node.getCapacityScope())
 
-  def _simulateComputer_checkAndUpdateCapacityScope(self):
-    script_name = 'Computer_checkAndUpdateCapacityScope'
+  def _simulateComputeNode_checkAndUpdateCapacityScope(self):
+    script_name = 'ComputeNode_checkAndUpdateCapacityScope'
     if script_name in self.portal.portal_skins.custom.objectIds():
       raise ValueError('Precondition failed: %s exists in custom' % script_name)
     createZODBPythonScript(self.portal.portal_skins.custom,
@@ -583,52 +583,52 @@ class TestSlapOSUpdateComputerCapacityScopeAlarm(SlapOSTestCaseMixin):
                         '*args, **kwargs',
                         '# Script body\n'
 """portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by Computer_checkAndUpdateCapacityScope') """ )
+portal_workflow.doActionFor(context, action='edit_action', comment='Visited by ComputeNode_checkAndUpdateCapacityScope') """ )
     transaction.commit()
 
-  def _dropComputer_checkAndUpdateCapacityScope(self):
-    script_name = 'Computer_checkAndUpdateCapacityScope'
+  def _dropComputeNode_checkAndUpdateCapacityScope(self):
+    script_name = 'ComputeNode_checkAndUpdateCapacityScope'
     if script_name in self.portal.portal_skins.custom.objectIds():
       self.portal.portal_skins.custom.manage_delObjects(script_name)
     transaction.commit()
 
   def test_alarm(self):
     self.tic()
-    self._simulateComputer_checkAndUpdateCapacityScope()
+    self._simulateComputeNode_checkAndUpdateCapacityScope()
     try:
-      self.portal.portal_alarms.slapos_update_computer_capacity_scope.activeSense()
+      self.portal.portal_alarms.slapos_update_compute_node_capacity_scope.activeSense()
       self.tic()
     finally:
-      self._dropComputer_checkAndUpdateCapacityScope()
+      self._dropComputeNode_checkAndUpdateCapacityScope()
     self.assertEqual(
-        'Visited by Computer_checkAndUpdateCapacityScope',
-        self.computer.workflow_history['edit_workflow'][-1]['comment'])
+        'Visited by ComputeNode_checkAndUpdateCapacityScope',
+        self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_non_public(self):
-    self.computer.edit(allocation_scope='open/personal')
+    self.compute_node.edit(allocation_scope='open/personal')
     self.tic()
-    self._simulateComputer_checkAndUpdateCapacityScope()
+    self._simulateComputeNode_checkAndUpdateCapacityScope()
     try:
-      self.portal.portal_alarms.slapos_update_computer_capacity_scope.activeSense()
+      self.portal.portal_alarms.slapos_update_compute_node_capacity_scope.activeSense()
       self.tic()
     finally:
-      self._dropComputer_checkAndUpdateCapacityScope()
+      self._dropComputeNode_checkAndUpdateCapacityScope()
     self.assertNotEqual(
-        'Visited by Computer_checkAndUpdateCapacityScope',
-        self.computer.workflow_history['edit_workflow'][-1]['comment'])
+        'Visited by ComputeNode_checkAndUpdateCapacityScope',
+        self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_invalidated(self):
-    self.computer.invalidate()
+    self.compute_node.invalidate()
     self.tic()
-    self._simulateComputer_checkAndUpdateCapacityScope()
+    self._simulateComputeNode_checkAndUpdateCapacityScope()
     try:
-      self.portal.portal_alarms.slapos_update_computer_capacity_scope.activeSense()
+      self.portal.portal_alarms.slapos_update_compute_node_capacity_scope.activeSense()
       self.tic()
     finally:
-      self._dropComputer_checkAndUpdateCapacityScope()
+      self._dropComputeNode_checkAndUpdateCapacityScope()
     self.assertNotEqual(
-        'Visited by Computer_checkAndUpdateCapacityScope',
-        self.computer.workflow_history['edit_workflow'][-1]['comment'])
+        'Visited by ComputeNode_checkAndUpdateCapacityScope',
+        self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
 
 class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
 
@@ -750,15 +750,15 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
     instance = instance_tree.getSuccessorValue()
     return instance
 
-  def createComputerPartition(self):
-    computer = self.portal.computer_module\
-        .template_computer.Base_createCloneDocument(batch_mode=1)
-    computer.validate()
-    computer.edit(
+  def createComputePartition(self):
+    compute_node = self.portal.compute_node_module\
+        .template_compute_node.Base_createCloneDocument(batch_mode=1)
+    compute_node.validate()
+    compute_node.edit(
         title=self.generateNewSoftwareTitle(),
         reference="TESTCOMP-%s" % self.generateNewId(),
     )
-    partition = computer.newContent(portal_type="Computer Partition")
+    partition = compute_node.newContent(portal_type="Compute Partition")
     return partition
 
   def test_tryToGarbageCollect_REQUEST_disallowed(self):
@@ -789,7 +789,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
 
   def test_tryToGarbageCollect_allocated_instance(self):
     instance = self.createInstance()
-    partition = self.createComputerPartition()
+    partition = self.createComputePartition()
     instance.edit(aggregate_value=partition)
     self.tic()
 
@@ -811,7 +811,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
     instance = self.createInstance()
     self.tic()
     instance.workflow_history['edit_workflow'].append({
-        'comment':'Allocation failed: no free Computer Partition',
+        'comment':'Allocation failed: no free Compute Partition',
         'error_message': '',
         'actor': 'ERP5TypeTestCase',
         'slap_state': '',
@@ -859,7 +859,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
     sub_instance = instance.getSuccessorValue()
     self.tic()
     sub_instance.workflow_history['edit_workflow'].append({
-        'comment':'Allocation failed: no free Computer Partition',
+        'comment':'Allocation failed: no free Compute Partition',
         'error_message': '',
         'actor': 'ERP5TypeTestCase',
         'slap_state': '',
@@ -903,7 +903,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
     instance_tree = instance.getSpecialiseValue()
     self.tic()
     instance.workflow_history['edit_workflow'].append({
-        'comment':'Allocation failed: no free Computer Partition',
+        'comment':'Allocation failed: no free Compute Partition',
         'error_message': '',
         'actor': 'ERP5TypeTestCase',
         'slap_state': '',
@@ -962,7 +962,7 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
 
   def test_alarm_allocated(self):
     instance = self.createInstance()
-    partition = self.createComputerPartition()
+    partition = self.createComputePartition()
     instance.edit(aggregate_value=partition)
     self.tic()
     self._simulateScript("SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree")
@@ -1002,15 +1002,15 @@ class TestSlapOSGarbageCollectUnlinkedInstanceAlarm(SlapOSTestCaseMixin):
     instance = instance_tree.getSuccessorValue()
     return instance
 
-  def createComputerPartition(self):
-    computer = self.portal.computer_module\
-        .template_computer.Base_createCloneDocument(batch_mode=1)
-    computer.validate()
-    computer.edit(
+  def createComputePartition(self):
+    compute_node = self.portal.compute_node_module\
+        .template_compute_node.Base_createCloneDocument(batch_mode=1)
+    compute_node.validate()
+    compute_node.edit(
         title=self.generateNewSoftwareTitle(),
         reference="TESTCOMP-%s" % self.generateNewId(),
     )
-    partition = computer.newContent(portal_type="Computer Partition")
+    partition = compute_node.newContent(portal_type="Compute Partition")
     return partition
 
   def doRequestInstance(self, instance, title, slave=False):
@@ -1025,7 +1025,7 @@ class TestSlapOSGarbageCollectUnlinkedInstanceAlarm(SlapOSTestCaseMixin):
     instance.requestInstance(**instance_kw)
     self.tic()
     sub_instance = instance.getSuccessorValue()
-    partition = self.createComputerPartition()
+    partition = self.createComputePartition()
     sub_instance.edit(aggregate_value=partition)
     self.tic()
     self.assertEqual(self.instance_tree.getRelativeUrl(),
@@ -1052,7 +1052,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
 
   def test_SoftwareInstance_tryToGarbageUnlinkedInstance(self):
     instance = self.createInstance()
-    partition = self.createComputerPartition()
+    partition = self.createComputePartition()
     instance.edit(aggregate_value=partition)
     self.tic()
     instance0 = self.doRequestInstance(instance, 'instance0')
@@ -1068,7 +1068,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
 
   def test_SoftwareInstance_tryToGarbageUnlinkedInstance_hosting_destroyed(self):
     instance = self.createInstance()
-    partition = self.createComputerPartition()
+    partition = self.createComputePartition()
     instance.edit(aggregate_value=partition)
     self.tic()
     instance0 = self.doRequestInstance(instance, 'instance0')
@@ -1088,7 +1088,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
 
   def test_SoftwareInstance_tryToGarbageUnlinkedInstance_will_unlink_children(self):
     instance = self.createInstance()
-    partition = self.createComputerPartition()
+    partition = self.createComputePartition()
     instance.edit(aggregate_value=partition)
     self.tic()
     instance0 = self.doRequestInstance(instance, 'instance0')
@@ -1108,7 +1108,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
 
   def test_SoftwareInstance_tryToGarbageUnlinkedInstance_will_delay(self):
     instance = self.createInstance()
-    partition = self.createComputerPartition()
+    partition = self.createComputePartition()
     instance.edit(aggregate_value=partition)
     self.tic()
     instance0 = self.doRequestInstance(instance, 'instance0')
@@ -1137,7 +1137,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
 
   def test_SoftwareInstance_tryToGarbageUnlinkedInstance_unlinked_root(self):
     instance = self.createInstance()
-    partition = self.createComputerPartition()
+    partition = self.createComputePartition()
     instance.edit(aggregate_value=partition)
     self.tic()
 
@@ -1157,7 +1157,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
 
   def test_SoftwareInstance_tryToGarbageUnlinkedInstance_not_unlinked(self):
     instance = self.createInstance()
-    partition = self.createComputerPartition()
+    partition = self.createComputePartition()
     instance.edit(aggregate_value=partition)
     self.tic()
     instance0 = self.doRequestInstance(instance, 'instance0')
@@ -1173,7 +1173,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
 
   def test_alarm_search_inlinked_instance(self):
     instance = self.createInstance()
-    partition = self.createComputerPartition()
+    partition = self.createComputePartition()
     instance.edit(aggregate_value=partition)
     self.tic()
     instance0 = self.doRequestInstance(instance, 'instance0')
@@ -1204,7 +1204,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
 
   def test_alarm_search_inlinked_instance_slave(self):
     instance = self.createInstance()
-    partition = self.createComputerPartition()
+    partition = self.createComputePartition()
     instance.edit(aggregate_value=partition)
     self.tic()
     slave_instance0 = self.doRequestInstance(instance, 'slaveInstance0', True)
@@ -1231,17 +1231,17 @@ class TestSlapOSInvalidateDestroyedInstance(SlapOSTestCaseMixin):
       reference="TESTINST-%s" % new_id,
       )
 
-  def createComputerPartition(self):
+  def createComputePartition(self):
     new_id = self.generateNewId()
-    computer = self.portal.computer_module.newContent(
-      portal_type='Computer',
-      title="Test computer %s" % new_id,
+    compute_node = self.portal.compute_node_module.newContent(
+      portal_type='Compute Node',
+      title="Test compute_node %s" % new_id,
       reference="TESTCOMP-%s" % new_id,
       )
-    computer_partition = computer.newContent(
-      portal_type='Computer Partition',
+    compute_partition = compute_node.newContent(
+      portal_type='Compute Partition',
       )
-    return computer_partition
+    return compute_partition
 
   def test_tryToInvalidateIfDestroyed_REQUEST_disallowed(self):
     instance = self.createSoftwareInstance()
@@ -1282,7 +1282,7 @@ class TestSlapOSInvalidateDestroyedInstance(SlapOSTestCaseMixin):
 
   def test_tryToInvalidateIfDestroyed_allocated_instance(self):
     instance = self.createSoftwareInstance()
-    partition = self.createComputerPartition()
+    partition = self.createComputePartition()
     instance.edit(aggregate_value=partition)
     self.portal.portal_workflow._jumpToStateFor(instance, 'validated')
     self.portal.portal_workflow._jumpToStateFor(instance, 'destroy_requested')
@@ -1310,7 +1310,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
 
   def test_alarm_software_instance_allocated(self):
     instance = self.createSoftwareInstance()
-    partition = self.createComputerPartition()
+    partition = self.createComputePartition()
     instance.edit(aggregate_value=partition)
     self.portal.portal_workflow._jumpToStateFor(instance, 'validated')
     self.portal.portal_workflow._jumpToStateFor(instance, 'destroy_requested')
@@ -1329,7 +1329,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
 
   def test_alarm_software_instance_invalidated(self):
     instance = self.createSoftwareInstance()
-    self.createComputerPartition()
+    self.createComputePartition()
     self.portal.portal_workflow._jumpToStateFor(instance, 'invalidated')
     self.portal.portal_workflow._jumpToStateFor(instance, 'destroy_requested')
     self.tic()
@@ -1347,7 +1347,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
 
   def test_alarm_software_instance_matching(self):
     instance = self.createSoftwareInstance()
-    self.createComputerPartition()
+    self.createComputePartition()
     self.portal.portal_workflow._jumpToStateFor(instance, 'validated')
     self.portal.portal_workflow._jumpToStateFor(instance, 'destroy_requested')
     self.tic()

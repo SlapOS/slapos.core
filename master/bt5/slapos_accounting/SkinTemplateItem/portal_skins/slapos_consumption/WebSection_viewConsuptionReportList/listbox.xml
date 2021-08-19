@@ -406,8 +406,8 @@
                           <string>Software Instance</string>
                         </tuple>
                         <tuple>
-                          <string>computer_title</string>
-                          <string>Computer</string>
+                          <string>compute_node_title</string>
+                          <string>Compute Node</string>
                         </tuple>
                         <tuple>
                           <string>start_date</string>

@@ -7,11 +7,11 @@ portal = context.getPortalObject()
 
 if instance.getValidationState() != 'validated' \
   or instance.getSlapState() not in ('start_requested', 'stop_requested') \
-  or instance.getAggregateValue(portal_type='Computer Partition') is not None:
+  or instance.getAggregateValue(portal_type='Compute Partition') is not None:
   return
 
 latest_comment = portal.portal_workflow.getInfoFor(instance, 'comment', wf_id='edit_workflow')
-if latest_comment not in ('Allocation failed: no free Computer Partition', 'Allocation failed: Allocation disallowed'):
+if latest_comment not in ('Allocation failed: no free Compute Partition', 'Allocation failed: Allocation disallowed'):
   # No nothing if allocation alarm didn't run on it
   return
 

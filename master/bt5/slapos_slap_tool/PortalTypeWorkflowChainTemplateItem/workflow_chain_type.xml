@@ -1,6 +1,6 @@
 <workflow_chain>
  <chain>
-  <type>Computer Partition</type>
+  <type>Compute Partition</type>
   <workflow>slapos_slap_tool_interaction_workflow</workflow>
  </chain>
  <chain>

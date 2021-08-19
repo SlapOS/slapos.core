@@ -1,5 +1,5 @@
 # This script might not be efficient to a large quantities of
-# Computers
+# Compute Nodes
 from DateTime import DateTime
 import json
 kw = {"project_uid": context.getUid(),

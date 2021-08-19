@@ -36,8 +36,8 @@
         translation_list = [
           "Software Release",
           "Software Release Version",
-          "Computer Reference",
-          "Computer",
+          "Compute Node Reference",
+          "Compute Node",
           "Reference",
           "State",
           "Usage",
@@ -56,7 +56,7 @@
         .push(function (result) {
           page_title_translation = result[2][9];
           var form_gadget = result[0],
-            computer_url = result[1];
+            compute_node_url = result[1];
           return form_gadget.render({
             erp5_document: {
               "_embedded": {"_view": {
@@ -85,7 +85,7 @@
                 "my_aggregate_reference": {
                   "description": "",
                   "title": result[2][2],
-                  "default": "<a href=" + computer_url + ">" +
+                  "default": "<a href=" + compute_node_url + ">" +
                         gadget.state.doc.aggregate_reference + "</a>",
                   "css_class": "",
                   "required": 1,
@@ -97,7 +97,7 @@
                 "my_aggregate_title": {
                   "description": "",
                   "title": result[2][3],
-                  "default": "<a href=" + computer_url + ">" +
+                  "default": "<a href=" + compute_node_url + ">" +
                     gadget.state.doc.aggregate_title + "</a>",
                   "css_class": "",
                   "required": 1,

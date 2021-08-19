@@ -235,7 +235,7 @@ Cash Register
 Certificate Login
   Title: The User Himself
   Roles: ['Assignee']
-  Condition: python: here.getParentValue().getPortalType() in ("Person", "Software Instance", "Computer")
+  Condition: python: here.getParentValue().getPortalType() in ("Person", "Software Instance", "Compute Node")
   Local Roles Group Id: user
   Base Categories: ['group']
   Base Category Script: ERP5Type_getSecurityCategoryFromParent
@@ -277,17 +277,17 @@ Component Module
   Base Category Script: None
   Categories: ['group/company']
 
-Computer
+ComputeNode
   Title: Allocation scope
   Roles: ['Auditor']
   Condition: python: here.getAllocationScope('').startswith('open')
   Local Roles Group Id: shadow
   Base Categories: ['aggregate']
-  Base Category Script: Computer_getSecurityCategoryFromAllocationScope
+  Base Category Script: ComputeNode_getSecurityCategoryFromAllocationScope
   Categories: []
 
-Computer
-  Title: Computer Agent
+ComputeNode
+  Title: Compute Node Agent
   Roles: ['Assignee']
   Condition: None
   Local Roles Group Id: user
@@ -295,7 +295,7 @@ Computer
   Base Category Script: ERP5Type_getSecurityCategoryFromContent
   Categories: []
 
-Computer
+ComputeNode
   Title: Group company
   Roles: ['Assignor']
   Condition: None
@@ -304,7 +304,7 @@ Computer
   Base Category Script: None
   Categories: ['group/company']
 
-Computer
+ComputeNode
   Title: Organisation Member
   Roles: ['Assignee']
   Condition: None
@@ -313,7 +313,7 @@ Computer
   Base Category Script: Item_getSecurityCategoryFromMovementDestinationSection
   Categories: []
 
-Computer
+ComputeNode
   Title: Project Member
   Roles: ['Assignee']
   Condition: None
@@ -322,11 +322,11 @@ Computer
   Base Category Script: Item_getSecurityCategoryFromMovementDestinationProject
   Categories: []
 
-Computer
-  Title: Self Computer
+ComputeNode
+  Title: Self Compute Node
   Roles: ['Assignor']
   Condition: python: context.getUserId("") != ""
-  Local Roles Group Id: computer
+  Local Roles Group Id: compute_node
   Base Categories: ['destination_decision']
   Base Category Script: ERP5Type_getSecurityCategoryFromSelf
   Categories: []
@@ -341,7 +341,7 @@ Computer Consumption TioXML File
   Categories: ['group/company']
 
 Computer Model
-  Title: Computer Agent
+  Title: Compute Node Agent
   Roles: ['Assignee']
   Condition: None
   Local Roles Group Id: user
@@ -376,16 +376,16 @@ Computer Model Module
   Base Category Script: None
   Categories: ['role/member']
 
-Computer Module
-  Title: Computer
+ComputeNode Module
+  Title: Compute Node
   Roles: ['Auditor']
   Condition: None
-  Local Roles Group Id: computer
+  Local Roles Group Id: compute_node
   Base Categories: ['role']
   Base Category Script: None
   Categories: ['role/computer']
 
-Computer Module
+ComputeNode Module
   Title: Group company
   Roles: ['Author', 'Auditor']
   Condition: None
@@ -394,7 +394,7 @@ Computer Module
   Base Category Script: None
   Categories: ['group/company']
 
-Computer Module
+ComputeNode Module
   Title: Member
   Roles: ['Auditor', 'Author']
   Condition: None
@@ -403,7 +403,7 @@ Computer Module
   Base Category Script: None
   Categories: ['role/member']
 
-Computer Module
+ComputeNode Module
   Title: Person Shadow
   Roles: ['Auditor']
   Condition: None
@@ -413,10 +413,10 @@ Computer Module
   Categories: ['role/shadow/person']
 
 Computer Network
-  Title: Computer Agent
+  Title: Compute Node Agent
   Roles: ['Assignee']
   Condition: None
-  Local Roles Group Id: computer
+  Local Roles Group Id: compute_node
   Base Categories: ['source_administration']
   Base Category Script: ERP5Type_getSecurityCategoryFromContent
   Categories: []
@@ -493,17 +493,17 @@ Computer Network Module
   Base Category Script: None
   Categories: ['role/shadow/person']
 
-Computer Partition
+Compute Partition
   Title: Customer of the partition
   Roles: ['Auditor']
   Condition: python: here.getSlapState() == "busy"
   Local Roles Group Id: user
   Base Categories: ['destination_section']
-  Base Category Script: ComputerPartition_getSecurityCategoryFromUser
+  Base Category Script: ComputePartition_getSecurityCategoryFromUser
   Categories: []
 
-Computer Partition
-  Title: Software Instance group related to Computer Partition
+Compute Partition
+  Title: Software Instance group related to Compute Partition
   Roles: ['Auditor']
   Condition: python: here.getSlapState() == "busy"
   Local Roles Group Id: subscription
@@ -512,7 +512,7 @@ Computer Partition
   Categories: []
 
 Consumption Document Module
-  Title: Computer reports consumption
+  Title: Compute Node reports consumption
   Roles: ['Author']
   Condition: None
   Local Roles Group Id: None
@@ -721,7 +721,7 @@ Drawing
 ERP5 Login
   Title: The User Himself
   Roles: ['Assignee']
-  Condition: python: here.getParentValue().getPortalType() in ("Person", "Software Instance", "Computer")
+  Condition: python: here.getParentValue().getPortalType() in ("Person", "Software Instance", "Compute Node")
   Local Roles Group Id: user
   Base Categories: ['group']
   Base Category Script: ERP5Type_getSecurityCategoryFromParent
@@ -872,7 +872,7 @@ Instance Tree
   Categories: []
 
 Instance Tree Module
-  Title: Computer
+  Title: Compute Node
   Roles: ['Auditor']
   Condition: None
   Local Roles Group Id: None
@@ -1223,7 +1223,7 @@ Organisation
   Categories: ['role/shadow/person']
 
 Organisation Module
-  Title: Computer
+  Title: Compute Node
   Roles: ['Auditor']
   Condition: None
   Local Roles Group Id: None
@@ -1484,7 +1484,7 @@ Project
   Categories: ['role/shadow/person']
 
 Project Module
-  Title: Computer
+  Title: Compute Node
   Roles: ['Auditor']
   Condition: None
   Local Roles Group Id: None
@@ -1871,10 +1871,10 @@ Site Message
   Categories: ['group/company']
 
 Slave Instance
-  Title: Computer
+  Title: Compute Node
   Roles: ['Assignor']
   Condition: None
-  Local Roles Group Id: computer
+  Local Roles Group Id: compute_node
   Base Categories: ['aggregate']
   Base Category Script: ERP5Type_getSecurityCategoryFromContentParent
   Categories: []
@@ -1934,10 +1934,10 @@ Slave Instance
   Categories: []
 
 Software Installation
-  Title: Computer
+  Title: Compute Node
   Roles: ['Assignor']
   Condition: None
-  Local Roles Group Id: computer
+  Local Roles Group Id: compute_node
   Base Categories: ['aggregate']
   Base Category Script: ERP5Type_getSecurityCategoryFromContent
   Categories: []
@@ -1979,10 +1979,10 @@ Software Installation
   Categories: []
 
 Software Installation Module
-  Title: Computer
+  Title: Compute Node
   Roles: ['Auditor']
   Condition: None
-  Local Roles Group Id: computer
+  Local Roles Group Id: compute_node
   Base Categories: ['role']
   Base Category Script: None
   Categories: ['role/computer']
@@ -2006,10 +2006,10 @@ Software Installation Module
   Categories: ['role/member']
 
 Software Instance
-  Title: Computer
+  Title: Compute Node
   Roles: ['Assignor']
   Condition: None
-  Local Roles Group Id: computer
+  Local Roles Group Id: compute_node
   Base Categories: ['aggregate']
   Base Category Script: ERP5Type_getSecurityCategoryFromContentParent
   Categories: []
@@ -2060,7 +2060,7 @@ Software Instance
   Categories: []
 
 Software Instance Module
-  Title: Computer
+  Title: Compute Node
   Roles: ['Auditor']
   Condition: None
   Local Roles Group Id: None

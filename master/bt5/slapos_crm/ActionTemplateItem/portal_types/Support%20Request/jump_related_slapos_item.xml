@@ -56,7 +56,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Related Instance Tree, Computer or Software Installation</string> </value>
+            <value> <string>Related Instance Tree, Compute Node or Software Installation</string> </value>
         </item>
         <item>
             <key> <string>visible</string> </key>
@@ -75,7 +75,7 @@
             <key> <string>text</string> </key>
             <value> <string encoding="cdata"><![CDATA[
 
-string:${object_url}/Base_jumpToRelationObject?base_category=aggregate&portal_type:list=Instance%20Tree&portal_type:list=Computer&portal_type:list=Software%20Installation
+string:${object_url}/Base_jumpToRelationObject?base_category=aggregate&portal_type:list=Instance%20Tree&portal_type:list=Compute%20Node&portal_type:list=Software%20Installation
 
 ]]></string> </value>
         </item>

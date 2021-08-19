@@ -35,7 +35,7 @@ if aggregate_value is None:
   return []
 
 # Limit the scope arround Instance tree otherwise we
-# Leak security on the Computers placed on the same site.
+# Leak security on the Compute Nodes placed on the same site.
 if aggregate_value.getPortalType() != "Instance Tree":
   return []
 

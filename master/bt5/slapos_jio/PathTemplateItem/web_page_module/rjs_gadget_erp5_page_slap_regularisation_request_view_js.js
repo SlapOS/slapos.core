@@ -101,7 +101,7 @@
           "Reference",
           "The name of a document in ERP5",
           "Ticket Type",
-          "Related Computer or Service",
+          "Related Compute Node or Service",
           "State",
           "Regularisation Request:",
           "The Status",

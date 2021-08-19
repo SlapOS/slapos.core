@@ -19,7 +19,7 @@
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_allocate_partition</string>
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_bang</string>
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_rename</string>
-                <string>destination/portal_workflow/instance_slap_interface_workflow/transition_report_computer_partition_error</string>
+                <string>destination/portal_workflow/instance_slap_interface_workflow/transition_report_compute_partition_error</string>
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_request_destroy</string>
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_request_instance</string>
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_request_start</string>

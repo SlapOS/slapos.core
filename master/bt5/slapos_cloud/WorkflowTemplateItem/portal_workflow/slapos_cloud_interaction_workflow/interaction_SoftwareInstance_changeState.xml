@@ -10,7 +10,7 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>before_commit_script/portal_workflow/slapos_cloud_interaction_workflow/script_SoftwareInstance_reindexComputerPartition</string>
+                <string>before_commit_script/portal_workflow/slapos_cloud_interaction_workflow/script_SoftwareInstance_reindexComputePartition</string>
               </tuple>
             </value>
         </item>

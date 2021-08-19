@@ -39,7 +39,7 @@ for line in obj.objectValues():
 if aggregate_value is None:
   return []
 
-# Object on this case can be Instance Tree, Computer, or Computer Network
+# Object on this case can be Instance Tree, Compute Node, or Computer Network
 project = aggregate_value.Item_getCurrentProjectValue()
 if project is not None:
   category_list.append({'destination_project': [project.getRelativeUrl()]})

@@ -9,7 +9,7 @@
                          .innerHTML,
     inline_status_template = Handlebars.compile(inline_status_source);
 
-  function checkComputerStatus(options) {
+  function checkComputeNodeStatus(options) {
     if (!options || !options.text) {
       return 'ui-btn-no-data';
     }
@@ -28,9 +28,9 @@
     return 'ui-btn-error';
   }
 
-  function checkComputerPartitionStatus(options) {
+  function checkComputePartitionStatus(options) {
     var message,
-      computer_partition,
+      compute_partition,
       partition_class = 'ui-btn-ok',
       error_amount = 0,
       total_amount = 0;
@@ -39,10 +39,10 @@
       return 'ui-btn-no-data';
     }
 
-    for (computer_partition in options) {
-      if (options.hasOwnProperty(computer_partition) &&
-          options[computer_partition].text) {
-        message = options[computer_partition].text;
+    for (compute_partition in options) {
+      if (options.hasOwnProperty(compute_partition) &&
+          options[compute_partition].text) {
+        message = options[compute_partition].text;
         if (message.startsWith("#error")) {
           partition_class = 'ui-btn-warning';
           error_amount += 1;
@@ -69,12 +69,12 @@
     var previous_status = "START",
       status = 'ui-btn-no-data',
       i;
-    if (!options || !options.news || !options.news.computer) {
+    if (!options || !options.news || !options.news.compute_node) {
       return status;
     }
-    for (i in options.news.computer) {
-      if (options.news.computer.hasOwnProperty(i)) {
-        status = checkComputerStatus(options.news.computer[i]);
+    for (i in options.news.compute_node) {
+      if (options.news.compute_node.hasOwnProperty(i)) {
+        status = checkComputeNodeStatus(options.news.compute_node[i]);
         if (previous_status === "START") {
           previous_status = status;
         }
@@ -95,13 +95,13 @@
   }
 
   function checkProjectPartitionStatus(options) {
-    var computer_reference,
+    var compute_node_reference,
       status = 'ui-btn-no-data',
       previous_status = "START";
-    for (computer_reference in options.news.partition) {
-      if (options.news.partition.hasOwnProperty(computer_reference)) {
-        status = checkComputerPartitionStatus(
-          options.news.partition[computer_reference]
+    for (compute_node_reference in options.news.partition) {
+      if (options.news.partition.hasOwnProperty(compute_node_reference)) {
+        status = checkComputePartitionStatus(
+          options.news.partition[compute_node_reference]
         );
         if (previous_status === "START") {
           previous_status = status;
@@ -130,7 +130,7 @@
   function getStatus(gadget, result) {
     var monitor_url,
       status_class = 'ui-btn-no-data',
-      status_title = 'Computer',
+      status_title = 'Compute Node',
       right_title = 'Partitions',
       right_class = 'ui-btn-no-data',
       status_style = '',

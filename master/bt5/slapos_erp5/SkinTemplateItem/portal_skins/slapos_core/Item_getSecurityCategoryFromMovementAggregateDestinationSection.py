@@ -34,7 +34,7 @@ aggregate_value = obj.getAggregateValue()
 if aggregate_value is None:
   return []
 
-# Object on this case can be Instance Tree, Computer, or Computer Network
+# Object on this case can be Instance Tree, Compute Node, or Computer Network
 organisation = aggregate_value.Item_getCurrentOwnerValue()
 if organisation is not None and \
   organisation.getPortalType() == "Organisation":

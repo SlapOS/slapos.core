@@ -116,7 +116,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: here.getAggregateValue(portal_type=\'Computer\').Computer_getSoftwareReleaseUsage(here.getUrlString())</string> </value>
+            <value> <string>python: here.getAggregateValue(portal_type=\'Compute Node\').ComputeNode_getSoftwareReleaseUsage(here.getUrlString())</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -118,7 +118,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Computer Title</string> </value>
+                    <value> <string>Compute Node Title</string> </value>
                 </item>
               </dictionary>
             </value>
@@ -134,7 +134,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: context.getAggregateValue(portal_type=\'Computer\').getTitle()</string> </value>
+            <value> <string>python: context.getAggregateValue(portal_type=\'Compute Node\').getTitle()</string> </value>
         </item>
       </dictionary>
     </pickle>

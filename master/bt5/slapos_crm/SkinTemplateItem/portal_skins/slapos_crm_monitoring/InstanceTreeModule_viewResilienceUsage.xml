@@ -116,7 +116,7 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>ComputerModule_viewTicketActivity</string> </value>
+            <value> <string>ComputeNodeModule_viewTicketActivity</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>

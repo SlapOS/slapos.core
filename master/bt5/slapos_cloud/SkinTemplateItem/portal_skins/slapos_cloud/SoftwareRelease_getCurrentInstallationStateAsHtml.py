@@ -9,7 +9,7 @@ software_installation = portal.portal_catalog.getResultValue(
                           portal_type='Software Installation',
                           validation_state='validated',
                           url_string=context.getUrlString(),
-                          default_aggregate_uid=computer_uid
+                          default_aggregate_uid=compute_node_uid
                         )
 if not software_installation or software_installation.getSlapState() == "destroy_requested":
   return '<span" style="%s" title="Information not available"></a>' % error_style

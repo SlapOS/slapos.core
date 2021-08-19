@@ -23,8 +23,8 @@
             (promise_list[0][index].command === "display_with_history_and_cancel") && (promise_list[0][index].options.jio_key) &&
             (promise_list[0][index].options.jio_key.startsWith("software_product_module"))) {
           promise_list[0][index].options.page = "slap_select_software_release";
-          if (gadget.computer_jio_key !== undefined) {
-            promise_list[0][index].options.computer_jio_key = gadget.computer_jio_key;
+          if (gadget.compute_node_jio_key !== undefined) {
+            promise_list[0][index].options.compute_node_jio_key = gadget.compute_node_jio_key;
           }
         }
       }
@@ -52,8 +52,8 @@
           "1/3 Select one Software"
         ];
 
-      if (options.computer_jio_key !== undefined) {
-        gadget.computer_jio_key = options.computer_jio_key;
+      if (options.compute_node_jio_key !== undefined) {
+        gadget.compute_node_jio_key = options.compute_node_jio_key;
       }
 
       return new RSVP.Queue()

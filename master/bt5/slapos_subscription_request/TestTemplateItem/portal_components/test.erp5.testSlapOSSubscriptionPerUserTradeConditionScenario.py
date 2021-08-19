@@ -46,7 +46,7 @@ class testSlapOSSubscriptionPerUserTradeConditionScenario(TestSlapOSSubscription
     return user_trade_condition
 
   def _test_subscription_scenario_with_custom_condition(self, amount=1, language=None):
-    """ The admin creates an computer, user can request instances on it"""
+    """ The admin creates an compute_node, user can request instances on it"""
 
     # Call as anonymous... check response?
     default_email_text = "abc%s@nexedi.com" % self.new_id
@@ -126,7 +126,7 @@ class testSlapOSSubscriptionPerUserTradeConditionScenarioDetaxed(TestSlapOSSubsc
     return user_trade_condition
 
   def _test_subscription_scenario_with_detaxed_condition(self, amount=1, language=None):
-    """ The admin creates an computer, user can request instances on it"""
+    """ The admin creates an compute_node, user can request instances on it"""
 
     # Call as anonymous... check response?
     default_email_text = "abc%s@nexedi.com" % self.new_id

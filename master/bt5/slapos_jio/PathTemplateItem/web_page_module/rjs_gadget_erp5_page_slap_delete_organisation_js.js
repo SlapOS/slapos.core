@@ -64,7 +64,7 @@
           "Site is Deleted.",
           "Organisation to be removed:",
           "Warning",
-          "You cannot delete this object because you have associated Computers and/or services.",
+          "You cannot delete this object because you have associated Compute Nodes and/or services.",
           "Parent Relative Url",
           "Delete Site:"
         ];

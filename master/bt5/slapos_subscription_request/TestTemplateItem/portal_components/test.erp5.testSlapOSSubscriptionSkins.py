@@ -147,7 +147,7 @@ class TestSubscriptionCondition_renderKVMClusterParameter(TestSubscriptionSkinsM
       "ram-size": 245760, 
       "project-guid": "PROJ-XXXX", 
       "cpu-max-count": 41, 
-      "sticky-computer": true
+      "sticky-compute-node": true
     }
   }
 }</parameter>
@@ -166,7 +166,7 @@ class TestSubscriptionCondition_renderKVMClusterParameter(TestSubscriptionSkinsM
       "ram-size": 245760, 
       "project-guid": "PROJ-XXXX", 
       "cpu-max-count": 41, 
-      "sticky-computer": true
+      "sticky-compute-node": true
     }, 
     "KVM1": {
       "disk-device-path": "/dev/sdb", 
@@ -856,8 +856,8 @@ class TestSubscriptionRequest_notifyInstanceIsReady(TestSubscriptionSkinsMixin):
     price_currency="currency_module/EUR",
     default_email_text="abc%s@nexedi.com" % self.new_id)
     self._makeTree()
-    _, p1 = self._makeComputer()
-    _, p2 = self._makeComputer()
+    _, p1 = self._makeComputeNode()
+    _, p2 = self._makeComputeNode()
 
     self.person_user = person
     self.instance_tree.setDestinationSection(self.person_user.getRelativeUrl())
@@ -1311,14 +1311,14 @@ class TestSubscriptionRequest_verifyInstanceIsAllocated(TestSubscriptionSkinsMix
   
     if slave:
       self._makeSlaveTree()
-      _, p0 = self._makeComputer()
+      _, p0 = self._makeComputeNode()
       self.software_instance.setAggregateValue(p0)
       self.requested_software_instance.setSpecialise(None)
 
     else:
       self._makeTree()
-      _, p0 = self._makeComputer()
-      _, p1 = self._makeComputer()
+      _, p0 = self._makeComputeNode()
+      _, p1 = self._makeComputeNode()
 
       # Ensure the requested instances aren't allocated
       self.requested_software_instance.setAggregateValue(p1)

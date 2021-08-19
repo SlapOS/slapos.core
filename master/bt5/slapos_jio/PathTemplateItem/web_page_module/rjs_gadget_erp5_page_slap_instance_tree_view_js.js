@@ -443,7 +443,7 @@
                       "default_params": {},
                       "editable": 1,
                       "editable_column_list": [],
-                      "key": "slap_project_computer_listbox",
+                      "key": "slap_project_compute_node_listbox",
                       "lines": 20,
                       "list_method": "portal_catalog",
                       "query": "urn:jio:allDocs?query=%28portal_type%3A%28%22" +

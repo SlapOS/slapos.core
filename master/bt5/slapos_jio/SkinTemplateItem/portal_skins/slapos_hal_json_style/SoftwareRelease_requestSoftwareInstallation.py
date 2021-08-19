@@ -1,9 +1,9 @@
 import json
 portal = context.getPortalObject()
 
-computer = portal.restrictedTraverse(computer)
+compute_node = portal.restrictedTraverse(compute_node)
 
-computer.requestSoftwareRelease(
+compute_node.requestSoftwareRelease(
   software_release_url=context.getUrlString(),
   state='available')
 

@@ -57,7 +57,7 @@ class TestSlapOSRequestValidationPayment(SlapOSTestCaseMixin):
     preference =  self.portal.portal_preferences.getActiveSystemPreference()
     preference.setPreferredCloudContractEnabled(True)
     self.tic()
-    self._makeComputer()
+    self._makeComputeNode()
     self.software_instance.setAggregate(self.partition.getRelativeUrl())
     self.tic()
 
@@ -73,7 +73,7 @@ class TestSlapOSRequestValidationPayment(SlapOSTestCaseMixin):
     preference =  self.portal.portal_preferences.getActiveSystemPreference()
     preference.setPreferredCloudContractEnabled(True)
     self.tic()
-    self._makeComputer()
+    self._makeComputeNode()
     self.software_instance.setAggregate(self.partition.getRelativeUrl())
     self.tic()
     

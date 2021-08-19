@@ -1,5 +1,5 @@
 """
-  Create an internal Packing List and attach the computer
+  Create an internal Packing List and attach the compute_node
 """
 from DateTime import DateTime
 from zExceptions import Unauthorized
@@ -26,7 +26,7 @@ if destination_section is None:
 source = context.getSourceAdministration()
 destination = context.getSourceAdministration()
 
-resource_value = context.product_module.computer
+resource_value = context.product_module.compute_node
 
 module = context.getDefaultModule(portal_type=portal_type)
 line_portal_type = '%s Line' % portal_type

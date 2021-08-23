@@ -103,9 +103,15 @@ def HostingSubscription_checkInstanceTreeMigrationConsistency(self, fixit=False)
 
   portal = self.getPortalObject()
 
-  # Do not use accessor, as backward compatibility will not be kept
+  if self.getParentValue().getId() != "hosting_subscription_module":
+    # Skip if the document isn't on the hosting_subscription_module
+    return error_list
+
+  mod = __import__('erp5.portal_type', globals(), locals(),  ['Instance Tree'])
+  klass = getattr(mod, 'Instance Tree')
   if ((getattr(self, 'workflow_history', None) is not None) and
       ('hosting_subscription_workflow' in self.workflow_history)) or \
+     (self.__class__ == klass) or \
      (self.getProperty('sla_xml', None) is not None) or \
      ([x for x in self.getCategoryList() if (x.startswith('predecessor/') or
                                              x.startswith('successor/'))]):
@@ -116,9 +122,6 @@ def HostingSubscription_checkInstanceTreeMigrationConsistency(self, fixit=False)
       hosting_subscription_relative_url = self.getRelativeUrl()
 
       self.getParentValue()._delObject(hosting_subscription_id)
-
-      mod = __import__('erp5.portal_type', globals(), locals(),  ['Instance Tree'])
-      klass = getattr(mod, 'Instance Tree')
 
       self.__class__ = klass
       # self.upgradeObjectClass(returnTrue, 'erp5.portal_type.Hosting Subscription', 'erp5.portal_type.Instance Tree', returnTrue)

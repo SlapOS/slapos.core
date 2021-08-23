@@ -10,6 +10,7 @@ Computer | SlaposComputerConstraint
 Computer | Url
 Email | SlaposEmailConstraint
 Hosting Subscription | HostingSubscriptionUpgradeConstraint
+Instance Tree | HostingSubscriptionUpgradeConstraint
 Instance Tree | InstanceTree
 Instance Tree | SlaposInstanceTreeConstraint
 Instance Tree | SoftwareInstance

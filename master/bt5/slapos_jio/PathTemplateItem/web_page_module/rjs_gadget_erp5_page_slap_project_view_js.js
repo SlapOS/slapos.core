@@ -30,21 +30,64 @@
         .push(function (result) {
           var i, value, value_jio_key, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
-            if (1 || (result.data.rows[i].value.hasOwnProperty("Computer_getNewsDict"))) {
-              value_jio_key = result.data.rows[i].id;
-              value = result.data.rows[i].value.Computer_getNewsDict;
-              result.data.rows[i].value.Computer_getNewsDict = {
-                field_gadget_param : {
-                  css_class: "",
-                  description: gadget.description_translation,
-                  hidden: 0,
-                  "default": {jio_key: value_jio_key, result: value},
-                  key: "status",
-                  url: "gadget_slapos_computer_status.html",
-                  title: gadget.title_translation,
-                  type: "GadgetField"
-                }
-              };
+            if (result.data.rows[i].value.hasOwnProperty("portal_type")) {
+              if (result.data.rows[i].value.portal_type === "Computer") {
+                value_jio_key = result.data.rows[i].id;
+                value = result.data.rows[i].value.Document_getNewsDict;
+                // Use a User-friendly for the Website, this value should be translated
+                // most liketly
+                result.data.rows[i].value.portal_type = "Server";
+                result.data.rows[i].value.Document_getNewsDict = {
+                  field_gadget_param : {
+                    css_class: "",
+                    description: gadget.description_translation,
+                    hidden: 0,
+                    "default": {jio_key: value_jio_key, result: value},
+                    key: "status",
+                    url: "gadget_slapos_computer_status.html",
+                    title: gadget.title_translation,
+                    type: "GadgetField"
+                  }
+                };
+              }
+              if (result.data.rows[i].value.portal_type === "Instance Tree") {
+                value_jio_key = result.data.rows[i].id;
+                value = result.data.rows[i].value.Document_getNewsDict;
+                // Use a User-friendly for the Website, this value should be translated
+                // most liketly
+                result.data.rows[i].value.portal_type = "Service";
+                result.data.rows[i].value.Document_getNewsDict = {
+                  field_gadget_param : {
+                    css_class: "",
+                    description: gadget.description_translation,
+                    hidden: 0,
+                    "default": {jio_key: value_jio_key, result: value},
+                    key: "status",
+                    url: "gadget_slapos_instance_tree_status.html",
+                    title: gadget.title_translation,
+                    type: "GadgetField"
+                  }
+                };
+              }
+              if (result.data.rows[i].value.portal_type === "Computer Network") {
+                value_jio_key = result.data.rows[i].id;
+                value = result.data.rows[i].value.Document_getNewsDict;
+                // Use a User-friendly for the Website, this value should be translated
+                // most liketly
+                result.data.rows[i].value.portal_type = "Network";
+                result.data.rows[i].value.Document_getNewsDict = {
+                  field_gadget_param : {
+                    css_class: "",
+                    description: gadget.description_translation,
+                    hidden: 0,
+                    "default": {jio_key: value_jio_key, result: value},
+                    key: "status",
+                    url: "gadget_slapos_network_status.html",
+                    title: gadget.title_translation,
+                    type: "GadgetField"
+                  }
+                };
+              }
               result.data.rows[i].value["listbox_uid:list"] = {
                 key: "listbox_uid:list",
                 value: 2713
@@ -97,7 +140,8 @@
           "Project",
           "The Status",
           "Status",
-          "Data updated."
+          "Data updated.",
+          "Type"
         ];
       return new RSVP.Queue()
         .push(function () {
@@ -116,7 +160,8 @@
             column_list = [
               ['title', result[2][0]],
               ['reference', result[2][1]],
-              ['Computer_getNewsDict', result[2][8]]
+              ['portal_type', result[2][10]],
+              ['Document_getNewsDict', result[2][8]]
             ];
           return result[0].render({
             erp5_document: {

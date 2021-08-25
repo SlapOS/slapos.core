@@ -136,7 +136,7 @@
           "The name of a document in ERP5",
           "Description",
           "Monitoring Status",
-          "Associated Servers",
+          "Items",
           "Project",
           "The Status",
           "Status",

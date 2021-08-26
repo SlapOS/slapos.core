@@ -32,9 +32,24 @@ from Products.ERP5Security import SUPER_USER
 from zExceptions import Unauthorized
 from DateTime import DateTime
 from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
-from Acquisition import aq_base
-# from erp5.portal_type import InstanceTree
+from Acquisition import aq_base, aq_inner
 
+
+def cloneDocumentWithANewPortalType(obj, portal_type):
+  import erp5.portal_type
+  klass = getattr(erp5.portal_type, portal_type)
+
+  obj = aq_base(obj)
+
+  new_obj = klass(obj.id)
+  # raise NotImplementedError(str(obj.__dict__.keys()))
+  for key in obj.__dict__.keys():
+    if key not in ('meta_type', 'portal_type', '__class__'):
+      setattr(new_obj, key, obj.__dict__[key])
+
+  new_obj.portal_type = portal_type
+
+  return new_obj
 
 
 def SoftwareInstance_bangAsSelf(self, relative_url=None, reference=None,
@@ -142,6 +157,84 @@ def HostingSubscription_checkInstanceTreeMigrationConsistency(self, fixit=False)
 
   return error_list
 
+def ComputerPartition_checkComputePartitionMigrationConsistency(self, fixit=False):
+  error_list = []
+
+  import erp5.portal_type
+  klass = getattr(erp5.portal_type, 'Compute Partition')
+
+  if ((getattr(self, 'workflow_history', None) is not None) and
+      ('computer_partition_slap_interface_workflow' in self.workflow_history)) or \
+     ((self.__class__ == klass) and (self.getPortalType() == 'Computer Partition')) or \
+     ((self.getParentValue().getPortalType() == 'Compute Node') and (self.getPortalType() == 'Computer Partition')):
+    if fixit:
+      assert self.getPortalType() == 'Computer Partition'
+
+      container = aq_inner(self.getParentValue())
+      partition_id = self.getId()
+      self = cloneDocumentWithANewPortalType(self, 'Compute Partition')
+      container._delObject(partition_id)
+      container._setOb(partition_id, self)
+      compute_partition = container.restrictedTraverse(partition_id)
+
+      assert compute_partition.getPortalType() == 'Compute Partition'
+
+      if (getattr(compute_partition, 'workflow_history', None) is not None) and \
+         ('computer_partition_slap_interface_workflow' in compute_partition.workflow_history):
+        compute_partition.workflow_history['compute_partition_slap_interface_workflow'] = compute_partition.workflow_history.pop('computer_partition_slap_interface_workflow')
+
+      compute_partition.activate().reindexObject()
+    else:
+      error_list.append('Computer Partition must be migrated to a Compute Partition')
+
+  return error_list
+
+def Computer_checkComputeNodeMigrationConsistency(self, fixit=False):
+  error_list = []
+
+  portal = self.getPortalObject()
+
+  if self.getParentValue().getId() != "computer_module":
+    # Skip if the document isn't on the computer_module
+    return error_list
+
+  import erp5.portal_type
+  klass = getattr(erp5.portal_type, 'Compute Node')
+
+  if ((getattr(self, 'workflow_history', None) is not None) and
+      ('computer_slap_interface_workflow' in self.workflow_history)) or \
+     (self.__class__ == klass):
+    if fixit:
+      assert self.getPortalType() == 'Computer'
+      computer_id = self.getId()
+      computer_relative_url = self.getRelativeUrl()
+
+      container = aq_inner(self.getParentValue())
+
+      self = cloneDocumentWithANewPortalType(self, 'Compute Node')
+
+      container._delObject(computer_id)
+      assert self.getPortalType() == 'Compute Node'
+
+      if (getattr(self, 'workflow_history', None) is not None) and \
+         ('computer_slap_interface_workflow' in self.workflow_history):
+        self.workflow_history['compute_node_slap_interface_workflow'] = self.workflow_history.pop('computer_slap_interface_workflow')
+
+      portal.compute_node_module._setOb(computer_id, self)
+
+      compute_node = portal.compute_node_module.restrictedTraverse(computer_id)
+
+      for sub_obj in compute_node.contentValues():
+        sub_obj.activate().fixConsistency()
+
+      compute_node.activate().recursiveReindexObject()
+      UnrestrictedMethod(compute_node.Base_updateRelatedContentWithoutReindextion)(computer_relative_url, compute_node.getRelativeUrl())
+
+    else:
+      error_list.append('Computer must be migrated to a Compute Node')
+
+  return error_list
+
 
 def Base_updateRelatedContentWithoutReindextion(self, previous_category_url, new_category_url, REQUEST=None):
   """ This method indeed reimplements the updateRelatedContent but it uses 
@@ -149,7 +242,7 @@ def Base_updateRelatedContentWithoutReindextion(self, previous_category_url, new
   """
   if REQUEST is not None:
     raise Unauthorized("You cannot call this script")
-    
+
   portal = self.getPortalObject()
   activate_kw = {'tag':'%s_updateRelatedContent' % self.getPath()}
 

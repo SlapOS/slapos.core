@@ -149,3 +149,197 @@ class TestSlapOSCloudUpgrader(SlapOSTestCaseMixin):
     self.assertFalse(migration_message in getMessageList(migrated_instance_tree))
     self.assertEqual(migrated_instance_tree.getRelativeUrl(),
                      software_instance.getAggregate())
+
+  def test_upgrade_computer_to_compute_node(self):
+    migration_message = 'Computer must be migrated to a Compute Node'
+
+    computer_module = self.portal.getDefaultModule('Computer')
+
+    computer_nothing_to_migrate = computer_module.newContent(
+      portal_type='Computer'
+    )
+
+    computer_to_migrate = computer_module.newContent(
+      portal_type='Computer',
+      quantity=99,
+      bar='foo3'
+    )
+
+    # Create fake workflow history
+    creation_date = DateTime('2011/11/15 11:11')
+    modification_date = DateTime('2012/11/15 11:11')
+    computer_to_migrate.workflow_history['edit_workflow'] = [{
+        'comment':'Fake history',
+        'error_message': '',
+        'actor': 'ERP5TypeTestCase',
+        'state': 'current',
+        'time': creation_date,
+        'action': 'foo_action'
+        }]
+    computer_to_migrate.workflow_history['validation_workflow'] = [{
+        'comment':'Fake history',
+        'error_message': '',
+        'actor': 'ERP5TypeTestCase',
+        'validation_state': 'validated',
+        'time': modification_date,
+        'action': 'validate'
+        }]
+    computer_to_migrate.workflow_history['computer_slap_interface_workflow'] = [{
+        'comment':'Fake history',
+        'error_message': '',
+        'actor': 'ERP5TypeTestCase',
+        'slap_state': 'draft',
+        'time': modification_date,
+        'action': 'barfoo'
+        }]
+
+    computer_partition = computer_to_migrate.newContent(
+      portal_type='Computer Partition'
+    )
+
+    # Check that related object are updated
+    software_installation = self.portal.software_installation_module.newContent(
+      portal_type='Software Installation',
+      aggregate_value=computer_to_migrate
+    )
+    software_instance = self.portal.software_instance_module.newContent(
+      portal_type='Software Instance',
+      aggregate_value=computer_partition
+    )
+
+    computer_to_migrate_id = computer_to_migrate.getId()
+    computer_to_migrate_uid = computer_to_migrate.getUid()
+    self.tic()
+
+    # Nothing to migrate
+    self.assertFalse(migration_message in getMessageList(computer_nothing_to_migrate))
+
+    # To migrate
+    self.assertTrue(migration_message in getMessageList(computer_to_migrate))
+    computer_to_migrate.fixConsistency()
+
+    self.commit()
+    self.assertFalse(computer_to_migrate.hasActivity())
+
+    compute_node_module = self.portal.getDefaultModule('Compute Node')
+    migrated_compute_node = compute_node_module.restrictedTraverse(computer_to_migrate_id)
+    migrated_computer_partition = migrated_compute_node.restrictedTraverse(computer_partition.getId())
+
+    self.assertTrue(migrated_compute_node.hasActivity())
+    self.assertFalse(computer_partition.hasActivity())
+    self.assertTrue(migrated_computer_partition.hasActivity())
+
+    self.assertEqual('Computer Partition',
+                     migrated_computer_partition.getPortalType())
+
+    self.assertFalse(software_installation.hasActivity())
+    self.assertFalse(software_instance.hasActivity())
+    self.tic()
+    migrated_computer_partition = migrated_compute_node.restrictedTraverse(computer_partition.getId())
+
+    self.assertEqual('Compute Node',
+                     migrated_compute_node.getPortalType())
+    self.assertEqual(self.portal.compute_node_module,
+                     migrated_compute_node.getParentValue())
+    self.assertEqual(computer_to_migrate_id,
+                     migrated_compute_node.getId())
+    self.assertEqual(computer_to_migrate_uid,
+                     migrated_compute_node.getUid())
+    self.assertEqual(99,
+                     migrated_compute_node.getQuantity())
+    self.assertEqual('foo3',
+                     migrated_compute_node.getProperty('bar'))
+    self.assertEqual('validated',
+                     migrated_compute_node.getValidationState())
+    self.assertEqual('draft',
+                     migrated_compute_node.getSlapState())
+    self.assertEqual(creation_date,
+                     migrated_compute_node.getCreationDate())
+    # self.assertEqual(modification_date,
+    #                  migrated_compute_node.getModificationDate())
+    self.assertFalse('computer_slap_interface_workflow' in migrated_compute_node.workflow_history)
+
+    self.assertFalse(migration_message in getMessageList(migrated_compute_node))
+    self.assertEqual(migrated_compute_node.getRelativeUrl(),
+                     software_installation.getAggregate())
+    self.assertEqual(migrated_computer_partition.getRelativeUrl(),
+                     software_instance.getAggregate())
+    self.assertEqual('Compute Partition',
+                     migrated_computer_partition.getPortalType())
+
+  def test_upgrade_computer_partition_to_compute_partition(self):
+    migration_message = 'Computer Partition must be migrated to a Compute Partition'
+
+    computer_module = self.portal.getDefaultModule('Computer')
+    computer = computer_module.newContent(
+      portal_type='Computer'
+    )
+    computer_partition_to_migrate = computer.newContent(
+      portal_type='Computer Partition',
+      quantity=99,
+      bar='foo3'
+    )
+    computer_nothing_to_migrate = computer.newContent(
+      portal_type='Computer Partition'
+    )
+
+    # Create fake workflow history
+    creation_date = DateTime('2011/11/15 11:11')
+    modification_date = DateTime('2012/11/15 11:11')
+    computer_partition_to_migrate.workflow_history['edit_workflow'] = [{
+        'comment':'Fake history',
+        'error_message': '',
+        'actor': 'ERP5TypeTestCase',
+        'state': 'current',
+        'time': creation_date,
+        'action': 'foo_action'
+        }]
+    computer_partition_to_migrate.workflow_history['validation_workflow'] = [{
+        'comment':'Fake history',
+        'error_message': '',
+        'actor': 'ERP5TypeTestCase',
+        'validation_state': 'validated',
+        'time': modification_date,
+        'action': 'validate'
+        }]
+    computer_partition_to_migrate.workflow_history['computer_partition_slap_interface_workflow'] = [{
+        'comment':'Fake history',
+        'error_message': '',
+        'actor': 'ERP5TypeTestCase',
+        'slap_state': 'draft',
+        'time': modification_date,
+        'action': 'barfoo'
+        }]
+
+    self.tic()
+
+    # Nothing to migrate
+    self.assertFalse(migration_message in getMessageList(computer_nothing_to_migrate))
+
+    # To migrate
+    self.assertTrue(migration_message in getMessageList(computer_partition_to_migrate))
+    computer_partition_to_migrate.fixConsistency()
+
+    self.commit()
+    migrated_computer_partition = computer.restrictedTraverse(computer_partition_to_migrate.getId())
+    self.assertTrue(migrated_computer_partition.hasActivity())
+
+    self.tic()
+
+    self.assertEqual('Compute Partition',
+                     migrated_computer_partition.getPortalType())
+    self.assertEqual(99,
+                     migrated_computer_partition.getQuantity())
+    self.assertEqual('foo3',
+                     migrated_computer_partition.getProperty('bar'))
+    self.assertEqual('validated',
+                     migrated_computer_partition.getValidationState())
+    self.assertEqual('draft',
+                     migrated_computer_partition.getSlapState())
+    self.assertEqual(creation_date,
+                     migrated_computer_partition.getCreationDate())
+    # self.assertEqual(modification_date,
+    #                  migrated_compute_node.getModificationDate())
+    self.assertFalse('computer_partition_slap_interface_workflow' in migrated_computer_partition.workflow_history)
+
+    self.assertFalse(migration_message in getMessageList(computer_partition_to_migrate))

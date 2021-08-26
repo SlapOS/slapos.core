@@ -7,17 +7,25 @@
  </portal_type>
  <portal_type id="Compute Node">
   <item>ComputeNodeSlapOSMetadata</item>
+  <item>ComputerUpgradeConstraint</item>
   <item>ERP5User</item>
   <item>SlaposCapacity</item>
   <item>SlaposComputeNodeConstraint</item>
   <item>Url</item>
  </portal_type>
+ <portal_type id="Compute Partition">
+  <item>ComputePartition</item>
+  <item>ComputerPartitionUpgradeConstraint</item>
+  <item>SlaposComputePartitionConstraint</item>
+ </portal_type>
+ <portal_type id="Computer">
+  <item>ComputerUpgradeConstraint</item>
+ </portal_type>
  <portal_type id="Computer Model">
   <item>SlaposCapacity</item>
  </portal_type>
- <portal_type id="Compute Partition">
-  <item>ComputePartition</item>
-  <item>SlaposComputePartitionConstraint</item>
+ <portal_type id="Computer Partition">
+  <item>ComputerPartitionUpgradeConstraint</item>
  </portal_type>
  <portal_type id="Email">
   <item>SlaposEmailConstraint</item>

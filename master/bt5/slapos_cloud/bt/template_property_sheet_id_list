@@ -5,6 +5,8 @@ SlaposInstanceTreeConstraint
 SlaveInstanceConstraint
 InternetProtocolAddress
 HostingSubscriptionUpgradeConstraint
+ComputerUpgradeConstraint
+ComputerPartitionUpgradeConstraint
 ComputePartition
 SoftwareInstance
 SoftwareInstanceUpgradeConstraint

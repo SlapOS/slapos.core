@@ -26,6 +26,7 @@
   <item>HostingSubscriptionUpgradeConstraint</item>
  </portal_type>
  <portal_type id="Instance Tree">
+  <item>HostingSubscriptionUpgradeConstraint</item>
   <item>InstanceTree</item>
   <item>SlaposInstanceTreeConstraint</item>
   <item>SoftwareInstance</item>

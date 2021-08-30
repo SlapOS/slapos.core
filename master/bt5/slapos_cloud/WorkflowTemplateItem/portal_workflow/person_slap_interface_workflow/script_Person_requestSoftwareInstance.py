@@ -52,7 +52,7 @@ else:
     context.REQUEST.set('request_instance_tree', None)
     return
   instance_tree_reference = "HOSTSUBS-%s" % context.getPortalObject().portal_ids\
-      .generateNewId(id_group='slap_instance_tree_reference', id_generator='uid')
+      .generateNewId(id_group='slap_hosting_subscription_reference', id_generator='uid')
   request_instance_tree = portal.getDefaultModule(portal_type=instance_tree_portal_type).newContent(
     portal_type=instance_tree_portal_type,
     reference=instance_tree_reference,

@@ -14,7 +14,7 @@ ticket.validate()
 
 trade_condition = portal.sale_trade_condition_module.slapos_ticket_trade_condition
 
-web_message = context.Ticket_createInitialEvent()
+web_message = context.Ticket_createInitialEvent(state_object)
 
 ticket.edit(
   source_section = trade_condition.getSourceSection(),

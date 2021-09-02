@@ -164,6 +164,20 @@ def md5digest(url):
   return hashlib.md5(url.encode('utf-8')).hexdigest()
 
 
+def getPythonExecutableFromSoftwarePath(software_path):
+  """
+  Return the path of the python executable installed for the software release
+  installed as `software_path`.
+  """
+  try:
+    with open(os.path.join(software_path, 'bin', 'buildout')) as f:
+      shebang = f.readline()
+  except OSError:
+    return
+  if shebang.startswith('#!'):
+    return shebang[2:].split(None, 1)[0]
+
+
 def getCleanEnvironment(logger, home_path='/tmp'):
   changed_env = {}
   removed_env = []

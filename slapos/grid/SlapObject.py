@@ -472,6 +472,8 @@ class Partition(object):
 
     self.instance_min_free_space = instance_min_free_space
 
+    self.instance_python = self.getInstalledPythonExecutable()
+
 
   def check_free_space(self):
     required = self.instance_min_free_space or 0
@@ -705,6 +707,7 @@ class Partition(object):
                          debug=self.buildout_debug)
     self.generateSupervisorConfigurationFile()
     self.createRetentionLockDelay()
+    self.instance_python = self.getInstalledPythonExecutable()
 
   def generateSupervisorConfiguration(self):
     """
@@ -1042,4 +1045,15 @@ class Partition(object):
       with open(self.retention_lock_date_file_path) as date_file_path:
         return float(date_file_path.read())
     else:
+      return None
+
+  def getInstalledPythonExecutable(self):
+    """
+    Return the path of the python executable installed for the SR of this instance.
+    """
+    installed_cfg = ConfigParser()
+    installed_cfg.read(os.path.join(self.software_path, '.installed.cfg'))
+    try:
+      return installed_cfg.get('python', 'executable')
+    except Exception:
       return None

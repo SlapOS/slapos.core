@@ -94,7 +94,7 @@
             column_list = [
               ['title', result[2][0]],
               ['reference', result[2][1]],
-              ['default_address_region_title', result[2][2]],
+              //['default_address_region_title', result[2][2]],
               ['Organisation_getNewsDict', result[2][3]]
             ];
           destination_list = '%22NULL%22%2C';

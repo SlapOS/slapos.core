@@ -302,10 +302,12 @@ def check_required_only_partitions(existing, required):
   """
   Verify the existence of partitions specified by the --only parameter
   """
-  missing = set(required) - set(existing)
+  required = set(required)
+  missing = required.difference(existing)
   if missing:
     plural = ['s', ''][len(missing) == 1]
     raise ValueError('Unknown partition%s: %s' % (plural, ', '.join(sorted(missing))))
+  return required
 
 
 class Slapgrid(object):
@@ -548,6 +550,18 @@ stderr_logfile_backups=1
     except socket.error as exc:
       self.logger.fatal(exc)
       raise
+
+  def getRequiredComputerPartitionList(self):
+    """Return the computer partitions that should be processed.
+    """
+    cp_list = self.getComputerPartitionList()
+    cp_id_list = [cp.getId() for cp in cp_list]
+    required_cp_id_set = check_required_only_partitions(
+      cp_id_list, self.computer_partition_filter_list)
+    busy_cp_list = self.FilterComputerPartitionList(cp_list)
+    if required_cp_id_set:
+      return [cp for cp in busy_cp_list if cp.getId() in required_cp_id_set]
+    return busy_cp_list
 
   def processSoftwareReleaseList(self):
     """Will process each Software Release.
@@ -972,12 +986,6 @@ stderr_logfile_backups=1
     if not computer_partition_id:
       raise ValueError('Computer Partition id is empty.')
 
-    # Check if we defined explicit list of partitions to process.
-    # If so, if current partition not in this list, skip.
-    if len(self.computer_partition_filter_list) > 0 and \
-         (computer_partition_id not in self.computer_partition_filter_list):
-      return
-
     instance_path = os.path.join(self.instance_root, computer_partition_id)
     os.environ['SLAPGRID_INSTANCE_ROOT'] = self.instance_root
     try:
@@ -1037,12 +1045,6 @@ stderr_logfile_backups=1
     # Those values should not be None or empty string or any falsy value
     if not computer_partition_id:
       raise ValueError('Computer Partition id is empty.')
-
-    # Check if we defined explicit list of partitions to process.
-    # If so, if current partition not in this list, skip.
-    if len(self.computer_partition_filter_list) > 0 and \
-         (computer_partition_id not in self.computer_partition_filter_list):
-      return
 
     self.logger.debug('Check if %s requires processing...' % computer_partition_id)
 
@@ -1357,12 +1359,7 @@ stderr_logfile_backups=1
     # Boolean to know if every promises correctly passed
     clean_run_promise = True
 
-    check_required_only_partitions([cp.getId() for cp in self.getComputerPartitionList()],
-                                   self.computer_partition_filter_list)
-
-    # Filter all dummy / empty partitions
-    computer_partition_list = self.FilterComputerPartitionList(
-        self.getComputerPartitionList())
+    computer_partition_list = self.getRequiredComputerPartitionList()
 
     process_error_partition_list = []
     promise_error_partition_list = []
@@ -1438,12 +1435,8 @@ stderr_logfile_backups=1
     self.logger.info('Processing promises...')
     # Return success value
     clean_run_promise = True
-    check_required_only_partitions([cp.getId() for cp in self.getComputerPartitionList()],
-                                   self.computer_partition_filter_list)
 
-    # Filter all dummy / empty partitions
-    computer_partition_list = self.FilterComputerPartitionList(
-        self.getComputerPartitionList())
+    computer_partition_list = self.getRequiredComputerPartitionList()
 
     promise_error_partition_list = []
     for computer_partition in computer_partition_list:

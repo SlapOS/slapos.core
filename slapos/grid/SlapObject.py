@@ -45,7 +45,8 @@ from six.moves.configparser import ConfigParser
 from supervisor import xmlrpc
 
 from slapos.grid.utils import (md5digest, getCleanEnvironment,
-                               SlapPopen, dropPrivileges, updateFile)
+                               SlapPopen, dropPrivileges, updateFile,
+                               getPythonExecutableFromSoftwarePath)
 from slapos.grid import utils  # for methods that could be mocked, access them through the module
 from slapos.slap.slap import NotFoundError
 from slapos.grid.svcbackend import getSupervisorRPC
@@ -472,6 +473,8 @@ class Partition(object):
 
     self.instance_min_free_space = instance_min_free_space
 
+    self.instance_python = getPythonExecutableFromSoftwarePath(self.software_path)
+
 
   def check_free_space(self):
     required = self.instance_min_free_space or 0
@@ -705,6 +708,7 @@ class Partition(object):
                          debug=self.buildout_debug)
     self.generateSupervisorConfigurationFile()
     self.createRetentionLockDelay()
+    self.instance_python = getPythonExecutableFromSoftwarePath(self.software_path)
 
   def generateSupervisorConfiguration(self):
     """

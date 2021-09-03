@@ -383,10 +383,16 @@
               });
             })
             .push(function (map_gadget) {
-              return map_gadget.render({
+              var map_options = {
                 zoom : 40,
                 marker_list : marker_list
-              });
+              };
+              if (marker_list.length === 0) {
+                map_options.latitude = 48.858370;
+                map_options.longitude = 2.294481;
+                map_options.zoom = 0;
+              }
+              return map_gadget.render(map_options);
             });
         });
     });

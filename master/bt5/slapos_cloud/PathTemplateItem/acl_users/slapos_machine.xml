@@ -12,7 +12,12 @@
         </item>
         <item>
             <key> <string>login_portal_type_list</string> </key>
-            <value> <string>ERP5 Login,Certificate Login</string> </value>
+            <value>
+              <list>
+                <string>ERP5 Login</string>
+                <string>Certificate Login</string>
+              </list>
+            </value>
         </item>
         <item>
             <key> <string>title</string> </key>

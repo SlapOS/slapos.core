@@ -20,7 +20,7 @@
               <tuple>
                 <string>action_type/workflow</string>
                 <string>before_script/portal_workflow/ticket_workflow/script_checkConsistency</string>
-                <string>after_script/portal_workflow/ticket_workflow/script_createResponseAndInvalidate</string>
+                <string>after_script/portal_workflow/ticket_workflow/script_createResponseAndSuspend</string>
               </tuple>
             </value>
         </item>

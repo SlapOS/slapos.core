@@ -62,7 +62,11 @@ from slapos.grid.svcbackend import (launchSupervisord,
                                     createSupervisordConfiguration,
                                     _getSupervisordConfigurationDirectory,
                                     _getSupervisordSocketPath)
-from slapos.grid.utils import (md5digest, dropPrivileges, SlapPopen, updateFile)
+from slapos.grid.utils import (md5digest,
+                              dropPrivileges,
+                              SlapPopen,
+                              SlapWait,
+                              updateFile)
 from slapos.grid.promise import PromiseLauncher, PromiseError
 from slapos.grid.promise.generic import PROMISE_LOG_FOLDER_NAME
 from slapos.human import human2bytes
@@ -669,18 +673,17 @@ stderr_logfile_backups=1
     return SLAPGRID_SUCCESS
 
   def _checkPromiseList(self, partition, force=True, check_anomaly=False):
+    self.logger.info("Checking %s promises..." % partition.partition_id)
+
     instance_path = os.path.join(self.instance_root, partition.partition_id)
     promise_log_path = os.path.join(instance_path, PROMISE_LOG_FOLDER_NAME)
-
-    self.logger.info("Checking %s promises..." % partition.partition_id)
-    uid, gid = None, None
-    stat_info = os.stat(instance_path)
-
-    #stat sys call to get statistics informations
-    uid = stat_info.st_uid
-    gid = stat_info.st_gid
     promise_dir = os.path.join(instance_path, 'etc', 'plugin')
     legacy_promise_dir = os.path.join(instance_path, 'etc', 'promise')
+
+    stat_info = os.stat(instance_path)
+    uid = stat_info.st_uid
+    gid = stat_info.st_gid
+
     promise_config = {
       'promise-folder': promise_dir,
       'legacy-promise-folder': legacy_promise_dir,
@@ -697,6 +700,29 @@ stderr_logfile_backups=1
       'partition-id': partition.partition_id,
       'computer-id': self.computer_id,
     }
+
+    promise_runner = os.path.join(partition.software_path, 'bin', 'runpromise')
+    has_plugins = os.path.isdir(promise_dir) and os.listdir(promise_dir)
+    if os.path.exists(promise_runner) and has_plugins:
+      self.logger.info("Switching to %s's python" % partition.partition_id)
+      self.logger.info("Using promise runner %s" % promise_runner)
+      command = [promise_runner]
+      for option, value in promise_config.items():
+        if isinstance(value, bool):
+          value = int(value)
+        command.append('--' + option)
+        command.append(str(value))
+      process_handler = SlapWait(
+        command,
+        preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),
+        cwd=instance_path)
+      returncode = process_handler.wait(60)
+      if returncode is None:
+        self.logger.warn('Promise runner %s timed out' % promise_runner)
+      elif returncode != 0:
+        self.logger.warn('Promise runner %s failed' % promise_runner)
+      # Use the results computed by the promise runner just now
+      promise_config['force'] = False
 
     promise_checker = PromiseLauncher(config=promise_config, logger=self.logger)
     return promise_checker.run()

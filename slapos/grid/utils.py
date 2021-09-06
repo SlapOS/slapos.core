@@ -159,6 +159,26 @@ class SlapPopen(subprocess.Popen):
     self.output = ''.join(output_lines)
 
 
+class SlapWait(threading.Thread):
+  def __init__(self, *args, **kwargs):
+    threading.Thread.__init__(self)
+    self._args = args
+    self._kwargs = kwargs
+    self.start()
+
+  def run(self):
+    self._p = subprocess.Popen(*self._args, **self._kwargs)
+    self._p.wait()
+
+  def wait(self, timeout):
+    self.join(timeout)
+    if self.is_alive():
+      self._p.terminate()
+      self.join()
+      return None
+    return self._p.returncode
+
+
 def md5digest(url):
   return hashlib.md5(url.encode('utf-8')).hexdigest()
 

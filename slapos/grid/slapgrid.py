@@ -33,7 +33,6 @@ import pkg_resources
 import random
 import socket
 from io import BytesIO
-import subprocess
 import sys
 import tempfile
 import time
@@ -44,6 +43,11 @@ import json
 import shutil
 import six
 import errno
+
+if six.PY3:
+  import subprocess
+else:
+  import subprocess32 as subprocess
 
 if sys.version_info < (2, 6):
   warnings.warn('Used python version (%s) is old and has problems with'
@@ -62,7 +66,11 @@ from slapos.grid.svcbackend import (launchSupervisord,
                                     createSupervisordConfiguration,
                                     _getSupervisordConfigurationDirectory,
                                     _getSupervisordSocketPath)
-from slapos.grid.utils import (md5digest, dropPrivileges, SlapPopen, updateFile)
+from slapos.grid.utils import (md5digest,
+                              dropPrivileges,
+                              killProcessTree,
+                              SlapPopen,
+                              updateFile)
 from slapos.grid.promise import PromiseLauncher, PromiseError
 from slapos.grid.promise.generic import PROMISE_LOG_FOLDER_NAME
 from slapos.human import human2bytes
@@ -669,18 +677,17 @@ stderr_logfile_backups=1
     return SLAPGRID_SUCCESS
 
   def _checkPromiseList(self, partition, force=True, check_anomaly=False):
+    self.logger.info("Checking %s promises..." % partition.partition_id)
+
     instance_path = os.path.join(self.instance_root, partition.partition_id)
     promise_log_path = os.path.join(instance_path, PROMISE_LOG_FOLDER_NAME)
-
-    self.logger.info("Checking %s promises..." % partition.partition_id)
-    uid, gid = None, None
-    stat_info = os.stat(instance_path)
-
-    #stat sys call to get statistics informations
-    uid = stat_info.st_uid
-    gid = stat_info.st_gid
     promise_dir = os.path.join(instance_path, 'etc', 'plugin')
     legacy_promise_dir = os.path.join(instance_path, 'etc', 'promise')
+
+    stat_info = os.stat(instance_path)
+    uid = stat_info.st_uid
+    gid = stat_info.st_gid
+
     promise_config = {
       'promise-folder': promise_dir,
       'legacy-promise-folder': legacy_promise_dir,
@@ -698,8 +705,41 @@ stderr_logfile_backups=1
       'computer-id': self.computer_id,
     }
 
-    promise_checker = PromiseLauncher(config=promise_config, logger=self.logger)
-    return promise_checker.run()
+    if partition.instance_python is not None and listifdir(promise_dir):
+      self.logger.info("Switching to %s's python", partition.partition_id)
+      runpromise_script = os.path.join(
+        os.path.dirname(__file__), 'promise', 'runpromises.py')
+      command = [partition.instance_python, runpromise_script]
+      for option, value in promise_config.items():
+        if option in ('uid', 'gid'):
+          continue
+        if isinstance(value, bool):
+          if value:
+            command.append('--' + option)
+        else:
+          command.append('--' + option)
+          command.append(str(value))
+      process = subprocess.Popen(
+        command,
+        preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),
+        cwd=instance_path,
+        stdout=subprocess.PIPE)
+      try:
+        # The promise runner logger only uses stderr so stdout should be unused
+        out, _ = process.communicate(timeout=60)
+        if process.returncode == 2:
+          raise PromiseError(out)
+        elif process.returncode:
+          raise Exception(out)
+        elif out:
+          self.logger.warn('Promise runner unexpected output:\n%s', out)
+      except subprocess.TimeoutExpired:
+        killProcessTree(process.pid, self.logger)
+        self.logger.warn('Promise runner timed out')
+
+    else:
+      promise_checker = PromiseLauncher(config=promise_config, logger=self.logger)
+      return promise_checker.run()
 
   def _endInstallationTransaction(self, computer_partition):
     partition_id = computer_partition.getId()

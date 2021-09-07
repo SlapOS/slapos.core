@@ -136,19 +136,17 @@ def HostingSubscription_checkInstanceTreeMigrationConsistency(self, fixit=False)
       hosting_subscription_id = self.getId()
       hosting_subscription_relative_url = self.getRelativeUrl()
 
-      self.getParentValue()._delObject(hosting_subscription_id)
+      container = aq_inner(self.getParentValue())
+      self = cloneDocumentWithANewPortalType(self, 'Instance Tree')
+      container._delObject(hosting_subscription_id)
+      portal.instance_tree_module._setOb(hosting_subscription_id, self)
+      instance_tree = portal.instance_tree_module.restrictedTraverse(hosting_subscription_id)
 
-      self.__class__ = klass
-      # self.upgradeObjectClass(returnTrue, 'erp5.portal_type.Hosting Subscription', 'erp5.portal_type.Instance Tree', returnTrue)
-      self.portal_type = 'Instance Tree'
-      assert self.getPortalType() == 'Instance Tree'
+      assert instance_tree.getPortalType() == 'Instance Tree'
 
-      if (getattr(self, 'workflow_history', None) is not None) and \
-         ('hosting_subscription_workflow' in self.workflow_history):
-        self.workflow_history['instance_tree_workflow'] = self.workflow_history.pop('hosting_subscription_workflow')
-
-      portal.instance_tree_module._setOb(hosting_subscription_id, aq_base(self))
-      instance_tree = portal.instance_tree_module._getOb(hosting_subscription_id)
+      if (getattr(instance_tree, 'workflow_history', None) is not None) and \
+         ('hosting_subscription_workflow' in instance_tree.workflow_history):
+        instance_tree.workflow_history['instance_tree_workflow'] = instance_tree.workflow_history.pop('hosting_subscription_workflow')
 
       instance_tree.reindexObject()
       # Migrate Predecessor/Successor if the instance wasn't migrated before.

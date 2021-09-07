@@ -2123,7 +2123,7 @@ class TestSlapOSCorePersonRequest(SlapOSTestCaseMixin):
     state = "started"
 
     previous_id = self.getPortalObject().portal_ids\
-        .generateNewId(id_group='slap_instance_tree_reference',
+        .generateNewId(id_group='slap_hosting_subscription_reference',
                        id_generator='uid')
 
     person.requestSoftwareInstance(

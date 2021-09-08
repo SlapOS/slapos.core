@@ -148,7 +148,7 @@ def HostingSubscription_checkInstanceTreeMigrationConsistency(self, fixit=False)
          ('hosting_subscription_workflow' in instance_tree.workflow_history):
         instance_tree.workflow_history['instance_tree_workflow'] = instance_tree.workflow_history.pop('hosting_subscription_workflow')
 
-      instance_tree.reindexObject()
+      instance_tree.activate(after_method_id="unindexObject").reindexObject()
       # Migrate Predecessor/Successor if the instance wasn't migrated before.
       instance_tree.SoftwareInstance_checkPredecessorToSuccessorMigrationConsistency(fixit=True)
       UnrestrictedMethod(instance_tree.Base_updateRelatedContentWithoutReindextion)(hosting_subscription_relative_url, instance_tree.getRelativeUrl())
@@ -181,7 +181,7 @@ def ComputerPartition_checkComputePartitionMigrationConsistency(self, fixit=Fals
          ('computer_partition_slap_interface_workflow' in compute_partition.workflow_history):
         compute_partition.workflow_history['compute_partition_slap_interface_workflow'] = compute_partition.workflow_history.pop('computer_partition_slap_interface_workflow')
 
-      compute_partition.activate().reindexObject()
+      compute_partition.activate(after_method_id="unindexObject").reindexObject()
     else:
       error_list.append('Computer Partition must be migrated to a Compute Partition')
 
@@ -225,7 +225,7 @@ def Computer_checkComputeNodeMigrationConsistency(self, fixit=False):
       for sub_obj in compute_node.contentValues():
         sub_obj.activate().fixConsistency()
 
-      compute_node.activate().recursiveReindexObject()
+      compute_node.activate(after_method_id="unindexObject").recursiveReindexObject()
       UnrestrictedMethod(compute_node.Base_updateRelatedContentWithoutReindextion)(computer_relative_url, compute_node.getRelativeUrl())
 
     else:

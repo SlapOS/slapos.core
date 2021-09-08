@@ -149,6 +149,7 @@ class TestSlapOSCloudUpgrader(SlapOSTestCaseMixin):
     self.assertFalse(migration_message in getMessageList(migrated_instance_tree))
     self.assertEqual(migrated_instance_tree.getRelativeUrl(),
                      software_instance.getAggregate())
+    self.assertEqual(1, len(self.portal.portal_catalog(uid=migrated_instance_tree.getUid())))
 
   def test_upgrade_computer_to_compute_node(self):
     migration_message = 'Computer must be migrated to a Compute Node'
@@ -266,6 +267,9 @@ class TestSlapOSCloudUpgrader(SlapOSTestCaseMixin):
                      software_instance.getAggregate())
     self.assertEqual('Compute Partition',
                      migrated_computer_partition.getPortalType())
+    self.assertEqual(1, len(self.portal.portal_catalog(uid=migrated_compute_node.getUid())))
+    self.assertEqual(1, len(self.portal.portal_catalog(uid=migrated_computer_partition.getUid())))
+
 
   def test_upgrade_computer_partition_to_compute_partition(self):
     migration_message = 'Computer Partition must be migrated to a Compute Partition'
@@ -343,3 +347,5 @@ class TestSlapOSCloudUpgrader(SlapOSTestCaseMixin):
     self.assertFalse('computer_partition_slap_interface_workflow' in migrated_computer_partition.workflow_history)
 
     self.assertFalse(migration_message in getMessageList(computer_partition_to_migrate))
+    self.assertEqual(1, len(self.portal.portal_catalog(uid=migrated_computer_partition.getUid())))
+

@@ -186,6 +186,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'campaign_module',
        'component_module',
        'computer_model_module',
+       'compute_node_module',
        'computer_module',
        'computer_network_module',
        'consumption_document_module',

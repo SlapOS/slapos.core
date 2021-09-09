@@ -3,6 +3,7 @@ portal = context.getPortalObject()
 if (mode == 'search') and (query is not None):
   # Rewrite the queries containing the Hosting Subscription string
   query = query.replace('"Hosting Subscription"', '"Instance Tree"')
+  query = query.replace('"Computer"', '"Compute Node"')
 
 new_skin_name = "HalRestricted"
 portal.portal_skins.changeSkin(new_skin_name)

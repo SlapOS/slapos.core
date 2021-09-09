@@ -19,13 +19,14 @@ Cloud Contract Module
 Component
 Component Module
 Compute Node
+Compute Node Module
+Compute Partition
 Computer Consumption TioXML File
 Computer Model
 Computer Model Module
-Compute Node Module
+Computer Module
 Computer Network
 Computer Network Module
-Compute Partition
 Consumption Document Module
 Contract Invitation Token
 Contribution Tool
@@ -46,12 +47,12 @@ File
 Gadget
 Gadget Tool
 Google Login
-Instance Tree
-Instance Tree Module
 Image
 Image Module
 Incident Response
 Incident Response Module
+Instance Tree
+Instance Tree Module
 Integration Site
 Integration Tool
 Inventory

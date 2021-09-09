@@ -263,6 +263,19 @@ class TestComputerModelModule(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(module, 'G-COMPANY', ['Auditor', 'Author'])
     self.assertRoles(module, self.user_id, ['Owner'])
 
+class TestComputerModule(TestSlapOSGroupRoleSecurityMixin):
+  def test(self):
+    module = self.portal.computer_module
+    self.changeOwnership(module)
+    self.assertSecurityGroup(module,
+        ['G-COMPANY', 'R-COMPUTER', 'R-MEMBER', 'R-SHADOW-PERSON', self.user_id],
+        False)
+    self.assertRoles(module, 'R-MEMBER', ['Auditor'])
+    self.assertRoles(module, 'G-COMPANY', ['Auditor'])
+    self.assertRoles(module, 'R-COMPUTER', ['Auditor'])
+    self.assertRoles(module, 'R-SHADOW-PERSON', ['Auditor'])
+    self.assertRoles(module, self.user_id, ['Owner'])
+
 class TestComputeNodeModule(TestSlapOSGroupRoleSecurityMixin):
   def test(self):
     module = self.portal.compute_node_module

@@ -12,6 +12,7 @@
               <list>
                 <string>css_class</string>
                 <string>default</string>
+                <string>description</string>
                 <string>image_display</string>
                 <string>image_quality</string>
                 <string>title</string>
@@ -63,6 +64,10 @@
                     </value>
                 </item>
                 <item>
+                    <key> <string>description</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>field_id</string> </key>
                     <value> <string></string> </value>
                 </item>
@@ -71,12 +76,22 @@
                     <value> <string></string> </value>
                 </item>
                 <item>
+                    <key> <string>image_display</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>image_quality</string> </key>
+                    <value> <string></string> </value>
+                </item>
+                <item>
                     <key> <string>target</string> </key>
                     <value> <string></string> </value>
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string></string> </value>
+                    <value>
+                      <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
+                    </value>
                 </item>
               </dictionary>
             </value>
@@ -92,6 +107,10 @@
                 <item>
                     <key> <string>default</string> </key>
                     <value> <string></string> </value>
+                </item>
+                <item>
+                    <key> <string>description</string> </key>
+                    <value> <string>Software Logo</string> </value>
                 </item>
                 <item>
                     <key> <string>field_id</string> </key>
@@ -132,6 +151,19 @@
         <item>
             <key> <string>_text</string> </key>
             <value> <string>python: cell.InstanceTree_getDefaultImageAbsoluteUrl()</string> </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="3" aka="AAAAAAAAAAM=">
+    <pickle>
+      <global name="TALESMethod" module="Products.Formulator.TALESField"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>_text</string> </key>
+            <value> <string>python: cell.InstanceTree_getSoftwareName()</string> </value>
         </item>
       </dictionary>
     </pickle>

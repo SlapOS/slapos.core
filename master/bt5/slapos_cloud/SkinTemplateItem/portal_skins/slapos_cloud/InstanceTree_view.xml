@@ -109,6 +109,7 @@
                         <string>my_short_title</string>
                         <string>my_reference</string>
                         <string>my_source_reference</string>
+                        <string>my_software</string>
                       </list>
                     </value>
                 </item>

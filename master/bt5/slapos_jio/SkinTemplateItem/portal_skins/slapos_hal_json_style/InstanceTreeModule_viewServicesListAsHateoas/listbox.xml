@@ -125,6 +125,10 @@
                           <string>Status</string>
                         </tuple>
                         <tuple>
+                          <string>software</string>
+                          <string>Software</string>
+                        </tuple>
+                        <tuple>
                           <string>list_image</string>
                           <string>Software Logo</string>
                         </tuple>

@@ -100,7 +100,9 @@
                 <item>
                     <key> <string>left</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>listbox_software</string>
+                      </list>
                     </value>
                 </item>
                 <item>

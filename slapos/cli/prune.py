@@ -30,6 +30,7 @@
 import sys
 import glob
 import os
+from fnmatch import fnmatchcase
 import six.moves.configparser as configparser
 
 from slapos.cli.command import check_root_user
@@ -92,7 +93,8 @@ def _prune(
       logger, software_root, shared_root, ignored_shared_parts)
 
   # recursively look in instance
-  signatures.update(getUsageSignaturesFromSubInstance(logger, instance_root, set([])))
+  signatures.update(getUsageSignaturesFromSubInstance(
+    logger, instance_root, set()))
 
   for shared_part in glob.glob(os.path.join(shared_root, '*', '*')):
     if shared_part not in ignored_shared_parts:
@@ -112,7 +114,7 @@ def _prune(
 
 
 def _prune_loop(logger, shared_root, software_root, instance_root, dry_run):
-  ignored_shared_parts = set([])
+  ignored_shared_parts = set()
   while True:
     pruned = list(
         _prune(
@@ -123,9 +125,9 @@ def _prune_loop(logger, shared_root, software_root, instance_root, dry_run):
             ignored_shared_parts,
             dry_run,
         ))
-    ignored_shared_parts.update(pruned)
     if not pruned:
       break
+    ignored_shared_parts.update(pruned)
 
 
 def do_prune(logger, options, dry_run):
@@ -219,14 +221,12 @@ def readSlaposCfg(logger, path):
 
 
 def getUsageSignatureFromSoftwareAndSharedPart(
-    logger, software_root, shared_root, ignored_shared_parts=None):
+    logger, software_root, shared_root, ignored_shared_parts=()):
   """Look in all softwares and shared parts to collect the signatures
   that are used.
   `ignored_shared_parts` is useful during dry-run, we want to ignore
   already the parts that we are about to delete.
   """
-  if ignored_shared_parts is None:
-    ignored_shared_parts = set([])
   signatures = {}
   for installed_cfg in glob.glob(os.path.join(software_root, '*',
                                               '.installed.cfg')):
@@ -239,10 +239,12 @@ def getUsageSignatureFromSoftwareAndSharedPart(
       except UnicodeDecodeError:
         logger.debug("Skipping script %s that could not be decoded", script)
   if shared_root:
-    for shared_signature in glob.glob(os.path.join(shared_root, '*', '*',
-                                                   '.*signature')):
-      if not any(shared_signature.startswith(ignored_shared_part)
-                 for ignored_shared_part in ignored_shared_parts):
-        with open(shared_signature) as f:
-          signatures[shared_signature] = f.read()
+    for shared_part in glob.glob(os.path.join(shared_root, '*', '*')):
+      if shared_part not in ignored_shared_parts:
+        for x in os.listdir(shared_part):
+          if x == '.buildout-shared.json' or \
+             fnmatchcase(x, '.*signature'):
+            x = os.path.join(shared_part, x)
+            with open(x) as f:
+              signatures[x] = f.read()
   return signatures

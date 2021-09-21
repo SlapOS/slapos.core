@@ -412,8 +412,8 @@
                           <string>Image</string>
                         </tuple>
                         <tuple>
-                          <string>computer_reference</string>
-                          <string>Computer</string>
+                          <string>compute_node_reference</string>
+                          <string>Compute Node</string>
                         </tuple>
                         <tuple>
                           <string>url_string</string>
@@ -488,8 +488,8 @@
                           <string>Title</string>
                         </tuple>
                         <tuple>
-                          <string>computer_reference</string>
-                          <string>Computer</string>
+                          <string>compute_node_reference</string>
+                          <string>Compute Node</string>
                         </tuple>
                         <tuple>
                           <string>url_string</string>

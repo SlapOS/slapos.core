@@ -31,7 +31,7 @@ select_kw.update(
   select_dict=select_dict,
   left_join_list=select_dict.keys(),
   resource__uid=aggregateable_service_uid_list,
-  default_aggregate_portal_type=ComplexQuery(NegatedQuery(Query(default_aggregate_portal_type='Computer')),
+  default_aggregate_portal_type=ComplexQuery(NegatedQuery(Query(default_aggregate_portal_type='Compute Node')),
     Query(default_aggregate_portal_type=None),logical_operator="OR"),
   grouping_reference=None,
   sort_on=(('modification_date', 'ASC'),) # the highest chance to find movement which can be delivered

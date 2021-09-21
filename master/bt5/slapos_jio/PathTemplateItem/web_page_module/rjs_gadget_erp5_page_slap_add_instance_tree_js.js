@@ -82,7 +82,7 @@
           "Software Release URL",
           "Title",
           "Instance Parameter",
-          "Computer",
+          "Compute Node",
           "SLA",
           "Parent Relative Url",
           "3/3 Request Service:",

@@ -1,7 +1,7 @@
 """Dirty script to return Software Instance state"""
 import json
 state = context.getSlapState()
-has_partition = context.getAggregate(portal_type="Computer Partition")
+has_partition = context.getAggregate(portal_type="Compute Partition")
 result = 'Unable to calculate the status...'
 if has_partition:
   try:

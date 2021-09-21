@@ -2,7 +2,7 @@
 # XXX This ticket contains dupplicated coded found arround SlapOS
 #     It is required to rewrite this in a generic way. 
 #     See also: InstanceTree_checkSoftwareInstanceState
-#     See also: Computer_checkState
+#     See also: ComputeNode_checkState
 #
 
 from DateTime import DateTime
@@ -20,7 +20,7 @@ if document is None:
 aggregate_portal_type = document.getPortalType()
 memcached_dict = context.Base_getSlapToolMemcachedDict()
 
-if aggregate_portal_type == "Computer":
+if aggregate_portal_type == "Compute Node":
   if document.getMonitorScope() == "disabled":
     return "Monitor is disabled to the related %s." % document.getPortalType()
   try:
@@ -35,7 +35,7 @@ if aggregate_portal_type == "Computer":
     return "No Contact Information"
 
 if aggregate_portal_type == "Software Installation":
-  computer_title = document.getAggregateTitle()
+  compute_node_title = document.getAggregateTitle()
   if document.getAggregateValue().getMonitorScope() == "disabled":
     return "Monitor is disabled to the related %s." % document.getPortalType()
 
@@ -48,16 +48,16 @@ if aggregate_portal_type == "Software Installation":
     last_contact = DateTime(d.get('created_at'))
     if d.get("text").startswith("building"):
       return "The software release %s is building for mode them 12 hours on %s, started on %s" % \
-              (document.getUrlString(), computer_title, document.getCreationDate())
+              (document.getUrlString(), compute_node_title, document.getCreationDate())
     elif d.get("text").startswith("#access"):
       return "All OK, software built."
     elif d.get("text").startswith("#error"):
       return "The software release %s is failing to build for too long on %s, started on %s" % \
-        (document.getUrlString(), computer_title, document.getCreationDate())
+        (document.getUrlString(), compute_node_title, document.getCreationDate())
 
   except KeyError:
     return "The software release %s did not started to build on %s since %s" % \
-        (document.getUrlString(), computer_title, document.getCreationDate())
+        (document.getUrlString(), compute_node_title, document.getCreationDate())
 
 
 if aggregate_portal_type == "Instance Tree":
@@ -76,19 +76,19 @@ if aggregate_portal_type == "Instance Tree":
       continue
 
     if instance.getAggregate() is not None:
-      computer = instance.getAggregateValue().getParentValue()
+      compute_node = instance.getAggregateValue().getParentValue()
       if instance.getPortalType() == "Software Instance" and \
-          computer.getAllocationScope() in ["open/public", "open/friend", "open/subscription"] and \
+          compute_node.getAllocationScope() in ["open/public", "open/friend", "open/subscription"] and \
           instance.getSlapState() == "start_requested" and \
           instance.SoftwareInstance_hasReportedError():
         message_list.append("%s has error (%s, %s at %s scope %s)" % (instance.getReference(), instance.getTitle(),
-                                                                      instance.getUrlString(), computer.getReference(),
-                                                                      computer.getAllocationScope()))
+                                                                      instance.getUrlString(), compute_node.getReference(),
+                                                                      compute_node.getAllocationScope()))
       if instance.getPortalType() == "Software Instance" and \
-          computer.getAllocationScope() in ["closed/outdated", "open/personal"] and \
+          compute_node.getAllocationScope() in ["closed/outdated", "open/personal"] and \
           instance.getSlapState() == "start_requested" and \
           instance.SoftwareInstance_hasReportedError():
-        message_list.append("%s on a %s computer" % (instance.getReference(), computer.getAllocationScope()) )
+        message_list.append("%s on a %s compute_node" % (instance.getReference(), compute_node.getAllocationScope()) )
     else:
       message_list.append("%s is not allocated" % instance.getReference())
   return ",".join(message_list)

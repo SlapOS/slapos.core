@@ -77,28 +77,28 @@ class TestSlapOSUpgradeDecisionProcess(SlapOSTestCaseMixin):
     self.assertEqual('Visited by UpgradeDecision_notifyDelivered',
       upgrade_decision.workflow_history['edit_workflow'][-1]['comment'])
 
-  def test_alarm_computer_create_upgrade_decision(self):
-    computer = self._makeComputer(allocation_scope = 'open/public')[0]
-    computer2 = self._makeComputer(allocation_scope = 'open/personal')[0]
-    computer3 = self._makeComputer(allocation_scope = 'open/friend')[0]
+  def test_alarm_compute_node_create_upgrade_decision(self):
+    compute_node = self._makeComputeNode(allocation_scope = 'open/public')[0]
+    compute_node2 = self._makeComputeNode(allocation_scope = 'open/personal')[0]
+    compute_node3 = self._makeComputeNode(allocation_scope = 'open/friend')[0]
     self.tic()
 
-    self._simulateScript('Computer_checkAndCreateUpgradeDecision', 'True')
+    self._simulateScript('ComputeNode_checkAndCreateUpgradeDecision', 'True')
     try:
-      self.portal.portal_alarms.slapos_pdm_computer_create_upgrade_decision.\
+      self.portal.portal_alarms.slapos_pdm_compute_node_create_upgrade_decision.\
         activeSense()
       self.tic()
     finally:
-      self._dropScript('Computer_checkAndCreateUpgradeDecision')
+      self._dropScript('ComputeNode_checkAndCreateUpgradeDecision')
 
-    self.assertEqual('Visited by Computer_checkAndCreateUpgradeDecision',
-      computer.workflow_history['edit_workflow'][-1]['comment'])
+    self.assertEqual('Visited by ComputeNode_checkAndCreateUpgradeDecision',
+      compute_node.workflow_history['edit_workflow'][-1]['comment'])
     
-    self.assertEqual('Visited by Computer_checkAndCreateUpgradeDecision',
-      computer2.workflow_history['edit_workflow'][-1]['comment'])
+    self.assertEqual('Visited by ComputeNode_checkAndCreateUpgradeDecision',
+      compute_node2.workflow_history['edit_workflow'][-1]['comment'])
 
-    self.assertEqual('Visited by Computer_checkAndCreateUpgradeDecision',
-      computer3.workflow_history['edit_workflow'][-1]['comment'])
+    self.assertEqual('Visited by ComputeNode_checkAndCreateUpgradeDecision',
+      compute_node3.workflow_history['edit_workflow'][-1]['comment'])
   
   def test_alarm_instance_tree_create_upgrade_decision(self):
     instance_tree = self._makeInstanceTree()
@@ -143,21 +143,21 @@ class TestSlapOSUpgradeDecisionProcess(SlapOSTestCaseMixin):
     self.assertNotEqual('Visited by InstanceTree_createUpgradeDecision',
       instance_tree2.workflow_history['edit_workflow'][-1]['comment'])
 
-  def test_alarm_create_upgrade_decision_closed_computer(self):
-    computer = self._makeComputer(allocation_scope='close/oudtated')[0]
-    computer2 = self._makeComputer(allocation_scope='close/maintenance')[0]
+  def test_alarm_create_upgrade_decision_closed_compute_node(self):
+    compute_node = self._makeComputeNode(allocation_scope='close/oudtated')[0]
+    compute_node2 = self._makeComputeNode(allocation_scope='close/maintenance')[0]
     self.tic()
 
-    self._simulateScript('Computer_checkAndCreateUpgradeDecision', 'True')
+    self._simulateScript('ComputeNode_checkAndCreateUpgradeDecision', 'True')
     try:
-      self.portal.portal_alarms.slapos_pdm_computer_create_upgrade_decision.\
+      self.portal.portal_alarms.slapos_pdm_compute_node_create_upgrade_decision.\
         activeSense()
       self.tic()
     finally:
-      self._dropScript('Computer_checkAndCreateUpgradeDecision')
+      self._dropScript('ComputeNode_checkAndCreateUpgradeDecision')
 
-    self.assertNotEqual('Visited by Computer_checkAndCreateUpgradeDecision',
-      computer.workflow_history['edit_workflow'][-1]['comment'])
+    self.assertNotEqual('Visited by ComputeNode_checkAndCreateUpgradeDecision',
+      compute_node.workflow_history['edit_workflow'][-1]['comment'])
     
-    self.assertNotEqual('Visited by Computer_checkAndCreateUpgradeDecision',
-      computer2.workflow_history['edit_workflow'][-1]['comment'])
+    self.assertNotEqual('Visited by ComputeNode_checkAndCreateUpgradeDecision',
+      compute_node2.workflow_history['edit_workflow'][-1]['comment'])

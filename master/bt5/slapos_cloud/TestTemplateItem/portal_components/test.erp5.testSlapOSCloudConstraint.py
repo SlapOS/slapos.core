@@ -43,11 +43,11 @@ class TestSlapOSConstraintMixin(SlapOSTestCaseMixin):
     self.assertFalse(consistency_message in self.getMessageList(obj))
     self.assertSameSet(current_message_list, self.getMessageList(obj))
 
-class TestSlapOSComputerPartitionConstraint(TestSlapOSConstraintMixin):
+class TestSlapOSComputePartitionConstraint(TestSlapOSConstraintMixin):
   def test_non_busy_partition_has_no_related_instance(self):
-    computer = self.portal.computer_module.template_computer\
+    compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
-    partition = computer.newContent(portal_type='Computer Partition')
+    partition = compute_node.newContent(portal_type='Compute Partition')
     self.portal.portal_workflow._jumpToStateFor(partition, 'free')
     software_instance = self.portal.software_instance_module\
         .template_software_instance.Base_createCloneDocument(batch_mode=1)
@@ -84,9 +84,9 @@ class TestSlapOSComputerPartitionConstraint(TestSlapOSConstraintMixin):
     self.portal.portal_workflow._jumpToStateFor(partition, 'free')
 
   def test_busy_partition_has_one_related_instance(self):
-    computer = self.portal.computer_module.template_computer\
+    compute_node = self.portal.compute_node_module.template_compute_node\
         .Base_createCloneDocument(batch_mode=1)
-    partition = computer.newContent(portal_type='Computer Partition')
+    partition = compute_node.newContent(portal_type='Compute Partition')
     self.portal.portal_workflow._jumpToStateFor(partition, 'busy')
     software_instance = self.portal.software_instance_module\
         .template_software_instance.Base_createCloneDocument(batch_mode=1)
@@ -540,43 +540,43 @@ class TestSlapOSEmailConstraint(TestSlapOSConstraintMixin):
 
     self.assertFalse(consistency_message in self.getMessageList(email))
 
-class TestSlapOSComputerConstraint(TestSlapOSConstraintMixin):
+class TestSlapOSComputeNodeConstraint(TestSlapOSConstraintMixin):
   def test_title_not_empty(self):
-    computer = self.portal.computer_module.newContent(portal_type='Computer')
+    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node')
     consistency_message = 'Title must be defined'
 
-    self.assertTrue(consistency_message in self.getMessageList(computer))
+    self.assertTrue(consistency_message in self.getMessageList(compute_node))
 
-    computer.setTitle(self.generateNewId())
+    compute_node.setTitle(self.generateNewId())
 
-    self.assertFalse(consistency_message in self.getMessageList(computer))
+    self.assertFalse(consistency_message in self.getMessageList(compute_node))
 
   def test_reference_not_empty(self):
-    computer = self.portal.computer_module.newContent(portal_type='Computer')
+    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node')
     consistency_message = 'Reference must be defined'
 
-    self.assertTrue(consistency_message in self.getMessageList(computer))
+    self.assertTrue(consistency_message in self.getMessageList(compute_node))
 
-    computer.setReference(self.generateNewId())
+    compute_node.setReference(self.generateNewId())
 
-    self.assertFalse(consistency_message in self.getMessageList(computer))
+    self.assertFalse(consistency_message in self.getMessageList(compute_node))
 
   def test_reference_unique(self):
     reference = self.generateNewId()
     reference_2 = self.generateNewId()
-    computer = self.portal.computer_module.newContent(portal_type='Computer',
+    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node',
       reference=reference)
-    computer_2 = self.portal.computer_module.newContent(portal_type='Computer',
+    compute_node_2 = self.portal.compute_node_module.newContent(portal_type='Compute Node',
       reference=reference)
     consistency_message = 'Reference must be unique'
 
     self.tic()
 
-    self.assertTrue(consistency_message in self.getMessageList(computer))
-    self.assertTrue(consistency_message in self.getMessageList(computer_2))
+    self.assertTrue(consistency_message in self.getMessageList(compute_node))
+    self.assertTrue(consistency_message in self.getMessageList(compute_node_2))
 
-    computer_2.setReference(reference_2)
+    compute_node_2.setReference(reference_2)
     self.tic()
 
-    self.assertFalse(consistency_message in self.getMessageList(computer))
-    self.assertFalse(consistency_message in self.getMessageList(computer_2))
+    self.assertFalse(consistency_message in self.getMessageList(compute_node))
+    self.assertFalse(consistency_message in self.getMessageList(compute_node_2))

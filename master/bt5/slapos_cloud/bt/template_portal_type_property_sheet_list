@@ -1,13 +1,17 @@
 Alarm Tool | SlapOSMasterUpgradeConstraint
 Assignment | SlaposAssignmentConstraint
+Compute Node | ComputeNodeSlapOSMetadata
+Compute Node | ComputerUpgradeConstraint
+Compute Node | ERP5User
+Compute Node | SlaposCapacity
+Compute Node | SlaposComputeNodeConstraint
+Compute Node | Url
+Compute Partition | ComputePartition
+Compute Partition | ComputerPartitionUpgradeConstraint
+Compute Partition | SlaposComputePartitionConstraint
 Computer Model | SlaposCapacity
-Computer Partition | ComputerPartition
-Computer Partition | SlaposComputerPartitionConstraint
-Computer | ComputerSlapOSMetadata
-Computer | ERP5User
-Computer | SlaposCapacity
-Computer | SlaposComputerConstraint
-Computer | Url
+Computer Partition | ComputerPartitionUpgradeConstraint
+Computer | ComputerUpgradeConstraint
 Email | SlaposEmailConstraint
 Hosting Subscription | HostingSubscriptionUpgradeConstraint
 Instance Tree | HostingSubscriptionUpgradeConstraint

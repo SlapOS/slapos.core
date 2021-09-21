@@ -21,7 +21,7 @@ def addAttentionForTicket(ticket):
     return {"text": msg, "link": ticket.getRelativeUrl()}
 
 # Display unresponded tickets on services or servers
-if portal_type in ["Instance Tree", "Computer"]:
+if portal_type in ["Instance Tree", "Compute Node"]:
   simulation_state = ["suspended", "confirmed"]
   for ticket in context.Base_getOpenRelatedTicketList(
    limit=3, simulation_state=simulation_state):

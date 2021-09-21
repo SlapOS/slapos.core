@@ -8,11 +8,11 @@
       <dictionary>
         <item>
             <key> <string>active_sense_method_id</string> </key>
-            <value> <string>Alarm_checkAndUpdateComputerAllocationScope</string> </value>
+            <value> <string>Alarm_checkAndUpdateComputeNodeAllocationScope</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Automatically turn allocation scope of public and friend computer to personnal if the owner is not a service provider.</string> </value>
+            <value> <string>Automatically turn allocation scope of public and friend compute_node to personnal if the owner is not a service provider.</string> </value>
         </item>
         <item>
             <key> <string>enabled</string> </key>
@@ -89,7 +89,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Check and Update Computer Allocation Scope</string> </value>
+            <value> <string>Check and Update Compute Node Allocation Scope</string> </value>
         </item>
       </dictionary>
     </pickle>

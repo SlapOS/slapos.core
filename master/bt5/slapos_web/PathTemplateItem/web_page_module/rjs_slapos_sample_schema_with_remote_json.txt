@@ -8,20 +8,20 @@
         {
             "properties": {
                 "-sla-0-computer_guid": {
-                    "title": "Target computer for main instance",
-                    "description": "Target computer GUID for main instance.",
+                    "title": "Target compute_node for main instance",
+                    "description": "Target compute_node GUID for main instance.",
                     "type": "string",
                     "optional": true
                 },
                 "-sla-1-computer_guid": {
-                    "title": "Target computer for first clone",
-                    "description": "Target computer for first clone and PBS.",
+                    "title": "Target compute_node for first clone",
+                    "description": "Target compute_node for first clone and PBS.",
                     "type": "string",
                     "optional": true
                 },
                 "-sla-2-computer_guid": {
-                    "title": "Target computer for second clone",
-                    "description": "Target computer for second clone and PBS.",
+                    "title": "Target compute_node for second clone",
+                    "description": "Target compute_node for second clone and PBS.",
                     "type": "string",
                     "optional": true
                 },

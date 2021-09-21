@@ -58,8 +58,8 @@
             child_gadget_url = "gadget_erp5_page_slap_service_list.html";
           } else if (result.portal_type === "Accounting Transaction Module") {
             child_gadget_url = "gadget_erp5_page_slap_invoice_list.html";
-          } else if (result.portal_type === "Computer Module") {
-            child_gadget_url = "gadget_erp5_page_slap_computer_list.html";
+          } else if (result.portal_type === "Compute Node Module") {
+            child_gadget_url = "gadget_erp5_page_slap_compute_node_list.html";
           } else if (result.portal_type === "Organisation Module") {
             child_gadget_url = "gadget_erp5_page_slap_site_list.html";
           } else if (result.portal_type === "Computer Network Module") {

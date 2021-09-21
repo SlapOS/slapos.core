@@ -79,7 +79,7 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
       self.free_trial_user = free_trial_user_login.getParentValue()
 
   def createAdminUser(self):
-    """ Create a Admin user, to manage computers and instances eventually """
+    """ Create a Admin user, to manage compute_nodes and instances eventually """
     admin_user_login = self.portal.portal_catalog.getResultValue(
       portal_type="ERP5 Login",
       reference="admin_user",
@@ -212,7 +212,7 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
     trial_request.setStopDate(DateTime()-2)
 
   def test_trial_open_scenario(self):
-    """ The admin creates an computer, trial user can request instances on it, trial and production
+    """ The admin creates an compute_node, trial user can request instances on it, trial and production
       co-exist."""
     self.login()
     self.createTrialCondition()
@@ -223,14 +223,14 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
 
     # Call here, We should create the instance in advance...
 
-    # hooray, now it is time to create computers
+    # hooray, now it is time to create compute_nodes
     self.login(self.admin_user.getUserId())
 
     # Create a Public Server for admin user, and allow
     public_server_title = 'Trial Public Server for Admin User %s' % self.new_id
-    public_server_id = self.requestComputer(public_server_title)
+    public_server_id = self.requestComputeNode(public_server_title)
     public_server = self.portal.portal_catalog.getResultValue(
-        portal_type='Computer', reference=public_server_id)
+        portal_type='Compute Node', reference=public_server_id)
     self.setAccessToMemcached(public_server)
     self.assertNotEqual(None, public_server)
     self.setServerOpenPublic(public_server)
@@ -239,8 +239,8 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
     public_server_software = self.trial_condition.getUrlString()
     self.supplySoftware(public_server, public_server_software)
 
-    # format the computers
-    self.formatComputer(public_server)
+    # format the compute_nodes
+    self.formatComputeNode(public_server)
 
     self.tic()
     self.logout()
@@ -282,7 +282,7 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
     self.stepCallSlaposAllocateInstanceAlarm()
     self.tic()
 
-    # now instantiate it on computer and set some nice connection dict
+    # now instantiate it on compute_node and set some nice connection dict
     self.simulateSlapgridCP(public_server)
     self.tic()
 
@@ -309,7 +309,7 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
     finally:
       Base.getCreationDate = original_get_creation
 
-    # now instantiate it on computer and set some nice connection dict
+    # now instantiate it on compute_node and set some nice connection dict
     self.simulateSlapgridCP(public_server)
     self.tic()
 
@@ -323,7 +323,7 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
     self.logout()
 
   def test_trial_slave_scenario(self):
-    """ The admin creates an computer and creates once instance, trial user
+    """ The admin creates an compute_node and creates once instance, trial user
       can request slave instances on it, trial and production co-exist."""
     self.login()
 
@@ -334,14 +334,14 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
     self.logout()
     self.web_site = self.portal.web_site_module.hostingjs
 
-    # hooray, now it is time to create computers
+    # hooray, now it is time to create compute_nodes
     self.login(self.admin_user.getUserId())
 
     # Create a Public Server for admin user, and allow
     public_server_title = 'Trial Public Server for Admin User %s' % self.new_id
-    public_server_id = self.requestComputer(public_server_title)
+    public_server_id = self.requestComputeNode(public_server_title)
     public_server = self.portal.portal_catalog.getResultValue(
-        portal_type='Computer', reference=public_server_id)
+        portal_type='Compute Node', reference=public_server_id)
     self.setAccessToMemcached(public_server)
     self.assertNotEqual(None, public_server)
     self.setServerOpenPublic(public_server)
@@ -350,8 +350,8 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
     public_server_software = self.trial_condition.getUrlString()
     self.supplySoftware(public_server, public_server_software)
 
-    # format the computers
-    self.formatComputer(public_server)
+    # format the compute_nodes
+    self.formatComputeNode(public_server)
 
     self.tic()
 
@@ -399,7 +399,7 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
     self.stepCallSlaposAllocateInstanceAlarm()
     self.tic()
 
-    # now instantiate it on computer and set some nice connection dict
+    # now instantiate it on compute_node and set some nice connection dict
     self.simulateSlapgridCP(public_server)
     self.tic()
 
@@ -426,7 +426,7 @@ class TestSlapOSTrialScenario(DefaultScenarioMixin):
     finally:
       Base.getCreationDate = original_get_creation
 
-    # now instantiate it on computer and set some nice connection dict
+    # now instantiate it on compute_node and set some nice connection dict
     self.simulateSlapgridCP(public_server)
     self.tic()
 

@@ -30,7 +30,7 @@ category_list = []
 if obj is None:
   return []
 
-partition = obj.getAggregateValue(portal_type="Computer Partition")
+partition = obj.getAggregateValue(portal_type="Compute Partition")
 if partition is not None:
   software_instance = partition.getPortalObject().portal_catalog.getResultValue(
     portal_type="Software Instance", validation_state="validated", default_aggregate_uid=partition.getUid())

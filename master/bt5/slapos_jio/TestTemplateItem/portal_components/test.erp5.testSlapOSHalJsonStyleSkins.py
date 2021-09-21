@@ -82,20 +82,20 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
     self.tic()
     return instance
 
-  def _makeComputer(self, owner=None, allocation_scope='open/public'):
-    computer = self.portal.computer_module\
-        .template_computer.Base_createCloneDocument(batch_mode=1)
-    computer.edit(reference="TESTCOMP-%s" % computer.getId())
-    computer.validate()
+  def _makeComputeNode(self, owner=None, allocation_scope='open/public'):
+    compute_node = self.portal.compute_node_module\
+        .template_compute_node.Base_createCloneDocument(batch_mode=1)
+    compute_node.edit(reference="TESTCOMP-%s" % compute_node.getId())
+    compute_node.validate()
 
-    computer.newContent(portal_type="Computer Partition",
+    compute_node.newContent(portal_type="Compute Partition",
                         title="slappart0", id="slappart0")
-    computer.newContent(portal_type="Computer Partition",
+    compute_node.newContent(portal_type="Compute Partition",
                         title="slappart1", id="slappart1")
 
     self.tic()
     self.changeSkin('Hal')
-    return computer
+    return compute_node
   
   def _makeComputerNetwork(self):
     network = self.portal.computer_network_module.newContent()
@@ -345,13 +345,13 @@ class TestSoftwareInstallation_getNewsDict(TestSlapOSHalJsonStyleMixin):
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
-class TestComputer_getNewsDict(TestSlapOSHalJsonStyleMixin):
+class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
 
   def test(self):
-    computer = self._makeComputer()
-    self._logFakeAccess(computer.getReference())
-    news_dict = computer.Computer_getNewsDict()
-    expected_news_dict =  {'computer': 
+    compute_node = self._makeComputeNode()
+    self._logFakeAccess(compute_node.getReference())
+    news_dict = compute_node.ComputeNode_getNewsDict()
+    expected_news_dict =  {'compute_node': 
                            {u'created_at': self.created_at,
                            'no_data_since_15_minutes': 0,
                            'no_data_since_5_minutes': 0,
@@ -366,13 +366,13 @@ class TestComputer_getNewsDict(TestSlapOSHalJsonStyleMixin):
     json.dumps(news_dict)
 
   def test_stopped(self):
-    computer = self._makeComputer()
-    self._logFakeAccess(computer.getReference(),
+    compute_node = self._makeComputeNode()
+    self._logFakeAccess(compute_node.getReference(),
                         state='stop_requested')
-    news_dict = computer.Computer_getNewsDict()
-    computer.getSlapState = fakeStopRequestedSlapState
+    news_dict = compute_node.ComputeNode_getNewsDict()
+    compute_node.getSlapState = fakeStopRequestedSlapState
 
-    expected_news_dict =  {'computer': 
+    expected_news_dict =  {'compute_node': 
                             {'created_at': self.created_at,
                             'no_data_since_15_minutes': 0,
                             'no_data_since_5_minutes': 0,
@@ -387,13 +387,13 @@ class TestComputer_getNewsDict(TestSlapOSHalJsonStyleMixin):
     json.dumps(news_dict)
 
   def test_destroyed(self):
-    computer = self._makeComputer()
-    self._logFakeAccess(computer.getReference(),
+    compute_node = self._makeComputeNode()
+    self._logFakeAccess(compute_node.getReference(),
                         state='destroy_requested')
-    news_dict = computer.Computer_getNewsDict()
-    computer.getSlapState = fakeDestroyRequestedSlapState
+    news_dict = compute_node.ComputeNode_getNewsDict()
+    compute_node.getSlapState = fakeDestroyRequestedSlapState
 
-    expected_news_dict =  {'computer': 
+    expected_news_dict =  {'compute_node': 
                            {'created_at': self.created_at,
                            'no_data_since_15_minutes': 0,
                            'no_data_since_5_minutes': 0,
@@ -408,11 +408,11 @@ class TestComputer_getNewsDict(TestSlapOSHalJsonStyleMixin):
     json.dumps(news_dict)
 
   def test_no_data(self):
-    computer = self._makeComputer()
-    news_dict = computer.Computer_getNewsDict()
-    expected_news_dict = {'computer': 
+    compute_node = self._makeComputeNode()
+    news_dict = compute_node.ComputeNode_getNewsDict()
+    expected_news_dict = {'compute_node': 
                            {'no_data': 1,
-                            'text': '#error no data found for %s' % computer.getReference(),
+                            'text': '#error no data found for %s' % compute_node.getReference(),
                              'user': 'SlapOS Master'},
                           'partition': {}
                           }
@@ -421,14 +421,14 @@ class TestComputer_getNewsDict(TestSlapOSHalJsonStyleMixin):
     json.dumps(news_dict)
 
   def test_with_instance(self):
-    computer = self._makeComputer()
+    compute_node = self._makeComputeNode()
     instance = self._makeInstance()
-    instance.setAggregateValue(computer.slappart0)
+    instance.setAggregateValue(compute_node.slappart0)
     self.tic()
     
-    self._logFakeAccess(computer.getReference())
-    news_dict = computer.Computer_getNewsDict()
-    expected_news_dict =  {'computer': 
+    self._logFakeAccess(compute_node.getReference())
+    news_dict = compute_node.ComputeNode_getNewsDict()
+    expected_news_dict =  {'compute_node': 
                            {'created_at': self.created_at,
                             'no_data_since_15_minutes': 0,
                             'no_data_since_5_minutes': 0,
@@ -448,16 +448,16 @@ class TestComputerNetwork_getNewsDict(TestSlapOSHalJsonStyleMixin):
 
   def test(self):
     network = self._makeComputerNetwork()
-    computer = self._makeComputer()
+    compute_node = self._makeComputeNode()
     instance = self._makeInstance()
-    instance.setAggregateValue(computer.slappart0)
-    computer.setSubordinationValue(network)
+    instance.setAggregateValue(compute_node.slappart0)
+    compute_node.setSubordinationValue(network)
 
     self.tic()
-    self._logFakeAccess(computer.getReference())
+    self._logFakeAccess(compute_node.getReference())
     news_dict = network.ComputerNetwork_getNewsDict()
-    expected_news_dict =  {'computer': 
-                            { computer.getReference():
+    expected_news_dict =  {'compute_node': 
+                            { compute_node.getReference():
                               {'created_at': self.created_at,
                                'no_data_since_15_minutes': 0,
                                'no_data_since_5_minutes': 0,
@@ -467,7 +467,7 @@ class TestComputerNetwork_getNewsDict(TestSlapOSHalJsonStyleMixin):
                                'user': 'SlapOS Master'}
                             },
                           'partition':
-                            { computer.getReference():
+                            { compute_node.getReference():
                               {'slappart0': {'no_data': 1,
                               'text': '#error no data found for %s' % (instance.getReference()),
                               'user': 'SlapOS Master'}
@@ -483,27 +483,27 @@ class TestComputerNetwork_getNewsDict(TestSlapOSHalJsonStyleMixin):
     network = self._makeComputerNetwork()
     self._logFakeAccess(network.getReference())
     news_dict = network.ComputerNetwork_getNewsDict()
-    expected_news_dict = {'computer': {}, 'partition': {}}
+    expected_news_dict = {'compute_node': {}, 'partition': {}}
     self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
 class TestOrganisation_getNewsDict(TestSlapOSHalJsonStyleMixin):
 
-  @simulate('Organisation_getComputerTrackingList', 
-    '*args, **kwargs', 'return context.fake_computer_list')
+  @simulate('Organisation_getComputeNodeTrackingList', 
+    '*args, **kwargs', 'return context.fake_compute_node_list')
   def test(self):
     organisation = self._makeOrganisation()
-    computer = self._makeComputer()
+    compute_node = self._makeComputeNode()
     instance = self._makeInstance()
-    instance.setAggregateValue(computer.slappart0)
-    organisation.fake_computer_list = [computer]
+    instance.setAggregateValue(compute_node.slappart0)
+    organisation.fake_compute_node_list = [compute_node]
 
     self.tic()
-    self._logFakeAccess(computer.getReference())
+    self._logFakeAccess(compute_node.getReference())
     news_dict = organisation.Organisation_getNewsDict()
-    expected_news_dict =  {'computer': 
-                            { computer.getReference():
+    expected_news_dict =  {'compute_node': 
+                            { compute_node.getReference():
                               {'created_at': self.created_at,
                                'no_data_since_15_minutes': 0,
                                'no_data_since_5_minutes': 0,
@@ -513,7 +513,7 @@ class TestOrganisation_getNewsDict(TestSlapOSHalJsonStyleMixin):
                                'user': 'SlapOS Master'}
                             },
                           'partition':
-                            { computer.getReference():
+                            { compute_node.getReference():
                               {'slappart0': {'no_data': 1,
                               'text': '#error no data found for %s' % (instance.getReference()),
                               'user': 'SlapOS Master'}
@@ -528,27 +528,27 @@ class TestOrganisation_getNewsDict(TestSlapOSHalJsonStyleMixin):
   def test_no_data(self):
     organisation = self._makeOrganisation()
     news_dict = organisation.Organisation_getNewsDict()
-    expected_news_dict = {'computer': {}, 'partition': {}}
+    expected_news_dict = {'compute_node': {}, 'partition': {}}
     self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
 
 class TestProject_getNewsDict(TestSlapOSHalJsonStyleMixin):
 
-  @simulate('Project_getComputerTrackingList', 
-    '*args, **kwargs', 'return context.fake_computer_list')
+  @simulate('Project_getComputeNodeTrackingList', 
+    '*args, **kwargs', 'return context.fake_compute_node_list')
   def test(self):
     project = self._makeProject()
-    computer = self._makeComputer()
+    compute_node = self._makeComputeNode()
     instance = self._makeInstance()
-    instance.setAggregateValue(computer.slappart0)
-    project.fake_computer_list = [computer]
+    instance.setAggregateValue(compute_node.slappart0)
+    project.fake_compute_node_list = [compute_node]
 
     self.tic()
-    self._logFakeAccess(computer.getReference())
+    self._logFakeAccess(compute_node.getReference())
     news_dict = project.Project_getNewsDict()
-    expected_news_dict =  {'computer': 
-                            { computer.getReference():
+    expected_news_dict =  {'compute_node': 
+                            { compute_node.getReference():
                               {'created_at': self.created_at,
                                'no_data_since_15_minutes': 0,
                                'no_data_since_5_minutes': 0,
@@ -558,7 +558,7 @@ class TestProject_getNewsDict(TestSlapOSHalJsonStyleMixin):
                                'user': 'SlapOS Master'}
                             },
                           'partition':
-                            { computer.getReference():
+                            { compute_node.getReference():
                               {'slappart0': {'no_data': 1,
                               'text': '#error no data found for %s' % (instance.getReference()),
                               'user': 'SlapOS Master'}
@@ -573,7 +573,7 @@ class TestProject_getNewsDict(TestSlapOSHalJsonStyleMixin):
   def test_no_data(self):
     project = self._makeProject()
     news_dict = project.Project_getNewsDict()
-    expected_news_dict = {'computer': {}, 'partition': {}}
+    expected_news_dict = {'compute_node': {}, 'partition': {}}
     self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
@@ -732,26 +732,26 @@ class TestERP5Site_invalidate(TestSlapOSHalJsonStyleMixin):
     self.test_ERP5Site_invalidate(portal_type="Facebook Login")
 
 
-class TestComputer_get_revoke_Certificate(TestSlapOSHalJsonStyleMixin):
-  def test_Computer_getCertificate(self):
-    computer = self._makeComputer()
-    self.assertEqual(0, len(computer.objectValues(portal_type=["ERP5 Login", "Certificate Login"])))
+class TestComputeNode_get_revoke_Certificate(TestSlapOSHalJsonStyleMixin):
+  def test_ComputeNode_getCertificate(self):
+    compute_node = self._makeComputeNode()
+    self.assertEqual(0, len(compute_node.objectValues(portal_type=["ERP5 Login", "Certificate Login"])))
 
-    response_dict = json.loads(computer.Computer_getCertificate())
+    response_dict = json.loads(compute_node.ComputeNode_getCertificate())
     
     self.assertSameSet(response_dict.keys(), ["certificate", "key"])
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 200)
 
-    response_false = json.loads(computer.Computer_getCertificate())
+    response_false = json.loads(compute_node.ComputeNode_getCertificate())
     self.assertFalse(response_false)
 
-    response_true = json.loads(computer.Computer_revokeCertificate())
+    response_true = json.loads(compute_node.ComputeNode_revokeCertificate())
     self.assertTrue(response_true)
 
-    response_false = json.loads(computer.Computer_revokeCertificate())
+    response_false = json.loads(compute_node.ComputeNode_revokeCertificate())
     self.assertFalse(response_false)
 
-    response_dict = json.loads(computer.Computer_getCertificate())
+    response_dict = json.loads(compute_node.ComputeNode_getCertificate())
     
     self.assertSameSet(response_dict.keys(), ["certificate", "key"])
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 200)
@@ -770,18 +770,18 @@ class TestComputerNetwork_invalidate(TestSlapOSHalJsonStyleMixin):
     network.ComputerNetwork_invalidate()
     self.assertEqual(network.getValidationState(), "invalidated")
 
-class TestComputerNetwork_hasComputer(TestSlapOSHalJsonStyleMixin):
+class TestComputerNetwork_hasComputeNode(TestSlapOSHalJsonStyleMixin):
 
-  def test_ComputerNetwork_hasComputer(self):
+  def test_ComputerNetwork_hasComputeNode(self):
     network = self._makeComputerNetwork()
-    self.assertEqual(json.loads(network.ComputerNetwork_hasComputer()), 0)
+    self.assertEqual(json.loads(network.ComputerNetwork_hasComputeNode()), 0)
 
-    computer = self._makeComputer()
-    computer.setSubordinationValue(network)
+    compute_node = self._makeComputeNode()
+    compute_node.setSubordinationValue(network)
 
     self.tic()
     self.changeSkin("Hal")
-    self.assertEqual(json.loads(network.ComputerNetwork_hasComputer()), 1)
+    self.assertEqual(json.loads(network.ComputerNetwork_hasComputeNode()), 1)
 
 class TestBase_getCredentialToken(TestSlapOSHalJsonStyleMixin):
 
@@ -809,14 +809,14 @@ class TestBase_getCredentialToken(TestSlapOSHalJsonStyleMixin):
     self.assertEqual(token.getAgentValue(), person)
     self.assertEqual("One Time Restricted Access Token", token.getPortalType())
 
-class TestBase_getComputerToken(TestSlapOSHalJsonStyleMixin):
+class TestBase_getComputeNodeToken(TestSlapOSHalJsonStyleMixin):
 
-  def test_Base_getComputerToken(self):
+  def test_Base_getComputeNodeToken(self):
     person = self._makePerson()
     base = self.portal.web_site_module.hostingjs
 
     self.login(person.getUserId())
-    token_dict = json.loads(base.Base_getComputerToken())
+    token_dict = json.loads(base.Base_getComputeNodeToken())
 
     self.assertSameSet(token_dict.keys(), ['access_token', 'command_line',
                                     'slapos_master_web', 'slapos_master_api'])
@@ -829,7 +829,7 @@ class TestBase_getComputerToken(TestSlapOSHalJsonStyleMixin):
     self.login()
     token = self.portal.access_token_module[token_dict["access_token"]]
 
-    self.assertIn("/Person_requestComputer", token.getUrlString())
+    self.assertIn("/Person_requestComputeNode", token.getUrlString())
 
     self.assertEqual(token.getAgentValue(), person)
     self.assertEqual("One Time Restricted Access Token", token.getPortalType())

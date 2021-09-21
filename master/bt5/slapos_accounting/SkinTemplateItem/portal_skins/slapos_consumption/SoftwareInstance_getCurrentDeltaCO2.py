@@ -2,10 +2,10 @@ from zExceptions import Unauthorized
 if REQUEST is not None:
   raise Unauthorized
 
-computer_partition_list = context.getAggregateValueList(portal_type="Computer Partition")
+compute_partition_list = context.getAggregateValueList(portal_type="Compute Partition")
 
 current_watt = context.SoftwareRelease_getDeltaCO2List(
-  computer_partition_list, context.SoftwareInstance_getAverageCPULoad()
+  compute_partition_list, context.SoftwareInstance_getAverageCPULoad()
 )
 
 return current_watt.keys()[0]

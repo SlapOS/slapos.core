@@ -95,8 +95,8 @@
                     <value>
                       <list>
                         <tuple>
-                          <string>Computer</string>
-                          <string>Computer</string>
+                          <string>Compute Node</string>
+                          <string>Compute Node</string>
                         </tuple>
                         <tuple>
                           <string>Software Instance</string>

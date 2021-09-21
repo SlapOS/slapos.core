@@ -1,4 +1,4 @@
-# Script to generate URL for computer partiton of Software Instances
+# Script to generate URL for compute_node partiton of Software Instances
 # both for XHTML UI as well as renderJS UI
 if brain is None:
   brain = context

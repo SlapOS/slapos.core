@@ -96,15 +96,15 @@ elif context.getPortalType() == "Project Module":
       {"title": "Add Projects",
        "href": "https://handbook.rapid.space/user/rapidspace-HowTo.Add.A.New.Project"}
     ])
-elif context.getPortalType() == "Computer Module":
+elif context.getPortalType() == "Compute Node Module":
   if web_site_id == "hostingjs":
     contextual_help_list.extend([
       {"title": "Install SlapOS Node On PC",
        "href": "https://handbook.rapid.space/user/rapidspace-HowTo.Install.Slapos.Node.Comp.123"},
       {"title": "Install SlapOS Node On KVM",
        "href": "https://handbook.rapid.space/user/rapidspace-Install.SlapOS.Node.Comp.123.On.Rapid.Space.KVM"},
-      {"title": "Associate Computers",
-       "href": "https://handbook.rapid.space/user/rapidspace-HowTo.Associate.A.Computer"}
+      {"title": "Associate Compute Nodes",
+       "href": "https://handbook.rapid.space/user/rapidspace-HowTo.Associate.A.ComputeNode"}
     ])
 elif context.getPortalType() == "Computer Network Module":
   if web_site_id == "hostingjs":

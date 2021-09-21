@@ -197,16 +197,16 @@ class TestComputerNetworkcreateMovement(SlapOSTestCaseMixin):
     self.assertEqual(network.ComputerNetwork_createMovement(), None)
 
 
-class TestComputercreateMovement(SlapOSTestCaseMixin):
+class TestComputeNodecreateMovement(SlapOSTestCaseMixin):
   
-  def _makeComputer(self, owner=None, allocation_scope='open/public'):
-    computer = self.portal.computer_module\
-        .template_computer.Base_createCloneDocument(batch_mode=1)
-    computer.edit(reference="TESTCOMP-%s" % computer.getId())
-    computer.validate()
+  def _makeComputeNode(self, owner=None, allocation_scope='open/public'):
+    compute_node = self.portal.compute_node_module\
+        .template_compute_node.Base_createCloneDocument(batch_mode=1)
+    compute_node.edit(reference="TESTCOMP-%s" % compute_node.getId())
+    compute_node.validate()
 
     self.tic()
-    return computer
+    return compute_node
 
   def _makeProject(self):
     project = self.portal.project_module.newContent()
@@ -225,36 +225,36 @@ class TestComputercreateMovement(SlapOSTestCaseMixin):
     return organisation
 
   def testUnauthorized(self):
-    computer = self._makeComputer()
+    compute_node = self._makeComputeNode()
     site = self._makeOrganisation()
 
-    self.assertRaises(Unauthorized, computer.Computer_createMovement)
+    self.assertRaises(Unauthorized, compute_node.ComputeNode_createMovement)
 
     source_administrator = self.makePerson(user=1)
     self.assertEqual(1 , len(source_administrator.objectValues( portal_type="ERP5 Login")))
 
     self.login(source_administrator.getUserId())
-    self.assertRaises(Unauthorized, computer.Computer_createMovement)
+    self.assertRaises(Unauthorized, compute_node.ComputeNode_createMovement)
 
     self.login()
     other_user = self.makePerson(user=1)
     self.assertEqual(1 , len(other_user.objectValues(portal_type="ERP5 Login")))
 
-    computer.setSourceAdministrationValue(source_administrator)
+    compute_node.setSourceAdministrationValue(source_administrator)
     self.tic()
 
-    self.assertRaises(Unauthorized, computer.Computer_createMovement)
+    self.assertRaises(Unauthorized, compute_node.ComputeNode_createMovement)
     self.login(other_user.getUserId())
-    self.assertRaises(Unauthorized, computer.Computer_createMovement)
+    self.assertRaises(Unauthorized, compute_node.ComputeNode_createMovement)
 
     self.login(source_administrator.getUserId())
-    self.assertEqual(computer.Computer_createMovement(destination=site.getRelativeUrl()), None)
+    self.assertEqual(compute_node.ComputeNode_createMovement(destination=site.getRelativeUrl()), None)
 
 
   def test_project(self):
-    computer = self._makeComputer()
+    compute_node = self._makeComputeNode()
     source_administrator = self.makePerson(user=1)
-    computer.setSourceAdministrationValue(source_administrator)
+    compute_node.setSourceAdministrationValue(source_administrator)
     project = self._makeProject()
     other_project = self._makeProject()
     site = self._makeOrganisation()
@@ -262,23 +262,23 @@ class TestComputercreateMovement(SlapOSTestCaseMixin):
 
     self.login(source_administrator.getUserId())
 
-    self.assertEqual(computer.Item_getCurrentProjectValue(), None)
-    self.assertEqual(computer.Item_getCurrentOwnerValue(), None)
-    self.assertEqual(computer.Item_getCurrentSiteValue(), None)
+    self.assertEqual(compute_node.Item_getCurrentProjectValue(), None)
+    self.assertEqual(compute_node.Item_getCurrentOwnerValue(), None)
+    self.assertEqual(compute_node.Item_getCurrentSiteValue(), None)
 
     # Place in a project    
-    self.assertEqual(computer.Computer_createMovement(
+    self.assertEqual(compute_node.ComputeNode_createMovement(
       destination=site.getRelativeUrl(),
       destination_project=project.getRelativeUrl()), None)
 
     self.tic()
     
-    self.assertEqual(computer.Item_getCurrentProjectValue(), project)
-    self.assertEqual(computer.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(computer.Item_getCurrentSiteValue(), site)
+    self.assertEqual(compute_node.Item_getCurrentProjectValue(), project)
+    self.assertEqual(compute_node.Item_getCurrentOwnerValue(), source_administrator)
+    self.assertEqual(compute_node.Item_getCurrentSiteValue(), site)
 
     self.assertEqual(1,
-      len(computer.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
 
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
@@ -287,30 +287,30 @@ class TestComputercreateMovement(SlapOSTestCaseMixin):
     self.login(source_administrator.getUserId())
 
     # We don't remove from Project if destination project is not provided
-    self.assertEqual(computer.Computer_createMovement(), None)
+    self.assertEqual(compute_node.ComputeNode_createMovement(), None)
     self.tic()
 
-    self.assertEqual(computer.Item_getCurrentProjectValue(), project)
-    self.assertEqual(computer.Item_getCurrentOwnerValue(), source_administrator)
+    self.assertEqual(compute_node.Item_getCurrentProjectValue(), project)
+    self.assertEqual(compute_node.Item_getCurrentOwnerValue(), source_administrator)
     self.assertEqual(2,
-      len(computer.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
 
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
     sleep(3)
     
     # Place in another project    
-    self.assertEqual(computer.Computer_createMovement(
+    self.assertEqual(compute_node.ComputeNode_createMovement(
       destination_project=other_project.getRelativeUrl()), None)
 
     self.tic()
     
-    self.assertEqual(computer.Item_getCurrentProjectValue(), other_project)
-    self.assertEqual(computer.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(computer.Item_getCurrentSiteValue(), site)
+    self.assertEqual(compute_node.Item_getCurrentProjectValue(), other_project)
+    self.assertEqual(compute_node.Item_getCurrentOwnerValue(), source_administrator)
+    self.assertEqual(compute_node.Item_getCurrentSiteValue(), site)
 
     self.assertEqual(3,
-      len(computer.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
     self.login(source_administrator.getUserId())
 
@@ -318,21 +318,21 @@ class TestComputercreateMovement(SlapOSTestCaseMixin):
     sleep(3)
     
     # We don't remove from Project if destination project is not provided
-    self.assertEqual(computer.Computer_createMovement(), None)
+    self.assertEqual(compute_node.ComputeNode_createMovement(), None)
     self.tic()
 
-    self.assertEqual(computer.Item_getCurrentProjectValue(), other_project)
-    self.assertEqual(computer.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(computer.Item_getCurrentSiteValue(), site)
+    self.assertEqual(compute_node.Item_getCurrentProjectValue(), other_project)
+    self.assertEqual(compute_node.Item_getCurrentOwnerValue(), source_administrator)
+    self.assertEqual(compute_node.Item_getCurrentSiteValue(), site)
 
     self.assertEqual(4,
-      len(computer.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
 
   def test_owner(self):
-    computer = self._makeComputer()
+    compute_node = self._makeComputeNode()
     source_administrator = self.makePerson(user=1)
-    computer.setSourceAdministrationValue(source_administrator)
+    compute_node.setSourceAdministrationValue(source_administrator)
     organisation = self._makeOrganisation()
     other_organisation = self._makeOrganisation()
     site = self._makeOrganisation()
@@ -340,72 +340,72 @@ class TestComputercreateMovement(SlapOSTestCaseMixin):
 
     self.login(source_administrator.getUserId())
 
-    self.assertEqual(computer.Item_getCurrentProjectValue(), None)
-    self.assertEqual(computer.Item_getCurrentOwnerValue(), None)
+    self.assertEqual(compute_node.Item_getCurrentProjectValue(), None)
+    self.assertEqual(compute_node.Item_getCurrentOwnerValue(), None)
 
-    self.assertEqual(computer.Computer_createMovement(
+    self.assertEqual(compute_node.ComputeNode_createMovement(
        destination=site.getRelativeUrl(),
        destination_section=organisation.getRelativeUrl()), None)
 
     self.tic()
     
-    self.assertEqual(computer.Item_getCurrentProjectValue(), None)
-    self.assertEqual(computer.Item_getCurrentOwnerValue(), organisation)
-    self.assertEqual(computer.Item_getCurrentSiteValue(), site)
+    self.assertEqual(compute_node.Item_getCurrentProjectValue(), None)
+    self.assertEqual(compute_node.Item_getCurrentOwnerValue(), organisation)
+    self.assertEqual(compute_node.Item_getCurrentSiteValue(), site)
 
     self.assertEqual(1,
-      len(computer.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
     sleep(3)
     self.login(source_administrator.getUserId())
 
-    self.assertEqual(computer.Computer_createMovement(), None)
+    self.assertEqual(compute_node.ComputeNode_createMovement(), None)
     self.tic()
 
-    self.assertEqual(computer.Item_getCurrentProjectValue(), None)
-    self.assertEqual(computer.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(computer.Item_getCurrentSiteValue(), site)
+    self.assertEqual(compute_node.Item_getCurrentProjectValue(), None)
+    self.assertEqual(compute_node.Item_getCurrentOwnerValue(), source_administrator)
+    self.assertEqual(compute_node.Item_getCurrentSiteValue(), site)
 
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
     sleep(3)
     
     # Place in another project    
-    self.assertEqual(computer.Computer_createMovement(
+    self.assertEqual(compute_node.ComputeNode_createMovement(
       destination_section=other_organisation.getRelativeUrl()), None)
 
     self.tic()
         
     self.assertEqual(3,
-      len(computer.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
-    self.assertEqual(computer.Item_getCurrentProjectValue(), None)
-    self.assertEqual(computer.Item_getCurrentOwnerValue(), other_organisation)
-    self.assertEqual(computer.Item_getCurrentSiteValue(), site)
+    self.assertEqual(compute_node.Item_getCurrentProjectValue(), None)
+    self.assertEqual(compute_node.Item_getCurrentOwnerValue(), other_organisation)
+    self.assertEqual(compute_node.Item_getCurrentSiteValue(), site)
 
     self.assertEqual(3,
-      len(computer.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
     self.login(source_administrator.getUserId())
 
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
     sleep(3)
     # We don't remove from Project if destination project is not provided
-    self.assertEqual(computer.Computer_createMovement(), None)
+    self.assertEqual(compute_node.ComputeNode_createMovement(), None)
     self.tic()
 
-    self.assertEqual(computer.Item_getCurrentProjectValue(), None)
-    self.assertEqual(computer.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(computer.Item_getCurrentSiteValue(), site)
+    self.assertEqual(compute_node.Item_getCurrentProjectValue(), None)
+    self.assertEqual(compute_node.Item_getCurrentOwnerValue(), source_administrator)
+    self.assertEqual(compute_node.Item_getCurrentSiteValue(), site)
 
     self.assertEqual(4,
-      len(computer.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
 
   def test_site(self):
-    computer = self._makeComputer()
+    compute_node = self._makeComputeNode()
     source_administrator = self.makePerson(user=1)
-    computer.setSourceAdministrationValue(source_administrator)
+    compute_node.setSourceAdministrationValue(source_administrator)
     site = self._makeOrganisation()
     other_site = self._makeOrganisation()
 
@@ -413,61 +413,61 @@ class TestComputercreateMovement(SlapOSTestCaseMixin):
 
     self.login(source_administrator.getUserId())
 
-    self.assertEqual(computer.Item_getCurrentProjectValue(), None)
-    self.assertEqual(computer.Item_getCurrentOwnerValue(), None)
+    self.assertEqual(compute_node.Item_getCurrentProjectValue(), None)
+    self.assertEqual(compute_node.Item_getCurrentOwnerValue(), None)
 
-    self.assertEqual(computer.Computer_createMovement(
+    self.assertEqual(compute_node.ComputeNode_createMovement(
        destination=site.getRelativeUrl()), None)
 
     self.tic()
     
-    self.assertEqual(computer.Item_getCurrentProjectValue(), None)
-    self.assertEqual(computer.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(computer.Item_getCurrentSiteValue(), site)
+    self.assertEqual(compute_node.Item_getCurrentProjectValue(), None)
+    self.assertEqual(compute_node.Item_getCurrentOwnerValue(), source_administrator)
+    self.assertEqual(compute_node.Item_getCurrentSiteValue(), site)
 
     self.assertEqual(1,
-      len(computer.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
     sleep(5)
     self.login(source_administrator.getUserId())
 
     # We don't remove from Project if destination project is not provided
-    self.assertEqual(computer.Computer_createMovement(), None)
+    self.assertEqual(compute_node.ComputeNode_createMovement(), None)
     self.tic()
 
-    self.assertEqual(computer.Item_getCurrentProjectValue(), None)
-    self.assertEqual(computer.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(computer.Item_getCurrentSiteValue(), site)
+    self.assertEqual(compute_node.Item_getCurrentProjectValue(), None)
+    self.assertEqual(compute_node.Item_getCurrentOwnerValue(), source_administrator)
+    self.assertEqual(compute_node.Item_getCurrentSiteValue(), site)
 
     # Place in another project    
-    self.assertEqual(computer.Computer_createMovement(
+    self.assertEqual(compute_node.ComputeNode_createMovement(
       destination=other_site.getRelativeUrl()), None)
 
     self.tic()
         
     self.assertEqual(3,
-      len(computer.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
-    self.assertEqual(computer.Item_getCurrentProjectValue(), None)
-    self.assertEqual(computer.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(computer.Item_getCurrentSiteValue(), other_site)
+    self.assertEqual(compute_node.Item_getCurrentProjectValue(), None)
+    self.assertEqual(compute_node.Item_getCurrentOwnerValue(), source_administrator)
+    self.assertEqual(compute_node.Item_getCurrentSiteValue(), other_site)
 
     self.assertEqual(3,
-      len(computer.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
     self.login(source_administrator.getUserId())
 
     # We don't remove from Project if destination project is not provided
-    self.assertEqual(computer.Computer_createMovement(), None)
+    self.assertEqual(compute_node.ComputeNode_createMovement(), None)
     self.tic()
 
-    self.assertEqual(computer.Item_getCurrentProjectValue(), None)
-    self.assertEqual(computer.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(computer.Item_getCurrentSiteValue(), other_site)
+    self.assertEqual(compute_node.Item_getCurrentProjectValue(), None)
+    self.assertEqual(compute_node.Item_getCurrentOwnerValue(), source_administrator)
+    self.assertEqual(compute_node.Item_getCurrentSiteValue(), other_site)
 
     self.assertEqual(4,
-      len(computer.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+      len(compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
 
 

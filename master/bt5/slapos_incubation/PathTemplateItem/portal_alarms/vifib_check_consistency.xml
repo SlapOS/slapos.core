@@ -150,7 +150,7 @@
                 <string>glossary_module</string>
                 <string>bug_module</string>
                 <string>discount_module</string>
-                <string>computer_module</string>
+                <string>compute_node_module</string>
                 <string>computer_network_module</string>
                 <string>computer_model_module</string>
                 <string>software_installation_module</string>

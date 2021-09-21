@@ -73,7 +73,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
       slapos_pre_payment_template.\
        updateLocalRolesOnSecurityGroups()
 
-    # One user to create computers to deploy the subscription
+    # One user to create compute_nodes to deploy the subscription
     self.createAdminUser()
     self.cleanUpNotificationMessage()
     self.portal.portal_catalog.searchAndActivate(
@@ -176,7 +176,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     return notification_message
 
   def createAdminUser(self):
-    """ Create a Admin user, to manage computers and instances eventually """
+    """ Create a Admin user, to manage compute_nodes and instances eventually """
     admin_user_login = self.portal.portal_catalog.getResultValue(
       portal_type="ERP5 Login",
       reference="admin_user",
@@ -1176,14 +1176,14 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       specialise_uid=specialise_uid)
 
   def createPublicServerForAdminUser(self):
-    # hooray, now it is time to create computers
+    # hooray, now it is time to create compute_nodes
     self.login(self.admin_user.getUserId())
 
     # Create a Public Server for admin user, and allow
     subscription_server_title = 'Trial Public Server for Admin User %s' % self.new_id
-    subscription_server_id = self.requestComputer(subscription_server_title)
+    subscription_server_id = self.requestComputeNode(subscription_server_title)
     subscription_server = self.portal.portal_catalog.getResultValue(
-        portal_type='Computer', reference=subscription_server_id)
+        portal_type='Compute Node', reference=subscription_server_id)
     self.setAccessToMemcached(subscription_server)
     self.assertNotEqual(None, subscription_server)
     self.setServerOpenSubscription(subscription_server)
@@ -1192,8 +1192,8 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     subscription_server_software = self.subscription_condition.getUrlString()
     self.supplySoftware(subscription_server, subscription_server_software)
 
-    # format the computers
-    self.formatComputer(subscription_server)
+    # format the compute_nodes
+    self.formatComputeNode(subscription_server)
 
     self.tic()
     self.logout()
@@ -1298,7 +1298,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.stepCallSlaposAllocateInstanceAlarm()
     self.tic()
 
-    # now instantiate it on computer and set some nice connection dict
+    # now instantiate it on compute_node and set some nice connection dict
     self.simulateSlapgridCP(subscription_server)
     self.tic()
 
@@ -1574,7 +1574,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
                default_email_text, self.subscription_condition)
 
   def _test_subscription_scenario(self, amount=1):
-    """ The admin creates an computer, user can request instances on it"""
+    """ The admin creates an compute_node, user can request instances on it"""
 
     self.subscription_server = self.createPublicServerForAdminUser()
 
@@ -1595,7 +1595,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     return default_email_text, name
 
   def _test_subscription_scenario_with_existing_user(self, amount=1, language=None):
-    """ The admin creates an computer, user can request instances on it"""
+    """ The admin creates an compute_node, user can request instances on it"""
 
     # Call as anonymous... check response?
     default_email_text = "abc%s@nexedi.com" % self.new_id
@@ -1677,7 +1677,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
   def _test_two_subscription_scenario(self, amount=1, create_invitation=False,
     max_invoice_delay=0, max_invoice_credit_eur=0.0, max_invoice_credit_cny=0.0):
-    """ The admin creates an computer, user can request instances on it"""
+    """ The admin creates an compute_node, user can request instances on it"""
  
     self.subscription_server = self.createPublicServerForAdminUser()
 
@@ -1799,7 +1799,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     return default_email_text, name
 
   def _test_subscription_scenario_with_reversal_transaction(self, amount=1):
-    """ The admin creates an computer, user can request instances on it"""
+    """ The admin creates an compute_node, user can request instances on it"""
 
     self.subscription_server = self.createPublicServerForAdminUser()
 

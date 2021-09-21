@@ -677,7 +677,7 @@ class ComputerPartition(SlapRequester):
     return loads(xml)
   
   def getFullHostingIpAddressList(self):
-    xml = self._connection_helper.GET('getInstanceTreeIpList',
+    xml = self._connection_helper.GET('getHostingSubscriptionIpList',
             params={
                 'computer_id': self._computer_id,
                 'computer_partition_id': self._partition_id,

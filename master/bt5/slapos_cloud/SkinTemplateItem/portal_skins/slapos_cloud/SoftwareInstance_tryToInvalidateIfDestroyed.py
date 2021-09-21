@@ -8,5 +8,5 @@ if context.getPortalType() not in ('Software Instance', 'Slave Instance'):
 software_instance = context
 if software_instance.getValidationState() == 'validated' \
   and software_instance.getSlapState() == 'destroy_requested' \
-  and software_instance.getAggregateValue(portal_type='Computer Partition') is None:
+  and software_instance.getAggregateValue(portal_type='Compute Partition') is None:
   software_instance.invalidate(comment='Invalidated as unallocated and destroyed')

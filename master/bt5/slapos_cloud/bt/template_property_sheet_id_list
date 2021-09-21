@@ -1,11 +1,13 @@
 SoftwareInstanceConstraint
 SlapOSMasterUpgradeConstraint
-SlaposComputerPartitionConstraint
+SlaposComputePartitionConstraint
 SlaposInstanceTreeConstraint
 SlaveInstanceConstraint
 InternetProtocolAddress
 HostingSubscriptionUpgradeConstraint
-ComputerPartition
+ComputerUpgradeConstraint
+ComputerPartitionUpgradeConstraint
+ComputePartition
 SoftwareInstance
 SoftwareInstanceUpgradeConstraint
 InstanceTree
@@ -13,5 +15,5 @@ SlaposCapacity
 SlaposPersonConstraint
 SlaposAssignmentConstraint
 SlaposEmailConstraint
-SlaposComputerConstraint
-ComputerSlapOSMetadata
+SlaposComputeNodeConstraint
+ComputeNodeSlapOSMetadata

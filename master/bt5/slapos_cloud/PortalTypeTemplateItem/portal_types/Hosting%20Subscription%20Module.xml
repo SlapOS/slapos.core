@@ -38,7 +38,7 @@
 \n
   ERP5 folders are implemented as CMFBTreeFolder objects\n
   and can store up to a million documents on a standard\n
-  computer.\n
+  compute_node.\n
   ERP5 folders will eventually use in the near future the\n
   AdaptableStorage implementation in order to reach performances\n
   of 10 or 100 millions of documents in a single folder.\n

@@ -245,7 +245,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Computer</string> </value>
+                    <value> <string>Compute Node</string> </value>
                 </item>
                 <item>
                     <key> <string>unicode</string> </key>
@@ -269,7 +269,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: [(\'\', \'\')] + [( \'%s (%s)\' % (q.getTitle(), q.getReference()), q.getReference()) for q in here.WebSection_getUserComputerList(portal_type=\'Computer\')]</string> </value>
+            <value> <string>python: [(\'\', \'\')] + [( \'%s (%s)\' % (q.getTitle(), q.getReference()), q.getReference()) for q in here.WebSection_getUserComputeNodeList(portal_type=\'Compute Node\')]</string> </value>
         </item>
       </dictionary>
     </pickle>

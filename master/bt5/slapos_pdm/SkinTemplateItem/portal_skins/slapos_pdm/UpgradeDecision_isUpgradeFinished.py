@@ -1,19 +1,19 @@
 portal = context.getPortalObject()
 
 instance_tree = context.UpgradeDecision_getInstanceTree()
-computer = context.UpgradeDecision_getComputer()
+compute_node = context.UpgradeDecision_getComputeNode()
 software_release = context.UpgradeDecision_getSoftwareRelease()
 
 if instance_tree is not None:
   if instance_tree.getUrlString() == software_release.getUrlString():
     return True
 
-elif computer is not None:
+elif compute_node is not None:
   full_software_release_list = [si for si in 
           portal.portal_catalog(
             portal_type='Software Installation',
             url_string=software_release.getUrlString(),
-            default_aggregate_uid=computer.getUid(),
+            default_aggregate_uid=compute_node.getUid(),
             validation_state='validated'
           ) if si.getSlapState() == 'start_requested']
 

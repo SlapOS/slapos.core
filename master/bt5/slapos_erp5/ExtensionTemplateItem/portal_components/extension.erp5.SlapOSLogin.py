@@ -57,7 +57,7 @@ def Login_unrestrictedSearchPasswordEvent(self, REQUEST=None):
 
 
 def migrateInstanceToERP5Login(self):
-  assert self.getPortalType() in ( 'Computer', 'Software Instance')
+  assert self.getPortalType() in ( 'Compute Node', 'Software Instance')
 
   reference = self.getReference()
   if not reference:

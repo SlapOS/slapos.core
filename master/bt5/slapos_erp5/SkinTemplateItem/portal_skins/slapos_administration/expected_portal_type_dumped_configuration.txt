@@ -1181,15 +1181,15 @@ Component Tool
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
-Computer
+ComputeNode
   Short Title: None
-  Class: Computer
-  Init Script: Computer_init
+  Class: Compute Node
+  Init Script: ComputeNode_init
   Add Permission: None
   Acquire Local Roles: 0
-  Property Sheets: ['ComputerSlapOSMetadata', 'ERP5User', 'SlaposCapacity', 'SlaposComputerConstraint', 'Url', 'VariationRange']
+  Property Sheets: ['ComputeNodeSlapOSMetadata', 'ERP5User', 'SlaposCapacity', 'SlaposComputeNodeConstraint', 'Url', 'VariationRange']
   Base Categories: ['destination_section', 'monitor_scope', 'source_administration', 'specialise', 'subordination', 'upgrade_scope']
-  Allowed Content Types: ['Certificate Login', 'Computer Partition', 'ERP5 Login', 'Internet Protocol Address', 'Tcp Port Number']
+  Allowed Content Types: ['Certificate Login', 'Compute Partition', 'ERP5 Login', 'Internet Protocol Address', 'Tcp Port Number']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -1209,7 +1209,7 @@ Computer Consumption TioXML File
 
 Computer Model
   Short Title: None
-  Class: Computer
+  Class: Compute Node
   Init Script: None
   Add Permission: None
   Acquire Local Roles: False
@@ -1233,7 +1233,7 @@ Computer Model Module
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
-Computer Module
+ComputeNode Module
   Short Title: None
   Class: Folder
   Init Script: 
@@ -1241,7 +1241,7 @@ Computer Module
   Acquire Local Roles: 0
   Property Sheets: []
   Base Categories: ['business_application']
-  Allowed Content Types: ['Computer']
+  Allowed Content Types: ['Compute Node']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -1272,13 +1272,13 @@ Computer Network Module
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
-Computer Partition
+Compute Partition
   Short Title: None
-  Class: ComputerPartition
+  Class: ComputePartition
   Init Script: None
   Add Permission: None
   Acquire Local Roles: 1
-  Property Sheets: ['ComputerPartition', 'SlaposComputerPartitionConstraint', 'VariationRange']
+  Property Sheets: ['ComputePartition', 'SlaposComputePartitionConstraint', 'VariationRange']
   Base Categories: ['subordination']
   Allowed Content Types: ['Internet Protocol Address']
   Hidden Content Types: []

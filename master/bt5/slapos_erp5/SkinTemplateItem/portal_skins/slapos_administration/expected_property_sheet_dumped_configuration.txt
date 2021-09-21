@@ -6020,63 +6020,63 @@ Component
   translation_domain: None
   write_permission: Modify portal content
 
-Computer
+ComputeNode
   id: allocation_scope_category
   portal_type: Category Property
   reference: allocation_scope
 
-Computer
+ComputeNode
   id: capacity_scope_category
   portal_type: Category Property
   reference: capacity_scope
 
-Computer
+ComputeNode
   id: cpu_core_category
   portal_type: Category Property
   reference: cpu_core
 
-Computer
+ComputeNode
   id: cpu_frequency_category
   portal_type: Category Property
   reference: cpu_frequency
 
-Computer
+ComputeNode
   id: cpu_type_category
   portal_type: Category Property
   reference: cpu_type
 
-Computer
+ComputeNode
   id: function_category
   portal_type: Category Property
   reference: function
 
-Computer
+ComputeNode
   id: group_category
   portal_type: Category Property
   reference: group
 
-Computer
+ComputeNode
   id: local_area_network_type_category
   portal_type: Category Property
   reference: local_area_network_type
 
-Computer
+ComputeNode
   id: memory_size_category
   portal_type: Category Property
   reference: memory_size
 
-Computer
+ComputeNode
   id: memory_type_category
   portal_type: Category Property
   reference: memory_type
 
-Computer
+ComputeNode
   acquisition_accessor_id: getDefaultNetworkAddressValue
   acquisition_base_category_list: ['parent']
   acquisition_copy_value: 0
   acquisition_mask_value: 1
   acquisition_object_id_list: None
-  acquisition_portal_type: python: ('Computer',)
+  acquisition_portal_type: python: ('Compute Node',)
   alt_accessor_id_list: []
   content_acquired_property_id_list: ['text', 'host_name', 'ip_address', 'netmask', 'network_interface']
   content_portal_type: python: ('Internet Protocol Address',)
@@ -6095,53 +6095,53 @@ Computer
   translation_domain: None
   write_permission: Modify portal content
 
-Computer
+ComputeNode
   id: product_line_category
   portal_type: Category Property
   reference: product_line
 
-Computer
+ComputeNode
   id: region_category
   portal_type: Category Property
   reference: region
 
-Computer
+ComputeNode
   id: role_category
   portal_type: Category Property
   reference: role
 
-Computer
+ComputeNode
   id: storage_capacity_category
   portal_type: Category Property
   reference: storage_capacity
 
-Computer
+ComputeNode
   id: storage_interface_category
   portal_type: Category Property
   reference: storage_interface
 
-Computer
+ComputeNode
   id: storage_redundancy_category
   portal_type: Category Property
   reference: storage_redundancy
 
-Computer
+ComputeNode
   id: storage_technology_category
   portal_type: Category Property
   reference: storage_technology
 
-Computer
+ComputeNode
   id: wide_area_network_type_category
   portal_type: Category Property
   reference: wide_area_network_type
 
-ComputerPartition
+ComputePartition
   acquisition_accessor_id: getDefaultNetworkAddressValue
   acquisition_base_category_list: ['parent']
   acquisition_copy_value: 0
   acquisition_mask_value: 1
   acquisition_object_id_list: None
-  acquisition_portal_type: python: ('Computer Partition',)
+  acquisition_portal_type: python: ('Compute Partition',)
   alt_accessor_id_list: []
   content_acquired_property_id_list: ['text', 'host_name', 'ip_address', 'udp_port_number', 'tcp_port_number']
   content_portal_type: python: ('Internet Protocol Address',)
@@ -6160,7 +6160,7 @@ ComputerPartition
   translation_domain: None
   write_permission: Modify portal content
 
-ComputerSlapOSMetadata
+ComputeNodeSlapOSMetadata
   elementary_type: string
   id: os_type_property
   multivaluated: None
@@ -6175,7 +6175,7 @@ ComputerSlapOSMetadata
   translation_domain: None
   write_permission: Modify portal content
 
-ComputerSlapOSMetadata
+ComputeNodeSlapOSMetadata
   elementary_type: string
   id: public_ipv4_address_property
   multivaluated: None
@@ -6190,7 +6190,7 @@ ComputerSlapOSMetadata
   translation_domain: None
   write_permission: Modify portal content
 
-ComputerSlapOSMetadata
+ComputeNodeSlapOSMetadata
   elementary_type: string
   id: python_version_property
   multivaluated: None
@@ -6205,7 +6205,7 @@ ComputerSlapOSMetadata
   translation_domain: None
   write_permission: Modify portal content
 
-ComputerSlapOSMetadata
+ComputeNodeSlapOSMetadata
   elementary_type: string
   id: re6st_version_property
   multivaluated: None
@@ -6220,7 +6220,7 @@ ComputerSlapOSMetadata
   translation_domain: None
   write_permission: Modify portal content
 
-ComputerSlapOSMetadata
+ComputeNodeSlapOSMetadata
   elementary_type: string
   id: slapos_version_property
   multivaluated: None
@@ -16676,7 +16676,7 @@ SlaposCapacity
   translation_domain: None
   write_permission: Modify portal content
 
-SlaposComputerConstraint
+SlaposComputeNodeConstraint
   id: reference_not_empty_constraint
   message_attribute_not_match: Attribute ${attribute_name} is ${attribute_value} and does not match ${regular_expression}
   message_no_such_property: Reference must be defined
@@ -16684,14 +16684,14 @@ SlaposComputerConstraint
   portal_type: String Attribute Match Constraint
   reference: reference_not_empty
 
-SlaposComputerConstraint
+SlaposComputeNodeConstraint
   id: reference_unicity_constraint
   message_invalid_attribute_unicity: Reference must be unique
   message_no_such_property: Property existence error for property ${property_id}, this document has no such property or the property has never been set
   portal_type: Attribute Unicity Constraint
   reference: reference_unicity
 
-SlaposComputerConstraint
+SlaposComputeNodeConstraint
   id: title_not_empty_constraint
   message_attribute_not_match: Attribute ${attribute_name} is ${attribute_value} and does not match ${regular_expression}
   message_no_such_property: Title must be defined
@@ -16699,7 +16699,7 @@ SlaposComputerConstraint
   portal_type: String Attribute Match Constraint
   reference: title_not_empty
 
-SlaposComputerPartitionConstraint
+SlaposComputePartitionConstraint
   id: busy_partition_has_one_related_instance_constraint
   message_arity_not_in_range: Arity Error for Relation ${base_category}, arity is equal to ${current_arity} but should be between ${min_arity} and ${max_arity}
   message_arity_too_small: Arity Error for Relation ${base_category}, arity is equal to ${current_arity} but should be at least ${min_arity}
@@ -16708,7 +16708,7 @@ SlaposComputerPartitionConstraint
   portal_type: Category Related Membership Arity Constraint
   reference: busy_partition_has_one_related_instance
 
-SlaposComputerPartitionConstraint
+SlaposComputePartitionConstraint
   id: non_busy_partition_has_no_related_instance_constraint
   message_arity_not_in_range: Arity Error for Relation ${base_category}, arity is equal to ${current_arity} but should be between ${min_arity} and ${max_arity}
   message_arity_too_small: Arity Error for Relation ${base_category}, arity is equal to ${current_arity} but should be at least ${min_arity}

@@ -26,6 +26,7 @@ business_process_module/slapos_subscription_business_process
 campaign_module
 cloud_contract_module
 component_module
+compute_node_module
 computer_model_module
 computer_module
 computer_network_module
@@ -39,9 +40,9 @@ document_ingestion_module
 document_module
 event_module
 event_module/slapos_crm_web_message_template
-instance_tree_module
 image_module
 incident_response_module
+instance_tree_module
 inventory_module
 invitation_token_module
 knowledge_pad_module

@@ -7,18 +7,18 @@ kwargs = state_change.kwargs
 # Required args
 # Raise TypeError if all parameters are not provided
 try:
-  computer_partition_url = kwargs['computer_partition_url']
+  compute_partition_url = kwargs['compute_partition_url']
 except KeyError:
   raise TypeError, "RequestedInstance_allocatePartition takes exactly 1 argument"
 
 assert instance.getAggregateValue() is None
-computer_partition = portal.restrictedTraverse(computer_partition_url)
-assert computer_partition.getPortalType() == "Computer Partition"
+compute_partition = portal.restrictedTraverse(compute_partition_url)
+assert compute_partition.getPortalType() == "Compute Partition"
 
-instance.edit(aggregate_value=computer_partition, activate_kw={'tag': 'allocate_%s' % computer_partition_url})
+instance.edit(aggregate_value=compute_partition, activate_kw={'tag': 'allocate_%s' % compute_partition_url})
 
-computer = computer_partition.getParentValue()
+compute_node = compute_partition.getParentValue()
 
-computer.Computer_checkAndUpdateCapacityScope(
+compute_node.ComputeNode_checkAndUpdateCapacityScope(
   allocated_instance=instance
 )

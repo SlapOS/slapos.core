@@ -11,7 +11,7 @@ from AccessControl.SecurityManagement import newSecurityManager
 import xml_marshaller
 
 
-def Computer_simulateSlapgridCP(self, instance_connection_dict=None,
+def ComputeNode_simulateSlapgridCP(self, instance_connection_dict=None,
                        slave_connection_dict=None):
 
   if slave_connection_dict is None:
@@ -21,21 +21,21 @@ def Computer_simulateSlapgridCP(self, instance_connection_dict=None,
     instance_connection_dict = {}
 
   sm = getSecurityManager()
-  computer_reference = self.getReference()
-  computer_user_id = self.getUserId()
+  compute_node_reference = self.getReference()
+  compute_node_user_id = self.getUserId()
   portal = self.getPortalObject()
   try:
-    newSecurityManager(None, portal.acl_users.getUserById(computer_user_id))
-    computer_xml = portal.portal_slap.getFullComputerInformation(
+    newSecurityManager(None, portal.acl_users.getUserById(compute_node_user_id))
+    compute_node_xml = portal.portal_slap.getFullComputerInformation(
         computer_id=self.getReference())
     
-    if not isinstance(computer_xml, str):
-      computer_xml = computer_xml.getBody()
+    if not isinstance(compute_node_xml, str):
+      compute_node_xml = compute_node_xml.getBody()
 
-    slap_computer = xml_marshaller.xml_marshaller.loads(computer_xml)
-    assert 'Computer' == slap_computer.__class__.__name__
+    slap_compute_node = xml_marshaller.xml_marshaller.loads(compute_node_xml)
+    assert 'Computer' == slap_compute_node.__class__.__name__
 
-    for partition in slap_computer._computer_partition_list:
+    for partition in slap_compute_node._computer_partition_list:
       if partition._requested_state in ('started', 'stopped') \
               and partition._need_modification == 1:
         instance_reference = partition._instance_guid.encode('UTF-8')
@@ -46,7 +46,7 @@ def Computer_simulateSlapgridCP(self, instance_connection_dict=None,
           ))
         connection_xml = xml_marshaller.xml_marshaller.dumps(instance_connection_dict)
         portal.portal_slap.setComputerPartitionConnectionXml(
-          computer_id=computer_reference,
+          computer_id=compute_node_reference,
           computer_partition_id=partition._partition_id,
           connection_xml=connection_xml
         )
@@ -64,7 +64,7 @@ def Computer_simulateSlapgridCP(self, instance_connection_dict=None,
           ))
         connection_xml = xml_marshaller.xml_marshaller.dumps(slave_connection_dict)
         self.portal.portal_slap.setComputerPartitionConnectionXml(
-            computer_id=computer_reference,
+            computer_id=compute_node_reference,
             computer_partition_id=partition._partition_id,
             connection_xml=connection_xml,
             slave_reference=slave_reference
@@ -73,18 +73,18 @@ def Computer_simulateSlapgridCP(self, instance_connection_dict=None,
   finally:
     setSecurityManager(sm)
 
-def Computer_simulateSlapgridFormat(self, partition_count=10):
+def ComputeNode_simulateSlapgridFormat(self, partition_count=10):
   portal = self.getPortalObject()
 
-  computer_dict = dict(
+  compute_node_dict = dict(
     software_root='/opt',
     reference=self.getReference(),
     netmask='255.255.255.0',
     address='128.0.0.1',
     instance_root='/srv'
   )
-  computer_dict['partition_list'] = []
-  a = computer_dict['partition_list'].append
+  compute_node_dict['partition_list'] = []
+  a = compute_node_dict['partition_list'].append
   for i in range(1, partition_count+1):
     a(dict(
       reference='part%s' % i,
@@ -98,7 +98,7 @@ def Computer_simulateSlapgridFormat(self, partition_count=10):
   try:
     newSecurityManager(None, portal.acl_users.getUserById(self.getUserId()))
     return portal.portal_slap.loadComputerConfigurationFromXML(
-        xml_marshaller.xml_marshaller.dumps(computer_dict))
+        xml_marshaller.xml_marshaller.dumps(compute_node_dict))
   finally:
     setSecurityManager(sm)
 

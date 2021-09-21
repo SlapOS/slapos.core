@@ -418,168 +418,168 @@ class TestSlapOSCrmDeleteInstanceTree(SlapOSTestCaseMixinWithAbort):
     self._test_alarm_not_visited(alarm, ticket, "RegularisationRequest_deleteInstanceTreeList")
 
 
-class TestSlapOSCrmMonitoringCheckComputerState(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort):
 
-  def test_alarm_check_public_computer_state(self):
-    self._makeComputer()
-    self.computer.edit(allocation_scope='open/public')
+  def test_alarm_check_public_compute_node_state(self):
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope='open/public')
     self.tic()
-    self.assertEqual(self.computer.getMonitorScope(), "enabled")
-    self.tic()
-    alarm = self.portal.portal_alarms.\
-          slapos_crm_check_computer_state
-    self._test_alarm(alarm, self.computer, "Computer_checkState")
-
-  def test_alarm_check_friend_computer_state(self):
-    self._makeComputer()
-    self.computer.edit(allocation_scope='open/friend')
+    self.assertEqual(self.compute_node.getMonitorScope(), "enabled")
     self.tic()
     alarm = self.portal.portal_alarms.\
-          slapos_crm_check_computer_state
-    self._test_alarm(alarm, self.computer, "Computer_checkState")
+          slapos_crm_check_compute_node_state
+    self._test_alarm(alarm, self.compute_node, "ComputeNode_checkState")
 
-  def test_alarm_check_personal_computer_state(self):
-    self._makeComputer()
-    self.computer.edit(allocation_scope='open/personal')
+  def test_alarm_check_friend_compute_node_state(self):
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope='open/friend')
     self.tic()
     alarm = self.portal.portal_alarms.\
-          slapos_crm_check_computer_state
-    self._test_alarm(alarm, self.computer, "Computer_checkState")
+          slapos_crm_check_compute_node_state
+    self._test_alarm(alarm, self.compute_node, "ComputeNode_checkState")
 
-  def _test_alarm_check_computer_state_not_selected(self, allocation_scope,
+  def test_alarm_check_personal_compute_node_state(self):
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope='open/personal')
+    self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_compute_node_state
+    self._test_alarm(alarm, self.compute_node, "ComputeNode_checkState")
+
+  def _test_alarm_check_compute_node_state_not_selected(self, allocation_scope,
                                                  monitor_scope=None):
-    self._makeComputer()
-    self.computer.edit(allocation_scope=allocation_scope)
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope=allocation_scope)
     self.tic()
     if monitor_scope is not None:
-      self.computer.edit(monitor_scope=monitor_scope)
+      self.compute_node.edit(monitor_scope=monitor_scope)
       self.tic()
 
     alarm = self.portal.portal_alarms.\
-          slapos_crm_check_computer_state
-    self._test_alarm_not_visited(alarm, self.computer, "Computer_checkState")
+          slapos_crm_check_compute_node_state
+    self._test_alarm_not_visited(alarm, self.compute_node, "ComputeNode_checkState")
 
-  def test_alarm_check_computer_state_on_public_computer_with_monitor_scope_disabled(self):
-    self._test_alarm_check_computer_state_not_selected(
+  def test_alarm_check_compute_node_state_on_public_compute_node_with_monitor_scope_disabled(self):
+    self._test_alarm_check_compute_node_state_not_selected(
       allocation_scope='open/public',
       monitor_scope="disabled")
 
-  def test_alarm_check_computer_state_on_friend_computer_with_monitor_scope_disabled(self):
-    self._test_alarm_check_computer_state_not_selected(
+  def test_alarm_check_compute_node_state_on_friend_compute_node_with_monitor_scope_disabled(self):
+    self._test_alarm_check_compute_node_state_not_selected(
       allocation_scope='open/friend',
       monitor_scope="disabled")
 
-  def test_alarm_check_computer_state_on_personal_computer_with_monitor_scope_disabled(self):
-    self._test_alarm_check_computer_state_not_selected(
+  def test_alarm_check_compute_node_state_on_personal_compute_node_with_monitor_scope_disabled(self):
+    self._test_alarm_check_compute_node_state_not_selected(
       allocation_scope='open/personal',
       monitor_scope="disabled")
 
-  def test_alarm_check_computer_state_closed_forever_computer(self):
-    self._test_alarm_check_computer_state_not_selected(
+  def test_alarm_check_compute_node_state_closed_forever_compute_node(self):
+    self._test_alarm_check_compute_node_state_not_selected(
       allocation_scope='closed/forever')
 
-  def test_alarm_check_computer_state_closed_mantainence_computer(self):
-    self._test_alarm_check_computer_state_not_selected(
+  def test_alarm_check_compute_node_state_closed_mantainence_compute_node(self):
+    self._test_alarm_check_compute_node_state_not_selected(
       allocation_scope='closed/maintenance')
 
-  def test_alarm_check_computer_state_closed_termination_computer(self):
-    self._test_alarm_check_computer_state_not_selected(
+  def test_alarm_check_compute_node_state_closed_termination_compute_node(self):
+    self._test_alarm_check_compute_node_state_not_selected(
       allocation_scope='closed/termination')
 
 
-class TestSlapOSCrmMonitoringCheckComputerAllocationScope(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSCrmMonitoringCheckComputeNodeAllocationScope(SlapOSTestCaseMixinWithAbort):
 
   def test_alarm_not_allowed_allocation_scope_OpenPublic(self):
-    self._makeComputer()
-    self.computer.edit(allocation_scope = 'open/public')
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope = 'open/public')
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_check_update_allocation_scope
-    self._test_alarm(alarm, self.computer, "Computer_checkAndUpdateAllocationScope")
+    self._test_alarm(alarm, self.compute_node, "ComputeNode_checkAndUpdateAllocationScope")
 
 
   def test_alarm_not_allowed_allocation_scope_OpenFriend(self):
-    self._makeComputer()
-    self.computer.edit(allocation_scope = 'open/friend')
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope = 'open/friend')
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_check_update_allocation_scope
-    self._test_alarm(alarm, self.computer, "Computer_checkAndUpdateAllocationScope")
+    self._test_alarm(alarm, self.compute_node, "ComputeNode_checkAndUpdateAllocationScope")
 
   def test_alarm_not_allowed_allocationScope_open_personal(self):
-    self._makeComputer()
-    self.computer.edit(allocation_scope = 'open/personal')
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope = 'open/personal')
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_check_update_allocation_scope
-    self._test_alarm_not_visited(alarm, self.computer, "Computer_checkAndUpdateAllocationScope")
+    self._test_alarm_not_visited(alarm, self.compute_node, "ComputeNode_checkAndUpdateAllocationScope")
 
-class TestSlapOSCrmMonitoringCheckComputerSoftwareInstallation(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCaseMixinWithAbort):
 
   def test_alarm_run_on_open_public(self):
-    self._makeComputer()
-    self.computer.edit(allocation_scope = 'open/public')
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope = 'open/public')
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_check_software_installation_state
-    self._test_alarm(alarm, self.computer, "Computer_checkSoftwareInstallationState")
+    self._test_alarm(alarm, self.compute_node, "ComputeNode_checkSoftwareInstallationState")
 
   def test_alarm_run_on_open_friend(self):
-    self._makeComputer()
-    self.computer.edit(allocation_scope = 'open/friend')
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope = 'open/friend')
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_check_software_installation_state
-    self._test_alarm(alarm, self.computer, "Computer_checkSoftwareInstallationState")
+    self._test_alarm(alarm, self.compute_node, "ComputeNode_checkSoftwareInstallationState")
 
 
   def test_alarm_run_on_open_personal(self):
-    self._makeComputer()
-    self.computer.edit(allocation_scope = 'open/personal',
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope = 'open/personal',
                        monitor_scope="enabled")
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_check_software_installation_state
-    self._test_alarm(alarm, self.computer, "Computer_checkSoftwareInstallationState")
+    self._test_alarm(alarm, self.compute_node, "ComputeNode_checkSoftwareInstallationState")
 
   def test_alarm_dont_run_on_open_public_with_monitor_scope_disabled(self):
-    self._makeComputer()
-    self.computer.edit(allocation_scope = 'open/public')
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope = 'open/public')
     self.tic()
-    self.computer.edit(monitor_scope = 'disabled')
+    self.compute_node.edit(monitor_scope = 'disabled')
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_check_software_installation_state
-    self._test_alarm_not_visited(alarm, self.computer, "Computer_checkSoftwareInstallationState")
+    self._test_alarm_not_visited(alarm, self.compute_node, "ComputeNode_checkSoftwareInstallationState")
 
   def test_alarm_dont_run_on_open_friend_with_monitor_scope_disabled(self):
-    self._makeComputer()
-    self.computer.edit(allocation_scope = 'open/friend')
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope = 'open/friend')
     self.tic()
-    self.computer.edit(monitor_scope = 'disabled')
+    self.compute_node.edit(monitor_scope = 'disabled')
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_check_software_installation_state
-    self._test_alarm_not_visited(alarm, self.computer, "Computer_checkSoftwareInstallationState")
+    self._test_alarm_not_visited(alarm, self.compute_node, "ComputeNode_checkSoftwareInstallationState")
 
   def test_alarm_dont_run_on_open_personal_with_monitor_scope_disabled(self):
-    self._makeComputer()
-    self.computer.edit(allocation_scope = 'open/personal',
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope = 'open/personal',
                        monitor_scope="enabled")
     self.tic()
-    self.computer.edit(monitor_scope = 'disabled')
+    self.compute_node.edit(monitor_scope = 'disabled')
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_check_software_installation_state
-    self._test_alarm_not_visited(alarm, self.computer, "Computer_checkSoftwareInstallationState")
+    self._test_alarm_not_visited(alarm, self.compute_node, "ComputeNode_checkSoftwareInstallationState")
 
   def _test_alarm_not_run_on_close(self, allocation_scope):
-    self._makeComputer()
-    self.computer.edit(allocation_scope=allocation_scope)
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope=allocation_scope)
     self.tic()
     alarm = self.portal.portal_alarms.\
           slapos_crm_check_software_installation_state
-    self._test_alarm_not_visited(alarm, self.computer, "Computer_checkSoftwareInstallationState")
+    self._test_alarm_not_visited(alarm, self.compute_node, "ComputeNode_checkSoftwareInstallationState")
 
   def test_alarm_not_run_on_close_forever(self):
     self._test_alarm_not_run_on_close('close/forever')
@@ -593,17 +593,17 @@ class TestSlapOSCrmMonitoringCheckComputerSoftwareInstallation(SlapOSTestCaseMix
   def test_alarm_not_run_on_close_termination(self):
     self._test_alarm_not_run_on_close('close/termination')
 
-class TestSlapOSCrmMonitoringCheckComputerPersonalAllocationScope(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSCrmMonitoringCheckComputeNodePersonalAllocationScope(SlapOSTestCaseMixinWithAbort):
 
-  def test_alarm_allowed_allocation_scope_OpenPersonal_old_computer(self):
-    self._makeComputer()
+  def test_alarm_allowed_allocation_scope_OpenPersonal_old_compute_node(self):
+    self._makeComputeNode()
     def getCreationDate(self):
       return DateTime() - 31
-    self.computer.edit(allocation_scope = 'open/personal')
+    self.compute_node.edit(allocation_scope = 'open/personal')
 
     from Products.ERP5Type.Base import Base
 
-    self._simulateScript("Computer_checkAndUpdatePersonalAllocationScope")
+    self._simulateScript("ComputeNode_checkAndUpdatePersonalAllocationScope")
     original_get_creation = Base.getCreationDate
     Base.getCreationDate = getCreationDate
 
@@ -614,21 +614,21 @@ class TestSlapOSCrmMonitoringCheckComputerPersonalAllocationScope(SlapOSTestCase
       self.tic()
     finally:
       Base.getCreationDate = original_get_creation
-      self._dropScript('Computer_checkAndUpdatePersonalAllocationScope')
+      self._dropScript('ComputeNode_checkAndUpdatePersonalAllocationScope')
 
-    self.assertEqual('Visited by Computer_checkAndUpdatePersonalAllocationScope',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+    self.assertEqual('Visited by ComputeNode_checkAndUpdatePersonalAllocationScope',
+      self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
 
-  @skip('computer creation date is not indexed')
-  def test_alarm_allowed_allocation_scope_OpenPersonal_recent_computer(self):
-    self._makeComputer()
+  @skip('compute node creation date is not indexed')
+  def test_alarm_allowed_allocation_scope_OpenPersonal_recent_compute_node(self):
+    self._makeComputeNode()
     def getCreationDate(self):
       return DateTime() - 28
-    self.computer.edit(allocation_scope = 'open/personal')
+    self.compute_node.edit(allocation_scope = 'open/personal')
 
     from Products.ERP5Type.Base import Base
 
-    self._simulateScript("Computer_checkAndUpdatePersonalAllocationScope")
+    self._simulateScript("ComputeNode_checkAndUpdatePersonalAllocationScope")
     original_get_creation = Base.getCreationDate
     Base.getCreationDate = getCreationDate
 
@@ -637,25 +637,25 @@ class TestSlapOSCrmMonitoringCheckComputerPersonalAllocationScope(SlapOSTestCase
       self.tic()
     finally:
       Base.getCreationDate = original_get_creation
-      self._dropScript('Computer_checkAndUpdatePersonalAllocationScope')
+      self._dropScript('ComputeNode_checkAndUpdatePersonalAllocationScope')
 
-    self.assertNotEqual('Visited by Computer_checkAndUpdatePersonalAllocationScope',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+    self.assertNotEqual('Visited by ComputeNode_checkAndUpdatePersonalAllocationScope',
+      self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_alarm_allowed_allocation_scope_OpenPersonal_already_closed(self):
-    self._makeComputer()
-    self.computer.edit(allocation_scope = 'open/oudated')
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope = 'open/oudated')
 
-    self._simulateScript("Computer_checkAndUpdatePersonalAllocationScope")
+    self._simulateScript("ComputeNode_checkAndUpdatePersonalAllocationScope")
 
     try:
       self.portal.portal_alarms.slapos_crm_check_update_personal_allocation_scope.activeSense()
       self.tic()
     finally:
-      self._dropScript('Computer_checkAndUpdatePersonalAllocationScope')
+      self._dropScript('ComputeNode_checkAndUpdatePersonalAllocationScope')
 
-    self.assertNotEqual('Visited by Computer_checkAndUpdatePersonalAllocationScope',
-      self.computer.workflow_history['edit_workflow'][-1]['comment'])
+    self.assertNotEqual('Visited by ComputeNode_checkAndUpdatePersonalAllocationScope',
+      self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
 
 class TestSlapOSCrmMonitoringCheckInstanceInError(SlapOSTestCaseMixinWithAbort):
 

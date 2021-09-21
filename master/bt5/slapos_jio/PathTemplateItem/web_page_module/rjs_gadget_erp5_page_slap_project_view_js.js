@@ -31,7 +31,7 @@
           var i, value, value_jio_key, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
             if (result.data.rows[i].value.hasOwnProperty("portal_type")) {
-              if (result.data.rows[i].value.portal_type === "Computer") {
+              if (result.data.rows[i].value.portal_type === "Compute Node") {
                 value_jio_key = result.data.rows[i].id;
                 value = result.data.rows[i].value.Document_getNewsDict;
                 // Use a User-friendly for the Website, this value should be translated
@@ -44,7 +44,7 @@
                     hidden: 0,
                     "default": {jio_key: value_jio_key, result: value},
                     key: "status",
-                    url: "gadget_slapos_computer_status.html",
+                    url: "gadget_slapos_compute_node_status.html",
                     title: gadget.title_translation,
                     type: "GadgetField"
                   }
@@ -219,11 +219,11 @@
                   "default_params": {},
                   "editable": 1,
                   "editable_column_list": [],
-                  "key": "slap_project_computer2_listbox",
+                  "key": "slap_project_compute_node2_listbox",
                   "lines": 10,
-                  "list_method": "Project_getComputerTrackingList",
+                  "list_method": "Project_getComputeNodeTrackingList",
                   "list_method_template": result[1] + "ERP5Document_getHateoas?mode=search&" +
-                            "list_method=Project_getComputerTrackingList&relative_url=" +
+                            "list_method=Project_getComputeNodeTrackingList&relative_url=" +
                             gadget.state.jio_key + "&default_param_json=eyJpZ25vcmVfdW5rbm93bl9jb2x1bW5zIjogdHJ1ZX0={&query,select_list*,limit*,sort_on*,local_roles*}",
                   "query": "urn:jio:allDocs?query=",
                   "portal_type": [],

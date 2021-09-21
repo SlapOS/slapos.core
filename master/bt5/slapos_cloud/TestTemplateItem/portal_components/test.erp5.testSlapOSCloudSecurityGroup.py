@@ -82,16 +82,16 @@ class TestSlapOSSecurityMixin(SlapOSTestCaseMixin):
            "Plugin %s should not have authenticated '%s' with password '%s'" %
            (plugin_name, login, password))
 
-class TestSlapOSComputerSecurity(TestSlapOSSecurityMixin):
+class TestSlapOSComputeNodeSecurity(TestSlapOSSecurityMixin):
   def test_active(self, login_portal_type="Certificate Login"):
-    user_id = self._generateRandomUniqueUserId('Computer')
-    reference = self._generateRandomUniqueReference('Computer')
+    user_id = self._generateRandomUniqueUserId('Compute Node')
+    reference = self._generateRandomUniqueReference('Compute Node')
 
-    computer = self.portal.computer_module.newContent(
-      portal_type='Computer', reference=reference)
-    computer.setUserId(user_id)
-    computer.validate()
-    computer.newContent(portal_type=login_portal_type,
+    compute_node = self.portal.compute_node_module.newContent(
+      portal_type='Compute Node', reference=reference)
+    compute_node.setUserId(user_id)
+    compute_node.validate()
+    compute_node.newContent(portal_type=login_portal_type,
                       reference=reference).validate()
 
     self.tic()
@@ -105,13 +105,13 @@ class TestSlapOSComputerSecurity(TestSlapOSSecurityMixin):
       user.getGroups())
 
   def test_inactive(self, login_portal_type="Certificate Login"):
-    user_id = self._generateRandomUniqueUserId('Computer')
-    reference = self._generateRandomUniqueReference('Computer')
+    user_id = self._generateRandomUniqueUserId('Compute Node')
+    reference = self._generateRandomUniqueReference('Compute Node')
 
-    computer = self.portal.computer_module.newContent(
-      portal_type='Computer', reference=reference)
-    computer.setUserId(user_id)
-    computer.newContent(portal_type=login_portal_type,
+    compute_node = self.portal.compute_node_module.newContent(
+      portal_type='Compute Node', reference=reference)
+    compute_node.setUserId(user_id)
+    compute_node.newContent(portal_type=login_portal_type,
                       reference=reference)
     self.tic()
 
@@ -314,7 +314,7 @@ class TestSlapOSPersonSecurity(TestSlapOSSecurityMixin):
 
 def test_suite():
   suite = unittest.TestSuite()
-  suite.addTest(unittest.makeSuite(TestSlapOSComputerSecurity))
+  suite.addTest(unittest.makeSuite(TestSlapOSComputeNodeSecurity))
   suite.addTest(unittest.makeSuite(TestSlapOSSoftwareInstanceSecurity))
   suite.addTest(unittest.makeSuite(TestSlapOSPersonSecurity))
   return suite

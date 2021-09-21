@@ -16,7 +16,7 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     self.logout()
     self.web_site = self.portal.web_site_module.hostingjs
 
-    # lets join as owner, which will own few computers
+    # lets join as owner, which will own few compute_nodes
     owner_reference = 'owner-%s' % self.generateNewId()
     self.joinSlapOS(self.web_site, owner_reference)
 
@@ -25,28 +25,28 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
       portal_type="ERP5 Login",
       reference=owner_reference).getParentValue()
 
-    # hooray, now it is time to create computers
+    # hooray, now it is time to create compute_nodes
     self.login(owner_person.getUserId())
 
     public_server_title = 'Public Server for %s' % owner_reference
-    public_server_id = self.requestComputer(public_server_title)
+    public_server_id = self.requestComputeNode(public_server_title)
     public_server = self.portal.portal_catalog.getResultValue(
-        portal_type='Computer', reference=public_server_id)
+        portal_type='Compute Node', reference=public_server_id)
     self.setAccessToMemcached(public_server)
     self.assertNotEqual(None, public_server)
     self.setServerOpenPublic(public_server)
 
     personal_server_title = 'Personal Server for %s' % owner_reference
-    personal_server_id = self.requestComputer(personal_server_title)
+    personal_server_id = self.requestComputeNode(personal_server_title)
     personal_server = self.portal.portal_catalog.getResultValue(
-        portal_type='Computer', reference=personal_server_id)
+        portal_type='Compute Node', reference=personal_server_id)
     self.assertNotEqual(None, personal_server)
     self.setServerOpenPersonal(personal_server)
 
     friend_server_title = 'Friend Server for %s' % owner_reference
-    friend_server_id = self.requestComputer(friend_server_title)
+    friend_server_id = self.requestComputeNode(friend_server_title)
     friend_server = self.portal.portal_catalog.getResultValue(
-        portal_type='Computer', reference=friend_server_id)
+        portal_type='Compute Node', reference=friend_server_id)
     self.assertNotEqual(None, friend_server)
     self.setServerOpenFriend(friend_server)
 
@@ -60,14 +60,14 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
     friend_server_software = self.generateNewSoftwareReleaseUrl()
     self.supplySoftware(friend_server, friend_server_software)
 
-    # format the computers
-    self.formatComputer(public_server)
-    self.formatComputer(personal_server)
-    self.formatComputer(friend_server)
+    # format the compute_nodes
+    self.formatComputeNode(public_server)
+    self.formatComputeNode(personal_server)
+    self.formatComputeNode(friend_server)
 
 
     # join as the another visitor and request software instance on public
-    # computer
+    # compute_node
     self.logout()
     public_reference = 'public-%s' % self.generateNewId()
     self.joinSlapOS(self.web_site, public_reference)
@@ -84,7 +84,7 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
         public_server_software, public_instance_type,
         public_server)
 
-    # join as owner friend and request a software instance on computer
+    # join as owner friend and request a software instance on compute_node
     # configured by owner
 
     self.logout()
@@ -95,7 +95,7 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
         portal_type='ERP5 Login', reference=friend_reference).getParentValue()
     friend_email = friend_person.getDefaultEmailText()
 
-    # allow friend to alloce on friendly computer
+    # allow friend to alloce on friendly compute_node
     self.login(owner_person.getUserId())
     self.setServerOpenFriend(friend_server, [friend_email])
 
@@ -106,7 +106,7 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
         friend_server)
 
     # check that friend is able to request slave instance matching the
-    # public's computer software instance
+    # public's compute_node software instance
     friend_slave_instance_title = 'Friend slave title %s' % self.\
         generateNewId()
     self.checkSlaveInstanceAllocation(friend_person.getUserId(),
@@ -158,7 +158,7 @@ class TestSlapOSDefaultScenario(DefaultScenarioMixin):
                         state='destroyed')
 
     self.logout()
-    # Uninstall from computer
+    # Uninstall from compute_node
     self.login()
     self.simulateSlapgridSR(public_server)
     self.simulateSlapgridSR(personal_server)
@@ -380,7 +380,7 @@ class TestSlapOSDefaultCRMEscalation(DefaultScenarioMixin):
     self.web_site = self.portal.web_site_module.hostingjs
 
     # join as the another visitor and request software instance on public
-    # computer
+    # compute_node
     self.logout()
     public_reference = 'public-%s' % self.generateNewId()
     self.joinSlapOS(self.web_site, public_reference)

@@ -82,7 +82,7 @@ class SlapOSShadowAuthenticationPlugin(BasePlugin):
   #################################
   # This is patched version of
   #   Products.ERP5Security.ERP5GroupManager.ERP5GroupManager.getGroupsForPrincipal
-  # which allows to treat Computer and Software Instance as loggable user
+  # which allows to treat Compute Node and Software Instance as loggable user
   def getGroupsForPrincipal(self, principal, request=None):
     """ See IGroupsPlugin.
     """

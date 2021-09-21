@@ -118,7 +118,7 @@
       </tal:block>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
-
+caddy-frontend
       <tal:block define="menu_item python: 'Services'; header menu_item">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
       </tal:block>
@@ -132,6 +132,22 @@
         <td>assertElementPresent</td>
         <td>//div[contains(@data-gadget-url,
           'gadget_slapos_panel.html')]//img[contains(@src, 'gadget_slapos_panel.png?format=png')]</td>
+        <td></td>
+      </tr>
+
+      <tal:block define="menu_item python: 'Services'; header menu_item">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+      </tal:block>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_label_field.html')]//p[text()="caddy-frontend"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_label_field.html')]//p[text()="caddy-frontend"]</td>
         <td></td>
       </tr>
 

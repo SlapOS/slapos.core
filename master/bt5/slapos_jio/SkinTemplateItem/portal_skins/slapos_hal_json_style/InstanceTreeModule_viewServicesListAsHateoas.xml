@@ -101,7 +101,7 @@
                     <key> <string>left</string> </key>
                     <value>
                       <list>
-                        <string>my_software</string>
+                        <string>listbox_software</string>
                       </list>
                     </value>
                 </item>

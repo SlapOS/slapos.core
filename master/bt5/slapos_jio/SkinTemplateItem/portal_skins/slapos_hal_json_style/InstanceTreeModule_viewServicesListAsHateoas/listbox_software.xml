@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>my_software</string> </value>
+            <value> <string>listbox_software</string> </value>
         </item>
         <item>
             <key> <string>message_values</string> </key>
@@ -219,7 +219,7 @@
                 </item>
                 <item>
                     <key> <string>editable</string> </key>
-                    <value> <int>0</int> </value>
+                    <value> <int>1</int> </value>
                 </item>
                 <item>
                     <key> <string>enabled</string> </key>
@@ -235,7 +235,7 @@
                 </item>
                 <item>
                     <key> <string>hidden</string> </key>
-                    <value> <int>1</int> </value>
+                    <value> <int>0</int> </value>
                 </item>
                 <item>
                     <key> <string>input_type</string> </key>
@@ -279,7 +279,7 @@
       <dictionary>
         <item>
             <key> <string>_text</string> </key>
-            <value> <string>python: here.InstanceTree_getSoftwareName()</string> </value>
+            <value> <string>python: cell.InstanceTree_getSoftwareName()</string> </value>
         </item>
       </dictionary>
     </pickle>

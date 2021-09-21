@@ -98,6 +98,7 @@
                         <string>listbox_is_slave</string>
                         <string>listbox_aggregate_parent_reference</string>
                         <string>my_list_image</string>
+                        <string>my_software</string>
                       </list>
                     </value>
                 </item>
@@ -109,7 +110,6 @@
                         <string>my_short_title</string>
                         <string>my_reference</string>
                         <string>my_source_reference</string>
-                        <string>my_software</string>
                       </list>
                     </value>
                 </item>

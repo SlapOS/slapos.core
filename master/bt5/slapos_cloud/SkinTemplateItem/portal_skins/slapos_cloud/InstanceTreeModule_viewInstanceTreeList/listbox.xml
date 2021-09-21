@@ -106,6 +106,10 @@
                           <string>Title</string>
                         </tuple>
                         <tuple>
+                          <string>software</string>
+                          <string>Software</string>
+                        </tuple>
+                        <tuple>
                           <string>reference</string>
                           <string>Reference</string>
                         </tuple>

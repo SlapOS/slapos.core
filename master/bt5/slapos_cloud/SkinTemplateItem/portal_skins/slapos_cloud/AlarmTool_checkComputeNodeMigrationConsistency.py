@@ -3,7 +3,6 @@ result_list = []
 
 migration_kw = {
   'portal_type': 'Computer',
-  'slap_state': '%'
 }
 
 non_migrated_instance = portal.portal_catalog(limit=1, **migration_kw)

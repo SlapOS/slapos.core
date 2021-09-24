@@ -113,6 +113,10 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         ids=[i.getId() for i in instance_template.objectValues()])
 
 
+  def beforeDumpExpectedConfiguration(self):
+    """Overwrite this function on project context to tweak production focus tests"""
+    pass
+
   def makeCustomOrganisation(self, new_id=None, index=True):
     # Create a custom organisation same as slapos, for ensure we can have
     # multiple organisations working on the site

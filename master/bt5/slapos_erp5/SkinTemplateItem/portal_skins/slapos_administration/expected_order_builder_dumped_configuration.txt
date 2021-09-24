@@ -22,10 +22,10 @@ slapos_payment_transaction_builder
   Update Always: 0
 
 slapos_payment_transaction_builder
-  Id: property_movement_group_on_delivery
-  Title: property_movement_group_on_delivery
+  Id: property_movement_group_on_line
+  Title: property_movement_group_on_line
   Type: Property Movement Group
-  Collect Order Group: delivery
+  Collect Order Group: line
   Tested Properties: ['start_date', 'stop_date']
   Update Always: 0
 

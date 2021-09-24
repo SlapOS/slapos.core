@@ -342,7 +342,7 @@ Alarm Tool
   Init Script: 
   Add Permission: 
   Acquire Local Roles: False
-  Property Sheets: []
+  Property Sheets: ['SlapOSMasterUpgradeConstraint']
   Base Categories: []
   Allowed Content Types: ['Alarm']
   Hidden Content Types: []
@@ -580,7 +580,7 @@ Base Type
   Base Categories: []
   Allowed Content Types: ['Action Information', 'Role Information']
   Hidden Content Types: []
-  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Property: ['description', 'id', 'reference', 'short_title', 'title']
   Searchable Method: []
 
 Base Variant Movement Group
@@ -1109,8 +1109,21 @@ Cloud Contract
   Init Script: None
   Add Permission: None
   Acquire Local Roles: False
-  Property Sheets: []
+  Property Sheets: ['SlapOSCloudContractAccounting']
   Base Categories: ['causality', 'destination_section']
+  Allowed Content Types: ['Cloud Contract Line']
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Cloud Contract Line
+  Short Title: None
+  Class: Item
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: 1
+  Property Sheets: ['SlapOSCloudContractLineAccounting']
+  Base Categories: []
   Allowed Content Types: []
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
@@ -1148,9 +1161,9 @@ Component Individual Variation
   Init Script: IndividualVariation_init
   Add Permission: 
   Acquire Local Roles: 1
-  Property Sheets: []
+  Property Sheets: ['DefaultImage']
   Base Categories: []
-  Allowed Content Types: []
+  Allowed Content Types: ['Embedded File']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -1181,15 +1194,54 @@ Component Tool
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
-ComputeNode
+Compute Node
   Short Title: None
-  Class: Compute Node
+  Class: Computer
   Init Script: ComputeNode_init
   Add Permission: None
-  Acquire Local Roles: 0
-  Property Sheets: ['ComputeNodeSlapOSMetadata', 'ERP5User', 'SlaposCapacity', 'SlaposComputeNodeConstraint', 'Url', 'VariationRange']
+  Acquire Local Roles: False
+  Property Sheets: ['ComputeNodeSlapOSMetadata', 'ComputerUpgradeConstraint', 'ERP5User', 'SlaposCapacity', 'SlaposComputeNodeConstraint', 'Url', 'VariationRange']
   Base Categories: ['destination_section', 'monitor_scope', 'source_administration', 'specialise', 'subordination', 'upgrade_scope']
   Allowed Content Types: ['Certificate Login', 'Compute Partition', 'ERP5 Login', 'Internet Protocol Address', 'Tcp Port Number']
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Compute Node Module
+  Short Title: None
+  Class: Folder
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: False
+  Property Sheets: []
+  Base Categories: ['business_application']
+  Allowed Content Types: ['Compute Node']
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Compute Partition
+  Short Title: None
+  Class: ComputerPartition
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: 1
+  Property Sheets: ['ComputePartition', 'ComputerPartitionUpgradeConstraint', 'SlaposComputePartitionConstraint', 'VariationRange']
+  Base Categories: ['subordination']
+  Allowed Content Types: ['Internet Protocol Address']
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Computer
+  Short Title: None
+  Class: Computer
+  Init Script: Computer_init
+  Add Permission: None
+  Acquire Local Roles: 0
+  Property Sheets: ['ComputerUpgradeConstraint', 'VariationRange']
+  Base Categories: ['specialise', 'subordination']
+  Allowed Content Types: ['Computer Partition', 'Internet Protocol Address', 'Tcp Port Number']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -1209,7 +1261,7 @@ Computer Consumption TioXML File
 
 Computer Model
   Short Title: None
-  Class: Compute Node
+  Class: Computer
   Init Script: None
   Add Permission: None
   Acquire Local Roles: False
@@ -1233,7 +1285,7 @@ Computer Model Module
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
-ComputeNode Module
+Computer Module
   Short Title: None
   Class: Folder
   Init Script: 
@@ -1241,7 +1293,7 @@ ComputeNode Module
   Acquire Local Roles: 0
   Property Sheets: []
   Base Categories: ['business_application']
-  Allowed Content Types: ['Compute Node']
+  Allowed Content Types: ['Computer']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -1272,13 +1324,13 @@ Computer Network Module
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
-Compute Partition
+Computer Partition
   Short Title: None
-  Class: ComputePartition
+  Class: ComputerPartition
   Init Script: None
   Add Permission: None
   Acquire Local Roles: 1
-  Property Sheets: ['ComputePartition', 'SlaposComputePartitionConstraint', 'VariationRange']
+  Property Sheets: ['ComputerPartitionUpgradeConstraint', 'VariationRange']
   Base Categories: ['subordination']
   Allowed Content Types: ['Internet Protocol Address']
   Hidden Content Types: []
@@ -1306,7 +1358,7 @@ Configuration Save
   Acquire Local Roles: 1
   Property Sheets: []
   Base Categories: ['causality', 'current_state']
-  Allowed Content Types: ['Account Configurator Item', 'Accounting Period Configurator Item', 'Advanced Purchase Trade Condition Configurator Item', 'Advanced Sale Trade Condition Configurator Item', 'Alarm Configurator Item', 'Bank Account Configurator Item', 'Business Process Configurator Item', 'Catalog Keyword Key Configurator Item', 'Categories Spreadsheet Configurator Item', 'Category Configurator Item', 'Currency Configurator Item', 'Customer BT5 Configurator Item', 'Organisation Configurator Item', 'Permission Configurator Item', 'Person Configurator Item', 'Portal Type Configurator Item', 'Portal Type Roles Spreadsheet Configurator Item', 'Preference Configurator Item', 'Purchase Trade Condition Configurator Item', 'Role Configurator Item', 'Rule Configurator Item', 'Sale Trade Condition Configurator Item', 'Security Category Mapping Configurator Item', 'Service Configurator Item', 'Site Property Configurator Item', 'Solver Configurator Item', 'Standard BT5 Configurator Item', 'System Preference Configurator Item', 'Workflow Security Configurator Item']
+  Allowed Content Types: ['Account Configurator Item', 'Accounting Period Configurator Item', 'Advanced Purchase Trade Condition Configurator Item', 'Advanced Sale Trade Condition Configurator Item', 'Alarm Configurator Item', 'Bank Account Configurator Item', 'Business Process Configurator Item', 'Catalog Keyword Key Configurator Item', 'Categories Spreadsheet Configurator Item', 'Category Configurator Item', 'Currency Configurator Item', 'Customer BT5 Configurator Item', 'Organisation Configurator Item', 'Permission Configurator Item', 'Person Configurator Item', 'Portal Type Configurator Item', 'Portal Type Roles Spreadsheet Configurator Item', 'Preference Configurator Item', 'Purchase Trade Condition Configurator Item', 'Role Configurator Item', 'Rule Configurator Item', 'Sale Trade Condition Configurator Item', 'Security Category Mapping Configurator Item', 'Service Configurator Item', 'Site Property Configurator Item', 'Solver Configurator Item', 'Standard BT5 Configurator Item', 'System Preference Configurator Item']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -1385,6 +1437,19 @@ Content Existence Constraint
   Property Sheets: ['ConstraintType']
   Base Categories: []
   Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Contract Invitation Token
+  Short Title: None
+  Class: XMLObject
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: False
+  Property Sheets: ['Reference', 'SlapOSCloudContractAccounting', 'Url']
+  Base Categories: ['destination', 'source']
+  Allowed Content Types: ['Cloud Contract Line']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -2338,29 +2403,29 @@ HTTP Exchange
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
-Instance Tree
+Hosting Subscription
   Short Title: None
   Class: SubscriptionItem
   Init Script: None
   Add Permission: None
   Acquire Local Roles: False
-  Property Sheets: ['InstanceTree', 'SlapOSAccountingInstanceTreeConstraint', 'SlaposInstanceTreeConstraint', 'SoftwareInstance', 'TextDocument', 'Url', 'VariationRange']
-  Base Categories: ['destination_section', 'monitor_scope', 'upgrade_scope']
+  Property Sheets: ['HostingSubscriptionUpgradeConstraint']
+  Base Categories: []
   Allowed Content Types: []
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
-Instance Tree Module
+Hosting Subscription Module
   Short Title: None
   Class: Folder
   Init Script: 
   Add Permission: 
   Acquire Local Roles: False
   Property Sheets: []
-  Base Categories: ['business_application']
-  Allowed Content Types: ['Instance Tree']
-  Hidden Content Types: []
+  Base Categories: []
+  Allowed Content Types: ['Hosting Subscription']
+  Hidden Content Types: ['Hosting Subscription']
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
@@ -2494,6 +2559,32 @@ Incident Response Module
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
+Instance Tree
+  Short Title: None
+  Class: SubscriptionItem
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: False
+  Property Sheets: ['HostingSubscriptionUpgradeConstraint', 'InstanceTree', 'SlapOSAccountingInstanceTreeConstraint', 'SlaposInstanceTreeConstraint', 'SoftwareInstance', 'SoftwareInstanceUpgradeConstraint', 'TextDocument', 'Url', 'VariationRange']
+  Base Categories: ['destination_section', 'monitor_scope', 'upgrade_scope']
+  Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'sla_xml', 'text_content', 'title']
+  Searchable Method: []
+
+Instance Tree Module
+  Short Title: None
+  Class: Folder
+  Init Script: 
+  Add Permission: 
+  Acquire Local Roles: False
+  Property Sheets: []
+  Base Categories: ['business_application']
+  Allowed Content Types: ['Instance Tree']
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
 Integration Base Category Mapping
   Short Title: None
   Class: IntegrationMapping
@@ -2582,6 +2673,32 @@ Integration Tool
   Base Categories: []
   Allowed Content Types: ['Integration Site']
   Hidden Content Types: ['Integration Site']
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Interaction Workflow
+  Short Title: None
+  Class: InteractionWorkflow
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: 1
+  Property Sheets: []
+  Base Categories: []
+  Allowed Content Types: ['Interaction Workflow Interaction', 'Workflow Script', 'Workflow Variable']
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Interaction Workflow Interaction
+  Short Title: None
+  Class: InteractionWorkflowInteraction
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: 1
+  Property Sheets: []
+  Base Categories: []
+  Allowed Content Types: []
+  Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
@@ -2926,12 +3043,12 @@ Invitation Token
 Invitation Token Module
   Short Title: None
   Class: Folder
-  Init Script: 
-  Add Permission: 
+  Init Script: None
+  Add Permission: None
   Acquire Local Roles: False
   Property Sheets: []
   Base Categories: ['business_application']
-  Allowed Content Types: ['Invitation Token']
+  Allowed Content Types: ['Contract Invitation Token', 'Invitation Token']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -3930,10 +4047,10 @@ Preference
   Init Script: None
   Add Permission: None
   Acquire Local Roles: 0
-  Property Sheets: ['AccountingPreference', 'AuthenticationPolicyPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'SlapOSWechatSystemPreference', 'SyncMLPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
+  Property Sheets: ['AccountingPreference', 'AuthenticationPolicyPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStyleDisabledPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'SlapOSWechatSystemPreference', 'SyncMLPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
   Base Categories: []
   Allowed Content Types: ['Accounting Transaction', 'Knowledge Pad', 'Payment Transaction', 'Purchase Invoice Transaction', 'Purchase Order', 'Sale Invoice Transaction', 'Sale Order', 'Support Request']
-  Hidden Content Types: ['Accounting Transaction', 'Knowledge Pad', 'Payment Transaction', 'Purchase Invoice Transaction', 'Sale Invoice Transaction', 'Sale Order', 'Support Request']
+  Hidden Content Types: ['Accounting Transaction', 'Knowledge Pad', 'Payment Transaction', 'Purchase Invoice Transaction', 'Purchase Order', 'Sale Invoice Transaction', 'Sale Order', 'Support Request']
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
@@ -3956,7 +4073,7 @@ Preference Tool
   Init Script: 
   Add Permission: 
   Acquire Local Roles: 1
-  Property Sheets: ['AccountingPreference', 'AuthenticationPolicyPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'SlapOSWechatSystemPreference', 'SyncMLPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
+  Property Sheets: ['AccountingPreference', 'AuthenticationPolicyPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStyleDisabledPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'SlapOSWechatSystemPreference', 'SyncMLPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
   Base Categories: []
   Allowed Content Types: ['Preference', 'System Preference']
   Hidden Content Types: []
@@ -5386,9 +5503,9 @@ Service Individual Variation
   Init Script: IndividualVariation_init
   Add Permission: 
   Acquire Local Roles: 1
-  Property Sheets: []
+  Property Sheets: ['DefaultImage']
   Base Categories: []
-  Allowed Content Types: []
+  Allowed Content Types: ['Embedded File']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
@@ -5542,11 +5659,11 @@ Slave Instance
   Init Script: None
   Add Permission: None
   Acquire Local Roles: False
-  Property Sheets: ['InstanceTree', 'InstanceAccountingSynchronisation', 'Reference', 'SlaveInstanceConstraint', 'SoftwareInstance', 'TextDocument', 'Url', 'VariationRange']
+  Property Sheets: ['InstanceAccountingSynchronisation', 'InstanceTree', 'Reference', 'SlaveInstanceConstraint', 'SoftwareInstance', 'TextDocument', 'Url', 'VariationRange']
   Base Categories: ['aggregate', 'causality', 'specialise']
   Allowed Content Types: []
   Hidden Content Types: []
-  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Property: ['description', 'reference', 'short_title', 'sla_xml', 'text_content', 'title']
   Searchable Method: []
 
 Software Installation
@@ -5581,11 +5698,11 @@ Software Instance
   Init Script: SoftwareInstance_init
   Add Permission: None
   Acquire Local Roles: False
-  Property Sheets: ['ERP5User', 'InstanceTree', 'InstanceAccountingSynchronisation', 'Reference', 'SoftwareInstance', 'SoftwareInstanceConstraint', 'TextDocument', 'Url', 'VariationRange']
+  Property Sheets: ['ERP5User', 'InstanceAccountingSynchronisation', 'InstanceTree', 'Reference', 'SoftwareInstance', 'SoftwareInstanceConstraint', 'SoftwareInstanceUpgradeConstraint', 'TextDocument', 'Url', 'VariationRange']
   Base Categories: ['aggregate', 'causality', 'specialise']
   Allowed Content Types: ['Certificate Login', 'ERP5 Login']
   Hidden Content Types: []
-  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Property: ['description', 'reference', 'short_title', 'sla_xml', 'text_content', 'title']
   Searchable Method: []
 
 Software Instance Module
@@ -5887,19 +6004,6 @@ Standard Property
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
-State
-  Short Title: None
-  Class: State
-  Init Script: 
-  Add Permission: 
-  Acquire Local Roles: False
-  Property Sheets: []
-  Base Categories: []
-  Allowed Content Types: []
-  Hidden Content Types: []
-  Searchable Property: ['description', 'reference', 'short_title', 'title']
-  Searchable Method: []
-
 Static Web Section
   Short Title: None
   Class: StaticWebSection
@@ -5959,7 +6063,7 @@ Subscription Condition
   Add Permission: None
   Acquire Local Roles: False
   Property Sheets: ['InstanceTree', 'Price', 'SlapOSSubscriptionCondition', 'SoftwareInstance', 'TextDocument', 'Url']
-  Base Categories: ['aggregate', 'follow_up', 'source_section']
+  Base Categories: ['aggregate', 'follow_up', 'source', 'source_section']
   Allowed Content Types: []
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
@@ -5997,8 +6101,8 @@ Subscription Request
   Init Script: SubscriptionRequest_init
   Add Permission: None
   Acquire Local Roles: False
-  Property Sheets: ['Amount', 'CredentialRequest', 'DublinCore', 'InstanceTree', 'Person', 'Price', 'Reference', 'SlapOSAccountingInstanceTreeConstraint', 'SlaposInstanceTreeConstraint', 'SoftwareInstance', 'Task', 'TextDocument', 'Url', 'VariationRange']
-  Base Categories: ['aggregate', 'causality', 'destination_section', 'source_section', 'specialise']
+  Property Sheets: ['Amount', 'CredentialRequest', 'DublinCore', 'InstanceTree', 'Person', 'Price', 'Reference', 'SlaposSubscriptionRequestAuditConstraint', 'SoftwareInstance', 'Task', 'TextDocument', 'Url', 'VariationRange']
+  Base Categories: ['aggregate', 'causality', 'destination_section', 'source', 'source_section', 'specialise']
   Allowed Content Types: ['Email']
   Hidden Content Types: ['Email']
   Searchable Property: ['description', 'reference', 'short_title', 'title']
@@ -6166,7 +6270,7 @@ System Preference
   Init Script: SystemPreference_init
   Add Permission: Manage portal
   Acquire Local Roles: 0
-  Property Sheets: ['AccountingPreference', 'AuthenticationPolicyPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'SlapOSWechatSystemPreference', 'SyncMLPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
+  Property Sheets: ['AccountingPreference', 'AuthenticationPolicyPreference', 'BearerTokenSystemPreference', 'CalendarPreference', 'CaptchaPreference', 'CatalogPreference', 'CredentialPreference', 'CustomerRelationPreference', 'DeferredStylePreference', 'DocumentPreference', 'ExpressPreference', 'HtmlStyleDisabledPreference', 'HtmlStylePreference', 'LocalizationPreference', 'Preference', 'PreferenceToolConversionServerConstraintPreference', 'PreferenceToolSlapOSConstraintPreference', 'PricingPreference', 'ProductDataPreference', 'ProjectPreference', 'ReportPreference', 'ShacacheSystemPreference', 'SlapOSAccountingSystemPreference', 'SlapOSCRMSystemPreference', 'SlapOSHateoasSystemPreference', 'SlapOSPayzenSystemPreference', 'SlapOSWechatSystemPreference', 'SyncMLPreference', 'TelephonePreference', 'TradePreference', 'VcsPreference', 'WebSitePreference']
   Base Categories: []
   Allowed Content Types: ['Knowledge Pad']
   Hidden Content Types: []
@@ -6309,7 +6413,7 @@ Template Tool
   Init Script: 
   Add Permission: 
   Acquire Local Roles: 1
-  Property Sheets: ['TemplateToolBusinessTemplateInstallationConstraint', 'TemplateToolCategoryNameConstraint', 'TemplateToolERP5AccessTokenExtractionPluginConstraint', 'TemplateToolERP5FacebookExtractionPluginConstraint', 'TemplateToolERP5GoogleExtractionPluginConstraint', 'TemplateToolERP5LoginUserManagerConstraint', 'TemplateToolTableConsistencyConstraint', 'TemplateToolWorkflowChainConsistencyConstraint']
+  Property Sheets: ['TemplateToolBusinessApplicationModuleCategoryConstraint', 'TemplateToolBusinessTemplateInstallationConstraint', 'TemplateToolCategoryNameConstraint', 'TemplateToolERP5AccessTokenExtractionPluginConstraint', 'TemplateToolERP5FacebookExtractionPluginConstraint', 'TemplateToolERP5GoogleExtractionPluginConstraint', 'TemplateToolERP5LoginUserManagerConstraint', 'TemplateToolTableConsistencyConstraint']
   Base Categories: []
   Allowed Content Types: ['Business Template']
   Hidden Content Types: []
@@ -6563,32 +6667,6 @@ Transformation Transformed Resource Cell
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
-Transition
-  Short Title: None
-  Class: Transition
-  Init Script: 
-  Add Permission: 
-  Acquire Local Roles: 1
-  Property Sheets: []
-  Base Categories: []
-  Allowed Content Types: ['Transition Variable']
-  Hidden Content Types: []
-  Searchable Property: ['description', 'reference', 'short_title', 'title']
-  Searchable Method: []
-
-Transition Variable
-  Short Title: None
-  Class: Variable
-  Init Script: 
-  Add Permission: 
-  Acquire Local Roles: 1
-  Property Sheets: []
-  Base Categories: ['causality']
-  Allowed Content Types: []
-  Hidden Content Types: []
-  Searchable Property: ['description', 'reference', 'short_title', 'title']
-  Searchable Method: []
-
 Trash Bin
   Short Title: None
   Class: TrashBin
@@ -6739,7 +6817,7 @@ Upgrade Decision Module
   Add Permission: None
   Acquire Local Roles: 1
   Property Sheets: []
-  Base Categories: []
+  Base Categories: ['business_application']
   Allowed Content Types: ['Upgrade Decision']
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
@@ -6770,19 +6848,6 @@ User Consumption HTML File
   Hidden Content Types: []
   Searchable Property: ['description', 'filename', 'reference', 'short_title', 'source_project_title', 'subject_list', 'title', 'version']
   Searchable Method: ['as_text']
-
-Variable
-  Short Title: None
-  Class: Variable
-  Init Script: 
-  Add Permission: 
-  Acquire Local Roles: False
-  Property Sheets: []
-  Base Categories: []
-  Allowed Content Types: []
-  Hidden Content Types: []
-  Searchable Property: ['description', 'reference', 'short_title', 'title']
-  Searchable Method: []
 
 Variant Movement Group
   Short Title: None
@@ -7073,34 +7138,86 @@ Wechat Service
 Workflow
   Short Title: None
   Class: Workflow
-  Init Script: 
-  Add Permission: 
+  Init Script: Workflow_init
+  Add Permission: None
   Acquire Local Roles: 1
-  Property Sheets: ['DefaultImage', 'WorkflowConfigurator']
+  Property Sheets: ['ConfiguratorWorkflow', 'DefaultImage']
   Base Categories: []
-  Allowed Content Types: ['Embedded File', 'State', 'Transition', 'Variable', 'Worklist']
+  Allowed Content Types: ['Embedded File', 'Workflow Script', 'Workflow State', 'Workflow Transition', 'Workflow Variable', 'Worklist']
   Hidden Content Types: ['Embedded File']
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
-Workflow Module
+Workflow Script
   Short Title: None
-  Class: Folder
-  Init Script: 
-  Add Permission: 
-  Acquire Local Roles: 1
+  Class: WorkflowScript
+  Init Script: WorkflowScript_init
+  Add Permission: None
+  Acquire Local Roles: False
   Property Sheets: []
-  Base Categories: ['business_application']
-  Allowed Content Types: ['Workflow']
+  Base Categories: []
+  Allowed Content Types: []
   Hidden Content Types: []
   Searchable Property: ['description', 'reference', 'short_title', 'title']
   Searchable Method: []
 
-Workflow Security Configurator Item
+Workflow State
   Short Title: None
-  Class: WorkflowSecurityConfiguratorItem
-  Init Script: 
-  Add Permission: 
+  Class: WorkflowState
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: False
+  Property Sheets: []
+  Base Categories: []
+  Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Workflow Tool
+  Short Title: None
+  Class: WorkflowTool
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: 1
+  Property Sheets: []
+  Base Categories: []
+  Allowed Content Types: ['Interaction Workflow', 'Workflow']
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Workflow Transition
+  Short Title: None
+  Class: WorkflowTransition
+  Init Script: WorkflowTransition_init
+  Add Permission: None
+  Acquire Local Roles: 1
+  Property Sheets: ['ConfiguratorWorkflowTransition']
+  Base Categories: []
+  Allowed Content Types: ['Workflow Transition Variable']
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Workflow Transition Variable
+  Short Title: None
+  Class: WorkflowVariable
+  Init Script: None
+  Add Permission: None
+  Acquire Local Roles: 1
+  Property Sheets: []
+  Base Categories: ['causality']
+  Allowed Content Types: []
+  Hidden Content Types: []
+  Searchable Property: ['description', 'reference', 'short_title', 'title']
+  Searchable Method: []
+
+Workflow Variable
+  Short Title: None
+  Class: WorkflowVariable
+  Init Script: None
+  Add Permission: None
   Acquire Local Roles: False
   Property Sheets: []
   Base Categories: []
@@ -7112,8 +7229,8 @@ Workflow Security Configurator Item
 Worklist
   Short Title: None
   Class: Worklist
-  Init Script: 
-  Add Permission: 
+  Init Script: Worklist_init
+  Add Permission: None
   Acquire Local Roles: False
   Property Sheets: []
   Base Categories: []

@@ -127,18 +127,27 @@ Chat Address,edit_workflow
 Chat Address,reachability_workflow
 Cloud Contract,edit_workflow
 Cloud Contract,item_workflow
+Cloud Contract,local_permission_slapos_interaction_workflow
+Cloud Contract Line,edit_workflow
 Cloud Contract Module,(Default)
 Component,edit_workflow
 Component,validation_workflow
 Component Individual Variation,(Default)
 Component Module,(Default)
 Component Tool,(Default)
-ComputeNode,compute_node_slap_interface_workflow
-ComputeNode,edit_workflow
-ComputeNode,local_permission_slapos_interaction_workflow
-ComputeNode,slapos_cloud_interaction_workflow
-ComputeNode,slapos_erp5_interaction_workflow
-ComputeNode,validation_workflow
+Compute Node,compute_node_slap_interface_workflow
+Compute Node,edit_workflow
+Compute Node,local_permission_slapos_interaction_workflow
+Compute Node,slapos_cloud_interaction_workflow
+Compute Node,slapos_erp5_interaction_workflow
+Compute Node,validation_workflow
+Compute Node Module,(Default)
+Compute Partition,compute_partition_slap_interface_workflow
+Compute Partition,edit_workflow
+Compute Partition,slapos_slap_tool_interaction_workflow
+Compute Partition,validation_workflow
+Computer,edit_workflow
+Computer,validation_workflow
 Computer Consumption TioXML File,document_conversion_interaction_workflow
 Computer Consumption TioXML File,document_publication_workflow
 Computer Consumption TioXML File,edit_workflow
@@ -146,16 +155,14 @@ Computer Model,edit_workflow
 Computer Model,local_permission_slapos_interaction_workflow
 Computer Model,validation_workflow
 Computer Model Module,(Default)
-ComputeNode Module,(Default)
+Computer Module,(Default)
 Computer Network,edit_workflow
 Computer Network,local_permission_slapos_interaction_workflow
 Computer Network,slapos_erp5_interaction_workflow
 Computer Network,validation_workflow
 Computer Network Module,(Default)
-Compute Partition,compute_partition_slap_interface_workflow
-Compute Partition,edit_workflow
-Compute Partition,slapos_slap_tool_interaction_workflow
-Compute Partition,validation_workflow
+Computer Partition,edit_workflow
+Computer Partition,validation_workflow
 Conceptual Id Generator,(Default)
 Configuration Save,edit_workflow
 Configurator Tool,(Default)
@@ -169,6 +176,8 @@ Container Line,edit_workflow
 Container Line,pricing_interaction_workflow
 Container Line,trade_matrix_workflow
 Content Existence Constraint,dynamic_class_generation_interaction_workflow
+Contract Invitation Token,edit_workflow
+Contract Invitation Token,validation_workflow
 Contribution Predicate,(Default)
 Contribution Registry Tool,(Default)
 Contribution Tool,(Default)
@@ -241,6 +250,7 @@ Duplicate Inventory Constraint,(Default)
 Dynamic Category Property,dynamic_class_generation_interaction_workflow
 ERP5 Form,(Default)
 ERP5 Login,edit_workflow
+ERP5 Login,login_interaction_workflow
 ERP5 Login,login_validation_workflow
 ERP5 Login,password_interaction_workflow
 Email,edit_workflow
@@ -265,6 +275,7 @@ FTP Connector,validation_workflow
 Facebook Connector,edit_workflow
 Facebook Connector,validation_workflow
 Facebook Login,edit_workflow
+Facebook Login,login_interaction_workflow
 Facebook Login,validation_workflow
 Fax,coordinate_interaction_workflow
 Fax,edit_workflow
@@ -293,16 +304,12 @@ Glossary Term,validation_workflow
 Google Connector,edit_workflow
 Google Connector,validation_workflow
 Google Login,edit_workflow
+Google Login,login_interaction_workflow
 Google Login,validation_workflow
 HTTP Exchange,edit_workflow
 HTTP Exchange,system_event_workflow
-Instance Tree,edit_workflow
-Instance Tree,instance_tree_workflow
-Instance Tree,instance_slap_interface_workflow
-Instance Tree,local_permission_slapos_interaction_workflow
-Instance Tree,slapos_accounting_interaction_workflow
-Instance Tree,slapos_api_invoicing_workflow
-Instance Tree Module,(Default)
+Hosting Subscription,edit_workflow
+Hosting Subscription Module,(Default)
 Id Tool,(Default)
 Image,document_conversion_interaction_workflow
 Image,document_publication_workflow
@@ -326,6 +333,13 @@ Implicit Item Movement Module,(Default)
 Incident Response,edit_workflow
 Incident Response,ticket_workflow
 Incident Response Module,(Default)
+Instance Tree,edit_workflow
+Instance Tree,instance_slap_interface_workflow
+Instance Tree,instance_tree_workflow
+Instance Tree,local_permission_slapos_interaction_workflow
+Instance Tree,slapos_accounting_interaction_workflow
+Instance Tree,slapos_api_invoicing_workflow
+Instance Tree Module,(Default)
 Integration Base Category Mapping,(Default)
 Integration Base Property Mapping,(Default)
 Integration Category Mapping,(Default)
@@ -335,6 +349,8 @@ Integration Site,edit_workflow
 Integration Site,local_permission_slapos_interaction_workflow
 Integration Site,validation_workflow
 Integration Tool,(Default)
+Interaction Workflow,dynamic_class_generation_interaction_workflow
+Interaction Workflow Interaction,dynamic_class_generation_interaction_workflow
 Interface Component,component_validation_workflow
 Interface Component,dynamic_class_generation_interaction_workflow
 Interface Component,edit_workflow
@@ -497,6 +513,7 @@ Order Root Simulation Rule,edit_workflow
 Order Root Simulation Rule,rule_validation_workflow
 Order Tool,(Default)
 Organisation,edit_workflow
+Organisation,local_permission_slapos_interaction_workflow
 Organisation,slapos_erp5_interaction_workflow
 Organisation,validation_workflow
 Organisation Configurator Item,(Default)
@@ -562,6 +579,7 @@ Product Individual Variation,edit_workflow
 Product Individual Variation,visibility_workflow
 Product Module,(Default)
 Project,edit_workflow
+Project,local_permission_slapos_interaction_workflow
 Project,project_workflow
 Project,slapos_erp5_interaction_workflow
 Project Cell,(Default)
@@ -654,15 +672,12 @@ Restricted Access Token,local_permission_slapos_interaction_workflow
 Restricted Access Token,validation_workflow
 Returned Purchase Order,delivery_causality_interaction_workflow
 Returned Purchase Order,delivery_causality_workflow
-Returned Purchase Order,delivery_simulation_interaction_workflow
 Returned Purchase Order,edit_workflow
 Returned Purchase Order,order_workflow
 Returned Purchase Order Cell,delivery_movement_causality_interaction_workflow
-Returned Purchase Order Cell,delivery_movement_simulation_interaction_workflow
 Returned Purchase Order Cell,edit_workflow
 Returned Purchase Order Cell,pricing_interaction_workflow
 Returned Purchase Order Line,delivery_movement_causality_interaction_workflow
-Returned Purchase Order Line,delivery_movement_simulation_interaction_workflow
 Returned Purchase Order Line,edit_workflow
 Returned Purchase Order Line,movement_resource_interaction_workflow
 Returned Purchase Order Line,pricing_interaction_workflow
@@ -682,15 +697,12 @@ Returned Purchase Packing List Line,trade_matrix_workflow
 Returned Purchase Packing List Module,(Default)
 Returned Sale Order,delivery_causality_interaction_workflow
 Returned Sale Order,delivery_causality_workflow
-Returned Sale Order,delivery_simulation_interaction_workflow
 Returned Sale Order,edit_workflow
 Returned Sale Order,order_workflow
 Returned Sale Order Cell,delivery_movement_causality_interaction_workflow
-Returned Sale Order Cell,delivery_movement_simulation_interaction_workflow
 Returned Sale Order Cell,edit_workflow
 Returned Sale Order Cell,pricing_interaction_workflow
 Returned Sale Order Line,delivery_movement_causality_interaction_workflow
-Returned Sale Order Line,delivery_movement_simulation_interaction_workflow
 Returned Sale Order Line,edit_workflow
 Returned Sale Order Line,movement_resource_interaction_workflow
 Returned Sale Order Line,pricing_interaction_workflow
@@ -859,7 +871,6 @@ Spreadsheet,edit_workflow
 Spreadsheet,processing_status_workflow
 Standard BT5 Configurator Item,(Default)
 Standard Property,dynamic_class_generation_interaction_workflow
-State,(Default)
 Static Web Section,category_publication_workflow
 Static Web Section,edit_workflow
 Static Web Site,category_publication_workflow
@@ -871,6 +882,7 @@ Subscription Condition,edit_workflow
 Subscription Condition Module,(Default)
 Subscription Item Root Simulation Rule,edit_workflow
 Subscription Item Root Simulation Rule,rule_validation_workflow
+Subscription Request,audit_validation_workflow
 Subscription Request,edit_workflow
 Subscription Request,subscription_request_workflow
 Subscription Request Module,(Default)
@@ -959,8 +971,6 @@ Transformation Optional Resource,edit_workflow
 Transformation Transformed Resource,conversion_interaction_workflow
 Transformation Transformed Resource,edit_workflow
 Transformation Transformed Resource Cell,conversion_interaction_workflow
-Transition,(Default)
-Transition Variable,(Default)
 Trash Bin,(Default)
 Trash Folder,(Default)
 Trash Tool,(Default)
@@ -983,7 +993,6 @@ User Consumption HTML File,document_conversion_interaction_workflow
 User Consumption HTML File,document_publication_workflow
 User Consumption HTML File,document_security_interaction_workflow
 User Consumption HTML File,edit_workflow
-Variable,(Default)
 Variant Movement Group,(Default)
 Variation Divergence Tester,edit_workflow
 Variation Property Movement Group,(Default)
@@ -1044,8 +1053,12 @@ Wechat Event,system_event_workflow
 Wechat Event,wechat_interface_workflow
 Wechat Event Message,edit_workflow
 Wechat Service,(Default)
-Workflow,(Default)
-Workflow Module,(Default)
-Workflow Security Configurator Item,(Default)
+Workflow,dynamic_class_generation_interaction_workflow
+Workflow Script,(Default)
+Workflow State,(Default)
+Workflow Tool,(Default)
+Workflow Transition,dynamic_class_generation_interaction_workflow
+Workflow Transition Variable,(Default)
+Workflow Variable,(Default)
 Worklist,(Default)
 ZODB Continuous Increasing Id Generator,(Default)

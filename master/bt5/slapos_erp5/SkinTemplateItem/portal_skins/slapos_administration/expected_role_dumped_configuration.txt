@@ -26,15 +26,6 @@ Account
   Categories: ['group/company']
 
 Account
-  Title: Member
-  Roles: ['Auditor']
-  Condition: None
-  Local Roles Group Id: user
-  Base Categories: ['role']
-  Base Category Script: None
-  Categories: ['role/member']
-
-Account
   Title: Person Shadow
   Roles: ['Auditor']
   Condition: None
@@ -51,15 +42,6 @@ Account Module
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
-
-Account Module
-  Title: Member
-  Roles: ['Auditor']
-  Condition: None
-  Local Roles Group Id: user
-  Base Categories: ['role']
-  Base Category Script: None
-  Categories: ['role/member']
 
 Account Module
   Title: Person Shadow
@@ -142,6 +124,33 @@ Acknowledgement
   Base Category Script: None
   Categories: ['group/company']
 
+Acknowledgement
+  Title: Organisation Member (Compute Node)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination_section']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateComputeNodeDestinationSection
+  Categories: []
+
+Acknowledgement
+  Title: Organisation Member (HS)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestination
+  Categories: []
+
+Acknowledgement
+  Title: Project Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestinationProject
+  Categories: []
+
 Assignment
   Title: Company group
   Roles: ['Auditor', 'Assignor']
@@ -179,13 +188,13 @@ Business Process
   Categories: ['group/company']
 
 Business Process
-  Title: Member
+  Title: Person Shadow
   Roles: ['Auditor']
   Condition: None
-  Local Roles Group Id: user
+  Local Roles Group Id: shadow
   Base Categories: ['role']
   Base Category Script: None
-  Categories: ['role/member']
+  Categories: ['role/shadow/person']
 
 Business Process Module
   Title: Group company
@@ -242,6 +251,15 @@ Certificate Login
   Categories: []
 
 Cloud Contract
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['destination_section']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
+Cloud Contract
   Title: Group company
   Roles: ['Assignor']
   Condition: None
@@ -249,6 +267,15 @@ Cloud Contract
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
+
+Cloud Contract
+  Title: Person Shadow
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
 
 Cloud Contract Module
   Title: Group company
@@ -258,6 +285,24 @@ Cloud Contract Module
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
+
+Cloud Contract Module
+  Title: Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Cloud Contract Module
+  Title: Person Shadow
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
 
 Component
   Title: Group company
@@ -277,7 +322,7 @@ Component Module
   Base Category Script: None
   Categories: ['group/company']
 
-ComputeNode
+Compute Node
   Title: Allocation scope
   Roles: ['Auditor']
   Condition: python: here.getAllocationScope('').startswith('open')
@@ -286,7 +331,7 @@ ComputeNode
   Base Category Script: ComputeNode_getSecurityCategoryFromAllocationScope
   Categories: []
 
-ComputeNode
+Compute Node
   Title: Compute Node Agent
   Roles: ['Assignee']
   Condition: None
@@ -295,7 +340,7 @@ ComputeNode
   Base Category Script: ERP5Type_getSecurityCategoryFromContent
   Categories: []
 
-ComputeNode
+Compute Node
   Title: Group company
   Roles: ['Assignor']
   Condition: None
@@ -304,7 +349,7 @@ ComputeNode
   Base Category Script: None
   Categories: ['group/company']
 
-ComputeNode
+Compute Node
   Title: Organisation Member
   Roles: ['Assignee']
   Condition: None
@@ -313,7 +358,7 @@ ComputeNode
   Base Category Script: Item_getSecurityCategoryFromMovementDestinationSection
   Categories: []
 
-ComputeNode
+Compute Node
   Title: Project Member
   Roles: ['Assignee']
   Condition: None
@@ -322,13 +367,67 @@ ComputeNode
   Base Category Script: Item_getSecurityCategoryFromMovementDestinationProject
   Categories: []
 
-ComputeNode
+Compute Node
   Title: Self Compute Node
   Roles: ['Assignor']
   Condition: python: context.getUserId("") != ""
-  Local Roles Group Id: compute_node
+  Local Roles Group Id: computer
   Base Categories: ['destination_decision']
   Base Category Script: ERP5Type_getSecurityCategoryFromSelf
+  Categories: []
+
+Compute Node Module
+  Title: Compute Node
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: computer
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/computer']
+
+Compute Node Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Compute Node Module
+  Title: Member
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: user
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/member']
+
+Compute Node Module
+  Title: Person Shadow
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
+
+Compute Partition
+  Title: Customer of the partition
+  Roles: ['Auditor']
+  Condition: python: here.getSlapState() == "busy"
+  Local Roles Group Id: user
+  Base Categories: ['destination_section']
+  Base Category Script: ComputePartition_getSecurityCategoryFromUser
+  Categories: []
+
+Compute Partition
+  Title: Software Instance group related to Compute Partition
+  Roles: ['Auditor']
+  Condition: python: here.getSlapState() == "busy"
+  Local Roles Group Id: subscription
+  Base Categories: ['aggregate']
+  Base Category Script: ERP5Type_getSecurityCategoryFromAggregateRelatedSoftwareInstanceInstanceTree
   Categories: []
 
 Computer Consumption TioXML File
@@ -376,34 +475,34 @@ Computer Model Module
   Base Category Script: None
   Categories: ['role/member']
 
-ComputeNode Module
+Computer Module
   Title: Compute Node
   Roles: ['Auditor']
   Condition: None
-  Local Roles Group Id: compute_node
+  Local Roles Group Id: computer
   Base Categories: ['role']
   Base Category Script: None
   Categories: ['role/computer']
 
-ComputeNode Module
+Computer Module
   Title: Group company
-  Roles: ['Author', 'Auditor']
+  Roles: ['Auditor']
   Condition: None
   Local Roles Group Id: group
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
 
-ComputeNode Module
+Computer Module
   Title: Member
-  Roles: ['Auditor', 'Author']
+  Roles: ['Auditor']
   Condition: None
   Local Roles Group Id: user
   Base Categories: ['role']
   Base Category Script: None
   Categories: ['role/member']
 
-ComputeNode Module
+Computer Module
   Title: Person Shadow
   Roles: ['Auditor']
   Condition: None
@@ -416,7 +515,7 @@ Computer Network
   Title: Compute Node Agent
   Roles: ['Assignee']
   Condition: None
-  Local Roles Group Id: compute_node
+  Local Roles Group Id: computer
   Base Categories: ['source_administration']
   Base Category Script: ERP5Type_getSecurityCategoryFromContent
   Categories: []
@@ -493,24 +592,6 @@ Computer Network Module
   Base Category Script: None
   Categories: ['role/shadow/person']
 
-Compute Partition
-  Title: Customer of the partition
-  Roles: ['Auditor']
-  Condition: python: here.getSlapState() == "busy"
-  Local Roles Group Id: user
-  Base Categories: ['destination_section']
-  Base Category Script: ComputePartition_getSecurityCategoryFromUser
-  Categories: []
-
-Compute Partition
-  Title: Software Instance group related to Compute Partition
-  Roles: ['Auditor']
-  Condition: python: here.getSlapState() == "busy"
-  Local Roles Group Id: subscription
-  Base Categories: ['aggregate']
-  Base Category Script: ERP5Type_getSecurityCategoryFromAggregateRelatedSoftwareInstanceInstanceTree
-  Categories: []
-
 Consumption Document Module
   Title: Compute Node reports consumption
   Roles: ['Author']
@@ -538,6 +619,15 @@ Consumption Document Module
   Base Category Script: None
   Categories: ['role/member']
 
+Contract Invitation Token
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
 Contribution Tool
   Title: Group company
   Roles: ['Author', 'Auditor']
@@ -546,15 +636,6 @@ Contribution Tool
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
-
-Contribution Tool
-  Title: Security for Shacache (Author)
-  Roles: ['Author']
-  Condition: None
-  Local Roles Group Id: user
-  Base Categories: []
-  Base Category Script: None
-  Categories: ['role/member', 'role/computer', 'role/instance']
 
 Credential Update Module
   Title: Group company
@@ -593,15 +674,6 @@ Currency
   Categories: ['group/company']
 
 Currency
-  Title: Member
-  Roles: ['Auditor']
-  Condition: None
-  Local Roles Group Id: user
-  Base Categories: ['role']
-  Base Category Script: None
-  Categories: ['role/member']
-
-Currency
   Title: Person Shadow
   Roles: ['Auditor']
   Condition: None
@@ -646,15 +718,6 @@ Data Set
   Base Category Script: None
   Categories: ['group/company']
 
-Data Set
-  Title: Security for Shacache (Auditor)
-  Roles: ['Auditor']
-  Condition: None
-  Local Roles Group Id: user
-  Base Categories: []
-  Base Category Script: None
-  Categories: ['role/member', 'role/computer', 'role/instance']
-
 Data Set Module
   Title: Group company
   Roles: ['Author', 'Auditor']
@@ -663,15 +726,6 @@ Data Set Module
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
-
-Data Set Module
-  Title: Security for Shacache (Author)
-  Roles: ['Author']
-  Condition: None
-  Local Roles Group Id: user
-  Base Categories: []
-  Base Category Script: None
-  Categories: ['role/member', 'role/computer', 'role/instance']
 
 Document Ingestion Module
   Title: Group company
@@ -691,15 +745,6 @@ Document Module
   Base Category Script: None
   Categories: ['group/company']
 
-Document Module
-  Title: Security for Shacache (Author)
-  Roles: ['Author']
-  Condition: None
-  Local Roles Group Id: user
-  Base Categories: []
-  Base Category Script: None
-  Categories: ['role/member', 'role/computer', 'role/instance']
-
 Drawing
   Title: Group company
   Roles: ['Assignor']
@@ -708,15 +753,6 @@ Drawing
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
-
-Drawing
-  Title: Security for Shacache
-  Roles: ['Auditor']
-  Condition: None
-  Local Roles Group Id: user
-  Base Categories: []
-  Base Category Script: None
-  Categories: ['role/member', 'role/computer', 'role/instance']
 
 ERP5 Login
   Title: The User Himself
@@ -781,6 +817,33 @@ Fax Message
   Base Category Script: None
   Categories: ['group/company']
 
+Fax Message
+  Title: Organisation Member (Compute Node)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination_section']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateComputeNodeDestinationSection
+  Categories: []
+
+Fax Message
+  Title: Organisation Member (HS)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestination
+  Categories: []
+
+Fax Message
+  Title: Project Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestinationProject
+  Categories: []
+
 File
   Title: Group company
   Roles: ['Assignor']
@@ -789,15 +852,6 @@ File
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
-
-File
-  Title: Shacache Security (Auditor)
-  Roles: ['Auditor']
-  Condition: None
-  Local Roles Group Id: None
-  Base Categories: []
-  Base Category Script: None
-  Categories: ['role/computer', 'role/member', 'role/instance']
 
 Gadget
   Title: Group company
@@ -825,6 +879,42 @@ Google Login
   Base Categories: ['group']
   Base Category Script: ERP5Type_getSecurityCategoryFromParent
   Categories: []
+
+Image
+  Title: Group company
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Image Module
+  Title: Group company
+  Roles: ['Author', 'Auditor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Incident Response
+  Title: Company group
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
+
+Incident Response Module
+  Title: Company group
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
 
 Instance Tree
   Title: Customer of the Instance Tree
@@ -907,42 +997,6 @@ Instance Tree Module
   Base Category Script: None
   Categories: ['role/member']
 
-Image
-  Title: Group company
-  Roles: ['Assignor']
-  Condition: None
-  Local Roles Group Id: group
-  Base Categories: ['group']
-  Base Category Script: None
-  Categories: ['group/company']
-
-Image
-  Title: Security for Shacache (Auditor)
-  Roles: ['Auditor']
-  Condition: None
-  Local Roles Group Id: user
-  Base Categories: []
-  Base Category Script: None
-  Categories: ['role/member', 'role/computer', 'role/instance']
-
-Image Module
-  Title: Group company
-  Roles: ['Author', 'Auditor']
-  Condition: None
-  Local Roles Group Id: group
-  Base Categories: ['group']
-  Base Category Script: None
-  Categories: ['group/company']
-
-Image Module
-  Title: Security for Shacache (Author)
-  Roles: ['Author']
-  Condition: None
-  Local Roles Group Id: user
-  Base Categories: []
-  Base Category Script: None
-  Categories: ['role/member', 'role/computer', 'role/instance']
-
 Integration Site
   Title: Group Company
   Roles: ['Assignor']
@@ -1006,15 +1060,6 @@ Invitation Token Module
   Base Category Script: None
   Categories: ['group/company']
 
-Invitation Token Module
-  Title: Member
-  Roles: ['Author']
-  Condition: None
-  Local Roles Group Id: user
-  Base Categories: ['role']
-  Base Category Script: None
-  Categories: ['role/member']
-
 Knowledge Box
   Title: Group company
   Roles: ['Assignor']
@@ -1069,6 +1114,33 @@ Letter
   Base Category Script: None
   Categories: ['group/company']
 
+Letter
+  Title: Organisation Member (Compute Node)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination_section']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateComputeNodeDestinationSection
+  Categories: []
+
+Letter
+  Title: Organisation Member (HS)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestination
+  Categories: []
+
+Letter
+  Title: Project Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestinationProject
+  Categories: []
+
 Mail Message
   Title: Customer
   Roles: ['Auditor']
@@ -1095,6 +1167,33 @@ Mail Message
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
+
+Mail Message
+  Title: Organisation Member (Compute Node)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination_section']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateComputeNodeDestinationSection
+  Categories: []
+
+Mail Message
+  Title: Organisation Member (HS)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestination
+  Categories: []
+
+Mail Message
+  Title: Project Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestinationProject
+  Categories: []
 
 Meeting
   Title: Group company
@@ -1140,6 +1239,33 @@ Note
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
+
+Note
+  Title: Organisation Member (Compute Node)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination_section']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateComputeNodeDestinationSection
+  Categories: []
+
+Note
+  Title: Organisation Member (HS)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestination
+  Categories: []
+
+Note
+  Title: Project Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestinationProject
+  Categories: []
 
 Notification Message
   Title: Group company
@@ -1198,15 +1324,24 @@ Organisation
 Organisation
   Title: Member
   Roles: ['Auditor']
-  Condition: None
+  Condition: python: here.getRole() == "admin"
   Local Roles Group Id: None
   Base Categories: ['role']
   Base Category Script: None
   Categories: ['role/member']
 
 Organisation
-  Title: Person Owner
+  Title: Organisation Member
   Roles: ['Assignee']
+  Condition: python: here.getReference() is not None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination']
+  Base Category Script: ERP5Type_getSecurityCategoryFromSelf
+  Categories: []
+
+Organisation
+  Title: Person Owner
+  Roles: ['Assignee', 'Owner']
   Condition: None
   Local Roles Group Id: user
   Base Categories: ['source']
@@ -1267,15 +1402,6 @@ PDF
   Base Category Script: None
   Categories: ['group/company']
 
-PDF
-  Title: Security for Shacache (Auditor)
-  Roles: ['Auditor']
-  Condition: None
-  Local Roles Group Id: user
-  Base Categories: []
-  Base Category Script: None
-  Categories: ['role/member', 'role/computer', 'role/instance']
-
 Payment Transaction
   Title: Group company
   Roles: ['Assignor']
@@ -1314,7 +1440,7 @@ Payment Transaction
 
 Payzen Event
   Title: Group company
-  Roles: ['Assignor']
+  Roles: ['Auditor']
   Condition: None
   Local Roles Group Id: group
   Base Categories: ['group']
@@ -1338,6 +1464,15 @@ Person
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
+
+Person
+  Title: Project Member can see each other
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: ERP5Type_getSecurityCategoryFromChildAssignmentList
+  Categories: []
 
 Person
   Title: The Shadow User Himself
@@ -1411,6 +1546,33 @@ Phone Call
   Base Category Script: None
   Categories: ['group/company']
 
+Phone Call
+  Title: Organisation Member (Compute Node)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination_section']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateComputeNodeDestinationSection
+  Categories: []
+
+Phone Call
+  Title: Organisation Member (HS)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestination
+  Categories: []
+
+Phone Call
+  Title: Project Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestinationProject
+  Categories: []
+
 Presentation
   Title: Group company
   Roles: ['Assignor']
@@ -1419,15 +1581,6 @@ Presentation
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
-
-Presentation
-  Title: Security for Shacache
-  Roles: ['Auditor']
-  Condition: None
-  Local Roles Group Id: user
-  Base Categories: []
-  Base Category Script: None
-  Categories: ['role/member', 'role/computer', 'role/instance']
 
 Product
   Title: Group company
@@ -1457,15 +1610,6 @@ Project
   Categories: ['group/company']
 
 Project
-  Title: Member
-  Roles: ['Auditor']
-  Condition: None
-  Local Roles Group Id: None
-  Base Categories: ['role']
-  Base Category Script: None
-  Categories: ['role/member']
-
-Project
   Title: Person Owner
   Roles: ['Assignee']
   Condition: None
@@ -1482,6 +1626,15 @@ Project
   Base Categories: ['role']
   Base Category Script: None
   Categories: ['role/shadow/person']
+
+Project
+  Title: Project Member
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: ERP5Type_getSecurityCategoryFromSelf
+  Categories: []
 
 Project Module
   Title: Compute Node
@@ -1710,7 +1863,7 @@ Sale Order Module
 
 Sale Packing List
   Title: Group company
-  Roles: ['Assignor']
+  Roles: ['Auditor']
   Condition: None
   Local Roles Group Id: group
   Base Categories: ['group']
@@ -1720,7 +1873,7 @@ Sale Packing List
 Sale Packing List
   Title: Subscription Customer
   Roles: ['Auditor']
-  Condition: python: here.getSpecialise() in ('sale_trade_condition_module/slapos_subscription_trade_condition', 'sale_trade_condition_module/slapos_aggregated_trade_condition')
+  Condition: python: here.getSpecialise() in ('sale_trade_condition_module/slapos_subscription_trade_condition', 'sale_trade_condition_module/slapos_aggregated_trade_condition', 'sale_trade_condition_module/slapos_aggregated_subscription_trade_condition')
   Local Roles Group Id: user
   Base Categories: ['destination_decision']
   Base Category Script: ERP5Type_getSecurityCategoryFromContent
@@ -1754,13 +1907,13 @@ Sale Trade Condition
   Categories: ['group/company']
 
 Sale Trade Condition
-  Title: Member
+  Title: Person Shadow
   Roles: ['Auditor']
   Condition: None
-  Local Roles Group Id: user
+  Local Roles Group Id: shadow
   Base Categories: ['role']
   Base Category Script: None
-  Categories: ['role/member']
+  Categories: ['role/shadow/person']
 
 Sale Trade Condition Module
   Title: Group company
@@ -1779,6 +1932,15 @@ Sale Trade Condition Module
   Base Categories: ['role']
   Base Category Script: None
   Categories: ['role/member']
+
+Sale Trade Condition Module
+  Title: Person Shadow
+  Roles: ['Assignor']
+  Condition: None
+  Local Roles Group Id: shadow
+  Base Categories: ['role']
+  Base Category Script: None
+  Categories: ['role/shadow/person']
 
 Service
   Title: Group company
@@ -1843,6 +2005,33 @@ Short Message
   Base Category Script: None
   Categories: ['group/company']
 
+Short Message
+  Title: Organisation Member (Compute Node)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination_section']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateComputeNodeDestinationSection
+  Categories: []
+
+Short Message
+  Title: Organisation Member (HS)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestination
+  Categories: []
+
+Short Message
+  Title: Project Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestinationProject
+  Categories: []
+
 Site Message
   Title: Customer
   Roles: ['Auditor']
@@ -1869,12 +2058,39 @@ Site Message
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
+
+Site Message
+  Title: Organisation Member (Compute Node)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination_section']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateComputeNodeDestinationSection
+  Categories: []
+
+Site Message
+  Title: Organisation Member (HS)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestination
+  Categories: []
+
+Site Message
+  Title: Project Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestinationProject
+  Categories: []
 
 Slave Instance
   Title: Compute Node
   Roles: ['Assignor']
   Condition: None
-  Local Roles Group Id: compute_node
+  Local Roles Group Id: computer
   Base Categories: ['aggregate']
   Base Category Script: ERP5Type_getSecurityCategoryFromContentParent
   Categories: []
@@ -1937,7 +2153,7 @@ Software Installation
   Title: Compute Node
   Roles: ['Assignor']
   Condition: None
-  Local Roles Group Id: compute_node
+  Local Roles Group Id: computer
   Base Categories: ['aggregate']
   Base Category Script: ERP5Type_getSecurityCategoryFromContent
   Categories: []
@@ -1982,7 +2198,7 @@ Software Installation Module
   Title: Compute Node
   Roles: ['Auditor']
   Condition: None
-  Local Roles Group Id: compute_node
+  Local Roles Group Id: computer
   Base Categories: ['role']
   Base Category Script: None
   Categories: ['role/computer']
@@ -2009,7 +2225,7 @@ Software Instance
   Title: Compute Node
   Roles: ['Assignor']
   Condition: None
-  Local Roles Group Id: compute_node
+  Local Roles Group Id: computer
   Base Categories: ['aggregate']
   Base Category Script: ERP5Type_getSecurityCategoryFromContentParent
   Categories: []
@@ -2104,15 +2320,6 @@ Software Product
   Base Category Script: None
   Categories: ['group/company']
 
-Software Product
-  Title: Member
-  Roles: ['Auditor']
-  Condition: None
-  Local Roles Group Id: user
-  Base Categories: ['role']
-  Base Category Script: None
-  Categories: ['role/member']
-
 Software Product Module
   Title: Group company
   Roles: ['Author', 'Auditor']
@@ -2139,15 +2346,6 @@ Software Release
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
-
-Software Release
-  Title: Member
-  Roles: ['Auditor']
-  Condition: None
-  Local Roles Group Id: user
-  Base Categories: ['role']
-  Base Category Script: None
-  Categories: ['role/member']
 
 Software Release Module
   Title: Group company
@@ -2176,14 +2374,23 @@ Spreadsheet
   Base Category Script: None
   Categories: ['group/company']
 
-Spreadsheet
-  Title: Security for Shacache (Auditor)
-  Roles: ['Auditor']
+Subscription Request
+  Title: Company group
+  Roles: ['Assignor']
   Condition: None
-  Local Roles Group Id: user
-  Base Categories: []
+  Local Roles Group Id: group
+  Base Categories: ['group']
   Base Category Script: None
-  Categories: ['role/member', 'role/computer', 'role/instance']
+  Categories: ['group/company']
+
+Subscription Request Module
+  Title: Company group
+  Roles: ['Auditor', 'Author']
+  Condition: None
+  Local Roles Group Id: group
+  Base Categories: ['group']
+  Base Category Script: None
+  Categories: ['group/company']
 
 Support Request
   Title: Customer
@@ -2211,6 +2418,33 @@ Support Request
   Base Categories: ['role']
   Base Category Script: None
   Categories: ['role/member']
+
+Support Request
+  Title: Organisation Member (Compute Node)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination_section']
+  Base Category Script: Item_getSecurityCategoryFromMovementAggregateComputeNodeDestinationSection
+  Categories: []
+
+Support Request
+  Title: Organisation Member (HS)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination']
+  Base Category Script: Item_getSecurityCategoryFromMovementAggregateDestination
+  Categories: []
+
+Support Request
+  Title: Project Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: Item_getSecurityCategoryFromMovementAggregateDestinationProject
+  Categories: []
 
 Support Request Module
   Title: Group company
@@ -2257,15 +2491,6 @@ Text
   Base Category Script: None
   Categories: ['group/company']
 
-Text
-  Title: Security for Shacache
-  Roles: ['Auditor']
-  Condition: None
-  Local Roles Group Id: user
-  Base Categories: []
-  Base Category Script: None
-  Categories: ['role/member', 'role/computer', 'role/instance']
-
 Transformation
   Title: Group company
   Roles: ['Assignor']
@@ -2292,6 +2517,33 @@ Upgrade Decision
   Base Categories: ['group']
   Base Category Script: None
   Categories: ['group/company']
+
+Upgrade Decision
+  Title: Organisation Member (Compute Node)
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination_section']
+  Base Category Script: Item_getSecurityCategoryFromMovementLineAggregateComputeNodeDestinationSection
+  Categories: []
+
+Upgrade Decision
+  Title: Organisation Member (HS)
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination']
+  Base Category Script: Item_getSecurityCategoryFromMovementLineAggregateDestination
+  Categories: []
+
+Upgrade Decision
+  Title: Project Member
+  Roles: ['Assignee']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: Item_getSecurityCategoryFromMovementLineAggregateDestinationProject
+  Categories: []
 
 Upgrade Decision
   Title: User
@@ -2365,21 +2617,48 @@ Visit
   Base Category Script: None
   Categories: ['group/company']
 
+Visit
+  Title: Organisation Member (Compute Node)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination_section']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateComputeNodeDestinationSection
+  Categories: []
+
+Visit
+  Title: Organisation Member (HS)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestination
+  Categories: []
+
+Visit
+  Title: Project Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestinationProject
+  Categories: []
+
+Web Message
+  Title: Customer
+  Roles: ['Auditor']
+  Condition: python: here.getDestinationValue(portal_type='Person') is not None
+  Local Roles Group Id: user
+  Base Categories: ['destination']
+  Base Category Script: ERP5Type_getSecurityCategoryFromContent
+  Categories: []
+
 Web Message
   Title: Customer
   Roles: ['Auditor']
   Condition: python: here.getSourceValue(portal_type='Person') is not None
   Local Roles Group Id: user
   Base Categories: ['source']
-  Base Category Script: ERP5Type_getSecurityCategoryFromContent
-  Categories: []
-
-Web Message
-  Title: Customer (Destination)
-  Roles: ['Auditor']
-  Condition: python: here.getDestinationValue(portal_type='Person') is not None
-  Local Roles Group Id: user
-  Base Categories: ['destination']
   Base Category Script: ERP5Type_getSecurityCategoryFromContent
   Categories: []
 
@@ -2393,13 +2672,31 @@ Web Message
   Categories: ['group/company']
 
 Web Message
-  Title: Member can see template
+  Title: Organisation Member (Compute Node)
   Roles: ['Auditor']
-  Condition: python: here.getRelativeUrl() == here.getPortalObject().portal_preferences.getPreferredWebMessageTemplate()
-  Local Roles Group Id: user
-  Base Categories: ['role']
-  Base Category Script: None
-  Categories: ['role/member']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination_section']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateComputeNodeDestinationSection
+  Categories: []
+
+Web Message
+  Title: Organisation Member (HS)
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: organisation
+  Base Categories: ['destination']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestination
+  Categories: []
+
+Web Message
+  Title: Project Member
+  Roles: ['Auditor']
+  Condition: None
+  Local Roles Group Id: project
+  Base Categories: ['destination_project']
+  Base Category Script: Event_getSecurityCategoryFromMovementFollowUpAggregateDestinationProject
+  Categories: []
 
 Web Page
   Title: Group company
@@ -2421,7 +2718,7 @@ Web Page Module
 
 Wechat Event
   Title: Group company
-  Roles: ['Assignor']
+  Roles: ['Auditor']
   Condition: None
   Local Roles Group Id: group
   Base Categories: ['group']

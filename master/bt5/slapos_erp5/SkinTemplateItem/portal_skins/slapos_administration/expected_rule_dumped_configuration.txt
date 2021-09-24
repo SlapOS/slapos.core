@@ -1860,7 +1860,7 @@ slapos_subscription_item_rule
   Title: source divergence tester
   Type: Category Membership Divergence Tester
   Updating: 1
-  Divergence: 1
+  Divergence: 0
   Matching: 0
   Test Method Id: None
   Membership Criteria: []
@@ -1937,7 +1937,7 @@ slapos_subscription_item_rule
   Title: source_section divergence tester
   Type: Category Membership Divergence Tester
   Updating: 1
-  Divergence: 1
+  Divergence: 0
   Matching: 0
   Test Method Id: None
   Membership Criteria: []

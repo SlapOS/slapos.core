@@ -84,9 +84,9 @@ payment_transaction_builder
 
 slapos_sale_invoice_builder
   Title: SlapOS Sale Invoice Builder
-  Simulation Select Method: SlapOSDeliveryBuilder_selectMovement
+  Simulation Select Method: DeliveryBuilder_selectSlapOSMovement
   Delivery Select Method: DeliveryBuilder_selectSlapOSConfirmedInvoiceList
-  After Generation Script: SlapOSSaleInvoiceTransaction_postGeneration
+  After Generation Script: SaleInvoiceTransaction_postSlapOSGeneration
 
 slapos_sale_invoice_builder
   Id: category_movement_group_on_delivery
@@ -105,10 +105,10 @@ slapos_sale_invoice_builder
   Update Always: 0
 
 slapos_sale_invoice_builder
-  Id: property_movement_group_on_delivery
-  Title: property_movement_group_on_delivery
+  Id: property_movement_group_on_line
+  Title: property_movement_group_on_line
   Type: Property Movement Group
-  Collect Order Group: delivery
+  Collect Order Group: line
   Tested Properties: ['start_date', 'stop_date']
   Update Always: 0
 
@@ -120,11 +120,19 @@ slapos_sale_invoice_builder
   Tested Properties: []
   Update Always: None
 
+slapos_sale_invoice_builder
+  Id: root_applied_rule_causality_movement_group_on_line
+  Title: root_applied_rule_causality_movement_group_on_line
+  Type: Root Applied Rule Causality Movement Group
+  Collect Order Group: line
+  Tested Properties: []
+  Update Always: None
+
 slapos_sale_invoice_transaction_builder
   Title: SlapOS Sale Invoice Transaction Builder
-  Simulation Select Method: SlapOSDeliveryBuilder_selectMovement
-  Delivery Select Method: SlapOSInvoiceTransaction_selectDelivery
-  After Generation Script: None
+  Simulation Select Method: DeliveryBuilder_selectSlapOSMovement
+  Delivery Select Method: SaleInvoiceTransaction_selectSlapOSDelivery
+  After Generation Script: SaleInvoiceTransaction_postSlapOSSaleInvoiceTransactionLineGeneration
 
 slapos_sale_invoice_transaction_builder
   Id: causality_movement_group_on_delivery
@@ -152,8 +160,8 @@ slapos_sale_invoice_transaction_builder
 
 slapos_sale_invoice_transaction_trade_model_builder
   Title: SlapOS Sale Invoice Transaction Trade Model Line Builder
-  Simulation Select Method: SlapOSDeliveryBuilder_selectMovement
-  Delivery Select Method: SlapOSInvoiceTransaction_selectDelivery
+  Simulation Select Method: DeliveryBuilder_selectSlapOSMovement
+  Delivery Select Method: SaleInvoiceTransaction_selectSlapOSDelivery
   After Generation Script: None
 
 slapos_sale_invoice_transaction_trade_model_builder
@@ -190,9 +198,9 @@ slapos_sale_invoice_transaction_trade_model_builder
 
 slapos_sale_packing_list_builder
   Title: SlapOS Sale Packing List Builder
-  Simulation Select Method: SlapOSDeliveryBuilder_selectMovement
+  Simulation Select Method: DeliveryBuilder_selectSlapOSMovement
   Delivery Select Method: None
-  After Generation Script: SlapOSSalePackingList_postGeneration
+  After Generation Script: SalePackingList_postSlapOSGeneration
 
 slapos_sale_packing_list_builder
   Id: category_movement_group_on_delivery

@@ -1,6 +1,7 @@
 erp5_access_token
 erp5_accounting
 erp5_accounting_l10n_fr
+erp5_accounting_l10n_ifrs
 erp5_administration
 erp5_authentication_policy
 erp5_base
@@ -27,6 +28,7 @@ erp5_hal_json_style
 erp5_immobilisation
 erp5_ingestion
 erp5_ingestion_mysql_innodb_catalog
+erp5_interaction_drop
 erp5_invoicing
 erp5_item
 erp5_jquery
@@ -40,6 +42,7 @@ erp5_jquery_ui
 erp5_km
 erp5_knowledge_pad
 erp5_l10n_fr
+erp5_l10n_ja
 erp5_l10n_zh
 erp5_monaco_editor
 erp5_movement_table_catalog
@@ -88,6 +91,7 @@ slapos_ecoallocation
 slapos_erp5
 slapos_jio
 slapos_l10n_zh
+slapos_mysql_innodb_catalog
 slapos_payzen
 slapos_pdm
 slapos_rss_style

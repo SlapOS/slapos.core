@@ -550,6 +550,21 @@ AcquiredProperty
   write_permission: Modify portal content
 
 ActionInformation
+  elementary_type: string
+  id: action_name_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: action_name
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+ActionInformation
   elementary_type: lines
   id: action_permission_property
   multivaluated: None
@@ -3464,6 +3479,21 @@ BaseType
   translation_domain: None
   write_permission: Modify portal content
 
+BaseType
+  elementary_type: lines
+  id: type_workflow_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: []
+  range: False
+  read_permission: Access contents information
+  reference: type_workflow
+  storage_id: workflow_list
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
 BearerTokenSystemPreference
   elementary_type: string
   id: preferred_bearer_token_key_property
@@ -6020,146 +6050,6 @@ Component
   translation_domain: None
   write_permission: Modify portal content
 
-ComputeNode
-  id: allocation_scope_category
-  portal_type: Category Property
-  reference: allocation_scope
-
-ComputeNode
-  id: capacity_scope_category
-  portal_type: Category Property
-  reference: capacity_scope
-
-ComputeNode
-  id: cpu_core_category
-  portal_type: Category Property
-  reference: cpu_core
-
-ComputeNode
-  id: cpu_frequency_category
-  portal_type: Category Property
-  reference: cpu_frequency
-
-ComputeNode
-  id: cpu_type_category
-  portal_type: Category Property
-  reference: cpu_type
-
-ComputeNode
-  id: function_category
-  portal_type: Category Property
-  reference: function
-
-ComputeNode
-  id: group_category
-  portal_type: Category Property
-  reference: group
-
-ComputeNode
-  id: local_area_network_type_category
-  portal_type: Category Property
-  reference: local_area_network_type
-
-ComputeNode
-  id: memory_size_category
-  portal_type: Category Property
-  reference: memory_size
-
-ComputeNode
-  id: memory_type_category
-  portal_type: Category Property
-  reference: memory_type
-
-ComputeNode
-  acquisition_accessor_id: getDefaultNetworkAddressValue
-  acquisition_base_category_list: ['parent']
-  acquisition_copy_value: 0
-  acquisition_mask_value: 1
-  acquisition_object_id_list: None
-  acquisition_portal_type: python: ('Compute Node',)
-  alt_accessor_id_list: []
-  content_acquired_property_id_list: ['text', 'host_name', 'ip_address', 'netmask', 'network_interface']
-  content_portal_type: python: ('Internet Protocol Address',)
-  content_translation_acquired_property_id_list: None
-  elementary_type: content
-  id: network_address_property
-  multivaluated: None
-  portal_type: Acquired Property
-  preference: False
-  property_default: None
-  range: False
-  read_permission: Access contents information
-  reference: network_address
-  storage_id: default_network_address
-  translatable: False
-  translation_domain: None
-  write_permission: Modify portal content
-
-ComputeNode
-  id: product_line_category
-  portal_type: Category Property
-  reference: product_line
-
-ComputeNode
-  id: region_category
-  portal_type: Category Property
-  reference: region
-
-ComputeNode
-  id: role_category
-  portal_type: Category Property
-  reference: role
-
-ComputeNode
-  id: storage_capacity_category
-  portal_type: Category Property
-  reference: storage_capacity
-
-ComputeNode
-  id: storage_interface_category
-  portal_type: Category Property
-  reference: storage_interface
-
-ComputeNode
-  id: storage_redundancy_category
-  portal_type: Category Property
-  reference: storage_redundancy
-
-ComputeNode
-  id: storage_technology_category
-  portal_type: Category Property
-  reference: storage_technology
-
-ComputeNode
-  id: wide_area_network_type_category
-  portal_type: Category Property
-  reference: wide_area_network_type
-
-ComputePartition
-  acquisition_accessor_id: getDefaultNetworkAddressValue
-  acquisition_base_category_list: ['parent']
-  acquisition_copy_value: 0
-  acquisition_mask_value: 1
-  acquisition_object_id_list: None
-  acquisition_portal_type: python: ('Compute Partition',)
-  alt_accessor_id_list: []
-  content_acquired_property_id_list: ['text', 'host_name', 'ip_address', 'udp_port_number', 'tcp_port_number']
-  content_portal_type: python: ('Internet Protocol Address',)
-  content_translation_acquired_property_id_list: None
-  elementary_type: content
-  id: network_address_property
-  multivaluated: None
-  portal_type: Acquired Property
-  preference: False
-  property_default: None
-  range: False
-  read_permission: Access contents information
-  reference: network_address
-  storage_id: default_network_address
-  translatable: False
-  translation_domain: None
-  write_permission: Modify portal content
-
 ComputeNodeSlapOSMetadata
   elementary_type: string
   id: os_type_property
@@ -6235,6 +6125,156 @@ ComputeNodeSlapOSMetadata
   translation_domain: None
   write_permission: Modify portal content
 
+ComputePartition
+  acquisition_accessor_id: getDefaultNetworkAddressValue
+  acquisition_base_category_list: ['parent']
+  acquisition_copy_value: 0
+  acquisition_mask_value: 1
+  acquisition_object_id_list: None
+  acquisition_portal_type: python: ('Compute Partition',)
+  alt_accessor_id_list: []
+  content_acquired_property_id_list: ['text', 'host_name', 'ip_address', 'udp_port_number', 'tcp_port_number']
+  content_portal_type: python: ('Internet Protocol Address',)
+  content_translation_acquired_property_id_list: None
+  elementary_type: content
+  id: network_address_property
+  multivaluated: None
+  portal_type: Acquired Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: network_address
+  storage_id: default_network_address
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+Computer
+  id: allocation_scope_category
+  portal_type: Category Property
+  reference: allocation_scope
+
+Computer
+  id: capacity_scope_category
+  portal_type: Category Property
+  reference: capacity_scope
+
+Computer
+  id: cpu_core_category
+  portal_type: Category Property
+  reference: cpu_core
+
+Computer
+  id: cpu_frequency_category
+  portal_type: Category Property
+  reference: cpu_frequency
+
+Computer
+  id: cpu_type_category
+  portal_type: Category Property
+  reference: cpu_type
+
+Computer
+  id: function_category
+  portal_type: Category Property
+  reference: function
+
+Computer
+  id: group_category
+  portal_type: Category Property
+  reference: group
+
+Computer
+  id: local_area_network_type_category
+  portal_type: Category Property
+  reference: local_area_network_type
+
+Computer
+  id: memory_size_category
+  portal_type: Category Property
+  reference: memory_size
+
+Computer
+  id: memory_type_category
+  portal_type: Category Property
+  reference: memory_type
+
+Computer
+  acquisition_accessor_id: getDefaultNetworkAddressValue
+  acquisition_base_category_list: ['parent']
+  acquisition_copy_value: 0
+  acquisition_mask_value: 1
+  acquisition_object_id_list: None
+  acquisition_portal_type: python: ('Computer',)
+  alt_accessor_id_list: []
+  content_acquired_property_id_list: ['text', 'host_name', 'ip_address', 'netmask', 'network_interface']
+  content_portal_type: python: ('Internet Protocol Address',)
+  content_translation_acquired_property_id_list: None
+  elementary_type: content
+  id: network_address_property
+  multivaluated: None
+  portal_type: Acquired Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: network_address
+  storage_id: default_network_address
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+Computer
+  id: product_line_category
+  portal_type: Category Property
+  reference: product_line
+
+Computer
+  id: region_category
+  portal_type: Category Property
+  reference: region
+
+Computer
+  id: role_category
+  portal_type: Category Property
+  reference: role
+
+Computer
+  id: storage_capacity_category
+  portal_type: Category Property
+  reference: storage_capacity
+
+Computer
+  id: storage_interface_category
+  portal_type: Category Property
+  reference: storage_interface
+
+Computer
+  id: storage_redundancy_category
+  portal_type: Category Property
+  reference: storage_redundancy
+
+Computer
+  id: storage_technology_category
+  portal_type: Category Property
+  reference: storage_technology
+
+Computer
+  id: wide_area_network_type_category
+  portal_type: Category Property
+  reference: wide_area_network_type
+
+ComputerPartitionUpgradeConstraint
+  id: computer_partition_migration_constraint
+  portal_type: Script Constraint
+  reference: computer_partition_migration
+
+ComputerUpgradeConstraint
+  id: computer_migration_constraint
+  portal_type: Script Constraint
+  reference: computer_migration
+
 Configurable
   elementary_type: string
   id: configuration_form_id_property
@@ -6301,6 +6341,51 @@ ConfiguratorItem
   read_permission: Access contents information
   reference: configuration_spreadsheet
   storage_id: default_configuration_spreadsheet
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+ConfiguratorWorkflow
+  elementary_type: string
+  id: configuration_after_script_id_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: configuration_after_script_id
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+ConfiguratorWorkflow
+  elementary_type: string
+  id: state_base_category_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: 'current_state'
+  range: False
+  read_permission: Access contents information
+  reference: state_base_category
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+ConfiguratorWorkflowTransition
+  elementary_type: string
+  id: transition_form_id_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: transition_form_id
+  storage_id: None
   translatable: False
   translation_domain: None
   write_permission: Modify portal content
@@ -9888,31 +9973,96 @@ Gpg
   translation_domain: None
   write_permission: Modify portal content
 
-InstanceTree
-  elementary_type: boolean
-  id: root_slave_property
+Guard
+  elementary_type: string
+  id: guard_expression_property
   multivaluated: None
   portal_type: Standard Property
   preference: False
   property_default: None
   range: False
   read_permission: Access contents information
-  reference: root_slave
+  reference: guard_expression
   storage_id: None
   translatable: False
   translation_domain: None
   write_permission: Modify portal content
 
-InstanceTree
-  elementary_type: string
-  id: root_state_property
+Guard
+  elementary_type: lines
+  id: guard_group_property
   multivaluated: None
   portal_type: Standard Property
   preference: False
-  property_default: None
+  property_default: python: []
   range: False
   read_permission: Access contents information
-  reference: root_state
+  reference: guard_group
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+Guard
+  elementary_type: lines
+  id: guard_permission_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: []
+  range: False
+  read_permission: Access contents information
+  reference: guard_permission
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+Guard
+  elementary_type: lines
+  id: guard_role_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: []
+  range: False
+  read_permission: Access contents information
+  reference: guard_role
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+HostingSubscriptionUpgradeConstraint
+  id: instance_tree_migration_constraint
+  portal_type: Script Constraint
+  reference: instance_tree_migration
+
+HtmlStyleDisabledPreference
+  elementary_type: lines
+  id: preferred_html_style_allowed_user_id_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: []
+  range: False
+  read_permission: Access contents information
+  reference: preferred_html_style_allowed_user_id
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Manage properties
+
+HtmlStyleDisabledPreference
+  elementary_type: boolean
+  id: preferred_html_style_disabled_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: False
+  range: False
+  read_permission: Access contents information
+  reference: preferred_html_style_disabled
   storage_id: None
   translatable: False
   translation_domain: None
@@ -9943,6 +10093,21 @@ HtmlStylePreference
   range: False
   read_permission: Access contents information
   reference: preferred_html_style_access_tab
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+HtmlStylePreference
+  elementary_type: boolean
+  id: preferred_html_style_access_tool_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: preferred_html_style_access_tool
   storage_id: None
   translatable: False
   translation_domain: None
@@ -10541,6 +10706,36 @@ InstanceAccountingSynchronisation
   translation_domain: None
   write_permission: Manage portal
 
+InstanceTree
+  elementary_type: boolean
+  id: root_slave_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: root_slave
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+InstanceTree
+  elementary_type: string
+  id: root_state_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: root_state
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
 IntegrationModule
   id: destination_section_category
   portal_type: Category Property
@@ -10580,6 +10775,116 @@ IntegrationModule
   id: source_section_category
   portal_type: Category Property
   reference: source_section
+
+InteractionWorkflowInteraction
+  id: activate_script_category
+  portal_type: Category Property
+  reference: activate_script
+
+InteractionWorkflowInteraction
+  id: after_script_category
+  portal_type: Category Property
+  reference: after_script
+
+InteractionWorkflowInteraction
+  id: before_commit_script_category
+  portal_type: Category Property
+  reference: before_commit_script
+
+InteractionWorkflowInteraction
+  id: before_script_category
+  portal_type: Category Property
+  reference: before_script
+
+InteractionWorkflowInteraction
+  elementary_type: lines
+  id: portal_type_filter_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: []
+  range: False
+  read_permission: Access contents information
+  reference: portal_type_filter
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+InteractionWorkflowInteraction
+  elementary_type: lines
+  id: portal_type_group_filter_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: []
+  range: False
+  read_permission: Access contents information
+  reference: portal_type_group_filter
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+InteractionWorkflowInteraction
+  elementary_type: boolean
+  id: temporary_document_disallowed_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: temporary_document_disallowed
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+InteractionWorkflowInteraction
+  elementary_type: lines
+  id: trigger_method_id_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: []
+  range: False
+  read_permission: Access contents information
+  reference: trigger_method_id
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+InteractionWorkflowInteraction
+  elementary_type: boolean
+  id: trigger_once_per_transaction_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: trigger_once_per_transaction
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+InteractionWorkflowInteraction
+  elementary_type: int
+  id: trigger_type_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: 2
+  range: False
+  read_permission: Access contents information
+  reference: trigger_type
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
 
 InternetProtocolAddress
   elementary_type: string
@@ -12368,71 +12673,6 @@ OutcomeDescription
   translation_domain: None
   write_permission: Modify portal content
 
-PDFType
-  acquisition_accessor_id: getDefaultPdfFormValue
-  acquisition_base_category_list: []
-  acquisition_copy_value: 0
-  acquisition_mask_value: 1
-  acquisition_object_id_list: None
-  acquisition_portal_type: python: ()
-  alt_accessor_id_list: None
-  content_acquired_property_id_list: ['file', 'path', 'absolute_url', 'width', 'height']
-  content_portal_type: python: ('PDF',)
-  content_translation_acquired_property_id_list: None
-  elementary_type: content
-  id: pdf_form_property
-  multivaluated: None
-  portal_type: Acquired Property
-  preference: False
-  property_default: None
-  range: False
-  read_permission: Access contents information
-  reference: pdf_form
-  storage_id: default_pdf_form
-  translatable: False
-  translation_domain: None
-  write_permission: Modify portal content
-
-PDFType
-  elementary_type: int
-  id: resolution_property
-  multivaluated: None
-  portal_type: Standard Property
-  preference: False
-  property_default: None
-  range: False
-  read_permission: Access contents information
-  reference: resolution
-  storage_id: None
-  translatable: False
-  translation_domain: None
-  write_permission: Modify portal content
-
-PDFType
-  acquisition_accessor_id: getDefaultScribusFormValue
-  acquisition_base_category_list: []
-  acquisition_copy_value: 0
-  acquisition_mask_value: 1
-  acquisition_object_id_list: None
-  acquisition_portal_type: python: ()
-  alt_accessor_id_list: None
-  content_acquired_property_id_list: ['file']
-  content_portal_type: python: ('File',)
-  content_translation_acquired_property_id_list: None
-  elementary_type: content
-  id: scribus_form_property
-  multivaluated: None
-  portal_type: Acquired Property
-  preference: False
-  property_default: None
-  range: False
-  read_permission: Access contents information
-  reference: scribus_form
-  storage_id: default_scribus_form
-  translatable: False
-  translation_domain: None
-  write_permission: Modify portal content
-
 Password
   elementary_type: string
   id: password_property
@@ -12761,6 +13001,21 @@ PayzenService
   range: False
   read_permission: Access contents information
   reference: payzen_vads_version
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+PayzenService
+  elementary_type: string
+  id: service_api_key_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Manage portal
+  reference: service_api_key
   storage_id: None
   translatable: False
   translation_domain: None
@@ -16043,7 +16298,7 @@ SlapOSAccountingSaleInvoiceTransactionConstraint
   reference: sale_invoice_specialise_sale_trade_condition_constraint
 
 SlapOSAccountingSaleInvoiceTransactionConstraint
-  expression: python: object.getSpecialise() in ["sale_trade_condition_module/slapos_aggregated_trade_condition", "sale_trade_condition_module/slapos_aggregated_subscription_trade_condition"]
+  expression: python: object.Base_testSlapOSValidTradeCondition()
   id: specialise_value_constraint
   message_expression_error: Error while evaluating expression: ${error}
   message_expression_false: Only SlapOS trade condition is allowed
@@ -16495,6 +16750,41 @@ SlapOSCRMSystemPreference
   translation_domain: None
   write_permission: Manage properties
 
+SlapOSCloudContractAccounting
+  elementary_type: int
+  id: maximum_invoice_delay_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: 0
+  range: False
+  read_permission: Access contents information
+  reference: maximum_invoice_delay
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Manage properties
+
+SlapOSCloudContractLineAccounting
+  elementary_type: float
+  id: maximum_invoice_credit_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 1
+  property_default: python: 0.0
+  range: False
+  read_permission: Access contents information
+  reference: maximum_invoice_credit
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Manage properties
+
+SlapOSCloudContractLineAccounting
+  id: price_currency_category
+  portal_type: Category Property
+  reference: price_currency
+
 SlapOSHateoasSystemPreference
   elementary_type: string
   id: preferred_hateoas_url_property
@@ -16509,6 +16799,21 @@ SlapOSHateoasSystemPreference
   translatable: False
   translation_domain: None
   write_permission: Manage properties
+
+SlapOSMasterUpgradeConstraint
+  id: compute_node_migration_constraint
+  portal_type: Script Constraint
+  reference: compute_node_migration
+
+SlapOSMasterUpgradeConstraint
+  id: instance_tree_migration_constraint
+  portal_type: Script Constraint
+  reference: instance_tree_migration
+
+SlapOSMasterUpgradeConstraint
+  id: predecessor_to_successor_migration_constraint
+  portal_type: Script Constraint
+  reference: predecessor_to_successor_migration
 
 SlapOSModuleIdGeneratorConstraint
   id: slapos_module_id_generator_constraint
@@ -16762,6 +17067,11 @@ SlaposPersonConstraint
   portal_type: Category Acquired Membership State Constraint
   reference: subordination_state
 
+SlaposSubscriptionRequestAuditConstraint
+  id: SubscriptionRequestCheckRelatedAccounting_constraint
+  portal_type: Script Constraint
+  reference: SubscriptionRequestCheckRelatedAccounting
+
 SlaveInstanceConstraint
   constraint_property_list: ['source_reference', 'text_content']
   id: non_draft_property_existence_constraint
@@ -16771,20 +17081,20 @@ SlaveInstanceConstraint
   reference: non_draft_property_existence
 
 SlaveInstanceConstraint
-  expression: python: len(context.getSuccessorRelatedList()) <= 1
-  id: successor_related_constraint
-  message_expression_error: Error while evaluating expression: ${error}
-  message_expression_false: There is more then one related successor
-  portal_type: TALES Constraint
-  reference: successor_related
-
-SlaveInstanceConstraint
   constraint_property_list: ['reference']
   id: property_existence_constraint
   message_no_such_property: Property existence error for property ${property_id}, this document has no such property or the property has never been set
   message_property_not_set: Property existence error for property ${property_id}, this document has no such property or the property has never been set
   portal_type: Property Existence Constraint
   reference: property_existence
+
+SlaveInstanceConstraint
+  expression: python: len(context.getSuccessorRelatedList()) <= 1
+  id: successor_related_constraint
+  message_expression_error: Error while evaluating expression: ${error}
+  message_expression_false: There is more then one related successor
+  portal_type: TALES Constraint
+  reference: successor_related
 
 SoftwareInstance
   elementary_type: int
@@ -16817,9 +17127,9 @@ SoftwareInstance
   write_permission: Modify portal content
 
 SoftwareInstance
-  id: successor_category
+  id: predecessor_category
   portal_type: Category Property
-  reference: successor
+  reference: predecessor
 
 SoftwareInstance
   elementary_type: text
@@ -16866,6 +17176,11 @@ SoftwareInstance
   translation_domain: None
   write_permission: Modify portal content
 
+SoftwareInstance
+  id: successor_category
+  portal_type: Category Property
+  reference: successor
+
 SoftwareInstanceConstraint
   expression: python: context.getConnectionXmlAsDict() or True
   id: connection_xml_valid_xml_constraint
@@ -16889,14 +17204,6 @@ SoftwareInstanceConstraint
   reference: not_draft_propert_existence
 
 SoftwareInstanceConstraint
-  expression: python: len(context.getSuccessorRelatedList()) <= 1
-  id: successor_related_constraint
-  message_expression_error: Error while evaluating expression: ${error}
-  message_expression_false: There is more then one related successor
-  portal_type: TALES Constraint
-  reference: successor_related
-
-SoftwareInstanceConstraint
   constraint_property_list: ['destination_reference', 'reference']
   id: property_existence_constraint
   message_no_such_property: Property existence error for property ${property_id}, this document has no such property or the property has never been set
@@ -16912,12 +17219,25 @@ SoftwareInstanceConstraint
   reference: sla_xml_valid_xml
 
 SoftwareInstanceConstraint
+  expression: python: len(context.getSuccessorRelatedList()) <= 1
+  id: successor_related_constraint
+  message_expression_error: Error while evaluating expression: ${error}
+  message_expression_false: There is more then one related successor
+  portal_type: TALES Constraint
+  reference: successor_related
+
+SoftwareInstanceConstraint
   expression: python: context.getInstanceXmlAsDict() or True
   id: text_content_valid_xml_constraint
   message_expression_error: Instance XML is invalid: ${error}
   message_expression_false: Instance XML expression was false
   portal_type: TALES Constraint
   reference: text_content_valid_xml
+
+SoftwareInstanceUpgradeConstraint
+  id: predecessor_to_successor_migration_constraint
+  portal_type: Script Constraint
+  reference: predecessor_to_successor_migration
 
 SoftwareProduct
   id: activity_category
@@ -17374,26 +17694,6 @@ StandardProperty
   range: False
   read_permission: Access contents information
   reference: write_permission
-  storage_id: None
-  translatable: False
-  translation_domain: None
-  write_permission: Modify portal content
-
-State
-  id: destination_category
-  portal_type: Category Property
-  reference: destination
-
-State
-  elementary_type: boolean
-  id: is_initial_state_property
-  multivaluated: None
-  portal_type: Standard Property
-  preference: False
-  property_default: python: 0
-  range: False
-  read_permission: Access contents information
-  reference: is_initial_state
   storage_id: None
   translatable: False
   translation_domain: None
@@ -18905,6 +19205,11 @@ TelephonePreference
   translation_domain: None
   write_permission: Modify portal content
 
+TemplateToolBusinessApplicationModuleCategoryConstraint
+  id: business_application_to_module_constraint
+  portal_type: Script Constraint
+  reference: business_application_to_module
+
 TemplateToolBusinessTemplateInstallationConstraint
   id: business_template_installation_constraint
   portal_type: Script Constraint
@@ -18944,11 +19249,6 @@ TemplateToolTableConsistencyConstraint
   id: table_consistency_constraint
   portal_type: Script Constraint
   reference: table_consistency
-
-TemplateToolWorkflowChainConsistencyConstraint
-  id: workflow_chain_consistency_constraint
-  portal_type: Script Constraint
-  reference: workflow_chain_consistency
 
 TestPage
   elementary_type: text
@@ -19666,71 +19966,6 @@ TransformedResource
   translation_domain: None
   write_permission: Modify portal content
 
-Transition
-  elementary_type: string
-  id: after_script_id_property
-  multivaluated: None
-  portal_type: Standard Property
-  preference: False
-  property_default: None
-  range: False
-  read_permission: Access contents information
-  reference: after_script_id
-  storage_id: None
-  translatable: False
-  translation_domain: None
-  write_permission: Modify portal content
-
-Transition
-  elementary_type: string
-  id: before_script_id_property
-  multivaluated: None
-  portal_type: Standard Property
-  preference: False
-  property_default: None
-  range: False
-  read_permission: Access contents information
-  reference: before_script_id
-  storage_id: None
-  translatable: False
-  translation_domain: None
-  write_permission: Modify portal content
-
-Transition
-  id: destination_category
-  portal_type: Category Property
-  reference: destination
-
-Transition
-  elementary_type: tales
-  id: guard_expression_property
-  multivaluated: None
-  portal_type: Standard Property
-  preference: False
-  property_default: None
-  range: False
-  read_permission: Access contents information
-  reference: guard_expression
-  storage_id: None
-  translatable: False
-  translation_domain: None
-  write_permission: Modify portal content
-
-Transition
-  elementary_type: string
-  id: transition_form_id_property
-  multivaluated: None
-  portal_type: Standard Property
-  preference: False
-  property_default: None
-  range: False
-  read_permission: Access contents information
-  reference: transition_form_id
-  storage_id: None
-  translatable: False
-  translation_domain: None
-  write_permission: Modify portal content
-
 TranslatableDescription
   elementary_type: text
   id: description_property
@@ -19791,6 +20026,11 @@ TrialCondition
   translation_domain: None
   write_permission: Modify portal content
 
+UpgraderConstraint
+  id: workflow_chain_dict_removal_constraint
+  portal_type: Script Constraint
+  reference: workflow_chain_dict_removal
+
 Url
   elementary_type: string
   id: url_method_property
@@ -19831,36 +20071,6 @@ Url
   range: False
   read_permission: Access contents information
   reference: url_string
-  storage_id: None
-  translatable: False
-  translation_domain: None
-  write_permission: Modify portal content
-
-Variable
-  elementary_type: boolean
-  id: automatic_update_property
-  multivaluated: None
-  portal_type: Standard Property
-  preference: False
-  property_default: None
-  range: False
-  read_permission: Access contents information
-  reference: automatic_update
-  storage_id: None
-  translatable: False
-  translation_domain: None
-  write_permission: Modify portal content
-
-Variable
-  elementary_type: tales
-  id: initial_value_property
-  multivaluated: None
-  portal_type: Standard Property
-  preference: False
-  property_default: None
-  range: False
-  read_permission: Access contents information
-  reference: initial_value
   storage_id: None
   translatable: False
   translation_domain: None
@@ -20824,6 +21034,36 @@ WechatService
   translation_domain: None
   write_permission: Modify portal content
 
+WechatService
+  elementary_type: string
+  id: wechat_spbill_create_ip_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: wechat_spbill_create_ip
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+Workflow
+  elementary_type: boolean
+  id: manager_bypass_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: manager_bypass
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
 Workflow
   id: source_category
   portal_type: Category Property
@@ -20831,29 +21071,184 @@ Workflow
 
 Workflow
   elementary_type: string
-  id: state_base_category_property
+  id: state_variable_property
   multivaluated: None
   portal_type: Standard Property
   preference: False
-  property_default: None
+  property_default: python: 'simulation_state'
   range: False
   read_permission: Access contents information
-  reference: state_base_category
+  reference: state_variable
   storage_id: None
   translatable: False
   translation_domain: None
   write_permission: Modify portal content
 
-WorkflowConfigurator
-  elementary_type: string
-  id: configuration_after_script_id_property
+Workflow
+  elementary_type: lines
+  id: workflow_managed_permission_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: ['Access contents information', 'Add portal content', 'Delete objects', 'Modify portal content', 'View']
+  range: False
+  read_permission: Access contents information
+  reference: workflow_managed_permission
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+WorkflowState
+  elementary_type: lines
+  id: acquire_permission_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: []
+  range: False
+  read_permission: Access contents information
+  reference: acquire_permission
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+WorkflowState
+  id: destination_category
+  portal_type: Category Property
+  reference: destination
+
+WorkflowState
+  elementary_type: boolean
+  id: is_initial_state_property
   multivaluated: None
   portal_type: Standard Property
   preference: False
   property_default: None
   range: False
   read_permission: Access contents information
-  reference: configuration_after_script_id
+  reference: is_initial_state
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+WorkflowState
+  elementary_type: int
+  id: selected_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: 0
+  property_default: python: 0
+  range: False
+  read_permission: Access contents information
+  reference: selected
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+WorkflowState
+  elementary_type: lines
+  id: state_type_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: []
+  range: False
+  read_permission: Access contents information
+  reference: state_type
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+WorkflowTransition
+  id: after_script_category
+  portal_type: Category Property
+  reference: after_script
+
+WorkflowTransition
+  id: before_script_category
+  portal_type: Category Property
+  reference: before_script
+
+WorkflowTransition
+  id: destination_category
+  portal_type: Category Property
+  reference: destination
+
+WorkflowTransition
+  elementary_type: int
+  id: trigger_type_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: 1
+  range: False
+  read_permission: Access contents information
+  reference: trigger_type
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+WorkflowVariable
+  elementary_type: boolean
+  id: automatic_update_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: True
+  range: False
+  read_permission: Access contents information
+  reference: automatic_update
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+WorkflowVariable
+  elementary_type: boolean
+  id: for_catalog_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: True
+  range: False
+  read_permission: Access contents information
+  reference: for_catalog
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+WorkflowVariable
+  elementary_type: boolean
+  id: status_included_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: python: True
+  range: False
+  read_permission: Access contents information
+  reference: status_included
+  storage_id: None
+  translatable: False
+  translation_domain: None
+  write_permission: Modify portal content
+
+WorkflowVariable
+  elementary_type: string
+  id: variable_default_expression_property
+  multivaluated: None
+  portal_type: Standard Property
+  preference: False
+  property_default: None
+  range: False
+  read_permission: Access contents information
+  reference: variable_default_expression
   storage_id: None
   translatable: False
   translation_domain: None

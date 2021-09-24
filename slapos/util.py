@@ -95,6 +95,18 @@ def mkdir_p(path, mode=0o700):
             raise
 
 
+def listifdir(path):
+  """
+  Like listdir, but returns an empty list if the path is not a directory.
+  """
+  try:
+    return os.listdir(path)
+  except OSError as e:
+    if e.errno == errno.ENOENT:
+      return []
+    raise
+
+
 def chownDirectory(path, uid, gid):
   if os.getuid() != 0:
     # we are probably inside of a webrunner

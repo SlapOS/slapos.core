@@ -131,7 +131,9 @@
         </item>
         <item>
             <key> <string>periodicity_minute_frequency</string> </key>
-            <value> <int>1</int> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>periodicity_month</string> </key>

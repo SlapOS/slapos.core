@@ -1592,34 +1592,24 @@ stderr_logfile_backups=1
       try:
         computer_partition_id = computer_partition.getId()
 
+        instance_path = os.path.join(self.instance_root, computer_partition_id)
+
+        # We now generate a pseudorandom name for the report xml file
+        # that will be passed to the invocation list
+        slapreport_path = tempfile.mktemp(
+          prefix='slapreport.',
+          dir=os.path.join(instance_path, 'var', 'xml_report'))
+
         # We want to execute all the script in the report folder
-        instance_path = os.path.join(self.instance_root,
-            computer_partition.getId())
-        report_path = os.path.join(instance_path, 'etc', 'report')
-        script_list_to_run = listifdir(report_path)
-
-        # We now generate the pseudorandom name for the xml file
-        # and we add it in the invocation_list
-        f = tempfile.NamedTemporaryFile()
-        name_xml = '%s.%s' % ('slapreport', os.path.basename(f.name))
-        path_to_slapreport = os.path.join(instance_path, 'var', 'xml_report',
-            name_xml)
-
         failed_script_list = []
-        for script in script_list_to_run:
+        report_dir = os.path.join(instance_path, 'etc', 'report')
+        for script in listifdir(report_dir):
           invocation_list = []
-          invocation_list.append(os.path.join(instance_path, 'etc', 'report',
-            script))
-          # We add the xml_file name to the invocation_list
-          #f = tempfile.NamedTemporaryFile()
-          #name_xml = '%s.%s' % ('slapreport', os.path.basename(f.name))
-          #path_to_slapreport = os.path.join(instance_path, 'var', name_xml)
+          invocation_list.append(os.path.join(report_dir, script))
+          invocation_list.append(slapreport_path)
 
-          invocation_list.append(path_to_slapreport)
           # Dropping privileges
-          uid, gid = None, None
           stat_info = os.stat(instance_path)
-          #stat sys call to get statistics informations
           uid = stat_info.st_uid
           gid = stat_info.st_gid
           process_handler = SlapPopen(invocation_list,

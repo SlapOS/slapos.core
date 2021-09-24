@@ -44,7 +44,7 @@ import hashlib
 from datetime import datetime
 from multiprocessing import Process, Queue as MQueue
 from six.moves import queue, reload_module
-from slapos.util import str2bytes, mkdir_p, chownDirectory
+from slapos.util import str2bytes, mkdir_p, chownDirectory, listifdir
 from slapos.grid.utils import dropPrivileges, killProcessTree
 from slapos.grid.promise import interface
 from slapos.grid.promise.generic import (GenericPromise, PromiseQueueResult,
@@ -731,65 +731,64 @@ class PromiseLauncher(object):
     error = 0
     success = 0
     promise_name_list = []
-    if os.path.exists(self.promise_folder) and os.path.isdir(self.promise_folder):
-      for promise_name in os.listdir(self.promise_folder):
-        for suffix in ['.pyc', '.pyo']:
-          if promise_name.endswith(suffix):
-            promise_path = os.path.join(self.promise_folder, promise_name)
-            if not os.path.exists(promise_path[:-1]):
-              try:
-                os.unlink(promise_path)
-              except Exception as e:
-                self.logger.warning('Failed to remove %r because of %s', promise_path, e)
-              else:
-                self.logger.debug('Removed stale %r', promise_path)
+    for promise_name in listifdir(self.promise_folder):
+      for suffix in ['.pyc', '.pyo']:
+        if promise_name.endswith(suffix):
+          promise_path = os.path.join(self.promise_folder, promise_name)
+          if not os.path.exists(promise_path[:-1]):
+            try:
+              os.unlink(promise_path)
+            except Exception as e:
+              self.logger.warning('Failed to remove %r because of %s', promise_path, e)
+            else:
+              self.logger.debug('Removed stale %r', promise_path)
 
-        if promise_name.startswith('__init__') or \
-            not promise_name.endswith('.py'):
-          continue
+      if promise_name.startswith('__init__') or \
+          not promise_name.endswith('.py'):
+        continue
 
-        promise_name_list.append(promise_name)
-        if self.run_only_promise_list is not None and not \
-            promise_name in self.run_only_promise_list:
-          continue
+      promise_name_list.append(promise_name)
+      if self.run_only_promise_list is not None and not \
+          promise_name in self.run_only_promise_list:
+        continue
 
-        promise_path = os.path.join(self.promise_folder, promise_name)
-        config = {
-          'path': promise_path,
-          'name': promise_name
-        }
-        config.update(base_config)
-        promise_result = self._launchPromise(promise_name, promise_path, config)
-        if promise_result:
-          change_date = promise_result.date.strftime('%Y-%m-%dT%H:%M:%S+0000')
-          if promise_result.hasFailed():
-            promise_status = 'FAILED'
+      promise_path = os.path.join(self.promise_folder, promise_name)
+      config = {
+        'path': promise_path,
+        'name': promise_name
+      }
+      config.update(base_config)
+      promise_result = self._launchPromise(promise_name, promise_path, config)
+      if promise_result:
+        change_date = promise_result.date.strftime('%Y-%m-%dT%H:%M:%S+0000')
+        if promise_result.hasFailed():
+          promise_status = 'FAILED'
+          error += 1
+        else:
+          promise_status = "OK"
+          success += 1
+        if promise_name in previous_state_dict:
+          status, previous_change_date, _ = previous_state_dict[promise_name]
+          if promise_status == status:
+            change_date = previous_change_date
+
+        message = promise_result.message if promise_result.message else ""
+        new_state_dict[promise_name] = [
+          promise_status,
+          change_date,
+          hashlib.md5(str2bytes(message)).hexdigest()]
+
+        if promise_result.hasFailed() and not failed_promise_name:
+          failed_promise_name = promise_name
+          failed_promise_output = promise_result.message
+      else:
+        # The promise was skip, so for statistic point of view we preserve
+        # the previous result
+        if promise_name in new_state_dict:
+          if new_state_dict[promise_name][0] == "FAILED":
             error += 1
           else:
-            promise_status = "OK"
             success += 1
-          if promise_name in previous_state_dict:
-            status, previous_change_date, _ = previous_state_dict[promise_name]
-            if promise_status == status:
-              change_date = previous_change_date
-
-          message = promise_result.message if promise_result.message else ""
-          new_state_dict[promise_name] = [
-            promise_status,
-            change_date,
-            hashlib.md5(str2bytes(message)).hexdigest()]
-      
-          if promise_result.hasFailed() and not failed_promise_name:
-            failed_promise_name = promise_name
-            failed_promise_output = promise_result.message
-        else:
-          # The promise was skip, so for statistic point of view we preserve
-          # the previous result
-          if promise_name in new_state_dict:
-            if new_state_dict[promise_name][0] == "FAILED":
-              error += 1
-            else:
-              success += 1
 
     if not self.run_only_promise_list and len(promise_name_list) > 0:
       # cleanup stale json files
@@ -816,10 +815,9 @@ class PromiseLauncher(object):
         if key not in promise_name_list:
           new_state_dict.pop(key, None)
 
-    if not self.run_only_promise_list and os.path.exists(self.legacy_promise_folder) \
-        and os.path.isdir(self.legacy_promise_folder):
+    if not self.run_only_promise_list:
       # run legacy promise styles
-      for promise_name in os.listdir(self.legacy_promise_folder):
+      for promise_name in listifdir(self.legacy_promise_folder):
         promise_path = os.path.join(self.legacy_promise_folder, promise_name)
         if not os.path.isfile(promise_path) or \
             not os.access(promise_path, os.X_OK):

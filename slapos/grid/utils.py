@@ -104,6 +104,7 @@ def logAndAccumulateOutput(process_stdout, buffer, logger):
     for current_output_line in current_output.splitlines(True):
       if current_output_line.endswith('\n'):
         logger.info(current_output_line.rstrip('\n'))
+        current_output = ''
       else:
         current_output = current_output_line
 

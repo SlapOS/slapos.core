@@ -55,7 +55,7 @@ from slapos import manager as slapmanager
 from slapos.slap.slap import NotFoundError
 from slapos.slap.slap import ServerError
 from slapos.slap.slap import COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME
-from slapos.util import mkdir_p, chownDirectory, string_to_boolean
+from slapos.util import mkdir_p, chownDirectory, string_to_boolean, listifdir
 from slapos.grid.exception import BuildoutFailedError
 from slapos.grid.SlapObject import Software, Partition
 from slapos.grid.svcbackend import (launchSupervisord,
@@ -1596,10 +1596,7 @@ stderr_logfile_backups=1
         instance_path = os.path.join(self.instance_root,
             computer_partition.getId())
         report_path = os.path.join(instance_path, 'etc', 'report')
-        if os.path.isdir(report_path):
-          script_list_to_run = os.listdir(report_path)
-        else:
-          script_list_to_run = []
+        script_list_to_run = listifdir(report_path)
 
         # We now generate the pseudorandom name for the xml file
         # and we add it in the invocation_list

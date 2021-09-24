@@ -61,7 +61,7 @@ class SlapPopenTestCase(unittest.TestCase):
     self.assertEqual('hello\n', program.output)
 
     # output is also logged "live"
-    logger.info.assert_called_with('hello')
+    logger.info.assert_called_once_with('hello')
 
   def test_exec_multiline(self):
     self.script.write(textwrap.dedent('''\
@@ -82,6 +82,25 @@ class SlapPopenTestCase(unittest.TestCase):
     self.assertEqual('hello\nworld\n', program.output)
     self.assertEqual(logger.info.call_args_list, [mock.call('hello'), mock.call('world')])
 
+  def test_exec_large_output_multiline(self):
+    output_line_list = [str(x) for x in range(100)]
+    self.script.write((
+      '\n'.join(
+        ['#!/bin/sh']
+        + ['echo ' + x for x in output_line_list]
+      )).encode())
+    self.script.close()
+
+    logger = mock.MagicMock()
+    program = slapos.grid.utils.SlapPopen(
+        self.script.name,
+        logger=logger)
+
+    self.assertEqual("\n".join(output_line_list) + '\n', program.output)
+    self.assertEqual(
+      logger.info.call_args_list,
+      [mock.call(x) for x in output_line_list])
+
   def test_exec_non_ascii(self):
     self.script.write(b'#!/bin/sh\necho h\xc3\xa9h\xc3\xa9')
     self.script.close()
@@ -92,7 +111,20 @@ class SlapPopenTestCase(unittest.TestCase):
         logger=logger)
 
     self.assertEqual('héhé\n', program.output)
-    logger.info.assert_called_with('héhé')
+    logger.info.assert_called_once_with('héhé')
+
+  def test_exec_large_output(self):
+    large_output = 'x' * 10000
+    self.script.write(('#!/bin/sh\necho %s' % large_output).encode())
+    self.script.close()
+
+    logger = mock.MagicMock()
+    program = slapos.grid.utils.SlapPopen(
+        self.script.name,
+        logger=logger)
+
+    self.assertEqual(large_output + '\n', program.output)
+    logger.info.assert_called_once_with(large_output)
 
   def test_debug(self):
     """Test debug=True, which keeps interactive.

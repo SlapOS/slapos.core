@@ -19,8 +19,9 @@ if compute_node is None:
   return
 if compute_node.ComputeNode_getSoftwareReleaseUsage(url_string) != 0:
   return
-if compute_node.getAllocationScope() not in ['open/public', 'open/subscription', 'close/forever']:
-  # handle only some specific compute_nodes: public ones and removed
+
+if compute_node.getUpgradeScope() != 'auto':
+  # handle only Compute Nodes with automatic software management
   return
 
 software_installation.requestDestroy(

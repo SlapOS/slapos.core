@@ -4,10 +4,6 @@
   <workflow>-validation_workflow, commerce_validation_workflow</workflow>
  </chain>
  <chain>
-  <type>Software Release</type>
-  <workflow>slapos_software_release_cleanup_workflow</workflow>
- </chain>
- <chain>
   <type>Upgrade Decision</type>
   <workflow>edit_workflow, ticket_interaction_workflow, upgrade_decision_workflow</workflow>
  </chain>

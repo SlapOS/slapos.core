@@ -64,7 +64,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     )
     archived_software_release.publish()
     archived_software_release.archive()
-    self.assertEqual('draft', archived_software_release.getSimulationState())
     # install an software release
     archived_software_installation = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',
@@ -82,7 +81,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     )
     archived_used_software_release.publish()
     archived_used_software_release.archive()
-    self.assertEqual('draft', archived_used_software_release.getSimulationState())
     # install an software release
     archived_used_software_installation = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',
@@ -105,7 +103,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
       url_string=published_url_string
     )
     published_software_release.publish()
-    self.assertEqual('draft', published_software_release.getSimulationState())
     # install an software release
     published_software_installation = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',
@@ -128,16 +125,11 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
 
     self.assertEqual('start_requested', archived_used_software_installation.getSlapState())
     self.assertEqual('validated', archived_used_software_installation.getValidationState())
-
-    self.assertEqual('draft', archived_software_release.getSimulationState())
-    self.assertEqual('draft', published_software_release.getSimulationState())
     
     # second run, but it is still not reported that software installation is destroyed
     self.stepCallSlaposPdmDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm()
     self.tic()
     
-    self.assertEqual('cleaned', archived_software_release.getSimulationState())
-    self.assertEqual('draft', published_software_release.getSimulationState())
     self.assertEqual('start_requested', published_software_installation.getSlapState())
     self.assertEqual('validated', archived_used_software_installation.getValidationState())
     self.assertEqual('start_requested', archived_used_software_installation.getSlapState())
@@ -157,7 +149,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     )
     archived_software_release.publish()
     archived_software_release.archive()
-    self.assertEqual('draft', archived_software_release.getSimulationState())
     # install an software release
     archived_software_installation = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',
@@ -175,7 +166,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     )
     archived_used_software_release.publish()
     archived_used_software_release.archive()
-    self.assertEqual('draft', archived_used_software_release.getSimulationState())
     # install an software release
     archived_used_software_installation = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',
@@ -198,7 +188,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
       url_string=published_url_string
     )
     published_software_release.publish()
-    self.assertEqual('draft', published_software_release.getSimulationState())
     # install an software release
     published_software_installation = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',
@@ -222,9 +211,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     self.assertEqual('start_requested', archived_used_software_installation.getSlapState())
     self.assertEqual('validated', archived_used_software_installation.getValidationState())
 
-    self.assertEqual('draft', archived_software_release.getSimulationState())
-    self.assertEqual('draft', published_software_release.getSimulationState())
-
   @simulateByEditWorkflowMark('SoftwareRelease_findAndDestroySoftwareInstallation')
   def test_no_op_run_software_release(self):
     archived_software_release = self.portal.software_release_module.newContent(
@@ -234,7 +220,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     )
     archived_software_release.publish()
     archived_software_release.archive()
-    self.assertEqual('draft', archived_software_release.getSimulationState())
 
     archived_cleaned_software_release = self.portal.software_release_module.newContent(
       portal_type='Software Release',
@@ -243,8 +228,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     )
     archived_cleaned_software_release.publish()
     archived_cleaned_software_release.archive()
-    archived_cleaned_software_release.cleanup()
-    self.assertEqual('cleaned', archived_cleaned_software_release.getSimulationState())
 
     published_software_release = self.portal.software_release_module.newContent(
       portal_type='Software Release',
@@ -252,7 +235,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
       url_string=self.generateNewSoftwareReleaseUrl(),
     )
     published_software_release.publish()
-    self.assertEqual('draft', published_software_release.getSimulationState())
     self.tic()
 
     self.stepCallSlaposPdmDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm()
@@ -261,7 +243,7 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     v = 'Visited by SoftwareRelease_findAndDestroySoftwareInstallation'
     self.assertFalse(v in
       [q['comment'] for q in published_software_release.workflow_history['edit_workflow']])
-    self.assertFalse(v in
+    self.assertTrue(v in
       [q['comment'] for q in archived_cleaned_software_release.workflow_history['edit_workflow']])
     self.assertTrue(v in
       [q['comment'] for q in archived_software_release.workflow_history['edit_workflow']])
@@ -284,7 +266,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     )
     archived_software_release.publish()
     archived_software_release.archive()
-    self.assertEqual('draft', archived_software_release.getSimulationState())
 
     software_installation_validated_request_start = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',

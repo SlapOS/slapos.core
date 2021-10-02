@@ -716,7 +716,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
       [{'recargs': args, 'reckwargs': kwargs,
       'recmethod': 'reportComputeNodeBang'}])
 
-  def test_compute_nodeBang(self):
+  def test_computerBang(self):
     self._makeComplexComputeNode()
     self.compute_node_bang_simulator = tempfile.mkstemp()[1]
     try:
@@ -724,7 +724,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
       self.compute_node.reportComputeNodeBang = Simulator(
         self.compute_node_bang_simulator, 'reportComputeNodeBang')
       error_log = 'Please bang me'
-      response = self.portal_slap.compute_nodeBang(self.compute_node_id,
+      response = self.portal_slap.computerBang(self.compute_node_id,
         error_log)
       self.assertEqual('None', response)
       created_at = rfc1123_date(DateTime())
@@ -2567,14 +2567,14 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       [{'recargs': args, 'reckwargs': kwargs,
       'recmethod': 'reportComputeNodeBang'}])
 
-  def test_compute_nodeBang(self):
+  def test_computerBang(self):
     self.login(self.person_user_id)
     self.compute_node_bang_simulator = tempfile.mkstemp()[1]
     try:
       self.compute_node.reportComputeNodeBang = Simulator(
         self.compute_node_bang_simulator, 'reportComputeNodeBang')
       error_log = 'Please bang me'
-      response = self.portal_slap.compute_nodeBang(self.compute_node_id,
+      response = self.portal_slap.computerBang(self.compute_node_id,
         error_log)
       self.assertEqual('None', response)
       created_at = rfc1123_date(DateTime())

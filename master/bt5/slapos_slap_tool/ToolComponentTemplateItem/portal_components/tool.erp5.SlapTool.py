@@ -443,7 +443,7 @@ class SlapTool(BaseTool):
     return self.REQUEST.response
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'getComputeNodeInformation')
+    'getComputerInformation')
   getComputerInformation = getFullComputerInformation
 
   security.declareProtected(Permissions.AccessContentsInformation,
@@ -767,7 +767,7 @@ class SlapTool(BaseTool):
       return self.REQUEST.response
 
   @convertToREST
-  def _compute_nodeBang(self, compute_node_id, message):
+  def _computeNodeBang(self, compute_node_id, message):
     """
     Fire up bung on Compute Node
     """
@@ -778,12 +778,12 @@ class SlapTool(BaseTool):
                                      comment=message)
 
   security.declareProtected(Permissions.AccessContentsInformation,
-    'compute_nodeBang')
-  def compute_nodeBang(self, computer_id, message):
+    'computerBang')
+  def computerBang(self, computer_id, message):
     """
     Fire up bang on this Software Instance
     """
-    return self._compute_nodeBang(computer_id, message)
+    return self._computeNodeBang(computer_id, message)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'loadComputerConfigurationFromXML')

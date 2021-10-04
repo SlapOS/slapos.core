@@ -45,6 +45,7 @@ import json
 import re
 import grp
 import hashlib
+import errno
 
 import mock
 from mock import patch
@@ -64,6 +65,11 @@ from slapos.slap.exception import ConnectionError
 import slapos.grid.SlapObject
 from slapos import manager as slapmanager
 from slapos.util import dumps
+
+from slapos import __path__ as slapos_path
+from zope import __path__ as zope_path
+
+PROMISE_PATHS = sorted(set(map(os.path.dirname, slapos_path + zope_path)))
 
 import httmock
 
@@ -113,6 +119,9 @@ touch worked
 """
 
 PROMISE_CONTENT_TEMPLATE = """
+import sys
+sys.path[0:0] = %(paths)r
+
 from zope.interface import implementer
 from slapos.grid.promise import interface
 from slapos.grid.promise import GenericPromise
@@ -122,7 +131,7 @@ class RunPromise(GenericPromise):
 
   def __init__(self, config):
     super(RunPromise, self).__init__(config)
-    self.setPeriodicity(minute=%(periodicity)s)
+    self.setPeriodicity(minute=%(periodicity)r)
  
   def sense(self):
     %(content)s
@@ -133,11 +142,11 @@ class RunPromise(GenericPromise):
       self.logger.info("success")
 
   def anomaly(self):
-    return self._anomaly(result_count=2, failure_amount=%(failure_amount)s)
+    return self._anomaly(result_count=2, failure_amount=%(failure_amount)r)
 
   def test(self):
-    return self._test(result_count=1, failure_amount=%(failure_amount)s)
-""" 
+    return self._test(result_count=1, failure_amount=%(failure_amount)r)
+"""
 
 class BasicMixin(object):
   def setUp(self):
@@ -150,6 +159,14 @@ class BasicMixin(object):
       del os.environ['SLAPGRID_INSTANCE_ROOT']
     logging.basicConfig(level=logging.DEBUG)
     self.setSlapgrid()
+    self.setMock()
+
+  def setMock(self):
+    module = slapos.grid.SlapObject
+    func = 'getPythonExecutableFromSoftwarePath'
+    orig = getattr(module, func)
+    self.addCleanup(setattr, module, func, orig)
+    setattr(module, func, lambda software_path: None)
 
   def setSlapgrid(self, develop=False, force_stop=False):
     if getattr(self, 'master_url', None) is None:
@@ -576,7 +593,8 @@ class InstanceForTest(object):
          {'success': success, 
           'content': promise_content, 
           'failure_amount': failure_count,
-          'periodicity': periodicity}
+          'periodicity': periodicity,
+          'paths': PROMISE_PATHS}
  
     with open(os.path.join(promise_dir, promise_name), 'w') as f:
       f.write(_promise_content)
@@ -599,7 +617,7 @@ class InstanceForTest(object):
 class SoftwareForTest(object):
   """
   Class to prepare and simulate software.
-  each instance has a sotfware attributed
+  each instance has a software attributed
   """
   def __init__(self, software_root, name=''):
     """
@@ -2296,6 +2314,7 @@ exit 1
                        slapos.grid.slapgrid.SLAPGRID_FAIL)
       self.assertFalse(os.path.exists(promise_file))
       self.assertTrue(instance.error)
+
 
 class TestSlapgridDestructionLock(MasterMixin, unittest.TestCase):
   def test_retention_lock(self):
@@ -3999,9 +4018,6 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
 
       self.assertEqual('success', result["result"]["message"])
 
-
-
-
   def test_one_succeeding_one_timing_out_promises(self):
     computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
@@ -4093,6 +4109,58 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertFalse(os.path.isfile(worked_file))
       self.assertFalse(os.path.isfile(os.path.join(instance.partition_path,
                 ".slapgrid/promise/result/fail.status.json")))
+
+
+class TestSlapgridPluginPromiseWithInstancePython(TestSlapgridPromiseWithMaster):
+  expect_plugin = False
+
+  def setPython(self):
+    self.python_called = os.path.join(self.software_root, 'called')
+    wrapper = """#!/bin/sh
+    touch %s
+    exec %s "$@"
+    """ % (self.python_called, sys.executable)
+    path = os.path.join(self.software_root, 'python')
+    with open(path, 'w') as f:
+      f.write(wrapper)
+    os.chmod(path, 0o755)
+    return path
+
+  def patchBuildoutSetter(self):
+    cls = SoftwareForTest
+    attr = 'setBuildout'
+    orig = getattr(cls, attr)
+    def setBuildout(soft):
+      buildout = "#!" + self.setPython()
+      orig(soft, buildout)
+    self.addCleanup(setattr, cls, attr, orig)
+    setattr(cls, attr, setBuildout)
+
+  def patchPluginSetter(self):
+    cls = InstanceForTest
+    attr = 'setPluginPromise'
+    orig = getattr(cls, attr)
+    def setPluginPromise(inst, *args, **kwargs):
+      self.expect_plugin = inst.requested_state == 'started'
+      return orig(inst, *args, **kwargs)
+    self.addCleanup(setattr, cls, attr, orig)
+    setattr(cls, attr, setPluginPromise)
+
+  def setMock(self):
+    self.patchBuildoutSetter()
+    self.patchPluginSetter()
+
+  def tearDown(self):
+    try:
+      os.remove(self.python_called)
+      called = True
+    except OSError as e:
+      if e.errno != errno.ENOENT:
+        raise
+      called = False
+    finally:
+      super(TestSlapgridPluginPromiseWithInstancePython, self).tearDown()
+    self.assertEqual(self.expect_plugin, called)
 
 
 class TestSVCBackend(unittest.TestCase):

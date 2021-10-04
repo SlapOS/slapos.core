@@ -137,7 +137,7 @@ class RunPromise(GenericPromise):
 
   def test(self):
     return self._test(result_count=1, failure_amount=%(failure_amount)s)
-""" 
+"""
 
 class BasicMixin(object):
   def setUp(self):
@@ -150,6 +150,14 @@ class BasicMixin(object):
       del os.environ['SLAPGRID_INSTANCE_ROOT']
     logging.basicConfig(level=logging.DEBUG)
     self.setSlapgrid()
+    self.setMock()
+
+  def setMock(self):
+    cls = SlapObject.Partition
+    attr = 'getInstalledPythonExecutable'
+    orig = getattr(cls, attr)
+    setattr(cls, attr, lambda self: None)
+    self.addCleanup(setattr, cls, attr, orig)
 
   def setSlapgrid(self, develop=False, force_stop=False):
     if getattr(self, 'master_url', None) is None:
@@ -247,6 +255,19 @@ class BasicMixin(object):
       else:
         os.kill(pid, signal.SIGTERM)
     shutil.rmtree(self._tempdir, True)
+
+
+class PromiseMixin(BasicMixin):
+  """
+    Launch promises with instance Python
+  """
+  def setMock(self):
+    cls = SoftwareForTest
+    attr = 'setBuildout'
+    orig = getattr(cls, attr)
+    buildout = "!#%s\nwith open('worked'): pass" % sys.executable
+    setattr(cls, attr, lambda self: orig(self, buildout))
+    self.addCleanup(setattr, cls, attr, orig)
 
 
 class TestRequiredOnlyPartitions(unittest.TestCase):
@@ -2297,6 +2318,11 @@ exit 1
       self.assertFalse(os.path.exists(promise_file))
       self.assertTrue(instance.error)
 
+
+class TestSlapgridCPPromise(TestSlapgridCPWithMasterPromise, PromiseMixin):
+  pass
+
+
 class TestSlapgridDestructionLock(MasterMixin, unittest.TestCase):
   def test_retention_lock(self):
     """
@@ -3999,9 +4025,6 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
 
       self.assertEqual('success', result["result"]["message"])
 
-
-
-
   def test_one_succeeding_one_timing_out_promises(self):
     computer = ComputerForTest(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
@@ -4093,6 +4116,10 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertFalse(os.path.isfile(worked_file))
       self.assertFalse(os.path.isfile(os.path.join(instance.partition_path,
                 ".slapgrid/promise/result/fail.status.json")))
+
+
+class TestSlapgridPromise(TestSlapgridPromiseWithMaster, PromiseMixin):
+  pass
 
 
 class TestSVCBackend(unittest.TestCase):

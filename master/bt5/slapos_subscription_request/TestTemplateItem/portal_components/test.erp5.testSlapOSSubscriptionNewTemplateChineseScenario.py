@@ -25,7 +25,8 @@ class testSlapOSSubscriptionNewTemplateChineseScenario(TestSlapOSSubscriptionChi
 
   def afterSetUp(self):
     TestSlapOSSubscriptionChineseScenarioMixin.afterSetUp(self)
-    organisation = self.redefineAccountingTemplatesonPreferences()
+    organisation = self.redefineAccountingTemplatesonPreferences(
+      price_currency="currency_module/CNY")
 
     self.expected_source = organisation.getRelativeUrl()
     self.expected_source_section = organisation.getRelativeUrl()

@@ -117,7 +117,8 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     """Overwrite this function on project context to tweak production focus tests"""
     pass
 
-  def makeCustomOrganisation(self, new_id=None, index=True):
+  def makeCustomOrganisation(self, new_id=None, index=True,
+          price_currency="currency_module/EUR"):
     # Create a custom organisation same as slapos, for ensure we can have
     # multiple organisations working on the site
 
@@ -140,6 +141,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     self.assertEqual("currency_module/EUR",
                      custom_organisation.getPriceCurrency())
 
+    custom_organisation.setPriceCurrency(price_currency)
     self.assertNotEqual(getattr(custom_organisation, "bank_account", None), None)
 
     if index:
@@ -709,11 +711,11 @@ return %s""" % (script_name, fake_return ))
     )
     self.tic()
 
-  def redefineAccountingTemplatesonPreferences(self):
+  def redefineAccountingTemplatesonPreferences(self, price_currency="currency_module/EUR"):
     # Define a new set of templates and change organisation on them, in this way tests should
     # behave the same.
     self.login()
-    organisation = self.makeCustomOrganisation()
+    organisation = self.makeCustomOrganisation(price_currency=price_currency)
     accounting_module = self.portal.accounting_module
     sale_packing_list_module = self.portal.sale_packing_list_module
 
@@ -787,10 +789,10 @@ return %s""" % (script_name, fake_return ))
     # behave the same.
     self.login()
     fr_organisation = self.makeCustomOrganisation()
-    zh_organisation = self.makeCustomOrganisation()
+    zh_organisation = self.makeCustomOrganisation(
+            price_currency="currency_module/CNY")
 
     # Update Price currency for Chinese company
-    zh_organisation.setPriceCurrency("currency_module/CNY")
     
     accounting_module = self.portal.accounting_module
     sale_packing_list_module = self.portal.sale_packing_list_module

@@ -44,7 +44,7 @@ from six.moves.configparser import ConfigParser
 import psutil
 
 from slapos.slap.standalone import StandaloneSlapOS
-from slapos.slap.standalone import SlapOSNodeCommandError
+from slapos.slap.standalone import SlapOSNodeSoftwareError
 from slapos.slap.standalone import PartitionForwardConfiguration
 from slapos.slap.standalone import PartitionForwardAsPartitionConfiguration
 
@@ -401,16 +401,16 @@ class TestSlapOSStandaloneSoftware(SlapOSStandaloneTestCase):
       f.flush()
       self.standalone.supply(f.name)
 
-      with self.assertRaises(SlapOSNodeCommandError) as e:
+      with self.assertRaises(SlapOSNodeSoftwareError) as e:
         self.standalone.waitForSoftware()
 
       self.assertEqual(1, e.exception.args[0]['exitstatus'])
       self.assertIn(
           "Error: Non zero exit code (123) while running command.",
           e.exception.args[0]['output'])
-      # SlapOSNodeCommandError.__str__ also displays output nicely
+      # SlapOSNodeSoftwareError.__str__ also displays output nicely
       self.assertIn(
-          "SlapOSNodeCommandError exitstatus: 1 output:", str(e.exception))
+          "SlapOSNodeSoftwareError exitstatus: 1 output:", str(e.exception))
       self.assertIn(
           "Error: Non zero exit code (123) while running command.",
           str(e.exception))

@@ -80,6 +80,21 @@ class SlapOSNodeCommandError(Exception):
 
 
 @zope.interface.implementer(IException)
+class SlapOSNodeSoftwareError(SlapOSNodeCommandError):
+  """Exception raised when runing SlapOS Node software command failed.
+  """
+
+@zope.interface.implementer(IException)
+class SlapOSNodeInstanceError(SlapOSNodeCommandError):
+  """Exception raised when runing SlapOS Node instance command failed.
+  """
+
+@zope.interface.implementer(IException)
+class SlapOSNodeReportError(SlapOSNodeCommandError):
+  """Exception raised when runing SlapOS Node report command failed.
+  """
+
+@zope.interface.implementer(IException)
 class PathTooDeepError(Exception):
   """Exception raised when path is too deep to create an unix socket.
   """
@@ -769,15 +784,18 @@ class StandaloneSlapOS(object):
     running `slapos node software --all`.
 
     Error cases:
-      * `SlapOSNodeCommandError` when buildout error while installing software.
+      * `SlapOSNodeSoftwareError` when buildout error while installing software.
       * Unexpected `Exception` if unable to connect to embedded slap server.
     """
-    return self._runSlapOSCommand(
-        'slapos-node-software-all' if install_all else 'slapos-node-software',
-        max_retry=max_retry,
-        debug=debug,
-        error_lines=error_lines,
-    )
+    try:
+        return self._runSlapOSCommand(
+            'slapos-node-software-all' if install_all else 'slapos-node-software',
+            max_retry=max_retry,
+            debug=debug,
+            error_lines=error_lines,
+        )
+    except SlapOSNodeCommandError as e:
+        raise SlapOSNodeSoftwareError(*e.args)
 
   def waitForInstance(self, max_retry=0, debug=False, error_lines=30):
     """Instantiate all partitions previously requested for start.
@@ -790,15 +808,18 @@ class StandaloneSlapOS(object):
     drop in a debugger session if error occurs.
 
     Error cases:
-      * `SlapOSNodeCommandError` when buildout error while creating instances.
+      * `SlapOSNodeInstanceError` when buildout error while creating instances.
       * Unexpected `Exception` if unable to connect to embedded slap server.
     """
-    return self._runSlapOSCommand(
-        'slapos-node-instance-all' if self._force_slapos_node_instance_all else 'slapos-node-instance',
-        max_retry=max_retry,
-        debug=debug,
-        error_lines=error_lines,
-    )
+    try:
+        return self._runSlapOSCommand(
+            'slapos-node-instance-all' if self._force_slapos_node_instance_all else 'slapos-node-instance',
+            max_retry=max_retry,
+            debug=debug,
+            error_lines=error_lines,
+        )
+    except SlapOSNodeCommandError as e:
+        raise SlapOSNodeInstanceError(*e.args)
 
   def waitForReport(self, max_retry=0, debug=False, error_lines=30):
     """Destroy all partitions previously requested for destruction.
@@ -811,15 +832,18 @@ class StandaloneSlapOS(object):
     drop in a debugger session if error occurs.
 
     Error cases:
-      * `SlapOSNodeCommandError` when buildout error while destroying instances.
+      * `SlapOSNodeReportError` when buildout error while destroying instances.
       * Unexpected `Exception` if unable to connect to embedded slap server.
     """
-    return self._runSlapOSCommand(
-        'slapos-node-report',
-        max_retry=max_retry,
-        debug=debug,
-        error_lines=error_lines,
-    )
+    try:
+        return self._runSlapOSCommand(
+            'slapos-node-report',
+            max_retry=max_retry,
+            debug=debug,
+            error_lines=error_lines,
+        )
+    except SlapOSNodeCommandError as e:
+        raise SlapOSNodeReportError(*e.args)
 
   def _runSlapOSCommand(
       self, command, max_retry=0, debug=False, error_lines=30):

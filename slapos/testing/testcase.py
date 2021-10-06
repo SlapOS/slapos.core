@@ -60,6 +60,8 @@ def makeModuleSetUpAndTestCaseClass(
     ipv6_address=os.environ['SLAPOS_TEST_IPV6'],
     debug=bool(int(os.environ.get('SLAPOS_TEST_DEBUG', 0))),
     verbose=bool(int(os.environ.get('SLAPOS_TEST_VERBOSE', 0))),
+    skip_software_check=bool(int(os.environ.get('SLAPOS_TEST_SKIP_SOFTWARE_CHECK', 0))),
+    skip_software_rebuild=bool(int(os.environ.get('SLAPOS_TEST_SKIP_SOFTWARE_REBUILD', 0))),
     shared_part_list=[
         os.path.expanduser(p) for p in os.environ.get(
             'SLAPOS_TEST_SHARED_PART_LIST', '').split(os.pathsep) if p
@@ -67,7 +69,7 @@ def makeModuleSetUpAndTestCaseClass(
     snapshot_directory=os.environ.get('SLAPOS_TEST_LOG_DIRECTORY'),
     software_id=None
 ):
-  # type: (str, str, str, str, bool, bool, Iterable[str], Optional[str], Optional[str]) -> Tuple[Callable[[], None], Type[SlapOSInstanceTestCase]]
+  # type: (str, str, str, str, bool, bool, bool, bool, Iterable[str], Optional[str], Optional[str]) -> Tuple[Callable[[], None], Type[SlapOSInstanceTestCase]]
   """Create a setup module function and a testcase for testing `software_url`.
 
   This function returns a tuple of two arguments:
@@ -79,12 +81,16 @@ def makeModuleSetUpAndTestCaseClass(
   environment variables `SLAPOS_TEST_IPV4` and `SLAPOS_TEST_IPV6`, or by the
   explicits `ipv4_address` and `ipv6_address` arguments.
 
-  To ease development and troubleshooting, two switches are available:
+  To ease development and troubleshooting, those switches are available:
    * `verbose` (also controlled by `SLAPOS_TEST_VERBOSE` environment variable)
      to tell the test framework to log information describing the actions taken.
    * `debug` (also controlled by `SLAPOS_TEST_DEBUG` environment variable) to
      enable debugging mode which will drop in a debugger session when errors
      occurs.
+   * `_skip_software_check` (also controlled by `SLAPOS_TEST_SKIP_SOFTWARE_CHECK`
+     environment variable) to skip costly software checks
+   * `_skip_software_rebuild` (also controlled by `SLAPOS_TEST_SKIP_SOFTWARE_REBUILD`
+     environment variable) to skip costly software builds
 
   The base_directory directory is by default .slapos in current directory,
   or a path from `SLAPOS_TEST_WORKING_DIR` environment variable.
@@ -155,6 +161,8 @@ def makeModuleSetUpAndTestCaseClass(
           'software_id': software_id,
           '_debug': debug,
           '_verbose': verbose,
+          '_skip_software_check': skip_software_check,
+          '_skip_software_rebuild': skip_software_rebuild,
           '_ipv4_address': ipv4_address,
           '_ipv6_address': ipv6_address,
           '_base_directory': base_directory,
@@ -209,12 +217,16 @@ def installSoftwareUrlList(cls, software_url_list, max_retry=10, debug=False):
       cls.logger.debug("Supplying %s", software_url)
       cls.slap.supply(software_url)
     cls.logger.debug("Waiting for slapos node software to build")
-    cls.slap.waitForSoftware(max_retry=max_retry, debug=debug)
+    cls.slap.waitForSoftware(max_retry=max_retry, debug=debug, install_all=not cls._skip_software_rebuild)
     _storeSoftwareSnapshot('setupModule')
-    for software_url in software_url_list:
-      cls.logger.debug("Checking software %s", software_url)
-      checkSoftware(cls.slap, software_url)
-      cls.logger.debug("Done checking software %s", software_url)
+    if not cls._skip_software_check:
+      for software_url in software_url_list:
+        cls.logger.debug("Checking software %s", software_url)
+        checkSoftware(cls.slap, software_url)
+        cls.logger.debug("Done checking software %s", software_url)
+    else:
+      cls.logger.debug("Software checks skipped")
+
   except BaseException as e:
     _storeSoftwareSnapshot('setupModule failed installing software')
     if not debug:
@@ -266,6 +278,10 @@ class SlapOSInstanceTestCase(unittest.TestCase):
   partition_count = 10
   # reference of the default requested partition
   default_partition_reference = 'testing partition 0'
+  # skips software checks
+  _skip_software_check = False
+  # skips software rebuild
+  _skip_software_rebuild = False
 
   # a logger for messages of the testing framework
   logger = logging.getLogger(__name__)

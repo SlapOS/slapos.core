@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Alarm_compute_nodeCheckUpgradeSoftwareRelease</string> </value>
+            <value> <string>Alarm_ComputeNodeCheckUpgradeSoftwareRelease</string> </value>
         </item>
       </dictionary>
     </pickle>

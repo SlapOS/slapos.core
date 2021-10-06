@@ -3219,7 +3219,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       [{'recargs': args, 'reckwargs': kwargs,
       'recmethod': 'requestSoftwareRelease'}])
 
-  def test_compute_nodeSupply(self):
+  def test_ComputeNodeSupply(self):
     self.compute_node_supply_simulator = tempfile.mkstemp()[1]
     try:
       self.login(self.person_user_id)

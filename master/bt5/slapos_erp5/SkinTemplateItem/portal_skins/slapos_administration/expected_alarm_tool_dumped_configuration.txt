@@ -55,7 +55,7 @@ portal_alarms/slapos_manage_building_calculating_delivery;1;None;Alarm_manageBui
 portal_alarms/slapos_payzen_update_confirmed_payment;1;None;Alarm_updatePayzenConfirmedPaymentTransaction;None;None;None;();None;();5;();();None;2010/10/26 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_payzen_update_started_payment;1;None;Alarm_updatePayzenStartedPaymentTransaction;None;None;None;();None;();2;();();None;2010/10/26 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_pdm_auto_cancel_upgrade_decision;1;None;Alarm_cancelUpgradeDecision;None;None;1;(5,);None;(0,);None;();();None;2014/07/23 00:00:00 GMT;None;();None;None
-portal_alarms/slapos_pdm_compute_node_create_upgrade_decision;1;None;Alarm_compute_nodeCheckUpgradeSoftwareRelease;None;None;1;(0,);None;(8,);None;();();None;2014/07/23 00:00:00 GMT;None;();None;None
+portal_alarms/slapos_pdm_compute_node_create_upgrade_decision;1;None;Alarm_ComputeNodeCheckUpgradeSoftwareRelease;None;None;1;(0,);None;(8,);None;();();None;2014/07/23 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_pdm_destroy_software_installation_with_archived_software_release;1;None;Alarm_destroySoftwareInstallationWithArchivedSoftwareRelease;None;None;None;(20,);None;(8,);None;();();None;1970/01/01 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_pdm_instance_tree_create_upgrade_decision;1;None;Alarm_checkAndUpgradeInstanceTree;None;None;1;(5,);None;(0,);None;();();None;2014/07/23 00:00:00 GMT;None;();None;None
 portal_alarms/slapos_pdm_upgrade_decision_process_planned;1;None;Alarm_processPlannedUpgradeDecision;None;None;None;();None;();5;();();None;1970/01/01 01:01:00 GMT;None;();None;None

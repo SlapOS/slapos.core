@@ -10,7 +10,7 @@ try:
 except KeyError:
   raise TypeError, "Person_requestComputeNode takes exactly 1 argument"
 
-tag = "%s_%s_compute_nodeInProgress" % (person.getUid(), 
+tag = "%s_%s_ComputeNodeInProgress" % (person.getUid(), 
                                compute_node_title)
 if (portal.portal_activities.countMessageWithTag(tag) > 0):
   # The software instance is already under creation but can not be fetched from catalog

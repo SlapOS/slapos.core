@@ -22,7 +22,7 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/create_user_organisation" />
       </tal:block>
 
-      <tal:block define="document_title python: 'TEST-SLAPOSJS-NETWORK-BY-ORGASNISATION 0';">
+      <tal:block define="document_title python: 'TEST-SLAPOSJS-NETWORK-BY-ORGANISATION 0';">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/create_simple_network" />
       </tal:block>
 
@@ -43,17 +43,17 @@
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//a[text()="TEST-SLAPOSJS-NETWORK-BY-ORGASNISATION 0"]</td>
+        <td>//a[text()="TEST-SLAPOSJS-NETWORK-BY-ORGANISATION 0"]</td>
         <td></td>
       </tr>
       <tr>
         <td>click</td>
-        <td>//a[text()="TEST-SLAPOSJS-NETWORK-BY-ORGASNISATION 0"]</td>
+        <td>//a[text()="TEST-SLAPOSJS-NETWORK-BY-ORGANISATION 0"]</td>
         <td></td>
       </tr>
 
       <tal:block tal:define="header python: 'Computer Network :${title}';
-                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-NETWORK-BY-ORGASNISATION 0'}) ">
+                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-NETWORK-BY-ORGANISATION 0'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
@@ -101,17 +101,17 @@
 
       <tr>
         <td>waitForElementPresent</td>
-        <td>//a[text()="TEST-SLAPOSJS-NETWORK-BY-ORGASNISATION 0"]</td>
+        <td>//a[text()="TEST-SLAPOSJS-NETWORK-BY-ORGANISATION 0"]</td>
         <td></td>
       </tr>
       <tr>
         <td>click</td>
-        <td>//a[text()="TEST-SLAPOSJS-NETWORK-BY-ORGASNISATION 0"]</td>
+        <td>//a[text()="TEST-SLAPOSJS-NETWORK-BY-ORGANISATION 0"]</td>
         <td></td>
       </tr>
 
       <tal:block tal:define="header python: 'Computer Network :${title}';
-                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-NETWORK-BY-ORGASNISATION 0'}) ">
+                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-NETWORK-BY-ORGANISATION 0'}) ">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
@@ -260,17 +260,17 @@
 
 <tr>
   <td>waitForElementPresent</td>
-  <td>//a[text()="TEST-SLAPOSJS-NETWORK-BY-ORGASNISATION 0"]</td>
+  <td>//a[text()="TEST-SLAPOSJS-NETWORK-BY-ORGANISATION 0"]</td>
   <td></td>
 </tr>
 <tr>
   <td>click</td>
-  <td>//a[text()="TEST-SLAPOSJS-NETWORK-BY-ORGASNISATION 0"]</td>
+  <td>//a[text()="TEST-SLAPOSJS-NETWORK-BY-ORGANISATION 0"]</td>
   <td></td>
 </tr>
 
 <tal:block tal:define="header python: 'Computer Network :${title}';
-                       dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-NETWORK-BY-ORGASNISATION 0'}) ">
+                       dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-NETWORK-BY-ORGANISATION 0'}) ">
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
 </tal:block>
 

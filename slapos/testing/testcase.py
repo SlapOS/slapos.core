@@ -368,51 +368,57 @@ class SlapOSInstanceTestCase(unittest.TestCase):
 
   # Unittest methods
   @classmethod
+  def waitForInstance(cls):
+    # waitForInstance does not tolerate any error but with instances,
+    # promises sometimes fail on first run, because services did not
+    # have time to start.
+    # To make debug usable, we tolerate instance_max_retry-1 errors and
+    # only debug the last.
+    if cls._debug and cls.instance_max_retry:
+      try:
+        cls.slap.waitForInstance(max_retry=cls.instance_max_retry - 1)
+      except SlapOSNodeCommandError:
+        cls.slap.waitForInstance(debug=True)
+    else:
+      cls.slap.waitForInstance(
+          max_retry=cls.instance_max_retry, debug=cls._debug)
+
+  @classmethod
+  def _setUpClass(cls):
+    cls.slap.start()
+    cls.logger.debug(
+        "Formatting to remove old partitions XXX should not be needed because we delete ..."
+    )
+    cls.slap.format(0, cls._ipv4_address, cls._ipv6_address)
+    cls.logger.debug("Formatting with %s partitions", cls.partition_count)
+    cls.slap.format(
+        cls.partition_count, cls._ipv4_address, cls._ipv6_address,
+        getattr(cls, '__partition_reference__', '{}-'.format(cls.__name__)))
+
+    # request
+    cls.requestDefaultInstance()
+
+    # slapos node instance
+    cls.logger.debug("Waiting for instance")
+    cls.waitForInstance()
+    # expose some class attributes so that tests can use them:
+    # the main ComputerPartition instance, to use getInstanceParameterDict
+    cls.computer_partition = cls.requestDefaultInstance()
+
+    # the path of the instance on the filesystem, for low level inspection
+    cls.computer_partition_root_path = os.path.join(
+        cls.slap._instance_root, cls.computer_partition.getId())
+
+  @classmethod
   def setUpClass(cls):
     """Request an instance.
     """
+    cls.logger.debug("Starting setUpClass %s", cls)
     cls._instance_parameter_dict = cls.getInstanceParameterDict()
     snapshot_name = "{}.{}.setUpClass".format(cls.__module__, cls.__name__)
 
     try:
-      cls.logger.debug("Starting setUpClass %s", cls)
-      cls.slap.start()
-      cls.logger.debug(
-          "Formatting to remove old partitions XXX should not be needed because we delete ..."
-      )
-      cls.slap.format(0, cls._ipv4_address, cls._ipv6_address)
-      cls.logger.debug("Formatting with %s partitions", cls.partition_count)
-      cls.slap.format(
-          cls.partition_count, cls._ipv4_address, cls._ipv6_address,
-          getattr(cls, '__partition_reference__', '{}-'.format(cls.__name__)))
-
-      # request
-      cls.requestDefaultInstance()
-
-      # slapos node instance
-      cls.logger.debug("Waiting for instance")
-      # waitForInstance does not tolerate any error but with instances,
-      # promises sometimes fail on first run, because services did not
-      # have time to start.
-      # To make debug usable, we tolerate instance_max_retry-1 errors and
-      # only debug the last.
-      if cls._debug and cls.instance_max_retry:
-        try:
-          cls.slap.waitForInstance(max_retry=cls.instance_max_retry - 1)
-        except SlapOSNodeCommandError:
-          cls.slap.waitForInstance(debug=True)
-      else:
-        cls.slap.waitForInstance(
-            max_retry=cls.instance_max_retry, debug=cls._debug)
-
-      # expose some class attributes so that tests can use them:
-      # the main ComputerPartition instance, to use getInstanceParameterDict
-      cls.computer_partition = cls.requestDefaultInstance()
-
-      # the path of the instance on the filesystem, for low level inspection
-      cls.computer_partition_root_path = os.path.join(
-          cls.slap._instance_root, cls.computer_partition.getId())
-      cls.logger.debug("setUpClass done")
+      cls._setUpClass()
     except BaseException:
       cls.logger.exception("Error during setUpClass")
       cls._storeSystemSnapshot(snapshot_name)
@@ -421,6 +427,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       raise
     else:
       cls._storeSystemSnapshot(snapshot_name)
+    cls.logger.debug("setUpClass done")
 
   @classmethod
   def tearDownClass(cls):

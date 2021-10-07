@@ -48,7 +48,7 @@ else:
         portal_type="Compute Partition",
         validation_state="validated")
 
-      if partition.getSlapState() != 'busy':
+      if partition is None or partition.getSlapState() != 'busy':
         continue
 
       assert partition.getSlapState() == 'busy', "partition %s is not busy" % reference

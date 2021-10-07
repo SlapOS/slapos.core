@@ -18,6 +18,7 @@ slapos_bt_list = [
     'slapos_payzen',
     'slapos_wechat',
     'slapos_configurator',
+    'slapos_mysql_innodb_catalog',
     'slapos_jio',
     'slapos_jio_ui_test'
   ]

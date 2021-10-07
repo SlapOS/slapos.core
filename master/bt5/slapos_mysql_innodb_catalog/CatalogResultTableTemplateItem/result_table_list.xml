@@ -1,5 +1,6 @@
 <key_list>
  <key>compute_partition</key>
+ <key>consistency</key>
  <key>slapos_item</key>
  <key>software_instance_tree</key>
 </key_list>

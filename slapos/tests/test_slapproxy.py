@@ -2060,19 +2060,21 @@ class TestLocalSoftwareReleaseRootPathMigration(MasterMixin):
   def newRootDir(self):
     return os.path.join(self._tempdir, str(1 + int(os.path.basename(self._rootdir))))
 
-  def createSlapOSConfigurationFile(self):
+  def createSlapOSConfigurationFile(self, localdir=None):
+    localdir = localdir or os.path.join(self._rootdir, 'opt')
     super(TestLocalSoftwareReleaseRootPathMigration, self).createSlapOSConfigurationFile()
     with open(self.slapos_cfg, 'a') as f:
-      f.write("\nlocal_software_release_root = %s/opt" % self._rootdir)
+      f.write("\nlocal_software_release_root = %s" % localdir)
 
-  def moveProxy(self, rootdir=None):
-    if not rootdir:
-      rootdir = self.newRootDir()
-    os.rename(self._rootdir, rootdir)
-    self._rootdir = rootdir
+  def moveProxy(self, rootdir=None, localdir=None):
+    if not localdir:
+      if not rootdir:
+        rootdir = self.newRootDir()
+      os.rename(self._rootdir, rootdir)
+      self._rootdir = rootdir
     self.slapos_cfg = os.path.join(self._rootdir, 'slapos.cfg')
     self.proxy_db = os.path.join(self._rootdir, 'lib', 'proxy.db')
-    self.createSlapOSConfigurationFile()
+    self.createSlapOSConfigurationFile(localdir)
     views.is_schema_already_executed = False
     self.startProxy()
     os.environ.pop('SLAPGRID_INSTANCE_ROOT', None)
@@ -2084,23 +2086,23 @@ class TestLocalSoftwareReleaseRootPathMigration(MasterMixin):
   def assertPartitionUrl(self, partition_id, expected_url):
     self.assertEqual(self.getPartitionInformation(partition_id).getSoftwareRelease().getURI(), expected_url)
 
-  def checkSupplyUrl(self, initial_url, expected_url, rootdir=None):
+  def checkSupplyUrl(self, initial_url, expected_url, rootdir=None, localdir=None):
     self.supply(initial_url)
     self.assertSoftwareUrls(initial_url)
-    self.moveProxy(rootdir)
+    self.moveProxy(rootdir, localdir)
     self.assertSoftwareUrls(expected_url)
 
-  def checkRequestUrl(self, initial_url, expected_url, rootdir=None):
+  def checkRequestUrl(self, initial_url, expected_url, rootdir=None, localdir=None):
     self.format_for_number_of_partitions(1)
     partition = self.request(initial_url, None, 'MyInstance', 'slappart0')
     self.assertPartitionUrl(partition._partition_id, initial_url)
-    self.moveProxy(rootdir)
+    self.moveProxy(rootdir, localdir)
     self.assertPartitionUrl(partition._partition_id, expected_url)
 
   def test_supply_local_url(self):
-    initial_url = os.path.join(self._rootdir, 'opt', 'software.cfg')
+    initial_url = os.path.join(self._rootdir, 'opt', 'soft', 'software.cfg')
     new_rootdir = self.newRootDir()
-    expected_url = os.path.join(new_rootdir, 'opt', 'software.cfg')
+    expected_url = os.path.join(new_rootdir, 'opt', 'soft', 'software.cfg')
     self.checkSupplyUrl(initial_url, expected_url, new_rootdir)
 
   def test_supply_not_in_root_url(self):
@@ -2116,13 +2118,13 @@ class TestLocalSoftwareReleaseRootPathMigration(MasterMixin):
     self.checkSupplyUrl(url, url)
 
   def test_request_local_url(self):
-    initial_url = os.path.join(self._rootdir, 'opt', 'software.cfg')
+    initial_url = os.path.join(self._rootdir, 'opt', 'soft', 'software.cfg')
     new_rootdir = self.newRootDir()
-    expected_url = os.path.join(new_rootdir, 'opt', 'software.cfg')
+    expected_url = os.path.join(new_rootdir, 'opt', 'soft', 'software.cfg')
     self.checkRequestUrl(initial_url, expected_url, new_rootdir)
 
   def test_request_not_in_root_url(self):
-    url = os.path.join(self._rootdir, 'srv', 'software.cfg')
+    url = os.path.join(self._rootdir, 'srv', 'soft', 'software.cfg')
     self.checkRequestUrl(url, url)
 
   def test_request_http_url(self):
@@ -2134,10 +2136,10 @@ class TestLocalSoftwareReleaseRootPathMigration(MasterMixin):
     self.checkRequestUrl(url, url)
 
   def checkMultipleMoves(self, checkUrl):
-    initial_url = os.path.join(self._rootdir, 'opt', 'software.cfg')
+    initial_url = os.path.join(self._rootdir, 'opt', 'soft', 'software.cfg')
     for _ in range(5):
       new_rootdir = self.newRootDir()
-      expected_url = os.path.join(new_rootdir, 'opt', 'software.cfg')
+      expected_url = os.path.join(new_rootdir, 'opt', 'soft', 'software.cfg')
       checkUrl(initial_url, expected_url, new_rootdir)
       initial_url = expected_url
 
@@ -2149,8 +2151,8 @@ class TestLocalSoftwareReleaseRootPathMigration(MasterMixin):
 
   def test_move_logs(self):
     local_sr_root = os.path.join(self._rootdir, 'opt')
-    subpath_url = os.path.join(local_sr_root, 'software.cfg')
-    path_not_subpath_url = os.path.join(self._rootdir, 'srv', 'software.cfg')
+    subpath_url = os.path.join(local_sr_root, 'soft', 'software.cfg')
+    path_not_subpath_url = os.path.join(self._rootdir, 'srv', 'soft', 'software.cfg')
     http_url = "https://sr//"
 
     self.format_for_number_of_partitions(3)
@@ -2160,22 +2162,72 @@ class TestLocalSoftwareReleaseRootPathMigration(MasterMixin):
     self.moveProxy()
 
     new_local_sr_root = os.path.join(self._rootdir, 'opt')
-    new_subpath_url = os.path.join(new_local_sr_root, 'software.cfg')
+    new_subpath_url = os.path.join(new_local_sr_root, 'soft', 'software.cfg')
 
     with mock.patch.object(views.app, 'logger') as logger:
       # Request something to trigger update
       self.getFullComputerInformation()
 
-    logger.info.assert_called_once_with(
-      'Updating local software release root path: %s --> %s',
-      local_sr_root,
-      new_local_sr_root,
-    )
+    logger.info.assert_has_calls([
+      mock.call('Backuping database to %s' , mock.ANY),
+      mock.call('Rebase URLs on local software release root path'),
+      mock.call('Old root path: %s', local_sr_root),
+      mock.call('New root path: %s', new_local_sr_root)
+    ])
+
+    backup_path = logger.info.call_args_list[0][0][1]
+    with open(backup_path) as f:
+      dump = f.read()
+      self.assertIn("CREATE TABLE", dump)
+      self.assertIn('INSERT INTO', dump)
+
     logger.debug.assert_has_calls([
-      mock.call('Migrate URL ? Y: %s -> %s', subpath_url, new_subpath_url),
-      mock.call('Migrate URL ? N: %s is not a subpath', path_not_subpath_url),
-      mock.call('Migrate URL ? N: %s is not a path', http_url)
+      mock.call('Examining URL %s', subpath_url),
+      mock.call('  Migrate to rebased URL %s', new_subpath_url),
+      mock.call('  Do not rebase because it is not a subpath of %s', local_sr_root),
+      mock.call('  Do not rebase because it is not a path')
     ]*2, any_order=True)
+
+  def checkSupplyAndRequestUrl(self, initial_url, expected_url, rootdir=None, localdir=None):
+    self.format_for_number_of_partitions(1)
+    self.supply(initial_url)
+    partition = self.request(initial_url, None, 'MyInstance', 'slappart0')
+    self.assertSoftwareUrls(initial_url)
+    self.assertPartitionUrl(partition._partition_id, initial_url)
+    self.moveProxy(rootdir, localdir)
+    self.assertSoftwareUrls(expected_url)
+    self.assertPartitionUrl(partition._partition_id, expected_url)
+
+  def test_move_to_subpath(self):
+    initial_url = os.path.join(self._rootdir, 'opt', 'soft', 'software.cfg')
+    new_localdir = os.path.join(self._rootdir, 'opt', 'soft')
+    self.checkSupplyAndRequestUrl(initial_url, initial_url, None, localdir=new_localdir)
+
+  def test_move_to_superpath(self):
+    initial_url = os.path.join(self._rootdir, 'opt', 'soft', 'software.cfg')
+    self.checkSupplyAndRequestUrl(initial_url, initial_url, None, localdir=self._rootdir)
+
+  def createSoftware(self, rootdir):
+    softdir = os.path.join(rootdir, 'opt', 'soft')
+    url = os.path.join(softdir, 'software.cfg')
+    os.makedirs(softdir)
+    with open(url, 'w'):
+      pass
+    return url
+
+  def test_move_initial_exists(self):
+    initial_url = self.createSoftware(self._rootdir)
+    new_rootdir = self.newRootDir()
+    new_localdir = os.path.join(new_rootdir, 'opt')
+    os.mkdir(new_rootdir)
+    self.checkSupplyAndRequestUrl(initial_url, initial_url, new_rootdir, new_localdir)
+
+  def test_move_both_exist(self):
+    initial_url = self.createSoftware(self._rootdir)
+    new_rootdir = self.newRootDir()
+    expected_url = self.createSoftware(new_rootdir)
+    new_localdir = os.path.join(new_rootdir, 'opt')
+    self.checkSupplyAndRequestUrl(initial_url, expected_url, new_rootdir, new_localdir)
 
 
 class _MigrationTestCase(TestInformation, TestRequest, TestSlaveRequest, TestMultiNodeSupport):

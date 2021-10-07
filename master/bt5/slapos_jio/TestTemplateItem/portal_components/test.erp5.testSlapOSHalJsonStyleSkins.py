@@ -829,7 +829,7 @@ class TestBase_getComputeNodeToken(TestSlapOSHalJsonStyleMixin):
     self.login()
     token = self.portal.access_token_module[token_dict["access_token"]]
 
-    self.assertIn("/Person_requestComputeNode", token.getUrlString())
+    self.assertIn("/Person_requestComputer", token.getUrlString())
 
     self.assertEqual(token.getAgentValue(), person)
     self.assertEqual("One Time Restricted Access Token", token.getPortalType())

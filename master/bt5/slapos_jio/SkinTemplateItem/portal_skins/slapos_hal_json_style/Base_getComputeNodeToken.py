@@ -9,7 +9,7 @@ request_method = "POST"
 slapos_master_web_url = web_site.getLayoutProperty(
     "configuration_slapos_master_web_url", web_site.absolute_url())
 
-request_url = "%s/%s" % (slapos_master_web_url, "Person_requestComputeNode")
+request_url = "%s/%s" % (slapos_master_web_url, "Person_requestComputer")
 
 access_token = portal.access_token_module.newContent(
   portal_type="One Time Restricted Access Token",

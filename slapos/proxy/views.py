@@ -203,23 +203,35 @@ def _updateLocalSoftwareReleaseRootPathIfNeeded():
   current_root_path = execute_db('local_software_release_root', 'SELECT * from %s', one=True)['path'] or os.sep
   new_root_path = app.config['local_software_release_root'] or os.sep
   execute_db('local_software_release_root', 'UPDATE %s SET path=?', [new_root_path])
+  # Check whether one is the same as or a subpath of the other
+  if current_root_path == new_root_path:
+    return
+  relpath = os.path.relpath(new_root_path, current_root_path)
+  if not relpath.startswith(os.pardir + os.sep):
+    app.logger.info('%s is a subpath of %s', new_root_path, current_root_path)
+    return
+  elif os.path.basename(relpath) == os.pardir:
+    app.logger.info('%s is a superpath of %s', new_root_path, current_root_path)
+    return
   # Rebase all URLs relative to the new root path
-  if current_root_path != new_root_path:
-    app.logger.info('Updating local software release root path: %s --> %s', current_root_path, new_root_path)
-    def migrate_url(url):
-      if not url or urlparse(url).scheme:
-        app.logger.debug('Migrate URL ? N: %s is not a path', url)
-        return url
-      rel = os.path.relpath(url, current_root_path)
-      if rel.startswith(os.pardir + os.sep):
-        app.logger.debug('Migrate URL ? N: %s is not a subpath', url)
-        return url
-      new = os.path.join(new_root_path, rel)
-      app.logger.debug('Migrate URL ? Y: %s -> %s', url, new)
-      return new
-    g.db.create_function('migrate_url', 1, migrate_url)
-    execute_db('software', 'UPDATE %s SET url=migrate_url(url)')
-    execute_db('partition', 'UPDATE %s SET software_release=migrate_url(software_release)')
+  app.logger.info('Updating local software release root path: %s --> %s', current_root_path, new_root_path)
+  def migrate_url(url):
+    if not url or urlparse(url).scheme:
+      app.logger.debug('Migrate URL ? N: %s is not a path', url)
+      return url
+    rel = os.path.relpath(url, current_root_path)
+    if rel.startswith(os.pardir + os.sep):
+      app.logger.debug('Migrate URL ? N: %s is not a subpath', url)
+      return url
+    new = os.path.join(new_root_path, rel)
+    if not os.path.isfile(new) and os.path.isfile(url):
+      app.logger.debug('Migrate URL ? N: %s exists but %s does not', url, new)
+      return url
+    app.logger.debug('Migrate URL ? Y: %s -> %s', url, new)
+    return new
+  g.db.create_function('migrate_url', 1, migrate_url)
+  execute_db('software', 'UPDATE %s SET url=migrate_url(url)')
+  execute_db('partition', 'UPDATE %s SET software_release=migrate_url(software_release)')
 
 is_schema_already_executed = False
 @app.before_request

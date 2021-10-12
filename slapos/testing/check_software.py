@@ -188,7 +188,7 @@ def checkSoftware(slap, software_url):
           if any(fnmatch.fnmatch(f, ignored_pattern)
                  for ignored_pattern in ignored_file_patterns):
             continue
-          if os.access(f, os.X_OK) or fnmatch.fnmatch('*.so', f):
+          if os.access(f, os.X_OK) or fnmatch.fnmatch(f, '*.so'):
             try:
               libs = getLddOutput(f)
             except DynamicLibraryNotFound as e:

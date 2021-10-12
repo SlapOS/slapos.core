@@ -795,7 +795,7 @@ class StandaloneSlapOS(object):
             error_lines=error_lines,
         )
     except SlapOSNodeCommandError as e:
-        raise SlapOSNodeSoftwareError(str(e))
+        raise SlapOSNodeSoftwareError(*e.args)
 
   def waitForInstance(self, max_retry=0, debug=False, error_lines=30):
     """Instantiate all partitions previously requested for start.
@@ -819,7 +819,7 @@ class StandaloneSlapOS(object):
             error_lines=error_lines,
         )
     except SlapOSNodeCommandError as e:
-        raise SlapOSNodeInstanceError(str(e))
+        raise SlapOSNodeInstanceError(*e.args)
 
   def waitForReport(self, max_retry=0, debug=False, error_lines=30):
     """Destroy all partitions previously requested for destruction.
@@ -843,7 +843,7 @@ class StandaloneSlapOS(object):
             error_lines=error_lines,
         )
     except SlapOSNodeCommandError as e:
-        raise SlapOSNodeReportError(str(e))
+        raise SlapOSNodeReportError(*e.args)
 
   def _runSlapOSCommand(
       self, command, max_retry=0, debug=False, error_lines=30):

@@ -103,7 +103,7 @@
                   "key": "slap_compute_node_listbox",
                   "lines": lines_limit,
                   "list_method": "portal_catalog",
-                  "query": "urn:jio:allDocs?query=((portal_type%3A%22Compute%20Node%22)%20AND%20NOT%20(%20default_strict_allocation_scope_uid%3A%20%20" +
+                  "query": "urn:jio:allDocs?query=((portal_type%3A%22Compute%20Node%22)%20AND%20(validation_state%3A%22validated%22)%20AND%20NOT%20(%20default_strict_allocation_scope_uid%3A%20%20" +
                          default_strict_allocation_scope_uid + "%20))",
                   "portal_type": [],
                   "search_column_list": column_list,

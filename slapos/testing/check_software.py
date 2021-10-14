@@ -70,6 +70,7 @@ def checkSoftware(slap, software_url):
       'libm',
       'libnsl',
       'libpthread',
+      'libthread_db',
       'libresolv',
       'librt',
       'libstdc++',

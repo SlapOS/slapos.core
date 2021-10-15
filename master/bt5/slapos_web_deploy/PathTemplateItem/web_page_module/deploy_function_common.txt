@@ -1029,6 +1029,7 @@ function update_package_repo {
             # if there are transient errors pulling the updates, that's fine.
             # It may be secondary repositories that we don't really care about.
             apt_get update --allow-releaseinfo-change || /bin/true
+            apt_get update || /bin/true
             REPOS_UPDATED=True
         fi
         $xtrace

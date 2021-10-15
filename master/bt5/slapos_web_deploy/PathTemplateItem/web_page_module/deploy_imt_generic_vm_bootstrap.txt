@@ -12,11 +12,12 @@ then
 fi
 bash /etc/opt/netconfigure
 
- set -e
+set -e
 
-### Include Bootstrap VM script
-###  Contain function-common
-##      https://lab.nexedi.com/nexedi/slapos.package/blob/master/playbook/roles/install-script/files/function-common
+#
+# Paste content of function-common
+# https://lab.nexedi.com/nexedi/slapos.package/blob/master/playbook/roles/install-script/files/function-common
+#
 ${function_common_content}
 
 ${base_setup_content}

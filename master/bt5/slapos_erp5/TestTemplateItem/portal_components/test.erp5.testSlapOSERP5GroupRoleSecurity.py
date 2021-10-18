@@ -28,7 +28,10 @@ class TestSlapOSGroupRoleSecurityCoverage(SlapOSTestCaseMixinWithAbort):
   def testCoverage(self):
     """ Test which Portal types are not covered by this test.
     """
-    test_source_code = self.portal.portal_components['test.erp5.testSlapOSERP5GroupRoleSecurity'].getTextContent()
+
+    test_source_code = ""
+    for test_file_id in self.security_group_role_test_id_list:
+      test_source_code += self.portal.portal_components[test_file_id].getTextContent()
 
     test_list = []
     for pt in self.portal.portal_types.objectValues():

@@ -96,6 +96,11 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
   expected_slapos_organisation = "organisation_module/slapos"
   expected_zh_slapos_organisation = "organisation_module/slapos"
 
+  # Used by testSlapOSERP5GroupRoleSecurity.TestSlapOSGroupRoleSecurityCoverage for
+  # searh classes for assert overage
+  security_group_role_test_id_list = ['test.erp5.testSlapOSERP5GroupRoleSecurity']
+
+
   def afterSetUp(self):
     testSlapOSMixin.afterSetUp(self)
     self.changeSkin('View')

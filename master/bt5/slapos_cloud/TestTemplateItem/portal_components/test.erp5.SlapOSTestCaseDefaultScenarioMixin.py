@@ -617,18 +617,19 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       self.assertEqual(0, len(open_sale_order_list))
       return
 
-    self.assertEqual(2, len(open_sale_order_list))
+    self.assertEqual(len(instance_tree_list), len(open_sale_order_list))
 
     archived_open_sale_order_list = [q for q in open_sale_order_list
                        if q.getValidationState() == 'archived']
+    self.assertEqual(len(instance_tree_list), len(archived_open_sale_order_list))
 
-    archived_open_sale_order_list.sort(key=lambda x: x.getCreationDate())
-    
-    # Select the first archived
-    open_sale_order = archived_open_sale_order_list[0]
+    line_list = []
+    for open_sale_order in archived_open_sale_order_list:
+      archived_line_list = open_sale_order.contentValues(
+          portal_type='Open Sale Order Line')
+      self.assertEqual(1, len(archived_line_list))
+      line_list.extend(archived_line_list)
 
-    line_list = open_sale_order.contentValues(
-        portal_type='Open Sale Order Line')
     self.assertEqual(len(instance_tree_list), len(line_list))
     self.assertSameSet(
         [q.getRelativeUrl() for q in instance_tree_list],
@@ -637,14 +638,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
     validated_open_sale_order_list = [q for q in open_sale_order_list
                        if q.getValidationState() == 'validated']
-
     # if no line, all open orders are kept archived
     self.assertEqual(len(validated_open_sale_order_list), 0)
-
-    latest_open_sale_order = archived_open_sale_order_list[-1]
-    line_list = latest_open_sale_order.contentValues(
-        portal_type='Open Sale Order Line')
-    self.assertEqual(len(line_list), 0)
 
   def findMessage(self, email, body):
     for candidate in reversed(self.portal.MailHost.getMessageList()):

@@ -107,22 +107,6 @@ class TestOpenSaleOrderAlarm(SlapOSTestCaseMixin):
         default_destination_uid=person.getUid()
     ))
 
-  def test_OSO_after_Person_updateOpenSaleOrder(self):
-    person = self.portal.person_module.template_member\
-        .Base_createCloneDocument(batch_mode=1)
-    self.tic()
-
-    person.Person_storeOpenSaleOrderJournal()
-    self.tic()
-
-    open_sale_order_list = self.portal.portal_catalog(
-        validation_state='validated',
-        portal_type='Open Sale Order',
-        default_destination_uid=person.getUid()
-    )
-    # No need to create any open order without instance tree
-    self.assertEqual(0, len(open_sale_order_list))
-
   @simulateByEditWorkflowMark('InstanceTree_requestUpdateOpenSaleOrder')
   def test_alarm_HS_diverged(self):
     subscription = self.portal.instance_tree_module\
@@ -291,28 +275,22 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
         default_destination_uid=person.getUid()
     )
 
-    self.assertEqual(2, len(open_sale_order_list))
+    self.assertEqual(1, len(open_sale_order_list))
     validated_open_sale_order_list = [q for q in open_sale_order_list
         if q.getValidationState() == 'validated']
     archived_open_sale_order_list = [q for q in open_sale_order_list
         if q.getValidationState() == 'archived']
 
     self.assertEqual(0, len(validated_open_sale_order_list))
-    self.assertEqual(2, len(archived_open_sale_order_list))
+    self.assertEqual(1, len(archived_open_sale_order_list))
     
-    archived_open_sale_order_list.sort(key=lambda x: x.getCreationDate())
-
-    last_open_sale_order = archived_open_sale_order_list[-1].getObject()
     archived_open_sale_order = archived_open_sale_order_list[0]\
         .getObject()
     self.assertEqual(open_sale_order.getRelativeUrl(),
         archived_open_sale_order.getRelativeUrl())
 
-    last_line_list = last_open_sale_order.contentValues(
-        portal_type='Open Sale Order Line')
     archived_line_list = archived_open_sale_order.contentValues(
         portal_type='Open Sale Order Line')
-    self.assertEqual(0, len(last_line_list))
     self.assertEqual(1, len(archived_line_list))
 
     archived_line = archived_line_list[0].getObject()
@@ -376,7 +354,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
         default_destination_uid=person.getUid()
     )
 
-    self.assertEqual(2, len(open_sale_order_list))
+    self.assertEqual(1, len(open_sale_order_list))
     archived_open_sale_order_list = [x for x in open_sale_order_list \
                        if x.getValidationState() != 'validated' and \
                           len(x.objectValues()) > 0]
@@ -421,7 +399,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertEqual('archived', new_open_sale_order.getValidationState())
     open_sale_order_line_list = new_open_sale_order.contentValues(
         portal_type='Open Sale Order Line')
-    self.assertEqual(0, len(open_sale_order_line_list))
+    self.assertEqual(1, len(open_sale_order_line_list))
 
   def test_two_InstanceTree(self):
     person = self.portal.person_module.template_member\
@@ -517,18 +495,23 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
         default_destination_uid=person.getUid()
     )
 
-    self.assertEqual(1, len(open_sale_order_list))
+    self.assertEqual(2, len(open_sale_order_list))
     validated_open_sale_order_list = [q for q in open_sale_order_list
         if q.getValidationState() == 'validated']
     archived_open_sale_order_list = [q for q in open_sale_order_list
         if q.getValidationState() == 'archived']
-    self.assertEqual(1, len(validated_open_sale_order_list))
+    self.assertEqual(2, len(validated_open_sale_order_list))
     self.assertEqual(0, len(archived_open_sale_order_list))
-    validated_open_sale_order = validated_open_sale_order_list[0].getObject()
 
-    validated_line_list = validated_open_sale_order.contentValues(
+
+    open_sale_order_2 = [x for x in validated_open_sale_order_list if x.getRelativeUrl() != open_sale_order.getRelativeUrl()][0]
+    self.assertEqual(open_sale_order.getRelativeUrl(), [x for x in validated_open_sale_order_list if x.getRelativeUrl() == open_sale_order.getRelativeUrl()][0].getRelativeUrl())
+
+    validated_line_list = open_sale_order_2.contentValues(
         portal_type='Open Sale Order Line')
-    self.assertEqual(2, len(validated_line_list))
+    self.assertEqual(1, len(validated_line_list))
+    validated_line_2 = validated_line_list[0]
+    validated_line_1 = line
 
     self.assertEqual(open_sale_order_line_template.getQuantity(),
         line.getQuantity())
@@ -543,10 +526,8 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
       next_stop_date_2 = addToDate(stop_date_2, to_add={'month': 1})
     stop_date_2 = addToDate(stop_date_2, to_add={'second': -1})
 
-    validated_line_1 = [q for q in validated_line_list if q.getAggregate() == \
-        subscription.getRelativeUrl()][0]
-    validated_line_2 = [q for q in validated_line_list if q.getAggregate() == \
-        subscription2.getRelativeUrl()][0]
+    self.assertEqual(validated_line_1.getAggregate(), subscription.getRelativeUrl())
+    self.assertEqual(validated_line_2.getAggregate(), subscription2.getRelativeUrl())
 
     self.assertTrue(all([q in validated_line_1.getCategoryList() \
         for q in open_sale_order_line_template.getCategoryList()]))
@@ -667,7 +648,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
         default_destination_uid=person.getUid()
     )
 
-    self.assertEqual(2,len(open_sale_order_list))
+    self.assertEqual(1,len(open_sale_order_list))
     archived_open_sale_order_list = [x for x in open_sale_order_list \
                            if x.getValidationState() != 'validated']
 
@@ -680,7 +661,6 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
         portal_type='Open Sale Order Line')
 
     self.assertEqual(1, len(open_sale_order_line_list))
-    effective_date = open_sale_order.getEffectiveDate()
     line = open_sale_order_line_list[0].getObject()
 
     self.assertEqual(subscription.getRelativeUrl(), line.getAggregate())
@@ -698,19 +678,6 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertEqual(addToDate(line.getStartDate(), to_add={'day': 1}),
                      line.getStopDate())
 
-    archived_open_sale_order_list = [x for x in open_sale_order_list \
-                           if x.getValidationState() != 'validated']
-
-    archived_open_sale_order_list.sort(key=lambda x: x.getCreationDate())
-
-    new_open_sale_order = archived_open_sale_order_list[-1].getObject()
-    self.assertEqual('archived', new_open_sale_order.getValidationState())
-    new_effective_date = new_open_sale_order.getEffectiveDate()
-    open_sale_order_line_list = new_open_sale_order.contentValues(
-        portal_type='Open Sale Order Line')
-    self.assertEqual(0, len(open_sale_order_line_list))
-    self.assertTrue(new_effective_date > effective_date,
-                    "%s <= %s" % (new_effective_date, effective_date))
 
 class TestSlapOSTriggerBuildAlarm(SlapOSTestCaseMixin):
   @simulateByTitlewMark('SimulationMovement_buildSlapOS')
@@ -1262,14 +1229,11 @@ class TestSlapOSUpdateOpenSaleOrderPeriod(SlapOSTestCaseMixin):
     open_order.edit(
       destination_decision_value=person,
     )
+    open_order.newContent(
+      portal_type="Open Sale Order Line"
+    )
 
-    script_name = "Person_storeOpenSaleOrderJournal"
-    self._simulateScript(script_name)
-    try:
-      open_order.OpenSaleOrder_updatePeriod()
-    finally:
-      self._dropScript(script_name)
-    self.assertScriptVisited(person, script_name)
+    self.assertRaises(AssertionError, open_order.OpenSaleOrder_updatePeriod)
 
   def test_updatePeriod_invalidated(self):
     open_order = self.createOpenOrder()
@@ -1279,14 +1243,10 @@ class TestSlapOSUpdateOpenSaleOrderPeriod(SlapOSTestCaseMixin):
       destination_decision_value=person,
     )
     open_order.invalidate()
-
-    script_name = "Person_storeOpenSaleOrderJournal"
-    self._simulateScript(script_name)
-    try:
-      open_order.OpenSaleOrder_updatePeriod()
-    finally:
-      self._dropScript(script_name)
-    self.assertScriptNotVisited(person, script_name)
+    open_order.newContent(
+      portal_type="Open Sale Order Line"
+    )
+    open_order.OpenSaleOrder_updatePeriod()
 
   def test_alarm(self):
     open_order = self.createOpenOrder()

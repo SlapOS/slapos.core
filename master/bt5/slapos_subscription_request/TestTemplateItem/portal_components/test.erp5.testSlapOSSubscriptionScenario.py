@@ -1652,8 +1652,12 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
         software_type="default",
         partition_reference="_test_subscription_scenario_with_existing_user_extra_instance",
       )
-  
       self.non_subscription_related_instance_amount = 1
+
+      # Trigger open order creation
+      self.portal.portal_alarms.slapos_request_update_instance_tree_open_sale_order.activeSense()
+      self.tic()
+
       self.login()
       self.requestAndCheckInstanceTree(
         amount, name, default_email_text)

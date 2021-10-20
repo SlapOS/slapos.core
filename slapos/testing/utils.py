@@ -41,6 +41,8 @@ from contextlib import closing
 from six.moves import BaseHTTPServer
 from six.moves import urllib_parse
 
+from ..grid.utils import getPythonExecutableFromSoftwarePath
+
 try:
   import typing
   if typing.TYPE_CHECKING:
@@ -77,8 +79,12 @@ def getPromisePluginParameterDict(filepath):
 
   This allow to check that monitoring plugin are using a proper config.
   """
+  executable = getPythonExecutableFromSoftwarePath(
+      os.path.join(
+          os.path.dirname(os.path.dirname(os.path.dirname(filepath))),
+          'software_release'))
   extra_config_dict_json = subprocess.check_output([
-      sys.executable,
+      executable,
       "-c",
       """
 import json, sys

@@ -349,3 +349,22 @@ class TestSlapOSCloudUpgrader(SlapOSTestCaseMixin):
     self.assertFalse(migration_message in getMessageList(computer_partition_to_migrate))
     self.assertEqual(1, len(self.portal.portal_catalog(uid=migrated_computer_partition.getUid())))
 
+  def test_upgrade_friend_allocation_scope_on_compute_node(self):
+    migration_message = 'Compute Node has to migrate allocation scope from friend to personal'
+
+    compute_node_module = self.portal.getDefaultModule('Compute Node')
+    compute_node = compute_node_module.newContent(
+      portal_type='Compute Node'
+    )
+
+    compute_node.setAllocationScope('open/friend')
+    
+    self.assertTrue(migration_message in getMessageList(compute_node))
+
+    compute_node.fixConsistency()
+    self.assertFalse(migration_message in getMessageList(compute_node))
+    
+
+
+
+

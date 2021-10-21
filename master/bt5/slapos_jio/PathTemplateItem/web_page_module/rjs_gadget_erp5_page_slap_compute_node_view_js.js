@@ -103,14 +103,14 @@
           "Closed for termination",
           "Closed forever",
           "Closed outdated",
-          "Open for Friends only",
+          "",
           "Open for Personal use only",
           "Open Public",
           "Open for Subscribers only",
           "Network",
           "Allocation Scope",
           "Monitoring",
-          "Your Friends email",
+          "",
           "Upgrade",
           "The name of a document in ERP5",
           "Current Site",
@@ -169,7 +169,6 @@
                                 [results[2][14], 'close/termination'],
                                 [results[2][15], 'close/forever'],
                                 [results[2][16], 'close/outdated'],
-                                [results[2][17], 'open/friend'],
                                 [results[2][18], 'open/personal'],
                                 [results[2][19], 'open/public'],
                                 [results[2][20], 'open/subscription']],
@@ -244,17 +243,6 @@
                   "key": "monitor_scope",
                   "hidden": 0,
                   "type": "ListField"
-                },
-                "my_subject_list": {
-                  "description": "",
-                  "title": results[2][24],
-                  "default": gadget.state.doc.subject_list,
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "subject_list",
-                  "hidden": (gadget.state.doc.allocation_scope === "open/friend") ? 0 : 1,
-                  "type": "LinesField"
                 },
                 "my_upgrade_scope": {
                   "description": "",
@@ -359,8 +347,7 @@
               ], [
                 "right",
                 [["my_source"], ["my_source_project"], ["my_monitor_scope"],
-                  ["my_upgrade_scope"], ["my_allocation_scope"],
-                  ["my_subject_list"]]
+                  ["my_upgrade_scope"], ["my_allocation_scope"]]
               ], [
                 "bottom",
                 [["ticket_listbox"], ["listbox"]]

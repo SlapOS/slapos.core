@@ -649,7 +649,7 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
             'reference=None',
   'assert reference == "slapos-crm-compute_node_allocation_scope.notification"\n' \
   'return context.restrictedTraverse(' \
-  'context.REQUEST["test_ComputeNodeNotAllowedAllocationScope_OpenPublic"])')
+  'context.REQUEST["test_compute_nodeNotAllowedAllocationScope_OpenPublic"])')
   @simulate('SupportRequest_trySendNotificationMessage',
             'message_title, message, destination_relative_url',
   'context.portal_workflow.doActionFor(' \
@@ -657,11 +657,11 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
   'comment="Visited by SupportRequest_trySendNotificationMessage ' \
   '%s %s %s" % (message_title, message, destination_relative_url))\n' \
   'return 1')
-  def test_ComputeNodeNotAllowedAllocationScope_OpenPublic(self):
+  def test_compute_nodeNotAllowedAllocationScope_OpenPublic(self):
     compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
     person = compute_node.getSourceAdministrationValue()
 
-    self.portal.REQUEST['test_ComputeNodeNotAllowedAllocationScope_OpenPublic'] = \
+    self.portal.REQUEST['test_compute_nodeNotAllowedAllocationScope_OpenPublic'] = \
         self._makeNotificationMessage(compute_node.getReference())
 
     compute_node.edit(allocation_scope='open/public')
@@ -679,48 +679,13 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
        'Test NM content\n%s\n' % compute_node.getReference(), person.getRelativeUrl()),
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
-
-  @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
-  @simulate('NotificationTool_getDocumentValue',
-            'reference=None',
-  'assert reference == "slapos-crm-compute_node_allocation_scope.notification"\n' \
-  'return context.restrictedTraverse(' \
-  'context.REQUEST["test_ComputeNodeNotAllowedAllocationScope_OpenFriend"])')
-  @simulate('SupportRequest_trySendNotificationMessage',
-            'message_title, message, destination_relative_url',
-  'context.portal_workflow.doActionFor(' \
-  'context, action="edit_action", ' \
-  'comment="Visited by SupportRequest_trySendNotificationMessage ' \
-  '%s %s %s" % (message_title, message, destination_relative_url))\n' \
-  'return 1')
-  def test_ComputeNodeNotAllowedAllocationScope_OpenFriend(self):
-    compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
-    person = compute_node.getSourceAdministrationValue()
-
-    self.portal.REQUEST['test_ComputeNodeNotAllowedAllocationScope_OpenFriend'] = \
-        self._makeNotificationMessage(compute_node.getReference())
-
-    friend_person = self.makePerson()
-    compute_node.edit(allocation_scope='open/friend',
-        destination_section=friend_person.getRelativeUrl())
-    ticket = compute_node.ComputeNode_checkAndUpdateAllocationScope()
-    self.tic()
-    self.assertEqual(compute_node.getAllocationScope(), 'open/personal')
-    self.assertEqual(ticket.getSimulationState(), 'suspended')
-    self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \
-      '%s %s %s' % \
-      ('Allocation scope of %s changed to %s' % (compute_node.getReference(),
-                                                  'open/personal'),
-       'Test NM content\n%s\n' % compute_node.getReference(), person.getRelativeUrl()),
-      ticket.workflow_history['edit_workflow'][-1]['comment'])
-
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   @simulate('ComputeNode_hasContactedRecently', '*args, **kwargs','return False')
   @simulate('NotificationTool_getDocumentValue',
             'reference=None',
   'assert reference == "slapos-crm-compute-node-allocation-scope-closed.notification"\n' \
   'return context.restrictedTraverse(' \
-  'context.REQUEST["test_ComputeNodeToCloseAllocationScope_OpenPersonal"])')
+  'context.REQUEST["test_compute_nodeToCloseAllocationScope_OpenPersonal"])')
   @simulate('SupportRequest_trySendNotificationMessage',
             'message_title, message, destination_relative_url',
   'context.portal_workflow.doActionFor(' \
@@ -728,12 +693,12 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
   'comment="Visited by SupportRequest_trySendNotificationMessage ' \
   '%s %s %s" % (message_title, message, destination_relative_url))\n' \
   'return 1')
-  def test_ComputeNodeToCloseAllocationScope_OpenPersonal(self):
+  def test_compute_nodeToCloseAllocationScope_OpenPersonal(self):
     compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
     person = compute_node.getSourceAdministrationValue()
     target_allocation_scope = 'close/outdated'
 
-    self.portal.REQUEST['test_ComputeNodeToCloseAllocationScope_OpenPersonal'] = \
+    self.portal.REQUEST['test_compute_nodeToCloseAllocationScope_OpenPersonal'] = \
         self._makeNotificationMessage(compute_node.getReference())
 
     compute_node.edit(allocation_scope='open/personal')
@@ -749,7 +714,7 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
        'Test NM content\n%s\n' % compute_node.getReference(), person.getRelativeUrl()),
       support_request.workflow_history['edit_workflow'][-1]['comment'])
 
-  def test_ComputeNodeNormalAllocationScope_OpenPersonal(self):
+  def test_compute_nodeNormalAllocationScope_OpenPersonal(self):
     compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
     person = compute_node.getSourceAdministrationValue()
     self._updatePersonAssignment(person, 'role/service_provider')
@@ -759,7 +724,7 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
     self.tic()
     self.assertEqual(compute_node.getAllocationScope(), 'open/personal')
 
-  def test_ComputeNodeAllowedAllocationScope_OpenPublic(self):
+  def test_compute_nodeAllowedAllocationScope_OpenPublic(self):
     compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
     person = compute_node.getSourceAdministrationValue()
     self._updatePersonAssignment(person, 'role/service_provider')
@@ -768,19 +733,6 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
     compute_node.ComputeNode_checkAndUpdateAllocationScope()
     self.tic()
     self.assertEqual(compute_node.getAllocationScope(), 'open/public')
-
-  def test_ComputeNodeAllowedAllocationScope_OpenFriend(self):
-    compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
-    friend_person = self.makePerson()
-    person = compute_node.getSourceAdministrationValue()
-    self._updatePersonAssignment(person, 'role/service_provider')
-
-    compute_node.edit(allocation_scope='open/friend',
-        destination_section=friend_person.getRelativeUrl())
-    compute_node.ComputeNode_checkAndUpdateAllocationScope()
-    self.tic()
-    self.assertEqual(compute_node.getAllocationScope(), 'open/friend')
-
 
 class TestComputeNode_hasContactedRecently(SlapOSTestCaseMixinWithAbort):
 

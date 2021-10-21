@@ -1,6 +1,7 @@
 Alarm Tool | SlapOSMasterUpgradeConstraint
 Assignment | SlaposAssignmentConstraint
 Compute Node | ComputeNodeSlapOSMetadata
+Compute Node | ComputeNodeUpgradeConstraint
 Compute Node | ComputerUpgradeConstraint
 Compute Node | ERP5User
 Compute Node | SlaposCapacity

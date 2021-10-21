@@ -64,10 +64,10 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>account_type/asset/cash/bank</string>
                 <string>financial_section/asset/current_assets/cash</string>
                 <string>gap/ias/ifrs/5/51</string>
                 <string>gap/fr/pcg/5/51/511/5112</string>
+                <string>account_type/asset/cash</string>
               </tuple>
             </value>
         </item>
@@ -497,6 +497,51 @@
                           <state>
                             <tuple>
                               <float>1614105480.96</float>
+                              <string>UTC</string>
+                            </tuple>
+                          </state>
+                        </object>
+                      </value>
+                  </item>
+                </dictionary>
+                <dictionary>
+                  <item>
+                      <key> <string>action</string> </key>
+                      <value> <string>edit</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>actor</string> </key>
+                      <value> <string>zope</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>comment</string> </key>
+                      <value>
+                        <none/>
+                      </value>
+                  </item>
+                  <item>
+                      <key> <string>error_message</string> </key>
+                      <value> <string></string> </value>
+                  </item>
+                  <item>
+                      <key> <string>serial</string> </key>
+                      <value> <string>993.49407.7079.26129</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>state</string> </key>
+                      <value> <string>current</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>time</string> </key>
+                      <value>
+                        <object>
+                          <klass> <reference id="4.1"/> </klass>
+                          <tuple>
+                            <none/>
+                          </tuple>
+                          <state>
+                            <tuple>
+                              <float>1634849468.6</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

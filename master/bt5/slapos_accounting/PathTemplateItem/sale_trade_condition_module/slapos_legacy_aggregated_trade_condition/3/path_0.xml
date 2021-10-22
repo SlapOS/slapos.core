@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="Trade Model Line" module="erp5.portal_type"/>
+      <global name="Sale Supply Cell" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -13,47 +13,70 @@
             </value>
         </item>
         <item>
+            <key> <string>_local_properties</string> </key>
+            <value>
+              <tuple>
+                <dictionary>
+                  <item>
+                      <key> <string>id</string> </key>
+                      <value> <string>base_id</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>type</string> </key>
+                      <value> <string>string</string> </value>
+                  </item>
+                </dictionary>
+              </tuple>
+            </value>
+        </item>
+        <item>
             <key> <string>_range_criterion</string> </key>
             <value>
               <persistent> <string encoding="base64">AAAAAAAAAAM=</string> </persistent>
             </value>
         </item>
         <item>
+            <key> <string>base_id</string> </key>
+            <value> <string>path</string> </value>
+        </item>
+        <item>
+            <key> <string>base_price</string> </key>
+            <value> <float>8.0</float> </value>
+        </item>
+        <item>
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>resource/service_module/slapos_tax</string>
-                <string>base_application/base_amount/invoicing/taxable</string>
-                <string>trade_phase/slapos/tax</string>
+                <string>variation/service_module/slapos_reservation_fee/1</string>
               </tuple>
             </value>
         </item>
         <item>
-            <key> <string>default_reference</string> </key>
-            <value> <string>VAT</string> </value>
-        </item>
-        <item>
-            <key> <string>description</string> </key>
+            <key> <string>criterion_property</string> </key>
             <value>
-              <none/>
+              <tuple/>
             </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>5</string> </value>
+            <value> <string>path_0</string> </value>
         </item>
         <item>
-            <key> <string>int_index</string> </key>
+            <key> <string>mapped_value_property_list</string> </key>
             <value>
-              <none/>
+              <tuple>
+                <string>base_price</string>
+                <string>base_unit_price</string>
+                <string>slice_base_price</string>
+                <string>slice_quantity_range</string>
+              </tuple>
             </value>
         </item>
         <item>
             <key> <string>membership_criterion_base_category</string> </key>
             <value>
               <tuple>
-                <string>price_currency</string>
-                <string>resource</string>
+                <string>variation</string>
               </tuple>
             </value>
         </item>
@@ -61,41 +84,25 @@
             <key> <string>membership_criterion_category</string> </key>
             <value>
               <tuple>
-                <string>price_currency/currency_module/CNY</string>
+                <string>variation/service_module/slapos_reservation_fee/1</string>
               </tuple>
             </value>
         </item>
         <item>
-            <key> <string>portal_type</string> </key>
-            <value> <string>Trade Model Line</string> </value>
-        </item>
-        <item>
-            <key> <string>price</string> </key>
-            <value> <float>0.01</float> </value>
-        </item>
-        <item>
-            <key> <string>quantity</string> </key>
-            <value> <float>1.0</float> </value>
-        </item>
-        <item>
-            <key> <string>string_index</string> </key>
+            <key> <string>multimembership_criterion_base_category</string> </key>
             <value>
-              <none/>
+              <tuple/>
             </value>
         </item>
         <item>
-            <key> <string>target_delivery</string> </key>
-            <value> <int>0</int> </value>
+            <key> <string>portal_type</string> </key>
+            <value> <string>Sale Supply Cell</string> </value>
         </item>
         <item>
             <key> <string>test_method_id</string> </key>
             <value>
               <tuple/>
             </value>
-        </item>
-        <item>
-            <key> <string>title</string> </key>
-            <value> <string>VAT (CNY)</string> </value>
         </item>
       </dictionary>
     </pickle>

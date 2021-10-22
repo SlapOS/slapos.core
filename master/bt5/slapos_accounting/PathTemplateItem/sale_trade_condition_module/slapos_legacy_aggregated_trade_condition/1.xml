@@ -40,7 +40,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>5</string> </value>
+            <value> <string>1</string> </value>
         </item>
         <item>
             <key> <string>int_index</string> </key>
@@ -53,7 +53,6 @@
             <value>
               <tuple>
                 <string>price_currency</string>
-                <string>resource</string>
               </tuple>
             </value>
         </item>
@@ -61,7 +60,7 @@
             <key> <string>membership_criterion_category</string> </key>
             <value>
               <tuple>
-                <string>price_currency/currency_module/CNY</string>
+                <string>price_currency/currency_module/EUR</string>
               </tuple>
             </value>
         </item>
@@ -71,7 +70,7 @@
         </item>
         <item>
             <key> <string>price</string> </key>
-            <value> <float>0.01</float> </value>
+            <value> <float>0.196</float> </value>
         </item>
         <item>
             <key> <string>quantity</string> </key>
@@ -95,7 +94,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>VAT (CNY)</string> </value>
+            <value> <string>VAT (EURO)</string> </value>
         </item>
       </dictionary>
     </pickle>

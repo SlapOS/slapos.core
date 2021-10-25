@@ -1,0 +1,68 @@
+from __future__ import print_function
+
+import argparse
+import ast
+import os
+import sys
+
+
+# Parse arguments
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--promise-folder', required=True)
+parser.add_argument('--legacy-promise-folder', default=None)
+parser.add_argument('--promise-timeout', type=int, default=20)
+parser.add_argument('--partition-folder', default=None)
+parser.add_argument('--log-folder', default=None)
+parser.add_argument('--force', action='store_true')
+parser.add_argument('--check-anomaly', action='store_true')
+parser.add_argument('--debug', action='store_true')
+parser.add_argument('--master-url', default=None)
+parser.add_argument('--partition-cert', default=None)
+parser.add_argument('--partition-key', default=None)
+parser.add_argument('--partition-id', default=None)
+parser.add_argument('--computer-id', default=None)
+args = parser.parse_args()
+
+
+# Extract slapos.core path and all dependencies from first promise found
+# to import slapos.core
+
+promise_folder = args.promise_folder
+promise_file = next(
+  p for p in os.listdir(promise_folder)
+  if p.endswith('.py') and not p.startswith('__init__')
+)
+with open(os.path.join(promise_folder, promise_file)) as f:
+  promise_content = f.read()
+tree = ast.parse(promise_content, mode='exec')
+
+sys.path[0:0] = eval(compile(ast.Expression(tree.body[1].value), '', 'eval'))
+
+from slapos.grid.promise import PromiseLauncher, PromiseError
+from slapos.cli.entry import SlapOSApp
+
+
+# Configure promise launcher
+# with the same logger as standard slapos command
+
+app = SlapOSApp()
+app.options, _ = app.parser.parse_known_args([])
+app.configure_logging()
+
+config = {k.replace('_', '-') : v for k, v in vars(args).items()}
+promise_checker = PromiseLauncher(config=config, logger=app.log)
+
+
+# Run promises
+# Redirect stdout to stderr (logger only uses stderr already)
+# to reserve stdout for error reporting
+
+out = os.dup(1)
+os.dup2(2, 1)
+
+try:
+  promise_checker.run()
+except Exception as e:
+  os.write(out, str(e))
+  sys.exit(2 if isinstance(e, PromiseError) else 1)

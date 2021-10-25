@@ -33,7 +33,6 @@ import pkg_resources
 import random
 import socket
 from io import BytesIO
-import subprocess
 import sys
 import tempfile
 import time
@@ -45,6 +44,11 @@ import shutil
 import six
 import errno
 
+if six.PY3:
+  import subprocess
+else:
+  import subprocess32 as subprocess
+
 if sys.version_info < (2, 6):
   warnings.warn('Used python version (%s) is old and has problems with'
       ' IPv6 connections' % sys.version.split('\n')[0])
@@ -55,14 +59,18 @@ from slapos import manager as slapmanager
 from slapos.slap.slap import NotFoundError
 from slapos.slap.slap import ServerError
 from slapos.slap.slap import COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME
-from slapos.util import mkdir_p, chownDirectory, string_to_boolean
+from slapos.util import mkdir_p, chownDirectory, string_to_boolean, listifdir
 from slapos.grid.exception import BuildoutFailedError
 from slapos.grid.SlapObject import Software, Partition
 from slapos.grid.svcbackend import (launchSupervisord,
                                     createSupervisordConfiguration,
                                     _getSupervisordConfigurationDirectory,
                                     _getSupervisordSocketPath)
-from slapos.grid.utils import (md5digest, dropPrivileges, SlapPopen, updateFile)
+from slapos.grid.utils import (md5digest,
+                              dropPrivileges,
+                              killProcessTree,
+                              SlapPopen,
+                              updateFile)
 from slapos.grid.promise import PromiseLauncher, PromiseError
 from slapos.grid.promise.generic import PROMISE_LOG_FOLDER_NAME
 from slapos.human import human2bytes
@@ -302,10 +310,12 @@ def check_required_only_partitions(existing, required):
   """
   Verify the existence of partitions specified by the --only parameter
   """
-  missing = set(required) - set(existing)
+  required = set(required)
+  missing = required.difference(existing)
   if missing:
     plural = ['s', ''][len(missing) == 1]
     raise ValueError('Unknown partition%s: %s' % (plural, ', '.join(sorted(missing))))
+  return required
 
 
 class Slapgrid(object):
@@ -549,6 +559,18 @@ stderr_logfile_backups=1
       self.logger.fatal(exc)
       raise
 
+  def getRequiredComputerPartitionList(self):
+    """Return the computer partitions that should be processed.
+    """
+    cp_list = self.getComputerPartitionList()
+    cp_id_list = [cp.getId() for cp in cp_list]
+    required_cp_id_set = check_required_only_partitions(
+      cp_id_list, self.computer_partition_filter_list)
+    busy_cp_list = self.FilterComputerPartitionList(cp_list)
+    if required_cp_id_set:
+      return [cp for cp in busy_cp_list if cp.getId() in required_cp_id_set]
+    return busy_cp_list
+
   def processSoftwareReleaseList(self):
     """Will process each Software Release.
     """
@@ -655,18 +677,18 @@ stderr_logfile_backups=1
     return SLAPGRID_SUCCESS
 
   def _checkPromiseList(self, partition, force=True, check_anomaly=False):
-    instance_path = os.path.join(self.instance_root, partition.partition_id)
+    partition_id = partition.partition_id
+    self.logger.info("Checking %s promises...", partition_id)
+
+    instance_path = os.path.join(self.instance_root, partition_id)
     promise_log_path = os.path.join(instance_path, PROMISE_LOG_FOLDER_NAME)
-
-    self.logger.info("Checking %s promises..." % partition.partition_id)
-    uid, gid = None, None
-    stat_info = os.stat(instance_path)
-
-    #stat sys call to get statistics informations
-    uid = stat_info.st_uid
-    gid = stat_info.st_gid
     promise_dir = os.path.join(instance_path, 'etc', 'plugin')
     legacy_promise_dir = os.path.join(instance_path, 'etc', 'promise')
+
+    stat_info = os.stat(instance_path)
+    uid = stat_info.st_uid
+    gid = stat_info.st_gid
+
     promise_config = {
       'promise-folder': promise_dir,
       'legacy-promise-folder': legacy_promise_dir,
@@ -680,12 +702,56 @@ stderr_logfile_backups=1
       'master-url': partition.server_url,
       'partition-cert': partition.cert_file,
       'partition-key': partition.key_file,
-      'partition-id': partition.partition_id,
+      'partition-id': partition_id,
       'computer-id': self.computer_id,
     }
 
-    promise_checker = PromiseLauncher(config=promise_config, logger=self.logger)
-    return promise_checker.run()
+    plugins = sum(
+      1 for p in listifdir(promise_dir)
+      if p.endswith('.py') and not p.startswith('__init__')
+    )
+    instance_python = partition.instance_python
+    if instance_python is not None and plugins:
+      self.logger.info(
+        "Switching to %s's python at %s", partition_id, instance_python)
+      runpromise_script = os.path.join(
+        os.path.dirname(__file__), 'promise', 'runpromises.py')
+      command = [instance_python, runpromise_script]
+      for option, value in promise_config.items():
+        if option in ('uid', 'gid'):
+          continue
+        if isinstance(value, bool):
+          if value:
+            command.append('--' + option)
+        else:
+          command.append('--' + option)
+          command.append(str(value))
+      process = subprocess.Popen(
+        command,
+        preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),
+        cwd=instance_path,
+        stdout=subprocess.PIPE)
+      promises = plugins + len(listifdir(legacy_promise_dir))
+      # Add a timeout margin to let the process kill the promises and cleanup
+      timeout = promises * self.promise_timeout + 10
+      try:
+        # The logger logs everything to stderr, so runpromise redirects
+        # stdout to stderr in case a promise prints to stdout
+        # and reserves stdout to progagate exception messages.
+        out, _ = process.communicate(timeout=timeout)
+        if process.returncode == 2:
+          raise PromiseError(out)
+        elif process.returncode:
+          raise Exception(out)
+        elif out:
+          self.logger.warn('Promise runner unexpected output:\n%s', out)
+      except subprocess.TimeoutExpired:
+        killProcessTree(process.pid, self.logger)
+        # The timeout margin was exceeded but this should be infrequent
+        raise Exception('Promise runner timed out')
+
+    else:
+      return PromiseLauncher(config=promise_config, logger=self.logger).run()
 
   def _endInstallationTransaction(self, computer_partition):
     partition_id = computer_partition.getId()
@@ -972,12 +1038,6 @@ stderr_logfile_backups=1
     if not computer_partition_id:
       raise ValueError('Computer Partition id is empty.')
 
-    # Check if we defined explicit list of partitions to process.
-    # If so, if current partition not in this list, skip.
-    if len(self.computer_partition_filter_list) > 0 and \
-         (computer_partition_id not in self.computer_partition_filter_list):
-      return
-
     instance_path = os.path.join(self.instance_root, computer_partition_id)
     os.environ['SLAPGRID_INSTANCE_ROOT'] = self.instance_root
     try:
@@ -1037,12 +1097,6 @@ stderr_logfile_backups=1
     # Those values should not be None or empty string or any falsy value
     if not computer_partition_id:
       raise ValueError('Computer Partition id is empty.')
-
-    # Check if we defined explicit list of partitions to process.
-    # If so, if current partition not in this list, skip.
-    if len(self.computer_partition_filter_list) > 0 and \
-         (computer_partition_id not in self.computer_partition_filter_list):
-      return
 
     self.logger.debug('Check if %s requires processing...' % computer_partition_id)
 
@@ -1357,12 +1411,7 @@ stderr_logfile_backups=1
     # Boolean to know if every promises correctly passed
     clean_run_promise = True
 
-    check_required_only_partitions([cp.getId() for cp in self.getComputerPartitionList()],
-                                   self.computer_partition_filter_list)
-
-    # Filter all dummy / empty partitions
-    computer_partition_list = self.FilterComputerPartitionList(
-        self.getComputerPartitionList())
+    computer_partition_list = self.getRequiredComputerPartitionList()
 
     process_error_partition_list = []
     promise_error_partition_list = []
@@ -1438,12 +1487,8 @@ stderr_logfile_backups=1
     self.logger.info('Processing promises...')
     # Return success value
     clean_run_promise = True
-    check_required_only_partitions([cp.getId() for cp in self.getComputerPartitionList()],
-                                   self.computer_partition_filter_list)
 
-    # Filter all dummy / empty partitions
-    computer_partition_list = self.FilterComputerPartitionList(
-        self.getComputerPartitionList())
+    computer_partition_list = self.getRequiredComputerPartitionList()
 
     promise_error_partition_list = []
     for computer_partition in computer_partition_list:
@@ -1599,37 +1644,24 @@ stderr_logfile_backups=1
       try:
         computer_partition_id = computer_partition.getId()
 
+        instance_path = os.path.join(self.instance_root, computer_partition_id)
+
+        # We now generate a pseudorandom name for the report xml file
+        # that will be passed to the invocation list
+        slapreport_path = tempfile.mktemp(
+          prefix='slapreport.',
+          dir=os.path.join(instance_path, 'var', 'xml_report'))
+
         # We want to execute all the script in the report folder
-        instance_path = os.path.join(self.instance_root,
-            computer_partition.getId())
-        report_path = os.path.join(instance_path, 'etc', 'report')
-        if os.path.isdir(report_path):
-          script_list_to_run = os.listdir(report_path)
-        else:
-          script_list_to_run = []
-
-        # We now generate the pseudorandom name for the xml file
-        # and we add it in the invocation_list
-        f = tempfile.NamedTemporaryFile()
-        name_xml = '%s.%s' % ('slapreport', os.path.basename(f.name))
-        path_to_slapreport = os.path.join(instance_path, 'var', 'xml_report',
-            name_xml)
-
         failed_script_list = []
-        for script in script_list_to_run:
+        report_dir = os.path.join(instance_path, 'etc', 'report')
+        for script in listifdir(report_dir):
           invocation_list = []
-          invocation_list.append(os.path.join(instance_path, 'etc', 'report',
-            script))
-          # We add the xml_file name to the invocation_list
-          #f = tempfile.NamedTemporaryFile()
-          #name_xml = '%s.%s' % ('slapreport', os.path.basename(f.name))
-          #path_to_slapreport = os.path.join(instance_path, 'var', name_xml)
+          invocation_list.append(os.path.join(report_dir, script))
+          invocation_list.append(slapreport_path)
 
-          invocation_list.append(path_to_slapreport)
           # Dropping privileges
-          uid, gid = None, None
           stat_info = os.stat(instance_path)
-          #stat sys call to get statistics informations
           uid = stat_info.st_uid
           gid = stat_info.st_gid
           process_handler = SlapPopen(invocation_list,

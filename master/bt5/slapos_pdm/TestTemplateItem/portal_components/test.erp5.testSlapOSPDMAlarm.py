@@ -80,6 +80,7 @@ class TestSlapOSUpgradeDecisionProcess(SlapOSTestCaseMixin):
   def test_alarm_compute_node_create_upgrade_decision(self):
     compute_node = self._makeComputeNode(allocation_scope = 'open/public')[0]
     compute_node2 = self._makeComputeNode(allocation_scope = 'open/personal')[0]
+    compute_node3 = self._makeComputeNode(allocation_scope = 'open/friend')[0]
     self.tic()
 
     self._simulateScript('ComputeNode_checkAndCreateUpgradeDecision', 'True')
@@ -96,6 +97,9 @@ class TestSlapOSUpgradeDecisionProcess(SlapOSTestCaseMixin):
     self.assertEqual('Visited by ComputeNode_checkAndCreateUpgradeDecision',
       compute_node2.workflow_history['edit_workflow'][-1]['comment'])
 
+    self.assertEqual('Visited by ComputeNode_checkAndCreateUpgradeDecision',
+      compute_node3.workflow_history['edit_workflow'][-1]['comment'])
+  
   def test_alarm_instance_tree_create_upgrade_decision(self):
     instance_tree = self._makeInstanceTree()
     instance_tree2 = self._makeInstanceTree()

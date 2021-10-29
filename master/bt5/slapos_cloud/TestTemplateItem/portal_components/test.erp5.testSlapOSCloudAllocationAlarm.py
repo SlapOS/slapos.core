@@ -235,6 +235,72 @@ return True""" )
         self.software_instance.getAggregate(portal_type='Compute Partition'))
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
+  def test_allocation_allocation_scope_open_friend(self):
+    self._makeTree()
+
+    self._makeComputeNode()
+    self._installSoftware(self.compute_node,
+        self.software_instance.getUrlString())
+    # change compute_node owner
+    new_id = self.generateNewId()
+    person_user = self.portal.person_module.template_member.\
+                                 Base_createCloneDocument(batch_mode=1)
+    person_user.edit(
+      title="live_test_%s" % new_id,
+      reference="live_test_%s" % new_id,
+      default_email_text="live_test_%s@example.org" % new_id,
+    )
+
+    person_user.validate()
+    for assignment in person_user.contentValues(portal_type="Assignment"):
+      assignment.open()
+
+    self.compute_node.edit(
+      source_administration=person_user.getRelativeUrl(),
+      destination_section=self.person_user.getRelativeUrl(),
+      allocation_scope='open/friend')
+    self.tic()
+
+    self.assertEqual(None, self.software_instance.getAggregateValue(
+        portal_type='Compute Partition'))
+    self.software_instance.SoftwareInstance_tryToAllocatePartition()
+    self.assertEqual(self.partition.getRelativeUrl(),
+        self.software_instance.getAggregate(portal_type='Compute Partition'))
+
+  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
+  def test_allocation_host_allocation_scope_open_friend(self):
+    self._makeSlaveTree()
+
+    self._makeComputeNode()
+    self._allocateHost(self.requested_software_instance,
+        self.partition)
+    # change compute_node owner
+    new_id = self.generateNewId()
+    person_user = self.portal.person_module.template_member.\
+                                 Base_createCloneDocument(batch_mode=1)
+    person_user.edit(
+      title="live_test_%s" % new_id,
+      reference="live_test_%s" % new_id,
+      default_email_text="live_test_%s@example.org" % new_id,
+    )
+
+    person_user.validate()
+    for assignment in person_user.contentValues(portal_type="Assignment"):
+      assignment.open()
+
+    self.compute_node.edit(
+      source_administration=person_user.getRelativeUrl(),
+      destination_section=self.person_user.getRelativeUrl(),
+      allocation_scope='open/friend')
+    self.tic()
+
+    self.assertEqual(None, self.software_instance.getAggregateValue(
+        portal_type='Compute Partition'))
+    self.software_instance.SoftwareInstance_tryToAllocatePartition()
+    self.assertEqual(self.partition.getRelativeUrl(),
+        self.software_instance.getAggregate(portal_type='Compute Partition'))
+
+  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_does_not_fail_on_instance_with_damaged_sla_xml(self):
     self._makeTree()
 

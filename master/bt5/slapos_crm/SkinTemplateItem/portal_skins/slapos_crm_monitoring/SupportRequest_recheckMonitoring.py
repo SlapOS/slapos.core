@@ -78,7 +78,7 @@ if aggregate_portal_type == "Instance Tree":
     if instance.getAggregate() is not None:
       compute_node = instance.getAggregateValue().getParentValue()
       if instance.getPortalType() == "Software Instance" and \
-          compute_node.getAllocationScope() in ["open/public", "open/subscription"] and \
+          compute_node.getAllocationScope() in ["open/public", "open/friend", "open/subscription"] and \
           instance.getSlapState() == "start_requested" and \
           instance.SoftwareInstance_hasReportedError():
         message_list.append("%s has error (%s, %s at %s scope %s)" % (instance.getReference(), instance.getTitle(),

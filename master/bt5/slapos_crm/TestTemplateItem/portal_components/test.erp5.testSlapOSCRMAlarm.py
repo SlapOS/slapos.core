@@ -430,6 +430,14 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
           slapos_crm_check_compute_node_state
     self._test_alarm(alarm, self.compute_node, "ComputeNode_checkState")
 
+  def test_alarm_check_friend_compute_node_state(self):
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope='open/friend')
+    self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_compute_node_state
+    self._test_alarm(alarm, self.compute_node, "ComputeNode_checkState")
+
   def test_alarm_check_personal_compute_node_state(self):
     self._makeComputeNode()
     self.compute_node.edit(allocation_scope='open/personal')
@@ -454,6 +462,11 @@ class TestSlapOSCrmMonitoringCheckComputeNodeState(SlapOSTestCaseMixinWithAbort)
   def test_alarm_check_compute_node_state_on_public_compute_node_with_monitor_scope_disabled(self):
     self._test_alarm_check_compute_node_state_not_selected(
       allocation_scope='open/public',
+      monitor_scope="disabled")
+
+  def test_alarm_check_compute_node_state_on_friend_compute_node_with_monitor_scope_disabled(self):
+    self._test_alarm_check_compute_node_state_not_selected(
+      allocation_scope='open/friend',
       monitor_scope="disabled")
 
   def test_alarm_check_compute_node_state_on_personal_compute_node_with_monitor_scope_disabled(self):
@@ -484,6 +497,15 @@ class TestSlapOSCrmMonitoringCheckComputeNodeAllocationScope(SlapOSTestCaseMixin
           slapos_crm_check_update_allocation_scope
     self._test_alarm(alarm, self.compute_node, "ComputeNode_checkAndUpdateAllocationScope")
 
+
+  def test_alarm_not_allowed_allocation_scope_OpenFriend(self):
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope = 'open/friend')
+    self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_update_allocation_scope
+    self._test_alarm(alarm, self.compute_node, "ComputeNode_checkAndUpdateAllocationScope")
+
   def test_alarm_not_allowed_allocationScope_open_personal(self):
     self._makeComputeNode()
     self.compute_node.edit(allocation_scope = 'open/personal')
@@ -502,6 +524,15 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
           slapos_crm_check_software_installation_state
     self._test_alarm(alarm, self.compute_node, "ComputeNode_checkSoftwareInstallationState")
 
+  def test_alarm_run_on_open_friend(self):
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope = 'open/friend')
+    self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_software_installation_state
+    self._test_alarm(alarm, self.compute_node, "ComputeNode_checkSoftwareInstallationState")
+
+
   def test_alarm_run_on_open_personal(self):
     self._makeComputeNode()
     self.compute_node.edit(allocation_scope = 'open/personal',
@@ -514,6 +545,16 @@ class TestSlapOSCrmMonitoringCheckComputeNodeSoftwareInstallation(SlapOSTestCase
   def test_alarm_dont_run_on_open_public_with_monitor_scope_disabled(self):
     self._makeComputeNode()
     self.compute_node.edit(allocation_scope = 'open/public')
+    self.tic()
+    self.compute_node.edit(monitor_scope = 'disabled')
+    self.tic()
+    alarm = self.portal.portal_alarms.\
+          slapos_crm_check_software_installation_state
+    self._test_alarm_not_visited(alarm, self.compute_node, "ComputeNode_checkSoftwareInstallationState")
+
+  def test_alarm_dont_run_on_open_friend_with_monitor_scope_disabled(self):
+    self._makeComputeNode()
+    self.compute_node.edit(allocation_scope = 'open/friend')
     self.tic()
     self.compute_node.edit(monitor_scope = 'disabled')
     self.tic()

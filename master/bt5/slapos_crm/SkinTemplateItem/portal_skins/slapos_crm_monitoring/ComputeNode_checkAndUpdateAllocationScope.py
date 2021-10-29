@@ -5,7 +5,7 @@ portal = context.getPortalObject()
 allocation_scope = compute_node.getAllocationScope()
 compute_node_reference = compute_node.getReference()
 
-if allocation_scope not in ['open/public', 'open/personal']:
+if allocation_scope not in ['open/public', 'open/friend', 'open/personal']:
   return
 
 if allocation_scope == target_allocation_scope:

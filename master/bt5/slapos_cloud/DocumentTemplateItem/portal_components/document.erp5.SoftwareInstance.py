@@ -28,6 +28,7 @@
 from AccessControl import ClassSecurityInfo
 from Products.ERP5Type import Permissions
 from erp5.component.document.Item import Item
+from erp5.component.document.JSONType import JSONType
 from lxml import etree
 import collections
 
@@ -37,7 +38,7 @@ class DisconnectedSoftwareTree(Exception):
 class CyclicSoftwareTree(Exception):
   pass
 
-class SoftwareInstance(Item):
+class SoftwareInstance(Item, JSONType):
   """
   """
 
@@ -127,3 +128,12 @@ class SoftwareInstance(Item):
     if size != len(visited) + 1:
       raise DisconnectedSoftwareTree
     return True
+
+  security.declareProtected(Permissions.AccessContentsInformation,
+    'asJSONText')
+  def asJSONText(self):
+    return self.getJsonContent()
+
+  security.declareProtected(Permissions.ModifyPortalContent, 'fromJSONText')
+  def fromJSONText(self, json_content):
+    return self.setJsonContent(json_content)

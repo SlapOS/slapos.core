@@ -1,0 +1,286 @@
+<?xml version="1.0"?>
+<ZopeData>
+  <record id="1" aka="AAAAAAAAAAE=">
+    <pickle>
+      <global name="JSON Form" module="erp5.portal_type"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>after_method_id</string> </key>
+            <value> <string>JSONRPCService_requestSoftwareInstance</string> </value>
+        </item>
+        <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>application/json</string> </value>
+        </item>
+        <item>
+            <key> <string>default_reference</string> </key>
+            <value> <string>JSONRPCService_requestSoftwareInstanceFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>description</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>id</string> </key>
+            <value> <string>JSONRPCService_requestSoftwareInstanceFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>output_schema</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>portal_type</string> </key>
+            <value> <string>JSON Form</string> </value>
+        </item>
+        <item>
+            <key> <string>response_schema</string> </key>
+            <value> <string>{\n
+  "$schema": "http://json-schema.org/draft-07/schema#",\n
+  "title": "Software Instance Requested",\n
+  "description": "Response when the software instance is requested",\n
+  "type": "object",\n
+  "additionalProperties": false,\n
+  "properties": {\n
+\n
+    "message": {\n
+      "title": "Message",\n
+      "type": "string"\n
+    },\n
+    "name": {\n
+      "title": "Name",\n
+      "type": "string"\n
+    },\n
+    "status": {\n
+      "title": "Status",\n
+      "type": "integer"\n
+    },\n
+\n
+    "compute_node_id": {\n
+      "title": "Compute Node Id",\n
+      "type": "string",\n
+      "description": "Id Of the Requesting Compute Node, used by Slap Client when an instance is requesting an instance"\n
+    },\n
+    "portal_type": {\n
+      "title": "Portal Type",\n
+      "const": "Software Instance",\n
+      "type": "string"\n
+    },\n
+    "reference": {\n
+      "title": "Software Instance Reference",\n
+      "description": "Unique identifier of the Software Instance",\n
+      "type": "string"\n
+    },\n
+    "root_instance_title": {\n
+      "title": "Title of the Roor Instance",\n
+      "type": "string"\n
+    },\n
+    "title": {\n
+      "title": "Unique Title of the Instance",\n
+      "type": "string"\n
+    },\n
+    "state": {\n
+      "title": "Requested State",\n
+      "type": "string",\n
+      "enum": ["started", "stopped", "destroyed"],\n
+      "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance."\n
+    },\n
+    "compute_partition_id": {\n
+      "title": "Compute Partition Id",\n
+      "type": "string",\n
+      "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance"\n
+    },\n
+    "software_release_uri": {\n
+      "title": "Software Release URI",\n
+      "type": "string",\n
+      "description": "URL of the software release used by the software instance"\n
+    },\n
+    "software_type": {\n
+      "title": "Software Type",\n
+      "type": "string"\n
+    },\n
+    "shared": {\n
+      "title": "Shared",\n
+      "type": "boolean",\n
+      "description": "Is it a shared instance"\n
+    },\n
+    "processing_timestamp": {\n
+      "title": "Processing Timestamp",\n
+      "type": "integer"\n
+    },\n
+    "access_status_message": {\n
+      "title": "Access Status Message",\n
+      "type": "string"\n
+    },\n
+    "parameters": {\n
+      "title": "Parameters",\n
+      "type": "object"\n
+    },\n
+    "sla_parameters": {\n
+      "title": "SLA Parameters",\n
+      "type": "object"\n
+    },\n
+    "connection_parameters": {\n
+      "title": "Connection Parameters",\n
+      "type": "object"\n
+    },\n
+    "ip_list": {\n
+      "title": "IP List",\n
+      "type": "array",\n
+      "description": "List of IPs usable by the Software Instance on the partition.",\n
+      "items": {\n
+        "type": "array",\n
+        "title": "Internet Protocol Address",\n
+        "description": "All elements to describe the interface",\n
+        "items": {\n
+          "type": "string"\n
+        }\n
+      }\n
+    },\n
+    "full_ip_list": {\n
+      "title": "Full IP List",\n
+      "type": "array",\n
+      "description": "List of IPs usable by the Software Instance on the partition.",\n
+      "items": {\n
+        "type": "array",\n
+        "title": "Internet Protocol Address",\n
+        "description": "All elements to describe the interface",\n
+        "items": {\n
+          "type": "string"\n
+        }\n
+      }\n
+    }\n
+  },\n
+\n
+  "oneOf": [{\n
+    "required": [\n
+      "compute_node_id",\n
+      "portal_type",\n
+      "reference",\n
+      "root_instance_title",\n
+      "title",\n
+      "state",\n
+      "compute_partition_id",\n
+      "software_release_uri",\n
+      "software_type",\n
+      "shared",\n
+      "processing_timestamp",\n
+      "access_status_message",\n
+      "parameters",\n
+      "sla_parameters",\n
+      "connection_parameters",\n
+      "ip_list",\n
+      "full_ip_list"\n
+    ]\n
+  },{\n
+    "required": [\n
+      "message",\n
+      "name",\n
+      "status"\n
+    ]\n
+  }]\n
+}\n
+</string> </value>
+        </item>
+        <item>
+            <key> <string>text_content</string> </key>
+            <value> <string>{\n
+  "$schema": "http://json-schema.org/draft-07/schema#",\n
+  "$id": "software-instance-base-schema.json",\n
+  "title": "Software Instance",\n
+  "description": "Software Instance",\n
+  "type": "object",\n
+  "additionalProperties": false,\n
+  "properties": {\n
+    "project_reference": {\n
+      "title": "Project Reference",\n
+      "type": "string"\n
+    },\n
+    "title": {\n
+      "title": "Title",\n
+      "type": "string",\n
+      "description": "Unique Name of the Software Instance",\n
+      "maxLength": 200\n
+    },\n
+    "software_release_uri": {\n
+      "title": "Software Release URI",\n
+      "type": "string",\n
+      "description": "URI of the Software Release to be used by the instance"\n
+    },\n
+    "software_type": {\n
+      "title": "Software Type",\n
+      "type": "string",\n
+      "description": "Software type to be requested"\n
+    },\n
+    "state": {\n
+      "title": "Requested State",\n
+      "type": "string",\n
+      "enum": ["started", "stopped", "destroyed"],\n
+      "default": "started",\n
+      "description": "State of the requested instance"\n
+    },\n
+    "parameters": {\n
+      "title": "Instance Parameters",\n
+      "type": "object",\n
+      "description": "Instance parameters."\n
+    },\n
+    "shared": {\n
+      "title": "Shared Instance",\n
+      "type": "boolean",\n
+      "description": "Ask for a Shared Instance"\n
+    },\n
+    "sla_parameters": {\n
+      "title": "Target Node Selection Parameters",\n
+      "type": "object",\n
+      "description": "Also known as SLA parameters. Used to pick where an how the instance is to be deployed",\n
+      "properties": {\n
+        "computer_guid": {\n
+          "title": "Requested Compute Node",\n
+          "descritpion": "Requested Compute Node Reference, like COMP-1234",\n
+          "type": "string"\n
+        },\n
+        "project_guid": {\n
+          "title": "Requested Project",\n
+          "descritpion": "Requested Project Reference",\n
+          "type": "string"\n
+        },\n
+        "instance_guid": {\n
+          "title": "Requested Host Instance",\n
+          "descritpion": "Only applicable to shared instance. Requested Host Instance Reference, like SOFTINST-1234",\n
+          "type": "string"\n
+        },\n
+        "network_guid": {\n
+          "title": "Requested Network",\n
+          "descritpion": "Requested Network Reference",\n
+          "type": "string"\n
+        },\n
+        "retention_delay": {\n
+          "title": "Retention Delay",\n
+          "Description": "Number of days during the data is preserved after the instance is destroyed",\n
+          "type": "number"\n
+        }\n
+      },\n
+      "additionalProperties": { "type": "string" }\n
+    }\n
+  },\n
+  "required": ["title", "software_release_uri", "software_type"]\n
+}\n
+</string> </value>
+        </item>
+        <item>
+            <key> <string>title</string> </key>
+            <value> <string>JSONRPCService_requestSoftwareInstanceFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>version</string> </key>
+            <value> <string>001</string> </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+</ZopeData>

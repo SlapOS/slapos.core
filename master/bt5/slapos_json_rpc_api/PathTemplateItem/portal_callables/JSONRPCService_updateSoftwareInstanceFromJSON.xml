@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<ZopeData>
+  <record id="1" aka="AAAAAAAAAAE=">
+    <pickle>
+      <global name="JSON Form" module="erp5.portal_type"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>after_method_id</string> </key>
+            <value> <string>JSONRPCService_updateSoftwareInstanceFromDict</string> </value>
+        </item>
+        <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>application/json</string> </value>
+        </item>
+        <item>
+            <key> <string>default_reference</string> </key>
+            <value> <string>JSONRPCService_updateSoftwareInstanceFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>description</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>id</string> </key>
+            <value> <string>JSONRPCService_updateSoftwareInstanceFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>output_schema</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>portal_type</string> </key>
+            <value> <string>JSON Form</string> </value>
+        </item>
+        <item>
+            <key> <string>response_schema</string> </key>
+            <value> <string>{\n
+  "$schema": "http://json-schema.org/draft-07/schema#",\n
+  "title": "Software Instance Updated",\n
+  "description": "Response when the software instance is updated",\n
+  "type": "object",\n
+  "additionalProperties": false,\n
+  "properties": {\n
+    "reference": {\n
+      "title": "Software Instance Id/Reference",\n
+      "type": "string",\n
+      "description": "The unique reference of the Software Instance, example: SOFTINST-1234"\n
+    },\n
+    "portal_type": {\n
+      "title": "Portal Type",\n
+      "const": "Software Instance",\n
+      "type": "string"\n
+    },\n
+    "date": {\n
+      "title": "Date",\n
+      "description": "Date and Time of the operation",\n
+      "type": "string",\n
+      "format": "date-time"\n
+    },\n
+    "success": {\n
+      "title": "Sucess",\n
+      "const": "Done",\n
+      "type": "string"\n
+    }\n
+  },\n
+  "required": [\n
+    "reference",\n
+    "portal_type",\n
+    "date",\n
+    "success"\n
+  ]\n
+}\n
+</string> </value>
+        </item>
+        <item>
+            <key> <string>text_content</string> </key>
+            <value> <string>{\n
+  "$schema": "http://json-schema.org/draft-07/schema#",\n
+  "$id": "software-instance-base-schema.json",\n
+  "title": "Software Instance",\n
+  "description": "Software Instance",\n
+  "type": "object",\n
+  "additionalProperties": false,\n
+  "properties": {\n
+\n
+    "reference": {\n
+      "title": "Software Instance Id/Reference",\n
+      "type": "string",\n
+      "description": "The unique reference of the Software Instance, example: SOFTINST-1234"\n
+    },\n
+\n
+    "compute_node_id": {\n
+      "title": "Compute Node Id",\n
+      "type": "string",\n
+      "description": "Id Of the Requesting Compute Node, used by Slap Client when an instance is requesting an instance"\n
+    },\n
+    "compute_partition_id": {\n
+      "title": "Compute Partition Id",\n
+      "type": "string",\n
+      "description": "Id Of the Requesting Compute Partition, used by Slap Client when an instance is requesting an instance"\n
+    },\n
+\n
+    "connection_parameters": {\n
+      "title": "Connections Parameters",\n
+      "type": "object",\n
+      "description": "List of parameters provided by the instance to access it."\n
+    },\n
+    "reported_state": {\n
+      "title": "Reported State",\n
+      "type": "string",\n
+      "enum": ["started", "destroyed", "stopped", "error", "bang"],\n
+      "description": "State reported by the node installing the Software Installation"\n
+    },\n
+    "status_message": {\n
+      "title": "Status Message",\n
+      "description": "Message Used to inform master with readable text. Use to justify an error or a bang",\n
+      "type": "string"\n
+    },\n
+    "portal_type": {\n
+      "title": "Portal Type",\n
+      "const": "Software Instance",\n
+      "type": "string"\n
+    },\n
+    "title": {\n
+      "title": "New Title",\n
+      "type": "string",\n
+      "description": "Use this to change the name of your instance. Very dangerous. DO NOT USE IF YOU DO NOT KNOW WHAT YOU ARE DOING",\n
+      "maxLength": 200\n
+    }\n
+  },\n
+  "required": [\n
+    "portal_type"\n
+  ],\n
+  "oneOf": [\n
+    {"required": ["reference"]},\n
+    {"required": ["compute_node_id", "compute_partition_id"]}\n
+  ]\n
+}\n
+</string> </value>
+        </item>
+        <item>
+            <key> <string>title</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>version</string> </key>
+            <value> <string>001</string> </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+</ZopeData>

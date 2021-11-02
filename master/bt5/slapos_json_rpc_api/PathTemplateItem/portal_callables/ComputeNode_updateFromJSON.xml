@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+<ZopeData>
+  <record id="1" aka="AAAAAAAAAAE=">
+    <pickle>
+      <global name="JSON Form" module="erp5.portal_type"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>after_method_id</string> </key>
+            <value> <string>ComputeNode_updateFromAPIDict</string> </value>
+        </item>
+        <item>
+            <key> <string>content_type</string> </key>
+            <value> <string>application/json</string> </value>
+        </item>
+        <item>
+            <key> <string>default_reference</string> </key>
+            <value> <string>ComputeNode_updateFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>description</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>id</string> </key>
+            <value> <string>ComputeNode_updateFromJSON</string> </value>
+        </item>
+        <item>
+            <key> <string>output_schema</string> </key>
+            <value> <string>{\n
+  "$schema": "http://json-schema.org/draft-07/schema#",\n
+  "title": "Software Installation Updated",\n
+  "description": "Response when the software installation is updated",\n
+  "type": "object",\n
+  "additionalProperties": false,\n
+  "properties": {\n
+    "compute_node_id": {\n
+      "title": "Compute Node ID",\n
+      "type": "string",\n
+      "description": "The Id of the compute node, example: COMP-1234"\n
+    },\n
+    "portal_type": {\n
+      "title": "Portal Type",\n
+      "const": "Compute Node",\n
+      "type": "string"\n
+    },\n
+    "date": {\n
+      "title": "Date",\n
+      "description": "Date and Time of the operation",\n
+      "type": "string",\n
+      "format": "date-time"\n
+    },\n
+    "success": {\n
+      "title": "Success Message",\n
+      "type": "string",\n
+      "description": "Success Message"\n
+    }\n
+  },\n
+  "required": ["portal_type", "compute_node_id", "date", "success"]\n
+}\n
+</string> </value>
+        </item>
+        <item>
+            <key> <string>portal_type</string> </key>
+            <value> <string>JSON Form</string> </value>
+        </item>
+        <item>
+            <key> <string>text_content</string> </key>
+            <value> <string>{\n
+  "$schema": "http://json-schema.org/draft-07/schema#",\n
+  "title": "Update Compute Node",\n
+  "description": "Update Compute Node Information. Send the list of partition and their ip addresses.",\n
+  "type": "object",\n
+  "additionalProperties": false,\n
+  "properties": {\n
+    "compute_partition_list": {\n
+      "title": "Compute Partition List",\n
+      "type": "array",\n
+      "descritpion": "List Compute Node Partitions hosted on the computer",\n
+      "items": {\n
+        "type": "object",\n
+        "title": "Compute Node Partition",\n
+        "description": "Compute Node Partitions host Software Instances",\n
+        "properties": {\n
+          "partition_id": {\n
+            "title": "Partition ID",\n
+            "descritpion": "Unique ID of the Compute Node Partition",\n
+            "type": "string"\n
+          },\n
+          "ip_list": {\n
+            "title": "IP List",\n
+            "type": "array",\n
+            "description": "List of IPs usable by the Software Instance on the partition. Used to configure firewall when necessary and allow only related instances to access it.",\n
+            "items": {\n
+              "type": "object",\n
+              "title": "Internet Protocol Address",\n
+              "description": "All element to describe the interface",\n
+              "properties": {\n
+                "ip-address": {\n
+                  "title": "IP Address",\n
+                  "type": "string"\n
+                },\n
+                "network-interface": {\n
+                  "title": "Network Interface",\n
+                  "type": "string"\n
+                },\n
+                "gateway-ip-address": {\n
+                  "title": "Gateway Ip Address",\n
+                  "type": "string"\n
+                },\n
+                "netmask": {\n
+                  "title": "Netmask",\n
+                  "type": "string"\n
+                },\n
+                "network-address": {\n
+                  "title": "Network Address",\n
+                  "type": "string"\n
+                }\n
+              },\n
+              "required": ["ip-address"]\n
+            }\n
+          }\n
+        },\n
+        "required": ["partition_id"]\n
+      }\n
+    },\n
+    "compute_node_id": {\n
+      "title": "Compute Node ID",\n
+      "type": "string",\n
+      "description": "Unique Id of the object. It is not editable."\n
+    },\n
+    "bang_status_message": {\n
+      "title": "Bang Message",\n
+      "description": "It trigger a Bang on the Compute Node and will force reprocessing og all hosted instances. Message Used to inform master with readable text.",\n
+      "type": "string"\n
+    },\n
+    "portal_type": {\n
+      "title": "Portal Type",\n
+      "const": "Compute Node",\n
+      "type": "string"\n
+    }\n
+  },\n
+  "required": ["portal_type", "compute_node_id"]\n
+}\n
+</string> </value>
+        </item>
+        <item>
+            <key> <string>version</string> </key>
+            <value> <string>01</string> </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+</ZopeData>

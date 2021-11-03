@@ -883,11 +883,7 @@ class StandaloneSlapOS(object):
             if process_info['exitstatus'] == 0:
               return
             if retry >= max_retry:
-              # get the last lines of output, at most `error_lines`. If
-              # these lines are long, the output may be truncated.
-              _, log_offset, _ = supervisor.tailProcessStdoutLog(command, 0, 0)
-              output, _, _ = supervisor.tailProcessStdoutLog(
-                  command, log_offset - (2 << 13), 2 << 13)
+              output = supervisor.readProcessStdoutLog(command, 0, 0)
               raise SlapOSNodeCommandError({
                   'output': '\n'.join(output.splitlines()[-error_lines:]),
                   'exitstatus': process_info['exitstatus'],

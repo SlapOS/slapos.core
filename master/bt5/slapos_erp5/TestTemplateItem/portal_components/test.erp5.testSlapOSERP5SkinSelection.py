@@ -125,6 +125,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -236,6 +237,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -347,6 +349,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -459,6 +462,7 @@ erp5_integration
 erp5_invoicing
 erp5_jquery
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -571,6 +575,7 @@ erp5_integration
 erp5_invoicing
 erp5_jquery
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_km_widget_library
 erp5_monaco_editor
 erp5_oauth
@@ -683,6 +688,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -793,6 +799,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -904,6 +911,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -1014,6 +1022,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -1125,6 +1134,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -1236,6 +1246,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -1348,6 +1359,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -1460,6 +1472,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -1572,6 +1585,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login

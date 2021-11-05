@@ -26,6 +26,7 @@ slapos_folder_list = """slapos_erp5
 slapos_upgrader
 slapos_abyss
 slapos_base
+slapos_json_rpc_api
 slapos_contract
 slapos_subscription_request
 slapos_crm_monitoring
@@ -89,6 +90,8 @@ erp5_graph_editor"""
 
 common_folder_list = """erp5_jquery_sheet_editor
 erp5_json_editor
+erp5_json_form
+erp5_json_rpc_api
 erp5_json_type
 erp5_monaco_editor
 erp5_notebook
@@ -98,6 +101,7 @@ erp5_oauth_google_login
 erp5_ods_core
 erp5_odt_core
 erp5_ooo_import
+erp5_open_api
 erp5_open_trade
 erp5_payzen_secure_payment
 erp5_pdm

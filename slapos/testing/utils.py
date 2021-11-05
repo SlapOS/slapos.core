@@ -172,6 +172,8 @@ class ManagedHTTPServer(ManagedResource):
         name=self._name,
     )
     self._process.start()
+    # from now on, socket is used by server subprocess, we can close it
+    server.socket.close()
 
   def close(self):
     # type: () -> None

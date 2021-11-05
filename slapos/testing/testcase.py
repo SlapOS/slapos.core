@@ -320,7 +320,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
     # type: (str, Type[ManagedResourceType]) -> ManagedResourceType
     """Get the managed resource for this name.
 
-    If resouce was not created yet, it is created and `open`. The
+    If resource was not created yet, it is created and `open`. The
     resource will automatically be `close` at the end of the test
     class.
     """

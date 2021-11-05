@@ -401,6 +401,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'erp5_notebook',
       'erp5_smart_assistant',
       'erp5_interaction_drop',
+      'erp5_json_type',
       'slapos_mysql_innodb_catalog',
       'slapos_cloud',
       'slapos_slap_tool',

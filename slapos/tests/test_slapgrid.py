@@ -69,7 +69,7 @@ from slapos.util import dumps
 from slapos import __path__ as slapos_path
 from zope import __path__ as zope_path
 
-PROMISE_PATHS = sorted(set(map(os.path.dirname, slapos_path + zope_path)))
+PROMISE_PATHS = sorted(set(map(os.path.dirname, list(slapos_path) + list(zope_path))))
 
 import httmock
 

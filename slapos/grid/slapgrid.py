@@ -730,6 +730,7 @@ stderr_logfile_backups=1
         command,
         preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),
         cwd=instance_path,
+        universal_newlines=True,
         stdout=subprocess.PIPE)
       promises = plugins + len(listifdir(legacy_promise_dir))
       # Add a timeout margin to let the process kill the promises and cleanup

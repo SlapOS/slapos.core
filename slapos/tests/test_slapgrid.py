@@ -4173,6 +4173,26 @@ class TestSlapgridPluginPromiseWithInstancePython(TestSlapgridPromiseWithMaster)
       super(TestSlapgridPluginPromiseWithInstancePython, self).tearDown()
     self.assertEqual(self.expect_plugin, called)
 
+  def test_failed_promise_output(self):
+    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
+    instance, = computer.instance_list
+
+    instance.requested_state = 'started'
+    instance.setPluginPromise(
+        "failing_promise_plugin.py",
+        promise_content="""if 1:
+          return self.logger.error("héhé fake promise plugin error")
+        """,
+    )
+
+    with httmock.HTTMock(computer.request_handler), \
+        patch.object(self.grid.logger, 'info',) as dummyLogger:
+      self.launchSlapgrid()
+
+    self.assertEqual(
+        dummyLogger.mock_calls[-1][1][0] % dummyLogger.mock_calls[-1][1][1:],
+        "  0[(not ready)]: Promise 'failing_promise_plugin.py' failed with output: héhé fake promise plugin error")
+
 
 class TestSVCBackend(unittest.TestCase):
   """Tests for supervisor backend.

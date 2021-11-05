@@ -64,5 +64,9 @@ os.dup2(2, 1)
 try:
   promise_checker.run()
 except Exception as e:
-  os.write(out, str(e))
+  if sys.version_info < (3,):
+    error_str = unicode(str(e), 'utf-8', 'repr')
+  else:
+    error_str = str(e)
+  os.write(out, error_str.encode('utf-8', 'repr'))
   sys.exit(2 if isinstance(e, PromiseError) else 1)

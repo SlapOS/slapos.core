@@ -118,7 +118,7 @@
                 </tuple>
                 <state>
                   <tuple>
-                    <float>1622160000.0</float>
+                    <float>1262304000.0</float>
                     <string>UTC</string>
                   </tuple>
                 </state>
@@ -135,7 +135,7 @@
                 </tuple>
                 <state>
                   <tuple>
-                    <float>2524608000.0</float>
+                    <float>1622160000.0</float>
                     <string>UTC</string>
                   </tuple>
                 </state>
@@ -144,7 +144,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_aggregated_subscription_trade_condition</string> </value>
+            <value> <string>slapos_legacy_aggregated_subscription_trade_condition</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -158,7 +158,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>SlapOS Aggregated Subscrition Trade Condition</string> </value>
+            <value> <string>SlapOS Legacy Aggregated Subscrition Trade Condition</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
@@ -248,9 +248,15 @@
             <value>
               <dictionary>
                 <item>
-                    <key> <string>validation_workflow</string> </key>
+                    <key> <string>edit_workflow</string> </key>
                     <value>
                       <persistent> <string encoding="base64">AAAAAAAAAAg=</string> </persistent>
+                    </value>
+                </item>
+                <item>
+                    <key> <string>validation_workflow</string> </key>
+                    <value>
+                      <persistent> <string encoding="base64">AAAAAAAAAAk=</string> </persistent>
                     </value>
                 </item>
               </dictionary>
@@ -260,6 +266,69 @@
     </pickle>
   </record>
   <record id="8" aka="AAAAAAAAAAg=">
+    <pickle>
+      <global name="WorkflowHistoryList" module="Products.ERP5Type.Workflow"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>_log</string> </key>
+            <value>
+              <list>
+                <dictionary>
+                  <item>
+                      <key> <string>action</string> </key>
+                      <value> <string>edit</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>actor</string> </key>
+                      <value> <string>zope</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>comment</string> </key>
+                      <value>
+                        <none/>
+                      </value>
+                  </item>
+                  <item>
+                      <key> <string>error_message</string> </key>
+                      <value> <string></string> </value>
+                  </item>
+                  <item>
+                      <key> <string>serial</string> </key>
+                      <value> <string>996.2915.20827.50397</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>state</string> </key>
+                      <value> <string>current</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>time</string> </key>
+                      <value>
+                        <object>
+                          <klass>
+                            <global name="DateTime" module="DateTime.DateTime"/>
+                          </klass>
+                          <tuple>
+                            <none/>
+                          </tuple>
+                          <state>
+                            <tuple>
+                              <float>1636510697.79</float>
+                              <string>UTC</string>
+                            </tuple>
+                          </state>
+                        </object>
+                      </value>
+                  </item>
+                </dictionary>
+              </list>
+            </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="9" aka="AAAAAAAAAAk=">
     <pickle>
       <global name="WorkflowHistoryList" module="Products.ERP5Type.Workflow"/>
     </pickle>
@@ -298,7 +367,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1636134432.35</float>
+                              <float>1636134217.94</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

@@ -57,7 +57,7 @@
         </item>
         <item>
             <key> <string>write_permission</string> </key>
-            <value> <string>Manage properties</string> </value>
+            <value> <string>Modify portal content</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -57,6 +57,7 @@
           'Invoices',
           'Servers',
           'Networks',
+          'API',
           'Language',
           'Logout'
         ],
@@ -88,6 +89,7 @@
                 {command: 'display', options: {page: "slap_invoice_list", editable: true}},
                 {command: 'display', options: {page: "slap_compute_node_list", editable: true}},
                 {command: 'display', options: {page: "slap_network_list", editable: true}},
+                {command: 'display', options: {page: "jio_api_action"}},
                 {command: 'display', options: {page: "slap_language_view"}},
                 {command: 'display', options: {page: "logout"}}
               ]),
@@ -106,6 +108,7 @@
                 'credit-card', 'i',
                 'database', 'c',
                 'globe', 'n',
+                'exchange', 'j',
                 'language', 'a',
                 'power-off', 'o'
               ];

@@ -92,6 +92,7 @@ erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
 erp5_administration
+erp5_api_style
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
@@ -125,6 +126,9 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_form
+erp5_json_form_react_jsonschema_form
+erp5_json_form_slapos
 erp5_json_type
 erp5_monaco_editor
 erp5_oauth
@@ -203,6 +207,7 @@ erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
 erp5_administration
+erp5_api_style
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
@@ -237,6 +242,9 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_form
+erp5_json_form_react_jsonschema_form
+erp5_json_form_slapos
 erp5_json_type
 erp5_monaco_editor
 erp5_oauth
@@ -316,6 +324,7 @@ erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
 erp5_administration
+erp5_api_style
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
@@ -349,6 +358,9 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_form
+erp5_json_form_react_jsonschema_form
+erp5_json_form_slapos
 erp5_json_type
 erp5_monaco_editor
 erp5_oauth
@@ -427,6 +439,7 @@ erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
 erp5_administration
+erp5_api_style
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
@@ -462,6 +475,9 @@ erp5_integration
 erp5_invoicing
 erp5_jquery
 erp5_jquery_sheet_editor
+erp5_json_form
+erp5_json_form_react_jsonschema_form
+erp5_json_form_slapos
 erp5_json_type
 erp5_monaco_editor
 erp5_oauth
@@ -541,6 +557,7 @@ erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
 erp5_administration
+erp5_api_style
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
@@ -575,6 +592,9 @@ erp5_integration
 erp5_invoicing
 erp5_jquery
 erp5_jquery_sheet_editor
+erp5_json_form
+erp5_json_form_react_jsonschema_form
+erp5_json_form_slapos
 erp5_json_type
 erp5_km_widget_library
 erp5_monaco_editor
@@ -655,6 +675,7 @@ erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
 erp5_administration
+erp5_api_style
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
@@ -688,6 +709,9 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_form
+erp5_json_form_react_jsonschema_form
+erp5_json_form_slapos
 erp5_json_type
 erp5_monaco_editor
 erp5_oauth
@@ -766,6 +790,7 @@ erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
 erp5_administration
+erp5_api_style
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
@@ -799,6 +824,9 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_form
+erp5_json_form_react_jsonschema_form
+erp5_json_form_slapos
 erp5_json_type
 erp5_monaco_editor
 erp5_oauth
@@ -878,6 +906,7 @@ erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
 erp5_administration
+erp5_api_style
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
@@ -911,6 +940,9 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_form
+erp5_json_form_react_jsonschema_form
+erp5_json_form_slapos
 erp5_json_type
 erp5_monaco_editor
 erp5_oauth
@@ -989,6 +1021,7 @@ erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
 erp5_administration
+erp5_api_style
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
@@ -1022,6 +1055,9 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_form
+erp5_json_form_react_jsonschema_form
+erp5_json_form_slapos
 erp5_json_type
 erp5_monaco_editor
 erp5_oauth
@@ -1101,6 +1137,7 @@ erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
 erp5_administration
+erp5_api_style
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
@@ -1134,6 +1171,9 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_form
+erp5_json_form_react_jsonschema_form
+erp5_json_form_slapos
 erp5_json_type
 erp5_monaco_editor
 erp5_oauth
@@ -1213,6 +1253,7 @@ erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
 erp5_administration
+erp5_api_style
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
@@ -1246,6 +1287,9 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_form
+erp5_json_form_react_jsonschema_form
+erp5_json_form_slapos
 erp5_json_type
 erp5_monaco_editor
 erp5_oauth
@@ -1326,6 +1370,7 @@ erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
 erp5_administration
+erp5_api_style
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
@@ -1359,6 +1404,9 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_form
+erp5_json_form_react_jsonschema_form
+erp5_json_form_slapos
 erp5_json_type
 erp5_monaco_editor
 erp5_oauth
@@ -1439,6 +1487,7 @@ erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
 erp5_administration
+erp5_api_style
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
@@ -1472,6 +1521,9 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_form
+erp5_json_form_react_jsonschema_form
+erp5_json_form_slapos
 erp5_json_type
 erp5_monaco_editor
 erp5_oauth
@@ -1552,6 +1604,7 @@ erp5_accounting
 erp5_accounting_eu
 erp5_accounting_fr
 erp5_administration
+erp5_api_style
 erp5_authentication_policy
 erp5_auto_logout
 erp5_base
@@ -1585,6 +1638,9 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_form
+erp5_json_form_react_jsonschema_form
+erp5_json_form_slapos
 erp5_json_type
 erp5_monaco_editor
 erp5_oauth

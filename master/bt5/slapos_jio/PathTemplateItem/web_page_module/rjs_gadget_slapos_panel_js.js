@@ -94,7 +94,8 @@
               context.getUrlFor({command: 'display', options: {page: "slap_project_list", editable: true}}),
               context.getUrlFor({command: 'display', options: {page: "slap_person_view", editable: true}}),
               context.getUrlFor({command: 'display', options: {page: "slapos", editable: true}}),
-              context.getUrlFor({command: 'display', options: {page: "slap_language_view"}})
+              context.getUrlFor({command: 'display', options: {page: "slap_language_view"}}),
+              context.getUrlFor({command: 'display', options: {page: "jio_api_action"}})
             ]);
           })
           .push(function (result_list) {
@@ -113,7 +114,8 @@
                 "project_href": result_list[8],
                 "person_href": result_list[9],
                 "dashboard_href": result_list[10],
-                "language_href": result_list[11]
+                "language_href": result_list[11],
+                "api_action_list_href": result_list[12]
               })
             );
           })

@@ -28,6 +28,9 @@ if current_invoice is None:
         stop_date=payment_transaction.getStopDate(),
       )
 
+  current_invoice["1"].edit(
+        start_date=payment_transaction.getStartDate(),
+        stop_date=payment_transaction.getStopDate())
   if service_variation is not None:
     current_invoice["1"].setVariation(service_variation)
   

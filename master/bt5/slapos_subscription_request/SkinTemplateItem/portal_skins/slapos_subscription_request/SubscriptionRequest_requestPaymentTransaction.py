@@ -33,7 +33,9 @@ if current_invoice is None:
     tax = 0
   else:
     invoice_line = invoice_template["1"].asContext(
-      destination_section=context.getDestinationSection()
+      destination_section=context.getDestinationSection(),
+      start_date=DateTime(),
+      stop_date=DateTime()
     )
 
     subscription_trade_condition = portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()

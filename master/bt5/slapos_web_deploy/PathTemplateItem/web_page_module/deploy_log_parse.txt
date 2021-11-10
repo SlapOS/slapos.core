@@ -1,4 +1,5 @@
 /bin/cat << EOF > $ANSIBLE_PLUGIN_LOCATION/log_parse.py
+from __future__ import absolute_import
 import os
 import time
 import json
@@ -28,11 +29,11 @@ class CallbackModule(baseModule):
       else:
         for filename in os.listdir(self.log_path):
           filepath = os.path.join(self.log_path, filename)
-          if os.path.exists(filepath) and os.path.isfile(filepath):
+          if os.path.isfile(filepath):
             os.unlink(filepath)
 
     def writeLog(self, host, category, content):
-      if not self.fd_list.has_key(category):
+      if category not in self.fd_list:
         self.fd_list[category] = open(
           os.path.join(self.log_path, '%s_%s' % (host, category)), "a"
         )
@@ -43,12 +44,11 @@ class CallbackModule(baseModule):
       if host == "localhost":
         host = "127.0.0.1" # keep compatibility
 
-      if type(data) == dict:
+      if type(data) is dict:
         if '_ansible_verbose_override' in data:
           # avoid logging extraneous data
           return
 
-        data = data.copy()
         content = json.dumps(data)
 
         if ignore_errors:

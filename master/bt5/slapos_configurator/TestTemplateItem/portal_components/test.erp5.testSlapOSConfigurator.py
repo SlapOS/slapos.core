@@ -262,6 +262,27 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'upgrade_decision_module',
        'web_page_module',
        'web_site_module',
+       'data_descriptor_module',
+       'data_ingestion_batch_module',
+       'data_aggregation_unit_module',
+       'data_configuration_module',
+       'data_order_module',
+       'sensor_module',
+       'data_event_module',
+       'data_ingestion_module',
+       'data_stream_module',
+       'data_transformation_module',
+       'progress_indicator_module',
+       'data_acquisition_unit_module',
+       'data_operation_module',
+       'device_configuration_module',
+       'data_license_module',
+       'data_release_module',
+       'data_supply_module',
+       'data_product_module',
+       'big_file_module',
+       'data_analysis_module',
+       'data_array_module'
     ]
     # If mixin contains a custom definition that introduce new business templated from
     # the project scope, them include it on expected list.
@@ -378,6 +399,11 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'slapos_web',
       'slapos_web_deploy',
       'slapos_erp5',
+      'slapos_metadata_transform_agent',
+      'erp5_big_file',
+      'erp5_json_type',
+      'erp5_wendelin',
+      'erp5_development_wizard'
     ]
 
     # If mixin contains a custom definition that introduce new business templated from

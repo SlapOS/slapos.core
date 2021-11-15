@@ -2,11 +2,12 @@
 """
 bt5_update_catalog_list = ('erp5_ingestion_mysql_innodb_catalog',
                            'slapos_cloud', 'erp5_accounting',
-                           'erp5_movement_table_catalog')
+                           'erp5_movement_table_catalog', 'erp5_wendelin')
 
 bt5_installation_list = bt5_update_catalog_list + \
                   ('slapos_configurator', 'slapos_erp5',
-                   'erp5_slapos_tutorial', 'erp5_slapos_tutorial_data')
+                   'erp5_slapos_tutorial', 'erp5_slapos_tutorial_data',
+                   'erp5_wendelin')
 
 keep_bt5_id_list = ['erp5_ui_test',
                     'erp5_ui_test_core',

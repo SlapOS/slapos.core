@@ -6,6 +6,7 @@
 import numpy as np
 import re
 import json
+import os.path
 
 def get_end_and_json_list(start, in_data_stream, max_scan_size = 1024 ** 3):
   """
@@ -50,9 +51,18 @@ def get_triplet_list(json_string_list):
     but they are not used at the moment.
   """
   json_string_list = json_string_list[:-1]
-  for string in json_string_list:
-    json.loads(string)
-  data_list = [json.loads(json_string) for json_string in json_string_list]
+  tmp_data_list = [json.loads(json_string) for json_string in json_string_list]
+  data_list = []
+
+  for data in tmp_data_list:
+    in_list = False
+    if ('path' in data) and exclude_file_list:
+      for exclude_file in exclude_file_list:
+        if os.path.commonprefix([data['path'], exclude_file]) == exclude_file:
+          in_list = True
+          break
+    if not in_list:
+      data_list.append(data)
 
   return [(data['path'],
            int(data['hash']['md5'][0:8], 16),
@@ -65,7 +75,6 @@ def get_uid_list(triplet_list, data_stream):
     Fill the mappings and get the list of UIDs.
     The argument @data_stream is only used to access the mappings.
   """
-  _, uid_path, _, _ = data_stream.get_mappings('test')
   uid_list = []
   for triplet in triplet_list:
     data_stream.add_path(triplet, 'test')
@@ -89,7 +98,7 @@ def create_ndarray(uid_list):
 progress_indicator = in_stream["Progress Indicator"]
 in_data_stream = in_stream["Data Stream"]
 out_data_array = out_array["Data Array"]
-
+exclude_file_list = []
 out_data_array.setPublicationSectionList(in_data_stream.getPublicationSectionList())
 if 'file_system_image/reference_image' in in_data_stream.getPublicationSectionList():
   if out_data_array.getValidationState() == 'draft':
@@ -97,6 +106,7 @@ if 'file_system_image/reference_image' in in_data_stream.getPublicationSectionLi
 if not out_data_array.getCausality():
   ingestion_line = in_data_stream.getAggregateRelatedValue(portal_type='Data Ingestion Line')
   resource = ingestion_line.getResource()
+  exclude_file_list = ingestion_line.getResourceValue().DataProduct_getExcludeFileList()
   out_data_array.edit(causality=resource)
 
 # DEBUG advice: running the script on the whole Data Stream

@@ -352,7 +352,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
   def _getSiteCreationParameterDict(self):
     kw = super(testSlapOSMixin, self)._getSiteCreationParameterDict()
     bt5_repository_path_list = self._getBusinessRepositoryPathList(
-                                    ['erp5_core'] + ['erp5_slapos_tutorial'] + list(self.getBusinessTemplateList()))
+                                    ['erp5_core'] + ['erp5_slapos_tutorial'] + ['erp5_wendelin'] + list(self.getBusinessTemplateList()))
     kw["bt5_repository_url"] = " ".join(bt5_repository_path_list)
     return kw
 

@@ -42,19 +42,23 @@ reference_image = context.portal_catalog.getResultValue(query=query)
 def getDiff(a1, a2):
   return np.setdiff1d(a1[:], a2[:])
 
-diff_array = getDiff(context.getArray(), reference_image.getArray())
-
-if len(diff_array) != 0:
-  new_data_array = context.data_array_module.newContent(portal_type='Data Array')
-  new_data_array.setArray(diff_array)
-  new_data_array.edit(
-    predecessor_value_list=[context, reference_image],
-    publication_section="file_system_image/node_image",
-    causality = context.getCausality()
-  )
+if reference_image:
+  diff_array = getDiff(context.getArray(), reference_image.getArray())
+  if len(diff_array) != 0:
+    new_data_array = context.data_array_module.newContent(portal_type='Data Array')
+    new_data_array.setArray(diff_array)
+    new_data_array.edit(
+      predecessor_value_list=[context, reference_image],
+      publication_section="file_system_image/node_image",
+      causality = context.getCausality()
+    )
+  else:
+    causality = context.getCausalityValue(portal_type='Data Product')
+    if causality and context.portal_workflow.isTransitionPossible(causality, 'validate'):
+      causality.validate(comment='Server is ok')
 else:
   causality = context.getCausalityValue(portal_type='Data Product')
-  if causality and context.portal_workflow.isTransitionPossible(causality, 'validate'):
-    causality.validate(comment='Server is ok')
+  if causality and context.portal_workflow.isTransitionPossible(causality, 'invalidate'):
+    causality.invalidate(comment='Server has file modified')
 
 context.validate()

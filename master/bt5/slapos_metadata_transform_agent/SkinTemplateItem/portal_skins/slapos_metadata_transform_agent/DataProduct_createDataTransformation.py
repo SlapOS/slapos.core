@@ -2,7 +2,7 @@ if not context.getReference():
   return context.Base_redirect('view',keep_items={'portal_status_message': 'Reference is not defined'})
 
 
-data_transformation = context.portal_catalog(
+data_transformation = context.portal_catalog.getResultValue(
   validation_state='validated',
   resource_relative_url = context.getRelativeUrl(),
   portal_type='Data Transformation')

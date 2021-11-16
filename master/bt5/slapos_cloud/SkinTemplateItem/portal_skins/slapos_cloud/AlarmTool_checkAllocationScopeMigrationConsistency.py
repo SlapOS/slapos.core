@@ -6,6 +6,12 @@ if category is None:
   # Category already migrated nothing to do
   return []
 
+if category.getValidationState() != "expired":
+  if fixit:
+    category.expire(comment="Expired by Migration Constraint")
+  else:
+    result_list.append("allocation_scope/friend exists and isn't expired")
+
 migration_kw = {
   'portal_type': 'Compute Node',
   'default_allocation_scope_uid': category.getUid()

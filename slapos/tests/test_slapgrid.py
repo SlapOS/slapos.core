@@ -1,5 +1,5 @@
 ##############################################################################
-#
+# coding: utf-8
 # Copyright (c) 2010 Vifib SARL and Contributors. All Rights Reserved.
 #
 # WARNING: This program as such is intended to be used by professional
@@ -69,7 +69,7 @@ from slapos.util import dumps
 from slapos import __path__ as slapos_path
 from zope import __path__ as zope_path
 
-PROMISE_PATHS = sorted(set(map(os.path.dirname, slapos_path + zope_path)))
+PROMISE_PATHS = sorted(set(map(os.path.dirname, list(slapos_path) + list(zope_path))))
 
 import httmock
 
@@ -119,6 +119,7 @@ touch worked
 """
 
 PROMISE_CONTENT_TEMPLATE = """
+# coding: utf-8
 import sys
 sys.path[0:0] = %(paths)r
 
@@ -1757,23 +1758,30 @@ echo %s; echo %s; exit 42""" % (line1, line2))
   def test_processing_summary(self):
     """At the end of instance processing, a summary of partition with errors is displayed.
     """
-    computer = ComputerForTest(self.software_root, self.instance_root, 3, 3)
-    _, instance1, instance2 = computer.instance_list
+    computer = ComputerForTest(self.software_root, self.instance_root, 4, 4)
+    _, instance1, instance2, instance3 = computer.instance_list
     # instance0 has no problem, it is not in summary
 
     # instance 1 fails software
-    instance1 = computer.instance_list[1]
     instance1.software = computer.software_list[1]
     instance1.software.setBuildout("""#!/bin/sh
         echo fake buildout error
         exit 1""")
 
-    # instance 2 fails promises
-    instance2 = computer.instance_list[2]
+    # instance 2 fails old style promises
     instance2.requested_state = 'started'
     instance2.setPromise("failing_promise", """#!/bin/sh
-        echo fake promise error
+        echo héhé fake promise error
         exit 1""")
+
+    # instance 3 fails promise plugin
+    instance3.requested_state = 'started'
+    instance3.setPluginPromise(
+        "failing_promise_plugin.py",
+        promise_content="""if 1:
+          return self.logger.error("héhé fake promise plugin error")
+        """,
+    )
 
     with httmock.HTTMock(computer.request_handler), \
         patch.object(self.grid.logger, 'info',) as dummyLogger:
@@ -1781,17 +1789,20 @@ echo %s; echo %s; exit 42""" % (line1, line2))
 
     # reconstruct the string like logger does
     self.assertEqual(
-        dummyLogger.mock_calls[-4][1][0] % dummyLogger.mock_calls[-4][1][1:],
+        dummyLogger.mock_calls[-5][1][0] % dummyLogger.mock_calls[-5][1][1:],
         'Error while processing the following partitions:')
     self.assertRegexpMatches(
-        dummyLogger.mock_calls[-3][1][0] % dummyLogger.mock_calls[-3][1][1:],
+        dummyLogger.mock_calls[-4][1][0] % dummyLogger.mock_calls[-4][1][1:],
         r"  1\[\(not ready\)\]: Failed to run buildout profile in directory '.*/instance/1':\nfake buildout error\n\n")
     self.assertEqual(
-        dummyLogger.mock_calls[-2][1][0] % dummyLogger.mock_calls[-2][1][1:],
+        dummyLogger.mock_calls[-3][1][0] % dummyLogger.mock_calls[-3][1][1:],
         'Error with promises for the following partitions:')
     self.assertEqual(
+        dummyLogger.mock_calls[-2][1][0] % dummyLogger.mock_calls[-2][1][1:],
+        "  2[(not ready)]: Promise 'failing_promise' failed with output: héhé fake promise error")
+    self.assertEqual(
         dummyLogger.mock_calls[-1][1][0] % dummyLogger.mock_calls[-1][1][1:],
-        "  2[(not ready)]: Promise 'failing_promise' failed with output: fake promise error")
+        "  3[(not ready)]: Promise 'failing_promise_plugin.py' failed with output: héhé fake promise plugin error")
 
   def test_partition_force_stop(self):
     """
@@ -4161,6 +4172,26 @@ class TestSlapgridPluginPromiseWithInstancePython(TestSlapgridPromiseWithMaster)
     finally:
       super(TestSlapgridPluginPromiseWithInstancePython, self).tearDown()
     self.assertEqual(self.expect_plugin, called)
+
+  def test_failed_promise_output(self):
+    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
+    instance, = computer.instance_list
+
+    instance.requested_state = 'started'
+    instance.setPluginPromise(
+        "failing_promise_plugin.py",
+        promise_content="""if 1:
+          return self.logger.error("héhé fake promise plugin error")
+        """,
+    )
+
+    with httmock.HTTMock(computer.request_handler), \
+        patch.object(self.grid.logger, 'info',) as dummyLogger:
+      self.launchSlapgrid()
+
+    self.assertEqual(
+        dummyLogger.mock_calls[-1][1][0] % dummyLogger.mock_calls[-1][1][1:],
+        "  0[(not ready)]: Promise 'failing_promise_plugin.py' failed with output: héhé fake promise plugin error")
 
 
 class TestSVCBackend(unittest.TestCase):

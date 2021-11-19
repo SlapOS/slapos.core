@@ -176,7 +176,10 @@ class ColoredStreamHandler(logging.StreamHandler):
         message = record.msg
         try:
             if not isinstance(message, basestring):
-                message = unicode(message)
+                try:
+                    message = unicode(message)
+                except UnicodeDecodeError:
+                    message = unicode(str(message), 'utf-8', 'replace')
         except NameError:
             if not isinstance(message, str):
                 message = str(message)

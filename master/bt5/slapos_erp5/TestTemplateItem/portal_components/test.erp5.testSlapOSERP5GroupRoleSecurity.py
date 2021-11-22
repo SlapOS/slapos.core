@@ -1712,6 +1712,25 @@ class TestSubscriptionRequest(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(subscription_request, 'G-COMPANY', ['Assignor'])
     self.assertRoles(subscription_request, self.user_id, ['Owner'])
 
+class TestSubscriptionConditionModule(TestSlapOSGroupRoleSecurityMixin):
+  def test(self):
+    module = self.portal.subscription_condition_module
+    self.changeOwnership(module)
+    self.assertSecurityGroup(module,
+        ['G-COMPANY', self.user_id], False)
+    self.assertRoles(module, 'G-COMPANY', ['Auditor', 'Author'])
+    self.assertRoles(module, self.user_id, ['Owner'])
+
+class TestSubscriptionRequest(TestSlapOSGroupRoleSecurityMixin):
+  def test_GroupCompany(self):
+    subscription_condition = self.portal.subscription_condition_module.newContent(
+        portal_type='Subscription Condition')
+    subscription_condition.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(subscription_condition,
+        ['G-COMPANY', self.user_id], False)
+    self.assertRoles(subscription_condition, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(subscription_condition, self.user_id, ['Owner'])
+
 class TestCashRegister(TestSlapOSGroupRoleSecurityMixin):
   def test_GroupCompany(self):
     product = self.portal.organisation_module.newContent(

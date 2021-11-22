@@ -110,6 +110,7 @@ software_installation_module
 software_instance_module
 software_product_module
 software_release_module
+subscription_condition_module
 subscription_request_module
 support_request_module
 support_request_module/slapos_crm_support_request_template

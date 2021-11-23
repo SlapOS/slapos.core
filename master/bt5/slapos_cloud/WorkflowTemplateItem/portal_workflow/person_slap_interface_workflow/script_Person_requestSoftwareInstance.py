@@ -58,6 +58,7 @@ else:
     reference=instance_tree_reference,
     title=software_title,
     destination_section=person.getRelativeUrl(),
+    upgrade_scope="auto",
     activate_kw={'tag': tag},
   )
 

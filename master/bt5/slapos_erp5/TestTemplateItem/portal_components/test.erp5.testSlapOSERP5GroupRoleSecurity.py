@@ -1721,7 +1721,7 @@ class TestSubscriptionConditionModule(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(module, 'G-COMPANY', ['Auditor', 'Author'])
     self.assertRoles(module, self.user_id, ['Owner'])
 
-class TestSubscriptionRequest(TestSlapOSGroupRoleSecurityMixin):
+class TestSubscriptionCondition(TestSlapOSGroupRoleSecurityMixin):
   def test_GroupCompany(self):
     subscription_condition = self.portal.subscription_condition_module.newContent(
         portal_type='Subscription Condition')

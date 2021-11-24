@@ -36,7 +36,6 @@ if compute_node is None:
     portal_type=compute_node_portal_type,
     title=compute_node_title,
     reference=reference,
-    capacity_scope='open',
     activate_kw={'tag': tag}
   )
   compute_node.requestComputeNodeRegistration()

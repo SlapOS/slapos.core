@@ -941,10 +941,11 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     self.assertEqual(upgrade_decision.UpgradeDecision_tryToCancel(url2), True)
     self.assertEqual(upgrade_decision.getSimulationState(), 'rejected')
     
-  def testComputeNode_checkAndCreateUpgradeDecision(self):
+  def testComputeNode_checkAndCreateUpgradeDecision_auto(self):
     person = self._makePerson()
     compute_node, _ = self._makeComputeNode(owner=person,
                   allocation_scope="open/public")
+    compute_node.edit(upgrade_scope="auto")
     software_product = self._makeSoftwareProduct()
     software_release = self._requestSoftwareRelease(
                                     software_product.getRelativeUrl())
@@ -975,9 +976,11 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     upgrade_decision2 = compute_node.ComputeNode_checkAndCreateUpgradeDecision()
     self.assertEqual(len(upgrade_decision2), 0)
   
-  def testComputeNode_checkAndCreateUpgradeDecision_personal_with_exist(self):
+  def testComputeNode_checkAndCreateUpgradeDecision_ask_confirmation_with_exist(self):
     person = self._makePerson()
-    compute_node, _ = self._makeComputeNode(owner=person, allocation_scope="open/personal")
+    compute_node, _ = self._makeComputeNode(owner=person, 
+            allocation_scope="open/personal")
+    compute_node.edit(upgrade_scope="ask_confirmation")
     software_product = self._makeSoftwareProduct()
     software_release = self._requestSoftwareRelease(
                                     software_product.getRelativeUrl())
@@ -1002,10 +1005,11 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     self.assertEqual(release.getUrlString(),
                                 software_release3.getUrlString())
   
-  def testComputeNode_checkAndCreateUpgradeDecision_public_with_exist(self):
+  def testComputeNode_checkAndCreateUpgradeDecision_auto_with_exist(self):
     person = self._makePerson()
     compute_node, _ = self._makeComputeNode(owner=person,
                   allocation_scope="open/public")
+    compute_node.edit(upgrade_scope="auto")
     software_product = self._makeSoftwareProduct()
     software_release = self._requestSoftwareRelease(
                                     software_product.getRelativeUrl())

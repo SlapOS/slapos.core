@@ -4,6 +4,8 @@ person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 compute_node.edit(
   allocation_scope='open/personal',
   source_administration_value=person,
+  upgrade_scope='auto',
+  capacity_scope='open'
 )
 
 erp5_login = compute_node.newContent(

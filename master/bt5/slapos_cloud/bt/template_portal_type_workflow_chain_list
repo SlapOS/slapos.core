@@ -1,11 +1,12 @@
-Compute Partition | compute_partition_slap_interface_workflow
 Compute Node | compute_node_slap_interface_workflow
 Compute Node | slapos_cloud_interaction_workflow
+Compute Partition | compute_partition_slap_interface_workflow
 Hosting Subscription | edit_workflow
 Instance Tree | edit_workflow
 Instance Tree | instance_slap_interface_workflow
 Instance Tree | instance_tree_workflow
 Person | person_slap_interface_workflow
+Project | project_slap_interface_workflow
 Slave Instance | edit_workflow
 Slave Instance | instance_slap_interface_workflow
 Slave Instance | item_workflow

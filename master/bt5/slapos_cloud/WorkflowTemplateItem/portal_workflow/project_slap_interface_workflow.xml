@@ -28,14 +28,8 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>source/portal_workflow/person_slap_interface_workflow/state_draft</string>
+                <string>source/portal_workflow/project_slap_interface_workflow/state_draft</string>
               </tuple>
-            </value>
-        </item>
-        <item>
-            <key> <string>comment</string> </key>
-            <value>
-              <none/>
             </value>
         </item>
         <item>
@@ -50,7 +44,13 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>person_slap_interface_workflow</string> </value>
+            <value> <string>project_slap_interface_workflow</string> </value>
+        </item>
+        <item>
+            <key> <string>language</string> </key>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>manager_bypass</string> </key>
@@ -66,7 +66,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Person Slap Interface Workflow</string> </value>
+            <value> <string>Project Slap Interface Workflow</string> </value>
         </item>
         <item>
             <key> <string>workflow_managed_permission</string> </key>

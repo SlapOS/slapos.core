@@ -61,8 +61,14 @@
             </value>
         </item>
         <item>
+            <key> <string>description</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
             <key> <string>id</string> </key>
-            <value> <string>script_Project_validateAndAssign</string> </value>
+            <value> <string>script_Project_leaveProject</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>

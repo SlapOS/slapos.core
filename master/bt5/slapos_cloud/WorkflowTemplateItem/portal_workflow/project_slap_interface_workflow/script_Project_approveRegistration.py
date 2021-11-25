@@ -12,10 +12,14 @@ if project.getReference() in [None, ""]:
     id_generator='uid', default=1)
   project.setReference(reference)
 
-project.setStartDate(DateTime())
-project.validate()
 
-user_id = project.Base_getOwnerId()
+# Get the user id of the context owner.
+local_role_list = project.get_local_roles()
+for group, role_list in local_role_list:
+  if 'Owner' in role_list:
+    user_id = group
+    break
+
 person = portal.portal_catalog.getResultValue(user_id=user_id)
 
 if person is None:
@@ -31,4 +35,7 @@ for assignment in person.objectValues(portal_type="Assignment"):
 person.newContent(
   title="Assigment for Project %s" % project.getTitle(),
   portal_type="Assignment",
-  destination_project_value=project).open()
+  destination_project=project.getRelativeUrl()).open()
+
+project.edit(start_date=DateTime())
+project.validate()

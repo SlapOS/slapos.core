@@ -330,79 +330,6 @@ class TestSlapOSERP5InteractionWorkflowComputerNetworkSetReference(
     self.assertEqual(computer_network.getSourceAdministration(),
       None)
 
-class TestSlapOSERP5InteractionWorkflowProjectSetDestination(
-    SlapOSTestCaseMixin):
-
-  def test_Project_validateAndAssign(self):
-    person = self.makePerson()
-    self.tic()
-
-    project = self.portal.project_module.newContent(
-      portal_type="Project"
-    )
-    project.setDestinationDecisionValue(person)
-    self.commit()
-
-    self.assertEqual(project.getValidationState(), "validated")
-    self.assertNotEqual(project.getStartDate(), None)
-    self.assertNotEqual(project.getReference(), None)
-    self.assertTrue(project.getReference().startswith("PROJ-"), 
-      "%s don't start with PROJ-" % project.getReference())
-    
-  def test_Project_validateAndAssign_with_owner(self):
-    person = self.makePerson(user=1)
-    self.tic()
-
-    assignment_amount = len(person.objectValues(portal_type="Assignment"))
-    self.login(person.getUserId())
-    project = self.portal.project_module.newContent(
-      portal_type="Project"
-    )
-    project.setDestinationDecisionValue(person)
-    self.commit()
-    self.assertEqual(project.getValidationState(), "validated")
-    self.assertNotEqual(project.getStartDate(), None)
-    self.assertNotEqual(project.getReference(), None)
-    self.assertTrue(project.getReference().startswith("PROJ-"), 
-      "%s don't start with PROJ-" % project.getReference())
-    
-    self.assertEqual(assignment_amount + 1,
-     len(person.objectValues(portal_type="Assignment")))
-
-    self.assertNotEqual([],
-      [i for i in person.objectValues(portal_type="Assignment")
-        if (i.getDestinationProjectValue() == project and i.getValidationState() == "open")])
-
-  def test_Project_validateAndAssign_with_assignment(self):
-    person = self.makePerson(user=1)
-    self.tic()
-
-    assignment_amount = len(person.objectValues(portal_type="Assignment"))
-    self.login(person.getUserId())
-    project = self.portal.project_module.newContent(
-      portal_type="Project"
-    )
-    person.newContent(
-      title="Assigment for Project %s" % project.getTitle(),
-      portal_type="Assignment",
-      destination_project_value=project)
-    self.tic()
-    project.setDestinationDecisionValue(person)
-    self.commit()
-    self.assertEqual(project.getValidationState(), "validated")
-    self.assertNotEqual(project.getStartDate(), None)
-    self.assertNotEqual(project.getReference(), None)
-    self.assertTrue(project.getReference().startswith("PROJ-"), 
-      "%s don't start with PROJ-" % project.getReference())
-    
-    self.assertEqual(assignment_amount + 1,
-     len(person.objectValues(portal_type="Assignment")))
-
-    self.assertNotEqual([],
-      [i for i in person.objectValues(portal_type="Assignment")
-        if (i.getDestinationProjectValue() == project and i.getValidationState() == "open")])
-
-
 class TestSlapOSERP5InteractionWorkflowOrganisationSetRole(
     SlapOSTestCaseMixin):
 
@@ -493,5 +420,4 @@ class TestSlapOSERP5InteractionWorkflowOrganisationSetRole(
     self.assertNotEqual([],
       [i for i in person.objectValues(portal_type="Assignment")
         if (i.getSubordinationValue() == organisation and i.getValidationState() == "open")])
-
 

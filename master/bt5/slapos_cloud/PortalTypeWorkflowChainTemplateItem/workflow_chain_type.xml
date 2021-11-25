@@ -20,6 +20,10 @@
   <workflow>person_slap_interface_workflow</workflow>
  </chain>
  <chain>
+  <type>Project</type>
+  <workflow>project_slap_interface_workflow</workflow>
+ </chain>
+ <chain>
   <type>Slave Instance</type>
   <workflow>edit_workflow, instance_slap_interface_workflow, item_workflow, slapos_cloud_interaction_workflow</workflow>
  </chain>

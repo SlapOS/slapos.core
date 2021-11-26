@@ -74,6 +74,10 @@ def looks_like_md5(s):
     return re.match('[0-9a-f]{32}', s)
 
 
+def ostuple(jsondict):
+    srdict = json.loads(jsondict)
+    return (srdict['machine'],) + ast.literal_eval(srdict['os'])
+
 def do_lookup(logger, cache_dir, software_url):
     if looks_like_md5(software_url):
         md5 = software_url
@@ -100,15 +104,13 @@ def do_lookup(logger, cache_dir, software_url):
         logger.info('Object found in cache, but has no binary entries.')
         return 0
 
-    ostable = sorted(ast.literal_eval(json.loads(entry[0])['os']) for entry in entries)
+    ostable = sorted(ostuple(entry[0]) for entry in entries)
 
-    pt = prettytable.PrettyTable(['distribution', 'version', 'id', 'compatible?'])
-
-    linux_distribution = distribution_tuple()
+    pt = prettytable.PrettyTable(['machine', 'distribution', 'version', 'id', 'compatible?'])
 
     for os in ostable:
-        compatible = 'yes' if networkcache.os_matches(os, linux_distribution) else 'no'
-        pt.add_row([os[0], os[1], os[2], compatible])
+        compatible = 'yes' if networkcache.is_compatible(os[0], os[1:]) else 'no'
+        pt.add_row([os[0], os[1], os[2], os[3], compatible])
 
     meta = json.loads(entries[0][0])
     logger.info('Software URL: %s', meta['software_url'])

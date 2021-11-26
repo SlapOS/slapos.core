@@ -16,7 +16,9 @@ from __future__ import print_function
 import ast
 import json
 import platform
+import re
 import shutil
+import subprocess
 import traceback
 
 from slapos.grid.distribution import os_matches, distribution_tuple
@@ -53,8 +55,34 @@ def fallback_call(function):
     return wrapper
 
 
-def is_compatible(machine, os):
-    return machine == platform.machine() and os_matches(os, distribution_tuple())
+_model_re = re.compile(r"(Model name:)\s*(.*)", re.I)
+
+
+def parse_cpu_model(): 
+    try:
+        return _model_re.search(
+            subprocess.check_output("lscpu", universal_newlines=True)
+        ).group(2).strip()
+    except FileNotFoundError:
+        logger.warning('Unable to determine CPU model because lscpu command was not found.')
+    except:
+        logger.warning('There was problem while trying to determine CPU model:\n%s'
+          % traceback.format_exc())
+    return "Unknown"
+
+
+def cpu_model():
+    # cpu model is a discrimination criterion only for arm processors
+    if not 'arm' in platform.machine():
+        return ''
+    return parse_cpu_model()
+
+
+
+def is_compatible(machine, model, os):
+    return (machine == platform.machine() and
+            model == cpu_model() and
+            os_matches(os, distribution_tuple()))
 
 
 @fallback_call
@@ -90,7 +118,11 @@ def download_network_cached(cache_url, dir_url, software_url, software_root,
             json_information, _ = entry
             try:
                 tags = json.loads(json_information)
-                if not is_compatible(tags.get('machine'), ast.literal_eval(tags.get('os'))):
+                if not is_compatible(
+                    tags.get('machine'),
+                    tags.get('cpu_model'),
+                    ast.literal_eval(tags.get('os')),
+                ):
                     continue
                 if tags.get('software_url') != software_url:
                     continue
@@ -137,6 +169,7 @@ def upload_network_cached(software_root, software_url, cached_key,
       software_url=software_url,
       software_root=software_root,
       machine=platform.machine(),
+      cpu_model=cpu_model(),
       os=str(distribution_tuple())
     )
 

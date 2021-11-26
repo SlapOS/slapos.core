@@ -76,7 +76,7 @@ def looks_like_md5(s):
 
 def ostuple(jsondict):
     srdict = json.loads(jsondict)
-    return (srdict['machine'],) + ast.literal_eval(srdict['os'])
+    return (srdict['machine'], srdict.get('cpu_model', '')) + ast.literal_eval(srdict['os'])
 
 def do_lookup(logger, cache_dir, software_url):
     if looks_like_md5(software_url):
@@ -106,11 +106,11 @@ def do_lookup(logger, cache_dir, software_url):
 
     ostable = sorted(ostuple(entry[0]) for entry in entries)
 
-    pt = prettytable.PrettyTable(['machine', 'distribution', 'version', 'id', 'compatible?'])
+    pt = prettytable.PrettyTable(['machine', 'CPU model', 'distribution', 'version', 'id', 'compatible?'])
 
     for os in ostable:
-        compatible = 'yes' if networkcache.is_compatible(os[0], os[1:]) else 'no'
-        pt.add_row([os[0], os[1], os[2], os[3], compatible])
+        compatible = 'yes' if networkcache.is_compatible(os[0], os[1], os[2:]) else 'no'
+        pt.add_row([os[0], os[1], os[2], os[3], os[4], compatible])
 
     meta = json.loads(entries[0][0])
     logger.info('Software URL: %s', meta['software_url'])

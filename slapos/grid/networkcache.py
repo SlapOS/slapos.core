@@ -53,6 +53,10 @@ def fallback_call(function):
     return wrapper
 
 
+def is_compatible(machine, os):
+    return machine == platform.machine() and os_matches(os, distribution_tuple())
+
+
 @fallback_call
 def download_network_cached(cache_url, dir_url, software_url, software_root,
                             key, path, logger, signature_certificate_list,
@@ -86,10 +90,7 @@ def download_network_cached(cache_url, dir_url, software_url, software_root,
             json_information, _ = entry
             try:
                 tags = json.loads(json_information)
-                if tags.get('machine') != platform.machine():
-                    continue
-                if not os_matches(ast.literal_eval(tags.get('os')),
-                                  distribution_tuple()):
+                if not is_compatible(tags.get('machine'), ast.literal_eval(tags.get('os'))):
                     continue
                 if tags.get('software_url') != software_url:
                     continue

@@ -17,6 +17,7 @@ import ast
 import json
 import platform
 import shutil
+import subprocess
 import traceback
 
 from slapos.grid.distribution import os_matches, distribution_tuple
@@ -53,9 +54,29 @@ def fallback_call(function):
     return wrapper
 
 
-def is_compatible(machine, os):
-    return machine == platform.machine() and os_matches(os, distribution_tuple())
+def compiler_target():
+    try:
+        return subprocess.check_output(
+            ('gcc', '-dumpmachine'),
+            universal_newlines=True,
+        ).strip()
+    except:
+        logger.warning(
+            'There was a problem while trying to determine target compiler:\n%s',
+            exc_info=True)
 
+
+def machine_info_tuple():
+    return(platform.machine(), compiler_target(), distribution_tuple())
+
+
+def is_compatible(machine_info_tuple, required_info_tuple):
+    # backward compatibility when compiler_target field does not exist
+    compatible_arch = (machine_info_tuple[1] == required_info_tuple[1]
+                       if required_info_tuple[1] else
+                       machine_info_tuple[0] == required_info_tuple[0])
+    return compatible_arch and os_matches(required_info_tuple[2], machine_info_tuple[2])
+            
 
 def download_entry_list(cache_url, dir_url, key, logger,
                         signature_certificate_list, software_url):
@@ -104,11 +125,19 @@ def download_network_cached(cache_url, dir_url, software_url, software_root,
     try:
         file_descriptor = None
         json_entry_list = nc.select_generic(key)
+        machine_info = machine_info_tuple()
         for entry in json_entry_list:
             json_information, _ = entry
             try:
                 tags = json.loads(json_information)
-                if not is_compatible(tags.get('machine'), ast.literal_eval(tags.get('os'))):
+                if not is_compatible(
+                    machine_info,
+                    (
+                      tags.get('machine'),
+                      tags.get('compiler_target'),
+                      ast.literal_eval(tags.get('os'))
+                    ),
+                ):
                     continue
                 if tags.get('software_url') != software_url:
                     continue
@@ -155,6 +184,7 @@ def upload_network_cached(software_root, software_url, cached_key,
       software_url=software_url,
       software_root=software_root,
       machine=platform.machine(),
+      compiler_target=compiler_target(),
       os=str(distribution_tuple())
     )
 

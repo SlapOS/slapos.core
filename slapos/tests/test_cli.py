@@ -85,13 +85,13 @@ class TestCliCache(CliMixin):
     self.logger.info.assert_any_call('Software URL: %s', 
             u'https://lab.nexedi.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg')
     self.logger.info.assert_any_call('MD5:          %s', 'cccdc51a07e8c575c880f2d70dd4d458')
-    self.logger.info.assert_any_call(u'--------------------------------------------------')
-    self.logger.info.assert_any_call(u' machine distribution version    id   compatible? ')
-    self.logger.info.assert_any_call(u'--------------------------------------------------')
-    self.logger.info.assert_any_call(u'  x86_64 CentOS Linux 7.5.1804  Core       no     ')
-    self.logger.info.assert_any_call(u'  x86_64    Ubuntu     18.04   bionic      no     ')
+    self.logger.info.assert_any_call(u'----------------------------------------------------------')
+    self.logger.info.assert_any_call(u' compiler target distribution version    id   compatible? ')
+    self.logger.info.assert_any_call(u'----------------------------------------------------------')
+    self.logger.info.assert_any_call(u'                 CentOS Linux 7.5.1804  Core       no     ')
+    self.logger.info.assert_any_call(u'                    Ubuntu     18.04   bionic      no     ')
     # Omit some lines as it may fail depending of the OS
-    self.logger.info.assert_any_call(u'--------------------------------------------------')
+    self.logger.info.assert_any_call(u'----------------------------------------------------------')
 
   def test_uncached_binary(self):
     self.assertEqual(10, cache_do_lookup(

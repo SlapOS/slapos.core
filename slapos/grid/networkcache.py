@@ -17,6 +17,7 @@ import ast
 import json
 import platform
 import shutil
+import subprocess
 import traceback
 from base64 import b64decode
 
@@ -54,8 +55,23 @@ def fallback_call(function):
     return wrapper
 
 
-def is_compatible(machine, os):
-    return machine == platform.machine() and os_matches(os, distribution_tuple())
+def compiler_target():
+    try:
+        return subprocess.check_output('gcc -dumpmachine', universal_newlines=True)
+    except FileNotFoundError:
+        logger.warning('Unable to determine target compiler because gcc was not found.')
+    except:
+        logger.warning('There was a problem while trying to determine target compiler:\n%s'
+          % traceback.format_exc())
+    return 'Unknown'
+
+
+
+def is_compatible(machine, target, os):
+    return (machine == platform.machine() and
+            # backward compatibility when compiler_target field does not exist
+            (target == '' or target == compiler_target()) and
+            os_matches(os, distribution_tuple()))
 
 
 @fallback_call
@@ -91,7 +107,11 @@ def download_network_cached(cache_url, dir_url, software_url, software_root,
             json_information, _ = entry
             try:
                 tags = json.loads(json_information)
-                if not is_compatible(tags.get('machine'), ast.literal_eval(tags.get('os'))):
+                if not is_compatible(
+                    tags.get('machine'),
+                    tags.get('compiler_target'),
+                    ast.literal_eval(tags.get('os')),
+                ):
                     continue
                 if tags.get('software_url') != software_url:
                     continue
@@ -153,6 +173,7 @@ def upload_network_cached(software_root, software_url, cached_key,
       software_url=software_url,
       software_root=software_root,
       machine=platform.machine(),
+      compiler_target=compiler_target(),
       os=str(distribution_tuple())
     )
 

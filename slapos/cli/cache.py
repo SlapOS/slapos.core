@@ -79,7 +79,10 @@ def looks_like_md5(s):
 
 
 def ostuple(info_dict):
-    return (info_dict['machine'],) + ast.literal_eval(info_dict['os'])
+    return (
+        info_dict['machine'],
+        info_dict.get('compiler_target', ''),
+    ) + ast.literal_eval(info_dict['os'])
 
 def do_lookup(logger, cache_dir, cache_url, signature_certificate_list,
               software_url):
@@ -100,11 +103,11 @@ def do_lookup(logger, cache_dir, cache_url, signature_certificate_list,
         return 0
 
     ostable = sorted(ostuple(json.loads(entry[0])) for entry in entries)
-    pt = prettytable.PrettyTable(['machine', 'distribution', 'version', 'id', 'compatible?'])
+    pt = prettytable.PrettyTable(['compiler target', 'distribution', 'version', 'id', 'compatible?'])
 
     for os in ostable:
-        compatible = 'yes' if networkcache.is_compatible(os[0], os[1:]) else 'no'
-        pt.add_row([os[0], os[1], os[2], os[3], compatible])
+        compatible = 'yes' if networkcache.is_compatible(os[1], os[2:]) else 'no'
+        pt.add_row([os[1], os[2], os[3], os[4], compatible])
 
     meta = json.loads(entries[0][0])
     logger.info('Software URL: %s', meta['software_url'])

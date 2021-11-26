@@ -17,6 +17,7 @@ import ast
 import json
 import platform
 import shutil
+import subprocess
 import traceback
 
 from slapos.grid.distribution import os_matches, distribution_tuple
@@ -53,9 +54,23 @@ def fallback_call(function):
     return wrapper
 
 
-def is_compatible(machine, os):
-    return machine == platform.machine() and os_matches(os, distribution_tuple())
+def compiler_target():
+    try:
+        return subprocess.check_output('gcc -dumpmachine', universal_newlines=True)
+    except FileNotFoundError:
+        logger.warning('Unable to determine target compiler because gcc was not found.')
+    except:
+        logger.warning('There was a problem while trying to determine target compiler:\n%s'
+          % traceback.format_exc())
+    return 'Unknown'
 
+
+def is_compatible(machine, target, os):
+    # backward compatibility when compiler_target field does not exist
+    if target:
+        return target == compiler_target() and os_matches(os, distribution_tuple())
+    return machine == platform.machine() and os_matches(os, distribution_tuple())
+            
 
 def download_entry_list(cache_url, dir_url, key, logger,
                         signature_certificate_list, software_url):
@@ -107,7 +122,11 @@ def download_network_cached(cache_url, dir_url, software_url, software_root,
             json_information, _ = entry
             try:
                 tags = json.loads(json_information)
-                if not is_compatible(tags.get('machine'), ast.literal_eval(tags.get('os'))):
+                if not is_compatible(
+                    tags.get('machine'),
+                    tags.get('compiler_target'),
+                    ast.literal_eval(tags.get('os')),
+                ):
                     continue
                 if tags.get('software_url') != software_url:
                     continue
@@ -154,6 +173,7 @@ def upload_network_cached(software_root, software_url, cached_key,
       software_url=software_url,
       software_root=software_root,
       machine=platform.machine(),
+      compiler_target=compiler_target(),
       os=str(distribution_tuple())
     )
 

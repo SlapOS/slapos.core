@@ -17,6 +17,7 @@ import ast
 import json
 import platform
 import shutil
+import subprocess
 import traceback
 
 from slapos.grid.distribution import os_matches, distribution_tuple
@@ -53,8 +54,26 @@ def fallback_call(function):
     return wrapper
 
 
-def is_compatible(machine, os):
-    return machine == platform.machine() and os_matches(os, distribution_tuple())
+def multiarch():
+    return subprocess.check_output(
+        ('gcc', '-dumpmachine'), universal_newlines=True,).rstrip()
+
+
+def machine_info_tuple():
+    return multiarch(), distribution_tuple()
+
+
+def is_compatible(machine_info_tuple, required_info_tuple):
+    return machine_info_tuple[0] == required_info_tuple[0] \
+        and os_matches(required_info_tuple[1], machine_info_tuple[1])
+
+
+def loadJsonEntry(jentry):
+    entry = json.loads(jentry)
+    if 'multiarch' not in entry and entry['machine'] == 'x86_64': # BBB
+        entry['multiarch'] = 'x86_64-linux-gnu'
+        entry['os'] = list(ast.literal_eval(entry['os']))
+    return entry
 
 
 def download_entry_list(cache_url, dir_url, key, logger,
@@ -92,22 +111,15 @@ def download_network_cached(cache_url, dir_url, software_url, software_root,
     logger.info('Downloading %s binary from network cache.' % software_url)
     try:
         file_descriptor = None
-        json_entry_list = nc.select_generic(key)
-        for entry in json_entry_list:
-            json_information, _ = entry
+        machine_info = machine_info_tuple()
+        for entry, _ in nc.select_generic(key):
             try:
-                tags = json.loads(json_information)
-                if not is_compatible(tags.get('machine'), ast.literal_eval(tags.get('os'))):
-                    continue
-                if tags.get('software_url') != software_url:
-                    continue
-                if tags.get('software_root') != software_root:
-                    continue
-                sha512 = tags.get('sha512')
-                file_descriptor = nc.download(sha512)
-                break
+                tags = loadJsonEntry(entry)
+                if is_compatible(machine_info, (tags['multiarch'], tags['os'])):
+                    file_descriptor = nc.download(tags['sha512'])
+                    break
             except Exception:
-                continue
+                pass
         if file_descriptor is not None:
             f = open(path, 'w+b')
             try:
@@ -143,8 +155,8 @@ def upload_network_cached(software_root, software_url, cached_key,
       urlmd5="urlmd5",
       software_url=software_url,
       software_root=software_root,
-      machine=platform.machine(),
-      os=str(distribution_tuple())
+      multiarch=multiarch(),
+      os=distribution_tuple(),
     )
 
     f = open(path, 'r')

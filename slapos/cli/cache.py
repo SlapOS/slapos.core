@@ -82,6 +82,7 @@ def ostuple(content, signature_string, signature_certificate_list):
     info_dict = json.loads(content)
     return (
         info_dict['machine'],
+        info_dict.get('compiler_target', '')),
         networkcache.verifySignatureInCertificateList(
             content,
             signature_string,
@@ -119,11 +120,11 @@ def do_lookup(logger, cache_dir, software_url, signature_certificate_list):
         ostuple(*entry, signature_certificate_list=signature_certificate_list)
         for entry in entries
     )
-    pt = prettytable.PrettyTable(['machine', 'distribution', 'version', 'id', 'signature verified', 'compatible?'])
+    pt = prettytable.PrettyTable(['machine', 'compiler target', 'distribution', 'version', 'id', 'signature verified', 'compatible?'])
 
     for os in ostable:
         compatible = 'yes' if networkcache.is_compatible(os[0], os[1], os[3:]) else 'no'
-        pt.add_row([os[0], os[1], os[3], os[4], os[2], compatible])
+        pt.add_row([os[0], os[1], os[3], os[4], os[5] os[2], compatible])
 
     meta = json.loads(entries[0][0])
     logger.info('Software URL: %s', meta['software_url'])

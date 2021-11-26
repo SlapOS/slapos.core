@@ -27,7 +27,6 @@
 #
 ##############################################################################
 
-import ast
 import hashlib
 import json
 import re
@@ -36,7 +35,6 @@ import sys
 import prettytable
 
 from slapos.grid import networkcache
-from slapos.grid.distribution import distribution_tuple
 from slapos.cli.config import ConfigCommand
 from slapos.util import str2bytes
 
@@ -77,8 +75,10 @@ def looks_like_md5(s):
     return re.match('[0-9a-f]{32}', s)
 
 
-def ostuple(info_dict):
-    return (info_dict['machine'],) + ast.literal_eval(info_dict['os'])
+def ostuple(entry):
+    info_dict = networkcache.loadJsonEntry(entry[0])
+    return (info_dict['multiarch'],) + tuple(info_dict['os']) + (entry[1],)
+
 
 def do_lookup(logger, cache_dir, cache_url, signature_certificate_list,
               software_url):
@@ -99,11 +99,13 @@ def do_lookup(logger, cache_dir, cache_url, signature_certificate_list,
         logger.info('Object found in cache, but has no binary entries.')
         return 0
 
-    ostable = sorted(ostuple(json.loads(entry[0])) for entry in entries)
-    pt = prettytable.PrettyTable(['machine', 'distribution', 'version', 'id', 'compatible?'])
+    pt = prettytable.PrettyTable(['multiarch', 'distribution', 'version', 'id', 'compatible?'])
+    machine_info = networkcache.machine_info_tuple()
 
-    for os in ostable:
-        compatible = 'yes' if networkcache.is_compatible(os[0], os[1:]) else 'no'
+    for os in sorted(map(ostuple, entries)):
+        compatible = ('yes' if networkcache.is_compatible(
+                                  machine_info, (os[0], os[1:])) else
+                      'no')
         pt.add_row([os[0], os[1], os[2], os[3], compatible])
 
     meta = json.loads(entries[0][0])

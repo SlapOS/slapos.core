@@ -58,75 +58,23 @@
     })
     .declareMethod("render", function () {
       var gadget = this,
-        lines_limit,
         projects_translation,
         translation_list = [
-          "Title",
-          "Reference",
-          "Status",
           "Projects"
         ];
 
       return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
-            gadget.getSetting("listbox_lines_limit", 20),
-            window.getSettingMe(gadget)
-          ]);
-        })
-        .push(function (settings) {
-          lines_limit = settings[0];
-          return RSVP.all([
             gadget.getDeclaredGadget('form_list'),
-            gadget.jio_get(settings[1]),
+            gadget.jio_getAttachment('project_module', 'view'),
             gadget.getTranslationList(translation_list)
-          ]);
+          ])
         })
         .push(function (result) {
-          var destination_project_list, i,
-            column_list = [
-              ['title', result[2][0]],
-              ['reference', result[2][1]],
-              ['Project_getNewsDict', result[2][2]]
-            ];
-          projects_translation = result[2][3];
-          destination_project_list = "%22NULL%22%2C";
-          for (i in result[1].assignment_destination_project_list) {
-            if (result[1].assignment_destination_project_list.hasOwnProperty(i)) {
-              destination_project_list += "%22" + result[1].assignment_destination_project_list[i] + "%22%2C";
-            }
-          }
+          projects_translation = result[2][0];
           return result[0].render({
-            erp5_document: {
-              "_embedded": {"_view": {
-                "listbox": {
-                  "column_list": column_list,
-                  "show_anchor": 0,
-                  "default_params": {},
-                  "editable": 0,
-                  "editable_column_list": [],
-                  "key": "slap_project_listbox",
-                  "lines": lines_limit,
-                  "list_method": "portal_catalog",
-                  // XXX TODO Filter by   default_strict_allocation_scope_uid="!=%s" % context.getPortalObject().portal_categories.allocation_scope.close.forever.getUid(),
-                  "query": "urn:jio:allDocs?query=portal_type%3A%22" +
-                    "Project" + "%22%20AND%20validation_state%3Avalidated%20AND%20" +
-                    "relative_url%3A(" + destination_project_list + ")",
-                  "portal_type": [],
-                  "search_column_list": column_list,
-                  "sort_column_list": column_list,
-                  "sort": [["title", "ascending"]],
-                  "title": projects_translation,
-                  "type": "ListBox"
-                }
-              }},
-              "_links": {
-                "type": {
-                  // form_list display portal_type in header
-                  name: ""
-                }
-              }
-            },
+            erp5_document: result[1],
             form_definition: {
               group_list: [[
                 "bottom",

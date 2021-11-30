@@ -15,7 +15,7 @@ def redirect(message, message_type):
     "&portal_status_message=%s" % context.Base_translateString(message))
 
 try:
-  context.acceptInvitation(invitation_token)
+  context.acceptInvitation(invitation_token=invitation_token)
 except ValueError as e:
   return redirect(context.Base_translateString(e), "error")
 

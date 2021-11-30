@@ -84,12 +84,7 @@
           return gadget.jio_get(me);
         })
         .push(function (me) {
-          var i, destination_list = '"NULL",', destination_project_list = '"NULL",';
-          for (i in me.assignment_destination_project_list) {
-            if (me.assignment_destination_project_list.hasOwnProperty(i)) {
-              destination_project_list += '"' + me.assignment_destination_project_list[i] + '",';
-            }
-          }
+          var i, destination_list = '"NULL",';
           for (i in me.assignment_destination_list) {
             if (me.assignment_destination_list.hasOwnProperty(i)) {
               destination_list += '"' + me.assignment_destination_list[i] + '",';
@@ -104,7 +99,7 @@
               select_list: ['reference', 'title']
             }),
             gadget.jio_allDocs({
-              query: 'portal_type:"Project" AND validation_state:"validated" AND relative_url:(' + destination_project_list + ')',
+              query: 'portal_type:"Project" AND validation_state:"validated"',
               sort_on: [['reference', 'ascending']],
               select_list: ['reference', 'title']
             }),

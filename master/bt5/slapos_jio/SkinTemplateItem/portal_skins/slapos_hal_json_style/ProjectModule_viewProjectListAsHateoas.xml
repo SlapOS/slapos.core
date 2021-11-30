@@ -35,7 +35,11 @@
         </item>
         <item>
             <key> <string>action</string> </key>
-            <value> <string>Base_edit</string> </value>
+            <value> <string>Base_doSelect</string> </value>
+        </item>
+        <item>
+            <key> <string>action_title</string> </key>
+            <value> <string></string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -59,10 +63,10 @@
             <key> <string>group_list</string> </key>
             <value>
               <list>
-                <string>normal</string>
                 <string>left</string>
                 <string>right</string>
-                <string>normal width100</string>
+                <string>center</string>
+                <string>bottom</string>
                 <string>hidden</string>
               </list>
             </value>
@@ -72,6 +76,20 @@
             <value>
               <dictionary>
                 <item>
+                    <key> <string>bottom</string> </key>
+                    <value>
+                      <list>
+                        <string>listbox</string>
+                      </list>
+                    </value>
+                </item>
+                <item>
+                    <key> <string>center</string> </key>
+                    <value>
+                      <list/>
+                    </value>
+                </item>
+                <item>
                     <key> <string>hidden</string> </key>
                     <value>
                       <list/>
@@ -79,31 +97,6 @@
                 </item>
                 <item>
                     <key> <string>left</string> </key>
-                    <value>
-                      <list/>
-                    </value>
-                </item>
-                <item>
-                    <key> <string>normal</string> </key>
-                    <value>
-                      <list>
-                        <string>my_first_name</string>
-                        <string>my_default_email_text</string>
-                        <string>my_reference</string>
-                        <string>my_last_name</string>
-                        <string>my_assignment_destination_list</string>
-                        <string>my_default_address_city</string>
-                        <string>my_default_address_region</string>
-                        <string>my_default_address_street_address</string>
-                        <string>my_default_address_zip_code</string>
-                        <string>my_career_subordination_title</string>
-                        <string>my_default_telephone_coordinate_text</string>
-                        <string>my_contract_relative_url</string>
-                      </list>
-                    </value>
-                </item>
-                <item>
-                    <key> <string>normal width100</string> </key>
                     <value>
                       <list/>
                     </value>
@@ -119,7 +112,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Person_viewAsHateoas</string> </value>
+            <value> <string>ProjectModule_viewProjectListAsHateoas</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -127,11 +120,11 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>WebSection_viewMyAccountRender</string> </value>
+            <value> <string>ProjectModule_viewProjectListAsHateoas</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>
-            <value> <string>form_view_editable</string> </value>
+            <value> <string>form_list</string> </value>
         </item>
         <item>
             <key> <string>row_length</string> </key>
@@ -143,7 +136,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string></string> </value>
+            <value> <string>Projects</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

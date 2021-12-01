@@ -12,7 +12,7 @@
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("redirect", "redirect")
-    .declareAcquiredMethod("jio_post", "jio_post")
+    .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("getTranslationList", "getTranslationList")
@@ -34,14 +34,19 @@
           return form_gadget.getContent();
         })
         .push(function (doc) {
-          return gadget.jio_post(doc);
+          return gadget.getSetting("hateoas_url")
+            .push(function (url) {
+              // This is horrible
+              return gadget.jio_getAttachment(doc.parent_relative_url,
+                url + doc.parent_relative_url + "/Person_requestProject?title=" + doc.title);
+            });
         })
-        .push(function (key) {
+        .push(function (result) {
           return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
               return gadget.redirect({"command": "change",
-                                    "options": {"jio_key": key, "page": "slap_controller"}});
+                                    "options": {"jio_key": result.relative_url, "page": "slap_controller"}});
             });
         });
     })
@@ -89,39 +94,6 @@
                   "hidden": 0,
                   "type": "StringField"
                 },
-                "my_description": {
-                  "description": result[2][1],
-                  "title": result[2][3],
-                  "default": "",
-                  "css_class": "",
-                  "required": 0,
-                  "editable": 1,
-                  "key": "description",
-                  "hidden": 0,
-                  "type": "TextAreaField"
-                },
-                "my_destination_decision": {
-                  "description": "",
-                  "title": result[2][4],
-                  "default": result[1],
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "destination_decision",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_portal_type": {
-                  "description": result[2][1],
-                  "title": result[2][5],
-                  "default": "Project",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "portal_type",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
                 "my_parent_relative_url": {
                   "description": "",
                   "title": result[2][7],
@@ -144,7 +116,7 @@
             form_definition: {
               group_list: [[
                 "left",
-                [["my_title"], ["my_description"], ["my_destination_decision"], ["my_portal_type"], ["my_parent_relative_url"]]
+                [["my_title"], ["my_parent_relative_url"]]
               ]]
             }
           });

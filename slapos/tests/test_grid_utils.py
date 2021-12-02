@@ -27,6 +27,7 @@
 from __future__ import unicode_literals
 import logging
 import os
+import subprocess
 import sys
 import tempfile
 import textwrap
@@ -169,3 +170,74 @@ class SlapPopenTestCase(unittest.TestCase):
           os.close(fd)
 
 
+class DummySystemExit(Exception):
+  """Dummy exception raised instead of SystemExit so that if something goes
+  wrong with TestSetRunning we don't exit the test program.
+  """
+  pass
+
+
+class TestSetRunning(unittest.TestCase):
+  def setUp(self):
+    sys_exit_patcher = mock.patch(
+        'slapos.grid.utils.sys.exit',
+        side_effect=DummySystemExit)
+    sys_exit_patcher.start()
+    self.addCleanup(sys_exit_patcher.stop)
+    self.logger = mock.MagicMock()
+
+  def test_write_pidfile(self):
+    with tempfile.NamedTemporaryFile(suffix='.pid', mode='r') as tf:
+      slapos.grid.utils.setRunning(self.logger, tf.name)
+      self.assertEqual(tf.read(), str(os.getpid()))
+
+  def test_already_running(self):
+    process = subprocess.Popen([sys.executable, '-c', 'print("this is fake slapos node"); import time; time.sleep(10)'])
+    pid = process.pid
+    self.addCleanup(process.wait)
+    self.addCleanup(process.terminate)
+
+    with tempfile.NamedTemporaryFile(suffix='.pid', mode='w') as tf:
+      tf.write(str(pid))
+      tf.flush()
+      with self.assertRaises(DummySystemExit):
+        slapos.grid.utils.setRunning(self.logger, tf.name)
+      self.logger.info.assert_called_with(
+          'New slapos process started, but another slapos process '
+          'is aleady running with pid %s, exiting.',
+          pid)
+
+  def test_stale_pidfile(self):
+    # XXX we can not reliably guess a pid that will not be used by a running
+    # process. We start a process, record its pid and wait for process to
+    # terminate and assume that this pid will not be reused in the meantime.
+    process = subprocess.Popen(['sleep', '0.0001'])
+    pid = process.pid
+    process.wait()
+
+    with tempfile.NamedTemporaryFile(suffix='.pid', mode='w') as tf:
+      tf.write(str(pid))
+      tf.flush()
+      slapos.grid.utils.setRunning(self.logger, tf.name)
+      self.logger.info.assert_called_with(
+          'Existing pid file %r was stale, overwritten',
+          tf.name)
+      with open(tf.name) as f:
+        self.assertEqual(f.read(), str(os.getpid()))
+
+  def test_stale_pidfile_pid_recycled(self):
+    # another unrelated process is running with the pid from the pid file
+    process = subprocess.Popen(['sleep', '10'])
+    pid = process.pid
+    self.addCleanup(process.wait)
+    self.addCleanup(process.terminate)
+
+    with tempfile.NamedTemporaryFile(suffix='.pid', mode='w') as tf:
+      tf.write(str(pid))
+      tf.flush()
+      slapos.grid.utils.setRunning(self.logger, tf.name)
+      self.logger.info.assert_called_with(
+          'Existing pid file %r was stale, overwritten',
+          tf.name)
+      with open(tf.name) as f:
+        self.assertEqual(f.read(), str(os.getpid()))

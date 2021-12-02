@@ -49,19 +49,24 @@ authorized_sources =
 [networkcache]
 # Define options for binary cache, used to download already compiled software.
 download-binary-cache-url = http://shacache.nxdcdn.com
-download-cache-url = https://shacache.nxdcdn.com
 download-binary-dir-url = http://shadir.nxdcdn.com
 
-# Configuration to Upload Configuration for Binary cache
-#upload-binary-dir-url = https://www.shacache.org/shadir
-#upload-binary-cache-url = https://www.shacache.org/shacache
+# More options for 'networkcache-download' command
+#download-cache-url = http://shacache.nxdcdn.com
+#download-dir-url = http://shadir.nxdcdn.com
+
+# Upload Configuration
 #signature_private_key_file = /etc/opt/slapos/shacache/signature.key
 #signature_certificate_file = /etc/opt/slapos/shacache/signature.cert
+#upload-binary-dir-url = https://www.shacache.org/shadir
+#upload-binary-cache-url = https://www.shacache.org/shacache
 #upload-cache-url = https://www.shacache.org/shacache
+#upload-dir-url = https://www.shacache.org/shadir
+
+# Options for HTTPS URLs
 #shacache-ca-file = /etc/opt/slapos/shacache/ca.cert
 #shacache-cert-file = /etc/opt/slapos/shacache/shacache.cert
 #shacache-key-file = /etc/opt/slapos/shacache/shacache.key
-#upload-dir-url = https://www.shacache.org/shadir
 #shadir-ca-file = /etc/opt/slapos/shacache/ca.cert
 #shadir-cert-file = /etc/opt/slapos/shacache/shacache.cert
 #shadir-key-file = /etc/opt/slapos/shacache/shacache.key

@@ -199,18 +199,26 @@ def getCleanEnvironment(logger, home_path='/tmp'):
 
 def setRunning(logger, pidfile):
   """Creates a pidfile. If a pidfile already exists, we exit"""
-  # XXX might use http://code.activestate.com/recipes/577911-context-manager-for-a-daemon-pid-file/
   if os.path.exists(pidfile):
     try:
-      pid = int(open(pidfile, 'r').readline())
+      with open(pidfile, 'r') as f:
+        pid = int(f.readline())
     except ValueError:
       pid = None
-    # XXX This could use psutil library.
-    if pid and os.path.exists("/proc/%s" % pid):
-      logger.info('New slapos process started, but another slapos '
-                  'process is aleady running with pid %s, exiting.' % pid)
-      sys.exit(10)
-    logger.info('Existing pid file %r was stale, overwritten' % pidfile)
+    if pid and psutil.pid_exists(pid):
+      is_slapos_running = False
+      try:
+        process = psutil.Process(pid)
+        is_slapos_running = 'slapos' in str(process.cmdline())
+      except psutil.Error:
+        logger.info(
+            'Error getting information about process with pid %s',
+            pid, exc_info=True)
+      if is_slapos_running:
+        logger.info('New slapos process started, but another slapos '
+                    'process is aleady running with pid %s, exiting.', pid)
+        sys.exit(10)
+    logger.info('Existing pid file %r was stale, overwritten', pidfile)
   # Start new process
   write_pid(logger, pidfile)
 

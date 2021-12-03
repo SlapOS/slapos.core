@@ -53,6 +53,7 @@ from slapos.cli.proxy_show import do_show, StringIO
 from slapos.cli.cache import do_lookup as cache_do_lookup
 from slapos.cli.cache_source import do_lookup as cache_source_do_lookup
 from slapos.client import ClientConfig
+from slapos.grid import networkcache
 import slapos.grid.svcbackend
 import slapos.proxy
 import slapos.slap
@@ -68,6 +69,7 @@ class CliMixin(unittest.TestCase):
     self.local = {'slap': slap}
     self.logger = create_autospec(logging.Logger)
     self.conf = create_autospec(ClientConfig)
+    self.sign_cert_list = None
 
 class TestCliCache(CliMixin):
 
@@ -76,7 +78,8 @@ class TestCliCache(CliMixin):
     self.assertEqual(0, cache_do_lookup(
         self.logger,
         cache_dir="http://dir.shacache.org",
-        software_url=self.test_url))
+        software_url=self.test_url,
+        signature_certificate_list=self.sign_cert_list))
 
     self.logger.info.assert_any_call('Software URL: %s', 
             u'https://lab.nexedi.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg')
@@ -93,7 +96,8 @@ class TestCliCache(CliMixin):
     self.assertEqual(10, cache_do_lookup(
         self.logger,
         cache_dir="http://dir.shacache.org",
-        software_url="this_is_uncached_url"))
+        software_url="this_is_uncached_url",
+        signature_certificate_list=self.sign_cert_list))
 
     self.logger.critical.assert_any_call('Object not in cache: %s', 'this_is_uncached_url') 
 
@@ -101,7 +105,8 @@ class TestCliCache(CliMixin):
     self.assertEqual(10, cache_do_lookup(
         self.logger,
         cache_dir="http://xxx.shacache.org",
-        software_url=self.test_url))
+        software_url=self.test_url,
+        signature_certificate_list=self.sign_cert_list))
 
     self.logger.critical.assert_any_call(
       'Cannot connect to cache server at %s', 

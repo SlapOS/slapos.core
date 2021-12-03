@@ -31,7 +31,6 @@ import ast
 import hashlib
 import json
 import re
-import requests
 import sys
 
 import prettytable
@@ -63,8 +62,12 @@ class CacheLookupCommand(ConfigCommand):
     def take_action(self, args):
         configp = self.fetch_config(args)
         cache_dir = configp.get('networkcache', 'download-binary-dir-url')
+        cache_url = configp.get('networkcache', 'download-binary-cache-url')
+        signature_certificate_list = configp.get('networkcache', 'signature-certificate-list')
+
         sys.exit(
-          do_lookup(self.app.log, cache_dir, args.software_url))
+          do_lookup(self.app.log, cache_dir, cache_url,
+                    signature_certificate_list, args.software_url,))
 
 def looks_like_md5(s):
     """
@@ -74,38 +77,29 @@ def looks_like_md5(s):
     return re.match('[0-9a-f]{32}', s)
 
 
-def ostuple(jsondict):
-    srdict = json.loads(jsondict)
-    return (srdict['machine'],) + ast.literal_eval(srdict['os'])
+def ostuple(info_dict):
+    return (info_dict['machine'],) + ast.literal_eval(info_dict['os'])
 
-def do_lookup(logger, cache_dir, software_url):
+def do_lookup(logger, cache_dir, cache_url, signature_certificate_list,
+              software_url):
     if looks_like_md5(software_url):
         md5 = software_url
     else:
         md5 = hashlib.md5(str2bytes(software_url)).hexdigest()
     try:
-        url = '%s/%s' % (cache_dir, md5)
-        logger.debug('Connecting to %s', url)
-        req = requests.get(url, timeout=5)
-    except (requests.Timeout, requests.ConnectionError):
-        logger.critical('Cannot connect to cache server at %s', url)
+        entries = list(
+            networkcache.download_entry_list(cache_url, cache_dir, md5, logger,
+                signature_certificate_list, software_url))
+    except:
+        logger.critical('Error while looking object %s', software_url,
+            exc_info=True)
         return FAILURE_EXIT_CODE
-
-    if not req.ok:
-        if req.status_code == 404:
-            logger.critical('Object not in cache: %s', software_url)
-        else:
-            logger.critical('Error while looking object %s: %s', software_url, req.reason)
-        return FAILURE_EXIT_CODE
-
-    entries = req.json()
 
     if not entries:
         logger.info('Object found in cache, but has no binary entries.')
         return 0
 
-    ostable = sorted(ostuple(entry[0]) for entry in entries)
-
+    ostable = sorted(ostuple(json.loads(entry[0])) for entry in entries)
     pt = prettytable.PrettyTable(['machine', 'distribution', 'version', 'id', 'compatible?'])
 
     for os in ostable:

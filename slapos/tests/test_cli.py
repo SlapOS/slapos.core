@@ -59,6 +59,21 @@ import slapos.slap
 
 import supervisor.supervisorctl
 
+signature_certificate_list = """-----BEGIN CERTIFICATE-----     
+MIIB9jCCAV+gAwIBAgIJAKRvzcy7OH0UMA0GCSqGSIb3DQEBBQUAMBMxETAPBgNV
+BAMMCENPTVAtNzcyMCAXDTEyMDgxMDE1NDI1MVoYDzIxMTIwNzE3MTU0MjUxWjAT
+MREwDwYDVQQDDAhDT01QLTc3MjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA    
+o7aipd6MbnuGDeR1UJUjuMLQUariAyQ2l2ZDS6TfOwjHiPw/mhzkielgk73kqN7A                                 
+sUREx41eTcYCXzTq3WP3xCLE4LxLg1eIhd4nwNHj8H18xR9aP0AGjo4UFl5BOMa1
+mwoyBt3VtfGtUmb8whpeJgHhqrPPxLoON+i6fIbXDaUCAwEAAaNQME4wHQYDVR0O
+BBYEFEfjy3OopT2lOksKmKBNHTJE2hFlMB8GA1UdIwQYMBaAFEfjy3OopT2lOksK
+mKBNHTJE2hFlMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQEFBQADgYEAaNRx6YN2                             
+M/p3R8/xS6zvH1EqJ3FFD7XeAQ52WuQnKSREzuw0dsw12ClxjcHiQEFioyTiTtjs
+5pW18Ry5Ie7iFK4cQMerZwWPxBodEbAteYlRsI6kePV7Gf735Y1RpuN8qZ2sYL6e
+x2IMeSwJ82BpdEI5niXxB+iT0HxhmR+XaMI=
+-----END CERTIFICATE-----
+"""
+
 def raiseNotFoundError(*args, **kwargs):
   raise slapos.slap.NotFoundError()
 
@@ -68,6 +83,7 @@ class CliMixin(unittest.TestCase):
     self.local = {'slap': slap}
     self.logger = create_autospec(logging.Logger)
     self.conf = create_autospec(ClientConfig)
+    self.sign_cert_list = signature_certificate_list
 
 class TestCliCache(CliMixin):
 
@@ -76,7 +92,9 @@ class TestCliCache(CliMixin):
     self.assertEqual(0, cache_do_lookup(
         self.logger,
         cache_dir="http://dir.shacache.org",
-        software_url=self.test_url))
+        cache_url="http://shacache.org",
+        software_url=self.test_url,
+        signature_certificate_list=self.sign_cert_list))
 
     self.logger.info.assert_any_call('Software URL: %s', 
             u'https://lab.nexedi.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg')
@@ -93,19 +111,32 @@ class TestCliCache(CliMixin):
     self.assertEqual(10, cache_do_lookup(
         self.logger,
         cache_dir="http://dir.shacache.org",
-        software_url="this_is_uncached_url"))
+        cache_url="http://shacache.org",
+        software_url="this_is_uncached_url",
+        signature_certificate_list=self.sign_cert_list))
 
-    self.logger.critical.assert_any_call('Object not in cache: %s', 'this_is_uncached_url') 
+    self.logger.info.assert_any_call(
+        'Failed to download from network cache this_is_uncached_url: '\
+        'HTTP Error 404: Not Found')
+    self.logger.critical.assert_any_call(
+        'Error while looking object %s', 'this_is_uncached_url', exc_info=True)
 
   def test_bad_cache_dir(self):
     self.assertEqual(10, cache_do_lookup(
         self.logger,
         cache_dir="http://xxx.shacache.org",
-        software_url=self.test_url))
+        cache_url="http://shacache.org",
+        software_url=self.test_url,
+        signature_certificate_list=self.sign_cert_list))
 
+    self.logger.info.assert_any_call(
+        'Failed to download from network cache '\
+        'https://lab.nexedi.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg: '\
+        ' [Errno -2] Name or service not known')
     self.logger.critical.assert_any_call(
-      'Cannot connect to cache server at %s', 
-      'http://xxx.shacache.org/cccdc51a07e8c575c880f2d70dd4d458')
+        'Error while looking object %s',
+        'https://lab.nexedi.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg',
+        exc_info=True)
 
 
 class TestCliCacheSource(CliMixin):

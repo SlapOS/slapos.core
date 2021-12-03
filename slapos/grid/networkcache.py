@@ -18,13 +18,14 @@ import json
 import platform
 import shutil
 import traceback
+from base64 import b64decode
 
 from slapos.grid.distribution import os_matches, distribution_tuple
 
 try:
     try:
         from slapos.libnetworkcache import NetworkcacheClient, UploadError, \
-          DirectoryNotFound
+          DirectoryNotFound, crypto
     except ImportError:
         LIBNETWORKCACHE_ENABLED = False
     else:
@@ -115,6 +116,21 @@ def download_network_cached(cache_url, dir_url, software_url, software_root,
     return False
 
 
+def parse_signature_certificate_str(signature_certificate_str, logger):
+    cert_marker = "-----BEGIN CERTIFICATE-----"
+    splitted_signature_certificate_list = [cert_marker + '\n' + q.strip() \
+      for q in signature_certificate_str.split(cert_marker) \
+        if q.strip()]
+    signature_certificate_list = []
+    for certificate in splitted_signature_certificate_list or ():
+        try:
+            loaded_certificate = crypto.load_certificate(crypto.FILETYPE_PEM, certificate)
+            signature_certificate_list.append(loaded_certificate)
+        except Exception as e:
+            logger.info('Ignored wrong certificate, reason:\n%s, offending certificate:\n%s', e, certificate)
+    return signature_certificate_list
+
+
 @fallback_call
 def upload_network_cached(software_root, software_url, cached_key,
     cache_url, dir_url, path, logger, signature_private_key_file,
@@ -178,3 +194,23 @@ def upload_network_cached(software_root, software_url, cached_key,
       f.close()
 
     return True
+
+
+def verifySignatureInCertificateList(content, signature_string,
+                                     signature_certificate_list):
+  """
+    Returns true if it can find any valid certificate or false if it does not
+    find any.
+  """
+  if signature_string:
+    if not LIBNETWORKCACHE_ENABLED:
+      return 'Unkown'
+    signature = b64decode(signature_string.encode())
+    content = content.encode()
+    for certificate in signature_certificate_list:
+      try:
+        crypto.verify(certificate, signature, content, 'sha1')
+        return 'yes'
+      except crypto.Error:
+        pass
+  return 'no'

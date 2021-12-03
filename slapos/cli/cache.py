@@ -63,8 +63,12 @@ class CacheLookupCommand(ConfigCommand):
     def take_action(self, args):
         configp = self.fetch_config(args)
         cache_dir = configp.get('networkcache', 'download-binary-dir-url')
+        logger = self.app.log
+        signature_certificate_list = networkcache.parse_signature_certificate_str(
+            configp.get('networkcache', 'signature-certificate-list'), logger)
+
         sys.exit(
-          do_lookup(self.app.log, cache_dir, args.software_url))
+          do_lookup(logger, cache_dir, args.software_url, signature_certificate_list))
 
 def looks_like_md5(s):
     """
@@ -74,11 +78,18 @@ def looks_like_md5(s):
     return re.match('[0-9a-f]{32}', s)
 
 
-def ostuple(jsondict):
-    srdict = json.loads(jsondict)
-    return (srdict['machine'],) + ast.literal_eval(srdict['os'])
+def ostuple(content, signature_string, signature_certificate_list):
+    info_dict = json.loads(content)
+    return (
+        info_dict['machine'],
+        networkcache.verifySignatureInCertificateList(
+            content,
+            signature_string,
+            signature_certificate_list,
+        ),
+    ) + ast.literal_eval(info_dict['os'])
 
-def do_lookup(logger, cache_dir, software_url):
+def do_lookup(logger, cache_dir, software_url, signature_certificate_list):
     if looks_like_md5(software_url):
         md5 = software_url
     else:
@@ -104,13 +115,15 @@ def do_lookup(logger, cache_dir, software_url):
         logger.info('Object found in cache, but has no binary entries.')
         return 0
 
-    ostable = sorted(ostuple(entry[0]) for entry in entries)
-
-    pt = prettytable.PrettyTable(['machine', 'distribution', 'version', 'id', 'compatible?'])
+    ostable = sorted(
+        ostuple(*entry, signature_certificate_list=signature_certificate_list)
+        for entry in entries
+    )
+    pt = prettytable.PrettyTable(['machine', 'distribution', 'version', 'id', 'signature verified', 'compatible?'])
 
     for os in ostable:
-        compatible = 'yes' if networkcache.is_compatible(os[0], os[1:]) else 'no'
-        pt.add_row([os[0], os[1], os[2], os[3], compatible])
+        compatible = 'yes' if networkcache.is_compatible(os[0], os[1], os[3:]) else 'no'
+        pt.add_row([os[0], os[1], os[3], os[4], os[2], compatible])
 
     meta = json.loads(entries[0][0])
     logger.info('Software URL: %s', meta['software_url'])

@@ -57,6 +57,23 @@ def is_compatible(machine, os):
     return machine == platform.machine() and os_matches(os, distribution_tuple())
 
 
+def download_entry_list(cache_url, dir_url, key, logger,
+                        signature_certificate_list, software_url):
+    try:
+        nc = NetworkcacheClient(cache_url, dir_url,
+            signature_certificate_list=signature_certificate_list or None)
+    except TypeError as e:
+        logger.warning('Incompatible version of networkcache, not using it.')
+        raise e
+
+    try:
+        return nc.select_generic(key)
+    except (IOError, DirectoryNotFound) as e:
+        logger.info('Failed to download from network cache %s: %s' % \
+                                                       (software_url, str(e)))
+        raise e
+
+
 @fallback_call
 def download_network_cached(cache_url, dir_url, software_url, software_root,
                             key, path, logger, signature_certificate_list,

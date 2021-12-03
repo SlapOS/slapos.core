@@ -57,6 +57,13 @@ def is_compatible(machine, os):
     return machine == platform.machine() and os_matches(os, distribution_tuple())
 
 
+def download_entry_list(cache_url, dir_url, key, logger,
+                        signature_certificate_list, software_url):
+    nc = NetworkcacheClient(cache_url, dir_url,
+        signature_certificate_list=signature_certificate_list or None)
+    return nc.select_generic(key)
+
+
 @fallback_call
 def download_network_cached(cache_url, dir_url, software_url, software_root,
                             key, path, logger, signature_certificate_list,
@@ -172,7 +179,7 @@ def upload_network_cached(software_root, software_url, cached_key,
     try:
         return nc.upload_generic(f, cached_key, **kw)
     except (IOError, UploadError) as e:
-        logger.info('Failed to upload file. %s' % (str(e)))
+        logger.info('Failed to upload file. %s' % str(e))
         return False
     finally:
       f.close()

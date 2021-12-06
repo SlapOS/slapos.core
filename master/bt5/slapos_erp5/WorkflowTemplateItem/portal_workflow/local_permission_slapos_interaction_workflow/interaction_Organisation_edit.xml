@@ -52,6 +52,7 @@
             <value>
               <tuple>
                 <string>_setReference.*</string>
+                <string>_setDestinationDecision.*</string>
               </tuple>
             </value>
         </item>

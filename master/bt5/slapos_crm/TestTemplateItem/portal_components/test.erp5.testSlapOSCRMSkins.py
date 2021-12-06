@@ -28,6 +28,8 @@ from DateTime import DateTime
 from Products.ERP5Type.tests.utils import createZODBPythonScript
 import json
 
+import feedparser
+
 def getFakeSlapState():
   return "destroy_requested"
 
@@ -1943,3 +1945,43 @@ return "Visited by SupportRequest_trySendNotificationMessage %s %s" % (message_t
       support_request.getSimulationState())
 
 
+class TestSlapOSSupportRequestRSS(TestCRMSkinsMixin):
+
+  def test_WebSection_viewTicketListAsRSS(self):
+    person = self.makePerson()
+
+    module = self.portal.support_request_module
+    support_request = module.newContent(
+        portal_type="Support Request",
+        title='Help',
+        destination_decision_value=person,
+    )
+    self.portal.event_module.newContent(
+        portal_type='Web Message',
+        follow_up_value=support_request,
+        text_content='I need help !',
+        source_value=person,
+    ).start()
+    support_request.validate()
+    self.tic()
+
+    self.login(person.getUserId())
+    self.portal.portal_skins.changeSkin('RSS')
+    parsed = feedparser.parse(self.portal.WebSection_viewTicketListAsRSS())
+    self.assertFalse(parsed.bozo)
+    first_entry_id = [item.id for item in parsed.entries]
+    self.assertEqual([item.summary for item in parsed.entries], ['I need help !'])
+
+    self.portal.event_module.newContent(
+        portal_type='Web Message',
+        follow_up_value=support_request,
+        text_content='How can I help you ?',
+        destination_value=person,
+    ).start()
+    self.tic()
+
+    self.portal.portal_skins.changeSkin('RSS')
+    parsed = feedparser.parse(self.portal.WebSection_viewTicketListAsRSS())
+    self.assertFalse(parsed.bozo)
+    self.assertEqual([item.summary for item in parsed.entries], ['How can I help you ?'])
+    self.assertNotEqual([item.id for item in parsed.entries][0], first_entry_id)

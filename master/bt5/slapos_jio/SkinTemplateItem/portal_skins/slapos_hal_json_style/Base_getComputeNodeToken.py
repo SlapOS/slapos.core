@@ -4,21 +4,15 @@ portal = context.getPortalObject()
 person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
 web_site = context.getWebSiteValue()
-request_method = "POST"
-
 slapos_master_web_url = web_site.getLayoutProperty(
-    "configuration_slapos_master_web_url", web_site.absolute_url())
+    "configuration_slapos_master_web_url",
+    default=web_site.absolute_url()
+  )
 
 request_url = "%s/%s" % (slapos_master_web_url, "Person_requestComputer")
 
-access_token = portal.access_token_module.newContent(
-  portal_type="One Time Restricted Access Token",
-  agent_value=person,
-  url_string=request_url,
-  url_method=request_method
-)
-access_token_id = access_token.getId()
-access_token.validate()
+person.requestToken(request_url=request_url)
+access_token_id = context.REQUEST.get("token")
 
 slapos_master_api = web_site.getLayoutProperty(
     "configuration_slapos_master_api", "https://slap.vifib.com")

@@ -681,6 +681,21 @@ class TestProjectModule(TestSlapOSGroupRoleSecurityMixin):
 
 class TestProject(TestSlapOSGroupRoleSecurityMixin):
 
+  def test_with_user(self):
+    person = self.makePerson(user=1)
+    project = self.portal.project_module.newContent(
+        portal_type='Project',
+        destination_decision_value=person)
+    project.updateLocalRolesOnSecurityGroups()
+    self.assertSecurityGroup(project,
+        ['G-COMPANY', self.user_id, person.getUserId(), project.getReference(), 'R-SHADOW-PERSON'], False)
+    self.assertRoles(project, 'G-COMPANY', ['Assignor'])
+    self.assertRoles(project, project.getReference(), ['Assignee'])
+    self.assertRoles(project, 'R-SHADOW-PERSON', ['Auditor'])
+    self.assertRoles(project, self.user_id, ['Owner'])
+    self.assertRoles(project, person.getUserId(), ['Assignee'])
+
+
   def test(self):
     project = self.portal.project_module.newContent(
         portal_type='Project')
@@ -690,7 +705,8 @@ class TestProject(TestSlapOSGroupRoleSecurityMixin):
     self.assertRoles(project, 'G-COMPANY', ['Assignor'])
     self.assertRoles(project, project.getReference(), ['Assignee'])
     self.assertRoles(project, 'R-SHADOW-PERSON', ['Auditor'])
-    self.assertRoles(project, self.user_id, ['Owner', 'Assignee'])
+    self.assertRoles(project, self.user_id, ['Owner'])
+    
 
 class TestPDF(TestSlapOSGroupRoleSecurityMixin):
   def test(self):

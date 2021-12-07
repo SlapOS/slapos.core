@@ -8,7 +8,7 @@
       <dictionary>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Warnning</string> </value>
+            <value> <string>warning</string> </value>
         </item>
         <item>
             <key> <string>message_values</string> </key>
@@ -219,8 +219,8 @@
                     <key> <string>default</string> </key>
                     <value> <string encoding="cdata"><![CDATA[
 
-<h1> BE CAREFULL, you are destroying one instance.</h1>\n
-<h3> There is no way to revert this change. If you do a mistake you risk on cause data lost!!! </h3>
+<h1> BEWARE! Instance DESTROY will happen!</h1>\n
+<h3> This will result with destruction of the instance. This is dangerous operation, which shall be use only by properly trained Rapid.Space OSS Operator. If the instance contains data, they will be removed. If the instance has Slave Instance related, they will be destroyed too, including the data. </h3>
 
 ]]></string> </value>
                 </item>
@@ -274,7 +274,7 @@
                 </item>
                 <item>
                     <key> <string>title</string> </key>
-                    <value> <string>Warnning</string> </value>
+                    <value> <string>Warning</string> </value>
                 </item>
                 <item>
                     <key> <string>unicode</string> </key>

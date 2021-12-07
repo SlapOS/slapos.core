@@ -92,7 +92,7 @@
       <dictionary>
         <item>
             <key> <string>text</string> </key>
-            <value> <string>python: portal.Base_checkPermission(\'upgrade_descision_module\', \'Add portal content\')\n
+            <value> <string>python: portal.Base_checkPermission(\'upgrade_decision_module\', \'Add portal content\')\n
 </string> </value>
         </item>
       </dictionary>

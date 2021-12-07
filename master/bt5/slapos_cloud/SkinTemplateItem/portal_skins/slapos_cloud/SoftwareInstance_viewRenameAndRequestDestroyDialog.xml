@@ -35,7 +35,7 @@
         </item>
         <item>
             <key> <string>action</string> </key>
-            <value> <string>SoftwareInstance_requestDestroy</string> </value>
+            <value> <string>SoftwareInstance_viewRenameAndRequestDestroyAction</string> </value>
         </item>
         <item>
             <key> <string>action_title</string> </key>
@@ -97,7 +97,7 @@
                     <key> <string>left</string> </key>
                     <value>
                       <list>
-                        <string>Warnning</string>
+                        <string>warning</string>
                         <string>my_title</string>
                         <string>my_reference</string>
                         <string>my_description</string>
@@ -115,7 +115,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SoftwareInstance_viewRequestDestroyDialog</string> </value>
+            <value> <string>SoftwareInstance_viewRenameAndRequestDestroyDialog</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -139,7 +139,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Request Destroy</string> </value>
+            <value> <string>Rename and Request Destroy</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

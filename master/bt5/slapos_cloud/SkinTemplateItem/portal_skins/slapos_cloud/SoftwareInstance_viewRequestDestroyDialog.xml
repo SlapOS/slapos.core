@@ -97,7 +97,7 @@
                     <key> <string>left</string> </key>
                     <value>
                       <list>
-                        <string>Warnning</string>
+                        <string>warning</string>
                         <string>my_title</string>
                         <string>my_reference</string>
                         <string>my_description</string>

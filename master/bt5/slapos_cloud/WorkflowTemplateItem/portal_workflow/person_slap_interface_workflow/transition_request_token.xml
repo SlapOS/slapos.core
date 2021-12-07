@@ -24,7 +24,7 @@
               <tuple>
                 <string>action_type/workflow</string>
                 <string>before_script/portal_workflow/person_slap_interface_workflow/script_Person_checkConsistency</string>
-                <string>after_script/portal_workflow/person_slap_interface_workflow/script_Person_requestProject</string>
+                <string>after_script/portal_workflow/person_slap_interface_workflow/script_Person_requestToken</string>
               </tuple>
             </value>
         </item>

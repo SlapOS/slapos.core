@@ -19,6 +19,7 @@ Slave Instance | jump_to_software_instance
 Slave Instance | unfiltered_tracking_list
 Slave Instance | view
 Slave Instance | view_rename_and_stop
+Slave Instance | view_request_destroy
 Software Installation Module | view
 Software Installation | request_destroy
 Software Installation | view
@@ -29,7 +30,6 @@ Software Instance | jump_to_software_instance
 Software Instance | unfiltered_tracking_list
 Software Instance | view
 Software Instance | view_rename_and_stop
-Software Instance | view_request_destroy
 Software Instance | view_request_destroy
 Software Release | usable_compute_node
 Software Release | usable_network

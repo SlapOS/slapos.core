@@ -80,17 +80,23 @@ def SoftwareInstance_renameAndRequestDestroy(self, REQUEST=None):
     raise Unauthorized
 
   assert self.getPortalType() in ["Software Instance", "Slave Instance"]
+  suffix = "_renamed_and_destroyed_%s" % (DateTime().strftime("%Y%m%d_%H%M%S"))
   title = self.getTitle()
-  new_title = title + "_renamed_and_destroyed_%s" % (DateTime().strftime("%Y%m%d_%H%M%S"))
+  new_title = title + suffix
   self.rename(new_name=new_title,
-    comment="Rename %s into %s" % (title, new_title))
+    comment="Renamed %s into %s" % (title, new_title))
 
   # Change desired state
   promise_kw = {
       'instance_xml': self.getTextContent(),
       'software_type': self.getSourceReference(),
       'sla_xml': self.getSlaXml(),
-      'software_release': self.getUrlString(),
+      # "damage" software release, as this will minimise the chance of the
+      # instance content being processed by the node with error message like
+      # "Software Release ... is not present on system.", so no side effects of
+      # this operation will be seen in the Instance Tree and that's the
+      # expected situation
+      'software_release': self.getUrlString() + suffix,
       'shared': self.getPortalType()=="Slave Instance",
   }
 

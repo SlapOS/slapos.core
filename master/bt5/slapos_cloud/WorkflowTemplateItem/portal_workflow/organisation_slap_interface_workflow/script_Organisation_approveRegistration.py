@@ -1,20 +1,23 @@
-project = state_change["object"]
-from DateTime import DateTime
-
+organisation = state_change["object"]
 portal = context.getPortalObject()
 
-if project.getValidationState() != "draft":
-  return
+role = organisation.getRole()
+if role == "host":
+  reference_prefix = "SITE"
+else:
+  reference_prefix = "O"
 
-if project.getReference() in [None, ""]:
-  reference = "PROJ-%s" % portal.portal_ids.generateNewId(
-    id_group='slap_project_reference',
-    id_generator='uid', default=1)
-  project.setReference(reference)
+if organisation.getReference() in [None, ""]:
+  reference = "%s-%s" % (reference_prefix, portal.portal_ids.generateNewId(
+    id_group='slap_organisation_reference',
+    id_generator='uid'))
 
+  organisation.setReference(reference)
+
+organisation.validate()
 
 # Get the user id of the context owner.
-local_role_list = project.get_local_roles()
+local_role_list = organisation.get_local_roles()
 for group, role_list in local_role_list:
   if 'Owner' in role_list:
     user_id = group
@@ -27,15 +30,13 @@ if person is None:
   return
 
 for assignment in person.objectValues(portal_type="Assignment"):
-  if assignment.getDestinationProject() == project.getRelativeUrl():
+  if assignment.getSubordination() == organisation.getRelativeUrl():
     if assignment.getValidationState() != "open":
       assignment.open()
     return
 
 person.newContent(
-  title="Assigment for Project %s" % project.getTitle(),
+  title="Assigment for Organisation (%s) %s" % (organisation.getRole(), organisation.getTitle()),
   portal_type="Assignment",
-  destination_project=project.getRelativeUrl()).open()
-
-project.edit(start_date=DateTime())
-project.validate()
+  subordination_value=organisation,
+  destination_value=organisation).open()

@@ -116,8 +116,8 @@ class TestCliCache(CliMixin):
         signature_certificate_list=self.sign_cert_list))
 
     self.logger.info.assert_any_call(
-        'Failed to download from network cache this_is_uncached_url: '\
-        'HTTP Error 404: Not Found')
+        'Failed to download from network cache %s: %s',
+        'this_is_uncached_url', 'HTTP Error 404: Not Found')
     self.logger.critical.assert_any_call(
         'Error while looking object %s', 'this_is_uncached_url', exc_info=True)
 
@@ -130,9 +130,9 @@ class TestCliCache(CliMixin):
         signature_certificate_list=self.sign_cert_list))
 
     self.logger.info.assert_any_call(
-        'Failed to download from network cache '\
-        'https://lab.nexedi.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg: '\
-        ' [Errno -2] Name or service not known')
+        'Failed to download from network cache %s: %s',
+        'https://lab.nexedi.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg',
+        '[Errno -2] Name or service not known')
     self.logger.critical.assert_any_call(
         'Error while looking object %s',
         'https://lab.nexedi.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg',

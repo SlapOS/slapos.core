@@ -121,7 +121,7 @@ def download_network_cached(cache_url, dir_url, software_url, software_root,
       logger.warning('Incompatible version of networkcache, not using it.')
       return False
 
-    logger.info('Downloading %s binary from network cache.' % software_url)
+    logger.info('Downloading %s binary from network cache.', software_url)
     try:
         file_descriptor = None
         json_entry_list = nc.select_generic(key)
@@ -157,8 +157,8 @@ def download_network_cached(cache_url, dir_url, software_url, software_root,
                 file_descriptor.close()
             return True
     except (IOError, DirectoryNotFound) as e:
-        logger.info('Failed to download from network cache %s: %s' % \
-                                                       (software_url, str(e)))
+        logger.info(
+          'Failed to download from network cache %s: %s', software_url, e)
     return False
 
 
@@ -175,7 +175,7 @@ def upload_network_cached(software_root, software_url, cached_key,
                           and cache_url and dir_url):
         return False
 
-    logger.info('Uploading %s binary into network cache.' % software_url)
+    logger.info('Uploading %s binary into network cache.', software_url)
 
     # YXU: "file" and "urlmd5" should be removed when server side is ready
     kw = dict(
@@ -220,7 +220,7 @@ def upload_network_cached(software_root, software_url, cached_key,
     try:
         return nc.upload_generic(f, cached_key, **kw)
     except (IOError, UploadError) as e:
-        logger.info('Failed to upload file. %s' % str(e))
+        logger.info('Failed to upload file. %s', e)
         return False
     finally:
       f.close()

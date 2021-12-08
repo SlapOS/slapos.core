@@ -5,6 +5,7 @@ Hosting Subscription | edit_workflow
 Instance Tree | edit_workflow
 Instance Tree | instance_slap_interface_workflow
 Instance Tree | instance_tree_workflow
+Organisation | organisation_slap_interface_workflow
 Person | person_slap_interface_workflow
 Project | project_slap_interface_workflow
 Slave Instance | edit_workflow

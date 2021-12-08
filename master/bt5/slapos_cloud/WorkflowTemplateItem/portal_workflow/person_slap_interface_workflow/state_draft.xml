@@ -16,10 +16,11 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>destination/portal_workflow/person_slap_interface_workflow/transition_request_token</string>
                 <string>destination/portal_workflow/person_slap_interface_workflow/transition_request_compute_node</string>
+                <string>destination/portal_workflow/person_slap_interface_workflow/transition_request_organisation</string>
                 <string>destination/portal_workflow/person_slap_interface_workflow/transition_request_project</string>
                 <string>destination/portal_workflow/person_slap_interface_workflow/transition_request_software_instance</string>
+                <string>destination/portal_workflow/person_slap_interface_workflow/transition_request_token</string>
               </tuple>
             </value>
         </item>

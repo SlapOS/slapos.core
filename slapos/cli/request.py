@@ -27,6 +27,7 @@
 #
 ##############################################################################
 
+import json
 import pprint
 
 from slapos.cli.config import ClientConfigCommand
@@ -78,7 +79,12 @@ class RequestCommand(ClientConfigCommand):
                         action='store_true',
                         help='Ask for a slave instance')
 
-        ap.add_argument('--parameters',
+        parameter_args = parser.add_mutually_exclusive_group()
+
+        parameter_args.add_argument('--parameters-file',
+                        help="Give a configuration file in JSON format")
+
+        parameter_args.add_argument('--parameters',
                         nargs='+',
                         help="Give your configuration 'option1=value1 option2=value2'")
 
@@ -86,7 +92,11 @@ class RequestCommand(ClientConfigCommand):
 
     def take_action(self, args):
         args.node = parse_option_dict(args.node)
-        args.parameters = parse_option_dict(args.parameters)
+        if args.parameters_file:
+          with open(args.parameters_file) as f:
+            args.parameters = json.loads(f)
+        else:
+          args.parameters = parse_option_dict(args.parameters)
 
         configp = self.fetch_config(args)
         conf = ClientConfig(args, configp)

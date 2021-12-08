@@ -31,14 +31,15 @@
           return gadget.getDeclaredGadget('form_view');
         })
         .push(function (form_gadget) {
-          return form_gadget.getContent();
+          return RSVP.all([form_gadget.getContent(),
+                          gadget.getSetting('me')]);
         })
-        .push(function (doc) {
+        .push(function (result) {
+          var doc = result[0], me = result[1];
           return gadget.getSetting("hateoas_url")
             .push(function (url) {
-              // This is horrible
-              return gadget.jio_getAttachment(doc.parent_relative_url,
-                url + doc.parent_relative_url + "/Person_requestProject?title=" + doc.title);
+              return gadget.jio_getAttachment(me,
+                url + me + "/Person_requestProject?title=" + doc.title);
             });
         })
         .push(function (result) {
@@ -93,17 +94,6 @@
                   "key": "title",
                   "hidden": 0,
                   "type": "StringField"
-                },
-                "my_parent_relative_url": {
-                  "description": "",
-                  "title": result[2][7],
-                  "default": "project_module",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "parent_relative_url",
-                  "hidden": 1,
-                  "type": "StringField"
                 }
               }},
               "_links": {
@@ -116,7 +106,7 @@
             form_definition: {
               group_list: [[
                 "left",
-                [["my_title"], ["my_parent_relative_url"]]
+                [["my_title"]]
               ]]
             }
           });

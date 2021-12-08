@@ -24,7 +24,7 @@
               <tuple>
                 <string>action_type/workflow</string>
                 <string>before_script/portal_workflow/organisation_slap_interface_workflow/script_Organisation_checkConsistency</string>
-                <string>after_script/portal_workflow/organisation_slap_interface_workflow/script_Organisation_leaveProject</string>
+                <string>after_script/portal_workflow/organisation_slap_interface_workflow/script_Organisation_leaveOrganisation</string>
               </tuple>
             </value>
         </item>

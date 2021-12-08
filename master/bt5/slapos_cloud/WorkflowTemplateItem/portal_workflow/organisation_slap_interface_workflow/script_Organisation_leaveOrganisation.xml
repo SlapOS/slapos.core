@@ -68,7 +68,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>script_Organisation_leaveProject</string> </value>
+            <value> <string>script_Organisation_leaveOrganisation</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>

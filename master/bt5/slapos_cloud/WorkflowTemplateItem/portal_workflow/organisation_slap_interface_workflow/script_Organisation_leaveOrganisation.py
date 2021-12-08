@@ -7,7 +7,6 @@ if person is None:
   raise Unauthorized
 
 for assignment in person.objectValues(portal_type="Assignment"):
-  if assignment.getDestinationSection() == organisation.getRelativeUrl() and \
-       assignment.getValidationState() != 'closed':
+  if assignment.getDestination() == organisation.getRelativeUrl():
     assignment.close()
     break

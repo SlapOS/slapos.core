@@ -53,16 +53,14 @@
             <value> <string>state_change</string> </value>
         </item>
         <item>
-            <key> <string>_proxy_roles</string> </key>
+            <key> <string>description</string> </key>
             <value>
-              <tuple>
-                <string>Manager</string>
-              </tuple>
+              <none/>
             </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>script_Organisation_validateAndAssign</string> </value>
+            <value> <string>script_Person_requestSite</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -70,9 +68,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>Person_requestSite</string> </value>
         </item>
       </dictionary>
     </pickle>

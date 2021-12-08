@@ -16,6 +16,10 @@
   <workflow>edit_workflow, instance_slap_interface_workflow, instance_tree_workflow</workflow>
  </chain>
  <chain>
+  <type>Organisation</type>
+  <workflow>organisation_slap_interface_workflow</workflow>
+ </chain>
+ <chain>
   <type>Person</type>
   <workflow>person_slap_interface_workflow</workflow>
  </chain>

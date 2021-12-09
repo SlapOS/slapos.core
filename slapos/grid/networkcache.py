@@ -87,8 +87,11 @@ def download_entry_list(cache_url, dir_url, key, logger,
         logger.warning('Incompatible version of networkcache, not using it.')
         raise e
 
+  
     try:
-        return nc.select_generic(key)
+        entry_list = nc.select_generic(key, filter=False)
+        return [(entry[0], nc.verifySignatureInCertificateList(*entry))
+                for entry in entry_list]
     except (IOError, DirectoryNotFound) as e:
         logger.info(
             'Failed to download from network cache %s: %s',

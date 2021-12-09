@@ -77,11 +77,12 @@ def looks_like_md5(s):
     return re.match('[0-9a-f]{32}', s)
 
 
-def ostuple(info_dict):
+def ostuple(entry):
+    info_dict = json.loads(entry[0])
     return (
         info_dict['machine'],
         info_dict.get('compiler_target', ''),
-    ) + ast.literal_eval(info_dict['os'])
+    ) + ast.literal_eval(info_dict['os']) + (entry[1],)
 
 
 def do_lookup(logger, cache_dir, cache_url, signature_certificate_list,
@@ -91,9 +92,8 @@ def do_lookup(logger, cache_dir, cache_url, signature_certificate_list,
     else:
         md5 = hashlib.md5(str2bytes(software_url)).hexdigest()
     try:
-        entries = list(
-            networkcache.download_entry_list(cache_url, cache_dir, md5, logger,
-                signature_certificate_list, software_url))
+        entries = networkcache.download_entry_list(cache_url, cache_dir,
+            md5, logger, signature_certificate_list, software_url)
     except:
         logger.critical('Error while looking object %s', software_url,
             exc_info=True)
@@ -103,15 +103,16 @@ def do_lookup(logger, cache_dir, cache_url, signature_certificate_list,
         logger.info('Object found in cache, but has no binary entries.')
         return 0
 
-    ostable = sorted(ostuple(json.loads(entry[0])) for entry in entries)
-    pt = prettytable.PrettyTable(['compiler target', 'distribution', 'version', 'id', 'compatible?'])
+    ostable = sorted(ostuple(entry) for entry in entries)
+    pt = prettytable.PrettyTable(['compiler target', 'distribution', 'version', 'id', 'compatible?', 'verified?'])
     machine_info = networkcache.machine_info_tuple()
 
     for os in ostable:
         compatible = ('yes' if networkcache.is_compatible(
-                                machine_info, (os[0], os[1], os[2:])) else
+                                machine_info, (os[0], os[1], os[2:-1])) else
                       'no')
-        pt.add_row([os[1] or '?', os[2], os[3], os[4], compatible])
+        verified = 'yes' if os[5] else 'no'
+        pt.add_row([os[1] or '?', os[2], os[3], os[4], compatible, verified])
 
     meta = json.loads(entries[0][0])
     logger.info('Software URL: %s', meta['software_url'])

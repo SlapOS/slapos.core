@@ -10,7 +10,10 @@ try:
 except KeyError:
   raise TypeError, "Person_requestOrganisation takes exactly 1 argument"
 
-tag = "%s_%s_OrganisationInProgress" % (person.getUid(), 
+role_id = context.REQUEST.get("role_id", "client")
+
+tag = "%s_%s_%s_OrganisationInProgress" % (person.getUid(),
+                               role_id,
                                organisation_title)
 if (portal.portal_activities.countMessageWithTag(tag) > 0):
   # The software instance is already under creation but can not be fetched from catalog
@@ -22,7 +25,7 @@ organisation_list = portal.portal_catalog.portal_catalog(
   portal_type=organisation_portal_type,
   title=organisation_title,
   # check if this works
-  role_id="client",
+  role_id=role_id,
   limit=2)
 
 if len(organisation_list) == 2:
@@ -35,7 +38,7 @@ else:
   organisation = module.newContent(
     portal_type=organisation_portal_type,
     title=organisation_title,
-    role="client",
+    role=role_id,
     activate_kw={'tag': tag}
   )
   context.REQUEST.set("organisation_relative_url", organisation.getRelativeUrl())

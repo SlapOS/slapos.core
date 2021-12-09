@@ -87,9 +87,8 @@ def do_lookup(logger, cache_dir, cache_url, signature_certificate_list,
     else:
         md5 = hashlib.md5(str2bytes(software_url)).hexdigest()
     try:
-        entries = list(
-            networkcache.download_entry_list(cache_url, cache_dir, md5, logger,
-                signature_certificate_list, software_url))
+        entries = networkcache.download_entry_list(cache_url, cache_dir,
+            md5, logger, signature_certificate_list, software_url)
     except Exception:
         logger.critical('Error while looking object %s', software_url,
             exc_info=True)
@@ -99,12 +98,13 @@ def do_lookup(logger, cache_dir, cache_url, signature_certificate_list,
         logger.info('Object found in cache, but has no binary entries.')
         return 0
 
-    pt = prettytable.PrettyTable(['multiarch', 'distribution', 'version', 'id', 'compatible?'])
+    pt = prettytable.PrettyTable(['multiarch', 'distribution', 'version', 'id', 'compatible?', 'verified?'])
     machine_info = networkcache.machine_info_tuple()
 
     for multiarch, os, verified in sorted(map(infotuple, entries)):
         row = [multiarch] + os
         row.append('yes' if networkcache.is_compatible(machine_info, (multiarch, os)) else 'no')
+        row.append('yes' if verified else 'no')
         pt.add_row(row)
 
     meta = json.loads(entries[0][0])

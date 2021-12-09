@@ -80,7 +80,9 @@ def download_entry_list(cache_url, dir_url, key, logger,
                         signature_certificate_list, software_url):
     nc = NetworkcacheClient(cache_url, dir_url,
         signature_certificate_list=signature_certificate_list or None)
-    return nc.select_generic(key)
+    entry_list = nc.select_generic(key, filter=False)
+    return [(entry[0], nc.verifySignatureInCertificateList(*entry))
+            for entry in entry_list]
 
 
 @fallback_call

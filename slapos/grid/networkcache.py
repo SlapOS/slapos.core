@@ -30,7 +30,7 @@ try:
         LIBNETWORKCACHE_ENABLED = False
     else:
         LIBNETWORKCACHE_ENABLED = True
-except:
+except Exception:
     print('There was problem while trying to import slapos.libnetworkcache:\n%s'
           % traceback.format_exc())
     LIBNETWORKCACHE_ENABLED = False
@@ -46,7 +46,7 @@ def fallback_call(function):
         """
         try:
             return function(self, *args, **kwd)
-        except: # indeed, *any* exception is swallowed
+        except Exception: # indeed, *any* exception is swallowed
             print('There was problem while calling method %r:\n%s' % (
                 function.__name__, traceback.format_exc()))
             return False

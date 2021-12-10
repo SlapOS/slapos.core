@@ -14,7 +14,7 @@ try:
   destination_project = kwargs["destination_project"]
   destination_section = kwargs["destination_section"]
 except KeyError:
-  raise TypeError("ComputeNode_requestTransfer takes exactly 2 arguments")
+  raise TypeError("ComputeNode_requestTransfer takes exactly 3 arguments")
 
 user = portal.portal_membership.getAuthenticatedMember().getUserValue()
 if user is None or user.getRelativeUrl() != compute_node.getSourceAdministration():

@@ -1,6 +1,16 @@
 Changes
 =======
 
+1.7.0 (2021-12-10)
+-------------------
+
+ * prune: add support for new name of signature files
+ * slapproxy: Fix software URL migration
+ * slapgrid: Process promises with instance python
+ * grid/utils/setRunning: detect the case where pid has been recycled
+ * cli/request: support passing instance parameters from a file
+ * slap/request: emit a warning when requesting with parameters not matching schema
+ * cli/request: print instance parameters with a consistent format on PY2/PY3
 
 1.6.19 (2021-10-04)
 -------------------

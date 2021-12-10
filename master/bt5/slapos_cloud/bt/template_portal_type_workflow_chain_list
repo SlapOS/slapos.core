@@ -1,6 +1,7 @@
 Compute Node | compute_node_slap_interface_workflow
 Compute Node | slapos_cloud_interaction_workflow
 Compute Partition | compute_partition_slap_interface_workflow
+Computer Network | computer_network_slap_interface_workflow
 Hosting Subscription | edit_workflow
 Instance Tree | edit_workflow
 Instance Tree | instance_slap_interface_workflow

@@ -24,8 +24,15 @@
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_request_instance</string>
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_request_start</string>
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_request_stop</string>
+                <string>destination/portal_workflow/instance_slap_interface_workflow/transition_request_transfer</string>
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_update_connection</string>
               </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>comment</string> </key>
+            <value>
+              <none/>
             </value>
         </item>
         <item>

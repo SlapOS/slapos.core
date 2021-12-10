@@ -12,7 +12,7 @@
     .declareAcquiredMethod("getSetting", "getSetting")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("redirect", "redirect")
-    .declareAcquiredMethod("jio_post", "jio_post")
+    .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("getTranslationList", "getTranslationList")
@@ -31,17 +31,23 @@
           return gadget.getDeclaredGadget('form_view');
         })
         .push(function (form_gadget) {
-          return form_gadget.getContent();
+          return RSVP.all([form_gadget.getContent(),
+                          gadget.getSetting('me')]);
         })
-        .push(function (doc) {
-          return gadget.jio_post(doc);
+        .push(function (result) {
+          var doc = result[0], me = result[1];
+          return gadget.getSetting("hateoas_url")
+            .push(function (url) {
+              return gadget.jio_getAttachment(me,
+                url + me + "/Person_requestNetwork?title=" + doc.title);
+            });
         })
-        .push(function (key) {
+        .push(function (result) {
           return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
               return gadget.redirect({"command": "change",
-                                    "options": {"jio_key": key, "page": "slap_controller"}});
+                                    "options": {"jio_key": result.relative_url, "page": "slap_controller"}});
             });
         });
     })
@@ -83,28 +89,6 @@
                   "key": "title",
                   "hidden": 0,
                   "type": "StringField"
-                },
-                "my_portal_type": {
-                  "description": "The name of a document in ERP5",
-                  "title": result[1][1],
-                  "default": "Computer Network",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "portal_type",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_parent_relative_url": {
-                  "description": "",
-                  "title": result[1][2],
-                  "default": "computer_network_module",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "parent_relative_url",
-                  "hidden": 1,
-                  "type": "StringField"
                 }
               }},
               "_links": {
@@ -117,7 +101,7 @@
             form_definition: {
               group_list: [[
                 "left",
-                [["my_title"], ["my_portal_type"], ["my_parent_relative_url"]]
+                [["my_title"]]
               ]]
             }
           });

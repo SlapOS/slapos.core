@@ -49,7 +49,6 @@ import slapos.cli.complete
 # silence messages like 'Starting connection' that are logged with INFO
 urllib3_logger = logging.getLogger('requests.packages.urllib3')
 urllib3_logger.setLevel(logging.WARNING)
-urllib3.disable_warnings()
 
 
 class SlapOSCommandManager(CommandManager):

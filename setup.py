@@ -78,6 +78,7 @@ setup(name=name,
           'PyYAML',
           'uritemplate', # used by hateoas navigator
           'subprocess32; python_version<"3"',
+          'enum34; python_version<"3"',
           'ipaddress; python_version<"3"',  # used by whitelistfirewall
         ] + additional_install_requires,
       extras_require=extras_require,

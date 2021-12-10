@@ -1,8 +1,12 @@
 Changes
 =======
 
+1.7.1 (2021-12-10)
+------------------
+ * Fix a missing dependency in 1.7.0 on python2
+
 1.7.0 (2021-12-10)
--------------------
+------------------
 
  * prune: add support for new name of signature files
  * slapproxy: Fix software URL migration

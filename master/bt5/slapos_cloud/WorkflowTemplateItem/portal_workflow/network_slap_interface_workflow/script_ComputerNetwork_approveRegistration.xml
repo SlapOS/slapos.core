@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="PythonScript" module="Products.PythonScripts.PythonScript"/>
+      <global name="Workflow Script" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -50,42 +50,33 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>**kw</string> </value>
+            <value> <string>state_change</string> </value>
         </item>
         <item>
             <key> <string>_proxy_roles</string> </key>
             <value>
               <tuple>
-                <string>Owner</string>
+                <string>Manager</string>
               </tuple>
             </value>
         </item>
         <item>
-            <key> <string>guard</string> </key>
+            <key> <string>description</string> </key>
             <value>
-              <persistent> <string encoding="base64">AAAAAAAAAAI=</string> </persistent>
+              <none/>
             </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ComputerNetwork_init</string> </value>
+            <value> <string>script_ComputerNetwork_approveRegistration</string> </value>
         </item>
-      </dictionary>
-    </pickle>
-  </record>
-  <record id="2" aka="AAAAAAAAAAI=">
-    <pickle>
-      <global name="Guard" module="Products.DCWorkflow.Guard"/>
-    </pickle>
-    <pickle>
-      <dictionary>
         <item>
-            <key> <string>roles</string> </key>
-            <value>
-              <tuple>
-                <string>Owner</string>
-              </tuple>
-            </value>
+            <key> <string>portal_type</string> </key>
+            <value> <string>Workflow Script</string> </value>
+        </item>
+        <item>
+            <key> <string>title</string> </key>
+            <value> <string>ComputerNetwork_approveRegistration</string> </value>
         </item>
       </dictionary>
     </pickle>

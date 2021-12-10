@@ -25,6 +25,7 @@
 #
 ##############################################################################
 
+import json
 import logging
 import pprint
 import unittest
@@ -40,6 +41,7 @@ from contextlib import contextmanager
 from mock import patch, create_autospec
 import mock
 from slapos.util import sqlite_connect, bytes2str
+from slapos.slap.slap import DEFAULT_SOFTWARE_TYPE
 
 import slapos.cli.console
 import slapos.cli.entry
@@ -49,10 +51,12 @@ import slapos.cli.computer_info
 import slapos.cli.computer_list
 import slapos.cli.computer_token
 import slapos.cli.supervisorctl
+import slapos.cli.request
 from slapos.cli.proxy_show import do_show, StringIO
 from slapos.cli.cache import do_lookup as cache_do_lookup
 from slapos.cli.cache_source import do_lookup as cache_source_do_lookup
 from slapos.client import ClientConfig
+from slapos.slap import SoftwareProductCollection
 import slapos.grid.svcbackend
 import slapos.proxy
 import slapos.slap
@@ -65,8 +69,8 @@ def raiseNotFoundError(*args, **kwargs):
 class CliMixin(unittest.TestCase):
   def setUp(self):
     slap = slapos.slap.slap()
-    self.local = {'slap': slap}
     self.logger = create_autospec(logging.Logger)
+    self.local = {'slap': slap, 'product': SoftwareProductCollection(self.logger, slap)}
     self.conf = create_autospec(ClientConfig)
 
 class TestCliCache(CliMixin):
@@ -641,3 +645,227 @@ class TestCliComplete(CliMixin):
     with patch.object(sys, 'stdout', StringIO()) as app_stdout:
       self.assertEqual(slapos.cli.entry.SlapOSApp().run(['complete', '--shell=fish']), 0)
     self.assertIn('__fish_seen_subcommand_from', app_stdout.getvalue())
+
+
+class TestCliRequest(CliMixin):
+  def test_parse_option_dict(self):
+    parse_option_dict = slapos.cli.request.parse_option_dict
+
+    self.assertEqual(parse_option_dict(['foo=bar', 'a=b']), {'foo': 'bar', 'a': 'b'})
+    # malformed option = assignment
+    self.assertRaises(ValueError, parse_option_dict, ['a'])
+    # duplicated key
+    self.assertRaises(ValueError, parse_option_dict, ['a=b', 'a=c'])
+    # corner cases
+    self.assertEqual(parse_option_dict(['a=a=b']), {'a': 'a=b'})
+    self.assertEqual(parse_option_dict(['a=a\nb']), {'a': 'a\nb'})
+    self.assertEqual(parse_option_dict([]), {})
+
+  def test_request(self):
+    self.conf.reference = 'instance reference'
+    self.conf.software_url = 'software URL'
+    self.conf.parameters = {'key': 'value'}
+    self.conf.parameters_file = None
+    self.conf.node = {'computer_guid': 'COMP-1234'}
+    self.conf.type = None
+    self.conf.state = None
+    self.conf.slave = False
+
+    with patch.object(
+        slapos.slap.slap,
+        'registerOpenOrder',
+        return_value=mock.create_autospec(slapos.slap.OpenOrder)) as registerOpenOrder:
+      slapos.cli.request.do_request(self.logger, self.conf, self.local)
+
+    registerOpenOrder().request.assert_called_once_with(
+        software_release='software URL',
+        partition_reference='instance reference',
+        partition_parameter_kw={'key': 'value'},
+        software_type=None,
+        filter_kw={'computer_guid': 'COMP-1234'},
+        state=None,
+        shared=False,
+    )
+
+    self.logger.info.assert_any_call(
+        'Requesting %s as instance of %s...',
+        'instance reference',
+        'software URL',
+    )
+
+  def test_request_json_in_xml_published_parameters(self):
+    tmpdir = tempfile.mkdtemp()
+    self.addCleanup(shutil.rmtree, tmpdir)
+    with open(os.path.join(tmpdir, 'software.cfg.json'), 'w') as f:
+      json.dump(
+          {
+              "name": "Test Software",
+              "description": "Dummy software for Test",
+              "serialisation": "json-in-xml",
+              "software-type": {
+                  DEFAULT_SOFTWARE_TYPE: {
+                      "title": "Default",
+                      "description": "Default type",
+                      "request": "instance-default-input-schema.json",
+                      "response": "instance-default-output-schema.json",
+                      "index": 0
+                  },
+              }
+          }, f)
+
+    self.conf.reference = 'instance reference'
+    self.conf.software_url = os.path.join(tmpdir, 'software.cfg')
+    self.conf.parameters = {'key': 'value'}
+    self.conf.parameters_file = None
+    self.conf.node = {'computer_guid': 'COMP-1234'}
+    self.conf.type = None
+    self.conf.state = None
+    self.conf.slave = False
+
+    cp = slapos.slap.ComputerPartition(
+        'computer_%s' % self.id(),
+        'partition_%s' % self.id())
+    cp._requested_state = 'started'
+    cp._connection_dict = {'_': json.dumps({'foo': 'bar'})}
+
+    with patch.object(
+        slapos.slap.slap,
+        'registerOpenOrder',
+        return_value=mock.create_autospec(slapos.slap.OpenOrder)) as registerOpenOrder:
+      registerOpenOrder().request.return_value = cp
+      slapos.cli.request.do_request(self.logger, self.conf, self.local)
+
+    registerOpenOrder().request.assert_called_once()
+
+    self.assertEqual(self.logger.info.mock_calls, [
+        mock.call('Requesting %s as instance of %s...', self.conf.reference,
+                  self.conf.software_url),
+        mock.call('Instance requested.\nState is : %s.', 'started'),
+        mock.call('Connection parameters of instance are:'),
+        mock.call("{'foo': 'bar'}"),
+        mock.call('You can rerun the command to get up-to-date information.'),
+    ])
+
+
+class TestCliRequestParametersFileJson(CliMixin):
+  """Request with --parameter-file, with a .json file.
+  """
+  expected_partition_parameter_kw = {'foo': ['bar']}
+
+  def _makeParameterFile(self):
+    f = tempfile.NamedTemporaryFile(suffix='.json', mode='w', delete=False)
+    self.addCleanup(os.unlink, f.name)
+    f.write(textwrap.dedent('''\
+    {
+      "foo": ["bar"]
+    }
+    '''))
+    f.flush()
+    return f.name
+
+  def test_request_parameters_file(self):
+    self.conf.reference = 'instance reference'
+    self.conf.software_url = 'software URL'
+    self.conf.parameters =  None
+    f = open(self._makeParameterFile())
+    self.addCleanup(f.close)
+    self.conf.parameters_file = f
+    self.conf.node = {'computer_guid': 'COMP-1234'}
+    self.conf.type = None
+    self.conf.state = None
+    self.conf.slave = False
+
+    with patch.object(
+        slapos.slap.slap,
+        'registerOpenOrder',
+        return_value=mock.create_autospec(slapos.slap.OpenOrder)) as registerOpenOrder:
+      slapos.cli.request.do_request(self.logger, self.conf, self.local)
+
+    registerOpenOrder().request.assert_called_once_with(
+        software_release='software URL',
+        partition_reference='instance reference',
+        partition_parameter_kw=self.expected_partition_parameter_kw,
+        software_type=None,
+        filter_kw={'computer_guid': 'COMP-1234'},
+        state=None,
+        shared=False,
+    )
+    self.logger.info.assert_any_call(
+        'Requesting %s as instance of %s...',
+        'instance reference',
+        'software URL',
+    )
+
+
+class TestCliRequestParametersFileJsonJsonInXMLSerialisation(
+    TestCliRequestParametersFileJson):
+  """Request with --parameter-file, with a .json file and a software using
+  json-in-xml for serialisation. In that case, the parameters are automatically
+  serialised with {'_': json.dumps(params)}
+  """
+  expected_partition_parameter_kw = {"_": "{\"foo\": [\"bar\"]}"}
+
+  def test_request_parameters_file(self):
+    with mock.patch(
+        'slapos.cli.request.SoftwareReleaseSchema.getSerialisation',
+        return_value='json-in-xml'):
+      super(TestCliRequestParametersFileJsonJsonInXMLSerialisation,
+            self).test_request_parameters_file()
+
+
+class TestCliRequestParametersFileJsonJsonInXMLSerialisationAlreadySerialised(
+    TestCliRequestParametersFileJson):
+  """Request with --parameter-file, with a .json file and a software using
+  json-in-xml for serialisation and parameters already serialised with
+  {'_': json.dumps(params)}. In that case, parameters are not serialized one
+  more time.
+  """
+  expected_partition_parameter_kw = {"_": "{\"foo\": [\"bar\"]}"}
+
+  def _makeParameterFile(self):
+    f = tempfile.NamedTemporaryFile(suffix='.json', mode='w', delete=False)
+    self.addCleanup(os.unlink, f.name)
+    f.write(textwrap.dedent(r'''
+      {"_": "{\"foo\": [\"bar\"]}"}
+    '''))
+    f.flush()
+    return f.name
+
+  def test_request_parameters_file(self):
+    with mock.patch(
+        'slapos.cli.request.SoftwareReleaseSchema.getSerialisation',
+        return_value='json-in-xml'):
+      super(
+          TestCliRequestParametersFileJsonJsonInXMLSerialisationAlreadySerialised,
+          self).test_request_parameters_file()
+
+
+class TestCliRequestParametersFileYaml(TestCliRequestParametersFileJson):
+  """Request with --parameter-file, with a .yaml file. This behaves like json.
+  """
+  def _makeParameterFile(self):
+    f = tempfile.NamedTemporaryFile(suffix='.yaml', mode='w', delete=False)
+    self.addCleanup(os.unlink, f.name)
+    f.write(textwrap.dedent('''\
+      foo:
+      - bar
+    '''))
+    f.flush()
+    return f.name
+
+
+class TestCliRequestParametersFileXml(TestCliRequestParametersFileJson):
+  """Request with --parameter-file, with a .xml file
+  """
+  expected_partition_parameter_kw = {'foo': 'bar'}
+  def _makeParameterFile(self):
+    f = tempfile.NamedTemporaryFile(suffix='.xml', mode='w', delete=False)
+    f.write(textwrap.dedent('''\
+      <?xml version="1.0" encoding="utf-8"?>
+      <instance>
+          <parameter id="foo">bar</parameter>
+      </instance>
+    '''))
+    f.flush()
+    self.addCleanup(os.unlink, f.name)
+    return f.name

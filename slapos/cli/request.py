@@ -27,15 +27,49 @@
 #
 ##############################################################################
 
+import argparse
+import json
+import os.path
 import pprint
 
-from slapos.cli.config import ClientConfigCommand
-from slapos.client import init, ClientConfig, _getSoftwareReleaseFromSoftwareString
-from slapos.slap import ResourceNotReady
+import lxml.etree
+import six
+import yaml
 
+from slapos.cli.config import ClientConfigCommand
+from slapos.client import (ClientConfig, _getSoftwareReleaseFromSoftwareString,
+                           init)
+from slapos.slap import ResourceNotReady
+from slapos.util import SoftwareReleaseSchema, SoftwareReleaseSerialisation
+
+try:
+    from typing import IO, Dict
+except ImportError:
+    pass
+
+
+def getParametersFromFile(file, serialisation):
+    # type: (IO[str], SoftwareReleaseSerialisation) -> Dict
+    extension = os.path.splitext(file.name)[1]
+    if extension in ('.yaml', '.yml'):
+        params = yaml.safe_load(file)
+    elif extension == '.xml':
+        tree = lxml.etree.parse(file)
+        params = {e.attrib['id']: e.text for e in tree.findall('/parameter')}
+        # because the use case of xml files is to copy paste existing XML parameters
+        # as found on slapos web interface, we aren't clever regarding the
+        # serialisation and assume they are already correct.
+        serialisation = None
+    else:
+        params = json.load(file)
+
+    if serialisation == SoftwareReleaseSerialisation.JsonInXml and list(params.keys()) != ['_']:
+        params = {'_': json.dumps(params)}
+    return params
 
 
 def parse_option_dict(options):
+    # type: (str) -> Dict
     """
     Parse a list of option strings like foo=bar baz=qux and return a dictionary.
     Will raise if keys are repeated.
@@ -78,10 +112,18 @@ class RequestCommand(ClientConfigCommand):
                         action='store_true',
                         help='Ask for a slave instance')
 
-        ap.add_argument('--parameters',
-                        nargs='+',
-                        help="Give your configuration 'option1=value1 option2=value2'")
+        parameter_args = ap.add_mutually_exclusive_group()
 
+        parameter_args.add_argument(
+            '--parameters',
+            nargs='+',
+            help="Instance parameters, in the form 'option1=value1 option2=value2'.")
+
+        parameter_args.add_argument(
+            '--parameters-file',
+            type=argparse.FileType('r'),
+            help="Instance parameters, in a file.\n"
+            "The file will be interpreted as json, yaml or xml depending on the file extension.")
         return ap
 
     def take_action(self, args):
@@ -95,6 +137,16 @@ class RequestCommand(ClientConfigCommand):
         do_request(self.app.log, conf, local)
 
 
+# BBB on python3 we can use pprint.pformat
+class StrPrettyPrinter(pprint.PrettyPrinter):
+  """A PrettyPrinter which produces consistent output on python 2 and 3
+  """
+  def format(self, object, context, maxlevels, level):
+    if six.PY2 and isinstance(object, six.text_type):
+      object = object.encode('utf-8')
+    return pprint.PrettyPrinter.format(self, object, context, maxlevels, level)
+
+
 def do_request(logger, conf, local):
     logger.info('Requesting %s as instance of %s...',
                 conf.reference, conf.software_url)
@@ -104,11 +156,17 @@ def do_request(logger, conf, local):
 
     if conf.software_url in local:
         conf.software_url = local[conf.software_url]
+
+    software_schema = SoftwareReleaseSchema(conf.software_url, conf.type)
+    software_schema_serialisation = software_schema.getSerialisation()
+    parameters = conf.parameters
+    if conf.parameters_file:
+        parameters = getParametersFromFile(conf.parameters_file, software_schema_serialisation)
     try:
         partition = local['slap'].registerOpenOrder().request(
             software_release=conf.software_url,
             partition_reference=conf.reference,
-            partition_parameter_kw=conf.parameters,
+            partition_parameter_kw=parameters,
             software_type=conf.type,
             filter_kw=conf.node,
             state=conf.state,
@@ -116,7 +174,11 @@ def do_request(logger, conf, local):
         )
         logger.info('Instance requested.\nState is : %s.', partition.getState())
         logger.info('Connection parameters of instance are:')
-        logger.info(pprint.pformat(partition.getConnectionParameterDict()))
+        connection_parameter_dict = partition.getConnectionParameterDict()
+        if software_schema_serialisation == SoftwareReleaseSerialisation.JsonInXml:
+            if '_' in connection_parameter_dict:
+                connection_parameter_dict = json.loads(connection_parameter_dict['_'])
+        logger.info(StrPrettyPrinter().pformat(connection_parameter_dict))
         logger.info('You can rerun the command to get up-to-date information.')
     except ResourceNotReady:
         logger.warning('Instance requested. Master is provisioning it. Please rerun in a '

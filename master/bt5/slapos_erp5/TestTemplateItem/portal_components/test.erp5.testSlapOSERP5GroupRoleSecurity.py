@@ -315,7 +315,7 @@ class TestComputerNetwork(TestSlapOSGroupRoleSecurityMixin):
          project.getReference()], False)
     self.assertRoles(network, 'G-COMPANY', ['Assignor'])
     self.assertRoles(network, 'R-SHADOW-PERSON', ['Auditor'])
-    self.assertRoles(network, self.user_id, ['Assignee', 'Owner'])
+    self.assertRoles(network, self.user_id, ['Owner'])
     self.assertRoles(network, person.getUserId(), ['Assignee'])
     self.assertRoles(network, project.getReference(), ['Assignee'])
 
@@ -341,7 +341,7 @@ class TestComputerNetwork(TestSlapOSGroupRoleSecurityMixin):
          organisation.getReference()], False)
     self.assertRoles(network, 'G-COMPANY', ['Assignor'])
     self.assertRoles(network, 'R-SHADOW-PERSON', ['Auditor'])
-    self.assertRoles(network, self.user_id, ['Assignee', 'Owner'])
+    self.assertRoles(network, self.user_id, ['Owner'])
     self.assertRoles(network, person.getUserId(), ['Assignee'])
     self.assertRoles(network, organisation.getReference(), ['Assignee'])
 
@@ -353,21 +353,7 @@ class TestComputerNetwork(TestSlapOSGroupRoleSecurityMixin):
         ['G-COMPANY', 'R-SHADOW-PERSON', self.user_id], False)
     self.assertRoles(network, 'G-COMPANY', ['Assignor'])
     self.assertRoles(network, 'R-SHADOW-PERSON', ['Auditor'])
-    self.assertRoles(network, self.user_id, ['Assignee', 'Owner'])
-
-
-  def test_ComputeNodeAgent(self):
-    reference = 'TESTPERSON-%s' % self.generateNewId()
-    person = self.portal.person_module.newContent(portal_type='Person',
-        reference=reference)
-    network = self.portal.computer_network_module.newContent(
-        portal_type='Computer Network',
-        source_administration=person.getRelativeUrl())
-    network.updateLocalRolesOnSecurityGroups()
-    self.assertSecurityGroup(network,
-        ['G-COMPANY', 'R-SHADOW-PERSON', self.user_id, person.getUserId()], False)
-    self.assertRoles(network, person.getUserId(), ['Assignee'])
-    self.assertRoles(network, self.user_id, ['Assignee', 'Owner'])
+    self.assertRoles(network, self.user_id, ['Owner'])
 
 class TestComputerNetworkModule(TestSlapOSGroupRoleSecurityMixin):
   def test(self):
@@ -552,6 +538,7 @@ class TestInstanceTree(TestSlapOSGroupRoleSecurityMixin):
     reference = 'TESTHS-%s' % self.generateNewId()
     subscription = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree', reference=reference,
+        title=reference,
         destination_section=person.getRelativeUrl())
     organisation = self.portal.organisation_module.newContent(
         portal_type='Organisation',
@@ -896,6 +883,7 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
     subscription_reference = 'TESTHS-%s ' % self.generateNewId()
     instance_tree = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree',
+        title="INSTTREETEST-%s" % self.generateNewId(),
         reference=subscription_reference,
         destination_section=customer.getRelativeUrl())
     project = self.portal.project_module.newContent(
@@ -925,6 +913,7 @@ class TestSlaveInstance(TestSlapOSGroupRoleSecurityMixin):
     subscription_reference = 'TESTHS-%s ' % self.generateNewId()
     instance_tree = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree',
+        title="INSTTREETEST-%s" % self.generateNewId(),
         reference=subscription_reference,
         destination_section=customer.getRelativeUrl())
     organisation = self.portal.organisation_module.newContent(
@@ -1132,6 +1121,7 @@ class TestSoftwareInstance(TestSlapOSGroupRoleSecurityMixin):
     subscription_reference = 'TESTHS-%s ' % self.generateNewId()
     instance_tree = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree',
+        title="INSTTREETEST-%s" % self.generateNewId(),
         reference=subscription_reference,
         destination_section=customer.getRelativeUrl())
     project = self.portal.project_module.newContent(
@@ -1161,6 +1151,7 @@ class TestSoftwareInstance(TestSlapOSGroupRoleSecurityMixin):
     subscription_reference = 'TESTHS-%s ' % self.generateNewId()
     instance_tree = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree',
+        title="INSTTREETEST-%s" % self.generateNewId(),
         reference=subscription_reference,
         destination_section=customer.getRelativeUrl())
     organisation = self.portal.organisation_module.newContent(
@@ -1958,6 +1949,8 @@ class TestMailMessage(TestSlapOSGroupRoleSecurityMixin):
     person = self.makePerson(user=1)
     instance_tree = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree',
+        reference="INSTTREETEST-%s" % self.generateNewId(),
+        title="INSTTREETEST-%s" % self.generateNewId(),
         destination_section=person.getRelativeUrl())
     project = self.portal.project_module.newContent(
         portal_type='Project')
@@ -2033,6 +2026,8 @@ class TestMailMessage(TestSlapOSGroupRoleSecurityMixin):
     person = self.makePerson(user=1)
     instance_tree = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree',
+        reference="INSTTREETEST-%s" % self.generateNewId(),
+        title="INSTTREETEST-%s" % self.generateNewId(),
         destination_section=person.getRelativeUrl())
     organisation = self.portal.organisation_module.newContent(
         portal_type='Organisation',
@@ -2305,6 +2300,8 @@ class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):
     person = self.makePerson(user=1)
     instance_tree = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree',
+        reference="INSTTREETEST-%s" % self.generateNewId(),
+        title="INSTTREETEST-%s" % self.generateNewId(),
         destination_section=person.getRelativeUrl())
     project = self.portal.project_module.newContent(
         portal_type='Project')
@@ -2364,6 +2361,8 @@ class TestSupportRequest(TestSlapOSGroupRoleSecurityMixin):
     person = self.makePerson(user=1)
     instance_tree = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree',
+        reference="INSTTREETEST-%s" % self.generateNewId(),
+        title="INSTTREETEST-%s" % self.generateNewId(),
         destination_section=person.getRelativeUrl())
     organisation = self.portal.organisation_module.newContent(
         portal_type='Organisation',
@@ -2804,6 +2803,8 @@ class TestUpgradeDecision(TestSlapOSGroupRoleSecurityMixin):
     person = self.makePerson(user=1)
     instance_tree = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree',
+        reference="INSTTREETEST-%s" % self.generateNewId(),
+        title="INSTTREETEST-%s" % self.generateNewId(),
         destination_section=person.getRelativeUrl())
     project = self.portal.project_module.newContent(
         portal_type='Project')
@@ -2868,6 +2869,8 @@ class TestUpgradeDecision(TestSlapOSGroupRoleSecurityMixin):
     person = self.makePerson(user=1)
     instance_tree = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree',
+        reference="INSTTREETEST-%s" % self.generateNewId(),
+        title="INSTTREETEST-%s" % self.generateNewId(),
         destination_section=person.getRelativeUrl())
     organisation = self.portal.organisation_module.newContent(
         portal_type='Organisation',

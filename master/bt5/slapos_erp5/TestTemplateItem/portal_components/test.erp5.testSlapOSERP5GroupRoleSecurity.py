@@ -512,6 +512,7 @@ class TestInstanceTree(TestSlapOSGroupRoleSecurityMixin):
     reference = 'TESTHS-%s' % self.generateNewId()
     subscription = self.portal.instance_tree_module.newContent(
         portal_type='Instance Tree', reference=reference,
+        title=reference,
         destination_section=person.getRelativeUrl())
     project = self.portal.project_module.newContent(
         portal_type='Project')

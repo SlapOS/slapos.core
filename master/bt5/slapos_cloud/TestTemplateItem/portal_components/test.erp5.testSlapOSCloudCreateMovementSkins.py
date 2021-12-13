@@ -476,6 +476,8 @@ class TestInstanceTreecreateMovement(SlapOSTestCaseMixin):
   def _makeInstanceTree(self):
     instance_tree = self.portal.instance_tree_module\
         .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    instance_tree.edit(reference='TESTINTT-%s' % instance_tree.getId(),
+                       title='TESTINTT-%s' % instance_tree.getId())
     instance_tree.validate()
     self.tic()
     return instance_tree

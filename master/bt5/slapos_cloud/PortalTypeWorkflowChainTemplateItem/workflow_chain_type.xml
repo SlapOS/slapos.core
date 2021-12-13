@@ -9,7 +9,7 @@
  </chain>
  <chain>
   <type>Computer Network</type>
-  <workflow>computer_network_slap_interface_workflow</workflow>
+  <workflow>network_slap_interface_workflow</workflow>
  </chain>
  <chain>
   <type>Hosting Subscription</type>

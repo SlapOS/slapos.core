@@ -135,6 +135,28 @@ class TestCliCache(CliMixin):
         'https://lab.nexedi.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg',
         exc_info=True)
 
+  def test_unverified_signature(self):
+      with mock.patch(
+              'slapos.grid.networkcache.machine_info_tuple',
+              return_value=('x86_64-linux-gnu', ('debian', '8.10', ''))):
+          self.assertEqual(0, cache_do_lookup(
+              self.logger,
+              cache_dir="http://dir.shacache.org",
+              cache_url="http://shacache.org",
+              software_url=self.test_url,
+              signature_certificate_list=""))
+
+      self.logger.info.assert_any_call('Software URL: %s', 
+              u'https://lab.nexedi.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg')
+      self.logger.info.assert_any_call('MD5:          %s', 'cccdc51a07e8c575c880f2d70dd4d458')
+      self.logger.info.assert_any_call(u'---------------------------------------------------------------------')
+      self.logger.info.assert_any_call(u'    multiarch     distribution version    id   compatible? verified? ')
+      self.logger.info.assert_any_call(u'---------------------------------------------------------------------')
+      self.logger.info.assert_any_call(u' x86_64-linux-gnu CentOS Linux 7.5.1804  Core       no         no    ')
+      self.logger.info.assert_any_call(u' x86_64-linux-gnu    Ubuntu     18.04   bionic      no         no    ')
+      self.logger.info.assert_any_call(u' x86_64-linux-gnu    debian      8.10              yes         no    ')
+      self.logger.info.assert_any_call(u'---------------------------------------------------------------------')
+
 
 class TestCliCacheSource(CliMixin):
 
@@ -180,7 +202,7 @@ class TestCliCacheSource(CliMixin):
         cache_dir="http://dir.shacache.org",
         url="this_is_uncached_url"))
 
-    self.logger.critical.assert_any_call('Object not in cache: %s', 'this_is_uncached_url') 
+    self.logger.critical.assert_any_call('Object not in cache: %s', 'this_is_uncached_url')
 
   def test_bad_cache_dir(self):
     self.assertEqual(10, cache_source_do_lookup(

@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.7.2 (2021-12-15)
+------------------
+ * Add support for different architecture in binary cache
+ * cli/cache lookup: better information displayed (architecture and signature)
+
 1.7.1 (2021-12-10)
 ------------------
  * Fix a missing dependency in 1.7.0 on python2

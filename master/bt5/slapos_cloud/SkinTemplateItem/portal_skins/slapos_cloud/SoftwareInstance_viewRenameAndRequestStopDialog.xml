@@ -7,27 +7,6 @@
     <pickle>
       <dictionary>
         <item>
-            <key> <string>_bind_names</string> </key>
-            <value>
-              <object>
-                <klass>
-                  <global name="NameAssignments" module="Shared.DC.Scripts.Bindings"/>
-                </klass>
-                <tuple/>
-                <state>
-                  <dictionary>
-                    <item>
-                        <key> <string>_asgns</string> </key>
-                        <value>
-                          <dictionary/>
-                        </value>
-                    </item>
-                  </dictionary>
-                </state>
-              </object>
-            </value>
-        </item>
-        <item>
             <key> <string>_objects</string> </key>
             <value>
               <tuple/>
@@ -35,7 +14,7 @@
         </item>
         <item>
             <key> <string>action</string> </key>
-            <value> <string>SoftwareInstance_requestDestroy</string> </value>
+            <value> <string>SoftwareInstance_renameAndRequestStopAction</string> </value>
         </item>
         <item>
             <key> <string>action_title</string> </key>
@@ -97,7 +76,7 @@
                     <key> <string>left</string> </key>
                     <value>
                       <list>
-                        <string>Warnning</string>
+                        <string>warning</string>
                         <string>my_title</string>
                         <string>my_reference</string>
                         <string>my_description</string>
@@ -115,7 +94,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SoftwareInstance_viewRequestDestroyDialog</string> </value>
+            <value> <string>SoftwareInstance_viewRenameAndRequestStopDialog</string> </value>
         </item>
         <item>
             <key> <string>method</string> </key>
@@ -123,7 +102,11 @@
         </item>
         <item>
             <key> <string>name</string> </key>
-            <value> <string>InstanceTree_viewRequestDestroyDialog</string> </value>
+            <value> <string>SoftwareInstance_viewRenameAndRequestStopDialog</string> </value>
+        </item>
+        <item>
+            <key> <string>portal_type</string> </key>
+            <value> <string>ERP5 Form</string> </value>
         </item>
         <item>
             <key> <string>pt</string> </key>
@@ -139,7 +122,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Request Destroy</string> </value>
+            <value> <string>Rename and Request Stop</string> </value>
         </item>
         <item>
             <key> <string>unicode_mode</string> </key>

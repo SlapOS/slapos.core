@@ -5,10 +5,7 @@ portal = context.getPortalObject()
 if portal.portal_membership.isAnonymousUser():
   raise Unauthorized("You cannot invoke this API as Annonymous")
 
-if not context.SoftwareInstance_isUserAllowedToDestroy():
-  raise Unauthorized("You cannot destroy this %s." % context.getPortalType())
-
-if context.getSlapState() not in ["start_requested", "stop_requested"]:
+if context.getSlapState() not in ["stop_requested"]:
   return context.Base_redirect(keep_items={"portal_status_message": "This %s is on %s state and cannot be destroyed." \
     % (context.getPortalType(), context.getSlapState())})
 

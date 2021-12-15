@@ -80,17 +80,23 @@ def SoftwareInstance_renameAndRequestDestroy(self, REQUEST=None):
     raise Unauthorized
 
   assert self.getPortalType() in ["Software Instance", "Slave Instance"]
+  suffix = "_renamed_and_destroyed_%s" % (DateTime().strftime("%Y%m%d_%H%M%S"))
   title = self.getTitle()
-  new_title = title + "_renamed_and_destroyed_%s" % (DateTime().strftime("%Y%m%d_%H%M%S"))
+  new_title = title + suffix
   self.rename(new_name=new_title,
-    comment="Rename %s into %s" % (title, new_title))
+    comment="Renamed %s into %s" % (title, new_title))
 
   # Change desired state
   promise_kw = {
       'instance_xml': self.getTextContent(),
       'software_type': self.getSourceReference(),
       'sla_xml': self.getSlaXml(),
-      'software_release': self.getUrlString(),
+      # "damage" software release, as this will minimise the chance of the
+      # instance content being processed by the node with error message like
+      # "Software Release ... is not present on system.", so no side effects of
+      # this operation will be seen in the Instance Tree and that's the
+      # expected situation
+      'software_release': self.getUrlString() + suffix,
       'shared': self.getPortalType()=="Slave Instance",
   }
 
@@ -110,6 +116,50 @@ def SoftwareInstance_renameAndRequestDestroy(self, REQUEST=None):
 
   if (self.portal_slap._getLastData(key) != timestamp):
     self.bang(bang_tree=True, comment="Instance was destroyed.")
+  self.portal_slap._storeLastData(key, str(int(self.getModificationDate())))
+
+
+def SoftwareInstance_renameAndRequestStop(self, REQUEST=None):
+  if REQUEST is not None:
+    raise Unauthorized
+
+  assert self.getPortalType() in ["Software Instance", "Slave Instance"]
+  title = self.getTitle()
+  suffix = "_renamed_%s" % (DateTime().strftime("%Y%m%d_%H%M%S"))
+  new_title = title + suffix
+  self.rename(new_name=new_title,
+    comment="Rename %s into %s" % (title, new_title))
+
+  # Change desired state
+  promise_kw = {
+      'instance_xml': self.getTextContent(),
+      'software_type': self.getSourceReference(),
+      'sla_xml': self.getSlaXml(),
+      # "damage" software release, as this will minimise the chance of the
+      # instance content being processed by the node with error message like
+      # "Software Release ... is not present on system.", so no side effects of
+      # this operation will be seen in the Instance Tree and that's the
+      # expected situation
+      'software_release': self.getUrlString() + suffix,
+      'shared': self.getPortalType()=="Slave Instance",
+  }
+
+  self.REQUEST.set('request_instance', self)
+  self.requestStop(**promise_kw)
+  self.REQUEST.set('request_instance', None)
+
+  instance_tree = self.getSpecialise()
+  for name in [title, new_title]:
+    # reset request cache
+    key = '_'.join([instance_tree, name])
+    self.getPortalObject().portal_slap._storeLastData(key, {})
+
+  # Them call bang to enforce tree to reprocess.
+  timestamp = str(int(self.getModificationDate()))
+  key = "%s_bangstamp" % self.getReference()
+
+  if (self.portal_slap._getLastData(key) != timestamp):
+    self.bang(bang_tree=True, comment="Instance was renamed.")
   self.portal_slap._storeLastData(key, str(int(self.getModificationDate())))
 
 

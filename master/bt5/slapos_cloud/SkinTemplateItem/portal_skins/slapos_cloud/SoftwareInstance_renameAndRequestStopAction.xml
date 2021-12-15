@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>SoftwareInstance_requestDestroy</string> </value>
+            <value> <string>SoftwareInstance_renameAndRequestStopAction</string> </value>
         </item>
       </dictionary>
     </pickle>

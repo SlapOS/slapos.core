@@ -63,15 +63,15 @@ import slapos.slap
 
 import supervisor.supervisorctl
 
-signature_certificate_list = """-----BEGIN CERTIFICATE-----     
+signature_certificate_list = """-----BEGIN CERTIFICATE-----
 MIIB9jCCAV+gAwIBAgIJAKRvzcy7OH0UMA0GCSqGSIb3DQEBBQUAMBMxETAPBgNV
 BAMMCENPTVAtNzcyMCAXDTEyMDgxMDE1NDI1MVoYDzIxMTIwNzE3MTU0MjUxWjAT
-MREwDwYDVQQDDAhDT01QLTc3MjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA    
-o7aipd6MbnuGDeR1UJUjuMLQUariAyQ2l2ZDS6TfOwjHiPw/mhzkielgk73kqN7A                                 
+MREwDwYDVQQDDAhDT01QLTc3MjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA
+o7aipd6MbnuGDeR1UJUjuMLQUariAyQ2l2ZDS6TfOwjHiPw/mhzkielgk73kqN7A
 sUREx41eTcYCXzTq3WP3xCLE4LxLg1eIhd4nwNHj8H18xR9aP0AGjo4UFl5BOMa1
 mwoyBt3VtfGtUmb8whpeJgHhqrPPxLoON+i6fIbXDaUCAwEAAaNQME4wHQYDVR0O
 BBYEFEfjy3OopT2lOksKmKBNHTJE2hFlMB8GA1UdIwQYMBaAFEfjy3OopT2lOksK
-mKBNHTJE2hFlMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQEFBQADgYEAaNRx6YN2                             
+mKBNHTJE2hFlMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQEFBQADgYEAaNRx6YN2
 M/p3R8/xS6zvH1EqJ3FFD7XeAQ52WuQnKSREzuw0dsw12ClxjcHiQEFioyTiTtjs
 5pW18Ry5Ie7iFK4cQMerZwWPxBodEbAteYlRsI6kePV7Gf735Y1RpuN8qZ2sYL6e
 x2IMeSwJ82BpdEI5niXxB+iT0HxhmR+XaMI=
@@ -100,7 +100,7 @@ class TestCliCache(CliMixin):
         software_url=self.test_url,
         signature_certificate_list=self.sign_cert_list))
 
-    self.logger.info.assert_any_call('Software URL: %s', 
+    self.logger.info.assert_any_call('Software URL: %s',
             u'https://lab.nexedi.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg')
     self.logger.info.assert_any_call('MD5:          %s', 'cccdc51a07e8c575c880f2d70dd4d458')
     self.logger.info.assert_any_call(u'---------------------------------------------------------------------')
@@ -146,7 +146,7 @@ class TestCliCache(CliMixin):
               software_url=self.test_url,
               signature_certificate_list=""))
 
-      self.logger.info.assert_any_call('Software URL: %s', 
+      self.logger.info.assert_any_call('Software URL: %s',
               u'https://lab.nexedi.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg')
       self.logger.info.assert_any_call('MD5:          %s', 'cccdc51a07e8c575c880f2d70dd4d458')
       self.logger.info.assert_any_call(u'---------------------------------------------------------------------')
@@ -169,7 +169,7 @@ class TestCliCacheSource(CliMixin):
 
 
     self.logger.info.assert_any_call(
-      'Software source URL: %s', 
+      'Software source URL: %s',
       'https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.17.1.tar.xz')
     self.logger.info.assert_any_call(
       'SHADIR URL: %s',

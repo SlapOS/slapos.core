@@ -861,7 +861,10 @@ class StandaloneSlapOS(object):
         if e.returncode == SLAPGRID_PROMISE_FAIL:
           self._logger.exception('Promise error when running %s', command)
           import pdb; pdb.post_mortem()
-        raise
+        raise SlapOSNodeCommandError({
+            'output': 'No output available in debug mode',
+            'exitstatus': e.returncode,
+        })
     with self.system_supervisor_rpc as supervisor:
       retry = 0
       while True:

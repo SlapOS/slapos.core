@@ -86,6 +86,8 @@ class TestComputerNetworkcreateMovement(SlapOSTestCaseMixin):
       len(network.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
 
+    # Ensure that we don't have 2 new Internal Packing lists in the same second 
+    sleep(1)
     # Place in another project    
     self.assertEqual(network.ComputerNetwork_createMovement(
       destination_project=other_project.getRelativeUrl()), None)
@@ -100,6 +102,8 @@ class TestComputerNetworkcreateMovement(SlapOSTestCaseMixin):
     )
     self.login(source_administrator.getUserId())
 
+    # Ensure that we don't have 2 new Internal Packing lists in the same second 
+    sleep(1)
     # We don't remove from Project if destination project is not provided
     self.assertEqual(network.ComputerNetwork_createMovement(), None)
     self.tic()
@@ -136,6 +140,8 @@ class TestComputerNetworkcreateMovement(SlapOSTestCaseMixin):
     )
     self.login(source_administrator.getUserId())
 
+    # Ensure that we don't have 2 new Internal Packing lists in the same second 
+    sleep(1)
     # We don't remove from Project if destination project is not provided
     self.assertEqual(network.ComputerNetwork_createMovement(), None)
     self.tic()
@@ -143,6 +149,8 @@ class TestComputerNetworkcreateMovement(SlapOSTestCaseMixin):
     self.assertEqual(network.Item_getCurrentProjectValue(), None)
     self.assertEqual(network.Item_getCurrentOwnerValue(), organisation)
 
+    # Ensure that we don't have 2 new Internal Packing lists in the same second 
+    sleep(1)
     # Place in another project    
     self.assertEqual(network.ComputerNetwork_createMovement(
       destination_section=other_organisation.getRelativeUrl()), None)
@@ -160,6 +168,8 @@ class TestComputerNetworkcreateMovement(SlapOSTestCaseMixin):
     )
     self.login(source_administrator.getUserId())
 
+    # Ensure that we don't have 2 new Internal Packing lists in the same second 
+    sleep(1)
     # We don't remove from Project if destination project is not provided
     self.assertEqual(network.ComputerNetwork_createMovement(), None)
     self.tic()
@@ -280,11 +290,11 @@ class TestComputeNodecreateMovement(SlapOSTestCaseMixin):
     self.assertEqual(1,
       len(compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
-
-    # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(3)
     
     self.login(source_administrator.getUserId())
+
+    # Ensure that we don't have 2 new Internal Packing lists in the same second 
+    sleep(1)
 
     # We don't remove from Project if destination project is not provided
     self.assertEqual(compute_node.ComputeNode_createMovement(), None)
@@ -297,7 +307,7 @@ class TestComputeNodecreateMovement(SlapOSTestCaseMixin):
     )
 
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(3)
+    sleep(1)
     
     # Place in another project    
     self.assertEqual(compute_node.ComputeNode_createMovement(
@@ -315,7 +325,7 @@ class TestComputeNodecreateMovement(SlapOSTestCaseMixin):
     self.login(source_administrator.getUserId())
 
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(3)
+    sleep(1)
     
     # We don't remove from Project if destination project is not provided
     self.assertEqual(compute_node.ComputeNode_createMovement(), None)
@@ -357,7 +367,7 @@ class TestComputeNodecreateMovement(SlapOSTestCaseMixin):
       len(compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(3)
+    sleep(1)
     self.login(source_administrator.getUserId())
 
     self.assertEqual(compute_node.ComputeNode_createMovement(), None)
@@ -368,7 +378,7 @@ class TestComputeNodecreateMovement(SlapOSTestCaseMixin):
     self.assertEqual(compute_node.Item_getCurrentSiteValue(), site)
 
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(3)
+    sleep(1)
     
     # Place in another project    
     self.assertEqual(compute_node.ComputeNode_createMovement(
@@ -389,7 +399,7 @@ class TestComputeNodecreateMovement(SlapOSTestCaseMixin):
     self.login(source_administrator.getUserId())
 
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(3)
+    sleep(1)
     # We don't remove from Project if destination project is not provided
     self.assertEqual(compute_node.ComputeNode_createMovement(), None)
     self.tic()
@@ -429,7 +439,7 @@ class TestComputeNodecreateMovement(SlapOSTestCaseMixin):
       len(compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(5)
+    sleep(1)
     self.login(source_administrator.getUserId())
 
     # We don't remove from Project if destination project is not provided
@@ -440,6 +450,8 @@ class TestComputeNodecreateMovement(SlapOSTestCaseMixin):
     self.assertEqual(compute_node.Item_getCurrentOwnerValue(), source_administrator)
     self.assertEqual(compute_node.Item_getCurrentSiteValue(), site)
 
+    # Ensure that we don't have 2 new Internal Packing lists in the same second 
+    sleep(1)
     # Place in another project    
     self.assertEqual(compute_node.ComputeNode_createMovement(
       destination=other_site.getRelativeUrl()), None)
@@ -458,6 +470,8 @@ class TestComputeNodecreateMovement(SlapOSTestCaseMixin):
     )
     self.login(source_administrator.getUserId())
 
+    # Ensure that we don't have 2 new Internal Packing lists in the same second 
+    sleep(1)
     # We don't remove from Project if destination project is not provided
     self.assertEqual(compute_node.ComputeNode_createMovement(), None)
     self.tic()
@@ -551,7 +565,7 @@ class TestInstanceTreecreateMovement(SlapOSTestCaseMixin):
     )
 
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(3)
+    sleep(1)
     
     self.login(destination_section.getUserId())
 
@@ -566,7 +580,7 @@ class TestInstanceTreecreateMovement(SlapOSTestCaseMixin):
     )
 
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(3)
+    sleep(1)
     
     # Place in another project    
     self.assertEqual(instance_tree.InstanceTree_createMovement(
@@ -584,7 +598,7 @@ class TestInstanceTreecreateMovement(SlapOSTestCaseMixin):
     self.login(destination_section.getUserId())
 
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(3)
+    sleep(1)
     
     # We don't remove from Project if destination project is not provided
     self.assertEqual(instance_tree.InstanceTree_createMovement(), None)
@@ -624,7 +638,7 @@ class TestInstanceTreecreateMovement(SlapOSTestCaseMixin):
       len(instance_tree.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(3)
+    sleep(1)
     self.login(destination_section.getUserId())
 
     self.assertEqual(instance_tree.InstanceTree_createMovement(), None)
@@ -635,7 +649,7 @@ class TestInstanceTreecreateMovement(SlapOSTestCaseMixin):
     self.assertEqual(instance_tree.Item_getCurrentSiteValue(), organisation)
 
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(3)
+    sleep(1)
     
     # Place in another project    
     self.assertEqual(instance_tree.InstanceTree_createMovement(
@@ -656,7 +670,7 @@ class TestInstanceTreecreateMovement(SlapOSTestCaseMixin):
     self.login(destination_section.getUserId())
 
     # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(3)
+    sleep(1)
     # We don't remove from Project if destination project is not provided
     self.assertEqual(instance_tree.InstanceTree_createMovement(), None)
     self.tic()

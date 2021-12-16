@@ -54,11 +54,6 @@
       </tr>
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_app_loaded" />
       <tr>
-        <td>setTimeout</td>
-        <td>450000</td>
-        <td></td>
-      </tr>
-      <tr>
         <td>assertTextPresent</td>
         <td>Has SW: false</td>
         <td></td>

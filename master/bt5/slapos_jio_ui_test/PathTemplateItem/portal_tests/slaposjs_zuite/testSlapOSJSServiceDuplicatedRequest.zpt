@@ -58,6 +58,11 @@
         <td>//input[@id="title"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@id="title"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>type</td>
@@ -104,6 +109,11 @@
         <td>//input[@name="//public-ipv4"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@name="//public-ipv4"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>type</td>
@@ -131,6 +141,11 @@
 
       <tr>
         <td>waitForElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-SERVICE-FRONTEND 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//a[text()="TEST-SLAPOSJS-SERVICE-FRONTEND 0"]</td>
         <td></td>
       </tr>
@@ -166,6 +181,11 @@
         <td>//input[@id="title"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@id="title"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>type</td>
@@ -212,6 +232,11 @@
         <td>//input[@name="//public-ipv4"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@name="//public-ipv4"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>type</td>
@@ -237,6 +262,11 @@
 
       <tr>
         <td>waitForElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-SERVICE-FRONTEND 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//a[text()="TEST-SLAPOSJS-SERVICE-FRONTEND 0"]</td>
         <td></td>
       </tr>

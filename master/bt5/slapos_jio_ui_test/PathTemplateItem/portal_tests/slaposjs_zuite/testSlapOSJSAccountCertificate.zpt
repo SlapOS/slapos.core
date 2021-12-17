@@ -54,7 +54,17 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="certificate"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>waitForElementPresent</td>
+        <td>//textarea[@name="key"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//textarea[@name="key"]</td>
         <td></td>
       </tr>
@@ -186,7 +196,17 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="certificate"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>waitForElementPresent</td>
+        <td>//textarea[@name="key"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//textarea[@name="key"]</td>
         <td></td>
       </tr>

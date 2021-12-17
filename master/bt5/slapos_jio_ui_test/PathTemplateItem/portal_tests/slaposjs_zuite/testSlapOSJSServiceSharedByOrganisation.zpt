@@ -68,6 +68,11 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//td/a[text()="Frontend"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>click</td>
         <td>//td/a[text()="Frontend"]</td>
         <td></td>
@@ -112,6 +117,11 @@
 
       <tr>
         <td>waitForElementPresent</td>
+        <td>//input[@id="title"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//input[@id="title"]</td>
         <td></td>
       </tr>
@@ -161,6 +171,11 @@
         <td>//input[@name="//public-ipv4"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@name="//public-ipv4"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>type</td>
@@ -193,12 +208,22 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-SERVICE-SHARED-BY-ORGANISATION 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>click</td>
         <td>//a[text()="TEST-SLAPOSJS-SERVICE-SHARED-BY-ORGANISATION 0"]</td>
         <td></td>
       </tr>
       <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-SHARED-BY-ORGANISATION 0'})">
         <td>waitForElementPresent</td>
+        <td tal:content="python: '//a[@data-i18n= \'%s\']' % (here.Base_translateString('Instance Tree: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-SHARED-BY-ORGANISATION 0'})">
+        <td>assertElementPresent</td>
         <td tal:content="python: '//a[@data-i18n= \'%s\']' % (here.Base_translateString('Instance Tree: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
         <td></td>
       </tr>
@@ -217,6 +242,11 @@
 
       <tr>
         <td>waitForElementPresent</td>
+        <td>//select[@name="destination"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//select[@name="destination"]</td>
         <td></td>
       </tr>
@@ -251,6 +281,11 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-SERVICE-SHARED-BY-ORGANISATION 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>click</td>
         <td>//a[text()="TEST-SLAPOSJS-SERVICE-SHARED-BY-ORGANISATION 0"]</td>
         <td></td>
@@ -266,6 +301,11 @@
         <td>TEST-SLAPOSJS-ORGANISATION-TO-SHARE-SERVICE 0</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertTextPresent</td>
+        <td>TEST-SLAPOSJS-ORGANISATION-TO-SHARE-SERVICE 0</td>
+        <td></td>
+      </tr>
 
       <tal:block define="person_name python: 'Demo User Functional'">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item_account" />
@@ -278,6 +318,11 @@
 
       <tr>
         <td>waitForElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-ORGANISATION-TO-SHARE-SERVICE 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//a[text()="TEST-SLAPOSJS-ORGANISATION-TO-SHARE-SERVICE 0"]</td>
         <td></td>
       </tr>
@@ -318,6 +363,11 @@
 
 <tr>
   <td>waitForElementPresent</td>
+  <td>//p[@id="invitation_link"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>assertElementPresent</td>
   <td>//p[@id="invitation_link"]</td>
   <td></td>
 </tr>
@@ -393,6 +443,11 @@
   <td>TEST-SLAPOSJS-ORGANISATION-TO-SHARE-SERVICE 0</td>
   <td></td>
 </tr>
+<tr>
+  <td>assertTextPresent</td>
+  <td>TEST-SLAPOSJS-ORGANISATION-TO-SHARE-SERVICE 0</td>
+  <td></td>
+</tr>
 
 <tal:block define="menu_item python: 'Services'; header menu_item">
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
@@ -406,6 +461,11 @@
 
 <tr>
   <td>waitForElementPresent</td>
+  <td>//a[text()="TEST-SLAPOSJS-SERVICE-SHARED-BY-ORGANISATION 0"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>assertElementPresent</td>
   <td>//a[text()="TEST-SLAPOSJS-SERVICE-SHARED-BY-ORGANISATION 0"]</td>
   <td></td>
 </tr>

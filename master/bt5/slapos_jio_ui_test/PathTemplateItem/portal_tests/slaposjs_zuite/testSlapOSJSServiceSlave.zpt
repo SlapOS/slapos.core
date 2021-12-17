@@ -57,6 +57,11 @@
         <td>//input[@id="title"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@id="title"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>type</td>
@@ -97,6 +102,11 @@
         <td>//input[@name="//url"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@name="//url"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>type</td>
@@ -128,12 +138,22 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-SERVICE-FRONTEND 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>click</td>
         <td>//a[text()="TEST-SLAPOSJS-SERVICE-FRONTEND 0"]</td>
         <td></td>
       </tr>
       <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-FRONTEND 0'})">
         <td>waitForElementPresent</td>
+        <td tal:content="python: '//a[@data-i18n= \'%s\']' % (here.Base_translateString('Instance Tree: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-FRONTEND 0'})">
+        <td>assertElementPresent</td>
         <td tal:content="python: '//a[@data-i18n= \'%s\']' % (here.Base_translateString('Instance Tree: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
         <td></td>
       </tr>

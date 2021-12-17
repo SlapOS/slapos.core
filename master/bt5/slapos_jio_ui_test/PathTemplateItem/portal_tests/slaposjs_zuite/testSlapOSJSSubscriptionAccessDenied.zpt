@@ -57,6 +57,11 @@
         <td>//input[@id="title"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@id="title"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>type</td>
@@ -102,6 +107,11 @@
         <td>//input[@name="//public-ipv4"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@name="//public-ipv4"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>type</td>
@@ -133,12 +143,22 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-SERVICE-FRONTEND 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>click</td>
         <td>//a[text()="TEST-SLAPOSJS-SERVICE-FRONTEND 0"]</td>
         <td></td>
       </tr>
       <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-FRONTEND 0'})">
         <td>waitForElementPresent</td>
+        <td tal:content="python: '//a[@data-i18n=\'%s\']' % (here.Base_translateString('Instance Tree: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-FRONTEND 0'})">
+        <td>assertElementPresent</td>
         <td tal:content="python: '//a[@data-i18n=\'%s\']' % (here.Base_translateString('Instance Tree: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
         <td></td>
       </tr>
@@ -167,7 +187,12 @@
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
+        <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td tal:content="python: '//a[text()=\'%s\']' % (here.Base_translateString(' Create New Account ', lang=lang))"></td>
         <td></td>
       </tr>
@@ -182,12 +207,17 @@
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//input[@name='first_name']</td>
         <td></td>
       </tr>
       <tr>
         <td>waitForElementPresent</td>
+        <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Register', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Register', lang=lang))"></td>
         <td></td>
       </tr>
@@ -271,6 +301,11 @@
         <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
+        <td></td>
+      </tr>
       <tr tal:define="portal_type_translation python: here.Base_translateString('Credential Request', lang=lang);
                         dummy python: context.REQUEST.set('mapping', {'portal_type': portal_type_translation})">
         <td>assertTextPresent</td>
@@ -298,6 +333,11 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>__ac_name</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>type</td>
         <td>__ac_name</td>
         <td>testSlapOSJSSubscribeUser</td>
@@ -313,6 +353,11 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
         <td>clickAndWait</td>
         <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
         <td></td>
@@ -323,7 +368,17 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//button[@data-i18n='Menu']</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>waitForTextPresent</td>
+        <td tal:content="python: '%s' % (here.Base_translateString('You are not allowed to access this content', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertTextPresent</td>
         <td tal:content="python: '%s' % (here.Base_translateString('You are not allowed to access this content', lang=lang))"></td>
         <td></td>
       </tr>
@@ -334,6 +389,11 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
+        <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
         <td></td>
       </tr>

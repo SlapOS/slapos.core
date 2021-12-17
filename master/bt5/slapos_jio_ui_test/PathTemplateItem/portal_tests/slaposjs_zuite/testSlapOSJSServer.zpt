@@ -40,6 +40,11 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>click</td>
         <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
         <td></td>
@@ -85,6 +90,11 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//td/a[text()="Frontend"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>click</td>
         <td>//td/a[text()="Frontend"]</td>
         <td></td>
@@ -123,7 +133,17 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td tal:content="python: '//label[text()=\'%s\']' % (here.Base_translateString('Software Release to be Installed', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
         <td>waitForElementPresent</td>
+        <td tal:content="python: '//label[text()=\'%s\']' % (here.Base_translateString('Target Compute Node Title', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td tal:content="python: '//label[text()=\'%s\']' % (here.Base_translateString('Target Compute Node Title', lang=lang))"></td>
         <td></td>
       </tr>
@@ -132,7 +152,11 @@
         <td>//p[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
         <td></td>
       </tr>
-
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//p[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
+        <td></td>
+      </tr>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
@@ -147,6 +171,11 @@
 
       <tr>
         <td>waitForElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
         <td></td>
       </tr>
@@ -182,6 +211,11 @@
 
       <tr>
         <td>waitForElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
         <td></td>
       </tr>
@@ -260,6 +294,11 @@
 
       <tr>
         <td>waitForElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
         <td></td>
       </tr>
@@ -423,7 +462,12 @@
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="certificate"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//textarea[@name="key"]</td>
         <td></td>
       </tr>
@@ -448,6 +492,11 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//select[@id="allocation_scope"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>select</td>
         <td>//select[@id="allocation_scope"]</td>
         <td tal:content="python: '%s' % (here.Base_translateString('Open for Friends only', lang=lang))"></td>
@@ -457,6 +506,11 @@
 
       <tr>
         <td>waitForElementPresent</td>
+        <td>//textarea[@id="subject_list"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//textarea[@id="subject_list"]</td>
         <td></td>
       </tr>
@@ -495,6 +549,11 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>click</td>
         <td>//a[text()="TEST-SLAPOSJS-COMPUTER 0"]</td>
         <td></td>
@@ -511,6 +570,11 @@
 
       <tr>
         <td>waitForElementPresent</td>
+        <td>//select[@id="allocation_scope"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//select[@id="allocation_scope"]</td>
         <td></td>
       </tr>

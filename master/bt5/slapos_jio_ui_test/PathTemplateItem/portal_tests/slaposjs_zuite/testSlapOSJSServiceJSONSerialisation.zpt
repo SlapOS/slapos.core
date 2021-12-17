@@ -57,6 +57,11 @@
         <td>//input[@id="title"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@id="title"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>type</td>
@@ -102,6 +107,11 @@
         <td>//input[@name="ADD//kvm-partition-dict"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@name="ADD//kvm-partition-dict"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>type</td>
@@ -114,6 +124,11 @@
         <td>//button[@name="//kvm-partition-dict"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//button[@name="//kvm-partition-dict"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>click</td>
@@ -123,6 +138,11 @@
 
       <tr>
         <td>waitForElementPresent</td>
+        <td>//input[@name="//kvm-partition-dict/KVM-CLUSTER-INSTANCE-0/disk-size"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//input[@name="//kvm-partition-dict/KVM-CLUSTER-INSTANCE-0/disk-size"]</td>
         <td></td>
       </tr>
@@ -138,6 +158,11 @@
         <td>//select[@name="//kvm-partition-dict/KVM-CLUSTER-INSTANCE-0/boot-image-url-select"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//select[@name="//kvm-partition-dict/KVM-CLUSTER-INSTANCE-0/boot-image-url-select"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>select</td>
@@ -146,6 +171,11 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
+        <td>//input[@name="ADD//kvm-partition-dict"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//input[@name="ADD//kvm-partition-dict"]</td>
         <td></td>
       </tr>
@@ -161,6 +191,11 @@
         <td>//button[@name="//kvm-partition-dict"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//button[@name="//kvm-partition-dict"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>click</td>
@@ -170,6 +205,11 @@
 
       <tr>
         <td>waitForElementPresent</td>
+        <td>//input[@name="//kvm-partition-dict/KVM-CLUSTER-INSTANCE-1/disk-size"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//input[@name="//kvm-partition-dict/KVM-CLUSTER-INSTANCE-1/disk-size"]</td>
         <td></td>
       </tr>
@@ -205,12 +245,22 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-SERVICE-KVM-CLUSTER 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>click</td>
         <td>//a[text()="TEST-SLAPOSJS-SERVICE-KVM-CLUSTER 0"]</td>
         <td></td>
       </tr>
       <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-KVM-CLUSTER 0'})">
         <td>waitForElementPresent</td>
+        <td tal:content="python: '//a[@data-i18n= \'%s\']' % (here.Base_translateString('Instance Tree: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-KVM-CLUSTER 0'})">
+        <td>assertElementPresent</td>
         <td tal:content="python: '//a[@data-i18n= \'%s\']' % (here.Base_translateString('Instance Tree: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
         <td></td>
       </tr>
@@ -257,6 +307,11 @@
         <td>//span[@class="bt_close CLOSE//kvm-partition-dict/KVM-CLUSTER-INSTANCE-1"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//span[@class="bt_close CLOSE//kvm-partition-dict/KVM-CLUSTER-INSTANCE-1"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>click</td>
@@ -293,6 +348,11 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-SERVICE-KVM-CLUSTER 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>click</td>
         <td>//a[text()="TEST-SLAPOSJS-SERVICE-KVM-CLUSTER 0"]</td>
         <td></td>
@@ -300,6 +360,11 @@
 
       <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-KVM-CLUSTER 0'})">
         <td>waitForElementPresent</td>
+        <td tal:content="python: '//a[@data-i18n= \'%s\']' % (here.Base_translateString('Instance Tree: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-KVM-CLUSTER 0'})">
+        <td>assertElementPresent</td>
         <td tal:content="python: '//a[@data-i18n= \'%s\']' % (here.Base_translateString('Instance Tree: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
         <td></td>
       </tr>

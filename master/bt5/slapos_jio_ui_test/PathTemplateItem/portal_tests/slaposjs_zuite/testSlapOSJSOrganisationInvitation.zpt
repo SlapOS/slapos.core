@@ -93,6 +93,11 @@
         <td>//p[@id="invitation_link"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//p[@id="invitation_link"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>storeText</td>
@@ -194,6 +199,11 @@
 
       <tr>
         <td>waitForTextPresent</td>
+        <td>demo_test_organisation_from_testSlapOSJSOrganisationInvitation</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertTextPresent</td>
         <td>demo_test_organisation_from_testSlapOSJSOrganisationInvitation</td>
         <td></td>
       </tr>

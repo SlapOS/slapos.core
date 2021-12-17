@@ -126,12 +126,22 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td tal:content="python: '//label[contains(text(), \'%s\')]' % (here.Base_translateString('Login', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
         <td>waitForElementPresent</td>
         <td>//input[@name="__ac_name"]</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
+        <td>//input[@name="__ac_name"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//input[@name="__ac_password"]</td>
         <td></td>
       </tr>

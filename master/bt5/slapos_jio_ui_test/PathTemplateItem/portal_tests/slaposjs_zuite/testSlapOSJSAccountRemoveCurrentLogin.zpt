@@ -77,7 +77,12 @@
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
+        <td>//input[@name="__ac_name"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//input[@name="__ac_password"]</td>
         <td></td>
       </tr>

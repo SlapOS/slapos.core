@@ -30,58 +30,63 @@
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
+        <td>//button[@data-i18n='Menu']</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n='Dashboard']</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n='Login Account']</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n='Tickets']</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n='Sites']</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n='Projects']</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n='Invoices']</td>
         <td></td>
       </tr>
 
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n='Services']</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n='Servers']</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n='Networks']</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n='Language']</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n='Logout']</td>
         <td></td>
       </tr>
@@ -264,12 +269,27 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//button[@data-i18n='Menu']</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>waitForElementPresent</td>
         <td>//a[@data-i18n='Dashboard']</td>
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//a[@data-i18n='Dashboard']</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>waitForElementPresent</td>
+        <td>//a[@data-i18n='Login Account']</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n='Login Account']</td>
         <td></td>
       </tr>

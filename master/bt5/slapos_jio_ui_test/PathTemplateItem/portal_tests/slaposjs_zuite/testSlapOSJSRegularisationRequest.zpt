@@ -54,6 +54,11 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//a[text()='Account regularisation expected for "Demo User Functional"']</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>click</td>
         <td>//a[text()='Account regularisation expected for "Demo User Functional"']</td>
         <td></td>
@@ -66,6 +71,11 @@
 
       <tr>
         <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_slapos_event_discussion_entry.html')]//div[@class="slapos-event-discussion-message-header"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//div[contains(@data-gadget-url, 'gadget_slapos_event_discussion_entry.html')]//div[@class="slapos-event-discussion-message-header"]</td>
         <td></td>
       </tr>
@@ -94,6 +104,11 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@id="text_content"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>type</td>
         <td>//textarea[@id="text_content"]</td>
         <td>TEST-SLAPOSJS-SUPPORT-REQUEST NEW MESSAGE</td>
@@ -103,6 +118,11 @@
 
       <tr>
         <td>waitForTextPresent</td>
+        <td>Account regularisation expected for "Demo User Functional"</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertTextPresent</td>
         <td>Account regularisation expected for "Demo User Functional"</td>
         <td></td>
       </tr>
@@ -124,6 +144,11 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//a[text()='Account regularisation expected for "Demo User Functional"']</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>click</td>
         <td>//a[text()='Account regularisation expected for "Demo User Functional"']</td>
         <td></td>
@@ -135,6 +160,11 @@
       </tal:block>
       <tr>
         <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_slapos_event_discussion_entry.html')]//div[@class="slapos-event-discussion-message-header"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//div[contains(@data-gadget-url, 'gadget_slapos_event_discussion_entry.html')]//div[@class="slapos-event-discussion-message-header"]</td>
         <td></td>
       </tr>

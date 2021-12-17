@@ -45,6 +45,11 @@
         <td>//select[@name="destination_project"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//select[@name="destination_project"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>select</td>
@@ -76,6 +81,11 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-COMPUTER-SHARED-BY-PROJECT 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>click</td>
         <td>//a[text()="TEST-SLAPOSJS-COMPUTER-SHARED-BY-PROJECT 0"]</td>
         <td></td>
@@ -91,6 +101,11 @@
         <td>TEST-SLAPOSJS-PROJECT-TO-SHARE-COMPUTER 0</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertTextPresent</td>
+        <td>TEST-SLAPOSJS-PROJECT-TO-SHARE-COMPUTER 0</td>
+        <td></td>
+      </tr>
 
       <tal:block define="menu_item python: 'Projects'; header menu_item">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
@@ -103,6 +118,11 @@
 
       <tr>
         <td>waitForElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-PROJECT-TO-SHARE-COMPUTER 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//a[text()="TEST-SLAPOSJS-PROJECT-TO-SHARE-COMPUTER 0"]</td>
         <td></td>
       </tr>
@@ -143,6 +163,11 @@
 
 <tr>
   <td>waitForElementPresent</td>
+  <td>//p[@id="invitation_link"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>assertElementPresent</td>
   <td>//p[@id="invitation_link"]</td>
   <td></td>
 </tr>
@@ -213,6 +238,11 @@
   <td>TEST-SLAPOSJS-PROJECT-TO-SHARE-COMPUTER 0</td>
   <td></td>
 </tr>
+<tr>
+  <td>assertTextPresent</td>
+  <td>TEST-SLAPOSJS-PROJECT-TO-SHARE-COMPUTER 0</td>
+  <td></td>
+</tr>
 
 <tal:block define="menu_item python: 'Servers'; header menu_item">
   <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
@@ -226,6 +256,11 @@
 
 <tr>
   <td>waitForElementPresent</td>
+  <td>//a[text()="TEST-SLAPOSJS-COMPUTER-SHARED-BY-PROJECT 0"]</td>
+  <td></td>
+</tr>
+<tr>
+  <td>assertElementPresent</td>
   <td>//a[text()="TEST-SLAPOSJS-COMPUTER-SHARED-BY-PROJECT 0"]</td>
   <td></td>
 </tr>

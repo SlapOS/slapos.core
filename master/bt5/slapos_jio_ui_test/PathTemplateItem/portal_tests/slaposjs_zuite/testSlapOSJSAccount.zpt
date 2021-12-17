@@ -146,6 +146,11 @@
         <td>//input[@id="default_address_city" and @value="My New City"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@id="default_address_city" and @value="My New City"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>verifyValue</td>

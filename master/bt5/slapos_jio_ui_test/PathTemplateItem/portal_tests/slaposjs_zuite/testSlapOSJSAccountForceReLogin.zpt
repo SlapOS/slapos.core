@@ -35,12 +35,22 @@ function redirect us to the login page -->
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td tal:content="python: '//label[contains(text(), \'%s\')]' % (here.Base_translateString('Login', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
         <td>waitForElementPresent</td>
         <td>//input[@name="__ac_name"]</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
+        <td>//input[@name="__ac_name"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//input[@name="__ac_password"]</td>
         <td></td>
       </tr>
@@ -66,15 +76,30 @@ function redirect us to the login page -->
         <td>//a[@data-i18n="Login Account"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//a[@data-i18n="Login Account"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>waitForElementPresent</td>
         <td>//a[@data-i18n="Tickets"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//a[@data-i18n="Tickets"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>waitForElementPresent</td>
+        <td>//a[@data-i18n="Invoices"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n="Invoices"]</td>
         <td></td>
       </tr>
@@ -92,97 +117,108 @@ function redirect us to the login page -->
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//button[@data-i18n="Save"]</td>
+        <td></td>
+      </tr>
+
+      <tr>
         <td>waitForElementPresent</td>
         <td>//a[@data-i18n="Add Login"]</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
+        <td>//a[@data-i18n="Add Login"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n="Add Organisation"]</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n="Token"]</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n="Request Certificate"]</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n="Revoke Certificate"]</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td tal:content="python: '//label[contains(text(), \'%s\')]' % (here.Base_translateString('First Name', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td tal:content="python: '//label[contains(text(), \'%s\')]' % (here.Base_translateString('Last Name', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td tal:content="python: '//label[contains(text(), \'%s\')]' % (here.Base_translateString('Email', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//input[@value="Demo User"]</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//input[@value="Functional"]</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//input[@value="demo@nexedi.com"]</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td tal:content="python: '//h1[contains(text(), \'%s\')]' % (here.Base_translateString('Logins', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td tal:content="python: '//a[contains(text(), \'%s\')]' % (here.Base_translateString('Reference', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td tal:content="python: '//a[contains(text(), \'%s\')]' % (here.Base_translateString('Type', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td tal:content="python: '//h1[contains(text(), \'%s\')]' % (here.Base_translateString('Organisation', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td tal:content="python: '//th[contains(text(), \'%s\')]' % (here.Base_translateString('Title', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td tal:content="python: '//a[contains(text(), \'%s\')]' % (here.Base_translateString('Reference', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td tal:content="python: '//label[contains(text(), \'%s\')]' % (here.Base_translateString('Email', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td tal:content="python: '//th[contains(text(), \'%s\')]' % (here.Base_translateString('Status', lang=lang))"></td>
         <td></td>
       </tr>

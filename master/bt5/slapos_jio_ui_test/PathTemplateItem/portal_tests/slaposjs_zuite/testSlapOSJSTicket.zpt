@@ -40,13 +40,18 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@id="title"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>type</td>
         <td>//input[@id="title"]</td>
         <td>TEST-SLAPOSJS-SUPPORT-REQUEST 0</td>
       </tr>
 
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//textarea[@id="description"]</td>
         <td></td>
       </tr>
@@ -57,7 +62,7 @@
       </tr>
 
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//select[@id="resource"]</td>
         <td></td>
       </tr>
@@ -106,6 +111,11 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-SUPPORT-REQUEST 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>click</td>
         <td>//a[text()="TEST-SLAPOSJS-SUPPORT-REQUEST 0"]</td>
         <td></td>
@@ -122,6 +132,11 @@
 
       <tr>
         <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_slapos_event_discussion_entry.html')]//div[@class="slapos-event-discussion-message-header"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//div[contains(@data-gadget-url, 'gadget_slapos_event_discussion_entry.html')]//div[@class="slapos-event-discussion-message-header"]</td>
         <td></td>
       </tr>
@@ -156,6 +171,11 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@id="text_content"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>type</td>
         <td>//textarea[@id="text_content"]</td>
         <td>TEST-SLAPOSJS-SUPPORT-REQUEST NEW MESSAGE</td>
@@ -186,6 +206,11 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-SUPPORT-REQUEST 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>click</td>
         <td>//a[text()="TEST-SLAPOSJS-SUPPORT-REQUEST 0"]</td>
         <td></td>
@@ -202,6 +227,11 @@
       </tal:block>
       <tr>
         <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_slapos_event_discussion_entry.html')]//div[@class="slapos-event-discussion-message-header"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//div[contains(@data-gadget-url, 'gadget_slapos_event_discussion_entry.html')]//div[@class="slapos-event-discussion-message-header"]</td>
         <td></td>
       </tr>

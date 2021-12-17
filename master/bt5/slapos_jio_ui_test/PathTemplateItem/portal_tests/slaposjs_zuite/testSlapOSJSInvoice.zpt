@@ -31,15 +31,20 @@
         <td>//a[@data-i18n="Login Account"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//a[@data-i18n="Login Account"]</td>
+        <td></td>
+      </tr>
 
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n="Tickets"]</td>
         <td></td>
       </tr>
 
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//a[@data-i18n="Invoices"]</td>
         <td></td>
       </tr>
@@ -62,6 +67,11 @@
 
       <tr>
         <td>waitForElementPresent</td>
+        <td>//p[@data-date='2019-10-20']</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//p[@data-date='2019-10-20']</td>
         <td></td>
       </tr>

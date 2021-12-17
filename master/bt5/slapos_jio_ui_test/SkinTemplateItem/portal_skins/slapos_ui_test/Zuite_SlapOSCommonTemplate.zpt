@@ -134,6 +134,11 @@
       <td></td>
     </tr>
     <tr>
+      <td>assertElementPresent</td>
+      <td>__ac_name</td>
+      <td></td>
+    </tr>
+    <tr>
       <td>type</td>
       <td>__ac_name</td>
       <td>demo_functional_user</td>
@@ -145,6 +150,11 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
       <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
       <td></td>
     </tr>
@@ -176,6 +186,11 @@
       <td></td>
     </tr>
     <tr>
+      <td>assertElementPresent</td>
+      <td>__ac_name</td>
+      <td></td>
+    </tr>
+    <tr>
       <td>type</td>
       <td>__ac_name</td>
       <td>another_demo_functional_user</td>
@@ -187,6 +202,11 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
       <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
       <td></td>
     </tr>
@@ -227,7 +247,17 @@
       <td></td>
     </tr>
     <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//span[@data-i18n=\'%s\']' % (here.Base_translateString('Dashboard', lang=lang))"></td>
+      <td></td>
+    </tr>
+    <tr>
       <td>waitForElementNotPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1//span[contains(@class, "ui-icon-spinner")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementNotPresent</td>
       <td>//div[contains(@data-gadget-url, 'gadget_erp5_field_listbox.html')]//h1//span[contains(@class, "ui-icon-spinner")]</td>
       <td></td>
     </tr>
@@ -238,13 +268,28 @@
       <td></td>
     </tr>
     <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % (here.Base_translateString('Sites', lang=lang))"></td>
+      <td></td>
+    </tr>
+    <tr>
       <td>waitForElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % (here.Base_translateString('Pending Tickets to Process', lang=lang))"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
       <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % (here.Base_translateString('Pending Tickets to Process', lang=lang))"></td>
       <td></td>
     </tr>
     <!-- Check if map is ok -->
     <tr>
       <td>waitForElementPresent</td>
+      <td>//a[@class='leaflet-control-zoom-out']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
       <td>//a[@class='leaflet-control-zoom-out']</td>
       <td></td>
     </tr>
@@ -260,12 +305,22 @@
       <td></td>
     </tr>
     <tr>
+      <td>assertElementPresent</td>
+      <td>//a[@data-i18n='Logout']</td>
+      <td></td>
+    </tr>
+    <tr>
       <td>click</td>
       <td>//a[@data-i18n='Logout']</td>
       <td></td>
     </tr>
     <tr>
       <td>waitForElementPresent</td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Confirm', lang=lang))"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
       <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Confirm', lang=lang))"></td>
       <td></td>
     </tr>
@@ -277,6 +332,11 @@
 
     <tr>
       <td>waitForElementPresent</td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
       <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
       <td></td>
     </tr>
@@ -293,6 +353,11 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
+      <td>//button[@data-i18n='Menu']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
       <td>//button[@data-i18n='Menu']</td>
       <td></td>
     </tr>
@@ -346,6 +411,11 @@
       <td></td>
     </tr>
     <tr>
+      <td>assertElementPresent</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[contains(text(), \'%s\')]' % header_translation"></td>
+      <td></td>
+    </tr>
+    <tr>
       <td>click</td>
       <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[contains(text(), \'%s\')]' % header_translation"></td>
       <td></td>
@@ -365,6 +435,11 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
+      <td>//button[@data-i18n='Menu']</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
       <td>//button[@data-i18n='Menu']</td>
       <td></td>
     </tr>
@@ -407,6 +482,11 @@
       <td></td>
     </tr>
     <tr>
+      <td>assertElementPresent</td>
+      <td>//button[@data-i18n='Menu']</td>
+      <td></td>
+    </tr>
+    <tr>
       <td>click</td>
       <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[@data-i18n=\'%s\']' % (panel_gadget_id, menu_item)"></td>
       <td></td>
@@ -440,6 +520,11 @@
 
     <tr>
       <td>waitForElementPresent</td>
+      <td>//input[@id="title"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
       <td>//input[@id="title"]</td>
       <td></td>
     </tr>
@@ -519,6 +604,11 @@
       <td></td>
     </tr>
     <tr>
+      <td>assertElementPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//a[@data-i18n="Delete"]</td>
+      <td></td>
+    </tr>
+    <tr>
       <td>click</td>
       <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//a[@data-i18n="Delete"]</td>
       <td></td>
@@ -538,6 +628,11 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//button[@data-i18n="Proceed"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//button[@data-i18n="Proceed"]</td>
         <td></td>
       </tr>
@@ -565,6 +660,11 @@
     </tr>
     <tr>
       <td>waitForElementNotPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//h1//*[contains(@class, "ui-icon-spinner")]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementNotPresent</td>
       <td>//div[contains(@data-gadget-url, 'gadget_slapos_header.html')]//h1//*[contains(@class, "ui-icon-spinner")]</td>
       <td></td>
     </tr>
@@ -864,6 +964,11 @@
       <td></td>
     </tr>
     <tr>
+      <td>assertElementPresent</td>
+      <td>//input[@id="title"]</td>
+      <td></td>
+    </tr>
+    <tr>
       <td>type</td>
       <td>//input[@id="title"]</td>
       <td tal:content="python: '%s' % document_title">TEST-SLAPOSJS-COMPUTER 0</td>
@@ -882,12 +987,27 @@
       <td></td>
     </tr>
     <tr>
+      <td>assertElementPresent</td>
+      <td>//a[text()=" Click here to access your compute_node "]</td>
+      <td></td>
+    </tr>
+    <tr>
       <td>waitForElementPresent</td>
       <td>//textarea[@name="certificate"]</td>
       <td></td>
     </tr>
     <tr>
+      <td>assertElementPresent</td>
+      <td>//textarea[@name="certificate"]</td>
+      <td></td>
+    </tr>
+    <tr>
       <td>waitForElementPresent</td>
+      <td>//textarea[@name="key"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
       <td>//textarea[@name="key"]</td>
       <td></td>
     </tr>
@@ -974,6 +1094,11 @@
 
     <tr>
       <td>waitForElementPresent</td>
+      <td tal:content="python: '//td/a[text()=\'%s\']' % software_product"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
       <td tal:content="python: '//td/a[text()=\'%s\']' % software_product"></td>
       <td></td>
     </tr>

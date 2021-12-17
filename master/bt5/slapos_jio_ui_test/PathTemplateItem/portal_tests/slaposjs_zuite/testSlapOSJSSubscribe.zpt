@@ -56,7 +56,17 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
         <td>waitForElementPresent</td>
+        <td tal:content="python: '//a[text()=\'%s\']' % (here.Base_translateString(' Create New Account ', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td tal:content="python: '//a[text()=\'%s\']' % (here.Base_translateString(' Create New Account ', lang=lang))"></td>
         <td></td>
       </tr>
@@ -71,12 +81,12 @@
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//input[@name='first_name']</td>
         <td></td>
       </tr>
       <tr>
-        <td>waitForElementPresent</td>
+        <td>assertElementPresent</td>
         <td>//input[@value='Register']</td>
         <td></td>
       </tr>
@@ -160,6 +170,11 @@
         <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
+        <td></td>
+      </tr>
       <tr tal:define="portal_type_translation python: here.Base_translateString('Credential Request', lang=lang);
                         dummy python: context.REQUEST.set('mapping', {'portal_type': portal_type_translation})">
         <td>assertTextPresent</td>
@@ -188,6 +203,11 @@
         <td></td>
       </tr>
       <tr>
+        <td>assertElementPresent</td>
+        <td>__ac_name</td>
+        <td></td>
+      </tr>
+      <tr>
         <td>type</td>
         <td>__ac_name</td>
         <td>testSlapOSJSSubscribeUser</td>
@@ -199,6 +219,11 @@
       </tr>
       <tr>
         <td>waitForElementPresent</td>
+        <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
         <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
         <td></td>
       </tr>

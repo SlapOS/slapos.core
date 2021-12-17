@@ -50,6 +50,11 @@
         <td>//p[@id="invitation_link"]</td>
         <td></td>
       </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//p[@id="invitation_link"]</td>
+        <td></td>
+      </tr>
 
       <tr>
         <td>storeText</td>
@@ -148,6 +153,11 @@
 
       <tr>
         <td>waitForTextPresent</td>
+        <td>TEST-SLAPOSJS-PROJECT-INVITATION 0</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertTextPresent</td>
         <td>TEST-SLAPOSJS-PROJECT-INVITATION 0</td>
         <td></td>
       </tr>

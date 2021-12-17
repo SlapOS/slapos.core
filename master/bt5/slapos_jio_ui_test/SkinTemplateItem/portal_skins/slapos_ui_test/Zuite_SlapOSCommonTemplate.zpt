@@ -218,12 +218,12 @@
 
   <tal:block metal:define-macro="slapos_wait_for_front_page">
     <tr>
-      <td colspan="3"><b>Wait for Dashboard on header and front page elements</b></td>
+      <td colspan="3"><b>Wait for frontpage</b></td>
     </tr>
-    <!-- Dashboard -->
+    <!-- Service List -->
     <tr>
       <td>waitForElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//span[@data-i18n=\'%s\']' % (here.Base_translateString('Dashboard', lang=lang))"></td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_slapos_header.html\')]//a[@data-i18n=\'%s\']' % (here.Base_translateString('Services', lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
@@ -234,18 +234,7 @@
 
     <tr>
       <td>waitForElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % (here.Base_translateString('Sites', lang=lang))"></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>waitForElementPresent</td>
-      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % (here.Base_translateString('Pending Tickets to Process', lang=lang))"></td>
-      <td></td>
-    </tr>
-    <!-- Check if map is ok -->
-    <tr>
-      <td>waitForElementPresent</td>
-      <td>//a[@class='leaflet-control-zoom-out']</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'gadget_erp5_field_listbox.html\')]//h1[contains(text(), \'%s\')]' % (here.Base_translateString('Services', lang=lang))"></td>
       <td></td>
     </tr>
   </tal:block>

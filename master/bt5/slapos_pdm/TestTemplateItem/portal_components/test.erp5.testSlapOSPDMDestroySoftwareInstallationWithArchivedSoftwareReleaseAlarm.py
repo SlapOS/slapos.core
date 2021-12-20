@@ -63,7 +63,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     )
     archived_software_release.publish()
     archived_software_release.archive()
-    self.assertEqual('draft', archived_software_release.getSimulationState())
     # install an software release
     archived_software_installation = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',
@@ -81,7 +80,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     )
     archived_used_software_release.publish()
     archived_used_software_release.archive()
-    self.assertEqual('draft', archived_used_software_release.getSimulationState())
     # install an software release
     archived_used_software_installation = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',
@@ -104,7 +102,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
       url_string=published_url_string
     )
     published_software_release.publish()
-    self.assertEqual('draft', published_software_release.getSimulationState())
     # install an software release
     published_software_installation = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',
@@ -127,19 +124,91 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
 
     self.assertEqual('start_requested', archived_used_software_installation.getSlapState())
     self.assertEqual('validated', archived_used_software_installation.getValidationState())
-
-    self.assertEqual('draft', archived_software_release.getSimulationState())
-    self.assertEqual('draft', published_software_release.getSimulationState())
     
     # second run, but it is still not reported that software installation is destroyed
     self.stepCallSlaposPdmDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm()
     self.tic()
     
-    self.assertEqual('cleaned', archived_software_release.getSimulationState())
-    self.assertEqual('draft', published_software_release.getSimulationState())
     self.assertEqual('start_requested', published_software_installation.getSlapState())
     self.assertEqual('validated', archived_used_software_installation.getValidationState())
     self.assertEqual('start_requested', archived_used_software_installation.getSlapState())
+
+  def test_manual_upgrade_scope(self):
+    preference =  self.portal.portal_preferences.getActiveSystemPreference()
+    preference.setPreferredCloudContractEnabled(True)
+    self.tic()
+    compute_node, partition = self._makeComputeNode()
+    compute_node.setUpgradeScope('confirmation')
+    archived_url_string = self.generateNewSoftwareReleaseUrl()
+    # create software release
+    archived_software_release = self.portal.software_release_module.newContent(
+      portal_type='Software Release',
+      version='1',
+      url_string=archived_url_string
+    )
+    archived_software_release.publish()
+    archived_software_release.archive()
+    # install an software release
+    archived_software_installation = self.portal.software_installation_module\
+        .newContent(portal_type='Software Installation',
+        url_string=archived_url_string,
+        aggregate=compute_node.getRelativeUrl())
+    archived_software_installation.validate()
+    archived_software_installation.requestStart()
+
+    archived_used_url_string = self.generateNewSoftwareReleaseUrl()
+    # create software release
+    archived_used_software_release = self.portal.software_release_module.newContent(
+      portal_type='Software Release',
+      version='1',
+      url_string=archived_used_url_string
+    )
+    archived_used_software_release.publish()
+    archived_used_software_release.archive()
+    # install an software release
+    archived_used_software_installation = self.portal.software_installation_module\
+        .newContent(portal_type='Software Installation',
+        url_string=archived_used_url_string,
+        aggregate=compute_node.getRelativeUrl())
+    archived_used_software_installation.validate()
+    archived_used_software_installation.requestStart()
+
+    # use the software release
+    instance = self.createInstance(archived_used_url_string)
+    instance.setAggregate(partition.getRelativeUrl())
+    partition.markBusy()
+    self.tic()
+
+    published_url_string = self.generateNewSoftwareReleaseUrl()
+    # create software release
+    published_software_release = self.portal.software_release_module.newContent(
+      portal_type='Software Release',
+      version='1',
+      url_string=published_url_string
+    )
+    published_software_release.publish()
+    # install an software release
+    published_software_installation = self.portal.software_installation_module\
+        .newContent(portal_type='Software Installation',
+        url_string=published_url_string,
+        aggregate=compute_node.getRelativeUrl())
+    published_software_installation.validate()
+    published_software_installation.requestStart()
+
+
+    self.tic()
+    
+    # as Compute Node is manually managed, nothing happens
+    self.stepCallSlaposPdmDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm()
+    self.tic()
+    self.assertEqual('start_requested', archived_software_installation.getSlapState())
+    self.assertEqual('validated', archived_software_installation.getValidationState())
+
+    self.assertEqual('start_requested', published_software_installation.getSlapState())
+    self.assertEqual('validated', published_software_installation.getValidationState())
+
+    self.assertEqual('start_requested', archived_used_software_installation.getSlapState())
+    self.assertEqual('validated', archived_used_software_installation.getValidationState())
 
   @simulateByEditWorkflowMark('SoftwareRelease_findAndDestroySoftwareInstallation')
   def test_no_op_run_software_release(self):
@@ -150,7 +219,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     )
     archived_software_release.publish()
     archived_software_release.archive()
-    self.assertEqual('draft', archived_software_release.getSimulationState())
 
     archived_cleaned_software_release = self.portal.software_release_module.newContent(
       portal_type='Software Release',
@@ -159,8 +227,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     )
     archived_cleaned_software_release.publish()
     archived_cleaned_software_release.archive()
-    archived_cleaned_software_release.cleanup()
-    self.assertEqual('cleaned', archived_cleaned_software_release.getSimulationState())
 
     published_software_release = self.portal.software_release_module.newContent(
       portal_type='Software Release',
@@ -168,7 +234,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
       url_string=self.generateNewSoftwareReleaseUrl(),
     )
     published_software_release.publish()
-    self.assertEqual('draft', published_software_release.getSimulationState())
     self.tic()
 
     self.stepCallSlaposPdmDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm()
@@ -177,7 +242,7 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     v = 'Visited by SoftwareRelease_findAndDestroySoftwareInstallation'
     self.assertFalse(v in
       [q['comment'] for q in published_software_release.workflow_history['edit_workflow']])
-    self.assertFalse(v in
+    self.assertTrue(v in
       [q['comment'] for q in archived_cleaned_software_release.workflow_history['edit_workflow']])
     self.assertTrue(v in
       [q['comment'] for q in archived_software_release.workflow_history['edit_workflow']])
@@ -200,7 +265,6 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     )
     archived_software_release.publish()
     archived_software_release.archive()
-    self.assertEqual('draft', archived_software_release.getSimulationState())
 
     software_installation_validated_request_start = self.portal.software_installation_module\
         .newContent(portal_type='Software Installation',

@@ -1,7 +1,5 @@
 if context.getValidationState() != 'archived':
   return
-if context.getSimulationState() == 'cleaned':
-  return
 portal = context.getPortalObject()
 
 catalog_kw = dict(
@@ -11,15 +9,8 @@ catalog_kw = dict(
   **{"slapos_item.slap_state": "start_requested"}
 )
 
-count = portal.portal_catalog.countResults(
+portal.portal_catalog.searchAndActivate(
+  method_id = 'SoftwareInstallation_destroyWithSoftwareReleaseArchived',
+  activate_kw = {'tag':tag},
   **catalog_kw
 )
-
-if count[0][0] == 0:
-  context.cleanup(comment='No more validated Software Installations found')
-else:
-  portal.portal_catalog.searchAndActivate(
-    method_id = 'SoftwareInstallation_destroyWithSoftwareReleaseArchived',
-    activate_kw = {'tag':tag},
-    **catalog_kw
-  )

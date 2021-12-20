@@ -54,6 +54,7 @@ class TestSlapOSDestroySoftwareInstallationWithArchivedSoftwareReleaseAlarm(Slap
     preference.setPreferredCloudContractEnabled(True)
     self.tic()
     compute_node, partition = self._makeComputeNode()
+    compute_node.setUpgradeScope('auto')
     archived_url_string = self.generateNewSoftwareReleaseUrl()
     # create software release
     archived_software_release = self.portal.software_release_module.newContent(

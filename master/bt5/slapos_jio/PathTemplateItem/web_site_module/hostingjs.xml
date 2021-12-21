@@ -414,7 +414,7 @@
         </item>
         <item>
             <key> <string>configuration_frontpage_gadget_url</string> </key>
-            <value> <string>slap_service_list</string> </value>
+            <value> <string>slapos</string> </value>
         </item>
         <item>
             <key> <string>configuration_hateoas_url</string> </key>
@@ -719,7 +719,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1636465174.13</float>
+                              <float>1597354424.8</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

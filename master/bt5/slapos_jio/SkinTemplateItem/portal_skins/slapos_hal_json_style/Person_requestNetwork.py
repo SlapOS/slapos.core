@@ -10,9 +10,10 @@ if person is None:
 else:
   request_kw = dict(network_title=title)
   person.requestNetwork(**request_kw)
-  network_relative_url = context.REQUEST.get('computer_network_relative_url')
-  network_reference = context.REQUEST.get('computer_network_reference')
+  network_relative_url = request.get('computer_network_relative_url')
+  network_reference = request.get('computer_network_reference')
 
+  response.setHeader('Content-Type', "application/json")
   return json.dumps({
     "reference": network_reference,
     "relative_url": network_relative_url

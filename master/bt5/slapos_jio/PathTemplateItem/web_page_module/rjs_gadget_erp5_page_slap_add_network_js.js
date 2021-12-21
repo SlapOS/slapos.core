@@ -1,6 +1,6 @@
-/*global window, rJS, RSVP */
+/*global window, rJS, RSVP, jIO */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP) {
+(function (window, rJS, RSVP, jIO) {
   "use strict";
 
   rJS(window)
@@ -10,9 +10,10 @@
     .declareAcquiredMethod("updateHeader", "updateHeader")
     .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("getSetting", "getSetting")
+    .declareAcquiredMethod("getSettingList", "getSettingList")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("redirect", "redirect")
-    .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
+    .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("getTranslationList", "getTranslationList")
@@ -32,15 +33,20 @@
         })
         .push(function (form_gadget) {
           return RSVP.all([form_gadget.getContent(),
-                          gadget.getSetting('me')]);
+                          gadget.getSettingList(['me', 'hateoas_url'])]);
         })
         .push(function (result) {
-          var doc = result[0], me = result[1];
-          return gadget.getSetting("hateoas_url")
-            .push(function (url) {
-              return gadget.jio_getAttachment(me,
-                url + me + "/Person_requestNetwork?title=" + doc.title);
-            });
+          var doc = result[0],
+            me = result[1][0],
+            url = result[1][1];
+          return gadget.jio_putAttachment(me,
+                url + me + "/Person_requestNetwork", {title: doc.title});
+        })
+        .push(function (attachment) {
+          return jIO.util.readBlobAsText(attachment.target.response);
+        })
+        .push(function (response) {
+          return JSON.parse(response.target.result);
         })
         .push(function (result) {
           return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
@@ -124,4 +130,4 @@
           });
         });
     });
-}(window, rJS, RSVP));
+}(window, rJS, RSVP, jIO));

@@ -10,9 +10,10 @@ if person is None:
 else:
   request_kw = dict(project_title=title)
   person.requestProject(**request_kw)
-  project_relative_url = context.REQUEST.get('project_relative_url')
-  project_reference = context.REQUEST.get('project_reference')
+  project_relative_url = request.get('project_relative_url')
+  project_reference = request.get('project_reference')
 
+  response.setHeader('Content-Type', "application/json")
   return json.dumps({
     "reference": project_reference,
     "relative_url": project_relative_url

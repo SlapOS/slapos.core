@@ -13,6 +13,7 @@ else:
   compute_node = context.restrictedTraverse(context.REQUEST.get('compute_node'))
   compute_node.generateCertificate()
 
+  response.setHeader('Content-Type', "application/json")
   return json.dumps({
     "certificate" : request.get('compute_node_certificate'),
     "key" : request.get('compute_node_key'),

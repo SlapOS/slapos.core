@@ -40,7 +40,7 @@
             me = result[1][0],
             url = result[1][1];
           return gadget.jio_putAttachment(me,
-                url + me + "/Person_requestNetwork", {title: doc.title});
+                url + me + "/Person_requestOrganisation", {title: doc.title});
         })
         .push(function (attachment) {
           return jIO.util.readBlobAsText(attachment.target.response);

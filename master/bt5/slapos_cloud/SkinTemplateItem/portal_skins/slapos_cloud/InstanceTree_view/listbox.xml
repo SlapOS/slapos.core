@@ -141,7 +141,7 @@
                         </tuple>
                         <tuple>
                           <string>aggregate_parent_reference</string>
-                          <string>Compute Node Ref.</string>
+                          <string>Compute Node Reference</string>
                         </tuple>
                         <tuple>
                           <string>aggregate_title</string>

@@ -22,6 +22,7 @@ parser.add_argument('--partition-cert', default=None)
 parser.add_argument('--partition-key', default=None)
 parser.add_argument('--partition-id', default=None)
 parser.add_argument('--computer-id', default=None)
+parser.add_argument('--log-file', default=None)
 args = parser.parse_args()
 
 
@@ -48,6 +49,7 @@ from slapos.cli.entry import SlapOSApp
 
 app = SlapOSApp()
 app.options, _ = app.parser.parse_known_args([])
+app.options.log_file = args.log_file
 app.configure_logging()
 
 config = {k.replace('_', '-') : v for k, v in vars(args).items()}

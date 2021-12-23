@@ -726,6 +726,10 @@ stderr_logfile_backups=1
         else:
           command.append('--' + option)
           command.append(str(value))
+      log_file = self.config.get('log_file')
+      if log_file:
+        command.append('--logfile')
+        command.append(log_file)
       process = subprocess.Popen(
         command,
         preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),

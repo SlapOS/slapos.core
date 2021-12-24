@@ -7,11 +7,7 @@ if project.getValidationState() != "draft":
   return
 
 if project.getReference() in [None, ""]:
-  reference = "PROJ-%s" % portal.portal_ids.generateNewId(
-    id_group='slap_project_reference',
-    id_generator='uid', default=1)
-  project.setReference(reference)
-
+  raise ValueError("Reference is missing on the Project")
 
 # Get the user id of the context owner.
 local_role_list = project.get_local_roles()

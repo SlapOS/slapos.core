@@ -97,6 +97,18 @@ function __fish_print_slapos_services
   eval ( commandline -o | head -1 ) node supervisorctl status | sed -e 's/ /\t/'
 end
 
+# complete installed softwares for slapos node software --only-sr
+function __fish_print_slapos_softwares
+  eval ( commandline -o | head -1 ) proxy show --software | tail -n +6 | grep available | awk '{print $4"\\t"$1}'
+end
+complete -c slapos  -n '__fish_seen_subcommand_from node; and __fish_seen_subcommand_from software; and __fish_contains_opt only-sr only' -f -a '(__fish_print_slapos_softwares)'
+
+# complete busy partitions for slapos node instance --only-cp
+function __fish_print_slapos_partitions
+  eval ( commandline -o | head -1 ) proxy show --partitions | tail -n +6 | grep busy | awk '{print $1"\\t"$6" "$5" "$4}'
+end
+complete -c slapos  -n '__fish_seen_subcommand_from node; and __fish_seen_subcommand_from instance; and __fish_contains_opt only-cp only' -f -a '(__fish_print_slapos_partitions)'
+
 """)
 
       self.app.stdout.write("# all subcommands\n")

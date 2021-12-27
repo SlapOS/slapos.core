@@ -1,5 +1,5 @@
-project = state_change['object']
-portal = project.getPortalObject()
+organisation = state_change['object']
+portal = organisation.getPortalObject()
 person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 
 # Get required arguments
@@ -10,7 +10,7 @@ kwargs = state_change.kwargs
 try:
   token_id = kwargs['invitation_token']
 except KeyError:
-  raise TypeError("Project_acceptInvitation takes exactly 1 argument")
+  raise TypeError("Organisation_acceptInvitation takes exactly 1 argument")
 
 try:
   invitation_token = portal.invitation_token_module[token_id]
@@ -33,16 +33,18 @@ if invitation_token.getSourceValue() == person:
   message_str = "Invitation Token cannot be used by the same user that generated the token!"
   raise ValueError(message_str)
 
+
 for assignment in person.objectValues(portal_type="Assignment"):
-  if assignment.getDestinationProject() == project.getRelativeUrl() and \
-                              assignment.getValidationState() == "open":
+  if assignment.getSubordination() == organisation.getRelativeUrl() and \
+    assignment.getValidationState() == "open":
     invitation_token.invalidate(comment="User already has assignment to the Person")
     break
 
 if invitation_token.getValidationState() == "validated":
   person.newContent(
-    title="Assigment for Project %s" % project.getTitle(),
+    title="Assigment for Organisation (%s) %s" % (organisation.getRole(), organisation.getTitle()),
     portal_type="Assignment",
-    destination_project_value=project).open()
+    subordination_value=organisation,
+    destination_value=organisation).open()
 
   invitation_token.invalidate()

@@ -14,6 +14,9 @@ if organisation.getReference() in [None, ""]:
 
   organisation.setReference(reference)
 
+if organisation.getValidationState() != "draft":
+  return
+
 organisation.validate()
 
 # Get the user id of the context owner.

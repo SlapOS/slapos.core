@@ -10,4 +10,7 @@ if computer_network.getReference() in [None, ""]:
 
   computer_network.setReference(reference)
 
+if computer_network.getValidationState() != "draft":
+  return
+
 computer_network.validate()

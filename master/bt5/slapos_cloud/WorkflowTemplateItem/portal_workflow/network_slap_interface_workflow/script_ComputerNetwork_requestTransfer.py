@@ -7,6 +7,10 @@ portal = computer_network.getPortalObject()
 # Get required arguments
 kwargs = state_change.kwargs
 
+user = portal.portal_membership.getAuthenticatedMember().getUserValue()
+if user is None or user.getRelativeUrl() !=  computer_network.getSourceAdministration():
+  raise Unauthorized("Only the Computer Network owner can transfer it from one location to another.")
+
 # Required args
 # Raise TypeError if all parameters are not provided
 try:
@@ -15,10 +19,6 @@ try:
   destination_project = kwargs["destination_project"]
 except KeyError:
   raise TypeError("ComputerNetwork_requestTransfer takes exactly 2 arguments")
-
-user = portal.portal_membership.getAuthenticatedMember().getUserValue()
-if user is None or user.getRelativeUrl() !=  computer_network.getSourceAdministration():
-  raise Unauthorized("Only the Computer Network owner can transfer it from one location to another.")
 
 tag = "%s_%s_%s_inProgress" % (computer_network.getUid(), destination_section, destination_project)
 if (portal.portal_activities.countMessageWithTag(tag) > 0):

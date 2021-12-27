@@ -21,18 +21,18 @@ if (portal.portal_activities.countMessageWithTag(tag) > 0):
   raise NotImplementedError(tag)
 
 organisation_portal_type = "Organisation"
-organisation_list = portal.portal_catalog.portal_catalog(
+if role_id not in ["client", "host"]:
+  raise NotImplementedError
+
+organisation_list = [ i for i in portal.portal_catalog.portal_catalog(
   portal_type=organisation_portal_type,
   title=organisation_title,
-  # check if this works
-  role_id=role_id,
-  limit=2)
+  limit=2) if i.getRole() == role_id]
 
 if len(organisation_list) == 2:
   raise NotImplementedError
 elif len(organisation_list) == 1:
   context.REQUEST.set("organisation_relative_url", organisation_list[0].getRelativeUrl())
-  context.REQUEST.set("organisation_reference", organisation_list[0].getReference())
 else:
   module = portal.getDefaultModule(portal_type=organisation_portal_type)
   organisation = module.newContent(
@@ -42,6 +42,4 @@ else:
     activate_kw={'tag': tag}
   )
   context.REQUEST.set("organisation_relative_url", organisation.getRelativeUrl())
-  context.REQUEST.set("organisation_reference", organisation.getReference())
-
   organisation.approveRegistration()

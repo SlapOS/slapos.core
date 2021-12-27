@@ -766,3 +766,490 @@ class TestSlapOSCorePersonRequestComputeNode(SlapOSTestCaseMixin):
 
     self.assertRaises(NotImplementedError, person.requestComputeNode,
                       compute_node_title=compute_node_title)
+
+
+class TestSlapOSCorePersonRequestProject(SlapOSTestCaseMixin):
+
+  def generateNewProjectTitle(self):
+    return 'My Project %s' % self.generateNewId()
+
+  def afterSetUp(self):
+    SlapOSTestCaseMixin.afterSetUp(self)
+    person_user = self.makePerson()
+    self.tic()
+
+    # Login as new user
+    self.login(person_user.getUserId())
+    new_person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    self.assertEqual(person_user.getRelativeUrl(), new_person.getRelativeUrl())
+
+  def beforeTearDown(self):
+    pass
+
+  def test_Person_requestProject_title_is_mandatoty(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    self.assertRaises(TypeError, person.requestProject)
+
+  def test_Person_requestProject(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    project_title = self.generateNewProjectTitle()
+    person.requestProject(project_title=project_title)
+
+    self.tic()
+    self.login()
+    # check what is returned via request
+    project_relative_url = person.REQUEST.get('project_relative_url')
+    project_reference = person.REQUEST.get('project_reference')
+
+    self.assertNotEqual(None, project_relative_url)
+    self.assertNotEqual(None, project_reference)
+    
+    project = person.restrictedTraverse(project_relative_url)
+    self.assertEqual(project.getTitle(), project_title)
+    self.assertEqual(project.getValidationState(), "validated")
+    self.assertEqual(project.getDestinationDecision(), person.getRelativeUrl())
+
+
+  def test_Person_requestProject_duplicated(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    project_title = self.generateNewProjectTitle()
+    person.requestProject(project_title=project_title)
+    self.tic()
+    self.login()
+
+    # check what is returned via request
+    project_relative_url = person.REQUEST.get('project_relative_url')
+    project_reference = person.REQUEST.get('project_reference')
+
+    self.assertNotEqual(None, project_relative_url)
+    self.assertNotEqual(None, project_reference)
+
+    project = person.restrictedTraverse(project_relative_url)
+    self.assertEqual(project.getTitle(), project_title)
+    self.assertEqual(project.getValidationState(), "validated")
+    self.assertEqual(project.getDestinationDecision(), person.getRelativeUrl())
+
+    project2 = project.Base_createCloneDocument(batch_mode=1)
+    project2.validate()
+    self.tic()
+
+    self.login(person.getUserId())
+    self.assertRaises(NotImplementedError, person.requestProject,
+                      project_title=project_title)
+
+  def test_Person_requestProject_request_again(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    project_title = self.generateNewProjectTitle()
+    person.requestProject(project_title=project_title)
+
+    # check what is returned via request
+    project_relative_url = person.REQUEST.get('project_relative_url')
+    project_reference = person.REQUEST.get('project_reference')
+
+    self.assertNotEqual(None, project_relative_url)
+    self.assertNotEqual(None, project_reference)
+
+    self.tic()
+    self.login()
+    # check what is returned via request
+    person.REQUEST.set('project_relative_url', None)
+    person.REQUEST.set('project_reference', None)
+
+    self.login(person.getUserId())
+    person.requestProject(project_title=project_title)
+
+    # check what is returned via request
+    same_project_relative_url = person.REQUEST.get('project_relative_url')
+    same_project_reference = person.REQUEST.get('project_reference')
+
+    self.assertEqual(same_project_relative_url, project_relative_url)
+    self.assertEqual(same_project_reference, project_reference)
+
+
+
+class TestSlapOSCorePersonRequestOrganisation(SlapOSTestCaseMixin):
+
+  def generateNewOrganisationTitle(self):
+    return 'My Organisation %s' % self.generateNewId()
+
+  def afterSetUp(self):
+    SlapOSTestCaseMixin.afterSetUp(self)
+    person_user = self.makePerson()
+    self.tic()
+
+    # Login as new user
+    self.login(person_user.getUserId())
+    new_person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    self.assertEqual(person_user.getRelativeUrl(), new_person.getRelativeUrl())
+
+  def beforeTearDown(self):
+    pass
+
+  def test_Person_requestOrganisation_title_is_mandatoty(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    self.assertRaises(TypeError, person.requestOrganisation)
+
+  def test_Person_requestOrganisation(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    organisation_title = self.generateNewOrganisationTitle()
+    person.requestOrganisation(organisation_title=organisation_title)
+
+    self.tic()
+    self.login()
+    # check what is returned via request
+    organisation_relative_url = person.REQUEST.get('organisation_relative_url')
+
+    self.assertNotEqual(None, organisation_relative_url)
+    
+    organisation = person.restrictedTraverse(organisation_relative_url)
+    self.assertEqual(organisation.getTitle(), organisation_title)
+    self.assertEqual(organisation.getValidationState(), "validated")
+    self.assertEqual(organisation.getRoleId(), "client")
+    self.assertIn("O-", organisation.getReference())
+
+
+  def test_Person_requestOrganisation_duplicated(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    organisation_title = self.generateNewOrganisationTitle()
+    person.requestOrganisation(organisation_title=organisation_title)
+    self.tic()
+    self.login()
+
+    # check what is returned via request
+    organisation_relative_url = person.REQUEST.get('organisation_relative_url')
+
+    self.assertNotEqual(None, organisation_relative_url)
+
+    organisation = person.restrictedTraverse(organisation_relative_url)
+    self.assertEqual(organisation.getTitle(), organisation_title)
+    self.assertEqual(organisation.getValidationState(), "validated")
+    self.assertEqual(organisation.getRoleId(), "client")
+    self.assertIn("O-", organisation.getReference())
+
+    organisation2 = organisation.Base_createCloneDocument(batch_mode=1)
+    organisation2.validate()
+    self.tic()
+
+    self.login(person.getUserId())
+    self.assertRaises(NotImplementedError, person.requestOrganisation,
+                      organisation_title=organisation_title)
+
+  def test_Person_requestOrganisation_request_again(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    organisation_title = self.generateNewOrganisationTitle()
+    person.requestOrganisation(organisation_title=organisation_title)
+
+    # check what is returned via request
+    organisation_relative_url = person.REQUEST.get('organisation_relative_url')
+
+    self.assertNotEqual(None, organisation_relative_url)
+
+    self.tic()
+    self.login()
+    # check what is returned via request
+    person.REQUEST.set('organisation_relative_url', None)
+
+    self.login(person.getUserId())
+    person.requestOrganisation(organisation_title=organisation_title)
+
+    # check what is returned via request
+    same_organisation_relative_url = person.REQUEST.get('organisation_relative_url')
+    self.assertEqual(same_organisation_relative_url, organisation_relative_url)
+
+
+  def test_Person_requestOrganisation_dont_conflict_with_site(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    organisation_title = self.generateNewOrganisationTitle()
+    person.requestOrganisation(organisation_title=organisation_title)
+    self.tic()
+    self.login()
+
+    # check what is returned via request
+    organisation_relative_url = person.REQUEST.get('organisation_relative_url')
+
+    self.assertNotEqual(None, organisation_relative_url)
+
+    organisation = person.restrictedTraverse(organisation_relative_url)
+    self.assertEqual(organisation.getTitle(), organisation_title)
+    self.assertEqual(organisation.getValidationState(), "validated")
+    self.assertEqual(organisation.getRoleId(), "client")
+    self.assertIn("O-", organisation.getReference())
+
+    organisation2 = organisation.Base_createCloneDocument(batch_mode=1)
+    organisation2.edit(role="host")
+    organisation2.validate()
+    
+    person.REQUEST.set('organisation_relative_url', None)
+
+    self.tic() 
+
+    self.login(person.getUserId())
+    person.requestOrganisation(organisation_title=organisation_title)
+
+    self.tic()
+    self.login()
+    # check what is returned via request
+    same_organisation_relative_url = person.REQUEST.get('organisation_relative_url')
+    self.assertEqual(same_organisation_relative_url, organisation_relative_url)
+
+class TestSlapOSCorePersonRequestSite(SlapOSTestCaseMixin):
+
+  def generateNewOrganisationTitle(self):
+    return 'My Site %s' % self.generateNewId()
+
+  def afterSetUp(self):
+    SlapOSTestCaseMixin.afterSetUp(self)
+    person_user = self.makePerson()
+    self.tic()
+
+    # Login as new user
+    self.login(person_user.getUserId())
+    new_person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    self.assertEqual(person_user.getRelativeUrl(), new_person.getRelativeUrl())
+
+  def beforeTearDown(self):
+    pass
+
+  def test_Person_requestSite_title_is_mandatoty(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    self.assertRaises(TypeError, person.requestSite)
+
+  def test_Person_requestSite(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    organisation_title = self.generateNewOrganisationTitle()
+    person.requestSite(organisation_title=organisation_title)
+
+    self.tic()
+    self.login()
+    # check what is returned via request
+    organisation_relative_url = person.REQUEST.get('organisation_relative_url')
+
+    self.assertNotEqual(None, organisation_relative_url)
+    
+    organisation = person.restrictedTraverse(organisation_relative_url)
+    self.assertEqual(organisation.getTitle(), organisation_title)
+    self.assertEqual(organisation.getValidationState(), "validated")
+    self.assertEqual(organisation.getRoleId(), "host")
+    self.assertIn("SITE-", organisation.getReference())
+
+
+  def test_Person_requestSite_duplicated(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    organisation_title = self.generateNewOrganisationTitle()
+    person.requestSite(organisation_title=organisation_title)
+    self.tic()
+    self.login()
+
+    # check what is returned via request
+    organisation_relative_url = person.REQUEST.get('organisation_relative_url')
+
+    self.assertNotEqual(None, organisation_relative_url)
+
+    organisation = person.restrictedTraverse(organisation_relative_url)
+    self.assertEqual(organisation.getTitle(), organisation_title)
+    self.assertEqual(organisation.getValidationState(), "validated")
+    self.assertEqual(organisation.getRoleId(), "host")
+    self.assertIn("SITE-", organisation.getReference())
+
+    organisation2 = organisation.Base_createCloneDocument(batch_mode=1)
+    organisation2.validate()
+    self.tic()
+
+    self.login(person.getUserId())
+    self.assertRaises(NotImplementedError, person.requestSite,
+                      organisation_title=organisation_title)
+
+  def test_Person_requestSite_request_again(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    organisation_title = self.generateNewOrganisationTitle()
+    person.requestSite(organisation_title=organisation_title)
+
+    # check what is returned via request
+    organisation_relative_url = person.REQUEST.get('organisation_relative_url')
+
+    self.assertNotEqual(None, organisation_relative_url)
+
+    self.tic()
+    self.login()
+    # check what is returned via request
+    person.REQUEST.set('organisation_relative_url', None)
+
+    self.login(person.getUserId())
+    person.requestSite(organisation_title=organisation_title)
+
+    # check what is returned via request
+    same_organisation_relative_url = person.REQUEST.get('organisation_relative_url')
+    self.assertEqual(same_organisation_relative_url, organisation_relative_url)
+
+
+  def test_Person_requestSite_dont_conflict_with_site(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    organisation_title = self.generateNewOrganisationTitle()
+    person.requestSite(organisation_title=organisation_title)
+    self.tic()
+    self.login()
+
+    # check what is returned via request
+    organisation_relative_url = person.REQUEST.get('organisation_relative_url')
+
+    self.assertNotEqual(None, organisation_relative_url)
+
+    organisation = person.restrictedTraverse(organisation_relative_url)
+    self.assertEqual(organisation.getTitle(), organisation_title)
+    self.assertEqual(organisation.getValidationState(), "validated")
+    self.assertEqual(organisation.getRoleId(), "host")
+    self.assertIn("SITE-", organisation.getReference())
+
+    organisation2 = organisation.Base_createCloneDocument(batch_mode=1)
+    organisation2.edit(role="client")
+    organisation2.validate()
+    
+    person.REQUEST.set('organisation_relative_url', None)
+
+    self.tic() 
+
+    self.login(person.getUserId())
+    person.requestSite(organisation_title=organisation_title)
+
+    self.tic()
+    self.login()
+    # check what is returned via request
+    same_organisation_relative_url = person.REQUEST.get('organisation_relative_url')
+    self.assertEqual(same_organisation_relative_url, organisation_relative_url)
+
+class TestSlapOSCorePersonRequestNetwork(SlapOSTestCaseMixin):
+
+  def generateNewNetworkTitle(self):
+    return 'My Network %s' % self.generateNewId()
+
+  def afterSetUp(self):
+    SlapOSTestCaseMixin.afterSetUp(self)
+    person_user = self.makePerson()
+    self.tic()
+
+    # Login as new user
+    self.login(person_user.getUserId())
+    new_person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    self.assertEqual(person_user.getRelativeUrl(), new_person.getRelativeUrl())
+
+  def beforeTearDown(self):
+    pass
+
+  def test_Person_requestNetwork_title_is_mandatoty(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    self.assertRaises(TypeError, person.requestNetwork)
+
+  def test_Person_requestNetwork(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    network_title = self.generateNewNetworkTitle()
+    person.requestNetwork(network_title=network_title)
+
+    self.tic()
+    self.login()
+    # check what is returned via request
+    network_relative_url = person.REQUEST.get('computer_network_relative_url')
+
+    self.assertNotEqual(None, network_relative_url)
+    
+    network = person.restrictedTraverse(network_relative_url)
+    self.assertEqual(network.getSourceAdministration(),
+                    person.getRelativeUrl())
+    self.assertEqual(network.getTitle(), network_title)
+    self.assertEqual(network.getValidationState(), "validated")
+    self.assertIn("NET-", network.getReference())
+
+
+  def test_Person_requestNetwork_duplicated(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    network_title = self.generateNewNetworkTitle()
+    person.requestNetwork(network_title=network_title)
+    self.tic()
+    self.login()
+
+    # check what is returned via request
+    network_relative_url = person.REQUEST.get('computer_network_relative_url')
+
+    self.assertNotEqual(None, network_relative_url)
+
+    network = person.restrictedTraverse(network_relative_url)
+    self.assertEqual(network.getSourceAdministration(),
+                    person.getRelativeUrl())
+    self.assertEqual(network.getTitle(), network_title)
+    self.assertEqual(network.getValidationState(), "validated")
+    self.assertIn("NET-", network.getReference())
+
+    network2 = network.Base_createCloneDocument(batch_mode=1)
+    network2.validate()
+    self.tic()
+
+    self.login(person.getUserId())
+    self.assertRaises(NotImplementedError, person.requestNetwork,
+                      network_title=network_title)
+
+  def test_Person_requestNetwork_request_again(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    network_title = self.generateNewNetworkTitle()
+    person.requestNetwork(network_title=network_title)
+
+    # check what is returned via request
+    network_relative_url = person.REQUEST.get('computer_network_relative_url')
+
+    self.assertNotEqual(None, network_relative_url)
+
+    self.tic()
+    self.login()
+    # check what is returned via request
+    person.REQUEST.set('computer_network_relative_url', None)
+
+    self.login(person.getUserId())
+    person.requestNetwork(network_title=network_title)
+
+    # check what is returned via request
+    same_network_relative_url = person.REQUEST.get('computer_network_relative_url')
+    self.assertEqual(same_network_relative_url, network_relative_url)
+
+
+class TestSlapOSCorePersonRequestToken(SlapOSTestCaseMixin):
+
+  def generateNewTokenUrl(self):
+    return 'https://%s.no.where/%s' % (
+      self.generateNewId(),
+      self.generateNewId())
+
+  def afterSetUp(self):
+    SlapOSTestCaseMixin.afterSetUp(self)
+    person_user = self.makePerson()
+    self.tic()
+
+    # Login as new user
+    self.login(person_user.getUserId())
+    new_person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    self.assertEqual(person_user.getRelativeUrl(), new_person.getRelativeUrl())
+
+  def beforeTearDown(self):
+    pass
+  
+  def test_Person_requestToken_requested_url_is_mandatory(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    self.assertRaises(TypeError, person.requestToken)
+
+  def test_Person_requestToken(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    request_url = self.generateNewTokenUrl()
+    person.requestToken(request_url=request_url)
+
+    self.tic()
+    self.login()
+    # check what is returned via request
+    token_id = person.REQUEST.get('token')
+
+    self.assertNotEqual(None, token_id)
+    
+    token = self.portal.access_token_module[token_id]
+    self.assertEqual(token.getAgent(),
+                    person.getRelativeUrl())
+    self.assertEqual(token.getUrlString(), request_url)
+    self.assertEqual(token.getValidationState(), "validated")
+    self.assertEqual(
+      token.getPortalType(), "One Time Restricted Access Token")
+    self.assertEqual(token.getUrlMethod(), "POST")

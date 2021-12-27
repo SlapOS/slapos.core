@@ -766,3 +766,101 @@ class TestSlapOSCorePersonRequestComputeNode(SlapOSTestCaseMixin):
 
     self.assertRaises(NotImplementedError, person.requestComputeNode,
                       compute_node_title=compute_node_title)
+
+
+class TestSlapOSCorePersonRequestProject(SlapOSTestCaseMixin):
+
+  def generateNewProjectTitle(self):
+    return 'My Project %s' % self.generateNewId()
+
+  def afterSetUp(self):
+    SlapOSTestCaseMixin.afterSetUp(self)
+    person_user = self.makePerson()
+    self.tic()
+
+    # Login as new user
+    self.login(person_user.getUserId())
+    new_person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    self.assertEqual(person_user.getRelativeUrl(), new_person.getRelativeUrl())
+
+  def beforeTearDown(self):
+    pass
+
+  def test_Person_requestProject_title_is_mandatoty(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    self.assertRaises(TypeError, person.requestProject)
+
+  def test_Person_requestProject(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    project_title = self.generateNewProjectTitle()
+    person.requestProject(project_title=project_title)
+
+    self.tic()
+    self.login()
+    # check what is returned via request
+    project_relative_url = person.REQUEST.get('project_relative_url')
+    project_reference = person.REQUEST.get('project_reference')
+
+    self.assertNotEqual(None, project_relative_url)
+    self.assertNotEqual(None, project_reference)
+    
+    project = person.restrictedTraverse(project_relative_url)
+    self.assertEqual(project.getTitle(), project_title)
+    self.assertEqual(project.getValidationState(), "validated")
+    self.assertEqual(project.getDestinationDecision(), person.getRelativeUrl())
+
+
+  def test_Person_requestProject_duplicated(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    project_title = self.generateNewProjectTitle()
+    person.requestProject(project_title=project_title)
+    self.tic()
+    self.login()
+
+    # check what is returned via request
+    project_relative_url = person.REQUEST.get('project_relative_url')
+    project_reference = person.REQUEST.get('project_reference')
+
+    self.assertNotEqual(None, project_relative_url)
+    self.assertNotEqual(None, project_reference)
+
+    project = person.restrictedTraverse(project_relative_url)
+    self.assertEqual(project.getTitle(), project_title)
+    self.assertEqual(project.getValidationState(), "validated")
+    self.assertEqual(project.getDestinationDecision(), person.getRelativeUrl())
+
+    project2 = project.Base_createCloneDocument(batch_mode=1)
+    project2.validate()
+    self.tic()
+
+    self.login(person.getUserId())
+    self.assertRaises(NotImplementedError, person.requestProject,
+                      project_title=project_title)
+
+  def test_Person_requestProject_request_again(self):
+    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    project_title = self.generateNewProjectTitle()
+    person.requestProject(project_title=project_title)
+
+    # check what is returned via request
+    project_relative_url = person.REQUEST.get('project_relative_url')
+    project_reference = person.REQUEST.get('project_reference')
+
+    self.assertNotEqual(None, project_relative_url)
+    self.assertNotEqual(None, project_reference)
+
+    self.tic()
+    self.login()
+    # check what is returned via request
+    person.REQUEST.set('project_relative_url', None)
+    person.REQUEST.set('project_reference', None)
+
+    self.login(person.getUserId())
+    person.requestProject(project_title=project_title)
+
+    # check what is returned via request
+    same_project_relative_url = person.REQUEST.get('project_relative_url')
+    same_project_reference = person.REQUEST.get('project_reference')
+
+    self.assertEqual(same_project_relative_url, project_relative_url)
+    self.assertEqual(same_project_reference, project_reference)

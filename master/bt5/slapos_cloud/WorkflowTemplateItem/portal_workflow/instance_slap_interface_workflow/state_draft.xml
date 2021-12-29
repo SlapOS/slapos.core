@@ -19,7 +19,14 @@
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_bang</string>
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_request_start</string>
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_request_stop</string>
+                <string>destination/portal_workflow/instance_slap_interface_workflow/transition_request_transfer</string>
               </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>comment</string> </key>
+            <value>
+              <none/>
             </value>
         </item>
         <item>

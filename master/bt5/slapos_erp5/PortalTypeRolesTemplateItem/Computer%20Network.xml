@@ -1,11 +1,4 @@
 <type_roles>
-  <role id='Assignee'>
-   <property id='title'>Compute Node Agent</property>
-   <property id='description'>Monovalued role</property>
-   <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
-   <multi_property id='categories'>local_role_group/computer</multi_property>
-   <multi_property id='base_category'>source_administration</multi_property>
-  </role>
   <role id='Assignor'>
    <property id='title'>Group company</property>
    <multi_property id='categories'>local_role_group/group</multi_property>
@@ -20,10 +13,9 @@
   </role>
   <role id='Assignee'>
    <property id='title'>Person Owner</property>
-   <property id='description'>XXX Review this</property>
-   <property id='base_category_script'>ERP5Type_acquireSecurityFromOwner</property>
+   <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
    <multi_property id='categories'>local_role_group/user</multi_property>
-   <multi_property id='base_category'>source</multi_property>
+   <multi_property id='base_category'>source_administration</multi_property>
   </role>
   <role id='Auditor'>
    <property id='title'>Person Shadow</property>

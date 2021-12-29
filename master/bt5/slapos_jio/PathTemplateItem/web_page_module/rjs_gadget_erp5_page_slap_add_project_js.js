@@ -1,6 +1,6 @@
-/*global window, rJS, RSVP */
+/*global window, rJS, RSVP, jIO*/
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP) {
+(function (window, rJS, RSVP, jIO) {
   "use strict";
 
   rJS(window)
@@ -10,9 +10,10 @@
     .declareAcquiredMethod("updateHeader", "updateHeader")
     .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("getSetting", "getSetting")
+    .declareAcquiredMethod("getSettingList", "getSettingList")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("redirect", "redirect")
-    .declareAcquiredMethod("jio_post", "jio_post")
+    .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("getTranslationList", "getTranslationList")
@@ -31,17 +32,28 @@
           return gadget.getDeclaredGadget('form_view');
         })
         .push(function (form_gadget) {
-          return form_gadget.getContent();
+          return RSVP.all([form_gadget.getContent(),
+                          gadget.getSettingList(['me', 'hateoas_url'])]);
         })
-        .push(function (doc) {
-          return gadget.jio_post(doc);
+        .push(function (result) {
+          var doc = result[0],
+            me = result[1][0],
+            url = result[1][1];
+          return gadget.jio_putAttachment(me,
+                url + me + "/Person_requestProject", {title: doc.title});
         })
-        .push(function (key) {
+        .push(function (attachment) {
+          return jIO.util.readBlobAsText(attachment.target.response);
+        })
+        .push(function (response) {
+          return JSON.parse(response.target.result);
+        })
+        .push(function (result) {
           return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
               return gadget.redirect({"command": "change",
-                                    "options": {"jio_key": key, "page": "slap_controller"}});
+                                    "options": {"jio_key": result.relative_url, "page": "slap_controller"}});
             });
         });
     })
@@ -88,50 +100,6 @@
                   "key": "title",
                   "hidden": 0,
                   "type": "StringField"
-                },
-                "my_description": {
-                  "description": result[2][1],
-                  "title": result[2][3],
-                  "default": "",
-                  "css_class": "",
-                  "required": 0,
-                  "editable": 1,
-                  "key": "description",
-                  "hidden": 0,
-                  "type": "TextAreaField"
-                },
-                "my_destination_decision": {
-                  "description": "",
-                  "title": result[2][4],
-                  "default": result[1],
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "destination_decision",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_portal_type": {
-                  "description": result[2][1],
-                  "title": result[2][5],
-                  "default": "Project",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "portal_type",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_parent_relative_url": {
-                  "description": "",
-                  "title": result[2][7],
-                  "default": "project_module",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "parent_relative_url",
-                  "hidden": 1,
-                  "type": "StringField"
                 }
               }},
               "_links": {
@@ -144,7 +112,7 @@
             form_definition: {
               group_list: [[
                 "left",
-                [["my_title"], ["my_description"], ["my_destination_decision"], ["my_portal_type"], ["my_parent_relative_url"]]
+                [["my_title"]]
               ]]
             }
           });
@@ -161,4 +129,4 @@
           });
         });
     });
-}(window, rJS, RSVP));
+}(window, rJS, RSVP, jIO));

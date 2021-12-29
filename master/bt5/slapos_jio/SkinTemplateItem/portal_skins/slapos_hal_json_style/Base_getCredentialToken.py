@@ -10,8 +10,6 @@ except ValueError:
   pass
 
 web_site = context.getWebSiteValue()
-request_method = "POST"
-
 request_url = "%s/%s" % (
   web_site.getLayoutProperty(
     "configuration_slapos_master_web_url",
@@ -20,14 +18,8 @@ request_url = "%s/%s" % (
   "Person_getCertificate"
 )
 
-access_token = portal.access_token_module.newContent(
-  portal_type="One Time Restricted Access Token",
-  agent_value=person,
-  url_string=request_url,
-  url_method=request_method
-)
-access_token_id = access_token.getId()
-access_token.validate()
+person.requestToken(request_url=request_url)
+access_token_id = context.REQUEST.get("token")
 
 request = context.REQUEST
 response = request.RESPONSE

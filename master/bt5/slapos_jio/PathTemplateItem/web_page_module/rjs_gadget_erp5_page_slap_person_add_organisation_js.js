@@ -1,13 +1,7 @@
-/*global window, rJS, RSVP */
+/*global window, rJS, RSVP, jIO*/
 /*jslint nomen: true, indent: 2, maxerr: 3 */
-(function (window, rJS, RSVP) {
+(function (window, rJS, RSVP, jIO) {
   "use strict";
-
-  var content_type = {
-    Spreadsheet: 'application/x-asc-spreadsheet',
-    Presentation: 'application/x-asc-presentation',
-    Text: 'application/x-asc-text'
-  };
 
   rJS(window)
     /////////////////////////////////////////////////////////////////
@@ -16,9 +10,10 @@
     .declareAcquiredMethod("updateHeader", "updateHeader")
     .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("getSetting", "getSetting")
+    .declareAcquiredMethod("getSettingList", "getSettingList")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("redirect", "redirect")
-    .declareAcquiredMethod("jio_post", "jio_post")
+    .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
     .declareAcquiredMethod("getTranslationList", "getTranslationList")
@@ -37,23 +32,28 @@
           return gadget.getDeclaredGadget('form_view');
         })
         .push(function (form_gadget) {
-          return form_gadget.getContent();
-        })
-        .push(function (doc) {
-          if (content_type.hasOwnProperty(doc.portal_type)) {
-            doc.content_type = content_type[doc.portal_type];
-          }
-          return RSVP.all([
-            gadget.jio_post(doc),
-            gadget.message_translation
-          ]);
+          return RSVP.all([form_gadget.getContent(),
+                          gadget.getSettingList(['me', 'hateoas_url'])]);
         })
         .push(function (result) {
-          return gadget.notifySubmitted({message: result[1], status: 'success'})
+          var doc = result[0],
+            me = result[1][0],
+            url = result[1][1];
+          return gadget.jio_putAttachment(me,
+                url + me + "/Person_requestOrganisation", {title: doc.title});
+        })
+        .push(function (attachment) {
+          return jIO.util.readBlobAsText(attachment.target.response);
+        })
+        .push(function (response) {
+          return JSON.parse(response.target.result);
+        })
+        .push(function (result) {
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
               return gadget.redirect({"command": "change",
-                                    "options": {"jio_key": result[0], "page": "slap_controller"}});
+                                    "options": {"jio_key": result.relative_url, "page": "slap_controller"}});
             });
         });
     })
@@ -98,39 +98,6 @@
                   "key": "title",
                   "hidden": 0,
                   "type": "StringField"
-                },
-                "my_role": {
-                  "description": result[1][3],
-                  "title": result[1][4],
-                  "default": "client",
-                  "css_class": "",
-                  "required": 0,
-                  "editable": 1,
-                  "key": "role",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_portal_type": {
-                  "description": result[1][2],
-                  "title": result[1][5],
-                  "default": "Organisation",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "portal_type",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_parent_relative_url": {
-                  "description": "",
-                  "title": result[1][6],
-                  "default": "organisation_module",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "parent_relative_url",
-                  "hidden": 1,
-                  "type": "StringField"
                 }
               }},
               "_links": {
@@ -143,7 +110,7 @@
             form_definition: {
               group_list: [[
                 "left",
-                [["my_title"], ["my_role"], ["my_portal_type"], ["my_parent_relative_url"]]
+                [["my_title"]]
               ]]
             }
           });
@@ -166,4 +133,4 @@
           });
         });
     });
-}(window, rJS, RSVP));
+}(window, rJS, RSVP, jIO));

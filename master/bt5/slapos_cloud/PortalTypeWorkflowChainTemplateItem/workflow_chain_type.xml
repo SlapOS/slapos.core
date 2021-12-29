@@ -8,6 +8,10 @@
   <workflow>compute_partition_slap_interface_workflow</workflow>
  </chain>
  <chain>
+  <type>Computer Network</type>
+  <workflow>network_slap_interface_workflow</workflow>
+ </chain>
+ <chain>
   <type>Hosting Subscription</type>
   <workflow>edit_workflow</workflow>
  </chain>
@@ -16,8 +20,16 @@
   <workflow>edit_workflow, instance_slap_interface_workflow, instance_tree_workflow</workflow>
  </chain>
  <chain>
+  <type>Organisation</type>
+  <workflow>organisation_slap_interface_workflow</workflow>
+ </chain>
+ <chain>
   <type>Person</type>
   <workflow>person_slap_interface_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Project</type>
+  <workflow>project_slap_interface_workflow</workflow>
  </chain>
  <chain>
   <type>Slave Instance</type>

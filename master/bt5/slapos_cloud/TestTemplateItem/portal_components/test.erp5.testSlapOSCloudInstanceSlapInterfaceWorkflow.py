@@ -21,6 +21,8 @@
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 import transaction
 from unittest import expectedFailure
+from time import sleep
+from zExceptions import Unauthorized
 
 class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
   """Tests instance.requestInstance"""
@@ -859,3 +861,280 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     transaction.commit()
 
     self.assertEqual(bang_amount+1, self._countBang(self.software_instance))
+
+
+class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
+  """Tests instance.requestTransfer"""
+
+  def afterSetUp(self):
+    SlapOSTestCaseMixin.afterSetUp(self)
+    portal = self.getPortalObject()
+    new_id = self.generateNewId()
+
+    self.request_kw = dict(
+        software_release=self.generateNewSoftwareReleaseUrl(),
+        software_title=self.generateNewSoftwareTitle(),
+        software_type=self.generateNewSoftwareType(),
+        instance_xml=self.generateSafeXml(),
+        sla_xml=self.generateSafeXml(),
+        shared=False,
+        state="started"
+    )
+
+    # prepare part of tree
+    self.instance_tree = portal.instance_tree_module\
+        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    self.software_instance = portal.software_instance_module\
+        .template_software_instance.Base_createCloneDocument(batch_mode=1)
+
+    self.instance_tree.edit(
+        title=self.request_kw['software_title'],
+        reference="TESTHS-%s" % new_id,
+        url_string=self.request_kw['software_release'],
+        source_reference=self.request_kw['software_type'],
+        text_content=self.request_kw['instance_xml'],
+        sla_xml=self.request_kw['sla_xml'],
+        root_slave=self.request_kw['shared'],
+        successor=self.software_instance.getRelativeUrl()
+    )
+    self.instance_tree.validate()
+    self.portal.portal_workflow._jumpToStateFor(self.instance_tree, 'start_requested')
+
+    self.software_instance.edit(
+        title=self.request_kw['software_title'],
+        reference="TESTSI-%s" % new_id,
+        url_string=self.request_kw['software_release'],
+        source_reference=self.request_kw['software_type'],
+        text_content=self.request_kw['instance_xml'],
+        sla_xml=self.request_kw['sla_xml'],
+        specialise=self.instance_tree.getRelativeUrl()
+    )
+    self.portal.portal_workflow._jumpToStateFor(self.software_instance, 'start_requested')
+    self.software_instance.validate()
+    self.tic()
+
+    person_user = self.makePerson()
+    self.tic()
+
+    # Login as new user
+    self.login(person_user.getUserId())
+    new_person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    self.assertEqual(person_user.getRelativeUrl(), new_person.getRelativeUrl())
+
+  def beforeTearDown(self):
+    transaction.abort()
+    if 'request_instance' in self.software_instance.REQUEST:
+      self.software_instance.REQUEST['request_instance'] = None
+
+  def _makeProject(self):
+    project = self.portal.project_module.newContent()
+    project.edit(reference="TESTPROJ-%s" % project.getId())
+    project.validate()
+
+    self.tic()
+    return project
+
+  def _makeOrganisation(self):
+    organisation = self.portal.organisation_module.newContent()
+    organisation.edit(reference="TESTSITE-%s" % organisation.getId())
+    organisation.validate()
+
+    self.tic()
+    return organisation
+
+  def test_RequesterInstance_requestTransfer_Unauthorized(self):
+    destination_section = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    
+    self.login()
+    self.assertRaises(Unauthorized, self.instance_tree.requestTransfer, 
+      destination=None,
+      destination_project=None)
+
+    self.login(destination_section.getUserId())
+    self.assertRaises(Unauthorized, self.instance_tree.requestTransfer, 
+      destination=None,
+      destination_project=None)
+
+    self.login()
+    other_user = self.makePerson(user=1)
+    self.assertEqual(1 , len(other_user.objectValues(portal_type="ERP5 Login")))
+
+    self.instance_tree.setDestinationSectionValue(destination_section)
+    self.tic()
+
+    self.assertRaises(Unauthorized, self.instance_tree.requestTransfer, 
+      destination=None,
+      destination_project=None)
+    self.login(other_user.getUserId())
+    self.assertRaises(Unauthorized, self.instance_tree.requestTransfer, 
+      destination=None,
+      destination_project=None)
+
+    self.login(destination_section.getUserId())
+    self.assertEqual(self.instance_tree.requestTransfer(
+      destination=None,
+      destination_project=None), None)
+
+  def test_RequesterInstance_requestTransfer_project(self):
+    destination_section = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    self.instance_tree.setDestinationSectionValue(destination_section)
+
+    self.login()
+    project = self._makeProject()
+    other_project = self._makeProject()
+    self.tic()
+
+    self.login(destination_section.getUserId())
+    self.assertEqual(self.instance_tree.Item_getCurrentProjectValue(), None)
+    self.assertEqual(self.instance_tree.Item_getCurrentOwnerValue(), None)
+    self.assertEqual(self.instance_tree.Item_getCurrentSiteValue(), None)
+
+    # Place in a project    
+    self.assertEqual(self.instance_tree.requestTransfer(
+      destination=None,
+      destination_project=project.getRelativeUrl()), None)
+
+    self.tic()
+    
+    self.assertEqual(
+      self.instance_tree.Item_getCurrentProjectValue(), project)
+    self.assertEqual(
+      self.instance_tree.Item_getCurrentOwnerValue(), destination_section)
+    self.assertEqual(
+      self.instance_tree.Item_getCurrentSiteValue(), None)
+
+    self.assertEqual(1,
+      len(self.instance_tree.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+    )
+
+    # Ensure that we don't have 2 new Internal Packing lists in the same second 
+    sleep(1)
+    
+    self.login(destination_section.getUserId())
+
+    # We don't remove from Project if destination project is not provided
+    self.assertEqual(self.instance_tree.requestTransfer(
+      destination=None,
+      destination_project=None), None)
+    self.tic()
+
+    self.assertEqual(self.instance_tree.Item_getCurrentProjectValue(), project)
+    self.assertEqual(self.instance_tree.Item_getCurrentOwnerValue(), destination_section)
+    self.assertEqual(2,
+      len(self.instance_tree.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+    )
+
+    # Ensure that we don't have 2 new Internal Packing lists in the same second 
+    sleep(1)
+    
+    # Place in another project    
+    self.assertEqual(self.instance_tree.requestTransfer(
+      destination=None,
+      destination_project=other_project.getRelativeUrl()), None)
+
+    self.tic()
+    
+    self.assertEqual(self.instance_tree.Item_getCurrentProjectValue(), other_project)
+    self.assertEqual(self.instance_tree.Item_getCurrentOwnerValue(), destination_section)
+    self.assertEqual(self.instance_tree.Item_getCurrentSiteValue(), None)
+
+    self.assertEqual(3,
+      len(self.instance_tree.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+    )
+    self.login(destination_section.getUserId())
+
+    # Ensure that we don't have 2 new Internal Packing lists in the same second 
+    sleep(1)
+    
+    # We don't remove from Project if destination project is not provided
+    self.assertEqual(self.instance_tree.requestTransfer(
+      destination_project=None,
+      destination=None), None)
+    self.tic()
+
+    self.assertEqual(self.instance_tree.Item_getCurrentProjectValue(), other_project)
+    self.assertEqual(self.instance_tree.Item_getCurrentOwnerValue(), destination_section)
+    self.assertEqual(self.instance_tree.Item_getCurrentSiteValue(), None)
+
+    self.assertEqual(4,
+      len(self.instance_tree.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+    )
+
+  def test_RequesterInstance_requestTransfer_owner(self):
+    destination_section = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
+    self.instance_tree.setDestinationSectionValue(destination_section)
+
+    self.login()
+    organisation = self._makeOrganisation()
+    other_organisation = self._makeOrganisation()
+    self.tic()
+
+    self.login(destination_section.getUserId())
+
+    self.assertEqual(self.instance_tree.Item_getCurrentProjectValue(), None)
+    self.assertEqual(self.instance_tree.Item_getCurrentOwnerValue(), None)
+
+    self.assertEqual(self.instance_tree.requestTransfer(
+       destination=organisation.getRelativeUrl(),
+       destination_project=None), None)
+
+    self.tic()
+    
+    self.assertEqual(self.instance_tree.Item_getCurrentProjectValue(), None)
+    self.assertEqual(self.instance_tree.Item_getCurrentOwnerValue(), destination_section)
+    self.assertEqual(self.instance_tree.Item_getCurrentSiteValue(), organisation)
+
+    self.assertEqual(1,
+      len(self.instance_tree.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+    )
+    # Ensure that we don't have 2 new Internal Packing lists in the same second 
+    sleep(1)
+    self.login(destination_section.getUserId())
+
+    self.assertEqual(self.instance_tree.requestTransfer(
+      destination_project=None,
+      destination=None), None)
+    self.tic()
+
+    self.assertEqual(self.instance_tree.Item_getCurrentProjectValue(), None)
+    self.assertEqual(self.instance_tree.Item_getCurrentOwnerValue(), destination_section)
+    self.assertEqual(self.instance_tree.Item_getCurrentSiteValue(), organisation)
+
+    # Ensure that we don't have 2 new Internal Packing lists in the same second 
+    sleep(1)
+    
+    # Place in another project    
+    self.assertEqual(self.instance_tree.requestTransfer(
+      destination_project=None,
+      destination=other_organisation.getRelativeUrl()), None)
+
+    self.tic()
+        
+    self.assertEqual(3,
+      len(self.instance_tree.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+    )
+    self.assertEqual(self.instance_tree.Item_getCurrentProjectValue(), None)
+    self.assertEqual(self.instance_tree.Item_getCurrentOwnerValue(), destination_section)
+    self.assertEqual(self.instance_tree.Item_getCurrentSiteValue(), other_organisation)
+
+    self.assertEqual(3,
+      len(self.instance_tree.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+    )
+    self.login(destination_section.getUserId())
+
+    # Ensure that we don't have 2 new Internal Packing lists in the same second 
+    sleep(1)
+    # We don't remove from Project if destination project is not provided
+    self.assertEqual(self.instance_tree.requestTransfer(
+      destination_project=None,
+      destination=None), None)
+    self.tic()
+
+    self.assertEqual(self.instance_tree.Item_getCurrentProjectValue(), None)
+    self.assertEqual(self.instance_tree.Item_getCurrentOwnerValue(), destination_section)
+    self.assertEqual(self.instance_tree.Item_getCurrentSiteValue(), other_organisation)
+
+    self.assertEqual(4,
+      len(self.instance_tree.getAggregateRelatedList(portal_type="Internal Packing List Line"))
+    )
+

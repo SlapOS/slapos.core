@@ -216,25 +216,6 @@ class SlapTool(BaseTool):
       # called on site
       pass
 
-  def _storeLastData(self, key, value):
-    cache_plugin = self.getPortalObject().portal_caches\
-      .getRamCacheRoot().get('last_stored_data_cache_factory')\
-      .getCachePluginList()[0]
-    cache_plugin.set(key, DEFAULT_CACHE_SCOPE, value,
-      cache_duration=self.getPortalObject().portal_caches\
-      .getRamCacheRoot().get('last_stored_data_cache_factory').cache_duration)
-
-  def _getLastData(self, key):
-    cache_plugin = self.getPortalObject().portal_caches\
-      .getRamCacheRoot().get('last_stored_data_cache_factory')\
-      .getCachePluginList()[0]
-    try:
-      entry = cache_plugin.get(key, DEFAULT_CACHE_SCOPE)
-    except KeyError:
-      entry = None
-    else:
-      entry = entry.getValue()
-    return entry
 
   def _activateFillComputeNodeInformationCache(self, compute_node_id, user):
     tag = 'compute_node_information_cache_fill_%s_%s' % (compute_node_id, user)
@@ -771,11 +752,9 @@ class SlapTool(BaseTool):
     """
     Fire up bung on Compute Node
     """
-    user = self.getPortalObject().portal_membership.getAuthenticatedMember()\
-                                                   .getUserName()
-    self._logAccess(user, compute_node_id, '#error bang')
-    return self._getComputeNodeDocument(compute_node_id).reportComputeNodeBang(
-                                     comment=message)
+    compute_node = self._getComputeNodeDocument(compute_node_id) 
+    compute_node.setAccessStatus('#error bang')
+    return compute_node.reportComputeNodeBang(comment=message)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'computerBang')
@@ -924,34 +903,6 @@ class SlapTool(BaseTool):
   ####################################################
   # Internal methods
   ####################################################
-
-
-  def _logAccess(self, user_reference, context_reference, text, state=""):
-    memcached_dict = self.Base_getSlapToolMemcachedDict()
-
-    previous = self._getCachedAccessInfo(context_reference)
-    created_at = rfc1123_date(DateTime())
-    since = created_at
-    status_changed = True
-    if previous is not None:
-      previous_json = json.loads(previous)
-      if text.split(" ")[0] == previous_json.get("text", "").split(" ")[0]:
-        since = previous_json.get("since",
-          previous_json.get("created_at", rfc1123_date(DateTime())))
-        status_changed = False
-      if state == "":
-        state = previous_json.get("state", "")
-
-
-    value = json.dumps({
-      'user': '%s' % user_reference,
-      'created_at': '%s' % created_at,
-      'text': '%s' % text,
-      'since': '%s' % since,
-      'state': state
-    })
-    memcached_dict[context_reference] = value
-    return status_changed
 
   def _validateXML(self, to_be_validated, xsd_model):
     """Will validate the xml file"""
@@ -1108,9 +1059,8 @@ class SlapTool(BaseTool):
     instance = self._getSoftwareInstanceForComputePartition(
         compute_node_id,
         compute_partition_id)
-    user = self.getPortalObject().portal_membership.getAuthenticatedMember()\
-                                                   .getUserName()
-    status_changed = self._logAccess(user, instance.getReference(),
+    
+    status_changed = instance.setAccessStatus(
                     '#error while instanciating: %s' % error_log[-80:])
 
     if status_changed:
@@ -1695,11 +1645,8 @@ class SlapTool(BaseTool):
     Log the compute_node status
     """
     compute_node_document = self._getComputeNodeDocument(compute_node_id)
-    software_installation_reference = self._getSoftwareInstallationReference(url,
+    software_installation = self._getSoftwareInstallationForComputeNode(url,
       compute_node_document)
-    user = self.getPortalObject().portal_membership.\
-        getAuthenticatedMember().getUserName()
-    self._logAccess(user, software_installation_reference,
-        '#error while installing %s' % url)
+    software_installation.setAccessStatus('#error while installing %s' % url)
 
 InitializeClass(SlapTool)

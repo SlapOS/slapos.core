@@ -25,4 +25,4 @@ if portal_type == "Software Instance" and slap_state == "destroy_requested":
     "is_destroyed": 1
   }
 
-return context.Base_getNewsDict(context)
+return context.getAccessStatus()

@@ -297,7 +297,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
           </tuple>
           <dictionary id='i8'>
             <string>_access_status</string>
-            <string>%(access_status)s</string>
+            <string>#error no data found for %(partition_3_instance_guid)s</string>
             <string>_computer_id</string>
             <string>%(compute_node_id)s</string>
             <string>_connection_dict</string>
@@ -373,7 +373,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
           </tuple>
           <dictionary id='i19'>
             <string>_access_status</string>
-            <string>%(access_status)s</string>
+            <string>#error no data found for %(partition_2_instance_guid)s</string>
             <string>_computer_id</string>
             <string>%(compute_node_id)s</string>
             <string>_connection_dict</string>
@@ -449,7 +449,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
           </tuple>
           <dictionary id='i30'>
             <string>_access_status</string>
-            <string>%(access_status)s</string>
+            <string>#error no data found for %(partition_1_instance_guid)s</string>
             <string>_computer_id</string>
             <string>%(compute_node_id)s</string>
             <string>_connection_dict</string>
@@ -642,6 +642,8 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data</string>
+    <int>1</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -690,6 +692,10 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data_since_15_minutes</string>
+    <int>0</int>
+    <string>no_data_since_5_minutes</string>
+    <int>0</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -743,6 +749,10 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data_since_15_minutes</string>
+    <int>0</int>
+    <string>no_data_since_5_minutes</string>
+    <int>0</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -830,6 +840,8 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data</string>
+    <int>1</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -898,6 +910,10 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data_since_15_minutes</string>
+    <int>0</int>
+    <string>no_data_since_5_minutes</string>
+    <int>0</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -943,6 +959,10 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data_since_15_minutes</string>
+    <int>0</int>
+    <string>no_data_since_5_minutes</string>
+    <int>0</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -988,6 +1008,10 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data_since_15_minutes</string>
+    <int>0</int>
+    <string>no_data_since_5_minutes</string>
+    <int>0</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -1290,7 +1314,7 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     slave_1_software_type=self.start_requested_slave_instance.getSourceReference(),
     slave_1_instance_guid=self.start_requested_slave_instance.getReference(),
     slave_1_title=self.start_requested_slave_instance.getTitle(),
-    access_status="#error no data found!",
+    access_status="#error no data found for %s" % self.start_requested_software_instance.getReference(),
 )
     self.assertEqual(expected_xml, got_xml,
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
@@ -1325,6 +1349,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data</string>
+    <int>1</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -1374,6 +1400,8 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data</string>
+    <int>1</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -1744,6 +1772,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data_since_15_minutes</string>
+    <int>0</int>
+    <string>no_data_since_5_minutes</string>
+    <int>0</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -1788,6 +1820,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data_since_15_minutes</string>
+    <int>0</int>
+    <string>no_data_since_5_minutes</string>
+    <int>0</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -1834,6 +1870,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data_since_15_minutes</string>
+    <int>0</int>
+    <string>no_data_since_5_minutes</string>
+    <int>0</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -1890,6 +1930,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data_since_15_minutes</string>
+    <int>0</int>
+    <string>no_data_since_5_minutes</string>
+    <int>0</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -2206,6 +2250,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data_since_15_minutes</string>
+    <int>0</int>
+    <string>no_data_since_5_minutes</string>
+    <int>0</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -2249,6 +2297,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data_since_15_minutes</string>
+    <int>0</int>
+    <string>no_data_since_5_minutes</string>
+    <int>0</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -2493,6 +2545,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data</string>
+    <int>1</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -2541,6 +2595,10 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data_since_15_minutes</string>
+    <int>0</int>
+    <string>no_data_since_5_minutes</string>
+    <int>0</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -2593,6 +2651,10 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data_since_15_minutes</string>
+    <int>0</int>
+    <string>no_data_since_5_minutes</string>
+    <int>0</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -2646,6 +2708,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data</string>
+    <int>1</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -2697,6 +2761,8 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data</string>
+    <int>1</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -3004,6 +3070,10 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
   <dictionary id='i2'>
     <string>created_at</string>
     <string>%(created_at)s</string>
+    <string>no_data_since_15_minutes</string>
+    <int>0</int>
+    <string>no_data_since_5_minutes</string>
+    <int>0</int>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>

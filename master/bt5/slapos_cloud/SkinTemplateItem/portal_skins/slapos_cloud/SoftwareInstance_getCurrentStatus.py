@@ -1,24 +1,15 @@
 """Dirty script to return Software Instance state"""
-import json
 state = context.getSlapState()
 has_partition = context.getAggregate(portal_type="Compute Partition")
 result = 'Unable to calculate the status...'
 if has_partition:
-  try:
-    memcached_dict = context.Base_getSlapToolMemcachedDict()
-    try:
-      d = memcached_dict[context.getReference()]
-    except KeyError:
-      result = context.getSlapStateTitle()
-    else:
-      d = json.loads(d)
-      result = d['text']
-      if result.startswith('#access '):
-        result = result[len('#access '):]
-
-  except Exception:
-    raise
-    # result = 'There is system issue, please try again later.'
+  d = context.getAccessStatus()
+  if d.get("no_data") == 1:
+    result = context.getSlapStateTitle()
+  else:
+    result = d['text']
+    if result.startswith('#access '):
+      result = result[len('#access '):]
 
 else:
   if state in ["start_requested", "stop_requested"]:

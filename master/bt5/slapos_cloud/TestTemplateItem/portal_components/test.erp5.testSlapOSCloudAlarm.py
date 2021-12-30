@@ -2,12 +2,10 @@
 import transaction
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 from Products.ERP5Type.tests.utils import createZODBPythonScript
-import json
 import time
 from zExceptions import Unauthorized
 from DateTime import DateTime
 from erp5.component.module.DateUtils import addToDate
-from App.Common import rfc1123_date
 
 class TestSlapOSCoreSlapOSAssertInstanceTreeSuccessorAlarm(
     SlapOSTestCaseMixin):
@@ -443,13 +441,7 @@ class TestSlapOSUpdateComputeNodeCapacityScopeAlarm(SlapOSTestCaseMixin):
     )
     self.compute_node.edit(capacity_scope='open')
     self.compute_node.validate()
-    memcached_dict = self.portal.portal_memcached.getMemcachedDict(
-        key_prefix='slap_tool',
-        plugin_path='portal_memcached/default_memcached_plugin')
-    memcached_dict[self.compute_node.getReference()] = json.dumps({
-        'text': '#access ok',
-        'created_at': rfc1123_date(DateTime())
-    })
+    self.compute_node.setAccessStatus("#access ok")
     transaction.commit()
 
   def test_ComputeNode_checkAndUpdateCapacityScope(self):
@@ -517,14 +509,12 @@ class TestSlapOSUpdateComputeNodeCapacityScopeAlarm(SlapOSTestCaseMixin):
                      self.compute_node.getCapacityQuantity())
 
   def test_ComputeNode_checkAndUpdateCapacityScope_with_old_access(self):
-    memcached_dict = self.portal.portal_memcached.getMemcachedDict(
-        key_prefix='slap_tool',
-        plugin_path='portal_memcached/default_memcached_plugin')
-    memcached_dict[self.compute_node.getReference()] = json.dumps({
-        'text': '#access ok',
-        'created_at': rfc1123_date(addToDate(DateTime(),
-                                             to_add={'minute': -11}))
-    })
+    try:
+      self.pinDateTime(addToDate(DateTime(),to_add={'minute': -11}))
+      self.compute_node.setAccessStatus("#access ok")
+    finally:
+      self.unpinDateTime()
+      
     self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
     self.assertEqual('close', self.compute_node.getCapacityScope())
     self.assertEqual("Compute Node didn't contact for more than 10 minutes",
@@ -552,24 +542,14 @@ class TestSlapOSUpdateComputeNodeCapacityScopeAlarm(SlapOSTestCaseMixin):
     self.assertEqual('open', self.compute_node.getCapacityScope())
 
   def test_ComputeNode_checkAndUpdateCapacityScope_with_error(self):
-    memcached_dict = self.portal.portal_memcached.getMemcachedDict(
-        key_prefix='slap_tool',
-        plugin_path='portal_memcached/default_memcached_plugin')
-    memcached_dict[self.compute_node.getReference()] = json.dumps({
-        'text': '#error not ok'
-    })
+    self.compute_node.setAccessStatus('#error not ok')
     self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
     self.assertEqual('close', self.compute_node.getCapacityScope())
     self.assertEqual("Compute Node reported an error",
         self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
 
   def test_ComputeNode_checkAndUpdateCapacityScope_with_error_non_public(self):
-    memcached_dict = self.portal.portal_memcached.getMemcachedDict(
-        key_prefix='slap_tool',
-        plugin_path='portal_memcached/default_memcached_plugin')
-    memcached_dict[self.compute_node.getReference()] = json.dumps({
-        'text': '#error not ok'
-    })
+    self.compute_node.setAccessStatus('#error not ok')
     self.compute_node.edit(allocation_scope='open/personal')
     self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
     self.assertEqual('open', self.compute_node.getCapacityScope())

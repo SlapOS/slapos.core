@@ -25,6 +25,9 @@ import transaction
 from erp5.component.test.SlapOSTestCaseMixin import \
   SlapOSTestCaseMixin,SlapOSTestCaseMixinWithAbort, simulate
 from DateTime import DateTime
+from App.Common import rfc1123_date
+from Products.ERP5Type.Cache import DEFAULT_CACHE_SCOPE
+
 from Products.ERP5Type.tests.utils import createZODBPythonScript
 import json
 
@@ -826,13 +829,7 @@ class TestComputeNode_hasContactedRecently(SlapOSTestCaseMixinWithAbort):
   @simulate('ComputeNode_getCreationDate', '*args, **kwargs','return DateTime() - 32')
   def test_ComputeNode_hasContactedRecently_memcached(self):
     compute_node = self._makeComputeNode()[0]
-    memcached_dict = self.portal.portal_memcached.getMemcachedDict(
-        key_prefix='slap_tool',
-        plugin_path='portal_memcached/default_memcached_plugin')
-
-    memcached_dict[compute_node.getReference()] = json.dumps({
-      "created_at": DateTime().strftime("%Y/%m/%d %H:%M")
-    })
+    compute_node.setAccessStatus("#access ")
     self.tic()
 
     compute_node.getCreationDate = self.portal.ComputeNode_getCreationDate
@@ -843,13 +840,12 @@ class TestComputeNode_hasContactedRecently(SlapOSTestCaseMixinWithAbort):
   @simulate('ComputeNode_getCreationDate', '*args, **kwargs','return DateTime() - 32')
   def test_ComputeNode_hasContactedRecently_memcached_oudated_no_spl(self):
     compute_node = self._makeComputeNode()[0]
-    memcached_dict = self.portal.portal_memcached.getMemcachedDict(
-        key_prefix='slap_tool',
-        plugin_path='portal_memcached/default_memcached_plugin')
+    try:
+      self.pinDateTime(DateTime()-32)
+      compute_node.setAccessStatus("#access ")
+    finally:
+      self.unpinDateTime()
 
-    memcached_dict[compute_node.getReference()] = json.dumps({
-      "created_at": (DateTime() - 32).strftime("%Y/%m/%d %H:%M")
-    })
     self.tic()
 
     compute_node.getCreationDate = self.portal.ComputeNode_getCreationDate
@@ -860,13 +856,12 @@ class TestComputeNode_hasContactedRecently(SlapOSTestCaseMixinWithAbort):
   @simulate('ComputeNode_getCreationDate', '*args, **kwargs','return DateTime() - 32')
   def test_ComputeNode_hasContactedRecently_memcached_oudated_with_spl(self):
     compute_node = self._makeComputeNode()[0]
-    memcached_dict = self.portal.portal_memcached.getMemcachedDict(
-        key_prefix='slap_tool',
-        plugin_path='portal_memcached/default_memcached_plugin')
+    try:
+      self.pinDateTime(DateTime()-32)
+      compute_node.setAccessStatus("#access ")
+    finally:
+      self.unpinDateTime()
 
-    memcached_dict[compute_node.getReference()] = json.dumps({
-      "created_at": (DateTime() - 32).strftime("%Y/%m/%d %H:%M")
-    })
     self.createSPL(compute_node)
     self.tic()
 
@@ -1224,13 +1219,11 @@ class TestSlapOSComputeNode_CheckState(TestCRMSkinsMixin):
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   def test_ComputeNode_checkState_call_support_request(self):
     compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
-    memcached_dict = self.portal.portal_memcached.getMemcachedDict(
-      key_prefix='slap_tool',
-      plugin_path='portal_memcached/default_memcached_plugin')
-
-    memcached_dict[compute_node.getReference()] = json.dumps(
-        {"created_at":"%s" % (DateTime() - 1.1)}
-    )
+    try:
+      self.pinDateTime(DateTime()-1.1)
+      compute_node.setAccessStatus("#access ")
+    finally:
+      self.unpinDateTime()
 
     self._simulateBase_generateSupportRequestForSlapOS()
     support_request = self._makeSupportRequest()
@@ -1279,14 +1272,11 @@ class TestSlapOSComputeNode_CheckState(TestCRMSkinsMixin):
     compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
     person = compute_node.getSourceAdministrationValue()
 
-
-    memcached_dict = self.portal.portal_memcached.getMemcachedDict(
-      key_prefix='slap_tool',
-      plugin_path='portal_memcached/default_memcached_plugin')
-
-    memcached_dict[compute_node.getReference()] = json.dumps(
-        {"created_at":"%s" % (DateTime() - 0.1)}
-    )
+    try:
+      self.pinDateTime(DateTime()-1.1)
+      compute_node.setAccessStatus("#access ")
+    finally:
+      self.unpinDateTime()
 
     self.portal.REQUEST['test_ComputeNode_checkState_notify'] = \
         self._makeNotificationMessage(compute_node.getReference())
@@ -1524,25 +1514,15 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     self._makeComputeNode()
     self._makeComputePartitionList()
 
-    memcached_dict = self.portal.portal_memcached.getMemcachedDict(
-      key_prefix='slap_tool',
-      plugin_path='portal_memcached/default_memcached_plugin')
-
-    error_date = DateTime()
-    memcached_dict[instance.getReference()] = json.dumps(
-        {"created_at":"%s" % error_date, "text": "#error "}
-    )
-
+    instance.setAccessStatus("#error ")
+  
     self.assertEqual(instance.SoftwareInstance_hasReportedError(), None)
 
     instance.setAggregateValue(self.compute_node.partition1)
 
     self.assertEqual(str(instance.SoftwareInstance_hasReportedError()), '#error ')
 
-    memcached_dict[instance.getReference()] = json.dumps(
-        {"created_at":"%s" % error_date, "text": "#access "}
-    )
-
+    instance.setAccessStatus("#access ")
     self.assertEqual(instance.SoftwareInstance_hasReportedError(), None)
 
   def test_SoftwareInstallation_hasReportedError(self):
@@ -1552,22 +1532,19 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
       software_release.getUrlString()
     )
 
-    memcached_dict = self.portal.portal_memcached.getMemcachedDict(
-      key_prefix='slap_tool',
-      plugin_path='portal_memcached/default_memcached_plugin')
-
     self.assertEqual(installation.SoftwareInstallation_hasReportedError(), None)
 
     error_date = DateTime()
-    memcached_dict[installation.getReference()] = json.dumps(
-        {"created_at":"%s" % error_date, "text": "#error "}
-    )
+    try:
+      self.pinDateTime(error_date)
+      installation.setAccessStatus("#error ")
+    finally:
+      self.unpinDateTime()
 
-    self.assertEqual(installation.SoftwareInstallation_hasReportedError(), error_date)
-
-    memcached_dict[installation.getReference()] = json.dumps(
-        {"created_at":"%s" % error_date, "text": "#building "}
-     )
+    self.assertEqual(
+      rfc1123_date(installation.SoftwareInstallation_hasReportedError()),
+      rfc1123_date(error_date))
+    installation.setAccessStatus("#building ")
 
     self.assertEqual(installation.SoftwareInstallation_hasReportedError(), None)
 
@@ -1600,14 +1577,13 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
       self._makeComputePartitionList()
       instance.setAggregateValue(self.compute_node.partition1)
 
-      memcached_dict = self.portal.portal_memcached.getMemcachedDict(
-        key_prefix='slap_tool',
-        plugin_path='portal_memcached/default_memcached_plugin')
-
       error_date = DateTime()
-      memcached_dict[instance.getReference()] = json.dumps(
+      value = json.dumps(
         {"created_at":"%s" % error_date, "text": "#error ", "since": "%s" % (error_date - 2)}
       )
+      cache_duration = instance._getAccessStatusCacheFactory().cache_duration
+      instance._getAccessStatusPlugin().set(instance._getAccessStatusCacheKey(),
+        DEFAULT_CACHE_SCOPE, value, cache_duration=cache_duration)
 
       self.assertEqual(
         'Visited by InstanceTree_createSupportRequestEvent %s %s' % \
@@ -1615,9 +1591,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
          "slapos-crm-instance-tree-instance-state.notification"),
         instance_tree.InstanceTree_checkSoftwareInstanceState())
 
-      memcached_dict[instance.getReference()] = json.dumps(
-          {"created_at":"%s" % error_date, "text": "#access "}
-      )
+      instance.setAccessStatus("#access ")
 
       self.assertEqual(None,
         instance_tree.InstanceTree_checkSoftwareInstanceState())
@@ -1720,13 +1694,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
       instance.requestInstance(**kw)
       self.tic()
 
-      memcached_dict = self.portal.portal_memcached.getMemcachedDict(
-        key_prefix='slap_tool',
-        plugin_path='portal_memcached/default_memcached_plugin')
-      error_date = DateTime()
-      memcached_dict[instance.getReference()] = json.dumps(
-        {"created_at":"%s" % error_date, "text": "#access "}
-      )
+      instance.setAccessStatus("#access ")
 
       self.assertEqual(
         'Visited by InstanceTree_createSupportRequestEvent %s %s' % \
@@ -1761,15 +1729,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     self._makeComputePartitionList()
     instance.setAggregateValue(self.compute_node.partition1)
 
-    memcached_dict = self.portal.portal_memcached.getMemcachedDict(
-      key_prefix='slap_tool',
-      plugin_path='portal_memcached/default_memcached_plugin')
-
-    error_date = DateTime()
-    memcached_dict[instance.getReference()] = json.dumps(
-      {"created_at":"%s" % error_date, "text": "#error "}
-    )
-
+    instance.setAccessStatus("#error ")
     self.assertEqual(
         None,
         instance_tree.InstanceTree_checkSoftwareInstanceState())

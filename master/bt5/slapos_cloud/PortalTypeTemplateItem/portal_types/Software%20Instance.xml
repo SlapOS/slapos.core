@@ -105,7 +105,9 @@
         <item>
             <key> <string>type_mixin</string> </key>
             <value>
-              <tuple/>
+              <tuple>
+                <string>SlapOSCacheMixin</string>
+              </tuple>
             </value>
         </item>
       </dictionary>

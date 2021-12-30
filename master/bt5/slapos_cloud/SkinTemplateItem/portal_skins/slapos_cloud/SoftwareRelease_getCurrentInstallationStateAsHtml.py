@@ -1,6 +1,5 @@
 from DateTime import DateTime
 portal = context.getPortalObject()
-import json
 
 error_style = 'background-color: red; display: block; height: 2em; width: 2em; float: left; margin: 5px;'
 access_style = 'background-color: green; display: block; height: 2em; width: 2em; float: left; margin: 5px;'
@@ -14,20 +13,17 @@ software_installation = portal.portal_catalog.getResultValue(
 if not software_installation or software_installation.getSlapState() == "destroy_requested":
   return '<span" style="%s" title="Information not available"></a>' % error_style
 
-memcached_dict = context.Base_getSlapToolMemcachedDict()
-try:
-  d = memcached_dict[software_installation.getReference()]
-except KeyError:
+d = software_installation.getAccessStatus()
+if d.get("no_data") == 1:
   return "<a href='%s' style='%s'></a>" % (software_installation.getRelativeUrl(),
                 error_style)
-else:
-  d = json.loads(d)
-  result = d['text']
-  date = DateTime(d['created_at'])
-  limit_date = DateTime() - 0.084
-  if result.startswith('#error ') or (date - limit_date) < 0:
-    access_style = error_style
+
+result = d['text']
+date = DateTime(d['created_at'])
+limit_date = DateTime() - 0.084
+if result.startswith('#error ') or (date - limit_date) < 0:
+  access_style = error_style
     
-  return "<a href='%s' style='%s' title='%s at %s'></a>" % (
-              software_installation.getRelativeUrl(),
-              access_style, result, d['created_at'])
+return "<a href='%s' style='%s' title='%s at %s'></a>" % (
+            software_installation.getRelativeUrl(),
+            access_style, result, d['created_at'])

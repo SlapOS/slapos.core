@@ -1,4 +1,3 @@
-import json
 compute_node = context
 portal = context.getPortalObject()
 from zExceptions import Unauthorized
@@ -22,14 +21,11 @@ comment = ''
 
 if can_allocate:
   # Check if compute_node has error reported
-  memcached_dict = context.Base_getSlapToolMemcachedDict()
-  try:
-    d = memcached_dict[compute_node.getReference()]
-  except KeyError:
+  log_dict = compute_node.getAccessStatus()
+  if log_dict.get("no_data") == 1:
     can_allocate = False
     comment = "Compute Node didn't contact the server"
   else:
-    log_dict = json.loads(d)
     if '#error' in log_dict.get('text', '#error'):
       can_allocate = False
       comment = 'Compute Node reported an error'

@@ -3,10 +3,7 @@ if REQUEST is not None:
   raise Unauthorized
 
 from DateTime import DateTime
-import json
-
 slap_state = context.getSlapState()
-
 _translate = context.Base_translateString
 
 NOT_ALLOCATED = _translate("Searching for partition")
@@ -26,13 +23,10 @@ if compute_partition is not None:
   if instance.getPortalType() == "Slave Instance":
     instance = compute_partition.getAggregateRelatedValue(portal_type="Software Instance")
 
-  memcached_dict = instance.Base_getSlapToolMemcachedDict()
-  try:
-    d = memcached_dict[instance.getReference()]
-  except KeyError:
+  d = instance.getAccessStatus()
+  if d.get("no_data") == 1:
     return _translate(instance.getSlapStateTitle())
 
-  d = json.loads(d)
   result = d['text']
   reported_state = d.get("state", "")
   if reported_state == "":

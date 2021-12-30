@@ -1,19 +1,9 @@
 from DateTime import DateTime
-import json
 
-memcached_dict = context.Base_getSlapToolMemcachedDict()
-try:
-  d = memcached_dict[context.getReference()]
-except KeyError:
-  # Information not available
-  return None
+d = context.getAccessStatus()
+# Ignore if data isn't present.
+if d.get("no_data", None) == 1:
+  return
 
-d = json.loads(d)
-result = d['text']
-last_contact = DateTime(d.get('created_at'))
-
-# Optimise by checking memcache information first.
-if result.startswith('#error '):
-  return last_contact
-
-return None
+if d['text'].startswith('#error '):
+  return DateTime(d.get('created_at'))

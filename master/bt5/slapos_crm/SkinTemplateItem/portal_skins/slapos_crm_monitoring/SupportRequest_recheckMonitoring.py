@@ -6,7 +6,6 @@
 #
 
 from DateTime import DateTime
-import json
 
 if context.getSimulationState() == "invalidated":
   return "Closed Ticket"
@@ -18,22 +17,20 @@ if document is None:
 
 
 aggregate_portal_type = document.getPortalType()
-memcached_dict = context.Base_getSlapToolMemcachedDict()
-
 if aggregate_portal_type == "Compute Node":
   if document.getMonitorScope() == "disabled":
     return "Monitor is disabled to the related %s." % document.getPortalType()
-  try:
-    d = memcached_dict[document.getReference()]
-    d = json.loads(d)
-    last_contact = DateTime(d.get('created_at'))
-    if (DateTime() - last_contact) < 0.01:
-      return "All OK, latest contact: %s " % last_contact
-    else:
-      return "Problem, latest contact: %s" % last_contact
-  except KeyError:
-    return "No Contact Information"
 
+  d = context.getAccessStatus()
+  if d.get("no_data", None) == 1:
+    return "No Contact Information"
+  
+  last_contact = DateTime(d.get('created_at'))
+  if (DateTime() - last_contact) < 0.01:
+    return "All OK, latest contact: %s " % last_contact
+  else:
+    return "Problem, latest contact: %s" % last_contact
+  
 if aggregate_portal_type == "Software Installation":
   compute_node_title = document.getAggregateTitle()
   if document.getAggregateValue().getMonitorScope() == "disabled":
@@ -42,23 +39,20 @@ if aggregate_portal_type == "Software Installation":
   if document.getSlapState() not in ["start_requested", "stop_requested"]:
     return "Software Installation is Destroyed."
 
-  try:
-    d = memcached_dict[document.getReference()]
-    d = json.loads(d)
-    last_contact = DateTime(d.get('created_at'))
-    if d.get("text").startswith("building"):
-      return "The software release %s is building for mode them 12 hours on %s, started on %s" % \
-              (document.getUrlString(), compute_node_title, document.getCreationDate())
-    elif d.get("text").startswith("#access"):
-      return "All OK, software built."
-    elif d.get("text").startswith("#error"):
-      return "The software release %s is failing to build for too long on %s, started on %s" % \
-        (document.getUrlString(), compute_node_title, document.getCreationDate())
-
-  except KeyError:
+  d = context.getAccessStatus()
+  if d.get("no_data", None) == 1:
     return "The software release %s did not started to build on %s since %s" % \
         (document.getUrlString(), compute_node_title, document.getCreationDate())
-
+  
+  last_contact = DateTime(d.get('created_at'))
+  if d.get("text").startswith("building"):
+    return "The software release %s is building for mode them 12 hours on %s, started on %s" % \
+            (document.getUrlString(), compute_node_title, document.getCreationDate())
+  elif d.get("text").startswith("#access"):
+    return "All OK, software built."
+  elif d.get("text").startswith("#error"):
+    return "The software release %s is failing to build for too long on %s, started on %s" % \
+      (document.getUrlString(), compute_node_title, document.getCreationDate())
 
 if aggregate_portal_type == "Instance Tree":
   if document.getMonitorScope() == "disabled":

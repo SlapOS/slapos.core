@@ -2,4 +2,4 @@ from zExceptions import Unauthorized
 if REQUEST is not None:
   raise Unauthorized
 
-return context.Base_getNewsDict(context)
+return context.getAccessStatus()

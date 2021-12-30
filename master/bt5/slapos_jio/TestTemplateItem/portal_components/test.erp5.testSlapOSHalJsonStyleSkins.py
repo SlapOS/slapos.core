@@ -38,8 +38,16 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
   maxDiff = None
   def afterSetUp(self):
     SlapOSTestCaseMixinWithAbort.afterSetUp(self)
-    self.created_at = rfc1123_date(DateTime())
+    d = DateTime()
+    self.pinDateTime(d)
+
+    self.created_at = rfc1123_date(d)
     self.changeSkin('Hal')
+
+
+  def beforeTearDown(self):
+    SlapOSTestCaseMixinWithAbort.beforeTearDown(self)
+    self.unpinDateTime()
 
   def _logFakeAccess(self, reference, text="#access OK", state='start_requested'):
     value = json.dumps({
@@ -49,7 +57,9 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
       'since': '%s' % self.created_at,
       'state': state
     })
-    memcached_dict = self.portal.Base_getSlapToolMemcachedDict()
+    memcached_dict = self.getPortalObject().portal_memcached.getMemcachedDict(
+        key_prefix='slap_tool',
+        plugin_path='portal_memcached/default_memcached_plugin')
     memcached_dict[reference] = value
 
   def _makePerson(self, **kw):
@@ -71,8 +81,8 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
         .template_software_instance.Base_createCloneDocument(batch_mode=1)
     instance.edit(reference="TESTSOFTINST-%s" % instance.getId())
     instance.validate()
-    self.changeSkin('Hal')
     self.tic()
+    self.changeSkin('Hal')
     return instance
 
   def _makeSlaveInstance(self):
@@ -80,6 +90,7 @@ class TestSlapOSHalJsonStyleMixin(SlapOSTestCaseMixinWithAbort):
         .template_slave_instance.Base_createCloneDocument(batch_mode=1)
     instance.validate()
     self.tic()
+    self.changeSkin('Hal')
     return instance
 
   def _makeComputeNode(self, owner=None, allocation_scope='open/public'):
@@ -179,7 +190,10 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
     self.tic()
     self.changeSkin('Hal')
     news_dict = instance_tree.InstanceTree_getNewsDict()
-    expected_news_dict = {'instance': [{'no_data': 1,
+    expected_news_dict = {'instance': [{'created_at': self.created_at,
+                'no_data': 1,
+                'since': self.created_at,
+                'state': '',
                 'text': '#error no data found for %s' % instance.getReference(),
                 'user': 'SlapOS Master'}]}
     self.assertEqual(news_dict, expected_news_dict)
@@ -208,12 +222,18 @@ class TestInstanceTree_getNewsDict(TestSlapOSHalJsonStyleMixin):
     self.tic()
     self.changeSkin('Hal')
     news_dict = instance_tree.InstanceTree_getNewsDict()
-    expected_news_dict = {'instance': [{'no_data': 1,
+    expected_news_dict = {'instance': [{'created_at': self.created_at,
+                'no_data': 1,
+                'since': self.created_at,
+                'state': '',
                 'text': '#error no data found for %s' % instance0.getReference(),
                 'user': 'SlapOS Master'},
-              {'no_data': 1,
-                'text': '#error no data found for %s' % instance.getReference(),
-                'user': 'SlapOS Master'}]}
+              {'created_at': self.created_at,
+               'no_data': 1,
+               'since': self.created_at,
+               'state': '',
+               'text': '#error no data found for %s' % instance.getReference(),
+               'user': 'SlapOS Master'}]}
     self.assertEqual(news_dict["instance"], expected_news_dict["instance"])
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
@@ -224,13 +244,13 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
     instance = self._makeInstance()
     self._logFakeAccess(instance.getReference())
     news_dict = instance.SoftwareInstance_getNewsDict()
-    expected_news_dict =  {u'created_at': self.created_at,
+    expected_news_dict =  {'created_at': self.created_at,
                            'no_data_since_15_minutes': 0,
                            'no_data_since_5_minutes': 0,
                            'since': self.created_at,
                            'state': 'start_requested',
-                           'text': u'#access OK',
-                          u'user': u'SlapOS Master'}
+                           'text': '#access OK',
+                          'user': 'SlapOS Master'}
     self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
@@ -238,10 +258,15 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
 
   def test_no_data(self):
     instance = self._makeInstance()
+    self.changeSkin('Hal')
+
     news_dict = instance.SoftwareInstance_getNewsDict()
-    expected_news_dict = {'no_data': 1,
-     'text': '#error no data found for %s' % instance.getReference(),
-     'user': 'SlapOS Master'}
+    expected_news_dict = {'created_at': self.created_at,
+      'no_data': 1,
+      'since': self.created_at,
+      'state': '',
+      'text': '#error no data found for %s' % instance.getReference(),
+      'user': 'SlapOS Master'}
     self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
@@ -288,13 +313,13 @@ class TestSoftwareInstallation_getNewsDict(TestSlapOSHalJsonStyleMixin):
     installation = self._makeSoftwareInstallation()
     self._logFakeAccess(installation.getReference())
     news_dict = installation.SoftwareInstallation_getNewsDict()
-    expected_news_dict =  {u'created_at': self.created_at,
+    expected_news_dict =  {'created_at': self.created_at,
                            'no_data_since_15_minutes': 0,
                            'no_data_since_5_minutes': 0,
                            'since': self.created_at,
                            'state': 'start_requested',
-                           'text': u'#access OK',
-                          u'user': u'SlapOS Master'}
+                           'text': '#access OK',
+                          'user': 'SlapOS Master'}
     self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
@@ -306,13 +331,13 @@ class TestSoftwareInstallation_getNewsDict(TestSlapOSHalJsonStyleMixin):
     news_dict = installation.SoftwareInstallation_getNewsDict()
     installation.getSlapState = fakeStopRequestedSlapState
 
-    expected_news_dict =  {u'created_at': self.created_at,
+    expected_news_dict =  {'created_at': self.created_at,
                            'no_data_since_15_minutes': 0,
                            'no_data_since_5_minutes': 0,
                            'since': self.created_at,
                            'state': 'stop_requested',
-                           'text': u'#access OK',
-                          u'user': u'SlapOS Master'}
+                           'text': '#access OK',
+                          'user': 'SlapOS Master'}
     self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
@@ -324,13 +349,13 @@ class TestSoftwareInstallation_getNewsDict(TestSlapOSHalJsonStyleMixin):
     news_dict = installation.SoftwareInstallation_getNewsDict()
     installation.getSlapState = fakeDestroyRequestedSlapState
 
-    expected_news_dict =  {u'created_at': self.created_at,
+    expected_news_dict =  {'created_at': self.created_at,
                            'no_data_since_15_minutes': 0,
                            'no_data_since_5_minutes': 0,
                            'since': self.created_at,
                            'state': 'destroy_requested',
-                           'text': u'#access OK',
-                          u'user': u'SlapOS Master'}
+                           'text': '#access OK',
+                          'user': 'SlapOS Master'}
     self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
@@ -338,9 +363,12 @@ class TestSoftwareInstallation_getNewsDict(TestSlapOSHalJsonStyleMixin):
   def test_no_data(self):
     installation = self._makeSoftwareInstallation()
     news_dict = installation.SoftwareInstallation_getNewsDict()
-    expected_news_dict = {'no_data': 1,
-     'text': '#error no data found for %s' % installation.getReference(),
-     'user': 'SlapOS Master'}
+    expected_news_dict = {'created_at': self.created_at,
+      'no_data': 1,
+      'since': self.created_at,
+      'state': '',
+      'text': '#error no data found for %s' % installation.getReference(),
+      'user': 'SlapOS Master'}
     self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
@@ -352,13 +380,13 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
     self._logFakeAccess(compute_node.getReference())
     news_dict = compute_node.ComputeNode_getNewsDict()
     expected_news_dict =  {'compute_node': 
-                           {u'created_at': self.created_at,
+                           {'created_at': self.created_at,
                            'no_data_since_15_minutes': 0,
                            'no_data_since_5_minutes': 0,
                            'since': self.created_at,
                            'state': 'start_requested',
-                           'text': u'#access OK',
-                          u'user': u'SlapOS Master'},
+                           'text': '#access OK',
+                          'user': 'SlapOS Master'},
                           'partition': {}
                           }
     self.assertEqual(news_dict, expected_news_dict)
@@ -399,8 +427,8 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
                            'no_data_since_5_minutes': 0,
                            'since': self.created_at,
                            'state': 'destroy_requested',
-                           'text': u'#access OK',
-                           'user': u'SlapOS Master'},
+                           'text': '#access OK',
+                           'user': 'SlapOS Master'},
                           'partition': {}
                           }
     self.assertEqual(news_dict, expected_news_dict)
@@ -411,9 +439,12 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
     compute_node = self._makeComputeNode()
     news_dict = compute_node.ComputeNode_getNewsDict()
     expected_news_dict = {'compute_node': 
-                           {'no_data': 1,
+                           {'created_at': self.created_at,
+                            'no_data': 1,
+                            'since': self.created_at,
+                            'state': '',
                             'text': '#error no data found for %s' % compute_node.getReference(),
-                             'user': 'SlapOS Master'},
+                            'user': 'SlapOS Master'},
                           'partition': {}
                           }
     self.assertEqual(news_dict, expected_news_dict)
@@ -429,14 +460,17 @@ class TestComputeNode_getNewsDict(TestSlapOSHalJsonStyleMixin):
     self._logFakeAccess(compute_node.getReference())
     news_dict = compute_node.ComputeNode_getNewsDict()
     expected_news_dict =  {'compute_node': 
-                           {'created_at': self.created_at,
+                           {u'created_at': u'%s' % self.created_at,
                             'no_data_since_15_minutes': 0,
                             'no_data_since_5_minutes': 0,
-                            'since': self.created_at,
-                            'state': 'start_requested',
-                            'text': '#access OK',
-                            'user': 'SlapOS Master'},
-                          'partition': {'slappart0': {'no_data': 1,
+                            u'since': u'%s' % self.created_at,
+                            u'state': u'start_requested',
+                            u'text': u'#access OK',
+                            u'user': u'SlapOS Master'},
+                          'partition': {'slappart0': {'created_at': self.created_at,
+                              'no_data': 1,
+                              'since': self.created_at,
+                              'state': '',
                               'text': '#error no data found for %s' % (instance.getReference()),
                               'user': 'SlapOS Master'}}
                           }
@@ -458,22 +492,25 @@ class TestComputerNetwork_getNewsDict(TestSlapOSHalJsonStyleMixin):
     news_dict = network.ComputerNetwork_getNewsDict()
     expected_news_dict =  {'compute_node': 
                             { compute_node.getReference():
-                              {'created_at': self.created_at,
+                              {u'created_at': u'%s' % self.created_at,
                                'no_data_since_15_minutes': 0,
                                'no_data_since_5_minutes': 0,
-                               'since': self.created_at,
-                               'state': 'start_requested',
-                               'text': '#access OK',
-                               'user': 'SlapOS Master'}
-                            },
-                          'partition':
-                            { compute_node.getReference():
-                              {'slappart0': {'no_data': 1,
-                              'text': '#error no data found for %s' % (instance.getReference()),
-                              'user': 'SlapOS Master'}
+                               u'since': u'%s' % self.created_at,
+                               u'state': u'start_requested',
+                               u'text': u'#access OK',
+                               u'user': u'SlapOS Master'}},
+                            'partition':
+                              { compute_node.getReference():
+                                {'slappart0': {'created_at': self.created_at,
+                                'no_data': 1,
+                                'since': self.created_at,
+                                'state': '',
+                                'text': '#error no data found for %s' % (instance.getReference()),
+                                'user': 'SlapOS Master'}
+                                }
                               }
                             }
-                          }
+                          
 
     self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
@@ -504,22 +541,25 @@ class TestOrganisation_getNewsDict(TestSlapOSHalJsonStyleMixin):
     news_dict = organisation.Organisation_getNewsDict()
     expected_news_dict =  {'compute_node': 
                             { compute_node.getReference():
-                              {'created_at': self.created_at,
+                              {u'created_at': u'%s' % self.created_at,
                                'no_data_since_15_minutes': 0,
                                'no_data_since_5_minutes': 0,
-                               'since': self.created_at,
-                               'state': 'start_requested',
-                               'text': '#access OK',
-                               'user': 'SlapOS Master'}
-                            },
-                          'partition':
-                            { compute_node.getReference():
-                              {'slappart0': {'no_data': 1,
-                              'text': '#error no data found for %s' % (instance.getReference()),
-                              'user': 'SlapOS Master'}
+                               u'since': u'%s' % self.created_at,
+                               u'state': u'start_requested',
+                               u'text': u'#access OK',
+                               u'user': u'SlapOS Master'}},
+                            'partition':
+                              { compute_node.getReference():
+                                {'slappart0': {'created_at': self.created_at,
+                                'no_data': 1,
+                                'since': self.created_at,
+                                'state': '',
+                                'text': '#error no data found for %s' % (instance.getReference()),
+                                'user': 'SlapOS Master'}
+                                }
                               }
                             }
-                          }
+                          
 
     self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
@@ -549,22 +589,25 @@ class TestProject_getNewsDict(TestSlapOSHalJsonStyleMixin):
     news_dict = project.Project_getNewsDict()
     expected_news_dict =  {'compute_node': 
                             { compute_node.getReference():
-                              {'created_at': self.created_at,
+                              {u'created_at': u'%s' % self.created_at,
                                'no_data_since_15_minutes': 0,
                                'no_data_since_5_minutes': 0,
-                               'since': self.created_at,
-                               'state': 'start_requested',
-                               'text': '#access OK',
-                               'user': 'SlapOS Master'}
-                            },
-                          'partition':
-                            { compute_node.getReference():
-                              {'slappart0': {'no_data': 1,
-                              'text': '#error no data found for %s' % (instance.getReference()),
-                              'user': 'SlapOS Master'}
+                               u'since': u'%s' % self.created_at,
+                               u'state': u'start_requested',
+                               u'text': u'#access OK',
+                               u'user': u'SlapOS Master'}},
+                            'partition':
+                              { compute_node.getReference():
+                                {'slappart0': {'created_at': self.created_at,
+                                'no_data': 1,
+                                'since': self.created_at,
+                                'state': '',
+                                'text': '#error no data found for %s' % (instance.getReference()),
+                                'user': 'SlapOS Master'}
+                                }
                               }
                             }
-                          }
+                          
 
     self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
@@ -1158,11 +1201,3 @@ class TestInstanceTree_edit(TestSlapOSHalJsonStyleMixin):
 
     self.assertEqual(new_parameter,
       self.instance_tree.getTextContent())
-
-
-
-
-
-
-
-

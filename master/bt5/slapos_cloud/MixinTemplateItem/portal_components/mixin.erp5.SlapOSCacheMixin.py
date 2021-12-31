@@ -82,7 +82,10 @@ class SlapOSCacheMixin:
 
     return  json.loads(data_dict)
 
-  def setAccessStatus(self, user_reference, text, state=""):
+  def setAccessStatus(self, text, state=""):
+    user_reference = self.getPortalObject().portal_membership.getAuthenticatedMember()\
+                                                   .getUserName()
+    
     memcached_dict = self._getSlapOSMemcacheDict()
 
     previous = self._getCachedAccessInfo()
@@ -97,7 +100,6 @@ class SlapOSCacheMixin:
         status_changed = False
       if state == "":
         state = previous_json.get("state", "")
-
 
     value = json.dumps({
       'user': '%s' % user_reference,
@@ -117,7 +119,7 @@ class SlapOSCacheMixin:
       .getRamCacheRoot().get('last_stored_data_cache_factory')\
       .getCachePluginList()[0]
 
-  def _storeLastData(self, value, key=None):
+  def setLastData(self, value, key=None):
     # Key is used as suffix of reference, so
     # each instance cannot modify others informations.
     cache_key = self.getReference()
@@ -128,12 +130,12 @@ class SlapOSCacheMixin:
       cache_duration=self.getPortalObject().portal_caches\
       .getRamCacheRoot().get('last_stored_data_cache_factory').cache_duration)
 
-  def _getLastData(self, key=None):
+  def getLastData(self, key=None):
     # Key is used as suffix of reference, so
     # each instance cannot modify others informations.
     cache_key = self.getReference()
     if key is not None:
-      cache_key += key
+      cache_key = key
 
     try:
       entry = self._getLastDataPlugin().get(cache_key, DEFAULT_CACHE_SCOPE)

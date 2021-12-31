@@ -79,7 +79,6 @@ except ImportError:
 from zLOG import LOG, INFO
 import StringIO
 import pkg_resources
-import json
 from DateTime import DateTime
 from App.Common import rfc1123_date
 class SoftwareInstanceNotReady(Exception):
@@ -118,6 +117,25 @@ def convertToREST(function):
     return '%s' % retval
   wrapper.__doc__ = function.__doc__
   return wrapper
+
+def convertToStatus(function):
+  def wrapper(self, *args, **kwd):
+    data_dict = function(self, *args, **kwd)
+    last_modified = rfc1123_date(DateTime())
+
+    # Keep in cache server for 7 days
+    self.REQUEST.response.setStatus(200)
+    self.REQUEST.response.setHeader('Cache-Control',
+                                    'public, max-age=60, stale-if-error=604800')
+    self.REQUEST.response.setHeader('Vary',
+                                    'REMOTE_USER')
+    self.REQUEST.response.setHeader('Last-Modified', last_modified)
+    self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
+    self.REQUEST.response.setBody(dumps(data_dict))
+    return self.REQUEST.response
+
+  return wrapper
+
 
 def _assertACI(document):
   sm = getSecurityManager()
@@ -361,7 +379,8 @@ class SlapTool(BaseTool):
     """
     user = self.getPortalObject().portal_membership.getAuthenticatedMember().getUserName()
     if str(user) == computer_id:
-      self._logAccess(user, user, '#access %s' % computer_id)
+      compute_node = self.getPortalObject().portal_membership.getAuthenticatedMember().getUserValue()
+      compute_node.setAccessStatus('#access %s' % computer_id)
     refresh_etag = self._calculateRefreshEtag()
     body, etag = self._getComputeNodeInformation(computer_id, user, refresh_etag)
 
@@ -429,6 +448,7 @@ class SlapTool(BaseTool):
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'getComputerPartitionStatus')
+  @convertToStatus
   def getComputerPartitionStatus(self, computer_id, computer_partition_id):
     """
     Get the connection status of the partition
@@ -440,10 +460,11 @@ class SlapTool(BaseTool):
     except NotFound:
       return self._getAccessStatus(None)
     else:
-      return self._getAccessStatus(instance.getReference())
+      return instance.getAccessStatus()
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'getComputerStatus')
+  @convertToStatus
   def getComputerStatus(self, computer_id):
     """
     Get the connection status of the partition
@@ -453,10 +474,11 @@ class SlapTool(BaseTool):
       validation_state="validated")[0].getObject()
     # Be sure to prevent accessing information to disallowed users
     compute_node = _assertACI(compute_node)
-    return self._getAccessStatus(computer_id)
+    return compute_node.getAccessStatus()
   
   security.declareProtected(Permissions.AccessContentsInformation,
     'getSoftwareInstallationStatus')
+  @convertToStatus
   def getSoftwareInstallationStatus(self, url, computer_id):
     """
     Get the connection status of the software installation
@@ -473,7 +495,7 @@ class SlapTool(BaseTool):
     except NotFound:
       return self._getAccessStatus(None)
     else:
-      return self._getAccessStatus(software_installation.getReference())
+      return software_installation.getAccessStatus()
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'getSoftwareReleaseListFromSoftwareProduct')
@@ -966,8 +988,7 @@ class SlapTool(BaseTool):
         slap_partition._requested_state = 'stopped'
       if state == "start_requested":
         slap_partition._requested_state = 'started'
-      slap_partition._access_status = self._getTextAccessStatus(
-            software_instance.getReference())
+      slap_partition._access_status = software_instance.getTextAccessStatus()
 
       slap_partition._software_release_document = SoftwareRelease(
             software_release=software_instance.getUrlString().decode("UTF-8"),
@@ -1012,11 +1033,9 @@ class SlapTool(BaseTool):
     Log the software release status
     """
     compute_node_document = self._getComputeNodeDocument(compute_node_id)
-    software_installation_reference = self._getSoftwareInstallationReference(url,
+    software_installation = self._getSoftwareInstallationForComputeNode(url,
       compute_node_document)
-    user = self.getPortalObject().portal_membership.\
-        getAuthenticatedMember().getUserName()
-    self._logAccess(user, software_installation_reference,
+    software_installation.setAccessStatus(
       '#building software release %s' % url, "building")
 
   @convertToREST
@@ -1025,12 +1044,10 @@ class SlapTool(BaseTool):
     Log the software release status
     """
     compute_node_document = self._getComputeNodeDocument(compute_node_id)
-    software_installation_reference = self._getSoftwareInstallationReference(url,
+    software_installation = self._getSoftwareInstallationForComputeNode(url,
       compute_node_document)
-    user = self.getPortalObject().portal_membership.\
-        getAuthenticatedMember().getUserName()
-    self._logAccess(user, software_installation_reference,
-        '#access software release %s available' % url, "available")
+    software_installation.setAccessStatus(
+      '#access software release %s available' % url, "available")
 
   @convertToREST
   def _destroyedSoftwareRelease(self, url, compute_node_id):
@@ -1061,7 +1078,7 @@ class SlapTool(BaseTool):
         compute_partition_id)
     
     status_changed = instance.setAccessStatus(
-                    '#error while instanciating: %s' % error_log[-80:])
+      '#error while instanciating: %s' % error_log[-80:])
 
     if status_changed:
       instance.reindexObject()
@@ -1076,7 +1093,7 @@ class SlapTool(BaseTool):
     for name in [software_instance.getTitle(), new_name]:
       # reset request cache
       key = '_'.join([hosting, name])
-      self._storeLastData(key, {})
+      software_instance.setLastData({}, key=key)
     return software_instance.rename(new_name=new_name,
       comment="Rename %s into %s" % (software_instance.title, new_name))
 
@@ -1090,78 +1107,18 @@ class SlapTool(BaseTool):
     software_instance = self._getSoftwareInstanceForComputePartition(
         compute_node_id,
         compute_partition_id)
-    user = self.getPortalObject().portal_membership.\
-        getAuthenticatedMember().getUserName()
-    self._logAccess(user, software_instance.getReference(),
-                    '#error bang called')
+    
+    software_instance.setAccessStatus('#error bang called')
     timestamp = str(int(software_instance.getModificationDate()))
     key = "%s_bangstamp" % software_instance.getReference()
 
     self.getPortalObject().portal_workflow.getInfoFor(
       software_instance, 'action', wf_id='instance_slap_interface_workflow')
 
-    if (self._getLastData(key) != timestamp):
+    if (software_instance.getLastData(key) != timestamp):
       software_instance.bang(bang_tree=True, comment=message)
-      self._storeLastData(key, str(int(software_instance.getModificationDate())))
+      software_instance.setLastData(key, str(int(software_instance.getModificationDate())))
     return "OK"
-
-  def _getCachedAccessInfo(self, context_reference):
-    memcached_dict = self.Base_getSlapToolMemcachedDict()
-    try:
-      if context_reference is None:
-        raise KeyError
-      else:
-        data = memcached_dict[context_reference]
-    except KeyError:
-      return None
-    return data
-
-  def _getTextAccessStatus(self, context_reference):
-    status_string = self._getCachedAccessInfo(context_reference)
-    access_status = "#error no data found!"
-    if status_string is not None:
-      try:
-        access_status = json.loads(status_string)['text']
-      except ValueError:
-        pass
-    return access_status
-
-  def _getAccessStatus(self, context_reference):
-    d = self._getCachedAccessInfo(context_reference)
-    last_modified = rfc1123_date(DateTime())
-    if d is None:
-      if context_reference is None:
-        d = {
-          "user": "SlapOS Master",
-          'created_at': '%s' % last_modified,
-          'since': '%s' % last_modified,
-          'state': "",
-          "text": "#error no data found"
-        }
-      else:
-        d = {
-          "user": "SlapOS Master",
-          'created_at': '%s' % last_modified,
-          'since': '%s' % last_modified,
-          'state': "",
-          "text": "#error no data found for %s" % context_reference
-        }
-      # Prepare for xml marshalling
-      d["user"] = d["user"].decode("UTF-8")
-      d["text"] = d["text"].decode("UTF-8")
-    else:
-      d = json.loads(d)
-
-    # Keep in cache server for 7 days
-    self.REQUEST.response.setStatus(200)
-    self.REQUEST.response.setHeader('Cache-Control',
-                                    'public, max-age=60, stale-if-error=604800')
-    self.REQUEST.response.setHeader('Vary',
-                                    'REMOTE_USER')
-    self.REQUEST.response.setHeader('Last-Modified', last_modified)
-    self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
-    self.REQUEST.response.setBody(dumps(d))
-    return self.REQUEST.response
 
   @convertToREST
   def _startedComputePartition(self, compute_node_id, compute_partition_id):
@@ -1171,10 +1128,7 @@ class SlapTool(BaseTool):
     instance = self._getSoftwareInstanceForComputePartition(
         compute_node_id,
         compute_partition_id)
-    user = self.getPortalObject().portal_membership.getAuthenticatedMember()\
-                                                   .getUserName()
-    status_changed = self._logAccess(user, instance.getReference(),
-                    '#access Instance correctly started', "started")
+    status_changed = instance.setAccessStatus('#access Instance correctly started', "started")
     if status_changed:
       instance.reindexObject()
 
@@ -1186,10 +1140,7 @@ class SlapTool(BaseTool):
     instance = self._getSoftwareInstanceForComputePartition(
         compute_node_id,
         compute_partition_id)
-    user = self.getPortalObject().portal_membership.getAuthenticatedMember()\
-                                                   .getUserName()
-    status_changed = self._logAccess(user, instance.getReference(),
-                    '#access Instance correctly stopped', "stopped")
+    status_changed = instance.setAccessStatus('#access Instance correctly stopped', "stopped")
     if status_changed:
       instance.reindexObject()
 
@@ -1238,12 +1189,11 @@ class SlapTool(BaseTool):
         compute_partition_id,
         slave_reference)
     connection_xml = dict2xml(loads(connection_xml))
-    reference = software_instance.getReference()
-    if self._getLastData(reference) != connection_xml:
+    if software_instance.getLastData() != connection_xml:
       software_instance.updateConnection(
         connection_xml=connection_xml,
       )
-      self._storeLastData(reference, connection_xml)
+      software_instance.setLastData(connection_xml)
 
   @convertToREST
   def _requestComputePartition(self, compute_node_id, compute_partition_id,
@@ -1318,7 +1268,7 @@ class SlapTool(BaseTool):
       value = dict(
         hash='_'.join([software_instance_document.getRelativeUrl(), str(kw)]),
         )
-      last_data = self._getLastData(key)
+      last_data = software_instance_document.getLastData(key)
       requested_software_instance = None
       if last_data is not None and isinstance(last_data, dict):
         requested_software_instance = portal.restrictedTraverse(
@@ -1331,7 +1281,7 @@ class SlapTool(BaseTool):
         if requested_software_instance is not None:
           value['request_instance'] = requested_software_instance\
             .getRelativeUrl()
-          self._storeLastData(key, value)
+          software_instance_document.setLastData(value, key=key)
     else:
       # requested as root, so done by human
       person = portal.portal_membership.getAuthenticatedMember().getUserValue()
@@ -1346,7 +1296,7 @@ class SlapTool(BaseTool):
       value = dict(
         hash=str(kw)
       )
-      last_data = self._getLastData(key)
+      last_data = person.getLastData(key)
       if last_data is not None and isinstance(last_data, dict):
         requested_software_instance = portal.restrictedTraverse(
           last_data.get('request_instance'), None)
@@ -1358,7 +1308,7 @@ class SlapTool(BaseTool):
         if requested_software_instance is not None:
           value['request_instance'] = requested_software_instance\
             .getRelativeUrl()
-          self._storeLastData(key, value)
+          requested_software_instance.setLastData(value, key=key)
 
     if requested_software_instance is None:
       raise SoftwareInstanceNotReady
@@ -1402,7 +1352,7 @@ class SlapTool(BaseTool):
                           compute_partition_id)
 
     cache_reference = '%s-PREDLIST' % software_instance_document.getReference()
-    if self._getLastData(cache_reference) != instance_reference_xml:
+    if software_instance_document.getLastData(cache_reference) != instance_reference_xml:
       instance_reference_list = loads(instance_reference_xml)
 
       current_successor_list = software_instance_document.getSuccessorValueList(
@@ -1420,7 +1370,7 @@ class SlapTool(BaseTool):
           compute_node_id, compute_partition_id, successor_list), error=False)
         software_instance_document.edit(successor_list=successor_list,
             comment='successor_list edited to unlink non commited instances')
-      self._storeLastData(cache_reference, instance_reference_xml)
+      software_instance_document.setLastData(instance_reference_xml, key=cache_reference)
 
   ####################################################
   # Internals methods
@@ -1628,7 +1578,7 @@ class SlapTool(BaseTool):
       else:
         software_release_response._requested_state = 'available'
 
-      known_state = self._getTextAccessStatus(software_installation.getReference())
+      known_state = software_installation.getTextAccessStatus()
       if known_state.startswith("#access"):
         software_release_response._known_state = 'available'
       elif known_state.startswith("#building"):

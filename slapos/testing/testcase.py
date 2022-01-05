@@ -308,7 +308,7 @@ class SlapOSInstanceTestCase(unittest.TestCase):
       '*/etc/*',
       '*/var/log/*',
       '*/srv/monitor/*',
-      '*/srv/logrotate/*',
+      '*/srv/backup/logrotate/*',
       '*/.*log',
       '*/.*cfg',
       '*/*cfg',

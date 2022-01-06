@@ -94,7 +94,7 @@
         .push(function () {
           return RSVP.all([
             gadget.getUrlFor({command: "display_dialog_with_history", options: {"page": "slap_select_software_product"}}),
-            gadget.getUrlFor({command: "change", options: {"page": "slapos"}})
+            gadget.getUrlFor({command: "change", options: {"page": "slap_service_list"}})
 
           ]);
         })

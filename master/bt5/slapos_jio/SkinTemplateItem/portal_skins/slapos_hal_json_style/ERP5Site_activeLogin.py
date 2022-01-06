@@ -6,7 +6,8 @@ portal = context.getPortalObject()
 assert key
 mail_message = portal.ERP5Site_unrestrictedSearchMessage(key=key)
 
-came_from = context.getWebSiteValue().absolute_url() + "/#!login?p.page=slapos{&n.me}"
+web_site = context.getWebSiteValue()
+came_from = web_site.absolute_url() + "/#!login?p.page=%s{&n.me}" % web_site.getLayoutProperty("configuration_frontpage_gadget_url")
 credential_request = mail_message.getFollowUpValue()
 if credential_request.getValidationState() in ('submitted', 'accepted'):
   message = translateString("Your account is already active.")

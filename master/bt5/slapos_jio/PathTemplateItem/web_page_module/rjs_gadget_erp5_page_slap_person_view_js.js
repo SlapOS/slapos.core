@@ -322,7 +322,7 @@
             gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_get_token"}}),
             gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_add_erp5_login"}}),
             gadget.getUrlFor({command: "change", options: {jio_key: me, page: "slap_person_add_organisation"}}),
-            gadget.getUrlFor({command: "change", options: {page: "slapos"}}),
+            gadget.getUrlFor({command: "change", options: {page: "slap_service_list"}}),
             gadget.getUrlFor({command: "change", options: {jio_key: gadget.state.doc.contract_relative_url, page: "slap_controller"}})
           ]);
         })

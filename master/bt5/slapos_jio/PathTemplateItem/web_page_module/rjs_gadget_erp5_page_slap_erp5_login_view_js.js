@@ -80,7 +80,7 @@
                         return gadget.getUrlFor({
                           command: 'display',
                           absolute_url: true,
-                          options: {"jio_key": "/", "page": "slapos"}
+                          options: {"jio_key": "/", "page": "slap_service_list"}
                         })
                       })
                       .push(function (came_from) {

@@ -91,7 +91,7 @@
         .push(function () {
           return RSVP.all([
             gadget.getUrlFor({command: "change", options: {"page": "slap_add_project"}}),
-            gadget.getUrlFor({command: "change", options: {"page": "slapos"}})
+            gadget.getUrlFor({command: "change", options: {"page": "slap_service_list"}})
           ]);
         })
         .push(function (result) {

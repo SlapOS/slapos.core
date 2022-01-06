@@ -11,9 +11,10 @@
     .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
     .declareAcquiredMethod("getSetting", "getSetting")
+    .declareAcquiredMethod("getSettingList", "getSettingList")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("redirect", "redirect")
-    .declareAcquiredMethod("jio_post", "jio_post")
+    .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
     .declareAcquiredMethod("jio_get", "jio_get")
     .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
     .declareAcquiredMethod("notifySubmitted", 'notifySubmitted')
@@ -26,6 +27,7 @@
       return this.triggerSubmit();
     })
 
+
     .onEvent('submit', function () {
       var gadget = this;
       return gadget.notifySubmitting()
@@ -33,28 +35,31 @@
           return gadget.getDeclaredGadget('form_view');
         })
         .push(function (form_gadget) {
-          return form_gadget.getContent();
+          return RSVP.all([form_gadget.getContent(),
+                          gadget.getSettingList(['me', 'hateoas_url'])]);
         })
-        .push(function (content) {
-          var property, doc = {};
-          for (property in content) {
-            if ((content.hasOwnProperty(property)) &&
-                // Remove undefined keys added by Gadget fields
-                (property !== "undefined") &&
-                // Remove default_*:int keys added by ListField
-                !(property.endsWith(":int") && property.startsWith("default_"))) {
-              doc[property] = content[property];
-            }
-
-          }
-          return gadget.jio_post(doc);
+        .push(function (result) {
+          var doc = result[0],
+            me = result[1][0],
+            url = result[1][1];
+          return gadget.jio_putAttachment(me,
+                url + me + "/Person_requestSupport",
+                {title: doc.title,
+                 description: doc.description,
+                 resource: doc.resource});
         })
-        .push(function (key) {
+        .push(function (attachment) {
+          return jIO.util.readBlobAsText(attachment.target.response);
+        })
+        .push(function (response) {
+          return JSON.parse(response.target.result);
+        })
+        .push(function (result) {
           return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
               return gadget.redirect({"command": "change",
-                                    "options": {"jio_key": key, "page": "slap_controller"}});
+                                    "options": {"jio_key": result.relative_url, "page": "slap_controller"}});
             });
         });
     })
@@ -88,20 +93,19 @@
             gadget.getDeclaredGadget('form_view'),
             gadget.jio_getAttachment("ticket_resource_list",
                hateoas_url + "Ticket_getResourceItemListAsJSON"),
-            window.getSettingMe(gadget),
             gadget.getTranslationList(translation_list)
 
           ]);
         })
         .push(function (result) {
-          gadget.message_translation = result[3][0];
-          page_title_translation = result[3][10];
+          gadget.message_translation = result[2][0];
+          page_title_translation = result[2][10];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
                 "my_title": {
-                  "description": result[3][1],
-                  "title": result[3][2],
+                  "description": result[2][1],
+                  "title": result[2][2],
                   "default": "",
                   "css_class": "",
                   "required": 1,
@@ -112,7 +116,7 @@
                 },
                 "my_description": {
                   "description": "",
-                  "title": result[3][3],
+                  "title": result[2][3],
                   "default": "",
                   "css_class": "",
                   "required": 1,
@@ -122,8 +126,8 @@
                   "type": "TextAreaField"
                 },
                 "my_resource": {
-                  "description": result[3][0],
-                  "title": result[3][4],
+                  "description": result[2][0],
+                  "title": result[2][4],
                   "default": "",
                   "items": result[1],
                   "css_class": "",
@@ -132,52 +136,6 @@
                   "key": "resource",
                   "hidden": 0,
                   "type": "ListField"
-                },
-                "my_destination_decision": {
-                  "description": result[3][0],
-                  "title": result[3][5],
-                  "default": result[2],
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "destination_decision",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_specialise": {
-                  "description": "",
-                  "title": result[3][6],
-                  // Auto Set a hardcoded trade Condition
-                  // Please replace it by a getSetting.
-                  "default": "sale_trade_condition_module/slapos_ticket_trade_condition",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "specialise",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_portal_type": {
-                  "description": result[3][0],
-                  "title": result[3][7],
-                  "default": "Support Request",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "portal_type",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_parent_relative_url": {
-                  "description": "",
-                  "title": result[3][9],
-                  "default": "support_request_module",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "parent_relative_url",
-                  "hidden": 1,
-                  "type": "StringField"
                 }
               }},
               "_links": {
@@ -193,7 +151,7 @@
                 [["my_resource"]]
               ], [
                 "center",
-                [["my_title"], ["my_description"], ["my_specialise"], ["my_destination_decision"], ["my_portal_type"], ["my_parent_relative_url"]]
+                [["my_title"], ["my_description"]]
               ]]
             }
           });

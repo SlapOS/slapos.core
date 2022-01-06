@@ -104,7 +104,7 @@
           return RSVP.all([
             gadget.getUrlFor({command: "change", options: {"page": "slap_add_ticket"}}),
             gadget.getUrlFor({command: "change", options: {"page": "slap_rss_ticket"}}),
-            gadget.getUrlFor({command: "change", options: {"page": "slapos"}}),
+            gadget.getUrlFor({command: "change", options: {"page": "slap_service_list"}}),
             gadget.getUrlFor({command: "change", options: {"page": "slap_rss_critical_ticket"}})
           ]);
         })

@@ -185,7 +185,7 @@
         })
         .push(function (contract_relative_url) {
           var promise_list = [
-            gadget.getUrlFor({command: "change", options: {"page": "slapos"}}),
+            gadget.getUrlFor({command: "change", options: {"page": "slap_service_list"}}),
             gadget.getUrlFor({command: "change", options: {"page": "slap_rss_ticket",
                                                            "jio_key": "accounting_module"}})
           ];

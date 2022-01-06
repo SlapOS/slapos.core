@@ -137,7 +137,7 @@
           return RSVP.all([
             gadget.getUrlFor({command: "change", options: {"page": "slap_add_compute_node"}}),
             gadget.getUrlFor({command: "change", options: {page: "slap_compute_node_get_token"}}),
-            gadget.getUrlFor({command: "change", options: {"page": "slapos"}})
+            gadget.getUrlFor({command: "change", options: {"page": "slap_service_list"}})
 
           ]);
         })

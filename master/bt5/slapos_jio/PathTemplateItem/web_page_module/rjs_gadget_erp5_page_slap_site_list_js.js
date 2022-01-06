@@ -157,7 +157,7 @@
               command: 'change',
               options: { page: 'slap_add_organisation' }
             }),
-            gadget.getUrlFor({ command: 'change', options: { page: 'slapos' } })
+            gadget.getUrlFor({ command: 'change', options: { page: 'slap_service_list' } })
           ]);
         })
         .push(function (result) {

@@ -28,7 +28,7 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>source/portal_workflow/ticket_workflow/state_draft</string>
+                <string>source/portal_workflow/ticket_slap_interface_workflow/state_draft</string>
               </tuple>
             </value>
         </item>
@@ -40,15 +40,23 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>ticket_workflow</string> </value>
+            <value> <string>person_slap_interface_workflow</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>The ticket workflow keeps track of ticket processing. A ticket is created in draft state. It is then submitted by its author (Owner) or operator (Assignee) and waits for further approval. The ticket manager (Assignor) eventually approves the ticket. The ticket is then open. The ticket can be closed by the ticket manager or by the ticket operator.</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>ticket_workflow</string> </value>
+            <value> <string>ticket_slap_interface_workflow</string> </value>
+        </item>
+        <item>
+            <key> <string>language</string> </key>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>manager_bypass</string> </key>
@@ -60,21 +68,16 @@
         </item>
         <item>
             <key> <string>state_variable</string> </key>
-            <value> <string>simulation_state</string> </value>
+            <value> <string>slap_state</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Ticket Workflow</string> </value>
+            <value> <string>Ticket Slap Interface Workflow</string> </value>
         </item>
         <item>
             <key> <string>workflow_managed_permission</string> </key>
             <value>
-              <tuple>
-                <string>Access contents information</string>
-                <string>Modify portal content</string>
-                <string>View</string>
-                <string>Add portal content</string>
-              </tuple>
+              <tuple/>
             </value>
         </item>
       </dictionary>

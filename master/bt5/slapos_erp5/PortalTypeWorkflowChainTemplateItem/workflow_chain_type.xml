@@ -124,14 +124,6 @@
   <workflow>local_permission_slapos_interaction_workflow</workflow>
  </chain>
  <chain>
-  <type>Support Request</type>
-  <workflow>slapos_erp5_interaction_workflow</workflow>
- </chain>
- <chain>
-  <type>Web Message</type>
-  <workflow>slapos_erp5_interaction_workflow</workflow>
- </chain>
- <chain>
   <type>Wechat Event</type>
   <workflow>local_permission_slapos_interaction_workflow</workflow>
  </chain>

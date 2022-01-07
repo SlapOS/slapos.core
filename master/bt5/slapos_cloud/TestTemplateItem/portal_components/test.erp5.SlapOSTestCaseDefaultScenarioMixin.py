@@ -81,7 +81,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     web_site.ERP5Site_activeLogin(key=join_key)
 
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 303)
-    self.assertIn(self.web_site.getId() + "/%23%21login%3Fp.page%3Dslapos%7B%26n.me%7D",
+    self.assertIn(self.web_site.getId() + "/%23%21login%3Fp.page%3Dslap_service_list%7B%26n.me%7D",
       self.portal.REQUEST.RESPONSE.getHeader("Location"))
 
     self.tic()

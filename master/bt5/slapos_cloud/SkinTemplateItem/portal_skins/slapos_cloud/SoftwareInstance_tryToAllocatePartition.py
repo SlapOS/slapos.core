@@ -22,6 +22,14 @@ def assignComputePartition(software_instance, instance_tree):
     if instance_tree is None:
       raise ValueError('%s does not have related instance tree' % software_instance.getRelativeUrl())
 
+    # allocation must be based on the Open Order related to the Instance Tree
+    # it is unrelated to the Person document
+    # Migrating all the code is needed
+    # Step1: force open order to be created to allocated
+    # Step2: XXX
+    if instance_tree.getAggregateRelatedValue(portal_type="Open Sale Order Line") is None:
+      raise Unauthorized("No Open Order")
+
     person = instance_tree.getDestinationSectionValue(portal_type='Person')
     if person is None:
       raise ValueError('%s does not have person related' % instance_tree.getRelativeUrl())

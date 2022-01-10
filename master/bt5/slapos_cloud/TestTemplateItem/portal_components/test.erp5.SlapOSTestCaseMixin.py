@@ -260,6 +260,9 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     self.portal.portal_workflow._jumpToStateFor(self.requested_software_instance, 'start_requested')
     self.requested_software_instance.validate()
     self.tic()
+    # XXX Not part of slapos cloud
+    self.portal.portal_alarms.slapos_request_update_instance_tree_open_sale_order.activeSense()
+    self.tic()
 
   def _makeSlaveTree(self, requested_template_id='template_slave_instance'):
     return self._makeTree(requested_template_id=requested_template_id)

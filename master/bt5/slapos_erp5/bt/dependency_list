@@ -13,10 +13,10 @@ erp5_graph_editor
 slapos_configurator
 slapos_accounting
 slapos_category
-slapos_jio
+slapos_panel
 slapos_payzen
 slapos_upgrader
-slapos_subscription_request
 slapos_web_deploy
 slapos_abyss
 erp5_slapos_tutorial_data
+slapos_subscription_request

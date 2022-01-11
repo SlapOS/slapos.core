@@ -64,10 +64,7 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
 
   def _makeDummySoftwareInstance(self):
     software_instance = self.portal.software_instance_module\
-        .template_software_instance.Base_createCloneDocument(batch_mode=1)
-
-    software_instance = self.portal.software_instance_module\
-        .template_software_instance.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Software Instance")
 
     software_instance.edit(
         title=self.generateNewSoftwareTitle(),
@@ -99,7 +96,7 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
     self.assertTrue(login.isLoginBlocked())
 
   def test_block_ERP5Login_without_password_on_person(self):
-    person = self.makePerson(user=0)
+    person = self.makePerson(self.addProject(), user=0)
     person.edit(
       first_name="SOMENAME",
       last_name="LASTNAME"
@@ -109,7 +106,7 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
       login_portal_type="ERP5 Login")
 
   def test_block_CertificateLogin_without_password_on_person(self):
-    person = self.makePerson(user=0)
+    person = self.makePerson(self.addProject(), user=0)
     person.edit(
       first_name="SOMENAME",
       last_name="LASTNAME"
@@ -121,7 +118,7 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
 
   def test_block_CertificateLogin_without_password_on_compute_node(self):
     self._test_login_donot_block(
-      document=self._makeComputeNode()[0],
+      document=self._makeComputeNode(self.addProject())[0],
       login_portal_type="Certificate Login")
   
   def test_block_CertificateLogin_without_password_on_software_instance(self):
@@ -130,7 +127,7 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
       login_portal_type="Certificate Login")
 
   def test_block_GoogleLogin_on_person(self):
-    person = self.makePerson(user=0)
+    person = self.makePerson(self.addProject(), user=0)
     person.edit(
       first_name="SOMENAME",
       last_name="LASTNAME"
@@ -141,7 +138,7 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
     )
   
   def test_block_FacebookLogin_on_person(self):
-    person = self.makePerson(user=0)
+    person = self.makePerson(self.addProject(), user=0)
     person.edit(
       first_name="SOMENAME",
       last_name="LASTNAME"
@@ -203,7 +200,7 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
     self.assertFalse(login.isPasswordExpired())
 
   def test_expire_ERP5Login_without_password_on_person(self):
-    person = self.makePerson(user=0)
+    person = self.makePerson(self.addProject(), user=0)
     person.edit(
       first_name="SOMENAME",
       last_name="LASTNAME"
@@ -213,7 +210,7 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
       login_portal_type="ERP5 Login")
 
   def test_expire_CertificateLogin_without_password_on_person(self):
-    person = self.makePerson(user=0)
+    person = self.makePerson(self.addProject(), user=0)
     person.edit(
       first_name="SOMENAME",
       last_name="LASTNAME"
@@ -225,7 +222,7 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
 
   def test_expire_CertificateLogin_without_password_on_compute_node(self):
     self._test_dont_expire_when_password_isnt_set(
-      document=self._makeComputeNode()[0],
+      document=self._makeComputeNode(self.addProject())[0],
       login_portal_type="Certificate Login")
   
   def test_expire_CertificateLogin_without_password_on_software_instance(self):
@@ -234,7 +231,7 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
       login_portal_type="Certificate Login")
 
   def test_expire_GoogleLogin_on_person(self):
-    person = self.makePerson(user=0)
+    person = self.makePerson(self.addProject(), user=0)
     person.edit(
       first_name="SOMENAME",
       last_name="LASTNAME"
@@ -245,7 +242,7 @@ class TestSlapOSAuthenticationPolicyL(SlapOSTestCaseMixin):
     )
   
   def test_expire_FacebookLogin_on_person(self):
-    person = self.makePerson(user=0)
+    person = self.makePerson(self.addProject(), user=0)
     person.edit(
       first_name="SOMENAME",
       last_name="LASTNAME"

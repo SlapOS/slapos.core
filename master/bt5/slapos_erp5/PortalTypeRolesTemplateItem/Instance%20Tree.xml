@@ -5,23 +5,21 @@
    <multi_property id='categories'>local_role_group/user</multi_property>
    <multi_property id='base_category'>destination_section</multi_property>
   </role>
+  <role id='Assignee'>
+   <property id='title'>Project Production Agent</property>
+   <property id='description'>XXX add local role group</property>
+   <property id='condition'>python: context.getFollowUp("") != ""</property>
+   <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
+   <multi_property id='category'>function/production/agent</multi_property>
+   <multi_property id='base_category'>follow_up</multi_property>
+  </role>
   <role id='Assignor'>
-   <property id='title'>Group Company</property>
-   <multi_property id='categories'>local_role_group/group</multi_property>
-   <multi_property id='category'>group/company</multi_property>
-   <multi_property id='base_category'>group</multi_property>
-  </role>
-  <role id='Assignee'>
-   <property id='title'>Organisation Member</property>
-   <property id='base_category_script'>Item_getSecurityCategoryFromMovementDestination</property>
-   <multi_property id='categories'>local_role_group/organisation</multi_property>
-   <multi_property id='base_category'>destination</multi_property>
-  </role>
-  <role id='Assignee'>
-   <property id='title'>Project Member</property>
-   <property id='base_category_script'>Item_getSecurityCategoryFromMovementDestinationProject</property>
-   <multi_property id='categories'>local_role_group/project</multi_property>
-   <multi_property id='base_category'>destination_project</multi_property>
+   <property id='title'>Project Production Manager</property>
+   <property id='description'>XXX add local role group</property>
+   <property id='condition'>python: context.getFollowUp("") != ""</property>
+   <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
+   <multi_property id='category'>function/production/manager</multi_property>
+   <multi_property id='base_category'>follow_up</multi_property>
   </role>
   <role id='Assignee'>
    <property id='title'>Related Software Instance Group</property>

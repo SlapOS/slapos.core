@@ -47,8 +47,9 @@ class TestSlapOSCloudSlapOSCacheMixin(
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     self.pinDateTime(DateTime())
-    self._makeComputeNode()
-    self._makeComplexComputeNode(with_slave=True)
+    project = self.addProject()
+    self._makeComputeNode(project)
+    self._makeComplexComputeNode(project, with_slave=True)
     self.tic()
 
   def beforeTearDown(self):
@@ -376,7 +377,8 @@ class TestSlapOSCloudSoftwareInstance(
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
-    self._makeTree()
+    self.project = self.addProject()
+    self._makeTree(self.project)
 
   def test_getXmlAsDict(self):
     simple_parameter_sample_xml = """<?xml version='1.0' encoding='utf-8'?>
@@ -439,8 +441,8 @@ class TestSlapOSCloudSoftwareInstance(
       self.software_instance._asParameterDict)
 
   def test_asParameterDict(self):
-    self._makeComputeNode()
-    self._makeComplexComputeNode(with_slave=True)
+    self._makeComputeNode(self.project)
+    self._makeComplexComputeNode(self.project, with_slave=True)
 
     as_parameter_dict = self.start_requested_software_instance._asParameterDict()
 
@@ -485,8 +487,8 @@ class TestSlapOSCloudSoftwareInstance(
     self.assertEqual(as_parameter_dict["full_ip_list"], [])
 
   def test_getInstanceTreeIpList(self):
-    self._makeComputeNode()
-    self._makeComplexComputeNode(with_slave=True)
+    self._makeComputeNode(self.project)
+    self._makeComplexComputeNode(self.project, with_slave=True)
     self.tic()
     
     self.assertEqual([(u'', u'ip_address_1')],
@@ -497,18 +499,16 @@ class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
+    self.project = self.addProject()
 
     # Prepare compute_node
-    self.compute_node = self.portal.compute_node_module.template_compute_node\
-        .Base_createCloneDocument(batch_mode=1)
+    self.compute_node = self.portal.compute_node_module\
+        .newContent(portal_type="Compute Node")
     self.compute_node.edit(
       title="Compute Node %s" % self.new_id,
-      reference="TESTCOMP-%s" % self.new_id
+      reference="TESTCOMP-%s" % self.new_id,
+      follow_up_value=self.project
     )
-    if getattr(self, "person", None) is not None:
-      self.compute_node.edit(
-        source_administration_value=getattr(self, "person", None),
-        )
     self.compute_node.validate()
     self._addCertificateLogin(self.compute_node)
 
@@ -529,7 +529,7 @@ class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
     #    TestSlapOSSlapToolgetFullComputerInformation.test_activate_getFullComputerInformation_first_access
     #
 
-    self._makeComplexComputeNode(with_slave=True)
+    self._makeComplexComputeNode(self.project, with_slave=True)
     self.portal.REQUEST['disable_isTestRun'] = True
 
     self.login(self.compute_node_user_id)
@@ -651,7 +651,12 @@ class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
 
     # Remove the slave link to the partition
     # Compute Node should loose permission to access the slave instance
+    self.logout()
+    self.login()
+    # unallocate is done by an alarm
     self.start_requested_slave_instance.setAggregate('')
+    self.logout()
+    self.login(self.compute_node_user_id)
     self.commit()
 
     # 7th access

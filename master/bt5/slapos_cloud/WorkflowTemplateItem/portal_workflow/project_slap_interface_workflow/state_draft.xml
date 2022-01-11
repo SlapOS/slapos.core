@@ -17,7 +17,6 @@
             <value>
               <tuple>
                 <string>destination/portal_workflow/project_slap_interface_workflow/transition_accept_invitation</string>
-                <string>destination/portal_workflow/project_slap_interface_workflow/transition_approve_registration</string>
                 <string>destination/portal_workflow/project_slap_interface_workflow/transition_leave_project</string>
               </tuple>
             </value>

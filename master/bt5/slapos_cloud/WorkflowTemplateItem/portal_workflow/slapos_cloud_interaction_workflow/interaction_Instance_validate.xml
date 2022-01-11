@@ -10,7 +10,7 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>activate_script/portal_workflow/slapos_cloud_interaction_workflow/script_Instance_triggerAllocationAlarm</string>
+                <string>after_script/portal_workflow/slapos_cloud_interaction_workflow/script_Instance_triggerAllocationAlarm</string>
               </tuple>
             </value>
         </item>

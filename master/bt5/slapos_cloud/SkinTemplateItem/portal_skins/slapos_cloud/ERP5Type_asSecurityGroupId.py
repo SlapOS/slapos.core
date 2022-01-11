@@ -41,7 +41,8 @@ getCategoryValue = portal.portal_categories.getCategoryValue
 # but also prevents some human mistake to break everything by creating site_function instead of function_site
 if category_order not in (None, ''):
   category_order = list(category_order)
-  category_order.sort()
+  # Do not sort, otherwise, it is not possible to ensure source_section/function and destination/function generate the same local role
+  #category_order.sort()
 else:
   category_order = []
 

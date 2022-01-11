@@ -28,18 +28,26 @@
 
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbort
 
-from zExceptions import Unauthorized
 from DateTime import DateTime
-import time
+from zExceptions import Unauthorized
+
 
 class TestSlapOSAccounting(SlapOSTestCaseMixin):
+
+  def createHostingSubscription(self):
+    new_id = self.generateNewId()
+    return self.portal.hosting_subscription_module.newContent(
+      portal_type='Hosting Subscription',
+      title="Subscription %s" % new_id,
+      reference="TESTHS-%s" % new_id,
+      )
 
   def createInstanceTree(self):
     new_id = self.generateNewId()
     return self.portal.instance_tree_module.newContent(
       portal_type='Instance Tree',
       title="Subscription %s" % new_id,
-      reference="TESTHS-%s" % new_id,
+      reference="TESTIT-%s" % new_id,
       )
 
   def createOpenSaleOrder(self):
@@ -64,6 +72,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       destination_reference=new_destination_reference,
       destination_section=destination_section,
       payment_mode=payment_mode,
+      ledger='automated',
       specialise="sale_trade_condition_module/slapos_aggregated_trade_condition",
       created_by_builder=1 # to prevent init script to create lines
     )
@@ -81,165 +90,9 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     )
     return invoice
 
-  @withAbort
-  def test_IT_calculateSubscriptionStartDate_REQUEST_disallowed(self):
-    item = self.createInstanceTree()
-    self.assertRaises(
-      Unauthorized,
-      item.InstanceTree_calculateSubscriptionStartDate,
-      REQUEST={})
-
-  @withAbort
-  def test_IT_calculateSubscriptionStartDate_noWorkflow(self):
-    item = self.createInstanceTree()
-    item.workflow_history['instance_slap_interface_workflow'] = []
-    date = item.InstanceTree_calculateSubscriptionStartDate()
-    self.assertEqual(date, item.getCreationDate().earliestTime())
-
-  @withAbort
-  def test_IT_calculateSubscriptionStartDate_withRequest(self):
-    item = self.createInstanceTree()
-    item.workflow_history['instance_slap_interface_workflow'] = [{
-        'comment':'Directly request the instance',
-        'error_message': '',
-        'actor': 'ERP5TypeTestCase',
-        'slap_state': 'draft',
-        'time': DateTime('2012/11/15 11:11'),
-        'action': 'request_instance'
-        }]
-    date = item.InstanceTree_calculateSubscriptionStartDate()
-    self.assertEqual(date, DateTime('2012/11/15'))
-
-  @withAbort
-  def test_IT_calculateSubscriptionStartDate_withRequestEndOfMonth(self):
-    item = self.createInstanceTree()
-    item.workflow_history['instance_slap_interface_workflow'] = [{
-        'comment':'Directly request the instance',
-        'error_message': '',
-        'actor': 'ERP5TypeTestCase',
-        'slap_state': 'draft',
-        'time': DateTime('2012/11/30 11:11'),
-        'action': 'request_instance'
-    }]
-    date = item.InstanceTree_calculateSubscriptionStartDate()
-    self.assertEqual(date, DateTime('2012/11/30'))
-
-  @withAbort
-  def test_IT_calculateSubscriptionStartDate_withRequestAfterDestroy(self):
-    item = self.createInstanceTree()
-    destroy_date = DateTime('2012/10/30 11:11')
-    request_date = DateTime('2012/11/30 11:11')
-    item.workflow_history['instance_slap_interface_workflow'] = []
-    item.workflow_history['instance_slap_interface_workflow'].append({
-        'comment':'Directly destroy',
-        'error_message': '',
-        'actor': 'ERP5TypeTestCase',
-        'slap_state': 'destroy_requested',
-        'time': destroy_date,
-        'action': 'request_destroy'
-    })
-    item.workflow_history['instance_slap_interface_workflow'].append({
-        'comment':'Directly request the instance',
-        'error_message': '',
-        'actor': 'ERP5TypeTestCase',
-        'slap_state': 'draft',
-        'time': request_date,
-        'action': 'request_instance'
-    })
-    date = item.InstanceTree_calculateSubscriptionStartDate()
-    self.assertEqual(date, DateTime('2012/10/30'))
-
-  @withAbort
-  def test_IT_calculateSubscriptionStopDate_REQUEST_disallowed(self):
-    item = self.createInstanceTree()
-    self.assertRaises(
-      Unauthorized,
-      item.InstanceTree_calculateSubscriptionStopDate,
-      REQUEST={})
-
-  @withAbort
-  def test_IT_calculateSubscriptionStopDate_withDestroy(self):
-    item = self.createInstanceTree()
-    destroy_date = DateTime('2012/10/30')
-    item.workflow_history['instance_slap_interface_workflow'].append({
-        'comment':'Directly destroy',
-        'error_message': '',
-        'actor': 'ERP5TypeTestCase',
-        'slap_state': 'destroy_requested',
-        'time': destroy_date,
-        'action': 'request_destroy'
-    })
-    date = item.InstanceTree_calculateSubscriptionStopDate()
-    self.assertEqual(date, DateTime('2012/10/31'))
-
-  @withAbort
-  def test_IT_calculateSubscriptionStopDate_noDestroy(self):
-    item = self.createInstanceTree()
-    item.workflow_history['instance_slap_interface_workflow'] = []
-    date = item.InstanceTree_calculateSubscriptionStopDate()
-    self.assertEqual(date, None)
-
-  def test_OpenSaleOrder_reindexIfIndexedBeforeLine_no_line(self):
-    portal = self.portal
-    order = self.createOpenSaleOrder()
-    self.tic()
-    indexation_timestamp = portal.portal_catalog(
-      uid=order.getUid(),
-      select_dict={'indexation_timestamp': None})[0].indexation_timestamp
-    order.OpenSaleOrder_reindexIfIndexedBeforeLine()
-    self.tic()
-    new_indexation_timestamp = portal.portal_catalog(
-      uid=order.getUid(),
-      select_dict={'indexation_timestamp': None})[0].indexation_timestamp
-    self.assertEqual(new_indexation_timestamp,
-                      indexation_timestamp)
-
-  def test_OpenSaleOrder_reindexIfIndexedBeforeLine_line_indexed_after(self):
-    portal = self.portal
-    order = self.createOpenSaleOrder()
-    line = order.newContent(portal_type="Open Sale Order Line")
-    self.tic()
-    line.activate().immediateReindexObject()
-    # XXX One more kitten killed
-    time.sleep(1)
-    self.tic()
-    indexation_timestamp = portal.portal_catalog(
-      uid=order.getUid(),
-      select_dict={'indexation_timestamp': None})[0].indexation_timestamp
-    order.OpenSaleOrder_reindexIfIndexedBeforeLine()
-    self.tic()
-    new_indexation_timestamp = portal.portal_catalog(
-      uid=order.getUid(),
-      select_dict={'indexation_timestamp': None})[0].indexation_timestamp
-    self.assertNotEqual(new_indexation_timestamp,
-                         indexation_timestamp)
-
-  def test_OpenSaleOrder_reindexIfIndexedBeforeLine_line_indexed_before(self):
-    portal = self.portal
-    order = self.createOpenSaleOrder()
-    order.newContent(portal_type="Open Sale Order Line")
-    self.tic()
-    order.activate().immediateReindexObject()
-    # XXX One more kitten killed
-    time.sleep(1)
-    self.tic()
-    indexation_timestamp = portal.portal_catalog(
-      uid=order.getUid(),
-      select_dict={'indexation_timestamp': None})[0].indexation_timestamp
-    order.OpenSaleOrder_reindexIfIndexedBeforeLine()
-    self.tic()
-    new_indexation_timestamp = portal.portal_catalog(
-      uid=order.getUid(),
-      select_dict={'indexation_timestamp': None})[0].indexation_timestamp
-    self.assertEqual(new_indexation_timestamp,
-                      indexation_timestamp)
-
-  def test_OpenSaleOrder_reindexIfIndexedBeforeLine_REQUEST_disallowed(self):
-    self.assertRaises(
-      Unauthorized,
-      self.portal.OpenSaleOrder_reindexIfIndexedBeforeLine,
-      REQUEST={})
-
+  #################################################################
+  # SaleInvoiceTransaction_createReversalSaleInvoiceTransaction
+  #################################################################
   def test_SaleInvoiceTransaction_createReversalSaleInvoiceTransaction_redirect_payzen(self):
     sale_invoice_transaction = self.createSaleInvoiceTransactionForReversal(payment_mode='payzen')
     self.tic()
@@ -260,154 +113,9 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
         '?portal_status_message=Reversal%20Transaction%20created.'), 
         "%s doesn't end with expected response" % redirect)
 
-  def test_SaleInvoiceTransaction_createReversalSaleInvoiceTransaction_redirect_unknown(self):
-    sale_invoice_transaction = self.portal.accounting_module.newContent(portal_type="Sale Invoice Transaction")
-    sale_invoice_transaction.edit(payment_mode="unknown")
-
-    redirect = sale_invoice_transaction.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction()
-
-    self.assertTrue(
-      redirect.endswith(
-        '%s?portal_status_message=The%%20payment%%20mode%%20is%%20unsupported.' % sale_invoice_transaction.getRelativeUrl()), 
-      "%s doesn't end with %s?portal_status_message=The%%20payment%%20mode%%20is%%20unsupported." % (
-        redirect, sale_invoice_transaction.getRelativeUrl()))
-
-  def test_SaleInvoiceTransaction_resetPaymentMode(self):
-    sale_invoice_transaction = self.portal.accounting_module.newContent(portal_type="Sale Invoice Transaction")
-    sale_invoice_transaction.edit(payment_mode="unknown",
-      start_date=DateTime(),
-      stop_date=DateTime())
-    sale_invoice_transaction.confirm()
-    sale_invoice_transaction.start( )
-    sale_invoice_transaction.stop()
-
-    sale_invoice_transaction.SaleInvoiceTransaction_resetPaymentMode()
-    self.assertEqual(sale_invoice_transaction.getPaymentMode(), "unknown")
-    sale_invoice_transaction.edit(payment_mode="payzen")
-
-    sale_invoice_transaction.SaleInvoiceTransaction_resetPaymentMode()
-    self.assertEqual(sale_invoice_transaction.getPaymentMode(), None)
-    sale_invoice_transaction.edit(payment_mode="wechat")
-
-    sale_invoice_transaction.SaleInvoiceTransaction_resetPaymentMode()
-    self.assertEqual(sale_invoice_transaction.getPaymentMode(), None)
-
-    self.assertRaises(
-      Unauthorized,
-      sale_invoice_transaction.SaleInvoiceTransaction_resetPaymentMode,
-      REQUEST={})
-
-  def test_Person_get_set_AggregatedDelivery(self):
-    person = self.makePerson()
-
-    self.assertEqual(
-      person.Person_getAggregatedDelivery(), None)
-
-    delivery = self.portal.sale_packing_list_module.newContent(
-      portal_type="Sale Packing List")
-
-    person.Person_setAggregatedDelivery(delivery)
-
-
-    self.assertEqual(delivery,
-      person.Person_getAggregatedDelivery())
-
-  def test_AccountingTransactionModule_getUnpaidInvoiceList(self):
-    person = self.makePerson(user=1)
-  
-    template = self.portal.restrictedTraverse(
-      self.portal.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate())
-    current_invoice = template.Base_createCloneDocument(batch_mode=1)
-
-    current_invoice.edit(
-        destination_value=person,
-        destination_section_value=person,
-        destination_decision_value=person,
-        start_date=DateTime('2019/10/20'),
-        stop_date=DateTime('2019/10/20'),
-        title='Fake Invoice for Demo User Functional',
-        price_currency="currency_module/EUR",
-        reference='1')
-
-    cell = current_invoice["1"]["movement_0"]
-    cell.edit(quantity=1)
-    cell.setPrice(1)
-    
-    current_invoice.plan()
-    current_invoice.confirm()
-    current_invoice.startBuilding()
-    current_invoice.reindexObject()
-    current_invoice.stop()
-
-    self.tic()
-    current_invoice.Delivery_manageBuildingCalculatingDelivery()
-    self.tic()
-    applied_rule = current_invoice.getCausalityRelated(portal_type="Applied Rule")
-    for sm in self.portal.portal_catalog(portal_type='Simulation Movement',
-                                        simulation_state=['draft', 'planned', None],
-                                        left_join_list=['delivery_uid'],
-                                        delivery_uid=None,
-                                        path="%%%s%%" % applied_rule):
-
-      if sm.getDelivery() is not None:
-        continue
-    
-      root_applied_rule = sm.getRootAppliedRule()
-      root_applied_rule_path = root_applied_rule.getPath()
-    
-      sm.getCausalityValue(portal_type='Business Link').build(
-        path='%s/%%' % root_applied_rule_path)
-
-    self.tic()
-    self.login(person.getUserId())
-    unpaid_invoice_list = self.portal.accounting_module.AccountingTransactionModule_getUnpaidInvoiceList()
-    self.assertEqual(
-      [i.getRelativeUrl() for i in unpaid_invoice_list],
-      [current_invoice.getRelativeUrl()])
-
-    self.login()
-    payment_template = self.portal.restrictedTraverse(
-      self.portal.portal_preferences.getPreferredDefaultPrePaymentTemplate())
-    payment = payment_template.Base_createCloneDocument(batch_mode=1)
-
-    for line in payment.contentValues():
-      if line.getSource() == "account_module/payment_to_encash":
-        line.setQuantity(-1)
-      elif line.getSource() == "account_module/receivable":
-        line.setQuantity(1)
-
-    payment.confirm()
-    payment.start()
-    payment.setCausalityValue(current_invoice)
-    payment.setDestinationSectionValue(person)
-    
-    payment.stop()
-    self.tic()
-
-    is_lettered = False
-    letter = None
-    for line in current_invoice.contentValues():
-      if line.getSource() == "account_module/receivable":
-        is_lettered = True
-        letter = line.getGroupingReference()
-
-    self.assertTrue(is_lettered)
-
-    # is it groupped?
-    is_lettered = False
-    for line in payment.contentValues():
-      if line.getSource() == "account_module/receivable":
-        is_lettered = True
-        self.assertEqual(letter, line.getGroupingReference())
-    
-    self.assertTrue(is_lettered)
- 
-    self.login(person.getUserId())
-    unpaid_invoice_list = self.portal.accounting_module.AccountingTransactionModule_getUnpaidInvoiceList()
-    self.assertEqual(
-      [i.getRelativeUrl() for i in unpaid_invoice_list],
-      [])
-
+  #################################################################
+  # SaleInvoiceTransaction_createReversalSaleInvoiceTransaction
+  #################################################################
   @withAbort
   def test_createReversalSaleInvoiceTransaction_bad_portal_type(self):
     self.assertRaises(
@@ -416,39 +124,9 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       batch_mode=1)
 
   @withAbort
-  def test_createReversalSaleInvoiceTransaction_bad_payment_mode(self):
-    invoice = self.createSaleInvoiceTransactionForReversal()
-    invoice.edit(payment_mode="cash")
-    self.tic()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction,
-      batch_mode=1)
-
-  @withAbort
-  def test_createReversalSaleInvoiceTransaction_bad_state(self, payment_mode='payzen'):
-    invoice = self.createSaleInvoiceTransactionForReversal(payment_mode=payment_mode)
-    self.portal.portal_workflow._jumpToStateFor(invoice, 'delivered')
-    self.tic()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction,
-      batch_mode=1)
-
-  @withAbort
   def test_createReversalSaleInvoiceTransaction_zero_price(self, payment_mode='payzen'):
     invoice = self.createSaleInvoiceTransactionForReversal(payment_mode=payment_mode)
     invoice.manage_delObjects(invoice.contentIds())
-    self.tic()
-    self.assertRaises(
-      AssertionError,
-      invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction,
-      batch_mode=1)
-
-  @withAbort
-  def test_createReversalSaleInvoiceTransaction_wrong_trade_condition(self, payment_mode='payzen'):
-    invoice = self.createSaleInvoiceTransactionForReversal(payment_mode=payment_mode)
-    invoice.edit(specialise=None)
     self.tic()
     self.assertRaises(
       AssertionError,
@@ -473,6 +151,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       portal_type="Payment Transaction",
       payment_mode=payment_mode,
       causality_value=invoice,
+      destination=invoice.getDestination(),
       destination_section=invoice.getDestinationSection(),
       created_by_builder=1 # to prevent init script to create lines
     )
@@ -492,7 +171,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     reversale_invoice = invoice.\
       SaleInvoiceTransaction_createReversalSaleInvoiceTransaction(batch_mode=1)
 
-    self.assertEqual(invoice.getPaymentMode(""), "")
+    self.assertEqual(invoice.getPaymentMode(""), payment_mode)
     self.assertEqual(reversale_invoice.getTitle(),
                      "Reversal Transaction for %s" % invoice.getTitle())
     self.assertEqual(reversale_invoice.getDescription(),
@@ -546,75 +225,21 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       portal_type="Payment Transaction",
       payment_mode=payment_mode,
       causality_value=invoice,
+      destination=invoice.getDestination(),
       destination_section=invoice.getDestinationSection(),
       created_by_builder=1 # to prevent init script to create lines
     )
     self.portal.portal_workflow._jumpToStateFor(payment, 'started')
 
     self.tic()
-    reversale_invoice = invoice.\
-      SaleInvoiceTransaction_createReversalSaleInvoiceTransaction(batch_mode=1)
-
-    self.assertEqual(invoice.getPaymentMode(""), "")
-    # Related payment is cancelled by a proper alarm.
-    self.assertEqual(payment.getSimulationState(), "started")
-    self.assertEqual(reversale_invoice.getTitle(),
-                     "Reversal Transaction for %s" % invoice.getTitle())
-    self.assertEqual(reversale_invoice.getDescription(),
-                     "Reversal Transaction for %s" % invoice.getTitle())
-    self.assertEqual(reversale_invoice.getCausality(),
-                     invoice.getRelativeUrl())
-    self.assertEqual(reversale_invoice.getSimulationState(), "stopped")
-    self.assertEqual(invoice.getSimulationState(), "stopped")
-
-    invoice_line_id = invoice.contentValues(portal_type="Invoice Line")[0].getId()
-    transaction_line_id = invoice.contentValues(
-      portal_type="Sale Invoice Transaction Line")[0].getId()
-
-    self.assertEqual(invoice[invoice_line_id].getQuantity(),
-                     -reversale_invoice[invoice_line_id].getQuantity())
-    self.assertEqual(reversale_invoice[invoice_line_id].getQuantity(), 2)
-
-    self.assertEqual(invoice[transaction_line_id].getQuantity(),
-                     -reversale_invoice[transaction_line_id].getQuantity())
-    self.assertEqual(reversale_invoice[transaction_line_id].getQuantity(), 3)
-    self.assertEqual(len(invoice.getMovementList()), 2)
-
-    # Both invoice should have a grouping reference
-    self.assertNotEqual(invoice[transaction_line_id].getGroupingReference(""),
-                        "")
-    self.assertEqual(
-      invoice[transaction_line_id].getGroupingReference("1"),
-      reversale_invoice[transaction_line_id].getGroupingReference("2"))
-
-    # All references should be regenerated
-    self.assertNotEqual(invoice.getReference(""),
-                        reversale_invoice.getReference(""))
-    self.assertNotEqual(invoice.getSourceReference(""),
-                        reversale_invoice.getSourceReference(""))
-    self.assertNotEqual(invoice.getDestinationReference(""),
-                        reversale_invoice.getDestinationReference(""))
-
-    self.assertTrue(invoice.SaleInvoiceTransaction_isLettered())
-    self.assertTrue(reversale_invoice.SaleInvoiceTransaction_isLettered())
-    
-    # Another trade condition
-    self.assertEqual(
-      reversale_invoice.getSpecialise(),
-      "sale_trade_condition_module/slapos_manual_accounting_trade_condition")
-    self.tic()
-
-  @withAbort
-  def test_createReversalSaleInvoiceTransaction_wechat_bad_state(self):
-    self.test_createReversalSaleInvoiceTransaction_bad_state(payment_mode='wechat')
+    self.assertRaises(
+      ValueError,
+      invoice.SaleInvoiceTransaction_createReversalSaleInvoiceTransaction,
+      batch_mode=1)
 
   @withAbort
   def test_createReversalSaleInvoiceTransaction_wechat_zero_price(self):
     self.test_createReversalSaleInvoiceTransaction_zero_price(payment_mode='wechat')
-
-  @withAbort
-  def test_createReversalSaleInvoiceTransaction_wechat_wrong_trade_condition(self):
-    self.test_createReversalSaleInvoiceTransaction_wrong_trade_condition(payment_mode='wechat')
 
   @withAbort
   def test_createReversalSaleInvoiceTransaction_wechat_paid(self):
@@ -627,6 +252,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       portal_type="Payment Transaction",
       payment_mode='wechat',
       causality_value=invoice,
+      destination=invoice.getDestination(),
       destination_section=invoice.getDestinationSection(),
       created_by_builder=1 # to prevent init script to create lines
     )
@@ -647,6 +273,9 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
   def test_createReversalSaleInvoiceTransaction_wechat_ok_dont_autocancel(self):
     self.test_createReversalSaleInvoiceTransaction_ok_dont_autocancel(payment_mode='wechat')
 
+  #################################################################
+  # AccountingTransaction_getPaymentState
+  #################################################################
   @withAbort
   def test_AccountingTransaction_getPaymentState_draft_payment(self):
     invoice = self.createSaleInvoiceTransaction()
@@ -691,8 +320,10 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       batch_mode=1
     )
     self.tic()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual("Paid", invoice.AccountingTransaction_getPaymentState())
     self.assertEqual(0, invoice.getTotalPrice() + reversal.getTotalPrice())
+    self.assertTrue(invoice.SaleInvoiceTransaction_isLettered())
+    self.assertTrue(reversal.SaleInvoiceTransaction_isLettered())
 
   @withAbort
   def test_AccountingTransaction_getPaymentState_wechat_reversed_payment(self):
@@ -702,7 +333,7 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
       batch_mode=1
     )
     self.tic()
-    self.assertEqual("Cancelled", invoice.AccountingTransaction_getPaymentState())
+    self.assertEqual("Paid", invoice.AccountingTransaction_getPaymentState())
     self.assertEqual(0, invoice.getTotalPrice() + reversal.getTotalPrice())
 
   def test_AccountingTransaction_getPaymentState_payzen_free_payment(self):
@@ -726,31 +357,36 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     self.assertEqual("Pay Now", invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_payzen_paynow_payment(self):
-    person = self.makePerson()
+    project = self.addProject()
+    person = self.makePerson(project)
     invoice =  self.createStoppedSaleInvoiceTransaction(
-      destination_section=person.getRelativeUrl())
+      destination_section_value=person)
     self.tic()
     self.login(person.getUserId())
     self.assertEqual("Pay Now", invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_wechat_paynow_payment(self):
-    person = self.makePerson()
+    project = self.addProject()
+    person = self.makePerson(project)
     invoice =  self.createStoppedSaleInvoiceTransaction(
-      destination_section=person.getRelativeUrl(),
+      destination_section_value=person,
       payment_mode="wechat")
     self.tic()
     self.login(person.getUserId())
     self.assertEqual("Pay Now", invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_payzen_waiting_payment(self):
-    person = self.makePerson()
+    project = self.addProject()
+    person = self.makePerson(project)
     invoice =  self.createStoppedSaleInvoiceTransaction(
-      destination_section=person.getRelativeUrl())
+      destination_section_value=person)
 
     payment = self.portal.accounting_module.newContent(
       portal_type="Payment Transaction",
       payment_mode='payzen',
+      ledger='automated',
       causality_value=invoice,
+      destination=invoice.getDestination(),
       destination_section=invoice.getDestinationSection(),
       created_by_builder=1 # to prevent init script to create lines
     )
@@ -762,15 +398,18 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
                       invoice.AccountingTransaction_getPaymentState())
 
   def test_AccountingTransaction_getPaymentState_wechat_waiting_payment(self):
-    person = self.makePerson()
+    project = self.addProject()
+    person = self.makePerson(project)
     invoice =  self.createStoppedSaleInvoiceTransaction(
-      destination_section=person.getRelativeUrl(),
+      destination_section_value=person,
       payment_mode='wechat')
 
     payment = self.portal.accounting_module.newContent(
       portal_type="Payment Transaction",
       payment_mode='wechat',
+      ledger='automated',
       causality_value=invoice,
+      destination=invoice.getDestination(),
       destination_section=invoice.getDestinationSection(),
       created_by_builder=1 # to prevent init script to create lines
     )
@@ -811,37 +450,187 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
     self.assertEqual("Paid",
                       invoice.AccountingTransaction_getPaymentState())
 
+  #################################################################
+  # Base_getReceivableAccountList
+  #################################################################
   def test_Base_getReceivableAccountList(self):
     account_list = self.portal.Base_getReceivableAccountList()
 
     self.assertIn('account_module/receivable',
       [i.getRelativeUrl() for i in account_list])
 
-  def test_PaymentTransaction_start(self):
-
-    sale_invoice_transaction = self.portal.accounting_module.newContent(
-      portal_type="Sale Invoice Transaction",
-      start_date=DateTime()
+  #################################################################
+  # Delivery_fixBaseContributionTaxableRate
+  #################################################################
+  def _createEntityForVatCalculation(self, portal_type, region=None, vat_code=None):
+    module = self.portal.getDefaultModuleValue(portal_type)
+    return module.newContent(
+      portal_type=portal_type,
+      default_address_region=region,
+      vat_code=vat_code
     )
-    payment_transaction = self.portal.accounting_module.newContent(
-      portal_type="Payment Transaction",
-      start_date=DateTime()
+
+  def _createSalePackingListForVatCalculation(self, source_section_value,
+                                              destination_section_value):
+    delivery = self.portal.sale_packing_list_module.newContent(
+      portal_type='Sale Packing List',
+      source_section_value=source_section_value,
+      destination_section_value=destination_section_value
     )
+    line = delivery.newContent(
+      portal_type='Sale Packing List Line',
+      resource='service_module/slapos_virtual_master_subscription'
+    )
+    self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
+    return delivery, line
 
-    self.assertRaises(Unauthorized,
-      payment_transaction.PaymentTransaction_start,
-      REQUEST=self.portal.REQUEST)
+  @withAbort
+  def test_fixBaseContributionTaxableRate_unauthorized(self):
+    self.assertRaises(
+      Unauthorized,
+      self.portal.Delivery_fixBaseContributionTaxableRate,
+      REQUEST=1)
 
-    self.assertRaises(Unauthorized,
-      sale_invoice_transaction.PaymentTransaction_start,
-      REQUEST=self.portal.REQUEST)
+  @withAbort
+  def test_fixBaseContributionTaxableRate_noSourceOrganisation(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Person',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Person',
+                                          region='europe/west/france'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
 
-    self.assertRaises(Unauthorized,
-      sale_invoice_transaction.PaymentTransaction_start,
-      REQUEST=None)
+  @withAbort
+  def test_fixBaseContributionTaxableRate_noSourceRegion(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation'),
+      self._createEntityForVatCalculation(portal_type='Person',
+                                          region='europe/west/france'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
 
-    payment_transaction.PaymentTransaction_start()
-    self.assertEqual("started",
-      payment_transaction.getSimulationState())
-    
-    
+  @withAbort
+  def test_fixBaseContributionTaxableRate_notManagedSourceRegion(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/germany'),
+      self._createEntityForVatCalculation(portal_type='Person',
+                                          region='europe/west/france'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_franceNotDestinationRegion(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Person'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_franceToFrancePerson(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Person',
+                                          region='europe/west/france'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable/vat/normal_rate' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_franceToFranceOrganisation(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france',
+                                          vat_code='foobar'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable/vat/normal_rate' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_franceToFranceOrganisationWithoutVatCode(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_franceToEuropePerson(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Person',
+                                          region='europe/west/germany'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable/vat/normal_rate' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_franceToEuropeOrganisation(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/germany',
+                                          vat_code='foobar'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable/vat/zero_rate' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_franceToEuropeOrganisationWithoutVatCode(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/germany'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_franceToWorldPerson(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Person',
+                                          region='america/south/brazil'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable/vat/zero_rate' in line.getBaseContributionList())
+
+  @withAbort
+  def test_fixBaseContributionTaxableRate_franceToWorldOrganisation(self):
+    delivery, line = self._createSalePackingListForVatCalculation(
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='europe/west/france'),
+      self._createEntityForVatCalculation(portal_type='Organisation',
+                                          region='america/south/brazil'),
+    )
+    delivery.Delivery_fixBaseContributionTaxableRate()
+    # No change
+    self.assertTrue('base_amount/invoicing/taxable/vat/zero_rate' in line.getBaseContributionList())

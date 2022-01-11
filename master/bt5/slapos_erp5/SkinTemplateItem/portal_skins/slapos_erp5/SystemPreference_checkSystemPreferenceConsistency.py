@@ -23,6 +23,16 @@ if context.getId() != "slapos_default_system_preference":
   if fixit:
     context.disable(comment="Disabled by PreferenceTool_checkSystemPreferenceConsistency")
 
+subscription_assignment_category_list = context.portal_preferences.getPreferredSubscriptionAssignmentCategoryList()
+if 'function/customer' not in subscription_assignment_category_list:
+  error_list.append(
+    'The System Preference subscription assignment should have function/customer')
+if 'role/client' not in subscription_assignment_category_list:
+  error_list.append(
+    'The System Preference subscription assignment should have role/client')
+if not [x for x in subscription_assignment_category_list if x.startswith('destination_project/project_module/')]:
+  error_list.append(
+    'The System Preference subscription assignment should have a destination_project')
 
 preference_method_list = [
   "getPreferredHateoasUrl",

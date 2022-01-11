@@ -85,11 +85,6 @@
                     <key> <string>center</string> </key>
                     <value>
                       <list>
-                        <string>my_preferred_aggregated_sale_trade_condition</string>
-                        <string>my_preferred_aggregated_subscription_sale_trade_condition</string>
-                        <string>my_preferred_aggregated_consumption_sale_trade_condition</string>
-                        <string>my_preferred_zh_pre_payment_subscription_invoice_template</string>
-                        <string>my_preferred_default_pre_payment_subscription_invoice_template</string>
                         <string>my_preferred_rest_api_token_server_url</string>
                       </list>
                     </value>
@@ -104,15 +99,9 @@
                     <key> <string>left</string> </key>
                     <value>
                       <list>
-                        <string>my_preferred_open_sale_order_line_template</string>
-                        <string>my_preferred_open_sale_order_template</string>
-                        <string>my_preferred_zh_pre_payment_template</string>
-                        <string>my_preferred_default_pre_payment_template</string>
-                        <string>my_preferred_instance_delivery_template</string>
                         <string>my_preferred_hateoas_url</string>
                         <string>my_preferred_slapos_web_site_url</string>
                         <string>my_preferred_shacache_website_expected_state</string>
-                        <string>my_preferred_cloud_contract_enabled</string>
                         <string>my_preferred_wechat_integration_site</string>
                         <string>my_preferred_wechat_payment_service_reference</string>
                         <string>my_preferred_payzen_integration_site</string>
@@ -125,10 +114,7 @@
                     <value>
                       <list>
                         <string>my_preferred_regularisation_request_resource</string>
-                        <string>my_preferred_regularisation_request_template</string>
                         <string>my_preferred_regularisation_request_use_list</string>
-                        <string>my_preferred_support_request_template</string>
-                        <string>my_preferred_web_message_template</string>
                         <string>my_preferred_support_request_creation_limit</string>
                       </list>
                     </value>

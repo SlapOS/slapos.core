@@ -35,6 +35,7 @@ if invitation_token.getSourceValue() == person:
 
 for assignment in person.objectValues(portal_type="Assignment"):
   if assignment.getDestinationProject() == project.getRelativeUrl() and \
+                              assignment.getFunction() == 'customer' and \
                               assignment.getValidationState() == "open":
     invitation_token.invalidate(comment="User already has assignment to the Person")
     break
@@ -43,6 +44,7 @@ if invitation_token.getValidationState() == "validated":
   person.newContent(
     title="Assigment for Project %s" % project.getTitle(),
     portal_type="Assignment",
+    function='customer',
     destination_project_value=project).open()
 
   invitation_token.invalidate()

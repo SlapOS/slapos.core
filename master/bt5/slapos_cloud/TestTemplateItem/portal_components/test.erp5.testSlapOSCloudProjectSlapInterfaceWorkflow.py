@@ -26,9 +26,9 @@ class TestSlapOSCoreProjectSlapInterfaceWorkflow(SlapOSTestCaseMixin):
 
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
-    portal = self.getPortalObject()
-    
-    person_user = self.makePerson()
+    self.project = self.addProject()
+
+    person_user = self.makePerson(self.project)
     self.tic()
 
     # Login as new user
@@ -37,9 +37,6 @@ class TestSlapOSCoreProjectSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     new_person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
     self.assertEqual(person_user.getRelativeUrl(), new_person.getRelativeUrl())
 
-    self.project = portal.project_module.newContent(
-      portal_type="Project"
-    )
     # Value set by the init
     self.assertTrue(self.project.getReference().startswith("PROJ-"),
       "Reference don't start with PROJ- : %s" % self.project.getReference())
@@ -48,61 +45,15 @@ class TestSlapOSCoreProjectSlapInterfaceWorkflow(SlapOSTestCaseMixin):
   def beforeTearDown(self):
     transaction.abort()
 
-  def test_project_approveRegistration_no_reference(self):
-    self.project.setReference(None)
-    self.assertRaises(ValueError, self.project.approveRegistration)
-
-  def test_project_approveRegistration_already_validated(self):
-
-    # Login as admin since user cannot re-approve a validated project
-    self.login()
-    self.project.setReference(None)
-    self.project.validate()
-    # Don't raise if project is validated
-    self.assertEqual(self.project.approveRegistration(), None)
-
-  def test_project_approveRegistration(self):
-    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
-
-    self.project.approveRegistration()
-    self.tic()
-
-    self.logout()
-    self.login(person.getUserId())
-
-    self.assertEqual(self.project.getValidationState(),
-      'validated')
-
-    self.assertNotEqual(self.project.getStartDate(),
-      None)
-
-    assignment_list = [i for i in person.objectValues(portal_type="Assignment") 
-                        if i.getDestinationProjectValue() == self.project]
-    self.assertEqual(len(assignment_list), 1)
-    self.assertEqual(assignment_list[0].getValidationState(), 'open')
-    self.assertIn("Assigment for Project ", assignment_list[0].getTitle())
     
   def test_project_leaveProject_no_user(self):
     self.login()
     self.assertRaises(Unauthorized, self.project.leaveProject)
 
-  def test_project_leaveProject_owner(self):
-    person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
-    self.project.edit(destination_decision=person.getRelativeUrl())
-    self.tic()
-
-    self.project.leaveProject()
-    self.assertEqual(self.project.getDestinationDecision(),
-      None)
-
     
   def test_project_leaveProject_after_join(self):
 
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
-
-    # Just make things fast, by using the API tested above
-    self.project.approveRegistration()
-    self.tic()
 
     self.logout()
     self.login(person.getUserId())
@@ -173,8 +124,6 @@ class TestSlapOSCoreProjectSlapInterfaceWorkflow(SlapOSTestCaseMixin):
 
   def test_project_acceptInvitation_already_member(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
-    self.project.approveRegistration()
-    self.tic()
     self.login()
     assignment_list = [i for i in person.objectValues(portal_type="Assignment") 
                         if i.getDestinationProjectValue() == self.project]

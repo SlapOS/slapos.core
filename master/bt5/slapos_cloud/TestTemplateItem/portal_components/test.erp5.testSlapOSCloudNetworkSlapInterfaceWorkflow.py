@@ -19,8 +19,6 @@
 #
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
-from time import sleep
-from zExceptions import Unauthorized
 import transaction
 
 class TestSlapOSCoreNetworkSlapInterfaceWorkflow(SlapOSTestCaseMixin):
@@ -28,8 +26,10 @@ class TestSlapOSCoreNetworkSlapInterfaceWorkflow(SlapOSTestCaseMixin):
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     portal = self.getPortalObject()
-    
-    person_user = self.makePerson()
+    self.project = self.addProject()
+
+    person_user = self.makePerson(self.project)
+    self.addProjectProductionManagerAssignment(person_user, self.project)
     self.tic()
 
     # Login as new user
@@ -39,7 +39,8 @@ class TestSlapOSCoreNetworkSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertEqual(person_user.getRelativeUrl(), new_person.getRelativeUrl())
 
     self.network = portal.computer_network_module.newContent(
-      portal_type="Computer Network"
+      portal_type="Computer Network",
+      follow_up_value=self.project
     )
     self.tic()
     self.assertEqual(
@@ -62,200 +63,3 @@ class TestSlapOSCoreNetworkSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.network.validate()
     # Don't raise if network is validated
     self.assertEqual(self.network.approveRegistration(), None)
-
-  def _makeProject(self):
-    project = self.portal.project_module.newContent()
-    project.edit(reference="TESTPROJ-%s" % project.getId())
-    project.validate()
-
-    self.tic()
-    return project
-
-  def _makeOrganisation(self):
-    organisation = self.portal.organisation_module.newContent()
-    organisation.edit(reference="TESTSITE-%s" % organisation.getId())
-    organisation.validate()
-
-    self.tic()
-    return organisation
-
-  def test_ComputerNetwork_requestTransfer_project(self):
-    source_administrator = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
-    self.network.setSourceAdministrationValue(source_administrator)
-
-    self.login()
-    self.network.approveRegistration()
-
-    project = self._makeProject()
-    other_project = self._makeProject()
-    self.tic()
-
-    self.login(source_administrator.getUserId())
-
-    self.assertEqual(self.network.Item_getCurrentProjectValue(), None)
-    self.assertEqual(self.network.Item_getCurrentOwnerValue(), None)
-
-    # Place in a project    
-    self.network.requestTransfer(
-      destination_section=None,
-      destination_project=project.getRelativeUrl())
-
-    self.tic()
-    
-    self.assertEqual(self.network.Item_getCurrentProjectValue(), project)
-    self.assertEqual(self.network.Item_getCurrentOwnerValue(), source_administrator)
-    
-    self.assertEqual(1,
-      len(self.network.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-    self.login(source_administrator.getUserId())
-
-    # We don't remove from Project if destination project is not provided
-    self.network.requestTransfer(
-      destination_project=None,
-      destination_section=None
-    )
-    self.tic()
-
-    self.assertEqual(self.network.Item_getCurrentProjectValue(), project)
-    self.assertEqual(self.network.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(2,
-      len(self.network.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-
-    # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(1)
-    # Place in another project    
-    self.network.requestTransfer(
-      destination_section=None,
-      destination_project=other_project.getRelativeUrl())
-
-    self.tic()
-    
-    self.assertEqual(self.network.Item_getCurrentProjectValue(), other_project)
-    self.assertEqual(self.network.Item_getCurrentOwnerValue(), source_administrator)
-    
-    self.assertEqual(3,
-      len(self.network.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-    self.login(source_administrator.getUserId())
-
-    # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(1)
-    # We don't remove from Project if destination project is not provided
-    self.network.requestTransfer(
-      destination_project=None,
-      destination_section=None
-    )
-    self.tic()
-
-    self.assertEqual(self.network.Item_getCurrentProjectValue(), other_project)
-    self.assertEqual(self.network.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(4,
-      len(self.network.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-
-  def test_ComputerNetwork_requestTransfer_owner(self):
-    source_administrator = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
-    self.network.setSourceAdministrationValue(source_administrator)
-
-    self.login()
-    self.network.approveRegistration()
-    organisation = self._makeOrganisation()
-    other_organisation = self._makeOrganisation()
-    self.tic()
-
-    self.login(source_administrator.getUserId())
-
-    self.assertEqual(self.network.Item_getCurrentProjectValue(), None)
-    self.assertEqual(self.network.Item_getCurrentOwnerValue(), None)
-
-    self.network.requestTransfer(
-      destination_project=None,
-      destination_section=organisation.getRelativeUrl())
-
-    self.tic()
-    
-    self.assertEqual(self.network.Item_getCurrentProjectValue(), None)
-    self.assertEqual(self.network.Item_getCurrentOwnerValue(), organisation)
-    
-    self.assertEqual(1,
-      len(self.network.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-    self.login(source_administrator.getUserId())
-
-    # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(1)
-    # We don't remove from Project if destination project is not provided
-    self.network.requestTransfer(
-      destination_project=None,
-      destination_section=None)
-    self.tic()
-
-    self.assertEqual(self.network.Item_getCurrentProjectValue(), None)
-    self.assertEqual(self.network.Item_getCurrentOwnerValue(), organisation)
-
-    # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(1)
-    # Place in another project    
-    self.network.requestTransfer(
-      destination_project=None,
-      destination_section=other_organisation.getRelativeUrl())
-
-    self.tic()
-        
-    self.assertEqual(3,
-      len(self.network.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-    self.assertEqual(self.network.Item_getCurrentProjectValue(), None)
-    self.assertEqual(self.network.Item_getCurrentOwnerValue(), other_organisation)
-    
-    self.assertEqual(3,
-      len(self.network.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-    self.login(source_administrator.getUserId())
-
-    # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(1)
-    # We don't remove from Project if destination project is not provided
-    self.network.requestTransfer(
-      destination_project=None,
-      destination_section=None
-    )
-    self.tic()
-
-    self.assertEqual(self.network.Item_getCurrentProjectValue(), None)
-    self.assertEqual(self.network.Item_getCurrentOwnerValue(), other_organisation)
-    self.assertEqual(4,
-      len(self.network.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-
-
-  def test_ComputerNetwork_requestTransfer_Unauthorized(self):    
-    self.network.approveRegistration()
-    self.login()
-    self.assertRaises(Unauthorized, self.network.requestTransfer)
-
-    source_administrator = self.makePerson(user=1)
-    self.assertEqual(1 , len(source_administrator.objectValues( portal_type="ERP5 Login")))
-
-    self.login(source_administrator.getUserId())
-    self.assertRaises(Unauthorized, self.network.requestTransfer)
-
-    self.login()
-    other_user = self.makePerson(user=1)
-    self.assertEqual(1 , len(other_user.objectValues(portal_type="ERP5 Login")))
-
-    self.network.setSourceAdministrationValue(source_administrator)
-    self.tic()
-
-    self.assertRaises(Unauthorized, self.network.requestTransfer)
-    self.login(other_user.getUserId())
-    self.assertRaises(Unauthorized, self.network.requestTransfer)
-
-    self.login(source_administrator.getUserId())
-    self.network.requestTransfer(
-      destination_project=None,
-      destination_section=None
-    )
-

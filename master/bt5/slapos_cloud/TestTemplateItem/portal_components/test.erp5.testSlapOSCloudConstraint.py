@@ -45,12 +45,12 @@ class TestSlapOSConstraintMixin(SlapOSTestCaseMixin):
 
 class TestSlapOSComputePartitionConstraint(TestSlapOSConstraintMixin):
   def test_non_busy_partition_has_no_related_instance(self):
-    compute_node = self.portal.compute_node_module.template_compute_node\
-        .Base_createCloneDocument(batch_mode=1)
+    compute_node = self.portal.compute_node_module\
+        .newContent(portal_type="Compute Node")
     partition = compute_node.newContent(portal_type='Compute Partition')
     self.portal.portal_workflow._jumpToStateFor(partition, 'free')
     software_instance = self.portal.software_instance_module\
-        .template_software_instance.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Software Instance")
     slave_instance = self.portal.software_instance_module.newContent(
         portal_type='Slave Instance')
 
@@ -84,15 +84,15 @@ class TestSlapOSComputePartitionConstraint(TestSlapOSConstraintMixin):
     self.portal.portal_workflow._jumpToStateFor(partition, 'free')
 
   def test_busy_partition_has_one_related_instance(self):
-    compute_node = self.portal.compute_node_module.template_compute_node\
-        .Base_createCloneDocument(batch_mode=1)
+    compute_node = self.portal.compute_node_module\
+        .newContent(portal_type="Compute Node")
     partition = compute_node.newContent(portal_type='Compute Partition')
     self.portal.portal_workflow._jumpToStateFor(partition, 'busy')
     software_instance = self.portal.software_instance_module\
-        .template_software_instance.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Software Instance")
     software_instance.edit(aggregate=partition.getRelativeUrl())
     software_instance_2 = self.portal.software_instance_module\
-        .template_software_instance.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Software Instance")
     slave_instance = self.portal.software_instance_module.newContent(
         portal_type='Slave Instance')
     slave_instance_2 = self.portal.software_instance_module.newContent(
@@ -474,21 +474,6 @@ class TestSlapOSInstanceTreeConstraint(TestSlapOSConstraintMixin):
         consistency_message)
 
 class TestSlapOSPersonConstraint(TestSlapOSConstraintMixin):
-
-  def test_role(self):
-    person = self.portal.person_module.newContent(portal_type='Person')
-    consistency_message = 'One role should be defined'
-    self.assertTrue(consistency_message in self.getMessageList(person))
-
-    role_id_list = list(self.portal.portal_categories.role.objectIds())
-    self.assertTrue(len(role_id_list) >= 2)
-    person.setRole(role_id_list[0])
-    self.assertFalse(consistency_message in self.getMessageList(person))
-
-    person.setRoleList(role_id_list)
-    self.assertTrue(consistency_message in self.getMessageList(person))
-    person.setRole(role_id_list[0])
-    self.assertFalse(consistency_message in self.getMessageList(person))
 
   def test_subordination_state(self):
     organisation = self.portal.organisation_module.newContent(

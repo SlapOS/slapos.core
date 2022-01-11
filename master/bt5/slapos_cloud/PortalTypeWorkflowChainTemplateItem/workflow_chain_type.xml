@@ -1,5 +1,17 @@
 <workflow_chain>
  <chain>
+  <type>Allocation Supply</type>
+  <workflow>edit_workflow, validation_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Allocation Supply Cell</type>
+  <workflow>supply_cell_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Allocation Supply Line</type>
+  <workflow>edit_workflow, reindex_object_interaction_workflow, supply_line_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Compute Node</type>
   <workflow>compute_node_slap_interface_workflow, slapos_cloud_interaction_workflow</workflow>
  </chain>
@@ -13,15 +25,19 @@
  </chain>
  <chain>
   <type>Hosting Subscription</type>
-  <workflow>edit_workflow</workflow>
+  <workflow>edit_workflow, hosting_subscription_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Instance Node</type>
+  <workflow>edit_workflow, validation_workflow</workflow>
  </chain>
  <chain>
   <type>Instance Tree</type>
   <workflow>edit_workflow, instance_slap_interface_workflow, instance_tree_workflow</workflow>
  </chain>
  <chain>
-  <type>Organisation</type>
-  <workflow>organisation_slap_interface_workflow</workflow>
+  <type>One Time Virtual Master Access Token</type>
+  <workflow>edit_workflow, validation_workflow</workflow>
  </chain>
  <chain>
   <type>Person</type>
@@ -30,6 +46,10 @@
  <chain>
   <type>Project</type>
   <workflow>project_slap_interface_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Remote Node</type>
+  <workflow>compute_node_slap_interface_workflow, edit_workflow, validation_workflow</workflow>
  </chain>
  <chain>
   <type>Slave Instance</type>

@@ -29,7 +29,7 @@ from Products.ERP5Security.ERP5GroupManager import ConsistencyError
 from AccessControl.SecurityManagement import getSecurityManager, \
              setSecurityManager, newSecurityManager
 from AccessControl import Unauthorized
-from DateTime import DateTime
+
 
 def getComputeNodeSecurityCategory(self, base_category_list, user_name,
                                 ob, portal_type):
@@ -47,10 +47,19 @@ def getComputeNodeSecurityCategory(self, base_category_list, user_name,
   )
 
   if len(compute_node_list) == 1:
+    category_dict = {}
     for base_category in base_category_list:
       if base_category == "role":
         category_list.append(
          {base_category: ['role/computer']})
+      elif base_category == "destination_project":
+        compute_node = compute_node_list[0]
+        project = compute_node.getFollowUpValue(portal_type='Project')
+        if project is not None:
+          category_dict.setdefault(base_category, []).append(project.getRelativeUrl())
+      else:
+        raise NotImplementedError('Not supported base category: %s' % base_category)
+    category_list.append(category_dict)
   elif len(compute_node_list) > 1:
     raise ConsistencyError("Error: There is more than one Compute Node " \
                             "with reference '%s'" % user_name)
@@ -77,11 +86,18 @@ def getSoftwareInstanceSecurityCategory(self, base_category_list, user_name,
     for base_category in base_category_list:
       if base_category == "role":
         category_dict.setdefault(base_category, []).extend(['role/instance'])
-      if base_category == "aggregate":
+      elif base_category == "destination_project":
+        software_instance = software_instance_list[0]
+        project = software_instance.getFollowUpValue(portal_type='Project')
+        if project is not None:
+          category_dict.setdefault(base_category, []).append(project.getRelativeUrl())
+      elif base_category == "aggregate":
         software_instance = software_instance_list[0]
         instance_tree = software_instance.getSpecialiseValue(portal_type='Instance Tree')
         if instance_tree is not None:
           category_dict.setdefault(base_category, []).append(instance_tree.getRelativeUrl())
+      else:
+        raise NotImplementedError('Not supported base category: %s' % base_category)
     category_list.append(category_dict)
   elif len(software_instance_list) > 1:
     raise ConsistencyError("Error: There is more than one Software Instance " \
@@ -126,68 +142,3 @@ def restrictMethodAsShadowUser(self, shadow_document=None, callable_object=None,
     finally:
       # Restore the original user.
       setSecurityManager(sm)
-
-
-def getSecurityCategoryFromAssignmentDestinationClientOrganisation(
-  self,
-  base_category_list,
-  user_name,
-  ob,
-  portal_type,
-  child_category_list=None
-):
-  """
-  This script returns a list of dictionaries which represent
-  the security groups which a person is member of. It extracts
-  the categories from the current user assignment.
-  It is useful in the following cases:
-
-  - associate a document (ex. an accounting transaction)
-    to the division which the user was assigned to
-    at the time it was created
-
-  - calculate security membership of a user
-
-  The parameters are
-
-    base_category_list -- list of category values we need to retrieve
-    user_name          -- string obtained from getSecurityManager().getUser().getId()
-    ob             -- object which we want to assign roles to
-    portal_type        -- portal type of object
-  """
-  category_list = []
-  if child_category_list is None:
-    child_category_list = []
-
-  user_path_set = {
-    x['path'] for x in self.acl_users.searchUsers(
-      id=user_name,
-      exact_match=True,
-    ) if 'path' in x
-  }
-  if not user_path_set:
-    # if a person_object was not found in the module, we do nothing more
-    # this happens for example when a manager with no associated person object
-    # creates a person_object for a new user
-    return []
-  user_path, = user_path_set
-  person_object = self.getPortalObject().unrestrictedTraverse(user_path)
-  now = DateTime()
-
-  # We look for every valid assignments of this user
-  for assignment in person_object.contentValues(filter={'portal_type': 'Assignment'}):
-    if assignment.getValidationState() == "open" and (
-      not assignment.hasStartDate() or assignment.getStartDate() <= now
-    ) and (
-      not assignment.hasStopDate() or assignment.getStopDate() >= now
-    ):
-      category_dict = {}
-      for base_category in base_category_list:
-        category_value_list = assignment.getAcquiredValueList(base_category)
-        if category_value_list:
-          for category_value in category_value_list:
-            if category_value.getPortalType() == "Organisation":
-              category_dict.setdefault(base_category, []).append(category_value.getRelativeUrl())
-      category_list.append(category_dict)
-
-  return category_list

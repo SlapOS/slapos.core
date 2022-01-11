@@ -8,7 +8,12 @@ kwargs = state_change.kwargs
 try:
   compute_node_title = kwargs['compute_node_title']
 except KeyError:
-  raise TypeError, "Person_requestComputeNode takes exactly 1 argument"
+  raise TypeError, "Person_requestComputeNode takes exactly 2 arguments. Missing compute_node_title."
+
+try:
+  project_reference = kwargs['project_reference']
+except KeyError:
+  raise TypeError, "Person_requestComputeNode takes exactly 2 arguments. Missing project_reference."
 
 tag = "%s_%s_ComputeNodeInProgress" % (person.getUid(), 
                                compute_node_title)
@@ -17,17 +22,27 @@ if (portal.portal_activities.countMessageWithTag(tag) > 0):
   # As it is not possible to fetch informations, it is better to raise an error
   raise NotImplementedError(tag)
 
+# Ensure project is correctly set
+project_list = portal.portal_catalog.portal_catalog(portal_type='Project', reference=project_reference,
+                                                    validation_state='validated', limit=2)
+if len(project_list) != 1:
+  raise NotImplementedError("%i projects '%s'" % (len(project_list), project_reference))
+
 compute_node_portal_type = "Compute Node"
-compute_node_list = portal.portal_catalog.portal_catalog(portal_type=compute_node_portal_type, title=compute_node_title, limit=2)
+compute_node_list = portal.portal_catalog.portal_catalog(
+  portal_type=compute_node_portal_type,
+  title={'query': compute_node_title, 'key': 'ExactMatch'},
+  follow_up__uid=project_list[0].getUid(),
+  limit=2
+)
 
 if len(compute_node_list) == 2:
   raise NotImplementedError
 elif len(compute_node_list) == 1:
   compute_node = compute_node_list[0]
+  assert compute_node.getFollowUp() == project_list[0].getRelativeUrl()
 else:
-  compute_node = None
 
-if compute_node is None:
   reference = "COMP-%s" % portal.portal_ids.generateNewId(
     id_group='slap_computer_reference',
     id_generator='uid')
@@ -36,9 +51,9 @@ if compute_node is None:
     portal_type=compute_node_portal_type,
     title=compute_node_title,
     reference=reference,
+    follow_up_value=project_list[0],
     activate_kw={'tag': tag}
   )
-  compute_node.requestComputeNodeRegistration()
   compute_node.approveComputeNodeRegistration()
 
 

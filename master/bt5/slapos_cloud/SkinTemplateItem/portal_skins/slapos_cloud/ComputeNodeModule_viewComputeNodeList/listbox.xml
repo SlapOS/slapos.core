@@ -91,10 +91,6 @@
                           <string>Modification Date</string>
                         </tuple>
                         <tuple>
-                          <string>source_administration_title</string>
-                          <string>Owner</string>
-                        </tuple>
-                        <tuple>
                           <string>python_version</string>
                           <string>Python</string>
                         </tuple>

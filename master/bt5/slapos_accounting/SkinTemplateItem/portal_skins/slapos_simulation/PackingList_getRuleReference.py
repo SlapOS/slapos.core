@@ -1,5 +1,8 @@
-if context.getPortalType() == 'Sale Packing List' \
-  and context.getSpecialise() == 'sale_trade_condition_module/slapos_consumption_trade_condition':
-  # no rule for consumption
+# Do need to generate invoices in case no section are defined
+source_section = context.getSourceSection()
+destination_section = context.getDestinationSection()
+if source_section == destination_section or source_section is None \
+    or destination_section is None:
   return None
+
 return 'default_delivery_rule'

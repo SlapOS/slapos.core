@@ -5,15 +5,13 @@ Compute Node | jump_to_consumption_report_view
 Computer Consumption TioXML File | download
 Computer Consumption TioXML File | view
 Consumption Document Module | view
+Hosting Subscription | periodicity
 Instance Tree | jump_to_related_open_order_line
-Instance Tree | periodicity
 Payment Transaction | related_payzen_event
-Person | create_new_cloud_contract
-Person | jump_to_cloud_contract
+Person | create_slapos_payment_transaction
 Root Applied Rule Causality Causality Movement Group | view
 Sale Invoice Transaction | create_slapos_reversal
 Sale Packing List | jump_related_aggregated_packing_list
-Sale Packing List | jump_related_grouped_sale_packing_list
 SlapOS Accounting Quantity Updating Order Builder | view
 SlapOS Accounting Quantity Updating Order Builder | view_predicate_group
 SlapOS Accounting Quantity Updating Order Builder | view_profile

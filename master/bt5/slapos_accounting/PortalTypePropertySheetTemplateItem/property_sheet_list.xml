@@ -1,4 +1,16 @@
 <property_sheet_list>
+ <portal_type id="Accounting Transaction">
+  <item>SlapOSLedgerConstraint</item>
+  <item>SlapOSVirtualMasterSourceProjectConstraint</item>
+ </portal_type>
+ <portal_type id="Amortisation Transaction">
+  <item>SlapOSLedgerConstraint</item>
+  <item>SlapOSVirtualMasterSourceProjectConstraint</item>
+ </portal_type>
+ <portal_type id="Balance Transaction">
+  <item>SlapOSLedgerConstraint</item>
+  <item>SlapOSVirtualMasterSourceProjectConstraint</item>
+ </portal_type>
  <portal_type id="Cloud Contract">
   <item>SlapOSCloudContractAccounting</item>
  </portal_type>
@@ -8,17 +20,48 @@
  <portal_type id="Computer Consumption TioXML File">
   <item>SortIndex</item>
  </portal_type>
- <portal_type id="Instance Tree">
-  <item>SlapOSAccountingInstanceTreeConstraint</item>
+ <portal_type id="Hosting Subscription">
+  <item>SlapOSAccountingHostingSubscriptionConstraint</item>
+  <item>SlapOSLedgerConstraint</item>
+ </portal_type>
+ <portal_type id="Internal Invoice Transaction">
+  <item>SlapOSLedgerConstraint</item>
+  <item>SlapOSVirtualMasterSourceProjectConstraint</item>
+ </portal_type>
+ <portal_type id="Open Sale Order">
+  <item>SlapOSAccountingOpenSaleOrderConstraint</item>
+  <item>SlapOSLedgerConstraint</item>
+  <item>SlapOSSaleProfileConstraint</item>
+ </portal_type>
+ <portal_type id="Open Sale Order Line">
+  <item>SlapOSAccountingOpenSaleOrderLineConstraint</item>
+ </portal_type>
+ <portal_type id="Payment Transaction">
+  <item>SlapOSLedgerConstraint</item>
+ </portal_type>
+ <portal_type id="Purchase Invoice Transaction">
+  <item>SlapOSLedgerConstraint</item>
+  <item>SlapOSVirtualMasterSourceProjectConstraint</item>
  </portal_type>
  <portal_type id="Sale Invoice Transaction">
   <item>SlapOSAccountingSaleInvoiceTransactionConstraint</item>
+  <item>SlapOSLedgerConstraint</item>
+  <item>SlapOSSaleProfileConstraint</item>
+ </portal_type>
+ <portal_type id="Sale Order">
+  <item>SlapOSSaleProfileConstraint</item>
  </portal_type>
  <portal_type id="Sale Packing List">
   <item>SlapOSAccountingSalePackingListConstraint</item>
+  <item>SlapOSLedgerConstraint</item>
+  <item>SlapOSSaleProfileConstraint</item>
  </portal_type>
  <portal_type id="Sale Packing List Line">
   <item>SlapOSAccountingSalePackingListLineConstraint</item>
+ </portal_type>
+ <portal_type id="Sale Trade Condition">
+  <item>SlapOSAccountingSaleTradeConditionConstraint</item>
+  <item>SlapOSSaleProfileConstraint</item>
  </portal_type>
  <portal_type id="Slave Instance">
   <item>InstanceAccountingSynchronisation</item>

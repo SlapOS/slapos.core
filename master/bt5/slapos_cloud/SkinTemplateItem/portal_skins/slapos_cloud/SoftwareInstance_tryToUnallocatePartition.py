@@ -1,6 +1,9 @@
 instance = context
 if instance.getSlapState() != 'destroy_requested':
   return
+if instance.getValidationState() != 'invalidated':
+  # Node must confirm the destruction before unallocation
+  return
 
 partition = instance.getAggregateValue(portal_type="Compute Partition")
 portal = instance.getPortalObject()
@@ -13,7 +16,7 @@ if partition is not None:
     instance.unallocatePartition()
     instance_sql_list = portal.portal_catalog(
                           portal_type=["Software Instance", "Slave Instance"],
-                          default_aggregate_uid=partition.getUid(),
+                          aggregate__uid=partition.getUid(),
                         )
     count = len(instance_sql_list)
     if count == 0:

@@ -419,10 +419,6 @@
                           <string>version</string>
                           <string>Version</string>
                         </tuple>
-                        <tuple>
-                          <string>status</string>
-                          <string>Status</string>
-                        </tuple>
                       </list>
                     </value>
                 </item>

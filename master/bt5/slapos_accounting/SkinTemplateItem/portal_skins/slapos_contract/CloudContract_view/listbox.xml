@@ -409,10 +409,6 @@
                           <string>maximum_invoice_credit</string>
                           <string>Maximum Invoice Credit</string>
                         </tuple>
-                        <tuple>
-                          <string>CloudContractLine_getRemainingInvoiceCredit</string>
-                          <string>Remaining Credit</string>
-                        </tuple>
                       </list>
                     </value>
                 </item>

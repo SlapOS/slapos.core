@@ -1,3 +1,6 @@
+if True:
+  return "disabled as not matching yet the virtual master design"
+
 from zExceptions import Unauthorized
 if REQUEST is not None:
   raise Unauthorized
@@ -20,7 +23,7 @@ if tioxml_dict is None:
 else:
 
   compute_node = context.getContributorValue(portal_type="Compute Node")
-  compute_node_project_document = compute_node.Item_getCurrentProjectValue()
+  compute_node_project_document = compute_node.getFollowUpValue()
   delivery_title = tioxml_dict['title']
 
   compute_node_project = None
@@ -35,7 +38,7 @@ else:
     # informative.
     if compute_node.getReference() == reference:
       aggregate_value_list = [compute_node]
-      person = compute_node.getSourceAdministrationValue(portal_type="Person")
+      person_relative_url = None
       project = compute_node_project
     else:
       project = None # For now, else we should calculate this too.
@@ -71,6 +74,7 @@ else:
           portal_type="Person")
       except:
         raise ValueError(instance.getRelativeUrl())
+      person_relative_url = person.getRelativeUrl()
 
       aggregate_value_list = [partition, instance, subscription]
 
@@ -79,21 +83,20 @@ else:
                         quantity=movement['quantity'],
                         aggregate_value_list=aggregate_value_list,
                         resource=movement['resource'],
-                        person=person.getRelativeUrl(),
+                        person=person_relative_url,
                         project=project
                     )
         )
 
   # Time to create the PL
-  person = compute_node.getSourceAdministrationValue(portal_type="Person")
   delivery_template = portal.restrictedTraverse(
       portal.portal_preferences.getPreferredInstanceDeliveryTemplate())
   delivery = delivery_template.Base_createCloneDocument(batch_mode=1)
 
   delivery.edit(
     title=delivery_title,
-    destination=person.getRelativeUrl(),
-    destination_decision=person.getRelativeUrl(),
+    #destination=person.getRelativeUrl(),
+    #destination_decision=person.getRelativeUrl(),
     start_date=context.getCreationDate(),
   )
 
@@ -111,6 +114,7 @@ else:
       destination_project=project,
       resource_value=service,
       quantity_unit=service.getQuantityUnit(),
+      price=0,
     )
   delivery.confirm(comment="Created from %s" % context.getRelativeUrl())
   delivery.start()

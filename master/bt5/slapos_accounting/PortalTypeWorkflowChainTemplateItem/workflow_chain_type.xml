@@ -1,5 +1,9 @@
 <workflow_chain>
  <chain>
+  <type>Applied Rule</type>
+  <workflow>slapos_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Cloud Contract</type>
   <workflow>edit_workflow, item_workflow</workflow>
  </chain>
@@ -8,20 +12,40 @@
   <workflow>edit_workflow</workflow>
  </chain>
  <chain>
+  <type>Compute Node</type>
+  <workflow>slapos_accounting_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Computer Consumption TioXML File</type>
   <workflow>document_conversion_interaction_workflow, document_publication_workflow, edit_workflow</workflow>
  </chain>
  <chain>
+  <type>Hosting Subscription</type>
+  <workflow>slapos_accounting_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Instance Tree</type>
-  <workflow>slapos_accounting_interaction_workflow, slapos_api_invoicing_workflow</workflow>
+  <workflow>slapos_accounting_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Open Sale Order</type>
+  <workflow>slapos_accounting_interaction_workflow, slapos_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Project</type>
+  <workflow>slapos_accounting_interaction_workflow</workflow>
  </chain>
  <chain>
   <type>Sale Invoice Transaction</type>
-  <workflow>slapos_accounting_interaction_workflow</workflow>
+  <workflow>slapos_accounting_interaction_workflow, slapos_simulation_interaction_workflow</workflow>
  </chain>
  <chain>
   <type>Sale Packing List</type>
-  <workflow>slapos_accounting_interaction_workflow</workflow>
+  <workflow>slapos_accounting_interaction_workflow, slapos_simulation_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Simulation Movement</type>
+  <workflow>slapos_simulation_interaction_workflow</workflow>
  </chain>
  <chain>
   <type>Subscription Item Root Simulation Rule</type>

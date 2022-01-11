@@ -12,6 +12,11 @@ if len(rule_trade_phase_list) > 0:
     # If Business Process does not define trade phase do not apply
     return False
 
+# Do not expand if it is not consistent
+# to prevent propagating configuration errors
+if movement.checkConsistency():
+  return False
+
 if movement.getSimulationState() in business_link.getCompletedStateList():
   return True
 

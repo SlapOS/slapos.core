@@ -8,36 +8,11 @@ elif simulation_state in ("planned", "confirmed", "ordered", "started"):
 
 else:
   portal = context.getPortalObject()
-
   person = portal.portal_membership.getAuthenticatedMember().getUserValue()
-  paid = True
 
-  def isNodeFromLineReceivable(line):
-    node_value = line.getSourceValue(portal_type='Account')
-    return node_value.getAccountType() == 'asset/receivable'
+  paid = context.SaleInvoiceTransaction_isLettered()
 
-  for line in context.getMovementList(portal.getPortalAccountingMovementTypeList()):
-    if person is not None:
-      is_node_from_line_receivable = person.Person_restrictMethodAsShadowUser(
-        shadow_document=person,
-        callable_object=isNodeFromLineReceivable,
-        argument_list=[line])
-    else:
-      is_node_from_line_receivable = isNodeFromLineReceivable(line)
- 
-    if is_node_from_line_receivable:
-      if not line.hasGroupingReference():
-        paid = False
-        break
-
-  reversal = portal.portal_catalog.getResultValue(
-      portal_type="Sale Invoice Transaction",
-      simulation_state="stopped",
-      default_causality_uid=context.getUid()
-    )
-  if reversal is not None and (context.getTotalPrice() + reversal.getTotalPrice()) == 0:
-    result = "Cancelled"
-  elif paid:
+  if paid:
     result = "Paid"
   elif context.getTotalPrice() == 0:
     result = "Free!"
@@ -48,9 +23,7 @@ else:
     payment = portal.portal_catalog.getResultValue(
       portal_type="Payment Transaction",
       simulation_state="started",
-      default_causality_uid=context.getUid(),
-      default_payment_mode_uid=[portal.portal_categories.payment_mode.payzen.getUid(),
-                                portal.portal_categories.payment_mode.wechat.getUid()],
+      causality__uid=context.getUid()
     )
     if payment is not None:
       # Check if mapping exists

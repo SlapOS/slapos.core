@@ -3,6 +3,9 @@ the new Invoice.
 """
 from Products.ERP5Type.Message import translateString
 from DateTime import DateTime
+
+portal = context.getPortalObject()
+
 if related_simulation_movement_path_list is None:
   raise RuntimeError, 'related_simulation_movement_path_list is missing. Update ERP5 Product.'
 
@@ -11,42 +14,31 @@ price_currency = invoice.getPriceCurrency()
 if invoice.getResource() != price_currency:
   invoice.setResource(price_currency)
 
-if invoice.getPaymentMode("") == "":
-  invoice.setPaymentModeValue(invoice.getPortalObject().portal_categories.payment_mode.payzen)
-
-causality_list = []
-min_start_date = None
-max_stop_date = None
-for line in invoice.objectValues():
-  related_delivery = line.getDeliveryRelatedValue()
-  if related_delivery is not None:
-    root_applied_rule = related_delivery.getRootAppliedRule()
-    if root_applied_rule is not None:
-      causality = root_applied_rule.getCausality()
-      if causality is not None and causality not in causality_list:
+# Extend the invoice causality with the parent simulation movement explanation
+# usually, Sale Packing List
+causality_list = invoice.getCausalityList()
+for simulation_movement in related_simulation_movement_path_list:
+  simulation_movement = portal.restrictedTraverse(simulation_movement)
+  if not simulation_movement.getExplanation().startswith(invoice.getRelativeUrl()):
+    # Beware, the simulation movement may be not used to build the invoice
+    # related_simulation_movement_path_list is the movement_list used by the builder
+    continue
+  applied_rule = simulation_movement.getParentValue()
+  if applied_rule.getParentId() != 'portal_simulation':
+    causality = applied_rule.getParentValue().getExplanationValue()
+    if causality is not None:
+      causality = causality.getRelativeUrl()
+      if causality not in causality_list:
         causality_list.append(causality)
+invoice.setCausalityList(causality_list)
 
-  if min_start_date is None:
-    min_start_date = line.getStartDate()
-  elif line.getStartDate() < min_start_date:
-    min_start_date = line.getStartDate()
-
-  if max_stop_date is None:
-    max_stop_date = line.getStopDate()
-  elif line.getStopDate() > max_stop_date:
-    max_stop_date = line.getStopDate()
-
-if context.getStartDate() is None:
-  if min_start_date is None:
-    min_start_date = DateTime().earliestTime()
-  context.setStartDate(min_start_date)
-
-  if max_stop_date is None:
-    if min_start_date is not None:
-      max_stop_date = min_start_date
-    else:
-      max_stop_date = DateTime().earliestTime()
-  context.setStopDate(max_stop_date)
+# Link the Invoice to the original Deposit payment
+# this allow the invoice and payment to be automatilly grouped (lettering)
+if invoice.getCausality(None) is not None:
+  new_causality = invoice.getCausalityValue()
+  original_payment = new_causality.getCausalityValue(None, portal_type="Payment Transaction")
+  if original_payment is not None:
+    original_payment.setCausalityList(original_payment.getCausalityList() + [invoice.getRelativeUrl()])
 
 
 comment = translateString('Initialised by Delivery Builder.')
@@ -59,6 +51,5 @@ if invoice.portal_workflow.isTransitionPossible(invoice, 'plan'):
 if invoice.portal_workflow.isTransitionPossible(invoice, 'confirm'):
   invoice.confirm(comment=comment)
 
-invoice.setCausalityList(causality_list)
 
 invoice.startBuilding(comment=comment)

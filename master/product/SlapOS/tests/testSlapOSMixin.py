@@ -65,6 +65,15 @@ class testSlapOSMixin(ERP5TypeTestCase):
         setattr(self, 'stepCall' + convertToUpperCase(alarm.getId()) \
           + 'Alarm', makeCallAlarm(alarm))
 
+    # Compatibility
+    # Ensure Open Order are created before doing allocation
+    self.oldStepCallSlaposAllocateInstanceAlarm = self.stepCallSlaposAllocateInstanceAlarm
+    def newStepCallSlaposAllocateInstanceAlarm():
+      self.stepCallSlaposRequestUpdateInstanceTreeOpenSaleOrderAlarm()
+      self.tic()
+      self.oldStepCallSlaposAllocateInstanceAlarm()
+    self.stepCallSlaposAllocateInstanceAlarm = newStepCallSlaposAllocateInstanceAlarm
+
   def createCertificateAuthorityFile(self):
     """Sets up portal_certificate_authority"""
 

@@ -3,8 +3,6 @@ if REQUEST is not None:
   raise Unauthorized
 
 document = context
-if document.getPortalType() == "Upgrade Decision Line":
-  document = context.getParentValue()
 
 document.updateLocalRolesOnSecurityGroups()
 

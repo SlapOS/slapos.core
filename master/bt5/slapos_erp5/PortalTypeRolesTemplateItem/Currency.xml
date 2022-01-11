@@ -1,14 +1,36 @@
 <type_roles>
+  <role id='Assignee'>
+   <property id='title'>Accountant Agent</property>
+   <multi_property id='categories'>local_role_group/function</multi_property>
+   <multi_property id='category'>function/accounting/agent</multi_property>
+   <multi_property id='base_category'>function</multi_property>
+  </role>
   <role id='Assignor'>
-   <property id='title'>Group company</property>
-   <multi_property id='categories'>local_role_group/group</multi_property>
-   <multi_property id='category'>group/company</multi_property>
-   <multi_property id='base_category'>group</multi_property>
+   <property id='title'>Accountant Manager</property>
+   <property id='description'>Only the accountant can validate new accounts.</property>
+   <multi_property id='categories'>local_role_group/function</multi_property>
+   <multi_property id='category'>function/accounting/manager</multi_property>
+   <multi_property id='base_category'>function</multi_property>
+  </role>
+  <role id='Auditor'>
+   <property id='title'>Member</property>
+   <multi_property id='category'>function/customer</multi_property>
+   <multi_property id='base_category'>function</multi_property>
   </role>
   <role id='Auditor'>
    <property id='title'>Person Shadow</property>
    <multi_property id='categories'>local_role_group/shadow</multi_property>
    <multi_property id='category'>role/shadow/person</multi_property>
    <multi_property id='base_category'>role</multi_property>
+  </role>
+  <role id='Auditor'>
+   <property id='title'>Production</property>
+   <multi_property id='category'>function/production*</multi_property>
+   <multi_property id='base_category'>function</multi_property>
+  </role>
+  <role id='Auditor'>
+   <property id='title'>Sale</property>
+   <multi_property id='category'>function/sale*</multi_property>
+   <multi_property id='base_category'>function</multi_property>
   </role>
 </type_roles>

@@ -24,9 +24,9 @@ from erp5.component.test.SlapOSTestCaseMixin import \
   SlapOSTestCaseMixinWithAbort
 
 
-class TestSlapOSHostingJSPrecacheManifestList(SlapOSTestCaseMixinWithAbort):
+class TestSlapOSPanelPrecacheManifestList(SlapOSTestCaseMixinWithAbort):
 
-  manifest_script_id = 'WebSection_getHostingJSPrecacheManifestList'
+  manifest_script_id = 'WebSection_getPanelPrecacheManifestList'
 
   def isPublishedWebPage(self, reference):
     return self.web_site.getDocumentValue(reference) is not None
@@ -35,8 +35,8 @@ class TestSlapOSHostingJSPrecacheManifestList(SlapOSTestCaseMixinWithAbort):
     return self.portal.restrictedTraverse(reference, None) is not None
 
   def test(self):
-    self.web_site = self.portal.web_site_module.renderjs_oss
-    self.changeSkin('Hal')
+    self.web_site = self.portal.web_site_module.slapos_master_panel
+    self.changeSkin('RJS')
     manifest_script = getattr(self.web_site, self.manifest_script_id)
     failure_list = []
     self.logout()
@@ -52,13 +52,13 @@ class TestSlapOSHostingJSPrecacheManifestList(SlapOSTestCaseMixinWithAbort):
 
 
 class TestSlapOSRenderJSRunnerAccessPagePrecacheManifestList(
-    TestSlapOSHostingJSPrecacheManifestList):
+    TestSlapOSPanelPrecacheManifestList):
   manifest_script_id = 'WebSection_getRenderJSRunnerAccessPagePrecacheManifestList'
 
 class TestSlapOSMonacoEditorPrecacheManifestList(
-    TestSlapOSHostingJSPrecacheManifestList):
+    TestSlapOSPanelPrecacheManifestList):
   manifest_script_id = 'WebSection_getMonacoEditorPrecacheManifestList'
 
 class TestSlapOSJsonEditorPrecacheManifestList(
-    TestSlapOSHostingJSPrecacheManifestList):
+    TestSlapOSPanelPrecacheManifestList):
   manifest_script_id = 'WebSection_getJsonEditorPrecacheManifestList'

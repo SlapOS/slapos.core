@@ -8,16 +8,19 @@ deprecated ERP5Type_asSecurityGroupIdList
 
 return (
   # Person security
-  ('ERP5Type_getSecurityCategoryFromAssignment', ['group']),
-  ('ERP5Type_getSecurityCategoryFromAssignment', ['role']),
+  ('ERP5Type_getSecurityCategoryFromAssignment', ['function']),
+  ('ERP5Type_getSecurityCategoryFromAssignmentParent', ['function']),
+  # XXX TODO check that only validated project are used
   ('ERP5Type_getSecurityCategoryFromAssignment', ['destination_project']),
-  ('ERP5Type_getSecurityCategoryFromAssignmentDestinationClientOrganisation', ['destination']),
+  ('ERP5Type_getSecurityCategoryFromAssignment', ['destination_project', 'function']),
   
   # Compute Node security
   ('ERP5Type_getComputeNodeSecurityCategory', ['role']),
 
   # Instance security
   ('ERP5Type_getSoftwareInstanceSecurityCategory', ['role']),
+  ('ERP5Type_getSoftwareInstanceSecurityCategory', ['destination_project']),
+  ('ERP5Type_getSoftwareInstanceSecurityCategory', ['destination_project', 'role']),
   ('ERP5Type_getSoftwareInstanceSecurityCategory', ['aggregate']),
 
 )

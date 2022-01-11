@@ -51,7 +51,7 @@
             <value>
               <tuple>
                 <string>_setAggregate.*</string>
-                <string>_setDestinationSection.*</string>
+                <string>_setFollowUp.*</string>
               </tuple>
             </value>
         </item>

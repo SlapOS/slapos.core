@@ -54,6 +54,7 @@
               <tuple>
                 <string>_setSpecialise.*</string>
                 <string>_setAggregate.*</string>
+                <string>_setFollowUp.*</string>
               </tuple>
             </value>
         </item>

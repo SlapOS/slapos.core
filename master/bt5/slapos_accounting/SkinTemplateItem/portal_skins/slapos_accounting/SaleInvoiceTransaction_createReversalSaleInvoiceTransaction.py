@@ -10,8 +10,8 @@ assert context.getPortalType() == 'Sale Invoice Transaction'
 assert context.getPaymentMode() in ('payzen', 'wechat')
 assert context.getSimulationState() == 'stopped'
 assert context.getTotalPrice() != 0
-assert context.getSpecialise() in ("sale_trade_condition_module/slapos_aggregated_trade_condition",
-                                   "sale_trade_condition_module/slapos_aggregated_subscription_trade_condition")
+assert context.getLedger() == 'automated'
+assert context.getSpecialise(None) is not None
 
 # Dont create if the invoice is already paied
 assert not context.SaleInvoiceTransaction_isLettered()

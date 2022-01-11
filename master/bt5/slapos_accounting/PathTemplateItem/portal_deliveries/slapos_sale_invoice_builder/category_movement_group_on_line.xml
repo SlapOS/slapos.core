@@ -37,13 +37,10 @@
             <key> <string>tested_property</string> </key>
             <value>
               <tuple>
-                <string>aggregate</string>
                 <string>resource</string>
                 <string>quantity_unit</string>
                 <string>base_contribution</string>
                 <string>base_application</string>
-                <string>source_administration</string>
-                <string>destination_administration</string>
               </tuple>
             </value>
         </item>

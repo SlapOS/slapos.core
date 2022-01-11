@@ -37,8 +37,7 @@
             <key> <string>tested_property</string> </key>
             <value>
               <tuple>
-                <string>start_date</string>
-                <string>stop_date</string>
+                <string>price</string>
               </tuple>
             </value>
         </item>

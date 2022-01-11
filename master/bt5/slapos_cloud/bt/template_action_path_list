@@ -1,21 +1,22 @@
+Allocation Supply Line | view
+Allocation Supply Module | view
+Allocation Supply | view
 Compute Node | compute_node_usage
 Compute Node | tracking
 Compute Node | view_capacity
 Compute Node | view_certificate_login
 Compute Partition | unfiltered_tracking_list
 Computer Model | view_capacity
-Computer Network | view_compute_node_list
 Computer Network | view_software_release
 Hosting Subscription Module | view
 Hosting Subscription | view
+Instance Node | view
 Instance Tree Module | view
-Instance Tree | create_hs_upgrade
-Instance Tree | request_hs_start
-Instance Tree | request_hs_stop
 Instance Tree | view
 Instance Tree | view_editor
-Instance Tree | view_request_destroy
+One Time Virtual Master Access Token | view
 Person | jump_to_instance_tree
+Remote Node | view
 Slave Instance | jump_to_instance_tree
 Slave Instance | jump_to_software_instance
 Slave Instance | unfiltered_tracking_list
@@ -23,7 +24,6 @@ Slave Instance | view
 Slave Instance | view_rename_and_request_destroy
 Slave Instance | view_rename_and_request_stop
 Software Installation Module | view
-Software Installation | request_destroy
 Software Installation | view
 Software Instance Module | view
 Software Instance | jump_to_compute_partition

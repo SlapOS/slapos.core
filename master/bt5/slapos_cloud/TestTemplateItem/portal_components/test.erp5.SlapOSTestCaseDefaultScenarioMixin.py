@@ -37,10 +37,10 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     preference.edit(
       preferred_credential_alarm_automatic_call=0,
       preferred_credential_recovery_automatic_approval=0,
-      preferred_credential_request_automatic_approval=1,
-      preferred_cloud_contract_enabled=True
+      preferred_credential_request_automatic_approval=1
     )
 
+    """
     # Enable alarms for regularisation request
     self.portal.portal_alarms.slapos_crm_create_regularisation_request.setEnabled(True)
     self.portal.portal_alarms.slapos_crm_invalidate_suspended_regularisation_request.setEnabled(True)
@@ -48,9 +48,51 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.portal.portal_alarms.slapos_crm_trigger_stop_acknowledgment_escalation.setEnabled(True)
     self.portal.portal_alarms.slapos_crm_trigger_delete_reminder_escalation.setEnabled(True)
     self.portal.portal_alarms.slapos_crm_trigger_acknowledgment_escalation.setEnabled(True)
-
+"""
     # Create akarls steps
     self.createAlarmStep()
+
+  def createProject(self):
+    project = self.portal.project_module.newContent(
+      portal_type='Project',
+      title='project-%s' % self.generateNewId()
+    )
+    project.validate()
+    return project
+
+  def createAdminUser(self, project):
+    """ Create a Admin user, to manage compute_nodes and instances eventually """
+    admin_user_login = self.portal.portal_catalog.getResultValue(
+      portal_type="ERP5 Login",
+      reference="admin_user",
+      validation_state="validated"
+    )
+
+    if admin_user_login is None:
+      admin_user = self.portal.person_module\
+                                 .newContent(portal_type="Person")
+
+      admin_user.newContent(
+        portal_type="ERP5 Login",
+        reference="admin_user").validate()
+      admin_user.edit(
+        first_name="Admin User",
+        reference="Admin_user",
+        default_email_text="do_not_reply_to_admin@example.org",
+      )
+
+      admin_user.validate()
+
+    else:
+      admin_user = admin_user_login.getParentValue()
+
+    admin_user.newContent(
+      portal_type='Assignment',
+      destination_project_value=project,
+      function='production/manager'
+    ).open()
+
+    self.admin_user = admin_user
 
   @changeSkin('Hal')
   def joinSlapOS(self, web_site, reference):
@@ -59,7 +101,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         if [q for q in candidate[1] if email in q] and body in candidate[2]:
           return candidate[2]
 
-    credential_request_form = self.web_site.hateoas.connection.join_form()
+    self.portal.portal_skins.changeSkin('RJS')
+    credential_request_form = self.web_site.slapos_master_panel.hateoas.connection.join_form()
 
     expected_message = 'You will receive a confirmation email to activate your account.'
     self.assertTrue(expected_message in credential_request_form,
@@ -67,7 +110,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
     email = '%s@example.com' % reference
 
-    redirect_url = self.web_site.hateoas.connection.WebSection_newCredentialRequest(
+    redirect_url = self.web_site.slapos_master_panel.hateoas.connection.WebSection_newCredentialRequest(
       reference=reference,
       default_email_text=email,
       first_name="Joe",
@@ -78,6 +121,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       default_address_city="Campos",
       default_address_street_address="Av Pelinca",
       default_address_zip_code="28480",
+      default_address_region='europe/west/france',
     )
     parsed_url = six.moves.urllib.parse.urlparse(redirect_url)
     self.assertEqual(parsed_url.path.split('/')[-1], 'login_form')
@@ -97,7 +141,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     
     join_key = to_click_url.split('=')[-1]
     self.assertNotEqual(join_key, None)
-    web_site.ERP5Site_activeLogin(key=join_key)
+    self.portal.portal_skins.changeSkin('RJS')
+    web_site.slapos_master_panel.hateoas.connection.ERP5Site_activeLogin(key=join_key)
 
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 303)
     self.assertIn(self.web_site.getId() + "/%23%21login%3Fp.page%3Dslapos%7B%26n.me%7D",
@@ -122,8 +167,8 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
   def setAccessToMemcached(self, agent):
     agent.setAccessStatus("#access ")
 
-  def requestComputeNode(self, title):
-    requestXml = self.portal.portal_slap.requestComputer(title)
+  def requestComputeNode(self, title, project_reference):
+    requestXml = self.portal.portal_slap.requestComputer(title, project_reference)
     self.tic()
     self.assertIn('marshal', requestXml)
     compute_node = xml_marshaller.xml_marshaller.loads(requestXml)
@@ -150,31 +195,10 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
   @changeSkin('RJS')
   def setServerOpenPublic(self, server):
     server.edit(
-        allocation_scope='open/public')
-    self.assertEqual('open/public', server.getAllocationScope())
-    # Called by alarm
-    server.ComputeNode_checkAndUpdateCapacityScope()
-    self.assertEqual('open', server.getCapacityScope())
-    self.tic()
-
-  @changeSkin('RJS')
-  def setServerOpenSubscription(self, server):
-    server.edit(
-        allocation_scope='open/subscription')
-    self.assertEqual('open/subscription', server.getAllocationScope())
-    # Called by alarm
-    server.ComputeNode_checkAndUpdateCapacityScope()
-    self.assertEqual('open', server.getCapacityScope())
-    self.tic()
-
-  @changeSkin('RJS')
-  def setServerOpenPersonal(self, server):
-    server.edit(
-        allocation_scope='open/personal', subject_list=[])
-    self.assertEqual('open/personal', server.getAllocationScope())
-    # Called by alarm
-    server.ComputeNode_checkAndUpdateCapacityScope()
-    self.assertEqual('open', server.getCapacityScope())
+        allocation_scope='open')
+    self.assertEqual('open', server.getAllocationScope())
+    self.assertEqual('close', server.getCapacityScope())
+    server.edit(capacity_scope='open')
     self.tic()
 
   def formatComputeNode(self, compute_node, partition_count=10):
@@ -253,8 +277,6 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     finally:
       setSecurityManager(sm)
     self.tic()
-    self.stepCallSlaposFreeComputePartitionAlarm()
-    self.tic()
     free_partition_id_list = []
     for partition in compute_node.contentValues(portal_type='Compute Partition'):
       if partition.getReference() in destroyed_partition_id_list \
@@ -329,24 +351,28 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     return software_instance
 
   def checkSlaveInstanceAllocation(self, person_user_id, person_reference,
-      instance_title, software_release, software_type, server):
+      instance_title, software_release, software_type, server,
+       project_reference):
 
+    self.tic()
     self.login(person_user_id)
     self.personRequestInstanceNotReady(
       software_release=software_release,
       software_type=software_type,
       partition_reference=instance_title,
-      shared_xml='<marshal><bool>1</bool></marshal>'
+      shared_xml='<marshal><bool>1</bool></marshal>',
+      project_reference=project_reference
     )
 
-    self.stepCallSlaposAllocateInstanceAlarm()
     self.tic()
 
+    self.login(person_user_id)
     self.personRequestInstance(
       software_release=software_release,
       software_type=software_type,
       partition_reference=instance_title,
-      shared_xml='<marshal><bool>1</bool></marshal>'
+      shared_xml='<marshal><bool>1</bool></marshal>',
+      project_reference=project_reference
     )
 
     # now instantiate it on compute_node and set some nice connection dict
@@ -372,9 +398,127 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
                 portal_type='Internet Protocol Address')],
         connection_dict.values())
 
+  def checkInstanceTreeSlaveInstanceAllocation(
+    self,
+    person_user_id,
+    person_reference,
+    instance_tree_title, instance_title, software_release, software_type,
+    server,
+    project_reference
+  ):
+
+    self.login(person_user_id)
+
+    # let's find instance of user
+    instance_tree_list = [q.getObject() for q in
+        self._getCurrentInstanceTreeList()
+        if q.getTitle() == instance_tree_title]
+    self.assertEqual(1, len(instance_tree_list))
+    instance_tree = instance_tree_list[0]
+
+    software_instance = instance_tree.getSuccessorValue()
+
+    self.login()
+    instance_user_id = software_instance.getUserId()
+    compute_partition = software_instance.getAggregateValue()
+    computer_id = compute_partition.getParentValue().getReference()
+    computer_partition_id = compute_partition.getTitle()
+
+    self.login(instance_user_id)
+
+    response = self.portal.portal_slap.requestComputerPartition(
+      computer_id=computer_id,
+      computer_partition_id=computer_partition_id,
+      software_release=software_release,
+      software_type=software_type,
+      partition_reference=instance_title,
+      shared_xml='<marshal><bool>2</bool></marshal>',
+      project_reference=project_reference
+    )
+    status = getattr(response, 'status', None)
+    self.assertEqual(408, status)
+    self.tic()
+
+    # now instantiate it on compute_node and set some nice connection dict
+    self.simulateSlapgridCP(server)
+
+    # let's find instances of user and check connection strings
+    slave_instance = software_instance.getSuccessorValue()
+
+    connection_dict = slave_instance.getConnectionXmlAsDict()
+    self.assertSameSet(('url_1', 'url_2'), connection_dict.keys())
+    self.login()
+    partition = slave_instance.getAggregateValue()
+    self.assertSameSet(
+        ['http://%s/%s' % (q.getIpAddress(), slave_instance.getReference())
+            for q in partition.contentValues(
+                portal_type='Internet Protocol Address')],
+        connection_dict.values())
+
+  def checkRemoteInstanceAllocation(self, person_user_id, person_reference,
+      instance_title, software_release, software_type, server,
+      project_reference, connection_dict_to_check=None,
+      slave=False):
+
+    shared_xml = '<marshal><bool>%i</bool></marshal>' % int(slave)
+
+    self.login(person_user_id)
+
+    if connection_dict_to_check is None:
+      self.personRequestInstanceNotReady(
+        software_release=software_release,
+        software_type=software_type,
+        partition_reference=instance_title,
+        project_reference=project_reference,
+        shared_xml=shared_xml,
+      )
+
+      # XXX search only for this user
+      instance_tree = self.portal.portal_catalog.getResultValue(
+        portal_type="Instance Tree",
+        title=instance_title,
+        follow_up__reference=project_reference
+      )
+      self.checkServiceSubscriptionRequest(instance_tree)
+
+      self.tic()
+      self.login(person_user_id)
+
+    self.personRequestInstance(
+      software_release=software_release,
+      software_type=software_type,
+      partition_reference=instance_title,
+      project_reference=project_reference,
+      shared_xml=shared_xml,
+    )
+
+    # now instantiate it on compute_node and set some nice connection dict
+    # XXX XXX self.simulateSlapgridCP(server)
+
+    # let's find instances of user and check connection strings
+    instance_tree_list = [q.getObject() for q in
+        self._getCurrentInstanceTreeList()
+        if q.getTitle() == instance_title]
+    self.assertEqual(1, len(instance_tree_list))
+    instance_tree = instance_tree_list[0]
+
+    software_instance = instance_tree.getSuccessorValue()
+    self.assertEqual(software_instance.getTitle(),
+        instance_tree.getTitle())
+    connection_dict = software_instance.getConnectionXmlAsDict()
+
+    if connection_dict_to_check is None:
+      connection_dict_to_check = {}
+
+    self.assertSameSet(connection_dict_to_check.keys(), connection_dict.keys())
+    self.assertSameSet(
+        connection_dict_to_check.values(),
+        connection_dict.values())
+
   def checkSlaveInstanceUnallocation(self, person_user_id,
       person_reference, instance_title,
-      software_release, software_type, server):
+      software_release, software_type, server,
+      project_reference):
 
     self.login(person_user_id)
     self.personRequestInstanceNotReady(
@@ -382,7 +526,29 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       software_type=software_type,
       partition_reference=instance_title,
       shared_xml='<marshal><bool>1</bool></marshal>',
-      state='<marshal><string>destroyed</string></marshal>'
+      state='<marshal><string>destroyed</string></marshal>',
+      project_reference=project_reference
+    )
+
+    # let's find instances of user and check connection strings
+    instance_tree_list = [q.getObject() for q in
+        self._getCurrentInstanceTreeList()
+        if q.getTitle() == instance_title]
+
+    self.assertEqual(0, len(instance_tree_list))
+
+  def checkRemoteInstanceUnallocation(self, person_user_id,
+      person_reference, instance_title,
+      software_release, software_type, server,
+      project_reference):
+
+    self.login(person_user_id)
+    self.personRequestInstanceNotReady(
+      software_release=software_release,
+      software_type=software_type,
+      partition_reference=instance_title,
+      state='<marshal><string>destroyed</string></marshal>',
+      project_reference=project_reference
     )
 
     # let's find instances of user and check connection strings
@@ -394,14 +560,15 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
   def checkInstanceUnallocation(self, person_user_id,
       person_reference, instance_title,
-      software_release, software_type, server):
+      software_release, software_type, server, project_reference):
 
     self.login(person_user_id)
     self.personRequestInstanceNotReady(
       software_release=software_release,
       software_type=software_type,
       partition_reference=instance_title,
-      state='<marshal><string>destroyed</string></marshal>'
+      state='<marshal><string>destroyed</string></marshal>',
+      project_reference=project_reference
     )
 
     # now instantiate it on compute_node and set some nice connection dict
@@ -413,71 +580,19 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
         if q.getTitle() == instance_title]
     self.assertEqual(0, len(instance_tree_list))
 
-  def checkCloudContract(self, person_user_id, person_reference,
-      instance_title, software_release, software_type, server):
-
-    self.login()
-    self.assertTrue(self.portal.portal_preferences.getPreferredCloudContractEnabled())
-
-    self.stepCallSlaposContractRequestValidationPaymentAlarm()
-    self.tic()
-
-    # stabilise aggregated invoices and expand them
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
-    # update invoices with their tax & discount
-    self.stepCallSlaposTriggerBuildAlarm()
-    self.tic()
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
-    # update invoices with their tax & discount transaction lines
-    self.stepCallSlaposTriggerBuildAlarm()
-    self.tic()
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
-    # stop the invoices and solve them again
-    self.stepCallSlaposStopConfirmedAggregatedSaleInvoiceTransactionAlarm()
-    self.tic()
-    self.stepCallSlaposManageBuildingCalculatingDeliveryAlarm()
-    self.tic()
-
-    # trigger the CRM interaction
-    self.stepCallSlaposCrmCreateRegularisationRequestAlarm()
-    self.tic()
-
-    # trigger the CRM interaction
-    self.stepCallSlaposCrmCreateRegularisationRequestAlarm()
-    self.tic()
-
+  def checkServiceSubscriptionRequest(self, service):
     self.login()
 
-    person = self.portal.portal_catalog.getResultValue(
-      portal_type="Person",
-      user_id=person_user_id)
-
-    contract = self.portal.portal_catalog.getResultValue(
-      portal_type="Cloud Contract",
-      default_destination_section_uid=person.getUid(),
-      validation_state=['invalidated', 'validated'])
-    
-    self.assertNotEqual(contract, None)
-    self.assertEqual(contract.getValidationState(), "invalidated")
-    
-    # HACK FOR NOW
-    contract.validate()
-    self.tic()
-
-    self.login(person_user_id)
-
-    self.stepCallSlaposContractRequestValidationPaymentAlarm()
-    self.tic()
-
+    subscription_request = self.portal.portal_catalog.getResultValue(
+      portal_type="Subscription Request",
+      aggregate__uid=service.getUid(),
+      simulation_state='invalidated'
+    )
+    self.assertNotEqual(subscription_request, None)
 
   def checkInstanceAllocation(self, person_user_id, person_reference,
-      instance_title, software_release, software_type, server):
+      instance_title, software_release, software_type, server,
+      project_reference):
 
     self.login(person_user_id)
 
@@ -485,18 +600,25 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
       software_release=software_release,
       software_type=software_type,
       partition_reference=instance_title,
+      project_reference=project_reference
     )
-
-    self.checkCloudContract(person_user_id, person_reference,
-      instance_title, software_release, software_type, server)
-
-    self.stepCallSlaposAllocateInstanceAlarm()
     self.tic()
 
+    # XXX search only for this user
+    instance_tree = self.portal.portal_catalog.getResultValue(
+      portal_type="Instance Tree",
+      title=instance_title,
+      follow_up__reference=project_reference
+    )
+    self.checkServiceSubscriptionRequest(instance_tree)
+    self.tic()
+
+    self.login(person_user_id)
     self.personRequestInstance(
       software_release=software_release,
       software_type=software_type,
       partition_reference=instance_title,
+      project_reference=project_reference
     )
 
     # now instantiate it on compute_node and set some nice connection dict
@@ -521,115 +643,6 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
             partition.contentValues(portal_type='Internet Protocol Address')],
         connection_dict.values())
 
-  def assertInstanceTreeSimulationCoverage(self, subscription):
-    self.login()
-    # this is document level assertion, as simulation and its specific delivery
-    # is covered by unit tests
-    packing_list_line_list = subscription.getAggregateRelatedValueList(
-        portal_type='Sale Packing List Line')
-    self.assertEqual(len(packing_list_line_list), 1)
-    for packing_list_line in packing_list_line_list:
-      packing_list = packing_list_line.getParentValue()
-      self.assertEqual('Sale Packing List',
-          packing_list.getPortalType())
-      self.assertEqual('delivered',
-          packing_list.getSimulationState())
-      causality_state = packing_list.getCausalityState()
-      self.assertEqual('solved', causality_state)
-
-  def assertAggregatedSalePackingList(self, delivery):
-    self.assertEqual('delivered', delivery.getSimulationState())
-    self.assertEqual('solved', delivery.getCausalityState())
-
-    invoice_list= delivery.getCausalityRelatedValueList(
-        portal_type='Sale Invoice Transaction')
-    self.assertEqual(1, len(invoice_list))
-    invoice = invoice_list[0].getObject()
-
-    causality_list = invoice.getCausalityValueList()
-
-    self.assertSameSet([delivery], causality_list)
-
-    self.assertEqual('stopped', invoice.getSimulationState())
-    self.assertEqual('solved', invoice.getCausalityState())
-
-    payment_list = invoice.getCausalityRelatedValueList(
-        portal_type='Payment Transaction')
-    self.assertEqual(0, len(payment_list))
-
-  def assertPersonDocumentCoverage(self, person):
-    self.login()
-    subscription_list = self.portal.portal_catalog(
-        portal_type='Instance Tree',
-        default_destination_section_uid=person.getUid())
-    for subscription in subscription_list:
-      self.assertInstanceTreeSimulationCoverage(
-          subscription.getObject())
-
-    aggregated_delivery_list = self.portal.portal_catalog(
-        portal_type='Sale Packing List',
-        default_destination_section_uid=person.getUid(),
-        specialise_uid=self.portal.restrictedTraverse(self.portal\
-          .portal_preferences.getPreferredAggregatedSaleTradeCondition()\
-          ).getUid()
-    )
-
-    if len(subscription_list) == 0:
-      self.assertEqual(0, len(aggregated_delivery_list))
-      return
-
-    self.assertNotEqual(0, len(aggregated_delivery_list))
-    for aggregated_delivery in aggregated_delivery_list:
-      self.assertAggregatedSalePackingList(aggregated_delivery.getObject())
-
-  def assertOpenSaleOrderCoverage(self, person_reference):
-    self.login()
-    person = self.portal.portal_catalog.getResultValue(
-       portal_type='ERP5 Login',
-       reference=person_reference).getParentValue()
-    instance_tree_list = self.portal.portal_catalog(
-        portal_type='Instance Tree',
-        default_destination_section_uid=person.getUid()
-    )
-
-    open_sale_order_list = self.portal.portal_catalog(
-        portal_type='Open Sale Order',
-        default_destination_uid=person.getUid(),
-    )
-
-    if len(instance_tree_list) == 0:
-      self.assertEqual(0, len(open_sale_order_list))
-      return
-
-    self.assertEqual(2, len(open_sale_order_list))
-
-    archived_open_sale_order_list = [q for q in open_sale_order_list
-                       if q.getValidationState() == 'archived']
-
-    archived_open_sale_order_list.sort(key=lambda x: x.getCreationDate())
-    
-    # Select the first archived
-    open_sale_order = archived_open_sale_order_list[0]
-
-    line_list = open_sale_order.contentValues(
-        portal_type='Open Sale Order Line')
-    self.assertEqual(len(instance_tree_list), len(line_list))
-    self.assertSameSet(
-        [q.getRelativeUrl() for q in instance_tree_list],
-        [q.getAggregate() for q in line_list]
-    )
-
-    validated_open_sale_order_list = [q for q in open_sale_order_list
-                       if q.getValidationState() == 'validated']
-
-    # if no line, all open orders are kept archived
-    self.assertEqual(len(validated_open_sale_order_list), 0)
-
-    latest_open_sale_order = archived_open_sale_order_list[-1]
-    line_list = latest_open_sale_order.contentValues(
-        portal_type='Open Sale Order Line')
-    self.assertEqual(len(line_list), 0)
-
   def findMessage(self, email, body):
     for candidate in reversed(self.portal.MailHost.getMessageList()):
       if [q for q in candidate[1] if email in q] and body in candidate[2]:
@@ -649,61 +662,13 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     else:
       self.assertEqual(None, to_click_message)
 
-  @changeSkin('RJS')
-  def usePaymentManually(self, web_site, user_id, is_email_expected=True, subscription_request=None):
-    person = self.portal.portal_catalog.getResultValue(
-      portal_type="Person",
-      user_id=user_id)
-
-    self.assertNotEqual(person, None)
-    self.assertInvoiceNotification(person, is_email_expected)
-
-    invoice_list = person.Entity_getOutstandingAmountList()
-
-    self.login() 
-    if subscription_request is not None:
-      expected_causality = subscription_request.getRelativeUrl()
-      filtered_invoice_list = []
-      for invoice in invoice_list:
-        spl = invoice.getCausalityValue()
-        if spl is not None and spl.getCausality() == expected_causality:
-          filtered_invoice_list.append(invoice)
-      
-      self.assertEqual(len(filtered_invoice_list), 1)
-      invoice_list = filtered_invoice_list
-    else:
-      self.assertEqual(len(invoice_list), 1)
-
-    self.login(user_id)
-    document_id = invoice_list[0].getId()
-    web_site.accounting_module[document_id].\
-      SaleInvoiceTransaction_redirectToManualSlapOSPayment()
-    self.tic()
-
-  def assertSubscriptionStopped(self, person):
-    self.login()
-    subscription_list = self.portal.portal_catalog(
-        portal_type='Instance Tree',
-        default_destination_section_uid=person.getUid())
-    self.assertEqual(len(subscription_list), 1)
-    for subscription in subscription_list:
-      self.assertEqual(subscription.getSlapState(), "stop_requested")
-
-  def assertSubscriptionDestroyed(self, person):
-    self.login()
-    subscription_list = self.portal.portal_catalog(
-        portal_type='Instance Tree',
-        default_destination_section_uid=person.getUid())
-    self.assertEqual(len(subscription_list), 1)
-    for subscription in subscription_list:
-      self.assertEqual(subscription.getSlapState(), "destroy_requested")
-
   def requestInstance(self, person_user_id, instance_title,
-      software_release, software_type):
+      software_release, software_type, project_reference):
 
     self.login(person_user_id)
     self.personRequestInstanceNotReady(
       software_release=software_release,
       software_type=software_type,
       partition_reference=instance_title,
+      project_reference=project_reference
     )

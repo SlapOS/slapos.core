@@ -1,736 +1,854 @@
 # Copyright (c) 2002-2012 Nexedi SA and Contributors. All Rights Reserved.
 import transaction
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, TemporaryAlarmScript
 from zExceptions import Unauthorized
 from DateTime import DateTime
 from erp5.component.module.DateUtils import addToDate
 
-class TestSlapOSCoreSlapOSAssertInstanceTreeSuccessorAlarm(
-    SlapOSTestCaseMixin):
 
-  def afterSetUp(self):
-    SlapOSTestCaseMixin.afterSetUp(self)
-    self._makeTree()
+class TestSlapOSCoreSlapOSAssertInstanceTreeSuccessorAlarm(SlapOSTestCaseMixin):
+  #################################################################
+  # slapos_assert_instance_tree_successor
+  #################################################################
+  def test_InstanceTree_assertSuccessor_alarm_orphaned(self):
+    instance_tree = self.portal.instance_tree_module.newContent(
+      portal_type='Instance Tree'
+    )
+    instance_tree.validate()
+    self.tic()
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_assert_instance_tree_successor,
+      instance_tree,
+      'InstanceTree_assertSuccessor'
+    )
 
-  def test_InstanceTree_assertSuccessor(self):
-    self.software_instance.rename(new_name=self.generateNewSoftwareTitle())
+  def test_InstanceTree_assertSuccessor_alarm_renamed(self):
+    instance_tree = self.addInstanceTree()
+    instance_tree.getSuccessorValue().edit(title=self.generateNewSoftwareTitle())
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_assert_instance_tree_successor,
+      instance_tree,
+      'InstanceTree_assertSuccessor'
+    )
+
+  def test_InstanceTree_assertSuccessor_alarm_not_renamed(self):
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_assert_instance_tree_successor,
+      self.addInstanceTree(),
+      'InstanceTree_assertSuccessor'
+    )
+
+  #################################################################
+  # InstanceTree_assertSuccessor
+  #################################################################
+  def test_InstanceTree_assertSuccessor_script_renamed(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    software_instance.edit(title=self.generateNewSoftwareTitle())
     self.tic()
 
     # check that no interaction has recreated the instance
-    self.assertNotIn(self.instance_tree.getTitle(),
-        self.instance_tree.getSuccessorTitleList())
+    self.assertNotEqual(instance_tree.getTitle(), software_instance.getTitle())
+    self.assertNot(instance_tree.getTitle(), instance_tree.getSuccessorTitleList())
 
-    self.instance_tree.InstanceTree_assertSuccessor()
-    self.assertIn(self.instance_tree.getTitle(),
-        self.instance_tree.getSuccessorTitleList())
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      instance_tree.InstanceTree_assertSuccessor()
 
-  def test_InstanceTree_assertSuccessor_stop_requested(self):
-    self.software_instance.rename(new_name=self.generateNewSoftwareTitle())
-    self.portal.portal_workflow._jumpToStateFor(self.instance_tree,
+    self.assertNotEqual(instance_tree.getTitle(), software_instance.getTitle())
+    self.assertIn(instance_tree.getTitle(), instance_tree.getSuccessorTitleList())
+
+  def test_InstanceTree_assertSuccessor_script_renamedAndStopped(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    software_instance.edit(title=self.generateNewSoftwareTitle())
+    self.portal.portal_workflow._jumpToStateFor(instance_tree,
         'stop_requested')
     self.tic()
 
     # check that no interaction has recreated the instance
-    self.assertNotIn(self.instance_tree.getTitle(),
-        self.instance_tree.getSuccessorTitleList())
+    self.assertNotEqual(instance_tree.getTitle(), software_instance.getTitle())
+    self.assertNotIn(instance_tree.getTitle(), instance_tree.getSuccessorTitleList())
 
-    self.instance_tree.InstanceTree_assertSuccessor()
-    self.assertIn(self.instance_tree.getTitle(),
-        self.instance_tree.getSuccessorTitleList())
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      instance_tree.InstanceTree_assertSuccessor()
 
-  def test_InstanceTree_assertSuccessor_destroy_requested(self):
-    self.software_instance.rename(new_name=self.generateNewSoftwareTitle())
-    self.portal.portal_workflow._jumpToStateFor(self.instance_tree,
+    self.assertNotEqual(instance_tree.getTitle(), software_instance.getTitle())
+    self.assertIn(instance_tree.getTitle(), instance_tree.getSuccessorTitleList())
+
+  def test_InstanceTree_assertSuccessor_script_renamedAndDestroyed(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    software_instance.edit(title=self.generateNewSoftwareTitle())
+    self.portal.portal_workflow._jumpToStateFor(instance_tree,
         'destroy_requested')
     self.tic()
 
     # check that no interaction has recreated the instance
-    self.assertNotIn(self.instance_tree.getTitle(),
-        self.instance_tree.getSuccessorTitleList())
+    self.assertNotEqual(instance_tree.getTitle(), software_instance.getTitle())
+    self.assertNotIn(instance_tree.getTitle(), instance_tree.getSuccessorTitleList())
 
-    self.instance_tree.InstanceTree_assertSuccessor()
-    self.assertNotIn(self.instance_tree.getTitle(),
-        self.instance_tree.getSuccessorTitleList())
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      instance_tree.InstanceTree_assertSuccessor()
 
-  def test_InstanceTree_assertSuccessor_archived(self):
-    self.software_instance.rename(new_name=self.generateNewSoftwareTitle())
-    self.instance_tree.archive()
+    self.assertNotEqual(instance_tree.getTitle(), software_instance.getTitle())
+    self.assertFalse(instance_tree.getTitle() in
+        instance_tree.getSuccessorTitleList())
+
+  def test_InstanceTree_assertSuccessor_script_archived(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    software_instance.edit(title=self.generateNewSoftwareTitle())
+    instance_tree.archive()
     self.tic()
 
     # check that no interaction has recreated the instance
-    self.assertNotIn(self.instance_tree.getTitle(),
-        self.instance_tree.getSuccessorTitleList())
+    self.assertNotEqual(instance_tree.getTitle(), software_instance.getTitle())
+    self.assertNotIn(instance_tree.getTitle(), instance_tree.getSuccessorTitleList())
 
-    self.instance_tree.InstanceTree_assertSuccessor()
-    self.assertNotIn(self.instance_tree.getTitle(),
-        self.instance_tree.getSuccessorTitleList())
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      instance_tree.InstanceTree_assertSuccessor()
 
-  def test_alarm_renamed(self):
-    self.software_instance.edit(title=self.generateNewSoftwareTitle())
-    self._test_alarm(
-      self.portal.portal_alarms.slapos_assert_instance_tree_successor,
-      self.instance_tree,
-      'InstanceTree_assertSuccessor'
-    )
-
-  def test_alarm_not_renamed(self):
-    self._test_alarm_not_visited(
-      self.portal.portal_alarms.slapos_assert_instance_tree_successor,
-      self.instance_tree,
-      'InstanceTree_assertSuccessor'
-    )
+    self.assertNotEqual(instance_tree.getTitle(), software_instance.getTitle())
+    self.assertFalse(instance_tree.getTitle() in
+        instance_tree.getSuccessorTitleList())
 
 
 class TestSlapOSFreeComputePartitionAlarm(SlapOSTestCaseMixin):
 
-  def afterSetUp(self):
-    SlapOSTestCaseMixin.afterSetUp(self)
-    self._makeTree()
+  #################################################################
+  # slapos_free_compute_partition
+  #################################################################
+  def test_SoftwareInstance_tryToUnallocatePartition_alarm_allocated(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    _, partition = self.addComputeNodeAndPartition(project=instance_tree.getFollowUpValue())
 
-  def test_SoftwareInstance_tryToUnallocatePartition(self):
-    self._makeComputeNode()
-    self.software_instance.setAggregate(self.partition.getRelativeUrl())
-    self.partition.markBusy()
-    self.portal.portal_workflow._jumpToStateFor(self.software_instance,
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+    self.portal.portal_workflow._jumpToStateFor(software_instance,
         'destroy_requested')
+    # invalidate transition triggers the alarm
+    self.portal.portal_workflow._jumpToStateFor(software_instance,
+        'invalidated')
+
     self.tic()
-
-    self.software_instance.SoftwareInstance_tryToUnallocatePartition()
-    self.tic()
-    self.assertEqual(None, self.software_instance.getAggregate())
-    self.assertEqual('free', self.partition.getSlapState())
-
-  def test_SoftwareInstance_tryToUnallocatePartition_concurrency(self):
-    self._makeComputeNode()
-    self.software_instance.setAggregate(self.partition.getRelativeUrl())
-    self.partition.markBusy()
-    self.portal.portal_workflow._jumpToStateFor(self.software_instance,
-        'destroy_requested')
-    self.tic()
-
-    self.partition.activate(tag="allocate_%s" % self.partition.getRelativeUrl()\
-        ).getId()
-    transaction.commit()
-    self.software_instance.SoftwareInstance_tryToUnallocatePartition()
-    self.tic()
-    self.assertEqual(self.partition.getRelativeUrl(),
-        self.software_instance.getAggregate())
-    self.assertEqual('busy', self.partition.getSlapState())
-
-  def test_SoftwareInstance_tryToUnallocatePartition_twoInstances(self):
-    software_instance = self.portal.software_instance_module\
-        .template_software_instance.Base_createCloneDocument(batch_mode=1)
-
-    self._makeComputeNode()
-    self.software_instance.setAggregate(self.partition.getRelativeUrl())
-    software_instance.setAggregate(self.partition.getRelativeUrl())
-    self.partition.markBusy()
-    self.portal.portal_workflow._jumpToStateFor(self.software_instance,
-        'destroy_requested')
-    self.tic()
-
-    self.software_instance.SoftwareInstance_tryToUnallocatePartition()
-    self.tic()
-    self.assertEqual(None, self.software_instance.getAggregate())
-    self.assertEqual('busy', self.partition.getSlapState())
-    self.assertEqual(self.partition.getRelativeUrl(), software_instance.getAggregate())
-
-  def test_alarm_allocated(self):
-    self._makeComputeNode()
-    self.software_instance.setAggregate(self.partition.getRelativeUrl())
-    self.partition.markBusy()
-    self.portal.portal_workflow._jumpToStateFor(self.software_instance,
-        'destroy_requested')
-    self.software_instance.invalidate()
-
     self._test_alarm(
       self.portal.portal_alarms.slapos_free_compute_partition,
-      self.software_instance,
+      software_instance,
       'SoftwareInstance_tryToUnallocatePartition'
     )
 
-  def test_alarm_unallocated(self):
-    self._makeComputeNode()
-    self.partition.markBusy()
-    self.portal.portal_workflow._jumpToStateFor(self.software_instance,
-        'destroy_requested')
-    self.software_instance.invalidate()
+  def test_SoftwareInstance_tryToUnallocatePartition_alarm_sharedAndAllocated(self):
+    instance_tree = self.addInstanceTree(shared=True)
+    software_instance = instance_tree.getSuccessorValue()
+    _, partition = self.addComputeNodeAndPartition(project=instance_tree.getFollowUpValue())
 
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+    self.portal.portal_workflow._jumpToStateFor(software_instance,
+        'destroy_requested')
+    # invalidate transition triggers the alarm
+    self.portal.portal_workflow._jumpToStateFor(software_instance,
+        'invalidated')
+
+    self.tic()
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_free_compute_partition,
+      software_instance,
+      'SoftwareInstance_tryToUnallocatePartition'
+    )
+
+  def test_SoftwareInstance_tryToUnallocatePartition_alarm_unallocated(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    _, partition = self.addComputeNodeAndPartition(project=instance_tree.getFollowUpValue())
+
+    partition.markBusy()
+    self.portal.portal_workflow._jumpToStateFor(software_instance,
+        'destroy_requested')
+    # invalidate transition triggers the alarm
+    self.portal.portal_workflow._jumpToStateFor(software_instance,
+        'invalidated')
+
+    self.tic()
     self._test_alarm_not_visited(
       self.portal.portal_alarms.slapos_free_compute_partition,
-      self.software_instance,
+      software_instance,
       'SoftwareInstance_tryToUnallocatePartition'
     )
 
-  def test_alarm_validated(self):
-    self._makeComputeNode()
-    self.software_instance.setAggregate(self.partition.getRelativeUrl())
-    self.partition.markBusy()
-    self.portal.portal_workflow._jumpToStateFor(self.software_instance,
+  def test_SoftwareInstance_tryToUnallocatePartition_alarm_allocatedAndValidated(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    _, partition = self.addComputeNodeAndPartition(project=instance_tree.getFollowUpValue())
+
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+    self.portal.portal_workflow._jumpToStateFor(software_instance,
         'destroy_requested')
 
+    self.tic()
     self._test_alarm_not_visited(
       self.portal.portal_alarms.slapos_free_compute_partition,
-      self.software_instance,
+      software_instance,
       'SoftwareInstance_tryToUnallocatePartition'
     )
 
-  def test_alarm_start_requested(self):
-    self._makeComputeNode()
-    self.software_instance.setAggregate(self.partition.getRelativeUrl())
-    self.partition.markBusy()
+  def test_SoftwareInstance_tryToUnallocatePartition_alarm_allocatedAndStarted(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    _, partition = self.addComputeNodeAndPartition(project=instance_tree.getFollowUpValue())
 
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    self.tic()
     self._test_alarm_not_visited(
       self.portal.portal_alarms.slapos_free_compute_partition,
-      self.software_instance,
+      software_instance,
       'SoftwareInstance_tryToUnallocatePartition'
     )
 
-class TestSlapOSFreeComputePartitionAlarmWithSlave(SlapOSTestCaseMixin):
-  def afterSetUp(self):
-    SlapOSTestCaseMixin.afterSetUp(self)
-    self._makeTree(requested_template_id='template_slave_instance')
+  #################################################################
+  # SoftwareInstance_tryToUnallocatePartition
+  #################################################################
+  def test_SoftwareInstance_tryToUnallocatePartition_script_allocated(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    _, partition = self.addComputeNodeAndPartition(project=instance_tree.getFollowUpValue())
 
-  def test_SoftwareInstance_tryToUnallocatePartition(self):
-    self._makeComputeNode()
-    self.software_instance.setAggregate(self.partition.getRelativeUrl())
-    self.partition.markBusy()
-    self.portal.portal_workflow._jumpToStateFor(self.software_instance,
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+    self.portal.portal_workflow._jumpToStateFor(software_instance,
+        'destroy_requested')
+    self.portal.portal_workflow._jumpToStateFor(software_instance,
+        'invalidated')
+    self.tic()
+
+    software_instance.SoftwareInstance_tryToUnallocatePartition()
+    self.assertEqual(None, software_instance.getAggregate())
+    self.assertEqual('free', partition.getSlapState())
+
+  def test_SoftwareInstance_tryToUnallocatePartition_script_sharedAndAllocated(self):
+    instance_tree = self.addInstanceTree(shared=True)
+    software_instance = instance_tree.getSuccessorValue()
+    _, partition = self.addComputeNodeAndPartition(project=instance_tree.getFollowUpValue())
+
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+    self.portal.portal_workflow._jumpToStateFor(software_instance,
+        'destroy_requested')
+    self.portal.portal_workflow._jumpToStateFor(software_instance,
+        'invalidated')
+    self.tic()
+
+    software_instance.SoftwareInstance_tryToUnallocatePartition()
+    self.assertEqual(None, software_instance.getAggregate())
+    self.assertEqual('free', partition.getSlapState())
+
+  def test_SoftwareInstance_tryToUnallocatePartition_script_concurrency(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    _, partition = self.addComputeNodeAndPartition(project=instance_tree.getFollowUpValue())
+
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+    self.portal.portal_workflow._jumpToStateFor(software_instance,
+        'destroy_requested')
+    self.portal.portal_workflow._jumpToStateFor(software_instance,
+        'invalidated')
+    self.tic()
+
+    partition.activate(tag="allocate_%s" % partition.getRelativeUrl()\
+        ).getId()
+    transaction.commit()
+    software_instance.SoftwareInstance_tryToUnallocatePartition()
+    self.assertEqual(partition.getRelativeUrl(),
+                    software_instance.getAggregate())
+    self.assertEqual('busy', partition.getSlapState())
+
+  def test_SoftwareInstance_tryToUnallocatePartition_script_twoInstances(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    _, partition = self.addComputeNodeAndPartition(project=instance_tree.getFollowUpValue())
+    instance_tree2 = self.addInstanceTree(project=instance_tree.getFollowUpValue())
+    software_instance2 = instance_tree2.getSuccessorValue()
+
+    self.tic()
+
+    try:
+      # Prevent calling interaction workflows
+      software_instance.setCategoryList(
+        software_instance.getCategoryList() + ['aggregate/%s' % partition.getRelativeUrl()]
+        )
+      software_instance2.setCategoryList(
+        software_instance2.getCategoryList() + ['aggregate/%s' % partition.getRelativeUrl()]
+      )
+      self.portal.portal_workflow._jumpToStateFor(partition,
+          'busy')
+      self.portal.portal_workflow._jumpToStateFor(software_instance,
+          'destroy_requested')
+      self.portal.portal_workflow._jumpToStateFor(software_instance,
+          'invalidated')
+      self.tic()
+
+      software_instance.SoftwareInstance_tryToUnallocatePartition()
+      self.assertEqual(None, software_instance.getAggregate())
+      self.assertEqual('busy', partition.getSlapState())
+      self.assertEqual(partition.getRelativeUrl(), software_instance2.getAggregate())
+    except:
+      # 2 instances linked to a partition crashes _fillComputeNodeInformationCache
+      # activity. Clean up to not impact the other tests
+      software_instance2.setAggregate(None)
+      raise
+    finally:
+      software_instance2.setAggregate(None)
+    self.tic()
+
+  def test_SoftwareInstance_tryToUnallocatePartition_script_notDestroyed(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    _, partition = self.addComputeNodeAndPartition(project=instance_tree.getFollowUpValue())
+
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+    self.tic()
+
+    software_instance.SoftwareInstance_tryToUnallocatePartition()
+    self.assertEqual(partition.getRelativeUrl(), software_instance.getAggregate())
+    self.assertEqual('busy', partition.getSlapState())
+
+  def test_SoftwareInstance_tryToUnallocatePartition_script_notInvalidated(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    _, partition = self.addComputeNodeAndPartition(project=instance_tree.getFollowUpValue())
+
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+    self.portal.portal_workflow._jumpToStateFor(software_instance,
         'destroy_requested')
     self.tic()
 
-    self.software_instance.SoftwareInstance_tryToUnallocatePartition()
-    self.tic()
-    self.assertEqual(None, self.software_instance.getAggregate())
-    self.assertEqual('free', self.partition.getSlapState())
-
-  def test_SoftwareInstance_tryToUnallocatePartition_nonDestroyed(self):
-    self._makeComputeNode()
-    self.software_instance.setAggregate(self.partition.getRelativeUrl())
-    self.partition.markBusy()
-    self.tic()
-
-    self.software_instance.SoftwareInstance_tryToUnallocatePartition()
-    self.tic()
-    self.assertEqual(self.partition.getRelativeUrl(),
-        self.software_instance.getAggregate())
-    self.assertEqual('busy', self.partition.getSlapState())
+    software_instance.SoftwareInstance_tryToUnallocatePartition()
+    self.assertEqual(partition.getRelativeUrl(), software_instance.getAggregate())
+    self.assertEqual('busy', partition.getSlapState())
 
 
 class TestSlapOSGarbageCollectDestroyedRootTreeAlarm(SlapOSTestCaseMixin):
+  #################################################################
+  # slapos_garbage_collect_destroyed_root_tree
+  #################################################################
+  def test_SoftwareInstance_tryToGarbageCollect_alarm_archived(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
 
-  def afterSetUp(self):
-    SlapOSTestCaseMixin.afterSetUp(self)
-    self._makeTree()
-
-  def test_SoftwareInstance_tryToGarbageCollect(self):
-    self.instance_tree.archive()
-    self.portal.portal_workflow._jumpToStateFor(self.software_instance,
-        'destroy_requested')
-    self.portal.portal_workflow._jumpToStateFor(self.software_instance,
-        'destroy_requested')
-    self.tic()
-
-    self.requested_software_instance.SoftwareInstance_tryToGarbageCollect()
-    self.tic()
-    self.assertEqual('destroy_requested',
-        self.requested_software_instance.getSlapState())
-    self.assertEqual('validated',
-        self.requested_software_instance.getValidationState())
-
-  def test_SoftwareInstance_tryToGarbageCollect_not_destroy_requested(self):
-    self.requested_software_instance.SoftwareInstance_tryToGarbageCollect()
-    self.tic()
-    self.assertEqual('start_requested',
-        self.requested_software_instance.getSlapState())
-    self.assertEqual('validated',
-        self.requested_software_instance.getValidationState())
-
-  def test_SoftwareInstance_tryToGarbageCollect_not_archived(self):
-    self.portal.portal_workflow._jumpToStateFor(self.software_instance,
-        'destroy_requested')
-    self.portal.portal_workflow._jumpToStateFor(self.software_instance,
-        'destroy_requested')
-    self.tic()
-
-    self.requested_software_instance.SoftwareInstance_tryToGarbageCollect()
-    self.tic()
-    self.assertEqual('start_requested',
-        self.requested_software_instance.getSlapState())
-    self.assertEqual('validated',
-        self.requested_software_instance.getValidationState())
-
-  def test_SoftwareInstance_tryToGarbageCollect_only_instance_destroy_requested(self):
-    self.portal.portal_workflow._jumpToStateFor(self.software_instance,
-        'destroy_requested')
-    self.tic()
-
-    self.requested_software_instance.SoftwareInstance_tryToGarbageCollect()
-    self.tic()
-    self.assertEqual('start_requested',
-        self.requested_software_instance.getSlapState())
-    self.assertEqual('validated',
-        self.requested_software_instance.getValidationState())
-
-  def test_SoftwareInstance_tryToGarbageCollect_unlinked_successor(self):
-    self.requested_software_instance.edit(successor_list=[])
-    self.instance_tree.archive()
-    self.portal.portal_workflow._jumpToStateFor(self.instance_tree,
-        'destroy_requested')
-    self.portal.portal_workflow._jumpToStateFor(self.software_instance,
-        'destroy_requested')
-    self.tic()
-
-    self.requested_software_instance.SoftwareInstance_tryToGarbageCollect()
-    self.tic()
-
-    self.assertEqual('destroy_requested',
-        self.requested_software_instance.getSlapState())
-    self.assertEqual('validated',
-        self.requested_software_instance.getValidationState())
-
-  def test_SoftwareInstance_tryToGarbageCollect_destroy_unlinked_with_child(self):
-    instance_kw = dict(software_release=self.generateNewSoftwareReleaseUrl(),
-      software_type=self.generateNewSoftwareType(),
-      instance_xml=self.generateSafeXml(),
-      sla_xml=self.generateSafeXml(),
-      shared=False,
-      software_title='Sub Instance',
-      state='started'
-    )
-    self.requested_software_instance.requestInstance(**instance_kw)
-    sub_instance = self.requested_software_instance.getSuccessorValue()
-    self.assertNotEqual(sub_instance, None)
-
-    self.requested_software_instance.edit(successor_list=[])
-    self.instance_tree.archive()
-    self.portal.portal_workflow._jumpToStateFor(self.instance_tree,
-        'destroy_requested')
-    self.portal.portal_workflow._jumpToStateFor(self.software_instance,
-        'destroy_requested')
-    self.tic()
-
-    self.requested_software_instance.SoftwareInstance_tryToGarbageCollect()
-    self.tic()
-
-    self.assertEqual('destroy_requested',
-        self.requested_software_instance.getSlapState())
-    self.assertEqual('validated',
-        self.requested_software_instance.getValidationState())
-
-    self.assertEqual(self.requested_software_instance.getSuccessorValue(),
-                      None)
-    self.assertEqual(sub_instance.getSlapState(), 'start_requested')
-
-    sub_instance.SoftwareInstance_tryToGarbageCollect()
-    self.tic()
-
-    self.assertEqual(sub_instance.getSlapState(), 'destroy_requested')
-    self.assertEqual(sub_instance.getValidationState(), 'validated')
-
-  def test_alarm(self):
-    self.instance_tree.archive()
+    instance_tree.archive()
     self._test_alarm(
       self.portal.portal_alarms.slapos_garbage_collect_destroyed_root_tree,
-      self.software_instance,
+      software_instance,
       'SoftwareInstance_tryToGarbageCollect'
     )
 
-  def test_alarm_invalidated(self):
-    self.instance_tree.archive()
-    self.software_instance.invalidate()
+  def test_SoftwareInstance_tryToGarbageCollect_alarm_sharedAndArchived(self):
+    instance_tree = self.addInstanceTree(shared=True)
+    software_instance = instance_tree.getSuccessorValue()
+
+    instance_tree.archive()
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_garbage_collect_destroyed_root_tree,
+      software_instance,
+      'SoftwareInstance_tryToGarbageCollect'
+    )
+
+  def test_SoftwareInstance_tryToGarbageCollect_alarm_invalidated(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    instance_tree.archive()
+    software_instance.invalidate()
     self._test_alarm_not_visited(
       self.portal.portal_alarms.slapos_garbage_collect_destroyed_root_tree,
-      self.software_instance,
+      software_instance,
       'SoftwareInstance_tryToGarbageCollect'
     )
 
-  def test_alarm_not_archived(self):
+  def test_SoftwareInstance_tryToGarbageCollect_alarm_notArchived(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
     self._test_alarm_not_visited(
       self.portal.portal_alarms.slapos_garbage_collect_destroyed_root_tree,
-      self.software_instance,
+      software_instance,
       'SoftwareInstance_tryToGarbageCollect'
     )
 
+  #################################################################
+  # SoftwareInstance_tryToGarbageCollect
+  #################################################################
+  def test_SoftwareInstance_tryToGarbageCollect_script_destroyed(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
 
-class TestSlapOSComputeNode_checkAndUpdateCapacityScope(SlapOSTestCaseMixin):
-  allocation_scope_to_test = 'open/public'
+    instance_tree.archive()
+    self.portal.portal_workflow._jumpToStateFor(instance_tree,
+        'destroy_requested')
+    self.assertEqual('validated',
+        software_instance.getValidationState())
 
-  def afterSetUp(self):
-    SlapOSTestCaseMixin.afterSetUp(self)
-    self.compute_node = self.portal.compute_node_module.template_compute_node\
-        .Base_createCloneDocument(batch_mode=1)
-    self.compute_node.edit(
-        allocation_scope=self.allocation_scope_to_test,
-        reference='TESTC-%s' % self.generateNewId(),
-    )
-    self.compute_node.edit(capacity_scope='open')
-    self.compute_node.validate()
-    self.compute_node.setAccessStatus("#access ok")
-    transaction.commit()
-
-  def test_ComputeNode_checkAndUpdateCapacityScope(self):
-    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
-    self.assertEqual('open', self.compute_node.getCapacityScope())
-
-  def _newComputerModel(self, quantity=None):
-    computer_model = self.portal.computer_model_module.\
-        template_computer_model.Base_createCloneDocument(batch_mode=1)
-    computer_model.edit(capacity_quantity=quantity,
-        reference='TESTCM-%s' % self.generateNewId(),
-    )
-    return computer_model
-
-  def _addPartitionToComputeNode(self):
-    partition = self.compute_node.newContent(portal_type='Compute Partition',
-        reference='part1')
-    partition.markFree()
-    partition.markBusy()
-    partition.validate()
-    self.software_instance.setAggregate(partition.getRelativeUrl())
     self.tic()
+    software_instance.SoftwareInstance_tryToGarbageCollect()
 
-  def test_ComputeNode_checkAndUpdateCapacityScope_model(self):
-    computer_model = self._newComputerModel(9999)
+    self.assertEqual('destroy_requested',
+        software_instance.getSlapState())
+    self.assertEqual('validated',
+        software_instance.getValidationState())
 
-    self.compute_node.edit(specialise_value=computer_model,
-                       capacity_quantity=None)
-    transaction.commit()
+  def test_SoftwareInstance_tryToGarbageCollect_script_archived(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
 
-    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
-    self.assertEqual('open', self.compute_node.getCapacityScope())
-    self.assertEqual(computer_model.getCapacityQuantity(),
-                     self.compute_node.getCapacityQuantity())
+    instance_tree.archive()
 
-  def test_ComputeNode_checkAndUpdateCapacityScope_model_no_capacity(self):
-    self._makeTree()
+    self.tic()
+    software_instance.SoftwareInstance_tryToGarbageCollect()
 
-    computer_model = self._newComputerModel(1)
-    self.compute_node.edit(specialise_value=computer_model,
-                       capacity_quantity=None)
+    self.assertEqual('start_requested',
+        software_instance.getSlapState())
+    self.assertEqual('validated',
+        software_instance.getValidationState())
 
-    self._addPartitionToComputeNode()
-    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
-    self.assertEqual('close', self.compute_node.getCapacityScope())
-    self.assertEqual('Compute Node capacity limit exceeded',
-        self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
+  def test_SoftwareInstance_tryToGarbageCollect_script_notArchived(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    self.portal.portal_workflow._jumpToStateFor(instance_tree,
+        'destroy_requested')
 
-    self.assertEqual(computer_model.getCapacityQuantity(),
-                     self.compute_node.getCapacityQuantity())
+    self.tic()
+    software_instance.SoftwareInstance_tryToGarbageCollect()
+    self.assertEqual('start_requested',
+        software_instance.getSlapState())
+    self.assertEqual('validated',
+        software_instance.getValidationState())
 
-  def test_ComputeNode_checkAndUpdateCapacityScope_model_has_capacity(self):
-    # If capacity is set on compute_node, model value is ignored.
-    self._makeTree()
+  def test_SoftwareInstance_tryToGarbageCollect_script_unlinkedSuccessor(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
 
-    computer_model = self._newComputerModel(1)
-    self.compute_node.edit(specialise_value=computer_model,
-                       capacity_quantity=2)
+    instance_tree.edit(successor_list=[])
+    instance_tree.archive()
+    self.portal.portal_workflow._jumpToStateFor(instance_tree,
+        'destroy_requested')
 
-    self._addPartitionToComputeNode()
-    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
-    self.assertEqual('open', self.compute_node.getCapacityScope())
+    self.tic()
+    software_instance.SoftwareInstance_tryToGarbageCollect()
 
-    self.assertNotEqual(computer_model.getCapacityQuantity(),
-                     self.compute_node.getCapacityQuantity())
+    self.assertEqual('destroy_requested',
+        software_instance.getSlapState())
+    self.assertEqual('validated',
+        software_instance.getValidationState())
 
-  def test_ComputeNode_checkAndUpdateCapacityScope_with_old_access(self):
-    try:
-      self.pinDateTime(addToDate(DateTime(),to_add={'minute': -11}))
-      self.compute_node.setAccessStatus("#access ok")
-    finally:
-      self.unpinDateTime()
-      
-    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
-    self.assertEqual('close', self.compute_node.getCapacityScope())
-    self.assertEqual("Compute Node didn't contact for more than 10 minutes",
-        self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
-
-  def test_ComputeNode_checkAndUpdateCapacityScope_no_capacity_quantity(self):
-    self._makeTree()
-    self.compute_node.edit(capacity_quantity=1)
-    self._addPartitionToComputeNode()
-    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
-    self.assertEqual('close', self.compute_node.getCapacityScope())
-    self.assertEqual('Compute Node capacity limit exceeded',
-        self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
-
-  def test_ComputeNode_checkAndUpdateCapacityScope_no_access(self):
-    self.compute_node.edit(reference='TESTC-%s' % self.generateNewId())
-    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
-    self.assertEqual('close', self.compute_node.getCapacityScope())
-    self.assertEqual("Compute Node didn't contact the server",
-        self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
-
-  def test_ComputeNode_checkAndUpdateCapacityScope_close(self):
-    self.compute_node.edit(capacity_scope='close')
-    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
-    self.assertEqual('open', self.compute_node.getCapacityScope())
-
-  def test_ComputeNode_checkAndUpdateCapacityScope_with_error(self):
-    self.compute_node.setAccessStatus('#error not ok')
-    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
-    self.assertEqual('close', self.compute_node.getCapacityScope())
-    self.assertEqual("Compute Node reported an error",
-        self.compute_node.workflow_history['edit_workflow'][-1]['comment'])
-
-class TestSlapOSComputeNode_checkAndUpdateCapacityScopeSubscription(TestSlapOSComputeNode_checkAndUpdateCapacityScope):
-  allocation_scope_to_test = 'open/subscription'
-
-class TestSlapOSComputeNode_checkAndUpdateCapacityScopePersonal(TestSlapOSComputeNode_checkAndUpdateCapacityScope):
-  allocation_scope_to_test = 'open/personal'
 
 class TestSlapOSUpdateComputeNodeCapacityScopeAlarm(SlapOSTestCaseMixin):
-
-  def afterSetUp(self):
-    SlapOSTestCaseMixin.afterSetUp(self)
-    self.compute_node = self.portal.compute_node_module.template_compute_node\
-        .Base_createCloneDocument(batch_mode=1)
-    self.compute_node.edit(
-        allocation_scope='open/public',
-        reference='TESTC-%s' % self.generateNewId(),
+  #################################################################
+  # slapos_update_compute_node_capacity_scope
+  #################################################################
+  def test_ComputeNode_checkAndUpdateCapacityScope_alarm_open(self):
+    compute_node, _ = self.addComputeNodeAndPartition()
+    compute_node.edit(
+      allocation_scope='open',
     )
-    self.compute_node.edit(capacity_scope='open')
-    self.compute_node.validate()
-    self.compute_node.setAccessStatus("#access ok")
-    transaction.commit()
-
-  def test_alarm(self):
     self._test_alarm(
       self.portal.portal_alarms.slapos_update_compute_node_capacity_scope,
-      self.compute_node,
+      compute_node,
       'ComputeNode_checkAndUpdateCapacityScope'
     )
 
-  def test_alarm_subscription(self):
-    self.compute_node.edit(allocation_scope='open/subscription')
-    self.test_alarm()
-
-  def test_alarm_personal(self):
-    self.compute_node.edit(allocation_scope='open/personal')
-    self.test_alarm()
-
-  def test_alarm_non_public(self):
-    self.compute_node.edit(allocation_scope='close')
+  def test_ComputeNode_checkAndUpdateCapacityScope_alarm_close(self):
+    compute_node, _ = self.addComputeNodeAndPartition()
+    compute_node.edit(
+      allocation_scope='close',
+    )
     self._test_alarm_not_visited(
       self.portal.portal_alarms.slapos_update_compute_node_capacity_scope,
-      self.compute_node,
+      compute_node,
       'ComputeNode_checkAndUpdateCapacityScope'
     )
 
-  def test_alarm_invalidated(self):
-    self.compute_node.invalidate()
+  def test_ComputeNode_checkAndUpdateCapacityScope_alarm_invalidated(self):
+    compute_node, _ = self.addComputeNodeAndPartition()
+    compute_node.invalidate()
+    compute_node.edit(
+      allocation_scope='open',
+    )
     self._test_alarm_not_visited(
       self.portal.portal_alarms.slapos_update_compute_node_capacity_scope,
-      self.compute_node,
+      compute_node,
       'ComputeNode_checkAndUpdateCapacityScope'
     )
+
+  #################################################################
+  # ComputeNode_checkAndUpdateCapacityScope
+  #################################################################
+  def test_ComputeNode_checkAndUpdateCapacityScope_script_open(self):
+    compute_node, _ = self.addComputeNodeAndPartition()
+    compute_node.edit(allocation_scope='open')
+    compute_node.edit(capacity_scope='open')
+    compute_node.setAccessStatus("#access ok")
+    compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('open', compute_node.getCapacityScope())
+
+  def addComputerModel(self, capacity_quantity=None):
+    return self.portal.computer_model_module.newContent(
+      portal_type="Computer Model",
+      reference='TESTCM-%s' % self.generateNewId(),
+      capacity_quantity=capacity_quantity
+    )
+
+  def test_ComputeNode_checkAndUpdateCapacityScope_script_model(self):
+    compute_node, _ = self.addComputeNodeAndPartition()
+    compute_node.edit(allocation_scope='open')
+    compute_node.edit(capacity_scope='open')
+    compute_node.setAccessStatus("#access ok")
+
+    computer_model = self.addComputerModel(9999)
+    compute_node.edit(specialise_value=computer_model, capacity_quantity=None)
+
+    compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('open', compute_node.getCapacityScope())
+    self.assertEqual(computer_model.getCapacityQuantity(),
+                     compute_node.getCapacityQuantity())
+
+  def test_ComputeNode_checkAndUpdateCapacityScope_script_modelNoCapacity(self):
+    compute_node, partition = self.addComputeNodeAndPartition()
+    compute_node.edit(allocation_scope='open')
+    compute_node.edit(capacity_scope='open')
+    compute_node.setAccessStatus("#access ok")
+
+    computer_model = self.addComputerModel(1)
+    compute_node.edit(specialise_value=computer_model, capacity_quantity=None)
+
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    self.tic()
+
+    compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('close', compute_node.getCapacityScope())
+    self.assertEqual('Compute Node capacity limit exceeded',
+        compute_node.workflow_history['edit_workflow'][-1]['comment'])
+    self.assertEqual(computer_model.getCapacityQuantity(),
+                     compute_node.getCapacityQuantity())
+
+  def test_ComputeNode_checkAndUpdateCapacityScope_script_modelHasCapacity(self):
+    # If capacity is set on compute_node, model value is ignored.
+    compute_node, _ = self.addComputeNodeAndPartition()
+    compute_node.edit(allocation_scope='open')
+    compute_node.edit(capacity_scope='open')
+    compute_node.setAccessStatus("#access ok")
+
+    computer_model = self.addComputerModel(1)
+    compute_node.edit(specialise_value=computer_model, capacity_quantity=2)
+
+    self.tic()
+
+    compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('open', compute_node.getCapacityScope())
+    self.assertEqual(2,
+                     compute_node.getCapacityQuantity())
+
+
+  def test_ComputeNode_checkAndUpdateCapacityScope_script_withOldAccess(self):
+    compute_node, _ = self.addComputeNodeAndPartition()
+    compute_node.edit(allocation_scope='open')
+    compute_node.edit(capacity_scope='open')
+    try:
+      self.pinDateTime(addToDate(DateTime(),to_add={'minute': -11}))
+      compute_node.setAccessStatus("#access ok")
+    finally:
+      self.unpinDateTime()
+
+    compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('close', compute_node.getCapacityScope())
+    self.assertEqual("Compute Node didn't contact for more than 10 minutes",
+        compute_node.workflow_history['edit_workflow'][-1]['comment'])
+
+  def test_ComputeNode_checkAndUpdateCapacityScope_script_noCapacityQuantity(self):
+    compute_node, partition = self.addComputeNodeAndPartition()
+    compute_node.edit(allocation_scope='open')
+    compute_node.edit(capacity_scope='open')
+    compute_node.setAccessStatus("#access ok")
+    compute_node.edit(capacity_quantity=1)
+
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    self.tic()
+
+    compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('close', compute_node.getCapacityScope())
+    self.assertEqual('Compute Node capacity limit exceeded',
+        compute_node.workflow_history['edit_workflow'][-1]['comment'])
+
+  def test_ComputeNode_checkAndUpdateCapacityScope_script_noAccess(self):
+    compute_node, _ = self.addComputeNodeAndPartition()
+    compute_node.edit(allocation_scope='open')
+    compute_node.edit(capacity_scope='open')
+
+    compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('close', compute_node.getCapacityScope())
+    self.assertEqual("Compute Node didn't contact the server",
+        compute_node.workflow_history['edit_workflow'][-1]['comment'])
+
+  def test_ComputeNode_checkAndUpdateCapacityScope_script_capacityClose(self):
+    compute_node, _ = self.addComputeNodeAndPartition()
+    compute_node.edit(allocation_scope='open')
+    compute_node.setAccessStatus("#access ok")
+    compute_node.edit(capacity_scope='close')
+
+    compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('open', compute_node.getCapacityScope())
+
+  def test_ComputeNode_checkAndUpdateCapacityScope_script_withError(self):
+    compute_node, _ = self.addComputeNodeAndPartition()
+    compute_node.edit(allocation_scope='open')
+    compute_node.edit(capacity_scope='open')
+    compute_node.setAccessStatus('#error not ok')
+
+    compute_node.ComputeNode_checkAndUpdateCapacityScope()
+    self.assertEqual('close', compute_node.getCapacityScope())
+    self.assertEqual("Compute Node reported an error",
+        compute_node.workflow_history['edit_workflow'][-1]['comment'])
+
 
 class TestSlapOSGarbageCollectStoppedRootTreeAlarm(SlapOSTestCaseMixin):
-
-  def createInstance(self):
-    instance_tree = self.portal.instance_tree_module\
-        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
-    instance_tree.edit(
+  #################################################################
+  # slapos_stop_collect_instance
+  #################################################################
+  def test_SoftwareInstance_tryToStopCollect_alarm(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_stop_collect_instance,
+      software_instance,
+      'SoftwareInstance_tryToStopCollect'
     )
-    instance_tree.validate()
-    instance_tree.edit(
-        title=self.generateNewSoftwareTitle(),
-        reference="TESTHS-%s" % self.generateNewId(),
-    )
-    request_kw = dict(
-      software_release=\
-          self.generateNewSoftwareReleaseUrl(),
-      software_type=self.generateNewSoftwareType(),
-      instance_xml=self.generateSafeXml(),
-      sla_xml=self.generateSafeXml(),
-      shared=False,
-      software_title=instance_tree.getTitle(),
-      state='started'
-    )
-    instance_tree.requestStart(**request_kw)
-    instance_tree.requestInstance(**request_kw)
 
-    instance = instance_tree.getSuccessorValue()
-    self.tic()
-    return instance
+  def test_SoftwareInstance_tryToStopCollect_alarm_invalidated(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    software_instance.invalidate()
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_stop_collect_instance,
+      software_instance,
+      'SoftwareInstance_tryToStopCollect'
+    )
 
+  #################################################################
+  # SoftwareInstance_tryToStopCollect
+  #################################################################
   def test_SoftwareInstance_tryToStopCollect_REQUEST_disallowed(self):
     self.assertRaises(
       Unauthorized,
       self.portal.SoftwareInstance_tryToStopCollect,
       REQUEST={})
 
-  def test_SoftwareInstance_tryToStopCollect_started_instance(self):
-    instance = self.createInstance()
-    instance_tree = instance.getSpecialiseValue()
+  def test_SoftwareInstance_tryToStopCollect_script_startedInstance(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
 
     self.portal.portal_workflow._jumpToStateFor(instance_tree,
         'stop_requested')
-    self.assertEqual('start_requested', instance.getSlapState())
+    self.assertEqual('start_requested', software_instance.getSlapState())
 
-    instance.SoftwareInstance_tryToStopCollect()
-    self.assertEqual('stop_requested', instance.getSlapState())
+    software_instance.SoftwareInstance_tryToStopCollect()
+    self.assertEqual('stop_requested', software_instance.getSlapState())
 
-  def test_SoftwareInstance_tryToStopCollect_destroyed_instance(self):
-    instance = self.createInstance()
-    instance_tree = instance.getSpecialiseValue()
+  def test_SoftwareInstance_tryToStopCollect_script_destroyedInstance(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
 
     self.portal.portal_workflow._jumpToStateFor(instance_tree,
         'stop_requested')
-    self.portal.portal_workflow._jumpToStateFor(instance,
+    self.portal.portal_workflow._jumpToStateFor(software_instance,
         'destroy_requested')
 
-    instance.SoftwareInstance_tryToStopCollect()
-    self.assertEqual('destroy_requested', instance.getSlapState())
+    software_instance.SoftwareInstance_tryToStopCollect()
+    self.assertEqual('destroy_requested', software_instance.getSlapState())
 
-  def test_SoftwareInstance_tryToStopCollect_started_subscription(self):
-    instance = self.createInstance()
-    instance_tree = instance.getSpecialiseValue()
+  def test_SoftwareInstance_tryToStopCollect_script_startedInstanceTree(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
 
     self.assertEqual('start_requested', instance_tree.getSlapState())
-    self.assertEqual('start_requested', instance.getSlapState())
+    self.assertEqual('start_requested', software_instance.getSlapState())
 
-    instance.SoftwareInstance_tryToStopCollect()
-    self.assertEqual('start_requested', instance.getSlapState())
+    software_instance.SoftwareInstance_tryToStopCollect()
+    self.assertEqual('start_requested', software_instance.getSlapState())
 
-  def test_alarm(self):
-    instance = self.createInstance()
-    self._test_alarm(
-      self.portal.portal_alarms.slapos_stop_collect_instance,
-      instance,
-      'SoftwareInstance_tryToStopCollect'
-    )
-
-  def test_alarm_invalidated(self):
-    instance = self.createInstance()
-    instance.invalidate()
-    self._test_alarm_not_visited(
-      self.portal.portal_alarms.slapos_stop_collect_instance,
-      instance,
-      'SoftwareInstance_tryToStopCollect'
-    )
 
 class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
-
-  def createInstance(self):
-    instance_tree = self.portal.instance_tree_module\
-        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
-    instance_tree.validate()
-    instance_tree.edit(
-        title=self.generateNewSoftwareTitle(),
-        reference="TESTHS-%s" % self.generateNewId(),
+  #################################################################
+  # slapos_garbage_collect_non_allocated_root_tree
+  #################################################################
+  def test_tryToGarbageCollectNonAllocatedRootTree_alarm(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_garbage_collect_non_allocated_root_tree,
+      software_instance,
+      'SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree'
     )
-    request_kw = dict(
-      software_release=\
-          self.generateNewSoftwareReleaseUrl(),
-      software_type=self.generateNewSoftwareType(),
-      instance_xml=self.generateSafeXml(),
-      sla_xml=self.generateSafeXml(),
-      shared=False,
-      software_title=instance_tree.getTitle(),
-      state='started'
+
+  def test_tryToGarbageCollectNonAllocatedRootTree_alarm_invalidated(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    software_instance.invalidate()
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_garbage_collect_non_allocated_root_tree,
+      software_instance,
+      'SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree'
     )
-    instance_tree.requestStart(**request_kw)
-    instance_tree.requestInstance(**request_kw)
 
-    instance = instance_tree.getSuccessorValue()
-    return instance
+  def test_tryToGarbageCollectNonAllocatedRootTree_alarm_allocated(self):
+    _, partition = self.addComputeNodeAndPartition()
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
 
-  def createComputePartition(self):
-    compute_node = self.portal.compute_node_module\
-        .template_compute_node.Base_createCloneDocument(batch_mode=1)
-    compute_node.validate()
-    compute_node.edit(
-        title=self.generateNewSoftwareTitle(),
-        reference="TESTCOMP-%s" % self.generateNewId(),
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_garbage_collect_non_allocated_root_tree,
+      software_instance,
+      'SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree'
     )
-    partition = compute_node.newContent(portal_type="Compute Partition")
-    return partition
 
-  def test_tryToGarbageCollect_REQUEST_disallowed(self):
+  #################################################################
+  # SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree
+  #################################################################
+  def test_tryToGarbageCollectNonAllocatedRootTree_REQUEST_disallowed(self):
     self.assertRaises(
       Unauthorized,
       self.portal.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree,
       REQUEST={})
 
-  def test_tryToGarbageCollect_invalidated_instance(self):
-    instance = self.createInstance()
-    instance.invalidate()
-    self.tic()
+  def test_tryToGarbageCollectNonAllocatedRootTree_script_invalidatedInstance(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    software_instance.invalidate()
 
-    instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
-    self.assertEqual('start_requested', instance.getSlapState())
-    instance_tree = instance.getSpecialiseValue()
+    self.tic()
+    software_instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
+    self.assertEqual('start_requested', software_instance.getSlapState())
     self.assertEqual('start_requested', instance_tree.getSlapState())
 
-  def test_tryToGarbageCollect_destroyed_instance(self):
-    instance = self.createInstance()
-    self.portal.portal_workflow._jumpToStateFor(instance, 'destroy_requested')
-    self.tic()
+  def test_tryToGarbageCollectNonAllocatedRootTree_script_destroyedInstance(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'destroy_requested')
 
-    instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
-    self.assertEqual('destroy_requested', instance.getSlapState())
-    instance_tree = instance.getSpecialiseValue()
+    self.tic()
+    software_instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
+    self.assertEqual('destroy_requested', software_instance.getSlapState())
     self.assertEqual('start_requested', instance_tree.getSlapState())
 
-  def test_tryToGarbageCollect_allocated_instance(self):
-    instance = self.createInstance()
-    partition = self.createComputePartition()
-    instance.edit(aggregate_value=partition)
-    self.tic()
+  def test_tryToGarbageCollectNonAllocatedRootTree_script_allocatedInstance(self):
+    _, partition = self.addComputeNodeAndPartition()
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
 
-    instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
-    self.assertEqual('start_requested', instance.getSlapState())
-    instance_tree = instance.getSpecialiseValue()
+    self.tic()
+    software_instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
+    self.assertEqual('start_requested', software_instance.getSlapState())
     self.assertEqual('start_requested', instance_tree.getSlapState())
 
-  def test_tryToGarbageCollect_no_allocation_try_found(self):
-    instance = self.createInstance()
-    self.tic()
+  def test_tryToGarbageCollectNonAllocatedRootTree_script_noAllocationTryFound(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
 
-    instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
-    self.assertEqual('start_requested', instance.getSlapState())
-    instance_tree = instance.getSpecialiseValue()
+    self.tic()
+    software_instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
+    self.assertEqual('start_requested', software_instance.getSlapState())
     self.assertEqual('start_requested', instance_tree.getSlapState())
 
-  def test_tryToGarbageCollect_recent_allocation_try_found(self):
-    instance = self.createInstance()
-    self.tic()
-    instance.workflow_history['edit_workflow'].append({
+  def test_tryToGarbageCollectNonAllocatedRootTree_script_recentAllocationTryFound(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    software_instance.workflow_history['edit_workflow'] = [{
         'comment':'Allocation failed: no free Compute Partition',
         'error_message': '',
         'actor': 'ERP5TypeTestCase',
-        'slap_state': '',
+        'state': 'current',
         'time': addToDate(DateTime(), to_add={'day': -2}),
         'action': 'edit'
-    })
+    }]
 
-    instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
-    self.assertEqual('start_requested', instance.getSlapState())
-    instance_tree = instance.getSpecialiseValue()
+    self.tic()
+    software_instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
+    self.assertEqual('start_requested', software_instance.getSlapState())
     self.assertEqual('start_requested', instance_tree.getSlapState())
 
-
-  def test_tryToGarbageCollect_recent_allocation_try_found_allocation_disallowed(self):
-    instance = self.createInstance()
+  def test_tryToGarbageCollectNonAllocatedRootTree_script_oldAllocationTryFound(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
     self.tic()
-    instance.workflow_history['edit_workflow'].append({
+
+    software_instance.workflow_history['edit_workflow'] = [{
+        'comment':'Allocation failed: no free Compute Partition',
+        'error_message': '',
+        'actor': 'ERP5TypeTestCase',
+        'state': 'current',
+        'time': addToDate(DateTime(), to_add={'day': -4}),
+        'action': 'edit'
+    }]
+    software_instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
+    self.assertEqual('destroy_requested', instance_tree.getSlapState())
+    self.assertEqual('archived', instance_tree.getValidationState())
+    self.assertEqual('start_requested', software_instance.getSlapState())
+
+  def test_tryToGarbageCollectNonAllocatedRootTree_script_recentAllocationTryFoundAllocationDisallowed(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    software_instance.workflow_history['edit_workflow'] = [{
         'comment':'Allocation failed: Allocation disallowed',
         'error_message': '',
         'actor': 'ERP5TypeTestCase',
-        'slap_state': '',
+        'state': 'current',
         'time': addToDate(DateTime(), to_add={'day': -2}),
         'action': 'edit'
-    })
+    }]
 
-    instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
-    self.assertEqual('start_requested', instance.getSlapState())
-    instance_tree = instance.getSpecialiseValue()
+    self.tic()
+    software_instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
+    self.assertEqual('start_requested', software_instance.getSlapState())
     self.assertEqual('start_requested', instance_tree.getSlapState())
 
-  def test_tryToGarbageCollect_complex_tree(self):
-    instance = self.createInstance()
-    instance_tree = instance.getSpecialiseValue()
+  def test_tryToGarbageCollectNonAllocatedRootTree_script_oldAllocationTryFoundAllocationDisallowed(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    self.tic()
+
+    software_instance.workflow_history['edit_workflow'] = [{
+        'comment':'Allocation failed: Allocation disallowed',
+        'error_message': '',
+        'actor': 'ERP5TypeTestCase',
+        'state': 'current',
+        'time': addToDate(DateTime(), to_add={'day': -4}),
+        'action': 'edit'
+    }]
+    software_instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
+    self.assertEqual('destroy_requested', instance_tree.getSlapState())
+    self.assertEqual('archived', instance_tree.getValidationState())
+    self.assertEqual('start_requested', software_instance.getSlapState())
+
+
+  def test_tryToGarbageCollectNonAllocatedRootTree_script_complexTree(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
     request_kw = dict(
       software_release=\
           self.generateNewSoftwareReleaseUrl(),
@@ -741,24 +859,24 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
       software_title="another %s" % instance_tree.getTitle(),
       state='started'
     )
-    instance.requestInstance(**request_kw)
-    sub_instance = instance.getSuccessorValue()
+    software_instance.requestInstance(**request_kw)
+    sub_instance = software_instance.getSuccessorValue()
     self.tic()
-    sub_instance.workflow_history['edit_workflow'].append({
+    sub_instance.workflow_history['edit_workflow'] = [{
         'comment':'Allocation failed: no free Compute Partition',
         'error_message': '',
         'actor': 'ERP5TypeTestCase',
-        'slap_state': '',
+        'state': 'current',
         'time': addToDate(DateTime(), to_add={'day': -4}),
         'action': 'edit'
-    })
+    }]
 
     sub_instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('start_requested', instance_tree.getSlapState())
 
-  def test_tryToGarbageCollect_complex_tree_allocation_disallowed(self):
-    instance = self.createInstance()
-    instance_tree = instance.getSpecialiseValue()
+  def test_tryToGarbageCollectNonAllocatedRootTree_script_complexTreeAllocationDisallowed(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
     request_kw = dict(
       software_release=\
           self.generateNewSoftwareReleaseUrl(),
@@ -769,189 +887,667 @@ class TestSlapOSGarbageCollectNonAllocatedRootTreeAlarm(SlapOSTestCaseMixin):
       software_title="another %s" % instance_tree.getTitle(),
       state='started'
     )
-    instance.requestInstance(**request_kw)
-    sub_instance = instance.getSuccessorValue()
+    software_instance.requestInstance(**request_kw)
+    sub_instance = software_instance.getSuccessorValue()
     self.tic()
-    sub_instance.workflow_history['edit_workflow'].append({
+    sub_instance.workflow_history['edit_workflow'] = [{
         'comment':'Allocation failed: Allocation disallowed',
         'error_message': '',
         'actor': 'ERP5TypeTestCase',
-        'slap_state': '',
-        'time': addToDate(DateTime(), to_add={'day': -4}),
+        'state': 'current',
+        'time': addToDate(DateTime(), to_add={'day': -2}),
         'action': 'edit'
-    })
+    }]
 
     sub_instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
     self.assertEqual('start_requested', instance_tree.getSlapState())
-
-  def test_tryToGarbageCollect_old_allocation_try_found(self):
-    instance = self.createInstance()
-    instance_tree = instance.getSpecialiseValue()
-    self.tic()
-    instance.workflow_history['edit_workflow'].append({
-        'comment':'Allocation failed: no free Compute Partition',
-        'error_message': '',
-        'actor': 'ERP5TypeTestCase',
-        'slap_state': '',
-        'time': addToDate(DateTime(), to_add={'day': -8}),
-        'action': 'edit'
-    })
-
-    instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
-    self.assertEqual('destroy_requested', instance_tree.getSlapState())
-    self.assertEqual('archived', instance_tree.getValidationState())
-
-
-  def test_tryToGarbageCollect_old_allocation_try_found_allocation_disallowed(self):
-    instance = self.createInstance()
-    instance_tree = instance.getSpecialiseValue()
-    self.tic()
-    instance.workflow_history['edit_workflow'].append({
-        'comment':'Allocation failed: Allocation disallowed',
-        'error_message': '',
-        'actor': 'ERP5TypeTestCase',
-        'slap_state': '',
-        'time': addToDate(DateTime(), to_add={'day': -8}),
-        'action': 'edit'
-    })
-
-    instance.SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree()
-    self.assertEqual('destroy_requested', instance_tree.getSlapState())
-    self.assertEqual('archived', instance_tree.getValidationState())
-
-  def test_alarm(self):
-    instance = self.createInstance()
-    self._test_alarm(
-      self.portal.portal_alarms.slapos_garbage_collect_non_allocated_root_tree,
-      instance,
-      'SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree'
-    )
-
-  def test_alarm_invalidated(self):
-    instance = self.createInstance()
-    instance.invalidate()
-    self._test_alarm_not_visited(
-      self.portal.portal_alarms.slapos_garbage_collect_non_allocated_root_tree,
-      instance,
-      'SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree'
-    )
-
-  def test_alarm_allocated(self):
-    instance = self.createInstance()
-    partition = self.createComputePartition()
-    instance.edit(aggregate_value=partition)
-    self._test_alarm_not_visited(
-      self.portal.portal_alarms.slapos_garbage_collect_non_allocated_root_tree,
-      instance,
-      'SoftwareInstance_tryToGarbageCollectNonAllocatedRootTree'
-    )
 
 
 class TestSlapOSInvalidateDestroyedInstance(SlapOSTestCaseMixin):
+  #################################################################
+  # slapos_cloud_invalidate_destroyed_instance
+  #################################################################
+  def test_tryToInvalidateIfDestroyed_alarm_softwareInstanceInvalidated(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
 
-  def createSoftwareInstance(self):
-    new_id = self.generateNewId()
-    return self.portal.software_instance_module.newContent(
-      portal_type='Software Instance',
-      title="Test instance %s" % new_id,
-      reference="TESTINST-%s" % new_id,
-      )
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'invalidated')
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'destroy_requested')
+    self.tic()
 
-  def createComputePartition(self):
-    new_id = self.generateNewId()
-    compute_node = self.portal.compute_node_module.newContent(
-      portal_type='Compute Node',
-      title="Test compute_node %s" % new_id,
-      reference="TESTCOMP-%s" % new_id,
-      )
-    compute_partition = compute_node.newContent(
-      portal_type='Compute Partition',
-      )
-    return compute_partition
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_cloud_invalidate_destroyed_instance,
+      software_instance,
+      'SoftwareInstance_tryToInvalidateIfDestroyed'
+    )
 
+  def test_tryToInvalidateIfDestroyed_alarm_softwareInstanceMatching(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'validated')
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'destroy_requested')
+    self.tic()
+
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_cloud_invalidate_destroyed_instance,
+      software_instance,
+      'SoftwareInstance_tryToInvalidateIfDestroyed'
+    )
+
+  def test_tryToInvalidateIfDestroyed_alarm_softwareInstanceAllocated(self):
+    # This use case is not needed by the alarm
+    # But it keeps alarm search way simpler
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    _, partition = self.addComputeNodeAndPartition(project=instance_tree.getFollowUpValue())
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'validated')
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'destroy_requested')
+    self.tic()
+
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_cloud_invalidate_destroyed_instance,
+      software_instance,
+      'SoftwareInstance_tryToInvalidateIfDestroyed'
+    )
+
+  def test_tryToInvalidateIfDestroyed_alarm_slaveInstanceAllocated(self):
+    instance_tree = self.addInstanceTree(shared=True)
+    software_instance = instance_tree.getSuccessorValue()
+
+    _, partition = self.addComputeNodeAndPartition(project=instance_tree.getFollowUpValue())
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'validated')
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'destroy_requested')
+    self.tic()
+
+    self._test_alarm(
+      self.portal.portal_alarms.slapos_cloud_invalidate_destroyed_instance,
+      software_instance,
+      'SoftwareInstance_tryToInvalidateIfDestroyed'
+    )
+
+  #################################################################
+  # SoftwareInstance_tryToInvalidateIfDestroyed
+  #################################################################
   def test_tryToInvalidateIfDestroyed_REQUEST_disallowed(self):
-    instance = self.createSoftwareInstance()
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
     self.assertRaises(
       Unauthorized,
-      instance.SoftwareInstance_tryToInvalidateIfDestroyed,
+      software_instance.SoftwareInstance_tryToInvalidateIfDestroyed,
       REQUEST={})
 
-  def test_tryToInvalidateIfDestroyed_unexpected_context(self):
+  def test_tryToInvalidateIfDestroyed_script_unexpectedContext(self):
     self.assertRaises(
       TypeError,
       self.portal.SoftwareInstance_tryToInvalidateIfDestroyed,
       )
 
-  def test_tryToInvalidateIfDestroyed_expected_instance(self):
-    instance = self.createSoftwareInstance()
-    self.portal.portal_workflow._jumpToStateFor(instance, 'validated')
-    self.portal.portal_workflow._jumpToStateFor(instance, 'destroy_requested')
-    instance.SoftwareInstance_tryToInvalidateIfDestroyed()
-    self.assertEqual(instance.getValidationState(), "invalidated")
-    self.assertEqual(instance.getSlapState(), "destroy_requested")
+  def test_tryToInvalidateIfDestroyed_script_expectedInstance(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'validated')
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'destroy_requested')
+    software_instance.SoftwareInstance_tryToInvalidateIfDestroyed()
+    self.assertEqual(software_instance.getValidationState(), "invalidated")
+    self.assertEqual(software_instance.getSlapState(), "destroy_requested")
 
-  def test_tryToInvalidateIfDestroyed_invalidated_instance(self):
-    instance = self.createSoftwareInstance()
-    self.portal.portal_workflow._jumpToStateFor(instance, 'invalidated')
-    self.portal.portal_workflow._jumpToStateFor(instance, 'destroy_requested')
-    instance.SoftwareInstance_tryToInvalidateIfDestroyed()
-    self.assertEqual(instance.getValidationState(), "invalidated")
-    self.assertEqual(instance.getSlapState(), "destroy_requested")
+  def test_tryToInvalidateIfDestroyed_script_invalidatedInstance(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'invalidated')
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'destroy_requested')
+    software_instance.SoftwareInstance_tryToInvalidateIfDestroyed()
+    self.assertEqual(software_instance.getValidationState(), "invalidated")
+    self.assertEqual(software_instance.getSlapState(), "destroy_requested")
 
-  def test_tryToInvalidateIfDestroyed_not_destroyed_instance(self):
-    instance = self.createSoftwareInstance()
-    self.portal.portal_workflow._jumpToStateFor(instance, 'validated')
-    self.portal.portal_workflow._jumpToStateFor(instance, 'stop_requested')
-    instance.SoftwareInstance_tryToInvalidateIfDestroyed()
-    self.assertEqual(instance.getValidationState(), "validated")
-    self.assertEqual(instance.getSlapState(), "stop_requested")
+  def test_tryToInvalidateIfDestroyed_script_notDestroyedInstance(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'validated')
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'stop_requested')
+    software_instance.SoftwareInstance_tryToInvalidateIfDestroyed()
+    self.assertEqual(software_instance.getValidationState(), "validated")
+    self.assertEqual(software_instance.getSlapState(), "stop_requested")
 
-  def test_tryToInvalidateIfDestroyed_allocated_instance(self):
-    instance = self.createSoftwareInstance()
-    partition = self.createComputePartition()
-    instance.edit(aggregate_value=partition)
-    self.portal.portal_workflow._jumpToStateFor(instance, 'validated')
-    self.portal.portal_workflow._jumpToStateFor(instance, 'destroy_requested')
-    instance.SoftwareInstance_tryToInvalidateIfDestroyed()
-    self.assertEqual(instance.getValidationState(), "validated")
-    self.assertEqual(instance.getSlapState(), "destroy_requested")
+  def test_tryToInvalidateIfDestroyed_script_allocatedInstance(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
 
-  def test_alarm_software_instance_allocated(self):
-    instance = self.createSoftwareInstance()
-    partition = self.createComputePartition()
-    instance.edit(aggregate_value=partition)
-    self.portal.portal_workflow._jumpToStateFor(instance, 'validated')
-    self.portal.portal_workflow._jumpToStateFor(instance, 'destroy_requested')
-    self.tic()
+    _, partition = self.addComputeNodeAndPartition(project=instance_tree.getFollowUpValue())
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
 
-    self._test_alarm_not_visited(
-      self.portal.portal_alarms.slapos_cloud_invalidate_destroyed_instance,
-      instance,
-      'SoftwareInstance_tryToInvalidateIfDestroyed'
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'validated')
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'destroy_requested')
+    software_instance.SoftwareInstance_tryToInvalidateIfDestroyed()
+    self.assertEqual(software_instance.getValidationState(), "validated")
+    self.assertEqual(software_instance.getSlapState(), "destroy_requested")
+
+  def test_tryToInvalidateIfDestroyed_script_allocatedSlaveInstance(self):
+    instance_tree = self.addInstanceTree(shared=True)
+    software_instance = instance_tree.getSuccessorValue()
+
+    _, partition = self.addComputeNodeAndPartition(project=instance_tree.getFollowUpValue())
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'validated')
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'destroy_requested')
+    software_instance.SoftwareInstance_tryToInvalidateIfDestroyed()
+    self.assertEqual(software_instance.getValidationState(), "invalidated")
+    self.assertEqual(software_instance.getSlapState(), "destroy_requested")
+
+  def test_tryToInvalidateIfDestroyed_script_allocatedInstanceOnRemoteNode(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    _, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type="Remote Node"
     )
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
 
-  def test_alarm_software_instance_invalidated(self):
-    instance = self.createSoftwareInstance()
-    self.createComputePartition()
-    self.portal.portal_workflow._jumpToStateFor(instance, 'invalidated')
-    self.portal.portal_workflow._jumpToStateFor(instance, 'destroy_requested')
-    self.tic()
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'validated')
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'destroy_requested')
+    software_instance.SoftwareInstance_tryToInvalidateIfDestroyed()
+    self.assertEqual(software_instance.getValidationState(), "validated")
+    self.assertEqual(software_instance.getSlapState(), "destroy_requested")
 
-    self._test_alarm_not_visited(
-      self.portal.portal_alarms.slapos_cloud_invalidate_destroyed_instance,
-      instance,
-      'SoftwareInstance_tryToInvalidateIfDestroyed'
+  def test_tryToInvalidateIfDestroyed_script_allocatedSlaveInstanceOnRemoteNode(self):
+    instance_tree = self.addInstanceTree(shared=True)
+    software_instance = instance_tree.getSuccessorValue()
+
+    _, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type="Remote Node"
     )
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
 
-  def test_alarm_software_instance_matching(self):
-    instance = self.createSoftwareInstance()
-    self.createComputePartition()
-    self.portal.portal_workflow._jumpToStateFor(instance, 'validated')
-    self.portal.portal_workflow._jumpToStateFor(instance, 'destroy_requested')
-    self.tic()
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'validated')
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'destroy_requested')
+    software_instance.SoftwareInstance_tryToInvalidateIfDestroyed()
+    self.assertEqual(software_instance.getValidationState(), "validated")
+    self.assertEqual(software_instance.getSlapState(), "destroy_requested")
+
+
+class TestSlapOSPropagateRemoteNodeInstance(SlapOSTestCaseMixin):
+  #################################################################
+  # slapos_cloud_propagate_remote_node_instance
+  #################################################################
+  def test_propagateRemoteNode_alarm_busyPartitionInRemoteNode(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    _, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type='Remote Node'
+    )
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    with TemporaryAlarmScript(self.portal, 'ComputePartition_propagateRemoteNode', ""):
+      self.tic()
 
     self._test_alarm(
-      self.portal.portal_alarms.slapos_cloud_invalidate_destroyed_instance,
-      instance,
-      'SoftwareInstance_tryToInvalidateIfDestroyed'
+      self.portal.portal_alarms.slapos_cloud_propagate_remote_node_instance,
+      partition,
+      'ComputePartition_propagateRemoteNode'
     )
+
+  def test_propagateRemoteNode_alarm_busyPartitionInComputeNode(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    _, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue()
+    )
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    with TemporaryAlarmScript(self.portal, 'ComputePartition_propagateRemoteNode', ""):
+      self.tic()
+
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_cloud_propagate_remote_node_instance,
+      partition,
+      'ComputePartition_propagateRemoteNode'
+    )
+
+  def test_propagateRemoteNode_alarm_freePartitionInRemoteNode(self):
+    instance_tree = self.addInstanceTree()
+
+    _, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type='Remote Node'
+    )
+
+    with TemporaryAlarmScript(self.portal, 'ComputePartition_propagateRemoteNode', ""):
+      self.tic()
+
+    self._test_alarm_not_visited(
+      self.portal.portal_alarms.slapos_cloud_propagate_remote_node_instance,
+      partition,
+      'ComputePartition_propagateRemoteNode'
+    )
+
+  #################################################################
+  # ComputePartition_propagateRemoteNode
+  #################################################################
+  def test_propagateRemoteNode_REQUEST_disallowed(self):
+    instance_tree = self.addInstanceTree()
+    _, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type='Remote Node'
+    )
+    self.assertRaises(
+      Unauthorized,
+      partition.ComputePartition_propagateRemoteNode,
+      REQUEST={})
+
+  def test_propagateRemoteNode_script_unexpectedContext(self):
+    instance_tree = self.addInstanceTree()
+    _, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue()
+    )
+    self.assertRaises(
+      AssertionError,
+      partition.ComputePartition_propagateRemoteNode,
+    )
+
+  def test_propagateRemoteNode_script_createRemoteInstanceTree(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    remote_node, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type='Remote Node'
+    )
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    with TemporaryAlarmScript(self.portal, 'ComputePartition_propagateRemoteNode', ""):
+      self.tic()
+
+    partition.ComputePartition_propagateRemoteNode()
+    self.tic()
+
+    remote_user = remote_node.getDestinationSectionValue()
+    remote_project = remote_node.getDestinationProjectValue()
+    remote_instance_tree = self.portal.portal_catalog.getResultValue(
+      portal_type='Instance Tree',
+      destination_section__uid=remote_user.getUid(),
+      follow_up__uid=remote_project.getUid(),
+      title='_remote_%s_%s' % (software_instance.getFollowUpReference(),
+                               software_instance.getReference())
+    )
+    self.assertEqual(remote_instance_tree.getValidationState(), "validated")
+    self.assertEqual(remote_instance_tree.getSlapState(), "start_requested")
+    self.assertEqual(remote_instance_tree.getUrlString(),
+                     software_instance.getUrlString())
+    self.assertEqual(remote_instance_tree.getSourceReference(),
+                     software_instance.getSourceReference())
+    self.assertEqual(remote_instance_tree.getTextContent(),
+                     software_instance.getTextContent())
+    self.assertEqual(remote_instance_tree.getSlaXml(), None)
+    self.assertEqual(remote_instance_tree.isRootSlave(False),
+                     software_instance.getPortalType() == 'Slave Instance')
+
+    self.assertEqual(software_instance.getConnectionXml(), None)
+
+  def test_propagateRemoteNode_script_doNotRequestIfNotNeeded(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    remote_node, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type='Remote Node'
+    )
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    with TemporaryAlarmScript(self.portal, 'ComputePartition_propagateRemoteNode', ""):
+      self.tic()
+
+    partition.ComputePartition_propagateRemoteNode()
+    self.tic()
+
+    remote_user = remote_node.getDestinationSectionValue()
+    remote_project = remote_node.getDestinationProjectValue()
+    remote_instance_tree = self.portal.portal_catalog.getResultValue(
+      portal_type='Instance Tree',
+      destination_section__uid=remote_user.getUid(),
+      follow_up__uid=remote_project.getUid(),
+      title='_remote_%s_%s' % (software_instance.getFollowUpReference(),
+                               software_instance.getReference())
+    )
+    remote_modification_date = remote_instance_tree.getModificationDate()
+
+    partition.ComputePartition_propagateRemoteNode()
+
+    self.assertEqual(remote_instance_tree.getModificationDate(),
+                     remote_modification_date)
+
+  def test_propagateRemoteNode_script_propageParameterChangesToRemoteInstanceTree(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    remote_node, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type='Remote Node'
+    )
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    with TemporaryAlarmScript(self.portal, 'ComputePartition_propagateRemoteNode', ""):
+      self.tic()
+
+    partition.ComputePartition_propagateRemoteNode()
+    self.tic()
+
+    remote_user = remote_node.getDestinationSectionValue()
+    remote_project = remote_node.getDestinationProjectValue()
+    remote_instance_tree = self.portal.portal_catalog.getResultValue(
+      portal_type='Instance Tree',
+      destination_section__uid=remote_user.getUid(),
+      follow_up__uid=remote_project.getUid(),
+      title='_remote_%s_%s' % (software_instance.getFollowUpReference(),
+                               software_instance.getReference())
+    )
+    remote_modification_date = remote_instance_tree.getModificationDate()
+
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'stop_requested')
+    software_instance.edit(
+      #url_string=self.generateNewSoftwareReleaseUrl(),
+      #source_reference=self.generateNewSoftwareType(),
+      text_content=self.generateSafeXml(),
+      sla_xml=self.generateSafeXml()
+    )
+    partition.ComputePartition_propagateRemoteNode()
+
+    self.assertNotEqual(remote_instance_tree.getModificationDate(),
+                        remote_modification_date)
+    self.assertEqual(remote_instance_tree.getValidationState(), "validated")
+    self.assertEqual(remote_instance_tree.getSlapState(), "stop_requested")
+    self.assertEqual(remote_instance_tree.getUrlString(),
+                     software_instance.getUrlString())
+    self.assertEqual(remote_instance_tree.getSourceReference(),
+                     software_instance.getSourceReference())
+    self.assertEqual(remote_instance_tree.getTextContent(),
+                     software_instance.getTextContent())
+    self.assertEqual(remote_instance_tree.getSlaXml(), None)
+    self.assertEqual(remote_instance_tree.isRootSlave(False),
+                     software_instance.getPortalType() == 'Slave Instance')
+
+    self.assertEqual(software_instance.getConnectionXml(), None)
+
+  def test_propagateRemoteNode_script_propageReleaseChangesToUpgradeDecision(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    remote_node, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type='Remote Node'
+    )
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    with TemporaryAlarmScript(self.portal, 'ComputePartition_propagateRemoteNode', ""):
+      self.tic()
+
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      partition.ComputePartition_propagateRemoteNode()
+    self.tic()
+
+    remote_user = remote_node.getDestinationSectionValue()
+    remote_project = remote_node.getDestinationProjectValue()
+    remote_instance_tree = self.portal.portal_catalog.getResultValue(
+      portal_type='Instance Tree',
+      destination_section__uid=remote_user.getUid(),
+      follow_up__uid=remote_project.getUid(),
+      title='_remote_%s_%s' % (software_instance.getFollowUpReference(),
+                               software_instance.getReference())
+    )
+    remote_software_instance = remote_instance_tree.getSuccessorValue()
+
+    # Create allocated partition to allow Upgrade Decision
+    remote_compute_node, remote_partition = self.addComputeNodeAndPartition(
+      project=remote_instance_tree.getFollowUpValue(),
+    )
+    remote_software_instance.setAggregateValue(remote_partition)
+    remote_partition.markBusy()
+
+    # Create remote Software Product, to allow generating the Upgrade Decision
+    new_id = self.generateNewId()
+    software_product = self.portal.software_product_module.newContent(
+      reference='TESTSOFTPROD-%s' % new_id,
+      title='Test software product %s' % new_id,
+      follow_up_value=remote_project
+    )
+    old_release_variation = software_product.newContent(
+      portal_type='Software Product Release Variation',
+      url_string=remote_instance_tree.getUrlString()
+    )
+    type_variation = software_product.newContent(
+      portal_type='Software Product Type Variation',
+      reference=remote_instance_tree.getSourceReference()
+    )
+    software_product.publish()
+    new_release_variation = self._makeSoftwareRelease(software_product)
+    self.addAllocationSupply("old release compute node", remote_compute_node, software_product,
+                             old_release_variation, type_variation, disable_alarm=True)
+    self.addAllocationSupply("new release compute node", remote_compute_node, software_product,
+                             new_release_variation, type_variation, disable_alarm=True)
+    self.tic()
+
+
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'stop_requested')
+    old_release_url = software_instance.getUrlString()
+    old_text_content = software_instance.getTextContent()
+    software_instance.edit(
+      url_string=new_release_variation.getUrlString(),
+      text_content=self.generateSafeXml()
+    )
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      partition.ComputePartition_propagateRemoteNode()
+
+    # Instance tree is not modified
+    self.assertEqual(remote_instance_tree.getValidationState(), "validated")
+    self.assertEqual(remote_instance_tree.getSlapState(), "start_requested")
+    self.assertEqual(remote_instance_tree.getUrlString(),
+                     old_release_url)
+    self.assertEqual(remote_instance_tree.getSourceReference(),
+                     software_instance.getSourceReference())
+    self.assertEqual(remote_instance_tree.getTextContent(),
+                     old_text_content)
+    self.assertEqual(remote_instance_tree.getSlaXml(), None)
+    self.assertEqual(remote_instance_tree.isRootSlave(False),
+                     software_instance.getPortalType() == 'Slave Instance')
+
+    self.assertEqual(software_instance.getConnectionXml(), None)
+
+    self.tic()
+    # An upgrade decision is proposed
+    upgrade_decision = self.portal.portal_catalog.getResultValue(
+      portal_type='Upgrade Decision',
+      destination_section__uid=remote_user.getUid(),
+      destination_project__uid=remote_project.getUid(),
+      aggregate__uid=remote_instance_tree.getUid(),
+      resource__uid=software_product.getUid(),
+      software_release__uid=new_release_variation.getUid(),
+      software_type__uid=type_variation.getUid(),
+      simulation_state='confirmed'
+    )
+    self.assertNotEqual(upgrade_decision, None)
+
+  def test_propagateRemoteNode_script_doNotPropageConnectionXmlIfNotChanged(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    _, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type='Remote Node'
+    )
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    with TemporaryAlarmScript(self.portal, 'ComputePartition_propagateRemoteNode', ""):
+      self.tic()
+
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      partition.ComputePartition_propagateRemoteNode()
+    self.tic()
+
+    modification_date = software_instance.getModificationDate()
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      partition.ComputePartition_propagateRemoteNode()
+
+    self.assertEqual(software_instance.getModificationDate(), modification_date)
+
+  def test_propagateRemoteNode_script_propageConnectionXmlFromRemoteInstanceTree(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    remote_node, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type='Remote Node'
+    )
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    with TemporaryAlarmScript(self.portal, 'ComputePartition_propagateRemoteNode', ""):
+      self.tic()
+
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      partition.ComputePartition_propagateRemoteNode()
+    self.tic()
+
+    remote_user = remote_node.getDestinationSectionValue()
+    remote_project = remote_node.getDestinationProjectValue()
+    remote_instance_tree = self.portal.portal_catalog.getResultValue(
+      portal_type='Instance Tree',
+      destination_section__uid=remote_user.getUid(),
+      follow_up__uid=remote_project.getUid(),
+      title='_remote_%s_%s' % (software_instance.getFollowUpReference(),
+                               software_instance.getReference())
+    )
+
+    modification_date = software_instance.getModificationDate()
+    remote_instance = remote_instance_tree.getSuccessorValue()
+    remote_instance.edit(
+      connection_xml=self.generateSafeXml()
+    )
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      partition.ComputePartition_propagateRemoteNode()
+
+    self.assertNotEqual(software_instance.getModificationDate(), modification_date)
+    self.assertEqual(remote_instance_tree.getValidationState(), "validated")
+    self.assertEqual(remote_instance_tree.getSlapState(), "start_requested")
+    self.assertEqual(remote_instance_tree.getUrlString(),
+                     software_instance.getUrlString())
+    self.assertEqual(remote_instance_tree.getSourceReference(),
+                     software_instance.getSourceReference())
+    self.assertEqual(remote_instance_tree.getTextContent(),
+                     software_instance.getTextContent())
+    self.assertEqual(remote_instance_tree.getSlaXml(), None)
+    self.assertEqual(remote_instance_tree.isRootSlave(False),
+                     software_instance.getPortalType() == 'Slave Instance')
+
+    self.assertEqual(software_instance.getConnectionXml(),
+                     remote_instance.getConnectionXml())
+
+  def test_propagateRemoteNode_script_propagateDestructionIfValidated(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    remote_node, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type='Remote Node'
+    )
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    with TemporaryAlarmScript(self.portal, 'ComputePartition_propagateRemoteNode', ""):
+      self.tic()
+
+    partition.ComputePartition_propagateRemoteNode()
+    self.tic()
+
+    remote_user = remote_node.getDestinationSectionValue()
+    remote_project = remote_node.getDestinationProjectValue()
+    remote_instance_tree = self.portal.portal_catalog.getResultValue(
+      portal_type='Instance Tree',
+      destination_section__uid=remote_user.getUid(),
+      follow_up__uid=remote_project.getUid(),
+      title='_remote_%s_%s' % (software_instance.getFollowUpReference(),
+                               software_instance.getReference())
+    )
+    remote_modification_date = remote_instance_tree.getModificationDate()
+
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'destroy_requested')
+    self.tic()
+    self.assertEqual(software_instance.getValidationState(), 'validated')
+    partition.ComputePartition_propagateRemoteNode()
+
+    self.assertNotEqual(remote_instance_tree.getModificationDate(),
+                        remote_modification_date)
+    self.assertEqual(remote_instance_tree.getValidationState(), "archived")
+    self.assertEqual(remote_instance_tree.getSlapState(), "destroy_requested")
+    self.assertEqual(remote_instance_tree.getUrlString(),
+                     software_instance.getUrlString())
+    self.assertEqual(remote_instance_tree.getSourceReference(),
+                     software_instance.getSourceReference())
+    self.assertEqual(remote_instance_tree.getTextContent(),
+                     software_instance.getTextContent())
+    self.assertEqual(remote_instance_tree.getSlaXml(), None)
+    self.assertEqual(remote_instance_tree.isRootSlave(False),
+                     software_instance.getPortalType() == 'Slave Instance')
+
+    self.assertEqual(software_instance.getConnectionXml(), None)
+    self.assertEqual(software_instance.getValidationState(), 'invalidated')
+
+  def test_propagateRemoteNode_script_doNotPropagateDestructionIfInvalidated(self):
+    instance_tree = self.addInstanceTree()
+    software_instance = instance_tree.getSuccessorValue()
+
+    remote_node, partition = self.addComputeNodeAndPartition(
+      project=instance_tree.getFollowUpValue(),
+      portal_type='Remote Node'
+    )
+    software_instance.setAggregateValue(partition)
+    partition.markBusy()
+
+    with TemporaryAlarmScript(self.portal, 'ComputePartition_propagateRemoteNode', ""):
+      self.tic()
+
+    partition.ComputePartition_propagateRemoteNode()
+    self.tic()
+
+    remote_user = remote_node.getDestinationSectionValue()
+    remote_project = remote_node.getDestinationProjectValue()
+    remote_instance_tree = self.portal.portal_catalog.getResultValue(
+      portal_type='Instance Tree',
+      destination_section__uid=remote_user.getUid(),
+      follow_up__uid=remote_project.getUid(),
+      title='_remote_%s_%s' % (software_instance.getFollowUpReference(),
+                               software_instance.getReference())
+    )
+    remote_modification_date = remote_instance_tree.getModificationDate()
+
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'destroy_requested')
+    self.portal.portal_workflow._jumpToStateFor(software_instance, 'invalidated')
+    self.tic()
+    partition.ComputePartition_propagateRemoteNode()
+
+    self.assertEqual(remote_instance_tree.getModificationDate(),
+                        remote_modification_date)
+

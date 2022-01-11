@@ -2,6 +2,17 @@
  <portal_type id="Alarm Tool">
   <item>SlapOSMasterUpgradeConstraint</item>
  </portal_type>
+ <portal_type id="Allocation Supply">
+  <item>AllocationSupply</item>
+  <item>AllocationSupplyConstraint</item>
+  <item>SlapOSVirtualMasterSourceProjectConstraint</item>
+ </portal_type>
+ <portal_type id="Allocation Supply Cell">
+  <item>AllocationSupplyPath</item>
+ </portal_type>
+ <portal_type id="Allocation Supply Line">
+  <item>AllocationSupplyPath</item>
+ </portal_type>
  <portal_type id="Assignment">
   <item>SlaposAssignmentConstraint</item>
  </portal_type>
@@ -10,6 +21,7 @@
   <item>ComputerUpgradeConstraint</item>
   <item>ERP5User</item>
   <item>SlapOSReferenceConstraint</item>
+  <item>SlapOSVirtualMasterConstraint</item>
   <item>SlaposCapacity</item>
   <item>SlaposComputeNodeConstraint</item>
   <item>Url</item>
@@ -23,7 +35,11 @@
   <item>ComputerUpgradeConstraint</item>
  </portal_type>
  <portal_type id="Computer Model">
+  <item>SlapOSVirtualMasterConstraint</item>
   <item>SlaposCapacity</item>
+ </portal_type>
+ <portal_type id="Computer Network">
+  <item>SlapOSVirtualMasterConstraint</item>
  </portal_type>
  <portal_type id="Computer Partition">
   <item>ComputerPartitionUpgradeConstraint</item>
@@ -34,9 +50,16 @@
  <portal_type id="Hosting Subscription">
   <item>HostingSubscriptionUpgradeConstraint</item>
  </portal_type>
+ <portal_type id="Instance Node">
+  <item>SlapOSReferenceConstraint</item>
+  <item>SlapOSVirtualMasterConstraint</item>
+  <item>SlaposComputeNodeConstraint</item>
+  <item>SlaposInstanceNodeConstraint</item>
+ </portal_type>
  <portal_type id="Instance Tree">
   <item>HostingSubscriptionUpgradeConstraint</item>
   <item>InstanceTree</item>
+  <item>SlapOSVirtualMasterConstraint</item>
   <item>SlaposInstanceTreeConstraint</item>
   <item>SoftwareInstance</item>
   <item>SoftwareInstanceUpgradeConstraint</item>
@@ -44,13 +67,25 @@
   <item>Url</item>
   <item>VariationRange</item>
  </portal_type>
+ <portal_type id="One Time Virtual Master Access Token">
+  <item>SlapOSVirtualMasterConstraint</item>
+  <item>Url</item>
+ </portal_type>
  <portal_type id="Person">
   <item>SlaposPersonConstraint</item>
+ </portal_type>
+ <portal_type id="Remote Node">
+  <item>Computer</item>
+  <item>SlapOSReferenceConstraint</item>
+  <item>SlapOSVirtualMasterConstraint</item>
+  <item>SlaposComputeNodeConstraint</item>
+  <item>SlaposRemoteNodeConstraint</item>
  </portal_type>
  <portal_type id="Slave Instance">
   <item>InstanceTree</item>
   <item>Reference</item>
   <item>SlapOSReferenceConstraint</item>
+  <item>SlapOSVirtualMasterConstraint</item>
   <item>SlaveInstanceConstraint</item>
   <item>SoftwareInstance</item>
   <item>SoftwareInstanceDuplicationConstraint</item>
@@ -60,6 +95,7 @@
  </portal_type>
  <portal_type id="Software Installation">
   <item>SlapOSReferenceConstraint</item>
+  <item>SlapOSVirtualMasterConstraint</item>
   <item>Url</item>
   <item>VariationRange</item>
  </portal_type>
@@ -68,6 +104,7 @@
   <item>InstanceTree</item>
   <item>Reference</item>
   <item>SlapOSReferenceConstraint</item>
+  <item>SlapOSVirtualMasterConstraint</item>
   <item>SoftwareInstance</item>
   <item>SoftwareInstanceConstraint</item>
   <item>SoftwareInstanceDuplicationConstraint</item>
@@ -77,6 +114,7 @@
   <item>VariationRange</item>
  </portal_type>
  <portal_type id="Software Release">
+  <item>SlapOSVirtualMasterConstraint</item>
   <item>SlaposCapacity</item>
  </portal_type>
 </property_sheet_list>

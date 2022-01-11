@@ -157,13 +157,15 @@ class TestSlapOSCloudUpgrader(SlapOSTestCaseMixin):
     computer_module = self.portal.getDefaultModule('Computer')
 
     computer_nothing_to_migrate = computer_module.newContent(
-      portal_type='Computer'
+      portal_type='Computer',
+      title='not to migrate'
     )
 
     computer_to_migrate = computer_module.newContent(
       portal_type='Computer',
       quantity=99,
-      bar='foo3'
+      bar='foo3',
+      title='to migrate'
     )
 
     # Create fake workflow history

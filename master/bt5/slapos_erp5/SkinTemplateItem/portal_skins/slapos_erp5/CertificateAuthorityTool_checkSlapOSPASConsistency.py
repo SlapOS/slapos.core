@@ -9,9 +9,12 @@ slapos_plugin_dict = {
     'ERP5 Facebook Extraction Plugin'
   ],
   'IGroupsPlugin': [
+    'ZODB Group Manager',
     'SlapOS Shadow Authentication Plugin',
+    'ERP5 Group Manager'
   ],
   'IUserEnumerationPlugin': [
+    'ZODB User Manager',
     'SlapOS Shadow Authentication Plugin',
     'ERP5 Login User Manager'
   ]
@@ -34,6 +37,18 @@ def mergePASDictDifference(portal, d, fixit):
             error_list.append('%s not found' % expected)
           else:
             plugins.activatePlugin(plugin_info['interface'], existing[0].getId())
+            error += ' Fixed.'
+        error_list.append(error)
+
+    for activated_plugin in meta_type_list:
+      if activated_plugin not in active_list:
+        error = 'Plugin %s must not be activated %s.' % (plugin, activated_plugin)
+        if fixit:
+          existing = [q for q in portal.acl_users.objectValues() if q.meta_type == activated_plugin]
+          if len(existing) == 0:
+            error_list.append('%s not found' % activated_plugin)
+          else:
+            plugins.deactivatePlugin(plugin_info['interface'], existing[0].getId())
             error += ' Fixed.'
         error_list.append(error)
 

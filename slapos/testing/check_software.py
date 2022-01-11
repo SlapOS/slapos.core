@@ -36,6 +36,7 @@ from typing import Dict, Iterable, List
 
 import pkg_resources
 import requests
+from six.moves.configparser import ConfigParser
 
 if sys.version_info <= (3,):
   import subprocess32 as subprocess
@@ -204,14 +205,24 @@ def checkSoftware(slap, software_url):
                         **locals()))
     return executable_link_error_list
 
-  paths_to_check = (
-      os.path.join(slap.software_directory, software_hash),
-      slap.shared_directory,
-  )
+  software_directory = os.path.join(slap.software_directory, software_hash)
+  paths_to_check = set((software_directory, ))
+
+  # Compute the paths to check by inspecting buildout installed database
+  # for this software. We are looking for shared parts installed by recipes.
+  config_parser = ConfigParser()
+  config_parser.read(os.path.join(software_directory, '.installed.cfg'))
+  for section_name in config_parser.sections():
+    for option_name in 'location', '__buildout_installed__':
+      if config_parser.has_option(section_name, option_name):
+         for section_path in config_parser.get(section_name, option_name).splitlines():
+           if section_path and not section_path.startswith(software_directory):
+             paths_to_check.add(section_path)
+
   error_list.extend(
       checkExecutableLink(
           paths_to_check,
-          paths_to_check + tuple(slap._shared_part_list),
+          tuple(paths_to_check) + tuple(slap._shared_part_list),
       ))
 
   # check this software is not referenced in any shared parts.

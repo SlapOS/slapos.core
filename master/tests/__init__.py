@@ -8,7 +8,6 @@ slapos_bt_list = [
     'erp5_web_shadir',
     'slapos_accounting',
     'slapos_cache',
-    'slapos_subscription_request',
     'slapos_cloud',
     'slapos_erp5',
     'slapos_pdm',
@@ -18,8 +17,9 @@ slapos_bt_list = [
     'slapos_wechat',
     'slapos_configurator',
     'slapos_mysql_innodb_catalog',
-    'slapos_jio',
-    'slapos_jio_ui_test',
+    # 'slapos_jio',
+    'slapos_subscription_request',
+    'slapos_panel_ui_test',
     'slapos_abyss'
   ]
 

@@ -11,6 +11,12 @@
  <portal_type id="Instance Tree">
   <item>SlapOSAccountingInstanceTreeConstraint</item>
  </portal_type>
+ <portal_type id="Open Sale Order">
+  <item>SlapOSAccountingOpenSaleOrderConstraint</item>
+ </portal_type>
+ <portal_type id="Open Sale Order Line">
+  <item>SlapOSAccountingOpenSaleOrderLineConstraint</item>
+ </portal_type>
  <portal_type id="Sale Invoice Transaction">
   <item>SlapOSAccountingSaleInvoiceTransactionConstraint</item>
  </portal_type>

@@ -7,10 +7,4 @@ for portal_type in ("Access Token Module" ,"Account Module" ,"Account" ,"Account
   print(portal_type)
   portal.portal_types[portal_type].updateRoleMapping(priority=4)
 
-context.portal_catalog.searchAndActivate(
-  method_id="updateLocalRolesOnSecurityGroups",
-  default_specialise_uid = [context.sale_trade_condition_module.slapos_subscription_trade_condition.getUid(),
-                             context.sale_trade_condition_module.slapos_aggregated_trade_condition.getUid()],
-  portal_type="Sale Packing List")
-
 return printed

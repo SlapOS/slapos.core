@@ -33,6 +33,9 @@
             <value>
               <tuple>
                 <string>Sale Invoice Transaction</string>
+                <string>Accounting Transaction</string>
+                <string>Balance Transaction</string>
+                <string>Purchase Invoice Transaction</string>
               </tuple>
             </value>
         </item>
@@ -51,6 +54,7 @@
             <value>
               <tuple>
                 <string>_setDestinationSection.*</string>
+                <string>_setLedger.*</string>
               </tuple>
             </value>
         </item>

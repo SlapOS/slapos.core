@@ -10,7 +10,7 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>before_commit_script/portal_workflow/local_permission_slapos_interaction_workflow/script_Base_updateAllLocalRoles</string>
+                <string>after_script/portal_workflow/local_permission_slapos_interaction_workflow/script_Base_updateAllLocalRoles</string>
               </tuple>
             </value>
         </item>
@@ -47,16 +47,20 @@
             <value> <int>1</int> </value>
         </item>
         <item>
+            <key> <string>title</string> </key>
+            <value> <string>ComputerNetwork_edit</string> </value>
+        </item>
+        <item>
             <key> <string>trigger_method_id</string> </key>
             <value>
               <tuple>
-                <string>_setSourceAdministration.*</string>
+                <string>_setFollowUp.*</string>
               </tuple>
             </value>
         </item>
         <item>
             <key> <string>trigger_once_per_transaction</string> </key>
-            <value> <int>1</int> </value>
+            <value> <int>0</int> </value>
         </item>
         <item>
             <key> <string>trigger_type</string> </key>

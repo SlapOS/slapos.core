@@ -4,12 +4,13 @@
 # Copyright (c) 2012 Nexedi SA and Contributors. All Rights Reserved.
 #
 ##############################################################################
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbort
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, withAbort, TemporaryAlarmScript
 
 from DateTime import DateTime
 from erp5.component.module.DateUtils import addToDate
 from erp5.component.document.SimulationMovement import SimulationMovement
 import transaction
+
 
 def getSimulationStatePlanned(self, *args, **kwargs):
   return 'planned'
@@ -34,13 +35,13 @@ class TestDefaultInvoiceTransactionRule(SlapOSTestCaseMixin):
     try:
       SimulationMovement.getSimulationState = getSimulationStatePlanned
 
-      source = self.portal.person_module.template_member\
-          .Base_createCloneDocument(batch_mode=1)
-      destination = self.portal.person_module.template_member\
-          .Base_createCloneDocument(batch_mode=1)
-      aggregate = self.portal.instance_tree_module\
-          .template_instance_tree.Base_createCloneDocument(batch_mode=1)
-      resource = self.portal.service_module.slapos_instance_subscription
+      resource, _, _, _, _, aggregate = self.bootstrapAllocableInstanceTree(is_accountable=True)
+      project = aggregate.getFollowUpValue()
+      trade_condition = project.getSourceProjectRelatedValue(portal_type="Sale Trade Condition")
+      source = trade_condition.getSourceSectionValue()
+      destination = aggregate.getDestinationSectionValue()
+      business_process = trade_condition.getSpecialiseValue()
+
       start_date = DateTime('2011/02/16')
       stop_date = DateTime('2011/03/16')
 
@@ -58,23 +59,28 @@ class TestDefaultInvoiceTransactionRule(SlapOSTestCaseMixin):
           source_section_value=source,
           destination_value=destination,
           destination_section_value=destination,
+          destination_project_value=project,
           resource_value=resource,
           aggregate_value=aggregate,
           start_date=start_date,
           stop_date=stop_date,
           base_contribution_list=['base_amount/invoicing/discounted',
-              'base_amount/invoicing/taxable'],
-          price_currency='currency_module/EUR',
+              'base_amount/invoicing/taxable/vat/normal_rate'],
+          price_currency=trade_condition.getPriceCurrency(),
           use='trade/sale',
+          ledger='automated',
           trade_phase='slapos/invoicing',
           quantity_unit='unit/piece',
-          specialise=
-              'sale_trade_condition_module/slapos_aggregated_trade_condition',
-          causality_list=['business_process_module/slapos_aggregated_business_process/invoice_path', 'business_process_module/slapos_aggregated_business_process/invoice'],
+          specialise=trade_condition.getRelativeUrl(),
+          causality_list=[
+            '%s/invoice_path' % business_process.getRelativeUrl(),
+            '%s/invoice' % business_process.getRelativeUrl()
+          ],
           delivery_value=self.portal.accounting_module.newContent(
               portal_type='Sale Invoice Transaction').newContent(
                   portal_type='Invoice Line')
           )
+      self.tic()
 
       self.assertEqual('planned',
           root_simulation_movement.getSimulationState())
@@ -103,9 +109,9 @@ class TestDefaultInvoiceTransactionRule(SlapOSTestCaseMixin):
           portal_type='Simulation Movement')
       self.assertEqual(2, len(simulation_movement_list))
       debit_movement_list = [q for q in simulation_movement_list if \
-          q.getCausality() == 'business_process_module/slapos_aggregated_business_process/account_debit_path']
+          q.getCausality() == '%s/account_debit_path' % business_process.getRelativeUrl()]
       credit_movement_list = [q for q in simulation_movement_list if \
-          q.getCausality() == 'business_process_module/slapos_aggregated_business_process/account_credit_path']
+          q.getCausality() == '%s/account_credit_path' % business_process.getRelativeUrl()]
       self.assertEqual(1, len(debit_movement_list))
       self.assertEqual(1, len(credit_movement_list))
       debit_movement = debit_movement_list[0]
@@ -119,6 +125,8 @@ class TestDefaultInvoiceTransactionRule(SlapOSTestCaseMixin):
         self.assertEqual(destination, simulation_movement.getDestination())
         self.assertEqual(root_simulation_movement.getDestinationSection(),
             simulation_movement.getDestinationSection())
+        self.assertEqual(root_simulation_movement.getDestinationProject(),
+            simulation_movement.getDestinationProject())
         self.assertEqual(1, simulation_movement.getPrice())
         self.assertEqual(root_simulation_movement.getTotalPrice() *\
             quantity_sign, simulation_movement.getQuantity())
@@ -134,6 +142,8 @@ class TestDefaultInvoiceTransactionRule(SlapOSTestCaseMixin):
         self.assertEqual(None, simulation_movement.getUse())
         self.assertEqual('slapos/accounting',
             simulation_movement.getTradePhase())
+        self.assertEqual('automated',
+            simulation_movement.getLedger())
         self.assertEqual(root_simulation_movement.getQuantityUnit(),
             simulation_movement.getQuantityUnit())
         self.assertEqual(root_simulation_movement.getSpecialise(),
@@ -166,11 +176,13 @@ class TestDefaultInvoiceRule(SlapOSTestCaseMixin):
     try:
       SimulationMovement.getSimulationState = getSimulationStatePlanned
 
-      source = self.portal.person_module.template_member\
-          .Base_createCloneDocument(batch_mode=1)
-      destination = self.portal.person_module.template_member\
-          .Base_createCloneDocument(batch_mode=1)
-      resource = self.portal.service_module.slapos_account_validation
+      resource, _, _, _, _, aggregate = self.bootstrapAllocableInstanceTree(is_accountable=True)
+      project = aggregate.getFollowUpValue()
+      trade_condition = project.getSourceProjectRelatedValue(portal_type="Sale Trade Condition")
+      source = trade_condition.getSourceSectionValue()
+      destination = aggregate.getDestinationSectionValue()
+      business_process = trade_condition.getSpecialiseValue()
+
       start_date = DateTime('2011/02/16')
       stop_date = DateTime('2011/02/16')
 
@@ -188,18 +200,22 @@ class TestDefaultInvoiceRule(SlapOSTestCaseMixin):
           source_section_value=source,
           destination_value=destination,
           destination_section_value=destination,
+          destination_project_value=project,
           resource_value=resource,
           start_date=start_date,
           stop_date=stop_date,
           base_contribution_list=['base_amount/invoicing/discounted',
-              'base_amount/invoicing/taxable'],
+              'base_amount/invoicing/taxable/vat/normal_rate'],
           price_currency='currency_module/EUR',
           use='trade/sale',
           trade_phase='slapos/invoicing',
+          ledger='automated',
           quantity_unit='unit/piece',
-          specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
-          causality_list=['business_process_module/slapos_aggregated_business_process/invoice_path', 
-                          'business_process_module/slapos_aggregated_business_process/invoice'])
+          specialise=trade_condition.getRelativeUrl(),
+          causality_list=[
+            '%s/invoice_path' % business_process.getRelativeUrl(),
+            '%s/invoice' % business_process.getRelativeUrl()
+          ])
 
       self.assertEqual('planned',
           root_simulation_movement.getSimulationState())
@@ -240,13 +256,13 @@ class TestDefaultInvoicingRule(SlapOSTestCaseMixin):
     try:
       SimulationMovement.getSimulationState = getSimulationStatePlanned
 
-      source = self.portal.person_module.template_member\
-          .Base_createCloneDocument(batch_mode=1)
-      destination = self.portal.person_module.template_member\
-          .Base_createCloneDocument(batch_mode=1)
-      aggregate = self.portal.instance_tree_module\
-          .template_instance_tree.Base_createCloneDocument(batch_mode=1)
-      resource = self.portal.service_module.slapos_instance_subscription
+      resource, _, _, _, _, aggregate = self.bootstrapAllocableInstanceTree(is_accountable=True)
+      project = aggregate.getFollowUpValue()
+      trade_condition = project.getSourceProjectRelatedValue(portal_type="Sale Trade Condition")
+      source = trade_condition.getSourceSectionValue()
+      destination = aggregate.getDestinationSectionValue()
+      business_process = trade_condition.getSpecialiseValue()
+
       start_date = DateTime('2011/02/16')
       stop_date = DateTime('2011/03/16')
 
@@ -264,18 +280,23 @@ class TestDefaultInvoicingRule(SlapOSTestCaseMixin):
           source_section_value=source,
           destination_value=destination,
           destination_section_value=destination,
+          destination_project_value=project,
           resource_value=resource,
           aggregate_value=aggregate,
           start_date=start_date,
           stop_date=stop_date,
           base_contribution_list=['base_amount/invoicing/discounted',
-              'base_amount/invoicing/taxable'],
+              'base_amount/invoicing/taxable/vat/normal_rate'],
           price_currency='currency_module/EUR',
           use='trade/sale',
           trade_phase='slapos/delivery',
+          ledger='automated',
           quantity_unit='unit/piece',
-          specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
-          causality_list=['business_process_module/slapos_aggregated_business_process/delivery_path', 'business_process_module/slapos_aggregated_business_process/deliver'])
+          specialise=trade_condition.getRelativeUrl(),
+          causality_list=[
+            '%s/delivery_path' % business_process.getRelativeUrl(),
+            '%s/deliver' % business_process.getRelativeUrl()
+          ])
 
       self.assertEqual('planned',
           root_simulation_movement.getSimulationState())
@@ -311,6 +332,8 @@ class TestDefaultInvoicingRule(SlapOSTestCaseMixin):
           simulation_movement.getDestination())
       self.assertEqual(root_simulation_movement.getDestinationSection(),
           simulation_movement.getDestinationSection())
+      self.assertEqual(root_simulation_movement.getDestinationProject(),
+          simulation_movement.getDestinationProject())
       self.assertEqual(root_simulation_movement.getPrice(),
           simulation_movement.getPrice())
       self.assertEqual(root_simulation_movement.getQuantity(),
@@ -331,11 +354,16 @@ class TestDefaultInvoicingRule(SlapOSTestCaseMixin):
           simulation_movement.getUse())
       self.assertEqual('slapos/invoicing',
           simulation_movement.getTradePhase())
+      self.assertEqual('automated',
+          simulation_movement.getLedger())
       self.assertEqual(root_simulation_movement.getQuantityUnit(),
           simulation_movement.getQuantityUnit())
       self.assertEqual(root_simulation_movement.getSpecialise(),
           simulation_movement.getSpecialise())
-      self.assertEqual(['business_process_module/slapos_aggregated_business_process/invoice_path', 'business_process_module/slapos_aggregated_business_process/invoice'], simulation_movement.getCausalityList())
+      self.assertEqual([
+        '%s/invoice_path' % business_process.getRelativeUrl(),
+        '%s/invoice' % business_process.getRelativeUrl()
+      ], simulation_movement.getCausalityList())
       # check children rules' type
       child_applied_rule_type_list = [q.getSpecialiseReference() for q in \
           simulation_movement.contentValues(portal_type='Applied Rule')]
@@ -360,11 +388,14 @@ class TestDefaultPaymentRule(SlapOSTestCaseMixin):
     try:
       SimulationMovement.getSimulationState = getSimulationStatePlanned
 
-      source = self.portal.person_module.template_member\
-          .Base_createCloneDocument(batch_mode=1)
-      destination = self.portal.person_module.template_member\
-          .Base_createCloneDocument(batch_mode=1)
-      resource = self.portal.currency_module.EUR
+      _, _, _, _, _, aggregate = self.bootstrapAllocableInstanceTree(is_accountable=True)
+      project = aggregate.getFollowUpValue()
+      trade_condition = project.getSourceProjectRelatedValue(portal_type="Sale Trade Condition")
+      source = trade_condition.getSourceSectionValue()
+      destination = aggregate.getDestinationSectionValue()
+      business_process = trade_condition.getSpecialiseValue()
+      resource = trade_condition.getPriceCurrencyValue()
+
       start_date = DateTime('2011/02/16')
       stop_date = DateTime('2011/03/16')
 
@@ -382,14 +413,18 @@ class TestDefaultPaymentRule(SlapOSTestCaseMixin):
           source_section_value=source,
           destination='account_module/payable',
           destination_section_value=destination,
+          destination_project_value=project,
           resource_value=resource,
           start_date=start_date,
           stop_date=stop_date,
           use='trade/sale',
           trade_phase='slapos/accounting',
+          ledger='automated',
           quantity_unit='unit/piece',
-          specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
-          causality_list=['business_process_module/slapos_aggregated_business_process/account'],
+          specialise=trade_condition.getRelativeUrl(),
+          causality_list=[
+            '%s/account' % business_process.getRelativeUrl()
+          ],
           delivery_value=self.portal.accounting_module.newContent(
               portal_type='Sale Invoice Transaction').newContent(
                   portal_type='Invoice Line')
@@ -417,44 +452,47 @@ class TestDefaultPaymentRule(SlapOSTestCaseMixin):
       SimulationMovement.getSimulationState = SimulationMovement\
         .original_getSimulationState
 
-class TestInstanceTreeSimulation(SlapOSTestCaseMixin):
+class TestHostingSubscriptionSimulation(SlapOSTestCaseMixin):
   def _prepare(self):
-    person = self.portal.person_module.template_member\
-        .Base_createCloneDocument(batch_mode=1)
-    self.subscription = self.portal.instance_tree_module\
-        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    trade_condition = self.portal.sale_trade_condition_module.newContent(
+      specialise_value=self.portal.business_process_module.slapos_ultimate_business_process
+    )
+    trade_condition.validate()
+
+    organisation = self.portal.organisation_module.newContent()
+
+    resource = self.portal.restrictedTraverse("service_module/slapos_virtual_master_subscription")
+
     self.initial_date = DateTime('2011/02/16')
     stop_date = DateTime('2011/04/16')
-    self.subscription.edit(
+
+    open_order = self.portal.open_sale_order_module.newContent(
+      specialise_value=trade_condition,
+      destination_value=organisation,
+      effective_date=self.initial_date,
+      expiration_date=self.initial_date + 1,
+      start_date=self.initial_date,
+      stop_date=stop_date,
+      ledger='automated'
+    )
+    self.subscription = self.portal.hosting_subscription_module.newContent(
+      portal_type='Hosting Subscription',
       periodicity_hour=0,
       periodicity_minute=0,
       periodicity_month_day=self.initial_date.day(),
-      destination_section=person.getRelativeUrl()
+      ledger='automated'
     )
-    self.portal.portal_workflow._jumpToStateFor(self.subscription, 'validated')
+    self.subscription.validate()
 
-    open_sale_order_template = self.portal.restrictedTraverse(
-        self.portal.portal_preferences.getPreferredOpenSaleOrderTemplate())
-    open_sale_order_line_template = self.portal.restrictedTraverse(
-        self.portal.portal_preferences.getPreferredOpenSaleOrderLineTemplate())
-    open_order = open_sale_order_template.Base_createCloneDocument(
-        batch_mode=1)
-    open_order.edit(
-        destination_decision=person.getRelativeUrl(),
-        destination_section=person.getRelativeUrl(),
-        destination=person.getRelativeUrl(),
-        effective_date=self.initial_date,
-        expiration_date=self.initial_date + 1,
+    self.open_order_line = open_order.newContent(
+      portal_type='Open Sale Order Line',
+      resource_value=resource,
+      aggregate_value=self.subscription,
+      quantity=1
     )
-    self.portal.portal_workflow._jumpToStateFor(open_order, 'validated')
 
-    self.open_order_line = open_sale_order_line_template.Base_createCloneDocument(
-        batch_mode=1, destination=open_order)
-    self.open_order_line.edit(
-        aggregate=self.subscription.getRelativeUrl(),
-        start_date=self.initial_date,
-        stop_date=stop_date
-    )
+    open_order.plan()
+    open_order.validate()
     self.tic()
 
     applied_rule_list = self.portal.portal_catalog(portal_type='Applied Rule',
@@ -462,7 +500,8 @@ class TestInstanceTreeSimulation(SlapOSTestCaseMixin):
     self.assertEqual(0, len(applied_rule_list))
 
     self.subscription.updateSimulation(expand_root=1)
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
 
   def test_simulation(self):
     self._prepare()
@@ -511,12 +550,16 @@ class TestInstanceTreeSimulation(SlapOSTestCaseMixin):
         simulation_movement.getDestination())
       self.assertEqual(self.open_order_line.getDestinationSection(),
         simulation_movement.getDestinationSection())
+      self.assertEqual(self.open_order_line.getDestinationProject(),
+        simulation_movement.getDestinationProject())
       self.assertEqual(self.open_order_line.getSpecialise(),
         simulation_movement.getSpecialise())
       self.assertEqual(self.open_order_line.getResource(),
         simulation_movement.getResource())
       self.assertEqual(applied_rule.getSpecialiseValue().getTradePhaseList(),
         simulation_movement.getTradePhaseList())
+      self.assertEqual('automated',
+          simulation_movement.getLedger())
       self.assertSameSet(self.open_order_line.getAggregateList(),
         simulation_movement.getAggregateList())
       self.assertEqual('planned', simulation_movement.getSimulationState())
@@ -565,7 +608,7 @@ class TestInstanceTreeSimulation(SlapOSTestCaseMixin):
     # There are 2 movements, for February and March
     self.assertEqual(2, len(simulation_movement_list))
 
-    self.open_order_line.edit(stop_date=DateTime('2011/05/16'))
+    self.open_order_line.getParentValue().edit(stop_date=DateTime('2011/05/16'))
     self.tic()
 
     self.subscription.updateSimulation(expand_root=1)
@@ -582,6 +625,7 @@ class TestInstanceTreeSimulation(SlapOSTestCaseMixin):
 
   def test_update_frozen_simulation(self):
     self._prepare()
+
     applied_rule_list = self.portal.portal_catalog(portal_type='Applied Rule',
         causality_uid=self.subscription.getUid())
     self.assertEqual(1, len(applied_rule_list))
@@ -627,12 +671,16 @@ class TestInstanceTreeSimulation(SlapOSTestCaseMixin):
         simulation_movement.getDestination())
       self.assertEqual(self.open_order_line.getDestinationSection(),
         simulation_movement.getDestinationSection())
+      self.assertEqual(self.open_order_line.getDestinationProject(),
+        simulation_movement.getDestinationProject())
       self.assertEqual(self.open_order_line.getSpecialise(),
         simulation_movement.getSpecialise())
       self.assertEqual(self.open_order_line.getResource(),
         simulation_movement.getResource())
       self.assertEqual(applied_rule.getSpecialiseValue().getTradePhaseList(),
         simulation_movement.getTradePhaseList())
+      self.assertEqual('automated',
+        simulation_movement.getLedger())
       self.assertSameSet(self.open_order_line.getAggregateList(),
         simulation_movement.getAggregateList())
       self.assertEqual('planned', simulation_movement.getSimulationState())
@@ -667,19 +715,38 @@ class TestInstanceTreeSimulation(SlapOSTestCaseMixin):
 
 class TestDefaultTradeModelRule(SlapOSTestCaseMixin):
   @withAbort
-  def test_simulation(self):
+  def test_trade_model_simulation(self):
     SimulationMovement.original_getSimulationState = SimulationMovement\
         .getSimulationState
     try:
       SimulationMovement.getSimulationState = getSimulationStatePlanned
 
-      source = self.portal.person_module.template_member\
-          .Base_createCloneDocument(batch_mode=1)
-      destination = self.portal.person_module.template_member\
-          .Base_createCloneDocument(batch_mode=1)
-      aggregate = self.portal.instance_tree_module\
-          .template_instance_tree.Base_createCloneDocument(batch_mode=1)
-      resource = self.portal.service_module.slapos_instance_subscription
+      project = self.portal.project_module.newContent()
+      aggregate = project
+      price_currency = self.portal.currency_module.newContent()
+      trade_condition = self.portal.sale_trade_condition_module.newContent(
+        specialise_value=self.portal.business_process_module.slapos_ultimate_business_process
+      )
+      trade_condition.newContent(
+        portal_type="Trade Model Line",
+        reference="VAT",
+        resource="service_module/slapos_tax",
+        base_application="base_amount/invoicing/taxable/vat/normal_rate",
+        trade_phase="slapos/tax",
+        price=0.2,
+        quantity=1.0,
+        membership_criterion_base_category=('price_currency', 'base_contribution'),
+        membership_criterion_category=(
+          'price_currency/%s' % price_currency.getRelativeUrl(),
+          'base_contribution/base_amount/invoicing/taxable/vat/normal_rate'
+        )
+      )
+      trade_condition.validate()
+      business_process = trade_condition.getSpecialiseValue()
+      source = self.portal.organisation_module.newContent()
+      destination = self.portal.person_module.newContent()
+      resource = self.portal.restrictedTraverse("service_module/slapos_virtual_master_subscription")
+
       start_date = DateTime('2011/02/16')
       stop_date = DateTime('2011/03/16')
 
@@ -697,18 +764,23 @@ class TestDefaultTradeModelRule(SlapOSTestCaseMixin):
           source_section_value=source,
           destination_value=destination,
           destination_section_value=destination,
+          destination_project_value=project,
           resource_value=resource,
           aggregate_value=aggregate,
           start_date=start_date,
           stop_date=stop_date,
           base_contribution_list=['base_amount/invoicing/discounted',
-              'base_amount/invoicing/taxable'],
-          price_currency='currency_module/EUR',
+              'base_amount/invoicing/taxable/vat/normal_rate'],
+          price_currency_value=price_currency,
           use='trade/sale',
           trade_phase='slapos/invoicing',
+          ledger='automated',
           quantity_unit='unit/piece',
-          specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
-          causality_list=['business_process_module/slapos_aggregated_business_process/invoice_path', 'business_process_module/slapos_aggregated_business_process/invoice'],
+          specialise=trade_condition.getRelativeUrl(),
+          causality_list=[
+            '%s/invoice_path' % business_process.getRelativeUrl(),
+            '%s/invoice' % business_process.getRelativeUrl()
+          ],
           delivery_value=self.portal.accounting_module.newContent(
               portal_type='Sale Invoice Transaction').newContent(
                   portal_type='Invoice Line')
@@ -737,6 +809,7 @@ class TestDefaultTradeModelRule(SlapOSTestCaseMixin):
       applied_rule = applied_rule_list[0]
       simulation_movement_list = applied_rule.contentValues(
           portal_type='Simulation Movement')
+      self.tic()
       self.assertEqual(1, len(simulation_movement_list))
       simulation_movement = simulation_movement_list[0]
       self.assertEqual('planned', simulation_movement.getSimulationState())
@@ -748,6 +821,8 @@ class TestDefaultTradeModelRule(SlapOSTestCaseMixin):
           simulation_movement.getDestination())
       self.assertEqual(root_simulation_movement.getDestinationSection(),
           simulation_movement.getDestinationSection())
+      self.assertEqual(root_simulation_movement.getDestinationProject(),
+          simulation_movement.getDestinationProject())
       self.assertEqual(root_simulation_movement.getTotalPrice(),
           simulation_movement.getQuantity())
       self.assertEqual(root_simulation_movement.getPriceCurrency(),
@@ -770,6 +845,8 @@ class TestDefaultTradeModelRule(SlapOSTestCaseMixin):
       self.assertEqual([], simulation_movement.getBaseContributionList())
       self.assertEqual('slapos/tax',
           simulation_movement.getTradePhase())
+      self.assertEqual('automated',
+          simulation_movement.getLedger())
       self.assertEqual(root_simulation_movement.getQuantityUnit(),
           simulation_movement.getQuantityUnit())
       self.assertEqual(root_simulation_movement.getSpecialise(),
@@ -779,35 +856,36 @@ class TestDefaultTradeModelRule(SlapOSTestCaseMixin):
         .original_getSimulationState
 
 class TestDefaultDeliveryRule(SlapOSTestCaseMixin):
-  trade_condition = 'sale_trade_condition_module/slapos_aggregated_trade_condition'
+
   def test(self):
-    def newArrow():
-      return self.portal.organisation_module.newContent(
-          portal_type='Organisation').getRelativeUrl()
+    resource, _, _, _, _, aggregate = self.bootstrapAllocableInstanceTree(is_accountable=True)
+    project = aggregate.getFollowUpValue()
+    trade_condition = project.getSourceProjectRelatedValue(portal_type="Sale Trade Condition")
+    source = trade_condition.getSourceSectionValue()
+    destination = aggregate.getDestinationSectionValue()
+    price_currency = trade_condition.getPriceCurrencyValue()
+
     delivery = self.portal.sale_packing_list_module.newContent(
         portal_type='Sale Packing List',
-        source=newArrow(),
-        destination=newArrow(),
-        source_section=newArrow(),
-        destination_section=newArrow(),
-        price_currency='currency_module/EUR',
-        specialise=self.trade_condition,
+        source_value=source,
+        destination_value=destination,
+        source_section_value=source,
+        destination_section_value=destination,
+        destination_decision_value=destination,
+        destination_project_value=project,
+        price_currency_value=price_currency,
+        specialise_value=trade_condition,
         start_date=DateTime('2012/01/01'),
-        stop_date=DateTime('2012/02/02')
+        stop_date=DateTime('2012/02/02'),
+        ledger='automated'
     )
     line = delivery.newContent(portal_type='Sale Packing List Line',
-        resource=self.portal.service_module.newContent(
-            portal_type='Service').getRelativeUrl(),
+        resource_value=resource,
         use='trade/sale',
         quantity_unit='unit/piece',
-        aggregate_list=[
-            self.portal.instance_tree_module.newContent(
-                portal_type='Instance Tree').getRelativeUrl(),
-            self.portal.service_module.newContent(
-                portal_type='Service').getRelativeUrl()
-        ],
+        aggregate_value=aggregate,
         base_contribution_list=['base_amount/invoicing/discounted',
-            'base_amount/invoicing/taxable'],
+            'base_amount/invoicing/taxable/vat/normal_rate'],
         price=1.23,
         quantity=4.56
     )
@@ -850,6 +928,8 @@ class TestDefaultDeliveryRule(SlapOSTestCaseMixin):
         simulation_movement.getDestinationList())
     self.assertSameSet(delivery.getDestinationSectionList(),
         simulation_movement.getDestinationSectionList())
+    self.assertSameSet(delivery.getDestinationProjectList(),
+        simulation_movement.getDestinationProjectList())
     self.assertSameSet(delivery.getPriceCurrencyList(),
         simulation_movement.getPriceCurrencyList())
     self.assertSameSet(delivery.getSpecialiseList(),
@@ -858,6 +938,8 @@ class TestDefaultDeliveryRule(SlapOSTestCaseMixin):
         simulation_movement.getStartDate())
     self.assertEqual(delivery.getStopDate(),
         simulation_movement.getStopDate())
+    self.assertEqual('automated',
+        simulation_movement.getLedger())
     self.assertSameSet([], [q.getSpecialiseReference()
         for q in simulation_movement.contentValues(portal_type='Applied Rule')])
     delivery.stop()
@@ -868,34 +950,34 @@ class TestDefaultDeliveryRule(SlapOSTestCaseMixin):
 
 class TestDefaultDeliveryRuleConsumption(SlapOSTestCaseMixin):
   def test(self):
-    def newArrow():
-      return self.portal.organisation_module.newContent(
-          portal_type='Organisation').getRelativeUrl()
+    resource, _, _, _, _, aggregate = self.bootstrapAllocableInstanceTree(is_accountable=True)
+    project = aggregate.getFollowUpValue()
+    trade_condition = project.getSourceProjectRelatedValue(portal_type="Sale Trade Condition")
+    source = trade_condition.getSourceSectionValue()
+    destination = aggregate.getDestinationSectionValue()
+    price_currency = trade_condition.getPriceCurrencyValue()
+
     delivery = self.portal.sale_packing_list_module.newContent(
         portal_type='Sale Packing List',
-        source=newArrow(),
-        destination=newArrow(),
-        source_section=newArrow(),
-        destination_section=newArrow(),
-        price_currency='currency_module/EUR',
-        specialise='sale_trade_condition_module/slapos_consumption_trade_'
-            'condition',
+        source_value=source,
+        destination_value=destination,
+        source_section_value=source,
+        # Do not set any *_section if no invoice are required
+        #destination_section_value=destination,
+        destination_project_value=project,
+        price_currency_value=price_currency,
+        specialise_value=trade_condition,
         start_date=DateTime('2012/01/01'),
-        stop_date=DateTime('2012/02/02')
+        stop_date=DateTime('2012/02/02'),
+        ledger='automated'
     )
     delivery.newContent(portal_type='Sale Packing List Line',
-        resource=self.portal.service_module.newContent(
-            portal_type='Service').getRelativeUrl(),
+        resource_value=resource,
         use='trade/sale',
         quantity_unit='unit/piece',
-        aggregate_list=[
-            self.portal.instance_tree_module.newContent(
-                portal_type='Instance Tree').getRelativeUrl(),
-            self.portal.service_module.newContent(
-                portal_type='Service').getRelativeUrl()
-        ],
+        aggregate_value=aggregate,
         base_contribution_list=['base_amount/invoicing/discounted',
-            'base_amount/invoicing/taxable'],
+            'base_amount/invoicing/taxable/vat/normal_rate'],
         price=.0,
         quantity=1.0
     )

@@ -11,13 +11,14 @@ from unittest import skip
 
 import transaction
 
-class TestInstanceTree(TestSlapOSConstraintMixin):
+
+class TestHostingSubscription(TestSlapOSConstraintMixin):
 
   # use decrator in order to avoid fixing consistency of new object
   @WorkflowMethod.disable
   def _createInstanceTree(self):
-    self.subscription = self.portal.instance_tree_module.newContent(
-        portal_type='Instance Tree')
+    self.subscription = self.portal.hosting_subscription_module.newContent(
+        portal_type='Hosting Subscription')
 
   def afterSetUp(self):
     TestSlapOSConstraintMixin.afterSetUp(self)
@@ -150,16 +151,13 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
   def test_specialise_value(self):
     invoice = self.portal.accounting_module.newContent(
         portal_type='Sale Invoice Transaction')
-    message = "Only SlapOS trade condition is allowed"
+    message = "Arity Error for Relation ['specialise'] and Type " + \
+      "('Sale Trade Condition',), arity is equal to 0 but should be at least 1"
     self.assertIn(message, self.getMessageList(invoice))
 
     sale_condition = self.portal.sale_trade_condition_module.newContent(
         portal_type='Sale Trade Condition')
     invoice.setSpecialise(sale_condition.getRelativeUrl())
-
-    self.assertIn(message, self.getMessageList(invoice))
-
-    invoice.setSpecialise('sale_trade_condition_module/slapos_aggregated_trade_condition')
     self.assertNotIn(message, self.getMessageList(invoice))
 
   @withAbort
@@ -181,12 +179,38 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
   @withAbort
   def test_trade_model_match_lines(self):
     message = "Defined Trade Model does not match Lines definition"
+    currency = self.portal.currency_module.EUR
+    sale_trade_condition = self.portal.sale_trade_condition_module.newContent(
+      portal_type="Sale Trade Condition",
+      reference="Tax/payment for: %s" % currency.getRelativeUrl(),
+      trade_condition_type="default",
+      # XXX hardcoded
+      specialise="business_process_module/slapos_ultimate_business_process",
+      price_currency_value=currency,
+      payment_condition_payment_mode='test-%s' % self.generateNewId()
+    )
+    sale_trade_condition.newContent(
+      portal_type="Trade Model Line",
+      reference="VAT",
+      resource="service_module/slapos_tax",
+      base_application="base_amount/invoicing/taxable",
+      trade_phase="slapos/tax",
+      price=0.2,
+      quantity=1.0,
+      membership_criterion_base_category=('price_currency', 'base_contribution'),
+      membership_criterion_category=(
+        'price_currency/%s' % currency.getRelativeUrl(),
+        'base_contribution/base_amount/invoicing/taxable'
+      )
+    )
+    sale_trade_condition.validate()
     invoice = self.portal.accounting_module.newContent(
         portal_type='Sale Invoice Transaction',
-        price_currency='currency_module/EUR',
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition')
+        price_currency_value=currency,
+        specialise_value=sale_trade_condition)
     invoice.newContent(portal_type='Invoice Line', quantity=1., price=1.,
         base_contribution='base_amount/invoicing/taxable')
+    self.tic()
 
     self.assertNotIn(message, self.getMessageList(invoice))
     self.portal.portal_workflow._jumpToStateFor(invoice, 'confirmed')
@@ -200,20 +224,47 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
   @withAbort
   def test_use_trade_sale_total_price_matches_delivery_constraint(self):
     message = "Total price does not match related Sale Packing List"
+    currency = self.portal.currency_module.EUR
+    sale_trade_condition = self.portal.sale_trade_condition_module.newContent(
+      portal_type="Sale Trade Condition",
+      reference="Tax/payment for: %s" % currency.getRelativeUrl(),
+      trade_condition_type="default",
+      # XXX hardcoded
+      specialise="business_process_module/slapos_ultimate_business_process",
+      price_currency_value=currency,
+      payment_condition_payment_mode='test-%s' % self.generateNewId()
+    )
+    sale_trade_condition.newContent(
+      portal_type="Trade Model Line",
+      reference="VAT",
+      resource="service_module/slapos_tax",
+      base_application="base_amount/invoicing/taxable",
+      trade_phase="slapos/tax",
+      price=0.2,
+      quantity=1.0,
+      membership_criterion_base_category=('price_currency', 'base_contribution'),
+      membership_criterion_category=(
+        'price_currency/%s' % currency.getRelativeUrl(),
+        'base_contribution/base_amount/invoicing/taxable'
+      )
+    )
+    sale_trade_condition.validate()
+
     delivery = self.portal.sale_packing_list_module.newContent(
       portal_type='Sale Packing List')
     delivery.newContent(portal_type='Sale Packing List Line',
       use='trade/sale', quantity=1., price=1.)
     invoice = self.portal.accounting_module.newContent(
         portal_type='Sale Invoice Transaction',
-        causality=delivery.getRelativeUrl())
+        ledger="automated",
+        specialise_value=sale_trade_condition)
     invoice_line = invoice.newContent(portal_type='Invoice Line', quantity=2.,
         price=1., use='trade/sale')
 
     self.assertNotIn(message, self.getMessageList(invoice))
     self.portal.portal_workflow._jumpToStateFor(invoice, 'confirmed')
-    self.assertNotIn(message, self.getMessageList(invoice))
-    invoice.setSpecialise('sale_trade_condition_module/slapos_aggregated_trade_condition')
+    self.assertFalse(message in self.getMessageList(invoice))
+    invoice.setCausalityValue(delivery)
     self.assertIn(message, self.getMessageList(invoice))
     invoice_line.setQuantity(1.)
     self.assertNotIn(message, self.getMessageList(invoice))
@@ -302,9 +353,6 @@ class TestSalePackingList(TestSlapOSConstraintMixin):
   def test_source(self):
     self._test_category_arrow('source')
 
-  def test_source_section(self):
-    self._test_category_arrow('source_section')
-
   @withAbort
   def test_specialise(self):
     category = 'specialise'
@@ -343,20 +391,12 @@ class TestSalePackingList(TestSlapOSConstraintMixin):
 class TestSalePackingListLine(TestSlapOSConstraintMixin):
   @withAbort
   def test_property_existence(self):
-    message = 'Property existence error for property %s, this document has '\
-        'no such property or the property has never been set'
-    message_price = message % 'price'
-    message_quantity = message % 'quantity'
+    message_quantity = 'No quantity defined'
     delivery_line = self.portal.sale_packing_list_module.newContent(
         portal_type='Sale Packing List').newContent(
         portal_type='Sale Packing List Line')
-    self.assertIn(message_price, self.getMessageList(delivery_line))
     self.assertIn(message_quantity, self.getMessageList(delivery_line))
     delivery_line.setQuantity(1.0)
-    self.assertIn(message_price, self.getMessageList(delivery_line))
-    self.assertNotIn(message_quantity, self.getMessageList(delivery_line))
-    delivery_line.setPrice(1.0)
-    self.assertNotIn(message_price, self.getMessageList(delivery_line))
     self.assertNotIn(message_quantity, self.getMessageList(delivery_line))
 
   @withAbort

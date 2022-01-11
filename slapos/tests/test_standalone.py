@@ -306,7 +306,14 @@ class SlapOSStandaloneTestCase(unittest.TestCase):
     working_dir = tempfile.mkdtemp(prefix=__name__)
     self.addCleanup(slapos.util.rmtree, working_dir)
     self.standalone = StandaloneSlapOS(
-        working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
+        working_dir,
+        SLAPOS_TEST_IPV4,
+        SLAPOS_TEST_PORT,
+        shared_part_list=[
+            os.path.expanduser(p) for p in os.environ.get(
+                'SLAPOS_TEST_SHARED_PART_LIST', '').split(os.pathsep) if p
+        ],
+    )
     if self._auto_stop_standalone:
       self.addCleanup(self.standalone.stop)
     self.standalone.format(1, SLAPOS_TEST_IPV4, SLAPOS_TEST_IPV6)

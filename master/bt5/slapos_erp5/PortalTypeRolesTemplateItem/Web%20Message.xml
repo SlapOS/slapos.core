@@ -15,28 +15,52 @@
    <multi_property id='categories'>local_role_group/user</multi_property>
    <multi_property id='base_category'>source</multi_property>
   </role>
-  <role id='Assignor'>
-   <property id='title'>Group company</property>
-   <multi_property id='categories'>local_role_group/group</multi_property>
-   <multi_property id='category'>group/company</multi_property>
-   <multi_property id='base_category'>group</multi_property>
-  </role>
-  <role id='Auditor'>
-   <property id='title'>Organisation Member (Compute Node)</property>
-   <property id='base_category_script'>Event_getSecurityCategoryFromMovementFollowUpAggregateComputeNodeDestinationSection</property>
-   <multi_property id='categories'>local_role_group/organisation</multi_property>
-   <multi_property id='base_category'>destination_section</multi_property>
-  </role>
-  <role id='Auditor'>
-   <property id='title'>Organisation Member (HS)</property>
-   <property id='base_category_script'>Event_getSecurityCategoryFromMovementFollowUpAggregateDestination</property>
-   <multi_property id='categories'>local_role_group/organisation</multi_property>
-   <multi_property id='base_category'>destination</multi_property>
-  </role>
-  <role id='Auditor'>
-   <property id='title'>Project Member</property>
-   <property id='base_category_script'>Event_getSecurityCategoryFromMovementFollowUpAggregateDestinationProject</property>
-   <multi_property id='categories'>local_role_group/project</multi_property>
+  <role id='Assignee'>
+   <property id='title'>Destination Project Production Agent</property>
+   <property id='description'>XXX add local role group</property>
+   <property id='condition'>python: context.getDestinationProject('', portal_type='Project') != ""</property>
+   <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
+   <multi_property id='category'>function/production/agent</multi_property>
    <multi_property id='base_category'>destination_project</multi_property>
+  </role>
+  <role id='Assignor'>
+   <property id='title'>Destination Project Production Manager</property>
+   <property id='description'>XXX add local role group</property>
+   <property id='condition'>python: context.getDestinationProject('', portal_type='Project') != ""</property>
+   <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
+   <multi_property id='category'>function/production/manager</multi_property>
+   <multi_property id='base_category'>destination_project</multi_property>
+  </role>
+  <role id='Assignee'>
+   <property id='title'>Sale Agent</property>
+   <property id='condition'>python: (context.getDestinationProject('', portal_type='Project') == "") and (context.getSourceProject('', portal_type='Project') == "")</property>
+   <multi_property id='categories'>local_role_group/function</multi_property>
+   <multi_property id='category'>function/sale/agent</multi_property>
+   <multi_property id='base_category'>function</multi_property>
+  </role>
+  <role id='Assignor'>
+   <property id='title'>Sale Manager</property>
+   <property id='condition'>python: (context.getDestinationProject('', portal_type='Project') == "") and (context.getSourceProject('', portal_type='Project') == "")</property>
+   <multi_property id='categories'>local_role_group/function</multi_property>
+   <multi_property id='category'>function/sale/manager</multi_property>
+   <multi_property id='base_category'>function</multi_property>
+  </role>
+  <role id='Assignee'>
+   <property id='title'>Source Project Production Agent</property>
+   <property id='description'>XXX add local role group</property>
+   <property id='condition'>python: context.getSourceProject('', portal_type='Project') != ""</property>
+   <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
+   <multi_property id='category'>function/production/agent</multi_property>
+   <multi_property id='base_category'>source_project</multi_property>
+   <multi_property id='base_category'>function</multi_property>
+  </role>
+  <role id='Assignor'>
+   <property id='title'>Source Project Production Manager</property>
+   <property id='description'>XXX add local role group</property>
+   <property id='condition'>python: context.getSourceProject('', portal_type='Project') != ""</property>
+   <property id='base_category_script'>ERP5Type_getSecurityCategoryFromContent</property>
+   <multi_property id='category'>function/production/manager</multi_property>
+   <multi_property id='base_category'>source_project</multi_property>
+   <multi_property id='base_category'>function</multi_property>
   </role>
 </type_roles>

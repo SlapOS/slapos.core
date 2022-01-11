@@ -30,24 +30,20 @@ import fnmatch
 import glob
 import os
 import re
+import sys
 import warnings
+from typing import Dict, Iterable, List
 
 import pkg_resources
 import requests
 
-try:
+if sys.version_info <= (3,):
   import subprocess32 as subprocess
-except ImportError:
-  import subprocess  # type: ignore
-  subprocess  # pyflakes
+else:
+  import subprocess
 
-try:
-  from typing import  Dict, Iterable, List
-except ImportError:
-  pass
-
-from ..slap.standalone import StandaloneSlapOS
 from ..grid.utils import md5digest
+from ..slap.standalone import StandaloneSlapOS
 
 
 def checkSoftware(slap, software_url):

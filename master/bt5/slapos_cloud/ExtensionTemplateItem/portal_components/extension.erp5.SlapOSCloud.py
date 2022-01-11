@@ -175,9 +175,7 @@ def HostingSubscription_checkInstanceTreeMigrationConsistency(self, fixit=False)
 
   mod = __import__('erp5.portal_type', globals(), locals(),  ['Instance Tree'])
   klass = getattr(mod, 'Instance Tree')
-  if ((getattr(self, 'workflow_history', None) is not None) and
-      ('hosting_subscription_workflow' in self.workflow_history)) or \
-     (self.__class__ == klass) or \
+  if (self.__class__ == klass) or \
      (self.getProperty('sla_xml', None) is not None) or \
      ([x for x in self.getCategoryList() if (x.startswith('predecessor/') or
                                              x.startswith('successor/'))]):

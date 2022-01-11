@@ -23,14 +23,11 @@ from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 class TestSlapOSERP5InteractionWorkflowComputeNodeSetAllocationScope(
     SlapOSTestCaseMixin):
 
-  def _test_ComputeNode_setAllocationScope_public(self,
-                                              allocation_scope="open/public",
-                                              source_administration=None):
+  def test_ComputeNode_setAllocationScope_open(self, allocation_scope="open"):
     compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node')
 
     compute_node.edit(capacity_scope=None,
-                  monitor_scope=None,
-                  source_administration=source_administration)
+                  monitor_scope=None)
     self.commit()
     compute_node.edit(allocation_scope=allocation_scope)
 
@@ -52,50 +49,13 @@ class TestSlapOSERP5InteractionWorkflowComputeNodeSetAllocationScope(
 
     return compute_node
 
-  def test_ComputeNode_setAllocationScope_public_no_source_adm(self):
-    self._test_ComputeNode_setAllocationScope_public()
-
-  def test_ComputeNode_setAllocationScope_subscription_no_source_adm(self):
-    self._test_ComputeNode_setAllocationScope_public(
-      allocation_scope="open/subscription"
-    )
-
-  def test_ComputeNode_setAllocationScope_personal(self,
-                                              source_administration=None):
-    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node',
-                  capacity_scope=None,
-                  monitor_scope=None,
-                  source_administration=source_administration)
-
-    self.commit()
-    compute_node.edit(allocation_scope='open/personal')
-
-    self.commit()
-    self.assertEqual(compute_node.getCapacityScope(), 'close')
-    self.assertEqual(compute_node.getMonitorScope(), 'enabled')
-    self.commit()
-    compute_node.edit(allocation_scope=None)
-    self.commit()
-    
-    compute_node.edit(capacity_scope="open")
-    self.commit()
-
-    compute_node.edit(allocation_scope='open/personal')
-    self.commit()
-
-    self.assertEqual(compute_node.getCapacityScope(), 'close')
-    self.assertEqual(compute_node.getMonitorScope(), 'enabled')
-    return compute_node
-
   def _test_ComputeNode_setAllocationScope_closed(self,
-                                              source_administration=None,
                                               allocation_scope="close/forever",
-                                              monitor_scope='enabled'):
-    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node',
-                  capacity_scope=None,
-                  monitor_scope=None,
-                  source_administration=source_administration)
-
+                                              monitor_scope="disabled"):
+    compute_node = self.portal.compute_node_module.newContent(
+      portal_type='Compute Node',
+      capacity_scope=None,
+      monitor_scope=None)
     self.commit()
     compute_node.edit(allocation_scope=allocation_scope)
 
@@ -119,24 +79,28 @@ class TestSlapOSERP5InteractionWorkflowComputeNodeSetAllocationScope(
 
 
   def test_ComputeNode_setAllocationScope_closed_forever(self):
-    self._test_ComputeNode_setAllocationScope_closed(monitor_scope='disabled')
+    self._test_ComputeNode_setAllocationScope_closed()
 
   def test_ComputeNode_setAllocationScope_closed_termination(self):
     self._test_ComputeNode_setAllocationScope_closed(
       allocation_scope="close/termination",
+      monitor_scope="enabled"
     )
 
   def test_ComputeNode_setAllocationScope_closed_outdated(self):
     self._test_ComputeNode_setAllocationScope_closed(
       allocation_scope="close/outdated",
+      monitor_scope="enabled"
     )
 
   def test_ComputeNode_setAllocationScope_closed_maintenance(self):
     self._test_ComputeNode_setAllocationScope_closed(
       allocation_scope="close/maintenance",
+      monitor_scope="enabled"
     )
 
   def test_ComputeNode_setAllocationScope_closed_noallocation(self):
     self._test_ComputeNode_setAllocationScope_closed(
       allocation_scope="close/noallocation",
+      monitor_scope="enabled"
     )

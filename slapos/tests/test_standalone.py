@@ -30,7 +30,6 @@ import mock
 import os
 import tempfile
 import textwrap
-import shutil
 import hashlib
 import socket
 import errno
@@ -47,6 +46,8 @@ from slapos.slap.standalone import StandaloneSlapOS
 from slapos.slap.standalone import SlapOSNodeSoftwareError
 from slapos.slap.standalone import PartitionForwardConfiguration
 from slapos.slap.standalone import PartitionForwardAsPartitionConfiguration
+import slapos.util
+
 
 SLAPOS_TEST_IPV4 = os.environ['SLAPOS_TEST_IPV4']
 SLAPOS_TEST_IPV6 = os.environ['SLAPOS_TEST_IPV6']
@@ -80,7 +81,7 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
 
   def test_format(self):
     working_dir = tempfile.mkdtemp(prefix=__name__)
-    self.addCleanup(shutil.rmtree, working_dir)
+    self.addCleanup(slapos.util.rmtree, working_dir)
     standalone = StandaloneSlapOS(
         working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
     self.addCleanup(standalone.stop)
@@ -100,7 +101,7 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
 
   def test_reformat_less_partitions(self):
     working_dir = tempfile.mkdtemp(prefix=__name__)
-    self.addCleanup(shutil.rmtree, working_dir)
+    self.addCleanup(slapos.util.rmtree, working_dir)
     standalone = StandaloneSlapOS(
         working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
     self.addCleanup(standalone.stop)
@@ -115,7 +116,7 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
 
   def test_reformat_less_chmod_files(self):
     working_dir = tempfile.mkdtemp(prefix=__name__)
-    self.addCleanup(shutil.rmtree, working_dir)
+    self.addCleanup(slapos.util.rmtree, working_dir)
     standalone = StandaloneSlapOS(
         working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
     self.addCleanup(standalone.stop)
@@ -132,7 +133,7 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
 
   def test_reformat_different_base_name(self):
     working_dir = tempfile.mkdtemp(prefix=__name__)
-    self.addCleanup(shutil.rmtree, working_dir)
+    self.addCleanup(slapos.util.rmtree, working_dir)
     standalone = StandaloneSlapOS(
         working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
     self.addCleanup(standalone.stop)
@@ -152,7 +153,7 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
 
   def test_reformat_refuse_deleting_running_partition(self):
     working_dir = tempfile.mkdtemp(prefix=__name__)
-    self.addCleanup(shutil.rmtree, working_dir)
+    self.addCleanup(slapos.util.rmtree, working_dir)
     standalone = StandaloneSlapOS(
         working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
     self.addCleanup(standalone.stop)
@@ -163,7 +164,7 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
 
   def test_slapos_node_format(self):
     working_dir = tempfile.mkdtemp(prefix=__name__)
-    self.addCleanup(shutil.rmtree, working_dir)
+    self.addCleanup(slapos.util.rmtree, working_dir)
     standalone = StandaloneSlapOS(
         working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
     self.addCleanup(standalone.stop)
@@ -180,13 +181,13 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
       partitions = glob.glob(glob_pattern)
       self.assertEqual(partition_count, len(partitions))
       for path in partitions:
-        shutil.rmtree(path)
+        slapos.util.rmtree(path)
       subprocess.check_call(format_command)
       self.assertEqual(partition_count, len(glob.glob(glob_pattern)))
 
   def test_two_instance_from_same_directory(self):
     working_dir = tempfile.mkdtemp(prefix=__name__)
-    self.addCleanup(shutil.rmtree, working_dir)
+    self.addCleanup(slapos.util.rmtree, working_dir)
     standalone1 = StandaloneSlapOS(
         working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
 
@@ -213,7 +214,7 @@ class TestSlapOSStandaloneSetup(unittest.TestCase):
   def test_partition_forward(self):
     # type: () -> None
     working_dir = tempfile.mkdtemp(prefix=__name__)
-    self.addCleanup(shutil.rmtree, working_dir)
+    self.addCleanup(slapos.util.rmtree, working_dir)
     partition_forward_config = [
         PartitionForwardConfiguration(
             'https://slapos1.example.com',
@@ -303,7 +304,7 @@ class SlapOSStandaloneTestCase(unittest.TestCase):
   def setUp(self):
     checkPortIsFree()
     working_dir = tempfile.mkdtemp(prefix=__name__)
-    self.addCleanup(shutil.rmtree, working_dir)
+    self.addCleanup(slapos.util.rmtree, working_dir)
     self.standalone = StandaloneSlapOS(
         working_dir, SLAPOS_TEST_IPV4, SLAPOS_TEST_PORT)
     if self._auto_stop_standalone:

@@ -1,119 +1,124 @@
 # Copyright (c) 2002-2012 Nexedi SA and Contributors. All Rights Reserved.
 import transaction
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, simulate
-from Products.ERP5Type.tests.utils import createZODBPythonScript
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, simulate, TemporaryAlarmScript
 from unittest import skip
 
 
 class TestSlapOSAllocation(SlapOSTestCaseMixin):
 
-  def _makeSlaveTree(self, requested_template_id='template_slave_instance'):
-    SlapOSTestCaseMixin._makeTree(self, requested_template_id=requested_template_id)
+  def makeAllocableComputeNode(self, project, software_product,
+                               release_variation, type_variation):
+    compute_node, partition = self._makeComputeNode(project)
+    self.addAllocationSupply("for compute node", compute_node, software_product,
+                             release_variation, type_variation)
+    self._installSoftware(
+      compute_node,
+      release_variation.getUrlString()
+    )
+    open_order = self.portal.open_sale_order_module.newContent(
+      portal_type="Open Sale Order",
+    )
+    open_order.newContent(
+      aggregate_value=compute_node
+    )
+    self.portal.portal_workflow._jumpToStateFor(open_order, 'validated')
+    self.tic()
+    return compute_node, partition
 
-  def _simulatePerson_isAllowedToAllocate(self):
-    script_name = 'Person_isAllowedToAllocate'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by Person_isAllowedToAllocate')
-return True""" )
-    transaction.commit()
+  def makeAllocableSoftwareInstanceAndProduct(self, allocation_state='possible',
+                                              shared=False, node="compute"):
+    software_product, release_variation, type_variation, compute_node, partition, instance_tree = \
+      self.bootstrapAllocableInstanceTree(allocation_state=allocation_state, shared=shared, node=node)
 
-  def _simulatePerson_isNotAllowedToAllocate(self):
-    script_name = 'Person_isAllowedToAllocate'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""return False""")
-    transaction.commit()
+    self.addAllocationSupply("for compute node", compute_node, software_product,
+                             release_variation, type_variation)
+    real_compute_node = partition.getParentValue()
+    self._installSoftware(
+      real_compute_node,
+      release_variation.getUrlString()
+    )
+    self.tic()
 
-  def _dropPerson_isAllowedToAllocate(self):
-    script_name = 'Person_isAllowedToAllocate'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
+    self.assertEqual(real_compute_node.getAllocationScope(), "open")
+    self.assertEqual(real_compute_node.getCapacityScope(), "open")
 
-  def test_person_allocation_checked(self):
-    self._makeTree()
-    self._simulatePerson_isAllowedToAllocate()
-    try:
-      self.software_instance.SoftwareInstance_tryToAllocatePartition()
-    finally:
-      self._dropPerson_isAllowedToAllocate()
-    self.assertEqual(
-        'Visited by Person_isAllowedToAllocate',
-        self.person_user.workflow_history['edit_workflow'][-1]['comment'])
+    software_instance = instance_tree.getSuccessorValue()
 
-  def test_no_allocation_if_person_is_not_allowed(self):
-    self._makeTree()
+    return software_instance, compute_node, partition, software_product, release_variation, type_variation
 
-    self._makeComputeNode()
-    self._installSoftware(self.compute_node,
-        self.software_instance.getUrlString())
-
-    self.assertEqual(None, self.software_instance.getAggregateValue(
-        portal_type='Compute Partition'))
-    self._simulatePerson_isNotAllowedToAllocate()
-    try:
-      self.software_instance.SoftwareInstance_tryToAllocatePartition()
-    finally:
-      self._dropPerson_isAllowedToAllocate()
-    self.assertEqual(None, self.software_instance.getAggregateValue(
-        portal_type='Compute Partition'))
-    self.assertEqual(
-        'Allocation failed: Allocation disallowed',
-        self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
-
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
-  def test_allocation_no_free_partition(self):
-    self._makeTree()
-
-    self.assertEqual(None, self.software_instance.getAggregateValue(
-        portal_type='Compute Partition'))
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
-    self.assertEqual(None, self.software_instance.getAggregateValue(
-        portal_type='Compute Partition'))
-
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
-  def test_allocation_no_host_instance(self):
-    self._makeSlaveTree()
-
-    self.assertEqual(None, self.software_instance.getAggregateValue(
-        portal_type='Compute Partition'))
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
-    self.assertEqual(None, self.software_instance.getAggregateValue(
-        portal_type='Compute Partition'))
+  def makeAllocableSoftwareInstance(self, allocation_state='possible', shared=False, node="compute"):
+    software_instance, compute_node, partition, _, _, _ = \
+      self.makeAllocableSoftwareInstanceAndProduct(allocation_state=allocation_state, shared=shared, node=node)
+    return software_instance, compute_node, partition
 
   def _installSoftware(self, compute_node, url):
     software_installation = self.portal.software_installation_module\
-        .template_software_installation.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Software Installation")
     software_installation.edit(url_string=url,
         reference='TESTSOFTINST-%s' % self.generateNewId(),
         aggregate=compute_node.getRelativeUrl())
     software_installation.validate()
     software_installation.requestStart()
     self.tic()
+    compute_node.reindexObject()
+    self.tic()
+
+  def test_person_allocation_checked(self):
+    software_instance, _, _ = self.makeAllocableSoftwareInstance()
+    with TemporaryAlarmScript(self.portal, 'Person_isAllowedToAllocate',
+                              fake_return="True"):
+      software_instance.SoftwareInstance_tryToAllocatePartition()
+    self.assertEqual(
+        'Visited by Person_isAllowedToAllocate',
+        software_instance.getSpecialiseValue().getDestinationSectionValue().workflow_history['edit_workflow'][-1]['comment'])
+
+  def test_no_allocation_if_person_is_not_allowed(self):
+    software_instance, _, _ = self.makeAllocableSoftwareInstance()
+
+    self.assertEqual(None, software_instance.getAggregateValue(
+        portal_type='Compute Partition'))
+    with TemporaryAlarmScript(self.portal, 'Person_isAllowedToAllocate',
+                              fake_return="False"):
+      software_instance.SoftwareInstance_tryToAllocatePartition()
+    self.assertEqual(None, software_instance.getAggregateValue(
+        portal_type='Compute Partition'))
+    self.assertEqual(
+        'Allocation failed: Allocation disallowed',
+        software_instance.workflow_history['edit_workflow'][-1]['comment'])
+
+  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
+  def test_allocation_no_free_partition(self):
+    software_instance, _, partition = self.makeAllocableSoftwareInstance()
+    partition.markBusy()
+    self.tic()
+
+    self.assertEqual(None, software_instance.getAggregateValue(
+        portal_type='Compute Partition'))
+    software_instance.SoftwareInstance_tryToAllocatePartition()
+    self.assertEqual(None, software_instance.getAggregateValue(
+        portal_type='Compute Partition'))
+
+  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
+  def test_allocation_no_host_instance(self):
+    software_instance, _, partition = self.makeAllocableSoftwareInstance(shared=True, node="instance")
+    partition.markFree()
+    self.tic()
+
+    self.assertEqual(None, software_instance.getAggregateValue(
+        portal_type='Compute Partition'))
+    software_instance.SoftwareInstance_tryToAllocatePartition()
+    self.assertEqual(None, software_instance.getAggregateValue(
+        portal_type='Compute Partition'))
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_free_partition(self):
-    self._makeTree()
+    software_instance, _, partition = self.makeAllocableSoftwareInstance()
 
-    self._makeComputeNode()
-    self._installSoftware(self.compute_node,
-        self.software_instance.getUrlString())
-
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
-    self.assertEqual(self.partition.getRelativeUrl(),
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
+    software_instance.SoftwareInstance_tryToAllocatePartition()
+    self.assertEqual(partition.getRelativeUrl(),
+        software_instance.getAggregate(portal_type='Compute Partition'))
 
   def _allocateHost(self, software_instance, compute_partition):
     software_instance.edit(
@@ -124,323 +129,226 @@ return True""" )
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_host_instance(self):
-    self._makeSlaveTree()
+    software_instance, _, partition = self.makeAllocableSoftwareInstance(shared=True, node="instance")
 
-    self._makeComputeNode()
-    self._allocateHost(self.requested_software_instance,
-        self.partition)
-
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
-    self.assertEqual(self.partition.getRelativeUrl(),
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
+    software_instance.SoftwareInstance_tryToAllocatePartition()
+    self.assertEqual(partition.getRelativeUrl(),
+        software_instance.getAggregate(portal_type='Compute Partition'))
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_capacity_scope_close(self):
-    self._makeTree()
-
-    self._makeComputeNode()
-    self._installSoftware(self.compute_node,
-        self.software_instance.getUrlString())
-    self.compute_node.edit(capacity_scope='close')
+    software_instance, _, partition = self.makeAllocableSoftwareInstance()
+    partition.getParentValue().edit(capacity_scope='close')
     self.tic()
 
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
+    software_instance.SoftwareInstance_tryToAllocatePartition()
     self.assertEqual(None,
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
+        software_instance.getAggregate(portal_type='Compute Partition'))
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_host_capacity_scope_close(self):
-    self._makeSlaveTree()
-
-    self._makeComputeNode()
-    self._allocateHost(self.requested_software_instance,
-        self.partition)
-    self.compute_node.edit(capacity_scope='close')
+    software_instance, _, partition = self.makeAllocableSoftwareInstance(shared=True, node="instance")
+    partition.getParentValue().edit(capacity_scope='close')
     self.tic()
 
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
+    software_instance.SoftwareInstance_tryToAllocatePartition()
     self.assertEqual(None,
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
+        software_instance.getAggregate(portal_type='Compute Partition'))
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_allocation_scope_close(self):
-    self._makeTree()
-
-    self._makeComputeNode()
-    self._installSoftware(self.compute_node,
-        self.software_instance.getUrlString())
-    self.compute_node.edit(allocation_scope='close')
+    software_instance, _, partition = self.makeAllocableSoftwareInstance()
+    partition.getParentValue().edit(allocation_scope='close')
     self.tic()
 
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
+    software_instance.SoftwareInstance_tryToAllocatePartition()
     self.assertEqual(None,
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
+        software_instance.getAggregate(portal_type='Compute Partition'))
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_host_allocation_scope_close(self):
-    self._makeSlaveTree()
-
-    self._makeComputeNode()
-    self._allocateHost(self.requested_software_instance,
-        self.partition)
-    self.compute_node.edit(allocation_scope='close')
+    software_instance, _, partition = self.makeAllocableSoftwareInstance(shared=True, node="instance")
+    partition.getParentValue().edit(allocation_scope='close')
     self.tic()
 
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
+    software_instance.SoftwareInstance_tryToAllocatePartition()
     self.assertEqual(None,
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
-
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
-  def test_allocation_allocation_scope_open_personal(self):
-    self._makeTree()
-
-    self._makeComputeNode()
-    self._installSoftware(self.compute_node,
-        self.software_instance.getUrlString())
-    self.compute_node.edit(allocation_scope='open/personal',
-      source_administration=self.person_user.getRelativeUrl())
-    self.compute_node.setAccessStatus("#access ok")
-    self.tic()
-    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
-    self.assertEqual(self.compute_node.getCapacityScope(), 'open')
-    self.tic()
-
-    self.assertEqual(None, self.software_instance.getAggregateValue(
-        portal_type='Compute Partition'))
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
-    self.assertEqual(self.partition.getRelativeUrl(),
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
-
-  @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
-  def test_allocation_host_allocation_scope_open_personal(self):
-    self._makeSlaveTree()
-
-    self._makeComputeNode()
-    self._allocateHost(self.requested_software_instance,
-        self.partition)
-    self.compute_node.edit(allocation_scope='open/personal',
-      source_administration=self.person_user.getRelativeUrl())
-    self.compute_node.setAccessStatus("#access ok")
-    self.tic()
-    self.compute_node.ComputeNode_checkAndUpdateCapacityScope()
-    self.assertEqual(self.compute_node.getCapacityScope(), 'open')
-    self.tic()
-
-    self.assertEqual(None, self.software_instance.getAggregateValue(
-        portal_type='Compute Partition'))
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
-    self.assertEqual(self.partition.getRelativeUrl(),
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
+        software_instance.getAggregate(portal_type='Compute Partition'))
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_does_not_fail_on_instance_with_damaged_sla_xml(self):
-    self._makeTree()
+    software_instance, _, _ = self.makeAllocableSoftwareInstance()
 
-    self.software_instance.setSlaXml('this is not xml')
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    software_instance.setSlaXml('this is not xml')
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    software_instance.SoftwareInstance_tryToAllocatePartition()
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
     transaction.abort()
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_does_not_fail_on_slave_with_damaged_sla_xml(self):
-    self._makeSlaveTree()
+    software_instance, _, _ = self.makeAllocableSoftwareInstance(shared=True, node="instance")
 
-    self.software_instance.setSlaXml('this is not xml')
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    software_instance.setSlaXml('this is not xml')
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    software_instance.SoftwareInstance_tryToAllocatePartition()
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
     transaction.abort()
 
-  def _simulateSoftwareInstance_tryToAllocatePartition(self):
-    script_name = 'SoftwareInstance_tryToAllocatePartition'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-                        script_name,
-                        '*args, **kwargs',
-                        '# Script body\n'
-"""portal_workflow = context.portal_workflow
-portal_workflow.doActionFor(context, action='edit_action', comment='Visited by SoftwareInstance_tryToAllocatePartition') """ )
-    transaction.commit()
-
-  def _dropSoftwareInstance_tryToAllocatePartition(self):
-    script_name = 'SoftwareInstance_tryToAllocatePartition'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      self.portal.portal_skins.custom.manage_delObjects(script_name)
-    transaction.commit()
-
+  ##################################################
+  # alarm slapos_allocate_instance
+  ##################################################
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_alarm_software_instance_unallocated(self):
-    self._makeTree()
+    software_instance, _, _ = self.makeAllocableSoftwareInstance()
 
-    self._simulateSoftwareInstance_tryToAllocatePartition()
-    try:
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToAllocatePartition'):
       self.portal.portal_alarms.slapos_allocate_instance.activeSense()
       self.tic()
-    finally:
-      self._dropSoftwareInstance_tryToAllocatePartition()
+
     self.assertEqual(
         'Visited by SoftwareInstance_tryToAllocatePartition',
-        self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
+        software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_alarm_slave_instance_unallocated(self):
-    self._makeSlaveTree()
+    software_instance, _, _ = self.makeAllocableSoftwareInstance(shared=True, node="instance")
 
-    self._simulateSoftwareInstance_tryToAllocatePartition()
-    try:
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToAllocatePartition'):
       self.portal.portal_alarms.slapos_allocate_instance.activeSense()
       self.tic()
-    finally:
-      self._dropSoftwareInstance_tryToAllocatePartition()
+
     self.assertEqual(
         'Visited by SoftwareInstance_tryToAllocatePartition',
-        self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
+        software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_alarm_software_instance_allocated(self):
-    self._makeTree()
+    software_instance, _, _ = self.makeAllocableSoftwareInstance(allocation_state='allocated')
 
-    self._makeComputeNode()
-    self.software_instance.setAggregate(self.partition.getRelativeUrl())
-    self.tic()
-    self._simulateSoftwareInstance_tryToAllocatePartition()
-    try:
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToAllocatePartition'):
       self.portal.portal_alarms.slapos_allocate_instance.activeSense()
       self.tic()
-    finally:
-      self._dropSoftwareInstance_tryToAllocatePartition()
+
     self.assertNotEqual(
         'Visited by SoftwareInstance_tryToAllocatePartition',
-        self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
+        software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_alarm_slave_instance_allocated(self):
-    self._makeSlaveTree()
+    software_instance, _, _ = self.makeAllocableSoftwareInstance(allocation_state='allocated', shared=True, node="instance")
 
-    self._makeComputeNode()
-    self.software_instance.setAggregate(self.partition.getRelativeUrl())
-    self.tic()
-    self._simulateSoftwareInstance_tryToAllocatePartition()
-    try:
+    with TemporaryAlarmScript(self.portal, 'SoftwareInstance_tryToAllocatePartition'):
       self.portal.portal_alarms.slapos_allocate_instance.activeSense()
       self.tic()
-    finally:
-      self._dropSoftwareInstance_tryToAllocatePartition()
+
     self.assertNotEqual(
         'Visited by SoftwareInstance_tryToAllocatePartition',
-        self.software_instance.workflow_history['edit_workflow'][-1]['comment'])
+        software_instance.workflow_history['edit_workflow'][-1]['comment'])
 
+  ##################################################
+  # SoftwareInstance_tryToAllocatePartition
+  ##################################################
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_computer_guid(self):
-    self._makeTree()
+    software_instance, compute_node, partition = self.makeAllocableSoftwareInstance()
 
-    self._makeComputeNode()
-    self.assertEqual(self.compute_node.getAllocationScope(), "open/public")
-    self.assertEqual(self.compute_node.getCapacityScope(), "open")
-
-    self._installSoftware(self.compute_node,
-        self.software_instance.getUrlString())
-
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
 
-    self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='computer_guid'>%s</parameter>
-        </instance>""" % '%s_foo' % self.partition.getParentValue().getReference())
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
+        </instance>""" % '%s_foo' % compute_node.getReference())
+    software_instance.SoftwareInstance_tryToAllocatePartition()
     self.assertEqual(None,
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
+        software_instance.getAggregate(portal_type='Compute Partition'))
 
-    self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='computer_guid'>%s</parameter>
-        </instance>""" % '%s' % self.partition.getParentValue().getReference())
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
-    self.assertEqual(self.partition.getRelativeUrl(),
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
+        </instance>""" % '%s' % compute_node.getReference())
+    software_instance.SoftwareInstance_tryToAllocatePartition()
+    self.assertEqual(partition.getRelativeUrl(),
+        software_instance.getAggregate(portal_type='Compute Partition'))
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_instance_guid(self):
-    self._makeSlaveTree()
+    software_instance, _, partition = self.makeAllocableSoftwareInstance(shared=True, node="instance")
+    requested_software_instance = partition.getAggregateRelatedValue()
 
-    self._makeComputeNode()
-    self._allocateHost(self.requested_software_instance,
-        self.partition)
-
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
 
-    self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='instance_guid'>%s</parameter>
         </instance>""" % '%s_foo' % \
-        self.requested_software_instance.getReference())
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
+        requested_software_instance.getReference())
+    software_instance.SoftwareInstance_tryToAllocatePartition()
     self.assertEqual(None,
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
+        software_instance.getAggregate(portal_type='Compute Partition'))
 
-    self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='instance_guid'>%s</parameter>
         </instance>""" % '%s' % \
-        self.requested_software_instance.getReference())
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
-    self.assertEqual(self.partition.getRelativeUrl(),
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
+        requested_software_instance.getReference())
+    software_instance.SoftwareInstance_tryToAllocatePartition()
+    self.assertEqual(partition.getRelativeUrl(),
+        software_instance.getAggregate(portal_type='Compute Partition'))
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_network_guid(self):
-    self._makeTree()
+    software_instance, compute_node, partition = self.makeAllocableSoftwareInstance()
 
-    self._makeComputeNode()
     new_id = self.generateNewId()
     computer_network = self.portal.computer_network_module.newContent(
         portal_type='Computer Network',
         title="live_test_%s" % new_id,
-        reference="live_test_%s" % new_id)
+        reference="live_test_%s" % new_id,
+        follow_up_value=software_instance.getFollowUpValue()
+    )
     computer_network.validate()
-    self.compute_node.edit(
-        subordination_value=computer_network)
-    self._installSoftware(self.compute_node,
-        self.software_instance.getUrlString())
+    compute_node.edit(
+      subordination_value=computer_network
+    )
+    self.tic()
 
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
 
-    self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='network_guid'>%s</parameter>
         </instance>""" % '%s_foo' % \
-          self.partition.getParentValue().getSubordinationReference())
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
+          partition.getParentValue().getSubordinationReference())
+    software_instance.SoftwareInstance_tryToAllocatePartition()
     self.assertEqual(None,
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
+        software_instance.getAggregate(portal_type='Compute Partition'))
 
-    self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='network_guid'>%s</parameter>
         </instance>""" % '%s' % \
-          self.partition.getParentValue().getSubordinationReference())
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
-    self.assertEqual(self.partition.getRelativeUrl(),
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
+          partition.getParentValue().getSubordinationReference())
+    software_instance.SoftwareInstance_tryToAllocatePartition()
+    self.assertEqual(partition.getRelativeUrl(),
+        software_instance.getAggregate(portal_type='Compute Partition'))
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_mode_unique_by_network_one_network(self):
@@ -456,11 +364,13 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
         <instance>
         <parameter id='mode'>unique_by_network</parameter>
         </instance>"""
-    self._makeTree()
-    compute_node1 = self._makeComputeNode()[0]
-    compute_node2 = self._makeComputeNode()[0]
-    self._installSoftware(compute_node1, self.software_instance.getUrlString())
-    self._installSoftware(compute_node2, self.software_instance.getUrlString())
+    software_instance, compute_node1, _, software_product, release_variation, type_variation = \
+      self.makeAllocableSoftwareInstanceAndProduct()
+
+    instance_tree = software_instance.getSpecialiseValue()
+    project = compute_node1.getFollowUpValue()
+
+    compute_node2, _ = self.makeAllocableComputeNode(project, software_product, release_variation, type_variation)
 
     new_id = self.generateNewId()
     computer_network = self.portal.computer_network_module.newContent(
@@ -471,45 +381,48 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     compute_node1.edit(subordination_value=computer_network)
     compute_node2.edit(subordination_value=computer_network)
 
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
 
     software_instance2 = self.portal.software_instance_module\
-        .template_software_instance.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Software Instance")
     software_instance2.edit(
       title=self.generateNewSoftwareTitle(),
       reference="TESTSI-%s" % self.generateNewId(),
-      url_string=self.software_instance.getUrlString(),
-      source_reference=self.generateNewSoftwareType(),
+      url_string=software_instance.getUrlString(),
+      source_reference=software_instance.getSourceReference(),
       text_content=self.generateSafeXml(),
       sla_xml=sla_xml,
-      specialise=self.instance_tree.getRelativeUrl(),
+      specialise_value=instance_tree,
+      follow_up_value=project,
+      ssl_key='foo',
+      ssl_certificate='bar'
     )
     self.portal.portal_workflow._jumpToStateFor(software_instance2, 'start_requested')
     self.portal.portal_workflow._jumpToStateFor(software_instance2, 'validated')
     self.tic()
 
     self.assertEqual(None,
-      self.software_instance.getAggregateValue(portal_type='Compute Partition'))
+      software_instance.getAggregateValue(portal_type='Compute Partition'))
 
-    self.assertEqual(self.software_instance.getSlapState(), 'start_requested')
-    self.assertEqual(self.software_instance.getValidationState(), 'validated')
+    self.assertEqual(software_instance.getSlapState(), 'start_requested')
+    self.assertEqual(software_instance.getValidationState(), 'validated')
 
-    self.software_instance.setSlaXml(sla_xml)
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
+    software_instance.setSlaXml(sla_xml)
+    software_instance.SoftwareInstance_tryToAllocatePartition()
 
     self.tic()
-    portal_workflow = self.software_instance.portal_workflow
-    last_workflow_item = portal_workflow.getInfoFor(ob=self.software_instance,
+    portal_workflow = software_instance.portal_workflow
+    last_workflow_item = portal_workflow.getInfoFor(ob=software_instance,
                                           name='comment', wf_id='edit_workflow')
-    self.assertEqual(None,last_workflow_item)
+    self.assertEqual(None, last_workflow_item)
     self.assertNotEqual(None,
-      self.software_instance.getAggregateValue(portal_type='Compute Partition'))
+      software_instance.getAggregateValue(portal_type='Compute Partition'))
 
     self.assertEqual(
         computer_network.getReference(),
-        self.software_instance.getAggregateValue(portal_type='Compute Partition')\
-            .getParentValue().getSubordinationReference(),
+        software_instance.getAggregateValue(portal_type='Compute Partition')\
+                         .getParentValue().getSubordinationReference(),
     )
 
     self.tic()
@@ -530,15 +443,19 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     instance tree.
     Test with 3 instances and 3 existing compute_nodes on 2 different networks.
     """
-    self.tic()
     sla_xml = """<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='mode'>unique_by_network</parameter>
         </instance>"""
-    self._makeTree()
-    compute_node1, partition1 = self._makeComputeNode()
-    compute_node2 = self._makeComputeNode()[0]
-    compute_node3, partition3 = self._makeComputeNode()
+    software_instance, compute_node1, partition1, software_product, release_variation, type_variation = \
+      self.makeAllocableSoftwareInstanceAndProduct()
+
+    instance_tree = software_instance.getSpecialiseValue()
+    project = compute_node1.getFollowUpValue()
+
+    compute_node2, _ = self.makeAllocableComputeNode(project, software_product, release_variation, type_variation)
+    compute_node3, partition3 = self.makeAllocableComputeNode(project, software_product, release_variation, type_variation)
+
     computer_network1 = self._makeComputerNetwork()
     computer_network2 = self._makeComputerNetwork()
 
@@ -546,42 +463,39 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     compute_node2.edit(subordination_value=computer_network1)
     compute_node3.edit(subordination_value=computer_network2)
 
-    self._installSoftware(compute_node1, self.software_instance.getUrlString())
-    self._installSoftware(compute_node2, self.software_instance.getUrlString())
-    self._installSoftware(compute_node3, self.software_instance.getUrlString())
+    self.tic()
 
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
 
-    self.assertEqual(None, self.requested_software_instance.getAggregateValue(
-        portal_type='Compute Partition'))
-
-
-    self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='mode'>unique_by_network</parameter>
         <parameter id='computer_guid'>%s</parameter>
         </instance>""" % compute_node1.getReference())
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
+    software_instance.SoftwareInstance_tryToAllocatePartition()
     self.assertEqual(
-        self.software_instance.getAggregate(portal_type='Compute Partition'),
+        software_instance.getAggregate(portal_type='Compute Partition'),
         partition1.getRelativeUrl(),
     )
 
     software_instance2 = self.portal.software_instance_module\
-        .template_software_instance.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Software Instance")
     software_instance2.edit(
       title=self.generateNewSoftwareTitle(),
       reference="TESTSI-%s" % self.generateNewId(),
-      url_string=self.software_instance.getUrlString(),
-      source_reference=self.generateNewSoftwareType(),
+      url_string=software_instance.getUrlString(),
+      source_reference=software_instance.getSourceReference(),
       text_content=self.generateSafeXml(),
       sla_xml=sla_xml,
-      specialise=self.instance_tree.getRelativeUrl(),
+      specialise=instance_tree.getRelativeUrl(),
+      follow_up_value=project,
+      ssl_key='foo',
+      ssl_certificate='bar'
     )
     self.portal.portal_workflow._jumpToStateFor(software_instance2, 'start_requested')
     software_instance2.validate()
-    self.commit()
+    self.tic()
     software_instance2.SoftwareInstance_tryToAllocatePartition()
     self.assertEqual(
         software_instance2.getAggregate(portal_type='Compute Partition'),
@@ -589,15 +503,18 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     )
 
     software_instance3 = self.portal.software_instance_module\
-        .template_software_instance.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Software Instance")
     software_instance3.edit(
       title=self.generateNewSoftwareTitle(),
       reference="TESTSI-%s" % self.generateNewId(),
-      url_string=self.software_instance.getUrlString(),
+      url_string=software_instance.getUrlString(),
       source_reference=self.generateNewSoftwareType(),
       text_content=self.generateSafeXml(),
       sla_xml=sla_xml,
-      specialise=self.instance_tree.getRelativeUrl(),
+      specialise=instance_tree.getRelativeUrl(),
+      follow_up_value=project,
+      ssl_key='foo',
+      ssl_certificate='bar'
     )
     self.portal.portal_workflow._jumpToStateFor(software_instance3, 'start_requested')
     software_instance3.validate()
@@ -615,22 +532,19 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     Test that when we request instance with mode as 'unique_by_network',
     instance is not deployed on compute_node with no network.
     """
-    self._makeTree()
-    self._makeComputeNode()
-    self._installSoftware(self.compute_node,
-        self.software_instance.getUrlString())
+    software_instance, _, _ = self.makeAllocableSoftwareInstance()
 
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
 
-    self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='mode'>unique_by_network</parameter>
         </instance>""")
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
+    software_instance.SoftwareInstance_tryToAllocatePartition()
     self.assertEqual(
         None,
-        self.software_instance.getAggregate(portal_type='Compute Partition')
+        software_instance.getAggregate(portal_type='Compute Partition')
     )
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
@@ -650,8 +564,8 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
       else:
         return self.serialize_call()
 
-    self._makeTree()
-    self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+    software_instance, _, _ = self.makeAllocableSoftwareInstance()
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='mode'>unique_by_network</parameter>
         </instance>""")
@@ -661,7 +575,7 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
     try:
       Base.serialize = verify_serialize_call
       self.assertRaises(DummyTestException,
-        self.software_instance.SoftwareInstance_tryToAllocatePartition)
+        software_instance.SoftwareInstance_tryToAllocatePartition)
     finally:
       Base.serialize = Base.serialize_call
 
@@ -678,34 +592,37 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
         <instance>
         <parameter id='mode'>unique_by_network</parameter>
         </instance>"""
-    self._makeTree()
-    compute_node1 = self._makeComputeNode()[0]
-    compute_node2 = self._makeComputeNode()[0]
-    self._installSoftware(compute_node1, self.software_instance.getUrlString())
-    self._installSoftware(compute_node2, self.software_instance.getUrlString())
+    software_instance, compute_node1, _, software_product, release_variation, type_variation = \
+      self.makeAllocableSoftwareInstanceAndProduct()
 
-    new_id = self.generateNewId()
-    computer_network = self.portal.computer_network_module.newContent(
-        portal_type='Computer Network',
-        title="live_test_%s" % new_id,
-        reference="live_test_%s" % new_id)
-    computer_network.validate()
+    instance_tree = software_instance.getSpecialiseValue()
+    project = compute_node1.getFollowUpValue()
+
+    compute_node2, _ = self.makeAllocableComputeNode(project, software_product, release_variation, type_variation)
+
+    computer_network = self._makeComputerNetwork()
+
     compute_node1.edit(subordination_value=computer_network)
     compute_node2.edit(subordination_value=computer_network)
 
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    self.tic()
+
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
 
     software_instance2 = self.portal.software_instance_module\
-        .template_software_instance.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Software Instance")
     software_instance2.edit(
       title=self.generateNewSoftwareTitle(),
       reference="TESTSI-%s" % self.generateNewId(),
-      url_string=self.software_instance.getUrlString(),
-      source_reference=self.generateNewSoftwareType(),
+      url_string=software_instance.getUrlString(),
+      source_reference=software_instance.getSourceReference(),
       text_content=self.generateSafeXml(),
       sla_xml=sla_xml,
-      specialise=self.instance_tree.getRelativeUrl(),
+      specialise_value=instance_tree,
+      follow_up_value=project,
+      ssl_key='foo',
+      ssl_certificate='bar'
     )
     self.portal.portal_workflow._jumpToStateFor(software_instance2, 'start_requested')
     self.portal.portal_workflow._jumpToStateFor(software_instance2, 'validated')
@@ -713,27 +630,27 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
 
 
     self.assertEqual(None,
-      self.software_instance.getAggregateValue(portal_type='Compute Partition'))
+      software_instance.getAggregateValue(portal_type='Compute Partition'))
 
-    self.assertEqual(self.software_instance.getSlapState(), 'start_requested')
-    self.assertEqual(self.software_instance.getValidationState(), 'validated')
+    self.assertEqual(software_instance.getSlapState(), 'start_requested')
+    self.assertEqual(software_instance.getValidationState(), 'validated')
 
-    self.software_instance.setSlaXml(sla_xml)
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
+    software_instance.setSlaXml(sla_xml)
+    software_instance.SoftwareInstance_tryToAllocatePartition()
     software_instance2.SoftwareInstance_tryToAllocatePartition()
 
-    portal_workflow = self.software_instance.portal_workflow
-    last_workflow_item = portal_workflow.getInfoFor(ob=self.software_instance,
+    portal_workflow = software_instance.portal_workflow
+    last_workflow_item = portal_workflow.getInfoFor(ob=software_instance,
                                           name='comment', wf_id='edit_workflow')
-    self.assertEqual(None,last_workflow_item)
+    self.assertEqual(None, last_workflow_item)
     self.assertNotEqual(None,
-      self.software_instance.getAggregateValue(portal_type='Compute Partition'))
+      software_instance.getAggregateValue(portal_type='Compute Partition'))
 
     # First is deployed
     self.assertEqual(
         computer_network.getReference(),
-        self.software_instance.getAggregateValue(portal_type='Compute Partition')\
-            .getParentValue().getSubordinationReference(),
+        software_instance.getAggregateValue(portal_type='Compute Partition')\
+                         .getParentValue().getSubordinationReference(),
     )
     # But second is not yet deployed because of pending activities containing tag
     self.assertEqual(
@@ -743,69 +660,62 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_unexpected_sla_parameter(self):
-    self._makeTree()
+    software_instance, _, _ = self.makeAllocableSoftwareInstance()
 
-    self._makeComputeNode()
-    self._installSoftware(self.compute_node,
-        self.software_instance.getUrlString())
-
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
 
-    self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='foo'>bar</parameter>
         </instance>""")
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
+    software_instance.SoftwareInstance_tryToAllocatePartition()
     self.assertEqual(None,
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
+        software_instance.getAggregate(portal_type='Compute Partition'))
 
   def check_allocation_category_sla(self, base_category, compute_node_category,
                                     other_category):
-    self._makeTree()
+    software_instance, compute_node, partition = self.makeAllocableSoftwareInstance()
 
-    self._makeComputeNode()
-    self.assertEqual(self.compute_node.getAllocationScope(), "open/public")
-    self.assertEqual(self.compute_node.getCapacityScope(), "open")
-    self.compute_node.edit(**{base_category: compute_node_category})
-    self.assertEqual(self.compute_node.getAllocationScope(), "open/public")
-    self.assertEqual(self.compute_node.getCapacityScope(), "open")
+    compute_node.edit(**{base_category: compute_node_category})
+    self.assertEqual(compute_node.getAllocationScope(), "open")
+    self.assertEqual(compute_node.getCapacityScope(), "open")
 
-    self._installSoftware(self.compute_node,
-        self.software_instance.getUrlString())
+    self.tic()
 
-    self.assertEqual(None, self.software_instance.getAggregateValue(
+    self.assertEqual(None, software_instance.getAggregateValue(
         portal_type='Compute Partition'))
 
     # Another category
-    self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='%s'>%s</parameter>
         </instance>""" % (base_category, other_category))
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
+    software_instance.SoftwareInstance_tryToAllocatePartition()
     self.assertEqual(None,
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
+        software_instance.getAggregate(portal_type='Compute Partition'))
 
     # No existing category
-    self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='%s'>foo</parameter>
         </instance>""" % (base_category))
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
+    software_instance.SoftwareInstance_tryToAllocatePartition()
     self.assertEqual(None,
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
+        software_instance.getAggregate(portal_type='Compute Partition'))
 
     # Compute Node category
-    self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='%s'>%s</parameter>
         </instance>""" % (base_category, compute_node_category))
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
+    software_instance.SoftwareInstance_tryToAllocatePartition()
 
-    if self.software_instance.getAggregate(portal_type='Compute Partition') is None:
-      raise ValueError(self.software_instance)
-    self.assertEqual(self.partition.getRelativeUrl(),
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
+    self.assertEqual(
+      partition.getRelativeUrl(),
+      software_instance.getAggregate(portal_type='Compute Partition'),
+      software_instance.getRelativeUrl()
+    )
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_group_sla(self):
@@ -857,38 +767,39 @@ portal_workflow.doActionFor(context, action='edit_action', comment='Visited by S
   def check_allocation_capability(self, capability, bad_capability_list,
                                   good_capability=None):
     good_capability = good_capability or capability
-    self._makeTree()
 
-    self._makeComputeNode()
-    self.partition.edit(subject=capability)
+    software_instance, compute_node, partition = self.makeAllocableSoftwareInstance()
 
-    self._installSoftware(self.compute_node,
-        self.software_instance.getUrlString())
+    partition.edit(subject=capability)
+    self.assertEqual(compute_node.getAllocationScope(), "open")
+    self.assertEqual(compute_node.getCapacityScope(), "open")
 
-    self.assertEqual(None,
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
+    self.tic()
+
+    self.assertEqual(None, software_instance.getAggregateValue(
+        portal_type='Compute Partition'))
 
     for bad_capability in bad_capability_list:
-      self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+      software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
           <instance>
           <parameter id='capability'>%s</parameter>
           </instance>""" % bad_capability)
-      self.software_instance.SoftwareInstance_tryToAllocatePartition()
+      software_instance.SoftwareInstance_tryToAllocatePartition()
       try:
-        partition = self.software_instance.getAggregate(
+        allocated_partition = software_instance.getAggregate(
             portal_type='Compute Partition')
-        self.assertEqual(None, partition)
+        self.assertEqual(None, allocated_partition)
       except AssertionError:
         raise AssertionError("Allocated %s on %s with capability %s" % (
-            bad_capability, partition, capability))
+            bad_capability, allocated_partition, capability))
 
-    self.software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
+    software_instance.setSlaXml("""<?xml version='1.0' encoding='utf-8'?>
         <instance>
         <parameter id='capability'>%s</parameter>
         </instance>""" % good_capability)
-    self.software_instance.SoftwareInstance_tryToAllocatePartition()
-    self.assertEqual(self.partition.getRelativeUrl(),
-        self.software_instance.getAggregate(portal_type='Compute Partition'))
+    software_instance.SoftwareInstance_tryToAllocatePartition()
+    self.assertEqual(partition.getRelativeUrl(),
+        software_instance.getAggregate(portal_type='Compute Partition'))
 
   @simulate('Person_isAllowedToAllocate', '*args, **kwargs', 'return True')
   def test_allocation_capability(self):

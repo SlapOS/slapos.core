@@ -48,8 +48,8 @@ else:
     reference=software_installation_reference,
     url_string=software_release_url,
     aggregate=compute_node.getRelativeUrl(),
-    activate_kw={'tag': tag},
-    destination_section=compute_node.getSourceAdministration()
+    follow_up_value=compute_node.getFollowUpValue(),
+    activate_kw={'tag': tag}
   )
 
 # Change desired state

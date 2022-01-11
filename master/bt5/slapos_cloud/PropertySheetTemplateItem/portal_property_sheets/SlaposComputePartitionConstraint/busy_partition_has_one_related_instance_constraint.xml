@@ -76,7 +76,7 @@
         </item>
         <item>
             <key> <string>test_tales_expression</string> </key>
-            <value> <string>python: context.getSlapState() == \'busy\'</string> </value>
+            <value> <string>python: (context.getSlapState() == \'busy\') and (context.getParentValue().getPortalType() == \'Compute Node\')</string> </value>
         </item>
       </dictionary>
     </pickle>

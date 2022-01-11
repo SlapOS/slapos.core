@@ -92,10 +92,6 @@
                           <string>amount</string>
                           <string>Instances Amount</string>
                         </tuple>
-                        <tuple>
-                          <string>status</string>
-                          <string>Allocation Status</string>
-                        </tuple>
                       </list>
                     </value>
                 </item>

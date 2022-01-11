@@ -10,7 +10,7 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>after_script/portal_workflow/slapos_accounting_interaction_workflow/script_Base_diverge</string>
+                <string>after_script/portal_workflow/slapos_accounting_interaction_workflow/script_Base_triggerArchiveOpenSaleOrderAlarm</string>
               </tuple>
             </value>
         </item>
@@ -31,7 +31,9 @@
         <item>
             <key> <string>portal_type_filter</string> </key>
             <value>
-              <tuple/>
+              <tuple>
+                <string>Instance Tree</string>
+              </tuple>
             </value>
         </item>
         <item>

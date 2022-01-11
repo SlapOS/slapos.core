@@ -1,10 +1,33 @@
+Accounting Transaction | SlapOSLedgerConstraint
+Accounting Transaction | SlapOSVirtualMasterSourceProjectConstraint
+Amortisation Transaction | SlapOSLedgerConstraint
+Amortisation Transaction | SlapOSVirtualMasterSourceProjectConstraint
+Balance Transaction | SlapOSLedgerConstraint
+Balance Transaction | SlapOSVirtualMasterSourceProjectConstraint
 Cloud Contract Line | SlapOSCloudContractLineAccounting
 Cloud Contract | SlapOSCloudContractAccounting
 Computer Consumption TioXML File | SortIndex
-Instance Tree | SlapOSAccountingInstanceTreeConstraint
+Hosting Subscription | SlapOSAccountingHostingSubscriptionConstraint
+Hosting Subscription | SlapOSLedgerConstraint
+Internal Invoice Transaction | SlapOSLedgerConstraint
+Internal Invoice Transaction | SlapOSVirtualMasterSourceProjectConstraint
+Open Sale Order Line | SlapOSAccountingOpenSaleOrderLineConstraint
+Open Sale Order | SlapOSAccountingOpenSaleOrderConstraint
+Open Sale Order | SlapOSLedgerConstraint
+Open Sale Order | SlapOSSaleProfileConstraint
+Payment Transaction | SlapOSLedgerConstraint
+Purchase Invoice Transaction | SlapOSLedgerConstraint
+Purchase Invoice Transaction | SlapOSVirtualMasterSourceProjectConstraint
 Sale Invoice Transaction | SlapOSAccountingSaleInvoiceTransactionConstraint
+Sale Invoice Transaction | SlapOSLedgerConstraint
+Sale Invoice Transaction | SlapOSSaleProfileConstraint
+Sale Order | SlapOSSaleProfileConstraint
 Sale Packing List Line | SlapOSAccountingSalePackingListLineConstraint
 Sale Packing List | SlapOSAccountingSalePackingListConstraint
+Sale Packing List | SlapOSLedgerConstraint
+Sale Packing List | SlapOSSaleProfileConstraint
+Sale Trade Condition | SlapOSAccountingSaleTradeConditionConstraint
+Sale Trade Condition | SlapOSSaleProfileConstraint
 Slave Instance | InstanceAccountingSynchronisation
 Software Instance | InstanceAccountingSynchronisation
 User Consumption HTML File | SortIndex

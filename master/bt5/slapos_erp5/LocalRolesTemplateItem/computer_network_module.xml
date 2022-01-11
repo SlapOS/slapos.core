@@ -1,10 +1,9 @@
 <local_roles_item>
  <local_roles>
-  <role id='G-COMPANY'>
+  <role id='F-CUSTOMER'>
    <item>Auditor</item>
-   <item>Author</item>
   </role>
-  <role id='R-MEMBER'>
+  <role id='F-PRODUCTION*'>
    <item>Auditor</item>
    <item>Author</item>
   </role>
@@ -13,16 +12,13 @@
   </role>
  </local_roles>
  <local_role_group_ids>
-  <local_role_group_id id='group'>
-    <principal id='G-COMPANY'>Auditor</principal>
-    <principal id='G-COMPANY'>Author</principal>
+  <local_role_group_id id='function'>
+    <principal id='F-CUSTOMER'>Auditor</principal>
+    <principal id='F-PRODUCTION*'>Auditor</principal>
+    <principal id='F-PRODUCTION*'>Author</principal>
   </local_role_group_id>
   <local_role_group_id id='shadow'>
     <principal id='R-SHADOW-PERSON'>Auditor</principal>
-  </local_role_group_id>
-  <local_role_group_id id='user'>
-    <principal id='R-MEMBER'>Auditor</principal>
-    <principal id='R-MEMBER'>Author</principal>
   </local_role_group_id>
  </local_role_group_ids>
 </local_roles_item>

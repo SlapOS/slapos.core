@@ -66,8 +66,7 @@ erp5_configurator
 erp5_configurator_wizard
 erp5_content_translation
 erp5_core
-erp5_core_proxy_field_legacy
-erp5_corporate_identity"""
+erp5_core_proxy_field_legacy"""
 
 common3_folder_list = """erp5_credential
 erp5_credential_oauth2
@@ -76,32 +75,23 @@ erp5_data_notebook
 erp5_data_set
 erp5_deferred_style_core
 erp5_development
-erp5_dhtml_style
 erp5_diff
 erp5_dms
 erp5_fckeditor
-erp5_forge
 erp5_forge_release
 erp5_gadget
-erp5_glossary
 erp5_graph_editor"""
 
 common_folder_list = """erp5_jquery_sheet_editor
 erp5_json_editor
 erp5_json_type
 erp5_monaco_editor
-erp5_multimedia
 erp5_notebook
 erp5_oauth
 erp5_oauth_facebook_login
 erp5_oauth_google_login
 erp5_ods_core
 erp5_odt_core
-erp5_officejs_bookmark_manager
-erp5_officejs_drive
-erp5_officejs_media_player
-erp5_officejs_slideshow_editor
-erp5_officejs_smart_assistant
 erp5_ooo_import
 erp5_open_trade
 erp5_payzen_secure_payment
@@ -113,18 +103,11 @@ erp5_run_my_doc
 erp5_secure_payment
 erp5_simplified_invoicing
 erp5_slideshow_core
-erp5_smart_assistant
-erp5_smart_assistant_file
-erp5_smart_assistant_image
-erp5_smart_assistant_sound
-erp5_smart_assistant_text
 erp5_software_pdm
 erp5_svg_editor
 erp5_syncml
 erp5_system_event
-erp5_toolbox
 erp5_trade
-erp5_vcs
 erp5_web
 erp5_web_crm
 erp5_web_minimal_theme
@@ -143,27 +126,17 @@ class TestSlaposSkinSelectionMixin(SlapOSTestCaseMixin):
     "slapos_ui_test"]
 
   expected_available_skin = [
-          'AppCache',
-          'Contract',
-          'Leaflet',
-          'Release',
-          'Slide',
-          'Book',
-          'CI_web',
-          'Letter',
-          'Report',
           'Deferred',
           'Deploy',
           'Download',
           'Hal',
           'HalRestricted',
-          'KM',
           'Multiflex',
           'ODS',
           'ODT',
           'RJS',
-          'RSS',
           'RedirectAssist',
+          'RSS',
           'SHACACHE',
           'SHADIR',
           'SlapOSHalRestricted',
@@ -181,13 +154,6 @@ slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
 erp5_web_redirect_assist
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
 erp5_knowledge_pad
 erp5_simulation
 erp5_dms_base
@@ -202,6 +168,8 @@ erp5_invoicing
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
+slapos_panel
+slapos_panel_compatibility
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -217,13 +185,6 @@ erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
 erp5_knowledge_pad
 erp5_simulation
 erp5_dms_base
@@ -237,14 +198,11 @@ erp5_data_set
 erp5_deferred_style
 erp5_deferred_style_core
 erp5_development
-erp5_dhtml_style
 erp5_diff
 erp5_dms
 erp5_fckeditor
-erp5_forge
 erp5_forge_release
 erp5_gadget
-erp5_glossary
 erp5_graph_editor
 erp5_immobilisation
 erp5_ingestion
@@ -253,6 +211,8 @@ erp5_invoicing
 %(common_folder_list)s
 external_method
 slapos_disaster_recovery
+slapos_panel
+slapos_panel_compatibility
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -271,13 +231,6 @@ erp5_web_renderjs_ui
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
 erp5_knowledge_pad
 erp5_simulation
 erp5_dms_base
@@ -291,6 +244,8 @@ erp5_invoicing
 %(common_folder_list)s
 external_method
 slapos_disaster_recovery
+slapos_panel
+slapos_panel_compatibility
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -306,15 +261,7 @@ erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_web_officejs_ui
 erp5_xhtml_disabled
-erp5_km
 erp5_knowledge_pad
 erp5_simulation
 erp5_dms_base
@@ -331,53 +278,14 @@ erp5_jquery
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
+slapos_panel
+slapos_panel_compatibility
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
        'slapos_folder_list': slapos_folder_list
       }
 
-  km_selection_string_list = \
-"""
-custom
-erp5_font
-erp5_interaction_drop
-erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
-%(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
-erp5_km_theme
-erp5_knowledge_pad
-erp5_simulation
-erp5_dms_base
-erp5_dms_web
-%(common2_folder_list)s
-%(common3_folder_list)s
-erp5_immobilisation
-erp5_ingestion
-erp5_integration
-erp5_invoicing
-erp5_jquery
-erp5_jquery_sheet_editor
-erp5_json_editor
-erp5_json_type
-erp5_km_widget_library
-%(common_folder_list)s
-erp5_xhtml_style
-external_method
-slapos_disaster_recovery
-""" % {'common_folder_list' : '\n'.join(common_folder_list.split('\n')[3:]),
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
-       'slapos_folder_list': slapos_folder_list
-      }
 
   multiflex_selection_string_list = \
 """
@@ -388,14 +296,7 @@ erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
 erp5_commerce_multiflex_layout
-erp5_km
 erp5_knowledge_pad
 erp5_simulation
 erp5_dms_base
@@ -409,6 +310,8 @@ erp5_invoicing
 %(common_folder_list)s
 external_method
 slapos_disaster_recovery
+slapos_panel
+slapos_panel_compatibility
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -424,13 +327,6 @@ erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
 erp5_web_download_theme
 erp5_knowledge_pad
 erp5_simulation
@@ -446,6 +342,8 @@ erp5_invoicing
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
+slapos_panel
+slapos_panel_compatibility
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -461,13 +359,6 @@ erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
 erp5_knowledge_pad
 erp5_simulation
 erp5_dms_base
@@ -482,6 +373,8 @@ erp5_invoicing
 %(common_folder_list)s
 external_method
 slapos_disaster_recovery
+slapos_panel
+slapos_panel_compatibility
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -497,13 +390,6 @@ erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
 erp5_knowledge_pad
 erp5_simulation
 erp5_dms_base
@@ -518,6 +404,8 @@ erp5_invoicing
 %(common_folder_list)s
 external_method
 slapos_disaster_recovery
+slapos_panel
+slapos_panel_compatibility
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -535,13 +423,6 @@ slapos_upgrader
 slapos_rss_style
 %(slapos_folder_list)s
 erp5_rss_style
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
 erp5_knowledge_pad
 erp5_simulation
 erp5_dms_base
@@ -555,6 +436,8 @@ erp5_invoicing
 %(common_folder_list)s
 external_method
 slapos_disaster_recovery
+slapos_panel
+slapos_panel_compatibility
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -570,14 +453,7 @@ erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
 erp5_web_shadir
-erp5_km
 erp5_web_download_theme
 erp5_knowledge_pad
 erp5_simulation
@@ -593,6 +469,8 @@ erp5_invoicing
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
+slapos_panel
+slapos_panel_compatibility
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -608,14 +486,7 @@ erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
 erp5_web_shacache
-erp5_km
 erp5_web_download_theme
 erp5_knowledge_pad
 erp5_simulation
@@ -631,6 +502,8 @@ erp5_invoicing
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
+slapos_panel
+slapos_panel_compatibility
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -642,20 +515,12 @@ slapos_disaster_recovery
 custom
 erp5_font
 erp5_interaction_drop
-slapos_hal_json_style
 erp5_web_hal_json
 erp5_web_renderjs_ui
+slapos_web_renderjs_ui
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_web_officejs_ui
-erp5_km
 erp5_knowledge_pad
 erp5_simulation
 erp5_dms_base
@@ -669,6 +534,8 @@ erp5_invoicing
 %(common_folder_list)s
 external_method
 slapos_disaster_recovery
+slapos_panel
+slapos_panel_compatibility
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
@@ -687,13 +554,6 @@ erp5_web_hal_json
 slapos_erp5
 slapos_upgrader
 %(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
 erp5_knowledge_pad
 erp5_simulation
 erp5_dms_base
@@ -708,153 +568,13 @@ erp5_invoicing
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
+slapos_panel
+slapos_panel_compatibility
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
        'slapos_folder_list': slapos_folder_list
       }
-
-
-  appcache_selection_string_list = """custom
-erp5_font
-erp5_interaction_drop
-erp5_hal_json_style
-erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
-%(slapos_folder_list)s
-erp5_web_redirect_assist
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
-erp5_knowledge_pad
-erp5_simulation
-erp5_dms_base
-erp5_dms_web
-%(common2_folder_list)s
-%(common3_folder_list)s
-erp5_immobilisation
-erp5_ingestion
-erp5_integration
-erp5_invoicing
-%(common_folder_list)s
-erp5_xhtml_style
-external_method
-slapos_disaster_recovery
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
-       'slapos_folder_list': slapos_folder_list
-      } 
-
-  leaflet_selection_string_list = """custom
-erp5_font
-erp5_interaction_drop
-erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
-%(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
-erp5_knowledge_pad
-erp5_simulation
-erp5_dms_base
-erp5_dms_web
-%(common2_folder_list)s
-erp5_corporate_identity_leaflet
-%(common3_folder_list)s
-erp5_immobilisation
-erp5_ingestion
-erp5_integration
-erp5_invoicing
-%(common_folder_list)s
-erp5_xhtml_style
-external_method
-slapos_disaster_recovery
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
-       'slapos_folder_list': slapos_folder_list
-      } 
-
-  release_selection_string_list = """custom
-erp5_font
-erp5_interaction_drop
-erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
-%(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
-erp5_knowledge_pad
-erp5_simulation
-erp5_dms_base
-erp5_dms_web
-%(common2_folder_list)s
-erp5_corporate_identity_release
-%(common3_folder_list)s
-erp5_immobilisation
-erp5_ingestion
-erp5_integration
-erp5_invoicing
-%(common_folder_list)s
-erp5_xhtml_style
-external_method
-slapos_disaster_recovery
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
-       'slapos_folder_list': slapos_folder_list
-      } 
-
-  slide_selection_string_list = """custom
-erp5_font
-erp5_interaction_drop
-erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
-%(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
-erp5_knowledge_pad
-erp5_simulation
-erp5_dms_base
-erp5_dms_web
-%(common2_folder_list)s
-erp5_corporate_identity_slide
-%(common3_folder_list)s
-erp5_immobilisation
-erp5_ingestion
-erp5_integration
-erp5_invoicing
-%(common_folder_list)s
-erp5_xhtml_style
-external_method
-slapos_disaster_recovery
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
-       'slapos_folder_list': slapos_folder_list
-      } 
 
 
   slideshow_selection_string_list = """custom
@@ -881,13 +601,6 @@ slapos_slap_tool
 slapos_wechat
 erp5_slideshow_style
 slapos_configurator
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
 erp5_knowledge_pad
 erp5_simulation
 erp5_dms_base
@@ -902,189 +615,14 @@ erp5_invoicing
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
+slapos_panel
+slapos_panel_compatibility
 """ % {'common_folder_list' : common_folder_list,
        'common2_folder_list' : common2_folder_list,
        'common3_folder_list' : common3_folder_list,
        'slapos_folder_list': slapos_folder_list
       } 
 
-  book_selection_string_list = """custom
-erp5_font
-erp5_interaction_drop
-erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
-%(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
-erp5_knowledge_pad
-erp5_simulation
-erp5_dms_base
-erp5_dms_web
-%(common2_folder_list)s
-erp5_corporate_identity_book
-%(common3_folder_list)s
-erp5_immobilisation
-erp5_ingestion
-erp5_integration
-erp5_invoicing
-%(common_folder_list)s
-erp5_xhtml_style
-external_method
-slapos_disaster_recovery
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
-       'slapos_folder_list': slapos_folder_list
-      } 
-
-  ci_web_selection_string_list = """custom
-erp5_font
-erp5_interaction_drop
-erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
-%(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
-erp5_knowledge_pad
-erp5_simulation
-erp5_dms_base
-erp5_dms_web
-%(common2_folder_list)s
-erp5_corporate_identity_web
-%(common3_folder_list)s
-erp5_immobilisation
-erp5_ingestion
-erp5_integration
-erp5_invoicing
-%(common_folder_list)s
-erp5_xhtml_style
-external_method
-slapos_disaster_recovery
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
-       'slapos_folder_list': slapos_folder_list
-      } 
-
-  letter_selection_string_list = """custom
-erp5_font
-erp5_interaction_drop
-erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
-%(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
-erp5_knowledge_pad
-erp5_simulation
-erp5_dms_base
-erp5_dms_web
-%(common2_folder_list)s
-erp5_corporate_identity_letter
-%(common3_folder_list)s
-erp5_immobilisation
-erp5_ingestion
-erp5_integration
-erp5_invoicing
-%(common_folder_list)s
-erp5_xhtml_style
-external_method
-slapos_disaster_recovery
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
-       'slapos_folder_list': slapos_folder_list
-      } 
-
-  report_selection_string_list = """custom
-erp5_font
-erp5_interaction_drop
-erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
-%(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
-erp5_knowledge_pad
-erp5_simulation
-erp5_dms_base
-erp5_dms_web
-%(common2_folder_list)s
-erp5_corporate_identity_book
-%(common3_folder_list)s
-erp5_immobilisation
-erp5_ingestion
-erp5_integration
-erp5_invoicing
-%(common_folder_list)s
-erp5_xhtml_style
-external_method
-slapos_disaster_recovery
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
-       'slapos_folder_list': slapos_folder_list
-      } 
-
-
-  contract_selection_string_list = \
-"""
-custom
-erp5_font
-erp5_interaction_drop
-erp5_web_hal_json
-slapos_erp5
-slapos_upgrader
-%(slapos_folder_list)s
-erp5_officejs_codemirror
-erp5_officejs_common
-erp5_officejs_notebook
-erp5_officejs_pdf_viewer
-erp5_officejs_svg_editor
-erp5_text_editor
-erp5_km
-erp5_knowledge_pad
-erp5_simulation
-erp5_dms_base
-erp5_dms_web
-%(common2_folder_list)s
-erp5_corporate_identity_contract
-%(common3_folder_list)s
-erp5_immobilisation
-erp5_ingestion
-erp5_integration
-erp5_invoicing
-%(common_folder_list)s
-erp5_xhtml_style
-external_method
-slapos_disaster_recovery
-""" % {'common_folder_list' : common_folder_list,
-       'common2_folder_list' : common2_folder_list,
-       'common3_folder_list' : common3_folder_list,
-       'slapos_folder_list': slapos_folder_list
-      } 
 
   def getTitle(self):
     return "Slapos Skin Selection"
@@ -1156,10 +694,6 @@ slapos_disaster_recovery
     self.assertSameSkinSelection('View',
       self.view_selection_string_list)
 
-  def _test_10_KM_selection(self):
-    self.assertSameSkinSelection("KM",
-      self.km_selection_string_list)
-
   def _test_11_Multiflex_selection(self):
     self.assertSameSkinSelection("Multiflex",
       self.multiflex_selection_string_list)
@@ -1200,41 +734,6 @@ slapos_disaster_recovery
     self.assertSameSkinSelection("SlideShow",
       self.slideshow_selection_string_list)
 
-  def _test_21_AppCache_selection(self):
-    self.assertSameSkinSelection("AppCache",
-      self.appcache_selection_string_list)
-
-  def _test_22_Leaflet_selection(self):
-    self.assertSameSkinSelection("Leaflet",
-      self.leaflet_selection_string_list)
-
-  def _test_23_Release_selection(self):
-    self.assertSameSkinSelection("Release",
-      self.release_selection_string_list)
-
-  def _test_24_Slide_selection(self):
-    self.assertSameSkinSelection("Slide",
-      self.slide_selection_string_list)
-
-  def _test_25_Book_selection(self):
-    self.assertSameSkinSelection("Book",
-      self.book_selection_string_list)
-
-  def _test_26_CI_web_selection(self):
-    self.assertSameSkinSelection("CI_web",
-      self.ci_web_selection_string_list)
-
-  def _test_27_Letter_selection(self):
-    self.assertSameSkinSelection("Letter",
-      self.letter_selection_string_list)
-
-  def _test_28_Report_selection(self):
-    self.assertSameSkinSelection("Report",
-      self.report_selection_string_list)
-
-  def _test_29_Contract_selection(self):
-    self.assertSameSkinSelection("Contract",
-      self.contract_selection_string_list)
 
 class TestSlaposSkinSelection(TestSlaposSkinSelectionMixin):
 
@@ -1243,7 +742,6 @@ class TestSlaposSkinSelection(TestSlaposSkinSelectionMixin):
   test_091_Deffered_selection = TestSlaposSkinSelectionMixin._test_091_Deffered_selection
   test_09_Deploy_selection = TestSlaposSkinSelectionMixin._test_09_Deploy_selection
   test_08_View_selection = TestSlaposSkinSelectionMixin._test_08_View_selection
-  test_10_KM_selection = TestSlaposSkinSelectionMixin._test_10_KM_selection
   test_11_Multiflex_selection = TestSlaposSkinSelectionMixin._test_11_Multiflex_selection
   test_12_Download_selection = TestSlaposSkinSelectionMixin._test_12_Download_selection
   test_13_ODS_selection = TestSlaposSkinSelectionMixin._test_13_ODS_selection
@@ -1254,11 +752,3 @@ class TestSlaposSkinSelection(TestSlaposSkinSelectionMixin):
   test_18_RJS_selection = TestSlaposSkinSelectionMixin._test_18_RJS_selection
   test_19_SlapOSHalRestricted_selection = TestSlaposSkinSelectionMixin._test_19_SlapOSHalRestricted_selection
   test_20_SlideShow_selection = TestSlaposSkinSelectionMixin._test_20_SlideShow_selection
-  test_21_AppCache_selection = TestSlaposSkinSelectionMixin._test_21_AppCache_selection
-  test_22_Leaflet_selection = TestSlaposSkinSelectionMixin._test_22_Leaflet_selection
-  test_23_Release_selection = TestSlaposSkinSelectionMixin._test_23_Release_selection
-  test_24_Slide_selection = TestSlaposSkinSelectionMixin._test_24_Slide_selection
-  test_25_Book_selection = TestSlaposSkinSelectionMixin._test_25_Book_selection
-  test_27_Letter_selection = TestSlaposSkinSelectionMixin._test_27_Letter_selection
-  test_28_Report_selection = TestSlaposSkinSelectionMixin._test_28_Report_selection
-  test_29_Contract_selection = TestSlaposSkinSelectionMixin._test_29_Contract_selection

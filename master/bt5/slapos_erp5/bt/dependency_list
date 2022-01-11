@@ -3,8 +3,6 @@ erp5_administration
 erp5_ooo_import
 erp5_odt_style
 erp5_ods_style
-erp5_forge
-erp5_dhtml_style
 erp5_code_mirror
 erp5_web_shacache
 erp5_web_shadir
@@ -13,10 +11,10 @@ erp5_graph_editor
 slapos_configurator
 slapos_accounting
 slapos_category
-slapos_jio
+slapos_panel
 slapos_payzen
 slapos_upgrader
-slapos_subscription_request
 slapos_web_deploy
 slapos_abyss
 erp5_slapos_tutorial_data
+slapos_subscription_request

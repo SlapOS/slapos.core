@@ -27,7 +27,12 @@ def assignComputePartition(software_instance, instance_tree):
     # Migrating all the code is needed
     # Step1: force open order to be created to allocated
     # Step2: XXX
-    if instance_tree.getAggregateRelatedValue(portal_type="Open Sale Order Line") is None:
+    if len(instance_tree.getPortalObject().portal_catalog(
+      aggregate__uid=instance_tree.getUid(),
+      portal_type="Open Sale Order Line",
+      validation_state="validated",
+      limit=2
+    )) != 1:
       raise Unauthorized("No Open Order")
 
     person = instance_tree.getDestinationSectionValue(portal_type='Person')

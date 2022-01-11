@@ -1,4 +1,7 @@
 <module>
+ <category_list>
+  <category>business_application/slapos</category>
+ </category_list>
  <id>hosting_subscription_module</id>
  <permission_list>
   <permission type='tuple'>

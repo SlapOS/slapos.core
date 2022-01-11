@@ -20,27 +20,12 @@
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 
+
 class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
 
-  def test_ComputeNode_setSubjectList(self):
-    self.person_user = self.makePerson()
-    self.login(self.person_user.getUserId())
-
-    new_id = self.generateNewId()
-    compute_node = self.portal.compute_node_module.newContent(
-      portal_type='Compute Node',
-      title="Compute Node %s for %s" % (new_id, self.person_user.getReference()),
-      reference="TESTCOMP-%s" % new_id)
-    self.tic()
-    assert compute_node.getDestinationSectionValue() is None
-
-    compute_node.edit(subject_list=[self.person_user.getDefaultEmailText()])
-    self.tic()
-    assert compute_node.getDestinationSection() == \
-      self.person_user.getRelativeUrl()
-
   def check_Instance_validate(self, portal_type):
-    self.person_user = self.makePerson()
+    project = self.addProject()
+    self.person_user = self.makePerson(project)
     self.login(self.person_user.getUserId())
 
     # Instance Tree required for security.
@@ -49,14 +34,17 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       title="HS %s for %s" % (self.new_id, self.person_user.getReference()),
       reference="TESTHS-%s" % self.new_id,
       destination_reference="TESTHS-%s" % self.new_id,
-      destination_section=self.person_user.getRelativeUrl()
+      destination_section=self.person_user.getRelativeUrl(),
+      follow_up_value=project
       )
 
     instance = self.portal.software_instance_module.newContent(
       portal_type=portal_type,
       title="Instance %s for %s" % (self.new_id, self.person_user.getReference()),
       reference="TESTINST-%s" % self.new_id,
-      specialise_value=hs)
+      specialise_value=hs,
+      follow_up_value=project
+    )
 
     if portal_type == "Software Instance":
       self._addCertificateLogin(instance)
@@ -88,54 +76,25 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
   def test_SlaveInstance_validate(self):
     return self.check_Instance_validate("Slave Instance")
 
-  def test_SlaveInstance_requestDestroy(self):
-    self.person_user = self.makePerson()
-    self.login(self.person_user.getUserId())
-
-    # Instance Tree required for security.
-    hs = self.portal.instance_tree_module.newContent(
-      portal_type='Instance Tree',
-      title="HS %s for %s" % (self.new_id, self.person_user.getReference()),
-      reference="TESTHS-%s" % self.new_id,
-      destination_reference="TESTHS-%s" % self.new_id,
-      destination_section=self.person_user.getRelativeUrl()
-      )
-
-    instance = self.portal.software_instance_module.newContent(
-      portal_type='Slave Instance',
-      title="Instance %s for %s" % (self.new_id, self.person_user.getReference()),
-      reference="TESTINST-%s" % self.new_id,
-      destination_reference="TESTINST-%s" % self.new_id,
-      destination_section=self.person_user.getRelativeUrl(),
-      specialise_value=hs
-      )
-    request_kw = dict(
-      software_release='http://example.org',
-      software_type='http://example.org',
-      instance_xml=self.generateSafeXml(),
-      sla_xml=self.generateSafeXml(),
-      shared=True,
-    )
-    instance.requestStop(**request_kw)
-    self.assertEqual(instance.getValidationState(), 'draft')
-    instance.validate()
-    self.assertEqual(instance.getValidationState(), 'validated')
-    instance.requestDestroy(**request_kw)
-    self.assertEqual(instance.getValidationState(), 'invalidated')
-
   def check_SoftwareInstallation_changeState(self, method_id):
-    self.person_user = self.makePerson()
+    project = self.addProject()
+    self.person_user = self.makePerson(project)
+    self.addProjectProductionManagerAssignment(self.person_user, project)
+    self.tic()
     self.login(self.person_user.getUserId())
     compute_node = self.portal.compute_node_module.newContent(
       portal_type='Compute Node',
       title="Compute Node %s for %s" % (self.new_id, self.person_user.getReference()),
-      reference="TESTCOMP-%s" % self.new_id)
+      reference="TESTCOMP-%s" % self.new_id,
+      follow_up_value=project
+    )
     self._addCertificateLogin(compute_node)
 
     installation = self.portal.software_installation_module.newContent(
       portal_type='Software Installation',
       title="Installation %s for %s" % (self.new_id, self.person_user.getReference()),
       aggregate_value=compute_node,
+      follow_up_value=project
       )
     self.tic()
 
@@ -165,20 +124,27 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
     return self.check_SoftwareInstallation_changeState('requestDestroy')
 
   def check_SoftwareInstance_changeState(self, method_id):
-    self.person_user = self.makePerson()
-    self.login(self.person_user.getUserId())
+    project = self.addProject()
+    self.person_user = self.makePerson(project)
+    self.addProjectProductionManagerAssignment(self.person_user, project)
 
     new_id = self.generateNewId()
     compute_node = self.portal.compute_node_module.newContent(
       portal_type='Compute Node',
       title="Compute Node %s for %s" % (new_id, self.person_user.getReference()),
-      reference="TESTCOMP-%s" % new_id)
+      reference="TESTCOMP-%s" % new_id,
+      follow_up_value=project
+    )
     self._addCertificateLogin(compute_node)
+
     partition = compute_node.newContent(
       portal_type='Compute Partition',
       title="Partition Compute Node %s for %s" % (new_id,
         self.person_user.getReference()),
       reference="TESTPART-%s" % new_id)
+
+    self.login(self.person_user.getUserId())
+
     instance = self.portal.software_instance_module.newContent(
       portal_type="Software Instance",
       title="Instance %s for %s" % (new_id, self.person_user.getReference()),
@@ -187,6 +153,7 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       destination_reference="TESTINST-%s" % new_id,
       ssl_certificate="foo",
       ssl_key="bar",
+      follow_up_value=project
       )
 
     request_kw = dict(
@@ -230,7 +197,8 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
     return self.check_SoftwareInstance_changeState("requestDestroy")
 
   def check_change_instance_parameter(self, portal_type, method_id):
-    self.person_user = self.makePerson()
+    project = self.addProject()
+    self.person_user = self.makePerson(project)
     self.login(self.person_user.getUserId())
 
     instance = self.portal.software_instance_module.newContent(
@@ -240,6 +208,7 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       destination_reference="TESTINST-%s" % self.new_id,
       ssl_certificate="foo",
       ssl_key="bar",
+      follow_up_value=project
       )
 
     self.tic()
@@ -286,7 +255,8 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
   def test_SoftwareInstance_setSuccessorList(self):
     portal_type = "Software Instance"
 
-    self.person_user = self.makePerson()
+    project = self.addProject()
+    self.person_user = self.makePerson(project)
     self.login(self.person_user.getUserId())
 
     new_id = self.generateNewId()
@@ -297,6 +267,7 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       destination_reference="TESTINST-%s" % new_id,
       ssl_certificate="foo",
       ssl_key="bar",
+      follow_up_value=project
       )
 
     new_id = self.generateNewId()
@@ -308,6 +279,7 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       ssl_certificate="foo",
       ssl_key="bar",
       successor_value=instance3,
+      follow_up_value=project
       )
 
     new_id = self.generateNewId()
@@ -319,6 +291,7 @@ class TestSlapOSCoreSlapOSCloudInteractionWorkflow(SlapOSTestCaseMixin):
       ssl_certificate="foo",
       ssl_key="bar",
       successor_value=instance2,
+      follow_up_value=project
       )
 
     self.tic()

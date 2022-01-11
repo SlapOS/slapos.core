@@ -1,14 +1,20 @@
+Allocation Supply Line | aggregate
+Allocation Supply Module | business_application
 Compute Node | destination_section
-Compute Node | source_administration
 Computer Model | source_administration
-Computer Network | source_administration
+Hosting Subscription Module | business_application
+Instance Node | specialise
 Instance Tree Module | business_application
 Instance Tree | destination_section
+One Time Virtual Master Access Token | agent
+Remote Node | destination_project
+Remote Node | destination_section
+Remote Node | specialise
+Remote Node | subordination
 Slave Instance | aggregate
 Slave Instance | specialise
 Software Installation Module | business_application
 Software Installation | aggregate
-Software Installation | destination_section
 Software Instance Module | business_application
 Software Instance | aggregate
 Software Instance | specialise

@@ -20,7 +20,6 @@
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_generate_certificate</string>
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_report_compute_partition_error</string>
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_request_instance</string>
-                <string>destination/portal_workflow/instance_slap_interface_workflow/transition_request_transfer</string>
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_revoke_certificate</string>
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_unallocate_partition</string>
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_update_connection</string>

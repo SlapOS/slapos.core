@@ -20,8 +20,6 @@
 ##############################################################################
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 import transaction
-from time import sleep
-from zExceptions import Unauthorized
 from unittest import expectedFailure
 from Products.ERP5Type.Errors import UnsupportedWorkflowMethod
 
@@ -29,13 +27,15 @@ from Products.ERP5Type.Errors import UnsupportedWorkflowMethod
 class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
+    self.project = self.addProject()
     # Clone compute_node document
-    self.compute_node = self.portal.compute_node_module.template_compute_node\
-        .Base_createCloneDocument(batch_mode=1)
+    self.compute_node = self.portal.compute_node_module\
+        .newContent(portal_type="Compute Node")
     new_id = self.generateNewId()
     self.compute_node.edit(
       title="compute node %s" % (new_id, ),
-      reference="TESTCOMP-%s" % (new_id, )
+      reference="TESTCOMP-%s" % (new_id, ),
+      follow_up_value=self.project
     )
     self.compute_node.validate()
     self.tic()
@@ -86,16 +86,18 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertEqual(None, self.portal.REQUEST.get('compute_node_certificate'))
 
   def test_approveComputeNodeRegistration(self):
-    self.person_user = self.makePerson()
+    self.person_user = self.makePerson(self.project)
+    self.addProjectProductionManagerAssignment(self.person_user, self.project)
+    self.tic()
     self.login(self.person_user.getUserId())
-    compute_node = self.portal.compute_node_module.newContent(portal_type='Compute Node',
+    compute_node = self.portal.compute_node_module.newContent(
+      portal_type='Compute Node',
       title="Compute Node %s for %s" % (self.new_id, self.person_user.getReference()),
-      reference="TESTCOMP-%s" % self.new_id)
-    compute_node.requestComputeNodeRegistration()
+      reference="TESTCOMP-%s" % self.new_id,
+      follow_up_value=self.project
+    )
     compute_node.approveComputeNodeRegistration()
-    self.assertEqual('open/personal', compute_node.getAllocationScope())
-    self.assertEqual(self.person_user.getRelativeUrl(),
-        compute_node.getSourceAdministration())
+    self.assertEqual('open', compute_node.getAllocationScope())
     self.assertEqual('validated', compute_node.getValidationState())
 
   def _countInstanceBang(self, instance, comment):
@@ -109,7 +111,7 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
             'report_compute_node_bang' and q['comment'] == comment])
 
   def test_reportComputeNodeBang(self):
-    self._makeComplexComputeNode()
+    self._makeComplexComputeNode(self.project)
     self.login(self.compute_node.getUserId())
     comment = 'Bang from compute_node'
     started_instance = self.compute_node.partition1.getAggregateRelatedValue(
@@ -153,8 +155,8 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
         self._countInstanceBang(destroyed_instance2, comment))
 
   def test_requestSoftwareRelease_software_release_url_required(self):
-    self.person_user = self.makePerson()
-    self.compute_node.edit(source_administration=self.person_user.getRelativeUrl())
+    self.person_user = self.makePerson(self.project)
+    self.addProjectProductionManagerAssignment(self.person_user, self.project)
     self.tic()
     self.login(self.person_user.getUserId())
     self.assertRaises(TypeError, self.compute_node.requestSoftwareRelease,
@@ -162,8 +164,8 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     transaction.abort()
 
   def test_requestSoftwareRelease_state_required(self):
-    self.person_user = self.makePerson()
-    self.compute_node.edit(source_administration=self.person_user.getRelativeUrl())
+    self.person_user = self.makePerson(self.project)
+    self.addProjectProductionManagerAssignment(self.person_user, self.project)
     self.tic()
     self.login(self.person_user.getUserId())
     url = self.generateNewSoftwareReleaseUrl()
@@ -172,8 +174,8 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     transaction.abort()
 
   def test_requestSoftwareRelease_available(self):
-    self.person_user = self.makePerson()
-    self.compute_node.edit(source_administration=self.person_user.getRelativeUrl())
+    self.person_user = self.makePerson(self.project)
+    self.addProjectProductionManagerAssignment(self.person_user, self.project)
     self.tic()
     self.login(self.person_user.getUserId())
     url = self.generateNewSoftwareReleaseUrl()
@@ -188,8 +190,8 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertEqual('validated', software_installation.getValidationState())
 
   def test_requestSoftwareRelease_destroyed(self):
-    self.person_user = self.makePerson()
-    self.compute_node.edit(source_administration=self.person_user.getRelativeUrl())
+    self.person_user = self.makePerson(self.project)
+    self.addProjectProductionManagerAssignment(self.person_user, self.project)
     self.tic()
     self.login(self.person_user.getUserId())
     url = self.generateNewSoftwareReleaseUrl()
@@ -202,8 +204,8 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertEqual(None, software_installation)
 
   def test_requestSoftwareRelease_available_destroyed(self):
-    self.person_user = self.makePerson()
-    self.compute_node.edit(source_administration=self.person_user.getRelativeUrl())
+    self.person_user = self.makePerson(self.project)
+    self.addProjectProductionManagerAssignment(self.person_user, self.project)
     self.tic()
     self.login(self.person_user.getUserId())
     url = self.generateNewSoftwareReleaseUrl()
@@ -230,8 +232,8 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertEqual('validated', software_installation.getValidationState())
 
   def test_requestSoftwareRelease_not_indexed(self):
-    self.person_user = self.makePerson()
-    self.compute_node.edit(source_administration=self.person_user.getRelativeUrl())
+    self.person_user = self.makePerson(self.project)
+    self.addProjectProductionManagerAssignment(self.person_user, self.project)
     self.tic()
     self.login(self.person_user.getUserId())
     url = self.generateNewSoftwareReleaseUrl()
@@ -245,8 +247,8 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
 
   @expectedFailure
   def test_requestSoftwareRelease_same_transaction(self):
-    self.person_user = self.makePerson()
-    self.compute_node.edit(source_administration=self.person_user.getRelativeUrl())
+    self.person_user = self.makePerson(self.project)
+    self.addProjectProductionManagerAssignment(self.person_user, self.project)
     self.tic()
     self.login(self.person_user.getUserId())
     url = self.generateNewSoftwareReleaseUrl()
@@ -486,17 +488,20 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
   def afterSetUp(self):
     SlapOSTestCaseMixin.afterSetUp(self)
     portal = self.getPortalObject()
+    self.project = self.addProject()
 
     # Clone compute_node document
-    compute_node = portal.compute_node_module.template_compute_node\
-        .Base_createCloneDocument(batch_mode=1)
+    compute_node = portal.compute_node_module\
+        .newContent(portal_type="Compute Node")
     # Clone person document
-    person_user = self.makePerson(new_id=self.new_id, index=0)
+    person_user = self.makePerson(self.project, new_id=self.new_id, index=0)
+    self.addProjectProductionManagerAssignment(person_user, self.project)
+    self.tic()
 
     compute_node.edit(
       title="Compute Node %s for %s" % (self.new_id, person_user.getReference()),
       reference="TESTCOMP-%s" % self.new_id,
-      source_administration=person_user.getRelativeUrl()
+      follow_up_value=self.project
     )
     compute_node.validate()
     self.compute_node = compute_node
@@ -787,346 +792,3 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
     self.assertEqual('start_requested', software_installation.getSlapState())
     self.assertEqual('SOFTINSTALL-%s' % (previous_id+2),
         software_installation.getReference())
-
-
-
-class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
-
-
-  def afterSetUp(self):
-    SlapOSTestCaseMixin.afterSetUp(self)
-    portal = self.getPortalObject()
-
-    # Clone compute_node document
-    compute_node = portal.compute_node_module.template_compute_node\
-        .Base_createCloneDocument(batch_mode=1)
-    # Clone person document
-    person_user = self.makePerson(new_id=self.new_id, index=0)
-
-    compute_node.edit(
-      title="Compute Node %s for %s" % (self.new_id, person_user.getReference()),
-      reference="TESTCOMP-%s" % self.new_id,
-      source_administration=person_user.getRelativeUrl()
-    )
-    compute_node.validate()
-    self.compute_node = compute_node
-
-    self.tic()
-
-    # Login as new user
-    self.login(person_user.getUserId())
-    new_person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
-    self.assertEqual(person_user.getRelativeUrl(), new_person.getRelativeUrl())
-
-  def _makeProject(self):
-    project = self.portal.project_module.newContent()
-    project.edit(reference="TESTPROJ-%s" % project.getId())
-    project.validate()
-
-    self.tic()
-    return project
-
-  def _makeOrganisation(self):
-    organisation = self.portal.organisation_module.newContent()
-    organisation.edit(reference="TESTSITE-%s" % organisation.getId())
-    organisation.validate()
-
-    self.tic()
-    return organisation
-
-  def test_Computer_requestTransfer_Unauthorized(self):
-    source_administrator = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
-
-    site = self._makeOrganisation()
-    
-    self.login()
-    self.assertRaises(Unauthorized, self.compute_node.requestTransfer,
-      destination=site.getRelativeUrl(),
-      destination_section=None,
-      destination_project=None)
-
-    self.login(source_administrator.getUserId())
-    self.assertRaises(ValueError, self.compute_node.requestTransfer,
-      destination=None,
-      destination_section=None,
-      destination_project=None)
-
-    self.login()
-    other_user = self.makePerson(user=1)
-    self.assertEqual(1 , len(other_user.objectValues(portal_type="ERP5 Login")))
-
-    self.compute_node.setSourceAdministrationValue(source_administrator)
-    self.tic()
-
-    self.assertRaises(Unauthorized, self.compute_node.requestTransfer,
-      destination=None,
-      destination_section=None,
-      destination_project=None)
-
-    self.login(other_user.getUserId())
-    self.assertRaises(Unauthorized, self.compute_node.requestTransfer,
-      destination=None,
-      destination_section=None,
-      destination_project=None)
-
-    self.login(source_administrator.getUserId())
-    self.assertEqual(self.compute_node.requestTransfer(
-      destination=site.getRelativeUrl(),
-      destination_section=None,
-      destination_project=None), None)
-
-
-  def test_Computer_requestTransfer_project(self):
-    source_administrator = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
-    self.compute_node.setSourceAdministrationValue(source_administrator)
-
-    self.login()
-    project = self._makeProject()
-    other_project = self._makeProject()
-    site = self._makeOrganisation()
-    self.tic()
-
-    self.login(source_administrator.getUserId())
-
-    self.assertEqual(self.compute_node.Item_getCurrentProjectValue(), None)
-    self.assertEqual(self.compute_node.Item_getCurrentOwnerValue(), None)
-    self.assertEqual(self.compute_node.Item_getCurrentSiteValue(), None)
-
-    # Place in a project    
-    self.assertEqual(self.compute_node.requestTransfer(
-      destination=site.getRelativeUrl(),
-      destination_section=None,
-      destination_project=project.getRelativeUrl()), None)
-
-    self.tic()
-    
-    self.assertEqual(self.compute_node.Item_getCurrentProjectValue(), project)
-    self.assertEqual(self.compute_node.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(self.compute_node.Item_getCurrentSiteValue(), site)
-
-    self.assertEqual(1,
-      len(self.compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-    
-    self.login(source_administrator.getUserId())
-
-    # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(1)
-
-    # We don't remove from Project if destination project is not provided
-    self.assertEqual(self.compute_node.requestTransfer(
-      destination=None,
-      destination_section=None,
-      destination_project=None), None)
-    self.tic()
-
-    self.assertEqual(self.compute_node.Item_getCurrentProjectValue(), project)
-    self.assertEqual(self.compute_node.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(2,
-      len(self.compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-
-    # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(1)
-    
-    # Place in another project    
-    self.assertEqual(self.compute_node.requestTransfer(
-      destination=None,
-      destination_section=None,
-      destination_project=other_project.getRelativeUrl()), None)
-
-    self.tic()
-    
-    self.assertEqual(self.compute_node.Item_getCurrentProjectValue(), other_project)
-    self.assertEqual(self.compute_node.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(self.compute_node.Item_getCurrentSiteValue(), site)
-
-    self.assertEqual(3,
-      len(self.compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-    self.login(source_administrator.getUserId())
-
-    # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(1)
-    
-    # We don't remove from Project if destination project is not provided
-    self.assertEqual(self.compute_node.requestTransfer(
-      destination=None,
-      destination_section=None,
-      destination_project=None), None)
-    self.tic()
-
-    self.assertEqual(self.compute_node.Item_getCurrentProjectValue(), other_project)
-    self.assertEqual(self.compute_node.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(self.compute_node.Item_getCurrentSiteValue(), site)
-
-    self.assertEqual(4,
-      len(self.compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-
-  def test_Computer_requestTransfer_owner(self):
-    source_administrator = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
-    self.compute_node.setSourceAdministrationValue(source_administrator)
-
-    self.login()
-    organisation = self._makeOrganisation()
-    other_organisation = self._makeOrganisation()
-    site = self._makeOrganisation()
-    self.tic()
-
-    self.login(source_administrator.getUserId())
-
-    self.assertEqual(self.compute_node.Item_getCurrentProjectValue(), None)
-    self.assertEqual(self.compute_node.Item_getCurrentOwnerValue(), None)
-
-    self.assertEqual(self.compute_node.requestTransfer(
-      destination=site.getRelativeUrl(),
-      destination_project=None,
-      destination_section=organisation.getRelativeUrl()), None)
-
-    self.tic()
-    
-    self.assertEqual(self.compute_node.Item_getCurrentProjectValue(), None)
-    self.assertEqual(self.compute_node.Item_getCurrentOwnerValue(), organisation)
-    self.assertEqual(self.compute_node.Item_getCurrentSiteValue(), site)
-
-    self.assertEqual(1,
-      len(self.compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-    # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(1)
-    self.login(source_administrator.getUserId())
-
-    self.assertEqual(self.compute_node.requestTransfer(
-      destination=None,
-      destination_section=None,
-      destination_project=None), None)
-    self.tic()
-
-    self.assertEqual(self.compute_node.Item_getCurrentProjectValue(), None)
-    self.assertEqual(self.compute_node.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(self.compute_node.Item_getCurrentSiteValue(), site)
-
-    # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(1)
-    
-    # Place in another project    
-    self.assertEqual(self.compute_node.requestTransfer(
-      destination=None,
-      destination_project=None,
-      destination_section=other_organisation.getRelativeUrl()), None)
-
-    self.tic()
-        
-    self.assertEqual(3,
-      len(self.compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-    self.assertEqual(self.compute_node.Item_getCurrentProjectValue(), None)
-    self.assertEqual(self.compute_node.Item_getCurrentOwnerValue(), other_organisation)
-    self.assertEqual(self.compute_node.Item_getCurrentSiteValue(), site)
-
-    self.assertEqual(3,
-      len(self.compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-    self.login(source_administrator.getUserId())
-
-    # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(1)
-    # We don't remove from Project if destination project is not provided
-    self.assertEqual(self.compute_node.requestTransfer(
-      destination=None,
-      destination_section=None,
-      destination_project=None), None)
-    self.tic()
-
-    self.assertEqual(self.compute_node.Item_getCurrentProjectValue(), None)
-    self.assertEqual(self.compute_node.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(self.compute_node.Item_getCurrentSiteValue(), site)
-
-    self.assertEqual(4,
-      len(self.compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-
-  def test_Computer_requestTransfer_site(self):
-    source_administrator = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
-    self.compute_node.setSourceAdministrationValue(source_administrator)
-
-    self.login()
-    site = self._makeOrganisation()
-    other_site = self._makeOrganisation()
-
-    self.tic()
-
-    self.login(source_administrator.getUserId())
-
-    self.assertEqual(self.compute_node.Item_getCurrentProjectValue(), None)
-    self.assertEqual(self.compute_node.Item_getCurrentOwnerValue(), None)
-
-    self.assertEqual(self.compute_node.requestTransfer(
-      destination_section=None,
-      destination_project=None,
-      destination=site.getRelativeUrl()), None)
-
-    self.tic()
-    
-    self.assertEqual(self.compute_node.Item_getCurrentProjectValue(), None)
-    self.assertEqual(self.compute_node.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(self.compute_node.Item_getCurrentSiteValue(), site)
-
-    self.assertEqual(1,
-      len(self.compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-    # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(1)
-    self.login(source_administrator.getUserId())
-
-    # We don't remove from Project if destination project is not provided
-    self.assertEqual(self.compute_node.requestTransfer(
-      destination=None,
-      destination_section=None,
-      destination_project=None), None)
-    self.tic()
-
-    self.assertEqual(self.compute_node.Item_getCurrentProjectValue(), None)
-    self.assertEqual(self.compute_node.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(self.compute_node.Item_getCurrentSiteValue(), site)
-
-    # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(1)
-    # Place in another project    
-    self.assertEqual(self.compute_node.requestTransfer(
-      destination_section=None,
-      destination_project=None,
-      destination=other_site.getRelativeUrl()), None)
-
-    self.tic()
-        
-    self.assertEqual(3,
-      len(self.compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-    self.assertEqual(self.compute_node.Item_getCurrentProjectValue(), None)
-    self.assertEqual(self.compute_node.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(self.compute_node.Item_getCurrentSiteValue(), other_site)
-
-    self.assertEqual(3,
-      len(self.compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-    self.login(source_administrator.getUserId())
-
-    # Ensure that we don't have 2 new Internal Packing lists in the same second 
-    sleep(1)
-    # We don't remove from Project if destination project is not provided
-    self.assertEqual(self.compute_node.requestTransfer(
-      destination=None,
-      destination_section=None,
-      destination_project=None), None)
-    self.tic()
-
-    self.assertEqual(self.compute_node.Item_getCurrentProjectValue(), None)
-    self.assertEqual(self.compute_node.Item_getCurrentOwnerValue(), source_administrator)
-    self.assertEqual(self.compute_node.Item_getCurrentSiteValue(), other_site)
-
-    self.assertEqual(4,
-      len(self.compute_node.getAggregateRelatedList(portal_type="Internal Packing List Line"))
-    )
-

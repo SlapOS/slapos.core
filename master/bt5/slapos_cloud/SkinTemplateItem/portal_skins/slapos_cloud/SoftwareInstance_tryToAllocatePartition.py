@@ -27,12 +27,18 @@ def assignComputePartition(software_instance, instance_tree):
     # Migrating all the code is needed
     # Step1: force open order to be created to allocated
     # Step2: XXX
-    if len(instance_tree.getPortalObject().portal_catalog(
+    open_order_line_list = instance_tree.getPortalObject().portal_catalog(
       aggregate__uid=instance_tree.getUid(),
       portal_type="Open Sale Order Line",
       validation_state="validated",
       limit=2
-    )) != 1:
+    )
+    if len(open_order_line_list) == 1:
+      try:
+        open_order_line_list[0].getParentValue().Base_checkConsistency()
+      except ValidationFailed:
+        raise Unauthorized("Open Order is not consistent")
+    else:
       raise Unauthorized("No Open Order")
 
     person = instance_tree.getDestinationSectionValue(portal_type='Person')

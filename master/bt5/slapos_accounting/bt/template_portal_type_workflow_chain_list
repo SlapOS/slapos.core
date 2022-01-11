@@ -1,13 +1,19 @@
+Applied Rule | slapos_simulation_interaction_workflow
 Cloud Contract Line | edit_workflow
 Cloud Contract | edit_workflow
 Cloud Contract | item_workflow
 Computer Consumption TioXML File | document_conversion_interaction_workflow
 Computer Consumption TioXML File | document_publication_workflow
 Computer Consumption TioXML File | edit_workflow
+Hosting Subscription | slapos_accounting_interaction_workflow
 Instance Tree | slapos_accounting_interaction_workflow
-Instance Tree | slapos_api_invoicing_workflow
+Open Sale Order | slapos_accounting_interaction_workflow
+Open Sale Order | slapos_simulation_interaction_workflow
 Sale Invoice Transaction | slapos_accounting_interaction_workflow
+Sale Invoice Transaction | slapos_simulation_interaction_workflow
 Sale Packing List | slapos_accounting_interaction_workflow
+Sale Packing List | slapos_simulation_interaction_workflow
+Simulation Movement | slapos_simulation_interaction_workflow
 Subscription Item Root Simulation Rule | edit_workflow
 Subscription Item Root Simulation Rule | rule_validation_workflow
 User Consumption HTML File | document_conversion_interaction_workflow

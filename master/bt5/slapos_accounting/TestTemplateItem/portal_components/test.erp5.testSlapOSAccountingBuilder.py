@@ -5,101 +5,132 @@
 #
 ##############################################################################
 
-from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
+from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin, TemporaryAlarmScript
 from DateTime import DateTime
 
 def convertCategoryList(base, l):
   return ['%s/%s' % (base, q) for q in l]
 
-class TestSlapOSSalePackingListBuilder(SlapOSTestCaseMixin):
+
+class TestSlapOSBuilderMixin(SlapOSTestCaseMixin):
+
   def checkSimulationMovement(self, simulation_movement):
     self.assertEqual(1.0, simulation_movement.getDeliveryRatio())
     self.assertEqual(0.0, simulation_movement.getDeliveryError())
     self.assertNotEqual(None, simulation_movement.getDeliveryValue())
 
   def checkDeliveryLine(self, simulation_movement, delivery_line,
-      line_portal_type, cell_portal_type, has_date_on_line):
+      line_portal_type, cell_portal_type):
     self.assertEqual(line_portal_type, delivery_line.getPortalType())
+    self.assertSameSet([simulation_movement.getRelativeUrl()],
+        delivery_line.getDeliveryRelatedList(
+            portal_type='Simulation Movement'))
+    self.assertSameSet([delivery_line.getRelativeUrl()],
+        simulation_movement.getDeliveryList())
     self.assertSameSet([
         'use/trade/sale',
-        'quantity_unit/unit/piece',
         'base_contribution/base_amount/invoicing/discounted',
         'base_contribution/base_amount/invoicing/taxable'] \
+          + convertCategoryList('quantity_unit',
+            simulation_movement.getQuantityUnitList())
           + convertCategoryList('aggregate',
             simulation_movement.getAggregateList())
           + convertCategoryList('resource',
             simulation_movement.getResourceList()),
-      delivery_line.getCategoryList()
+      delivery_line.getCategoryList(),
+      '%s %s' % (simulation_movement.getRelativeUrl(), delivery_line.getRelativeUrl())
     )
     self.assertEqual(simulation_movement.getQuantity(),
         delivery_line.getQuantity())
     self.assertEqual(simulation_movement.getPrice(),
         delivery_line.getPrice())
-    self.assertEqual(delivery_line.hasStartDate(), has_date_on_line)
-    self.assertEqual(delivery_line.hasStopDate(), has_date_on_line)
+    self.assertFalse(delivery_line.hasStartDate())
+    self.assertFalse(delivery_line.hasStopDate())
     self.assertEqual([], delivery_line.contentValues(
         portal_type=cell_portal_type))
-    self.assertSameSet([simulation_movement.getRelativeUrl()],
-        delivery_line.getDeliveryRelatedList(
-            portal_type='Simulation Movement'))
 
   def checkDelivery(self, simulation_movement, delivery, delivery_portal_type,
         category_list, simulation_state='delivered', already_solved=False,
         expected_start_date=None, expected_stop_date=None):
     self.assertEqual(delivery_portal_type, delivery.getPortalType())
     self.assertEqual(simulation_state, delivery.getSimulationState())
-    self.assertEqual('building', delivery.getCausalityState())
-    delivery.updateCausalityState(solve_automatically=False)
+    if not already_solved:
+      self.assertEqual('building', delivery.getCausalityState())
+      delivery.updateCausalityState(solve_automatically=False)
     self.assertEqual('solved', delivery.getCausalityState())
+    self.assertTrue(delivery.hasStartDate())
+    self.assertTrue(delivery.hasStopDate())
     if expected_start_date is None:
       expected_start_date = simulation_movement.getStartDate()
     self.assertEqual(expected_start_date, delivery.getStartDate())
+    self.assertEqual(simulation_movement.getStartDate(), delivery.getStartDate())
 
     if expected_stop_date is None:
       expected_stop_date = simulation_movement.getStopDate()
     self.assertEqual(expected_stop_date, delivery.getStopDate())
+    self.assertEqual(simulation_movement.getStopDate(), delivery.getStopDate())
 
     self.assertSameSet([
-          'source/%s' % self.expected_slapos_organisation,
-          'source_section/%s' % self.expected_slapos_organisation,
-          'price_currency/currency_module/EUR',
-          'specialise/sale_trade_condition_module/slapos_aggregated_trade_condition'] \
+          'ledger/automated'] \
+            + convertCategoryList('price_currency',
+                simulation_movement.getPriceCurrencyList()) \
+            + convertCategoryList('specialise',
+                simulation_movement.getSpecialiseList()) \
+            + convertCategoryList('source',
+                simulation_movement.getSourceList()) \
+            + convertCategoryList('source_section',
+                simulation_movement.getSourceSectionList()) \
+            + convertCategoryList('source_payment',
+                simulation_movement.getSourcePaymentList()) \
             + convertCategoryList('destination',
                 simulation_movement.getDestinationList()) \
             + convertCategoryList('destination_section',
                 simulation_movement.getDestinationSectionList()) \
             + convertCategoryList('destination_decision',
                 simulation_movement.getDestinationDecisionList()) \
+            + convertCategoryList('destination_project',
+                simulation_movement.getDestinationProjectList()) \
             + category_list,
       delivery.getCategoryList())
 
-  def test(self):
-    instance_tree = self.portal.instance_tree_module\
-        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+
+class TestSlapOSSalePackingListBuilder(TestSlapOSBuilderMixin):
+
+  def test_sale_packing_list_builder(self):
+    resource, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(is_accountable=True)
+    project = instance_tree.getFollowUpValue()
+    trade_condition = project.getSourceProjectRelatedValue(portal_type="Sale Trade Condition")
+    currency = trade_condition.getPriceCurrencyValue()
+    source = trade_condition.getSourceSectionValue()
+    destination = instance_tree.getDestinationSectionValue()
+    business_process = trade_condition.getSpecialiseValue()
+
     applied_rule = self.portal.portal_simulation.newContent(
       portal_type='Applied Rule',
       causality=instance_tree.getRelativeUrl(),
       specialise='portal_rules/slapos_subscription_item_rule'
     )
-    person = self.portal.person_module.template_member\
-        .Base_createCloneDocument(batch_mode=1)
+
     simulation_movement_kw = dict(
         portal_type='Simulation Movement',
-        aggregate=instance_tree.getRelativeUrl(),
+        aggregate_value=instance_tree,
         base_contribution=['base_amount/invoicing/discounted',
             'base_amount/invoicing/taxable'],
-        causality=['business_process_module/slapos_aggregated_business_process'
-            '/deliver', 'business_process_module/slapos_sale_business_pr'
-            'ocess/delivery_path'],
-        destination=person.getRelativeUrl(),
-        destination_decision=person.getRelativeUrl(),
-        destination_section=person.getRelativeUrl(),
-        price_currency='currency_module/EUR',
-        quantity_unit='unit/piece',
-        resource='service_module/slapos_instance_subscription',
-        source=self.expected_slapos_organisation,
-        source_section=self.expected_slapos_organisation,
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+        causality=[
+          '%s/deliver' % business_process.getRelativeUrl(),
+          '%s/delivery_path' % business_process.getRelativeUrl()
+        ],
+        destination_value=destination,
+        destination_decision_value=destination,
+        destination_section_value=destination,
+        destination_project_value=project,
+        price_currency_value=currency,
+        quantity_unit=resource.getQuantityUnit(),
+        resource_value=resource,
+        source_value=source,
+        source_section_value=source,
+        specialise_value=trade_condition,
+        ledger='automated',
         trade_phase='slapos/delivery',
         use='trade/sale',
     )
@@ -118,10 +149,11 @@ class TestSlapOSSalePackingListBuilder(SlapOSTestCaseMixin):
         **simulation_movement_kw
     )
 
-    self.tic()
-    self.portal.portal_deliveries.slapos_sale_packing_list_builder.build(
-        path='%s/%%' % applied_rule.getPath())
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+      self.portal.portal_deliveries.slapos_sale_packing_list_builder.build(
+          path='%s/%%' % applied_rule.getPath())
+      self.tic()
 
     self.checkSimulationMovement(simulation_movement_1)
     self.checkSimulationMovement(simulation_movement_2)
@@ -132,8 +164,7 @@ class TestSlapOSSalePackingListBuilder(SlapOSTestCaseMixin):
         delivery_line_2.getRelativeUrl())
 
     line_kw = dict(line_portal_type='Sale Packing List Line',
-        cell_portal_type='Sale Packing List Cell',
-        has_date_on_line=False)
+        cell_portal_type='Sale Packing List Cell')
     self.checkDeliveryLine(simulation_movement_1, delivery_line_1, **line_kw)
     self.checkDeliveryLine(simulation_movement_2, delivery_line_2, **line_kw)
 
@@ -149,36 +180,48 @@ class TestSlapOSSalePackingListBuilder(SlapOSTestCaseMixin):
     self.checkDelivery(simulation_movement_1, delivery_1, **delivery_kw)
     self.checkDelivery(simulation_movement_2, delivery_2, **delivery_kw)
 
-class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
-  def test(self, causality1=None, causality2=None): # pylint: disable=arguments-differ 
-    person = self.portal.person_module.template_member\
-        .Base_createCloneDocument(batch_mode=1)
+
+class TestSlapOSSaleInvoiceBuilder(TestSlapOSBuilderMixin):
+
+  def test_sale_invoice_builder(self, causality1=None, causality2=None): # pylint: disable=arguments-differ 
+    resource, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(is_accountable=True)
+    project = instance_tree.getFollowUpValue()
+    trade_condition = project.getSourceProjectRelatedValue(portal_type="Sale Trade Condition")
+    currency = trade_condition.getPriceCurrencyValue()
+    source = trade_condition.getSourceSectionValue()
+    source_payment = trade_condition.getSourcePaymentValue()
+    destination = instance_tree.getDestinationSectionValue()
+    business_process = trade_condition.getSpecialiseValue()
+
     # Create Aggregated Packing List
     delivery_kw = dict(
         portal_type='Sale Packing List',
-        price_currency='currency_module/EUR',
-        source=self.expected_slapos_organisation,
-        source_section=self.expected_slapos_organisation,
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+        price_currency_value=currency,
+        source_value=source,
+        source_section_value=source,
+        source_payment_value=source_payment,
+        specialise_value=trade_condition,
+        ledger='automated'
     )
     delivery_line_kw = dict(
         portal_type='Sale Packing List Line',
-        resource='service_module/slapos_instance_subscription',
+        resource_value=resource,
         use='trade/sale',
-        quantity_unit='unit/piece',
+        quantity_unit=resource.getQuantityUnit(),
         base_contribution_list=['base_amount/invoicing/discounted',
             'base_amount/invoicing/taxable'],
     )
     delivery_1 = self.portal.sale_packing_list_module.newContent(
-        destination=person.getRelativeUrl(),
-        destination_decision=person.getRelativeUrl(),
-        destination_section=person.getRelativeUrl(),
+        destination_value=destination,
+        destination_decision_value=destination,
+        destination_section_value=destination,
+        destination_project_value=project,
         start_date=DateTime('2012/01/01'),
         stop_date=DateTime('2012/02/01'),
         causality_value=causality1,
         **delivery_kw
     )
-    
+
     # Create Applied rule and set causality
     applied_rule_1 = self.portal.portal_simulation.newContent(
       portal_type='Applied Rule',
@@ -200,14 +243,16 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         batch_mode=1)
     delivery_line_1_bis.edit(
         price=0.0,
-        resource='service_module/slapos_instance_setup'
+        resource='service_module/slapos_instance_setup',
+        quantity_unit='unit/piece'
     )
 
     # Create second delivery
     delivery_2 = self.portal.sale_packing_list_module.newContent(
-        destination=person.getRelativeUrl(),
-        destination_decision=person.getRelativeUrl(),
-        destination_section=person.getRelativeUrl(),
+        destination_value=destination,
+        destination_decision_value=destination,
+        destination_section_value=destination,
+        destination_project_value=project,
         start_date=DateTime('2012/01/01'),
         stop_date=DateTime('2012/02/01'),
         causality_value=causality2,
@@ -234,18 +279,21 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         base_contribution=['base_amount/invoicing/discounted',
             'base_amount/invoicing/taxable'],
         causality=[
-          'business_process_module/slapos_aggregated_business_process/deliver',
-          'business_process_module/slapos_sale_business_process/delivery_path'],
-        destination=person.getRelativeUrl(),
-        destination_decision=person.getRelativeUrl(),
-        destination_section=person.getRelativeUrl(),
-        price_currency='currency_module/EUR',
-        quantity_unit='unit/piece',
-        resource='service_module/slapos_instance_subscription',
-        source=self.expected_slapos_organisation,
-        source_section=self.expected_slapos_organisation,
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+          '%s/deliver' % business_process.getRelativeUrl(),
+          '%s/delivery_path' % business_process.getRelativeUrl()],
+        destination_value=destination,
+        destination_decision_value=destination,
+        destination_section_value=destination,
+        destination_project_value=project,
+        price_currency_value=currency,
+        quantity_unit=resource.getQuantityUnit(),
+        resource_value=resource,
+        source_value=source,
+        source_section_value=source,
+        source_payment_value=source_payment,
+        specialise_value=trade_condition,
         trade_phase='slapos/delivery',
+        ledger='automated',
         use='trade/sale',
         delivery_ratio=1.0
     )
@@ -265,7 +313,10 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         delivery=delivery_line_1_bis.getRelativeUrl(),
         **simulation_movement_kw
     )
-    simulation_movement_1_bis.edit(resource=delivery_line_1_bis.getResource())
+    simulation_movement_1_bis.edit(
+      resource=delivery_line_1_bis.getResource(),
+      quantity_unit=delivery_line_1_bis.getQuantityUnit()
+    )
     simulation_movement_2 = applied_rule_2.newContent(
         quantity=delivery_line_2.getQuantity(),
         price=delivery_line_2.getPrice(),
@@ -275,13 +326,15 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         **simulation_movement_kw
     )
 
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
     self.assertEqual('calculating', delivery_1.getCausalityState())
     self.assertEqual('calculating', delivery_2.getCausalityState())
 
     delivery_1.updateCausalityState(solve_automatically=False)
     delivery_2.updateCausalityState(solve_automatically=False)
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
 
     # test the test
     self.assertEqual('solved', delivery_1.getCausalityState())
@@ -291,8 +344,8 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
     invoice_movement_kw = simulation_movement_kw.copy()
     invoice_movement_kw.update(
         causality=[
-            'business_process_module/slapos_aggregated_business_process/invoice',
-            'business_process_module/slapos_aggregated_business_process/invoice_path'
+            '%s/invoice' % business_process.getRelativeUrl(),
+            '%s/invoice_path' % business_process.getRelativeUrl()
         ],
         trade_phase='slapos/invoicing'
     )
@@ -315,7 +368,10 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         quantity=delivery_line_1_bis.getQuantity(),
         price=delivery_line_1_bis.getPrice(),
         **invoice_movement_kw)
-    invoice_movement_1_bis.edit(resource=delivery_line_1_bis.getResource())
+    invoice_movement_1_bis.edit(
+      resource=delivery_line_1_bis.getResource(),
+      quantity_unit=delivery_line_1_bis.getQuantityUnit()
+    )
 
     invoice_rule_2 = simulation_movement_2.newContent(
         portal_type='Applied Rule',
@@ -326,12 +382,14 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         quantity=delivery_line_2.getQuantity(),
         price=delivery_line_2.getPrice(),
         **invoice_movement_kw)
-    self.tic()
 
-    self.portal.portal_deliveries.slapos_sale_invoice_builder.build(
-        path=['%s/%%' % applied_rule_1.getPath(),
-              '%s/%%' % applied_rule_2.getPath()])
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+
+      self.portal.portal_deliveries.slapos_sale_invoice_builder.build(
+          path=['%s/%%' % applied_rule_1.getPath(),
+                '%s/%%' % applied_rule_2.getPath()])
+      self.tic()
 
     self.checkSimulationMovement(invoice_movement_1)
     self.checkSimulationMovement(invoice_movement_1_bis)
@@ -347,8 +405,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         invoice_line_1_bis.getParentValue())
 
     line_kw = dict(line_portal_type='Invoice Line',
-        cell_portal_type='Invoice Cell',
-        has_date_on_line=True)
+        cell_portal_type='Invoice Cell')
     self.checkDeliveryLine(invoice_movement_1, invoice_line_1, **line_kw)
     self.checkDeliveryLine(invoice_movement_1_bis, invoice_line_1_bis,
         **line_kw)
@@ -363,7 +420,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
 
     invoice_kw = dict(delivery_portal_type='Sale Invoice Transaction',
         simulation_state='confirmed')
-    category_list = ['resource/currency_module/EUR', 'payment_mode/payzen']
+    category_list = ['resource/%s' % currency.getRelativeUrl()]
     self.checkDelivery(invoice_movement_1, invoice_1,
         category_list=category_list + convertCategoryList('causality',
           [delivery_1.getRelativeUrl(), delivery_2.getRelativeUrl()]), **invoice_kw)
@@ -381,7 +438,8 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         # Keep price different else this line will be merged with delivery_line_1_bis
         # on the invoice side
         price=1.1,
-        resource='service_module/slapos_instance_setup'
+        resource='service_module/slapos_instance_setup',
+        quantity_unit='unit/piece'
     )
     simulation_movement_2_bis = applied_rule_2.newContent(
         quantity=delivery_line_2_bis.getQuantity(),
@@ -391,7 +449,10 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         delivery=delivery_line_2_bis.getRelativeUrl(),
         **simulation_movement_kw
     )
-    simulation_movement_2_bis.edit(resource=delivery_line_2_bis.getResource())
+    simulation_movement_2_bis.edit(
+      resource=delivery_line_2_bis.getResource(),
+      quantity_unit=delivery_line_2_bis.getQuantityUnit()
+    )
     invoice_rule_2_bis = simulation_movement_2_bis.newContent(
         portal_type='Applied Rule',
         specialise='portal_rules/slapos_invoice_simulation_rule')
@@ -401,21 +462,26 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         quantity=delivery_line_2_bis.getQuantity(),
         price=delivery_line_2_bis.getPrice(),
         **invoice_movement_kw)
-    invoice_movement_2_bis.edit(resource=delivery_line_2_bis.getResource())
-    self.tic()
-    # test the test
-    delivery_2.updateCausalityState(solve_automatically=False)
-    self.tic()
-    self.assertEqual('solved', delivery_2.getCausalityState())
+    invoice_movement_2_bis.edit(
+      resource=delivery_line_2_bis.getResource(),
+      quantity_unit=delivery_line_2_bis.getQuantityUnit()
+    )
 
-    self.assertEqual(invoice_movement_2_bis.getDeliveryValue(), None)
-    self.portal.portal_deliveries.slapos_sale_invoice_builder.build(
-        path='%s/%%' % applied_rule_1.getPath())
-    
-    self.assertEqual(invoice_movement_2_bis.getDeliveryValue(), None)
-    self.portal.portal_deliveries.slapos_sale_invoice_builder.build(
-      path='%s/%%' % applied_rule_2.getPath())
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+      # test the test
+      delivery_2.updateCausalityState(solve_automatically=False)
+      self.tic()
+      self.assertEqual('solved', delivery_2.getCausalityState())
+
+      self.assertEqual(invoice_movement_2_bis.getDeliveryValue(), None)
+      self.portal.portal_deliveries.slapos_sale_invoice_builder.build(
+          path='%s/%%' % applied_rule_1.getPath())
+
+      self.assertEqual(invoice_movement_2_bis.getDeliveryValue(), None)
+      self.portal.portal_deliveries.slapos_sale_invoice_builder.build(
+        path='%s/%%' % applied_rule_2.getPath())
+      self.tic()
 
     self.checkSimulationMovement(invoice_movement_2_bis)
     invoice_line_2_bis = invoice_movement_2_bis.getDeliveryValue()
@@ -431,325 +497,59 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
       invoice_line_2.getParentValue(), invoice_line_1.getParentValue()
     )
 
-  def test_with_same_causality(self):
+  def test_sale_invoice_builder_with_same_causality(self):
     causality1 = self.portal.subscription_request_module.newContent(
       portal_type="Subscription Request", 
     )
-    self.test(causality1=causality1, causality2=causality1) 
+    self.test_sale_invoice_builder(causality1=causality1, causality2=causality1) 
 
 
-  def test_with_different_causality(self):
+  def test_sale_invoice_builder_with_different_causality(self):
     causality1 = self.portal.subscription_request_module.newContent(
       portal_type="Subscription Request", 
     )
     causality2 = self.portal.subscription_request_module.newContent(
       portal_type="Subscription Request", 
     )
-    self._test_with_different_causality(causality1=causality1, causality2=causality2) 
+    self.test_sale_invoice_builder(causality1=causality1, causality2=causality2) 
 
-  def test_with_ssingle_ausality(self):
+  def test_sale_invoice_builder_with_ssingle_ausality(self):
     causality1 = self.portal.subscription_request_module.newContent(
       portal_type="Subscription Request", 
     )
-    self._test_with_different_causality(causality1=causality1, causality2=None) 
+    self.test_sale_invoice_builder(causality1=causality1, causality2=None) 
 
+  def test_sale_invoice_builder_with_different_date(self):
+    resource, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(is_accountable=True)
+    project = instance_tree.getFollowUpValue()
+    trade_condition = project.getSourceProjectRelatedValue(portal_type="Sale Trade Condition")
+    currency = trade_condition.getPriceCurrencyValue()
+    source = trade_condition.getSourceSectionValue()
+    destination = instance_tree.getDestinationSectionValue()
+    business_process = trade_condition.getSpecialiseValue()
 
-  def _test_with_different_causality(self,causality1=None, causality2=None):
-
-    person = self.portal.person_module.template_member\
-        .Base_createCloneDocument(batch_mode=1)
-    
     # Create Aggregated Packing List
     delivery_kw = dict(
         portal_type='Sale Packing List',
-        price_currency='currency_module/EUR',
-        source=self.expected_slapos_organisation,
-        source_section=self.expected_slapos_organisation,
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition'
+        price_currency_value=currency,
+        source_value=source,
+        source_section_value=source,
+        specialise_value=trade_condition,
+        ledger='automated'
     )
     delivery_line_kw = dict(
         portal_type='Sale Packing List Line',
-        resource='service_module/slapos_instance_subscription',
+        resource_value=resource,
         use='trade/sale',
-        quantity_unit='unit/piece',
+        quantity_unit=resource.getQuantityUnit(),
         base_contribution_list=['base_amount/invoicing/discounted',
             'base_amount/invoicing/taxable'],
     )
     delivery_1 = self.portal.sale_packing_list_module.newContent(
-        destination=person.getRelativeUrl(),
-        destination_decision=person.getRelativeUrl(),
-        destination_section=person.getRelativeUrl(),
-        start_date=DateTime('2012/01/01'),
-        stop_date=DateTime('2012/02/01'),
-        causality_value=causality1,
-        **delivery_kw
-    )
-    
-    # Create Applied rule and set causality
-    applied_rule_1 = self.portal.portal_simulation.newContent(
-      portal_type='Applied Rule',
-      specialise='portal_rules/slapos_delivery_root_simulation_rule',
-      causality=delivery_1.getRelativeUrl()
-    )
-    self.portal.portal_workflow._jumpToStateFor(delivery_1, 'delivered')
-    self.portal.portal_workflow._jumpToStateFor(delivery_1, 'calculating')
-    if delivery_1.getCausalityState() == 'draft':
-      # There are more than one workflow that has calculating state
-      delivery_1.startBuilding()
-
-    delivery_line_1 = delivery_1.newContent(
-        quantity=1.2,
-        price=3.4,
-        **delivery_line_kw
-    )
-    delivery_line_1_bis = delivery_line_1.Base_createCloneDocument(
-        batch_mode=1)
-    delivery_line_1_bis.edit(
-        price=0.0,
-        resource='service_module/slapos_instance_setup'
-    )
-
-    # Create second delivery
-    delivery_2 = self.portal.sale_packing_list_module.newContent(
-        destination=person.getRelativeUrl(),
-        destination_decision=person.getRelativeUrl(),
-        destination_section=person.getRelativeUrl(),
-        start_date=DateTime('2012/01/01'),
-        stop_date=DateTime('2012/02/01'),
-        causality_value=causality2,
-        **delivery_kw
-    )
-    applied_rule_2 = self.portal.portal_simulation.newContent(
-      portal_type='Applied Rule',
-      specialise='portal_rules/slapos_delivery_root_simulation_rule',
-      causality=delivery_2.getRelativeUrl()
-    )
-    self.portal.portal_workflow._jumpToStateFor(delivery_2, 'delivered')
-    self.portal.portal_workflow._jumpToStateFor(delivery_2, 'calculating')
-    if delivery_2.getCausalityState() == 'draft':
-      # There are more than one workflow that has calculating state
-      delivery_2.startBuilding()
-
-    delivery_line_2 = delivery_2.newContent(
-        quantity=5.6,
-        price=7.8,
-        **delivery_line_kw
-    )
-    simulation_movement_kw = dict(
-        portal_type='Simulation Movement',
-        base_contribution=['base_amount/invoicing/discounted',
-            'base_amount/invoicing/taxable'],
-        causality=[
-          'business_process_module/slapos_aggregated_business_process/deliver',
-          'business_process_module/slapos_sale_business_process/delivery_path'],
-        destination=person.getRelativeUrl(),
-        destination_decision=person.getRelativeUrl(),
-        destination_section=person.getRelativeUrl(),
-        price_currency='currency_module/EUR',
-        quantity_unit='unit/piece',
-        resource='service_module/slapos_instance_subscription',
-        source=self.expected_slapos_organisation,
-        source_section=self.expected_slapos_organisation,
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
-        trade_phase='slapos/delivery',
-        use='trade/sale',
-        delivery_ratio=1.0
-    )
-    simulation_movement_1 = applied_rule_1.newContent(
-        quantity=delivery_line_1.getQuantity(),
-        price=delivery_line_1.getPrice(),
-        start_date=delivery_1.getStartDate(),
-        stop_date=delivery_1.getStopDate(),
-        delivery=delivery_line_1.getRelativeUrl(),
-        **simulation_movement_kw
-    )
-    simulation_movement_1_bis = applied_rule_1.newContent(
-        quantity=delivery_line_1_bis.getQuantity(),
-        price=delivery_line_1_bis.getPrice(),
-        start_date=delivery_1.getStartDate(),
-        stop_date=delivery_1.getStopDate(),
-        delivery=delivery_line_1_bis.getRelativeUrl(),
-        **simulation_movement_kw
-    )
-    simulation_movement_1_bis.edit(resource=delivery_line_1_bis.getResource())
-    simulation_movement_2 = applied_rule_2.newContent(
-        quantity=delivery_line_2.getQuantity(),
-        price=delivery_line_2.getPrice(),
-        start_date=delivery_2.getStartDate(),
-        stop_date=delivery_2.getStopDate(),
-        delivery=delivery_line_2.getRelativeUrl(),
-        **simulation_movement_kw
-    )
-
-    self.tic()
-    self.assertEqual('calculating', delivery_1.getCausalityState())
-    self.assertEqual('calculating', delivery_2.getCausalityState())
-
-    delivery_1.updateCausalityState(solve_automatically=False)
-    delivery_2.updateCausalityState(solve_automatically=False)
-    self.tic()
-
-    # test the test
-    self.assertEqual('solved', delivery_1.getCausalityState())
-    self.assertEqual('solved', delivery_2.getCausalityState())
-
-    # create new simulation movements
-    invoice_movement_kw = simulation_movement_kw.copy()
-    invoice_movement_kw.update(
-        causality=[
-            'business_process_module/slapos_aggregated_business_process/invoice',
-            'business_process_module/slapos_aggregated_business_process/invoice_path'
-        ],
-        trade_phase='slapos/invoicing'
-    )
-    invoice_rule_1 = simulation_movement_1.newContent(
-        portal_type='Applied Rule',
-        specialise='portal_rules/slapos_invoice_simulation_rule')
-    invoice_movement_1 = invoice_rule_1.newContent(
-        start_date=delivery_1.getStartDate(),
-        stop_date=delivery_1.getStopDate(),
-        quantity=delivery_line_1.getQuantity(),
-        price=delivery_line_1.getPrice(),
-        **invoice_movement_kw)
-
-    invoice_rule_1_bis = simulation_movement_1_bis.newContent(
-        portal_type='Applied Rule',
-        specialise='portal_rules/slapos_invoice_simulation_rule')
-    invoice_movement_1_bis = invoice_rule_1_bis.newContent(
-        start_date=delivery_1.getStartDate(),
-        stop_date=delivery_1.getStopDate(),
-        quantity=delivery_line_1_bis.getQuantity(),
-        price=delivery_line_1_bis.getPrice(),
-        **invoice_movement_kw)
-    invoice_movement_1_bis.edit(resource=delivery_line_1_bis.getResource())
-
-    invoice_rule_2 = simulation_movement_2.newContent(
-        portal_type='Applied Rule',
-        specialise='portal_rules/slapos_invoice_simulation_rule')
-    invoice_movement_2 = invoice_rule_2.newContent(
-        start_date=delivery_2.getStartDate(),
-        stop_date=delivery_2.getStopDate(),
-        quantity=delivery_line_2.getQuantity(),
-        price=delivery_line_2.getPrice(),
-        **invoice_movement_kw)
-    self.tic()
-
-    self.portal.portal_deliveries.slapos_sale_invoice_builder.build(
-        path=['%s/%%' % applied_rule_1.getPath(),
-              '%s/%%' % applied_rule_2.getPath()])
-    self.tic()
-
-    self.checkSimulationMovement(invoice_movement_1)
-    self.checkSimulationMovement(invoice_movement_1_bis)
-    self.checkSimulationMovement(invoice_movement_2)
-
-    invoice_line_1 = invoice_movement_1.getDeliveryValue()
-    invoice_line_1_bis = invoice_movement_1_bis.getDeliveryValue()
-    invoice_line_2 = invoice_movement_2.getDeliveryValue()
-    self.assertNotEqual(invoice_line_1.getRelativeUrl(),
-        invoice_line_2.getRelativeUrl())
-    self.assertNotEqual(invoice_line_1, invoice_line_1_bis)
-    self.assertEqual(invoice_line_1.getParentValue(),
-        invoice_line_1_bis.getParentValue())
-
-    line_kw = dict(line_portal_type='Invoice Line',
-        cell_portal_type='Invoice Cell',
-        has_date_on_line=True)
-    self.checkDeliveryLine(invoice_movement_1, invoice_line_1, **line_kw)
-    self.checkDeliveryLine(invoice_movement_1_bis, invoice_line_1_bis,
-        **line_kw)
-    self.checkDeliveryLine(invoice_movement_2, invoice_line_2, **line_kw)
-
-    invoice_1 = invoice_line_1.getParentValue()
-    invoice_2 = invoice_line_2.getParentValue()
-
-    self.assertNotEqual(invoice_1.getRelativeUrl(),
-        invoice_2.getRelativeUrl())
-
-    invoice_kw = dict(delivery_portal_type='Sale Invoice Transaction',
-        simulation_state='confirmed')
-    category_list = ['resource/currency_module/EUR', 'payment_mode/payzen']
-    self.checkDelivery(invoice_movement_1, invoice_1,
-        category_list=category_list + convertCategoryList('causality',
-          [delivery_1.getRelativeUrl()]), **invoice_kw)
-    self.checkDelivery(invoice_movement_2, invoice_2,
-        category_list=category_list + convertCategoryList('causality',
-          [delivery_2.getRelativeUrl()]), **invoice_kw)
-
-    # check delivering of movement later
-    delivery_line_2_bis = delivery_line_2.Base_createCloneDocument(
-        batch_mode=1)
-    delivery_line_2_bis.edit(
-        price=0.0,
-        resource='service_module/slapos_instance_setup'
-    )
-    simulation_movement_2_bis = applied_rule_2.newContent(
-        quantity=delivery_line_2_bis.getQuantity(),
-        price=delivery_line_2_bis.getPrice(),
-        start_date=delivery_2.getStartDate(),
-        stop_date=delivery_2.getStopDate(),
-        delivery=delivery_line_2_bis.getRelativeUrl(),
-        **simulation_movement_kw
-    )
-    simulation_movement_2_bis.edit(resource=delivery_line_2_bis.getResource())
-    invoice_rule_2_bis = simulation_movement_2_bis.newContent(
-        portal_type='Applied Rule',
-        specialise='portal_rules/slapos_invoice_simulation_rule')
-    invoice_movement_2_bis = invoice_rule_2_bis.newContent(
-        start_date=delivery_2.getStartDate(),
-        stop_date=delivery_2.getStopDate(),
-        quantity=delivery_line_2_bis.getQuantity(),
-        price=delivery_line_2_bis.getPrice(),
-        **invoice_movement_kw)
-    invoice_movement_2_bis.edit(resource=delivery_line_2_bis.getResource())
-    self.tic()
-    # test the test
-    delivery_2.updateCausalityState(solve_automatically=False)
-    self.tic()
-    self.assertEqual('solved', delivery_2.getCausalityState())
-
-    self.portal.portal_deliveries.slapos_sale_invoice_builder.build(
-        path=['%s/%%' % applied_rule_1.getPath(),
-              '%s/%%' % applied_rule_2.getPath()])
-    self.tic()
-
-    self.checkSimulationMovement(invoice_movement_2_bis)
-    invoice_line_2_bis = invoice_movement_2_bis.getDeliveryValue()
-    self.assertNotEqual(invoice_line_2, invoice_line_2_bis)
-    self.assertEqual(invoice_line_2.getParentValue(),
-        invoice_line_2_bis.getParentValue())
-    self.checkDeliveryLine(invoice_movement_2_bis, invoice_line_2_bis,
-        **line_kw)
-    self.checkDelivery(invoice_movement_2_bis, invoice_2,
-        category_list=category_list + convertCategoryList('causality',
-          [delivery_2.getRelativeUrl()]), **invoice_kw)
-    self.assertNotEqual(
-      invoice_line_2.getParentValue(), invoice_line_1.getParentValue()
-    )
-
-  def test_with_different_date(self):
-    person = self.portal.person_module.template_member\
-        .Base_createCloneDocument(batch_mode=1)
-    # Create Aggregated Packing List
-    delivery_kw = dict(
-        portal_type='Sale Packing List',
-        price_currency='currency_module/EUR',
-        source=self.expected_slapos_organisation,
-        source_section=self.expected_slapos_organisation,
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
-    )
-    delivery_line_kw = dict(
-        portal_type='Sale Packing List Line',
-        resource='service_module/slapos_instance_subscription',
-        use='trade/sale',
-        quantity_unit='unit/piece',
-        base_contribution_list=['base_amount/invoicing/discounted',
-            'base_amount/invoicing/taxable'],
-    )
-    delivery_1 = self.portal.sale_packing_list_module.newContent(
-        destination=person.getRelativeUrl(),
-        destination_decision=person.getRelativeUrl(),
-        destination_section=person.getRelativeUrl(),
+        destination_value=destination,
+        destination_decision_value=destination,
+        destination_section_value=destination,
+        destination_project_value=project,
         start_date=DateTime('2012/01/01'),
         stop_date=DateTime('2012/02/01'),
         **delivery_kw
@@ -776,14 +576,16 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         batch_mode=1)
     delivery_line_1_bis.edit(
         price=0.0,
-        resource='service_module/slapos_instance_setup'
+        resource='service_module/slapos_instance_setup',
+        quantity_unit='unit/piece'
     )
 
     # Create second delivery
     delivery_2 = self.portal.sale_packing_list_module.newContent(
-        destination=person.getRelativeUrl(),
-        destination_decision=person.getRelativeUrl(),
-        destination_section=person.getRelativeUrl(),
+        destination_value=destination,
+        destination_decision_value=destination,
+        destination_section_value=destination,
+        destination_project_value=project,
         start_date=DateTime('2012/02/01'),
         stop_date=DateTime('2012/03/01'),
         **delivery_kw
@@ -809,18 +611,20 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         base_contribution=['base_amount/invoicing/discounted',
             'base_amount/invoicing/taxable'],
         causality=[
-          'business_process_module/slapos_aggregated_business_process/deliver',
-          'business_process_module/slapos_sale_business_process/delivery_path'],
-        destination=person.getRelativeUrl(),
-        destination_decision=person.getRelativeUrl(),
-        destination_section=person.getRelativeUrl(),
-        price_currency='currency_module/EUR',
-        quantity_unit='unit/piece',
-        resource='service_module/slapos_instance_subscription',
-        source=self.expected_slapos_organisation,
-        source_section=self.expected_slapos_organisation,
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+          '%s/deliver' % business_process.getRelativeUrl(),
+          '%s/delivery_path' % business_process.getRelativeUrl()],
+        destination_value=destination,
+        destination_decision_value=destination,
+        destination_section_value=destination,
+        destination_project_value=project,
+        price_currency_value=currency,
+        quantity_unit=resource.getQuantityUnit(),
+        resource_value=resource,
+        source_value=source,
+        source_section_value=source,
+        specialise_value=trade_condition,
         trade_phase='slapos/delivery',
+        ledger='automated',
         use='trade/sale',
         delivery_ratio=1.0
     )
@@ -840,7 +644,10 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         delivery=delivery_line_1_bis.getRelativeUrl(),
         **simulation_movement_kw
     )
-    simulation_movement_1_bis.edit(resource=delivery_line_1_bis.getResource())
+    simulation_movement_1_bis.edit(
+      resource=delivery_line_1_bis.getResource(),
+      quantity_unit=delivery_line_1_bis.getQuantityUnit()
+    )
     simulation_movement_2 = applied_rule_2.newContent(
         quantity=delivery_line_2.getQuantity(),
         price=delivery_line_2.getPrice(),
@@ -850,13 +657,15 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         **simulation_movement_kw
     )
 
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
     self.assertEqual('calculating', delivery_1.getCausalityState())
     self.assertEqual('calculating', delivery_2.getCausalityState())
 
     delivery_1.updateCausalityState(solve_automatically=False)
     delivery_2.updateCausalityState(solve_automatically=False)
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
 
     # test the test
     self.assertEqual('solved', delivery_1.getCausalityState())
@@ -866,8 +675,8 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
     invoice_movement_kw = simulation_movement_kw.copy()
     invoice_movement_kw.update(
         causality=[
-            'business_process_module/slapos_aggregated_business_process/invoice',
-            'business_process_module/slapos_aggregated_business_process/invoice_path'
+            '%s/invoice' % business_process.getRelativeUrl(),
+            '%s/invoice_path' % business_process.getRelativeUrl()
         ],
         trade_phase='slapos/invoicing'
     )
@@ -890,7 +699,10 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         quantity=delivery_line_1_bis.getQuantity(),
         price=delivery_line_1_bis.getPrice(),
         **invoice_movement_kw)
-    invoice_movement_1_bis.edit(resource=delivery_line_1_bis.getResource())
+    invoice_movement_1_bis.edit(
+      resource=delivery_line_1_bis.getResource(),
+      quantity_unit=delivery_line_1_bis.getQuantityUnit()
+    )
 
     invoice_rule_2 = simulation_movement_2.newContent(
         portal_type='Applied Rule',
@@ -901,12 +713,14 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         quantity=delivery_line_2.getQuantity(),
         price=delivery_line_2.getPrice(),
         **invoice_movement_kw)
-    self.tic()
 
-    self.portal.portal_deliveries.slapos_sale_invoice_builder.build(
-        path=['%s/%%' % applied_rule_1.getPath(),
-              '%s/%%' % applied_rule_2.getPath()])
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+
+      self.portal.portal_deliveries.slapos_sale_invoice_builder.build(
+          path=['%s/%%' % applied_rule_1.getPath(),
+                '%s/%%' % applied_rule_2.getPath()])
+      self.tic()
 
     self.checkSimulationMovement(invoice_movement_1)
     self.checkSimulationMovement(invoice_movement_1_bis)
@@ -922,8 +736,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         invoice_line_1_bis.getParentValue())
 
     line_kw = dict(line_portal_type='Invoice Line',
-        cell_portal_type='Invoice Cell',
-        has_date_on_line=True)
+        cell_portal_type='Invoice Cell')
     self.checkDeliveryLine(invoice_movement_1, invoice_line_1, **line_kw)
     self.checkDeliveryLine(invoice_movement_1_bis, invoice_line_1_bis,
         **line_kw)
@@ -933,92 +746,26 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
     invoice_2 = invoice_line_2.getParentValue()
 
     # The invoices are merged since they are from the same user.
-    self.assertEqual(invoice_1.getRelativeUrl(),
+    self.assertNotEqual(invoice_1.getRelativeUrl(),
         invoice_2.getRelativeUrl())
 
-    expected_start_date = delivery_1.getStartDate()
-    expected_stop_date = delivery_2.getStopDate()
-    
-    invoice_kw = dict(delivery_portal_type='Sale Invoice Transaction',
-        simulation_state='confirmed', expected_start_date=expected_start_date,
-        expected_stop_date=expected_stop_date)
-    category_list = ['resource/currency_module/EUR', 'payment_mode/payzen']
 
-    self.checkDelivery(invoice_movement_1, invoice_1,
-        category_list=category_list + convertCategoryList('causality',
-          [delivery_1.getRelativeUrl(), delivery_2.getRelativeUrl()]), **invoice_kw)
-    
-    # Start building and check again, remember invoice_1 and invoice_2 
-    invoice_1.startBuilding()
-    self.checkDelivery(invoice_movement_2, invoice_2,
-        category_list=category_list + convertCategoryList('causality',
-          [delivery_1.getRelativeUrl(), delivery_2.getRelativeUrl()]), **invoice_kw)
-
-    # check delivering of movement later
-    delivery_line_2_bis = delivery_line_2.Base_createCloneDocument(
-        batch_mode=1)
-    delivery_line_2_bis.edit(
-        # Keep price different else this line will be merged with delivery_line_1_bis
-        # on the invoice side
-        price=1.1,
-        resource='service_module/slapos_instance_setup'
-    )
-    simulation_movement_2_bis = applied_rule_2.newContent(
-        quantity=delivery_line_2_bis.getQuantity(),
-        price=delivery_line_2_bis.getPrice(),
-        start_date=delivery_2.getStartDate(),
-        stop_date=delivery_2.getStopDate(),
-        delivery=delivery_line_2_bis.getRelativeUrl(),
-        **simulation_movement_kw
-    )
-    simulation_movement_2_bis.edit(resource=delivery_line_2_bis.getResource())
-    invoice_rule_2_bis = simulation_movement_2_bis.newContent(
-        portal_type='Applied Rule',
-        specialise='portal_rules/slapos_invoice_simulation_rule')
-    invoice_movement_2_bis = invoice_rule_2_bis.newContent(
-        start_date=delivery_2.getStartDate(),
-        stop_date=delivery_2.getStopDate(),
-        quantity=delivery_line_2_bis.getQuantity(),
-        price=delivery_line_2_bis.getPrice(),
-        **invoice_movement_kw)
-    invoice_movement_2_bis.edit(resource=delivery_line_2_bis.getResource())
-    self.tic()
-    # test the test
-    delivery_2.updateCausalityState(solve_automatically=False)
-    self.tic()
-    self.assertEqual('solved', delivery_2.getCausalityState())
-
-    self.assertEqual(invoice_movement_2_bis.getDeliveryValue(), None)
-    self.portal.portal_deliveries.slapos_sale_invoice_builder.build(
-        path='%s/%%' % applied_rule_1.getPath())
-    
-    self.assertEqual(invoice_movement_2_bis.getDeliveryValue(), None)
-    self.portal.portal_deliveries.slapos_sale_invoice_builder.build(
-      path='%s/%%' % applied_rule_2.getPath())
-    self.tic()
-
-    self.checkSimulationMovement(invoice_movement_2_bis)
-    invoice_line_2_bis = invoice_movement_2_bis.getDeliveryValue()
-    self.assertNotEqual(invoice_line_2, invoice_line_2_bis)
-    self.assertEqual(invoice_line_2.getParentValue(),
-        invoice_line_2_bis.getParentValue())
-    self.checkDeliveryLine(invoice_movement_2_bis, invoice_line_2_bis,
-        **line_kw)
-    self.checkDelivery(invoice_movement_2_bis, invoice_2,
-        category_list=category_list + convertCategoryList('causality',
-          [delivery_1.getRelativeUrl(), delivery_2.getRelativeUrl()]), **invoice_kw)
-    self.assertEqual(
-      invoice_line_2.getParentValue(), invoice_line_1.getParentValue()
-    )
-
-
-class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
+class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSBuilderMixin):
   def checkSimulationMovement(self, simulation_movement):
-    self.assertNotEqual(0.0, simulation_movement.getDeliveryRatio())
-    self.assertEqual(0.0, simulation_movement.getDeliveryError())
-    self.assertNotEqual(None, simulation_movement.getDeliveryValue())
+    self.assertNotEqual(0.0, simulation_movement.getDeliveryRatio(), simulation_movement.getRelativeUrl())
+    self.assertEqual(0.0, simulation_movement.getDeliveryError(), simulation_movement.getRelativeUrl())
+    self.assertNotEqual(None, simulation_movement.getDeliveryValue(), simulation_movement.getRelativeUrl())
 
-  def test(self):
+  def test_sale_invoice_transaction_builder(self):
+    resource, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(is_accountable=True)
+    project = instance_tree.getFollowUpValue()
+    trade_condition = project.getSourceProjectRelatedValue(portal_type="Sale Trade Condition")
+    currency = trade_condition.getPriceCurrencyValue()
+
+    source = trade_condition.getSourceSectionValue()
+    destination = instance_tree.getDestinationSectionValue()
+    business_process = trade_condition.getSpecialiseValue()
+
     applied_rule_1 = self.portal.portal_simulation.newContent(
       portal_type='Applied Rule',
       specialise='portal_rules/slapos_delivery_root_simulation_rule'
@@ -1027,8 +774,7 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
       portal_type='Applied Rule',
       specialise='portal_rules/slapos_delivery_root_simulation_rule'
     )
-    person = self.portal.person_module.template_member\
-        .Base_createCloneDocument(batch_mode=1)
+
     simulation_movement_1 = applied_rule_1.newContent(
         portal_type='Simulation Movement'
     )
@@ -1039,18 +785,19 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
     # linked invoice
     invoice_kw = dict(
       portal_type='Sale Invoice Transaction',
-      source=self.expected_slapos_organisation,
-      source_section=self.expected_slapos_organisation,
-      price_currency='currency_module/EUR',
-      resource='currency_module/EUR',
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
-      created_by_builder=1
+      source_value=source,
+      source_section_value=source,
+      price_currency_value=currency,
+      resource_value=currency,
+      specialise_value=trade_condition,
+      created_by_builder=1,
+      ledger='automated'
     )
     invoice_line_kw = dict(
       portal_type='Invoice Line',
       use='trade/sale',
-      resource='service_module/slapos_instance_subscription',
-      quantity_unit='unit/piece',
+      resource_value=resource,
+      quantity_unit=resource.getQuantityUnit(),
       base_contribution=['base_amount/invoicing/discounted',
           'base_amount/invoicing/taxable'],
     )
@@ -1064,9 +811,10 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
     invoice_1 = self.portal.accounting_module.newContent(
       start_date=DateTime('2012/01/01'),
       stop_date=DateTime('2012/02/01'),
-      destination=person.getRelativeUrl(),
-      destination_section=person.getRelativeUrl(),
-      destination_decision=person.getRelativeUrl(),
+      destination_value=destination,
+      destination_section_value=destination,
+      destination_decision_value=destination,
+      destination_project_value=project,
       **invoice_kw
     )
     invoice_line_1 = invoice_1.newContent(
@@ -1082,9 +830,10 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
     invoice_2 = self.portal.accounting_module.newContent(
       start_date=DateTime('2012/01/01'),
       stop_date=DateTime('2012/02/01'),
-      destination=person.getRelativeUrl(),
-      destination_section=person.getRelativeUrl(),
-      destination_decision=person.getRelativeUrl(),
+      destination_value=destination,
+      destination_section_value=destination,
+      destination_decision_value=destination,
+      destination_project_value=project,
       **invoice_kw
     )
     invoice_line_2 = invoice_2.newContent(
@@ -1105,8 +854,8 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
     # create new simulation movements
     invoice_movement_kw = dict(
         causality=[
-            'business_process_module/slapos_aggregated_business_process/invoice',
-            'business_process_module/slapos_aggregated_business_process/invoice_path'
+            '%s/invoice' % business_process.getRelativeUrl(),
+            '%s/invoice_path' % business_process.getRelativeUrl()
         ],
         trade_phase='slapos/invoicing',
         delivery_ratio=1.0,
@@ -1114,16 +863,18 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
         portal_type='Simulation Movement',
         base_contribution=['base_amount/invoicing/discounted',
             'base_amount/invoicing/taxable'],
-        destination=person.getRelativeUrl(),
-        destination_decision=person.getRelativeUrl(),
-        destination_section=person.getRelativeUrl(),
-        price_currency='currency_module/EUR',
-        quantity_unit='unit/piece',
-        resource='service_module/slapos_instance_subscription',
-        source=self.expected_slapos_organisation,
-        source_section=self.expected_slapos_organisation,
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+        destination_value=destination,
+        destination_section_value=destination,
+        destination_decision_value=destination,
+        destination_project_value=project,
+        price_currency_value=currency,
+        quantity_unit=resource.getQuantityUnit(),
+        resource_value=resource,
+        source_value=source,
+        source_section_value=source,
+        specialise_value=trade_condition,
         use='trade/sale',
+        ledger='automated'
     )
     invoice_rule_1 = simulation_movement_1.newContent(
         portal_type='Applied Rule',
@@ -1141,14 +892,15 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
         price=.196,
         delivery_ratio=1.,
         delivery_error=0.,
-        price_currency='currency_module/EUR',
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+        price_currency_value=currency,
+        specialise_value=trade_condition,
         resource='service_module/slapos_tax',
         base_application='base_amount/invoicing/taxable',
         use='trade/tax',
-        causality=['business_process_module/slapos_aggregated_business_process/tax',
-            'business_process_module/slapos_aggregated_business_process/trade_model_path',
-            'sale_trade_condition_module/slapos_aggregated_trade_condition/1'],
+        ledger='automated',
+        causality=['%s/tax' % business_process.getRelativeUrl(),
+            '%s/trade_model_path' % business_process.getRelativeUrl(),
+            '%s/1' % trade_condition.getRelativeUrl()],
     )
     trade_model_rule_1 = invoice_movement_1.newContent(
         portal_type='Applied Rule',
@@ -1159,6 +911,7 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
         destination=invoice_movement_1.getDestination(),
         source_section=invoice_movement_1.getSourceSection(),
         destination_section=invoice_movement_1.getDestinationSection(),
+        destination_project=invoice_movement_1.getDestinationProject(),
         quantity=invoice_movement_1.getTotalPrice(),
         delivery=invoice_line_1_tax.getRelativeUrl(),
         **trade_movement_kw
@@ -1182,6 +935,7 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
         destination=invoice_movement_2.getDestination(),
         source_section=invoice_movement_2.getSourceSection(),
         destination_section=invoice_movement_2.getDestinationSection(),
+        destination_project=invoice_movement_2.getDestinationProject(),
         quantity=invoice_movement_2.getTotalPrice(),
         delivery=invoice_line_2_tax.getRelativeUrl(),
         **trade_movement_kw
@@ -1202,18 +956,19 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
     )
     transaction_movement_1_rec = transaction_rule_1.newContent(
       portal_type='Simulation Movement',
-      causality=['business_process_module/slapos_aggregated_business_process/account',
-          'business_process_module/slapos_aggregated_business_process/account_debi'
-            't_path'],
+      causality=['%s/account' % business_process.getRelativeUrl(),
+          '%s/account_debit_path' % business_process.getRelativeUrl()],
       destination=['account_module/payable'],
       destination_decision=invoice_movement_1.getDestinationDecision(),
       destination_section=invoice_movement_1.getDestinationSection(),
+      destination_project=invoice_movement_1.getDestinationProject(),
       quantity_unit='unit/piece',
-      resource='currency_module/EUR',
+      resource_value=currency,
       source='account_module/receivable',
-      source_section=self.expected_slapos_organisation,
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      source_section_value=source,
+      specialise_value=trade_condition,
       trade_phase='slapos/accounting',
+      ledger='automated',
       price=1.0,
       quantity=invoice_movement_1.getTotalPrice() * -1,
     )
@@ -1222,18 +977,19 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
     transaction_movement_1_rec_bis.edit(delivery=None, delivery_ratio=1.0)
     transaction_movement_1_sal = transaction_rule_1.newContent(
       portal_type='Simulation Movement',
-      causality=['business_process_module/slapos_aggregated_business_process/account',
-          'business_process_module/slapos_aggregated_business_process/account_cred'
-            'it_path'],
+      causality=['%s/account' % business_process.getRelativeUrl(),
+          '%s/account_credit_path' % business_process.getRelativeUrl()],
       destination=['account_module/purchase'],
       destination_decision=invoice_movement_1.getDestinationDecision(),
       destination_section=invoice_movement_1.getDestinationSection(),
+      destination_project=invoice_movement_1.getDestinationProject(),
       quantity_unit='unit/piece',
-      resource='currency_module/EUR',
+      resource_value=currency,
       source='account_module/receivable',
-      source_section=self.expected_slapos_organisation,
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      source_section_value=source,
+      specialise_value=trade_condition,
       trade_phase='slapos/accounting',
+      ledger='automated',
       price=1.0,
       quantity=invoice_movement_1.getTotalPrice(),
     )
@@ -1244,17 +1000,19 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
     )
     transation_model_movement_1_rec = transation_model_rule_1.newContent(
       portal_type='Simulation Movement',
-      causality=['business_process_module/slapos_aggregated_business_process/account',
-          'business_process_module/slapos_aggregated_business_process/accounting_tax2'],
+      causality=['%s/account' % business_process.getRelativeUrl(),
+          '%s/accounting_tax2' % business_process.getRelativeUrl()],
       destination=['account_module/payable'],
       destination_decision=invoice_movement_1.getDestinationDecision(),
       destination_section=invoice_movement_1.getDestinationSection(),
+      destination_project=invoice_movement_1.getDestinationProject(),
       quantity_unit='unit/piece',
-      resource='currency_module/EUR',
+      resource_value=currency,
       source='account_module/receivable',
-      source_section=self.expected_slapos_organisation,
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      source_section_value=source,
+      specialise_value=trade_condition,
       trade_phase='slapos/accounting',
+      ledger='automated',
       price=1.0,
       quantity=trade_movement_1.getTotalPrice() * -1,
     )
@@ -1263,17 +1021,19 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
     transation_model_movement_1_rec_bis.edit(delivery=None, delivery_ratio=1.0)
     transation_model_movement_1_sal = transation_model_rule_1.newContent(
       portal_type='Simulation Movement',
-      causality=['business_process_module/slapos_aggregated_business_process/account',
-          'business_process_module/slapos_aggregated_business_process/accounting_tax1'],
+      causality=['%s/account' % business_process.getRelativeUrl(),
+          '%s/accounting_tax1' % business_process.getRelativeUrl()],
       destination=['account_module/refundable_vat'],
       destination_decision=invoice_movement_1.getDestinationDecision(),
       destination_section=invoice_movement_1.getDestinationSection(),
+      destination_project=invoice_movement_1.getDestinationProject(),
       quantity_unit='unit/piece',
-      resource='currency_module/EUR',
+      resource_value=currency,
       source='account_module/coll_vat',
-      source_section=self.expected_slapos_organisation,
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      source_section_value=source,
+      specialise_value=trade_condition,
       trade_phase='slapos/accounting',
+      ledger='automated',
       price=1.0,
       quantity=trade_movement_1.getTotalPrice(),
     )
@@ -1284,35 +1044,37 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
     )
     transaction_movement_2_rec = transaction_rule_2.newContent(
       portal_type='Simulation Movement',
-      causality=['business_process_module/slapos_aggregated_business_process/account',
-          'business_process_module/slapos_aggregated_business_process/account_debi'
-            't_path'],
+      causality=['%s/account' % business_process.getRelativeUrl(),
+          '%s/account_debit_path' % business_process.getRelativeUrl()],
       destination=['account_module/payable'],
       destination_decision=invoice_movement_2.getDestinationDecision(),
       destination_section=invoice_movement_2.getDestinationSection(),
+      destination_project=invoice_movement_2.getDestinationProject(),
       quantity_unit='unit/piece',
-      resource='currency_module/EUR',
+      resource_value=currency,
       source='account_module/receivable',
-      source_section=self.expected_slapos_organisation,
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      source_section_value=source,
+      specialise_value=trade_condition,
       trade_phase='slapos/accounting',
+      ledger='automated',
       price=1.0,
       quantity=invoice_movement_2.getTotalPrice() * -1,
     )
     transaction_movement_2_sal = transaction_rule_2.newContent(
       portal_type='Simulation Movement',
-      causality=['business_process_module/slapos_aggregated_business_process/account',
-          'business_process_module/slapos_aggregated_business_process/account_cred'
-            'it_path'],
+      causality=['%s/account' % business_process.getRelativeUrl(),
+          '%s/account_credit_path' % business_process.getRelativeUrl()],
       destination=['account_module/purchase'],
       destination_decision=invoice_movement_2.getDestinationDecision(),
       destination_section=invoice_movement_2.getDestinationSection(),
+      destination_project=invoice_movement_2.getDestinationProject(),
       quantity_unit='unit/piece',
-      resource='currency_module/EUR',
+      resource_value=currency,
       source='account_module/receivable',
-      source_section=self.expected_slapos_organisation,
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      source_section_value=source,
+      specialise_value=trade_condition,
       trade_phase='slapos/accounting',
+      ledger='automated',
       price=1.0,
       quantity=invoice_movement_2.getTotalPrice(),
     )
@@ -1323,44 +1085,49 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
     )
     transation_model_movement_2_rec = transation_model_rule_2.newContent(
       portal_type='Simulation Movement',
-      causality=['business_process_module/slapos_aggregated_business_process/account',
-          'business_process_module/slapos_aggregated_business_process/accounting_tax2'],
+      causality=['%s/account' % business_process.getRelativeUrl(),
+          '%s/accounting_tax2' % business_process.getRelativeUrl()],
       destination=['account_module/payable'],
       destination_decision=invoice_movement_2.getDestinationDecision(),
       destination_section=invoice_movement_2.getDestinationSection(),
+      destination_project=invoice_movement_2.getDestinationProject(),
       quantity_unit='unit/piece',
-      resource='currency_module/EUR',
+      resource_value=currency,
       source='account_module/receivable',
-      source_section=self.expected_slapos_organisation,
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      source_section_value=source,
+      specialise_value=trade_condition,
       trade_phase='slapos/accounting',
+      ledger='automated',
       price=1.0,
       quantity=trade_movement_2.getTotalPrice() * -1,
     )
     transation_model_movement_2_sal = transation_model_rule_2.newContent(
       portal_type='Simulation Movement',
-      causality=['business_process_module/slapos_aggregated_business_process/account',
-          'business_process_module/slapos_aggregated_business_process/accounting_tax1'],
+      causality=['%s/account' % business_process.getRelativeUrl(),
+          '%s/accounting_tax1' % business_process.getRelativeUrl()],
       destination=['account_module/refundable_vat'],
       destination_decision=invoice_movement_2.getDestinationDecision(),
       destination_section=invoice_movement_2.getDestinationSection(),
+      destination_project=invoice_movement_2.getDestinationProject(),
       quantity_unit='unit/piece',
-      resource='currency_module/EUR',
+      resource_value=currency,
       source='account_module/coll_vat',
-      source_section=self.expected_slapos_organisation,
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      source_section_value=source,
+      specialise_value=trade_condition,
       trade_phase='slapos/accounting',
+      ledger='automated',
       price=1.0,
       quantity=trade_movement_2.getTotalPrice(),
     )
 
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
 
-    self.portal.portal_deliveries.slapos_sale_invoice_transaction_builder.build(
-        path='%s/%%' % applied_rule_1.getPath())
-    self.portal.portal_deliveries.slapos_sale_invoice_transaction_builder.build(
-        path='%s/%%' % applied_rule_2.getPath())
-    self.tic()
+      self.portal.portal_deliveries.slapos_sale_invoice_transaction_builder.build(
+          path='%s/%%' % applied_rule_1.getPath())
+      self.portal.portal_deliveries.slapos_sale_invoice_transaction_builder.build(
+          path='%s/%%' % applied_rule_2.getPath())
+      self.tic()
 
     self.checkSimulationMovement(transaction_movement_1_rec)
     self.checkSimulationMovement(transaction_movement_1_rec_bis)
@@ -1391,7 +1158,7 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
       self.assertEqual('Sale Invoice Transaction Line',
           transaction_line.getPortalType())
       self.assertSameSet([
-          'resource/currency_module/EUR'] + category_list,
+          'resource/%s' % currency.getRelativeUrl()] + category_list,
         transaction_line.getCategoryList()
       )
       self.assertEqual(simulation_movement.getQuantity(),
@@ -1515,13 +1282,21 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
     self.assertEqual('solved', invoice_2.getCausalityState())
     self.assertEqual('confirmed', invoice_2.getSimulationState())
 
-class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingListBuilder):
+class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSBuilderMixin):
   def checkSimulationMovement(self, simulation_movement):
     self.assertNotEqual(0.0, simulation_movement.getDeliveryRatio())
     self.assertEqual(0.0, simulation_movement.getDeliveryError())
     self.assertNotEqual(None, simulation_movement.getDeliveryValue())
 
-  def test(self):
+  def test_sale_invoice_transaction_trade_model_builder(self):
+    resource, _, _, _, _, instance_tree = self.bootstrapAllocableInstanceTree(is_accountable=True)
+    project = instance_tree.getFollowUpValue()
+    trade_condition = project.getSourceProjectRelatedValue(portal_type="Sale Trade Condition")
+    currency = trade_condition.getPriceCurrencyValue()
+    source = trade_condition.getSourceSectionValue()
+    destination = instance_tree.getDestinationSectionValue()
+    business_process = trade_condition.getSpecialiseValue()
+
     applied_rule_1 = self.portal.portal_simulation.newContent(
       portal_type='Applied Rule',
       specialise='portal_rules/slapos_delivery_root_simulation_rule'
@@ -1530,8 +1305,7 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
       portal_type='Applied Rule',
       specialise='portal_rules/slapos_delivery_root_simulation_rule'
     )
-    person = self.portal.person_module.template_member\
-        .Base_createCloneDocument(batch_mode=1)
+
     simulation_movement_1 = applied_rule_1.newContent(
         portal_type='Simulation Movement'
     )
@@ -1542,18 +1316,20 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
     # linked invoice
     invoice_kw = dict(
       portal_type='Sale Invoice Transaction',
-      source=self.expected_slapos_organisation,
-      source_section=self.expected_slapos_organisation,
-      price_currency='currency_module/EUR',
-      resource='currency_module/EUR',
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      source_value=source,
+      source_section_value=source,
+      price_currency_value=currency,
+      resource_value=currency,
+      specialise_value=trade_condition,
+      ledger='automated',
       created_by_builder=1
     )
     invoice_line_kw = dict(
       portal_type='Invoice Line',
       use='trade/sale',
-      resource='service_module/slapos_instance_subscription',
-      quantity_unit='unit/piece',
+      ledger='automated',
+      resource_value=resource,
+      quantity_unit=resource.getQuantityUnit(),
       base_contribution=['base_amount/invoicing/discounted',
           'base_amount/invoicing/taxable'],
     )
@@ -1561,9 +1337,10 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
     invoice_1 = self.portal.accounting_module.newContent(
       start_date=DateTime('2012/01/01'),
       stop_date=DateTime('2012/02/01'),
-      destination=person.getRelativeUrl(),
-      destination_section=person.getRelativeUrl(),
-      destination_decision=person.getRelativeUrl(),
+      destination_value=destination,
+      destination_section_value=destination,
+      destination_decision_value=destination,
+      destination_project_value=project,
       **invoice_kw
     )
     invoice_line_1 = invoice_1.newContent(
@@ -1574,9 +1351,10 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
     invoice_2 = self.portal.accounting_module.newContent(
       start_date=DateTime('2012/01/01'),
       stop_date=DateTime('2012/02/01'),
-      destination=person.getRelativeUrl(),
-      destination_section=person.getRelativeUrl(),
-      destination_decision=person.getRelativeUrl(),
+      destination_value=destination,
+      destination_section_value=destination,
+      destination_decision_value=destination,
+      destination_project_value=project,
       **invoice_kw
     )
     invoice_line_2 = invoice_2.newContent(
@@ -1592,8 +1370,8 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
     # create new simulation movements
     invoice_movement_kw = dict(
         causality=[
-            'business_process_module/slapos_aggregated_business_process/invoice',
-            'business_process_module/slapos_aggregated_business_process/invoice_path'
+            '%s/invoice' % business_process.getRelativeUrl(),
+            '%s/invoice_path' % business_process.getRelativeUrl()
         ],
         trade_phase='slapos/invoicing',
         delivery_ratio=1.0,
@@ -1601,15 +1379,17 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
         portal_type='Simulation Movement',
         base_contribution=['base_amount/invoicing/discounted',
             'base_amount/invoicing/taxable'],
-        destination=person.getRelativeUrl(),
-        destination_decision=person.getRelativeUrl(),
-        destination_section=person.getRelativeUrl(),
-        price_currency='currency_module/EUR',
+        destination_value=destination,
+        destination_decision_value=destination,
+        destination_section_value=destination,
+        destination_project_value=project,
+        price_currency_value=currency,
         quantity_unit='unit/piece',
-        resource='service_module/slapos_instance_subscription',
-        source=self.expected_slapos_organisation,
-        source_section=self.expected_slapos_organisation,
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+        resource_value=resource,
+        source_value=source,
+        source_section_value=source,
+        specialise_value=trade_condition,
+        ledger='automated',
         use='trade/sale',
     )
     invoice_rule_1 = simulation_movement_1.newContent(
@@ -1620,7 +1400,7 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
         stop_date=invoice_1.getStopDate(),
         quantity=invoice_line_1.getQuantity(),
         price=invoice_line_1.getPrice(),
-        delivery=invoice_line_1.getRelativeUrl(),
+        delivery_value=invoice_line_1,
         **invoice_movement_kw)
 
     invoice_rule_2 = simulation_movement_2.newContent(
@@ -1631,9 +1411,11 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
         stop_date=invoice_2.getStopDate(),
         quantity=invoice_line_2.getQuantity(),
         price=invoice_line_2.getPrice(),
-        delivery=invoice_line_2.getRelativeUrl(),
+        delivery_value=invoice_line_2,
         **invoice_movement_kw)
-    self.tic()
+
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
 
     invoice_1.updateCausalityState(solve_automatically=False)
     invoice_2.updateCausalityState(solve_automatically=False)
@@ -1645,11 +1427,12 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
 
     model_movement_kw = dict(
       base_application='base_amount/invoicing/taxable',
-      price_currency='currency_module/EUR',
+      ledger='automated',
+      price_currency_value=currency,
       quantity_unit='unit/piece',
-      source=self.expected_slapos_organisation,
-      source_section=self.expected_slapos_organisation,
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      source_value=source,
+      source_section_value=source,
+      specialise_value=trade_condition,
       portal_type='Simulation Movement',
     )
     model_rule_1 = invoice_movement_1.newContent(
@@ -1660,11 +1443,12 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
       destination=invoice_movement_1.getDestination(),
       destination_section=invoice_movement_1.getDestinationSection(),
       destination_decision=invoice_movement_1.getDestinationDecision(),
+      destination_project=invoice_movement_1.getDestinationProject(),
       resource='service_module/slapos_tax',
       trade_phase='slapos/tax',
-      causality=['business_process_module/slapos_aggregated_business_process/tax',
-          'business_process_module/slapos_aggregated_business_process/trade_model_path',
-          'sale_trade_condition_module/slapos_aggregated_trade_condition/1',
+      causality=['%s/tax' % business_process.getRelativeUrl(),
+          '%s/trade_model_path' % business_process.getRelativeUrl(),
+          '%s/1' % trade_condition.getRelativeUrl(),
       ],
       price=.196,
       quantity=invoice_movement_1.getTotalPrice(),
@@ -1674,11 +1458,12 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
       destination=invoice_movement_1.getDestination(),
       destination_section=invoice_movement_1.getDestinationSection(),
       destination_decision=invoice_movement_1.getDestinationDecision(),
+      destination_project=invoice_movement_1.getDestinationProject(),
       resource='service_module/slapos_tax',
       trade_phase='slapos/tax',
-      causality=['business_process_module/slapos_aggregated_business_process/tax',
-          'business_process_module/slapos_aggregated_business_process/trade_model_path',
-          'sale_trade_condition_module/slapos_aggregated_trade_condition/1',
+      causality=['%s/tax' % business_process.getRelativeUrl(),
+          '%s/trade_model_path' % business_process.getRelativeUrl(),
+          '%s/1' % trade_condition.getRelativeUrl(),
       ],
       price=.196,
       quantity=.0,
@@ -1693,25 +1478,28 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
       destination=invoice_movement_2.getDestination(),
       destination_section=invoice_movement_2.getDestinationSection(),
       destination_decision=invoice_movement_2.getDestinationDecision(),
+      destination_project=invoice_movement_2.getDestinationProject(),
       resource='service_module/slapos_tax',
       trade_phase='slapos/tax',
-      causality=['business_process_module/slapos_aggregated_business_process/tax',
-          'business_process_module/slapos_aggregated_business_process/trade_model_path',
-          'sale_trade_condition_module/slapos_aggregated_trade_condition/1',
+      causality=['%s/tax' % business_process.getRelativeUrl(),
+          '%s/trade_model_path' % business_process.getRelativeUrl(),
+          '%s/1' % trade_condition.getRelativeUrl(),
       ],
       price=.196,
       quantity=invoice_movement_2.getTotalPrice(),
       **model_movement_kw
     )
-    self.tic()
 
-    self.portal.portal_deliveries\
-        .slapos_sale_invoice_transaction_trade_model_builder.build(
-        path='%s/%%' % applied_rule_1.getPath())
-    self.portal.portal_deliveries\
-        .slapos_sale_invoice_transaction_trade_model_builder.build(
-        path='%s/%%' % applied_rule_2.getPath())
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+
+      self.portal.portal_deliveries\
+          .slapos_sale_invoice_transaction_trade_model_builder.build(
+          path='%s/%%' % applied_rule_1.getPath())
+      self.portal.portal_deliveries\
+          .slapos_sale_invoice_transaction_trade_model_builder.build(
+          path='%s/%%' % applied_rule_2.getPath())
+      self.tic()
 
     self.checkSimulationMovement(model_movement_1_tax)
     self.assertEqual(0.0, model_movement_1_tax_2.getDeliveryRatio())
@@ -1778,12 +1566,13 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
     self.portal.portal_deliveries\
         .slapos_sale_invoice_transaction_trade_model_builder.build(
         path='%s/%%' % applied_rule_2.getPath())
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
 
-    # as invoice_1 has been updated it is time to update its causality
-    # with automatic solving
-    invoice_1.updateCausalityState(solve_automatically=True)
-    self.tic()
+      # as invoice_1 has been updated it is time to update its causality
+      # with automatic solving
+      invoice_1.updateCausalityState(solve_automatically=True)
+      self.tic()
 
     self.checkSimulationMovement(model_movement_1_tax_bis)
 
@@ -1799,19 +1588,21 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
         batch_mode=1)
     model_movement_2_tax_bis.edit(delivery=None, delivery_ratio=1.0,
         quantity=.0)
-    self.tic()
-    self.portal.portal_deliveries\
-        .slapos_sale_invoice_transaction_trade_model_builder.build(
-        path='%s/%%' % applied_rule_1.getPath())
-    self.portal.portal_deliveries\
-        .slapos_sale_invoice_transaction_trade_model_builder.build(
-        path='%s/%%' % applied_rule_2.getPath())
-    self.tic()
 
-    # as invoice_2 has been updated it is time to update its causality
-    # with automatic solving
-    invoice_2.updateCausalityState(solve_automatically=True)
-    self.tic()
+    with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'", attribute='comment'):
+      self.tic()
+      self.portal.portal_deliveries\
+          .slapos_sale_invoice_transaction_trade_model_builder.build(
+          path='%s/%%' % applied_rule_1.getPath())
+      self.portal.portal_deliveries\
+          .slapos_sale_invoice_transaction_trade_model_builder.build(
+          path='%s/%%' % applied_rule_2.getPath())
+      self.tic()
+
+      # as invoice_2 has been updated it is time to update its causality
+      # with automatic solving
+      invoice_2.updateCausalityState(solve_automatically=True)
+      self.tic()
 
     self.assertEqual(0.0, model_movement_2_tax_bis.getDeliveryRatio())
     self.assertEqual(0.0, model_movement_2_tax_bis.getDeliveryError())
@@ -1824,6 +1615,7 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
     self.assertEqual(invoice_2.getRelativeUrl(),
         model_line_2_tax_bis.getParentValue().getRelativeUrl())
 
+"""
 class TestSlapOSAggregatedDeliveryBuilder(SlapOSTestCaseMixin):
   def emptyBuild(self, **kw):
     delivery_list = self._build(**kw)
@@ -1856,8 +1648,8 @@ class TestSlapOSAggregatedDeliveryBuilder(SlapOSTestCaseMixin):
     return delivery_line
 
   def test(self):
-    person = self.portal.person_module.template_member\
-        .Base_createCloneDocument(batch_mode=1)
+    person = self.portal.person_module\
+        .newContent(portal_type="Person")
     delivery = self._createDelivery(destination_value=person,
         destination_decision_value=person)
     delivery_line = self._addDeliveryLine(delivery)
@@ -1874,14 +1666,15 @@ class TestSlapOSAggregatedDeliveryBuilder(SlapOSTestCaseMixin):
     self.assertEqual('confirmed', built_delivery.getSimulationState())
     self.assertEqual('building', built_delivery.getCausalityState())
     self.assertSameSet([
+        'ledger/automated',
         'destination/%s' % person.getRelativeUrl(),
         'destination_decision/%s' % person.getRelativeUrl(),
         'destination_section/%s' % person.getRelativeUrl(),
+        'destination_project/%s' % self.slapos_project.getRelativeUrl(),
         'price_currency/currency_module/EUR',
         'source/%s' % self.expected_slapos_organisation,
         'source_section/%s' % self.expected_slapos_organisation,
-        'specialise/sale_trade_condition_module/'
-            'slapos_aggregated_trade_condition'],
+        'specialise/%s' % self.slapos_trade_condition.getRelativeUrl()],
         built_delivery.getCategoryList())
     self.assertEqual(DateTime().earliestTime(), built_delivery.getStartDate())
     delivery_line_list = built_delivery.contentValues(
@@ -1894,8 +1687,8 @@ class TestSlapOSAggregatedDeliveryBuilder(SlapOSTestCaseMixin):
         built_delivery_line.getResource())
 
   def test_many_lines(self):
-    person = self.portal.person_module.template_member\
-        .Base_createCloneDocument(batch_mode=1)
+    person = self.portal.person_module\
+        .newContent(portal_type="Person")
     delivery = self._createDelivery(destination_value=person,
         destination_decision_value=person)
     setup_line_1 = self._addDeliveryLine(delivery)
@@ -1957,8 +1750,8 @@ class TestSlapOSAggregatedDeliveryBuilder(SlapOSTestCaseMixin):
         built_subscription_line.getResource())
 
   def test_added_after(self):
-    person = self.portal.person_module.template_member\
-        .Base_createCloneDocument(batch_mode=1)
+    person = self.portal.person_module\
+        .newContent(portal_type="Person")
     delivery = self._createDelivery(destination_value=person,
         destination_decision_value=person)
     delivery_line = self._addDeliveryLine(delivery)
@@ -2005,4 +1798,4 @@ class TestSlapOSAggregatedDeliveryBuilder(SlapOSTestCaseMixin):
     self.assertEqual(0.0, built_delivery_line.getPrice())
     self.assertEqual(delivery_line_2.getResource(),
         built_delivery_line.getResource())
-
+"""

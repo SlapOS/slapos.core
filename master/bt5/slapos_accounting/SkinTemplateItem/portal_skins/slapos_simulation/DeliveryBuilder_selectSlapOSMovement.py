@@ -3,7 +3,10 @@ kw['select_dict']=select_dict
 kw['left_join_list']=select_dict.keys()
 kw['delivery_uid']=None
 kw['group_by']=('uid',)
+
+portal = context.getPortalObject()
+kw['ledger__uid'] = portal.portal_categories.ledger.automated.getUid()
 if src__==0:
-  return context.portal_catalog(**kw)
+  return portal.portal_catalog(**kw)
 else:
-  return context.portal_catalog(src__=1, **kw)
+  return portal.portal_catalog(src__=1, **kw)

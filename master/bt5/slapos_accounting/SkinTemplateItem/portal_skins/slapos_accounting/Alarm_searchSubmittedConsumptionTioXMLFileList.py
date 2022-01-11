@@ -1,3 +1,6 @@
+if True:
+  return "disabled as not matching yet the virtual master design"
+
 portal = context.getPortalObject()
 
 portal.portal_catalog.searchAndActivate(

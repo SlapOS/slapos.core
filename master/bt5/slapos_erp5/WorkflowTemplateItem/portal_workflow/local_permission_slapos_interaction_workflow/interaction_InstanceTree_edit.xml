@@ -52,6 +52,7 @@
               <tuple>
                 <string>_setReference.*</string>
                 <string>_setDestinationSection.*</string>
+                <string>_setFollowUp.*</string>
               </tuple>
             </value>
         </item>

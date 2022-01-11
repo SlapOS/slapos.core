@@ -1,6 +1,6 @@
 <module>
  <category_list>
-  <category>business_application/base</category>
+  <category>business_application/slapos</category>
  </category_list>
  <id>invitation_token_module</id>
  <permission_list>

@@ -1,9 +1,10 @@
 <type_roles>
   <role id='Author; Auditor'>
-   <property id='title'>Group company</property>
-   <multi_property id='categories'>local_role_group/group</multi_property>
-   <multi_property id='category'>group/company</multi_property>
-   <multi_property id='base_category'>group</multi_property>
+   <property id='title'>Accountant</property>
+   <property id='description'>Any accountant or accountant manager may create accounts and access accounts</property>
+   <multi_property id='categories'>local_role_group/function</multi_property>
+   <multi_property id='category'>function/accounting*</multi_property>
+   <multi_property id='base_category'>function</multi_property>
   </role>
   <role id='Auditor'>
    <property id='title'>Person Shadow</property>

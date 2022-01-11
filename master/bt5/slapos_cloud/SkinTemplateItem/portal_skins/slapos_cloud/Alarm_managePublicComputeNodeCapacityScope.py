@@ -1,8 +1,6 @@
 portal = context.getPortalObject()
 
-category_list = [portal.restrictedTraverse("portal_categories/allocation_scope/open/public", None),
-                 portal.restrictedTraverse("portal_categories/allocation_scope/open/subscription", None),
-                 portal.restrictedTraverse("portal_categories/allocation_scope/open/personal", None)]
+category_list = [portal.restrictedTraverse("portal_categories/allocation_scope/open", None)]
 
 category_uid_list = [ i.getUid() for i in category_list if i is not None]
 

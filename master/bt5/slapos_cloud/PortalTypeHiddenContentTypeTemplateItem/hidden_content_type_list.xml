@@ -1,5 +1,11 @@
 <hidden_content_type_list>
+ <portal_type id="Allocation Supply Line">
+  <item>Allocation Supply Cell</item>
+ </portal_type>
  <portal_type id="Hosting Subscription Module">
   <item>Hosting Subscription</item>
+ </portal_type>
+ <portal_type id="Remote Node">
+  <item>Compute Partition</item>
  </portal_type>
 </hidden_content_type_list>

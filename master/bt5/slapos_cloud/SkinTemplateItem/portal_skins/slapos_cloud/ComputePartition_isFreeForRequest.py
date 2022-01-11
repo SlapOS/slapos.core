@@ -1,3 +1,3 @@
-if context.getPortalObject().portal_workflow.isTransitionPossible(context, 'mark_busy') and context.getParentValue().isMemberOf('allocation_scope/open'):
+if context.getPortalObject().portal_workflow.isTransitionPossible(context, 'mark_busy'):
   return 1
 return 0

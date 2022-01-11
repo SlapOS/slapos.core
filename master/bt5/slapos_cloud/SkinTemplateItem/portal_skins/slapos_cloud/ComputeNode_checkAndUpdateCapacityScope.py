@@ -4,8 +4,8 @@ from zExceptions import Unauthorized
 if REQUEST is not None:
   raise Unauthorized
 
-if compute_node.getAllocationScope() not in ['open/public', 'open/subscription', 'open/personal']:
-  # Don't update non closed computers
+if compute_node.getAllocationScope() != 'open':
+  # Don't update non public compute_node
   return
 
 can_allocate = True

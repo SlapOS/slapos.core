@@ -219,8 +219,13 @@ def checkSoftware(slap, software_url):
       ))
 
   # check this software is not referenced in any shared parts.
-  for signature_file in glob.glob(os.path.join(slap.shared_directory, '*', '*',
-                                               '.*slapos.*.signature')):
+  for signature_file in glob.glob(
+      os.path.join(
+          slap.shared_directory,
+          '*',
+          '*',
+          '.buildout-shared.json',
+      )):
     with open(signature_file) as f:
       signature_content = f.read()
     if software_hash in signature_content:

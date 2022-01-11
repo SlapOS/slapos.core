@@ -30,9 +30,11 @@ category_list = []
 if obj is None:
   return []
 
-person = obj.getDestinationSectionValue(portal_type="Person")
+# XXX rename script to: setShadowUserAsAssignee
+# use base category instead of Hardcoding getDestinationSectionValue
+person = obj.getDestinationValue(portal_type="Person")
 if person is not None:
   if base_category_list:
-    return {"Auditor": ["SHADOW-%s" % person.getUserId()]}
+    return {"Assignee": ["SHADOW-%s" % person.getUserId()]}
 
 return category_list

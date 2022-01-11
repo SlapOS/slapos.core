@@ -2,12 +2,15 @@ test.erp5.testSlapOSAuthenticationPolicy
 test.erp5.testSlapOSCodingStyle
 test.erp5.testSlapOSCoreSkins
 test.erp5.testSlapOSERP5Alarm
-test.erp5.testSlapOSERP5DefaultScenario
 test.erp5.testSlapOSERP5GroupRoleSecurity
 test.erp5.testSlapOSERP5InteractionWorkflow
 test.erp5.testSlapOSERP5LocalPermissionSlapOSInteractionWorkflow
 test.erp5.testSlapOSERP5SiteDump
 test.erp5.testSlapOSERP5SkinSelection
+test.erp5.testSlapOSERP5VirtualMasterScenario
+test.erp5.testSlapOSPrecacheManifest
 test.erp5.testSlapOSPrecacheManifest
 test.erp5.testSlapOSWendelinCoreTwo
+test.erp5.testSlapOSWendelinCoreTwo
+test.erp5.testSlapOSXHTML
 test.erp5.testSlapOSXHTML

@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "configured with: $*"
+echo "PREFIX=$(echo "$1" | sed 's/^[^=]*=//g')" > Makefile.conf

@@ -17,7 +17,6 @@
             <value>
               <tuple>
                 <string>destination/portal_workflow/network_slap_interface_workflow/transition_approve_registration</string>
-                <string>destination/portal_workflow/network_slap_interface_workflow/transition_request_transfer</string>
               </tuple>
             </value>
         </item>

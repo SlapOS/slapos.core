@@ -1,12 +1,31 @@
 <allowed_content_type_list>
+ <portal_type id="Access Token Module">
+  <item>One Time Virtual Master Access Token</item>
+ </portal_type>
+ <portal_type id="Allocation Supply">
+  <item>Allocation Supply Line</item>
+ </portal_type>
+ <portal_type id="Allocation Supply Line">
+  <item>Allocation Supply Cell</item>
+ </portal_type>
+ <portal_type id="Allocation Supply Module">
+  <item>Allocation Supply</item>
+ </portal_type>
  <portal_type id="Compute Node">
   <item>Certificate Login</item>
+ </portal_type>
+ <portal_type id="Compute Node Module">
+  <item>Instance Node</item>
+  <item>Remote Node</item>
  </portal_type>
  <portal_type id="Hosting Subscription Module">
   <item>Hosting Subscription</item>
  </portal_type>
  <portal_type id="Instance Tree Module">
   <item>Instance Tree</item>
+ </portal_type>
+ <portal_type id="Remote Node">
+  <item>Compute Partition</item>
  </portal_type>
  <portal_type id="Software Installation Module">
   <item>Software Installation</item>

@@ -1,32 +1,53 @@
 Alarm Tool | SlapOSMasterUpgradeConstraint
+Allocation Supply Cell | AllocationSupplyPath
+Allocation Supply Line | AllocationSupplyPath
+Allocation Supply | AllocationSupply
+Allocation Supply | AllocationSupplyConstraint
+Allocation Supply | SlapOSVirtualMasterSourceProjectConstraint
 Assignment | SlaposAssignmentConstraint
 Compute Node | ComputeNodeSlapOSMetadata
 Compute Node | ComputerUpgradeConstraint
 Compute Node | ERP5User
 Compute Node | SlapOSReferenceConstraint
+Compute Node | SlapOSVirtualMasterConstraint
 Compute Node | SlaposCapacity
 Compute Node | SlaposComputeNodeConstraint
 Compute Node | Url
 Compute Partition | ComputePartition
 Compute Partition | ComputerPartitionUpgradeConstraint
 Compute Partition | SlaposComputePartitionConstraint
+Computer Model | SlapOSVirtualMasterConstraint
 Computer Model | SlaposCapacity
+Computer Network | SlapOSVirtualMasterConstraint
 Computer Partition | ComputerPartitionUpgradeConstraint
 Computer | ComputerUpgradeConstraint
 Email | SlaposEmailConstraint
 Hosting Subscription | HostingSubscriptionUpgradeConstraint
+Instance Node | SlapOSReferenceConstraint
+Instance Node | SlapOSVirtualMasterConstraint
+Instance Node | SlaposComputeNodeConstraint
+Instance Node | SlaposInstanceNodeConstraint
 Instance Tree | HostingSubscriptionUpgradeConstraint
 Instance Tree | InstanceTree
+Instance Tree | SlapOSVirtualMasterConstraint
 Instance Tree | SlaposInstanceTreeConstraint
 Instance Tree | SoftwareInstance
 Instance Tree | SoftwareInstanceUpgradeConstraint
 Instance Tree | TextDocument
 Instance Tree | Url
 Instance Tree | VariationRange
+One Time Virtual Master Access Token | SlapOSVirtualMasterConstraint
+One Time Virtual Master Access Token | Url
 Person | SlaposPersonConstraint
+Remote Node | Computer
+Remote Node | SlapOSReferenceConstraint
+Remote Node | SlapOSVirtualMasterConstraint
+Remote Node | SlaposComputeNodeConstraint
+Remote Node | SlaposRemoteNodeConstraint
 Slave Instance | InstanceTree
 Slave Instance | Reference
 Slave Instance | SlapOSReferenceConstraint
+Slave Instance | SlapOSVirtualMasterConstraint
 Slave Instance | SlaveInstanceConstraint
 Slave Instance | SoftwareInstance
 Slave Instance | SoftwareInstanceDuplicationConstraint
@@ -34,12 +55,14 @@ Slave Instance | TextDocument
 Slave Instance | Url
 Slave Instance | VariationRange
 Software Installation | SlapOSReferenceConstraint
+Software Installation | SlapOSVirtualMasterConstraint
 Software Installation | Url
 Software Installation | VariationRange
 Software Instance | ERP5User
 Software Instance | InstanceTree
 Software Instance | Reference
 Software Instance | SlapOSReferenceConstraint
+Software Instance | SlapOSVirtualMasterConstraint
 Software Instance | SoftwareInstance
 Software Instance | SoftwareInstanceConstraint
 Software Instance | SoftwareInstanceDuplicationConstraint
@@ -47,4 +70,5 @@ Software Instance | SoftwareInstanceUpgradeConstraint
 Software Instance | TextDocument
 Software Instance | Url
 Software Instance | VariationRange
+Software Release | SlapOSVirtualMasterConstraint
 Software Release | SlaposCapacity

@@ -26,12 +26,12 @@ class TestSlapOSCoreComputePartitionSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.login()
     SlapOSTestCaseMixin.afterSetUp(self)
     # Clone compute_node document
-    self.compute_node = self.portal.compute_node_module.template_compute_node\
-        .Base_createCloneDocument(batch_mode=1)
+    self.compute_node = self.portal.compute_node_module\
+        .newContent(portal_type="Compute Node")
     self.compute_node.edit(
       title="compute node %s" % (self.new_id, ),
       reference="TESTCOMP-%s" % (self.new_id, ),
-      allocation_scope='open/personal',
+      allocation_scope='open',
       capacity_scope='open',
     )
     self.compute_node.validate()

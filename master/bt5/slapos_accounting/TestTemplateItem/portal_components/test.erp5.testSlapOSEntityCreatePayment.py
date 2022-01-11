@@ -20,9 +20,61 @@
 ##############################################################################
 
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
+from DateTime import DateTime
 
 class TestSlapOSEntityCreatePaymentMixin(SlapOSTestCaseMixin):
-  
+
+  def makeSaleInvoiceTransaction(self, person=None):
+    project = self.addProject()
+    organisation = self.portal.organisation_module.newContent(
+      portal_type="Organisation"
+    )
+    bank_account = organisation.newContent(
+      portal_type="Bank Account"
+    )
+    currency = self.portal.currency_module.newContent(
+      portal_type="Currency",
+      base_unit_quantity=0.1
+    )
+    if person is None:
+      person = self.portal.person_module\
+          .newContent(portal_type="Person")
+
+    invoice = self.createSaleInvoiceTransaction(
+      source_value=organisation,
+      source_section_value=organisation,
+      source_payment_value=bank_account,
+      destination_section_value=person,
+      destination_project_value=project,
+      resource_value=currency,
+      price_currency_value=currency,
+      ledger='automated',
+      payment_mode=self.payment_mode,
+      start_date=DateTime('2012/01/01'),
+      stop_date=DateTime('2012/01/15'),
+      created_by_builder=1 # to prevent init script to create lines
+    )
+    for line_kw in [{
+      'destination': 'account_module/payable',
+      'source': 'account_module/receivable',
+      'quantity': -1.0
+    }, {
+      'destination': 'account_module/purchase',
+      'source': 'account_module/sales',
+      'quantity': 0.84
+    }, {
+      'destination': 'account_module/refundable_vat',
+      'source': 'account_module/coll_vat',
+      'quantity': 0.16
+    }]:
+      invoice.newContent(
+        portal_type="Sale Invoice Transaction Line",
+        resource_value=currency,
+        price=1.0,
+        **line_kw
+      )
+    return person, invoice
+
   def sumReceivable(self, payment_transaction):
     quantity = .0
     default_source_uid = self.portal.restrictedTraverse(
@@ -44,28 +96,29 @@ class TestSlapOSEntityCreatePaymentMixin(SlapOSTestCaseMixin):
     expected_set = [
       'causality/%s' % invoice.getRelativeUrl(),
       'destination_section/%s' % invoice.getDestinationSection(),
-      'price_currency/%s' % invoice.getPriceCurrency(),
-      'resource/%s' % invoice.getResource(),
-      'source_payment/organisation_module/slapos/bank_account',
+      'resource/%s' % invoice.getPriceCurrency(),
+      'source_payment/%s' % invoice.getSourcePayment(),
       'payment_mode/%s' % self.payment_mode,
       'source_section/%s' % invoice.getSourceSection(),
+      'ledger/%s' % invoice.getLedger(),
     ]
     self.assertSameSet(expected_set, payment.getCategoryList())
     self.assertEqual(invoice.getStartDate(), payment.getStartDate())
-    self.assertEqual(invoice.getStopDate(), payment.getStopDate())
+    self.assertEqual(invoice.getStartDate(), payment.getStopDate())
 
+    invoice_movement_list = invoice.getMovementList()
     movement_list = payment.getMovementList()
-    self.assertEqual(2, len(movement_list))
     bank_list = [q for q in movement_list
         if q.getSource() == 'account_module/payment_to_encash']
     rec_list = [q for q in movement_list
         if q.getSource() == 'account_module/receivable']
     self.assertEqual(1, len(bank_list))
-    self.assertEqual(1, len(rec_list))
+    self.assertEqual(len([q for q in invoice_movement_list
+        if q.getSource() == 'account_module/receivable']), len(rec_list))
 
     def assertLine(line, quantity, category_list):
-      self.assertTrue(line.hasStartDate())
-      self.assertTrue(line.hasStopDate())
+      self.assertFalse(line.hasStartDate())
+      self.assertFalse(line.hasStopDate())
       self.assertEqual(quantity, line.getQuantity())
       self.assertSameSet(category_list, line.getCategoryList())
 
@@ -73,26 +126,28 @@ class TestSlapOSEntityCreatePaymentMixin(SlapOSTestCaseMixin):
     assertLine(bank_list[0], invoice_amount, [
         'destination/account_module/payment_to_encash',
         'source/account_module/payment_to_encash'])
-    assertLine(rec_list[0], -1 * invoice_amount, [
-        'destination/account_module/payable',
-        'source/account_module/receivable'])
+    for rec in rec_list:
+      assertLine(rec, -invoice_amount / len(rec_list), [
+          'destination/account_module/payable',
+          'source/account_module/receivable'])
 
   def fullBuild(self, person, invoice_list):
-    payment = person.Entity_createPaymentTransaction(invoice_list)
+    payment = person.Entity_createPaymentTransaction(person.Entity_getOutstandingAmountList(
+      include_planned=False,
+      section_uid=invoice_list[0].getSourceSectionUid(),
+      resource_uid=invoice_list[0].getPriceCurrencyUid(),
+      ledger_uid=invoice_list[0].getLedgerUid(),
+      group_by_node=False
+    ), payment_mode=self.payment_mode, start_date=invoice_list[0].getStartDate())
     self.assertNotEqual(None, payment)
     return payment
 
-  def resetPaymentTag(self, invoice):
-    payment_tag = "sale_invoice_transaction_create_payment_%s" % invoice.getUid()
-    invoice.REQUEST.set(payment_tag, None)
+  def resetPaymentTag(self, person):
+    payment_tag = "Entity_createPaymentTransaction_%s" % person.getUid()
+    person.REQUEST.set(payment_tag, None)
 
   def _test(self):
-    person = self.portal.person_module.template_member\
-        .Base_createCloneDocument(batch_mode=1)
-    invoice = self.portal.accounting_module.template_sale_invoice_transaction\
-        .Base_createCloneDocument(batch_mode=1)
-    invoice.edit(destination_section=person.getRelativeUrl(),
-                 payment_mode=self.payment_mode)
+    person, invoice = self.makeSaleInvoiceTransaction()
     invoice.confirm()
     invoice.stop()
     self.tic()
@@ -101,31 +156,21 @@ class TestSlapOSEntityCreatePaymentMixin(SlapOSTestCaseMixin):
     self.assertPayment(payment, invoice)
 
   def _test_twice(self):
-    person = self.portal.person_module.template_member\
-        .Base_createCloneDocument(batch_mode=1)
-    invoice = self.portal.accounting_module.template_sale_invoice_transaction\
-        .Base_createCloneDocument(batch_mode=1)
-    invoice.edit(destination_section=person.getRelativeUrl(),
-                 payment_mode=self.payment_mode)
+    person, invoice = self.makeSaleInvoiceTransaction()
     invoice.confirm()
     invoice.stop()
     self.tic()
     payment = self.fullBuild(person, [invoice])
     self.assertPayment(payment, invoice)
     self.tic()
-    self.resetPaymentTag(invoice)
+    self.resetPaymentTag(person)
 
     # Create twice, generate 2 payments
     payment = self.fullBuild(person, [invoice])
     self.assertPayment(payment, invoice)
 
   def _test_twice_transaction(self):
-    person = self.portal.person_module.template_member\
-        .Base_createCloneDocument(batch_mode=1)
-    invoice = self.portal.accounting_module.template_sale_invoice_transaction\
-        .Base_createCloneDocument(batch_mode=1)
-    invoice.edit(destination_section=person.getRelativeUrl(),
-                 payment_mode=self.payment_mode)
+    person, invoice = self.makeSaleInvoiceTransaction()
     invoice.confirm()
     invoice.stop()
     self.tic()
@@ -135,19 +180,14 @@ class TestSlapOSEntityCreatePaymentMixin(SlapOSTestCaseMixin):
     self.assertPayment(payment, invoice)
 
   def _test_twice_indexation(self):
-    person = self.portal.person_module.template_member\
-        .Base_createCloneDocument(batch_mode=1)
-    invoice = self.portal.accounting_module.template_sale_invoice_transaction\
-        .Base_createCloneDocument(batch_mode=1)
-    invoice.edit(destination_section=person.getRelativeUrl(),
-                 payment_mode=self.payment_mode)
+    person, invoice = self.makeSaleInvoiceTransaction()
     invoice.confirm()
     invoice.stop()
     self.tic()
     payment = self.fullBuild(person, [invoice])
     self.commit()
     # Request was over, so emulate start a new one
-    self.resetPaymentTag(invoice)
+    self.resetPaymentTag(person)
 
     # Should we take into account that a payment is ongoing?
     payment2 = self.fullBuild(person, [invoice])
@@ -155,45 +195,32 @@ class TestSlapOSEntityCreatePaymentMixin(SlapOSTestCaseMixin):
     self.tic()
     self.assertPayment(payment, invoice)
     self.assertPayment(payment2, invoice)
-    
 
   def _test_cancelled_payment(self):
-    person = self.portal.person_module.template_member\
-        .Base_createCloneDocument(batch_mode=1)
-    invoice = self.portal.accounting_module.template_sale_invoice_transaction\
-        .Base_createCloneDocument(batch_mode=1)
-    invoice.edit(destination_section=person.getRelativeUrl(),
-                 payment_mode=self.payment_mode)
+    person, invoice = self.makeSaleInvoiceTransaction()
     invoice.confirm()
     invoice.stop()
     self.tic()
     payment = self.fullBuild(person, [invoice])
     payment.cancel()
     self.tic()
-    self.resetPaymentTag(invoice)
+    self.resetPaymentTag(person)
 
     payment = self.fullBuild(person, [invoice])
     self.tic()
     self.assertPayment(payment, invoice)
 
   def _test_two_invoices(self):
-    person = self.portal.person_module.template_member\
-        .Base_createCloneDocument(batch_mode=1)
-    invoice_1 = self.portal.accounting_module.template_sale_invoice_transaction\
-        .Base_createCloneDocument(batch_mode=1)
-    invoice_1.edit(destination_section=person.getRelativeUrl(),
-                 payment_mode=self.payment_mode)
+    person, invoice_1 = self.makeSaleInvoiceTransaction()
     invoice_1.confirm()
     invoice_1.stop()
-    invoice_2 = self.portal.accounting_module.template_sale_invoice_transaction\
-        .Base_createCloneDocument(batch_mode=1)
-    invoice_2.edit(destination_section=person.getRelativeUrl(),
-                 payment_mode=self.payment_mode)
+    _, invoice_2 = self.makeSaleInvoiceTransaction(person=person)
     invoice_2.confirm()
     invoice_2.stop()
     self.tic()
-    payment_list = [self.fullBuild(person, [invoice_1]),
-                    self.fullBuild(person, [invoice_2])]
+    payment_list = [self.fullBuild(person, [invoice_1])]
+    self.resetPaymentTag(person)
+    payment_list.append(self.fullBuild(person, [invoice_2]))
     self.tic()
 
     self.assertEqual(2, len(payment_list))
@@ -210,12 +237,7 @@ class TestSlapOSEntityCreatePaymentMixin(SlapOSTestCaseMixin):
     self.assertPayment(payment_2, invoice_2)
 
   def _test_two_lines(self):
-    person = self.portal.person_module.template_member\
-        .Base_createCloneDocument(batch_mode=1)
-    invoice = self.portal.accounting_module.template_sale_invoice_transaction\
-        .Base_createCloneDocument(batch_mode=1)
-    invoice.edit(destination_section=person.getRelativeUrl(),
-                 payment_mode=self.payment_mode)
+    person, invoice = self.makeSaleInvoiceTransaction()
     self.tic()
     default_source_uid = self.portal.restrictedTraverse(
         'account_module/receivable').getUid()

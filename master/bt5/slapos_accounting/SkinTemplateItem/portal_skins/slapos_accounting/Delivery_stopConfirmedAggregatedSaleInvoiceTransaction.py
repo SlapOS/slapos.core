@@ -1,36 +1,25 @@
 portal = context.getPortalObject()
+from DateTime import DateTime
+
 if context.getPortalType() != 'Sale Invoice Transaction':
   raise TypeError('Incorrect delivery.')
+
+now = DateTime()
 isTransitionPossible = portal.portal_workflow.isTransitionPossible
-if context.getSimulationState() == 'confirmed'\
-  and len(context.checkConsistency()) == 0\
-  and context.getCausalityState() == 'solved'\
-  and len(context.objectValues(portal_type="Sale Invoice Transaction Line")):
+if (context.getSimulationState() == 'confirmed')\
+  and (context.getLedger() == 'automated')\
+  and (context.getCausalityState() == 'solved')\
+  and (0 < len(context.objectValues(portal_type="Sale Invoice Transaction Line"))\
+  and (context.getStopDate(now) <= now)):
 
-  if context.getSpecialise() not in [
-      portal.portal_preferences.getPreferredAggregatedSaleTradeCondition(),
-      portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()]:
-    
-    trade_condition_uid_list = []
-    # search for user specific trade conditions 
-    root_trade_condition_uid_list = [
-      portal.restrictedTraverse(
-        portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()).getUid(),
-      portal.restrictedTraverse(
-        portal.portal_preferences.getPreferredAggregatedSaleTradeCondition()).getUid()]
+  if context.getSourcePayment("") == "":
+    context.setSourcePayment(context.AccountingTransaction_getSourcePaymentItemList()[-1][1])
 
-    trade_condition_uid_list.extend(root_trade_condition_uid_list)
-    trade_condition_uid_list.extend([
-      i.uid for i in portal.portal_catalog(
-      portal_type="Sale Trade Condition",
-      specialise__uid=root_trade_condition_uid_list,
-      validation_state="validated")])
+  assert context.getSourcePayment("") != ""
 
-    if context.getSpecialiseUid() not in trade_condition_uid_list:
-      return
-
-  comment = 'Stopped by alarm as all actions in confirmed state are ready.'
-  if isTransitionPossible(context, 'start'):
-    context.start(comment=comment)
-  if isTransitionPossible(context, 'stop'):
-    context.stop(comment=comment)
+  if (len(context.checkConsistency()) == 0):
+    comment = 'Stopped by alarm as all actions in confirmed state are ready.'
+    if isTransitionPossible(context, 'start'):
+      context.start(comment=comment)
+    if isTransitionPossible(context, 'stop'):
+      context.stop(comment=comment)

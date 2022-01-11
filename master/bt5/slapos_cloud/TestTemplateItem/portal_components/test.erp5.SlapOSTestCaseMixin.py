@@ -81,7 +81,7 @@ def withAbort(func):
 
 class TemporaryAlarmScript(object):
   """
-  Context manager for temporary python scripts
+  Context manager for temporary alarm python scripts
   """
   def __init__(self, portal, script_name, fake_return="", attribute=None):
     self.script_name = script_name
@@ -126,10 +126,6 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
   _custom_expected_module_list = []
   _custom_additional_bt5_list = []
 
-  # Expected organisation when generate invoices, tickets, etc...
-  expected_slapos_organisation = "organisation_module/slapos"
-  expected_zh_slapos_organisation = "organisation_module/slapos"
-
   # Used by testSlapOSERP5GroupRoleSecurity.TestSlapOSGroupRoleSecurityCoverage for
   # searh classes for assert overage
   security_group_role_test_id_list = ['test.erp5.testSlapOSERP5GroupRoleSecurity']
@@ -140,57 +136,67 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     self.changeSkin('View')
     self.portal.portal_activities.unsubscribe()
     self.new_id = self.generateNewId()
-    
-    # Define default Organisation
-    self.slapos_organisation = self.portal.restrictedTraverse(
-      self.expected_slapos_organisation
-    )
-
-    instance_template = self.portal.software_instance_module.template_software_instance		 
-    if len(instance_template.objectValues()):
-      instance_template.manage_delObjects(		 
-        ids=[i.getId() for i in instance_template.objectValues()])
-
 
   def beforeDumpExpectedConfiguration(self):
     """Overwrite this function on project context to tweak production focus tests"""
     pass
 
-  def makeCustomOrganisation(self, new_id=None, index=True,
-          price_currency="currency_module/EUR"):
-    # Create a custom organisation same as slapos, for ensure we can have
-    # multiple organisations working on the site
+  def addAccountingManagerAssignment(self, person):
+    person.newContent(
+      portal_type='Assignment',
+      function='accounting/manager'
+    ).open()
 
-    if new_id is None:
-      new_id = self.generateNewId()
-    
-    custom_organisation = self.portal.organisation_module.slapos.\
-                                 Base_createCloneDocument(batch_mode=1)
-    custom_organisation.edit(
-      title="organisation_live_test_%s" % new_id,
-      reference="organisation_live_test_%s" % new_id,
-      default_email_text="organisation_live_test_%s@example.org" % new_id,
-    )
+  def addSaleManagerAssignment(self, person):
+    person.newContent(
+      portal_type='Assignment',
+      function='sale/manager'
+    ).open()
 
-    custom_organisation.validate()
+  def addProjectProductionManagerAssignment(self, person, project):
+    person.newContent(
+      portal_type='Assignment',
+      destination_project_value=project,
+      function='production/manager'
+    ).open()
 
-    self.assertEqual(custom_organisation.getGroup(),
-                      "company")
+  def addProjectCustomerAssignment(self, person, project):
+    person.newContent(
+      portal_type='Assignment',
+      destination_project_value=project,
+      function='customer'
+    ).open()
 
-    self.assertEqual("currency_module/EUR",
-                     custom_organisation.getPriceCurrency())
+  def addProject(self, organisation=None, currency=None, person=None, is_accountable=False):
+    assert organisation is None
+    if person is None:
+      assert not is_accountable
+      project = self.portal.project_module.newContent(
+        portal_type='Project',
+        title='project-%s' % self.generateNewId()
+      )
+      project.validate()
+      return project
 
-    custom_organisation.setPriceCurrency(price_currency)
-    self.assertNotEqual(getattr(custom_organisation, "bank_account", None), None)
+    currency_relative_url = None
+    if currency is not None:
+      currency_relative_url = currency.getRelativeUrl()
 
-    if index:
-      custom_organisation.updateLocalRolesOnSecurityGroups()
-      custom_organisation.bank_account.updateLocalRolesOnSecurityGroups()
-  
-      transaction.commit()
-      custom_organisation.immediateReindexObject()
-      
-    return custom_organisation
+    # Action to submit project subscription
+    return person.Person_addVirtualMaster(
+      'project-%s' % self.generateNewId(),
+      is_accountable,
+      is_accountable,
+      currency_relative_url,
+      batch=1).getRelativeUrl()
+    """
+    service = self.portal.restrictedTraverse('service_module/slapos_virtual_master_subscription')
+    subscription_request = service.Resource_createSubscriptionRequest(person, None, None)
+    self.tic()
+
+    self.logout()
+
+    return subscription_request.getAggregate()"""
 
   def _addERP5Login(self, document, **kw):
     if document.getPortalType() != "Person":
@@ -219,12 +225,13 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     login.validate()
     return login
 
-  def makePerson(self, new_id=None, index=True, user=True):
+
+  def makePerson(self, project, new_id=None, index=True, user=True):
     if new_id is None:
       new_id = self.generateNewId()
     # Clone person document
-    person_user = self.portal.person_module.template_member.\
-                                 Base_createCloneDocument(batch_mode=1)
+    person_user = self.portal.person_module\
+                                 .newContent(portal_type="Person")
     person_user.edit(
       title="live_test_%s" % new_id,
       reference="live_test_%s" % new_id,
@@ -232,9 +239,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     )
 
     person_user.validate()
-    for assignment in person_user.contentValues(portal_type="Assignment"):
-      assignment.open()
-
+    self.addProjectCustomerAssignment(person_user, project)
 
     if user:
       login = self._addERP5Login(person_user)
@@ -247,7 +252,37 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
 
     return person_user
 
-  def _makeTree(self, requested_template_id='template_software_instance'):
+  def addInstanceTree(self, project=None, person=None, shared=False):
+    # XXX supposed to replace _makeTree
+    if project is None:
+      project = self.addProject()
+      self.tic()
+
+    new_id = self.generateNewId()
+
+    if person is None:
+      person = self.makePerson(project, new_id=new_id, index=False)
+    person_user = person
+
+    request_kw = dict(
+      software_release=self.generateNewSoftwareReleaseUrl(),
+      software_title=self.generateNewSoftwareTitle(),
+      software_type=self.generateNewSoftwareType(),
+      instance_xml=self.generateSafeXml(),
+      sla_xml=self.generateEmptyXml(),
+      shared=shared,
+      state="started",
+      project_reference=project.getReference()
+    )
+ 
+     # As the software url does not match any service, and any trade condition
+    # no instance is automatically created.
+    # except if we fake Item_getSubscriptionStatus
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      person_user.requestSoftwareInstance(**request_kw)
+    return person_user.REQUEST.get('request_instance_tree')
+
+  def _makeTree(self, project):
     new_id = self.generateNewId()
 
     self.request_kw = dict(
@@ -257,16 +292,17 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         instance_xml=self.generateSafeXml(),
         sla_xml=self.generateEmptyXml(),
         shared=False,
-        state="started"
+        state="started",
+        project_reference=project.getReference()
     )
 
-    self.person_user = self.makePerson(new_id=new_id, index=False)
+    self.person_user = self.makePerson(project, new_id=new_id, index=False)
     self.commit()
     # prepare part of tree
     self.instance_tree = self.portal.instance_tree_module\
-        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Instance Tree")
     self.software_instance = self.portal.software_instance_module\
-        [requested_template_id].Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Software Instance")
 
     self.instance_tree.edit(
         title=self.request_kw['software_title'],
@@ -277,13 +313,14 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         sla_xml=self.request_kw['sla_xml'],
         root_slave=self.request_kw['shared'],
         successor=self.software_instance.getRelativeUrl(),
-        destination_section=self.person_user.getRelativeUrl()
+        destination_section_value=self.person_user,
+        follow_up_value=project
     )
     self.instance_tree.validate()
     self.portal.portal_workflow._jumpToStateFor(self.instance_tree, 'start_requested')
 
     self.requested_software_instance = self.portal.software_instance_module\
-        .template_software_instance.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Software Instance")
     self.software_instance.edit(
         title=self.request_kw['software_title'],
         reference="TESTSI-%s" % new_id,
@@ -292,7 +329,10 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         text_content=self.request_kw['instance_xml'],
         sla_xml=self.request_kw['sla_xml'],
         specialise=self.instance_tree.getRelativeUrl(),
-        successor=self.requested_software_instance.getRelativeUrl()
+        successor=self.requested_software_instance.getRelativeUrl(),
+        follow_up_value=project,
+        ssl_key='foo',
+        ssl_certificate='bar'
     )
     self.portal.portal_workflow._jumpToStateFor(self.software_instance, 'start_requested')
     self.software_instance.validate()
@@ -306,23 +346,65 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         text_content=self.request_kw['instance_xml'],
         sla_xml=self.request_kw['sla_xml'],
         specialise=self.instance_tree.getRelativeUrl(),
+        follow_up_value=project,
+        ssl_key='foo',
+        ssl_certificate='bar'
     )
     self.portal.portal_workflow._jumpToStateFor(self.requested_software_instance, 'start_requested')
     self.requested_software_instance.validate()
     self.tic()
 
-  def _makeSlaveTree(self, requested_template_id='template_slave_instance'):
-    return self._makeTree(requested_template_id=requested_template_id)
+  def addComputeNodeAndPartition(self, project=None,
+                                 portal_type='Compute Node'):
+    # XXX replace _makeComputeNode
+    if project is None:
+      project = self.addProject()
+      self.tic()
 
-  def _makeComputeNode(self, owner=None, allocation_scope='open/public'):
-    self.compute_node = self.portal.compute_node_module.template_compute_node\
-        .Base_createCloneDocument(batch_mode=1)
+    edit_kw = {}
+    if portal_type == 'Remote Node':
+      # Be nice, and create remote user/project
+      remote_project = self.addProject()
+      remote_user = self.makePerson(remote_project)
+      edit_kw['destination_project_value'] = remote_project
+      edit_kw['destination_section_value'] = remote_user
+
+    reference = 'TESTCOMP-%s' % self.generateNewId()
+    compute_node = self.portal.compute_node_module.newContent(
+      portal_type=portal_type,
+      #allocation_scope=allocation_scope,
+      reference=reference,
+      title=reference,
+      follow_up_value=project,
+      **edit_kw
+    )
+    # The edit above will update capacity scope due the interaction workflow
+    # The line above force capacity scope to be open, keeping the previous
+    # behaviour.
+    compute_node.edit(capacity_scope='open')
+    compute_node.validate()
+
+    reference = 'TESTPART-%s' % self.generateNewId()
+    partition = compute_node.newContent(
+      portal_type='Compute Partition',
+      reference=reference,
+      title=reference
+    )
+    partition.markFree()
+    partition.validate()
+
+    return compute_node, partition
+
+  def _makeComputeNode(self, project, allocation_scope='open'):
+    self.compute_node = self.portal.compute_node_module\
+        .newContent(portal_type="Compute Node")
     reference = 'TESTCOMP-%s' % self.generateNewId()
     self.compute_node.edit(
-        allocation_scope=allocation_scope,
-        reference=reference,
-        title=reference
-        )
+      allocation_scope=allocation_scope,
+      reference=reference,
+      title=reference,
+      follow_up_value=project
+    )
     # The edit above will update capacity scope due the interaction workflow
     # The line above force capacity scope to be open, keeping the previous
     # behaviour.
@@ -337,11 +419,6 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     self.partition.validate()
     self.tic()
 
-    if owner is not None:
-      self.compute_node.edit(
-        source_administration_value=owner,
-      )
-
     return self.compute_node, self.partition
 
   def _makeComputerNetwork(self):
@@ -355,7 +432,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     self.tic()
     return self.computer_network
 
-  def _makeComplexComputeNode(self, person=None, with_slave=False):
+  def _makeComplexComputeNode(self, project, person=None, with_slave=False):
     for i in range(1, 5):
       id_ = 'partition%s' % i
       p = self.compute_node.newContent(portal_type='Compute Partition',
@@ -368,35 +445,38 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       p.validate()
 
     self.start_requested_software_installation = self.portal.software_installation_module\
-        .template_software_installation.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Software Installation")
     self.start_requested_software_installation.edit(
         url_string=self.generateNewSoftwareReleaseUrl(),
         aggregate=self.compute_node.getRelativeUrl(),
         reference='TESTSOFTINST-%s' % self.generateNewId(),
-        title='Start requested for %s' % self.compute_node.getTitle()
+        title='Start requested for %s' % self.compute_node.getTitle(),
+        follow_up_value=project
     )
     self.start_requested_software_installation.validate()
     self.start_requested_software_installation.requestStart()
 
     self.destroy_requested_software_installation = self.portal.software_installation_module\
-        .template_software_installation.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Software Installation")
     self.destroy_requested_software_installation.edit(
         url_string=self.generateNewSoftwareReleaseUrl(),
         aggregate=self.compute_node.getRelativeUrl(),
         reference='TESTSOFTINST-%s' % self.generateNewId(),
-        title='Destroy requested for %s' % self.compute_node.getTitle()
+        title='Destroy requested for %s' % self.compute_node.getTitle(),
+        follow_up_value=project
     )
     self.destroy_requested_software_installation.validate()
     self.destroy_requested_software_installation.requestStart()
     self.destroy_requested_software_installation.requestDestroy()
 
     self.destroyed_software_installation = self.portal.software_installation_module\
-        .template_software_installation.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Software Installation")
     self.destroyed_software_installation.edit(
         url_string=self.generateNewSoftwareReleaseUrl(),
         aggregate=self.compute_node.getRelativeUrl(),
         reference='TESTSOFTINST-%s' % self.generateNewId(),
-        title='Destroyed for %s' % self.compute_node.getTitle()
+        title='Destroyed for %s' % self.compute_node.getTitle(),
+        follow_up_value=project
     )
     self.destroyed_software_installation.validate()
     self.destroyed_software_installation.requestStart()
@@ -409,12 +489,13 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
 
     # prepare some trees
     instance_tree = self.portal.instance_tree_module\
-        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Instance Tree")
     instance_tree.validate()
     instance_tree.edit(
         title=self.generateNewSoftwareTitle(),
         reference="TESTSI-%s" % self.generateNewId(),
         destination_section_value=person,
+        follow_up_value=project
     )
     kw = dict(
       software_release=\
@@ -424,22 +505,25 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       sla_xml=self.generateSafeXml(),
       shared=False,
       software_title=instance_tree.getTitle(),
-      state='started'
+      state='started',
+      project_reference=project.getReference()
     )
     instance_tree.requestStart(**kw)
-    instance_tree.requestInstance(**kw)
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      instance_tree.requestInstance(**kw)
 
     self.start_requested_software_instance = instance_tree.getSuccessorValue()
     self.start_requested_software_instance.edit(aggregate=self.compute_node.partition1.getRelativeUrl())
 
     if with_slave:
       instance_tree = self.portal.instance_tree_module\
-          .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+          .newContent(portal_type="Instance Tree")
       instance_tree.validate()
       instance_tree.edit(
           title=self.generateNewSoftwareTitle(),
           reference="TESTSI-%s" % self.generateNewId(),
           destination_section_value=person,
+          follow_up_value=project
       )
       slave_kw = dict(
         software_release=kw['software_release'],
@@ -448,21 +532,24 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         sla_xml=self.generateSafeXml(),
         shared=True,
         software_title=instance_tree.getTitle(),
-        state='started'
+        state='started',
+        project_reference=project.getReference()
       )
       instance_tree.requestStart(**slave_kw)
-      instance_tree.requestInstance(**slave_kw)
+      with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+        instance_tree.requestInstance(**slave_kw)
 
       self.start_requested_slave_instance = instance_tree.getSuccessorValue()
       self.start_requested_slave_instance.edit(aggregate=self.compute_node.partition1.getRelativeUrl())
 
     instance_tree = self.portal.instance_tree_module\
-        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Instance Tree")
     instance_tree.validate()
     instance_tree.edit(
         title=self.generateNewSoftwareTitle(),
         reference="TESTSI-%s" % self.generateNewId(),
         destination_section_value=person,
+        follow_up_value=project
     )
     kw = dict(
       software_release=\
@@ -472,10 +559,12 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       sla_xml=self.generateSafeXml(),
       shared=False,
       software_title=instance_tree.getTitle(),
-      state='stopped'
+      state='stopped',
+      project_reference=project.getReference()
     )
     instance_tree.requestStop(**kw)
-    instance_tree.requestInstance(**kw)
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      instance_tree.requestInstance(**kw)
 
     self.stop_requested_software_instance = instance_tree.getSuccessorValue()
     self.stop_requested_software_instance.edit(
@@ -483,11 +572,12 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     )
 
     instance_tree = self.portal.instance_tree_module\
-        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Instance Tree")
     instance_tree.validate()
     instance_tree.edit(
         title=self.generateNewSoftwareTitle(),
         reference="TESTSI-%s" % self.generateNewId(),
+        follow_up_value=project
     )
     kw = dict(
       software_release=\
@@ -497,10 +587,12 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       sla_xml=self.generateSafeXml(),
       shared=False,
       software_title=instance_tree.getTitle(),
-      state='stopped'
+      state='stopped',
+      project_reference=project.getReference()
     )
     instance_tree.requestStop(**kw)
-    instance_tree.requestInstance(**kw)
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      instance_tree.requestInstance(**kw)
 
     kw['state'] = 'destroyed'
     instance_tree.requestDestroy(**kw)
@@ -512,11 +604,12 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     )
 
     instance_tree = self.portal.instance_tree_module\
-        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Instance Tree")
     instance_tree.validate()
     instance_tree.edit(
         title=self.generateNewSoftwareTitle(),
         reference="TESTSI-%s" % self.generateNewId(),
+        follow_up_value=project
     )
     kw = dict(
       software_release=\
@@ -526,10 +619,12 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       sla_xml=self.generateSafeXml(),
       shared=False,
       software_title=instance_tree.getTitle(),
-      state='stopped'
+      state='stopped',
+      project_reference=project.getReference()
     )
     instance_tree.requestStop(**kw)
-    instance_tree.requestInstance(**kw)
+    with TemporaryAlarmScript(self.portal, 'Item_getSubscriptionStatus', "'subscribed'"):
+      instance_tree.requestInstance(**kw)
 
     kw['state'] = 'destroyed'
     instance_tree.requestDestroy(**kw)
@@ -539,7 +634,8 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         aggregate=self.compute_node.partition4.getRelativeUrl()
     )
     self.destroyed_software_instance.requestDestroy(**kw)
-    self.destroyed_software_instance.invalidate()
+    # Do not invalidate, as it will unlink the partition
+    #self.destroyed_software_instance.invalidate()
 
     self.tic()
     if with_slave:
@@ -548,40 +644,272 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       self.tic()
     self._cleaupREQUEST()
 
-  def _makeSoftwareProduct(self, new_id=None):
+  def _makeSoftwareProduct(self, project, new_id=None, url=None, software_type='foobar'):
     if new_id is None:
       new_id = self.generateNewId()
-    software_product = self.portal.software_product_module\
-      .template_software_product.Base_createCloneDocument(batch_mode=1)
-    software_product.edit(
+    if url is None:
+      url = self.generateNewSoftwareReleaseUrl()
+    software_product = self.portal.software_product_module.newContent(
       reference='TESTSOFTPROD-%s' % new_id,
-      title='Test software product %s' % new_id
+      title='Test software product %s' % new_id,
+      follow_up_value=project
+    )
+    software_product.newContent(
+      portal_type='Software Product Release Variation',
+      url_string=url
+    )
+    software_product.newContent(
+      portal_type='Software Product Type Variation',
+      reference=software_type
     )
     software_product.publish()
     return software_product
 
-  def _makeSoftwareRelease(self, new_id=None):
-    if new_id is None:
-      new_id = self.generateNewId()
+  def _makeSoftwareRelease(self, software_product, url=None):
+    if url is None:
+      url = self.generateNewSoftwareReleaseUrl()
+    return software_product.newContent(
+      portal_type='Software Product Release Variation',
+      url_string=url,
+    )
 
-    software_release = self.portal.software_release_module\
-      .template_software_release.Base_createCloneDocument(batch_mode=1)
-    software_release.edit(
-      url_string=self.generateNewSoftwareReleaseUrl(),
-      reference='TESTSOFTRELS-%s' % new_id,
-      title='Start requested for %s' % new_id
+  def _makeSoftwareType(self, software_product):
+    return software_product.newContent(
+      portal_type='Software Product Type Variation',
+      url_string='type%s' % self.generateNewId(),
     )
-    software_release.release()
-    return software_release
-  
-  def _makeCustomSoftwareRelease(self, software_product_url, software_url):
-    software_release = self._makeSoftwareRelease()
-    software_release.edit(
-        aggregate_value=software_product_url,
-        url_string=software_url
+
+  @simulate('Item_getSubscriptionStatus', '*args, **kwargs', 'return "subscribed"')
+  def bootstrapAllocableInstanceTree(self, allocation_state='possible', shared=False, node="compute",
+                                     is_accountable=False, base_price=None, has_organisation=False):
+    if allocation_state not in ('impossible', 'possible', 'allocated'):
+      raise ValueError('Not supported allocation_state: %s' % allocation_state)
+    project = self.addProject(
+      #is_accountable=is_accountable
     )
-    software_release.publish()
-    return software_release
+    person = self.makePerson(project)
+    if has_organisation:
+      organisation = self.portal.organisation_module.newContent(
+        portal_type="Organisation",
+        title="customer-seller-%s" % self.generateNewId()
+      )
+      organisation.validate()
+      person.edit(career_subordination_value=organisation)
+    software_product = self._makeSoftwareProduct(project)
+    release_variation = software_product.contentValues(portal_type='Software Product Release Variation')[0]
+    type_variation = software_product.contentValues(portal_type='Software Product Type Variation')[0]
+
+    if is_accountable:
+      currency = self.portal.currency_module.newContent(
+        portal_type="Currency",
+        title="test %s" % self.generateNewId()
+      )
+      currency.validate()
+      seller_organisation = self.portal.organisation_module.newContent(
+        portal_type="Organisation",
+        title="seller-%s" % self.generateNewId()
+      )
+      seller_bank_account = seller_organisation.newContent(
+        portal_type="Bank Account",
+        title="test_bank_account_%s" % self.generateNewId(),
+        price_currency_value=currency
+      )
+      seller_bank_account.validate()
+      seller_organisation.validate()
+      sale_trade_condition = self.portal.sale_trade_condition_module.newContent(
+        portal_type="Sale Trade Condition",
+        trade_condition_type="instance_tree",
+        source_section_value=seller_organisation,
+        source_project_value=project,
+        price_currency_value=currency,
+        specialise="business_process_module/slapos_ultimate_business_process"
+      )
+      sale_trade_condition.validate()
+      if (base_price is not None):
+        sale_supply = self.portal.sale_supply_module.newContent(
+          portal_type="Sale Supply",
+          destination_project_value=project,
+          price_currency_value=currency
+        )
+        sale_supply.newContent(
+          portal_type="Sale Supply Line",
+          base_price=base_price,
+          resource_value=software_product
+        )
+        sale_supply.validate()
+
+    self.tic()
+    partition = None
+    if node == "compute":
+      person.requestComputeNode(compute_node_title='test compute node',
+                                project_reference=project.getReference())
+      self.tic()
+      compute_node = self.portal.portal_catalog.getResultValue(
+        portal_type='Compute Node',
+        reference=self.portal.REQUEST.get('compute_node_reference')
+      )
+      assert compute_node is not None
+      # The edit above will update capacity scope due the interaction workflow
+      # The line above force capacity scope to be open, keeping the previous
+      # behaviour.
+      compute_node.edit(capacity_scope='open')
+    elif node == "remote":
+      remote_project = self.addProject(is_accountable=False)
+      compute_node = self.portal.compute_node_module.newContent(
+        portal_type="Remote Node",
+        follow_up_value=project,
+        destination_project_value=remote_project,
+        destination_section_value=person
+      )
+    elif node == "instance":
+      compute_node = self.portal.compute_node_module.newContent(
+        portal_type="Instance Node",
+        follow_up_value=project
+      )
+    else:
+      raise ValueError("Unsupported node value: %s" % node)
+
+    request_kw = dict(
+      software_release=release_variation.getUrlString(),
+      software_type=type_variation.getTitle(),
+      instance_xml=self.generateSafeXml(),
+      sla_xml=self.generateEmptyXml(),
+      shared=shared,
+      software_title='test tree',
+      state='started',
+      project_reference=project.getReference()
+    )
+    person.requestSoftwareInstance(**request_kw)
+    instance_tree = self.portal.REQUEST.get('request_instance_tree')
+
+    if allocation_state in ('possible', 'allocated'):
+      if (node == "instance") and (shared):
+        real_compute_node = self.portal.compute_node_module.newContent(
+          portal_type="Compute Node",
+          follow_up_value=project,
+          reference='TEST-%s' % self.generateNewId(),
+          allocation_scope="open",
+          capacity_scope='open'
+        )
+        # The edit above will update capacity scope due the interaction workflow
+        # The line above force capacity scope to be open, keeping the previous
+        # behaviour.
+        real_compute_node.edit(capacity_scope='open')
+        real_compute_node.validate()
+        partition = real_compute_node.newContent(
+          portal_type='Compute Partition',
+          reference='reference%s' % self.generateNewId()
+        )
+        node_instance_tree = self.portal.instance_tree_module.newContent(
+          title='TEST-%s' % self.generateNewId(),
+        )
+        software_instance = self.portal.software_instance_module.newContent(
+          portal_type="Software Instance",
+          follow_up_value=project,
+          specialise_value=node_instance_tree,
+          url_string=release_variation.getUrlString(),
+          title='TEST-%s' % self.generateNewId(),
+          reference='TEST-%s' % self.generateNewId(),
+          source_reference='TEST-%s' % self.generateNewId(),
+          destination_reference='TEST-%s' % self.generateNewId(),
+          ssl_certificate='TEST-%s' % self.generateNewId(),
+          ssl_key='TEST-%s' % self.generateNewId(),
+        )
+        self.tic()
+        compute_node.edit(specialise_value=software_instance)
+        software_instance.edit(aggregate_value=partition)
+        self.portal.portal_workflow._jumpToStateFor(software_instance, 'start_requested')
+        self.portal.portal_workflow._jumpToStateFor(software_instance, 'validated')
+        partition.validate()
+        partition.markFree()
+        partition.markBusy()
+      elif (node == "instance") and (not shared):
+        raise NotImplementedError('can not allocate on instance node')
+      else:
+        partition = compute_node.newContent(
+          portal_type='Compute Partition',
+          reference='reference%s' % self.generateNewId()
+        )
+
+        partition.validate()
+        partition.markFree()
+
+    #compute_node.validate()
+
+    if allocation_state == 'allocated':
+      instance = instance_tree.getSuccessorValue()
+      instance.edit(aggregate_value=partition)
+      if not ((node == "instance") and (shared)):
+        partition.markBusy()
+
+    # create fake open order, to bypass Service_getSubscriptionStatus
+    subscrible_item_list = [instance_tree]
+    if partition is not None:
+      subscrible_item_list.append(partition.getParentValue())
+    for item in subscrible_item_list:
+      open_order = self.portal.open_sale_order_module.newContent(
+        portal_type="Open Sale Order",
+        ledger="automated",
+        destination_section_value=person
+      )
+      open_order.newContent(
+        aggregate_value=item
+      )
+      self.portal.portal_workflow._jumpToStateFor(open_order, 'validated')
+
+    self.tic()
+    return software_product, release_variation, type_variation, compute_node, partition, instance_tree
+
+  def addAllocationSupply(self, title, node, software_product,
+                          software_release, software_type,
+                          destination_value=None,
+                          is_slave_on_same_instance_tree_allocable=False,
+                          disable_alarm=False):
+    allocation_supply = self.portal.allocation_supply_module.newContent(
+      portal_type="Allocation Supply",
+      title=title,
+      aggregate_value=node,
+      destination_value=destination_value,
+      destination_project_value=software_product.getFollowUpValue(),
+      slave_on_same_instance_tree_allocable=is_slave_on_same_instance_tree_allocable
+    )
+    resource_vcl = [
+      'software_release/%s' % software_release.getRelativeUrl(),
+      'software_type/%s' % software_type.getRelativeUrl()
+    ]
+    resource_vcl.sort()
+    allocation_supply_line = allocation_supply.newContent(
+      portal_type="Allocation Supply Line",
+      resource_value=software_product,
+    )
+    allocation_supply_line.edit(
+      p_variation_base_category_list=allocation_supply_line.getVariationRangeBaseCategoryList()
+    )
+    base_id = 'path'
+    allocation_supply_line.setCellRange(
+      base_id=base_id,
+      *allocation_supply_line.SupplyLine_asCellRange(base_id=base_id)
+    )
+    #cell_key = list(allocation_supply_line.getCellKeyList(base_id=base_id))[0]
+    cell_key = resource_vcl
+    allocation_supply_cell = allocation_supply_line.newCell(
+      base_id=base_id,
+      portal_type='Allocation Supply Cell',
+      *cell_key
+    )
+    allocation_supply_cell.edit(
+      mapped_value_property_list=['allocable'],
+      allocable=True,
+      predicate_category_list=cell_key,
+      variation_category_list=cell_key
+    )
+    if disable_alarm:
+      # disable generation of Upgrade Decision
+      with TemporaryAlarmScript(self.portal, 'Base_reindexAndSenseAlarm', "'disabled'"):
+        allocation_supply.validate()
+    else:
+      allocation_supply.validate()
+    return allocation_supply
 
   def generateNewSoftwareReleaseUrl(self):
     return 'http://example.org/têst%s.cfg' % self.generateNewId()
@@ -635,16 +963,20 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
         portal_type='Wechat Event',
         reference='PAY-%s' % self.generateNewId())
 
-  def createStoppedSaleInvoiceTransaction(self, destination_section=None, price=2, payment_mode="payzen"):
+  def createStoppedSaleInvoiceTransaction(self, destination_section_value=None,
+                                          destination_project_value=None,
+                                          price=2, payment_mode="payzen"):
     new_source_reference = self.generateNewId()
     new_destination_reference = self.generateNewId()
     invoice = self.createSaleInvoiceTransaction(
       start_date=DateTime(),
       source_reference=new_source_reference,
       destination_reference=new_destination_reference,
-      destination_section=destination_section,
+      destination_section_value=destination_section_value,
+      destination_project_value=destination_project_value,
       payment_mode=payment_mode,
-      specialise="sale_trade_condition_module/slapos_aggregated_trade_condition",
+      ledger="automated",
+      #specialise="sale_trade_condition_module/XXX",
       created_by_builder=1 # to prevent init script to create lines
     )
     self.portal.portal_workflow._jumpToStateFor(invoice, 'stopped')
@@ -695,185 +1027,6 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
     self.assertNotEqual(
         'Visited by %s' % script_name,
         content)
-
-  def restoreAccountingTemplatesOnPreferences(self):
-    self.login()
-    system_preference = self.portal.portal_preferences.slapos_default_system_preference
-    system_preference.edit(
-      preferred_aggregated_consumption_sale_trade_condition=\
-        'sale_trade_condition_module/slapos_aggregated_consumption_trade_condition',
-      preferred_aggregated_sale_trade_condition=\
-        'sale_trade_condition_module/slapos_aggregated_trade_condition',
-      preferred_aggregated_subscription_sale_trade_condition=\
-        'sale_trade_condition_module/slapos_aggregated_subscription_trade_condition',
-      preferred_default_pre_payment_template=\
-        'accounting_module/slapos_pre_payment_template',
-      preferred_instance_delivery_template=\
-        'sale_packing_list_module/slapos_accounting_instance_delivery_template',
-      preferred_open_sale_order_line_template=\
-        'open_sale_order_module/slapos_accounting_open_sale_order_line_template/slapos_accounting_open_sale_order_line_template',
-      preferred_open_sale_order_template=\
-        'open_sale_order_module/slapos_accounting_open_sale_order_template',
-      preferred_zh_pre_payment_template=\
-        'accounting_module/slapos_wechat_pre_payment_template',
-      preferred_zh_pre_payment_subscription_invoice_template=\
-        'accounting_module/template_wechat_pre_payment_subscription_sale_invoice_transaction',
-      preferred_default_pre_payment_subscription_invoice_template=\
-        'accounting_module/template_pre_payment_subscription_sale_invoice_transaction'
-
-    )
-    self.tic()
-
-  def redefineAccountingTemplatesonPreferences(self, price_currency="currency_module/EUR"):
-    # Define a new set of templates and change organisation on them, in this way tests should
-    # behave the same.
-    self.login()
-    organisation = self.makeCustomOrganisation(price_currency=price_currency)
-    accounting_module = self.portal.accounting_module
-    sale_packing_list_module = self.portal.sale_packing_list_module
-
-    preferred_zh_pre_payment_template = \
-      accounting_module.slapos_wechat_pre_payment_template.Base_createCloneDocument(batch_mode=1)
-    preferred_zh_pre_payment_template.edit(
-      source_section_value = organisation,
-      source_payment_value=organisation.bank_account
-    )
-    
-    preferred_default_pre_payment_template = \
-      accounting_module.slapos_pre_payment_template.Base_createCloneDocument(batch_mode=1)
-    preferred_default_pre_payment_template.edit(
-      source_section_value = organisation,
-      source_payment_value=organisation.bank_account
-    )
-
-    preferred_zh_pre_payment_subscription_invoice_template = \
-      accounting_module.template_wechat_pre_payment_subscription_sale_invoice_transaction.Base_createCloneDocument(batch_mode=1)
-
-    preferred_zh_pre_payment_subscription_invoice_template.edit(
-      source_section_value = organisation,
-      source_value=organisation
-    )
-    preferred_default_pre_payment_subscription_invoice_template = \
-      accounting_module.template_pre_payment_subscription_sale_invoice_transaction.Base_createCloneDocument(batch_mode=1)
-    
-    preferred_default_pre_payment_subscription_invoice_template.edit(
-      source_section_value = organisation,
-      source_value=organisation
-    )
-
-    preferred_instance_delivery_template = \
-      sale_packing_list_module.slapos_accounting_instance_delivery_template.Base_createCloneDocument(batch_mode=1)
-
-    preferred_instance_delivery_template.edit(
-      source_section_value = organisation,
-      source_value=organisation
-    )
-
-    open_sale_order_module = self.portal.open_sale_order_module
-
-    preferred_open_sale_order_template=\
-        open_sale_order_module.slapos_accounting_open_sale_order_template.Base_createCloneDocument(batch_mode=1)
-
-    preferred_open_sale_order_template.edit(
-      source_section_value = organisation,
-      source_value=organisation
-    )
-
-    system_preference = self.portal.portal_preferences.slapos_default_system_preference
-
-    system_preference.edit(
-      preferred_default_pre_payment_template=preferred_default_pre_payment_template.getRelativeUrl(),
-      preferred_zh_pre_payment_template=preferred_zh_pre_payment_template.getRelativeUrl(),
-      preferred_zh_pre_payment_subscription_invoice_template=\
-        preferred_zh_pre_payment_subscription_invoice_template.getRelativeUrl(),
-      preferred_default_pre_payment_subscription_invoice_template=\
-        preferred_default_pre_payment_subscription_invoice_template.getRelativeUrl(),
-      preferred_instance_delivery_template=\
-        preferred_instance_delivery_template.getRelativeUrl(),
-      preferred_open_sale_order_template=\
-        preferred_open_sale_order_template.getRelativeUrl()
-    )
-    self.tic()
-
-    return organisation
-
-  def redefineAccountingTemplatesonPreferencesWithDualOrganisation(self):
-    # Define a new set of templates and change organisation on them, in this way tests should
-    # behave the same.
-    self.login()
-    fr_organisation = self.makeCustomOrganisation()
-    zh_organisation = self.makeCustomOrganisation(
-            price_currency="currency_module/CNY")
-
-    # Update Price currency for Chinese company
-    
-    accounting_module = self.portal.accounting_module
-    sale_packing_list_module = self.portal.sale_packing_list_module
-
-    preferred_zh_pre_payment_template = \
-      accounting_module.slapos_wechat_pre_payment_template.Base_createCloneDocument(batch_mode=1)
-    preferred_zh_pre_payment_template.edit(
-      source_section_value = zh_organisation,
-      source_payment_value=zh_organisation.bank_account
-    )
-    
-    preferred_default_pre_payment_template = \
-      accounting_module.slapos_pre_payment_template.Base_createCloneDocument(batch_mode=1)
-    preferred_default_pre_payment_template.edit(
-      source_section_value = fr_organisation,
-      source_payment_value=fr_organisation.bank_account
-    )
-
-    preferred_zh_pre_payment_subscription_invoice_template = \
-      accounting_module.template_wechat_pre_payment_subscription_sale_invoice_transaction.Base_createCloneDocument(batch_mode=1)
-
-    preferred_zh_pre_payment_subscription_invoice_template.edit(
-      source_section_value = zh_organisation,
-      source_value=zh_organisation
-    )
-    preferred_default_pre_payment_subscription_invoice_template = \
-      accounting_module.template_pre_payment_subscription_sale_invoice_transaction.Base_createCloneDocument(batch_mode=1)
-    
-    preferred_default_pre_payment_subscription_invoice_template.edit(
-      source_section_value=fr_organisation,
-      source_value=fr_organisation
-    )
-
-    preferred_instance_delivery_template = \
-      sale_packing_list_module.slapos_accounting_instance_delivery_template.Base_createCloneDocument(batch_mode=1)
-
-    preferred_instance_delivery_template.edit(
-      source_section_value=fr_organisation,
-      source_value=fr_organisation
-    )
-
-    open_sale_order_module = self.portal.open_sale_order_module
-
-    preferred_open_sale_order_template=\
-        open_sale_order_module.slapos_accounting_open_sale_order_template.Base_createCloneDocument(batch_mode=1)
-
-    preferred_open_sale_order_template.edit(
-      source_section_value=fr_organisation,
-      source_value=fr_organisation
-    )
-
-    system_preference = self.portal.portal_preferences.slapos_default_system_preference
-
-    system_preference.edit(
-      preferred_default_pre_payment_template=preferred_default_pre_payment_template.getRelativeUrl(),
-      preferred_zh_pre_payment_template=preferred_zh_pre_payment_template.getRelativeUrl(),
-      preferred_zh_pre_payment_subscription_invoice_template=\
-        preferred_zh_pre_payment_subscription_invoice_template.getRelativeUrl(),
-      preferred_default_pre_payment_subscription_invoice_template=\
-        preferred_default_pre_payment_subscription_invoice_template.getRelativeUrl(),
-      preferred_instance_delivery_template=\
-        preferred_instance_delivery_template.getRelativeUrl(),
-      preferred_open_sale_order_template=\
-        preferred_open_sale_order_template.getRelativeUrl()
-    )
-    self.tic()
-
-    return fr_organisation, zh_organisation
 
 
 class SlapOSTestCaseMixinWithAbort(SlapOSTestCaseMixin):

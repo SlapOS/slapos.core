@@ -18,7 +18,7 @@ assert compute_partition.getPortalType() == "Compute Partition"
 instance.edit(aggregate_value=compute_partition, activate_kw={'tag': 'allocate_%s' % compute_partition_url})
 
 compute_node = compute_partition.getParentValue()
-
-compute_node.ComputeNode_checkAndUpdateCapacityScope(
-  allocated_instance=instance
-)
+if compute_node.getPortalType() == 'Compute Node':
+  compute_node.ComputeNode_checkAndUpdateCapacityScope(
+    allocated_instance=instance
+  )

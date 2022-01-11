@@ -83,15 +83,21 @@
         </item>
         <item>
             <key> <string>preferred_aggregated_consumption_sale_trade_condition</string> </key>
-            <value> <string>sale_trade_condition_module/slapos_aggregated_consumption_trade_condition</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>preferred_aggregated_sale_trade_condition</string> </key>
-            <value> <string>sale_trade_condition_module/slapos_aggregated_trade_condition</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>preferred_aggregated_subscription_sale_trade_condition</string> </key>
-            <value> <string>sale_trade_condition_module/slapos_aggregated_subscription_trade_condition</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>preferred_authentication_failure_block_duration</string> </key>
@@ -112,12 +118,16 @@
             </value>
         </item>
         <item>
-            <key> <string>preferred_credential_alarm_automatic_call</string> </key>
+            <key> <string>preferred_cloud_contract_enabled</string> </key>
             <value> <int>1</int> </value>
         </item>
         <item>
+            <key> <string>preferred_credential_alarm_automatic_call</string> </key>
+            <value> <int>0</int> </value>
+        </item>
+        <item>
             <key> <string>preferred_credential_recovery_automatic_approval</string> </key>
-            <value> <int>1</int> </value>
+            <value> <int>0</int> </value>
         </item>
         <item>
             <key> <string>preferred_credential_request_automatic_approval</string> </key>
@@ -129,13 +139,15 @@
         </item>
         <item>
             <key> <string>preferred_default_pre_payment_template</string> </key>
-            <value> <string>accounting_module/slapos_pre_payment_template</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>preferred_document_conversion_server_url</string> </key>
             <value>
               <tuple>
-                <string>https://cloudooo.erp5.net/</string>
+                <string>https://cloudooo.erp5.net/,https://cloudooo1.erp5.net/</string>
               </tuple>
             </value>
         </item>
@@ -175,19 +187,9 @@
         </item>
         <item>
             <key> <string>preferred_instance_delivery_template</string> </key>
-            <value> <string>sale_packing_list_module/slapos_accounting_instance_delivery_template</string> </value>
-        </item>
-        <item>
-            <key> <string>preferred_instance_destroy_movement_template</string> </key>
-            <value> <string>sale_packing_list_module/slapos_accounting_instance_delivery_line_template/destroy</string> </value>
-        </item>
-        <item>
-            <key> <string>preferred_instance_setup_movement_template</string> </key>
-            <value> <string>sale_packing_list_module/slapos_accounting_instance_delivery_line_template/setup</string> </value>
-        </item>
-        <item>
-            <key> <string>preferred_instance_update_movement_template</string> </key>
-            <value> <string>sale_packing_list_module/slapos_accounting_instance_delivery_line_template/update</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>preferred_max_authentication_failure</string> </key>
@@ -284,7 +286,9 @@
         </item>
         <item>
             <key> <string>preferred_regularisation_request_template</string> </key>
-            <value> <string>regularisation_request_module/slapos_crm_regularisation_request_template</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>preferred_regularisation_request_use</string> </key>
@@ -312,7 +316,8 @@
             <key> <string>preferred_subscription_assignment_category</string> </key>
             <value>
               <tuple>
-                <string>role/member</string>
+                <string>function/customer</string>
+                <string>role/client</string>
               </tuple>
             </value>
         </item>
@@ -332,7 +337,9 @@
         </item>
         <item>
             <key> <string>preferred_support_request_template</string> </key>
-            <value> <string>support_request_module/slapos_crm_support_request_template</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>preferred_support_request_use</string> </key>
@@ -352,7 +359,9 @@
         </item>
         <item>
             <key> <string>preferred_web_message_template</string> </key>
-            <value> <string>event_module/slapos_crm_web_message_template</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>preferred_wechat_integration_site</string> </key>
@@ -364,11 +373,15 @@
         </item>
         <item>
             <key> <string>preferred_zh_pre_payment_subscription_invoice_template</string> </key>
-            <value> <string>accounting_module/template_wechat_pre_payment_subscription_sale_invoice_transaction</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>preferred_zh_pre_payment_template</string> </key>
-            <value> <string>accounting_module/slapos_wechat_pre_payment_template</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>preffered_force_username_check_in_password</string> </key>

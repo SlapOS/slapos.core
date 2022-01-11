@@ -19,9 +19,7 @@
                 <string>destination/portal_workflow/compute_node_slap_interface_workflow/transition_approve_compute_node_registration</string>
                 <string>destination/portal_workflow/compute_node_slap_interface_workflow/transition_generate_certificate</string>
                 <string>destination/portal_workflow/compute_node_slap_interface_workflow/transition_report_compute_node_bang</string>
-                <string>destination/portal_workflow/compute_node_slap_interface_workflow/transition_request_compute_node_registration</string>
                 <string>destination/portal_workflow/compute_node_slap_interface_workflow/transition_request_software_release</string>
-                <string>destination/portal_workflow/compute_node_slap_interface_workflow/transition_request_transfer</string>
                 <string>destination/portal_workflow/compute_node_slap_interface_workflow/transition_revoke_certificate</string>
               </tuple>
             </value>

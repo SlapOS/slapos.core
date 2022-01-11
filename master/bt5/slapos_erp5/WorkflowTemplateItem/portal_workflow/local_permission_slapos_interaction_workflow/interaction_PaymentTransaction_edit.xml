@@ -51,6 +51,7 @@
             <value>
               <tuple>
                 <string>_setDestinationSection.*</string>
+                <string>_setLedger.*</string>
               </tuple>
             </value>
         </item>

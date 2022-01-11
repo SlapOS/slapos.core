@@ -1,6 +1,18 @@
 <workflow_chain>
  <chain>
+  <type>Accounting Transaction</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Acknowledgement</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Allocation Supply</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Balance Transaction</type>
   <workflow>local_permission_slapos_interaction_workflow</workflow>
  </chain>
  <chain>
@@ -26,6 +38,14 @@
  <chain>
   <type>Delivery Cell</type>
   <workflow>-immobilisation_movement_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Hosting Subscription</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Instance Node</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
  </chain>
  <chain>
   <type>Instance Tree</type>
@@ -60,6 +80,14 @@
   <workflow>edit_workflow, validation_workflow</workflow>
  </chain>
  <chain>
+  <type>Mail Message</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Open Sale Order</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Organisation</type>
   <workflow>local_permission_slapos_interaction_workflow</workflow>
  </chain>
@@ -80,6 +108,10 @@
   <workflow>local_permission_slapos_interaction_workflow</workflow>
  </chain>
  <chain>
+  <type>Purchase Invoice Transaction</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Purchase Packing List</type>
   <workflow>-immobilisation_movement_interaction_workflow</workflow>
  </chain>
@@ -90,6 +122,14 @@
  <chain>
   <type>Purchase Packing List Line</type>
   <workflow>-immobilisation_movement_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Regularisation Request</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Remote Node</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
  </chain>
  <chain>
   <type>Restricted Access Token</type>
@@ -112,6 +152,14 @@
   <workflow>-immobilisation_movement_interaction_workflow</workflow>
  </chain>
  <chain>
+  <type>Sale Supply</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Sale Trade Condition</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Slave Instance</type>
   <workflow>local_permission_slapos_interaction_workflow</workflow>
  </chain>
@@ -121,6 +169,26 @@
  </chain>
  <chain>
   <type>Software Instance</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Software Product</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Subscription Request</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Support Request</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Upgrade Decision</type>
+  <workflow>local_permission_slapos_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Web Message</type>
   <workflow>local_permission_slapos_interaction_workflow</workflow>
  </chain>
  <chain>

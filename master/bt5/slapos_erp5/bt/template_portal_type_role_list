@@ -5,24 +5,22 @@ Accounting Period
 Accounting Transaction
 Accounting Transaction Module
 Acknowledgement
+Allocation Supply
+Allocation Supply Module
 Assignment
 Balance Transaction
 Bank Account
 Business Process
 Business Process Module
-Campaign
-Campaign Module
 Cash Register
 Certificate Login
 Cloud Contract
 Cloud Contract Module
 Compute Node
 Compute Node Module
-Compute Partition
 Computer Consumption TioXML File
 Computer Model
 Computer Model Module
-Computer Module
 Computer Network
 Computer Network Module
 Consumption Document Module
@@ -31,22 +29,6 @@ Credential Update Module
 Credit Card
 Currency
 Currency Module
-Data Array
-Data Array Module
-Data Ingestion
-Data Ingestion Module
-Data Mapping
-Data Mapping Module
-Data Operation
-Data Operation Module
-Data Set
-Data Set Module
-Data Stream
-Data Stream Module
-Data Supply
-Data Supply Module
-Data Transformation
-Data Transformation Module
 Document Ingestion Module
 Document Module
 ERP5 Login
@@ -54,8 +36,11 @@ Event Module
 Facebook Login
 Fax Message
 Google Login
+Hosting Subscription
+Hosting Subscription Module
 Incident Response
 Incident Response Module
+Instance Node
 Instance Tree
 Instance Tree Module
 Integration Site
@@ -77,18 +62,18 @@ Payzen Event
 Person
 Person Module
 Phone Call
-Product
-Product Module
 Project
 Project Module
 Purchase Invoice Transaction
-Query
 Regularisation Request
 Regularisation Request Module
+Remote Node
 Restricted Access Token
 Sale Invoice Transaction
 Sale Packing List
 Sale Packing List Module
+Sale Supply
+Sale Supply Module
 Sale Trade Condition
 Sale Trade Condition Module
 Service
@@ -102,10 +87,6 @@ Software Instance
 Software Instance Module
 Software Product
 Software Product Module
-Software Release
-Software Release Module
-Subscription Condition
-Subscription Condition Module
 Subscription Request
 Subscription Request Module
 Support Request

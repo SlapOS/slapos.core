@@ -1,35 +1,32 @@
 <type_roles>
-  <role id='Assignor'>
-   <property id='title'>Group company</property>
-   <multi_property id='categories'>local_role_group/group</multi_property>
-   <multi_property id='category'>group/company</multi_property>
-   <multi_property id='base_category'>group</multi_property>
-  </role>
-  <role id='Auditor'>
-   <property id='title'>Member</property>
-   <property id='description'>User can only see SlapOS company for invoice purposes.</property>
-   <property id='condition'>python: here.getRole() == "admin"</property>
-   <multi_property id='category'>role/member</multi_property>
-   <multi_property id='base_category'>role</multi_property>
-  </role>
   <role id='Assignee'>
-   <property id='title'>Organisation Member</property>
-   <property id='condition'>python: here.getReference() is not None</property>
-   <property id='base_category_script'>ERP5Type_getSecurityCategoryFromSelf</property>
-   <multi_property id='categories'>local_role_group/organisation</multi_property>
-   <multi_property id='base_category'>destination</multi_property>
+   <property id='title'>Accountant Agent</property>
+   <multi_property id='categories'>local_role_group/function</multi_property>
+   <multi_property id='category'>function/accounting/agent</multi_property>
+   <multi_property id='base_category'>function</multi_property>
   </role>
-  <role id='Assignee; Owner'>
-   <property id='title'>Person Owner</property>
-   <property id='description'>XXXX Review this later</property>
-   <property id='base_category_script'>ERP5Type_acquireSecurityFromOwner</property>
-   <multi_property id='categories'>local_role_group/user</multi_property>
-   <multi_property id='base_category'>source</multi_property>
+  <role id='Assignor'>
+   <property id='title'>Accountant Manager</property>
+   <multi_property id='categories'>local_role_group/function</multi_property>
+   <multi_property id='category'>function/accounting/manager</multi_property>
+   <multi_property id='base_category'>function</multi_property>
   </role>
   <role id='Auditor'>
    <property id='title'>Person Shadow</property>
    <multi_property id='categories'>local_role_group/shadow</multi_property>
    <multi_property id='category'>role/shadow/person</multi_property>
    <multi_property id='base_category'>role</multi_property>
+  </role>
+  <role id='Assignee'>
+   <property id='title'>Sale Agent</property>
+   <multi_property id='categories'>local_role_group/function</multi_property>
+   <multi_property id='category'>function/sale/agent</multi_property>
+   <multi_property id='base_category'>function</multi_property>
+  </role>
+  <role id='Assignor'>
+   <property id='title'>Sale Manager</property>
+   <multi_property id='categories'>local_role_group/function</multi_property>
+   <multi_property id='category'>function/sale/manager</multi_property>
+   <multi_property id='base_category'>function</multi_property>
   </role>
 </type_roles>

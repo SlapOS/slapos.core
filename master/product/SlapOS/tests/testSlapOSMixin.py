@@ -59,10 +59,20 @@ class testSlapOSMixin(ERP5TypeTestCase):
         finally:
           setSecurityManager(sm)
       return callAlarm
+
+    def makeCallAlarmList(step_list):
+      def callAlarmList(*args, **kwargs):
+        for step in step_list:
+          getattr(self, step)()
+      return callAlarmList
+
+    alarm_step_list = []
     for alarm in self.portal.portal_alarms.contentValues():
       if alarm.isEnabled():
-        setattr(self, 'stepCall' + convertToUpperCase(alarm.getId()) \
-          + 'Alarm', makeCallAlarm(alarm))
+        step_name = 'stepCall' + convertToUpperCase(alarm.getId()) + 'Alarm'
+        alarm_step_list.append(step_name)
+        setattr(self, step_name, makeCallAlarm(alarm))
+    setattr(self, 'stepCallAlarmList', makeCallAlarmList(alarm_step_list))
 
   def createCertificateAuthorityFile(self):
     """Sets up portal_certificate_authority"""
@@ -208,11 +218,11 @@ class testSlapOSMixin(ERP5TypeTestCase):
       'erp5_simulation',
       'erp5_pdm',
       'erp5_trade',
+      'erp5_tiosafe_core',
       'erp5_item',
       'erp5_ingestion_mysql_innodb_catalog',
       'erp5_ingestion',
       'erp5_crm',
-      'erp5_forge',
       'erp5_system_event',
       'erp5_secure_payment',
       'erp5_security_uid_innodb_catalog',
@@ -221,31 +231,27 @@ class testSlapOSMixin(ERP5TypeTestCase):
       'erp5_ooo_import',
       'erp5_odt_style',
       'erp5_ods_style',
-      'erp5_knowledge_pad',
-      'erp5_web',
       'erp5_jquery',
       'erp5_jquery_plugin_colorpicker',
       'erp5_jquery_plugin_elastic',
       'erp5_jquery_plugin_jqchart',
       'erp5_jquery_plugin_mbmenu',
-      'erp5_jquery_ui',
       'erp5_jquery_plugin_sheet',
       'erp5_jquery_sheet_editor',
+      'erp5_jquery_ui',
       'erp5_deferred_style',
-      'erp5_dhtml_style',
-      'erp5_rss_style',
+      'erp5_knowledge_pad',
+      'erp5_web',
       'erp5_dms',
       'erp5_content_translation',
       'erp5_software_pdm',
       'erp5_svg_editor',
       'erp5_syncml',
-      'erp5_immobilisation',
       'erp5_computer_immobilisation',
       'erp5_open_trade',
       'erp5_accounting',
       'erp5_commerce',
       'erp5_credential',
-      'erp5_km',
       'erp5_web_download_theme',
       'erp5_web_shacache',
       'erp5_data_set',
@@ -258,56 +264,53 @@ class testSlapOSMixin(ERP5TypeTestCase):
       'erp5_code_mirror',
       'erp5_font',
       'erp5_hal_json_style',
+      'erp5_immobilisation',
       'erp5_l10n_fr',
       'erp5_l10n_ja',
       'erp5_l10n_zh',
       'erp5_monaco_editor',
-      'erp5_json_editor',
       'erp5_movement_table_catalog',
-      'erp5_oauth',
-      'erp5_bearer_token',
-      'erp5_oauth_facebook_login',
-      'erp5_oauth_google_login',
       'erp5_web_renderjs_ui',
       'erp5_web_service',
-      'erp5_oauth2_resource',
-      'erp5_tiosafe_core',
       'erp5_graph_editor',
       'slapos_l10n_zh',
+      'erp5_bearer_token',
       'erp5_certificate_authority',
       'erp5_access_token',
       'erp5_project',
+      'erp5_oauth',
+      'erp5_oauth_facebook_login',
+      'erp5_oauth_google_login',
       'erp5_run_my_doc',
       'erp5_slapos_tutorial',
-      'erp5_slapos_tutorial_data',	
+      'erp5_slapos_tutorial_data',
       'erp5_slideshow_style',
       'erp5_authentication_policy',
-      'erp5_multimedia',
+      'erp5_oauth2_resource',
       'erp5_notebook',
-      'erp5_officejs',
-      'erp5_corporate_identity',
-      'erp5_big_file',
-      'erp5_json_type',
-      'erp5_data_notebook',
-      'erp5_wendelin',
-      'erp5_development_wizard',
-      'erp5_smart_assistant',
       'erp5_interaction_drop',
+      'erp5_json_editor',
       'slapos_mysql_innodb_catalog',
       'slapos_cloud',
       'slapos_slap_tool',
       'slapos_category',
-      'slapos_rss_style',
+      'slapos_panel',
       'slapos_pdm',
       'slapos_crm',
       'slapos_accounting',
       'slapos_payzen',
+      'slapos_subscription_request',
       'slapos_wechat',
       'slapos_web_deploy',
-      'slapos_subscription_request',
-      'slapos_abyss',
-      'slapos_jio',
       'slapos_erp5',
+      'erp5_big_file',
+      'erp5_json_type',
+      'erp5_data_notebook',
+      'erp5_wendelin',
+      'slapos_abyss',
+      'erp5_development_wizard',
+      'slapos_rss_style',
+      'erp5_rss_style'
     ]
  
   def getBusinessTemplateList(self):

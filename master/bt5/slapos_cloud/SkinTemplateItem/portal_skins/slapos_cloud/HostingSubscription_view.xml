@@ -98,13 +98,16 @@
                     <value>
                       <list>
                         <string>my_title</string>
+                        <string>my_reference</string>
                       </list>
                     </value>
                 </item>
                 <item>
                     <key> <string>right</string> </key>
                     <value>
-                      <list/>
+                      <list>
+                        <string>my_translated_validation_state_title</string>
+                      </list>
                     </value>
                 </item>
               </dictionary>

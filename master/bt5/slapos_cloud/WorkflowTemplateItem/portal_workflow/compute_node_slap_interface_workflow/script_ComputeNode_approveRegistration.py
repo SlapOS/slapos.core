@@ -1,10 +1,7 @@
 compute_node = state_change['object']
 portal = compute_node.getPortalObject()
-person = portal.portal_membership.getAuthenticatedMember().getUserValue()
 compute_node.edit(
-  allocation_scope='open/personal',
-  source_administration_value=person,
-  upgrade_scope='auto',
+  allocation_scope='open',
   capacity_scope='open'
 )
 

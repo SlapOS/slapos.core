@@ -17,14 +17,9 @@
             <value>
               <tuple>
                 <string>destination/portal_workflow/person_slap_interface_workflow/transition_draft</string>
-                <string>destination/portal_workflow/person_slap_interface_workflow/transition_notify</string>
                 <string>destination/portal_workflow/person_slap_interface_workflow/transition_request_compute_node</string>
                 <string>destination/portal_workflow/person_slap_interface_workflow/transition_request_network</string>
-                <string>destination/portal_workflow/person_slap_interface_workflow/transition_request_organisation</string>
-                <string>destination/portal_workflow/person_slap_interface_workflow/transition_request_project</string>
-                <string>destination/portal_workflow/person_slap_interface_workflow/transition_request_site</string>
                 <string>destination/portal_workflow/person_slap_interface_workflow/transition_request_software_instance</string>
-                <string>destination/portal_workflow/person_slap_interface_workflow/transition_request_support</string>
                 <string>destination/portal_workflow/person_slap_interface_workflow/transition_request_token</string>
               </tuple>
             </value>

@@ -20,7 +20,6 @@
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_generate_certificate</string>
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_request_start</string>
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_request_stop</string>
-                <string>destination/portal_workflow/instance_slap_interface_workflow/transition_request_transfer</string>
                 <string>destination/portal_workflow/instance_slap_interface_workflow/transition_revoke_certificate</string>
               </tuple>
             </value>

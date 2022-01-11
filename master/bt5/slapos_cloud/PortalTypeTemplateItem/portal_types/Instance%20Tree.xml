@@ -96,7 +96,7 @@
         </item>
         <item>
             <key> <string>type_class</string> </key>
-            <value> <string>SubscriptionItem</string> </value>
+            <value> <string>Item</string> </value>
         </item>
         <item>
             <key> <string>type_interface</string> </key>

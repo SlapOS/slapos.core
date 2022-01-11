@@ -1,5 +1,7 @@
+AllocationSupplyConstraint
 SoftwareInstanceConstraint
 SlapOSMasterUpgradeConstraint
+SlaposInstanceNodeConstraint
 SlaposComputePartitionConstraint
 SlaposInstanceTreeConstraint
 SlaveInstanceConstraint
@@ -17,5 +19,10 @@ SlaposPersonConstraint
 SlaposAssignmentConstraint
 SlaposEmailConstraint
 SlaposComputeNodeConstraint
+SlaposRemoteNodeConstraint
 ComputeNodeSlapOSMetadata
 SlapOSReferenceConstraint
+SlapOSVirtualMasterConstraint
+SlapOSVirtualMasterSourceProjectConstraint
+AllocationSupplyPath
+AllocationSupply

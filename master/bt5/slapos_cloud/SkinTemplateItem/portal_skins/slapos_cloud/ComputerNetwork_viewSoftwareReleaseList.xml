@@ -69,7 +69,6 @@
                     <value>
                       <list>
                         <string>listbox_image</string>
-                        <string>listbox_status</string>
                         <string>listbox_title</string>
                       </list>
                     </value>

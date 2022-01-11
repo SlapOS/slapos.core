@@ -1,4 +1,3 @@
-from Products.ERP5Type.Message import translateString
 from zExceptions import Unauthorized
 if REQUEST is not None:
   raise Unauthorized
@@ -7,69 +6,93 @@ portal = context.getPortalObject()
 if not invoice_list:
   raise ValueError('You need to provide at least one Invoice transaction')
 
-# For now consider a single value is passed, in future we intend to create
-# a single payment per invoice.
-current_invoice = invoice_list[0]
-payment_tag = "sale_invoice_transaction_create_payment_%s" % current_invoice.getUid()
+payment_tag = 'Entity_createPaymentTransaction_%s' % context.getUid()
 if context.REQUEST.get(payment_tag, None) is not None:
   raise ValueError('This script was already called twice on the same transaction ')
+activate_kw = {
+  'tag': payment_tag
+}
 
-if current_invoice.SaleInvoiceTransaction_isLettered():
-  raise ValueError('This invoice is already lettered')
+# Ensure all invoice use the same arrow and resource
+first_invoice = invoice_list[0]
+identical_dict = {
+  'getSource': first_invoice.getSource(),
+  'getSourceSection': first_invoice.getSourceSection(),
+  'getSourcePayment': first_invoice.getSourcePayment(),
+  'getDestination': first_invoice.getDestination(),
+  'getDestinationSection': first_invoice.getDestinationSection(),
+  'getPriceCurrency': first_invoice.getPriceCurrency(),
+  'getLedger': first_invoice.getLedger(),
+}
 
-context.serialize()
-quantity = 0
-for movement in current_invoice.searchFolder(
-  portal_type='Sale Invoice Transaction Line',
-  default_source_uid=[i.uid for i in context.Base_getReceivableAccountList()]):
-  quantity += movement.getQuantity()
+price = 0
+causality_uid_list = []
+# Check that all invoice matches
+for invoice in invoice_list:
+  for method_id, method_value in identical_dict.items():
+    if getattr(invoice, method_id)() != method_value:
+      raise ValueError('Invoices do not match on method: %s' % method_id)
+  if invoice.total_price:
+    price += invoice.total_price
+    causality_uid_list.append(invoice.payment_request_uid)
+  if invoice.SaleInvoiceTransaction_isLettered():
+    raise ValueError('This invoice is already lettered')
 
-if quantity >= 0:
-  raise ValueError('You cannot generate Payment Transaction for zero or negative amounts.')
+if not price:
+  raise ValueError('No total_price to pay')
+if first_invoice.getDestinationSection() != context.getRelativeUrl():
+  raise ValueError('Invoice not related to the context')
 
-current_payment = portal.accounting_module.newContent(
-  portal_type="Payment Transaction",
-  causality=current_invoice.getRelativeUrl(),
-  source_section=current_invoice.getSourceSection(),
-  resource=current_invoice.getResource(),
-  price_currency=current_invoice.getResource(),
-  specialise=current_invoice.getSpecialise(),
-  destination_section=current_invoice.getDestinationSection(),
-  payment_mode=current_invoice.getPaymentMode(),
-  start_date=current_invoice.getStartDate(),
-  stop_date=current_invoice.getStopDate(),
-  source_payment='%s/bank_account' % current_invoice.getSourceSection(), # the other place defnied: business process
-  # Workarround to not create default lines.
-  created_by_builder=1
+if start_date is None:
+  start_date = DateTime()
+
+# create the payment transaction
+payment_transaction = portal.accounting_module.newContent(
+  portal_type='Payment Transaction',
+  created_by_builder=True,
+  causality_uid_set=causality_uid_list,
+  source_section=first_invoice.getSourceSection(),
+  source_payment=first_invoice.getSourcePayment(),
+  destination_section=first_invoice.getDestinationSection(),
+  destination_section_value=context,
+  start_date=start_date,
+  payment_mode=payment_mode,
+  #specialise
+  ledger=first_invoice.getLedger(),
+  resource=first_invoice.getResource(),
+  destination_administration=destination_administration,
+  activate_kw=activate_kw
 )
 
-current_payment.newContent(
-  portal_type="Accounting Transaction Line",
-  quantity=-1 * quantity,
-  source='account_module/receivable',
-  destination='account_module/payable',
-  start_date=current_invoice.getStartDate(),
-  stop_date=current_invoice.getStopDate())
+getAccountForUse = context.Base_getAccountForUse
 
-current_payment.newContent(
-  portal_type="Accounting Transaction Line",
-  quantity=1 * quantity,
-  source='account_module/payment_to_encash',
-  destination='account_module/payment_to_encash',
-  start_date=current_invoice.getStartDate(),
-  stop_date=current_invoice.getStopDate())
+collection_account = getAccountForUse('collection')
+payment_transaction.newContent(
+  id='bank',
+  portal_type='Accounting Transaction Line',
+  source_value=collection_account,
+  destination_value=collection_account,
+  quantity=-price,
+  activate_kw=activate_kw,
+)
 
-comment = translateString("Initialised by Entity_createPaymentTransaction.")
+for index, line in enumerate(invoice_list):
+  if line.total_price:
+    payment_transaction.newContent(
+      id="receivable%s" % index,
+      title="receivable%s - %s" % (index, line.getSourceReference()),
+      portal_type='Accounting Transaction Line',
+      source=line.node_relative_url,
+      destination_value=getAccountForUse('payable'),
+      quantity=line.total_price,
+      activate_kw=activate_kw,
+    )
 
-# Reindex with a tag to ensure that there will be no generation while the object isn't
-# reindexed.
-payment_tag ="sale_invoice_transaction_create_payment_%s" % current_invoice.getUid()
-current_payment.activate(tag=payment_tag).immediateReindexObject()
+assert len(payment_transaction.checkConsistency()) == 0
 
-comment = translateString("Initialised by Entity_createPaymentTransaction.")
-current_payment.PaymentTransaction_start(comment=comment)
+payment_transaction.start()
 
 # Set a flag on the request for prevent 2 calls on the same transaction
 context.REQUEST.set(payment_tag, 1)
 
-return current_payment
+return payment_transaction

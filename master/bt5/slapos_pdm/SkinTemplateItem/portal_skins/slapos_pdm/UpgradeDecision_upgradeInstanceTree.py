@@ -2,7 +2,8 @@ if context.getSimulationState() != 'started':
   # Update Decision is not on started state, Upgrade is not possible!
   return False
 
-instance_tree = context.UpgradeDecision_getInstanceTree()
+
+instance_tree = context.UpgradeDecision_getAggregateValue("Instance Tree")
 software_release = context.UpgradeDecision_getSoftwareRelease()
 
 if instance_tree is None:

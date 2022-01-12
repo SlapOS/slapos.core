@@ -20,14 +20,14 @@ def storeWorkflowComment(document, comment):
   portal.portal_workflow.doActionFor(document, 'edit_action', comment=comment)
 
 
-def calculateOpenOrderLineStopDate(open_order_line, instance_tree, start_date_delta, next_stop_date_delta=0):
+def calculateOpenOrderLineStopDate(open_order_line, hosting_subscription, instance_tree, start_date_delta, next_stop_date_delta=0):
   end_date = instance_tree.InstanceTree_calculateSubscriptionStopDate()
   if end_date is None:
     # Be sure that start date is different from stop date
     # Consider the first period longer (delta), this allow us to change X days/months
     # On a first invoice.
-    next_stop_date = instance_tree.getNextPeriodicalDate(
-      instance_tree.InstanceTree_calculateSubscriptionStartDate() + start_date_delta)
+    next_stop_date = hosting_subscription.getNextPeriodicalDate(
+      hosting_subscription.HostingSubscription_calculateSubscriptionStartDate() + start_date_delta)
     current_stop_date = next_stop_date
 
     # Ensure the invoice is generated 15 days in advance of the next period.
@@ -35,7 +35,7 @@ def calculateOpenOrderLineStopDate(open_order_line, instance_tree, start_date_de
       # Return result should be < now, it order to provide stability in simulation (destruction if it happen should be >= now)
       current_stop_date = next_stop_date
       next_stop_date = \
-         instance_tree.getNextPeriodicalDate(current_stop_date)
+         hosting_subscription.getNextPeriodicalDate(current_stop_date)
 
     return addToDate(current_stop_date, to_add={'second': -1})
   else:
@@ -56,8 +56,9 @@ if open_sale_order.getValidationState() == 'validated':
       assert current_stop_date is not None
       assert current_start_date < current_stop_date
 
+      hosting_subscription = open_order_line.getAggregateValue(portal_type='Hosting Subscription')
       instance_tree = open_order_line.getAggregateValue(portal_type='Instance Tree')
-      assert current_start_date == instance_tree.InstanceTree_calculateSubscriptionStartDate()
+      assert current_start_date == hosting_subscription.HostingSubscription_calculateSubscriptionStartDate()
 
       subscription_request = instance_tree.getAggregateRelatedValue(portal_type="Subscription Request")
       # Define the start date of the period, this can variates with the time.
@@ -66,7 +67,7 @@ if open_sale_order.getValidationState() == 'validated':
         next_stop_date_delta = 46
 
       # First check if the instance tree has been correctly simulated (this script may run only once per year...)
-      stop_date = calculateOpenOrderLineStopDate(open_order_line, instance_tree,
+      stop_date = calculateOpenOrderLineStopDate(open_order_line, hosting_subscription, instance_tree,
                                                  start_date_delta=0, next_stop_date_delta=next_stop_date_delta)
       if current_stop_date < stop_date:
         # Bingo, new subscription to generate

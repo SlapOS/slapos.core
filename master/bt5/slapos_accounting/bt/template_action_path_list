@@ -1,12 +1,12 @@
 Cloud Contract Line | view
 Cloud Contract Module | view
 Cloud Contract | view
+Compute Node | jump_to_consumption_report_view
 Computer Consumption TioXML File | download
 Computer Consumption TioXML File | view
-Compute Node | jump_to_consumption_report_view
 Consumption Document Module | view
+Hosting Subscription | periodicity
 Instance Tree | jump_to_related_open_order_line
-Instance Tree | periodicity
 Payment Transaction | related_payzen_event
 Person | create_new_cloud_contract
 Person | jump_to_cloud_contract

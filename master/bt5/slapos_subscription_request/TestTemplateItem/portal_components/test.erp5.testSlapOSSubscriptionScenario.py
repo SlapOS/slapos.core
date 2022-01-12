@@ -1829,7 +1829,9 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     # Ensure periodicity is correct
     for subscription_request in subscription_request_list:
       instance_tree = subscription_request.getAggregateValue()
-      self.assertEqual(instance_tree.getPeriodicityMonthDay(),
+      open_order_line = instance_tree.getAggregateRelatedValue(portal_type="Open Sale Order Line")
+      hosting_subscription = open_order_line.getAggregateValue(portal_type="Hosting Subscription")
+      self.assertEqual(hosting_subscription.getPeriodicityMonthDay(),
         min(DateTime().day(), 28))
 
     self.pinDateTime(DateTime(DateTime().asdatetime() + datetime.timedelta(days=17)))

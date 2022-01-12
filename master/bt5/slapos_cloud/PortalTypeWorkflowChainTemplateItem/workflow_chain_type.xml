@@ -13,7 +13,7 @@
  </chain>
  <chain>
   <type>Hosting Subscription</type>
-  <workflow>edit_workflow</workflow>
+  <workflow>edit_workflow, hosting_subscription_workflow</workflow>
  </chain>
  <chain>
   <type>Instance Tree</type>

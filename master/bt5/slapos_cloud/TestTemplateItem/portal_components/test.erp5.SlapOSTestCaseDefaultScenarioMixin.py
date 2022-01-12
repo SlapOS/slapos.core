@@ -633,8 +633,14 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     self.assertEqual(len(instance_tree_list), len(line_list))
     self.assertSameSet(
         [q.getRelativeUrl() for q in instance_tree_list],
-        [q.getAggregate() for q in line_list]
+        [q.getAggregate(portal_type="Instance Tree") for q in line_list]
     )
+
+    # Every line must have 2 aggregate categories:
+    # one Instance Tree and one Hosting Subscription
+    for line in line_list:
+      self.assertEqual(2, len(line.getAggregateList()))
+      self.assertEqual(1, len(line.getAggregateList(portal_type="Hosting Subscription")))
 
     validated_open_sale_order_list = [q for q in open_sale_order_list
                        if q.getValidationState() == 'validated']

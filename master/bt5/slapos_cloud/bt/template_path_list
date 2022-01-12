@@ -5,6 +5,7 @@ compute_node_module/template_compute_node
 compute_node_module/template_compute_node/**
 computer_model_module/template_computer_model
 computer_model_module/template_computer_model/**
+hosting_subscription_module/template_hosting_subscription
 instance_tree_module/template_instance_tree
 person_module/template_member
 person_module/template_member/**

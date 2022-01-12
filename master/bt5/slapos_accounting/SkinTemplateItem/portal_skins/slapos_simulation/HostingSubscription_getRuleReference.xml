@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>InstanceTree_getRuleReference</string> </value>
+            <value> <string>HostingSubscription_getRuleReference</string> </value>
         </item>
       </dictionary>
     </pickle>

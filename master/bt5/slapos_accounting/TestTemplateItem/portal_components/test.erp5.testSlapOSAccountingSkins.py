@@ -12,12 +12,20 @@ import time
 
 class TestSlapOSAccounting(SlapOSTestCaseMixin):
 
+  def createHostingSubscription(self):
+    new_id = self.generateNewId()
+    return self.portal.hosting_subscription_module.newContent(
+      portal_type='Hosting Subscription',
+      title="Subscription %s" % new_id,
+      reference="TESTHS-%s" % new_id,
+      )
+
   def createInstanceTree(self):
     new_id = self.generateNewId()
     return self.portal.instance_tree_module.newContent(
       portal_type='Instance Tree',
       title="Subscription %s" % new_id,
-      reference="TESTHS-%s" % new_id,
+      reference="TESTIT-%s" % new_id,
       )
 
   def createOpenSaleOrder(self):
@@ -30,71 +38,44 @@ class TestSlapOSAccounting(SlapOSTestCaseMixin):
 
   @withAbort
   def test_HS_calculateSubscriptionStartDate_REQUEST_disallowed(self):
-    item = self.createInstanceTree()
+    item = self.createHostingSubscription()
     self.assertRaises(
       Unauthorized,
-      item.InstanceTree_calculateSubscriptionStartDate,
+      item.HostingSubscription_calculateSubscriptionStartDate,
       REQUEST={})
 
   @withAbort
   def test_HS_calculateSubscriptionStartDate_noWorkflow(self):
-    item = self.createInstanceTree()
+    item = self.createHostingSubscription()
     item.workflow_history['instance_slap_interface_workflow'] = []
-    date = item.InstanceTree_calculateSubscriptionStartDate()
+    date = item.HostingSubscription_calculateSubscriptionStartDate()
     self.assertEqual(date, item.getCreationDate().earliestTime())
 
   @withAbort
   def test_HS_calculateSubscriptionStartDate_withRequest(self):
-    item = self.createInstanceTree()
-    item.workflow_history['instance_slap_interface_workflow'] = [{
+    item = self.createHostingSubscription()
+    item.workflow_history['edit_workflow'] = [{
         'comment':'Directly request the instance',
         'error_message': '',
         'actor': 'ERP5TypeTestCase',
-        'slap_state': 'draft',
         'time': DateTime('2012/11/15 11:11'),
-        'action': 'request_instance'
+        'action': 'edit'
         }]
-    date = item.InstanceTree_calculateSubscriptionStartDate()
+    date = item.HostingSubscription_calculateSubscriptionStartDate()
     self.assertEqual(date, DateTime('2012/11/15'))
 
   @withAbort
   def test_HS_calculateSubscriptionStartDate_withRequestEndOfMonth(self):
-    item = self.createInstanceTree()
-    item.workflow_history['instance_slap_interface_workflow'] = [{
+    item = self.createHostingSubscription()
+    item.workflow_history['edit_workflow'] = [{
         'comment':'Directly request the instance',
         'error_message': '',
         'actor': 'ERP5TypeTestCase',
-        'slap_state': 'draft',
         'time': DateTime('2012/11/30 11:11'),
-        'action': 'request_instance'
+        'action': 'edit'
     }]
-    date = item.InstanceTree_calculateSubscriptionStartDate()
+    date = item.HostingSubscription_calculateSubscriptionStartDate()
     self.assertEqual(date, DateTime('2012/11/30'))
-
-  @withAbort
-  def test_HS_calculateSubscriptionStartDate_withRequestAfterDestroy(self):
-    item = self.createInstanceTree()
-    destroy_date = DateTime('2012/10/30 11:11')
-    request_date = DateTime('2012/11/30 11:11')
-    item.workflow_history['instance_slap_interface_workflow'] = []
-    item.workflow_history['instance_slap_interface_workflow'].append({
-        'comment':'Directly destroy',
-        'error_message': '',
-        'actor': 'ERP5TypeTestCase',
-        'slap_state': 'destroy_requested',
-        'time': destroy_date,
-        'action': 'request_destroy'
-    })
-    item.workflow_history['instance_slap_interface_workflow'].append({
-        'comment':'Directly request the instance',
-        'error_message': '',
-        'actor': 'ERP5TypeTestCase',
-        'slap_state': 'draft',
-        'time': request_date,
-        'action': 'request_instance'
-    })
-    date = item.InstanceTree_calculateSubscriptionStartDate()
-    self.assertEqual(date, DateTime('2012/10/30'))
 
   @withAbort
   def test_HS_calculateSubscriptionStopDate_REQUEST_disallowed(self):

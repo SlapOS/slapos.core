@@ -417,11 +417,12 @@ class TestDefaultPaymentRule(SlapOSTestCaseMixin):
       SimulationMovement.getSimulationState = SimulationMovement\
         .original_getSimulationState
 
-class TestInstanceTreeSimulation(SlapOSTestCaseMixin):
+class TestHostingSubscriptionSimulation(SlapOSTestCaseMixin):
   def _prepare(self):
     person = self.portal.person_module.template_member\
         .Base_createCloneDocument(batch_mode=1)
-    self.subscription = self.portal.instance_tree_module\
+    self.subscription = self.portal.hosting_subscription_module.newContent()
+    self.instance_tree = self.portal.instance_tree_module\
         .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     self.initial_date = DateTime('2011/02/16')
     stop_date = DateTime('2011/04/16')
@@ -432,6 +433,7 @@ class TestInstanceTreeSimulation(SlapOSTestCaseMixin):
       destination_section=person.getRelativeUrl()
     )
     self.portal.portal_workflow._jumpToStateFor(self.subscription, 'validated')
+    self.portal.portal_workflow._jumpToStateFor(self.instance_tree, 'validated')
 
     open_sale_order_template = self.portal.restrictedTraverse(
         self.portal.portal_preferences.getPreferredOpenSaleOrderTemplate())

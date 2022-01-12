@@ -62,9 +62,11 @@ if instance_tree.getCausalityState() == 'diverged':
       if (open_order_line is not None) and (open_order_line.getValidationState() == "invalidated"):
         instance_tree.converge(comment="Last open order: %s" % open_order_line.getRelativeUrl())
       elif open_order_line is None:
-        # User has no Open Sale Order (likely), so we add the line to remove later. This allow us to charge
-        # eventual usage between the runs of the alarm.
-        is_open_order_creation_needed = True
+        # User has no Open Sale Order (likely).
+        # No need to charge, as it was never allocated
+        is_open_order_creation_needed = False
+        instance_tree.converge(comment="No open order needed as it was never allocated")
+
     elif open_order_line is None:
       # Let's add
       is_open_order_creation_needed = True
@@ -77,9 +79,14 @@ if instance_tree.getCausalityState() == 'diverged':
       # Add lines
       open_sale_order_line_template = portal.restrictedTraverse(
         portal.portal_preferences.getPreferredOpenSaleOrderLineTemplate())
-      open_sale_order_line = open_sale_order_line_template.Base_createCloneDocument(batch_mode=1,
+      open_order_line = open_sale_order_line_template.Base_createCloneDocument(batch_mode=1,
           destination=open_sale_order)
-      start_date = instance_tree.InstanceTree_calculateSubscriptionStartDate()
+      hosting_subscription = portal.hosting_subscription_module.newContent(
+        portal_type="Hosting Subscription",
+        title=instance_tree.getTitle()
+      )
+      hosting_subscription.validate()
+      start_date = hosting_subscription.HostingSubscription_calculateSubscriptionStartDate()
 
       edit_kw = {}
       subscription_request = instance_tree.getAggregateRelatedValue(portal_type="Subscription Request")
@@ -106,7 +113,7 @@ if instance_tree.getCausalityState() == 'diverged':
         # You can increase 0 days to keep generating one month only
         # start_date_delta = 0
 
-      open_sale_order_line.edit(
+      open_order_line.edit(
         activate_kw=activate_kw,
         title=instance_tree.getTitle(),
         start_date=start_date,
@@ -115,19 +122,17 @@ if instance_tree.getCausalityState() == 'diverged':
         stop_date=start_date + 1,
         # stop_date=calculateOpenOrderLineStopDate(open_sale_order_line,
         #         instance_tree, start_date_delta=start_date_delta),
-        aggregate_value=instance_tree,
+        aggregate_value_list=[hosting_subscription, instance_tree],
         **edit_kw
       )
-      storeWorkflowComment(open_sale_order_line, "Created for %s" % instance_tree.getRelativeUrl())
+      storeWorkflowComment(open_order_line, "Created for %s" % instance_tree.getRelativeUrl())
       # instance_tree.converge(comment="Last open order: %s" % open_sale_order_line.getRelativeUrl())
-      open_order_explanation = "Added %s." % str(open_sale_order_line.getId())
+      open_order_explanation = "Added %s." % str(open_order_line.getId())
 
       storeWorkflowComment(open_sale_order, open_order_explanation)
 
-    else:
-      open_sale_order = open_order_line.getParentValue()
-
-    open_sale_order.OpenSaleOrder_updatePeriod()
+    if open_order_line is not None:
+      open_order_line.getParentValue().OpenSaleOrder_updatePeriod()
 
     # Person_storeOpenSaleOrderJournal should fix all divergent Instance Tree in one run
     assert instance_tree.getCausalityState() == 'solved'

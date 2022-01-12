@@ -11,13 +11,13 @@ from unittest import skip
 
 import transaction
 
-class TestInstanceTree(TestSlapOSConstraintMixin):
+class TestHostingSubscription(TestSlapOSConstraintMixin):
 
   # use decrator in order to avoid fixing consistency of new object
   @WorkflowMethod.disable
   def _createInstanceTree(self):
-    self.subscription = self.portal.instance_tree_module.newContent(
-        portal_type='Instance Tree')
+    self.subscription = self.portal.hosting_subscription_module.newContent(
+        portal_type='Hosting Subscription')
 
   def afterSetUp(self):
     TestSlapOSConstraintMixin.afterSetUp(self)

@@ -338,7 +338,7 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValue(compute_node)
 
-    found_compute_node = upgrade_decision.UpgradeDecision_getComputeNode()
+    found_compute_node = upgrade_decision.UpgradeDecision_getAggregateValue("Compute Node")
     self.assertEqual(compute_node.getRelativeUrl(),
                       found_compute_node.getRelativeUrl())
 
@@ -351,7 +351,7 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
 
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
 
-    found_compute_node = upgrade_decision.UpgradeDecision_getComputeNode()
+    found_compute_node = upgrade_decision.UpgradeDecision_getAggregateValue("Compute Node")
     self.assertEqual(compute_node.getRelativeUrl(),
                       found_compute_node.getRelativeUrl())
 
@@ -365,13 +365,14 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValue(compute_node)
 
-    self.assertRaises(ValueError, upgrade_decision.UpgradeDecision_getComputeNode)
+    self.assertRaises(ValueError, upgrade_decision.UpgradeDecision_getAggregateValue,
+      document_portal_type="Compute Node")
 
   def testUpgradeDecision_getComputeNode_O_compute_node(self):
     upgrade_decision = self._makeUpgradeDecision()
     self._makeUpgradeDecisionLine(upgrade_decision)
 
-    found_compute_node = upgrade_decision.UpgradeDecision_getComputeNode()
+    found_compute_node = upgrade_decision.UpgradeDecision_getAggregateValue("Compute Node")
     self.assertEqual(None, found_compute_node)
 
 
@@ -382,7 +383,7 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValue(instance_tree)
 
-    found_instance_tree = upgrade_decision.UpgradeDecision_getInstanceTree()
+    found_instance_tree = upgrade_decision.UpgradeDecision_getAggregateValue("Instance Tree")
     self.assertEqual(instance_tree.getRelativeUrl(),
                       found_instance_tree.getRelativeUrl())
 
@@ -396,7 +397,7 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
 
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
 
-    found_instance_tree = upgrade_decision.UpgradeDecision_getInstanceTree()
+    found_instance_tree = upgrade_decision.UpgradeDecision_getAggregateValue("Instance Tree")
     self.assertEqual(instance_tree.getRelativeUrl(),
                       found_instance_tree.getRelativeUrl())
 
@@ -411,28 +412,29 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValue(instance_tree)
 
-    self.assertRaises(ValueError, upgrade_decision.UpgradeDecision_getInstanceTree)
+    self.assertRaises(ValueError, upgrade_decision.UpgradeDecision_getAggregateValue,
+      document_portal_type="Instance Tree")
 
   def testUpgradeDecision_getInstanceTree_O_hosting(self):
     upgrade_decision = self._makeUpgradeDecision()
     self._makeUpgradeDecisionLine(upgrade_decision)
 
-    found_instance_tree = upgrade_decision.UpgradeDecision_getInstanceTree()
+    found_instance_tree = upgrade_decision.UpgradeDecision_getAggregateValue("Instance Tree")
     self.assertEqual(None, found_instance_tree)
 
      
-  def testUpgradeDecision_getSoftwareRelease(self):
+  def testUpgradeDecision_getAggregateValue_SoftwareRelease(self):
     software_release = self._makeSoftwareRelease()
     upgrade_decision = self._makeUpgradeDecision()
 
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValue(software_release)
 
-    found_software_release = upgrade_decision.UpgradeDecision_getSoftwareRelease()
+    found_software_release = upgrade_decision.UpgradeDecision_getAggregateValue("Software Release")
     self.assertEqual(software_release.getRelativeUrl(),
                       found_software_release.getRelativeUrl())
 
-  def testUpgradeDecision_getSoftwareRelease_2_lines(self):
+  def testUpgradeDecision_getAggregateValue_SoftwareRelease_2_lines(self):
     software_release = self._makeSoftwareRelease()
     upgrade_decision = self._makeUpgradeDecision()
 
@@ -441,11 +443,11 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
 
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
 
-    found_software_release = upgrade_decision.UpgradeDecision_getSoftwareRelease()
+    found_software_release = upgrade_decision.UpgradeDecision_getAggregateValue("Software Release")
     self.assertEqual(software_release.getRelativeUrl(),
                       found_software_release.getRelativeUrl())
 
-  def testUpgradeDecision_getSoftwareRelease_2_sr(self):
+  def testUpgradeDecision_getAggregateValue_SoftwareRelease_2_sr(self):
     software_release = self._makeSoftwareRelease()
     upgrade_decision = self._makeUpgradeDecision()
 
@@ -455,13 +457,14 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValue(software_release)
 
-    self.assertRaises(ValueError, upgrade_decision.UpgradeDecision_getSoftwareRelease)
+    self.assertRaises(ValueError, upgrade_decision.UpgradeDecision_getAggregateValue,
+      document_portal_type="Software Release")
 
-  def testUpgradeDecision_getSoftwareRelease_O_sr(self):
+  def testUpgradeDecision_getAggregateValue_SoftwareRelease_O_sr(self):
     upgrade_decision = self._makeUpgradeDecision()
     self._makeUpgradeDecisionLine(upgrade_decision)
 
-    found_software_release = upgrade_decision.UpgradeDecision_getSoftwareRelease()
+    found_software_release = upgrade_decision.UpgradeDecision_getAggregateValue("Software Release")
     self.assertEqual(None, found_software_release)
 
   @simulate('InstanceTree_isUpgradePossible',
@@ -966,10 +969,10 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     self.assertEqual(len(upgrade_decision), 1)
     self.assertEqual(upgrade_decision[0].getSimulationState(), 'started')
     
-    compute_node_aggregate = upgrade_decision[0].UpgradeDecision_getComputeNode()
+    compute_node_aggregate = upgrade_decision[0].UpgradeDecision_getAggregateValue("Compute Node")()
     self.assertEqual(compute_node_aggregate.getReference(),
                       compute_node.getReference())
-    release = upgrade_decision[0].UpgradeDecision_getSoftwareRelease()
+    release = upgrade_decision[0].UpgradeDecision_getAggregateValue("Software Release")
     self.assertEqual(release.getUrlString(),
                                 software_release2.getUrlString())
     self.tic()
@@ -1001,7 +1004,7 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     
     self.assertEqual(upgrade_decision.getSimulationState(), 'cancelled')
     self.assertEqual(upgrade_decision2.getSimulationState(), 'planned')
-    release = upgrade_decision2.UpgradeDecision_getSoftwareRelease()
+    release = upgrade_decision2.UpgradeDecision_getAggregateValue("Software Release")
     self.assertEqual(release.getUrlString(),
                                 software_release3.getUrlString())
   

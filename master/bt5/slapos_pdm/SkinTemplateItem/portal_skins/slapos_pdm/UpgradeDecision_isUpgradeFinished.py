@@ -1,7 +1,7 @@
 portal = context.getPortalObject()
 
-instance_tree = context.UpgradeDecision_getInstanceTree()
-compute_node = context.UpgradeDecision_getComputeNode()
+instance_tree = context.UpgradeDecision_getAggregateValue("Instance Tree")
+compute_node = context.UpgradeDecision_getAggregateValue("Compute Node")
 software_release = context.UpgradeDecision_getSoftwareRelease()
 
 if instance_tree is not None:

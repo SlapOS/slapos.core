@@ -10,8 +10,8 @@ person = context.getDestinationDecisionValue(portal_type="Person")
 if not person:
   raise ValueError("Inconsistent Upgrade Decision, No Destination Decision")
 
-instance_tree = context.UpgradeDecision_getInstanceTree()
-compute_node = context.UpgradeDecision_getComputeNode()
+instance_tree = context.UpgradeDecision_getAggregateValue("Instance Tree")
+compute_node = context.UpgradeDecision_getAggregateValue("Compute Node")
 software_release = context.UpgradeDecision_getSoftwareRelease()
 software_product_title = software_release.getAggregateTitle(
                                portal_type="Software Product")

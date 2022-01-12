@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string></string> </value>
+            <value> <string>document_portal_type="Instance Tree"</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>UpgradeDecision_getComputeNode</string> </value>
+            <value> <string>UpgradeDecision_getAggregateValue</string> </value>
         </item>
       </dictionary>
     </pickle>

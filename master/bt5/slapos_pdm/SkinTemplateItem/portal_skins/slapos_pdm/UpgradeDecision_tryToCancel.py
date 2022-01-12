@@ -8,7 +8,7 @@ if simulation_state in require_state_list:
   if not current_release:
     # This upgrade decision is not valid
     return False
-  instance_tree = upgrade_decision.UpgradeDecision_getInstanceTree()
+  instance_tree = context.UpgradeDecision_getAggregateValue("Instance Tree")
   if instance_tree is not None:
     current_instance_tree_release = instance_tree.getUrlString()
     if current_instance_tree_release == new_url_string:

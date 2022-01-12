@@ -284,7 +284,7 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
     self.assertNotEqual(up_decision, None)
     self.assertEqual(up_decision.getSimulationState(), 'planned')
     
-    self.assertEqual(up_decision.UpgradeDecision_getInstanceTree().\
+    self.assertEqual(up_decision.UpgradeDecision_getAggregateValue("Instance Tree").\
                       getReference(), instance_tree.getReference())
 
     self.assertEqual(up_decision.UpgradeDecision_getSoftwareRelease().\

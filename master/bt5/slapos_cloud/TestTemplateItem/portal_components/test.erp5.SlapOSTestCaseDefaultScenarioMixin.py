@@ -78,7 +78,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     
     join_key = to_click_url.split('=')[-1]
     self.assertNotEqual(join_key, None)
-    web_site.ERP5Site_activeLogin(key=join_key)
+    web_site.hateoas.connection.ERP5Site_activeLogin(key=join_key)
 
     self.assertEqual(self.portal.REQUEST.RESPONSE.getStatus(), 303)
     self.assertIn(self.web_site.getId() + "/%23%21login%3Fp.page%3Dslapos%7B%26n.me%7D",

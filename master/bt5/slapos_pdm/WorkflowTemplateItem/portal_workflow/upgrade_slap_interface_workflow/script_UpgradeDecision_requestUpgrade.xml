@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="PythonScript" module="Products.PythonScripts.PythonScript"/>
+      <global name="Workflow Script" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -50,11 +50,33 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>new_url_string</string> </value>
+            <value> <string>state_change</string> </value>
+        </item>
+        <item>
+            <key> <string>_proxy_roles</string> </key>
+            <value>
+              <tuple>
+                <string>Manager</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>description</string> </key>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>UpgradeDecision_tryToCancel</string> </value>
+            <value> <string>script_UpgradeDecision_requestUpgrade</string> </value>
+        </item>
+        <item>
+            <key> <string>portal_type</string> </key>
+            <value> <string>Workflow Script</string> </value>
+        </item>
+        <item>
+            <key> <string>title</string> </key>
+            <value> <string>UpgradeDecision_requestUpgrade</string> </value>
         </item>
       </dictionary>
     </pickle>

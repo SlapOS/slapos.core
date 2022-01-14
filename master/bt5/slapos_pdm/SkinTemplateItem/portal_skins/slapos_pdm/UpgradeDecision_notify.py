@@ -1,8 +1,11 @@
 from DateTime import DateTime
 
+# Review if the upgrade is applicable before notify.
+context.reviewUpgrade()
+
 if context.getSimulationState() != 'planned':
   # XXX Don't notify the ones which are not planned.
-  return 
+  return
 
 portal = context.getPortalObject()
 
@@ -21,8 +24,8 @@ mapping_dict = {
   'software_release_name': software_release.getTitle(),
   'software_release_reference': software_release.getReference(),
   'new_software_release_url': software_release.getUrlString(),
-
 }
+
 if instance_tree is not None:
   notification_message_reference = 'slapos-upgrade-instance-tree.notification'
   title = "New Upgrade available for %s" % instance_tree.getTitle()
@@ -30,11 +33,8 @@ if instance_tree is not None:
      'instance_tree_title': instance_tree.getTitle(),
      'old_software_release_url': instance_tree.getUrlString()})
 
-
 elif compute_node is not None:
-
   notification_message_reference = 'slapos-upgrade-compute-node.notification' 
-
   title = "New Software available for Installation at %s" % compute_node.getTitle()
   mapping_dict.update(**{'compute_node_title': compute_node.getTitle(),
                          'compute_node_reference': compute_node.getReference()})
@@ -49,8 +49,10 @@ notification_message = portal.portal_notifications.getDocumentValue(
 message = notification_message.asEntireHTML(
             substitution_method_parameter_dict={'mapping_dict': mapping_dict})
 
-event = context.SupportRequest_trySendNotificationMessage(title,
-              message, person.getRelativeUrl())
+context.notify(message_title=title,
+                     message=message,
+                     destination_relative_url=person.getRelativeUrl())
+event = context.REQUEST.get("upgrade_decision_notified_item")
 
 if event is not None:
   context.confirm()

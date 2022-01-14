@@ -1,6 +1,4 @@
 portal = context.getPortalObject()
-
-
 portal.portal_catalog.searchAndActivate(
   portal_type="Upgrade Decision Line",
   simulation_state=["confirmed", "draft", "planned"],

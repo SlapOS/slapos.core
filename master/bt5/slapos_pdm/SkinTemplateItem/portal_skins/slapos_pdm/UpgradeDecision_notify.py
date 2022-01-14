@@ -1,5 +1,5 @@
 from DateTime import DateTime
-
+return
 if context.getSimulationState() != 'planned':
   # XXX Don't notify the ones which are not planned.
   return 

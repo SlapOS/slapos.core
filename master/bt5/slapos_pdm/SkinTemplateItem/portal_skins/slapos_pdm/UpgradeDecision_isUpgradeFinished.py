@@ -2,7 +2,7 @@ portal = context.getPortalObject()
 
 instance_tree = context.UpgradeDecision_getAggregateValue("Instance Tree")
 compute_node = context.UpgradeDecision_getAggregateValue("Compute Node")
-software_release = context.UpgradeDecision_getSoftwareRelease()
+software_release = context.UpgradeDecision_getAggregateValue("Software Release")
 
 if instance_tree is not None:
   if instance_tree.getUrlString() == software_release.getUrlString():

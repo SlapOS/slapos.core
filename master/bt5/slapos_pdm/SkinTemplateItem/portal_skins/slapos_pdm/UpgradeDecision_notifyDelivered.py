@@ -15,7 +15,7 @@ if not person:
 
 instance_tree = context.UpgradeDecision_getAggregateValue("Instance Tree")
 compute_node = context.UpgradeDecision_getAggregateValue("Compute Node")
-software_release = context.UpgradeDecision_getSoftwareRelease()
+software_release = context.UpgradeDecision_getAggregateValue("Software Release")
 software_product_title = software_release.getAggregateTitle(
                                portal_type="Software Product")
 

@@ -2,7 +2,7 @@ from DateTime import DateTime
 portal = context.getPortalObject()
 
 instance_tree = context
-upgrade_scope = context.getUpgradeScope()
+upgrade_scope = context.getUpgradeScope("ask_confirmation")
 if upgrade_scope in ["never", "disabled"]:
   return
 
@@ -22,7 +22,6 @@ if instance_tree.getSlapState() == "destroy_requested":
   return
 
 tag = "%s_requestUpgradeDecisionCreation_inProgress" % instance_tree.getUid()
-activate_kw = {'tag': tag}
 if portal.portal_activities.countMessageWithTag(tag) > 0:
   # nothing to do
   return
@@ -52,22 +51,18 @@ if newer_release is None:
 decision_in_progress = newer_release.\
     SoftwareRelease_getUpgradeDecisionInProgress(instance_tree.getUid())
 
-if decision_in_progress and \
-    not decision_in_progress.UpgradeDecision_tryToCancel(
-      newer_release.getUrlString()):
-  return
+if decision_in_progress:
+  decision_in_progress.reviewRegistration(
+    software_release_url=newer_release.getUrlString())
+  if decision_in_progress.getSimulationState() != "cancelled":
+    return
 
 upgrade_decision = newer_release.SoftwareRelease_createUpgradeDecision(
   source_url=instance_tree.getRelativeUrl(),
   title=decision_title
 )
-with upgrade_decision.defaultActivateParameterDict(activate_kw):
-  upgrade_decision.plan()
-  upgrade_decision.setStartDate(DateTime())
-  if upgrade_scope == "auto":
-    upgrade_decision.start()
 
-# Prevent concurrent transaction to create 2 upgrade decision for the same instance_tree
-instance_tree.serialize()
+upgrade_decision.approveRegistration(
+  upgrade_scope=upgrade_scope)
 
 return upgrade_decision

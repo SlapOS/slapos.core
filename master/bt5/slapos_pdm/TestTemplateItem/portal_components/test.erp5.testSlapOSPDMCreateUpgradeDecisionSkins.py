@@ -287,8 +287,9 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
     self.assertEqual(up_decision.UpgradeDecision_getAggregateValue("Instance Tree").\
                       getReference(), instance_tree.getReference())
 
-    self.assertEqual(up_decision.UpgradeDecision_getSoftwareRelease().\
-                              getUrlString(), software_release2.getUrlString())
+    self.assertEqual(software_release2.getUrlString(),
+      up_decision.UpgradeDecision_getAggregateValue("Software Release").\
+                              getUrlString())
     
     self.tic()
     up_decision2 = instance_tree.InstanceTree_createUpgradeDecision()
@@ -331,7 +332,7 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
     up_decision2 = instance_tree.InstanceTree_createUpgradeDecision()
     self.assertEqual(up_decision2.getSimulationState(), 'planned')
     self.assertEqual(up_decision.getSimulationState(), 'cancelled')
-    release = up_decision2.UpgradeDecision_getSoftwareRelease()
+    release = up_decision2.UpgradeDecision_getAggregateValue("Software Release")
     self.assertEqual(release.getUrlString(),
                                 software_release3.getUrlString())
 
@@ -414,7 +415,7 @@ class TestSlapOSPDMCreateUpgradeDecisionSkins(TestSlapOSPDMMixinSkins):
     decision2 = instance_tree.InstanceTree_createUpgradeDecision()
     self.assertEqual(decision2.getSimulationState(), 'planned')
     self.assertEqual(up_decision.getSimulationState(), 'rejected')
-    release = decision2.UpgradeDecision_getSoftwareRelease()
+    release = decision2.UpgradeDecision_getAggregateValue("Software Release")
     self.assertEqual(release.getUrlString(),
                                 software_release3.getUrlString())
   

@@ -34,6 +34,10 @@ select_kw.update(
   default_aggregate_portal_type=ComplexQuery(NegatedQuery(Query(default_aggregate_portal_type='Compute Node')),
     Query(default_aggregate_portal_type=None),logical_operator="OR"),
   grouping_reference=None,
+  # XXX SELECT DISTINCT uses default_aggregate_portal_type as parameter
+  # leading to return movement with 2 aggregate values twice
+  # Use group_by to workaround the issue
+  group_by_list=['uid'],
   sort_on=(('modification_date', 'ASC'),) # the highest chance to find movement which can be delivered
 )
 movement_list = portal.portal_catalog(**select_kw)

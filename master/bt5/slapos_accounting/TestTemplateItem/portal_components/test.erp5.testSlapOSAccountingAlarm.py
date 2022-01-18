@@ -129,13 +129,14 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertRaises(
       Unauthorized,
       subscription.InstanceTree_requestUpdateOpenSaleOrder,
+      "sale_trade_condition_module/couscous_trade_condition",
       REQUEST={})
 
   def test_solved_InstanceTree(self):
     subscription = self.portal.instance_tree_module\
         .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     self.portal.portal_workflow._jumpToStateFor(subscription, 'solved')
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
   def test_empty_InstanceTree(self):
@@ -149,7 +150,9 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.portal.portal_workflow._jumpToStateFor(subscription, 'validated')
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(
+      specialise="sale_trade_condition_module/couscous_trade_condition"
+    )
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -161,6 +164,13 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertEqual(1,len(open_sale_order_list))
     open_sale_order = open_sale_order_list[0].getObject()
     self.assertEqual('validated', open_sale_order.getValidationState())
+
+    sale_trade_condition = open_sale_order.getSpecialiseValue()
+    self.assertEqual(
+      "sale_trade_condition_module/couscous_trade_condition",
+      sale_trade_condition.getRelativeUrl()
+    )
+    sale_supply_line = sale_trade_condition.contentValues(portql_type="Sale Supply Line")[0]
 
     open_sale_order_line_list = open_sale_order.contentValues(
         portal_type='Open Sale Order Line')
@@ -174,15 +184,18 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertEqual("validated",
                      hosting_subscription.getValidationState())
     self.assertEqual(subscription.getRelativeUrl(), line.getAggregateList()[1])
-    open_sale_order_line_template = self.portal.restrictedTraverse(
-        self.portal.portal_preferences.getPreferredOpenSaleOrderLineTemplate())
-    self.assertEqual(open_sale_order_line_template.getResource(),
+    self.assertEqual(sale_supply_line.getResource(),
         line.getResource())
-    self.assertTrue(all([q in line.getCategoryList() \
-        for q in open_sale_order_line_template.getCategoryList()]))
-    self.assertEqual(open_sale_order_line_template.getQuantity(),
+    service = line.getResourceValue()
+    self.assertEqual(1,
         line.getQuantity())
-    self.assertEqual(open_sale_order_line_template.getPrice(),
+    self.assertEqual(service.getQuantityUnit(),
+        line.getQuantityUnit())
+    self.assertEqual(service.getUse(),
+        line.getUse())
+    self.assertSameSet(service.getBaseContributionList(),
+        line.getBaseContributionList())
+    self.assertEqual(sale_supply_line.getBasePrice(),
         line.getPrice())
     self.assertEqual(DateTime().earliestTime(), line.getStartDate())
     self.assertEqual(min(DateTime().day(), 28),
@@ -215,7 +228,9 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     }]
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(
+      specialise="sale_trade_condition_module/couscous_trade_condition"
+    )
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -231,6 +246,13 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     open_sale_order_line_list = open_sale_order.contentValues(
         portal_type='Open Sale Order Line')
 
+    sale_trade_condition = open_sale_order.getSpecialiseValue()
+    self.assertEqual(
+      "sale_trade_condition_module/couscous_trade_condition",
+      sale_trade_condition.getRelativeUrl()
+    )
+    sale_supply_line = sale_trade_condition.contentValues(portql_type="Sale Supply Line")[0]
+
     self.assertEqual(1, len(open_sale_order_line_list))
     line = open_sale_order_line_list[0].getObject()
 
@@ -241,15 +263,18 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertEqual("validated",
                      hosting_subscription.getValidationState())
     self.assertEqual(subscription.getRelativeUrl(), line.getAggregateList()[1])
-    open_sale_order_line_template = self.portal.restrictedTraverse(
-        self.portal.portal_preferences.getPreferredOpenSaleOrderLineTemplate())
-    self.assertTrue(all([q in line.getCategoryList() \
-        for q in open_sale_order_line_template.getCategoryList()]))
-    self.assertEqual(open_sale_order_line_template.getResource(),
+    self.assertEqual(sale_supply_line.getResource(),
         line.getResource())
-    self.assertEqual(open_sale_order_line_template.getQuantity(),
+    service = line.getResourceValue()
+    self.assertEqual(service.getQuantityUnit(),
+        line.getQuantityUnit())
+    self.assertEqual(service.getUse(),
+        line.getUse())
+    self.assertSameSet(service.getBaseContributionList(),
+        line.getBaseContributionList())
+    self.assertEqual(1,
         line.getQuantity())
-    self.assertEqual(open_sale_order_line_template.getPrice(),
+    self.assertEqual(sale_supply_line.getBasePrice(),
         line.getPrice())
     self.assertEqual(DateTime().earliestTime(), line.getStartDate())
     self.assertEqual(min(DateTime().day(), 28),
@@ -272,7 +297,9 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     subscription.diverge()
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(
+      specialise="sale_trade_condition_module/couscous_trade_condition"
+    )
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -305,13 +332,17 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
 
     self.assertEqual(subscription.getRelativeUrl(),
         archived_line.getAggregateList()[1])
-    self.assertTrue(all([q in archived_line.getCategoryList() \
-        for q in open_sale_order_line_template.getCategoryList()]))
-    self.assertEqual(open_sale_order_line_template.getResource(),
+    self.assertEqual(sale_supply_line.getResource(),
         archived_line.getResource())
-    self.assertEqual(open_sale_order_line_template.getQuantity(),
+    self.assertEqual(service.getQuantityUnit(),
+        archived_line.getQuantityUnit())
+    self.assertEqual(service.getUse(),
+        archived_line.getUse())
+    self.assertSameSet(service.getBaseContributionList(),
+        archived_line.getBaseContributionList())
+    self.assertEqual(1,
         line.getQuantity())
-    self.assertEqual(open_sale_order_line_template.getPrice(),
+    self.assertEqual(sale_supply_line.getBasePrice(),
         line.getPrice())
     self.assertEqual(DateTime().earliestTime(), archived_line.getStartDate())
     self.assertEqual(DateTime('2112/02/02'), line.getStopDate())
@@ -351,7 +382,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     subscription.fixConsistency()
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -384,7 +415,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     }]
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.tic()
 
     open_sale_order_list = self.portal.portal_catalog(
@@ -395,6 +426,13 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertEqual(1, len(open_sale_order_list))
     open_sale_order = open_sale_order_list[0].getObject()
     self.assertEqual('validated', open_sale_order.getValidationState())
+
+    sale_trade_condition = open_sale_order.getSpecialiseValue()
+    self.assertEqual(
+      "sale_trade_condition_module/couscous_trade_condition",
+      sale_trade_condition.getRelativeUrl()
+    )
+    sale_supply_line = sale_trade_condition.contentValues(portql_type="Sale Supply Line")[0]
 
     open_sale_order_line_list = open_sale_order.contentValues(
         portal_type='Open Sale Order Line')
@@ -407,15 +445,18 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertEqual("validated",
                      line.getAggregateValueList()[0].getValidationState())
     self.assertEqual(subscription.getRelativeUrl(), line.getAggregateList()[1])
-    open_sale_order_line_template = self.portal.restrictedTraverse(
-        self.portal.portal_preferences.getPreferredOpenSaleOrderLineTemplate())
-    self.assertTrue(all([q in line.getCategoryList() \
-        for q in open_sale_order_line_template.getCategoryList()]))
-    self.assertEqual(open_sale_order_line_template.getResource(),
+    self.assertEqual(sale_supply_line.getResource(),
         line.getResource())
-    self.assertEqual(open_sale_order_line_template.getQuantity(),
+    service = line.getResourceValue()
+    self.assertEqual(1,
         line.getQuantity())
-    self.assertEqual(open_sale_order_line_template.getPrice(),
+    self.assertEqual(service.getQuantityUnit(),
+        line.getQuantityUnit())
+    self.assertEqual(service.getUse(),
+        line.getUse())
+    self.assertSameSet(service.getBaseContributionList(),
+        line.getBaseContributionList())
+    self.assertEqual(sale_supply_line.getBasePrice(),
         line.getPrice())
 
     subscription2 = self.portal.instance_tree_module\
@@ -438,7 +479,9 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     subscription2.fixConsistency()
     self.tic()
 
-    subscription2.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription2.InstanceTree_requestUpdateOpenSaleOrder(
+      specialise="sale_trade_condition_module/couscous_trade_condition"
+    )
     self.tic()
 
     open_sale_order_list = self.portal.portal_catalog(
@@ -458,15 +501,21 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     open_sale_order_2 = [x for x in validated_open_sale_order_list if x.getRelativeUrl() != open_sale_order.getRelativeUrl()][0]
     self.assertEqual(open_sale_order.getRelativeUrl(), [x for x in validated_open_sale_order_list if x.getRelativeUrl() == open_sale_order.getRelativeUrl()][0].getRelativeUrl())
 
+    sale_trade_condition2 = open_sale_order.getSpecialiseValue()
+    self.assertEqual(
+      "sale_trade_condition_module/couscous_trade_condition",
+      sale_trade_condition2.getRelativeUrl()
+    )
+
     validated_line_list = open_sale_order_2.contentValues(
         portal_type='Open Sale Order Line')
     self.assertEqual(1, len(validated_line_list))
     validated_line_2 = validated_line_list[0]
     validated_line_1 = line
 
-    self.assertEqual(open_sale_order_line_template.getQuantity(),
+    self.assertEqual(1,
         line.getQuantity())
-    self.assertEqual(open_sale_order_line_template.getPrice(),
+    self.assertEqual(sale_supply_line.getBasePrice(),
         line.getPrice())
 
     hosting_subscription_2 = validated_line_2.getAggregateValueList()[0]
@@ -476,24 +525,32 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
                      hosting_subscription_2.getValidationState())
     self.assertEqual(subscription2.getRelativeUrl(), validated_line_2.getAggregateList()[1])
 
-    self.assertTrue(all([q in validated_line_1.getCategoryList() \
-        for q in open_sale_order_line_template.getCategoryList()]))
-    self.assertEqual(open_sale_order_line_template.getResource(),
+    self.assertEqual(service.getQuantityUnit(),
+        validated_line_1.getQuantityUnit())
+    self.assertEqual(service.getUse(),
+        validated_line_1.getUse())
+    self.assertSameSet(service.getBaseContributionList(),
+        validated_line_1.getBaseContributionList())
+    self.assertEqual(sale_supply_line.getResource(),
         validated_line_1.getResource())
-    self.assertEqual(open_sale_order_line_template.getQuantity(),
+    self.assertEqual(1,
         line.getQuantity())
-    self.assertEqual(open_sale_order_line_template.getPrice(),
+    self.assertEqual(sale_supply_line.getBasePrice(),
         line.getPrice())
     #self.assertEqual(request_time, validated_line_1.getStartDate())
     #self.assertEqual(stop_date, validated_line_1.getStopDate())
 
-    self.assertTrue(all([q in validated_line_2.getCategoryList() \
-        for q in open_sale_order_line_template.getCategoryList()]))
-    self.assertEqual(open_sale_order_line_template.getResource(),
+    self.assertEqual(service.getQuantityUnit(),
+        validated_line_2.getQuantityUnit())
+    self.assertEqual(service.getUse(),
+        validated_line_2.getUse())
+    self.assertSameSet(service.getBaseContributionList(),
+        validated_line_2.getBaseContributionList())
+    self.assertEqual(sale_supply_line.getResource(),
         validated_line_2.getResource())
-    self.assertEqual(open_sale_order_line_template.getQuantity(),
+    self.assertEqual(1,
         line.getQuantity())
-    self.assertEqual(open_sale_order_line_template.getPrice(),
+    self.assertEqual(sale_supply_line.getBasePrice(),
         line.getPrice())
     #self.assertEqual(request_time_2, validated_line_2.getStartDate())
     #self.assertEqual(stop_date_2, validated_line_2.getStopDate())
@@ -511,7 +568,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.portal.portal_workflow._jumpToStateFor(subscription, 'validated')
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.tic()
 
     request_time = DateTime('2112/01/01')
@@ -525,7 +582,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     })
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -560,7 +617,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertEqual(subscription.getCausalityState(), 'diverged')
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -570,7 +627,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertEqual(subscription.getSlapState(), 'draft')
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -586,7 +643,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.portal.portal_workflow._jumpToStateFor(subscription, 'destroy_requested')
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -1121,9 +1178,8 @@ class TestSlapOSStopConfirmedAggregatedSaleInvoiceTransactionAlarm(
 class TestSlapOSUpdateOpenSaleOrderPeriod(SlapOSTestCaseMixin):
 
   def createOpenOrder(self):
-    open_order = self.portal.open_sale_order_module\
-        .slapos_accounting_open_sale_order_template.Base_createCloneDocument(batch_mode=1)
-    open_order.edit(
+    open_order = self.portal.open_sale_order_module.newContent(
+        portal_type="Open Sale Order",
         title=self.generateNewSoftwareTitle(),
         reference="TESTHS-%s" % self.generateNewId(),
     )
@@ -1200,14 +1256,11 @@ class TestSlapOSUpdateOpenSaleOrderPeriod(SlapOSTestCaseMixin):
 class TestSlapOSReindexOpenSaleOrder(SlapOSTestCaseMixin):
 
   def createOpenOrder(self):
-    open_order = self.portal.open_sale_order_module\
-        .slapos_accounting_open_sale_order_template.\
-          Base_createCloneDocument(batch_mode=1)
-    open_order.edit(
+    return self.portal.open_sale_order_module.newContent(
+        portal_type="Open Sale Order",
         title=self.generateNewSoftwareTitle(),
         reference="TESTHS-%s" % self.generateNewId(),
     )
-    return open_order
 
   def _simulateScript(self, script_name, fake_return="False"):
     if script_name in self.portal.portal_skins.custom.objectIds():

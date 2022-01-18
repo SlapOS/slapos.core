@@ -31,6 +31,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
   def afterSetUp(self):
     self.unpinDateTime()
     self.normal_user = None
+    # XXX TODO change price to ensure nothing is hardcoded
     self.expected_individual_price_without_tax = 195
     self.expected_individual_price_with_tax = 234
     self.expected_reservation_fee = 30.00
@@ -46,7 +47,8 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.expected_zh_reservation_fee_without_tax = 188
     self.expected_zh_reservation_quantity_tax = 188
     self.expected_zh_reservation_tax = 1.88
- 
+
+    # XXX TODO change source to ensure nothing is hardcoded
     self.expected_notification_language = "en"
     self.expected_source = self.expected_slapos_organisation
     self.expected_source_section = self.expected_slapos_organisation
@@ -237,6 +239,29 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.normal_user.setLanguage(language)
 
   def createChineseSubscriptionCondition(self, slave=False):
+    sale_trade_condition = self.portal.sale_trade_condition_module.newContent(
+      portal_type="Sale Trade Condition",
+      title="TestSubscriptionScenario",
+      source=self.expected_source,
+      source_section=self.expected_source_section,
+      source_payment=self.expected_source_section + "/bank_account",
+      price_currency="currency_module/CNY",
+      payment_mode='wechat',
+      specialise="sale_trade_condition_module/slapos_subscription_trade_condition"
+    )
+    sale_trade_condition.newContent(
+      portal_type="Sale Supply Line",
+      comment='Price is an TCC (20% included)',
+      base_price=self.expected_zh_individual_price_with_tax,
+      resource='service_module/slapos_instance_subscription',
+    )
+    sale_trade_condition.newContent(
+      portal_type="Sale Supply Line",
+      base_price=self.expected_zh_reservation_fee_without_tax,
+      resource='service_module/slapos_reservation_fee_2',
+    )
+    sale_trade_condition.validate()
+
     subscription_condition = self.portal.subscription_condition_module.newContent(
       portal_type="Subscription Condition",
       title="TestSubscriptionChineseScenario",
@@ -244,8 +269,6 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       description="This is a Chinese test",
       url_string=self.generateNewSoftwareReleaseUrl(),
       root_slave=slave,
-      price=self.expected_zh_individual_price_with_tax,
-      price_currency="currency_module/CNY",
       default_source_reference="default",
       reference="rapidvm%s_zh" % self.new_id,
       # Aggregate and Follow up to web pages for product description and
@@ -253,15 +276,36 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       sla_xml='<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>',
       text_content='<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>',
       user_input={},
-      source=self.expected_source,
-      source_section=self.expected_source_section
+      specialise_value=sale_trade_condition
     )
     subscription_condition.validate()
-    subscription_condition.updateLocalRolesOnSecurityGroups()
     self.tic()
     return subscription_condition
 
   def createSubscriptionCondition(self, slave=False):
+    sale_trade_condition = self.portal.sale_trade_condition_module.newContent(
+      portal_type="Sale Trade Condition",
+      title="TestSubscriptionScenario",
+      source=self.expected_source,
+      source_section=self.expected_source_section,
+      source_payment=self.expected_source_section + "/bank_account",
+      price_currency="currency_module/EUR",
+      payment_mode='payzen',
+      specialise="sale_trade_condition_module/slapos_subscription_trade_condition"
+    )
+    # XXX TODO clarify the with / without tax
+    sale_trade_condition.newContent(
+      portal_type="Sale Supply Line",
+      comment='Price is an TCC (20% included)',
+      base_price=self.expected_individual_price_with_tax,
+      resource='service_module/slapos_instance_subscription',
+    )
+    sale_trade_condition.newContent(
+      portal_type="Sale Supply Line",
+      base_price=self.expected_reservation_fee_without_tax,
+      resource='service_module/slapos_reservation_fee_2',
+    )
+    sale_trade_condition.validate()
     self.subscription_condition = self.portal.subscription_condition_module.newContent(
       portal_type="Subscription Condition",
       title="TestSubscriptionScenario",
@@ -269,8 +313,6 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       description="This is a test",
       url_string=self.generateNewSoftwareReleaseUrl(),
       root_slave=slave,
-      price=self.expected_individual_price_with_tax,
-      price_currency="currency_module/EUR",
       default_source_reference="default",
       reference="rapidvm%s" % self.new_id,
       # Aggregate and Follow up to web pages for product description and
@@ -278,11 +320,9 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       sla_xml='<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>',
       text_content='<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>',
       user_input={},
-      source=self.expected_source,
-      source_section=self.expected_source_section
+      specialise_value=sale_trade_condition
     )
     self.subscription_condition.validate()
-    self.subscription_condition.updateLocalRolesOnSecurityGroups()
     self.tic()
 
   def getSubscriptionRequest(self, email, subscription_condition):
@@ -299,12 +339,12 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
   def checkSubscriptionRequest(self, subscription_request, email, subscription_condition):
     self.assertNotEqual(subscription_request, None)
     self.assertEqual(subscription_request.getDefaultEmailText(), email)
-    self.assertEqual(subscription_request.getUrlString(), subscription_condition.getUrlString())
-    self.assertEqual(subscription_request.getRootSlave(), subscription_condition.getRootSlave())
-    self.assertEqual(subscription_request.getTextContent(),
-      '<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>')
+    #self.assertEqual(subscription_request.getUrlString(), subscription_condition.getUrlString())
+    #self.assertEqual(subscription_request.getRootSlave(), subscription_condition.getRootSlave())
+    #self.assertEqual(subscription_request.getTextContent(),
+    #  '<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>')
     #self.assertEqual(trial_request.getSlaXml(), '<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>')
-    self.assertEqual(subscription_request.getSourceReference(), "default")
+    #self.assertEqual(subscription_request.getSourceReference(), "default")
 
   def checkDraftSubscriptionRequest(self, subscription_request, email, subscription_condition,
                                        amount=1):
@@ -388,15 +428,13 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     sale_transaction_invoice.SaleInvoiceTransaction_createReversalPayzenTransaction()
 
   def checkSubscriptionRequestPayment(self, subscription_request, authAmount):
-
-    if subscription_request.getSource() is not None:
-      self.assertNotEqual(subscription_request.getSourceSection(), None)
-      self.assertNotEqual(subscription_request.getSource(), None)
+    self.assertEqual(subscription_request.getSourceSection(), None)
+    self.assertEqual(subscription_request.getSource(), None)
+    trade_condition = subscription_request.getSpecialiseValue().getSpecialiseValue()
+    if trade_condition.getSource() is not None:
       #expected_source = subscription_request.getSource()
-      expected_source_section = subscription_request.getSourceSection()
+      expected_source_section = trade_condition.getSourceSection()
     else:
-      self.assertEqual(subscription_request.getSourceSection(), None)
-      self.assertEqual(subscription_request.getSource(), None)
       #expected_source = self.expected_source
       expected_source_section = self.expected_source_section
 
@@ -414,9 +452,12 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     self.assertEqual(int(round(payment.PaymentTransaction_getTotalPayablePrice(), 2)*100),
                      -authAmount)
-    
+
+    subscription_condition = subscription_request.getSpecialiseValue(portal_type='Subscription Condition')
+    sale_trade_condition = subscription_condition.getSpecialiseValue(portal_type='Sale Trade Condition')
+
     self.assertEqual(payment.getPriceCurrency(),
-        subscription_request.getPriceCurrency())
+        sale_trade_condition.getPriceCurrency())
 
     # Check related invoice Data
     invoice_list = payment.getCausalityValueList()
@@ -582,7 +623,10 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     # Check Payment
     payment = self._getRelatedPaymentValue(subscription_request)
 
-    self.assertEqual(subscription_request.getPriceCurrency(),
+    subscription_condition = subscription_request.getSpecialiseValue(portal_type='Subscription Condition')
+    sale_trade_condition = subscription_condition.getSpecialiseValue(portal_type='Sale Trade Condition')
+
+    self.assertEqual(sale_trade_condition.getPriceCurrency(),
       payment.getPriceCurrency())
     self.assertEqual(-self.expected_reservation_fee*quantity,
       payment.PaymentTransaction_getTotalPayablePrice())
@@ -595,7 +639,10 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     # Check Payment
     payment = self._getRelatedPaymentValue(subscription_request)
 
-    self.assertEqual(subscription_request.getPriceCurrency(),
+    subscription_condition = subscription_request.getSpecialiseValue(portal_type='Subscription Condition')
+    sale_trade_condition = subscription_condition.getSpecialiseValue(portal_type='Sale Trade Condition')
+    #sale_supply_line = sale_trade_condition.contentValues(portal_type='Sale Supply Line')[0]
+    self.assertEqual(sale_trade_condition.getPriceCurrency(),
       payment.getPriceCurrency())
     self.assertEqual(payment.getSimulationState(), "started")
 
@@ -650,15 +697,15 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       self.assertEqual(invoice.getSimulationState(), "confirmed")
       self.assertEqual(invoice.getCausalityState(), "building")
 
-      if subscription_request.getSpecialiseValue().getSource() is not None:
-        self.assertNotEqual(subscription_request.getSourceSection(), None)
-        self.assertNotEqual(subscription_request.getSource(), None)
-
-        expected_source = subscription_request.getSource()
-        expected_source_section = subscription_request.getSourceSection()
+      self.assertEqual(subscription_request.getSourceSection(), None)
+      self.assertEqual(subscription_request.getSource(), None)
+      self.assertEqual(subscription_request.getSpecialiseValue().getSourceSection(), None)
+      self.assertEqual(subscription_request.getSpecialiseValue().getSource(), None)
+      trade_condition = subscription_request.getSpecialiseValue().getSpecialiseValue()
+      if trade_condition.getSource() is not None:
+        expected_source = trade_condition.getSource()
+        expected_source_section = trade_condition.getSourceSection()
       else:
-        self.assertEqual(subscription_request.getSourceSection(), None)
-        self.assertEqual(subscription_request.getSource(), None)
         expected_source = self.expected_source
         expected_source_section = self.expected_source_section
 
@@ -705,7 +752,11 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       invoice = subscription_request.getCausalityValue(
         portal_type="Sale Invoice Transaction")
 
-      if subscription_request.getPriceCurrency() == "currency_module/CNY":
+      subscription_condition = subscription_request.getSpecialiseValue(portal_type='Subscription Condition')
+      sale_trade_condition = subscription_condition.getSpecialiseValue(portal_type='Sale Trade Condition')
+      #sale_supply_line = sale_trade_condition.contentValues(portal_type='Sale Supply Line')[0]
+
+      if sale_trade_condition.getPriceCurrency() == "currency_module/CNY":
         expected_reservation_fee_without_tax = self.expected_zh_reservation_fee_without_tax
         expected_reservation_quantity_tax = self.expected_zh_reservation_quantity_tax
         expected_reservation_tax = self.expected_zh_reservation_tax
@@ -718,10 +769,11 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
       self.assertEqual(invoice.getSimulationState(), "stopped", invoice.getRelativeUrl())
       self.assertEqual(invoice.getCausalityState(), "solved")
+
       self.assertEqual(invoice.getPriceCurrency(),
-        subscription_request.getPriceCurrency())
+        sale_trade_condition.getPriceCurrency())
       for line in invoice.objectValues():
-        if line.getResource() == "service_module/slapos_reservation_fee":
+        if line.getResource() == "service_module/slapos_reservation_fee_2":
           self.assertEqual(line.getTotalQuantity(), quantity)
           if self.expected_free_reservation:
             self.assertEqual(round(line.getTotalPrice(), 2),  0.0)
@@ -742,8 +794,11 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       if i.getResource() == "service_module/slapos_instance_subscription"][0]
 
     quantity = subscription_request.getQuantity()
+
+    subscription_condition = subscription_request.getSpecialiseValue(portal_type='Subscription Condition')
+    sale_trade_condition = subscription_condition.getSpecialiseValue(portal_type='Sale Trade Condition')
     # The values are without tax
-    if subscription_request.getPriceCurrency() == "currency_module/CNY":
+    if sale_trade_condition.getPriceCurrency() == "currency_module/CNY":
       expected_individual_price_without_tax = self.expected_zh_individual_price_without_tax
     else:
       expected_individual_price_without_tax = self.expected_individual_price_without_tax
@@ -761,7 +816,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
                      subscription_request.getRelativeUrl())
 
     self.assertEqual(sale_packing_list.getPriceCurrency(),
-                     subscription_request.getPriceCurrency())
+                     sale_trade_condition.getPriceCurrency())
 
   def _checkSecondMonthSimulation(self, subscription_request_list,
           default_email_text, subscription_server):
@@ -908,7 +963,8 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.assertEqual(subscriber.Entity_statOutstandingAmount(at_date=DateTime()),
       0.0)
     
-    if subscription_request.getPriceCurrency() == "currency_module/CNY":
+    trade_condition = subscription_request.getSpecialiseValue().getSpecialiseValue()
+    if trade_condition.getPriceCurrency() == "currency_module/CNY":
       expected_individual_price_with_tax = self.expected_zh_individual_price_with_tax
     else:
       expected_individual_price_with_tax = self.expected_individual_price_with_tax
@@ -924,7 +980,8 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     # Pay this new invoice
     for subscription_request in subscription_request_list:
-      if subscription_request.getPriceCurrency() == "currency_module/CNY":
+      trade_condition = subscription_request.getSpecialiseValue().getSpecialiseValue()
+      if trade_condition.getPriceCurrency() == "currency_module/CNY":
         self.checkAndPaySecondMonthViaWechat(subscription_request)
       else:
         self.checkAndPaySecondMonth(subscription_request)
@@ -1023,9 +1080,11 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     instance_tree = subscription_request.getAggregateValue()
     self.assertNotEqual(instance_tree, None)
 
-    self.assertEqual(subscription_request.getUrlString(),
+    subscription_condition = subscription_request.getSpecialiseValue(portal_type='Subscription Condition')
+
+    self.assertEqual(subscription_condition.getUrlString(),
                      instance_tree.getUrlString())
-    self.assertEqual(subscription_request.getRootSlave(),
+    self.assertEqual(subscription_condition.getRootSlave(),
                      instance_tree.getRootSlave())
     self.assertEqual(instance_tree.getTextContent(),
       '<?xml version="1.0" encoding="utf-8"?>\n<instance>\n</instance>')
@@ -1043,6 +1102,9 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.assertNotEqual(instance.getAggregate(), None)
 
   def checkAggregatedSalePackingList(self, subscription_request, sale_packing_list):
+    subscription_condition = subscription_request.getSpecialiseValue(portal_type='Subscription Condition')
+    sale_trade_condition = subscription_condition.getSpecialiseValue(portal_type='Sale Trade Condition')
+    #sale_supply_line = sale_trade_condition.contentValues(portal_type='Sale Supply Line')[0]
 
     self.assertEqual(len(sale_packing_list.objectValues()), 2)
 
@@ -1050,7 +1112,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       if i.getResource() == "service_module/slapos_instance_subscription"][0]
 
     quantity = subscription_request.getQuantity()
-    if subscription_request.getPriceCurrency() == "currency_module/CNY":
+    if sale_trade_condition.getPriceCurrency() == "currency_module/CNY":
       expected_individual_price_without_tax = self.expected_zh_individual_price_without_tax
       expected_reservation_fee = self.expected_zh_reservation_fee_without_tax
     else:
@@ -1082,7 +1144,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
                      subscription_request.getRelativeUrl())
 
     self.assertEqual(sale_packing_list.getPriceCurrency(),
-                     subscription_request.getPriceCurrency())
+                     sale_trade_condition.getPriceCurrency())
 
   def makeCloudInvitationToken(self, max_invoice_delay=0, max_invoice_credit_eur=0.0,
                                     max_invoice_credit_cny=0.0):
@@ -1140,8 +1202,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     person = subscription_request.getDestinationSectionValue()
     person_uid = person.getUid()
 
-    trade_condition = person.Person_getAggregatedSubscriptionSaleTradeConditionValue(specialise)
-    specialise_uid = self.portal.restrictedTraverse(trade_condition).getUid()
+    specialise_uid = self.portal.restrictedTraverse(specialise).getUid()
 
     return self.portal.portal_catalog(
       portal_type='Sale Packing List',
@@ -1167,6 +1228,10 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     person_uid = subscription_request.getDestinationSectionValue().getUid()
     specialise_uid = self.portal.restrictedTraverse(
       "sale_trade_condition_module/slapos_subscription_trade_condition").getUid()
+    specialise_uid = [specialise_uid] + [
+          i.uid for i in self.portal.ERP5Site_searchRelatedInheritedSpecialiseList(
+            specialise_uid=specialise_uid)
+        ]
 
     return self.portal.portal_catalog(
       portal_type='Sale Packing List',
@@ -1219,15 +1284,13 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     subscription_request = self.getSubscriptionRequest(
       default_email_text, self.subscription_condition)
 
-    self.assertEqual(self.expected_price_currency,
-      subscription_request.getPriceCurrency())
+    sale_trade_condition = self.subscription_condition.getSpecialiseValue(
+      portal_type="Sale Trade Condition",
+    )
 
-    self.assertEqual(self.subscription_condition.getSource(),
-      subscription_request.getSource())
-    
-    self.assertEqual(self.subscription_condition.getSourceSection(),
-      subscription_request.getSourceSection())
-    
+    self.assertEqual(self.expected_price_currency,
+      sale_trade_condition.getPriceCurrency())
+
     self.assertEqual(self.expected_notification_language,
       subscription_request.getLanguage())
 
@@ -1270,12 +1333,16 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     self.assertEqual(len(sale_packing_list_list), 1)
     sale_packing_list = sale_packing_list_list[0]
 
+    subscription_condition = subscription_request.getSpecialiseValue(portal_type='Subscription Condition')
+    sale_trade_condition = subscription_condition.getSpecialiseValue(portal_type='Sale Trade Condition')
+    #sale_supply_line = sale_trade_condition.contentValues(portal_type='Sale Supply Line')[0]
+
     self.assertEqual(sale_packing_list.getPriceCurrency(),
-                     subscription_request.getPriceCurrency())
+                     sale_trade_condition.getPriceCurrency())
     self.assertEqual(sale_packing_list.getSpecialise(),
       "sale_trade_condition_module/slapos_reservation_refund_trade_condition")
 
-    if subscription_request.getPriceCurrency() == "currency_module/CNY":
+    if sale_trade_condition.getPriceCurrency() == "currency_module/CNY":
       self.assertEqual(round(sale_packing_list.getTotalPrice(), 2),
                      -round(self.expected_zh_reservation_fee_without_tax*amount, 2))
 
@@ -1520,7 +1587,10 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     if not self.expected_free_reservation:
       for subscription_request in subscription_request_list:
-        if subscription_request.getPriceCurrency() == "currency_module/CNY":
+        subscription_condition = subscription_request.getSpecialiseValue(portal_type='Subscription Condition')
+        sale_trade_condition = subscription_condition.getSpecialiseValue(portal_type='Sale Trade Condition')
+
+        if sale_trade_condition.getPriceCurrency() == "currency_module/CNY":
           self.checkAndPayFirstMonthViaWechat(subscription_request)
         else:
           self.checkAndPayFirstMonth(subscription_request)
@@ -1638,12 +1708,12 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     # Disable on this test the pricing on the template to not generate debt before 
     # them expected
-    line = self.portal.open_sale_order_module.\
-      slapos_accounting_open_sale_order_line_template.\
-      slapos_accounting_open_sale_order_line_template
+    supply_line = self.portal.sale_trade_condition_module.\
+      couscous_trade_condition.\
+      subscription_price
 
-    previous_price = line.getPrice()  
-    line.setPrice(0.0)
+    previous_price = supply_line.getBasePrice()
+    supply_line.setBasePrice(0.0)
 
     try:
       self.login(self.normal_user.getUserId())
@@ -1675,7 +1745,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
         default_email_text, self.subscription_server
       )
     finally:
-      line.setPrice(previous_price)
+      supply_line.setPrice(previous_price)
     
     return default_email_text, name
 

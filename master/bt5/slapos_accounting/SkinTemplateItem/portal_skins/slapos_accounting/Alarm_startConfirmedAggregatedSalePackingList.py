@@ -16,11 +16,18 @@ def getAccountingDate(accounting_date):
 accounting_date = params.get('accounting_date', DateTime().earliestTime())
 
 portal = context.getPortalObject()
+
+trade_condition_uid_list = [portal.restrictedTraverse(portal.portal_preferences.getPreferredAggregatedSaleTradeCondition()).getUid()]
+trade_condition_uid_list.extend([
+      i.uid for i in portal.ERP5Site_searchRelatedInheritedSpecialiseList(
+      specialise_uid=trade_condition_uid_list,
+      validation_state="validated")])
+
 portal.portal_catalog.searchAndActivate(
   portal_type='Sale Packing List',
   simulation_state='confirmed',
   causality_state='solved',
-  specialise_uid=portal.restrictedTraverse(portal.portal_preferences.getPreferredAggregatedSaleTradeCondition()).getUid(),
+  specialise_uid=trade_condition_uid_list,
   method_id='Delivery_startConfirmedAggregatedSalePackingList',
   activate_kw={'tag': tag},
   **{'delivery.start_date': Query(range="max",

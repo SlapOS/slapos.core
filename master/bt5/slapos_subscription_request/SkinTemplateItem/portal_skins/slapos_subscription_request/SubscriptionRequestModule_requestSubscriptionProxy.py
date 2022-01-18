@@ -54,22 +54,28 @@ contract = None
 if token:
   contract = person.Person_applyContractInvitation(invitation_token)
 
+subscription_condition = context.portal_catalog.getResultValue(
+  portal_type="Subscription Condition",
+  reference=subscription_reference if (target_language != "zh") else (subscription_reference + '_zh'),
+  validation_state="validated"
+)
+
 subscription_request = context.subscription_request_module.newContent(
   portal_type="Subscription Request",
   destination_section_value=person,
   quantity=user_input_dict["amount"],
-  language=target_language
+  language=target_language,
+  specialise_value=subscription_condition,
 )
 
 subscription_request.setDefaultEmailText(email)
 
-def wrapWithShadow(subscription_request, subscription_reference,
+def wrapWithShadow(subscription_request,
                    subscription_request_id, variation_reference, contract=contract):
   subscription_request.activate(tag="subscription_condition_%s" % subscription_request_id
-                             ).SubscriptionRequest_applyCondition(subscription_reference, target_language)
+                             ).SubscriptionRequest_applyCondition()
   return subscription_request.SubscriptionRequest_requestPaymentTransaction(
     tag="subscription_%s" % subscription_request_id,
-    target_language=target_language,
     contract=contract,
     variation_reference=variation_reference
   )
@@ -78,9 +84,11 @@ payment = person.Person_restrictMethodAsShadowUser(
   shadow_document=person,
   callable_object=wrapWithShadow,
   argument_list=[subscription_request, 
-                 subscription_reference, subscription_request.getId(),
+                 subscription_request.getId(),
                  variation_reference, contract])
 
+# Ensure tests crashes in batch mode
+assert payment.getPaymentMode() in ['payzen', 'wechat']
 if batch_mode:
   return {'subscription' : subscription_request.getRelativeUrl(),
           'payment': payment.getRelativeUrl() }
@@ -88,10 +96,12 @@ if batch_mode:
 def wrapRedirectWithShadow(payment_transaction, web_site):
   # getTotalPayble returns a negative value
   if payment_transaction.PaymentTransaction_getTotalPayablePrice() < 0:
-    if target_language == "zh":
+    if payment.getPaymentMode() == 'wechat':
       return payment_transaction.PaymentTransaction_redirectToManualWechatPayment(web_site)
-    else:
+    elif payment.getPaymentMode() == 'payzen':
       return payment_transaction.PaymentTransaction_redirectToManualPayzenPayment(web_site)
+    else:
+      raise NotImplementedError('Not supported payment mode (%s) for %s' % (payment.getPaymentMode(), payment.getRelativeUrl()))
   return payment_transaction.PaymentTransaction_redirectToManualFreePayment(web_site)
 
 return person.Person_restrictMethodAsShadowUser(

@@ -19,7 +19,7 @@ def newPackingList(movement, causality, message):
   delivery.confirm(message)
   return delivery
 
-consumption_specialise_uid_list = [q.getUid() for q in portal.portal_catalog(
+consumption_specialise_uid_list = [q.getUid() for q in portal.ERP5Site_searchRelatedInheritedSpecialiseList(
   specialise_uid=portal.business_process_module.slapos_consumption_business_process.getUid(),
   portal_type='Sale Trade Condition')]
 

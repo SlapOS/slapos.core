@@ -421,42 +421,39 @@ class TestHostingSubscriptionSimulation(SlapOSTestCaseMixin):
   def _prepare(self):
     person = self.portal.person_module.template_member\
         .Base_createCloneDocument(batch_mode=1)
-    self.subscription = self.portal.hosting_subscription_module.newContent()
     self.instance_tree = self.portal.instance_tree_module\
         .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+    self.instance_tree.edit(
+      destination_section_value=person
+    )
+    self.portal.portal_workflow._jumpToStateFor(self.instance_tree, 'validated')
+    open_order = self.instance_tree.InstanceTree_requestUpdateOpenSaleOrder(
+      specialise="sale_trade_condition_module/couscous_trade_condition"
+    )
+
     self.initial_date = DateTime('2011/02/16')
     stop_date = DateTime('2011/04/16')
+
+    open_order.edit(
+        effective_date=self.initial_date,
+        expiration_date=self.initial_date + 1
+    )
+
+    self.open_order_line = open_order.contentValues(
+        portal_type='Open Sale Order Line'
+    )[0]
+    self.open_order_line.edit(
+        start_date=self.initial_date,
+        stop_date=stop_date
+    )
+
+    self.subscription = self.open_order_line.getAggregateValue(portal_type='Hosting Subscription')
     self.subscription.edit(
       periodicity_hour=0,
       periodicity_minute=0,
       periodicity_month_day=self.initial_date.day(),
-      destination_section=person.getRelativeUrl()
     )
-    self.portal.portal_workflow._jumpToStateFor(self.subscription, 'validated')
-    self.portal.portal_workflow._jumpToStateFor(self.instance_tree, 'validated')
 
-    open_sale_order_template = self.portal.restrictedTraverse(
-        self.portal.portal_preferences.getPreferredOpenSaleOrderTemplate())
-    open_sale_order_line_template = self.portal.restrictedTraverse(
-        self.portal.portal_preferences.getPreferredOpenSaleOrderLineTemplate())
-    open_order = open_sale_order_template.Base_createCloneDocument(
-        batch_mode=1)
-    open_order.edit(
-        destination_decision=person.getRelativeUrl(),
-        destination_section=person.getRelativeUrl(),
-        destination=person.getRelativeUrl(),
-        effective_date=self.initial_date,
-        expiration_date=self.initial_date + 1,
-    )
-    self.portal.portal_workflow._jumpToStateFor(open_order, 'validated')
-
-    self.open_order_line = open_sale_order_line_template.Base_createCloneDocument(
-        batch_mode=1, destination=open_order)
-    self.open_order_line.edit(
-        aggregate=self.subscription.getRelativeUrl(),
-        start_date=self.initial_date,
-        stop_date=stop_date
-    )
     self.tic()
 
     applied_rule_list = self.portal.portal_catalog(portal_type='Applied Rule',

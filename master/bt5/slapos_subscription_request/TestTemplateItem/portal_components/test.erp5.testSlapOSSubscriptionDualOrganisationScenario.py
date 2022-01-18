@@ -31,18 +31,20 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
     self.expected_source_section = fr_organisation.getRelativeUrl()
     self.expected_zh_reservation_fee = 189.88
 
-    self.subscription_condition.edit(
+    self.subscription_condition.getSpecialiseValue().edit(
       source=self.expected_source,
-      source_section=self.expected_source_section
+      source_section=self.expected_source_section,
+      source_payment=self.expected_source_section + '/bank_account',
     )
 
     self.subscription_condition_zh = self.createChineseSubscriptionCondition()
     self.expected_zh_source = zh_organisation.getRelativeUrl()
     self.expected_zh_source_section = zh_organisation.getRelativeUrl()
 
-    self.subscription_condition_zh.edit(
+    self.subscription_condition_zh.getSpecialiseValue().edit(
       source=self.expected_zh_source,
-      source_section=self.expected_zh_source_section
+      source_section=self.expected_zh_source_section,
+      source_payment=self.expected_zh_source_section + '/bank_account',
     )
 
     self.portal.portal_caches.clearAllCache()
@@ -91,11 +93,12 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
         self.assertEqual(language,
                        subscription_request.getLanguage())
 
+        trade_condition = subscription_request.getSpecialiseValue().getSpecialiseValue()
         self.assertEqual(expected_price_currency,
-                         subscription_request.getPriceCurrency())
+                         trade_condition.getPriceCurrency())
 
         self.assertEqual(expected_source_section,
-                         subscription_request.getSourceSection())
+                         trade_condition.getSourceSection())
 
 
         self.checkDraftSubscriptionRequest(subscription_request,
@@ -145,12 +148,13 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
       self.assertEqual(len(sale_packing_list_list), 1)
       sale_packing_list = sale_packing_list_list[0]
 
+      trade_condition = subscription_request.getSpecialiseValue().getSpecialiseValue()
       self.assertEqual(sale_packing_list.getPriceCurrency(),
-                       subscription_request.getPriceCurrency())
+                       trade_condition.getPriceCurrency())
       self.assertEqual(sale_packing_list.getSpecialise(),
         "sale_trade_condition_module/slapos_reservation_refund_trade_condition")
 
-      if subscription_request.getPriceCurrency() == "currency_module/CNY":
+      if trade_condition.getPriceCurrency() == "currency_module/CNY":
         expected_reservation_fee = self.expected_zh_reservation_fee_without_tax
       else:
         expected_reservation_fee = self.expected_reservation_fee_without_tax
@@ -189,7 +193,8 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
 
     if not self.expected_free_reservation:
       for subscription_request in subscription_request_list:
-        if subscription_request.getPriceCurrency() == "currency_module/CNY":
+        trade_condition = subscription_request.getSpecialiseValue().getSpecialiseValue()
+        if trade_condition.getPriceCurrency() == "currency_module/CNY":
           self.checkAndPayFirstMonthViaWechat(subscription_request)
         else:
           self.checkAndPayFirstMonth(subscription_request)

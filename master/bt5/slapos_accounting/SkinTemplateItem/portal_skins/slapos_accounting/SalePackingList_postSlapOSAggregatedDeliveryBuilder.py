@@ -5,27 +5,26 @@ restrictedTraverse = portal.restrictedTraverse
 person = context.getDestination()
 reference = context.getReference()
 
-business_process_uid_list = [
-  portal.business_process_module.slapos_reservation_refound_business_process.getUid(),
-  portal.business_process_module.slapos_subscription_business_process.getUid()]
+business_process_list = [
+  portal.business_process_module.slapos_reservation_refound_business_process,
+  portal.business_process_module.slapos_subscription_business_process]
+business_process_uid_list = [x.getUid() for x in business_process_list]
 
-specialise_list = [q.getRelativeUrl() for q in portal.portal_catalog(
+specialise_list = [q.getRelativeUrl() for q in portal.ERP5Site_searchRelatedInheritedSpecialiseList(
   specialise_uid=business_process_uid_list, portal_type='Sale Trade Condition')]
 
-consumption_specialise_list = [q.getRelativeUrl() for q in portal.portal_catalog(
+consumption_specialise_list = [q.getRelativeUrl() for q in portal.ERP5Site_searchRelatedInheritedSpecialiseList(
   specialise_uid=portal.business_process_module.slapos_consumption_business_process.getUid(),
   portal_type='Sale Trade Condition')]
 
-subscription_request_specialise = portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()
-consumption_specialise = portal.portal_preferences.getPreferredAggregatedConsumptionSaleTradeCondition()
-
 trade_condition = context.getSpecialise()
 
-specialise_filter_list = consumption_specialise_list + specialise_list
-if trade_condition == consumption_specialise:
+if trade_condition in consumption_specialise_list:
   specialise_filter_list = consumption_specialise_list
-elif trade_condition == subscription_request_specialise:
+elif trade_condition in specialise_list:
   specialise_filter_list = specialise_list
+else:
+  specialise_filter_list = consumption_specialise_list + specialise_list
 
 def test_for_subscription(movement, causality):
   instance_tree = movement.getAggregateValue(portal_type="Instance Tree")

@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>root_trade_condition</string> </value>
+            <value> <string>specialise_uid, portal_type=None, validation_state=None, destination_section__uid=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Person_getAggregatedSubscriptionSaleTradeConditionValue</string> </value>
+            <value> <string>ERP5Site_searchRelatedInheritedSpecialiseList</string> </value>
         </item>
       </dictionary>
     </pickle>

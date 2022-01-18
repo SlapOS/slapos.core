@@ -3,6 +3,7 @@ Subscription Condition | aggregate
 Subscription Condition | follow_up
 Subscription Condition | source
 Subscription Condition | source_section
+Subscription Condition | specialise
 Subscription Request Module | business_application
 Subscription Request | aggregate
 Subscription Request | causality

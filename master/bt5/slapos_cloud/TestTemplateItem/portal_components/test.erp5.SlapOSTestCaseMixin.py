@@ -705,10 +705,6 @@ return %s""" % (script_name, fake_return ))
         'accounting_module/slapos_pre_payment_template',
       preferred_instance_delivery_template=\
         'sale_packing_list_module/slapos_accounting_instance_delivery_template',
-      preferred_open_sale_order_line_template=\
-        'open_sale_order_module/slapos_accounting_open_sale_order_line_template/slapos_accounting_open_sale_order_line_template',
-      preferred_open_sale_order_template=\
-        'open_sale_order_module/slapos_accounting_open_sale_order_template',
       preferred_zh_pre_payment_template=\
         'accounting_module/slapos_wechat_pre_payment_template',
       preferred_zh_pre_payment_subscription_invoice_template=\
@@ -716,6 +712,10 @@ return %s""" % (script_name, fake_return ))
       preferred_default_pre_payment_subscription_invoice_template=\
         'accounting_module/template_pre_payment_subscription_sale_invoice_transaction'
 
+    )
+    self.portal.sale_trade_condition_module.couscous_trade_condition.edit(
+      source_section='organisation_module/slapos',
+      source='organisation_module/slapos'
     )
     self.tic()
 
@@ -764,13 +764,8 @@ return %s""" % (script_name, fake_return ))
       source_value=organisation
     )
 
-    open_sale_order_module = self.portal.open_sale_order_module
-
-    preferred_open_sale_order_template=\
-        open_sale_order_module.slapos_accounting_open_sale_order_template.Base_createCloneDocument(batch_mode=1)
-
-    preferred_open_sale_order_template.edit(
-      source_section_value = organisation,
+    self.portal.sale_trade_condition_module.couscous_trade_condition.edit(
+      source_section_value=organisation,
       source_value=organisation
     )
 
@@ -784,9 +779,7 @@ return %s""" % (script_name, fake_return ))
       preferred_default_pre_payment_subscription_invoice_template=\
         preferred_default_pre_payment_subscription_invoice_template.getRelativeUrl(),
       preferred_instance_delivery_template=\
-        preferred_instance_delivery_template.getRelativeUrl(),
-      preferred_open_sale_order_template=\
-        preferred_open_sale_order_template.getRelativeUrl()
+        preferred_instance_delivery_template.getRelativeUrl()
     )
     self.tic()
 
@@ -842,12 +835,7 @@ return %s""" % (script_name, fake_return ))
       source_value=fr_organisation
     )
 
-    open_sale_order_module = self.portal.open_sale_order_module
-
-    preferred_open_sale_order_template=\
-        open_sale_order_module.slapos_accounting_open_sale_order_template.Base_createCloneDocument(batch_mode=1)
-
-    preferred_open_sale_order_template.edit(
+    self.portal.sale_trade_condition_module.couscous_trade_condition.edit(
       source_section_value=fr_organisation,
       source_value=fr_organisation
     )
@@ -862,9 +850,7 @@ return %s""" % (script_name, fake_return ))
       preferred_default_pre_payment_subscription_invoice_template=\
         preferred_default_pre_payment_subscription_invoice_template.getRelativeUrl(),
       preferred_instance_delivery_template=\
-        preferred_instance_delivery_template.getRelativeUrl(),
-      preferred_open_sale_order_template=\
-        preferred_open_sale_order_template.getRelativeUrl()
+        preferred_instance_delivery_template.getRelativeUrl()
     )
     self.tic()
 

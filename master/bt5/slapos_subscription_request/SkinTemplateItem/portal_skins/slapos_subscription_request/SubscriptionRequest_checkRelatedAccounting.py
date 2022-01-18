@@ -29,8 +29,9 @@ if sale_packing_list_list:
     portal_type="Sale Invoice Transaction",
     strict_causality_uid=[x.getUid() for x in sale_packing_list_list],
   )
-  subscription_currency = subscription_request.getPriceCurrency()
-  subscription_source_section = subscription_request.getSourceSection()
+  trade_condition = subscription_request.getSpecialiseValue().getSpecialiseValue()
+  subscription_currency = trade_condition.getPriceCurrency()
+  subscription_source_section = trade_condition.getSourceSection()
   for sale_invoice in sale_invoice_list:
     sale_invoice = sale_invoice.getObject()
     if sale_invoice.getPriceCurrency() != subscription_currency:

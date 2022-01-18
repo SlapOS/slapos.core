@@ -10,3 +10,4 @@ notification_message_module/slapos-free-trial-token
 portal_alarms/slapos_subscription_request_process_**
 portal_alarms/slapos_trial_process_**
 portal_alarms/slapos_update_subscription_request_consistency_state
+service_module/slapos_reservation_fee_2

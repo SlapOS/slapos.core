@@ -21,8 +21,8 @@ if context.getSimulationState() == 'started' \
 
     trade_condition_uid_list.extend(root_trade_condition_uid_list)
     trade_condition_uid_list.extend([
-      i.uid for i in portal.portal_catalog(
-      specialise__uid=root_trade_condition_uid_list,
+      i.uid for i in portal.ERP5Site_searchRelatedInheritedSpecialiseList(
+      specialise_uid=root_trade_condition_uid_list,
       validation_state="validated")])
 
     if context.getSpecialiseUid() not in trade_condition_uid_list:

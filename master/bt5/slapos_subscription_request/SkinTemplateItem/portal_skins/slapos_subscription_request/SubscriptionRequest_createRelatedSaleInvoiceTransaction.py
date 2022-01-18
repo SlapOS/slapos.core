@@ -6,49 +6,67 @@ portal = context.getPortalObject()
 current_invoice = context.getCausalityValue()
 
 if current_invoice is None:
+  # _init is guarded by the owner role
+  # but SubscriptionRequest_createRelatedSaleInvoiceTransaction is called with a shadow user
+  # leading to unauthorized error
+  # Instead, clone one temp invoice (as there is no _afterClone)
   invoice_template = portal.restrictedTraverse(template)
   current_invoice = invoice_template.Base_createCloneDocument(batch_mode=1)
+  assert current_invoice is not None
+  current_invoice.manage_delObjects([x for x in
+                                     current_invoice.contentIds() if x != "1"])
+  current_invoice.edit(
+    categories=[],
+    title=None
+  )
+  current_invoice["1"].manage_delObjects([x for x in
+                                          current_invoice["1"].contentIds()])
+  current_invoice["1"].edit(
+    categories=[],
+    title=None,
+    quantity=None,
+    price=None,
+    base_unit_price=None,
+    #index=None,
+    #variation_base_category_list=None,
+    #variation_category_list=None,
+  )
+  current_invoice["1"].updateCellRange('movement')
 
-  subscription_trade_condition = portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()
-  user_trade_condition = context.getDestinationSectionValue().\
-     Person_getAggregatedSubscriptionSaleTradeConditionValue(subscription_trade_condition)
-
-  if user_trade_condition:
-    current_invoice.setSpecialise(user_trade_condition)
-  
   context.edit(causality_value=current_invoice)
 
   payment_transaction = portal.restrictedTraverse(payment)
   current_invoice.edit(
-        title="Reservation Fee",
-        destination_value=context.getDestinationSection(),
-        destination_section_value=context.getDestinationSection(),
-        destination_decision_value=context.getDestinationSection(),
-        start_date=payment_transaction.getStartDate(),
-        stop_date=payment_transaction.getStopDate(),
-      )
+    title="Reservation Fee",
+    destination_value=context.getDestinationSection(),
+    destination_section_value=context.getDestinationSection(),
+    destination_decision_value=context.getDestinationSection(),
+    start_date=payment_transaction.getStartDate(),
+    stop_date=payment_transaction.getStopDate(),
+
+    specialise=portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition(),
+
+    source_section_value=payment_transaction.getSourceSectionValue(),
+    source_value=payment_transaction.getSourceValue(),
+    payment_mode_value=payment_transaction.getPaymentModeValue(),
+    price_currency_value=payment_transaction.getPriceCurrencyValue(),
+    resource_value=payment_transaction.getResourceValue(),
+  )
 
   current_invoice["1"].edit(
-        start_date=payment_transaction.getStartDate(),
-        stop_date=payment_transaction.getStopDate())
-  if service_variation is not None:
-    current_invoice["1"].setVariation(service_variation)
-  
-  cell = current_invoice["1"]["movement_0"]
-  
-  cell.edit(
-    variation=current_invoice["1"].getVariation(),
-    quantity=context.getQuantity()
-  )
-  cell.setPrice(price)
+    start_date=payment_transaction.getStartDate(),
+    stop_date=payment_transaction.getStopDate(),
 
-  # Test to see if the user has specific trade condition for aggregation.
-  person = context.getDestinationSectionValue()
-  trade_condition = person.Person_getAggregatedSubscriptionSaleTradeConditionValue(
-    current_invoice.getSpecialise()
+    use="trade/sale",
+    resource="service_module/slapos_reservation_fee_2",
+    quantity_unit="unit/piece",
+    base_contribution_list=[
+      "base_amount/invoicing/discounted",
+      "base_amount/invoicing/taxable"
+    ],
+    quantity=context.getQuantity(),
+    price=price
   )
-  if trade_condition != current_invoice.getSpecialise():
-    current_invoice.edit(specialise=trade_condition)
 
   comment = "Validation invoice for subscription request %s" % context.getRelativeUrl()
   current_invoice.plan(comment=comment)

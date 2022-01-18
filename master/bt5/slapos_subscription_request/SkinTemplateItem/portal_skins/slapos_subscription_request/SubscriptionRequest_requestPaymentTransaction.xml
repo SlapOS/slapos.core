@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>tag, target_language, contract=None, variation_reference=None, REQUEST=None</string> </value>
+            <value> <string>tag, contract=None, variation_reference=None, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>_proxy_roles</string> </key>

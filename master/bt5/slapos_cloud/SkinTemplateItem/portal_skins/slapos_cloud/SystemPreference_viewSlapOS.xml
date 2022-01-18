@@ -100,8 +100,6 @@
                     <key> <string>left</string> </key>
                     <value>
                       <list>
-                        <string>my_preferred_open_sale_order_line_template</string>
-                        <string>my_preferred_open_sale_order_template</string>
                         <string>my_preferred_zh_pre_payment_template</string>
                         <string>my_preferred_default_pre_payment_template</string>
                         <string>my_preferred_instance_delivery_template</string>

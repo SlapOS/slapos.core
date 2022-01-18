@@ -106,8 +106,8 @@
                           <string>Title</string>
                         </tuple>
                         <tuple>
-                          <string>url_string</string>
-                          <string>Url String</string>
+                          <string>specialise_title</string>
+                          <string>Subscription Condition</string>
                         </tuple>
                         <tuple>
                           <string>start_date</string>

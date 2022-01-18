@@ -10,10 +10,10 @@ business_process_uid_list = [
   portal.business_process_module.slapos_reservation_refound_business_process.getUid(),
   portal.business_process_module.slapos_subscription_business_process.getUid()]
 
-specialise_uid_list = [q.getUid() for q in portal.portal_catalog(
+specialise_uid_list = [q.getUid() for q in portal.ERP5Site_searchRelatedInheritedSpecialiseList(
   specialise_uid=business_process_uid_list, portal_type='Sale Trade Condition')]
 
-consumption_specialise_uid_list = [q.getUid() for q in portal.portal_catalog(
+consumption_specialise_uid_list = [q.getUid() for q in portal.ERP5Site_searchRelatedInheritedSpecialiseList(
   specialise_uid=portal.business_process_module.slapos_consumption_business_process.getUid(),
   portal_type='Sale Trade Condition')]
 
@@ -74,6 +74,7 @@ for movement in movement_list:
     start_date=movement.getStartDate())
 
   # XXX Shamefully hardcoded values
+  # XXX TODO Drop hardcoded values
   if movement.getResource() == 'service_module/slapos_instance_subscription':
     if movement.getPriceCurrency() == "currency_module/CNY":
       # reduce tax from there directly
@@ -91,8 +92,7 @@ for movement in movement_list:
   if movement.getSpecialiseUid() in consumption_specialise_uid_list:
     specialise_to_set = consumption_specialise
   else:
-    person = movement.getDestinationValue()
-    specialise_to_set = person.Person_getAggregatedSubscriptionSaleTradeConditionValue(subscription_request_specialise)
+    specialise_to_set = subscription_request_specialise
 
   if instance_tree is not None:
     subscription = instance_tree.getAggregateRelated(portal_type="Subscription Request")

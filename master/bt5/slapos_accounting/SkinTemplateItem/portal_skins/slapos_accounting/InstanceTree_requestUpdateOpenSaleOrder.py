@@ -7,7 +7,6 @@ from DateTime import DateTime
 portal = context.getPortalObject()
 instance_tree = context
 
-now = DateTime()
 tag = '%s_%s' % (instance_tree.getUid(), script.id)
 activate_kw = {'tag': tag}
 if portal.portal_activities.countMessageWithTag(tag) > 0:
@@ -19,27 +18,18 @@ def storeWorkflowComment(document, comment):
   portal.portal_workflow.doActionFor(document, 'edit_action', comment=comment)
 
 
-def newOpenOrder(open_sale_order):
-  open_sale_order_template = portal.restrictedTraverse(
-      portal.portal_preferences.getPreferredOpenSaleOrderTemplate())
+def newOpenOrder():
+  new_open_sale_order = portal.open_sale_order_module.newContent(
+    portal_type="Open Sale Order",
+    # XXX HARDCODED
+    specialise=specialise,
+    effective_date=DateTime(),
+    activate_kw=activate_kw,
+    destination=person.getRelativeUrl(),
+    destination_decision=person.getRelativeUrl(),
+    title="%s SlapOS Subscription" % person.getTitle()
+  )
 
-  open_order_edit_kw = {
-    'effective_date': DateTime(),
-    'activate_kw': activate_kw,
-    'source': open_sale_order_template.getSource(),
-    'source_section': open_sale_order_template.getSourceSection()
-  }
-  if open_sale_order is None:
-    new_open_sale_order = open_sale_order_template.Base_createCloneDocument(batch_mode=1)
-    open_order_edit_kw.update({
-      'destination': person.getRelativeUrl(),
-      'destination_decision': person.getRelativeUrl(),
-      'title': "%s SlapOS Subscription" % person.getTitle(),
-    })
-  else:
-    new_open_sale_order = open_sale_order.Base_createCloneDocument(batch_mode=1)
-    open_sale_order.setExpirationDate(now, activate_kw=activate_kw)
-  new_open_sale_order.edit(**open_order_edit_kw)
   new_open_sale_order.order(activate_kw=activate_kw)
   new_open_sale_order.validate(activate_kw=activate_kw)
   return new_open_sale_order
@@ -73,14 +63,14 @@ if instance_tree.getCausalityState() == 'diverged':
 
     # Let's create the open order
     if is_open_order_creation_needed:
-      open_sale_order = newOpenOrder(None)
+      open_sale_order = newOpenOrder()
 
       open_order_explanation = ""
       # Add lines
-      open_sale_order_line_template = portal.restrictedTraverse(
-        portal.portal_preferences.getPreferredOpenSaleOrderLineTemplate())
-      open_order_line = open_sale_order_line_template.Base_createCloneDocument(batch_mode=1,
-          destination=open_sale_order)
+      open_order_line = open_sale_order.newContent(
+        portal_type="Open Sale Order Line",
+        activate_kw=activate_kw
+      )
       hosting_subscription = portal.hosting_subscription_module.newContent(
         portal_type="Hosting Subscription",
         title=instance_tree.getTitle()
@@ -88,7 +78,24 @@ if instance_tree.getCausalityState() == 'diverged':
       hosting_subscription.validate()
       start_date = hosting_subscription.HostingSubscription_calculateSubscriptionStartDate()
 
-      edit_kw = {}
+      # Search for matching resource
+      service_list = portal.portal_catalog(
+        # XXX Hardcoded as temporary
+        id='slapos_instance_subscription',
+        portal_type='Service',
+        validation_state='validated',
+        use__relative_url='use/trade/sale'
+      )
+      service = [x for x in service_list if instance_tree.getPortalType() in x.getRequiredAggregatedPortalTypeList()][0].getObject()
+      edit_kw = {
+        'quantity': 1,
+        'resource_value': service,
+        'quantity_unit': service.getQuantityUnit(),
+        'base_contribution_list': service.getBaseContributionList(),
+        'use': service.getUse(),
+        # XXX Hardcoded
+        'price': 1
+      }
       subscription_request = instance_tree.getAggregateRelatedValue(portal_type="Subscription Request")
       # Define the start date of the period, this can variates with the time.
       # start_date_delta = 0
@@ -132,7 +139,25 @@ if instance_tree.getCausalityState() == 'diverged':
       storeWorkflowComment(open_sale_order, open_order_explanation)
 
     if open_order_line is not None:
-      open_order_line.getParentValue().OpenSaleOrder_updatePeriod()
+      open_order = open_order_line.getParentValue()
+      open_order.SaleOrder_applySaleTradeCondition(batch_mode=1)
+
+      # Check compatibility with previous template
+      assert open_order.getSourceSection() == 'organisation_module/slapos'
+      assert open_order.getDestinationSection() == 'organisation_module/slapos'
+      assert open_order.getSource() == 'organisation_module/slapos'
+      assert open_order.getPriceCurrency() == 'currency_module/EUR'
+      assert open_order.getSpecialise() == specialise
+
+      assert open_order_line.getResource() == 'service_module/slapos_instance_subscription'
+      assert open_order_line.getQuantityUnit() == 'unit/piece'
+      assert open_order_line.getBaseContribution() == 'base_amount/invoicing/discounted'
+      assert open_order_line.getBaseContributionList()[1] == 'base_amount/invoicing/taxable'
+      assert open_order_line.getUse() == 'trade/sale'
+      #assert open_order_line.getPrice() == 1, open_order_line.getPrice()
+      #assert open_order_line.getQuantity() == 1
+
+      open_order.OpenSaleOrder_updatePeriod()
 
     # Person_storeOpenSaleOrderJournal should fix all divergent Instance Tree in one run
     assert instance_tree.getCausalityState() == 'solved'

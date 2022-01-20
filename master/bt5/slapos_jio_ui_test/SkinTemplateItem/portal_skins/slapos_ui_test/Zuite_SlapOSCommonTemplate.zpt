@@ -332,12 +332,12 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//button[@data-i18n='Menu']</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[@data-i18n=\'%s\']' % (panel_gadget_id, menu_item)"></td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td>//button[@data-i18n='Menu']</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[@data-i18n=\'%s\']' % (panel_gadget_id, menu_item)"></td>
       <td></td>
     </tr>
     <tr>
@@ -414,12 +414,12 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//button[@data-i18n='Menu']</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[@data-i18n=\'Login Account\']' % panel_gadget_id"></td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td>//button[@data-i18n='Menu']</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[@data-i18n=\'Login Account\']' % panel_gadget_id"></td>
       <td></td>
     </tr>
     <tr>
@@ -457,12 +457,12 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td>//button[@data-i18n='Menu']</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[@data-i18n=\'%s\']' % (panel_gadget_id, menu_item)"></td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td>//button[@data-i18n='Menu']</td>
+      <td tal:content="python: '//div[contains(@data-gadget-url, \'%s\')]//a[@data-i18n=\'%s\']' % (panel_gadget_id, menu_item)"></td>
       <td></td>
     </tr>
     <tr>

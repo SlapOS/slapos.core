@@ -31,7 +31,7 @@ for movement in portal_catalog(query = query):
     continue
   if movement.DataIngestionLine_hasMissingRequiredItem():
     raise ValueError("Transformation requires movement to have " +
-                     "aggregated data ingestion batch")
+                     "aggregated data ingestion batch %s" % movement.getRelativeUrl())
   delivery = movement.getParentValue()
   data_supply = delivery.getSpecialiseValue(portal_type="Data Supply")
   data_supply_list = delivery.getSpecialiseValueList(portal_type="Data Supply")

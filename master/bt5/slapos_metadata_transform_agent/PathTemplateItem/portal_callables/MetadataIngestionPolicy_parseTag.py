@@ -4,7 +4,7 @@
 
 
 """
-
+context.log(reference)
 if not reference:
   raise ValueError('reference is None')
 

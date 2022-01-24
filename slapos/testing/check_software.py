@@ -220,9 +220,9 @@ def checkSoftware(slap, software_url):
   for section_name in config_parser.sections():
     for option_name in 'location', '__buildout_installed__':
       if config_parser.has_option(section_name, option_name):
-         for section_path in config_parser.get(section_name, option_name).splitlines():
-           if section_path and not section_path.startswith(software_directory):
-             paths_to_check.add(section_path)
+        for section_path in config_parser.get(section_name, option_name).splitlines():
+          if section_path and not section_path.startswith(software_directory):
+            paths_to_check.add(section_path)
 
   error_list.extend(
       checkExecutableLink(

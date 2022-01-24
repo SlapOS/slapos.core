@@ -32,13 +32,14 @@ import os
 import glob
 import tempfile
 import textwrap
+import warnings
 
 from slapos.testing.check_software import checkSoftware
-
+from slapos.grid.utils import md5digest
 from .test_standalone import SlapOSStandaloneTestCase
 
 
-class TestCheckSoftware(SlapOSStandaloneTestCase):
+class TestCheckSoftwareLDD(SlapOSStandaloneTestCase):
   # BBB python2
   assertRaisesRegex = getattr(
       unittest.TestCase,
@@ -138,3 +139,77 @@ class TestCheckSoftware(SlapOSStandaloneTestCase):
     # parts
     self.test_shared_part_using_system_libraries()
     self.test_ok()
+
+
+class TestCheckSoftwareEggVulnerability(SlapOSStandaloneTestCase):
+
+  def _install_software(self):
+    """install a fake software with vulnerable packages, installed as
+    eggs and develop-eggs, and for different python versions.
+    """
+    software_url = '/fake/path/software.cfg'
+    software_hash = md5digest(software_url)
+    self.standalone.supply(software_url)
+
+    software_dir = os.path.join(
+        self.standalone.software_directory,
+        software_hash,
+    )
+    eggs_dir = os.path.join(software_dir, 'eggs')
+
+    os.makedirs(os.path.join(eggs_dir, 'Werkzeug-1.0.1-py3.7.egg', 'EGG-INFO'))
+    with open(
+        os.path.join(
+            eggs_dir,
+            'Werkzeug-1.0.1-py3.7.egg',
+            'EGG-INFO',
+            'PKG-INFO',
+        ), 'w') as f:
+      f.write(
+          textwrap.dedent('''\
+              Metadata-Version: 2.1
+              Name: Werkzeug
+              Version: 1.0.1
+              '''))
+
+    develop_eggs_dir = os.path.join(software_dir, 'develop-eggs')
+    os.makedirs(
+        os.path.join(
+            develop_eggs_dir,
+            'lxml-4.6.3-py2.7-linux-x86_64.egg',
+            'EGG-INFO',
+        ))
+    with open(
+        os.path.join(
+            develop_eggs_dir,
+            'lxml-4.6.3-py2.7-linux-x86_64.egg',
+            'EGG-INFO',
+            'PKG-INFO',
+        ), 'w') as f:
+      f.write(
+          textwrap.dedent('''\
+              Metadata-Version: 2.1
+              Name: lxml
+              Version: 4.6.3
+              '''))
+    with open(os.path.join(software_dir, '.completed'), 'w') as f:
+      f.write('Thu Dec  2 01:35:02 2021')
+    with open(os.path.join(software_dir, '.installed.cfg'), 'w') as f:
+      f.write('[buildout]')
+    return software_url
+
+  def test_egg_known_vulnerability(self):
+    software_url = self._install_software()
+    with warnings.catch_warnings(record=True) as warning_context:
+      warnings.simplefilter("always")
+      checkSoftware(self.standalone, software_url)
+
+    warning, = [w for w in warning_context if 'vulnerable' in str(w.message)]
+    self.assertIn(
+        'Werkzeug version 2.0.2 improves the security of the debugger cookies',
+        str(warning.message),
+    )
+    self.assertIn(
+        'Lxml 4.6.5 includes a fix for CVE-2021-43818',
+        str(warning.message),
+    )

@@ -35,6 +35,7 @@ import warnings
 import pkg_resources
 import requests
 from six.moves.configparser import ConfigParser
+import six
 
 try:
   import subprocess32 as subprocess
@@ -302,6 +303,10 @@ def checkSoftware(slap, software_url):
                   ))))
 
   if warning_list:
-    warnings.warn('\n'.join(warning_list))
+    if six.PY2:
+      # https://bugs.python.org/issue34752
+      warnings.warn('\n'.join(warning_list).encode('utf-8'))
+    else:
+      warnings.warn('\n'.join(warning_list))
   if error_list:
     raise RuntimeError('\n'.join(error_list))

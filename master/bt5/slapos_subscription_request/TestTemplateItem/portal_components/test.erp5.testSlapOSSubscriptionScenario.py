@@ -1167,6 +1167,10 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     person_uid = subscription_request.getDestinationSectionValue().getUid()
     specialise_uid = self.portal.restrictedTraverse(
       "sale_trade_condition_module/slapos_subscription_trade_condition").getUid()
+    specialise_uid = [specialise_uid] + [
+          i.uid for i in self.portal.ERP5Site_searchRelatedInheritedSpecialiseList(
+            specialise_uid=specialise_uid)
+        ]
 
     return self.portal.portal_catalog(
       portal_type='Sale Packing List',

@@ -12,9 +12,9 @@ specialise_uid = portal.restrictedTraverse(
 
 trade_condition_uid_list = [specialise_uid]
 trade_condition_uid_list.extend([
-    i.uid for i in portal.portal_catalog(
+    i.uid for i in portal.ERP5Site_searchRelatedInheritedSpecialiseList(
     portal_type="Sale Trade Condition",
-    specialise__uid=specialise_uid,
+    specialise_uid=specialise_uid,
     validation_state="validated")])
 
 # This is normally one, but we navegate in case

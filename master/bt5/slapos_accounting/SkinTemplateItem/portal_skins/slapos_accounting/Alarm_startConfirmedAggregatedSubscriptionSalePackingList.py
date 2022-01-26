@@ -12,9 +12,9 @@ root_trade_condition_uid = root_trade_condition_value.getUid()
 
 trade_condition_uid_list.append(root_trade_condition_uid)
 trade_condition_uid_list.extend([
-  i.uid for i in portal.portal_catalog(
+  i.uid for i in portal.ERP5Site_searchRelatedInheritedSpecialiseList(
   portal_type=root_trade_condition_value.getPortalType(),
-  specialise__uid=root_trade_condition_uid,
+  specialise_uid=root_trade_condition_uid,
   validation_state="validated")])
 
 portal.portal_catalog.searchAndActivate(

@@ -10,7 +10,7 @@ else:
 business_process_uid_list = [
   portal.business_process_module.slapos_subscription_business_process.getUid()]
 
-subscription_delivery_specialise_uid_list = [q.getUid() for q in portal.portal_catalog(
+subscription_delivery_specialise_uid_list = [q.getUid() for q in portal.ERP5Site_searchRelatedInheritedSpecialiseList(
   specialise_uid=business_process_uid_list, portal_type='Sale Trade Condition')]
 
 # Recover all Aggregated Sale Packing Lists

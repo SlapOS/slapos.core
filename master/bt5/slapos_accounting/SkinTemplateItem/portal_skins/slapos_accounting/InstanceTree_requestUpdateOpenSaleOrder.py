@@ -39,6 +39,7 @@ def newOpenOrder():
   return new_open_sale_order
 
 if instance_tree.getCausalityState() == 'diverged':
+  open_order = None
   person = instance_tree.getDestinationSectionValue(portal_type="Person")
   # Template document does not have person relation
   if person is not None:

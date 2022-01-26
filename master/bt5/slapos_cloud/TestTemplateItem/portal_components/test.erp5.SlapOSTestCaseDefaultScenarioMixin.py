@@ -585,9 +585,15 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     aggregated_delivery_list = self.portal.portal_catalog(
         portal_type='Sale Packing List',
         default_destination_section_uid=person.getUid(),
-        specialise_uid=self.portal.restrictedTraverse(self.portal\
+        specialise_uid=[self.portal.restrictedTraverse(self.portal\
           .portal_preferences.getPreferredAggregatedSaleTradeCondition()\
           ).getUid()
+        ] + [
+          i.uid for i in self.portal.ERP5Site_searchRelatedInheritedSpecialiseList(
+            specialise_uid=self.portal.restrictedTraverse(self.portal
+                .portal_preferences.getPreferredAggregatedSaleTradeCondition()
+                ).getUid())
+        ]
     )
 
     if len(subscription_list) == 0:

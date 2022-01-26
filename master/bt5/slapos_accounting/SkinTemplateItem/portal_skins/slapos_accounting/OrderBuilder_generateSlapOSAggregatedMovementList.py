@@ -10,10 +10,10 @@ business_process_uid_list = [
   portal.business_process_module.slapos_reservation_refound_business_process.getUid(),
   portal.business_process_module.slapos_subscription_business_process.getUid()]
 
-specialise_uid_list = [q.getUid() for q in portal.portal_catalog(
+specialise_uid_list = [q.getUid() for q in portal.ERP5Site_searchRelatedInheritedSpecialiseList(
   specialise_uid=business_process_uid_list, portal_type='Sale Trade Condition')]
 
-consumption_specialise_uid_list = [q.getUid() for q in portal.portal_catalog(
+consumption_specialise_uid_list = [q.getUid() for q in portal.ERP5Site_searchRelatedInheritedSpecialiseList(
   specialise_uid=portal.business_process_module.slapos_consumption_business_process.getUid(),
   portal_type='Sale Trade Condition')]
 

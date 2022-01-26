@@ -124,7 +124,7 @@
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>aggregate/web_page_module/2</string>
+                <string>aggregate/web_page_module/deploy_wendelin_olimex_sensor</string>
               </tuple>
             </value>
         </item>
@@ -311,7 +311,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>zope</string> </value>
+                      <value> <string>superrafael</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -325,7 +325,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>997.8440.23462.10052</string> </value>
+                      <value> <string>997.49615.61294.3652</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -343,7 +343,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1640687582.63</float>
+                              <float>1643204885.96</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

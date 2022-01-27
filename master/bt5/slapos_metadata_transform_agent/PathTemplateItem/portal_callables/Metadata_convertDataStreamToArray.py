@@ -115,9 +115,9 @@ if 'file_system_image/reference_image' in in_data_stream.getPublicationSectionLi
 
 if not out_data_array.getCausality():
   ingestion_line = in_data_stream.getAggregateRelatedValue(portal_type='Data Ingestion Line')
-  ressource = ingestion_line.getRessource()
-  exclude_file_list = ingestion_line.getRessourceValue().DataProduct_getExcludeFileList()
-  out_data_array.edit(causality=ressource)
+  resource = ingestion_line.getResource()
+  exclude_file_list = ingestion_line.getResourceValue().DataProduct_getExcludeFileList()
+  out_data_array.edit(causality=resource)
 
 start = progress_indicator.getIntOffsetIndex()
 end = in_data_stream.getSize()

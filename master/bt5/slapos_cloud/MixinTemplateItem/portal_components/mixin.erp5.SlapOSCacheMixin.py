@@ -48,13 +48,16 @@ class SlapOSCacheMixin:
   def _getAccessStatusPlugin(self):
     return self._getAccessStatusCacheFactory().getCachePluginList()[0]
 
+  def _getAccessStatusCacheKey(self):
+    return "%s-ACCESS" % self.getReference()
+
   def _getCachedAccessInfo(self):
     if not self.getReference():
       return None
     
     try:
       entry = self._getAccessStatusPlugin().get(
-        self.getReference(), DEFAULT_CACHE_SCOPE)
+        self._getAccessStatusCacheKey(), DEFAULT_CACHE_SCOPE)
     except KeyError:
       entry = None
     else:
@@ -116,8 +119,8 @@ class SlapOSCacheMixin:
     })
 
     cache_duration = self._getAccessStatusCacheFactory().cache_duration
-    self._getAccessStatusPlugin().set(self.getReference(), DEFAULT_CACHE_SCOPE,
-      value, cache_duration=cache_duration)
+    self._getAccessStatusPlugin().set(self._getAccessStatusCacheKey(),
+      DEFAULT_CACHE_SCOPE, value, cache_duration=cache_duration)
     return status_changed
 
   def getTextAccessStatus(self):

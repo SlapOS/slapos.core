@@ -86,8 +86,8 @@ def get_uid_list(triplet_list, data_stream):
   """
   uid_list = []
   for triplet in triplet_list:
-    data_stream.add_path(triplet, 'test')
-    triplet_uid = data_stream.get_uid_from_path(triplet, 'test')
+    data_stream.add_path(triplet)
+    triplet_uid = data_stream.get_uid_from_path(triplet)
     uid_list += [triplet_uid]
 
   return uid_list

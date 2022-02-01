@@ -1642,12 +1642,12 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     # Disable on this test the pricing on the template to not generate debt before 
     # them expected
-    line = self.portal.open_sale_order_module.\
-      slapos_accounting_open_sale_order_line_template.\
-      slapos_accounting_open_sale_order_line_template
+    supply_line = self.portal.sale_trade_condition_module.\
+      couscous_trade_condition.\
+      subscription_price
 
-    previous_price = line.getPrice()  
-    line.setPrice(0.0)
+    previous_price = supply_line.getBasePrice()
+    supply_line.setBasePrice(0.0)
 
     try:
       self.login(self.normal_user.getUserId())
@@ -1679,7 +1679,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
         default_email_text, self.subscription_server
       )
     finally:
-      line.setPrice(previous_price)
+      supply_line.setPrice(previous_price)
     
     return default_email_text, name
 

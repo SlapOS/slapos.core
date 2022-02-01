@@ -19,12 +19,7 @@ def storeWorkflowComment(document, comment):
 
 
 def newOpenOrder():
-  # XXX Kept as all tests modify dynamically.
-  # Clean up tests before dropping the template
-  open_sale_order_template = portal.restrictedTraverse(
-      portal.portal_preferences.getPreferredOpenSaleOrderTemplate())
-
-  new_open_sale_order = open_sale_order_template.Base_createCloneDocument(batch_mode=1)
+  new_open_sale_order = portal.open_sale_order_module.newContent(portal_type="Open Sale Order")
   new_open_sale_order.edit(
     specialise=specialise,
     effective_date=DateTime(),
@@ -72,10 +67,7 @@ if instance_tree.getCausalityState() == 'diverged':
 
       open_order_explanation = ""
       # Add lines
-      open_sale_order_line_template = portal.restrictedTraverse(
-        portal.portal_preferences.getPreferredOpenSaleOrderLineTemplate())
-      open_order_line = open_sale_order_line_template.Base_createCloneDocument(batch_mode=1,
-          destination=open_sale_order)
+      open_order_line = open_sale_order.newContent(portal_type="Open Sale Order Line")
 
       hosting_subscription = portal.hosting_subscription_module.newContent(
         portal_type="Hosting Subscription",
@@ -98,10 +90,9 @@ if instance_tree.getCausalityState() == 'diverged':
         'resource_value': service,
         'quantity_unit': service.getQuantityUnit(),
         'base_contribution_list': service.getBaseContributionList(),
-        'use': service.getUse(),
-        # XXX Hardcoded
-        'price': 1
+        'use': service.getUse()
       }
+
       subscription_request = instance_tree.getAggregateRelatedValue(portal_type="Subscription Request")
       # Define the start date of the period, this can variates with the time.
       # start_date_delta = 0
@@ -138,6 +129,15 @@ if instance_tree.getCausalityState() == 'diverged':
         aggregate_value_list=[hosting_subscription, instance_tree],
         **edit_kw
       )
+      if 'price' not in edit_kw:
+        # Keep compatibility with subscription pricing
+        open_order_line.edit(
+          price=service.getPrice(
+            context=open_order_line,
+            predicate_list=open_sale_order.getSpecialiseValue().contentValues(portal_type='Sale Supply Line')
+          )
+        )
+
       storeWorkflowComment(open_order_line, "Created for %s" % instance_tree.getRelativeUrl())
       # instance_tree.converge(comment="Last open order: %s" % open_sale_order_line.getRelativeUrl())
       open_order_explanation = "Added %s." % str(open_order_line.getId())

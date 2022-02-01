@@ -21,10 +21,10 @@ tmp_data_stream = context.data_stream_module.newContent(portal_type='Data Stream
 
 def createTempBase(nr, row):
   def getElementFromArray(array, index):
-    return tmp_data_stream.get_path_from_uid(array[index], 'test')
+    return tmp_data_stream.get_path_from_uid(array[index])
 
   def getElementFromScalar(scalar, index=None):
-    return tmp_data_stream.get_path_from_uid(scalar, 'test')
+    return tmp_data_stream.get_path_from_uid(scalar)
 
   column_list = [col for col in context.DataArray_getArrayColumnList() if col[0] != 'index']
   column_iterator = enumerate(column_list)

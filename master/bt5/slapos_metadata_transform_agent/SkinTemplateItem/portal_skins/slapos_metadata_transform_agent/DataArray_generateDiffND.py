@@ -20,10 +20,10 @@ for predecessor in context.getPredecessorValueList(
         index = distribution_list.index(distribution_property) + 1
         if index >= len(distribution_list):
           context.setPublicationSectionList(context.getPublicationSectionList() + ['publication_section/file_system_image/diff_end'])
-          context.validate()
           causality = context.getCausalityValue(portal_type='Data Product')
           if causality and context.portal_workflow.isTransitionPossible(causality, 'invalidate'):
             causality.invalidate(comment='Server has file modified')
+          context.processFile()
           return
         reference_distribution = distribution_list[index].getRelativeUrl()
 
@@ -32,7 +32,7 @@ if not reference_distribution:
 
 query = AndQuery(
           Query(portal_type = ["Data Array"]),
-          Query(validation_state = "validated"),
+          Query(simulation_state = "converted"),
           AndQuery(Query(publication_section_relative_url = 'publication_section/file_system_image/reference_image'),
                    Query(publication_section_relative_url = reference_distribution)))
 
@@ -52,6 +52,7 @@ if reference_image:
       publication_section="file_system_image/node_image",
       causality = context.getCausality()
     )
+    new_data_array.convertFile()
   else:
     causality = context.getCausalityValue(portal_type='Data Product')
     if causality and context.portal_workflow.isTransitionPossible(causality, 'validate'):
@@ -61,4 +62,4 @@ else:
   if causality and context.portal_workflow.isTransitionPossible(causality, 'invalidate'):
     causality.invalidate(comment='Server has file modified')
 
-context.validate()
+context.processFile()

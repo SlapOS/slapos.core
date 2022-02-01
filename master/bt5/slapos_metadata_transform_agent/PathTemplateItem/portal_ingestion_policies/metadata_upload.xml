@@ -62,7 +62,7 @@
         </item>
         <item>
             <key> <string>data_operation_script_id</string> </key>
-            <value> <string>MetadataIngestionPolicy_getIngestionOperationAndParameterDict</string> </value>
+            <value> <string>IngestionPolicy_getIngestionOperationAndParameterDict</string> </value>
         </item>
         <item>
             <key> <string>default_reference</string> </key>
@@ -162,7 +162,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>995.40067.2143.6297</string> </value>
+                      <value> <string>997.57747.29368.10086</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -180,7 +180,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1634807225.76</float>
+                              <float>1643727573.35</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

@@ -145,7 +145,7 @@ if instance_tree.getCausalityState() == 'diverged':
 
     if open_order_line is not None:
       open_order = open_order_line.getParentValue()
-      open_order.SaleOrder_applySaleTradeCondition(batch_mode=1)
+      open_order.SaleOrder_applySaleTradeCondition(batch_mode=1, force=0)
 
       # Check compatibility with previous template
       assert open_order.getSourceSection() == 'organisation_module/slapos'

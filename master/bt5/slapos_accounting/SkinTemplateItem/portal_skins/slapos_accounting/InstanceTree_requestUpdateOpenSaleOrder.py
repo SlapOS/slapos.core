@@ -167,3 +167,4 @@ if instance_tree.getCausalityState() == 'diverged':
 
     # Person_storeOpenSaleOrderJournal should fix all divergent Instance Tree in one run
     assert instance_tree.getCausalityState() == 'solved'
+    return open_order

@@ -148,9 +148,9 @@ if instance_tree.getCausalityState() == 'diverged':
       open_order.SaleOrder_applySaleTradeCondition(batch_mode=1, force=0)
 
       # Check compatibility with previous template
-      assert open_order.getSourceSection() == 'organisation_module/slapos'
+      #assert open_order.getSourceSection() == 'organisation_module/slapos'
       assert open_order.getDestinationSection() == 'organisation_module/slapos'
-      assert open_order.getSource() == 'organisation_module/slapos'
+      #assert open_order.getSource() == 'organisation_module/slapos'
       assert open_order.getPriceCurrency() == 'currency_module/EUR'
       assert open_order.getSpecialise() == specialise
 

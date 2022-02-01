@@ -114,7 +114,7 @@ tail.0:2021-10-15 15:11:02.230745474 +0200 CEST[fluentbit_end]\n'
     # from get_uid_list()
     uid_list = []
     for triplet in triplet_list:
-      triplet_uid = data_stream.get_uid_from_path(triplet, 'test') # TODO test if it does not exist
+      triplet_uid = data_stream.get_uid_from_path(triplet) # TODO test if it does not exist
       uid_list += [triplet_uid]
 
     self.portal.data_stream_module.manage_delObjects(ids=[data_stream.getId()])
@@ -154,7 +154,7 @@ tail.0:2021-10-15 15:11:02.230745474 +0200 CEST[fluentbit_end]\n'
 
       assert np.array_equal(current_control_array, data_array.array[:])
 
-  def test_getdiff(self):
+  def test_compare_data_array(self):
     if not getattr(self.portal.portal_categories.publication_section.file_system_image.distribution, 'test_distribution', None):
       test_distribution = self.portal.portal_categories.publication_section.file_system_image.distribution.newContent(portal_type='Category', id='test_distribution')
       test_distribution.newContent(portal_category='Category', id='debian10', title='debian10', int_index=2)
@@ -178,8 +178,6 @@ tail.0:2021-10-15 15:11:02.230745474 +0200 CEST[fluentbit_end]\n'
       ['file_system_image/node_image', 'file_system_image/distribution/test_distribution/debian10'],
       ['file_system_image/node_image', 'file_system_image/distribution/test_distribution/debian10']
     ]
-    if len(server_uid_list_list) != len(server_publication_list_list):
-      raise NotImplementedError('The variables @server_uid_list_list and @server_distribution_list should have the same size. They are not initialized properly.')
     server_uid_ndarray_list = []
     for uid_list in server_uid_list_list:
       server_uid_ndarray_list.append(np.array(uid_list))
@@ -195,8 +193,7 @@ tail.0:2021-10-15 15:11:02.230745474 +0200 CEST[fluentbit_end]\n'
       ['file_system_image/reference_image', 'file_system_image/distribution/test_distribution/debian11'],
       ['file_system_image/reference_image', 'file_system_image/distribution/test_distribution/debian10']
     ]
-    if len(reference_uid_list_list) != len(reference_publication_section_list_list):
-      raise NotImplementedError('The variables @reference_uid_list_list and @reference_distribution_list should have the same size. They are not initialized properly.')
+
     reference_uid_ndarray_list = []
     for uid_list in reference_uid_list_list:
       reference_uid_ndarray_list.append(np.array(uid_list))
@@ -210,6 +207,7 @@ tail.0:2021-10-15 15:11:02.230745474 +0200 CEST[fluentbit_end]\n'
       tmp_data_array.setArray(uid_ndarray)
       tmp_data_array.setPublicationSectionList(server_publication_list_list[index])
       server_data_array_list.append(tmp_data_array)
+      tmp_data_array.convertFile()
     self.tic()
 
     reference_data_array_list = []
@@ -218,8 +216,8 @@ tail.0:2021-10-15 15:11:02.230745474 +0200 CEST[fluentbit_end]\n'
       tmp_data_array.initArray(shape=(uid_ndarray.size,), dtype='int64')
       tmp_data_array.setArray(uid_ndarray)
       tmp_data_array.setPublicationSectionList(reference_publication_section_list_list[index])
-      tmp_data_array.validate()
       reference_data_array_list.append(tmp_data_array)
+      tmp_data_array.convertFile()
     self.tic()
 
     ## CALL DataArray_generateDiffND
@@ -227,46 +225,43 @@ tail.0:2021-10-15 15:11:02.230745474 +0200 CEST[fluentbit_end]\n'
     self.tic()
 
     for i in server_data_array_list:
-      self.assertEqual(i.getValidationState(), 'validated')
-    for i in reference_data_array_list:
-      self.assertEqual(i.getValidationState(), 'validated')
+      self.assertEqual(i.getSimulationState(), 'processed')
 
 
     self.assertTrue(server_data_array_list[0].getPredecessorRelatedValue(portal_type='Data Array') in reference_data_array_list[0].getPredecessorRelatedValueList(portal_type='Data Array'))
     diff_1 = server_data_array_list[0].getPredecessorRelatedValue(portal_type='Data Array')
     self.assertEqual(len(diff_1.getPredecessorValueList(portal_type='Data Array')), 2)
-    self.assertEqual(diff_1.getValidationState(), 'draft')
+    self.assertEqual(diff_1.getSimulationState(), 'converted')
     self.assertTrue((diff_1.getArray() == [7, 9, 10, 11, 15, 17, 18]).all())
 
     self.assertTrue(server_data_array_list[1].getPredecessorRelatedValue(portal_type='Data Array') in reference_data_array_list[0].getPredecessorRelatedValueList(portal_type='Data Array'))
     diff_2 = server_data_array_list[1].getPredecessorRelatedValue(portal_type='Data Array')
     self.assertEqual(len(diff_2.getPredecessorValueList(portal_type='Data Array')), 2)
-    self.assertEqual(diff_2.getValidationState(), 'draft')
+    self.assertEqual(diff_2.getSimulationState(), 'converted')
     self.assertTrue((diff_2.getArray() == [2, 8, 14]).all())
 
     self.assertTrue(server_data_array_list[2].getPredecessorRelatedValue(portal_type='Data Array') in reference_data_array_list[0].getPredecessorRelatedValueList(portal_type='Data Array'))
     diff_3 = server_data_array_list[2].getPredecessorRelatedValue(portal_type='Data Array')
     self.assertEqual(len(diff_3.getPredecessorValueList(portal_type='Data Array')), 2)
-    self.assertEqual(diff_3.getValidationState(), 'draft')
+    self.assertEqual(diff_3.getSimulationState(), 'converted')
     self.assertTrue((diff_3.getArray() == [11, 17, 31]).all())
 
     self.assertTrue(server_data_array_list[3].getPredecessorRelatedValue(portal_type='Data Array') in reference_data_array_list[1].getPredecessorRelatedValueList(portal_type='Data Array'))
     diff_4 = server_data_array_list[3].getPredecessorRelatedValue(portal_type='Data Array')
     self.assertEqual(len(diff_4.getPredecessorValueList(portal_type='Data Array')), 2)
-    self.assertEqual(diff_4.getValidationState(), 'draft')
+    self.assertEqual(diff_4.getSimulationState(), 'converted')
     self.assertTrue((diff_4.getArray() == [2, 24]).all())
 
     self.assertTrue(server_data_array_list[4].getPredecessorRelatedValue(portal_type='Data Array') in reference_data_array_list[1].getPredecessorRelatedValueList(portal_type='Data Array'))
     diff_5 = server_data_array_list[4].getPredecessorRelatedValue(portal_type='Data Array')
     self.assertEqual(len(diff_5.getPredecessorValueList(portal_type='Data Array')), 2)
-    self.assertEqual(diff_5.getValidationState(), 'draft')
+    self.assertEqual(diff_5.getSimulationState(), 'converted')
     self.assertTrue((diff_5.getArray() == [17, 28, 31]).all(), diff_5.getRelativeUrl())
 
     self.portal.portal_alarms.slapos_check_node_status.activeSense()
     self.tic()
 
-    for i in [diff_1, diff_2, diff_3, diff_4, diff_5]:
-      self.assertEqual(i.getValidationState(), 'validated')
+
 
     self.assertTrue('file_system_image/diff_end' in diff_4.getPublicationSectionList())
     self.assertTrue('file_system_image/diff_end' in diff_5.getPublicationSectionList())
@@ -274,29 +269,28 @@ tail.0:2021-10-15 15:11:02.230745474 +0200 CEST[fluentbit_end]\n'
     self.assertTrue(diff_1.getPredecessorRelatedValue(portal_type='Data Array') in reference_data_array_list[1].getPredecessorRelatedValueList(portal_type='Data Array'))
     diff_6 = diff_1.getPredecessorRelatedValue(portal_type='Data Array')
     self.assertEqual(len(diff_6.getPredecessorValueList(portal_type='Data Array')), 2)
-    self.assertEqual(diff_6.getValidationState(), 'draft')
+    self.assertEqual(diff_6.getSimulationState(), 'converted')
     self.assertTrue((diff_6.getArray() == [15, 17, 18]).all(), diff_6.getRelativeUrl())
 
 
     self.assertTrue(diff_2.getPredecessorRelatedValue(portal_type='Data Array') in reference_data_array_list[1].getPredecessorRelatedValueList(portal_type='Data Array'))
     diff_7 = diff_2.getPredecessorRelatedValue(portal_type='Data Array')
     self.assertEqual(len(diff_7.getPredecessorValueList(portal_type='Data Array')), 2)
-    self.assertEqual(diff_7.getValidationState(), 'draft')
+    self.assertEqual(diff_7.getSimulationState(), 'converted')
     self.assertTrue((diff_7.getArray() == [2]).all(), diff_7.getRelativeUrl())
 
     self.assertTrue(diff_3.getPredecessorRelatedValue(portal_type='Data Array') in reference_data_array_list[1].getPredecessorRelatedValueList(portal_type='Data Array'))
     diff_8 = diff_3.getPredecessorRelatedValue(portal_type='Data Array')
     self.assertEqual(len(diff_8.getPredecessorValueList(portal_type='Data Array')), 2)
-    self.assertEqual(diff_8.getValidationState(), 'draft')
+    self.assertEqual(diff_8.getSimulationState(), 'converted')
     self.assertTrue((diff_8.getArray() == [17, 31]).all(), diff_8.getRelativeUrl())
 
     self.portal.portal_alarms.slapos_check_node_status.activeSense()
     self.tic()
     for i in [diff_6, diff_7, diff_8]:
-      self.assertTrue(i.getValidationState(), 'validated')
       self.assertTrue('file_system_image/diff_end' in i.getPublicationSectionList())
 
-  def test_basic_process(self):
+  def test_whole_process_from_data_stream_to_data_array_comparaison(self):
     request = self.portal.REQUEST
     request_dict = self._create_request_dict()
     for reference in request_dict:
@@ -309,14 +303,6 @@ tail.0:2021-10-15 15:11:02.230745474 +0200 CEST[fluentbit_end]\n'
 
     data_stream_list = self.portal.portal_catalog(portal_type = 'Data Stream')
     self.assertEqual(len(data_stream_list), 3)
-    for reference in request_dict:
-      data_stream = self.portal.portal_catalog.getResultValue(
-        portal_type='Data Stream',
-        reference= '%s-%s' % (reference, reference))
-      data_product = self.portal.portal_catalog.getResultValue(
-        portal_type='Data Product',
-        reference = reference)
-      self.assertEqual(data_stream.getPublicationSectionList(), data_product.getPublicationSectionList())
 
     self.portal.portal_alarms.wendelin_handle_analysis.activeSense()
     self.tic()
@@ -340,16 +326,17 @@ tail.0:2021-10-15 15:11:02.230745474 +0200 CEST[fluentbit_end]\n'
     self.assertEqual(len(data_array_list), 4)
     last_data_array = self.portal.portal_catalog.getResultValue(
       portal_type='Data Array',
-      validation_state='draft')
+      simulation_state='converted')
     self.assertEqual(len(last_data_array.getPredecessorValueList()), 2)
     server_data_product = last_data_array.getCausalityValue()
     #Manually set to invalidate
-    server_data_product.invalidate()
+    if server_data_product.getValidationState() != 'invalidated':
+      server_data_product.invalidate()
     self.portal.portal_alarms.slapos_check_node_status.activeSense()
     self.tic()
     data_array_list = self.portal.portal_catalog(portal_type='Data Array')
     self.assertEqual(len(data_array_list), 4)
-    self.assertEqual(last_data_array.getValidationState(), 'validated')
+    self.assertEqual(last_data_array.getSimulationState(), 'processed')
     self.assertEqual(server_data_product.getValidationState(), 'validated')
 
   def test_data_product_create_validate_data_supply(self):

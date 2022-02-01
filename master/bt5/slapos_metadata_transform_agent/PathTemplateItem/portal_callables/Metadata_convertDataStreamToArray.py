@@ -107,21 +107,27 @@ def create_ndarray(uid_list):
 progress_indicator = in_stream["Progress Indicator"]
 in_data_stream = in_stream["Data Stream"]
 out_data_array = out_array["Data Array"]
+if out_data_array.getSimulationState() == 'converted':
+  return
+
+if out_data_array.getSimulationState() != 'converting':
+  out_data_array.transformFile()
+
 exclude_file_list = []
-out_data_array.setPublicationSectionList(in_data_stream.getPublicationSectionList())
-if 'file_system_image/reference_image' in in_data_stream.getPublicationSectionList():
-  if out_data_array.getValidationState() == 'draft':
-    out_data_array.validate()
 
 if not out_data_array.getCausality():
   ingestion_line = in_data_stream.getAggregateRelatedValue(portal_type='Data Ingestion Line')
-  resource = ingestion_line.getResource()
+  resource_value = ingestion_line.getResourceValue()
   exclude_file_list = ingestion_line.getResourceValue().DataProduct_getExcludeFileList()
-  out_data_array.edit(causality=resource)
+  out_data_array.edit(causality_value=resource_value)
+  in_data_stream.setPublicationSectionList(resource_value.getPublicationSectionList())
+  out_data_array.setPublicationSectionList(resource_value.getPublicationSectionList())
+
 
 start = progress_indicator.getIntOffsetIndex()
 end = in_data_stream.getSize()
 if start >= end:
+  out_data_array.convertFile()
   return
 end, json_string_list, is_end_of_scan = get_end_and_json_list(start, in_data_stream)
 triplet_list = get_triplet_list(json_string_list, is_end_of_scan)
@@ -145,3 +151,5 @@ if end > start:
 # if we did not reach end of stream
 if end < in_data_stream.getSize():
   return 1
+
+out_data_array.convertFile()

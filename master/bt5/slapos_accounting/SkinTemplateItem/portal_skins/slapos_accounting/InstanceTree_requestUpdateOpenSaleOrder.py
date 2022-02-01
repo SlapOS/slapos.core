@@ -19,9 +19,13 @@ def storeWorkflowComment(document, comment):
 
 
 def newOpenOrder():
-  new_open_sale_order = portal.open_sale_order_module.newContent(
-    portal_type="Open Sale Order",
-    # XXX HARDCODED
+  # XXX Kept as all tests modify dynamically.
+  # Clean up tests before dropping the template
+  open_sale_order_template = portal.restrictedTraverse(
+      portal.portal_preferences.getPreferredOpenSaleOrderTemplate())
+
+  new_open_sale_order = open_sale_order_template.Base_createCloneDocument(batch_mode=1)
+  new_open_sale_order.edit(
     specialise=specialise,
     effective_date=DateTime(),
     activate_kw=activate_kw,
@@ -67,10 +71,11 @@ if instance_tree.getCausalityState() == 'diverged':
 
       open_order_explanation = ""
       # Add lines
-      open_order_line = open_sale_order.newContent(
-        portal_type="Open Sale Order Line",
-        activate_kw=activate_kw
-      )
+      open_sale_order_line_template = portal.restrictedTraverse(
+        portal.portal_preferences.getPreferredOpenSaleOrderLineTemplate())
+      open_order_line = open_sale_order_line_template.Base_createCloneDocument(batch_mode=1,
+          destination=open_sale_order)
+
       hosting_subscription = portal.hosting_subscription_module.newContent(
         portal_type="Hosting Subscription",
         title=instance_tree.getTitle()

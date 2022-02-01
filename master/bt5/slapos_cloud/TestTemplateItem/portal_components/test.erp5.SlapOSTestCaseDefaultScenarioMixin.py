@@ -7,12 +7,10 @@
 
 from erp5.component.test.testSlapOSCloudSecurityGroup import TestSlapOSSecurityMixin
 from erp5.component.test.SlapOSTestCaseMixin import changeSkin
-import json
 import re
 import xml_marshaller
 from AccessControl.SecurityManagement import getSecurityManager, \
              setSecurityManager
-from DateTime import DateTime
 
 class DefaultScenarioMixin(TestSlapOSSecurityMixin):
 
@@ -103,14 +101,7 @@ class DefaultScenarioMixin(TestSlapOSSecurityMixin):
     return []
 
   def setAccessToMemcached(self, agent):
-    memcached_dict = self.portal.portal_memcached.getMemcachedDict(
-      key_prefix='slap_tool',
-      plugin_path='portal_memcached/default_memcached_plugin')
-
-    access_date = DateTime()
-    memcached_dict[agent.getReference()] = json.dumps(
-        {"created_at":"%s" % access_date, "text": "#access "}
-    )
+    agent.setAccessStatus("#access ")
 
   def requestComputeNode(self, title):
     requestXml = self.portal.portal_slap.requestComputer(title)

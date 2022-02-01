@@ -1,0 +1,11 @@
+<type_mixin>
+ <portal_type id="Compute Node">
+  <item>SlapOSCacheMixin</item>
+ </portal_type>
+ <portal_type id="Compute Partition">
+  <item>SlapOSCacheMixin</item>
+ </portal_type>
+ <portal_type id="Person">
+  <item>SlapOSCacheMixin</item>
+ </portal_type>
+</type_mixin>

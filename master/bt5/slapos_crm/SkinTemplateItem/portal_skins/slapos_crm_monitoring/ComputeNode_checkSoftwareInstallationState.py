@@ -1,6 +1,4 @@
 from DateTime import DateTime
-import json
-
 portal = context.getPortalObject()
 
 if portal.ERP5Site_isSupportRequestCreationClosed():
@@ -22,7 +20,6 @@ compute_node_reference = context.getReference()
 compute_node_title = context.getTitle()
 should_notify = True
 
-memcached_dict = context.Base_getSlapToolMemcachedDict()
 tolerance = DateTime()-0.5
 for software_installation in software_installation_list:
   should_notify = False
@@ -31,9 +28,12 @@ for software_installation in software_installation_list:
     continue
 
   reference = software_installation.getReference()
-  try:
-    d = memcached_dict[reference]
-    d = json.loads(d)
+  d = software_installation.getAccessStatus()
+  if d.get("no_data", None) == 1:
+    ticket_title = "[MONITORING] No information for %s on %s" % (reference, compute_node_reference)
+    description = "The software release %s did not started to build on %s since %s" % \
+        (software_installation.getUrlString(), compute_node_title, software_installation.getCreationDate())
+  else:
     last_contact = DateTime(d.get('created_at'))
     if d.get("text").startswith("building"):
       should_notify = True
@@ -49,13 +49,7 @@ for software_installation in software_installation_list:
       description = "The software release %s is failing to build for too long on %s, started on %s" % \
         (software_installation.getUrlString(), compute_node_title, software_installation.getCreationDate())
 
-  except KeyError:
-    ticket_title = "[MONITORING] No information for %s on %s" % (reference, compute_node_reference)
-    description = "The software release %s did not started to build on %s since %s" % \
-        (software_installation.getUrlString(), compute_node_title, software_installation.getCreationDate())
-
   if should_notify:
-
     support_request = context.Base_generateSupportRequestForSlapOS(
       ticket_title,
       description,

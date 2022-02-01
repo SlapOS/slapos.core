@@ -1,5 +1,4 @@
 from DateTime import DateTime
-import json
 portal = context.getPortalObject()
 from Products.ERP5Type.Document import newTempBase
 
@@ -19,25 +18,10 @@ show_all = False
 if "show_all" in kw:
   show_all = kw.pop("omit_zero_ticket")
 
-memcached_dict = context.getPortalObject().portal_memcached.getMemcachedDict(
-  key_prefix='slap_tool',
-  plugin_path='portal_memcached/default_memcached_plugin')
-
 def checkForError(reference):
-  try:
-    d = memcached_dict[reference]
-  except KeyError:
-    return 1
-
-  d = json.loads(d)
-  result = d['text']
-  #last_contact = DateTime(d.get('created_at'))
-
-  # Optimise by checking memcache information first.
+  result = context.getAccessStatusText()
   if result.startswith('#error '):
     return 1
-
-
 
 for compute_node in portal.portal_catalog(
   default_allocation_scope_uid = [personal_category_uid, public_category_uid, friend_category_uid],

@@ -53,8 +53,11 @@ if support_request is not None:
     message = notification_message.asText(
               substitution_method_parameter_dict={'mapping_dict': mapping_dict})
 
-  event = support_request.SupportRequest_trySendNotificationMessage(
-           request_title, message, person.getRelativeUrl())
+  support_request.notify(message_title=request_title,
+              message=message,
+              destination_relative_url=person.getRelativeUrl())
+
+  event = support_request.REQUEST.get("ticket_notified_item")
 
   if event is not None:
     # event added, suspend ticket

@@ -27,10 +27,8 @@ if support_request.getSimulationState() not in ["validated", "suspended"]:
 
 # Send Notification message
 message = description
-
-notification_reference = notification_message_reference
 notification_message = portal.portal_notifications.getDocumentValue(
-                 reference=notification_reference)
+                 reference=notification_message_reference)
 if notification_message is not None:
   mapping_dict = {'instance_tree_title':context.getTitle(),
                   'instance': instance.getTitle(),
@@ -39,5 +37,8 @@ if notification_message is not None:
   message = notification_message.asText(
               substitution_method_parameter_dict={'mapping_dict':mapping_dict})
 
-return support_request.SupportRequest_trySendNotificationMessage(
-              ticket_title, message, person.getRelativeUrl())
+support_request.notify(message_title="Instance Tree was destroyed was destroyed by the user",
+              message=message,
+              destination_relative_url=person.getRelativeUrl())
+
+return context.REQUEST.get("ticket_notified_item")

@@ -1,6 +1,12 @@
 import numpy as np
 from Products.ZSQLCatalog.SQLCatalog import AndQuery, Query
 
+# Do nothing for reference image, just change state
+if 'file_system_image/reference_image' in context.getPublicationSectionList():
+  context.processFile()
+  return
+
+
 for publication_section in context.getPublicationSectionList():
   if 'distribution' in publication_section:
     current_node_distribution = publication_section

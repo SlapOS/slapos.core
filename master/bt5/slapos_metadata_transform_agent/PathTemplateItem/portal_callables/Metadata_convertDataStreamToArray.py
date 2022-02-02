@@ -147,6 +147,10 @@ if len(uid_ndarray) > 0:
 if end > start:
   progress_indicator.setIntOffsetIndex(end)
 
+if is_end_of_scan:
+  out_data_array.convertFile()
+  return
+
 # tell caller to create new activity after processing
 # if we did not reach end of stream
 if end < in_data_stream.getSize():

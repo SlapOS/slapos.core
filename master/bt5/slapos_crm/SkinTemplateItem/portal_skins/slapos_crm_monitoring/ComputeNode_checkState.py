@@ -57,8 +57,8 @@ else:
   message = notification_message.asText(
             substitution_method_parameter_dict={'mapping_dict':mapping_dict})
 
-support_request.SupportRequest_trySendNotificationMessage(
-            ticket_title,
-            message, person.getRelativeUrl())
-              
+support_request.notify(message_title=ticket_title,
+              message=message,
+              destination_relative_url=person.getRelativeUrl())
+
 return support_request

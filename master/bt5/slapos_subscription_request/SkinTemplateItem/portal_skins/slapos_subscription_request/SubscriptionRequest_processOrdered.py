@@ -13,7 +13,7 @@ if instance_tree is None:
 if instance_tree is not None:
   if instance_tree.getCausalityState() == "diverged":
     # Call it as soon as possible
-    instance_tree.InstanceTree_requestUpdateOpenSaleOrder()
+    instance_tree.InstanceTree_requestUpdateOpenSaleOrder("sale_trade_condition_module/couscous_trade_condition")
 
   instance = instance_tree.getSuccessorValue()
 

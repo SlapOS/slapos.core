@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>specialise="sale_trade_condition_module/couscous_trade_condition", REQUEST=None</string> </value>
+            <value> <string>specialise, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

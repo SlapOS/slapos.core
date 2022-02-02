@@ -447,6 +447,7 @@ class TestHostingSubscriptionSimulation(SlapOSTestCaseMixin):
         destination=person.getRelativeUrl(),
         effective_date=self.initial_date,
         expiration_date=self.initial_date + 1,
+        specialise="sale_trade_condition_module/couscous_trade_condition"
     )
     self.portal.portal_workflow._jumpToStateFor(open_order, 'validated')
 

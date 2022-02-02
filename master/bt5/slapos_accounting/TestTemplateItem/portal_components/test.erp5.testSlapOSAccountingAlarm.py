@@ -129,13 +129,14 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertRaises(
       Unauthorized,
       subscription.InstanceTree_requestUpdateOpenSaleOrder,
+      "sale_trade_condition_module/couscous_trade_condition",
       REQUEST={})
 
   def test_solved_InstanceTree(self):
     subscription = self.portal.instance_tree_module\
         .template_instance_tree.Base_createCloneDocument(batch_mode=1)
     self.portal.portal_workflow._jumpToStateFor(subscription, 'solved')
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
   def test_empty_InstanceTree(self):
@@ -149,7 +150,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.portal.portal_workflow._jumpToStateFor(subscription, 'validated')
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -215,7 +216,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     }]
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -272,7 +273,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     subscription.diverge()
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -351,7 +352,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     subscription.fixConsistency()
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -384,7 +385,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     }]
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.tic()
 
     open_sale_order_list = self.portal.portal_catalog(
@@ -438,7 +439,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     subscription2.fixConsistency()
     self.tic()
 
-    subscription2.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription2.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.tic()
 
     open_sale_order_list = self.portal.portal_catalog(
@@ -511,7 +512,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.portal.portal_workflow._jumpToStateFor(subscription, 'validated')
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.tic()
 
     request_time = DateTime('2112/01/01')
@@ -525,7 +526,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     })
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -560,7 +561,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertEqual(subscription.getCausalityState(), 'diverged')
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -570,7 +571,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.assertEqual(subscription.getSlapState(), 'draft')
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 
@@ -586,7 +587,7 @@ class TestInstanceTree_requestUpdateOpenSaleOrder(SlapOSTestCaseMixin):
     self.portal.portal_workflow._jumpToStateFor(subscription, 'destroy_requested')
     self.tic()
 
-    subscription.InstanceTree_requestUpdateOpenSaleOrder()
+    subscription.InstanceTree_requestUpdateOpenSaleOrder(specialise="sale_trade_condition_module/couscous_trade_condition")
     self.tic()
     self.assertEqual(subscription.getCausalityState(), 'solved')
 

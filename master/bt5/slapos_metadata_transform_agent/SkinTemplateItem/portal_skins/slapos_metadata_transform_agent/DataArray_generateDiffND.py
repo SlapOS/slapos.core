@@ -2,10 +2,10 @@ import numpy as np
 from Products.ZSQLCatalog.SQLCatalog import AndQuery, Query
 
 # Do nothing for reference image, just change state
+
 if 'file_system_image/reference_image' in context.getPublicationSectionList():
   context.processFile()
   return
-
 
 for publication_section in context.getPublicationSectionList():
   if 'distribution' in publication_section:
@@ -38,7 +38,7 @@ if not reference_distribution:
 
 query = AndQuery(
           Query(portal_type = ["Data Array"]),
-          Query(simulation_state = "converted"),
+          Query(simulation_state = ("converted", "processed")),
           AndQuery(Query(publication_section_relative_url = 'publication_section/file_system_image/reference_image'),
                    Query(publication_section_relative_url = reference_distribution)))
 

@@ -373,3 +373,54 @@ tail.0:2021-10-15 15:11:02.230745474 +0200 CEST[fluentbit_end]\n'
     )
     self.assertEqual(len(data_array_list), 1)
     self.assertEqual(data_array_list[0].getCausalityValue(), self.data_product)
+
+  def test_multi_data_array(self):
+    request = self.portal.REQUEST
+    request_dict = self._create_request_dict()
+    for reference in request_dict:
+      request.environ["REQUEST_METHOD"] = 'POST'
+      request.set('reference', reference)
+      request.set('data_chunk', request_dict[reference])
+      self.portal.portal_ingestion_policies.metadata_upload.ingest()
+    self.tic()
+
+
+    data_stream_list = self.portal.portal_catalog(portal_type = 'Data Stream')
+    self.assertEqual(len(data_stream_list), 3)
+
+    self.portal.portal_alarms.wendelin_handle_analysis.activeSense()
+    self.tic()
+    self.portal.portal_alarms.wendelin_handle_analysis.activeSense()
+    self.tic()
+    # 2 references, 1 node
+    data_array_list = self.portal.portal_catalog(portal_type='Data Array')
+    self.assertEqual(len(data_array_list), 3)
+
+    # 1 is created
+    self.portal.portal_alarms.slapos_check_node_status.activeSense()
+    self.tic()
+    self.portal.portal_alarms.slapos_check_node_status.activeSense()
+    self.tic()
+    data_array_list = self.portal.portal_catalog(portal_type='Data Array')
+    self.assertEqual(len(data_array_list), 4)
+
+    for data_array in data_array_list:
+      self.assertEqual(data_array.getSimulationState(), 'processed')
+
+    request = self.portal.REQUEST
+    request_dict = self._create_request_dict()
+    for reference in request_dict:
+      request.environ["REQUEST_METHOD"] = 'POST'
+      request.set('reference', reference)
+      request.set('data_chunk', request_dict[reference])
+      self.portal.portal_ingestion_policies.metadata_upload.ingest()
+    self.tic()
+
+    self.portal.portal_alarms.wendelin_handle_analysis.activeSense()
+    self.tic()
+    self.portal.portal_alarms.wendelin_handle_analysis.activeSense()
+    self.tic()
+    new_data_array_list = self.portal.portal_catalog(portal_type='Data Array')
+    new_data_array_list = [x for x in new_data_array_list if x.getSimulationState() == 'converted']
+    self.assertEqual(len(new_data_array_list), 3)
+

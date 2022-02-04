@@ -223,6 +223,9 @@ class testSlapOSMixin(ERP5TypeTestCase):
     self.portal.portal_configurator.startInstallation(
                  business_configuration,REQUEST=self.portal.REQUEST)
 
+    self.portal.portal_types.resetDynamicDocumentsOnceAtTransactionBoundary()
+    self.tic(verbose=True, delay=3600)
+
   def bootstrapSite(self):
     self.logMessage('SlapOS bootstrapSite')
     self.getDefaultSystemPreference().setPreferredHateoasUrl("http://dummy/")

@@ -4,6 +4,7 @@
   <item>follow_up</item>
   <item>source</item>
   <item>source_section</item>
+  <item>specialise</item>
  </portal_type>
  <portal_type id="Subscription Condition Module">
   <item>business_application</item>

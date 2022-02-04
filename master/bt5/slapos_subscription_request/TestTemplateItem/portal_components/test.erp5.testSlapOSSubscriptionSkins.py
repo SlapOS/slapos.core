@@ -358,22 +358,14 @@ class TestSubscriptionRequest_applyCondition(TestSubscriptionSkinsMixin):
 
     self.assertEqual("Subscription %s for %s" % (subscription_condition.getTitle(), person.getDefaultEmailText()),
                       subscription_request.getTitle())
-    self.assertEqual("https://%s/software.cfg" % self.new_id, subscription_request.getUrlString())
-    self.assertEqual("""<?xml version="1.0" encoding="utf-8"?>
-<instance>
-  <parameter id="oi">couscous</parameter>
-  <parameter id="zz">yy</parameter>
-</instance>""", subscription_request.getSlaXml())
-    self.assertEqual("""<?xml version="1.0" encoding="utf-8"?>
-<instance>
-  <parameter id="xx">couscous</parameter>
-  <parameter id="zz">yy</parameter>
-</instance>""", subscription_request.getTextContent())
+    self.assertEqual(None, subscription_request.getUrlString())
+    #self.assertRaises(AttributeError, subscription_request.getSlaXml)
+    #self.assertRaises(AttributeError, subscription_request.getTextContent)
     self.assertNotEqual(subscription_request.getStartDate(), None)
     self.assertEqual(subscription_request.getSpecialiseValue(), subscription_condition)
-    self.assertEqual(subscription_request.getRootSlave(), False)
-    self.assertEqual(subscription_request.getPrice(), 99.9)
-    self.assertEqual(subscription_request.getPriceCurrency(), "currency_module/EUR")
+    self.assertEqual(subscription_request.getRootSlave(), None)
+    self.assertEqual(subscription_request.getPrice(), None)
+    self.assertEqual(subscription_request.getPriceCurrency(), None)
     self.assertEqual(subscription_request.getSourceReference(), "test_for_test_123")
 
 class SubscriptionRequest_boostrapUserAccount(TestSubscriptionSkinsMixin):
@@ -660,8 +652,7 @@ class SubscriptionRequest_processRequest(TestSubscriptionSkinsMixin):
 
   def test_process_request(self):
     person = self.makePerson()
-    subscription_request = self.newSubscriptionRequest(
-      quantity=1, destination_section_value=person,
+    subscription_condition = self.newSubscriptionCondition(
       url_string="https://%s/software.cfg" % self.new_id,
       sla_xml="""<?xml version="1.0" encoding="utf-8"?>
 <instance>
@@ -675,7 +666,11 @@ class SubscriptionRequest_processRequest(TestSubscriptionSkinsMixin):
 </instance>""",
     root_slave=False,
     source_reference="test_for_test_123")
-
+    subscription_condition.validate()
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      specialise_value=subscription_condition
+    )
     self.tic()
 
     subscription_request.SubscriptionRequest_processRequest()
@@ -1050,8 +1045,8 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
 
   def test_no_sale_invoice(self):
     person = self.makePerson()
-    subscription_request = self.newSubscriptionRequest(
-      quantity=1, destination_section_value=person,
+
+    subscription_condition = self.newSubscriptionCondition(
       url_string="https://%s/software.cfg" % self.new_id,
       sla_xml="""<?xml version="1.0" encoding="utf-8"?>
 <instance>
@@ -1065,7 +1060,11 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
 </instance>""",
     root_slave=False,
     source_reference="test_for_test_123")
-
+    subscription_condition.validate()
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      specialise_value=subscription_condition
+    )
 
     self.tic()
     self.assertEqual(
@@ -1126,8 +1125,8 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
   @simulate('SubscriptionRequest_verifyInstanceIsAllocated', '*args, **kwargs','return True')
   def test_with_reservation_fee(self):
     person = self.makePerson()
-    subscription_request = self.newSubscriptionRequest(
-      quantity=1, destination_section_value=person,
+
+    subscription_condition = self.newSubscriptionCondition(
       url_string="https://%s/software.cfg" % self.new_id,
       sla_xml="""<?xml version="1.0" encoding="utf-8"?>
 <instance>
@@ -1141,6 +1140,11 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
 </instance>""",
     root_slave=False,
     source_reference="test_for_test_123")
+    subscription_condition.validate()
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      specialise_value=subscription_condition
+    )
     self.tic()
 
 
@@ -1204,8 +1208,7 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
   @simulate('SubscriptionRequest_verifyInstanceIsAllocated', '*args, **kwargs','return True')
   def test_confirmed(self):
     person = self.makePerson()
-    subscription_request = self.newSubscriptionRequest(
-      quantity=1, destination_section_value=person,
+    subscription_condition = self.newSubscriptionCondition(
       url_string="https://%s/software.cfg" % self.new_id,
       sla_xml="""<?xml version="1.0" encoding="utf-8"?>
 <instance>
@@ -1219,6 +1222,11 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
 </instance>""",
     root_slave=False,
     source_reference="test_for_test_123")
+    subscription_condition.validate()
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      specialise_value=subscription_condition
+    )
     subscription_request.plan()
     subscription_request.order()
     

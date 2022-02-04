@@ -97,17 +97,18 @@ if instance_tree.getCausalityState() == 'diverged':
       # Define the start date of the period, this can variates with the time.
       # start_date_delta = 0
       if subscription_request is not None:
-
+        """
         # Copy from Subscription Condition the source and Source Section into the line
         # RAFAEL: As the model is use single Open Order, it isn't possible to use multiple
         #  companies per region, so we rely on Subscription Conditions to Describe the
         #  providers.
         edit_kw["source"] = subscription_request.getSource()
         edit_kw["source_section"] = subscription_request.getSourceSection()
-
+        """
         # Quantity is double because the first invoice has to
         # charge for 2 months
         edit_kw['quantity'] = subscription_request.getQuantity()
+        """
         edit_kw['price'] = subscription_request.getPrice()
         edit_kw['price_currency'] = subscription_request.getPriceCurrency()
         # While create move the start date to be at least 1 months
@@ -116,6 +117,7 @@ if instance_tree.getCausalityState() == 'diverged':
         # You can increase 32 days to generate 2 months
         # You can increase 0 days to keep generating one month only
         # start_date_delta = 0
+        """
 
       open_order_line.edit(
         activate_kw=activate_kw,
@@ -129,14 +131,12 @@ if instance_tree.getCausalityState() == 'diverged':
         aggregate_value_list=[hosting_subscription, instance_tree],
         **edit_kw
       )
-      if 'price' not in edit_kw:
-        # Keep compatibility with subscription pricing
-        open_order_line.edit(
-          price=service.getPrice(
-            context=open_order_line,
-            predicate_list=open_sale_order.getSpecialiseValue().contentValues(portal_type='Sale Supply Line')
-          )
+      open_order_line.edit(
+        price=service.getPrice(
+          context=open_order_line,
+          predicate_list=open_sale_order.getSpecialiseValue().contentValues(portal_type='Sale Supply Line')
         )
+      )
 
       storeWorkflowComment(open_order_line, "Created for %s" % instance_tree.getRelativeUrl())
       # instance_tree.converge(comment="Last open order: %s" % open_sale_order_line.getRelativeUrl())
@@ -144,16 +144,14 @@ if instance_tree.getCausalityState() == 'diverged':
 
       storeWorkflowComment(open_sale_order, open_order_explanation)
 
-    if open_order_line is not None:
       open_order = open_order_line.getParentValue()
-      open_order.SaleOrder_applySaleTradeCondition(batch_mode=1, force=0)
+      open_order.SaleOrder_applySaleTradeCondition(batch_mode=1, force=1)
 
       # Check compatibility with previous template
-      #assert open_order.getSourceSection() == 'organisation_module/slapos'
-      assert open_order.getDestinationSection() == 'organisation_module/slapos'
-      #assert open_order.getSource() == 'organisation_module/slapos'
-      assert open_order.getPriceCurrency() == 'currency_module/EUR'
       assert open_order.getSpecialise() == specialise
+
+    if open_order_line is not None:
+      open_order = open_order_line.getParentValue()
 
       assert open_order_line.getResource() == 'service_module/slapos_instance_subscription'
       assert open_order_line.getQuantityUnit() == 'unit/piece'

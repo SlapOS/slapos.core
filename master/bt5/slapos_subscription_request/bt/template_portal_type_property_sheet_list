@@ -12,9 +12,7 @@ Subscription Request | Person
 Subscription Request | Price
 Subscription Request | Reference
 Subscription Request | SlaposSubscriptionRequestAuditConstraint
-Subscription Request | SoftwareInstance
 Subscription Request | Task
-Subscription Request | TextDocument
 Subscription Request | Url
 Subscription Request | VariationRange
 Trial Condition | InstanceTree

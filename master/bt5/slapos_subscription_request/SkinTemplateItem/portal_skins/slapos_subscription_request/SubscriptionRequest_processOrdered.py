@@ -13,7 +13,8 @@ if instance_tree is None:
 if instance_tree is not None:
   if instance_tree.getCausalityState() == "diverged":
     # Call it as soon as possible
-    instance_tree.InstanceTree_requestUpdateOpenSaleOrder("sale_trade_condition_module/couscous_trade_condition")
+    subscription_condition = context.getSpecialiseValue(portal_type='Subscription Condition')
+    instance_tree.InstanceTree_requestUpdateOpenSaleOrder(subscription_condition.getSpecialise(portal_type='Sale Trade Condition'))
 
   instance = instance_tree.getSuccessorValue()
 

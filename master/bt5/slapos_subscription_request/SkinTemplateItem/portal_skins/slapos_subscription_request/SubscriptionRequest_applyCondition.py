@@ -35,18 +35,18 @@ now = DateTime()
 
 context.edit(
   title="Subscription %s for %s" % (subscription_condition.getTitle(), email),
-  url_string=subscription_condition.getUrlString(),
-  text_content=instance_xml,
-  sla_xml=subscription_condition.getSlaXml(),
+  #url_string=subscription_condition.getUrlString(),
+  #text_content=instance_xml,
+  #sla_xml=subscription_condition.getSlaXml(),
   start_date=now,
-  root_slave=subscription_condition.getRootSlave(),
+  #root_slave=subscription_condition.getRootSlave(),
   specialise_value=subscription_condition,
-  price=subscription_condition.getPrice(),
-  price_currency=subscription_condition.getPriceCurrency(),
+  #price=subscription_condition.getPrice(),
+  #price_currency=subscription_condition.getPriceCurrency(),
 
   # Set Provider from Subscription Condition
-  source=subscription_condition.getSource(),
-  source_section=subscription_condition.getSourceSection()
+  #source=subscription_condition.getSource(),
+  #source_section=subscription_condition.getSourceSection()
 )
 
 context.setSourceReference(subscription_condition.getSourceReference())

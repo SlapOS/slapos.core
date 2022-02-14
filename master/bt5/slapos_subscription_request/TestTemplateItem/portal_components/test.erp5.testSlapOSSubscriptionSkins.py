@@ -42,6 +42,16 @@ class TestSubscriptionSkinsMixin(SlapOSTestCaseMixinWithAbort):
     notification_message.validate()
     return notification_message
 
+  def newSaleTradeCondition(self, **kw):
+    sale_trade_condition = self.portal.sale_trade_condition_module.newContent(
+        portal_type='Sale Trade Condition',
+        title="Test Sale Trade Condition %s" % self.new_id,
+        reference="TESTSALETRADECONDITION-%s" % self.new_id,
+        **kw
+      )
+    self.tic()
+    return sale_trade_condition
+
   def newSubscriptionCondition(self, **kw):
     subscription_condition = self.portal.subscription_condition_module.newContent(
         portal_type='Subscription Condition',
@@ -1047,6 +1057,7 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
     person = self.makePerson()
 
     subscription_condition = self.newSubscriptionCondition(
+      specialise='sale_trade_condition_module/slapos_subscription_trade_condition',
       url_string="https://%s/software.cfg" % self.new_id,
       sla_xml="""<?xml version="1.0" encoding="utf-8"?>
 <instance>
@@ -1139,7 +1150,9 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
   <parameter id="zz">yy</parameter>
 </instance>""",
     root_slave=False,
-    source_reference="test_for_test_123")
+    source_reference="test_for_test_123",
+    specialise_value=self.newSaleTradeCondition()
+    )
     subscription_condition.validate()
     subscription_request = self.newSubscriptionRequest(
       quantity=1, destination_section_value=person,
@@ -1221,7 +1234,9 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
   <parameter id="zz">yy</parameter>
 </instance>""",
     root_slave=False,
-    source_reference="test_for_test_123")
+    source_reference="test_for_test_123",
+    specialise_value=self.newSaleTradeCondition()
+    )
     subscription_condition.validate()
     subscription_request = self.newSubscriptionRequest(
       quantity=1, destination_section_value=person,

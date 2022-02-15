@@ -4215,6 +4215,46 @@ class TestSlapgridPluginPromiseWithInstancePython(TestSlapgridPromiseWithMaster)
         "  0[(not ready)]: Promise 'failing_promise_plugin.py' failed with output: héhé fake promise plugin error")
 
 
+
+class TestSlapgridPluginPromiseWithInstancePythonOldSlapOSCompatibility(
+    TestSlapgridPluginPromiseWithInstancePython):
+  """Process instance plugins with a different python, but simulate the case
+  where plugin scripts structure had one extra import
+  """
+
+  def getTestComputerClass(self):
+    # use a test computer that will use a custom python (because we reuse
+    # TestSlapgridPluginPromiseWithInstancePython) and some promise plugins
+    # scripts that look like the one slapos.cookbook was creating before 1.0.118
+    class TestComputer(
+        super(TestSlapgridPluginPromiseWithInstancePythonOldSlapOSCompatibility,
+              self).getTestComputerClass()):
+      def getTestInstanceClass(self):
+        class TestInstance(super(TestComputer, self).getTestInstanceClass()):
+          def setPluginPromise(self, *args, **kwargs):
+            plugin_promise = super(TestInstance,
+                                   self).setPluginPromise(*args, **kwargs)
+            with open(plugin_promise) as f:
+              plugin_code = f.read()
+
+            legacy_plugin_code = plugin_code.replace(
+                textwrap.dedent('''\
+                      # coding: utf-8
+                      import sys
+                      '''),
+                textwrap.dedent('''\
+                      # coding: utf-8
+                      import json
+                      import sys
+                      '''))
+            assert legacy_plugin_code != plugin_code  # make sure our replace matched
+            with open(plugin_promise, 'w') as f:
+              f.write(legacy_plugin_code)
+            return plugin_promise
+        return TestInstance
+    return TestComputer
+
+
 class TestSVCBackend(unittest.TestCase):
   """Tests for supervisor backend.
   """

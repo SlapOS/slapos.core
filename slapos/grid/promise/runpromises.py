@@ -36,8 +36,13 @@ promise_file = next(
 with open(os.path.join(promise_folder, promise_file)) as f:
   promise_content = f.read()
 tree = ast.parse(promise_content, mode='exec')
-
-sys.path[0:0] = eval(compile(ast.Expression(tree.body[1].value), '', 'eval'))
+assign_node = next(e for e in tree.body if isinstance(e, ast.Assign))
+if sys.version_info >= (3, 9):
+  assert ast.unparse(assign_node.targets[0]) == 'sys.path[0:0]'
+else:
+  assert [ast.dump(n) for n in assign_node.targets] \
+      == [ast.dump(n) for n in ast.parse("sys.path[0:0] = []").body[0].targets]
+sys.path[0:0] = ast.literal_eval(assign_node.value)
 
 from slapos.grid.promise import PromiseLauncher, PromiseError
 from slapos.cli.entry import SlapOSApp

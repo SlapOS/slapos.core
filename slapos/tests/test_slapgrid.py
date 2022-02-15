@@ -4194,6 +4194,45 @@ class TestSlapgridPluginPromiseWithInstancePython(TestSlapgridPromiseWithMaster)
         "  0[(not ready)]: Promise 'failing_promise_plugin.py' failed with output: héhé fake promise plugin error")
 
 
+
+class TestSlapgridPluginPromiseWithInstancePythonOldSlapOSCompatibility(
+    TestSlapgridPluginPromiseWithInstancePython):
+  """Process instance plugins with a different python, but simulate the case
+  where plugin scripts structure had one extra import
+  """
+  def patchPluginSetter(self):
+    super(
+        TestSlapgridPluginPromiseWithInstancePythonOldSlapOSCompatibility,
+        self,
+    ).patchPluginSetter()
+
+    cls = InstanceForTest
+    attr = 'setPluginPromise'
+    orig = getattr(cls, attr)
+    def setPluginPromise(inst, *args, **kwargs):
+      plugin_promise = orig(inst, *args, **kwargs)
+      with open(plugin_promise) as f:
+        plugin_code = f.read()
+
+      legacy_plugin_code = plugin_code.replace(
+          textwrap.dedent('''\
+                # coding: utf-8
+                import sys
+                '''),
+          textwrap.dedent('''\
+                # coding: utf-8
+                import json
+                import sys
+                '''))
+      assert legacy_plugin_code != plugin_code # make sure our replace matched
+      with open(plugin_promise, 'w') as f:
+        f.write(legacy_plugin_code)
+      return plugin_promise
+
+    self.addCleanup(setattr, cls, attr, orig)
+    setattr(cls, attr, setPluginPromise)
+
+
 class TestSVCBackend(unittest.TestCase):
   """Tests for supervisor backend.
   """

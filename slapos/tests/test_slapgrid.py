@@ -162,6 +162,9 @@ class BasicMixin(object):
     self.setSlapgrid()
     self.setMock()
 
+  def getTestComputerClass(self):
+    return ComputerForTest
+
   def setMock(self):
     module = slapos.grid.SlapObject
     func = 'getPythonExecutableFromSoftwarePath'
@@ -305,7 +308,7 @@ class TestBasicSlapgridCP(BasicMixin, unittest.TestCase):
 
   def test_environment_variable_HOME(self):
     # When running instance, $HOME is set to the partition path
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     partition = computer.instance_list[0]
     partition.requested_state = 'started'
     partition.software.setBuildout('#!/bin/sh\n echo $HOME > env_HOME')
@@ -316,7 +319,7 @@ class TestBasicSlapgridCP(BasicMixin, unittest.TestCase):
 
   def test_no_user_site_packages(self):
     # When running instance buildout, python's user site packages are ignored
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     partition = computer.instance_list[0]
     partition.requested_state = 'started'
 
@@ -479,14 +482,20 @@ class ComputerForTest(object):
     else:
       return {'status_code': 500}
 
+  def getTestSoftwareClass(self):
+    return SoftwareForTest
+
   def setSoftwares(self):
     """
     Will set requested amount of software
     """
     self.software_list = [
-        SoftwareForTest(self.software_root, name=str(i))
+        self.getTestSoftwareClass()(self.software_root, name=str(i))
         for i in range(self.software_amount)
     ]
+
+  def getTestInstanceClass(self):
+    return InstanceForTest
 
   def setInstances(self):
     """
@@ -498,7 +507,7 @@ class ComputerForTest(object):
       software = None
 
     self.instance_list = [
-        InstanceForTest(self.instance_root, name=str(i), software=software)
+        self.getTestInstanceClass()(self.instance_root, name=str(i), software=software)
         for i in range(self.instance_amount)
     ]
 
@@ -698,7 +707,7 @@ class DummyManager(object):
 class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
 
   def test_nothing_to_do(self):
-    computer = ComputerForTest(self.software_root, self.instance_root, 0, 0)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 0, 0)
     with httmock.HTTMock(computer.request_handler):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
       self.assertInstanceDirectoryListEqual([])
@@ -707,7 +716,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       self.assertEqual(stat.S_IMODE(st.st_mode), 0o755)
 
   def test_one_partition(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
@@ -725,7 +734,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
     Check that slapgrid processes instance is profile is not named
     "template.cfg" but "instance.cfg".
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
@@ -742,7 +751,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
     """
     Test if slapgrid cp does not process "free" partition
     """
-    computer = ComputerForTest(self.software_root,
+    computer = self.getTestComputerClass()(self.software_root,
                                self.instance_root,
                                software_amount=0)
     with httmock.HTTMock(computer.request_handler):
@@ -755,7 +764,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       self.assertEqual(partition.sequence, [])
 
   def test_one_partition_started(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       partition = computer.instance_list[0]
       partition.requested_state = 'started'
@@ -774,7 +783,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       self.assertEqual(partition.state, 'started')
 
   def test_one_partition_started_fail(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       partition = computer.instance_list[0]
       partition.requested_state = 'started'
@@ -809,7 +818,7 @@ exit 1
       self.assertEqual(instance.state, 'started')
 
   def test_one_partition_started_stopped(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
 
@@ -866,7 +875,7 @@ chmod 755 etc/run/wrapper
     processes will be stopped even if instance is broken (buildout fails
     to run) but status is still started.
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
 
@@ -923,7 +932,7 @@ exit 1
       self.assertEqual(instance.state, 'started')
 
   def test_one_partition_stopped_started(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'stopped'
@@ -963,7 +972,7 @@ exit 1
     Test that an existing partition with "destroyed" status will only be
     stopped by slapgrid-cp, not processed
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'destroyed'
@@ -1013,7 +1022,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
     4.Wait for it to fail
     5.Wait for file generated by monkeypacthed bang to appear
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       partition = computer.instance_list[0]
       partition.requested_state = 'started'
@@ -1042,7 +1051,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
     4.Wait for it to fail
     5.Check that file generated by monkeypacthed bang do not appear
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       partition = computer.instance_list[0]
       partition.requested_state = 'started'
@@ -1083,7 +1092,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
     Certificates used for the bang are also checked
     (ie: watchdog id in process name)
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       certificate_repository_path = os.path.join(self._tempdir, 'partition_pki')
@@ -1108,7 +1117,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
     Test that a process going to a mode not watched by watchdog
     in supervisord is not banged if watched by watchdog
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     instance = computer.instance_list[0]
 
     watchdog = Watchdog(
@@ -1131,7 +1140,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
     is not banged if not watched by watchdog
     (ie: no watchdog id in process name)
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     instance = computer.instance_list[0]
 
     watchdog = Watchdog(
@@ -1153,7 +1162,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
     existing), check that bang file is created and contains the timestamp of
     .timestamp file.
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       certificate_repository_path = os.path.join(self._tempdir, 'partition_pki')
@@ -1191,7 +1200,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
 
     Practically speaking, .timestamp file in the partition does not exsit.
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       certificate_repository_path = os.path.join(self._tempdir, 'partition_pki')
@@ -1226,7 +1235,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
      * First bang is transmitted
      * subsequent bangs are ignored until a deployment is successful.
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       certificate_repository_path = os.path.join(self._tempdir, 'partition_pki')
@@ -1276,7 +1285,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
      * The process crashes again, watchdog calls bang
      * The process crashes again, watchdog ignroes it
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       certificate_repository_path = os.path.join(self._tempdir, 'partition_pki')
@@ -1353,7 +1362,7 @@ class TestSlapgridCPWithMasterWatchdog(MasterMixin, unittest.TestCase):
 class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
 
   def test_partition_timestamp(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       timestamp = str(int(time.time()))
@@ -1374,7 +1383,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
                        ['/stoppedComputerPartition'])
 
   def test_partition_timestamp_develop(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       timestamp = str(int(time.time()))
@@ -1397,7 +1406,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
                          '/stoppedComputerPartition'])
 
   def test_partition_old_timestamp(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       timestamp = str(int(time.time()))
@@ -1415,7 +1424,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
                        [ '/stoppedComputerPartition'])
 
   def test_partition_timestamp_new_timestamp(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       timestamp = str(int(time.time()))
@@ -1440,7 +1449,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
                         '/getFullComputerInformation'])
 
   def test_partition_timestamp_no_timestamp(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       timestamp = str(int(time.time()))
@@ -1467,7 +1476,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
     Check that if periodicity forces run of buildout for a partition, it
     removes the .timestamp file.
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       timestamp = str(int(time.time()))
@@ -1505,7 +1514,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
         software with periodicity was runned and not the other
     5. We check that modification time of .timestamp was modified
     """
-    computer = ComputerForTest(self.software_root, self.instance_root, 20, 20)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 20, 20)
     with httmock.HTTMock(computer.request_handler):
       instance0 = computer.instance_list[0]
       timestamp = str(int(time.time() - 5))
@@ -1546,7 +1555,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
     Check that periodicity forces processing a partition even if it is not
     started.
     """
-    computer = ComputerForTest(self.software_root, self.instance_root, 20, 20)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 20, 20)
     with httmock.HTTMock(computer.request_handler):
       instance0 = computer.instance_list[0]
       timestamp = str(int(time.time() - 5))
@@ -1585,7 +1594,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
     Check that periodicity forces processing a partition even if it is not
     started.
     """
-    computer = ComputerForTest(self.software_root, self.instance_root, 20, 20)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 20, 20)
     with httmock.HTTMock(computer.request_handler):
       instance0 = computer.instance_list[0]
       timestamp = str(int(time.time() - 5))
@@ -1632,7 +1641,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
     4. We launch slapgrid anew and check that install as not been called again
     """
 
-    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
     with httmock.HTTMock(computer.request_handler):
       timestamp = str(int(time.time()))
       instance = computer.instance_list[0]
@@ -1655,7 +1664,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
     new setup and one time because of periodicity = 0)
     """
 
-    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
     with httmock.HTTMock(computer.request_handler):
       timestamp = str(int(time.time()))
       instance = computer.instance_list[0]
@@ -1671,7 +1680,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
     1. We set up two instance one using a corrupted buildout
     2. One will fail but the other one will be processed correctly
     """
-    computer = ComputerForTest(self.software_root, self.instance_root, 2, 2)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 2, 2)
     with httmock.HTTMock(computer.request_handler):
       instance0 = computer.instance_list[0]
       instance1 = computer.instance_list[1]
@@ -1689,7 +1698,7 @@ exit 42""")
     1. We set up two instance but remove software path of one
     2. One will fail but the other one will be processed correctly
     """
-    computer = ComputerForTest(self.software_root, self.instance_root, 2, 2)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 2, 2)
     with httmock.HTTMock(computer.request_handler):
       instance0 = computer.instance_list[0]
       instance1 = computer.instance_list[1]
@@ -1706,7 +1715,7 @@ exit 42""")
     1. We set up two instance but remove software bin path of one
     2. One will fail but the other one will be processed correctly
     """
-    computer = ComputerForTest(self.software_root, self.instance_root, 2, 2)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 2, 2)
     with httmock.HTTMock(computer.request_handler):
       instance0 = computer.instance_list[0]
       instance1 = computer.instance_list[1]
@@ -1723,7 +1732,7 @@ exit 42""")
     1. We set up two instances but remove path of one
     2. One will fail but the other one will be processed correctly
     """
-    computer = ComputerForTest(self.software_root, self.instance_root, 2, 2)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 2, 2)
     with httmock.HTTMock(computer.request_handler):
       instance0 = computer.instance_list[0]
       instance1 = computer.instance_list[1]
@@ -1740,7 +1749,7 @@ exit 42""")
     1. We set up an instance using a corrupted buildout
     2. It will fail, make sure that whole log is sent to master
     """
-    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
 
@@ -1758,7 +1767,7 @@ echo %s; echo %s; exit 42""" % (line1, line2))
   def test_processing_summary(self):
     """At the end of instance processing, a summary of partition with errors is displayed.
     """
-    computer = ComputerForTest(self.software_root, self.instance_root, 4, 4)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 4, 4)
     _, instance1, instance2, instance3 = computer.instance_list
     # instance0 has no problem, it is not in summary
 
@@ -1812,7 +1821,7 @@ echo %s; echo %s; exit 42""" % (line1, line2))
     - services should be stopped
     - no report should be sent to master
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -1844,7 +1853,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
     """
     Test than an instance in "destroyed" state is correctly destroyed
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -1891,7 +1900,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
     1. Simulate computer containing one "destroyed" partition but with valid SR
     2. See if it destroyed
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
 
@@ -1915,7 +1924,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
     """
     Checks that slapgrid-ur don't destroy instance not to be destroyed.
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -1963,7 +1972,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
     Test than a free instance (so in "destroyed" state, but empty, without
     software_release URI) is ignored by slapgrid-cp.
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.software.name = None
@@ -1982,7 +1991,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
     Test than a free instance (so in "destroyed" state, but empty, without
     software_release URI) is ignored by slapgrid-ur.
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.software.name = None
@@ -2005,7 +2014,7 @@ class TestSlapgridSoftwareRelease(MasterMixin, unittest.TestCase):
     1. We set up a software using a corrupted buildout
     2. It will fail, make sure that whole log is sent to master
     """
-    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
     with httmock.HTTMock(computer.request_handler):
       software = computer.software_list[0]
 
@@ -2022,7 +2031,7 @@ echo %s; echo %s; exit 42""" % (line1, line2))
       self.assertIn('Failed to run buildout', software.error_log)
 
   def test_software_install_generate_buildout_cfg_with_shared_part_list(self):
-    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
     with httmock.HTTMock(computer.request_handler):
       software = computer.software_list[0]
       # examine the genrated buildout
@@ -2032,7 +2041,7 @@ echo %s; echo %s; exit 42""" % (line1, line2))
     self.assertIn('shared-part-list = %s' % self.shared_parts_root, software.error_log)
 
   def test_remove_software(self):
-    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
     with httmock.HTTMock(computer.request_handler):
       software = computer.software_list[0]
 
@@ -2049,7 +2058,7 @@ touch directory/file
 
   def test_remove_software_chmod(self):
     # This software is "hard" to remove, as permissions have been changed
-    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
     with httmock.HTTMock(computer.request_handler):
       software = computer.software_list[0]
 
@@ -2111,7 +2120,7 @@ buildout = /path/to/buildout/binary
 
 class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
   def test_one_failing_promise(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -2128,7 +2137,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       self.assertNotEqual('started', instance.state)
 
   def test_one_succeeding_promise(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -2145,7 +2154,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       self.assertEqual(instance.state, 'started')
 
   def test_stderr_has_been_sent(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
 
@@ -2173,7 +2182,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       self.assertIsNone(instance.state)
 
   def test_timeout_works(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -2197,7 +2206,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       self.assertIsNone(instance.state)
 
   def test_two_succeeding_promises(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -2218,7 +2227,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       self.assertEqual(instance.state, 'started')
 
   def test_one_succeeding_one_failing_promises(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -2246,7 +2255,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       self.assertNotEqual('started', instance.state)
 
   def test_one_succeeding_one_timing_out_promises(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -2275,7 +2284,7 @@ class TestSlapgridCPWithMasterPromise(MasterMixin, unittest.TestCase):
       self.assertNotEqual(instance.state, 'started')
 
   def test_promise_run_if_partition_started_fail(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -2301,7 +2310,7 @@ exit 1
       self.assertTrue(instance.error)
 
   def test_promise_notrun_if_partition_stopped_fail(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'stopped'
@@ -2333,7 +2342,7 @@ class TestSlapgridDestructionLock(MasterMixin, unittest.TestCase):
     Higher level test about actual retention (or no-retention) of instance
     if specifying a retention lock delay.
     """
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -2486,7 +2495,7 @@ exit 1
       self.assertIn(rule, cmd_list)
 
   def test_getFirewallRules(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     self.setFirewallConfig()
     self.ip_address_list = computer.ip_address_list
     ip = computer.instance_list[0].full_ip_list[0][1]
@@ -2506,7 +2515,7 @@ exit 1
 
 
   def test_checkAddFirewallRules(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     self.setFirewallConfig()
     # For simulate query rule success
     self.grid.firewall_conf['firewall_cmd'] = self.firewall_cmd_add
@@ -2550,7 +2559,7 @@ exit 1
       self.checkRuleFromIpSource(ip, [], rules_list)
 
   def test_partition_no_firewall(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       self.assertEqual(self.grid.processComputerPartitionList(),
@@ -2561,7 +2570,7 @@ exit 1
       )))
 
   def test_partition_firewall_restrict(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     self.setFirewallConfig()
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
@@ -2582,7 +2591,7 @@ exit 1
       self.checkRuleFromIpSource(ip, [], rules_list)
 
   def test_partition_firewall(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     self.setFirewallConfig()
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
@@ -2605,7 +2614,7 @@ exit 1
 
   @unittest.skip('Always fail: instance.filter_dict can\'t change')
   def test_partition_firewall_restricted_access_change(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     self.setFirewallConfig()
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
@@ -2639,7 +2648,7 @@ exit 1
       self.checkRuleFromIpSource(ip, [], rules_list)
 
   def test_partition_firewall_ipsource_accept(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     self.setFirewallConfig()
     source_ip = ['10.0.8.10', '10.0.8.11']
     self.grid.firewall_conf['authorized_sources'] = [source_ip[0]]
@@ -2673,7 +2682,7 @@ exit 1
       self.checkRuleFromIpSource(ip, source_ip, rules_list)
 
   def test_partition_firewall_ipsource_reject(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     self.setFirewallConfig()
     source_ip = '10.0.8.10'
 
@@ -2702,7 +2711,7 @@ exit 1
       self.checkRuleFromIpSourceReject(ip, source_ip.split(' '), rules_list)
 
   def test_partition_firewall_ip_change(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     self.setFirewallConfig()
     source_ip = ['10.0.8.10', '10.0.8.11']
     self.grid.firewall_conf['authorized_sources'] = [source_ip[0]]
@@ -2745,7 +2754,7 @@ exit 1
 class TestSlapgridCPWithTransaction(MasterMixin, unittest.TestCase):
 
   def test_one_partition(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       partition = os.path.join(self.instance_root, '0')
@@ -2785,7 +2794,7 @@ exit 0
       count += 1
 
   def test_partition_destroy_with_pre_remove_service(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       partition = computer.instance_list[0]
       pre_delete_dir = os.path.join(partition.partition_path, 'etc/prerm')
@@ -2829,7 +2838,7 @@ exit 0
       six.assertCountEqual(self, os.listdir(partition.partition_path), [])
 
   def test_partition_destroy_pre_remove_with_retention_lock(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       partition = computer.instance_list[0]
       pre_delete_dir = os.path.join(partition.partition_path, 'etc/prerm')
@@ -2883,7 +2892,7 @@ exit 0
       six.assertCountEqual(self, os.listdir(partition.partition_path), [])
 
   def test_partition_destroy_pre_remove_script_not_stopped(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       partition = computer.instance_list[0]
       pre_delete_dir = os.path.join(partition.partition_path, 'etc/prerm')
@@ -2918,7 +2927,7 @@ exit 0
       six.assertCountEqual(self, os.listdir(partition.partition_path), [])
 
   def test_partition_destroy_pre_remove_script_run_as_partition_user(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       partition = computer.instance_list[0]
       pre_delete_dir = os.path.join(partition.partition_path, 'etc/prerm')
@@ -2991,7 +3000,7 @@ class TestSlapgridNoFDLeak(MasterMixin, unittest.TestCase):
         f.close()
 
   def _test_no_fd_leak(self):
-    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
     with httmock.HTTMock(computer.request_handler):
       software = computer.software_list[0]
 
@@ -3025,7 +3034,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
     manager_list = slapmanager.from_config({'manager_list': 'portredir'})
     self.grid._manager_list = manager_list
 
-    self.computer = ComputerForTest(self.software_root, self.instance_root)
+    self.computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     self.partition = self.computer.instance_list[0]
     self.instance_supervisord_config_path = os.path.join(
       self.instance_root, 'etc/supervisord.conf.d/0.conf')
@@ -3249,7 +3258,7 @@ class TestSlapgridWithDevPermLsblk(MasterMixin, unittest.TestCase):
     manager_list = slapmanager.from_config(self.config)
     self.grid._manager_list = manager_list
 
-    self.computer = ComputerForTest(self.software_root, self.instance_root)
+    self.computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     self.partition = self.computer.instance_list[0]
     self.instance_supervisord_config_path = os.path.join(
       self.instance_root, 'etc/supervisord.conf.d/0.conf')
@@ -3457,7 +3466,7 @@ class TestSlapgridWithWhitelistfirewall(MasterMixin, unittest.TestCase):
     manager_list = slapmanager.from_config(self.config)
     self.grid._manager_list = manager_list
 
-    self.computer = ComputerForTest(self.software_root, self.instance_root)
+    self.computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     self.partition = self.computer.instance_list[0]
 
     self.whitelist_firewall_filename = os.path.join(
@@ -3697,7 +3706,7 @@ class TestSlapgridManagerLifecycle(MasterMixin, unittest.TestCase):
     self.manager_list = [self.manager]
     self.setSlapgrid()
 
-    self.computer = ComputerForTest(self.software_root, self.instance_root)
+    self.computer = self.getTestComputerClass()(self.software_root, self.instance_root)
 
   def _mock_requests(self):
     return httmock.HTTMock(self.computer.request_handler)
@@ -3765,7 +3774,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
 
   fake_waiting_time = 0.05
   def test_one_failing_promise(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -3780,7 +3789,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertTrue(os.path.isfile(worked_file))
 
   def test_one_failing_plugin_promise(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -3798,7 +3807,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertEqual('failed', result["result"]["message"])
 
   def test_one_succeeding_promise(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -3812,7 +3821,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertTrue(os.path.isfile(worked_file))
 
   def test_one_succeeding_plugin_promise(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -3832,7 +3841,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
                        result["result"]["message"])
 
   def test_stderr_has_been_sent(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -3853,7 +3862,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertTrue(os.path.isfile(worked_file))
 
   def test_stderr_has_been_sent_plugin(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -3872,7 +3881,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertEqual('FAILED 254554802', result["result"]["message"])
 
   def test_timeout_works(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
 
@@ -3894,7 +3903,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertTrue(os.path.isfile(worked_file))
 
   def test_timeout_works_plugin(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -3915,7 +3924,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
                        result["result"]["message"])
 
   def test_two_succeeding_promises(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -3934,7 +3943,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
         self.assertTrue(os.path.isfile(worked_file))
 
   def test_two_succeeding_plugin_promise(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -3971,7 +3980,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
 
 
   def test_one_succeeding_one_failing_promises(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -3997,7 +4006,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
                        slapos.grid.slapgrid.SLAPGRID_PROMISE_FAIL)
 
   def test_one_succeeding_one_failing_promises_plugin(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -4030,7 +4039,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertEqual('success', result["result"]["message"])
 
   def test_one_succeeding_one_timing_out_promises(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -4056,7 +4065,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
                        slapos.grid.slapgrid.SLAPGRID_PROMISE_FAIL)
 
   def test_one_succeeding_one_failing_promises_plugin(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'started'
@@ -4091,7 +4100,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
                        result["result"]["message"])
 
   def test_promise_notrun_if_partition_stopped(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'stopped'
@@ -4106,7 +4115,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
       self.assertFalse(os.path.exists(promise_file))
 
   def test_promise_notrun_if_partition_stopped_plugin(self):
-    computer = ComputerForTest(self.software_root, self.instance_root)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root)
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
       instance.requested_state = 'stopped'
@@ -4125,6 +4134,11 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
 class TestSlapgridPluginPromiseWithInstancePython(TestSlapgridPromiseWithMaster):
   expect_plugin = False
 
+  def setMock(self):
+    # unlike BasicMixin.setMock, we don't want to patch
+    # slapos.grid.SlapObject.getPythonExecutableFromSoftwarePath
+    pass
+
   def setPython(self):
     self.python_called = os.path.join(self.software_root, 'called')
     wrapper = """#!/bin/sh
@@ -4137,29 +4151,36 @@ class TestSlapgridPluginPromiseWithInstancePython(TestSlapgridPromiseWithMaster)
     os.chmod(path, 0o755)
     return path
 
-  def patchBuildoutSetter(self):
-    cls = SoftwareForTest
-    attr = 'setBuildout'
-    orig = getattr(cls, attr)
-    def setBuildout(soft):
-      buildout = "#!" + self.setPython()
-      orig(soft, buildout)
-    self.addCleanup(setattr, cls, attr, orig)
-    setattr(cls, attr, setBuildout)
+  def getTestComputerClass(self):
+    # use a test computer class modified to use a different python, that
+    # will leave a `self.python_called` file when it's called so that we
+    # can assert that our custom python was executed, and not the slapos.core
+    # running python.
 
-  def patchPluginSetter(self):
-    cls = InstanceForTest
-    attr = 'setPluginPromise'
-    orig = getattr(cls, attr)
-    def setPluginPromise(inst, *args, **kwargs):
-      self.expect_plugin = inst.requested_state == 'started'
-      return orig(inst, *args, **kwargs)
-    self.addCleanup(setattr, cls, attr, orig)
-    setattr(cls, attr, setPluginPromise)
+    test_self = self
+    class TestComputerWithBuildout(
+        super(TestSlapgridPluginPromiseWithInstancePython,
+              self).getTestComputerClass()):
 
-  def setMock(self):
-    self.patchBuildoutSetter()
-    self.patchPluginSetter()
+      def getTestSoftwareClass(self):
+        class SoftwareForTestWithBuildout(
+            super(TestComputerWithBuildout, self).getTestSoftwareClass()):
+          def setBuildout(self, buildout=None):
+            buildout = '#!' + test_self.setPython()
+            return super(SoftwareForTestWithBuildout,
+                         self).setBuildout(buildout)
+        return SoftwareForTestWithBuildout
+
+      def getTestInstanceClass(self):
+        class InstanceForTestWithBuildout(
+            super(TestComputerWithBuildout, self).getTestInstanceClass()):
+          def setPluginPromise(self, *args, **kwargs):
+            test_self.expect_plugin = self.requested_state == 'started'
+            return super(InstanceForTestWithBuildout,
+                         self).setPluginPromise(*args, **kwargs)
+        return InstanceForTestWithBuildout
+
+    return TestComputerWithBuildout
 
   def tearDown(self):
     try:
@@ -4174,7 +4195,7 @@ class TestSlapgridPluginPromiseWithInstancePython(TestSlapgridPromiseWithMaster)
     self.assertEqual(self.expect_plugin, called)
 
   def test_failed_promise_output(self):
-    computer = ComputerForTest(self.software_root, self.instance_root, 1, 1)
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
     instance, = computer.instance_list
 
     instance.requested_state = 'started'

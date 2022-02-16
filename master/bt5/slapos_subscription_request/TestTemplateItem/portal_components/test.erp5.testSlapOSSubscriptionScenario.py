@@ -270,8 +270,6 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       specialise_value=sale_trade_condition
     )
     subscription_condition.validate()
-    # XXX Interaction workflow needed
-    subscription_condition.updateLocalRolesOnSecurityGroups()
     self.tic()
     return subscription_condition
 
@@ -308,8 +306,6 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       specialise_value=sale_trade_condition
     )
     self.subscription_condition.validate()
-    # XXX Interaction workflow needed
-    self.subscription_condition.updateLocalRolesOnSecurityGroups()
     self.tic()
 
   def getSubscriptionRequest(self, email, subscription_condition):

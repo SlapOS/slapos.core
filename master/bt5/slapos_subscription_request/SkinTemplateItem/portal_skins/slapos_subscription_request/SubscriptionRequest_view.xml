@@ -61,13 +61,7 @@
                 <item>
                     <key> <string>center</string> </key>
                     <value>
-                      <list>
-                        <string>my_root_slave</string>
-                        <string>my_source_reference</string>
-                        <string>my_url_string</string>
-                        <string>my_text_content</string>
-                        <string>my_sla_xml</string>
-                      </list>
+                      <list/>
                     </value>
                 </item>
                 <item>
@@ -90,7 +84,6 @@
                         <string>my_specialise_title_list</string>
                         <string>my_causality_title_list</string>
                         <string>my_destination_section_title_list</string>
-                        <string>my_source_section_title</string>
                       </list>
                     </value>
                 </item>
@@ -99,8 +92,6 @@
                     <value>
                       <list>
                         <string>my_quantity</string>
-                        <string>my_price</string>
-                        <string>my_price_currency</string>
                         <string>my_start_date</string>
                         <string>my_stop_date</string>
                         <string>my_translated_simulation_state_title</string>

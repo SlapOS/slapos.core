@@ -31,7 +31,7 @@ import shutil
 import tempfile
 import slapos.slap
 import slapos.cli.configure_local
-from slapos.cli.configure_local import ConfigureLocalCommand, _createConfigurationDirectory 
+from slapos.cli.configure_local import ConfigureLocalCommand, _createConfigurationDirectory
 from slapos.cli.entry import SlapOSApp
 from argparse import Namespace
 from six.moves.configparser import ConfigParser

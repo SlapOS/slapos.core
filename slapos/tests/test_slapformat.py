@@ -993,4 +993,4 @@ class TestFormatConfig(SlapformatMixin):
   # TODO add more tests with config file
 
 if __name__ == '__main__':
-      unittest.main()
+  unittest.main()

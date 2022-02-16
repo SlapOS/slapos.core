@@ -208,7 +208,7 @@ class RunPromise(GenericPromise):
 		"title": "%(name)s"
 	}]
 }"""
-    
+
     history_file = os.path.join(self.partition_dir, PROMISE_HISTORY_RESULT_FOLDER_NAME, '%s.history.json' % name)
     self.assertTrue(os.path.exists(history_file))
     with open(history_file) as f:
@@ -411,7 +411,7 @@ class RunPromise(GenericPromise):
     self.launcher.run()
     self.assertTrue(os.path.exists(state_folder))
     self.assertTrue(os.path.exists(os.path.join(self.log_dir, 'my_promise.log')))
-    
+
     self.assertSuccessResult("my_promise")
     self.assertSuccessHistoryResult("my_promise")
     self.assertSuccessStatsResult(1)
@@ -1577,10 +1577,10 @@ class TestSlapOSGenericPromise(TestSlapOSPromiseMixin):
   def test_promise_cleanup_plugin_dir(self):
     stale_pyc = os.path.join(self.plugin_dir, 'stale.pyc')
     with open(stale_pyc, 'w') as fh:
-     fh.write('')
+      fh.write('')
     stale_pyo = os.path.join(self.plugin_dir, 'stale.pyo')
     with open(stale_pyo, 'w') as fh:
-     fh.write('')
+      fh.write('')
     self.initialisePromise()
     self.launcher.run()
     self.assertFalse(os.path.exists(stale_pyc))
@@ -2021,4 +2021,3 @@ class RunPromise(GenericPromise):
 
 if __name__ == '__main__':
   unittest.main()
-

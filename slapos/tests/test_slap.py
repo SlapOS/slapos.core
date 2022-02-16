@@ -1471,7 +1471,7 @@ class TestOpenOrder(SlapMixin):
             },
         "text_content": {
             "title": "Parameter XML",
-            "default": dict2xml({'_':json.dumps(parameter_dict)}),
+            "default": dict2xml({'_': json.dumps(parameter_dict)}),
             "key": "field_my_text_content",
             "type": "TextAreaField"
             },
@@ -1689,4 +1689,3 @@ class TestSoftwareProductCollection(SlapMixin):
       self.product_collection.get
     )
     self.assertEqual(self.product_collection.foo, '0')
-

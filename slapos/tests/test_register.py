@@ -40,18 +40,13 @@ class TestRegister(unittest.TestCase):
     template = slapos.cli.register.fetch_configuration_template()
     self.assertNotEqual("", template)
 
-    for entry in  ['computer_id', 
+    for entry in  ['computer_id',
                    'master_url',
-                   'key_file', 
+                   'key_file',
                    'cert_file',
                    'certificate_repository_path',
-                   'interface_name', 
+                   'interface_name',
                    'ipv4_local_network',
-                   'partition_amount', 
+                   'partition_amount',
                    'create_tap']:
       self.assertTrue(entry in template, "%s is not in template (%s)" % (entry, template))
-
-
-
-
-

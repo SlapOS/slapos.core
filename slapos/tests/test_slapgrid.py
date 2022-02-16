@@ -555,7 +555,7 @@ class InstanceForTest(object):
     if self.software is not None:
       if self.timestamp is not None:
         partition._parameter_dict['timestamp'] = self.timestamp
-        
+
     self.current_partition = partition
     return partition
 
@@ -582,7 +582,7 @@ class InstanceForTest(object):
       f.write(promise_content)
     os.chmod(promise, 0o777)
 
-  def setPluginPromise(self, promise_name, success=True, failure_count=1, 
+  def setPluginPromise(self, promise_name, success=True, failure_count=1,
       promise_content="", periodicity=0.03):
     """
     This function will set plugin promise and return its path
@@ -591,12 +591,12 @@ class InstanceForTest(object):
     if not os.path.isdir(promise_dir):
       os.makedirs(promise_dir)
     _promise_content = PROMISE_CONTENT_TEMPLATE % \
-         {'success': success, 
-          'content': promise_content, 
+         {'success': success,
+          'content': promise_content,
           'failure_amount': failure_count,
           'periodicity': periodicity,
           'paths': PROMISE_PATHS}
- 
+
     with open(os.path.join(promise_dir, promise_name), 'w') as f:
       f.write(_promise_content)
     return os.path.join(promise_dir, promise_name)
@@ -717,7 +717,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
                                                     'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation', 
+                       ['/getFullComputerInformation',
                         '/stoppedComputerPartition'])
 
   def test_one_partition_instance_cfg(self):
@@ -735,7 +735,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
                                                     'software_release', 'worked', '.slapos-retention-lock-delay'])
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation', 
+                       ['/getFullComputerInformation',
                         '/stoppedComputerPartition'])
 
   def test_one_free_partition(self):
@@ -769,7 +769,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [partition.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation', 
+                       ['/getFullComputerInformation',
                         '/startedComputerPartition'])
       self.assertEqual(partition.state, 'started')
 
@@ -788,7 +788,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [partition.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation', 
+                       ['/getFullComputerInformation',
                         '/startedComputerPartition'])
       self.assertEqual(partition.state, 'started')
 
@@ -803,7 +803,7 @@ exit 1
                              'etc', 'software_release', 'worked',
                              '.slapos-retention-lock-delay', '.slapgrid-0-error.log'])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation', 
+                       ['/getFullComputerInformation',
                         '/startedComputerPartition', '/getHateoasUrl',
                         '/getFullComputerInformation', '/softwareInstanceError'])
       self.assertEqual(instance.state, 'started')
@@ -843,7 +843,7 @@ chmod 755 etc/run/wrapper
       self.assertLogContent(wrapper_log, 'Working')
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation', 
+                       ['/getFullComputerInformation',
                         '/startedComputerPartition'])
       self.assertEqual(instance.state, 'started')
 
@@ -856,7 +856,7 @@ chmod 755 etc/run/wrapper
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       self.assertLogContent(wrapper_log, 'Signal handler called with signal 15')
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl', '/getFullComputerInformation', 
+                       ['/getHateoasUrl', '/getFullComputerInformation',
                         '/stoppedComputerPartition'])
       self.assertEqual(instance.state, 'stopped')
 
@@ -901,7 +901,7 @@ chmod 755 etc/run/wrapper
       six.assertCountEqual(self, os.listdir(self.software_root),
                             [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation', 
+                       ['/getFullComputerInformation',
                         '/startedComputerPartition'])
       self.assertEqual(instance.state, 'started')
 
@@ -937,7 +937,7 @@ exit 1
       six.assertCountEqual(self, os.listdir(self.software_root),
                             [instance.software.software_hash])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation', 
+                       ['/getFullComputerInformation',
                         '/stoppedComputerPartition'])
       self.assertEqual('stopped', instance.state)
 
@@ -954,7 +954,7 @@ exit 1
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
       self.assertLogContent(wrapper_log, 'Working')
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl', '/getFullComputerInformation', 
+                       ['/getHateoasUrl', '/getFullComputerInformation',
                         '/startedComputerPartition'])
       self.assertEqual('started', instance.state)
 
@@ -970,7 +970,7 @@ exit 1
 
       dummy_file_name = 'dummy_file'
       with open(os.path.join(instance.partition_path, dummy_file_name), 'w') as dummy_file:
-          dummy_file.write('dummy')
+        dummy_file.write('dummy')
 
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
@@ -1432,7 +1432,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertEqual(self.launchSlapgrid(), slapgrid.SLAPGRID_SUCCESS)
       self.assertEqual(computer.sequence,
                        ['/getHateoasUrl',
-                        '/getFullComputerInformation', 
+                        '/getFullComputerInformation',
                         '/stoppedComputerPartition',
                         '/getHateoasUrl', '/getFullComputerInformation',
                          '/stoppedComputerPartition',
@@ -1457,7 +1457,7 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.launchSlapgrid()
       self.assertEqual(computer.sequence,
                        ['/getHateoasUrl',
-                        '/getFullComputerInformation', 
+                        '/getFullComputerInformation',
                         '/stoppedComputerPartition',
                         '/getHateoasUrl', '/getFullComputerInformation',
                          '/stoppedComputerPartition'])
@@ -1859,7 +1859,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation',
-                        
+
                         '/startedComputerPartition'])
       self.assertEqual(instance.state, 'started')
 
@@ -1930,14 +1930,14 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation',
-                        
+
                         '/startedComputerPartition'])
       self.assertEqual('started', instance.state)
 
       # Then run usage report and see if it is still working
       computer.sequence = []
       self.assertEqual(self.grid.agregateAndSendUsage(), slapgrid.SLAPGRID_SUCCESS)
-      # registerComputerPartition will create one more file: 
+      # registerComputerPartition will create one more file:
       from slapos.slap.slap import COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME
       request_list_file = COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME % instance.name
       self.assertInstanceDirectoryListEqual(['0'])
@@ -2365,7 +2365,7 @@ class TestSlapgridDestructionLock(MasterMixin, unittest.TestCase):
 
 
 class TestSlapgridCPWithFirewall(MasterMixin, unittest.TestCase):
-  
+
   def setFirewallConfig(self, source_ip=""):
 
     self.firewall_cmd_add = os.path.join(self._tempdir, 'firewall_cmd_add')
@@ -2416,7 +2416,7 @@ exit 1
       testing=True,
     )
     self.grid.firewall_conf = firewall_conf
-  
+
   def checkRuleFromIpSource(self, ip, accept_ip_list, cmd_list):
     # XXX - rules for one ip contain 2*len(ip_address_list + accept_ip_list) rules ACCEPT and 4 rules REJECT
     num_rules = len(self.ip_address_list) * 2 + len(accept_ip_list) * 2 + 4
@@ -2438,7 +2438,7 @@ exit 1
     # Check that there is REJECT rule on FORWARD, ESTABLISHED,RELATED
     rule = '%s FORWARD 900 -d %s -m state --state ESTABLISHED,RELATED -j REJECT' % (base_cmd, ip)
     self.assertIn(rule, cmd_list)
-    
+
     # Check that there is INPUT ACCEPT on ip_list
     for _, other_ip in self.ip_address_list:
       rule = '%s INPUT 0 -s %s -d %s -j ACCEPT' % (base_cmd, other_ip, ip)
@@ -2452,7 +2452,7 @@ exit 1
       self.assertIn(rule, cmd_list)
       rule = '%s FORWARD 0 -s %s -d %s -j ACCEPT' % (base_cmd, other_ip, ip)
       self.assertIn(rule, cmd_list)
-  
+
   def checkRuleFromIpSourceReject(self, ip, reject_ip_list, cmd_list):
     # XXX - rules for one ip contain 2 + 2*len(ip_address_list) rules ACCEPT and 4*len(reject_ip_list) rules REJECT
     num_rules = (len(self.ip_address_list) * 2) + (len(reject_ip_list) * 4)
@@ -2466,7 +2466,7 @@ exit 1
     # Check that there is ACCEPT rule on FORWARD
     #rule = '%s FORWARD 0 -d %s -j ACCEPT' % (base_cmd, ip)
     #self.assertIn(rule, cmd_list)
-    
+
     # Check that there is INPUT/FORWARD ACCEPT on ip_list
     for _, other_ip in self.ip_address_list:
       rule = '%s INPUT 0 -s %s -d %s -j ACCEPT' % (base_cmd, other_ip, ip)
@@ -2491,13 +2491,13 @@ exit 1
     self.ip_address_list = computer.ip_address_list
     ip = computer.instance_list[0].full_ip_list[0][1]
     source_ip_list = ['10.32.0.15', '10.32.0.0/8']
-    
+
     cmd_list = self.grid._getFirewallAcceptRules(ip,
                                 [elt[1] for elt in self.ip_address_list],
                                 source_ip_list,
                                 ip_type='ipv4')
     self.checkRuleFromIpSource(ip, source_ip_list, cmd_list)
-    
+
     cmd_list = self.grid._getFirewallRejectRules(ip,
                                 [elt[1] for elt in self.ip_address_list],
                                 source_ip_list,
@@ -2514,7 +2514,7 @@ exit 1
     instance = computer.instance_list[0]
     ip = instance.full_ip_list[0][1]
     name = computer.instance_list[0].name
-    
+
     cmd_list = self.grid._getFirewallAcceptRules(ip,
                                 [elt[1] for elt in self.ip_address_list],
                                 [],
@@ -2577,7 +2577,7 @@ exit 1
       self.ip_address_list = computer.ip_address_list
       with open(rules_path, 'r') as frules:
         rules_list = json.loads(frules.read())
-      
+
       ip = instance.full_ip_list[0][1]
       self.checkRuleFromIpSource(ip, [], rules_list)
 
@@ -2599,7 +2599,7 @@ exit 1
       self.ip_address_list = computer.ip_address_list
       with open(rules_path, 'r') as frules:
         rules_list = json.loads(frules.read())
-      
+
       ip = instance.full_ip_list[0][1]
       self.checkRuleFromIpSourceReject(ip, [], rules_list)
 
@@ -2666,7 +2666,7 @@ exit 1
       for thier_ip in source_ip:
         rule_input = '%s INPUT 0 -s %s -d %s -j ACCEPT' % (base_cmd, thier_ip, ip)
         self.assertIn(rule_input, rules_list)
-  
+
         rule_fwd = '%s FORWARD 0 -s %s -d %s -j ACCEPT' % (base_cmd, thier_ip, ip)
         self.assertIn(rule_fwd, rules_list)
 
@@ -2676,7 +2676,7 @@ exit 1
     computer = ComputerForTest(self.software_root, self.instance_root)
     self.setFirewallConfig()
     source_ip = '10.0.8.10'
-    
+
     self.grid.firewall_conf['authorized_sources'] = ['10.0.8.15']
     with httmock.HTTMock(computer.request_handler):
       instance = computer.instance_list[0]
@@ -2802,7 +2802,7 @@ exit 0
                             ['.slapgrid', '.0_wrapper.log', 'buildout.cfg',
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       self.assertEqual(computer.sequence,
-                       ['/getFullComputerInformation', 
+                       ['/getFullComputerInformation',
                         '/startedComputerPartition'])
       self.assertEqual(partition.state, 'started')
       manager_list = slapmanager.from_config({'manager_list': 'prerm'})
@@ -3049,7 +3049,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
     self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
     self.assertEqual(self.computer.sequence,
-                     ['/getFullComputerInformation', 
+                     ['/getFullComputerInformation',
                       '/startedComputerPartition'])
     self.assertEqual(self.partition.state, 'started')
 
@@ -3124,7 +3124,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(self.computer.sequence,
-                       ['/getFullComputerInformation', 
+                       ['/getFullComputerInformation',
                         '/startedComputerPartition', '/startedComputerPartition'])
       self.assertEqual(self.partition.state, 'started')
 
@@ -3446,7 +3446,7 @@ class TestSlapgridWithDevPermManagerDevPermAllowLsblk(TestSlapgridWithDevPermLsb
 class TestSlapgridWithWhitelistfirewall(MasterMixin, unittest.TestCase):
   config = {
     'manager_list': 'whitelistfirewall',
-    'firewall':{
+    'firewall': {
       'firewall_cmd': 'firewall_cmd',
     }
   }
@@ -3711,7 +3711,7 @@ class TestSlapgridManagerLifecycle(MasterMixin, unittest.TestCase):
       self.assertEqual(self.grid.processComputerPartitionList(), slapgrid.SLAPGRID_SUCCESS)
 
       self.assertEqual(self.computer.sequence,
-                       ['/getFullComputerInformation', 
+                       ['/getFullComputerInformation',
                         '/startedComputerPartition'])
       self.assertEqual(partition.state, 'started')
 
@@ -3959,7 +3959,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
 
       with open(os.path.join(instance.partition_path, ".slapgrid/promise/result/succeeding2.status.json"), "r") as f:
         result = json.loads(f.read())
-      
+
       self.assertEqual('success',
                        result["result"]["message"])
 
@@ -4074,7 +4074,7 @@ class TestSlapgridPromiseWithMaster(MasterMixin, unittest.TestCase):
     import time
     time.sleep(27)""" % (timeout_file, timeout_file)
       instance.setPluginPromise(promise_name='timeout_fail.py', success=True, promise_content=fail)
- 
+
       self.assertEqual(self.grid.processPromiseList(),
                        slapgrid.SLAPGRID_PROMISE_FAIL)
       self.assertTrue(os.path.isfile(worked_file))

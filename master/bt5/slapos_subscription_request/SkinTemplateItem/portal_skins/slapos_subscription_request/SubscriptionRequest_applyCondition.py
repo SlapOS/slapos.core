@@ -26,8 +26,6 @@ if subscription_condition is None:
     "It was not possible to find the appropriate Condition %s for this Subscription" \
       % subscription_condition_reference)
 
-instance_xml = subscription_condition.SubscriptionCondition_renderParameter(
-  amount=int(context.getQuantity()))
 # Get Subscription condition for this Subscription Request
 
 email = context.getDestinationSectionValue().getDefaultEmailText()

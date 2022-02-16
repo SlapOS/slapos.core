@@ -26,7 +26,9 @@ request_kw.update(
     # Bad title
     software_title=context.getTitle() + " %s" % str(context.getUid()),
     software_type=subscription_condition.getSourceReference("default"),
-    instance_xml=subscription_condition.getTextContent(default_xml).strip(),
+    instance_xml = (subscription_condition.SubscriptionCondition_renderParameter(
+                     amount=int(context.getQuantity())
+    ) or default_xml).strip(),
     sla_xml=subscription_condition.getSlaXml(default_xml).strip(),
     shared=bool(subscription_condition.getRootSlave(0)),
     state="started",

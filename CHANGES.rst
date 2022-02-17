@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.7.3 (2022-02-17)
+------------------
+ * runpromises: support software releases older than slapos 1.0.118
+
 1.7.2 (2021-12-15)
 ------------------
  * Add support for different architecture in binary cache

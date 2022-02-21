@@ -11,6 +11,7 @@ if context.getSimulationState() not in ["draft", "planned"]:
   return
 
 if subscription_condition_reference is not None:
+  raise NotImplementedError(subscription_condition_reference)
   # It would be better use some clever API here.
   if target_language == "zh":
     subscription_condition_reference += "_zh"

@@ -334,16 +334,13 @@ class TestSubscriptionRequest_applyCondition(TestSubscriptionSkinsMixin):
   def test_SubscriptionRequest_applyCondition_raises_unauthorized(self):
     self.assertRaises(Unauthorized, self.portal.SubscriptionRequest_applyCondition, REQUEST=self.portal.REQUEST)
 
-  def test_SubscriptionRequest_applyCondition_raises_if_subscription_request_is_not_found(self):
+  def test_SubscriptionRequest_applyCondition_raises_if_no_subscription_request(self):
     subscription_request = self.newSubscriptionRequest()
     self.assertRaises(ValueError, subscription_request.SubscriptionRequest_applyCondition)
-    self.assertRaises(ValueError, subscription_request.SubscriptionRequest_applyCondition,
-                        subscription_condition_reference="subscription_condition_reference")
 
   def test_SubscriptionRequest_applyCondition(self):
     person = self.makePerson()
-    subscription_request = self.newSubscriptionRequest(
-      quantity=1, destination_section_value=person)
+
     subscription_condition = self.newSubscriptionCondition(
       url_string="https://%s/software.cfg" % self.new_id,
       sla_xml="""<?xml version="1.0" encoding="utf-8"?>
@@ -362,9 +359,13 @@ class TestSubscriptionRequest_applyCondition(TestSubscriptionSkinsMixin):
     source_reference="test_for_test_123")
 
     subscription_condition.validate()
+
+    subscription_request = self.newSubscriptionRequest(
+      quantity=1, destination_section_value=person,
+      specialise_value=subscription_condition)
+
     self.tic()
-    subscription_request.SubscriptionRequest_applyCondition(
-      subscription_condition_reference=subscription_condition.getReference())
+    subscription_request.SubscriptionRequest_applyCondition()
 
     self.assertEqual("Subscription %s for %s" % (subscription_condition.getTitle(), person.getDefaultEmailText()),
                       subscription_request.getTitle())

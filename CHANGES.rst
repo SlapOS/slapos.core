@@ -4,6 +4,9 @@ Changes
 1.7.3 (2022-02-17)
 ------------------
  * runpromises: support software releases older than slapos 1.0.118
+ * Revert "slap lib: disable 'Unverified HTTPS request is being made' messages.". (effectively warning when using insecure connection to master)
+ * complete: completions for --only-sr and --only-cp (fish shell only)
+ * testing/check_software: several fixes
 
 1.7.2 (2021-12-15)
 ------------------

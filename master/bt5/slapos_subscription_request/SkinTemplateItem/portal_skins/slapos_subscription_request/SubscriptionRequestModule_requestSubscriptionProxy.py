@@ -54,19 +54,26 @@ contract = None
 if token:
   contract = person.Person_applyContractInvitation(invitation_token)
 
+subscription_condition = context.portal_catalog.getResultValue(
+  portal_type="Subscription Condition",
+  reference=subscription_reference if (target_language != "zh") else (subscription_reference + '_zh'),
+  validation_state="validated"
+)
+
 subscription_request = context.subscription_request_module.newContent(
   portal_type="Subscription Request",
   destination_section_value=person,
   quantity=user_input_dict["amount"],
-  language=target_language
+  language=target_language,
+  specialise_value=subscription_condition,
 )
 
 subscription_request.setDefaultEmailText(email)
 
-def wrapWithShadow(subscription_request, subscription_reference,
+def wrapWithShadow(subscription_request,
                    subscription_request_id, variation_reference, contract=contract):
   subscription_request.activate(tag="subscription_condition_%s" % subscription_request_id
-                             ).SubscriptionRequest_applyCondition(subscription_reference, target_language)
+                             ).SubscriptionRequest_applyCondition(target_language)
   return subscription_request.SubscriptionRequest_requestPaymentTransaction(
     tag="subscription_%s" % subscription_request_id,
     target_language=target_language,
@@ -78,7 +85,7 @@ payment = person.Person_restrictMethodAsShadowUser(
   shadow_document=person,
   callable_object=wrapWithShadow,
   argument_list=[subscription_request, 
-                 subscription_reference, subscription_request.getId(),
+                 subscription_request.getId(),
                  variation_reference, contract])
 
 if batch_mode:

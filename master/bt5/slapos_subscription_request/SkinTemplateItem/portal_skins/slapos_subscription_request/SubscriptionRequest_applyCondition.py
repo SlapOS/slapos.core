@@ -10,22 +10,11 @@ if context.getSimulationState() not in ["draft", "planned"]:
   # Don't modify it anymore
   return
 
-if subscription_condition_reference is not None:
-  raise NotImplementedError(subscription_condition_reference)
-  # It would be better use some clever API here.
-  if target_language == "zh":
-    subscription_condition_reference += "_zh"
-  subscription_condition = context.portal_catalog.getResultValue(
-    portal_type="Subscription Condition",
-    reference=subscription_condition_reference,
-    validation_state="validated")
-else:
-  subscription_condition = context.getSpecialiseValue()
+subscription_condition = context.getSpecialiseValue()
 
 if subscription_condition is None:
   raise ValueError(
-    "It was not possible to find the appropriate Condition %s for this Subscription" \
-      % subscription_condition_reference)
+    "It was not possible to find the appropriate Condition for this Subscription")
 
 # Get Subscription condition for this Subscription Request
 

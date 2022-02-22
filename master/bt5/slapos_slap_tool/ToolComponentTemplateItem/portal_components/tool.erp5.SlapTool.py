@@ -118,24 +118,6 @@ def convertToREST(function):
   wrapper.__doc__ = function.__doc__
   return wrapper
 
-def convertToStatus(function):
-  def wrapper(self, *args, **kwd):
-    data_dict = function(self, *args, **kwd)
-    last_modified = rfc1123_date(DateTime())
-
-    # Keep in cache server for 7 days
-    self.REQUEST.response.setStatus(200)
-    self.REQUEST.response.setHeader('Cache-Control',
-                                    'public, max-age=60, stale-if-error=604800')
-    self.REQUEST.response.setHeader('Vary',
-                                    'REMOTE_USER')
-    self.REQUEST.response.setHeader('Last-Modified', last_modified)
-    self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
-    self.REQUEST.response.setBody(dumps(data_dict))
-    return self.REQUEST.response
-
-  return wrapper
-
 
 def _assertACI(document):
   sm = getSecurityManager()
@@ -448,7 +430,6 @@ class SlapTool(BaseTool):
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'getComputerPartitionStatus')
-  @convertToStatus
   def getComputerPartitionStatus(self, computer_id, computer_partition_id):
     """
     Get the connection status of the partition
@@ -458,13 +439,25 @@ class SlapTool(BaseTool):
           computer_id,
           computer_partition_id)
     except NotFound:
-      return self._getAccessStatus(None)
+      data_dict = self._getAccessStatus(None)
     else:
-      return instance.getAccessStatus()
+      data_dict = instance.getAccessStatus()
+
+    last_modified = rfc1123_date(DateTime())
+
+    # Keep in cache server for 7 days
+    self.REQUEST.response.setStatus(200)
+    self.REQUEST.response.setHeader('Cache-Control',
+                                    'public, max-age=60, stale-if-error=604800')
+    self.REQUEST.response.setHeader('Vary',
+                                    'REMOTE_USER')
+    self.REQUEST.response.setHeader('Last-Modified', last_modified)
+    self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
+    self.REQUEST.response.setBody(dumps(data_dict))
+    return self.REQUEST.response
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'getComputerStatus')
-  @convertToStatus
   def getComputerStatus(self, computer_id):
     """
     Get the connection status of the partition
@@ -474,11 +467,23 @@ class SlapTool(BaseTool):
       validation_state="validated")[0].getObject()
     # Be sure to prevent accessing information to disallowed users
     compute_node = _assertACI(compute_node)
-    return compute_node.getAccessStatus()
+    data_dict = compute_node.getAccessStatus()
+
+    last_modified = rfc1123_date(DateTime())
+
+    # Keep in cache server for 7 days
+    self.REQUEST.response.setStatus(200)
+    self.REQUEST.response.setHeader('Cache-Control',
+                                    'public, max-age=60, stale-if-error=604800')
+    self.REQUEST.response.setHeader('Vary',
+                                    'REMOTE_USER')
+    self.REQUEST.response.setHeader('Last-Modified', last_modified)
+    self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
+    self.REQUEST.response.setBody(dumps(data_dict))
+    return self.REQUEST.response
   
   security.declareProtected(Permissions.AccessContentsInformation,
     'getSoftwareInstallationStatus')
-  @convertToStatus
   def getSoftwareInstallationStatus(self, url, computer_id):
     """
     Get the connection status of the software installation
@@ -493,9 +498,22 @@ class SlapTool(BaseTool):
           url,
           compute_node)
     except NotFound:
-      return self._getAccessStatus(None)
+      data_dict = self._getAccessStatus(None)
     else:
-      return software_installation.getAccessStatus()
+      data_dict = software_installation.getAccessStatus()
+
+    last_modified = rfc1123_date(DateTime())
+
+    # Keep in cache server for 7 days
+    self.REQUEST.response.setStatus(200)
+    self.REQUEST.response.setHeader('Cache-Control',
+                                    'public, max-age=60, stale-if-error=604800')
+    self.REQUEST.response.setHeader('Vary',
+                                    'REMOTE_USER')
+    self.REQUEST.response.setHeader('Last-Modified', last_modified)
+    self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
+    self.REQUEST.response.setBody(dumps(data_dict))
+    return self.REQUEST.response
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'getSoftwareReleaseListFromSoftwareProduct')

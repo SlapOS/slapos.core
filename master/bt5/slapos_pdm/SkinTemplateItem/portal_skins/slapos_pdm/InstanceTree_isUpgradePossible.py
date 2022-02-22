@@ -36,6 +36,6 @@ if len(full_software_installation_list) > 0 and \
       len(full_software_installation_list) == len(set(compute_node_list)):
   # Software is available for the root instance
   software_installation = full_software_installation_list[0]
-  message = software_installation.getAccessStatusText()
+  message = software_installation.getTextAccessStatus()
   if message.startswith("#access"):
     return True

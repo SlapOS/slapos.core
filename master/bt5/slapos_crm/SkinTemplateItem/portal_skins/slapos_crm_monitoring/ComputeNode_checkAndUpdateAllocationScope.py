@@ -29,11 +29,12 @@ request_title = 'Allocation scope of %s changed to %s' % (compute_node_reference
 request_description = 'Allocation scope has been changed to ' \
                      '%s for %s' % (target_allocation_scope, compute_node_reference)
 
-support_request = context.Base_generateSupportRequestForSlapOS(
-               request_title,
-               request_description,
-               compute_node.getRelativeUrl()
-             )
+person.notify(support_request_title=request_title,
+              support_request_description=request_description,
+              aggregate=context.getRelativeUrl())
+
+support_request_relative_url = context.REQUEST.get("support_request_relative_url")
+support_request = portal.restrictedTraverse(support_request_relative_url)
 
 if support_request is not None:
   if support_request.getSimulationState() != "validated":

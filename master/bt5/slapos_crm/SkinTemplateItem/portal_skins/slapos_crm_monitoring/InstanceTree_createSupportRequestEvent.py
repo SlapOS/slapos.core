@@ -1,5 +1,11 @@
 portal = context.getPortalObject()
 
+
+person = context.getDestinationSectionValue()
+if person is None or portal.ERP5Site_isSupportRequestCreationClosed(person.getRelativeUrl()):
+  # Stop ticket creation
+  return
+
 ticket_title = "Instance Tree %s is failing." % context.getTitle()
 error_message = instance.SoftwareInstance_hasReportedError(include_message=True)
 
@@ -10,17 +16,15 @@ if error_message:
 else:
   error_message = "No message!"
 
-support_request = context.Base_generateSupportRequestForSlapOS(
-  ticket_title,
-  description,
-  context.getRelativeUrl())
+person.notify(support_request_title=ticket_title,
+              support_request_description=description,
+              aggregate=context.getRelativeUrl())
 
-if support_request is None:
+support_request_relative_url = context.REQUEST.get("support_request_relative_url")
+if support_request_relative_url is None:
   return
 
-person = context.getDestinationSectionValue(portal_type="Person")
-if not person:
-  return
+support_request = portal.restrictedTraverse(support_request_relative_url)
 
 if support_request.getSimulationState() not in ["validated", "suspended"]:
   support_request.validate()
@@ -37,7 +41,7 @@ if notification_message is not None:
   message = notification_message.asText(
               substitution_method_parameter_dict={'mapping_dict':mapping_dict})
 
-support_request.notify(message_title="Instance Tree was destroyed was destroyed by the user",
+support_request.notify(message_title=ticket_title,
               message=message,
               destination_relative_url=person.getRelativeUrl())
 

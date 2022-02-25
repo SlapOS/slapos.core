@@ -1,12 +1,11 @@
 from DateTime import DateTime
 portal = context.getPortalObject()
 
-if portal.ERP5Site_isSupportRequestCreationClosed():
-  # Stop ticket creation
-  return
-
-if context.getMonitorScope() == "disabled":
-  return
+person = context.getSourceAdministrationValue(portal_type="Person")
+if not person or \
+   context.getMonitorScope() == "disabled" or \
+   portal.ERP5Site_isSupportRequestCreationClosed():
+  return 
 
 software_installation_list = portal.portal_catalog(
       portal_type='Software Installation',
@@ -50,15 +49,13 @@ for software_installation in software_installation_list:
         (software_installation.getUrlString(), compute_node_title, software_installation.getCreationDate())
 
   if should_notify:
-    support_request = context.Base_generateSupportRequestForSlapOS(
-      ticket_title,
-      description,
-      software_installation.getRelativeUrl()
-    )
+    person.notify(support_request_title=ticket_title,
+              support_request_description=description,
+              aggregate=software_installation.getRelativeUrl())
 
-    person = context.getSourceAdministrationValue(portal_type="Person")
-    if not person:
-      return support_request
+    support_request = context.REQUEST.get("support_request_relative_url")
+    if support_request is None:
+      return
 
     # Send Notification message
     notification_reference = 'slapos-crm-compute_node_software_installation_state.notification'

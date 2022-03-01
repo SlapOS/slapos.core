@@ -23,7 +23,7 @@ compute_node_list = portal.portal_catalog.portal_catalog(portal_type=compute_nod
 if len(compute_node_list) == 2:
   raise NotImplementedError
 elif len(compute_node_list) == 1:
-  compute_node = compute_node_list[0]
+  compute_node = compute_node_list[0].getObject()
 else:
   compute_node = None
 
@@ -40,9 +40,6 @@ if compute_node is None:
   )
   compute_node.requestComputeNodeRegistration()
   compute_node.approveComputeNodeRegistration()
-
-
-compute_node = context.restrictedTraverse(compute_node.getRelativeUrl())
 
 context.REQUEST.set("compute_node", compute_node.getRelativeUrl())
 context.REQUEST.set("compute_node_url", compute_node.absolute_url())

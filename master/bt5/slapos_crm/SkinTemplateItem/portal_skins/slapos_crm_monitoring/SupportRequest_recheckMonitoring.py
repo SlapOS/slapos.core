@@ -21,7 +21,7 @@ if aggregate_portal_type == "Compute Node":
   if document.getMonitorScope() == "disabled":
     return "Monitor is disabled to the related %s." % document.getPortalType()
 
-  d = context.getAccessStatus()
+  d = document.getAccessStatus()
   if d.get("no_data", None) == 1:
     return "No Contact Information"
   

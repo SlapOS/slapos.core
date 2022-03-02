@@ -108,7 +108,7 @@ def SoftwareInstance_renameAndRequestDestroy(self, REQUEST=None):
   for name in [title, new_title]:
     # reset request cache
     key = '_'.join([instance_tree, name])
-    self.getPortalObject().portal_slap._storeLastData(key, {})
+    instance_tree.setLastData({}, key=key)
 
   # Them call bang to enforce tree to reprocess.
   timestamp = str(int(self.getModificationDate()))
@@ -116,7 +116,7 @@ def SoftwareInstance_renameAndRequestDestroy(self, REQUEST=None):
 
   if (self.portal_slap._getLastData(key) != timestamp):
     self.bang(bang_tree=True, comment="Instance was destroyed.")
-  self.portal_slap._storeLastData(key, str(int(self.getModificationDate())))
+  self.setLastData(str(int(self.getModificationDate())), key=key)
 
 
 def SoftwareInstance_renameAndRequestStop(self, REQUEST=None):
@@ -152,7 +152,7 @@ def SoftwareInstance_renameAndRequestStop(self, REQUEST=None):
   for name in [title, new_title]:
     # reset request cache
     key = '_'.join([instance_tree, name])
-    self.getPortalObject().portal_slap._storeLastData(key, {})
+    instance_tree.setLastData({}, key=key)
 
   # Them call bang to enforce tree to reprocess.
   timestamp = str(int(self.getModificationDate()))
@@ -160,7 +160,7 @@ def SoftwareInstance_renameAndRequestStop(self, REQUEST=None):
 
   if (self.portal_slap._getLastData(key) != timestamp):
     self.bang(bang_tree=True, comment="Instance was renamed.")
-  self.portal_slap._storeLastData(key, str(int(self.getModificationDate())))
+  self.setLastData(str(int(self.getModificationDate())), key=key)
 
 
 def HostingSubscription_checkInstanceTreeMigrationConsistency(self, fixit=False):

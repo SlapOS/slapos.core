@@ -14,15 +14,12 @@ if subscription_condition is None:
 
 # Get Subscription condition for this Subscription Request
 
-email = context.getDestinationSectionValue().getDefaultEmailText()
-now = DateTime()
-
 context.edit(
-  title="Subscription %s for %s" % (subscription_condition.getTitle(), email),
+  title="Subscription %s for %s" % (subscription_condition.getTitle(), context.getDestinationSectionValue().getDefaultEmailText()),
   #url_string=subscription_condition.getUrlString(),
   #text_content=instance_xml,
   #sla_xml=subscription_condition.getSlaXml(),
-  start_date=now,
+  start_date=DateTime(),
   #root_slave=subscription_condition.getRootSlave(),
   specialise_value=subscription_condition,
   #price=subscription_condition.getPrice(),
@@ -31,6 +28,5 @@ context.edit(
   # Set Provider from Subscription Condition
   #source=subscription_condition.getSource(),
   #source_section=subscription_condition.getSourceSection()
+  source_reference=subscription_condition.getSourceReference()
 )
-
-context.setSourceReference(subscription_condition.getSourceReference())

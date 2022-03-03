@@ -2,10 +2,6 @@ from zExceptions import Unauthorized
 if REQUEST is not None:
   raise Unauthorized
 
-# Set AcceptLanguage in the REQUEST so that getDefaultLanguage() can work
-if target_language and context.REQUEST.get('AcceptLanguage'):
-  context.REQUEST['AcceptLanguage'].set(target_language, 10)
-
 if context.getSimulationState() not in ["draft", "planned"]:
   # Don't modify it anymore
   return

@@ -73,7 +73,7 @@ subscription_request.setDefaultEmailText(email)
 def wrapWithShadow(subscription_request,
                    subscription_request_id, variation_reference, contract=contract):
   subscription_request.activate(tag="subscription_condition_%s" % subscription_request_id
-                             ).SubscriptionRequest_applyCondition(target_language)
+                             ).SubscriptionRequest_applyCondition()
   return subscription_request.SubscriptionRequest_requestPaymentTransaction(
     tag="subscription_%s" % subscription_request_id,
     # target_language=target_language,

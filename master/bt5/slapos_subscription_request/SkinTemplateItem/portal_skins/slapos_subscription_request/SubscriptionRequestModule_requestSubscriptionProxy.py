@@ -76,7 +76,6 @@ def wrapWithShadow(subscription_request,
                              ).SubscriptionRequest_applyCondition()
   return subscription_request.SubscriptionRequest_requestPaymentTransaction(
     tag="subscription_%s" % subscription_request_id,
-    target_language=target_language,
     contract=contract,
     variation_reference=variation_reference
   )

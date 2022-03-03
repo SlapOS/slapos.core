@@ -9,6 +9,7 @@ current_payment = None
 service_variation = None
 
 if current_invoice is None:
+  target_language = context.getLanguage()
   if target_language == "zh": # Wechat payment, reservation fee is 188 CNY
     payment_template = portal.restrictedTraverse(portal.portal_preferences.getPreferredZhPrePaymentTemplate())
     invoice_template = portal.restrictedTraverse(portal.portal_preferences.getPreferredZhPrePaymentSubscriptionInvoiceTemplate())

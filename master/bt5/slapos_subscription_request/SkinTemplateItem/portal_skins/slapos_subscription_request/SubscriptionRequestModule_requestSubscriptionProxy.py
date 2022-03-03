@@ -85,20 +85,15 @@ if batch_mode:
   return {'subscription' : subscription_request.getRelativeUrl(),
           'payment': payment.getRelativeUrl() }
 
-if target_language == "zh": # Wechat payment
-  def wrapRedirectWithShadow(payment_transaction, web_site):
-    # getTotalPayble returns a negative value
-    if payment_transaction.PaymentTransaction_getTotalPayablePrice() < 0:
+def wrapRedirectWithShadow(payment_transaction, web_site):
+  # getTotalPayble returns a negative value
+  if payment_transaction.PaymentTransaction_getTotalPayablePrice() < 0:
+    if target_language == "zh":
       return payment_transaction.PaymentTransaction_redirectToManualWechatPayment(web_site)
-    return payment_transaction.PaymentTransaction_redirectToManualFreePayment(web_site)
-    
-else: # Payzen payment
-  def wrapRedirectWithShadow(payment_transaction, web_site):
-    # getTotalPayble returns a negative value
-    if payment_transaction.PaymentTransaction_getTotalPayablePrice() < 0:
+    else:
       return payment_transaction.PaymentTransaction_redirectToManualPayzenPayment(web_site)
-    return payment_transaction.PaymentTransaction_redirectToManualFreePayment(web_site)
-    
+  return payment_transaction.PaymentTransaction_redirectToManualFreePayment(web_site)
+
 return person.Person_restrictMethodAsShadowUser(
   shadow_document=person,
   callable_object=wrapRedirectWithShadow,

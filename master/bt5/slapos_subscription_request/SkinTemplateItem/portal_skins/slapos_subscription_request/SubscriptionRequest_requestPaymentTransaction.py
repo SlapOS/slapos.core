@@ -10,29 +10,46 @@ service_variation = None
 
 if current_invoice is None:
   target_language = context.getLanguage()
+  """
   if target_language == "zh": # Wechat payment, reservation fee is 188 CNY
     payment_template = portal.restrictedTraverse(portal.portal_preferences.getPreferredZhPrePaymentTemplate())
     invoice_template = portal.restrictedTraverse(portal.portal_preferences.getPreferredZhPrePaymentSubscriptionInvoiceTemplate())
   else: # Payzen payment, reservation fee is 25 EUR
     payment_template = portal.restrictedTraverse(portal.portal_preferences.getPreferredDefaultPrePaymentTemplate())
     invoice_template = portal.restrictedTraverse(portal.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate())
+  """
+  payment_template = portal.restrictedTraverse(portal.portal_preferences.getPreferredDefaultPrePaymentTemplate())
 
+  # PaymentTransaction_init is guarded by the owner role
+  # but SubscriptionRequest_requestPaymentTransaction is called with a shadow user
+  # leading to unauthorized error
+  # Instead, clone one temp payment (as there is no PaymentTransaction_afterClone)
   current_payment = payment_template.Base_createCloneDocument(batch_mode=1)
+  assert current_payment is not None
+  current_payment.manage_delObjects([x for x in
+                                     current_payment.contentIds()])
   current_payment.edit(
-        title="Payment for Reservation Fee",
-        destination_value=context.getDestinationSection(),
-        destination_section_value=context.getDestinationSection(),
-        destination_decision_value=context.getDestinationSection(),
-        start_date=DateTime(),
-        stop_date=DateTime()
-      )
+    categories=[],
+    title=None
+  )
 
+  current_payment.edit(
+    title="Payment for Reservation Fee",
+    destination_value=context.getDestinationSection(),
+    destination_section_value=context.getDestinationSection(),
+    destination_decision_value=context.getDestinationSection(),
+    start_date=DateTime(),
+    stop_date=DateTime()
+  )
+
+  """
   amount = context.getQuantity()
-  if context.SubscriptionRequest_testSkippedReservationFree(contract):
+  if 0:#context.SubscriptionRequest_testSkippedReservationFree(contract):
     # Reservation is Free
     price = 0
     tax = 0
-  else:
+  # else:
+  elif 0:
     invoice_line = invoice_template["1"].asContext(
       destination_section=context.getDestinationSection(),
       start_date=DateTime(),
@@ -89,9 +106,10 @@ if current_invoice is None:
     current_payment.PaymentTransaction_updateStatus()
   current_payment.reindexObject(activate_kw={'tag': tag})
   context.reindexObject(activate_kw={'tag': tag})
-
+"""
+  """
   context.activate(tag=tag).SubscriptionRequest_createRelatedSaleInvoiceTransaction(
     price, tag, current_payment.getRelativeUrl(), invoice_template.getRelativeUrl(),
     service_variation)
-
+"""
 return current_payment

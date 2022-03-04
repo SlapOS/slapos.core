@@ -243,6 +243,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       source=self.expected_source,
       source_section=self.expected_source_section,
       price_currency="currency_module/CNY",
+      payment_mode='wechat',
       specialise="sale_trade_condition_module/slapos_subscription_trade_condition"
     )
     sale_trade_condition.newContent(
@@ -280,6 +281,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       source=self.expected_source,
       source_section=self.expected_source_section,
       price_currency="currency_module/EUR",
+      payment_mode='payzen',
       specialise="sale_trade_condition_module/slapos_subscription_trade_condition"
     )
     sale_trade_condition.newContent(

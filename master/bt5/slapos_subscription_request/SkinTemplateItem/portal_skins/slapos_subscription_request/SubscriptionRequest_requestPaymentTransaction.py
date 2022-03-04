@@ -33,13 +33,20 @@ if current_invoice is None:
     title=None
   )
 
+  subscription_condition = context.getSpecialiseValue(portal_type='Subscription Condition')
+  trade_condition = subscription_condition.getSpecialiseValue(portal_type='Sale Trade Condition')
+  assert trade_condition is not None
+  # XXX if we have a tree of trade condition, getPaymentMode may be empty (if there is no acquisition)
+  payment_mode = trade_condition.getPaymentModeValue()
+
   current_payment.edit(
     title="Payment for Reservation Fee",
     destination_value=context.getDestinationSection(),
     destination_section_value=context.getDestinationSection(),
     destination_decision_value=context.getDestinationSection(),
     start_date=DateTime(),
-    stop_date=DateTime()
+    stop_date=DateTime(),
+    payment_mode_uid=payment_mode.getUid()
   )
 
   """

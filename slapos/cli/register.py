@@ -59,6 +59,8 @@ class RegisterCommand(Command):
         ap = super(RegisterCommand, self).get_parser(prog_name)
 
         ap.add_argument('node_name',
+                        default='',
+                        nargs='?',
                         help='Chosen title for the node')
 
         ap.add_argument('--interface-name',
@@ -148,10 +150,23 @@ def get_certificate_key_pair(logger, master_url_web, node_name, token=None, logi
     """Download certificates from SlapOS Master"""
 
     if token:
-        req = requests.post('/'.join([master_url_web, 'Person_requestComputer']),
-                            data={'title': node_name},
-                            headers={'X-Access-Token': token},
-                            verify=False)
+        if token.startswith("V2/"):
+          _, compute_node_id, token = token.split("/")
+          data = {}
+          if node_name:
+            data = {'title': node_name}
+          req = requests.post('/'.join([
+                                master_url_web.strip("/"),
+                                'compute_node_module/%s/ComputeNode_approveComputer' % compute_node_id
+                              ]),
+                              data=data,
+                              headers={'X-Access-Token': token},
+                              verify=False)
+        else:
+          req = requests.post('/'.join([master_url_web, 'Person_requestComputer']),
+                              data={'title': node_name},
+                              headers={'X-Access-Token': token},
+                              verify=False)
     else:
         register_server_url = '/'.join([master_url_web, ("Person_requestComputer?title={}".format(node_name))])
         req = requests.get(register_server_url, auth=(login, password), verify=False)
@@ -334,7 +349,7 @@ def gen_auth(conf):
 def do_register(conf):
     """Register new computer on SlapOS Master and generate slapos.cfg"""
 
-    if conf.login or conf.login_auth:
+    if conf.login or conf.login_auth and conf.node_name:
         for login, password in gen_auth(conf):
             if check_credentials(conf.master_url_web, login, password):
                 break
@@ -350,7 +365,9 @@ def do_register(conf):
     else:
         while not conf.token:
             conf.token = input('Computer security token: ').strip()
-
+        if not conf.token.startswith("V2/") and not conf.node_name:
+          while not conf.node_name:
+            conf.node_name = input('Computer Name: ').strip()
         certificate, key = get_certificate_key_pair(conf.logger,
                                                     conf.master_url_web,
                                                     conf.node_name,

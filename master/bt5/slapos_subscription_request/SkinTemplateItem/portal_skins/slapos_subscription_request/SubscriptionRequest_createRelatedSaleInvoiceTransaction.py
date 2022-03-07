@@ -6,19 +6,32 @@ portal = context.getPortalObject()
 current_invoice = context.getCausalityValue()
 
 if current_invoice is None:
+  # _init is guarded by the owner role
+  # but SubscriptionRequest_createRelatedSaleInvoiceTransaction is called with a shadow user
+  # leading to unauthorized error
+  # Instead, clone one temp invoice (as there is no _afterClone)
   invoice_template = portal.restrictedTraverse(template)
   current_invoice = invoice_template.Base_createCloneDocument(batch_mode=1)
+  assert current_invoice is not None
+  current_invoice.manage_delObjects([x for x in
+                                     current_invoice.contentIds()])
+  current_invoice.edit(
+    categories=[],
+    title=None
+  )
 
+  """
   subscription_trade_condition = portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()
   user_trade_condition = context.getDestinationSectionValue().\
      Person_getAggregatedSubscriptionSaleTradeConditionValue(subscription_trade_condition)
 
   if user_trade_condition:
     current_invoice.setSpecialise(user_trade_condition)
-  
+"""
   context.edit(causality_value=current_invoice)
 
   payment_transaction = portal.restrictedTraverse(payment)
+  """
   current_invoice.edit(
         title="Reservation Fee",
         destination_value=context.getDestinationSection(),
@@ -49,7 +62,7 @@ if current_invoice is None:
   )
   if trade_condition != current_invoice.getSpecialise():
     current_invoice.edit(specialise=trade_condition)
-
+"""
   comment = "Validation invoice for subscription request %s" % context.getRelativeUrl()
   current_invoice.plan(comment=comment)
   current_invoice.confirm(comment=comment)

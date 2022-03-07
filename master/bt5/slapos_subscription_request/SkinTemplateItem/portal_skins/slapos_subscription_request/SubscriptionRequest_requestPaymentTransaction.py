@@ -18,12 +18,12 @@ if current_invoice is None:
     payment_template = portal.restrictedTraverse(portal.portal_preferences.getPreferredDefaultPrePaymentTemplate())
     invoice_template = portal.restrictedTraverse(portal.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate())
   """
-  payment_template = portal.restrictedTraverse(portal.portal_preferences.getPreferredDefaultPrePaymentTemplate())
 
   # PaymentTransaction_init is guarded by the owner role
   # but SubscriptionRequest_requestPaymentTransaction is called with a shadow user
   # leading to unauthorized error
   # Instead, clone one temp payment (as there is no PaymentTransaction_afterClone)
+  payment_template = portal.restrictedTraverse(portal.portal_preferences.getPreferredDefaultPrePaymentTemplate())
   current_payment = payment_template.Base_createCloneDocument(batch_mode=1)
   assert current_payment is not None
   current_payment.manage_delObjects([x for x in
@@ -64,6 +64,10 @@ if current_invoice is None:
     )
 
     subscription_trade_condition = portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()
+    # XXX drop using Person_getAggregatedSubscriptionSaleTradeConditionValue
+    # Instead, put the info on the selected trade condition
+    # If user need a specific one, he must select it explicitely
+    raise NotImplementedError('couscous')
     user_trade_condition = context.getDestinationSectionValue().\
        Person_getAggregatedSubscriptionSaleTradeConditionValue(subscription_trade_condition)
 
@@ -101,22 +105,22 @@ if current_invoice is None:
     elif line.getSource() == "account_module/receivable":
       total = round((int(amount) * price)+(int(amount) * price*tax), 2)
       line.setQuantity(total)
-   
+"""
   # Accelarate job of alarms before proceed to payment.
   comment = "Validation payment for subscription request %s" % context.getRelativeUrl()
   current_payment.confirm(comment=comment)
   current_payment.start(comment=comment)
+  """
   if not price:
     current_payment.stop(comment="%s (Free)" % comment)
   elif target_language != "zh":
     # Payzen don't require update like this.
     current_payment.PaymentTransaction_updateStatus()
+"""
   current_payment.reindexObject(activate_kw={'tag': tag})
   context.reindexObject(activate_kw={'tag': tag})
-"""
-  """
+
   context.activate(tag=tag).SubscriptionRequest_createRelatedSaleInvoiceTransaction(
-    price, tag, current_payment.getRelativeUrl(), invoice_template.getRelativeUrl(),
+    -1, tag, current_payment.getRelativeUrl(), portal.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate(),
     service_variation)
-"""
 return current_payment

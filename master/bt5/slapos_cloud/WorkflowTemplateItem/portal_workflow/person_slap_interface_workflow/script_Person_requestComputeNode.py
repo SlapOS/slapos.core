@@ -39,7 +39,8 @@ if compute_node is None:
     activate_kw={'tag': tag}
   )
   compute_node.requestComputeNodeRegistration()
-  compute_node.approveComputeNodeRegistration()
+  if kwargs.get("approve_registration", True):
+    compute_node.approveComputeNodeRegistration()
 
 context.REQUEST.set("compute_node", compute_node.getRelativeUrl())
 context.REQUEST.set("compute_node_url", compute_node.absolute_url())

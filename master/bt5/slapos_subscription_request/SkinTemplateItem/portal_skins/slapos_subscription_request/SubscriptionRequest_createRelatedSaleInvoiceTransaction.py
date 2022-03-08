@@ -48,6 +48,12 @@ if current_invoice is None:
     stop_date=payment_transaction.getStopDate(),
 
     specialise=portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition(),
+
+    source_section_value=payment_transaction.getSourceSectionValue(),
+    source_value=payment_transaction.getSourceValue(),
+    payment_mode_value=payment_transaction.getPaymentModeValue(),
+    price_currency_value=payment_transaction.getPriceCurrencyValue(),
+    resource_value=payment_transaction.getResourceValue(),
   )
   """
   current_invoice["1"].edit(

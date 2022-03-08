@@ -39,14 +39,21 @@ if current_invoice is None:
   # XXX if we have a tree of trade condition, getPaymentMode may be empty (if there is no acquisition)
   payment_mode = trade_condition.getPaymentModeValue()
 
+  now = DateTime()
   current_payment.edit(
     title="Payment for Reservation Fee",
     destination_value=context.getDestinationSection(),
     destination_section_value=context.getDestinationSection(),
     destination_decision_value=context.getDestinationSection(),
-    start_date=DateTime(),
-    stop_date=DateTime(),
-    payment_mode_uid=payment_mode.getUid()
+    start_date=now,
+    stop_date=now,
+
+    payment_mode_uid=payment_mode.getUid(),
+    source_payment_value=trade_condition.getSourcePaymentValue(),
+    source_value=trade_condition.getSourceValue(),
+    source_section_value=trade_condition.getSourceSectionValue(),
+    price_currency_value=trade_condition.getPriceCurrencyValue(),
+    #resource=
   )
 
   """

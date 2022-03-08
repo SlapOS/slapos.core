@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.7.4 (unreleased)
+------------------
+ * format: remove use_unique_local_address_block option as it was never really used. User can add a local IPv6 range on the interface before running "slapos node format".
+
 1.7.3 (2022-02-17)
 ------------------
  * runpromises: support software releases older than slapos 1.0.118

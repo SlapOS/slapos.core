@@ -506,15 +506,6 @@ class Computer(object):
       except ValueError:
         pass
 
-  def _addUniqueLocalAddressIpv6(self, interface_name):
-    """
-    Create a unique local address in the interface interface_name, so that
-    slapformat can build upon this.
-    See https://en.wikipedia.org/wiki/Unique_local_address.
-    """
-    command = 'ip address add dev %s fd00::1/64' % interface_name
-    callAndRead(command.split())
-
   @property
   def software_gid(self):
     """Return GID for self.software_user.
@@ -523,7 +514,7 @@ class Computer(object):
     effectively create the user and group."""
     return pwd.getpwnam(self.software_user)[3]
 
-  def format(self, alter_user=True, alter_network=True, create_tap=True, use_unique_local_address_block=False):
+  def format(self, alter_user=True, alter_network=True, create_tap=True):
     """
     Setup underlaying OS so it reflects this instance (``self``).
 
@@ -568,9 +559,6 @@ class Computer(object):
     if alter_network:
       if self.address is not None:
         self.interface.addIPv6Address(self.address, self.netmask)
-
-      if use_unique_local_address_block:
-        self._addUniqueLocalAddressIpv6(self.ipv6_interface or self.interface.name)
 
       if create_tap:
         if self.tap_gateway_interface:
@@ -1409,8 +1397,7 @@ def do_format(conf):
 
   computer.format(alter_user=conf.alter_user,
                      alter_network=conf.alter_network,
-                     create_tap=conf.create_tap,
-                     use_unique_local_address_block=conf.use_unique_local_address_block)
+                     create_tap=conf.create_tap)
 
   if getattr(conf, 'certificate_repository_path', None):
     mkdir_p(conf.certificate_repository_path, mode=0o700)
@@ -1442,7 +1429,6 @@ class FormatConfig(object):
   tap_ipv6 = True
   tap_gateway_interface = ''
   ipv4_local_network = None
-  use_unique_local_address_block = False
 
   # User options
   alter_user = 'True' # modifiable by cmdline
@@ -1501,7 +1487,7 @@ class FormatConfig(object):
         raise UsageError(message)
 
     # Convert strings to booleans
-    for option in ['alter_network', 'alter_user', 'create_tap', 'create_tun', 'use_unique_local_address_block', 'tap_ipv6']:
+    for option in ['alter_network', 'alter_user', 'create_tap', 'create_tun', 'tap_ipv6']:
       attr = getattr(self, option)
       if isinstance(attr, str):
         if attr.lower() == 'true':

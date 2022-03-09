@@ -44,35 +44,9 @@
       "title": "Title",\n
       "type": "string",\n
       "maxLength": 200\n
-    },\n
-    "network": {},\n
-    "site": {},\n
-    "project": {},\n
-    "monitoring": {},\n
-    "capacity_scope": {},\n
-    "upgrade_scope": {},\n
-    "allocation_scope": {\n
-      "type": "string"\n
-    },\n
-    "os_type": {\n
-      "title": "OS Type",\n
-      "type": "string",\n
-      "description": "Type of the OS of the current Compute Node"\n
-    },\n
-    "public_ipv4_address": {\n
-      "title": "Public IPV4 Address",\n
-      "type":"string"\n
-    },\n
-    "python_version": {\n
-      "title": "Python Version",\n
-      "type": "string"\n
-    },\n
-    "slapos_version": {\n
-      "title": "SlapOS Version",\n
-      "type": "string"\n
     }\n
   },\n
-  "required": ["title", "portal_type"]\n
+  "required": ["portal_type"]\n
 }\n
 </string> </value>
         </item>

@@ -25,8 +25,13 @@ if current_invoice is None:
     categories=[],
     title=None,
     quantity=None,
-    price=None
+    price=None,
+    base_unit_price=None,
+    #index=None,
+    #variation_base_category_list=None,
+    #variation_category_list=None,
   )
+  current_invoice["1"].updateCellRange('movement')
 
   """
   subscription_trade_condition = portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()
@@ -76,7 +81,7 @@ if current_invoice is None:
     stop_date=payment_transaction.getStopDate(),
 
     use="trade/sale",
-    resource="service_module/slapos_reservation_fee",
+    resource="service_module/slapos_reservation_fee_2",
     quantity_unit="unit/piece",
     base_contribution_list=[
       "base_amount/invoicing/discounted",

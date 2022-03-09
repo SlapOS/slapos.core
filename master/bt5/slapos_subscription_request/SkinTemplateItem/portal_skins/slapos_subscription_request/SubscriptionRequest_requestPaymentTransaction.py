@@ -195,6 +195,6 @@ if current_invoice is None:
   context.reindexObject(activate_kw={'tag': tag})
 
   context.activate(tag=tag).SubscriptionRequest_createRelatedSaleInvoiceTransaction(
-    -1, tag, current_payment.getRelativeUrl(), portal.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate(),
+    price, tag, current_payment.getRelativeUrl(), portal.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate(),
     service_variation)
 return current_payment

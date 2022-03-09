@@ -1,3 +1,4 @@
+return root_trade_condition
 raise NotImplementedError("DEPRECATED: a person could have multiple Trade Condition")
 # Search by a trade condition that specialise to the root_trade_condition
 # Which is user's specific.

@@ -74,6 +74,7 @@ for movement in movement_list:
     start_date=movement.getStartDate())
 
   # XXX Shamefully hardcoded values
+  # XXX TODO Drop hardcoded values
   if movement.getResource() == 'service_module/slapos_instance_subscription':
     if movement.getPriceCurrency() == "currency_module/CNY":
       # reduce tax from there directly
@@ -92,7 +93,7 @@ for movement in movement_list:
     specialise_to_set = consumption_specialise
   else:
     person = movement.getDestinationValue()
-    specialise_to_set = None
+    specialise_to_set = subscription_request_specialise
     #specialise_to_set = person.Person_getAggregatedSubscriptionSaleTradeConditionValue(subscription_request_specialise)
 
   if instance_tree is not None:

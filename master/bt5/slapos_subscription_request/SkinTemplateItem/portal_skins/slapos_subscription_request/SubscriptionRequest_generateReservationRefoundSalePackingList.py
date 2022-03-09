@@ -39,7 +39,8 @@ if payment_transaction is None or payment_transaction.getSimulationState() != "s
 
 price_without_tax = None
 for invoice_line in sale_invoice_transaction.objectValues(portal_type="Invoice Line"):
-  if invoice_line.getResource() == "service_module/slapos_reservation_fee":
+  # XXX
+  if invoice_line.getResource() == "service_module/slapos_reservation_fee_2":
     price_without_tax = invoice_line.getTotalPrice()
 
 assert price_without_tax is not None, "Something is wrong since price wasn't found"

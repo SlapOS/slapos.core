@@ -31,6 +31,7 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
   def afterSetUp(self):
     self.unpinDateTime()
     self.normal_user = None
+    # XXX TODO change price to ensure nothing is hardcoded
     self.expected_individual_price_without_tax = 195
     self.expected_individual_price_with_tax = 234
     self.expected_reservation_fee = 30.00
@@ -46,7 +47,8 @@ class TestSlapOSSubscriptionScenarioMixin(DefaultScenarioMixin):
     self.expected_zh_reservation_fee_without_tax = 188
     self.expected_zh_reservation_quantity_tax = 188
     self.expected_zh_reservation_tax = 1.88
- 
+
+    # XXX TODO change source to ensure nothing is hardcoded
     self.expected_notification_language = "en"
     self.expected_source = self.expected_slapos_organisation
     self.expected_source_section = self.expected_slapos_organisation

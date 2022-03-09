@@ -42,6 +42,7 @@ if current_invoice is None:
   now = DateTime()
   current_payment.edit(
     title="Payment for Reservation Fee",
+    specialise_value=trade_condition,
     destination_value=context.getDestinationSection(),
     destination_section_value=context.getDestinationSection(),
     destination_decision_value=context.getDestinationSection(),
@@ -49,11 +50,78 @@ if current_invoice is None:
     stop_date=now,
 
     payment_mode_uid=payment_mode.getUid(),
-    source_payment_value=trade_condition.getSourcePaymentValue(),
-    source_value=trade_condition.getSourceValue(),
-    source_section_value=trade_condition.getSourceSectionValue(),
-    price_currency_value=trade_condition.getPriceCurrencyValue(),
+    #source_payment_value=trade_condition.getSourcePaymentValue(),
+    #source_value=trade_condition.getSourceValue(),
+    #source_section_value=trade_condition.getSourceSectionValue(),
+    #price_currency_value=trade_condition.getPriceCurrencyValue(),
     #resource=
+  )
+
+  current_payment.SaleOrder_applySaleTradeCondition(batch_mode=1, force=1)
+  current_payment.edit(
+    specialise_value=None,
+  )
+
+  # Search for matching resource
+  service = portal.portal_catalog(
+    # XXX Hardcoded as temporary
+    id='slapos_reservation_fee_2',
+    portal_type='Service',
+    validation_state='validated',
+    use__relative_url='use/trade/sale'
+  )[0].getObject()
+
+  tmp_invoice_line = portal.accounting_module.newContent(
+    temp_object=True,
+    portal_type='Sale Invoice Transaction',
+    price_currency_value=trade_condition.getPriceCurrencyValue(),
+    specialise_value=trade_condition,
+  ).newContent(
+    temp_object=True,
+    portal_type='Invoice Line',
+    resource_value=service,
+    quantity=1,
+    quantity_unit=service.getQuantityUnit(),
+    base_contribution_list=service.getBaseContributionList(),
+    use=service.getUse(),
+    # price_currency_value=trade_condition.getPriceCurrencyValue()
+  )
+
+  # XXX use search predicate list
+  price = service.getPrice(
+    context=tmp_invoice_line,
+    predicate_list=[
+      x for x in trade_condition.contentValues(portal_type='Sale Supply Line')
+      if x.getResource() == service.getRelativeUrl()
+    ]
+  )
+  # XXX calculate Tax
+  # We need to provide Price to pay right the way, so we need to include
+  # taxation at this point it is most liketly to quickly forecast price 
+  # with taxes, but for now it is hardcoded.
+  tax = 0
+  if 'base_amount/invoicing/taxable' in tmp_invoice_line.getBaseContributionList():
+    for trade_model_line in trade_condition.getAggregatedAmountList(tmp_invoice_line):
+      tax = trade_model_line.getPrice()
+      # For simplification consider tax is a single value.
+      break
+
+  # XXX amount is hardcoded XXX
+  amount = 1
+  total = round((int(amount) * price)+(int(amount) * price*tax), 2)
+
+  payable_line = current_payment.newContent(
+    portal_type="Accounting Transaction Line",
+    quantity=total,
+    destination="account_module/payable",
+    source="account_module/receivable",
+  )
+  encash_line = current_payment.newContent(
+    portal_type="Accounting Transaction Line",
+    quantity=-total,
+    # XXX why source/destination are identical?
+    destination="account_module/payment_to_encash",
+    source="account_module/payment_to_encash",
   )
 
   """
@@ -74,7 +142,6 @@ if current_invoice is None:
     # XXX drop using Person_getAggregatedSubscriptionSaleTradeConditionValue
     # Instead, put the info on the selected trade condition
     # If user need a specific one, he must select it explicitely
-    raise NotImplementedError('couscous')
     user_trade_condition = context.getDestinationSectionValue().\
        Person_getAggregatedSubscriptionSaleTradeConditionValue(subscription_trade_condition)
 
@@ -117,13 +184,13 @@ if current_invoice is None:
   comment = "Validation payment for subscription request %s" % context.getRelativeUrl()
   current_payment.confirm(comment=comment)
   current_payment.start(comment=comment)
-  """
+
   if not price:
     current_payment.stop(comment="%s (Free)" % comment)
-  elif target_language != "zh":
-    # Payzen don't require update like this.
+  elif current_payment.getPaymentMode() == "payzen":
+    # Payzen require update like this.
     current_payment.PaymentTransaction_updateStatus()
-"""
+
   current_payment.reindexObject(activate_kw={'tag': tag})
   context.reindexObject(activate_kw={'tag': tag})
 

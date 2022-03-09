@@ -242,6 +242,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       title="TestSubscriptionScenario",
       source=self.expected_source,
       source_section=self.expected_source_section,
+      source_payment=self.expected_source_section + "/bank_account",
       price_currency="currency_module/CNY",
       payment_mode='wechat',
       specialise="sale_trade_condition_module/slapos_subscription_trade_condition"
@@ -251,6 +252,23 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       comment='Price is an TCC (20% included)',
       base_price=self.expected_zh_individual_price_with_tax,
       resource='service_module/slapos_instance_subscription',
+    )
+    sale_trade_condition.newContent(
+      portal_type="Sale Supply Line",
+      base_price=188,
+      resource='service_module/slapos_reservation_fee_2',
+    )
+    sale_trade_condition.newContent(
+      portal_type="Trade Model Line",
+      resource='service_module/slapos_tax',
+      base_application='base_amount/invoicing/taxable',
+      trade_phase='slapos/tax',
+      title='VAT',
+      reference='VAT',
+      membership_criterion_base_category=('price_currency',),
+      membership_criterion_category=('price_currency/currency_module/EUR',),
+      price=0.01,
+      quantity=1,
     )
     sale_trade_condition.validate()
 
@@ -280,6 +298,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       title="TestSubscriptionScenario",
       source=self.expected_source,
       source_section=self.expected_source_section,
+      source_payment=self.expected_source_section + "/bank_account",
       price_currency="currency_module/EUR",
       payment_mode='payzen',
       specialise="sale_trade_condition_module/slapos_subscription_trade_condition"
@@ -289,6 +308,23 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       comment='Price is an TCC (20% included)',
       base_price=self.expected_individual_price_with_tax,
       resource='service_module/slapos_instance_subscription',
+    )
+    sale_trade_condition.newContent(
+      portal_type="Sale Supply Line",
+      base_price=25,
+      resource='service_module/slapos_reservation_fee_2',
+    )
+    sale_trade_condition.newContent(
+      portal_type="Trade Model Line",
+      resource='service_module/slapos_tax',
+      base_application='base_amount/invoicing/taxable',
+      trade_phase='slapos/tax',
+      title='VAT',
+      reference='VAT',
+      membership_criterion_base_category=('price_currency',),
+      membership_criterion_category=('price_currency/currency_module/EUR',),
+      price=0.2,
+      quantity=1,
     )
     sale_trade_condition.validate()
     self.subscription_condition = self.portal.subscription_condition_module.newContent(

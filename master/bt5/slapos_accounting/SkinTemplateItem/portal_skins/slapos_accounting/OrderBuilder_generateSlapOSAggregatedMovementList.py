@@ -92,7 +92,8 @@ for movement in movement_list:
     specialise_to_set = consumption_specialise
   else:
     person = movement.getDestinationValue()
-    specialise_to_set = person.Person_getAggregatedSubscriptionSaleTradeConditionValue(subscription_request_specialise)
+    specialise_to_set = None
+    #specialise_to_set = person.Person_getAggregatedSubscriptionSaleTradeConditionValue(subscription_request_specialise)
 
   if instance_tree is not None:
     subscription = instance_tree.getAggregateRelated(portal_type="Subscription Request")

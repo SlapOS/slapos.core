@@ -134,7 +134,10 @@ if instance_tree.getCausalityState() == 'diverged':
       open_order_line.edit(
         price=service.getPrice(
           context=open_order_line,
-          predicate_list=open_sale_order.getSpecialiseValue().contentValues(portal_type='Sale Supply Line')
+          predicate_list=[
+            x for x in open_sale_order.getSpecialiseValue().contentValues(portal_type='Sale Supply Line')
+            if x.getResource() == service.getRelativeUrl()
+          ]
         )
       )
 

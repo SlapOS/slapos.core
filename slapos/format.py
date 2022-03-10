@@ -897,9 +897,6 @@ class Tap(object):
                                  raise_on_error=False)
       if code != 0 or self.ipv4_addr not in result or self.name not in result:
         callAndRead(['ip', 'route', 'add', self.ipv4_addr, 'dev', self.name])
-    else:
-      raise ValueError("%s should not be empty. No ipv4 address assigned to %s" %
-                         (self.ipv4_addr, self.name))
 
     if self.ipv6_network:
       # Check if this route exits

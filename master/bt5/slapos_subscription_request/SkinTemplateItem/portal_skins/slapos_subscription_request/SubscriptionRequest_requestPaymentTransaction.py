@@ -80,7 +80,7 @@ if current_invoice is None:
     temp_object=True,
     portal_type='Invoice Line',
     resource_value=service,
-    quantity=1,
+    quantity=context.getQuantity(),
     quantity_unit=service.getQuantityUnit(),
     base_contribution_list=service.getBaseContributionList(),
     use=service.getUse(),
@@ -106,8 +106,7 @@ if current_invoice is None:
       # For simplification consider tax is a single value.
       break
 
-  # XXX amount is hardcoded XXX
-  amount = 1
+  amount = context.getQuantity()
   total = round((int(amount) * price)+(int(amount) * price*tax), 2)
 
   payable_line = current_payment.newContent(

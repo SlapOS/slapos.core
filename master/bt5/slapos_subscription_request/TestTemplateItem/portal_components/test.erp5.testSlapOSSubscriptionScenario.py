@@ -268,7 +268,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       title='VAT',
       reference='VAT',
       membership_criterion_base_category=('price_currency',),
-      membership_criterion_category=('price_currency/currency_module/EUR',),
+      membership_criterion_category=('price_currency/currency_module/CNY',),
       price=0.01,
       quantity=1,
     )

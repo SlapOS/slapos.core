@@ -646,46 +646,6 @@ class TestComputer(SlapformatMixin):
       ],
       self.fakeCallAndRead.external_command_list)
 
-  def test_construct_use_unique_local_address_block(self):
-    """
-    Test that slapformat creates a unique local address in the interface.
-    """
-    global USER_LIST
-    USER_LIST = ['root']
-    computer = slapos.format.Computer('computer',
-      instance_root='/instance_root',
-      software_root='/software_root',
-      interface=slapos.format.Interface(
-        logger=self.logger, name='myinterface', ipv4_local_network='127.0.0.1/16'),
-      partition_list=[
-          slapos.format.Partition(
-            'partition', '/part_path', slapos.format.User('testuser'), [],
-            tap=slapos.format.Tap('tap')),
-        ])
-    global INTERFACE_DICT
-    INTERFACE_DICT['myinterface'] = {
-      socket.AF_INET: [{'addr': '192.168.242.77', 'broadcast': '127.0.0.1',
-        'netmask': '255.255.255.0'}],
-      socket.AF_INET6: [{'addr': '2a01:e35:2e27::e59c', 'netmask': 'ffff:ffff:ffff:ffff::'}]
-    }
-
-    computer.format(use_unique_local_address_block=True, alter_user=False, create_tap=False)
-    self.assertEqual([
-        "makedirs('/instance_root', 493)",
-        "makedirs('/software_root', 493)",
-        "chmod('/software_root', 493)",
-        "mkdir('/instance_root/partition', 488)",
-        "chmod('/instance_root/partition', 488)"
-      ],
-      self.test_result.bucket)
-    self.assertEqual([
-        'ip address add dev myinterface fd00::1/64',
-        'ip addr add ip/255.255.255.255 dev myinterface',
-        'ip addr add ip/ffff:ffff:ffff:ffff:: dev myinterface',
-        'ip -6 addr list myinterface'
-      ],
-      self.fakeCallAndRead.external_command_list)
-
 
 class TestFormatDump(SlapformatMixin):
   def setUp(self):

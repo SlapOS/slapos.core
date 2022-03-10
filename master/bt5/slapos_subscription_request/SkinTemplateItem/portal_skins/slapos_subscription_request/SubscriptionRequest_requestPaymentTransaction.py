@@ -71,12 +71,13 @@ if current_invoice is None:
     use__relative_url='use/trade/sale'
   )[0].getObject()
 
-  tmp_invoice_line = portal.accounting_module.newContent(
+  tmp_invoice = portal.accounting_module.newContent(
     temp_object=True,
     portal_type='Sale Invoice Transaction',
     price_currency_value=trade_condition.getPriceCurrencyValue(),
-    specialise_value=trade_condition,
-  ).newContent(
+    specialise=portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition(),
+  )
+  tmp_invoice_line = tmp_invoice.newContent(
     temp_object=True,
     portal_type='Invoice Line',
     resource_value=service,
@@ -84,7 +85,9 @@ if current_invoice is None:
     quantity_unit=service.getQuantityUnit(),
     base_contribution_list=service.getBaseContributionList(),
     use=service.getUse(),
-    # price_currency_value=trade_condition.getPriceCurrencyValue()
+    # Dates are required to correctly select the correct trade condition version (based on effective date)
+    start_date=now,
+    stop_date=now,
   )
 
   # XXX use search predicate list
@@ -101,7 +104,7 @@ if current_invoice is None:
   # with taxes, but for now it is hardcoded.
   tax = 0
   if 'base_amount/invoicing/taxable' in tmp_invoice_line.getBaseContributionList():
-    for trade_model_line in trade_condition.getAggregatedAmountList(tmp_invoice_line):
+    for trade_model_line in tmp_invoice.getSpecialiseValue().getAggregatedAmountList(tmp_invoice_line):
       tax = trade_model_line.getPrice()
       # For simplification consider tax is a single value.
       break

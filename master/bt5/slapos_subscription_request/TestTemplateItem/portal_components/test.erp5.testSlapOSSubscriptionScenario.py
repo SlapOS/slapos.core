@@ -260,18 +260,6 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       base_price=188,
       resource='service_module/slapos_reservation_fee_2',
     )
-    sale_trade_condition.newContent(
-      portal_type="Trade Model Line",
-      resource='service_module/slapos_tax',
-      base_application='base_amount/invoicing/taxable',
-      trade_phase='slapos/tax',
-      title='VAT',
-      reference='VAT',
-      membership_criterion_base_category=('price_currency',),
-      membership_criterion_category=('price_currency/currency_module/CNY',),
-      price=0.01,
-      quantity=1,
-    )
     sale_trade_condition.validate()
 
     subscription_condition = self.portal.subscription_condition_module.newContent(
@@ -315,18 +303,6 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       portal_type="Sale Supply Line",
       base_price=25,
       resource='service_module/slapos_reservation_fee_2',
-    )
-    sale_trade_condition.newContent(
-      portal_type="Trade Model Line",
-      resource='service_module/slapos_tax',
-      base_application='base_amount/invoicing/taxable',
-      trade_phase='slapos/tax',
-      title='VAT',
-      reference='VAT',
-      membership_criterion_base_category=('price_currency',),
-      membership_criterion_category=('price_currency/currency_module/EUR',),
-      price=0.2,
-      quantity=1,
     )
     sale_trade_condition.validate()
     self.subscription_condition = self.portal.subscription_condition_module.newContent(

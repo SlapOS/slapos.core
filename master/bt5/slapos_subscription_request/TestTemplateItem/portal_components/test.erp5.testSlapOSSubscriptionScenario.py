@@ -257,7 +257,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     )
     sale_trade_condition.newContent(
       portal_type="Sale Supply Line",
-      base_price=188,
+      base_price=self.expected_zh_reservation_fee_without_tax,
       resource='service_module/slapos_reservation_fee_2',
     )
     sale_trade_condition.validate()
@@ -301,7 +301,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     )
     sale_trade_condition.newContent(
       portal_type="Sale Supply Line",
-      base_price=25,
+      base_price=self.expected_reservation_fee_without_tax,
       resource='service_module/slapos_reservation_fee_2',
     )
     sale_trade_condition.validate()

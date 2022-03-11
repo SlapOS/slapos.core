@@ -4214,6 +4214,30 @@ class TestSlapgridPluginPromiseWithInstancePython(TestSlapgridPromiseWithMaster)
         dummyLogger.mock_calls[-1][1][0] % dummyLogger.mock_calls[-1][1][1:],
         "  0[(not ready)]: Promise 'failing_promise_plugin.py' failed with output: héhé fake promise plugin error")
 
+  def test_succeeding_promise_logs_output(self):
+    computer = self.getTestComputerClass()(self.software_root, self.instance_root, 1, 1)
+    instance, = computer.instance_list
+
+    instance.requested_state = 'started'
+    output = "hehe fake promise plugin succeded !"
+    instance.setPluginPromise(
+        "suceeding_promise_plugin.py",
+        promise_content="""if 1:
+          return self.logger.info(%r)
+        """ % output,
+    )
+
+    with httmock.HTTMock(computer.request_handler), \
+        patch.object(self.grid.logger, 'info',) as dummyLogger:
+      self.launchSlapgrid()
+
+    self.assertIn(
+      "Checking promise suceeding_promise_plugin.py...",
+      dummyLogger.mock_calls[-4][1][0] % dummyLogger.mock_calls[-4][1][1:])
+
+    self.assertIn(
+      output,
+      dummyLogger.mock_calls[-3][1][0] % dummyLogger.mock_calls[-3][1][1:])
 
 
 class TestSlapgridPluginPromiseWithInstancePythonOldSlapOSCompatibility(

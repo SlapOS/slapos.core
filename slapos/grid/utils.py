@@ -119,6 +119,7 @@ class SlapPopen(subprocess.Popen):
   """
   def __init__(self, *args, **kwargs):
     logger = kwargs.pop('logger')
+    timeout = kwargs.pop('timeout', None)
 
     debug = kwargs.pop('debug', False)
     if debug:
@@ -154,7 +155,7 @@ class SlapPopen(subprocess.Popen):
         args=(self.stdout, output_lines, logger))
     t.start()
     try:
-      self.wait()
+      self.wait(timeout=timeout)
     finally:
       t.join()
     self.output = ''.join(output_lines)

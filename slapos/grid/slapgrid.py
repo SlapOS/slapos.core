@@ -726,26 +726,29 @@ stderr_logfile_backups=1
         else:
           command.append('--' + option)
           command.append(str(value))
-      process = subprocess.Popen(
-        command,
-        preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),
-        cwd=instance_path,
-        universal_newlines=True,
-        stdout=subprocess.PIPE)
       promises = plugins + len(listifdir(legacy_promise_dir))
       # Add a timeout margin to let the process kill the promises and cleanup
       timeout = promises * self.promise_timeout + 10
+      # The runpromise script uses stderr exclusively to propagate exception
+      # messages. It otherwise redirects stderr to stdout so that all outputs
+      # from the promises go to stdout.
       try:
-        # The logger logs everything to stderr, so runpromise redirects
-        # stdout to stderr in case a promise prints to stdout
-        # and reserves stdout to progagate exception messages.
-        out, _ = process.communicate(timeout=timeout)
+        process = SlapPopen(
+          command,
+          preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),
+          cwd=instance_path,
+          universal_newlines=True,
+          stdout=subprocess.PIPE,
+          stderr=subprocess.PIPE,
+          logger=self.logger,
+          timeout=timeout,
+        )
         if process.returncode == 2:
-          raise PromiseError(out)
+          raise PromiseError(process.stderr)
         elif process.returncode:
-          raise Exception(out)
-        elif out:
-          self.logger.warn('Promise runner unexpected output:\n%s', out)
+          raise Exception(process.stderr)
+        elif process.stderr:
+          self.logger.warn('Promise runner unexpected output:\n%s', process.stderr)
       except subprocess.TimeoutExpired:
         killProcessTree(process.pid, self.logger)
         # The timeout margin was exceeded but this should be infrequent

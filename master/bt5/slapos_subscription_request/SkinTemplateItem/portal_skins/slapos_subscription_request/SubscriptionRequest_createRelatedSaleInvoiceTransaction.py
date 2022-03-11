@@ -60,21 +60,6 @@ if current_invoice is None:
     price_currency_value=payment_transaction.getPriceCurrencyValue(),
     resource_value=payment_transaction.getResourceValue(),
   )
-  """
-  current_invoice["1"].edit(
-        start_date=payment_transaction.getStartDate(),
-        stop_date=payment_transaction.getStopDate())
-  if service_variation is not None:
-    current_invoice["1"].setVariation(service_variation)
-  
-  cell = current_invoice["1"]["movement_0"]
-  
-  cell.edit(
-    variation=current_invoice["1"].getVariation(),
-    quantity=context.getQuantity()
-  )
-  cell.setPrice(price)
-"""
 
   current_invoice["1"].edit(
     start_date=payment_transaction.getStartDate(),
@@ -87,20 +72,10 @@ if current_invoice is None:
       "base_amount/invoicing/discounted",
       "base_amount/invoicing/taxable"
     ],
-    # variation/service_module/slapos_reservation_fee/default
-
     quantity=context.getQuantity(),
     price=price
   )
-  """
-  # Test to see if the user has specific trade condition for aggregation.
-  person = context.getDestinationSectionValue()
-  trade_condition = person.Person_getAggregatedSubscriptionSaleTradeConditionValue(
-    current_invoice.getSpecialise()
-  )
-  if trade_condition != current_invoice.getSpecialise():
-    current_invoice.edit(specialise=trade_condition)
-"""
+
   comment = "Validation invoice for subscription request %s" % context.getRelativeUrl()
   current_invoice.plan(comment=comment)
   current_invoice.confirm(comment=comment)

@@ -34,12 +34,16 @@ import os
 import pkg_resources
 import pwd
 import stat
-import subprocess
 import sys
 import threading
 import logging
 import psutil
 import time
+
+if sys.version_info >= (3,):
+  import subprocess
+else:
+  import subprocess32 as subprocess
 
 
 from slapos.grid.exception import BuildoutFailedError, WrongPermissionError
@@ -119,6 +123,7 @@ class SlapPopen(subprocess.Popen):
   """
   def __init__(self, *args, **kwargs):
     logger = kwargs.pop('logger')
+    timeout = kwargs.pop('timeout', None)
 
     debug = kwargs.pop('debug', False)
     if debug:
@@ -154,7 +159,7 @@ class SlapPopen(subprocess.Popen):
         args=(self.stdout, output_lines, logger))
     t.start()
     try:
-      self.wait()
+      self.wait(timeout=timeout)
     finally:
       t.join()
     self.output = ''.join(output_lines)

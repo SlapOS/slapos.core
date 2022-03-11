@@ -71,43 +71,48 @@ if current_invoice is None:
     use__relative_url='use/trade/sale'
   )[0].getObject()
 
-  tmp_invoice = portal.accounting_module.newContent(
-    temp_object=True,
-    portal_type='Sale Invoice Transaction',
-    price_currency_value=trade_condition.getPriceCurrencyValue(),
-    specialise=portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition(),
-  )
-  tmp_invoice_line = tmp_invoice.newContent(
-    temp_object=True,
-    portal_type='Invoice Line',
-    resource_value=service,
-    quantity=context.getQuantity(),
-    quantity_unit=service.getQuantityUnit(),
-    base_contribution_list=service.getBaseContributionList(),
-    use=service.getUse(),
-    # Dates are required to correctly select the correct trade condition version (based on effective date)
-    start_date=now,
-    stop_date=now,
-  )
+  if context.SubscriptionRequest_testSkippedReservationFree(contract):
+    # Reservation is Free
+    price = 0
+    tax = 0
+  else:
+    tmp_invoice = portal.accounting_module.newContent(
+      temp_object=True,
+      portal_type='Sale Invoice Transaction',
+      price_currency_value=trade_condition.getPriceCurrencyValue(),
+      specialise=portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition(),
+    )
+    tmp_invoice_line = tmp_invoice.newContent(
+      temp_object=True,
+      portal_type='Invoice Line',
+      resource_value=service,
+      quantity=context.getQuantity(),
+      quantity_unit=service.getQuantityUnit(),
+      base_contribution_list=service.getBaseContributionList(),
+      use=service.getUse(),
+      # Dates are required to correctly select the correct trade condition version (based on effective date)
+      start_date=now,
+      stop_date=now,
+    )
 
-  # XXX use search predicate list
-  price = service.getPrice(
-    context=tmp_invoice_line,
-    predicate_list=[
-      x for x in trade_condition.contentValues(portal_type='Sale Supply Line')
-      if x.getResource() == service.getRelativeUrl()
-    ]
-  )
-  # XXX calculate Tax
-  # We need to provide Price to pay right the way, so we need to include
-  # taxation at this point it is most liketly to quickly forecast price 
-  # with taxes, but for now it is hardcoded.
-  tax = 0
-  if 'base_amount/invoicing/taxable' in tmp_invoice_line.getBaseContributionList():
-    for trade_model_line in tmp_invoice.getSpecialiseValue().getAggregatedAmountList(tmp_invoice_line):
-      tax = trade_model_line.getPrice()
-      # For simplification consider tax is a single value.
-      break
+    # XXX use search predicate list
+    price = service.getPrice(
+      context=tmp_invoice_line,
+      predicate_list=[
+        x for x in trade_condition.contentValues(portal_type='Sale Supply Line')
+        if x.getResource() == service.getRelativeUrl()
+      ]
+    )
+    # XXX calculate Tax
+    # We need to provide Price to pay right the way, so we need to include
+    # taxation at this point it is most liketly to quickly forecast price 
+    # with taxes, but for now it is hardcoded.
+    tax = 0
+    if 'base_amount/invoicing/taxable' in tmp_invoice_line.getBaseContributionList():
+      for trade_model_line in tmp_invoice.getSpecialiseValue().getAggregatedAmountList(tmp_invoice_line):
+        tax = trade_model_line.getPrice()
+        # For simplification consider tax is a single value.
+        break
 
   amount = context.getQuantity()
   total = round((int(amount) * price)+(int(amount) * price*tax), 2)

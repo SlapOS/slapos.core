@@ -34,6 +34,7 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
     self.subscription_condition.getSpecialiseValue().edit(
       source=self.expected_source,
       source_section=self.expected_source_section,
+      source_payment=self.expected_source_section + '/bank_account',
     )
 
     self.subscription_condition_zh = self.createChineseSubscriptionCondition()
@@ -43,6 +44,7 @@ class testSlapOSSubscriptionDualOrganisationScenario(TestSlapOSSubscriptionScena
     self.subscription_condition_zh.getSpecialiseValue().edit(
       source=self.expected_zh_source,
       source_section=self.expected_zh_source_section,
+      source_payment=self.expected_zh_source_section + '/bank_account',
     )
 
     self.portal.portal_caches.clearAllCache()

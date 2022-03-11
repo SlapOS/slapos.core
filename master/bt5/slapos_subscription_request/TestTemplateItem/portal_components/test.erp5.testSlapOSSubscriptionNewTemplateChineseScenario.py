@@ -34,6 +34,7 @@ class testSlapOSSubscriptionNewTemplateChineseScenario(TestSlapOSSubscriptionChi
     self.subscription_condition.getSpecialiseValue().edit(
       source=self.expected_source,
       source_section=self.expected_source_section,
+      source_payment=self.expected_source_section + '/bank_account',
     )
 
     self.portal.portal_caches.clearAllCache()

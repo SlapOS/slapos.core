@@ -293,6 +293,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       payment_mode='payzen',
       specialise="sale_trade_condition_module/slapos_subscription_trade_condition"
     )
+    # XXX TODO clarify the with / without tax
     sale_trade_condition.newContent(
       portal_type="Sale Supply Line",
       comment='Price is an TCC (20% included)',
@@ -640,8 +641,8 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     subscription_condition = subscription_request.getSpecialiseValue(portal_type='Subscription Condition')
     sale_trade_condition = subscription_condition.getSpecialiseValue(portal_type='Sale Trade Condition')
-    sale_supply_line = sale_trade_condition.contentValues(portal_type='Sale Supply Line')[0]
-    self.assertEqual(sale_supply_line.getPriceCurrency(),
+    #sale_supply_line = sale_trade_condition.contentValues(portal_type='Sale Supply Line')[0]
+    self.assertEqual(sale_trade_condition.getPriceCurrency(),
       payment.getPriceCurrency())
     self.assertEqual(payment.getSimulationState(), "started")
 
@@ -753,7 +754,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
       subscription_condition = subscription_request.getSpecialiseValue(portal_type='Subscription Condition')
       sale_trade_condition = subscription_condition.getSpecialiseValue(portal_type='Sale Trade Condition')
-      sale_supply_line = sale_trade_condition.contentValues(portal_type='Sale Supply Line')[0]
+      #sale_supply_line = sale_trade_condition.contentValues(portal_type='Sale Supply Line')[0]
 
       if sale_trade_condition.getPriceCurrency() == "currency_module/CNY":
         expected_reservation_fee_without_tax = self.expected_zh_reservation_fee_without_tax
@@ -770,9 +771,9 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       self.assertEqual(invoice.getCausalityState(), "solved")
 
       self.assertEqual(invoice.getPriceCurrency(),
-        sale_supply_line.getPriceCurrency())
+        sale_trade_condition.getPriceCurrency())
       for line in invoice.objectValues():
-        if line.getResource() == "service_module/slapos_reservation_fee":
+        if line.getResource() == "service_module/slapos_reservation_fee_2":
           self.assertEqual(line.getTotalQuantity(), quantity)
           if self.expected_free_reservation:
             self.assertEqual(round(line.getTotalPrice(), 2),  0.0)
@@ -1103,7 +1104,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
   def checkAggregatedSalePackingList(self, subscription_request, sale_packing_list):
     subscription_condition = subscription_request.getSpecialiseValue(portal_type='Subscription Condition')
     sale_trade_condition = subscription_condition.getSpecialiseValue(portal_type='Sale Trade Condition')
-    sale_supply_line = sale_trade_condition.contentValues(portal_type='Sale Supply Line')[0]
+    #sale_supply_line = sale_trade_condition.contentValues(portal_type='Sale Supply Line')[0]
 
     self.assertEqual(len(sale_packing_list.objectValues()), 2)
 
@@ -1111,7 +1112,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       if i.getResource() == "service_module/slapos_instance_subscription"][0]
 
     quantity = subscription_request.getQuantity()
-    if sale_supply_line.getPriceCurrency() == "currency_module/CNY":
+    if sale_trade_condition.getPriceCurrency() == "currency_module/CNY":
       expected_individual_price_without_tax = self.expected_zh_individual_price_without_tax
       expected_reservation_fee = self.expected_zh_reservation_fee_without_tax
     else:
@@ -1335,14 +1336,14 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
 
     subscription_condition = subscription_request.getSpecialiseValue(portal_type='Subscription Condition')
     sale_trade_condition = subscription_condition.getSpecialiseValue(portal_type='Sale Trade Condition')
-    sale_supply_line = sale_trade_condition.contentValues(portal_type='Sale Supply Line')[0]
+    #sale_supply_line = sale_trade_condition.contentValues(portal_type='Sale Supply Line')[0]
 
     self.assertEqual(sale_packing_list.getPriceCurrency(),
-                     sale_supply_line.getPriceCurrency())
+                     sale_trade_condition.getPriceCurrency())
     self.assertEqual(sale_packing_list.getSpecialise(),
       "sale_trade_condition_module/slapos_reservation_refund_trade_condition")
 
-    if sale_supply_line.getPriceCurrency() == "currency_module/CNY":
+    if sale_trade_condition.getPriceCurrency() == "currency_module/CNY":
       self.assertEqual(round(sale_packing_list.getTotalPrice(), 2),
                      -round(self.expected_zh_reservation_fee_without_tax*amount, 2))
 

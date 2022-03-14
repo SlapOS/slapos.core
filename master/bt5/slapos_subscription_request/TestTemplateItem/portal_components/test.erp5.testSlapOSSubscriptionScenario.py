@@ -1202,8 +1202,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     person = subscription_request.getDestinationSectionValue()
     person_uid = person.getUid()
 
-    trade_condition = person.Person_getAggregatedSubscriptionSaleTradeConditionValue(specialise)
-    specialise_uid = self.portal.restrictedTraverse(trade_condition).getUid()
+    specialise_uid = self.portal.restrictedTraverse(specialise).getUid()
 
     return self.portal.portal_catalog(
       portal_type='Sale Packing List',

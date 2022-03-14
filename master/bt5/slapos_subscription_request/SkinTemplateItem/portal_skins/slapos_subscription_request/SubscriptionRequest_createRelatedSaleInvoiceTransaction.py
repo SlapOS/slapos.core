@@ -33,14 +33,6 @@ if current_invoice is None:
   )
   current_invoice["1"].updateCellRange('movement')
 
-  """
-  subscription_trade_condition = portal.portal_preferences.getPreferredAggregatedSubscriptionSaleTradeCondition()
-  user_trade_condition = context.getDestinationSectionValue().\
-     Person_getAggregatedSubscriptionSaleTradeConditionValue(subscription_trade_condition)
-
-  if user_trade_condition:
-    current_invoice.setSpecialise(user_trade_condition)
-"""
   context.edit(causality_value=current_invoice)
 
   payment_transaction = portal.restrictedTraverse(payment)

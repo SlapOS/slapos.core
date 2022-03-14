@@ -131,14 +131,25 @@ if instance_tree.getCausalityState() == 'diverged':
         aggregate_value_list=[hosting_subscription, instance_tree],
         **edit_kw
       )
+
+      predicate_list = []
+      inherited_trade_condition = open_sale_order.getSpecialiseValue()
+      while inherited_trade_condition is not None:
+        predicate_list.extend([
+          x for x in inherited_trade_condition.contentValues(portal_type='Sale Supply Line')
+          if x.getResource() == service.getRelativeUrl()
+        ])
+        inherited_trade_condition = inherited_trade_condition.getSpecialiseValue(portal_type=inherited_trade_condition.getPortalType())
+
+      price = service.getPrice(
+        context=open_order_line,
+        predicate_list=predicate_list,
+        default=None,
+      )
+      if price is None:
+        raise NotImplementedError('Price must be defined')
       open_order_line.edit(
-        price=service.getPrice(
-          context=open_order_line,
-          predicate_list=[
-            x for x in open_sale_order.getSpecialiseValue().contentValues(portal_type='Sale Supply Line')
-            if x.getResource() == service.getRelativeUrl()
-          ]
-        )
+        price=price
       )
 
       storeWorkflowComment(open_order_line, "Created for %s" % instance_tree.getRelativeUrl())

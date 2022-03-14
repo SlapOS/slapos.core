@@ -86,24 +86,33 @@ if current_invoice is None:
       stop_date=now,
     )
 
-    # XXX use search predicate list
+    predicate_list = []
+    inherited_trade_condition = trade_condition
+    while inherited_trade_condition is not None:
+      predicate_list.extend([
+        x for x in inherited_trade_condition.contentValues(portal_type='Sale Supply Line')
+        if x.getResource() == service.getRelativeUrl()
+      ])
+      inherited_trade_condition = inherited_trade_condition.getSpecialiseValue(portal_type=inherited_trade_condition.getPortalType())
     price = service.getPrice(
       context=tmp_invoice_line,
-      predicate_list=[
-        x for x in trade_condition.contentValues(portal_type='Sale Supply Line')
-        if x.getResource() == service.getRelativeUrl()
-      ]
+      predicate_list=predicate_list,
+      default=None
     )
+    if price is None:
+      raise NotImplementedError('Price must be defined')
     # XXX calculate Tax
     # We need to provide Price to pay right the way, so we need to include
     # taxation at this point it is most liketly to quickly forecast price 
     # with taxes, but for now it is hardcoded.
-    tax = 0
+    tax = None
     if 'base_amount/invoicing/taxable' in tmp_invoice_line.getBaseContributionList():
-      for trade_model_line in tmp_invoice.getSpecialiseValue().getAggregatedAmountList(tmp_invoice_line):
+      for trade_model_line in tmp_invoice_line.getAggregatedAmountList():
         tax = trade_model_line.getPrice()
         # For simplification consider tax is a single value.
         break
+    if tax is None:
+      raise NotImplementedError('No tax trade model line found')
 
   amount = context.getQuantity()
   total = round((int(amount) * price)+(int(amount) * price*tax), 2)

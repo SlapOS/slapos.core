@@ -92,7 +92,6 @@ for movement in movement_list:
   if movement.getSpecialiseUid() in consumption_specialise_uid_list:
     specialise_to_set = consumption_specialise
   else:
-    person = movement.getDestinationValue()
     specialise_to_set = subscription_request_specialise
 
   if instance_tree is not None:

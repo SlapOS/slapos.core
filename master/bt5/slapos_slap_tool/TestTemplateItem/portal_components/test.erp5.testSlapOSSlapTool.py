@@ -78,16 +78,16 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     self.tic()
 
     self.login(self.compute_node_user_id)
-
+    self.portal_slap.getFullComputerInformation(self.compute_node_id)
+    
     # First access.
     # Cache has been filled by interaction workflow
     # (luckily, it seems the cache is filled after everything is indexed)
     response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
-    first_etag = self.portal_slap._calculateRefreshEtag()
+    first_etag = self.compute_node._calculateRefreshEtag()
     first_body_fingerprint = hashData(
-      self.portal_slap._getCacheComputeNodeInformation(self.compute_node_id,
-                                                    self.compute_node_id)
+      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
     )
     self.assertEqual(200, response.status)
     self.assertTrue('last-modified' not in response.headers)
@@ -120,10 +120,9 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     self.commit()
     self.assertEqual(200, response.status)
     self.assertTrue('last-modified' not in response.headers)
-    second_etag = self.portal_slap._calculateRefreshEtag()
+    second_etag = self.compute_node._calculateRefreshEtag()
     second_body_fingerprint = hashData(
-      self.portal_slap._getCacheComputeNodeInformation(self.compute_node_id,
-                                                    self.compute_node_id)
+      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
     )
     self.assertNotEqual(first_etag, second_etag)
     # The indexation timestamp does not impact the response body
@@ -154,10 +153,9 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     # Check that the result is stable, as the indexation timestamp is not changed yet
     current_activity_count = len(self.portal.portal_activities.getMessageList())
     # Edition does not impact the etag
-    self.assertEqual(second_etag, self.portal_slap._calculateRefreshEtag())
+    self.assertEqual(second_etag, self.compute_node._calculateRefreshEtag())
     third_body_fingerprint = hashData(
-      self.portal_slap._getCacheComputeNodeInformation(self.compute_node_id,
-                                                    self.compute_node_id)
+      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
     )
     # The edition impacts the response body
     self.assertNotEqual(first_body_fingerprint, third_body_fingerprint)
@@ -177,7 +175,7 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     self.commit()
     self.assertEqual(200, response.status)
     self.assertTrue('last-modified' not in response.headers)
-    third_etag = self.portal_slap._calculateRefreshEtag()
+    third_etag = self.compute_node._calculateRefreshEtag()
     self.assertNotEqual(second_etag, third_etag)
     self.assertEqual(third_etag, response.headers.get('etag'))
     self.assertEqual(third_body_fingerprint, hashData(response.body))
@@ -192,12 +190,11 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     # Check that the result is stable, as the indexation timestamp is not changed yet
     current_activity_count = len(self.portal.portal_activities.getMessageList())
     # Edition does not impact the etag
-    self.assertEqual(third_etag, self.portal_slap._calculateRefreshEtag())
+    self.assertEqual(third_etag, self.compute_node._calculateRefreshEtag())
     # The edition does not impact the response body yet, as the aggregate relation
     # is not yet unindex
     self.assertEqual(third_body_fingerprint, hashData(
-      self.portal_slap._getCacheComputeNodeInformation(self.compute_node_id,
-                                                    self.compute_node_id)
+      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
     ))
     response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
@@ -217,10 +214,9 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     self.commit()
     self.assertEqual(200, response.status)
     self.assertTrue('last-modified' not in response.headers)
-    fourth_etag = self.portal_slap._calculateRefreshEtag()
+    fourth_etag = self.compute_node._calculateRefreshEtag()
     fourth_body_fingerprint = hashData(
-      self.portal_slap._getCacheComputeNodeInformation(self.compute_node_id,
-                                                    self.compute_node_id)
+      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
     )
     self.assertNotEqual(third_etag, fourth_etag)
     # The indexation timestamp does not impact the response body
@@ -733,43 +729,9 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
       response = self.portal_slap.computerBang(self.compute_node_id,
         error_log)
       self.assertEqual('None', response)
-      created_at = rfc1123_date(DateTime())
-      since = created_at
-      response = self.portal_slap.getComputerStatus(self.compute_node_id)
-      # check returned XML
-      xml_fp = StringIO.StringIO()
-
-      xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-          stream=xml_fp)
-      xml_fp.seek(0)
-      got_xml = xml_fp.read()
-      expected_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <dictionary id='i2'>
-    <string>created_at</string>
-    <string>%(created_at)s</string>
-    <string>no_data_since_15_minutes</string>
-    <int>0</int>
-    <string>no_data_since_5_minutes</string>
-    <int>0</int>
-    <string>since</string>
-    <string>%(since)s</string>
-    <string>state</string>
-    <string/>
-    <string>text</string>
-    <string>#error bang</string>
-    <string>user</string>
-    <string>%(compute_node_id)s</string>
-  </dictionary>
-</marshal>
-""" % dict(
-    created_at=created_at,
-    since=since,
-    compute_node_id=self.compute_node_id,
-  )
-      self.assertEqual(expected_xml, got_xml,
-          '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+      # We do not assert getComputerStatus on this test, since
+      # the change of the timestamp is part of reportComputeNodeBang
+      
       self.assertComputeNodeBangSimulator((), {'comment': error_log})
     finally:
       if os.path.exists(self.compute_node_bang_simulator):
@@ -2635,43 +2597,9 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
       response = self.portal_slap.computerBang(self.compute_node_id,
         error_log)
       self.assertEqual('None', response)
-      created_at = rfc1123_date(DateTime())
-      since = created_at
-      response = self.portal_slap.getComputerStatus(self.compute_node_id)
-      # check returned XML
-      xml_fp = StringIO.StringIO()
-
-      xml.dom.ext.PrettyPrint(xml.dom.ext.reader.Sax.FromXml(response.body),
-          stream=xml_fp)
-      xml_fp.seek(0)
-      got_xml = xml_fp.read()
-      expected_xml = """\
-<?xml version='1.0' encoding='UTF-8'?>
-<marshal>
-  <dictionary id='i2'>
-    <string>created_at</string>
-    <string>%(created_at)s</string>
-    <string>no_data_since_15_minutes</string>
-    <int>0</int>
-    <string>no_data_since_5_minutes</string>
-    <int>0</int>
-    <string>since</string>
-    <string>%(since)s</string>
-    <string>state</string>
-    <string/>
-    <string>text</string>
-    <string>#error bang</string>
-    <string>user</string>
-    <string>%(person_reference)s</string>
-  </dictionary>
-</marshal>
-""" % dict(
-    created_at=created_at,
-    since=since,
-    person_reference=self.person_reference,
-  )
-      self.assertEqual(expected_xml, got_xml,
-          '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
+      # We do not assert getComputerStatus on this test, since
+      # the change of the timestamp is part of reportComputeNodeBang
+      
       self.assertComputeNodeBangSimulator((), {'comment': error_log})
     finally:
       if os.path.exists(self.compute_node_bang_simulator):

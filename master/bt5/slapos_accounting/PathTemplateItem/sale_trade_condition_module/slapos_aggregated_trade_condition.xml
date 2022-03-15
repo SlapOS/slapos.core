@@ -135,7 +135,7 @@
                 </tuple>
                 <state>
                   <tuple>
-                    <float>2524608000.0</float>
+                    <float>1647302400.0</float>
                     <string>UTC</string>
                   </tuple>
                 </state>
@@ -152,7 +152,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>SlapOS Aggregated Trade Condition (after 2018)</string> </value>
+            <value> <string>SlapOS Aggregated Trade Condition (before 2022)</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
@@ -288,7 +288,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>998.58067.20441.49783</string> </value>
+                      <value> <string>998.58067.43445.61166</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -306,7 +306,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1647338139.67</float>
+                              <float>1647349016.53</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

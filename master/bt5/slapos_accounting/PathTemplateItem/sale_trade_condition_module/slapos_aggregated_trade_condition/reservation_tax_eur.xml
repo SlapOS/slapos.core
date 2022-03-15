@@ -40,10 +40,16 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>1</string> </value>
+            <value> <string>reservation_tax_eur</string> </value>
         </item>
         <item>
             <key> <string>int_index</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
+            <key> <string>language</string> </key>
             <value>
               <none/>
             </value>
@@ -188,7 +194,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>991.53633.57403.44373</string> </value>
+                      <value> <string>998.58034.32894.24234</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -206,7 +212,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1620318646.42</float>
+                              <float>1647336589.69</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

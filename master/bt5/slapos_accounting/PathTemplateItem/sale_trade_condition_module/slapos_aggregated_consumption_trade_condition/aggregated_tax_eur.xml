@@ -40,28 +40,12 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>3</string> </value>
+            <value> <string>aggregated_tax_eur</string> </value>
         </item>
         <item>
-            <key> <string>int_index</string> </key>
+            <key> <string>language</string> </key>
             <value>
               <none/>
-            </value>
-        </item>
-        <item>
-            <key> <string>membership_criterion_base_category</string> </key>
-            <value>
-              <tuple>
-                <string>price_currency</string>
-              </tuple>
-            </value>
-        </item>
-        <item>
-            <key> <string>membership_criterion_category</string> </key>
-            <value>
-              <tuple>
-                <string>price_currency/currency_module/CNY</string>
-              </tuple>
             </value>
         </item>
         <item>
@@ -70,31 +54,19 @@
         </item>
         <item>
             <key> <string>price</string> </key>
-            <value> <float>0.01</float> </value>
+            <value> <float>0.2</float> </value>
         </item>
         <item>
             <key> <string>quantity</string> </key>
             <value> <float>1.0</float> </value>
         </item>
         <item>
-            <key> <string>string_index</string> </key>
-            <value>
-              <none/>
-            </value>
-        </item>
-        <item>
             <key> <string>target_delivery</string> </key>
             <value> <int>0</int> </value>
         </item>
         <item>
-            <key> <string>test_method_id</string> </key>
-            <value>
-              <tuple/>
-            </value>
-        </item>
-        <item>
             <key> <string>title</string> </key>
-            <value> <string>VAT (CNY)</string> </value>
+            <value> <string>VAT</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -188,7 +160,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>991.57855.43043.56797</string> </value>
+                      <value> <string>998.58034.32894.24234</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -206,7 +178,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1620326231.38</float>
+                              <float>1647337173.66</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

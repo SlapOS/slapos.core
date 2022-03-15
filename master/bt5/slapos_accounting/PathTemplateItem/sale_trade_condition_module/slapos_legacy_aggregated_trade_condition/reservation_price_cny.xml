@@ -38,7 +38,7 @@
         </item>
         <item>
             <key> <string>base_price</string> </key>
-            <value> <float>25.0</float> </value>
+            <value> <float>188.0</float> </value>
         </item>
         <item>
             <key> <string>base_price_per_slice</string> </key>
@@ -53,7 +53,7 @@
             <value>
               <tuple>
                 <string>resource/service_module/slapos_reservation_fee</string>
-                <string>price_currency/currency_module/EUR</string>
+                <string>price_currency/currency_module/CNY</string>
               </tuple>
             </value>
         </item>
@@ -64,8 +64,14 @@
             </value>
         </item>
         <item>
+            <key> <string>description</string> </key>
+            <value>
+              <none/>
+            </value>
+        </item>
+        <item>
             <key> <string>id</string> </key>
-            <value> <string>4</string> </value>
+            <value> <string>reservation_price_cny</string> </value>
         </item>
         <item>
             <key> <string>index</string> </key>
@@ -260,7 +266,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>992.63001.55132.4829</string> </value>
+                      <value> <string>998.58034.32894.24234</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -278,7 +284,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1624560648.64</float>
+                              <float>1647336624.55</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

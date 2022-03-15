@@ -60,11 +60,11 @@ promise_checker = PromiseLauncher(config=config, logger=app.log)
 
 
 # Run promises
-# Redirect stdout to stderr (logger only uses stderr already)
-# to reserve stdout for error reporting
+# Redirect stderr to stdout (logger uses stderr)
+# to reserve stderr exclusively for error reporting
 
-out = os.dup(1)
-os.dup2(2, 1)
+err = os.dup(2)
+os.dup2(1, 2)
 
 try:
   promise_checker.run()
@@ -73,5 +73,5 @@ except Exception as e:
     error_str = unicode(str(e), 'utf-8', 'repr')
   else:
     error_str = str(e)
-  os.write(out, error_str.encode('utf-8', 'repr'))
+  os.write(err, error_str.encode('utf-8', 'repr'))
   sys.exit(2 if isinstance(e, PromiseError) else 1)

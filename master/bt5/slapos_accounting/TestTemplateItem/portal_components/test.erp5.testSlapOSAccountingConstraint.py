@@ -11,6 +11,8 @@ from unittest import skip
 
 import transaction
 
+AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL = 'sale_trade_condition_module/slapos_aggregated_trade_condition_v3'
+
 class TestHostingSubscription(TestSlapOSConstraintMixin):
 
   # use decrator in order to avoid fixing consistency of new object
@@ -159,7 +161,7 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
 
     self.assertTrue(message in self.getMessageList(invoice))
 
-    invoice.setSpecialise('sale_trade_condition_module/slapos_aggregated_trade_condition')
+    invoice.setSpecialise(AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL)
     self.assertFalse(message in self.getMessageList(invoice))
 
   @withAbort
@@ -184,7 +186,7 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
     invoice = self.portal.accounting_module.newContent(
         portal_type='Sale Invoice Transaction',
         price_currency='currency_module/EUR',
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition')
+        specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL)
     invoice.newContent(portal_type='Invoice Line', quantity=1., price=1.,
         base_contribution='base_amount/invoicing/taxable')
 
@@ -213,7 +215,7 @@ class TestSaleInvoiceTransaction(TestSlapOSConstraintMixin):
     self.assertFalse(message in self.getMessageList(invoice))
     self.portal.portal_workflow._jumpToStateFor(invoice, 'confirmed')
     self.assertFalse(message in self.getMessageList(invoice))
-    invoice.setSpecialise('sale_trade_condition_module/slapos_aggregated_trade_condition')
+    invoice.setSpecialise(AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL)
     self.assertTrue(message in self.getMessageList(invoice))
     invoice_line.setQuantity(1.)
     self.assertFalse(message in self.getMessageList(invoice))

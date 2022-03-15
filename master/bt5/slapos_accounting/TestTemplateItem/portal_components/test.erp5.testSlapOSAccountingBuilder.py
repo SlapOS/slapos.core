@@ -8,6 +8,8 @@
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 from DateTime import DateTime
 
+AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL = 'sale_trade_condition_module/slapos_aggregated_trade_condition_v3'
+
 def convertCategoryList(base, l):
   return ['%s/%s' % (base, q) for q in l]
 
@@ -63,7 +65,7 @@ class TestSlapOSSalePackingListBuilder(SlapOSTestCaseMixin):
           'source/%s' % self.expected_slapos_organisation,
           'source_section/%s' % self.expected_slapos_organisation,
           'price_currency/currency_module/EUR',
-          'specialise/sale_trade_condition_module/slapos_aggregated_trade_condition'] \
+          'specialise/%s' % AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL] \
             + convertCategoryList('destination',
                 simulation_movement.getDestinationList()) \
             + convertCategoryList('destination_section',
@@ -99,7 +101,7 @@ class TestSlapOSSalePackingListBuilder(SlapOSTestCaseMixin):
         resource='service_module/slapos_instance_subscription',
         source=self.expected_slapos_organisation,
         source_section=self.expected_slapos_organisation,
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+        specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         trade_phase='slapos/delivery',
         use='trade/sale',
     )
@@ -159,7 +161,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         price_currency='currency_module/EUR',
         source=self.expected_slapos_organisation,
         source_section=self.expected_slapos_organisation,
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+        specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
     )
     delivery_line_kw = dict(
         portal_type='Sale Packing List Line',
@@ -244,7 +246,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         resource='service_module/slapos_instance_subscription',
         source=self.expected_slapos_organisation,
         source_section=self.expected_slapos_organisation,
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+        specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         trade_phase='slapos/delivery',
         use='trade/sale',
         delivery_ratio=1.0
@@ -465,7 +467,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         price_currency='currency_module/EUR',
         source=self.expected_slapos_organisation,
         source_section=self.expected_slapos_organisation,
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition'
+        specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL
     )
     delivery_line_kw = dict(
         portal_type='Sale Packing List Line',
@@ -550,7 +552,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         resource='service_module/slapos_instance_subscription',
         source=self.expected_slapos_organisation,
         source_section=self.expected_slapos_organisation,
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+        specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         trade_phase='slapos/delivery',
         use='trade/sale',
         delivery_ratio=1.0
@@ -736,7 +738,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         price_currency='currency_module/EUR',
         source=self.expected_slapos_organisation,
         source_section=self.expected_slapos_organisation,
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+        specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
     )
     delivery_line_kw = dict(
         portal_type='Sale Packing List Line',
@@ -819,7 +821,7 @@ class TestSlapOSSaleInvoiceBuilder(TestSlapOSSalePackingListBuilder):
         resource='service_module/slapos_instance_subscription',
         source=self.expected_slapos_organisation,
         source_section=self.expected_slapos_organisation,
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+        specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         trade_phase='slapos/delivery',
         use='trade/sale',
         delivery_ratio=1.0
@@ -1043,7 +1045,7 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
       source_section=self.expected_slapos_organisation,
       price_currency='currency_module/EUR',
       resource='currency_module/EUR',
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
       created_by_builder=1
     )
     invoice_line_kw = dict(
@@ -1122,7 +1124,7 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
         resource='service_module/slapos_instance_subscription',
         source=self.expected_slapos_organisation,
         source_section=self.expected_slapos_organisation,
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+        specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         use='trade/sale',
     )
     invoice_rule_1 = simulation_movement_1.newContent(
@@ -1142,7 +1144,7 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
         delivery_ratio=1.,
         delivery_error=0.,
         price_currency='currency_module/EUR',
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+        specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         resource='service_module/slapos_tax',
         base_application='base_amount/invoicing/taxable',
         use='trade/tax',
@@ -1212,7 +1214,7 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
       resource='currency_module/EUR',
       source='account_module/receivable',
       source_section=self.expected_slapos_organisation,
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
       trade_phase='slapos/accounting',
       price=1.0,
       quantity=invoice_movement_1.getTotalPrice() * -1,
@@ -1232,7 +1234,7 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
       resource='currency_module/EUR',
       source='account_module/receivable',
       source_section=self.expected_slapos_organisation,
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
       trade_phase='slapos/accounting',
       price=1.0,
       quantity=invoice_movement_1.getTotalPrice(),
@@ -1253,7 +1255,7 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
       resource='currency_module/EUR',
       source='account_module/receivable',
       source_section=self.expected_slapos_organisation,
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
       trade_phase='slapos/accounting',
       price=1.0,
       quantity=trade_movement_1.getTotalPrice() * -1,
@@ -1272,7 +1274,7 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
       resource='currency_module/EUR',
       source='account_module/coll_vat',
       source_section=self.expected_slapos_organisation,
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
       trade_phase='slapos/accounting',
       price=1.0,
       quantity=trade_movement_1.getTotalPrice(),
@@ -1294,7 +1296,7 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
       resource='currency_module/EUR',
       source='account_module/receivable',
       source_section=self.expected_slapos_organisation,
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
       trade_phase='slapos/accounting',
       price=1.0,
       quantity=invoice_movement_2.getTotalPrice() * -1,
@@ -1311,7 +1313,7 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
       resource='currency_module/EUR',
       source='account_module/receivable',
       source_section=self.expected_slapos_organisation,
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
       trade_phase='slapos/accounting',
       price=1.0,
       quantity=invoice_movement_2.getTotalPrice(),
@@ -1332,7 +1334,7 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
       resource='currency_module/EUR',
       source='account_module/receivable',
       source_section=self.expected_slapos_organisation,
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
       trade_phase='slapos/accounting',
       price=1.0,
       quantity=trade_movement_2.getTotalPrice() * -1,
@@ -1348,7 +1350,7 @@ class TestSlapOSSaleInvoiceTransactionBuilder(TestSlapOSSalePackingListBuilder):
       resource='currency_module/EUR',
       source='account_module/coll_vat',
       source_section=self.expected_slapos_organisation,
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
       trade_phase='slapos/accounting',
       price=1.0,
       quantity=trade_movement_2.getTotalPrice(),
@@ -1546,7 +1548,7 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
       source_section=self.expected_slapos_organisation,
       price_currency='currency_module/EUR',
       resource='currency_module/EUR',
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
       created_by_builder=1
     )
     invoice_line_kw = dict(
@@ -1609,7 +1611,7 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
         resource='service_module/slapos_instance_subscription',
         source=self.expected_slapos_organisation,
         source_section=self.expected_slapos_organisation,
-        specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+        specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         use='trade/sale',
     )
     invoice_rule_1 = simulation_movement_1.newContent(
@@ -1649,7 +1651,7 @@ class TestSlapOSSaleInvoiceTransactionTradeModelBuilder(TestSlapOSSalePackingLis
       quantity_unit='unit/piece',
       source=self.expected_slapos_organisation,
       source_section=self.expected_slapos_organisation,
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
       portal_type='Simulation Movement',
     )
     model_rule_1 = invoice_movement_1.newContent(
@@ -1880,8 +1882,7 @@ class TestSlapOSAggregatedDeliveryBuilder(SlapOSTestCaseMixin):
         'price_currency/currency_module/EUR',
         'source/%s' % self.expected_slapos_organisation,
         'source_section/%s' % self.expected_slapos_organisation,
-        'specialise/sale_trade_condition_module/'
-            'slapos_aggregated_trade_condition'],
+        'specialise/%s' % AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL],
         built_delivery.getCategoryList())
     self.assertEqual(DateTime().earliestTime(), built_delivery.getStartDate())
     delivery_line_list = built_delivery.contentValues(

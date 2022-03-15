@@ -24,6 +24,9 @@ from zExceptions import Unauthorized
 from Products.ERP5Type.TransactionalVariable import getTransactionalVariable
 from DateTime import  DateTime
 
+AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL = 'sale_trade_condition_module/slapos_aggregated_trade_condition_v3'
+MARKER = ()
+
 class TestSubscriptionSkinsMixin(SlapOSTestCaseMixinWithAbort):
 
   def createNotificationMessage(self, reference,
@@ -42,31 +45,55 @@ class TestSubscriptionSkinsMixin(SlapOSTestCaseMixinWithAbort):
     notification_message.validate()
     return notification_message
 
-  def newSaleTradeCondition(self, **kw):
+  def newSaleTradeCondition(self, payment_mode='payzen',
+                            price_currency='currency_module/EUR', **kw):
     sale_trade_condition = self.portal.sale_trade_condition_module.newContent(
         portal_type='Sale Trade Condition',
         title="Test Sale Trade Condition %s" % self.new_id,
         reference="TESTSALETRADECONDITION-%s" % self.new_id,
+        payment_mode=payment_mode,
+        price_currency=price_currency,
+        source_value=self.slapos_organisation,
+        source_section_value=self.slapos_organisation,
+        specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         **kw
       )
+    sale_trade_condition.newContent(
+      portal_type="Sale Supply Line",
+      base_price=321,
+      resource='service_module/slapos_instance_subscription',
+    )
+    sale_trade_condition.newContent(
+      portal_type="Sale Supply Line",
+      base_price=123,
+      resource='service_module/slapos_reservation_fee_2',
+    )
+    sale_trade_condition.validate()
     self.tic()
     return sale_trade_condition
 
-  def newSubscriptionCondition(self, **kw):
+  def newSubscriptionCondition(self, specialise_value=MARKER, **kw):
+    if specialise_value is MARKER:
+      specialise_value = self.newSaleTradeCondition()
     subscription_condition = self.portal.subscription_condition_module.newContent(
         portal_type='Subscription Condition',
         title="Test Subscription Condition %s" % self.new_id,
         reference="TESTSUBSCRIPTIONCONDITION-%s" % self.new_id,
+        specialise_value=specialise_value,
         **kw
       )
+    subscription_condition.validate()
     self.tic()
     return subscription_condition
 
-  def newSubscriptionRequest(self, **kw):
+  def newSubscriptionRequest(self, specialise_value=MARKER, **kw):
+    if specialise_value is MARKER:
+      specialise_value = self.newSubscriptionCondition()
     subscription_request = self.portal.subscription_request_module.newContent(
         portal_type='Subscription Request',
         title="Test Subscription Request %s" % self.new_id,
         reference="TESTSUBSCRIPTIONREQUEST-%s" % self.new_id,
+        specialise_value=specialise_value,
         **kw
       )
     self.tic()
@@ -334,8 +361,8 @@ class TestSubscriptionRequest_applyCondition(TestSubscriptionSkinsMixin):
   def test_SubscriptionRequest_applyCondition_raises_unauthorized(self):
     self.assertRaises(Unauthorized, self.portal.SubscriptionRequest_applyCondition, REQUEST=self.portal.REQUEST)
 
-  def test_SubscriptionRequest_applyCondition_raises_if_no_subscription_request(self):
-    subscription_request = self.newSubscriptionRequest()
+  def test_SubscriptionRequest_applyCondition_raises_if_no_subscription_condition(self):
+    subscription_request = self.newSubscriptionRequest(specialise_value=None)
     self.assertRaises(ValueError, subscription_request.SubscriptionRequest_applyCondition)
 
   def test_SubscriptionRequest_applyCondition(self):
@@ -357,8 +384,6 @@ class TestSubscriptionRequest_applyCondition(TestSubscriptionSkinsMixin):
     price=99.9,
     price_currency="currency_module/EUR",
     source_reference="test_for_test_123")
-
-    subscription_condition.validate()
 
     subscription_request = self.newSubscriptionRequest(
       quantity=1, destination_section_value=person,
@@ -461,7 +486,7 @@ class TestSubscriptionRequest_requestPaymentTransaction(TestSubscriptionSkinsMix
                               quantity=1)
 
     self.assertEqual(None,
-      subscription_request.SubscriptionRequest_requestPaymentTransaction("xx", "en"))
+      subscription_request.SubscriptionRequest_requestPaymentTransaction("xx"))
 
   def _test_request_payment_transaction(self, quantity):
     email = "abc%s@nexedi.com" % self.new_id
@@ -475,7 +500,7 @@ class TestSubscriptionRequest_requestPaymentTransaction(TestSubscriptionSkinsMix
       default_email_text="abc%s@nexedi.com" % self.new_id)
 
     subscription_request.setQuantity(quantity)
-    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction("TAG", "en")
+    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction("TAG")
     self.tic()
     self.assertNotEqual(None, current_payment)
     self.assertEqual(current_payment.getTitle(), "Payment for Reservation Fee")
@@ -491,9 +516,9 @@ class TestSubscriptionRequest_requestPaymentTransaction(TestSubscriptionSkinsMix
 
     for line in current_payment.contentValues():
       if line.getSource() == "account_module/payment_to_encash":
-        self.assertEqual(line.getQuantity(), -30*quantity)
+        self.assertEqual(line.getQuantity(), -(123 * 1.2)*quantity)
       if line.getSource() == "account_module/receivable":
-        self.assertEqual(line.getQuantity(), 30*quantity)
+        self.assertEqual(line.getQuantity(), (123 * 1.2)*quantity)
 
   def _test_request_payment_transaction_chinese(self, quantity):
     email = "abc%s@nexedi.com" % self.new_id
@@ -504,9 +529,16 @@ class TestSubscriptionRequest_requestPaymentTransaction(TestSubscriptionSkinsMix
 
     subscription_request = self.newSubscriptionRequest(
       quantity=quantity, destination_section_value=person,
-      default_email_text="abc%s@nexedi.com" % self.new_id)
+      default_email_text="abc%s@nexedi.com" % self.new_id,
+      specialise_value=self.newSubscriptionCondition(
+        specialise_value=self.newSaleTradeCondition(
+          payment_mode='wechat',
+          price_currency='currency_module/CNY'
+        )
+      )
+    )
 
-    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction("TAG", "zh")
+    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction("TAG")
     self.tic()
     self.assertNotEqual(None, current_payment)
     self.assertEqual(current_payment.getTitle(), "Payment for Reservation Fee")
@@ -521,13 +553,13 @@ class TestSubscriptionRequest_requestPaymentTransaction(TestSubscriptionSkinsMix
 
     for line in current_payment.contentValues():
       if line.getSource() == "account_module/payment_to_encash":
-        self.assertEqual(line.getQuantity(), -189.88*quantity)
+        self.assertEqual(line.getQuantity(), -(123 * 1.01)*quantity)
       if line.getSource() == "account_module/receivable":
-        self.assertEqual(line.getQuantity(), 189.88*quantity)
+        self.assertEqual(line.getQuantity(), (123 * 1.01)*quantity)
 
   @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'price, tag, payment, template, REQUEST=None',"""assert REQUEST == None
 assert payment
-assert price == 25.0
+assert price == 123
 assert tag == 'TAG'
 assert template == context.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate()""")
   def test_request_payment_transaction_q1(self):
@@ -535,7 +567,7 @@ assert template == context.portal_preferences.getPreferredDefaultPrePaymentSubsc
 
   @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'price, tag, payment, template, REQUEST=None',"""assert REQUEST == None
 assert payment
-assert price == 25.0
+assert price == 123
 assert tag == 'TAG'
 assert template == context.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate()""")
   def test_request_payment_transaction_q2(self):
@@ -543,7 +575,7 @@ assert template == context.portal_preferences.getPreferredDefaultPrePaymentSubsc
 
   @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'price, tag, payment, template, REQUEST=None',"""assert REQUEST == None
 assert payment
-assert price == 25.0
+assert price == 123
 assert tag == 'TAG'
 assert template == context.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate()""")
   def test_request_payment_transaction_q10(self):
@@ -551,17 +583,17 @@ assert template == context.portal_preferences.getPreferredDefaultPrePaymentSubsc
 
   @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'price, tag, payment, template, REQUEST=None',"""assert REQUEST == None
 assert payment
-assert price == 188
+assert price == 123
 assert tag == 'TAG'
-assert template == context.portal_preferences.getPreferredZhPrePaymentSubscriptionInvoiceTemplate()""")
+assert template == context.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate()""")
   def test_request_payment_transaction_chinese_q1(self):
     self._test_request_payment_transaction_chinese(quantity=1)
 
   @simulate('SubscriptionRequest_createRelatedSaleInvoiceTransaction', 'price, tag, payment, template, REQUEST=None',"""assert REQUEST == None
 assert payment
-assert price == 188
+assert price == 123
 assert tag == 'TAG'
-assert template == context.portal_preferences.getPreferredZhPrePaymentSubscriptionInvoiceTemplate()""")
+assert template == context.portal_preferences.getPreferredDefaultPrePaymentSubscriptionInvoiceTemplate()""")
   def test_request_payment_transaction_chinese_q10(self):
     self._test_request_payment_transaction_chinese(quantity=10)
 
@@ -594,15 +626,18 @@ class TestSubscriptionRequest_createRelatedSaleInvoiceTransaction(TestSubscripti
     name = "Cous Cous %s" % self.new_id
 
     person, _ = self.portal.SubscriptionRequest_createUser(name=name, email=email)
-    self.tic()
+
+    subscription_condition = self.newSubscriptionCondition()
 
     subscription_request = self.newSubscriptionRequest(
       quantity=quantity, destination_section_value=person,
-      default_email_text="abc%s@nexedi.com" % self.new_id)
+      default_email_text="abc%s@nexedi.com" % self.new_id,
+      specialise_value=subscription_condition
+    )
 
     # The SubscriptionRequest_createRelatedSaleInvoiceTransaction is invoked up, as it proven on
     # test TestSubscriptionRequest_requestPaymentTransaction, so let's keep it simple, and just reinvoke
-    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction("TAG", "en")
+    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction("TAG")
 
     self.tic()
 
@@ -677,7 +712,6 @@ class SubscriptionRequest_processRequest(TestSubscriptionSkinsMixin):
 </instance>""",
     root_slave=False,
     source_reference="test_for_test_123")
-    subscription_condition.validate()
     subscription_request = self.newSubscriptionRequest(
       quantity=1, destination_section_value=person,
       specialise_value=subscription_condition
@@ -1058,7 +1092,6 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
     person = self.makePerson()
 
     subscription_condition = self.newSubscriptionCondition(
-      specialise='sale_trade_condition_module/slapos_subscription_trade_condition',
       url_string="https://%s/software.cfg" % self.new_id,
       sla_xml="""<?xml version="1.0" encoding="utf-8"?>
 <instance>
@@ -1072,7 +1105,6 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
 </instance>""",
     root_slave=False,
     source_reference="test_for_test_123")
-    subscription_condition.validate()
     subscription_request = self.newSubscriptionRequest(
       quantity=1, destination_section_value=person,
       specialise_value=subscription_condition
@@ -1154,7 +1186,6 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
     source_reference="test_for_test_123",
     specialise_value=self.newSaleTradeCondition()
     )
-    subscription_condition.validate()
     subscription_request = self.newSubscriptionRequest(
       quantity=1, destination_section_value=person,
       specialise_value=subscription_condition
@@ -1164,7 +1195,7 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
 
     # The SubscriptionRequest_createRelatedSaleInvoiceTransaction is invoked up, as it proven on
     # test TestSubscriptionRequest_requestPaymentTransaction, so let's keep it simple, and just reinvoke
-    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction("TAG", "en")
+    current_payment = subscription_request.SubscriptionRequest_requestPaymentTransaction("TAG")
     self.assertNotEqual(current_payment, None)
 
 
@@ -1238,7 +1269,6 @@ class TestSubscriptionRequest_processOrdered(TestSubscriptionSkinsMixin):
     source_reference="test_for_test_123",
     specialise_value=self.newSaleTradeCondition()
     )
-    subscription_condition.validate()
     subscription_request = self.newSubscriptionRequest(
       quantity=1, destination_section_value=person,
       specialise_value=subscription_condition

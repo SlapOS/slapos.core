@@ -98,7 +98,7 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>slapos_aggregated_subscription_trade_condition</string> </value>
+            <value> <string>slapos_aggregated_trade_condition</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -118,7 +118,7 @@
                 </tuple>
                 <state>
                   <tuple>
-                    <float>1622160000.0</float>
+                    <float>1647302400.0</float>
                     <string>UTC</string>
                   </tuple>
                 </state>
@@ -135,7 +135,7 @@
                 </tuple>
                 <state>
                   <tuple>
-                    <float>1647302400.0</float>
+                    <float>2524608000.0</float>
                     <string>UTC</string>
                   </tuple>
                 </state>
@@ -144,7 +144,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_aggregated_subscription_trade_condition</string> </value>
+            <value> <string>slapos_aggregated_trade_condition_v3</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -158,11 +158,11 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>SlapOS Aggregated Subscription Trade Condition (before 2022)</string> </value>
+            <value> <string>SlapOS Aggregated Trade Condition (after 2022)</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
-            <value> <string>002</string> </value>
+            <value> <string>003</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -294,7 +294,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>998.58069.32325.41352</string> </value>
+                      <value> <string>998.58249.36169.41489</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -312,7 +312,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1647348428.84</float>
+                              <float>1647349596.22</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -365,7 +365,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1636134432.35</float>
+                              <float>1647349045.12</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

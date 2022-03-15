@@ -27,8 +27,6 @@ from erp5.component.test.SlapOSTestCaseMixin import \
 from DateTime import DateTime
 from App.Common import rfc1123_date
 from Products.ERP5Type.Cache import DEFAULT_CACHE_SCOPE
-
-from Products.ERP5Type.tests.utils import createZODBPythonScript
 import json
 
 import feedparser
@@ -655,13 +653,6 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
   'assert reference == "slapos-crm-compute_node_allocation_scope.notification"\n' \
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_ComputeNodeNotAllowedAllocationScope_OpenPublic"])')
-  @simulate('SupportRequest_trySendNotificationMessage',
-            'message_title, message, destination_relative_url',
-  'context.portal_workflow.doActionFor(' \
-  'context, action="edit_action", ' \
-  'comment="Visited by SupportRequest_trySendNotificationMessage ' \
-  '%s %s %s" % (message_title, message, destination_relative_url))\n' \
-  'return 1')
   def test_ComputeNodeNotAllowedAllocationScope_OpenPublic(self):
     compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
     person = compute_node.getSourceAdministrationValue()
@@ -677,13 +668,14 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
     self.assertNotEqual(None, ticket)
     self.assertEqual(ticket.getSimulationState(), 'suspended')
 
-    self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \
-      '%s %s %s' % \
-      ('Allocation scope of %s changed to %s' % (compute_node.getReference(),
-                                                  'open/personal'),
-       'Test NM content\n%s\n' % compute_node.getReference(), person.getRelativeUrl()),
-      ticket.workflow_history['edit_workflow'][-1]['comment'])
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
 
+    self.assertEqual(event.getTitle(),
+      'Allocation scope of %s changed to %s' % (compute_node.getReference(), 'open/personal'))
+    self.assertIn(compute_node.getReference(), event.getTextContent())
+    self.assertEqual(event.getDestination(), person.getRelativeUrl())
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   @simulate('NotificationTool_getDocumentValue',
@@ -691,13 +683,6 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
   'assert reference == "slapos-crm-compute_node_allocation_scope.notification"\n' \
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_ComputeNodeNotAllowedAllocationScope_OpenFriend"])')
-  @simulate('SupportRequest_trySendNotificationMessage',
-            'message_title, message, destination_relative_url',
-  'context.portal_workflow.doActionFor(' \
-  'context, action="edit_action", ' \
-  'comment="Visited by SupportRequest_trySendNotificationMessage ' \
-  '%s %s %s" % (message_title, message, destination_relative_url))\n' \
-  'return 1')
   def test_ComputeNodeNotAllowedAllocationScope_OpenFriend(self):
     compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
     person = compute_node.getSourceAdministrationValue()
@@ -712,12 +697,15 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
     self.tic()
     self.assertEqual(compute_node.getAllocationScope(), 'open/personal')
     self.assertEqual(ticket.getSimulationState(), 'suspended')
-    self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \
-      '%s %s %s' % \
-      ('Allocation scope of %s changed to %s' % (compute_node.getReference(),
-                                                  'open/personal'),
-       'Test NM content\n%s\n' % compute_node.getReference(), person.getRelativeUrl()),
-      ticket.workflow_history['edit_workflow'][-1]['comment'])
+
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertEqual(event.getTitle(),
+      'Allocation scope of %s changed to %s' % (compute_node.getReference(), 'open/personal'))
+    self.assertIn(compute_node.getReference(), event.getTextContent())
+    self.assertEqual(event.getDestination(), person.getRelativeUrl())
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   @simulate('ComputeNode_hasContactedRecently', '*args, **kwargs','return False')
@@ -726,13 +714,6 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
   'assert reference == "slapos-crm-compute-node-allocation-scope-closed.notification"\n' \
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_ComputeNodeToCloseAllocationScope_OpenPersonal"])')
-  @simulate('SupportRequest_trySendNotificationMessage',
-            'message_title, message, destination_relative_url',
-  'context.portal_workflow.doActionFor(' \
-  'context, action="edit_action", ' \
-  'comment="Visited by SupportRequest_trySendNotificationMessage ' \
-  '%s %s %s" % (message_title, message, destination_relative_url))\n' \
-  'return 1')
   def test_ComputeNodeToCloseAllocationScope_OpenPersonal(self):
     compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
     person = compute_node.getSourceAdministrationValue()
@@ -747,12 +728,16 @@ class TestSlapOSComputeNode_notifyWrongAllocationScope(TestCRMSkinsMixin):
 
     self.assertEqual('suspended', support_request.getSimulationState())
     self.assertEqual(compute_node.getAllocationScope(), target_allocation_scope)
-    self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \
-      '%s %s %s' % \
-      ('Allocation scope of %s changed to %s' % (compute_node.getReference(),
-                                                  target_allocation_scope),
-       'Test NM content\n%s\n' % compute_node.getReference(), person.getRelativeUrl()),
-      support_request.workflow_history['edit_workflow'][-1]['comment'])
+    
+    event_list = support_request.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertEqual(event.getTitle(),
+      'Allocation scope of %s changed to %s' % \
+        (compute_node.getReference(), target_allocation_scope))
+    self.assertIn(compute_node.getReference(), event.getTextContent())
+    self.assertEqual(event.getDestination(), person.getRelativeUrl())
 
   def test_ComputeNodeNormalAllocationScope_OpenPersonal(self):
     compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
@@ -988,189 +973,6 @@ class TestSlapOSisSupportRequestCreationClosed(TestCRMSkinsMixin):
     self.assertFalse(self.portal.ERP5Site_isSupportRequestCreationClosed())
 
 
-class TestSlapOSGenerateSupportRequestForSlapOS(TestCRMSkinsMixin):
-
-  def afterSetUp(self):
-    TestCRMSkinsMixin.afterSetUp(self)
-    self.tic()
-    self._cancelTestSupportRequestList()
-
-  def test_compute_node_Base_generateSupportRequestForSlapOS(self):
-    self._makeComputeNode()
-    title = "Test Support Request %s" % self.compute_node.getReference()
-    support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
-      title, title, self.compute_node.getRelativeUrl()
-    )
-    self.tic()
-
-    self.assertNotEqual(support_request, None)
-
-    self.assertEqual(support_request.getSimulationState(), "validated")
-    self.assertEqual(support_request.getRelativeUrl(),
-      self.portal.REQUEST.get("support_request_in_progress", None))
-
-    # The support request is added to compute_node owner.
-    self.assertEqual(support_request.getDestinationDecision(),
-                      self.compute_node.getSourceAdministration())
-    self.assertEqual(support_request.getTitle(), title)
-    self.assertEqual(support_request.getDescription(), title)
-    self.assertEqual(support_request.getAggregateValue(),
-                      self.compute_node)
-
-  def test_software_instance_Base_generateSupportRequestForSlapOS(self):
-    instance_tree = self._makeInstanceTree()
-    self._makeSoftwareInstance(instance_tree,
-                               self.generateNewSoftwareReleaseUrl())
-
-    instance = instance_tree.getSuccessorValue()
-    title = "Test Support Request %s" % instance.getReference()
-    support_request = instance.Base_generateSupportRequestForSlapOS(
-      title, title, instance.getRelativeUrl()
-    )
-    self.tic()
-
-    self.assertNotEqual(support_request, None)
-
-    self.assertEqual(support_request.getSimulationState(), "validated")
-    self.assertEqual(support_request.getRelativeUrl(),
-      self.portal.REQUEST.get("support_request_in_progress", None))
-
-    # The support request is added to compute_node owner.
-    self.assertEqual(support_request.getDestinationDecision(),
-                      instance_tree.getDestinationSection())
-    self.assertEqual(support_request.getTitle(), title)
-    self.assertEqual(support_request.getDescription(), title)
-    self.assertEqual(support_request.getAggregateValue(),
-                      instance)
-
-  def test_instance_tree_Base_generateSupportRequestForSlapOS(self):
-    instance_tree = self._makeInstanceTree()
-
-    title = "Test Support Request %s" % instance_tree.getReference()
-    support_request = instance_tree.Base_generateSupportRequestForSlapOS(
-      title, title, instance_tree.getRelativeUrl()
-    )
-    self.tic()
-
-    self.assertNotEqual(support_request, None)
-
-    self.assertEqual(support_request.getSimulationState(), "validated")
-    self.assertEqual(support_request.getRelativeUrl(),
-      self.portal.REQUEST.get("support_request_in_progress", None))
-
-    # The support request is added to compute_node owner.
-    self.assertEqual(support_request.getDestinationDecision(),
-                      instance_tree.getDestinationSection())
-
-    self.assertEqual(support_request.getTitle(), title)
-    self.assertEqual(support_request.getDescription(), title)
-    self.assertEqual(support_request.getAggregateValue(),
-                      instance_tree)
-
-  def test_software_installation_Base_generateSupportRequestForSlapOS(self):
-    software_installation = self._makeSoftwareInstallation()
-
-    title = "Test Support Request %s" % software_installation.generateNewId()
-    support_request = software_installation.Base_generateSupportRequestForSlapOS(
-      title, title, software_installation.getRelativeUrl()
-    )
-    self.tic()
-
-    self.assertNotEqual(support_request, None)
-
-    self.assertEqual(support_request.getSimulationState(), "validated")
-    self.assertEqual(support_request.getRelativeUrl(),
-      self.portal.REQUEST.get("support_request_in_progress", None))
-
-    # The support request is added to compute_node owner.
-    self.assertEqual(support_request.getDestinationDecision(),
-                      software_installation.getDestinationSection())
-
-    self.assertEqual(support_request.getTitle(), title)
-    self.assertEqual(support_request.getDescription(), title)
-    self.assertEqual(support_request.getAggregateValue(),
-                      software_installation)
-
-
-  def test_Base_generateSupportRequestForSlapOS_do_not_recreate_if_open(self):
-    self._makeComputeNode(owner=self.makePerson(user=0))
-    title = "Test Support Request %s" % self.compute_node.getReference()
-    support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
-      title, title, self.compute_node.getRelativeUrl()
-    )
-    self.tic()
-    self.portal.REQUEST.set("support_request_in_progress", None)
-
-    same_support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
-      title, title, self.compute_node.getRelativeUrl()
-    )
-
-    self.assertEqual(support_request, same_support_request)
-
-
-  def test_Base_generateSupportRequestForSlapOS_do_not_recreate_if_suspended(self):
-    self._makeComputeNode(owner=self.makePerson(user=0))
-    title = "Test Support Request %s" % self.compute_node.getReference()
-    support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
-      title, title, self.compute_node.getRelativeUrl()
-    )
-
-    support_request.suspend()
-    self.tic()
-    self.portal.REQUEST.set("support_request_in_progress", None)
-
-    same_support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
-      title, title, self.compute_node.getRelativeUrl()
-    )
-
-    self.assertEqual(support_request, same_support_request)
-
-  def test_Base_generateSupportRequestForSlapOS_recreate_if_closed(self):
-    self._makeComputeNode(owner=self.makePerson(user=0))
-    title = "Test Support Request %s" % self.compute_node.getReference()
-    support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
-      title, title, self.compute_node.getRelativeUrl())
-    self.tic()
-
-    support_request.invalidate()
-    self.tic()
-
-    self.portal.REQUEST.set("support_request_in_progress", None)
-
-    support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
-      title, title, self.compute_node.getRelativeUrl()
-    )
-    self.tic()
-
-    self.assertNotEqual(support_request, None)
-
-  def test_Base_generateSupportRequestForSlapOS_recreate(self):
-    self._makeComputeNode(owner=self.makePerson(user=0))
-    title = "Test Support Request %s" % self.compute_node.getRelativeUrl()
-    support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
-      title, title, self.compute_node.getRelativeUrl())
-
-    same_support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
-      title, title, self.compute_node.getRelativeUrl()
-    )
-
-    self.assertEqual(support_request, same_support_request)
-
-  def test_Base_generateSupportRequestForSlapOS_inprogress(self):
-    self._makeComputeNode(owner=self.makePerson(user=0))
-    title = "Test Support Request %s" % self.compute_node.getRelativeUrl()
-    support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
-      title, title, self.compute_node.getRelativeUrl())
-
-    in_progress = support_request.getRelativeUrl()
-    self.portal.REQUEST.set("support_request_in_progress", in_progress)
-
-    title = "Test Support Request %s" % self.compute_node.getRelativeUrl()
-    support_request = self.compute_node.Base_generateSupportRequestForSlapOS(
-      title, title, self.compute_node.getRelativeUrl())
-
-    self.assertEqual(support_request.getRelativeUrl(), in_progress)
-
 class TestSlapOSComputeNode_CheckState(TestCRMSkinsMixin):
 
   def beforeTearDown(self):
@@ -1180,11 +982,6 @@ class TestSlapOSComputeNode_CheckState(TestCRMSkinsMixin):
   def afterSetUp(self):
     TestCRMSkinsMixin.afterSetUp(self)
     self._cancelTestSupportRequestList("% TESTCOMPT-%")
-
-  def _makeSupportRequest(self):
-    return self.portal.restrictedTraverse(
-        self.portal.portal_preferences.getPreferredSupportRequestTemplate()).\
-       Base_createCloneDocument(batch_mode=1)
 
   def _makeNotificationMessage(self, reference):
     notification_message = self.portal.notification_message_module.newContent(
@@ -1205,56 +1002,36 @@ class TestSlapOSComputeNode_CheckState(TestCRMSkinsMixin):
     )
     return support_request
 
-  def _simulateBase_generateSupportRequestForSlapOS(self):
-    script_name = 'Base_generateSupportRequestForSlapOS'
-    if script_name in self.portal.portal_skins.custom.objectIds():
-      raise ValueError('Precondition failed: %s exists in custom' % script_name)
-    createZODBPythonScript(self.portal.portal_skins.custom,
-      script_name,
-      '*args, **kw',
-      '# Script body\n'
-"""return context.getPortalObject().REQUEST['_simulateBase_generateSupportRequestForSlapOS']""")
-    transaction.commit()
-
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   def test_ComputeNode_checkState_call_support_request(self):
     compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
     try:
-      self.pinDateTime(DateTime()-1.1)
+      d = DateTime() - 1.1
+      self.pinDateTime(d)
       compute_node.setAccessStatus("#access ")
     finally:
       self.unpinDateTime()
 
-    self._simulateBase_generateSupportRequestForSlapOS()
-    support_request = self._makeSupportRequest()
-    self.portal.REQUEST.set('_simulateBase_generateSupportRequestForSlapOS',
-                               support_request)
-
-    try:
-      compute_node_support_request = compute_node.ComputeNode_checkState()
-    finally:
-      self._dropScript("Base_generateSupportRequestForSlapOS")
-
-    self.assertEqual(support_request,
-      compute_node_support_request)
-
+    compute_node_support_request = compute_node.ComputeNode_checkState()
+    self.assertNotEqual(compute_node_support_request, None)
+    self.assertIn("[MONITORING] Lost contact with compute_node",
+      compute_node_support_request.getTitle())
+    self.assertIn("has not contacted the server for more than 30 minutes",
+      compute_node_support_request.getDescription())
+    self.assertIn(d.strftime("%Y/%m/%d %H:%M:%S"),
+      compute_node_support_request.getDescription())
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   def test_ComputeNode_checkState_empty_cache(self):
     compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
-
-    self._simulateBase_generateSupportRequestForSlapOS()
-    support_request = self._makeSupportRequest()
-    self.portal.REQUEST.set('_simulateBase_generateSupportRequestForSlapOS',
-                               support_request)
-
-    try:
-      compute_node_support_request = compute_node.ComputeNode_checkState()
-    finally:
-      self._dropScript("Base_generateSupportRequestForSlapOS")
-
-    self.assertEqual(support_request,
-      compute_node_support_request)
+    compute_node_support_request = compute_node.ComputeNode_checkState()
+    
+    compute_node_support_request = compute_node.ComputeNode_checkState()
+    self.assertNotEqual(compute_node_support_request, None)
+    self.assertIn("[MONITORING] Lost contact with compute_node",
+      compute_node_support_request.getTitle())
+    self.assertIn("has not contacted the server (No Contact Information)",
+      compute_node_support_request.getDescription())
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   @simulate('NotificationTool_getDocumentValue',
@@ -1262,12 +1039,6 @@ class TestSlapOSComputeNode_CheckState(TestCRMSkinsMixin):
   'assert reference == "slapos-crm-compute_node_check_state.notification"\n' \
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_ComputeNode_checkState_notify"])')
-  @simulate('SupportRequest_trySendNotificationMessage',
-            'message_title, message, destination_relative_url',
-  'context.portal_workflow.doActionFor(' \
-  'context, action="edit_action", ' \
-  'comment="Visited by SupportRequest_trySendNotificationMessage ' \
-  '%s %s %s" % (message_title, message, destination_relative_url))')
   def test_ComputeNode_checkState_notify(self):
     compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
     person = compute_node.getSourceAdministrationValue()
@@ -1286,14 +1057,15 @@ class TestSlapOSComputeNode_CheckState(TestCRMSkinsMixin):
 
     ticket_title = "[MONITORING] Lost contact with compute_node %s" % compute_node.getReference()
     ticket = self._getGeneratedSupportRequest(compute_node.getUid(), ticket_title)
-    self.assertNotEqual(ticket, None)
-    self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \
-      '%s %s %s' % ( \
-      ticket_title,
-      'Test NM content\n%s\n' % compute_node.getReference(),
-      person.getRelativeUrl()),
-      ticket.workflow_history['edit_workflow'][-1]['comment'])
 
+    self.assertNotEqual(ticket, None)
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertEqual(event.getTitle(), ticket.getTitle())
+    self.assertIn(compute_node.getReference(), event.getTextContent())
+    self.assertEqual(event.getDestination(), person.getRelativeUrl())
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '*args, **kwargs','return 0')
   @simulate('NotificationTool_getDocumentValue',
@@ -1301,12 +1073,6 @@ class TestSlapOSComputeNode_CheckState(TestCRMSkinsMixin):
   'assert reference == "slapos-crm-compute_node_check_state.notification"\n' \
   'return context.restrictedTraverse(' \
   'context.REQUEST["test_ComputeNode_checkState_empty_cache_notify"])')
-  @simulate('SupportRequest_trySendNotificationMessage',
-            'message_title, message, destination_relative_url',
-  'context.portal_workflow.doActionFor(' \
-  'context, action="edit_action", ' \
-  'comment="Visited by SupportRequest_trySendNotificationMessage ' \
-  '%s %s %s" % (message_title, message, destination_relative_url))')
   def test_ComputeNode_checkState_empty_cache_notify(self):
     compute_node = self._makeComputeNode(owner=self.makePerson(user=0))[0]
     person = compute_node.getSourceAdministrationValue()
@@ -1320,13 +1086,13 @@ class TestSlapOSComputeNode_CheckState(TestCRMSkinsMixin):
     ticket_title = "[MONITORING] Lost contact with compute_node %s" % compute_node.getReference()
     ticket = self._getGeneratedSupportRequest(compute_node.getUid(), ticket_title)
     self.assertNotEqual(ticket, None)
-    self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \
-      '%s %s %s' % ( \
-      ticket_title,
-      'Test NM content\n%s\n' % compute_node.getReference(),
-      person.getRelativeUrl()),
-      ticket.workflow_history['edit_workflow'][-1]['comment'])
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
 
+    self.assertEqual(event.getTitle(), ticket.getTitle())
+    self.assertIn(compute_node.getReference(), event.getTextContent())
+    self.assertEqual(event.getDestination(), person.getRelativeUrl())
 
 class TestSlapOSInstanceTree_createSupportRequestEvent(SlapOSTestCaseMixin):
 
@@ -1341,8 +1107,7 @@ class TestSlapOSInstanceTree_createSupportRequestEvent(SlapOSTestCaseMixin):
     return notification_message.getRelativeUrl()
 
   def _makeInstanceTree(self):
-    person = self.portal.person_module.template_member\
-         .Base_createCloneDocument(batch_mode=1)
+    person = self.makePerson(user=1)
     instance_tree = self.portal\
       .instance_tree_module.template_instance_tree\
       .Base_createCloneDocument(batch_mode=1)
@@ -1371,12 +1136,6 @@ class TestSlapOSInstanceTree_createSupportRequestEvent(SlapOSTestCaseMixin):
   'assert reference == "test-slapos-crm-check.notification"\n' \
   'return context.restrictedTraverse(' \
   'context.REQUEST["testInstanceTree_createSupportRequestEvent"])')
-  @simulate('SupportRequest_trySendNotificationMessage',
-            'message_title, message, destination_relative_url',
-  'context.portal_workflow.doActionFor(' \
-  'context, action="edit_action", ' \
-  'comment="Visited by SupportRequest_trySendNotificationMessage ' \
-  '%s %s %s" % (message_title, message, destination_relative_url))')
   def testInstanceTree_createSupportRequestEvent(self):
     instance_tree = self._makeInstanceTree()
     person =  instance_tree.getDestinationSectionValue()
@@ -1392,12 +1151,14 @@ class TestSlapOSInstanceTree_createSupportRequestEvent(SlapOSTestCaseMixin):
       instance_tree.getUid())
     self.assertNotEqual(ticket, None)
     self.assertEqual(ticket.getSimulationState(), "validated")
-    self.assertEqual('Visited by SupportRequest_trySendNotificationMessage ' \
-      '%s %s %s' % ( \
-      ticket_title,
-      'Test NM content\n%s\n' % instance_tree.getReference(),
-      person.getRelativeUrl()),
-      ticket.workflow_history['edit_workflow'][-1]['comment'])
+    self.assertNotEqual(ticket, None)
+    event_list = ticket.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertEqual(event.getTitle(), ticket_title)
+    self.assertIn(instance_tree.getReference(), event.getTextContent())
+    self.assertEqual(event.getDestination(), person.getRelativeUrl())
 
     ticket.suspend()
     self.tic()
@@ -1734,95 +1495,6 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
         None,
         instance_tree.InstanceTree_checkSoftwareInstanceState())
 
-class TestSupportRequestTrySendNotificationMessage(SlapOSTestCaseMixin):
-
-  def test_SupportRequest_trySendNotificationMessage(self):
-    self._makeComputeNode(owner=self.makePerson(user=0))
-    person = self.compute_node.getSourceAdministrationValue()
-    title = "Test Support Request %s" % self.compute_node.getReference()
-    text_content='Test NM content<br/>%s<br/>' % self.compute_node.getReference()
-
-    support_request = self.portal.support_request_module.newContent(\
-            title=title, description=title,
-            destination_decision=self.compute_node.getSourceAdministration(),
-            aggregate_value=self.compute_node.getRelativeUrl())
-    support_request.validate()
-    self.tic()
-
-    first_event = support_request.SupportRequest_trySendNotificationMessage(
-      message_title=title, message=text_content,
-      destination_relative_url=person.getRelativeUrl()
-    )
-    self.assertNotEqual(first_event, None)
-
-    self.tic()
-    self.assertEqual(
-      support_request.getFollowUpRelatedList(),
-      [first_event.getRelativeUrl()])
-
-    self.assertEqual(title, first_event.getTitle())
-    self.assertEqual(text_content, first_event.getTextContent())
-    self.assertNotEqual(None, first_event.getStartDate())
-    self.assertEqual("service_module/slapos_crm_information",
-                      first_event.getResource())
-    self.assertEqual(first_event.getDestination(), person.getRelativeUrl())
-    self.assertEqual(first_event.getFollowUp(), support_request.getRelativeUrl())
-
-    event = support_request.SupportRequest_trySendNotificationMessage(
-      message_title=title, message=text_content,
-      destination_relative_url=person.getRelativeUrl()
-    )
-    self.assertEqual(event, first_event)
-
-    self.assertEqual(title, event.getTitle())
-    self.assertEqual(text_content, event.getTextContent())
-    self.assertNotEqual(None, event.getStartDate())
-    self.assertEqual("service_module/slapos_crm_information",
-                      event.getResource())
-    self.assertEqual(event.getDestination(), person.getRelativeUrl())
-
-    title += "__zz"
-    event = support_request.SupportRequest_trySendNotificationMessage(
-      message_title=title, message=text_content,
-      destination_relative_url=person.getRelativeUrl(),
-    )
-
-    self.assertEqual(event.getTitle(), title)
-    self.assertEqual(text_content, event.getTextContent())
-    self.assertNotEqual(None, event.getStartDate())
-    self.assertEqual("service_module/slapos_crm_information",
-                      event.getResource())
-    self.assertEqual(event.getDestination(), person.getRelativeUrl())
-
-    another_support_request = self.portal.support_request_module.newContent(\
-            title=title, description=title,
-            destination_decision=self.compute_node.getSourceAdministration(),
-            aggregate_value=self.compute_node.getRelativeUrl())
-    another_support_request.validate()
-    self.tic()
-
-    another_first_event = \
-      another_support_request.SupportRequest_trySendNotificationMessage(
-        message_title=title, message=text_content,
-        destination_relative_url=person.getRelativeUrl())
-
-    self.assertNotEqual(another_first_event, None)
-
-    self.tic()
-    self.assertEqual(
-      another_support_request.getFollowUpRelatedList(),
-      [another_first_event.getRelativeUrl()])
-
-    self.assertEqual(title, another_first_event.getTitle())
-    self.assertEqual(text_content, another_first_event.getTextContent())
-    self.assertNotEqual(None, another_first_event.getStartDate())
-    self.assertEqual("service_module/slapos_crm_information",
-                      another_first_event.getResource())
-    self.assertEqual(another_first_event.getDestination(), person.getRelativeUrl())
-    self.assertEqual(another_first_event.getFollowUp(),
-     another_support_request.getRelativeUrl())
-
-
 class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
 
   def _makeInstanceTree(self):
@@ -1873,10 +1545,6 @@ class TestSupportRequestUpdateMonitoringState(SlapOSTestCaseMixin):
       support_request.SupportRequest_updateMonitoringState())
 
   @simulate('ERP5Site_isSupportRequestCreationClosed', '','return 0')
-  @simulate('SupportRequest_trySendNotificationMessage',
-            "message_title, message, source_relative_url",
-     """assert "destroyed" in message
-return "Visited by SupportRequest_trySendNotificationMessage %s %s" % (message_title, source_relative_url)""")
   def testSupportRequest_updateMonitoringDestroyRequestedState(self):
     support_request = self._makeSupportRequest()
     self.assertEqual(None,
@@ -1887,19 +1555,28 @@ return "Visited by SupportRequest_trySendNotificationMessage %s %s" % (message_t
 
     support_request.setAggregateValue(
       self._makeComputeNode(owner=self.makePerson(user=0))[0])
+    support_request.setDestinationDecisionValue(self.makePerson(user=0))
     self.assertEqual(None,
       support_request.SupportRequest_updateMonitoringDestroyRequestedState())
 
     hs = self._makeInstanceTree()
     support_request.setAggregateValue(hs)
 
+    self.tic()
+
     hs.getSlapState = getFakeSlapState
     self.commit()
 
-    support_request.setDestinationDecisionValue(self.makePerson(user=0))
-    expected_text = """Visited by SupportRequest_trySendNotificationMessage Instance Tree was destroyed was destroyed by the user %s""" % support_request.getDestinationDecision()
-    self.assertEqual(expected_text,
+    self.assertNotEqual(None,
       support_request.SupportRequest_updateMonitoringDestroyRequestedState())
+
+    self.tic()
+    event_list = support_request.getFollowUpRelatedValueList()
+    self.assertEqual(len(event_list), 1)
+    event = event_list[0]
+
+    self.assertEqual(event.getTitle(), 'Instance Tree was destroyed was destroyed by the user')
+    self.assertEqual(event.getDestination(), support_request.getDestinationDecision())
 
     self.assertEqual("invalidated",
       support_request.getSimulationState())

@@ -1253,3 +1253,208 @@ class TestSlapOSCorePersonRequestToken(SlapOSTestCaseMixin):
     self.assertEqual(
       token.getPortalType(), "One Time Restricted Access Token")
     self.assertEqual(token.getUrlMethod(), "POST")
+
+
+
+class TestSlapOSCorePersonNotify(SlapOSTestCaseMixin):
+
+  def afterSetUp(self):
+    SlapOSTestCaseMixin.afterSetUp(self)
+    self.person = self.makePerson()
+    self.tic()
+
+  def beforeTearDown(self):
+    pass
+  
+  def test_Person_notify_mandatory_argument(self):
+    self.assertRaises(TypeError, self.person.notify)
+    self.assertRaises(TypeError, self.person.notify, support_request_title="a")
+    self.assertRaises(TypeError, self.person.notify, support_request_title="a", support_request_description="b")
+
+  def test_Person_notify_unknown_aggregate(self):
+    self.assertRaises(KeyError, self.person.notify,
+     support_request_title="a", support_request_description="b", aggregate="c")
+
+  def test_Person_notify_computer_node(self):
+    compute_node, _ = self._makeComputeNode()
+    self._test_Person_notify(compute_node)
+
+  def test_Person_notify_instance_tree(self):
+    person = self.portal.person_module.template_member\
+         .Base_createCloneDocument(batch_mode=1)
+    instance_tree = self.portal\
+      .instance_tree_module.template_instance_tree\
+      .Base_createCloneDocument(batch_mode=1)
+    instance_tree.validate()
+    new_id = self.generateNewId()
+    instance_tree.edit(
+        title= "Test hosting sub ticket %s" % new_id,
+        reference="TESTHST-%s" % new_id,
+        destination_section_value=person
+    )
+    self._test_Person_notify(instance_tree)
+
+  def test_Person_notify_software_installation(self):
+    self._makeComputeNode()
+    software_installation = self.portal\
+       .software_installation_module.template_software_installation\
+       .Base_createCloneDocument(batch_mode=1)
+    software_installation.edit(
+       url_string=self.generateNewSoftwareReleaseUrl(),
+       aggregate=self.compute_node.getRelativeUrl(),
+       reference='TESTSOFTINSTS-%s' % self.generateNewId(),
+       title='Start requested for %s' % self.compute_node.getUid()
+     )
+    software_installation.validate()
+    software_installation.requestStart()
+    self._test_Person_notify(software_installation)
+
+  def _test_Person_notify(self, aggregate_value):
+
+    # Step 1: Notify
+    self.person.notify(
+      support_request_title="A",
+      support_request_description="B",
+      aggregate=aggregate_value.getRelativeUrl()
+    )
+
+    # Step 2: Check return
+    support_request_relative_url = self.person.REQUEST.get(
+       "support_request_relative_url", None) 
+    self.assertNotEqual(None, support_request_relative_url)
+    support_request_in_progress = self.person.REQUEST.get(
+      "support_request_in_progress", None) 
+    self.assertEqual(support_request_in_progress, support_request_relative_url)
+
+    support_request = self.portal.restrictedTraverse(support_request_in_progress)
+    self.assertEqual(support_request.getSimulationState(),
+                     "validated")
+    self.assertEqual(support_request.getTitle(), "A")
+    self.assertEqual(support_request.getDescription(), "B")
+    self.assertNotEqual(support_request.getStartDate(), None)
+    self.assertEqual(support_request.getDestinationDecision(),
+      self.person.getRelativeUrl())
+    self.assertEqual(support_request.getAggregateValue(),
+      aggregate_value)
+    self.assertEqual(support_request.getResource(),
+      "service_module/slapos_crm_monitoring")
+
+    # Step 3: Reset REQUEST and check in progress before catalog
+    self.person.REQUEST.set(
+       "support_request_relative_url", None)
+    support_request_relative_url = self.person.REQUEST.get(
+       "support_request_relative_url", None) 
+    self.assertEqual(None, support_request_relative_url)
+
+    self.person.notify(
+      support_request_title="A",
+      support_request_description="B",
+      aggregate=aggregate_value.getRelativeUrl()
+    )
+
+    support_request_relative_url = self.person.REQUEST.get(
+       "support_request_relative_url", None) 
+    self.assertNotEqual(None, support_request_relative_url)
+ 
+    self.assertEqual(support_request_in_progress, support_request_relative_url)
+
+    self.tic()
+
+    # Step 4: Reset parameters and check if the support request is got again.
+    self.person.REQUEST.set(
+       "support_request_relative_url", None)
+    support_request_relative_url = self.person.REQUEST.get(
+       "support_request_relative_url", None) 
+    self.assertEqual(None, support_request_relative_url)
+    support_request_in_progress = self.person.REQUEST.set(
+      "support_request_in_progress", None)
+    support_request_in_progress = self.person.REQUEST.set(
+      "support_request_in_progress", None) 
+    self.assertEqual(support_request_in_progress, None)
+
+    self.commit()
+    self.person.notify(
+      support_request_title="A",
+      support_request_description="B",
+      aggregate=aggregate_value.getRelativeUrl()
+    )
+
+    support_request_relative_url = self.person.REQUEST.get(
+       "support_request_relative_url", None) 
+    self.assertNotEqual(None, support_request_relative_url)
+    support_request_in_progress = self.person.REQUEST.get(
+      "support_request_in_progress", None) 
+    self.assertEqual(support_request_in_progress, support_request_relative_url)
+  
+    # Check if it is the same Support Request as before
+    self.assertEqual(support_request.getRelativeUrl(),
+      support_request_relative_url)
+
+    # Step 5: Retry the same thing, but now on suspended state
+    support_request.suspend()
+
+    self.tic()
+    self.person.REQUEST.set(
+       "support_request_relative_url", None)
+    support_request_relative_url = self.person.REQUEST.get(
+       "support_request_relative_url", None) 
+    self.assertEqual(None, support_request_relative_url)
+    support_request_in_progress = self.person.REQUEST.set(
+      "support_request_in_progress", None)
+    support_request_in_progress = self.person.REQUEST.set(
+      "support_request_in_progress", None) 
+    self.assertEqual(support_request_in_progress, None)
+
+    self.commit()
+    self.person.notify(
+      support_request_title="A",
+      support_request_description="B",
+      aggregate=aggregate_value.getRelativeUrl()
+    )
+
+    support_request_relative_url = self.person.REQUEST.get(
+       "support_request_relative_url", None) 
+    self.assertNotEqual(None, support_request_relative_url)
+    support_request_in_progress = self.person.REQUEST.get(
+      "support_request_in_progress", None) 
+    self.assertEqual(support_request_in_progress, support_request_relative_url)
+  
+
+    # Check if it is the same Support Request as before and still suspended
+    self.assertEqual(support_request.getRelativeUrl(),
+      support_request_relative_url)
+    self.assertEqual(support_request.getSimulationState(), "suspended")
+
+    # Step 6: If the support request is closed, create indeed a new one.
+    support_request.invalidate()
+    self.tic()
+
+    self.person.REQUEST.set("support_request_relative_url", None)
+    support_request_relative_url = self.person.REQUEST.get(
+       "support_request_relative_url", None) 
+    self.assertEqual(None, support_request_relative_url)
+    support_request_in_progress = self.person.REQUEST.set(
+      "support_request_in_progress", None)
+    support_request_in_progress = self.person.REQUEST.set(
+      "support_request_in_progress", None) 
+    self.assertEqual(support_request_in_progress, None)
+
+    self.commit()
+    self.person.notify(
+      support_request_title="A",
+      support_request_description="B",
+      aggregate=aggregate_value.getRelativeUrl()
+    )
+
+    support_request_relative_url = self.person.REQUEST.get(
+       "support_request_relative_url", None) 
+    self.assertNotEqual(None, support_request_relative_url)
+    support_request_in_progress = self.person.REQUEST.get(
+      "support_request_in_progress", None) 
+    self.assertEqual(support_request_in_progress, support_request_relative_url)
+
+    # Check if it is the another Support Request
+    self.assertEqual(support_request.getSimulationState(), "invalidated")
+
+    self.assertNotEqual(support_request.getRelativeUrl(),
+      support_request_relative_url)

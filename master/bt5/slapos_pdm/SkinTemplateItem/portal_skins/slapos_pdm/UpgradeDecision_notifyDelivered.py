@@ -12,9 +12,10 @@ person = context.getDestinationDecisionValue(portal_type="Person")
 if not person:
   raise ValueError("Inconsistent Upgrade Decision, No Destination Decision")
 
-instance_tree = context.UpgradeDecision_getInstanceTree()
-compute_node = context.UpgradeDecision_getComputeNode()
-software_release = context.UpgradeDecision_getSoftwareRelease()
+
+instance_tree = context.UpgradeDecision_getAggregateValue("Instance Tree")
+compute_node = context.UpgradeDecision_getAggregateValue("Compute Node")
+software_release = context.UpgradeDecision_getAggregateValue("Software Release")
 software_product_title = software_release.getAggregateTitle(
                                portal_type="Software Product")
 
@@ -51,8 +52,10 @@ notification_message = portal.portal_notifications.getDocumentValue(
 message = notification_message.asEntireHTML(
             substitution_method_parameter_dict={'mapping_dict': mapping_dict})
 
-event = context.SupportRequest_trySendNotificationMessage(title,
-              message, person.getRelativeUrl())
+context.notify(message_title=title,
+                     message=message,
+                     destination_relative_url=person.getRelativeUrl())
+event = context.REQUEST.get("upgrade_decision_notified_item")
 
 if event is not None:
   context.setStopDate(DateTime())

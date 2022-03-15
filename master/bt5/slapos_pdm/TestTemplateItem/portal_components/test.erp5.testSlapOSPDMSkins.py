@@ -338,7 +338,7 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValue(compute_node)
 
-    found_compute_node = upgrade_decision.UpgradeDecision_getComputeNode()
+    found_compute_node = upgrade_decision.UpgradeDecision_getAggregateValue("Compute Node")
     self.assertEqual(compute_node.getRelativeUrl(),
                       found_compute_node.getRelativeUrl())
 
@@ -351,7 +351,7 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
 
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
 
-    found_compute_node = upgrade_decision.UpgradeDecision_getComputeNode()
+    found_compute_node = upgrade_decision.UpgradeDecision_getAggregateValue("Compute Node")
     self.assertEqual(compute_node.getRelativeUrl(),
                       found_compute_node.getRelativeUrl())
 
@@ -365,13 +365,14 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValue(compute_node)
 
-    self.assertRaises(ValueError, upgrade_decision.UpgradeDecision_getComputeNode)
+    self.assertRaises(ValueError, upgrade_decision.UpgradeDecision_getAggregateValue,
+      document_portal_type="Compute Node")
 
   def testUpgradeDecision_getComputeNode_O_compute_node(self):
     upgrade_decision = self._makeUpgradeDecision()
     self._makeUpgradeDecisionLine(upgrade_decision)
 
-    found_compute_node = upgrade_decision.UpgradeDecision_getComputeNode()
+    found_compute_node = upgrade_decision.UpgradeDecision_getAggregateValue("Compute Node")
     self.assertEqual(None, found_compute_node)
 
 
@@ -382,7 +383,7 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValue(instance_tree)
 
-    found_instance_tree = upgrade_decision.UpgradeDecision_getInstanceTree()
+    found_instance_tree = upgrade_decision.UpgradeDecision_getAggregateValue("Instance Tree")
     self.assertEqual(instance_tree.getRelativeUrl(),
                       found_instance_tree.getRelativeUrl())
 
@@ -396,7 +397,7 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
 
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
 
-    found_instance_tree = upgrade_decision.UpgradeDecision_getInstanceTree()
+    found_instance_tree = upgrade_decision.UpgradeDecision_getAggregateValue("Instance Tree")
     self.assertEqual(instance_tree.getRelativeUrl(),
                       found_instance_tree.getRelativeUrl())
 
@@ -411,28 +412,29 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValue(instance_tree)
 
-    self.assertRaises(ValueError, upgrade_decision.UpgradeDecision_getInstanceTree)
+    self.assertRaises(ValueError, upgrade_decision.UpgradeDecision_getAggregateValue,
+      document_portal_type="Instance Tree")
 
   def testUpgradeDecision_getInstanceTree_O_hosting(self):
     upgrade_decision = self._makeUpgradeDecision()
     self._makeUpgradeDecisionLine(upgrade_decision)
 
-    found_instance_tree = upgrade_decision.UpgradeDecision_getInstanceTree()
+    found_instance_tree = upgrade_decision.UpgradeDecision_getAggregateValue("Instance Tree")
     self.assertEqual(None, found_instance_tree)
 
      
-  def testUpgradeDecision_getSoftwareRelease(self):
+  def testUpgradeDecision_getAggregateValue_SoftwareRelease(self):
     software_release = self._makeSoftwareRelease()
     upgrade_decision = self._makeUpgradeDecision()
 
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValue(software_release)
 
-    found_software_release = upgrade_decision.UpgradeDecision_getSoftwareRelease()
+    found_software_release = upgrade_decision.UpgradeDecision_getAggregateValue("Software Release")
     self.assertEqual(software_release.getRelativeUrl(),
                       found_software_release.getRelativeUrl())
 
-  def testUpgradeDecision_getSoftwareRelease_2_lines(self):
+  def testUpgradeDecision_getAggregateValue_SoftwareRelease_2_lines(self):
     software_release = self._makeSoftwareRelease()
     upgrade_decision = self._makeUpgradeDecision()
 
@@ -441,11 +443,11 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
 
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
 
-    found_software_release = upgrade_decision.UpgradeDecision_getSoftwareRelease()
+    found_software_release = upgrade_decision.UpgradeDecision_getAggregateValue("Software Release")
     self.assertEqual(software_release.getRelativeUrl(),
                       found_software_release.getRelativeUrl())
 
-  def testUpgradeDecision_getSoftwareRelease_2_sr(self):
+  def testUpgradeDecision_getAggregateValue_SoftwareRelease_2_sr(self):
     software_release = self._makeSoftwareRelease()
     upgrade_decision = self._makeUpgradeDecision()
 
@@ -455,211 +457,15 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValue(software_release)
 
-    self.assertRaises(ValueError, upgrade_decision.UpgradeDecision_getSoftwareRelease)
+    self.assertRaises(ValueError, upgrade_decision.UpgradeDecision_getAggregateValue,
+      document_portal_type="Software Release")
 
-  def testUpgradeDecision_getSoftwareRelease_O_sr(self):
+  def testUpgradeDecision_getAggregateValue_SoftwareRelease_O_sr(self):
     upgrade_decision = self._makeUpgradeDecision()
     self._makeUpgradeDecisionLine(upgrade_decision)
 
-    found_software_release = upgrade_decision.UpgradeDecision_getSoftwareRelease()
+    found_software_release = upgrade_decision.UpgradeDecision_getAggregateValue("Software Release")
     self.assertEqual(None, found_software_release)
-
-  @simulate('InstanceTree_isUpgradePossible',
-            'software_release_url', 'return 1')
-  def testUpgradeDecision_upgradeInstanceTree(self):
-    person = self._makePerson()
-    instance_tree = self._makeInstanceTree()
-    instance_tree.edit(
-          destination_section_value = person.getRelativeUrl())
-
-    self._makeSoftwareInstance(instance_tree,
-                               instance_tree.getUrlString())
-   
-    software_release = self._makeSoftwareRelease()
-    upgrade_decision = self._makeUpgradeDecision()
-    upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
-    upgrade_decision_line.setAggregateValueList(
-       [software_release, instance_tree])
-    self.tic()
-   
-    slap_state = instance_tree.getSlapState()
-    
-    self.assertFalse(upgrade_decision.UpgradeDecision_upgradeInstanceTree())
-    self.assertNotEqual(software_release.getUrlString(),
-                     instance_tree.getUrlString())
-
-    upgrade_decision.confirm()
-    upgrade_decision.start()
-
-    # Check that url_string change, but slap state doesn't
-    self.assertNotEqual(software_release.getUrlString(),
-                     instance_tree.getUrlString())
-
-    self.assertTrue(upgrade_decision.UpgradeDecision_upgradeInstanceTree())
-    self.assertEqual(software_release.getUrlString(),
-                     instance_tree.getUrlString())
-
-    self.assertEqual(slap_state, instance_tree.getSlapState())
-    self.assertEqual('stopped', upgrade_decision.getSimulationState())
-
-  @simulate('InstanceTree_isUpgradePossible',
-            'software_release_url', 'return 1')
-  def testUpgradeDecision_processUpgradeeInstanceTree(self):
-    person = self._makePerson()
-    instance_tree = self._makeInstanceTree()
-    instance_tree.edit(
-          destination_section_value = person.getRelativeUrl())
-
-    self._makeSoftwareInstance(instance_tree,
-                               instance_tree.getUrlString())
-   
-    software_release = self._makeSoftwareRelease()
-    upgrade_decision = self._makeUpgradeDecision()
-    upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
-    upgrade_decision_line.setAggregateValueList(
-       [software_release, instance_tree])
-    self.tic()
-   
-    slap_state = instance_tree.getSlapState()
-    
-    self.assertFalse(upgrade_decision.UpgradeDecision_processUpgrade())
-    self.assertNotEqual(software_release.getUrlString(),
-                     instance_tree.getUrlString())
-
-    upgrade_decision.confirm()
-    upgrade_decision.start()
-
-    # Check that url_string change, but slap state doesn't
-    self.assertNotEqual(software_release.getUrlString(),
-                     instance_tree.getUrlString())
-
-    self.assertTrue(upgrade_decision.UpgradeDecision_processUpgrade())
-    self.assertEqual(software_release.getUrlString(),
-                     instance_tree.getUrlString())
-
-    self.assertEqual(slap_state, instance_tree.getSlapState())
-    self.assertEqual('stopped', upgrade_decision.getSimulationState())
-
-
-  def testUpgradeDecision_upgradeInstanceTree_no_software_release(self):
-
-    person = self._makePerson()
-    instance_tree = self._makeInstanceTree()
-    instance_tree.edit(
-          destination_section_value = person.getRelativeUrl())
-
-    self._makeSoftwareInstance(instance_tree,
-                               instance_tree.getUrlString())
-   
-    upgrade_decision = self._makeUpgradeDecision()
-    upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
-    upgrade_decision_line.setAggregateValueList([instance_tree])
-    self.tic()
-   
-    upgrade_decision.confirm()
-    upgrade_decision.start()
-
-    self.assertFalse(upgrade_decision.UpgradeDecision_upgradeInstanceTree())
-    self.assertEqual('started', upgrade_decision.getSimulationState())
-
-  def testUpgradeDecision_upgradeInstanceTree_no_hosting_subscripion(self):
-
-    software_release = self._makeSoftwareRelease()
-    upgrade_decision = self._makeUpgradeDecision()
-    upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
-    upgrade_decision_line.setAggregateValueList([software_release])
-    self.tic()
-    
-    upgrade_decision.confirm()
-    upgrade_decision.start()
-
-    self.assertFalse(upgrade_decision.UpgradeDecision_upgradeInstanceTree())
-    self.assertEqual('started', upgrade_decision.getSimulationState())
-    
-  def testUpgradeDecision_upgradeComputeNode_no_software_release(self):
-
-    person = self._makePerson()
-    compute_node, _ = self._makeComputeNode(owner=person)
-
-    upgrade_decision = self._makeUpgradeDecision()
-    upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
-    upgrade_decision_line.setAggregateValueList([compute_node])
-    self.tic()
-   
-    upgrade_decision.confirm()
-    upgrade_decision.start()
-
-    self.assertFalse(upgrade_decision.UpgradeDecision_upgradeComputeNode())
-    self.assertEqual('started', upgrade_decision.getSimulationState())
-
-
-  def testUpgradeDecision_upgradeComputeNode_no_hosting_subscripion(self):
-
-    software_release = self._makeSoftwareRelease()
-    upgrade_decision = self._makeUpgradeDecision()
-    upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
-    upgrade_decision_line.setAggregateValueList([software_release])
-    self.tic()
-    
-    upgrade_decision.confirm()
-    upgrade_decision.start()
-
-    self.assertFalse(upgrade_decision.UpgradeDecision_upgradeComputeNode())
-    self.assertEqual('started', upgrade_decision.getSimulationState())
-    
-  def testUpgradeDecision_upgradeComputeNode(self):
-    self._makePerson()
-    compute_node, _ = self._makeComputeNode()
-    software_release = self._makeSoftwareRelease()
-    upgrade_decision = self._makeUpgradeDecision()
-    upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
-    upgrade_decision_line.setAggregateValueList([software_release, compute_node])
-    url = software_release.getUrlString()
-    
-    self.tic()
-
-    self.assertFalse(upgrade_decision.UpgradeDecision_upgradeComputeNode())
-
-    upgrade_decision.confirm()
-    upgrade_decision.start()
-
-    self.assertTrue(upgrade_decision.UpgradeDecision_upgradeComputeNode())
-    self.tic()
-    
-    software_installation = compute_node.getAggregateRelatedValue(
-            portal_type='Software Installation')
-    self.assertEqual('start_requested', software_installation.getSlapState())
-    self.assertEqual(url, software_installation.getUrlString())
-    self.assertEqual('validated', software_installation.getValidationState())
-    self.assertEqual('stopped', upgrade_decision.getSimulationState())
-
-
-  def testUpgradeDecision_processUpgradeComputeNode(self):
-    self._makePerson()
-    compute_node, _ = self._makeComputeNode()
-    software_release = self._makeSoftwareRelease()
-    upgrade_decision = self._makeUpgradeDecision()
-    upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
-    upgrade_decision_line.setAggregateValueList([software_release, compute_node])
-    url = software_release.getUrlString()
-    
-    self.tic()
-
-    self.assertFalse(upgrade_decision.UpgradeDecision_processUpgrade())
-
-    upgrade_decision.confirm()
-    upgrade_decision.start()
-
-    self.assertTrue(upgrade_decision.UpgradeDecision_processUpgrade())
-    self.tic()
-    
-    software_installation = compute_node.getAggregateRelatedValue(
-            portal_type='Software Installation')
-    self.assertEqual('start_requested', software_installation.getSlapState())
-    self.assertEqual(url, software_installation.getUrlString())
-    self.assertEqual('validated', software_installation.getValidationState())
-    self.assertEqual('stopped', upgrade_decision.getSimulationState())
-
 
   def testSoftwareRelease_createUpgradeDecision_compute_node(self):
     person = self._makePerson()
@@ -893,54 +699,6 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     self.assertEqual(in_progress, None)
   
   
-  def testUpgradeDecision_tryToCancel(self):
-    compute_node, _ = self._makeComputeNode()
-    software_release = self._makeSoftwareRelease()
-    software_release2 = self._makeSoftwareRelease()
-    upgrade_decision = self._makeUpgradeDecision()
-    upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
-    upgrade_decision_line.setAggregateValueList([software_release, compute_node])
-    upgrade_decision.confirm()
-    
-    upgrade_decision2 = self._makeUpgradeDecision()
-    upgrade_decision_line2 = self._makeUpgradeDecisionLine(upgrade_decision2)
-    upgrade_decision_line2.setAggregateValueList([software_release, compute_node])
-    upgrade_decision2.confirm()
-    upgrade_decision2.start()
-    
-    url = software_release.getUrlString()
-    url2 = software_release2.getUrlString()
-    
-    # Cancel is not possible with the same url_string
-    self.assertEqual(upgrade_decision.UpgradeDecision_tryToCancel(url), False)
-    self.assertEqual(upgrade_decision.UpgradeDecision_tryToCancel(url2), True)
-    self.assertEqual(upgrade_decision.getSimulationState(), 'cancelled')
-    
-    # Cancel is no longer possible
-    self.assertEqual(upgrade_decision2.UpgradeDecision_tryToCancel(url), False)
-    self.assertEqual(upgrade_decision2.UpgradeDecision_tryToCancel(url2), False)
-    self.assertEqual(upgrade_decision2.getSimulationState(), 'started')
-
-  def testUpgradeDecision_tryToCancel_withRejected(self):
-    compute_node, _ = self._makeComputeNode()
-    software_release = self._makeSoftwareRelease()
-    software_release2 = self._makeSoftwareRelease()
-    upgrade_decision = self._makeUpgradeDecision()
-    upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
-    upgrade_decision_line.setAggregateValueList([software_release, compute_node])
-    upgrade_decision.confirm()
-    upgrade_decision.reject()
-    
-    url = software_release.getUrlString()
-    url2 = software_release2.getUrlString()
-    
-    # Try to cancel rejected UD with the same sr will return False
-    self.assertEqual(upgrade_decision.UpgradeDecision_tryToCancel(url), False)
-    self.assertEqual(upgrade_decision.getSimulationState(), 'rejected')
-    # Try to cancel rejected UD will return True with url2
-    self.assertEqual(upgrade_decision.UpgradeDecision_tryToCancel(url2), True)
-    self.assertEqual(upgrade_decision.getSimulationState(), 'rejected')
-    
   def testComputeNode_checkAndCreateUpgradeDecision_auto(self):
     person = self._makePerson()
     compute_node, _ = self._makeComputeNode(owner=person,
@@ -966,10 +724,10 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     self.assertEqual(len(upgrade_decision), 1)
     self.assertEqual(upgrade_decision[0].getSimulationState(), 'started')
     
-    compute_node_aggregate = upgrade_decision[0].UpgradeDecision_getComputeNode()
-    self.assertEqual(compute_node_aggregate.getReference(),
-                      compute_node.getReference())
-    release = upgrade_decision[0].UpgradeDecision_getSoftwareRelease()
+    compute_node_aggregate = upgrade_decision[0].UpgradeDecision_getAggregateValue("Compute Node")
+    self.assertEqual(compute_node_aggregate,
+                      compute_node)
+    release = upgrade_decision[0].UpgradeDecision_getAggregateValue("Software Release")
     self.assertEqual(release.getUrlString(),
                                 software_release2.getUrlString())
     self.tic()
@@ -1001,7 +759,7 @@ class TestSlapOSPDMSkins(TestSlapOSPDMMixinSkins):
     
     self.assertEqual(upgrade_decision.getSimulationState(), 'cancelled')
     self.assertEqual(upgrade_decision2.getSimulationState(), 'planned')
-    release = upgrade_decision2.UpgradeDecision_getSoftwareRelease()
+    release = upgrade_decision2.UpgradeDecision_getAggregateValue("Software Release")
     self.assertEqual(release.getUrlString(),
                                 software_release3.getUrlString())
   

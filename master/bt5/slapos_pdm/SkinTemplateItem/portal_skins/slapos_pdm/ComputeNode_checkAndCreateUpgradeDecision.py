@@ -41,22 +41,18 @@ for software_release in software_release_list:
     # If exist upgrade decision in progress try to cancel it
     decision_in_progress = newer_release.\
             SoftwareRelease_getUpgradeDecisionInProgress(compute_node.getUid())
-    if decision_in_progress and \
-        not decision_in_progress.UpgradeDecision_tryToCancel(
-          newer_release.getUrlString()):
-      continue
+    if decision_in_progress:
+      decision_in_progress.reviewRegistration(
+        software_release_url=newer_release.getUrlString())
+      if decision_in_progress.getSimulationState() != "cancelled":
+        continue
 
     upgrade_decision = newer_release.SoftwareRelease_createUpgradeDecision(
         source_url=compute_node.getRelativeUrl(),
         title=title)
 
-    if context.getUpgradeScope() == "auto":
-      upgrade_decision.start()
-    elif context.getUpgradeScope("ask_confirmation") == "ask_confirmation" \
-      and upgrade_decision.getSimulationState() != "planned":
-      upgrade_decision.plan()
-
-    upgrade_decision.setStartDate(DateTime())
+    upgrade_decision.approveRegistration(
+      upgrade_scope=compute_node.getUpgradeScope("ask_confirmation"))
     upgrade_decision_list.append(upgrade_decision)
 
 return upgrade_decision_list

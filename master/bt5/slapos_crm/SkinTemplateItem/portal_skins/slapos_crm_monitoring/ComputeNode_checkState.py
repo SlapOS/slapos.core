@@ -1,12 +1,11 @@
 from DateTime import DateTime
 portal = context.getPortalObject()
 
-if portal.ERP5Site_isSupportRequestCreationClosed():
-  # Stop ticket creation
-  return
-
-if context.getMonitorScope() == "disabled":
-  return
+person = context.getSourceAdministrationValue(portal_type="Person")
+if not person or \
+   context.getMonitorScope() == "disabled" or \
+   portal.ERP5Site_isSupportRequestCreationClosed():
+  return 
 
 if context.getAllocationScope("open").startswith("close"):
   context.setMonitorScope("disabled")
@@ -17,7 +16,6 @@ compute_node_title = context.getTitle()
 ticket_title = "[MONITORING] Lost contact with compute_node %s" % reference
 description = ""
 last_contact = "No Contact Information"
-
 
 d = context.getAccessStatus()
 # Ignore if data isn't present.
@@ -33,20 +31,19 @@ else:
     # Nothing to notify.
     return  
 
-support_request = context.Base_generateSupportRequestForSlapOS(
-  ticket_title,
-  description,
-  context.getRelativeUrl()
-)
+person.notify(support_request_title=ticket_title,
+              support_request_description=description,
+              aggregate=context.getRelativeUrl())
 
-person = context.getSourceAdministrationValue(portal_type="Person")
-if not person:
-  return support_request
+support_request_relative_url = context.REQUEST.get("support_request_relative_url")
+if support_request_relative_url is None:
+  return
+
+support_request = portal.restrictedTraverse(support_request_relative_url)
 
 # Send Notification message
-notification_reference = 'slapos-crm-compute_node_check_state.notification'
 notification_message = portal.portal_notifications.getDocumentValue(
-                reference=notification_reference)
+  reference='slapos-crm-compute_node_check_state.notification')
 
 if notification_message is None:
   message = """%s""" % description
@@ -55,10 +52,8 @@ else:
                   'compute_node_id':reference,
                   'last_contact':last_contact}
   message = notification_message.asText(
-            substitution_method_parameter_dict={'mapping_dict':mapping_dict})
+            substitution_method_parameter_dict={'mapping_dict': mapping_dict})
 
-support_request.SupportRequest_trySendNotificationMessage(
-            ticket_title,
-            message, person.getRelativeUrl())
-              
+support_request.notify(message_title=ticket_title, message=message)
+
 return support_request

@@ -602,7 +602,7 @@ class SlapOSTestCaseMixin(testSlapOSMixin):
       destination_reference=new_destination_reference,
       destination_section=destination_section,
       payment_mode=payment_mode,
-      specialise="sale_trade_condition_module/slapos_aggregated_trade_condition",
+      specialise="sale_trade_condition_module/slapos_aggregated_trade_condition_v3",
       created_by_builder=1 # to prevent init script to create lines
     )
     self.portal.portal_workflow._jumpToStateFor(invoice, 'stopped')
@@ -698,7 +698,7 @@ return %s""" % (script_name, fake_return ))
       preferred_aggregated_consumption_sale_trade_condition=\
         'sale_trade_condition_module/slapos_aggregated_consumption_trade_condition',
       preferred_aggregated_sale_trade_condition=\
-        'sale_trade_condition_module/slapos_aggregated_trade_condition',
+        'sale_trade_condition_module/slapos_aggregated_trade_condition_v3',
       preferred_aggregated_subscription_sale_trade_condition=\
         'sale_trade_condition_module/slapos_aggregated_subscription_trade_condition',
       preferred_default_pre_payment_template=\

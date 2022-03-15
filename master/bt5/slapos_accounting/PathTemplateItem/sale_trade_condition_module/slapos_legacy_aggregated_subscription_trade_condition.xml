@@ -158,13 +158,11 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>SlapOS Legacy Aggregated Subscrition Trade Condition</string> </value>
+            <value> <string>SlapOS Aggregated Subscription Trade Condition (before 2021)</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>001</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
@@ -296,7 +294,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>996.2915.20827.50397</string> </value>
+                      <value> <string>998.58068.56597.18466</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -314,7 +312,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1636510697.79</float>
+                              <float>1647338237.85</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

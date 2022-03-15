@@ -1710,7 +1710,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     # them expected
     supply_line = self.portal.sale_trade_condition_module.\
       couscous_trade_condition.\
-      subscription_price
+      subscription_price_eur
 
     previous_price = supply_line.getBasePrice()
     supply_line.setBasePrice(0.0)

@@ -2,56 +2,10 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="Sale Trade Condition" module="erp5.portal_type"/>
+      <global name="Sale Supply Line" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
-        <item>
-            <key> <string>_Access_contents_information_Permission</string> </key>
-            <value>
-              <tuple>
-                <string>Assignee</string>
-                <string>Assignor</string>
-                <string>Associate</string>
-                <string>Auditor</string>
-                <string>Manager</string>
-              </tuple>
-            </value>
-        </item>
-        <item>
-            <key> <string>_Add_portal_content_Permission</string> </key>
-            <value>
-              <tuple>
-                <string>Assignee</string>
-                <string>Assignor</string>
-                <string>Associate</string>
-                <string>Manager</string>
-              </tuple>
-            </value>
-        </item>
-        <item>
-            <key> <string>_Modify_portal_content_Permission</string> </key>
-            <value>
-              <tuple>
-                <string>Assignee</string>
-                <string>Assignor</string>
-                <string>Associate</string>
-                <string>Manager</string>
-              </tuple>
-            </value>
-        </item>
-        <item>
-            <key> <string>_View_Permission</string> </key>
-            <value>
-              <tuple>
-                <string>Assignee</string>
-                <string>Assignor</string>
-                <string>Associate</string>
-                <string>Auditor</string>
-                <string>Manager</string>
-              </tuple>
-            </value>
-        </item>
         <item>
             <key> <string>_count</string> </key>
             <value>
@@ -83,10 +37,23 @@
             </value>
         </item>
         <item>
+            <key> <string>base_price</string> </key>
+            <value> <float>188.0</float> </value>
+        </item>
+        <item>
+            <key> <string>base_price_per_slice</string> </key>
+            <value> <int>0</int> </value>
+        </item>
+        <item>
+            <key> <string>base_unit_price</string> </key>
+            <value> <float>0.0</float> </value>
+        </item>
+        <item>
             <key> <string>categories</string> </key>
             <value>
               <tuple>
-                <string>specialise/business_process_module/slapos_aggregated_business_process</string>
+                <string>resource/service_module/slapos_reservation_fee</string>
+                <string>price_currency/currency_module/CNY</string>
               </tuple>
             </value>
         </item>
@@ -97,77 +64,54 @@
             </value>
         </item>
         <item>
-            <key> <string>default_reference</string> </key>
-            <value> <string>slapos_aggregated_trade_condition</string> </value>
-        </item>
-        <item>
             <key> <string>description</string> </key>
             <value>
               <none/>
             </value>
         </item>
         <item>
-            <key> <string>effective_date</string> </key>
-            <value>
-              <object>
-                <klass>
-                  <global id="1.1" name="DateTime" module="DateTime.DateTime"/>
-                </klass>
-                <tuple>
-                  <none/>
-                </tuple>
-                <state>
-                  <tuple>
-                    <float>1272672000.0</float>
-                    <string>UTC</string>
-                  </tuple>
-                </state>
-              </object>
-            </value>
-        </item>
-        <item>
-            <key> <string>expiration_date</string> </key>
-            <value>
-              <object>
-                <klass> <reference id="1.1"/> </klass>
-                <tuple>
-                  <none/>
-                </tuple>
-                <state>
-                  <tuple>
-                    <float>1538352000.0</float>
-                    <string>UTC</string>
-                  </tuple>
-                </state>
-              </object>
-            </value>
-        </item>
-        <item>
             <key> <string>id</string> </key>
-            <value> <string>slapos_legacy_aggregated_trade_condition</string> </value>
+            <value> <string>reservation_price_cny</string> </value>
         </item>
         <item>
-            <key> <string>language</string> </key>
+            <key> <string>index</string> </key>
             <value>
-              <none/>
+              <persistent> <string encoding="base64">AAAAAAAAAAc=</string> </persistent>
+            </value>
+        </item>
+        <item>
+            <key> <string>mapped_value_property_list</string> </key>
+            <value>
+              <tuple>
+                <string>base_price</string>
+                <string>additional_price</string>
+                <string>discount_ratio</string>
+                <string>exclusive_discount_ratio</string>
+                <string>surcharge_ratio</string>
+                <string>variable_additional_price</string>
+                <string>non_discountable_additional_price</string>
+                <string>priced_quantity</string>
+                <string>base_unit_price</string>
+                <string>quantity_unit</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>p_variation_base_category</string> </key>
+            <value>
+              <tuple>
+                <string>variation</string>
+              </tuple>
             </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
-            <value> <string>Sale Trade Condition</string> </value>
-        </item>
-        <item>
-            <key> <string>title</string> </key>
-            <value> <string>SlapOS Aggregated Trade Condition (before 2018)</string> </value>
-        </item>
-        <item>
-            <key> <string>version</string> </key>
-            <value> <string>001</string> </value>
+            <value> <string>Sale Supply Line</string> </value>
         </item>
         <item>
             <key> <string>workflow_history</string> </key>
             <value>
-              <persistent> <string encoding="base64">AAAAAAAAAAc=</string> </persistent>
+              <persistent> <string encoding="base64">AAAAAAAAAAg=</string> </persistent>
             </value>
         </item>
       </dictionary>
@@ -211,17 +155,7 @@
         <item>
             <key> <string>data</string> </key>
             <value>
-              <dictionary>
-                <item>
-                    <key> <string>start_date</string> </key>
-                    <value>
-                      <tuple>
-                        <none/>
-                        <none/>
-                      </tuple>
-                    </value>
-                </item>
-              </dictionary>
+              <dictionary/>
             </value>
         </item>
       </dictionary>
@@ -246,13 +180,7 @@
             <value>
               <dictionary>
                 <item>
-                    <key> <string>edit_workflow</string> </key>
-                    <value>
-                      <persistent> <string encoding="base64">AAAAAAAAAAg=</string> </persistent>
-                    </value>
-                </item>
-                <item>
-                    <key> <string>validation_workflow</string> </key>
+                    <key> <string>path</string> </key>
                     <value>
                       <persistent> <string encoding="base64">AAAAAAAAAAk=</string> </persistent>
                     </value>
@@ -264,6 +192,50 @@
     </pickle>
   </record>
   <record id="8" aka="AAAAAAAAAAg=">
+    <pickle>
+      <global name="PersistentMapping" module="Persistence.mapping"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>data</string> </key>
+            <value>
+              <dictionary>
+                <item>
+                    <key> <string>edit_workflow</string> </key>
+                    <value>
+                      <persistent> <string encoding="base64">AAAAAAAAAAo=</string> </persistent>
+                    </value>
+                </item>
+              </dictionary>
+            </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="9" aka="AAAAAAAAAAk=">
+    <pickle>
+      <global name="PersistentMapping" module="Persistence.mapping"/>
+    </pickle>
+    <pickle>
+      <dictionary>
+        <item>
+            <key> <string>data</string> </key>
+            <value>
+              <dictionary>
+                <item>
+                    <key> <int>0</int> </key>
+                    <value>
+                      <persistent> <string encoding="base64">AAAAAAAAAAs=</string> </persistent>
+                    </value>
+                </item>
+              </dictionary>
+            </value>
+        </item>
+      </dictionary>
+    </pickle>
+  </record>
+  <record id="10" aka="AAAAAAAAAAo=">
     <pickle>
       <global name="WorkflowHistoryList" module="Products.ERP5Type.Workflow"/>
     </pickle>
@@ -294,7 +266,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>998.58067.15318.51336</string> </value>
+                      <value> <string>998.58034.32894.24234</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -312,7 +284,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1647338129.73</float>
+                              <float>1647336732.66</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -326,58 +298,29 @@
       </dictionary>
     </pickle>
   </record>
-  <record id="9" aka="AAAAAAAAAAk=">
+  <record id="11" aka="AAAAAAAAAAs=">
     <pickle>
-      <global name="WorkflowHistoryList" module="Products.ERP5Type.Workflow"/>
+      <global name="PersistentMapping" module="Persistence.mapping"/>
     </pickle>
     <pickle>
       <dictionary>
         <item>
-            <key> <string>_log</string> </key>
+            <key> <string>data</string> </key>
             <value>
-              <list>
-                <dictionary>
-                  <item>
-                      <key> <string>action</string> </key>
-                      <value> <string>validate</string> </value>
-                  </item>
-                  <item>
-                      <key> <string>actor</string> </key>
-                      <value> <string>superrafael</string> </value>
-                  </item>
-                  <item>
-                      <key> <string>comment</string> </key>
-                      <value> <string></string> </value>
-                  </item>
-                  <item>
-                      <key> <string>error_message</string> </key>
-                      <value> <string></string> </value>
-                  </item>
-                  <item>
-                      <key> <string>time</string> </key>
-                      <value>
-                        <object>
-                          <klass>
-                            <global name="DateTime" module="DateTime.DateTime"/>
-                          </klass>
-                          <tuple>
-                            <none/>
-                          </tuple>
-                          <state>
-                            <tuple>
-                              <float>1634922390.71</float>
-                              <string>UTC</string>
-                            </tuple>
-                          </state>
-                        </object>
-                      </value>
-                  </item>
-                  <item>
-                      <key> <string>validation_state</string> </key>
-                      <value> <string>validated</string> </value>
-                  </item>
-                </dictionary>
-              </list>
+              <dictionary>
+                <item>
+                    <key> <string>variation/service_module/slapos_reservation_fee/1</string> </key>
+                    <value> <int>0</int> </value>
+                </item>
+                <item>
+                    <key> <string>variation/service_module/slapos_reservation_fee/3</string> </key>
+                    <value> <int>2</int> </value>
+                </item>
+                <item>
+                    <key> <string>variation/service_module/slapos_reservation_fee/default</string> </key>
+                    <value> <int>1</int> </value>
+                </item>
+              </dictionary>
             </value>
         </item>
       </dictionary>

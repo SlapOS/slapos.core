@@ -1,5 +1,3 @@
-portal_caches/compute_node_information_cache_factory
-portal_caches/compute_node_information_cache_factory/persistent_cache_plugin
 portal_caches/slap_cache_factory
 portal_caches/slap_cache_factory/persistent_cache_plugin
 web_site_module/slapos_hateoas

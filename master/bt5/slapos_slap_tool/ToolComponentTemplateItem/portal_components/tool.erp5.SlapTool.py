@@ -743,8 +743,8 @@ class SlapTool(BaseTool):
 
       slap_partition._need_modification = 1
 
-      parameter_dict = self._getSoftwareInstanceAsParameterDict(
-                                                       software_instance)
+      parameter_dict = software_instance._asParameterDict()
+                                                       
       # software instance has to define an xml parameter
       slap_partition._parameter_dict = self._instanceXmlToDict(
         parameter_dict.pop('xml'))
@@ -813,68 +813,6 @@ class SlapTool(BaseTool):
       etree.XMLSchemaValidateError, etree.XMLSyntaxError): # pylint: disable=catching-non-exception
       LOG('SlapTool', INFO, 'Issue during parsing xml:', error=True)
     return result_dict
-
-  def _getSlapPartitionByPackingList(self, compute_partition_document,
-                                     software_instance_list,
-                                     slave_instance_sql_list):
-    compute_node = compute_partition_document
-    while compute_node.getPortalType() != 'Compute Node':
-      compute_node = compute_node.getParentValue()
-    compute_node_id = compute_node.getReference().decode("UTF-8")
-    slap_partition = SlapComputePartition(compute_node_id,
-      compute_partition_document.getReference().decode("UTF-8"))
-
-    slap_partition._software_release_document = None
-    slap_partition._requested_state = 'destroyed'
-    slap_partition._need_modification = 0
-
-    software_instance = None
-
-    if compute_partition_document.getSlapState() == 'busy':
-      software_instance_count = len(software_instance_list)
-      if software_instance_count == 1:
-        software_instance = _assertACI(software_instance_list[0].getObject())
-      elif software_instance_count > 1:
-        # XXX do not prevent the system to work if one partition is broken
-        raise NotImplementedError, "Too many instances linked to %s" % \
-           compute_partition_document.getRelativeUrl()
-
-    if software_instance is not None:
-      state = software_instance.getSlapState()
-      if state == "stop_requested":
-        slap_partition._requested_state = 'stopped'
-      if state == "start_requested":
-        slap_partition._requested_state = 'started'
-      slap_partition._access_status = software_instance.getTextAccessStatus()
-
-      slap_partition._software_release_document = SoftwareRelease(
-            software_release=software_instance.getUrlString().decode("UTF-8"),
-            computer_guid=compute_node_id)
-
-      slap_partition._need_modification = 1
-
-      parameter_dict = self._getSoftwareInstanceAsParameterDict(
-        software_instance,
-        slave_instance_sql_list=slave_instance_sql_list
-      )
-      # software instance has to define an xml parameter
-      slap_partition._parameter_dict = self._instanceXmlToDict(
-        parameter_dict.pop('xml'))
-      slap_partition._connection_dict = self._instanceXmlToDict(
-        parameter_dict.pop('connection_xml'))
-      slap_partition._filter_dict = self._instanceXmlToDict(
-        parameter_dict.pop('filter_xml'))
-      slap_partition._instance_guid = parameter_dict.pop('instance_guid')
-      for slave_instance_dict in parameter_dict.get("slave_instance_list", []):
-        if slave_instance_dict.has_key("connection_xml"):
-          slave_instance_dict.update(self._instanceXmlToDict(
-            slave_instance_dict.pop("connection_xml")))
-        if slave_instance_dict.has_key("xml"):
-          slave_instance_dict.update(self._instanceXmlToDict(
-            slave_instance_dict.pop("xml")))
-      slap_partition._parameter_dict.update(parameter_dict)
-
-    return slap_partition
 
   @convertToREST
   def _supplySupply(self, url, compute_node_id, state):
@@ -1173,7 +1111,7 @@ class SlapTool(BaseTool):
       if not requested_software_instance.getAggregate(portal_type="Compute Partition"):
         raise SoftwareInstanceNotReady
       else:
-        parameter_dict = self._getSoftwareInstanceAsParameterDict(requested_software_instance)
+        parameter_dict = requested_software_instance._asParameterDict()
 
         # software instance has to define an xml parameter
         xml = self._instanceXmlToDict(
@@ -1337,83 +1275,6 @@ class SlapTool(BaseTool):
           compute_node_id, compute_partition_id)
       else:
         return software_instance
-
-  @UnrestrictedMethod
-  def _getSoftwareInstanceAsParameterDict(self, software_instance, slave_instance_sql_list=None):
-    portal = software_instance.getPortalObject()
-    compute_partition = software_instance.getAggregateValue(portal_type="Compute Partition")
-    timestamp = int(compute_partition.getModificationDate())
-
-    newtimestamp = int(software_instance.getBangTimestamp(int(software_instance.getModificationDate())))
-    if (newtimestamp > timestamp):
-      timestamp = newtimestamp
-
-    instance_tree = software_instance.getSpecialiseValue()
-
-    ip_list = []
-    full_ip_list = []
-    for internet_protocol_address in compute_partition.contentValues(portal_type='Internet Protocol Address'):
-      # XXX - There is new values, and we must keep compatibility
-      address_tuple = (
-          internet_protocol_address.getNetworkInterface('').decode("UTF-8"),
-          internet_protocol_address.getIpAddress().decode("UTF-8"))
-      if internet_protocol_address.getGatewayIpAddress('') and \
-        internet_protocol_address.getNetmask(''):
-        address_tuple = address_tuple + (
-              internet_protocol_address.getGatewayIpAddress().decode("UTF-8"),
-              internet_protocol_address.getNetmask().decode("UTF-8"),
-              internet_protocol_address.getNetworkAddress('').decode("UTF-8"))
-        full_ip_list.append(address_tuple)
-      else:
-        ip_list.append(address_tuple)
-
-    slave_instance_list = []
-    if (software_instance.getPortalType() == "Software Instance"):
-      append = slave_instance_list.append
-      if slave_instance_sql_list is None:
-        slave_instance_sql_list = portal.portal_catalog.unrestrictedSearchResults(
-          default_aggregate_uid=compute_partition.getUid(),
-          portal_type='Slave Instance',
-          validation_state="validated",
-          **{"slapos_item.slap_state": "start_requested"}
-        )
-      for slave_instance in slave_instance_sql_list:
-        slave_instance = _assertACI(slave_instance.getObject())
-        # XXX Use catalog to filter more efficiently
-        if slave_instance.getSlapState() == "start_requested":
-          newtimestamp = int(slave_instance.getBangTimestamp(int(slave_instance.getModificationDate())))
-          append({
-            'slave_title': slave_instance.getTitle().decode("UTF-8"),
-            'slap_software_type': \
-                slave_instance.getSourceReference().decode("UTF-8"),
-            'slave_reference': slave_instance.getReference().decode("UTF-8"),
-            'timestamp': newtimestamp,
-            'xml': slave_instance.getTextContent(),
-            'connection_xml': slave_instance.getConnectionXml(),
-          })
-          if (newtimestamp > timestamp):
-            timestamp = newtimestamp
-    return {
-      'instance_guid': software_instance.getReference().decode("UTF-8"),
-      'instance_title': software_instance.getTitle().decode("UTF-8"),
-      'root_instance_title': instance_tree.getTitle().decode("UTF-8"),
-      'root_instance_short_title': instance_tree.getShortTitle().decode("UTF-8"),
-      'xml': software_instance.getTextContent(),
-      'connection_xml': software_instance.getConnectionXml(),
-      'filter_xml': software_instance.getSlaXml(),
-      'slap_computer_id': \
-        compute_partition.getParentValue().getReference().decode("UTF-8"),
-      'slap_computer_partition_id': \
-        compute_partition.getReference().decode("UTF-8"),
-      'slap_software_type': \
-        software_instance.getSourceReference().decode("UTF-8"),
-      'slap_software_release_url': \
-        software_instance.getUrlString().decode("UTF-8"),
-      'slave_instance_list': slave_instance_list,
-      'ip_list': ip_list,
-      'full_ip_list': full_ip_list,
-      'timestamp': "%i" % timestamp,
-    }
 
   @convertToREST
   def _softwareReleaseError(self, url, compute_node_id, error_log):

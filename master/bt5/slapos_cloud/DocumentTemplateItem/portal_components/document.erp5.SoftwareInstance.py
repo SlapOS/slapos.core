@@ -31,6 +31,18 @@ from erp5.component.document.Item import Item
 from lxml import etree
 import collections
 
+from AccessControl import Unauthorized
+from AccessControl.Permissions import access_contents_information
+from AccessControl import getSecurityManager
+from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
+
+def _assertACI(document):
+  sm = getSecurityManager()
+  if sm.checkPermission(access_contents_information,
+      document):
+    return document
+  raise Unauthorized('User %r has no access to %r' % (sm.getUser(), document))
+
 class DisconnectedSoftwareTree(Exception):
   pass
 
@@ -127,3 +139,80 @@ class SoftwareInstance(Item):
     if size != len(visited) + 1:
       raise DisconnectedSoftwareTree
     return True
+
+  @UnrestrictedMethod
+  def _asParameterDict(self, shared_instance_sql_list=None):
+    portal = self.getPortalObject()
+    compute_partition = self.getAggregateValue(portal_type="Compute Partition")
+    timestamp = int(compute_partition.getModificationDate())
+
+    newtimestamp = int(self.getBangTimestamp(int(self.getModificationDate())))
+    if (newtimestamp > timestamp):
+      timestamp = newtimestamp
+
+    instance_tree = self.getSpecialiseValue()
+
+    ip_list = []
+    full_ip_list = []
+    for internet_protocol_address in compute_partition.contentValues(portal_type='Internet Protocol Address'):
+      # XXX - There is new values, and we must keep compatibility
+      address_tuple = (
+          internet_protocol_address.getNetworkInterface('').decode("UTF-8"),
+          internet_protocol_address.getIpAddress().decode("UTF-8"))
+      if internet_protocol_address.getGatewayIpAddress('') and \
+        internet_protocol_address.getNetmask(''):
+        address_tuple = address_tuple + (
+              internet_protocol_address.getGatewayIpAddress().decode("UTF-8"),
+              internet_protocol_address.getNetmask().decode("UTF-8"),
+              internet_protocol_address.getNetworkAddress('').decode("UTF-8"))
+        full_ip_list.append(address_tuple)
+      else:
+        ip_list.append(address_tuple)
+
+    shared_instance_list = []
+    if (self.getPortalType() == "Software Instance"):
+      append = shared_instance_list.append
+      if shared_instance_sql_list is None:
+        shared_instance_sql_list = portal.portal_catalog.unrestrictedSearchResults(
+          default_aggregate_uid=compute_partition.getUid(),
+          portal_type='Slave Instance',
+          validation_state="validated",
+          **{"slapos_item.slap_state": "start_requested"}
+        )
+      for shared_instance in shared_instance_sql_list:
+        shared_instance = _assertACI(shared_instance.getObject())
+        # XXX Use catalog to filter more efficiently
+        if shared_instance.getSlapState() == "start_requested":
+          newtimestamp = int(shared_instance.getBangTimestamp(int(shared_instance.getModificationDate())))
+          append({
+            'slave_title': shared_instance.getTitle().decode("UTF-8"),
+            'slap_software_type': \
+                shared_instance.getSourceReference().decode("UTF-8"),
+            'slave_reference': shared_instance.getReference().decode("UTF-8"),
+            'timestamp': newtimestamp,
+            'xml': shared_instance.getTextContent(),
+            'connection_xml': shared_instance.getConnectionXml(),
+          })
+          if (newtimestamp > timestamp):
+            timestamp = newtimestamp
+    return {
+      'instance_guid': self.getReference().decode("UTF-8"),
+      'instance_title': self.getTitle().decode("UTF-8"),
+      'root_instance_title': instance_tree.getTitle().decode("UTF-8"),
+      'root_instance_short_title': instance_tree.getShortTitle().decode("UTF-8"),
+      'xml': self.getTextContent(),
+      'connection_xml': self.getConnectionXml(),
+      'filter_xml': self.getSlaXml(),
+      'slap_computer_id': \
+        compute_partition.getParentValue().getReference().decode("UTF-8"),
+      'slap_computer_partition_id': \
+        compute_partition.getReference().decode("UTF-8"),
+      'slap_software_type': \
+        self.getSourceReference().decode("UTF-8"),
+      'slap_software_release_url': \
+        self.getUrlString().decode("UTF-8"),
+      'slave_instance_list': shared_instance_list,
+      'ip_list': ip_list,
+      'full_ip_list': full_ip_list,
+      'timestamp': "%i" % timestamp,
+    }

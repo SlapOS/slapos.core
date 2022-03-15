@@ -17,30 +17,29 @@ def getComputeNodeReferenceAndUserId(item):
       compute_node = partition.getParentValue()
 
   if compute_node is not None and compute_node.getValidationState() == 'validated':
-    return compute_node.getReference(), compute_node.getUserId()
-  return None, None
+    return compute_node, compute_node.getReference(), compute_node.getUserId()
+  return None, None, None
 
 
 def Item_activateFillComputeNodeInformationCache(state_change):
   item = state_change['object']
   portal = item.getPortalObject()
-  compute_node_reference, user_id = getComputeNodeReferenceAndUserId(item)
-  if compute_node_reference is None:
+  compute_node, compute_node_reference, user_id = getComputeNodeReferenceAndUserId(item)
+  if compute_node is None:
     return None
 
   if user_id is None:
     return None
 
   user = portal.acl_users.getUserById(user_id)
-
   if user is None:
     raise ValueError("User %s not found" % user_id)
 
   sm = getSecurityManager()
   try:
     newSecurityManager(None, user)
-    portal.portal_slap._activateFillComputeNodeInformationCache(
-        compute_node_reference, compute_node_reference)
+    compute_node._activateFillComputeNodeInformationCache(
+      compute_node_reference)
   finally:
     setSecurityManager(sm)
 

@@ -38,10 +38,8 @@ from Products.DCWorkflow.DCWorkflow import ValidationFailed
 from Products.ERP5Type.Globals import InitializeClass
 from Products.ERP5Type.Tool.BaseTool import BaseTool
 from Products.ERP5Type import Permissions
-from Products.ERP5Type.Cache import DEFAULT_CACHE_SCOPE
 from Products.ERP5Type.Cache import CachingMethod
 from lxml import etree
-import time
 from Products.ERP5Type.tests.utils import DummyMailHostMixin
 try:
   from slapos.slap.slap import (
@@ -170,159 +168,6 @@ class SlapTool(BaseTool):
       return True
     return False
 
-  def _getCachePlugin(self):
-    return self.getPortalObject().portal_caches\
-      .getRamCacheRoot().get('compute_node_information_cache_factory')\
-      .getCachePluginList()[0]
-
-  def _getCacheComputeNodeInformation(self, compute_node_id, user):
-    self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
-    slap_compute_node = ComputeNode(compute_node_id.decode("UTF-8"))
-    parent_uid = self._getComputeNodeUidByReference(compute_node_id)
-
-    slap_compute_node._computer_partition_list = []
-    slap_compute_node._software_release_list = \
-       self._getSoftwareReleaseValueListForComputeNode(compute_node_id)
-
-    unrestrictedSearchResults = self.getPortalObject().portal_catalog.unrestrictedSearchResults
-
-    compute_partition_list = unrestrictedSearchResults(
-      parent_uid=parent_uid,
-      validation_state="validated",
-      portal_type="Compute Partition"
-    )
-    self._calculateSlapComputeNodeInformation(slap_compute_node, compute_partition_list)
-
-    return dumps(slap_compute_node)
-
-  def _fillComputeNodeInformationCache(self, compute_node_id, user):
-    key = '%s_%s' % (compute_node_id, user)
-    try:
-      self._getCachePlugin().set(key, DEFAULT_CACHE_SCOPE,
-        dict (
-          time=time.time(),
-          refresh_etag=self._calculateRefreshEtag(),
-          data=self._getCacheComputeNodeInformation(compute_node_id, user),
-        ),
-        cache_duration=self.getPortalObject().portal_caches\
-            .getRamCacheRoot().get('compute_node_information_cache_factory'\
-              ).cache_duration
-        )
-    except (Unauthorized, IndexError):
-      # XXX: Unauthorized hack. Race condition of not ready setup delivery which provides
-      # security information shall not make this method fail, as it will be
-      # called later anyway
-      # Note: IndexError ignored, as it happend in case if full reindex is
-      # called on site
-      pass
-
-
-  def _activateFillComputeNodeInformationCache(self, compute_node_id, user):
-    tag = 'compute_node_information_cache_fill_%s_%s' % (compute_node_id, user)
-    if self.getPortalObject().portal_activities.countMessageWithTag(tag) == 0:
-      self.activate(activity='SQLQueue', tag=tag)._fillComputeNodeInformationCache(
-        compute_node_id, user)
-
-  def _calculateSlapComputeNodeInformation(self, slap_compute_node, compute_partition_list):
-    if len(compute_partition_list) == 0:
-      return
-
-    unrestrictedSearchResults = self.getPortalObject().portal_catalog.unrestrictedSearchResults
-
-    compute_partition_uid_list = [x.uid for x in compute_partition_list]
-    grouped_software_instance_list = unrestrictedSearchResults(
-      portal_type="Software Instance",
-      default_aggregate_uid=compute_partition_uid_list,
-      validation_state="validated",
-      group_by_list=['default_aggregate_uid'],
-      select_list=['default_aggregate_uid', 'count(*)']
-    )
-    slave_software_instance_list = unrestrictedSearchResults(
-      default_aggregate_uid=compute_partition_uid_list,
-      portal_type='Slave Instance',
-      validation_state="validated",
-      select_list=['default_aggregate_uid'],
-      **{"slapos_item.slap_state": "start_requested"}
-    )
-
-    for compute_partition in compute_partition_list:
-      software_instance_list = [x for x in grouped_software_instance_list if (x.default_aggregate_uid == compute_partition.getUid())]
-      if (len(software_instance_list) == 1) and (software_instance_list[0]['count(*)'] > 1):
-        software_instance_list = software_instance_list + software_instance_list
-      slap_compute_node._computer_partition_list.append(
-        self._getSlapPartitionByPackingList(
-          _assertACI(compute_partition.getObject()),
-          software_instance_list,
-          [x for x in slave_software_instance_list if (x.default_aggregate_uid == compute_partition.getUid())]
-        )
-      )
-
-  def _calculateRefreshEtag(self):
-    # check max indexation timestamp
-    # it is unlikely to get an empty catalog
-    last_indexed_entry = self.getPortalObject().portal_catalog(
-      select_list=['indexation_timestamp'],
-      portal_type=['Compute Node', 'Compute Partition',
-                   'Software Instance', 'Slave Instance',
-                   'Software Installation'],
-      sort_on=[('indexation_timestamp', 'DESC')],
-      limit=1,
-    )[0]
-    return '%s_%s' % (last_indexed_entry.uid,
-                      last_indexed_entry.indexation_timestamp)
-
-  def _getComputeNodeInformation(self, compute_node_id, user, refresh_etag):
-    portal = self.getPortalObject()
-    user_document = _assertACI(portal.portal_catalog.unrestrictedGetResultValue(
-      reference=user, portal_type=['Person', 'Compute Node', 'Software Instance']))
-    user_type = user_document.getPortalType()
-    self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
-    slap_compute_node = ComputeNode(compute_node_id.decode("UTF-8"))
-    parent_uid = self._getComputeNodeUidByReference(compute_node_id)
-
-    slap_compute_node._computer_partition_list = []
-    if user_type in ('Compute Node', 'Person'):
-      if not self._isTestRun():
-        cache_plugin = self._getCachePlugin()
-        key = '%s_%s' % (compute_node_id, user)
-        try:
-          entry = cache_plugin.get(key, DEFAULT_CACHE_SCOPE)
-        except KeyError:
-          entry = None
-
-        if entry is not None and isinstance(entry.getValue(), dict):
-          cached_dict = entry.getValue()
-          cached_etag = cached_dict.get('refresh_etag', None)
-          if (refresh_etag != cached_etag):
-            # Do not recalculate the compute_node information
-            # if nothing changed
-            self._activateFillComputeNodeInformationCache(compute_node_id, user)
-          return cached_dict['data'], cached_etag
-        else:
-          self._activateFillComputeNodeInformationCache(compute_node_id, user)
-          self.REQUEST.response.setStatus(503)
-          return self.REQUEST.response, None
-      else:
-        return self._getCacheComputeNodeInformation(compute_node_id, user), None
-    else:
-      slap_compute_node._software_release_list = []
-
-    if user_type == 'Software Instance':
-      compute_node = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
-        portal_type='Compute Node', reference=compute_node_id,
-        validation_state="validated")[0].getObject()
-      compute_partition_list = compute_node.contentValues(
-        portal_type="Compute Partition",
-        checked_permission="View")
-    else:
-      compute_partition_list = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
-                    parent_uid=parent_uid,
-                    validation_state="validated",
-                    portal_type="Compute Partition")
-
-    self._calculateSlapComputeNodeInformation(slap_compute_node, compute_partition_list)
-    return dumps(slap_compute_node), None
-
   @UnrestrictedMethod
   def _getInstanceTreeIpList(self, compute_node_id, compute_partition_id):
     software_instance = self._getSoftwareInstanceForComputePartition(
@@ -363,8 +208,11 @@ class SlapTool(BaseTool):
     if str(user) == computer_id:
       compute_node = self.getPortalObject().portal_membership.getAuthenticatedMember().getUserValue()
       compute_node.setAccessStatus('#access %s' % computer_id)
-    refresh_etag = self._calculateRefreshEtag()
-    body, etag = self._getComputeNodeInformation(computer_id, user, refresh_etag)
+    else:
+      compute_node = self._getComputeNodeDocument(computer_id)
+
+    refresh_etag = compute_node._calculateRefreshEtag()
+    body, etag = compute_node._getComputeNodeInformation(user, refresh_etag)
 
     if self.REQUEST.response.getStatus() == 200:
       # Keep in cache server for 7 days
@@ -1575,37 +1423,6 @@ class SlapTool(BaseTool):
       'full_ip_list': full_ip_list,
       'timestamp': "%i" % timestamp,
     }
-
-  @UnrestrictedMethod
-  def _getSoftwareReleaseValueListForComputeNode(self, compute_node_reference):
-    """Returns list of Software Releases documentsfor compute_node"""
-    compute_node_document = self._getComputeNodeDocument(compute_node_reference)
-    portal = self.getPortalObject()
-    software_release_list = []
-    for software_installation in portal.portal_catalog.unrestrictedSearchResults(
-      portal_type='Software Installation',
-      default_aggregate_uid=compute_node_document.getUid(),
-      validation_state='validated',
-      ):
-      software_installation = _assertACI(software_installation.getObject())
-      software_release_response = SoftwareRelease(
-          software_release=software_installation.getUrlString().decode('UTF-8'),
-          computer_guid=compute_node_reference.decode('UTF-8'))
-      if software_installation.getSlapState() == 'destroy_requested':
-        software_release_response._requested_state = 'destroyed'
-      else:
-        software_release_response._requested_state = 'available'
-
-      known_state = software_installation.getTextAccessStatus()
-      if known_state.startswith("#access"):
-        software_release_response._known_state = 'available'
-      elif known_state.startswith("#building"):
-        software_release_response._known_state = 'building'
-      else:
-        software_release_response._known_state = 'error'
-
-      software_release_list.append(software_release_response)
-    return software_release_list
 
   @convertToREST
   def _softwareReleaseError(self, url, compute_node_id, error_log):

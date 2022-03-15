@@ -700,7 +700,7 @@ return %s""" % (script_name, fake_return ))
       preferred_aggregated_sale_trade_condition=\
         'sale_trade_condition_module/slapos_aggregated_trade_condition_v3',
       preferred_aggregated_subscription_sale_trade_condition=\
-        'sale_trade_condition_module/slapos_aggregated_subscription_trade_condition',
+        'sale_trade_condition_module/slapos_aggregated_subscription_trade_condition_v3',
       preferred_default_pre_payment_template=\
         'accounting_module/slapos_pre_payment_template',
       preferred_instance_delivery_template=\

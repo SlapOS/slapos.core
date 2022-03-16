@@ -29,7 +29,6 @@ ansible-playbook imt-vm-bootstrap.yml -i hosts --connection=local
 
 
 # Check if playbook has been correctly extracted
-ANSIBLE_CRON_FILE="/etc/cron.d/ansible-vm-bootstrap"
 COUNT=$(ls /opt/slapos.playbook | wc -l)
 if [[ ! $COUNT -gt 1 ]]
 then
@@ -39,9 +38,7 @@ then
 fi
 
 # check if Ansible cron task was added
-if [[ ! -s "$ANSIBLE_CRON_FILE" ]]
-then
-  exit 1
-fi
+ANSIBLE_RUN_SCRIPT="/usr/local/bin/vm-bootstrap-update"
+[ -s "$ANSIBLE_RUN_SCRIPT"  || exit 1
 
 exit 0

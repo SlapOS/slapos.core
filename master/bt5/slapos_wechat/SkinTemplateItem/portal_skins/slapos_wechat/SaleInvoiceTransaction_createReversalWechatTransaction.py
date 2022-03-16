@@ -10,7 +10,7 @@ assert context.getPortalType() == 'Sale Invoice Transaction'
 assert context.getPaymentMode() == 'wechat'
 assert context.getSimulationState() == 'stopped'
 assert context.getTotalPrice() != 0
-assert context.getSpecialise() == "sale_trade_condition_module/slapos_aggregated_trade_condition"
+assert context.Base_useSaleTradeConditionReference("slapos_aggregated_trade_condition")
 
 paid = True
 for line in context.getMovementList(portal.getPortalAccountingMovementTypeList()):

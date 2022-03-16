@@ -108,13 +108,13 @@ def SoftwareInstance_renameAndRequestDestroy(self, REQUEST=None):
   for name in [title, new_title]:
     # reset request cache
     key = '_'.join([instance_tree, name])
-    instance_tree.setLastData({}, key=key)
+    self.setLastData({}, key=key)
 
   # Them call bang to enforce tree to reprocess.
   timestamp = str(int(self.getModificationDate()))
   key = "%s_bangstamp" % self.getReference()
 
-  if (self.portal_slap._getLastData(key) != timestamp):
+  if (self.getLastData(key) != timestamp):
     self.bang(bang_tree=True, comment="Instance was destroyed.")
   self.setLastData(str(int(self.getModificationDate())), key=key)
 
@@ -152,13 +152,13 @@ def SoftwareInstance_renameAndRequestStop(self, REQUEST=None):
   for name in [title, new_title]:
     # reset request cache
     key = '_'.join([instance_tree, name])
-    instance_tree.setLastData({}, key=key)
+    self.setLastData({}, key=key)
 
   # Them call bang to enforce tree to reprocess.
   timestamp = str(int(self.getModificationDate()))
   key = "%s_bangstamp" % self.getReference()
 
-  if (self.portal_slap._getLastData(key) != timestamp):
+  if (self.getLastData(key) != timestamp):
     self.bang(bang_tree=True, comment="Instance was renamed.")
   self.setLastData(str(int(self.getModificationDate())), key=key)
 

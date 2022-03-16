@@ -72,7 +72,8 @@ elif transaction_status in continue_transaction_id_list:
   # Check authAmount and authDevise and if match, stop transaction
   auth_amount = int(transaction_kw['transactionDetails']['cardDetails']['authorizationResponse']['amount'])
   auth_devise = transaction_kw['transactionDetails']['cardDetails']['authorizationResponse']['currency']
-  transaction_amount = int((round(transaction.PaymentTransaction_getTotalPayablePrice(), 2) * -100))
+  # XXX use currency base_unit_quantity instead
+  transaction_amount = int((round(transaction.PaymentTransaction_getTotalPayablePrice() * -100, 0)))
 
   if transaction_amount != auth_amount:
     payzen_event.confirm(comment='Received amount (%r) does not match stored on transaction (%r)'% (auth_amount, transaction_amount))

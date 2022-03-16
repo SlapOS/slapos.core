@@ -25,6 +25,7 @@ from DateTime import DateTime
 from zExceptions import Unauthorized
 from Products.ERP5Type.tests.utils import createZODBPythonScript
 
+
 class TestSlapOSCurrency_getIntegrationMapping(SlapOSTestCaseMixinWithAbort):
 
   def test_integratedCurrency(self):
@@ -727,16 +728,21 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
   def test_PaymentTransaction_redirectToManualPayzenPayment_redirect(self):
     self.portal.portal_secure_payments.slapos_payzen_test.setReference("PSERV-Payzen-Test")
     self.tic()
-    person = self.makePerson()
+    project = self.addProject()
+    person = self.makePerson(project)
     invoice =  self.createStoppedSaleInvoiceTransaction(
-      destination_section=person.getRelativeUrl())
+      destination_section_value=person,
+      destination_project_value=project
+    )
     self.tic()
     payment = self.portal.accounting_module.newContent(
       portal_type="Payment Transaction",
       payment_mode='payzen',
       causality_value=invoice,
-      destination_section=invoice.getDestinationSection(),
+      destination_section_value=invoice.getDestinationSectionValue(),
+      destination_project_value=invoice.getDestinationProjectValue(),
       resource_value=self.portal.currency_module.EUR,
+      ledger="automated",
       created_by_builder=1 # to prevent init script to create lines
     )
     self.portal.portal_workflow._jumpToStateFor(payment, 'started')
@@ -778,16 +784,21 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
       len(system_event_list[0].contentValues(portal_type="Payzen Event Message")), 1)
 
   def test_PaymentTransaction_redirectToManualPayzenPayment_already_registered(self):
-    person = self.makePerson()
+    project = self.addProject()
+    person = self.makePerson(project)
     invoice =  self.createStoppedSaleInvoiceTransaction(
-      destination_section=person.getRelativeUrl())
+      destination_section_value=person,
+      destination_project_value=project
+    )
     self.tic()
     payment = self.portal.accounting_module.newContent(
       portal_type="Payment Transaction",
       payment_mode='payzen',
       causality_value=invoice,
-      destination_section=invoice.getDestinationSection(),
+      destination_section_value=invoice.getDestinationSectionValue(),
+      destination_project_value=invoice.getDestinationProjectValue(),
       resource_value=self.portal.currency_module.EUR,
+      ledger="automated",
       created_by_builder=1 # to prevent init script to create lines
     )
     self.portal.portal_workflow._jumpToStateFor(payment, 'started')

@@ -1,8 +1,10 @@
 Changes
 =======
 
-1.7.4 (unreleased)
+1.7.4 (2022-03-16)
 ------------------
+ * slapgrid: Fix promises not being logged to logfile
+ * format: give IPv4 to tap interface only if tap_gateway_interface option is present
  * format: remove use_unique_local_address_block option as it was never really used. User can add a local IPv6 range on the interface before running "slapos node format".
 
 1.7.3 (2022-02-17)

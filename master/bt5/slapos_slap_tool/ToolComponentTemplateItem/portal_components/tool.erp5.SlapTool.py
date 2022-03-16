@@ -40,7 +40,6 @@ from Products.ERP5Type.Tool.BaseTool import BaseTool
 from Products.ERP5Type import Permissions
 from Products.ERP5Type.Cache import CachingMethod
 from lxml import etree
-from Products.ERP5Type.tests.utils import DummyMailHostMixin
 try:
   from slapos.slap.slap import (
     Computer as ComputeNode,
@@ -159,14 +158,6 @@ class SlapTool(BaseTool):
   ####################################################
   # Public GET methods
   ####################################################
-
-  def _isTestRun(self):
-    if self.REQUEST.get('disable_isTestRun', False):
-      return False
-    if issubclass(self.getPortalObject().MailHost.__class__, DummyMailHostMixin) \
-        or self.REQUEST.get('test_list'):
-      return True
-    return False
 
   @UnrestrictedMethod
   def _getInstanceTreeIpList(self, compute_node_id, compute_partition_id):

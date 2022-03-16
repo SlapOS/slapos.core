@@ -11,7 +11,7 @@ if not params.get('full', False) and last_active_process is not None:
   last_active_process_start_date = last_active_process.getStartDate()
 
   if (last_active_process_start_date + 0.02083) > now:
-    kw['creation_date'] = '>= %s' % last_active_process_start_date.ISO()
+    kw['indexation_timestamp'] = '>= %s' % last_active_process_start_date.ISO()
   else:
     context.newActiveProcess().getRelativeUrl()
 else:

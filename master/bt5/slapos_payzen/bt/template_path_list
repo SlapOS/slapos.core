@@ -1,5 +1,3 @@
-accounting_module/template_sale_invoice_transaction
-accounting_module/template_sale_invoice_transaction/**
 portal_alarms/slapos_payzen_update_started_payment
 portal_integrations/slapos_payzen_test_integration
 portal_integrations/slapos_payzen_test_integration/Causality

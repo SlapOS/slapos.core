@@ -4,6 +4,7 @@ from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixinWithAbort
 import lxml.html
 from DateTime import DateTime
 from Products.ERP5Type.tests.utils import createZODBPythonScript
+import difflib
 
 HARDCODED_PRICE = -99.6
 
@@ -289,7 +290,11 @@ class TestSlapOSPayzenInterfaceWorkflow(SlapOSTestCaseMixinWithAbort):
 
     message_text_content = lxml.html.tostring(
       lxml.html.fromstring(message.getTextContent()), method='c14n')
-    self.assertEqual(message_text_content, expected_html_page)
+    self.assertEqual(message_text_content, expected_html_page,
+                     '\n'.join([q for q in difflib.unified_diff(
+                       message_text_content.split('\n'),
+                       expected_html_page.split('\n')
+                     )]))
 
   def test_updateStatus_noAccountingTransaction(self):
     event = self.createPayzenEvent()

@@ -11,6 +11,8 @@ from erp5.component.module.DateUtils import addToDate
 from erp5.component.document.SimulationMovement import SimulationMovement
 import transaction
 
+AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL = 'sale_trade_condition_module/slapos_aggregated_trade_condition_v3'
+
 def getSimulationStatePlanned(self, *args, **kwargs):
   return 'planned'
 
@@ -69,7 +71,7 @@ class TestDefaultInvoiceTransactionRule(SlapOSTestCaseMixin):
           trade_phase='slapos/invoicing',
           quantity_unit='unit/piece',
           specialise=
-              'sale_trade_condition_module/slapos_aggregated_trade_condition',
+              AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
           causality_list=['business_process_module/slapos_aggregated_business_process/invoice_path', 'business_process_module/slapos_aggregated_business_process/invoice'],
           delivery_value=self.portal.accounting_module.newContent(
               portal_type='Sale Invoice Transaction').newContent(
@@ -197,7 +199,7 @@ class TestDefaultInvoiceRule(SlapOSTestCaseMixin):
           use='trade/sale',
           trade_phase='slapos/invoicing',
           quantity_unit='unit/piece',
-          specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+          specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
           causality_list=['business_process_module/slapos_aggregated_business_process/invoice_path', 
                           'business_process_module/slapos_aggregated_business_process/invoice'])
 
@@ -274,7 +276,7 @@ class TestDefaultInvoicingRule(SlapOSTestCaseMixin):
           use='trade/sale',
           trade_phase='slapos/delivery',
           quantity_unit='unit/piece',
-          specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+          specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
           causality_list=['business_process_module/slapos_aggregated_business_process/delivery_path', 'business_process_module/slapos_aggregated_business_process/deliver'])
 
       self.assertEqual('planned',
@@ -388,7 +390,7 @@ class TestDefaultPaymentRule(SlapOSTestCaseMixin):
           use='trade/sale',
           trade_phase='slapos/accounting',
           quantity_unit='unit/piece',
-          specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+          specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
           causality_list=['business_process_module/slapos_aggregated_business_process/account'],
           delivery_value=self.portal.accounting_module.newContent(
               portal_type='Sale Invoice Transaction').newContent(
@@ -706,7 +708,7 @@ class TestDefaultTradeModelRule(SlapOSTestCaseMixin):
           use='trade/sale',
           trade_phase='slapos/invoicing',
           quantity_unit='unit/piece',
-          specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+          specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
           causality_list=['business_process_module/slapos_aggregated_business_process/invoice_path', 'business_process_module/slapos_aggregated_business_process/invoice'],
           delivery_value=self.portal.accounting_module.newContent(
               portal_type='Sale Invoice Transaction').newContent(
@@ -778,7 +780,7 @@ class TestDefaultTradeModelRule(SlapOSTestCaseMixin):
         .original_getSimulationState
 
 class TestDefaultDeliveryRule(SlapOSTestCaseMixin):
-  trade_condition = 'sale_trade_condition_module/slapos_aggregated_trade_condition'
+  trade_condition = AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL
   def test(self):
     def newArrow():
       return self.portal.organisation_module.newContent(

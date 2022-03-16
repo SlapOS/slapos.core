@@ -17,6 +17,8 @@ from DateTime import DateTime
 from erp5.component.module.DateUtils import addToDate#, getClosestDate
 from zExceptions import Unauthorized
 
+AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL = 'sale_trade_condition_module/slapos_aggregated_trade_condition_v3'
+
 class Simulator:
   def __init__(self, outfile, method, to_return=None):
     self.outfile = outfile
@@ -959,18 +961,18 @@ class TestSlapOSConfirmedDeliveryMixin:
 
   def test_typical(self):
     self._test('confirmed', 'solved',
-        'sale_trade_condition_module/slapos_aggregated_trade_condition', True)
+        AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL, True)
 
   def test_bad_specialise(self):
     self._test('confirmed', 'solved', None, False)
 
   def test_bad_simulation_state(self):
     self._test('started', 'solved',
-        'sale_trade_condition_module/slapos_aggregated_trade_condition', False)
+        AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL, False)
 
   def test_bad_causality_state(self):
     self._test('confirmed', 'calculating',
-        'sale_trade_condition_module/slapos_aggregated_trade_condition', False)
+        AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL, False)
 
   @withAbort
   def _test_script(self, simulation_state, causality_state, specialise,
@@ -998,7 +1000,7 @@ class TestSlapOSConfirmedDeliveryMixin:
 
   def test_script_typical(self):
     self._test_script('confirmed', 'solved',
-        'sale_trade_condition_module/slapos_aggregated_trade_condition',
+        AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         self.destination_state)
 
   def test_script_bad_specialise(self):
@@ -1006,17 +1008,17 @@ class TestSlapOSConfirmedDeliveryMixin:
 
   def test_script_bad_simulation_state(self):
     self._test_script('started', 'solved',
-        'sale_trade_condition_module/slapos_aggregated_trade_condition',
+        AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         'started')
 
   def test_script_bad_causality_state(self):
     self._test_script('confirmed', 'building',
-        'sale_trade_condition_module/slapos_aggregated_trade_condition',
+        AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         'confirmed')
 
   def test_script_bad_consistency(self):
     self._test_script('confirmed', 'solved',
-        'sale_trade_condition_module/slapos_aggregated_trade_condition',
+        AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         'confirmed', True)
 
 class TestSlapOSStartConfirmedAggregatedSalePackingListAlarm(
@@ -1028,19 +1030,19 @@ class TestSlapOSStartConfirmedAggregatedSalePackingListAlarm(
 
   def test_previous_month(self):
     self._test('confirmed', 'solved',
-        'sale_trade_condition_module/slapos_aggregated_trade_condition',
+        AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         True, delivery_date=DateTime("2012/03/22"),
         accounting_date=DateTime('2012/04/28'))
 
   def test_next_month(self):
     self._test('confirmed', 'solved',
-        'sale_trade_condition_module/slapos_aggregated_trade_condition',
+        AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         False, delivery_date=DateTime("2012/05/22"),
         accounting_date=DateTime('2012/04/28'))
 
   def test_same_month_early(self):
     self._test('confirmed', 'solved',
-        'sale_trade_condition_module/slapos_aggregated_trade_condition',
+        AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         False, delivery_date=DateTime("2012/04/22"),
         accounting_date=DateTime('2012/04/23'))
 
@@ -1048,7 +1050,7 @@ class TestSlapOSStartConfirmedAggregatedSalePackingListAlarm(
     delivery = self.portal.sale_packing_list_module.newContent(
       portal_type="Sale Packing List",
       start_date=DateTime("2012/04/22"),
-      specialise='sale_trade_condition_module/slapos_aggregated_trade_condition',
+      specialise=AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
       source=self.expected_slapos_organisation,
       source_section=self.expected_slapos_organisation,
       destination=self.expected_slapos_organisation,
@@ -1108,18 +1110,18 @@ class TestSlapOSDeliverStartedAggregatedSalePackingListAlarm(
 
   def test_typical(self):
     self._test('started', 'solved',
-        'sale_trade_condition_module/slapos_aggregated_trade_condition', True)
+        AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL, True)
 
   def test_bad_specialise(self):
     self._test('started', 'solved', None, False)
 
   def test_bad_simulation_state(self):
     self._test('confirmed', 'solved',
-        'sale_trade_condition_module/slapos_aggregated_trade_condition', False)
+        AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL, False)
 
   def test_bad_causality_state(self):
     self._test('started', 'calculating',
-        'sale_trade_condition_module/slapos_aggregated_trade_condition', False)
+        AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL, False)
 
   @withAbort
   def _test_script(self, simulation_state, causality_state, specialise,
@@ -1147,7 +1149,7 @@ class TestSlapOSDeliverStartedAggregatedSalePackingListAlarm(
 
   def test_script_typical(self):
     self._test_script('started', 'solved',
-        'sale_trade_condition_module/slapos_aggregated_trade_condition',
+        AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         self.destination_state)
 
   def test_script_bad_specialise(self):
@@ -1155,17 +1157,17 @@ class TestSlapOSDeliverStartedAggregatedSalePackingListAlarm(
 
   def test_script_bad_simulation_state(self):
     self._test_script('confirmed', 'solved',
-        'sale_trade_condition_module/slapos_aggregated_trade_condition',
+        AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         'confirmed')
 
   def test_script_bad_causality_state(self):
     self._test_script('started', 'building',
-        'sale_trade_condition_module/slapos_aggregated_trade_condition',
+        AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         'started')
 
   def test_script_bad_consistency(self):
     self._test_script('started', 'solved',
-        'sale_trade_condition_module/slapos_aggregated_trade_condition',
+        AGGREGATE_SALE_TRADE_CONDITION_RELATIVE_URL,
         'started', True)
 
 class TestSlapOSStopConfirmedAggregatedSaleInvoiceTransactionAlarm(

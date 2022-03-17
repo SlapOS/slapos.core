@@ -53,14 +53,6 @@
             <value> <string>**kw</string> </value>
         </item>
         <item>
-            <key> <string>_proxy_roles</string> </key>
-            <value>
-              <tuple>
-                <string>Owner</string>
-              </tuple>
-            </value>
-        </item>
-        <item>
             <key> <string>id</string> </key>
             <value> <string>SubscriptionRequest_init</string> </value>
         </item>

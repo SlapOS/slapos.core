@@ -9,12 +9,12 @@ if contract is None:
   return
 
 if context.SubscriptionRequest_getTransactionalUser() is not None:
-  if contract is not None and contract.getMaximumInvoiceDelay() > 0:
+  if contract.getMaximumInvoiceDelay() > 0:
     return True
 else:
   person = context.getDestinationSectionValue()
   if person.Entity_statSlapOSOutstandingAmount() > 0:
     return
   
-  if contract is not None and contract.getMaximumInvoiceDelay() > 0:
+  if contract.getMaximumInvoiceDelay() > 0:
     return True

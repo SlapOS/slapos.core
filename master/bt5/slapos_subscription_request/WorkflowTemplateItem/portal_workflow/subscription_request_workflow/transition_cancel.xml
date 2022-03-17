@@ -42,15 +42,17 @@
         <item>
             <key> <string>guard_permission</string> </key>
             <value>
-              <tuple>
-                <string>Modify portal content</string>
-              </tuple>
+              <tuple/>
             </value>
         </item>
         <item>
             <key> <string>guard_role</string> </key>
             <value>
-              <tuple/>
+              <tuple>
+                <string>Owner</string>
+                <string>Assignee</string>
+                <string>Assignor</string>
+              </tuple>
             </value>
         </item>
         <item>

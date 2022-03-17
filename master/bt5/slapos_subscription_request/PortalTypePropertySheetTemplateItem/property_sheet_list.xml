@@ -1,12 +1,4 @@
 <property_sheet_list>
- <portal_type id="Subscription Condition">
-  <item>InstanceTree</item>
-  <item>Price</item>
-  <item>SlapOSSubscriptionCondition</item>
-  <item>SoftwareInstance</item>
-  <item>TextDocument</item>
-  <item>Url</item>
- </portal_type>
  <portal_type id="Subscription Request">
   <item>Amount</item>
   <item>CredentialRequest</item>
@@ -15,10 +7,8 @@
   <item>Person</item>
   <item>Price</item>
   <item>Reference</item>
-  <item>SlaposSubscriptionRequestAuditConstraint</item>
-  <item>SoftwareInstance</item>
+  <item>SlapOSSubscriptionRequestConstraint</item>
   <item>Task</item>
-  <item>TextDocument</item>
   <item>Url</item>
   <item>VariationRange</item>
  </portal_type>

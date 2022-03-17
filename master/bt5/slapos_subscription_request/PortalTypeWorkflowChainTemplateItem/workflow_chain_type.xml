@@ -1,14 +1,34 @@
 <workflow_chain>
  <chain>
+  <type>Compute Node</type>
+  <workflow>slapos_subscription_request_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Email</type>
   <workflow>-coordinate_interaction_workflow</workflow>
  </chain>
  <chain>
-  <type>Subscription Condition</type>
-  <workflow>commerce_validation_workflow, edit_workflow</workflow>
+  <type>Instance Tree</type>
+  <workflow>slapos_subscription_request_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Open Sale Order</type>
+  <workflow>slapos_subscription_request_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Sale Invoice Transaction Line</type>
+  <workflow>slapos_subscription_request_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Sale Trade Condition</type>
+  <workflow>slapos_subscription_request_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Software Product</type>
+  <workflow>slapos_subscription_request_interaction_workflow</workflow>
  </chain>
  <chain>
   <type>Subscription Request</type>
-  <workflow>audit_validation_workflow, edit_workflow, subscription_request_workflow</workflow>
+  <workflow>edit_workflow, slapos_subscription_request_interaction_workflow, subscription_request_workflow</workflow>
  </chain>
 </workflow_chain>

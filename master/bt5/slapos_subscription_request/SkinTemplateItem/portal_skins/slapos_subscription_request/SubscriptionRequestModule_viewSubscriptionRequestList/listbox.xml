@@ -10,7 +10,6 @@
             <key> <string>delegated_list</string> </key>
             <value>
               <list>
-                <string>all_columns</string>
                 <string>columns</string>
                 <string>selection_name</string>
                 <string>title</string>
@@ -75,29 +74,6 @@
             <value>
               <dictionary>
                 <item>
-                    <key> <string>all_columns</string> </key>
-                    <value>
-                      <list>
-                        <tuple>
-                          <string>creation_date</string>
-                          <string>Creation Date</string>
-                        </tuple>
-                        <tuple>
-                          <string>modification_date</string>
-                          <string>Modification Date</string>
-                        </tuple>
-                        <tuple>
-                          <string>owner_title</string>
-                          <string>Owner</string>
-                        </tuple>
-                        <tuple>
-                          <string>translated_validation_state_title</string>
-                          <string>Consistency State</string>
-                        </tuple>
-                      </list>
-                    </value>
-                </item>
-                <item>
                     <key> <string>columns</string> </key>
                     <value>
                       <list>
@@ -106,16 +82,28 @@
                           <string>Title</string>
                         </tuple>
                         <tuple>
-                          <string>url_string</string>
-                          <string>Url String</string>
+                          <string>destination_section_title</string>
+                          <string>Client</string>
                         </tuple>
                         <tuple>
-                          <string>start_date</string>
+                          <string>source_project_title</string>
+                          <string>Project</string>
+                        </tuple>
+                        <tuple>
+                          <string>delivery.start_date</string>
                           <string>Start Date</string>
                         </tuple>
                         <tuple>
-                          <string>stop_date</string>
-                          <string>Stop Date</string>
+                          <string>resource_title</string>
+                          <string>Resource</string>
+                        </tuple>
+                        <tuple>
+                          <string>total_price</string>
+                          <string>Price</string>
+                        </tuple>
+                        <tuple>
+                          <string>price_currency_title</string>
+                          <string>Currency</string>
                         </tuple>
                         <tuple>
                           <string>translated_simulation_state_title</string>

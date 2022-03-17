@@ -23,77 +23,91 @@ from erp5.component.test.SlapOSTestCaseMixin import \
 
 class TestSlapOSSubscriptionRequestProcessAlarm(SlapOSTestCaseMixin):
 
-  def test_alarm_slapos_subscription_request_process_draft(self):
-    script_name = "SubscriptionRequest_verifyReservationPaymentTransaction"
-    alarm = self.portal.portal_alarms.slapos_subscription_request_process_draft
+  #################################################################
+  # slapos_subscription_request_create_from_orphaned_item
+  #################################################################
+  def _test_alarm_slapos_subscription_request_create_from_orphaned_item(self, portal_type):
+    script_name = "Item_createSubscriptionRequest"
+    alarm = self.portal.portal_alarms.slapos_subscription_request_create_from_orphaned_item
 
-    subscription_request = self.portal.subscription_request_module.newContent(
+    #####################################################
+    # Instance Tree without Subscription Request
+    document = self.portal.getDefaultModule(portal_type).newContent(
+        portal_type=portal_type,
+        title="Test %s no subscription %s" % (portal_type, self.new_id)
+    )
+    document.validate()
+    self.tic()
+    self._test_alarm(alarm, document, script_name)
+
+    #####################################################
+    # Instance Tree with Subscription Request
+    document = self.portal.getDefaultModule(portal_type).newContent(
+        portal_type=portal_type,
+        title="Test %s no subscription %s" % (portal_type, self.new_id)
+    )
+    document.validate()
+    self.tic()
+    self.portal.subscription_request_module.newContent(
         portal_type='Subscription Request',
         title="Test Subscription Request %s" % self.new_id,
-        reference="TESTSUBSCRIPTIONREQUEST-%s" % self.new_id
+        aggregate_value=document
+    )
+    self.tic()
+    self._test_alarm_not_visited(alarm, document, script_name)
+    #####################################################
+    # Instance Tree aggregated to another portal type
+    document = self.portal.getDefaultModule(portal_type).newContent(
+        portal_type=portal_type,
+        title="Test %s another portal type %s" % (portal_type, self.new_id)
+    )
+    document.validate()
+    self.tic()
+    self.portal.sale_packing_list_module.newContent(
+        portal_type='Sale Packing List',
+        title="Test Sale Packing List %s" % self.new_id,
+    ).newContent(
+      portal_type="Sale Packing List Line",
+      aggregate_value=document
+    )
+    self.tic()
+    self._test_alarm(alarm, document, script_name)
+
+  def test_Item_createSubscriptionRequest_alarm_fromOrphanedInstanceTree(self):
+    self._test_alarm_slapos_subscription_request_create_from_orphaned_item("Instance Tree")
+
+  def test_Item_createSubscriptionRequest_alarm_fromOrphanedComputeNode(self):
+    self._test_alarm_slapos_subscription_request_create_from_orphaned_item("Compute Node")
+
+  def test_Item_createSubscriptionRequest_alarm_fromOrphanedProject(self):
+    portal_type = 'Project'
+    script_name = "Item_createSubscriptionRequest"
+    alarm = self.portal.portal_alarms.slapos_subscription_request_create_from_orphaned_item
+    document = self.portal.getDefaultModule(portal_type).newContent(
+        portal_type=portal_type,
+        title="Test %s no subscription %s" % (portal_type, self.new_id)
+    )
+    self._test_alarm_not_visited(alarm, document, script_name)
+
+
+class TestSlapOSSubscriptionRequestValidateAlarm(SlapOSTestCaseMixin):
+  #################################################################
+  # slapos_subscription_request_validate_submitted
+  #################################################################
+  def _createSubscriptionRequest(self):
+    return self.portal.subscription_request_module.newContent(
+      portal_type='Subscription Request',
+      title="Test subscription %s" % (self.generateNewId())
     )
 
-    self._test_alarm(
-      alarm, subscription_request, script_name)
+  def test_SubscriptionRequest_validateIfSubmitted_alarm_notSubmitted(self):
+    script_name = "SubscriptionRequest_validateIfSubmitted"
+    alarm = self.portal.portal_alarms.slapos_subscription_request_validate_submitted
+    self._test_alarm_not_visited(alarm, self._createSubscriptionRequest(), script_name)
 
-  def test_alarm_slapos_subscription_request_process_planned(self):
-    script_name = "SubscriptionRequest_boostrapUserAccount"
-    alarm = self.portal.portal_alarms.slapos_subscription_request_process_planned
-
-    subscription_request = self.portal.subscription_request_module.newContent(
-        portal_type='Subscription Request',
-        title="Test Subscription Request %s" % self.new_id,
-        reference="TESTSUBSCRIPTIONREQUEST-%s" % self.new_id
-    )
-    subscription_request.plan()
-
-    self._test_alarm(
-      alarm, subscription_request, script_name)
-
-  def test_alarm_slapos_subscription_request_process_ordered(self):
-    script_name = "SubscriptionRequest_processOrdered"
-    alarm = self.portal.portal_alarms.slapos_subscription_request_process_ordered
-
-    subscription_request = self.portal.subscription_request_module.newContent(
-        portal_type='Subscription Request',
-        title="Test Subscription Request %s" % self.new_id,
-        reference="TESTSUBSCRIPTIONREQUEST-%s" % self.new_id
-    )
-    subscription_request.plan()
-    subscription_request.order()
-
-    self._test_alarm(
-      alarm, subscription_request, script_name)
-
-  def test_alarm_slapos_subscription_request_process_confirmed(self):
-    script_name = "SubscriptionRequest_processConfirmed"
-    alarm = self.portal.portal_alarms.slapos_subscription_request_process_confirmed
-
-    subscription_request = self.portal.subscription_request_module.newContent(
-        portal_type='Subscription Request',
-        title="Test Subscription Request %s" % self.new_id,
-        reference="TESTSUBSCRIPTIONREQUEST-%s" % self.new_id
-    )
-    subscription_request.plan()
-    subscription_request.order()
-    subscription_request.confirm()
-
-    self._test_alarm(
-      alarm, subscription_request, script_name)
-
-  def test_alarm_slapos_subscription_request_process_started(self):
-    script_name = "SubscriptionRequest_processStarted"
-    alarm = self.portal.portal_alarms.slapos_subscription_request_process_started
-
-    subscription_request = self.portal.subscription_request_module.newContent(
-        portal_type='Subscription Request',
-        title="Test Subscription Request %s" % self.new_id,
-        reference="TESTSUBSCRIPTIONREQUEST-%s" % self.new_id
-    )
-    subscription_request.plan()
-    subscription_request.order()
-    subscription_request.confirm()
-    subscription_request.start()
-    
-    self._test_alarm(
-      alarm, subscription_request, script_name)
+  def test_SubscriptionRequest_validateIfSubmitted_alarm_submitted(self):
+    script_name = "SubscriptionRequest_validateIfSubmitted"
+    alarm = self.portal.portal_alarms.slapos_subscription_request_validate_submitted
+    subscription_request = self._createSubscriptionRequest()
+    self.portal.portal_workflow._jumpToStateFor(subscription_request, 'submitted')
+    self._test_alarm(alarm, subscription_request, script_name)

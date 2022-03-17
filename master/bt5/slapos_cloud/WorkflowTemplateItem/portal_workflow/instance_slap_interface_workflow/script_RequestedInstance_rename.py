@@ -30,3 +30,10 @@ if len(request_software_instance_list) == 1:
 
 # Change the title
 instance.edit(title=software_title, activate_kw={'tag': tag})
+
+# Ensure that the latest date is reset for both new and old instance
+hosting = instance.getSpecialise()
+for name in [instance.getTitle(), new_name]:
+  # reset request cache
+  key = '_'.join([hosting, name])
+  software_instance.setLastData({}, key=key)

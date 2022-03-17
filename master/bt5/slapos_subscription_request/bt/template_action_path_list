@@ -1,10 +1,5 @@
 Instance Tree | jump_to_related_subscription_request
 Person | jump_to_subscription_request
 Sale Invoice Transaction | jump_to_related_subscription_request
-Subscription Condition Module | view
-Subscription Condition | view
-Subscription Request Module | notify_active_subscriber_list
-Subscription Request Module | rss_view
 Subscription Request Module | view
-Subscription Request | accounting_list
 Subscription Request | view

@@ -35,6 +35,10 @@ from Products.ERP5Type.Cache import DEFAULT_CACHE_SCOPE
 
 import json
 
+ACCESS = "#access"
+ERROR = "#error"
+BUILDING = "#building"
+
 class SlapOSCacheMixin:
 
   # Declarative security
@@ -93,7 +97,16 @@ class SlapOSCacheMixin:
 
     return  data_dict
 
-  def setAccessStatus(self, text, state=""):
+  def setAccessStatus(self, text, state="", reindex=0):
+    self._setAccessStatus("%s %s" % (ACCESS, text), state, reindex)
+
+  def setErrorStatus(self, text, state="", reindex=0):
+    self._setAccessStatus("%s %s" % (ERROR, text), state, reindex)
+
+  def setBuildingStatus(self, text, state="", reindex=0):
+    self._setAccessStatus("%s %s" % (BUILDING, text), state, reindex)
+
+  def _setAccessStatus(self, text, state="", reindex=0):
     user_reference = self.getPortalObject().portal_membership.getAuthenticatedMember()\
                                                    .getUserName()
 
@@ -121,6 +134,9 @@ class SlapOSCacheMixin:
     cache_duration = self._getAccessStatusCacheFactory().cache_duration
     self._getAccessStatusPlugin().set(self._getAccessStatusCacheKey(),
       DEFAULT_CACHE_SCOPE, value, cache_duration=cache_duration)
+    if status_changed and reindex:
+      self.reindexObject()
+    
     return status_changed
 
   def getTextAccessStatus(self):
@@ -133,7 +149,6 @@ class SlapOSCacheMixin:
 
     date = DateTime(data_dict['created_at'])
     return date.strftime('%Y/%m/%d %H:%M')
-
 
   #####################
   # SlapOS Last Data

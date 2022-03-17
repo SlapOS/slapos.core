@@ -171,7 +171,7 @@ class SlapTool(BaseTool):
     user = self.getPortalObject().portal_membership.getAuthenticatedMember().getUserName()
     if str(user) == computer_id:
       compute_node = self.getPortalObject().portal_membership.getAuthenticatedMember().getUserValue()
-      compute_node.setAccessStatus('#access %s' % computer_id)
+      compute_node.setAccessStatus(computer_id)
     else:
       compute_node = self._getComputeNodeDocument(computer_id)
 
@@ -609,7 +609,7 @@ class SlapTool(BaseTool):
     Fire up bung on Compute Node
     """
     compute_node = self._getComputeNodeDocument(compute_node_id) 
-    compute_node.setAccessStatus('#error bang')
+    compute_node.setErrorStatus('bang')
     return compute_node.reportComputeNodeBang(comment=message)
 
   security.declareProtected(Permissions.AccessContentsInformation,
@@ -807,8 +807,8 @@ class SlapTool(BaseTool):
     compute_node_document = self._getComputeNodeDocument(compute_node_id)
     software_installation = self._getSoftwareInstallationForComputeNode(url,
       compute_node_document)
-    software_installation.setAccessStatus(
-      '#building software release %s' % url, "building")
+    software_installation.setBuildingStatus(
+      'software release %s' % url, "building")
 
   @convertToREST
   def _availableSoftwareRelease(self, url, compute_node_id):
@@ -819,7 +819,7 @@ class SlapTool(BaseTool):
     software_installation = self._getSoftwareInstallationForComputeNode(url,
       compute_node_document)
     software_installation.setAccessStatus(
-      '#access software release %s available' % url, "available")
+      'software release %s available' % url, "available")
 
   @convertToREST
   def _destroyedSoftwareRelease(self, url, compute_node_id):
@@ -836,24 +836,25 @@ class SlapTool(BaseTool):
       software_installation.invalidate(
         comment="Software Release destroyed report.")
 
+
+####
+
   @convertToREST
   def _softwareInstanceError(self, compute_node_id,
                             compute_partition_id, error_log=""):
     """
     Add an error for the software Instance Workflow
     """
-    if error_log is None:
-      error_log = ""
-
     instance = self._getSoftwareInstanceForComputePartition(
         compute_node_id,
         compute_partition_id)
     
-    status_changed = instance.setAccessStatus(
-      '#error while instanciating: %s' % error_log[-80:])
+    if error_log is None:
+      error_log = ""
+    instance.setErrorStatus(
+      'while instanciating: %s' % error_log[-80:], reindex=1)
 
-    if status_changed:
-      instance.reindexObject()
+#####
 
   @convertToREST
   def _softwareInstanceRename(self, new_name, compute_node_id,
@@ -876,7 +877,7 @@ class SlapTool(BaseTool):
         compute_node_id,
         compute_partition_id)
     
-    software_instance.setAccessStatus('#error bang called')
+    software_instance.setErrorStatus('bang called')
     timestamp = str(int(software_instance.getModificationDate()))
     key = "%s_bangstamp" % software_instance.getReference()
 
@@ -896,9 +897,9 @@ class SlapTool(BaseTool):
     instance = self._getSoftwareInstanceForComputePartition(
         compute_node_id,
         compute_partition_id)
-    status_changed = instance.setAccessStatus('#access Instance correctly started', "started")
-    if status_changed:
-      instance.reindexObject()
+    
+    instance.setAccessStatus(
+      'Instance correctly started', "started", reindex=1)
 
   @convertToREST
   def _stoppedComputePartition(self, compute_node_id, compute_partition_id):
@@ -908,9 +909,8 @@ class SlapTool(BaseTool):
     instance = self._getSoftwareInstanceForComputePartition(
         compute_node_id,
         compute_partition_id)
-    status_changed = instance.setAccessStatus('#access Instance correctly stopped', "stopped")
-    if status_changed:
-      instance.reindexObject()
+    instance.setAccessStatus(
+      'Instance correctly stopped', "stopped", reindex=1)
 
   @convertToREST
   def _destroyedComputePartition(self, compute_node_id, compute_partition_id):
@@ -1257,6 +1257,6 @@ class SlapTool(BaseTool):
     compute_node_document = self._getComputeNodeDocument(compute_node_id)
     software_installation = self._getSoftwareInstallationForComputeNode(url,
       compute_node_document)
-    software_installation.setAccessStatus('#error while installing %s' % url)
+    software_installation.setErrorStatus('while installing %s' % url)
 
 InitializeClass(SlapTool)

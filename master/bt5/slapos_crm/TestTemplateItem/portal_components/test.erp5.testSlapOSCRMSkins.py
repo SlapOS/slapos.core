@@ -814,7 +814,7 @@ class TestComputeNode_hasContactedRecently(SlapOSTestCaseMixinWithAbort):
   @simulate('ComputeNode_getCreationDate', '*args, **kwargs','return DateTime() - 32')
   def test_ComputeNode_hasContactedRecently_memcached(self):
     compute_node = self._makeComputeNode()[0]
-    compute_node.setAccessStatus("#access ")
+    compute_node.setAccessStatus("")
     self.tic()
 
     compute_node.getCreationDate = self.portal.ComputeNode_getCreationDate
@@ -827,7 +827,7 @@ class TestComputeNode_hasContactedRecently(SlapOSTestCaseMixinWithAbort):
     compute_node = self._makeComputeNode()[0]
     try:
       self.pinDateTime(DateTime()-32)
-      compute_node.setAccessStatus("#access ")
+      compute_node.setAccessStatus("")
     finally:
       self.unpinDateTime()
 
@@ -843,7 +843,7 @@ class TestComputeNode_hasContactedRecently(SlapOSTestCaseMixinWithAbort):
     compute_node = self._makeComputeNode()[0]
     try:
       self.pinDateTime(DateTime()-32)
-      compute_node.setAccessStatus("#access ")
+      compute_node.setAccessStatus("")
     finally:
       self.unpinDateTime()
 
@@ -1008,7 +1008,7 @@ class TestSlapOSComputeNode_CheckState(TestCRMSkinsMixin):
     try:
       d = DateTime() - 1.1
       self.pinDateTime(d)
-      compute_node.setAccessStatus("#access ")
+      compute_node.setAccessStatus("")
     finally:
       self.unpinDateTime()
 
@@ -1045,7 +1045,7 @@ class TestSlapOSComputeNode_CheckState(TestCRMSkinsMixin):
 
     try:
       self.pinDateTime(DateTime()-1.1)
-      compute_node.setAccessStatus("#access ")
+      compute_node.setAccessStatus("")
     finally:
       self.unpinDateTime()
 
@@ -1275,7 +1275,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     self._makeComputeNode()
     self._makeComputePartitionList()
 
-    instance.setAccessStatus("#error ")
+    instance.setErrorStatus("")
   
     self.assertEqual(instance.SoftwareInstance_hasReportedError(), None)
 
@@ -1283,7 +1283,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
 
     self.assertEqual(str(instance.SoftwareInstance_hasReportedError()), '#error ')
 
-    instance.setAccessStatus("#access ")
+    instance.setAccessStatus("")
     self.assertEqual(instance.SoftwareInstance_hasReportedError(), None)
 
   def test_SoftwareInstallation_hasReportedError(self):
@@ -1298,14 +1298,14 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     error_date = DateTime()
     try:
       self.pinDateTime(error_date)
-      installation.setAccessStatus("#error ")
+      installation.setErrorStatus("")
     finally:
       self.unpinDateTime()
 
     self.assertEqual(
       rfc1123_date(installation.SoftwareInstallation_hasReportedError()),
       rfc1123_date(error_date))
-    installation.setAccessStatus("#building ")
+    installation.setBuildingStatus("")
 
     self.assertEqual(installation.SoftwareInstallation_hasReportedError(), None)
 
@@ -1352,7 +1352,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
          "slapos-crm-instance-tree-instance-state.notification"),
         instance_tree.InstanceTree_checkSoftwareInstanceState())
 
-      instance.setAccessStatus("#access ")
+      instance.setAccessStatus("")
 
       self.assertEqual(None,
         instance_tree.InstanceTree_checkSoftwareInstanceState())
@@ -1455,7 +1455,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
       instance.requestInstance(**kw)
       self.tic()
 
-      instance.setAccessStatus("#access ")
+      instance.setAccessStatus("")
 
       self.assertEqual(
         'Visited by InstanceTree_createSupportRequestEvent %s %s' % \
@@ -1490,7 +1490,7 @@ class TestSlapOSHasError(SlapOSTestCaseMixin):
     self._makeComputePartitionList()
     instance.setAggregateValue(self.compute_node.partition1)
 
-    instance.setAccessStatus("#error ")
+    instance.setErrorStatus("")
     self.assertEqual(
         None,
         instance_tree.InstanceTree_checkSoftwareInstanceState())

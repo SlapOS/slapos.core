@@ -1,18 +1,11 @@
 <base_category_list>
- <portal_type id="Subscription Condition">
-  <item>aggregate</item>
-  <item>follow_up</item>
-  <item>source</item>
-  <item>source_section</item>
- </portal_type>
- <portal_type id="Subscription Condition Module">
-  <item>business_application</item>
- </portal_type>
  <portal_type id="Subscription Request">
   <item>aggregate</item>
   <item>causality</item>
+  <item>destination_project</item>
   <item>destination_section</item>
   <item>source</item>
+  <item>source_project</item>
   <item>source_section</item>
   <item>specialise</item>
  </portal_type>

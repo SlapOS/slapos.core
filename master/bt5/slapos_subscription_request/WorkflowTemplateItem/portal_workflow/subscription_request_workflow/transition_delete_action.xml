@@ -51,6 +51,7 @@
               <tuple>
                 <string>Assignee</string>
                 <string>Assignor</string>
+                <string>Owner</string>
               </tuple>
             </value>
         </item>

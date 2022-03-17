@@ -38,7 +38,7 @@
         </item>
         <item>
             <key> <string>variable_default_expression</string> </key>
-            <value> <string>user/getUserName</string> </value>
+            <value> <string>user/getIdOrUserName</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -341,6 +341,8 @@ def bootstrapBuildout(path, logger, buildout=None,
     process_handler = SlapPopen(invocation_list,
                                 preexec_fn=lambda: dropPrivileges(uid, gid, logger=logger),
                                 cwd=path,
+                                env=getCleanEnvironment(logger,
+                                     home_path=pwd.getpwuid(os.stat(path).st_uid).pw_dir),
                                 logger=logger)
     if process_handler.returncode is None or process_handler.returncode != 0:
       message = 'Failed to run buildout profile in directory %r' % path

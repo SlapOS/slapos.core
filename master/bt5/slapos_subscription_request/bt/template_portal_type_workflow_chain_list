@@ -1,6 +1,10 @@
+Compute Node | slapos_subscription_request_interaction_workflow
 Email | -coordinate_interaction_workflow
-Subscription Condition | commerce_validation_workflow
-Subscription Condition | edit_workflow
-Subscription Request | audit_validation_workflow
+Instance Tree | slapos_subscription_request_interaction_workflow
+Open Sale Order | slapos_subscription_request_interaction_workflow
+Sale Invoice Transaction Line | slapos_subscription_request_interaction_workflow
+Sale Trade Condition | slapos_subscription_request_interaction_workflow
+Software Product | slapos_subscription_request_interaction_workflow
 Subscription Request | edit_workflow
+Subscription Request | slapos_subscription_request_interaction_workflow
 Subscription Request | subscription_request_workflow

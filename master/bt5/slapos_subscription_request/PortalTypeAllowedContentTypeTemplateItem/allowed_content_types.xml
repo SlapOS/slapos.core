@@ -1,7 +1,4 @@
 <allowed_content_type_list>
- <portal_type id="Subscription Condition Module">
-  <item>Subscription Condition</item>
- </portal_type>
  <portal_type id="Subscription Request">
   <item>Email</item>
  </portal_type>

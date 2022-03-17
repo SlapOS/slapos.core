@@ -216,3 +216,26 @@ class SoftwareInstance(Item):
       'full_ip_list': full_ip_list,
       'timestamp': "%i" % timestamp,
     }
+
+  @UnrestrictedMethod
+  def _getInstanceTreeIpList(self):
+    if self.getSlapState() == 'destroy_requested':
+      return []
+    # Search instance tree
+    instance_tree = self.getSpecialiseValue()
+    while instance_tree and instance_tree.getPortalType() != "Instance Tree":
+      instance_tree = instance_tree.getSpecialiseValue()
+    ip_address_list = []
+    for instance in instance_tree.getSpecialiseRelatedValueList(
+                                              portal_type="Software Instance"):
+      compute_partition = instance.getAggregateValue(portal_type="Compute Partition")
+      if not compute_partition:
+        continue
+      for internet_protocol_address in compute_partition.contentValues(
+                                      portal_type='Internet Protocol Address'):
+        ip_address_list.append(
+              (internet_protocol_address.getNetworkInterface('').decode("UTF-8"),
+              internet_protocol_address.getIpAddress().decode("UTF-8"))
+        )
+    
+    return ip_address_list

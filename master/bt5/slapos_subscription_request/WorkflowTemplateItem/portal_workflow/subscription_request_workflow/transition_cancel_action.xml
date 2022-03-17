@@ -19,7 +19,6 @@
             <value>
               <tuple>
                 <string>action_type/workflow</string>
-                <string>before_script/portal_workflow/subscription_request_workflow/script_checkConsistency</string>
                 <string>after_script/portal_workflow/subscription_request_workflow/transition_cancel</string>
               </tuple>
             </value>
@@ -39,16 +38,16 @@
         <item>
             <key> <string>guard_permission</string> </key>
             <value>
-              <tuple>
-                <string>Modify portal content</string>
-              </tuple>
+              <tuple/>
             </value>
         </item>
         <item>
             <key> <string>guard_role</string> </key>
             <value>
               <tuple>
-                <string>Assignor or Assignee</string>
+                <string>Assignee</string>
+                <string>Assignor</string>
+                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -68,7 +67,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>CancelAction</string> </value>
+            <value> <string>Cancel Action</string> </value>
         </item>
         <item>
             <key> <string>trigger_type</string> </key>

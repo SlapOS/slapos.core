@@ -1,12 +1,9 @@
-Subscription Condition Module | business_application
-Subscription Condition | aggregate
-Subscription Condition | follow_up
-Subscription Condition | source
-Subscription Condition | source_section
 Subscription Request Module | business_application
 Subscription Request | aggregate
 Subscription Request | causality
+Subscription Request | destination_project
 Subscription Request | destination_section
 Subscription Request | source
+Subscription Request | source_project
 Subscription Request | source_section
 Subscription Request | specialise

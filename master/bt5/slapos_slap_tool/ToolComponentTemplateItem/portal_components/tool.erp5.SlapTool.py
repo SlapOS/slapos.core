@@ -159,33 +159,6 @@ class SlapTool(BaseTool):
   # Public GET methods
   ####################################################
 
-  @UnrestrictedMethod
-  def _getInstanceTreeIpList(self, compute_node_id, compute_partition_id):
-    software_instance = self._getSoftwareInstanceForComputePartition(
-                                          compute_node_id, compute_partition_id)
-    
-    if software_instance is None or \
-                        software_instance.getSlapState() == 'destroy_requested':
-      return dumps([])
-    # Search instance tree
-    hosting = software_instance.getSpecialiseValue()
-    while hosting and hosting.getPortalType() != "Instance Tree":
-      hosting = hosting.getSpecialiseValue()
-    ip_address_list = []
-    for instance in hosting.getSpecialiseRelatedValueList(
-                                              portal_type="Software Instance"):
-      compute_partition = instance.getAggregateValue(portal_type="Compute Partition")
-      if not compute_partition:
-        continue
-      for internet_protocol_address in compute_partition.contentValues(
-                                      portal_type='Internet Protocol Address'):
-        ip_address_list.append(
-              (internet_protocol_address.getNetworkInterface('').decode("UTF-8"),
-              internet_protocol_address.getIpAddress().decode("UTF-8"))
-        )
-    
-    return dumps(ip_address_list)
-
   security.declareProtected(Permissions.AccessContentsInformation,
     'getFullComputerInformation')
   def getFullComputerInformation(self, computer_id):
@@ -225,8 +198,12 @@ class SlapTool(BaseTool):
     Search and return all Compute Partition IP address related to one 
     Instance Tree
     """
-    result =  self._getInstanceTreeIpList(computer_id,
-                                                      computer_partition_id)
+    software_instance = self._getSoftwareInstanceForComputePartition(
+       computer_id, computer_partition_id)
+    if software_instance is not None:
+      result = software_instance._getInstanceTreeIpList()
+    else:
+      result = []
     
     if self.REQUEST.response.getStatus() == 200:
       # Keep in cache server for 7 days
@@ -235,7 +212,7 @@ class SlapTool(BaseTool):
       self.REQUEST.response.setHeader('Vary',
                                       'REMOTE_USER')
       self.REQUEST.response.setHeader('Last-Modified', rfc1123_date(DateTime()))
-      self.REQUEST.response.setBody(result)
+      self.REQUEST.response.setBody(dumps(result))
       return self.REQUEST.response
     else:
       return result

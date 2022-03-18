@@ -956,7 +956,7 @@ class SlapTool(BaseTool):
       software_instance.updateConnection(
         connection_xml=connection_xml,
       )
-      software_instance.setLastData(connection_xml)
+      
 
   @convertToREST
   def _requestComputePartition(self, compute_node_id, compute_partition_id,

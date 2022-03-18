@@ -605,7 +605,6 @@ class SlapTool(BaseTool):
     Fire up bung on Compute Node
     """
     compute_node = self._getComputeNodeDocument(compute_node_id) 
-    compute_node.setErrorStatus('bang')
     return compute_node.reportComputeNodeBang(comment=message)
 
   security.declareProtected(Permissions.AccessContentsInformation,

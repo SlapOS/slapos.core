@@ -29,11 +29,12 @@ if len(request_software_instance_list) == 1:
   raise ValueError, "Too many instances '%s' found: %s" % (software_title, [x.path for x in request_software_instance_list])
 
 # Change the title
+previous_title = instance.getTitle()
 instance.edit(title=software_title, activate_kw={'tag': tag})
 
 # Ensure that the latest date is reset for both new and old instance
 hosting = instance.getSpecialise()
-for name in [instance.getTitle(), new_name]:
+for name in [previous_title, software_title]:
   # reset request cache
   key = '_'.join([hosting, name])
-  software_instance.setLastData({}, key=key)
+  instance.setLastData({}, key=key)

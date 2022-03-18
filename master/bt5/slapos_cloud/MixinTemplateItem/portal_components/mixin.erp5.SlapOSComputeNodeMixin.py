@@ -32,6 +32,7 @@ from AccessControl.Permissions import access_contents_information
 from AccessControl import getSecurityManager
 from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
 from Products.ERP5Type.tests.utils import DummyMailHostMixin
+from OFS.Traversable import NotFound
 
 import time
 from lxml import etree
@@ -149,7 +150,6 @@ class SlapOSComputeNodeMixin(object):
       # Note: IndexError ignored, as it happend in case if full reindex is
       # called on site
       pass
-
 
   def _calculateRefreshEtag(self):
     # check max indexation timestamp
@@ -326,3 +326,24 @@ class SlapOSComputeNodeMixin(object):
       slap_partition._parameter_dict.update(parameter_dict)
 
     return slap_partition
+
+  def _getSoftwareInstallationFromUrl(self, url):
+    software_installation_list = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
+      portal_type='Software Installation',
+      default_aggregate_uid=self.getUid(),
+      validation_state='validated',
+      limit=2,
+      url_string={'query': url, 'key': 'ExactMatch'},
+    )
+
+    l = len(software_installation_list)
+    if l == 1:
+      return _assertACI(software_installation_list[0].getObject())
+    elif l == 0:
+      raise NotFound('No software release %r found on compute_node %r' % (url,
+        self.getReference()))
+    else:
+      raise ValueError('Wrong list of software releases on %r: %s' % (
+        self.getReference(), ', '.join([q.getRelativeUrl() for q \
+          in software_installation_list])
+      ))

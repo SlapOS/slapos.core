@@ -304,15 +304,11 @@ class SlapTool(BaseTool):
     """
     Get the connection status of the software installation
     """
-    compute_node = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
-      portal_type='Compute Node', reference=computer_id,
-      validation_state="validated")[0].getObject()
+    compute_node = self._getComputeNodeDocument(computer_id)
     # Be sure to prevent accessing information to disallowed users
     compute_node = _assertACI(compute_node)
     try:
-      software_installation = self._getSoftwareInstallationForComputeNode(
-          url,
-          compute_node)
+      software_installation = compute_node._getSoftwareInstallationFromUrl(url)
     except NotFound:
       data_dict = self._getAccessStatus(None)
     else:
@@ -799,14 +795,17 @@ class SlapTool(BaseTool):
     compute_node_document = self._getComputeNodeDocument(compute_node_id)
     compute_node_document.requestSoftwareRelease(software_release_url=url, state=state)
 
+
+
+######## 
+
   @convertToREST
   def _buildingSoftwareRelease(self, url, compute_node_id):
     """
     Log the software release status
     """
-    compute_node_document = self._getComputeNodeDocument(compute_node_id)
-    software_installation = self._getSoftwareInstallationForComputeNode(url,
-      compute_node_document)
+    compute_node = self._getComputeNodeDocument(compute_node_id)
+    software_installation = compute_node._getSoftwareInstallationFromUrl(url)
     software_installation.setBuildingStatus(
       'software release %s' % url, "building")
 
@@ -815,9 +814,8 @@ class SlapTool(BaseTool):
     """
     Log the software release status
     """
-    compute_node_document = self._getComputeNodeDocument(compute_node_id)
-    software_installation = self._getSoftwareInstallationForComputeNode(url,
-      compute_node_document)
+    compute_node = self._getComputeNodeDocument(compute_node_id)
+    software_installation = compute_node._getSoftwareInstallationFromUrl(url)
     software_installation.setAccessStatus(
       'software release %s available' % url, "available")
 
@@ -826,9 +824,8 @@ class SlapTool(BaseTool):
     """
     Reports that Software Release is destroyed
     """
-    compute_node_document = self._getComputeNodeDocument(compute_node_id)
-    software_installation = self._getSoftwareInstallationForComputeNode(url,
-      compute_node_document)
+    compute_node = self._getComputeNodeDocument(compute_node_id)
+    software_installation = compute_node._getSoftwareInstallationFromUrl(url)
     if software_installation.getSlapState() != 'destroy_requested':
       raise NotFound
     if self.getPortalObject().portal_workflow.isTransitionPossible(software_installation,
@@ -1196,31 +1193,6 @@ class SlapTool(BaseTool):
                              parent_uid=self._getComputeNodeUidByReference(
                                 compute_node_reference))
 
-  def _getSoftwareInstallationForComputeNode(self, url, compute_node_document):
-    software_installation_list = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
-      portal_type='Software Installation',
-      default_aggregate_uid=compute_node_document.getUid(),
-      validation_state='validated',
-      limit=2,
-      url_string={'query': url, 'key': 'ExactMatch'},
-    )
-
-    l = len(software_installation_list)
-    if l == 1:
-      return _assertACI(software_installation_list[0].getObject())
-    elif l == 0:
-      raise NotFound('No software release %r found on compute_node %r' % (url,
-        compute_node_document.getReference()))
-    else:
-      raise ValueError('Wrong list of software releases on %r: %s' % (
-        compute_node_document.getReference(), ', '.join([q.getRelativeUrl() for q \
-          in software_installation_list])
-      ))
-  
-  def _getSoftwareInstallationReference(self, url, compute_node_document):
-    return self._getSoftwareInstallationForComputeNode(url,
-              compute_node_document).getReference()
-  
   def _getSoftwareInstanceForComputePartition(self, compute_node_id,
       compute_partition_id, slave_reference=None):
     compute_partition_document = self._getComputePartitionDocument(
@@ -1254,9 +1226,8 @@ class SlapTool(BaseTool):
     """
     Log the compute_node status
     """
-    compute_node_document = self._getComputeNodeDocument(compute_node_id)
-    software_installation = self._getSoftwareInstallationForComputeNode(url,
-      compute_node_document)
+    compute_node = self._getComputeNodeDocument(compute_node_id)
+    software_installation = compute_node._getSoftwareInstallationFromUrl(url)
     software_installation.setErrorStatus('while installing %s' % url)
 
 InitializeClass(SlapTool)

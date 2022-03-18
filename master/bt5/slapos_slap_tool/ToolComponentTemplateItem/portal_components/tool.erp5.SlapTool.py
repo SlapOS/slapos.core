@@ -882,7 +882,6 @@ class SlapTool(BaseTool):
 
     if (software_instance.getLastData(key) != timestamp):
       software_instance.bang(bang_tree=True, comment=message)
-      software_instance.setLastData(key, str(int(software_instance.getModificationDate())))
     return "OK"
 
   @convertToREST

@@ -3,6 +3,9 @@ instance = state_change['object']
 assert instance.getPortalType() in ["Slave Instance", "Software Instance"]
 
 instance.edit(bang_timestamp=int(DateTime()))
+key = "%s_bangstamp" % instance.getReference()
+instance.setLastData(key, str(int(instance.getModificationDate())))
+
 comment = state_change.kwargs['comment'] # comment is required to pass the transition
 if state_change.kwargs['bang_tree']:
   from Products.ZSQLCatalog.SQLCatalog import Query, NegatedQuery

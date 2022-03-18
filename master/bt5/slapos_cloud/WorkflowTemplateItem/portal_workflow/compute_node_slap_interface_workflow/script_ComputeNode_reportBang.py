@@ -11,3 +11,5 @@ for compute_partition in [x for x in compute_node.contentValues(portal_type='Com
         relative_url=instance.getRelativeUrl(),
         reference=instance.getReference(), 
         comment=state_change.kwargs.get('comment', ''))
+
+compute_node.setErrorStatus('bang')

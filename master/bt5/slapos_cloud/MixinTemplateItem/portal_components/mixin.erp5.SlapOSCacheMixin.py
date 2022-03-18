@@ -181,3 +181,6 @@ class SlapOSCacheMixin:
     else:
       entry = entry.getValue()
     return entry
+
+  def isLastData(self, key=None, value=None):
+    return self.getLastData(key) == value

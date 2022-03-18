@@ -173,7 +173,11 @@ class SlapTool(BaseTool):
       compute_node = self.getPortalObject().portal_membership.getAuthenticatedMember().getUserValue()
       compute_node.setAccessStatus(computer_id)
     else:
-      compute_node = self._getComputeNodeDocument(computer_id)
+      # Don't use getDocument because we don't want use _assertACI here, but
+      # just call the API on computer.
+      compute_node = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
+        portal_type='Compute Node', reference=computer_id,
+        validation_state="validated")[0].getObject()
 
     refresh_etag = compute_node._calculateRefreshEtag()
     body, etag = compute_node._getComputeNodeInformation(user, refresh_etag)
@@ -877,10 +881,7 @@ class SlapTool(BaseTool):
     timestamp = str(int(software_instance.getModificationDate()))
     key = "%s_bangstamp" % software_instance.getReference()
 
-    self.getPortalObject().portal_workflow.getInfoFor(
-      software_instance, 'action', wf_id='instance_slap_interface_workflow')
-
-    if (software_instance.getLastData(key) != timestamp):
+    if not software_instance.isLastData(key, timestamp):
       software_instance.bang(bang_tree=True, comment=message)
     return "OK"
 
@@ -915,6 +916,7 @@ class SlapTool(BaseTool):
     instance = self._getSoftwareInstanceForComputePartition(
         compute_node_id,
         compute_partition_id)
+
     if instance.getSlapState() == 'destroy_requested':
       # remove certificate from SI
       if instance.getSslKey() is not None or instance.getSslCertificate() is not None:
@@ -952,7 +954,7 @@ class SlapTool(BaseTool):
         compute_partition_id,
         slave_reference)
     connection_xml = dict2xml(loads(connection_xml))
-    if software_instance.getLastData() != connection_xml:
+    if not software_instance.isLastData(value=connection_xml):
       software_instance.updateConnection(
         connection_xml=connection_xml,
       )
@@ -1115,7 +1117,7 @@ class SlapTool(BaseTool):
                           compute_partition_id)
 
     cache_reference = '%s-PREDLIST' % software_instance_document.getReference()
-    if software_instance_document.getLastData(cache_reference) != instance_reference_xml:
+    if not software_instance_document.isLastData(cache_reference, instance_reference_xml):
       instance_reference_list = loads(instance_reference_xml)
 
       current_successor_list = software_instance_document.getSuccessorValueList(

@@ -364,11 +364,15 @@
         </item>
         <item>
             <key> <string>preferred_zh_pre_payment_subscription_invoice_template</string> </key>
-            <value> <string>accounting_module/template_wechat_pre_payment_subscription_sale_invoice_transaction</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>preferred_zh_pre_payment_template</string> </key>
-            <value> <string>accounting_module/slapos_wechat_pre_payment_template</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>preffered_force_username_check_in_password</string> </key>

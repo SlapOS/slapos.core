@@ -705,10 +705,6 @@ return %s""" % (script_name, fake_return ))
         'accounting_module/slapos_pre_payment_template',
       preferred_instance_delivery_template=\
         'sale_packing_list_module/slapos_accounting_instance_delivery_template',
-      preferred_zh_pre_payment_template=\
-        'accounting_module/slapos_wechat_pre_payment_template',
-      preferred_zh_pre_payment_subscription_invoice_template=\
-        'accounting_module/template_wechat_pre_payment_subscription_sale_invoice_transaction',
       preferred_default_pre_payment_subscription_invoice_template=\
         'accounting_module/template_pre_payment_subscription_sale_invoice_transaction'
 
@@ -727,13 +723,6 @@ return %s""" % (script_name, fake_return ))
     accounting_module = self.portal.accounting_module
     sale_packing_list_module = self.portal.sale_packing_list_module
 
-    preferred_zh_pre_payment_template = \
-      accounting_module.slapos_wechat_pre_payment_template.Base_createCloneDocument(batch_mode=1)
-    preferred_zh_pre_payment_template.edit(
-      source_section_value = organisation,
-      source_payment_value=organisation.bank_account
-    )
-    
     preferred_default_pre_payment_template = \
       accounting_module.slapos_pre_payment_template.Base_createCloneDocument(batch_mode=1)
     preferred_default_pre_payment_template.edit(
@@ -741,13 +730,6 @@ return %s""" % (script_name, fake_return ))
       source_payment_value=organisation.bank_account
     )
 
-    preferred_zh_pre_payment_subscription_invoice_template = \
-      accounting_module.template_wechat_pre_payment_subscription_sale_invoice_transaction.Base_createCloneDocument(batch_mode=1)
-
-    preferred_zh_pre_payment_subscription_invoice_template.edit(
-      source_section_value = organisation,
-      source_value=organisation
-    )
     preferred_default_pre_payment_subscription_invoice_template = \
       accounting_module.template_pre_payment_subscription_sale_invoice_transaction.Base_createCloneDocument(batch_mode=1)
     
@@ -773,9 +755,6 @@ return %s""" % (script_name, fake_return ))
 
     system_preference.edit(
       preferred_default_pre_payment_template=preferred_default_pre_payment_template.getRelativeUrl(),
-      preferred_zh_pre_payment_template=preferred_zh_pre_payment_template.getRelativeUrl(),
-      preferred_zh_pre_payment_subscription_invoice_template=\
-        preferred_zh_pre_payment_subscription_invoice_template.getRelativeUrl(),
       preferred_default_pre_payment_subscription_invoice_template=\
         preferred_default_pre_payment_subscription_invoice_template.getRelativeUrl(),
       preferred_instance_delivery_template=\
@@ -798,13 +777,6 @@ return %s""" % (script_name, fake_return ))
     accounting_module = self.portal.accounting_module
     sale_packing_list_module = self.portal.sale_packing_list_module
 
-    preferred_zh_pre_payment_template = \
-      accounting_module.slapos_wechat_pre_payment_template.Base_createCloneDocument(batch_mode=1)
-    preferred_zh_pre_payment_template.edit(
-      source_section_value = zh_organisation,
-      source_payment_value=zh_organisation.bank_account
-    )
-    
     preferred_default_pre_payment_template = \
       accounting_module.slapos_pre_payment_template.Base_createCloneDocument(batch_mode=1)
     preferred_default_pre_payment_template.edit(
@@ -812,13 +784,6 @@ return %s""" % (script_name, fake_return ))
       source_payment_value=fr_organisation.bank_account
     )
 
-    preferred_zh_pre_payment_subscription_invoice_template = \
-      accounting_module.template_wechat_pre_payment_subscription_sale_invoice_transaction.Base_createCloneDocument(batch_mode=1)
-
-    preferred_zh_pre_payment_subscription_invoice_template.edit(
-      source_section_value = zh_organisation,
-      source_value=zh_organisation
-    )
     preferred_default_pre_payment_subscription_invoice_template = \
       accounting_module.template_pre_payment_subscription_sale_invoice_transaction.Base_createCloneDocument(batch_mode=1)
     
@@ -844,9 +809,6 @@ return %s""" % (script_name, fake_return ))
 
     system_preference.edit(
       preferred_default_pre_payment_template=preferred_default_pre_payment_template.getRelativeUrl(),
-      preferred_zh_pre_payment_template=preferred_zh_pre_payment_template.getRelativeUrl(),
-      preferred_zh_pre_payment_subscription_invoice_template=\
-        preferred_zh_pre_payment_subscription_invoice_template.getRelativeUrl(),
       preferred_default_pre_payment_subscription_invoice_template=\
         preferred_default_pre_payment_subscription_invoice_template.getRelativeUrl(),
       preferred_instance_delivery_template=\

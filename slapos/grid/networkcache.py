@@ -15,7 +15,6 @@ from __future__ import print_function
 
 import ast
 import json
-import platform
 import shutil
 import subprocess
 import traceback

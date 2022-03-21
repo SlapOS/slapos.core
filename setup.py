@@ -77,6 +77,7 @@ setup(name=name,
           'jsonschema',
           'PyYAML',
           'uritemplate', # used by hateoas navigator
+          'distro',
           'subprocess32; python_version<"3"',
           'enum34; python_version<"3"',
           'ipaddress; python_version<"3"',  # used by whitelistfirewall

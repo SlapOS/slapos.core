@@ -102,7 +102,7 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>couscous_trade_condition</string> </value>
+            <value> <string>free_trade_condition</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -112,7 +112,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>couscous_trade_condition</string> </value>
+            <value> <string>free_trade_condition</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -126,7 +126,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Couscous trade condition</string> </value>
+            <value> <string>Free trade condition</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
@@ -254,7 +254,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>997.40299.33951.46830</string> </value>
+                      <value> <string>999.1117.33324.10086</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -272,7 +272,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1642600179.81</float>
+                              <float>1647853473.47</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

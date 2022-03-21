@@ -36,6 +36,13 @@ from AccessControl.Permissions import access_contents_information
 from AccessControl import getSecurityManager
 from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
 
+from zLOG import LOG, INFO
+try:
+  from slapos.util import xml2dict
+except ImportError:
+  def xml2dict(dictionary):
+    raise ImportError
+
 def _assertACI(document):
   sm = getSecurityManager()
   if sm.checkPermission(access_contents_information,
@@ -139,6 +146,15 @@ class SoftwareInstance(Item):
     if size != len(visited) + 1:
       raise DisconnectedSoftwareTree
     return True
+
+  def _instanceXmlToDict(self, xml):
+    result_dict = {}
+    try:
+      result_dict = xml2dict(xml)
+    except (etree.XMLSchemaError, etree.XMLSchemaParseError, # pylint: disable=catching-non-exception
+      etree.XMLSchemaValidateError, etree.XMLSyntaxError): # pylint: disable=catching-non-exception
+      LOG('SoftwareInstance', INFO, 'Issue during parsing xml:', error=True)
+    return result_dict
 
   @UnrestrictedMethod
   def _asParameterDict(self, shared_instance_sql_list=None):

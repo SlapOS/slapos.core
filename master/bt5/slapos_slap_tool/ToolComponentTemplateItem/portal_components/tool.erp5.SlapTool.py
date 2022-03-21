@@ -46,7 +46,7 @@ try:
     ComputerPartition as SlapComputePartition,
     SoftwareInstance,
     SoftwareRelease)
-  from slapos.util import dict2xml, xml2dict, calculate_dict_hash, loads, dumps
+  from slapos.util import dict2xml, calculate_dict_hash, loads, dumps
 except ImportError:
   # Do no prevent instance from starting
   # if libs are not installed
@@ -63,8 +63,6 @@ except ImportError:
     def __init__(self):
       raise ImportError
   def dict2xml(dictionary):
-    raise ImportError
-  def xml2dict(dictionary):
     raise ImportError
   def calculate_dict_hash(dictionary):
     raise ImportError
@@ -263,15 +261,13 @@ class SlapTool(BaseTool):
     else:
       data_dict = instance.getAccessStatus()
 
-    last_modified = rfc1123_date(DateTime())
-
     # Keep in cache server for 7 days
     self.REQUEST.response.setStatus(200)
     self.REQUEST.response.setHeader('Cache-Control',
                                     'public, max-age=60, stale-if-error=604800')
     self.REQUEST.response.setHeader('Vary',
                                     'REMOTE_USER')
-    self.REQUEST.response.setHeader('Last-Modified', last_modified)
+    self.REQUEST.response.setHeader('Last-Modified', rfc1123_date(DateTime()))
     self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
     self.REQUEST.response.setBody(dumps(data_dict))
     return self.REQUEST.response
@@ -282,14 +278,8 @@ class SlapTool(BaseTool):
     """
     Get the connection status of the partition
     """
-    compute_node = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
-      portal_type='Compute Node', reference=computer_id,
-      validation_state="validated")[0].getObject()
-    # Be sure to prevent accessing information to disallowed users
-    compute_node = _assertACI(compute_node)
+    compute_node = self._getComputeNodeDocument(computer_id)
     data_dict = compute_node.getAccessStatus()
-
-    last_modified = rfc1123_date(DateTime())
 
     # Keep in cache server for 7 days
     self.REQUEST.response.setStatus(200)
@@ -297,7 +287,7 @@ class SlapTool(BaseTool):
                                     'public, max-age=60, stale-if-error=604800')
     self.REQUEST.response.setHeader('Vary',
                                     'REMOTE_USER')
-    self.REQUEST.response.setHeader('Last-Modified', last_modified)
+    self.REQUEST.response.setHeader('Last-Modified', rfc1123_date(DateTime()))
     self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
     self.REQUEST.response.setBody(dumps(data_dict))
     return self.REQUEST.response
@@ -722,22 +712,22 @@ class SlapTool(BaseTool):
       parameter_dict = software_instance._asParameterDict()
                                                        
       # software instance has to define an xml parameter
-      slap_partition._parameter_dict = self._instanceXmlToDict(
+      slap_partition._parameter_dict = software_instance._instanceXmlToDict(
         parameter_dict.pop('xml'))
-      slap_partition._connection_dict = self._instanceXmlToDict(
+      slap_partition._connection_dict = software_instance._instanceXmlToDict(
         parameter_dict.pop('connection_xml'))
-      slap_partition._filter_dict = self._instanceXmlToDict(
+      slap_partition._filter_dict = software_instance._instanceXmlToDict(
         parameter_dict.pop('filter_xml'))
       slap_partition._instance_guid = parameter_dict.pop('instance_guid')
       for slave_instance_dict in parameter_dict.get("slave_instance_list", []):
         if slave_instance_dict.has_key("connection_xml"):
-          connection_dict = self._instanceXmlToDict(
+          connection_dict = software_instance._instanceXmlToDict(
             slave_instance_dict.pop("connection_xml"))
           slave_instance_dict.update(connection_dict)
           slave_instance_dict['connection-parameter-hash'] = \
             calculate_dict_hash(connection_dict)
         if slave_instance_dict.has_key("xml"):
-          slave_instance_dict.update(self._instanceXmlToDict(
+          slave_instance_dict.update(software_instance._instanceXmlToDict(
             slave_instance_dict.pop("xml")))
       slap_partition._parameter_dict.update(parameter_dict)
 
@@ -781,15 +771,6 @@ class SlapTool(BaseTool):
 
     return False
 
-  def _instanceXmlToDict(self, xml):
-    result_dict = {}
-    try:
-      result_dict = xml2dict(xml)
-    except (etree.XMLSchemaError, etree.XMLSchemaParseError, # pylint: disable=catching-non-exception
-      etree.XMLSchemaValidateError, etree.XMLSyntaxError): # pylint: disable=catching-non-exception
-      LOG('SlapTool', INFO, 'Issue during parsing xml:', error=True)
-    return result_dict
-
   @convertToREST
   def _supplySupply(self, url, compute_node_id, state):
     """
@@ -797,10 +778,6 @@ class SlapTool(BaseTool):
     """
     compute_node_document = self._getComputeNodeDocument(compute_node_id)
     compute_node_document.requestSoftwareRelease(software_release_url=url, state=state)
-
-
-
-######## 
 
   @convertToREST
   def _buildingSoftwareRelease(self, url, compute_node_id):
@@ -836,9 +813,6 @@ class SlapTool(BaseTool):
       software_installation.invalidate(
         comment="Software Release destroyed report.")
 
-
-####
-
   @convertToREST
   def _softwareInstanceError(self, compute_node_id,
                             compute_partition_id, error_log=""):
@@ -853,8 +827,6 @@ class SlapTool(BaseTool):
       error_log = ""
     instance.setErrorStatus(
       'while instanciating: %s' % error_log[-80:], reindex=1)
-
-#####
 
   @convertToREST
   def _softwareInstanceRename(self, new_name, compute_node_id,
@@ -1084,11 +1056,11 @@ class SlapTool(BaseTool):
         parameter_dict = requested_software_instance._asParameterDict()
 
         # software instance has to define an xml parameter
-        xml = self._instanceXmlToDict(
+        xml = requested_software_instance._instanceXmlToDict(
           parameter_dict.pop('xml'))
-        connection_xml = self._instanceXmlToDict(
+        connection_xml = requested_software_instance._instanceXmlToDict(
           parameter_dict.pop('connection_xml'))
-        filter_xml = self._instanceXmlToDict(
+        filter_xml = requested_software_instance._instanceXmlToDict(
           parameter_dict.pop('filter_xml'))
         instance_guid = parameter_dict.pop('instance_guid')
 

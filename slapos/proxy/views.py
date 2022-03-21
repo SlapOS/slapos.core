@@ -85,6 +85,13 @@ def partitiondict2partition(partition):
         partition['partition_reference']
     slap_partition._parameter_dict['root_instance_title'] = \
         root_partition['partition_reference']
+    slap_partition._parameter_dict['slap_computer_id'] = \
+        partition['computer_reference']
+    slap_partition._parameter_dict['slap_computer_partition_id'] = \
+        partition['reference']
+    slap_partition._parameter_dict['slap_software_release_url'] = \
+        partition['software_release']
+
     if partition['slave_instance_list'] is not None:
       slap_partition._parameter_dict['slave_instance_list'] = \
           loads(partition['slave_instance_list'].encode('utf-8'))

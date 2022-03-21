@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.7.5 (2022-03-21)
+------------------
+ * slapgrid: fix invocation of bootstrapBuildout
+
 1.7.4 (2022-03-16)
 ------------------
  * slapgrid: Fix promises not being logged to logfile

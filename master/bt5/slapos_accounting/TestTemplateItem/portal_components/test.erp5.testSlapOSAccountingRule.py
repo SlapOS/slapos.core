@@ -430,7 +430,7 @@ class TestHostingSubscriptionSimulation(SlapOSTestCaseMixin):
     )
     self.portal.portal_workflow._jumpToStateFor(self.instance_tree, 'validated')
     open_order = self.instance_tree.InstanceTree_requestUpdateOpenSaleOrder(
-      specialise="sale_trade_condition_module/couscous_trade_condition"
+      specialise="sale_trade_condition_module/default_subscription_trade_condition"
     )
 
     self.initial_date = DateTime('2011/02/16')

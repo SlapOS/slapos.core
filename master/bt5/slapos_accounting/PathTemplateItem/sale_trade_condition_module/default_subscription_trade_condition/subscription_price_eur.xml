@@ -76,6 +76,10 @@
             <value> <string>Sale Supply Line</string> </value>
         </item>
         <item>
+            <key> <string>priced_quantity</string> </key>
+            <value> <float>1.0</float> </value>
+        </item>
+        <item>
             <key> <string>title</string> </key>
             <value> <string>Instance Subscription price</string> </value>
         </item>

@@ -713,7 +713,7 @@ return %s""" % (script_name, fake_return ))
         'accounting_module/template_pre_payment_subscription_sale_invoice_transaction'
 
     )
-    self.portal.sale_trade_condition_module.couscous_trade_condition.edit(
+    self.portal.sale_trade_condition_module.default_subscription_trade_condition.edit(
       source_section='organisation_module/slapos',
       source='organisation_module/slapos'
     )
@@ -764,7 +764,7 @@ return %s""" % (script_name, fake_return ))
       source_value=organisation
     )
 
-    self.portal.sale_trade_condition_module.couscous_trade_condition.edit(
+    self.portal.sale_trade_condition_module.default_subscription_trade_condition.edit(
       source_section_value=organisation,
       source_value=organisation
     )
@@ -835,7 +835,7 @@ return %s""" % (script_name, fake_return ))
       source_value=fr_organisation
     )
 
-    self.portal.sale_trade_condition_module.couscous_trade_condition.edit(
+    self.portal.sale_trade_condition_module.default_subscription_trade_condition.edit(
       source_section_value=fr_organisation,
       source_value=fr_organisation
     )

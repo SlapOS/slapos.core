@@ -1709,7 +1709,7 @@ return dict(vads_url_already_registered="%s/already_registered" % (payment_trans
     # Disable on this test the pricing on the template to not generate debt before 
     # them expected
     supply_line = self.portal.sale_trade_condition_module.\
-      couscous_trade_condition.\
+      default_subscription_trade_condition.\
       subscription_price_eur
 
     previous_price = supply_line.getBasePrice()

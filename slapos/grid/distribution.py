@@ -42,18 +42,22 @@ import distro
 
 def _debianize(os_):
     """
-     * keep only the major release number in case of debian, otherwise
-    minor releases would be seen as not compatible to each other.
      * consider raspbian as debian
-     * don't use codename
+     * in case of Debian:
+       + keep only the major release number, otherwise minor releases would be
+       seen as not compatible to each other.
+       + don't use codename as it was always empty with platform.linux_distribution
+       and we want to keep compatibility with what was already pushed in shacache
     """
-    distname, version, codename_ = os_
+    distname, version, codename = os_
     distname = distname.lower()
     if distname == 'raspbian':
         distname = 'debian'
-    if distname == 'debian' and '.' in version:
-        version = version.split('.')[0]
-    return distname, version, ''
+    if distname == 'debian':
+        if '.' in version:
+            version = version.split('.')[0]
+        codename = ''
+    return distname, version, codename
 
 
 def os_matches(os1, os2):

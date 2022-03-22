@@ -45,6 +45,7 @@ class TestDebianize(unittest.TestCase):
             (('debian', '6.0.6', ''), ('debian', '6', '')),
             (('debian', '7.0', ''), ('debian', '7', '')),
             (('Debian', '8.11', ''), ('debian', '8', '')),
+            (('debian', '10.9', 'buster'), ('debian', '10', '')),
         ]:
             self.assertEqual(distribution._debianize(provided), expected)
 

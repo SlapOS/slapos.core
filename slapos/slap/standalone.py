@@ -34,6 +34,7 @@ import time
 import errno
 import socket
 import pwd
+import xml.parsers.expat
 
 from six.moves import urllib
 from six.moves import http_client
@@ -886,11 +887,15 @@ class StandaloneSlapOS(object):
             if process_info['exitstatus'] == 0:
               return
             if retry >= max_retry:
-              # get the last lines of output, at most `error_lines`. If
-              # these lines are long, the output may be truncated.
-              _, log_offset, _ = supervisor.tailProcessStdoutLog(command, 0, 0)
-              output, _, _ = supervisor.tailProcessStdoutLog(
-                  command, log_offset - (2 << 13), 2 << 13)
+              try:
+                # get the last lines of output, at most `error_lines`. If
+                # these lines are long, the output may be truncated.
+                _, log_offset, _ = supervisor.tailProcessStdoutLog(command, 0, 0)
+                output, _, _ = supervisor.tailProcessStdoutLog(
+                    command, log_offset - (2 << 13), 2 << 13)
+              except xml.parsers.expat.ExpatError as e: # pylint:disable=no-member
+                # workaround https://github.com/Supervisor/supervisor/issues/1499
+                output = 'Error getting output: %s' % e
               raise SlapOSNodeCommandError({
                   'output': '\n'.join(output.splitlines()[-error_lines:]),
                   'exitstatus': process_info['exitstatus'],

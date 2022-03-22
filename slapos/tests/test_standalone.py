@@ -424,6 +424,30 @@ class TestSlapOSStandaloneSoftware(SlapOSStandaloneTestCase):
           str(e.exception))
       self.assertNotIn(r"\n", str(e.exception))
 
+  def test_install_software_failure_control_characters_log(self):
+    with tempfile.NamedTemporaryFile(suffix="-%s.cfg" % self.id()) as f:
+      f.write(
+          textwrap.dedent(
+              r'''
+              [buildout]
+              parts = error
+              newest = false
+              [error]
+              recipe = plone.recipe.command==1.1
+              command = echo -e '\033[0;31mRed\033[0m' && bash -c "exit 123"
+              stop-on-error = true
+      ''').encode())
+      f.flush()
+      self.standalone.supply(f.name)
+
+      with self.assertRaises(SlapOSNodeSoftwareError) as e:
+        self.standalone.waitForSoftware()
+
+      self.assertEqual(1, e.exception.args[0]['exitstatus'])
+      self.assertIn(
+          "Error getting output: not well-formed (invalid token)",
+          e.exception.args[0]['output'])
+
 
 class TestSlapOSStandaloneInstance(SlapOSStandaloneTestCase):
   _auto_stop_standalone = False  # we stop explicitly

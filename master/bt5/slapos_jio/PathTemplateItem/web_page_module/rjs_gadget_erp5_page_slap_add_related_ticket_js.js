@@ -10,7 +10,9 @@
     .declareAcquiredMethod("updateHeader", "updateHeader")
     .declareAcquiredMethod("updatePanel", "updatePanel")
     .declareAcquiredMethod("jio_getAttachment", "jio_getAttachment")
+    .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
     .declareAcquiredMethod("getSetting", "getSetting")
+    .declareAcquiredMethod("getSettingList", "getSettingList")
     .declareAcquiredMethod("getUrlFor", "getUrlFor")
     .declareAcquiredMethod("redirect", "redirect")
     .declareAcquiredMethod("jio_post", "jio_post")
@@ -33,28 +35,32 @@
           return gadget.getDeclaredGadget('form_view');
         })
         .push(function (form_gadget) {
-          return form_gadget.getContent();
+          return RSVP.all([form_gadget.getContent(),
+                          gadget.getSettingList(['me', 'hateoas_url'])]);
         })
-        .push(function (content) {
-          var property, doc = {};
-          for (property in content) {
-            if ((content.hasOwnProperty(property)) &&
-                // Remove undefined keys added by Gadget fields
-                (property !== "undefined") &&
-                // Remove default_*:int keys added by ListField
-                !(property.endsWith(":int") && property.startsWith("default_"))) {
-              doc[property] = content[property];
-            }
-
-          }
-          return gadget.jio_post(doc);
+        .push(function (result) {
+          var doc = result[0],
+            me = result[1][0],
+            url = result[1][1];
+          return gadget.jio_putAttachment(me,
+                url + me + "/Person_requestSupport",
+                {title: doc.title,
+                 description: doc.description,
+                 aggregate: gadget.state.jio_key,
+                 resource: doc.resource});
         })
-        .push(function (key) {
+        .push(function (attachment) {
+          return jIO.util.readBlobAsText(attachment.target.response);
+        })
+        .push(function (response) {
+          return JSON.parse(response.target.result);
+        })
+        .push(function (result) {
           return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
             .push(function () {
               // Workaround, find a way to open document without break gadget.
               return gadget.redirect({"command": "change",
-                                    "options": {"jio_key": key, "page": "slap_controller"}});
+                                    "options": {"jio_key": result.relative_url, "page": "slap_controller"}});
             });
         });
     })
@@ -133,63 +139,6 @@
                   "key": "resource",
                   "hidden": 0,
                   "type": "ListField"
-                },
-                "my_destination_decision": {
-                  "description": result[3][1],
-                  "title": result[3][5],
-                  "default": result[2],
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "destination_decision",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_specialise": {
-                  "description": "",
-                  "title": result[3][6],
-                  // Auto Set a hardcoded trade Condition
-                  // Please replace it by a getSetting.
-                  "default": "sale_trade_condition_module/slapos_ticket_trade_condition",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "specialise",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_aggregate": {
-                  "description": "",
-                  "title": result[3][7],
-                  "default": gadget.state.jio_key,
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "aggregate",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_portal_type": {
-                  "description": result[3][1],
-                  "title": result[3][8],
-                  "default": "Support Request",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "portal_type",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_parent_relative_url": {
-                  "description": "",
-                  "title": result[3][10],
-                  "default": "support_request_module",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "parent_relative_url",
-                  "hidden": 1,
-                  "type": "StringField"
                 }
               }},
               "_links": {
@@ -205,7 +154,7 @@
                 [["my_resource"]]
               ], [
                 "center",
-                [["my_title"], ["my_description"], ["my_specialise"], ["my_destination_decision"], ["my_aggregate"], ["my_portal_type"], ["my_parent_relative_url"]]
+                [["my_title"], ["my_description"]]
               ]]
             }
           })

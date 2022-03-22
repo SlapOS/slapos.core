@@ -57,4 +57,10 @@ def os_matches(os1, os2):
 
 
 def distribution_tuple():
-    return distro.linux_distribution(full_distribution_name=False)
+    distname = distro.id()
+    version = distro.version()
+    if distname == 'raspbian':
+        distname = 'debian'
+    # we return something compatible with older platform.linux_distribution()
+    # id (last field of the tuple) was always empty
+    return distname, version, ''

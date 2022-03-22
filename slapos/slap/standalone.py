@@ -147,6 +147,7 @@ class SupervisorConfigWriter(ConfigWriter):
         logfile = {standalone_slapos._supervisor_log}
         pidfile = {standalone_slapos._supervisor_pid}
         childlogdir = {standalone_slapos._log_directory}
+        strip_ansi = true
 
         [rpcinterface:supervisor]
         supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface

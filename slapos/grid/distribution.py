@@ -42,14 +42,18 @@ import distro
 
 def _debianize(os_):
     """
-    keep only the major release number in case of debian, otherwise
+     * keep only the major release number in case of debian, otherwise
     minor releases would be seen as not compatible to each other.
+     * consider raspbian as debian
+     * don't use codename
     """
-    distname, version, id_ = os_
-    distname_lower = distname.lower()
-    if distname_lower == 'debian' and '.' in version:
+    distname, version, codename_ = os_
+    distname = distname.lower()
+    if distname == 'raspbian':
+        distname = 'debian'
+    if distname == 'debian' and '.' in version:
         version = version.split('.')[0]
-    return distname_lower, version, id_
+    return distname, version, ''
 
 
 def os_matches(os1, os2):
@@ -59,8 +63,6 @@ def os_matches(os1, os2):
 def distribution_tuple():
     distname = distro.id()
     version = distro.version()
-    if distname == 'raspbian':
-        distname = 'debian'
+    codename = distro.codename()
     # we return something compatible with older platform.linux_distribution()
-    # id (last field of the tuple) was always empty
-    return distname, version, ''
+    return distname, version, codename

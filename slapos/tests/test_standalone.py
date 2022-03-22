@@ -424,6 +424,28 @@ class TestSlapOSStandaloneSoftware(SlapOSStandaloneTestCase):
           str(e.exception))
       self.assertNotIn(r"\n", str(e.exception))
 
+  def test_install_software_failure_log_with_ansi_codes(self):
+    with tempfile.NamedTemporaryFile(suffix="-%s.cfg" % self.id()) as f:
+      f.write(
+          textwrap.dedent(
+              r'''
+              [buildout]
+              parts = error
+              newest = false
+              [error]
+              recipe = plone.recipe.command==1.1
+              command = bash -c "echo -e '\033[0;31mRed\033[0m \033[0;32mGreen\033[0m \033[0;34mBlue\033[0m' ; exit 123"
+              stop-on-error = true
+      ''').encode())
+      f.flush()
+      self.standalone.supply(f.name)
+
+      with self.assertRaises(SlapOSNodeSoftwareError) as e:
+        self.standalone.waitForSoftware()
+
+      self.assertEqual(1, e.exception.args[0]['exitstatus'])
+      self.assertIn("Red Green Blue", e.exception.args[0]['output'])
+
 
 class TestSlapOSStandaloneInstance(SlapOSStandaloneTestCase):
   _auto_stop_standalone = False  # we stop explicitly

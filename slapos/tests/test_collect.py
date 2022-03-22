@@ -490,6 +490,7 @@ class TestCollectSnapshot(unittest.TestCase):
         self.slap = slapos.slap.slap()
         self.app = SlapOSApp()
         self.temp_dir = tempfile.mkdtemp()
+        self.addCleanup(os.environ.__setitem__, "HOME", os.environ["HOME"])
         os.environ["HOME"] = self.temp_dir
         self.instance_root = tempfile.mkdtemp()
         self.software_root = tempfile.mkdtemp()
@@ -638,6 +639,7 @@ class TestCollectEntity(unittest.TestCase):
 
     def setUp(self):
         self.temp_dir = tempfile.mkdtemp()
+        self.addCleanup(os.environ.__setitem__, "HOME", os.environ["HOME"])
         os.environ["HOME"] = self.temp_dir
         self.instance_root = tempfile.mkdtemp()
         self.software_root = tempfile.mkdtemp()
@@ -850,6 +852,7 @@ class TestConsumptionReportBase(unittest.TestCase):
     self.loadPredefinedDB()
     self.database = db.Database(self.instance_root, create=True)
     self.temp_dir = tempfile.mkdtemp()
+    self.addCleanup(os.environ.__setitem__, "HOME", os.environ["HOME"])
     os.environ["HOME"] = self.temp_dir
     self.software_root = tempfile.mkdtemp()
 

@@ -46,6 +46,7 @@ class TestConfigureLocal(unittest.TestCase):
         self.slap = slapos.slap.slap()
         self.app = SlapOSApp()
         self.temp_dir = tempfile.mkdtemp()
+        self.addCleanup(os.environ.__setitem__, "HOME", os.environ["HOME"])
         os.environ["HOME"] = self.temp_dir
         self.instance_root = tempfile.mkdtemp()
         self.software_root = tempfile.mkdtemp()

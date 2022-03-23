@@ -71,21 +71,18 @@ class SoftwareInstance(Item):
 
   def _getXmlAsDict(self, xml):
     result_dict = {}
-    if xml is None or xml == '':
-      return result_dict
-
-    tree = etree.fromstring(xml)
-
-    for element in tree.findall('parameter'):
-      key = element.get('id').encode("UTF-8")
-      value = result_dict.get(key, None)
-      if value is not None:
-        value = (value + ' ' + element.text)
-      else:
-        value = element.text
-      if value is not None:
-        value = value.encode("UTF-8")
-      result_dict[key] = value
+    if xml:
+      tree = etree.fromstring(xml)
+      for element in tree.iterfind('parameter'):
+        key = element.get('id').encode("UTF-8")
+        value = result_dict.get(key, None)
+        if value is not None:
+          value = (value + ' ' + element.text)
+        else:
+          value = element.text
+        if value is not None:
+          value = value.encode("UTF-8")
+        result_dict[key] = value
     return result_dict
 
   security.declareProtected(Permissions.AccessContentsInformation,
@@ -160,6 +157,8 @@ class SoftwareInstance(Item):
   def _asParameterDict(self, shared_instance_sql_list=None):
     portal = self.getPortalObject()
     compute_partition = self.getAggregateValue(portal_type="Compute Partition")
+    if compute_partition is None:
+      raise ValueError("Instance isn't allocated to call _asParamterDict")
     timestamp = int(compute_partition.getModificationDate())
 
     newtimestamp = int(self.getBangTimestamp(int(self.getModificationDate())))

@@ -140,4 +140,12 @@ class TestSlapOSCloudSoftwareInstance(
 
     self.assertEqual(as_parameter_dict["ip_list"], [(u'', u'ip_address_1')])
     # Since gateway isn't set both are the same.
-    self.assertEqual(as_parameter_dict["full_ip_list"], [(u'', u'ip_address_1')])
+    self.assertEqual(as_parameter_dict["full_ip_list"], [])
+
+  def test_getInstanceTreeIpList(self):
+    self._makeComputeNode()
+    self._makeComplexComputeNode(with_slave=True)
+    self.tic()
+    
+    self.assertEqual([(u'', u'ip_address_1')],
+      self.start_requested_software_instance._getInstanceTreeIpList())

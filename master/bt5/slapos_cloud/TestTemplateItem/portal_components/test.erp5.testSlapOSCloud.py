@@ -160,6 +160,82 @@ class TestSlapOSCloudSlapOSCacheMixin(
       instance.setAccessStatus("TEST123 %s" % instance.getUid()))
 
 
+  def test_setAccessStatus_reindex(self):
+    since = rfc1123_date(DateTime())
+    created_at = since
+
+    def getExpectedCacheDict(doc):
+      return json.dumps({
+          "user": "ERP5TypeTestCase",
+          'created_at': '%s' % created_at,
+          'since': '%s' % since,
+          'state': "",
+          "text": "#access TEST123 %s" % doc.getUid()
+        })
+    def getBaseExpectedDict(doc):
+      return {
+          "user": "ERP5TypeTestCase",
+          'created_at': '%s' % created_at,
+          u'since': u'%s' % since,
+          u'state': u"",
+          u"text": u"#access TEST123 %s" % doc.getUid(),
+          'no_data_since_15_minutes': 0,
+          'no_data_since_5_minutes': 0
+        }
+    
+    self.tic()
+
+
+    # Software Instance
+    instance = self.start_requested_software_instance
+    indexation_timestamp = self.portal.portal_catalog(
+      uid=instance.getUid(),
+      select_dict={"indexation_timestamp": None}
+    )[0].indexation_timestamp
+    
+    # This is already called from elsewhere, so it actually changed
+    self.assertEqual(True,
+      instance.setAccessStatus("TEST123 %s" % instance.getUid()))
+    self.assertEqual(instance._getCachedAccessInfo(),
+                         getExpectedCacheDict(instance))
+    self.assertEqual(instance.getAccessStatus(),
+                     getBaseExpectedDict(instance))
+    self.tic()
+    new_indexation_timestamp = self.portal.portal_catalog(
+      uid=instance.getUid(),
+      select_dict={"indexation_timestamp": None}
+    )[0].indexation_timestamp
+    self.assertEqual(new_indexation_timestamp, indexation_timestamp)
+    self.assertEqual(False,
+      instance.setAccessStatus("TEST123 %s" % instance.getUid()))
+
+    self.tic()
+    new_indexation_timestamp = self.portal.portal_catalog(
+      uid=instance.getUid(),
+      select_dict={"indexation_timestamp": None}
+    )[0].indexation_timestamp
+    self.assertEqual(new_indexation_timestamp, indexation_timestamp)
+
+
+    self.assertEqual(False,
+      instance.setAccessStatus("TEST123 %s" % instance.getUid(), reindex=1))
+    self.tic()
+    new_indexation_timestamp = self.portal.portal_catalog(
+      uid=instance.getUid(),
+      select_dict={"indexation_timestamp": None}
+    )[0].indexation_timestamp
+    self.assertEqual(new_indexation_timestamp, indexation_timestamp)
+    
+    self.assertEqual(True,
+      instance.setErrorStatus("TEST123 %s" % instance.getUid(), reindex=1))
+    self.tic()
+    new_indexation_timestamp = self.portal.portal_catalog(
+      uid=instance.getUid(),
+      select_dict={"indexation_timestamp": None}
+    )[0].indexation_timestamp
+    self.assertNotEqual(new_indexation_timestamp, indexation_timestamp)
+
+
   def test_setErrorStatus(self):
     since = rfc1123_date(DateTime())
     created_at = since

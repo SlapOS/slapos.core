@@ -1,10 +1,10 @@
-Computer Model | view_capacity
-Computer Network | view_compute_node_list
-Computer Network | view_software_release
-Compute Partition | unfiltered_tracking_list
 Compute Node | compute_node_usage
 Compute Node | tracking
 Compute Node | view_capacity
+Compute Partition | unfiltered_tracking_list
+Computer Model | view_capacity
+Computer Network | view_compute_node_list
+Computer Network | view_software_release
 Hosting Subscription Module | view
 Hosting Subscription | view
 Instance Tree Module | view

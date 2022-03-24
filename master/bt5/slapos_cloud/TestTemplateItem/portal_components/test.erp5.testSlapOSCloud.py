@@ -28,6 +28,314 @@
 
 
 from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
+from DateTime import DateTime
+from App.Common import rfc1123_date
+import json
+
+
+class TestSlapOSCloudSlapOSCacheMixin(
+    SlapOSTestCaseMixin):
+
+  def afterSetUp(self):
+    SlapOSTestCaseMixin.afterSetUp(self)
+    self.pinDateTime(DateTime())
+    self._makeComputeNode()
+    self._makeComplexComputeNode(with_slave=True)
+    self.tic()
+
+  def beforeTearDown(self):
+    self.unpinDateTime()
+    self._cleaupREQUEST()
+
+  def test_LastData(self):
+    value = "XXX"
+    self.assertEqual(None, self.compute_node.getLastData())
+    self.compute_node.setLastData(value)
+    self.assertEqual(value, self.compute_node.getLastData())
+    key = "OI"
+    value_key = "ABC"
+    self.assertEqual(None, self.compute_node.getLastData(key))
+    self.compute_node.setLastData(value_key, key=key)
+    self.assertEqual(value_key, self.compute_node.getLastData(key))
+
+  def test_getAccessStatus_no_data(self):
+    since = rfc1123_date(DateTime())
+    created_at = since
+    def getBaseExpectedDict(doc):
+      return {
+          "user": "SlapOS Master",
+          'created_at': '%s' % created_at,
+          'since': '%s' % since,
+          'state': "",
+          "text": "#error no data found for %s" % doc.getReference(),
+          "no_data": 1
+        }
+    
+    # Check Compute Node
+    self.assertEqual(self.compute_node._getCachedAccessInfo(), None)
+    self.assertEqual(self.compute_node.getAccessStatus(),
+                     getBaseExpectedDict(self.compute_node))
+
+    # Check Software Installation
+    installation = self.start_requested_software_installation
+    self.assertEqual(installation._getCachedAccessInfo(), None)
+    self.assertEqual(installation.getAccessStatus(),
+                     getBaseExpectedDict(installation))   
+
+    partition = self.compute_node.partition1
+    self.assertEqual(partition._getCachedAccessInfo(), None)
+    self.assertEqual(partition.getAccessStatus(),
+                     getBaseExpectedDict(partition))  
+
+    instance = self.start_requested_software_instance
+    self.assertEqual(instance._getCachedAccessInfo(), None)
+    self.assertEqual(instance.getAccessStatus(),
+                     getBaseExpectedDict(instance))  
+
+  def test_setAccessStatus(self):
+    since = rfc1123_date(DateTime())
+    created_at = since
+
+    def getExpectedCacheDict(doc):
+      return json.dumps({
+          "user": "ERP5TypeTestCase",
+          'created_at': '%s' % created_at,
+          'since': '%s' % since,
+          'state': "",
+          "text": "#access TEST123 %s" % doc.getUid()
+        })
+    def getBaseExpectedDict(doc):
+      return {
+          "user": "ERP5TypeTestCase",
+          'created_at': '%s' % created_at,
+          u'since': u'%s' % since,
+          u'state': u"",
+          u"text": u"#access TEST123 %s" % doc.getUid(),
+          'no_data_since_15_minutes': 0,
+          'no_data_since_5_minutes': 0
+        }
+    
+    # Check Compute Node
+    self.assertEqual(True,
+      self.compute_node.setAccessStatus("TEST123 %s" % self.compute_node.getUid()))
+    self.assertEqual(self.compute_node._getCachedAccessInfo(),
+                         getExpectedCacheDict(self.compute_node))
+    self.assertEqual(self.compute_node.getAccessStatus(),
+                     getBaseExpectedDict(self.compute_node))
+    self.assertEqual(False,
+      self.compute_node.setAccessStatus("TEST123 %s" % self.compute_node.getUid()))
+
+    # Check Software Installation
+    installation = self.start_requested_software_installation
+    self.assertEqual(True,
+      installation.setAccessStatus("TEST123 %s" % installation.getUid()))
+    self.assertEqual(installation._getCachedAccessInfo(),
+                         getExpectedCacheDict(installation))
+    self.assertEqual(installation.getAccessStatus(),
+                     getBaseExpectedDict(installation))   
+    self.assertEqual(False,
+      installation.setAccessStatus("TEST123 %s" % installation.getUid()))
+
+    # Compute Partition
+    partition = self.compute_node.partition1
+    self.assertEqual(True,
+      partition.setAccessStatus("TEST123 %s" % partition.getUid()))
+    self.assertEqual(partition._getCachedAccessInfo(),
+                         getExpectedCacheDict(partition))
+    self.assertEqual(partition.getAccessStatus(),
+                     getBaseExpectedDict(partition))  
+    self.assertEqual(False,
+      partition.setAccessStatus("TEST123 %s" % partition.getUid()))
+
+    # Software Instance
+    instance = self.start_requested_software_instance
+    # This is already called from elsewhere, so it actually changed
+    self.assertEqual(True,
+      instance.setAccessStatus("TEST123 %s" % instance.getUid()))
+    self.assertEqual(instance._getCachedAccessInfo(),
+                         getExpectedCacheDict(instance))
+    self.assertEqual(instance.getAccessStatus(),
+                     getBaseExpectedDict(instance))  
+    self.assertEqual(False,
+      instance.setAccessStatus("TEST123 %s" % instance.getUid()))
+
+
+  def test_setAccessStatus_reindex(self):
+    since = rfc1123_date(DateTime())
+    created_at = since
+
+    def getExpectedCacheDict(doc):
+      return json.dumps({
+          "user": "ERP5TypeTestCase",
+          'created_at': '%s' % created_at,
+          'since': '%s' % since,
+          'state': "",
+          "text": "#access TEST123 %s" % doc.getUid()
+        })
+    def getBaseExpectedDict(doc):
+      return {
+          "user": "ERP5TypeTestCase",
+          'created_at': '%s' % created_at,
+          u'since': u'%s' % since,
+          u'state': u"",
+          u"text": u"#access TEST123 %s" % doc.getUid(),
+          'no_data_since_15_minutes': 0,
+          'no_data_since_5_minutes': 0
+        }
+    
+    self.tic()
+
+
+    # Software Instance
+    instance = self.start_requested_software_instance
+    indexation_timestamp = self.portal.portal_catalog(
+      uid=instance.getUid(),
+      select_dict={"indexation_timestamp": None}
+    )[0].indexation_timestamp
+    
+    # This is already called from elsewhere, so it actually changed
+    self.assertEqual(True,
+      instance.setAccessStatus("TEST123 %s" % instance.getUid()))
+    self.assertEqual(instance._getCachedAccessInfo(),
+                         getExpectedCacheDict(instance))
+    self.assertEqual(instance.getAccessStatus(),
+                     getBaseExpectedDict(instance))
+    self.tic()
+    new_indexation_timestamp = self.portal.portal_catalog(
+      uid=instance.getUid(),
+      select_dict={"indexation_timestamp": None}
+    )[0].indexation_timestamp
+    self.assertEqual(new_indexation_timestamp, indexation_timestamp)
+    self.assertEqual(False,
+      instance.setAccessStatus("TEST123 %s" % instance.getUid()))
+
+    self.tic()
+    new_indexation_timestamp = self.portal.portal_catalog(
+      uid=instance.getUid(),
+      select_dict={"indexation_timestamp": None}
+    )[0].indexation_timestamp
+    self.assertEqual(new_indexation_timestamp, indexation_timestamp)
+
+
+    self.assertEqual(False,
+      instance.setAccessStatus("TEST123 %s" % instance.getUid(), reindex=1))
+    self.tic()
+    new_indexation_timestamp = self.portal.portal_catalog(
+      uid=instance.getUid(),
+      select_dict={"indexation_timestamp": None}
+    )[0].indexation_timestamp
+    self.assertEqual(new_indexation_timestamp, indexation_timestamp)
+    
+    self.assertEqual(True,
+      instance.setErrorStatus("TEST123 %s" % instance.getUid(), reindex=1))
+    self.tic()
+    new_indexation_timestamp = self.portal.portal_catalog(
+      uid=instance.getUid(),
+      select_dict={"indexation_timestamp": None}
+    )[0].indexation_timestamp
+    self.assertNotEqual(new_indexation_timestamp, indexation_timestamp)
+
+
+  def test_setErrorStatus(self):
+    since = rfc1123_date(DateTime())
+    created_at = since
+
+    def getExpectedCacheDict(doc):
+      return json.dumps({
+          "user": "ERP5TypeTestCase",
+          'created_at': '%s' % created_at,
+          'since': '%s' % since,
+          'state': "",
+          "text": "#error TEST123 %s" % doc.getUid()
+        })
+    def getBaseExpectedDict(doc):
+      return {
+          "user": "ERP5TypeTestCase",
+          'created_at': '%s' % created_at,
+          u'since': u'%s' % since,
+          u'state': u"",
+          u"text": u"#error TEST123 %s" % doc.getUid(),
+          'no_data_since_15_minutes': 0,
+          'no_data_since_5_minutes': 0
+        }
+    
+    # Check Compute Node
+    self.assertEqual(True,
+      self.compute_node.setErrorStatus("TEST123 %s" % self.compute_node.getUid()))
+    self.assertEqual(self.compute_node._getCachedAccessInfo(),
+                         getExpectedCacheDict(self.compute_node))
+    self.assertEqual(self.compute_node.getAccessStatus(),
+                     getBaseExpectedDict(self.compute_node))
+    self.assertEqual(False,
+      self.compute_node.setErrorStatus("TEST123 %s" % self.compute_node.getUid()))
+
+    # Check Software Installation
+    installation = self.start_requested_software_installation
+    self.assertEqual(True,
+      installation.setErrorStatus("TEST123 %s" % installation.getUid()))
+    self.assertEqual(installation._getCachedAccessInfo(),
+                         getExpectedCacheDict(installation))
+    self.assertEqual(installation.getAccessStatus(),
+                     getBaseExpectedDict(installation))   
+    self.assertEqual(False,
+      installation.setErrorStatus("TEST123 %s" % installation.getUid()))
+
+    # Compute Partition
+    partition = self.compute_node.partition1
+    self.assertEqual(True,
+      partition.setErrorStatus("TEST123 %s" % partition.getUid()))
+    self.assertEqual(partition._getCachedAccessInfo(),
+                         getExpectedCacheDict(partition))
+    self.assertEqual(partition.getAccessStatus(),
+                     getBaseExpectedDict(partition))  
+    self.assertEqual(False,
+      partition.setErrorStatus("TEST123 %s" % partition.getUid()))
+
+    # Software Instance
+    instance = self.start_requested_software_instance
+    self.assertEqual(True,
+      instance.setErrorStatus("TEST123 %s" % instance.getUid()))
+    self.assertEqual(instance._getCachedAccessInfo(),
+                         getExpectedCacheDict(instance))
+    self.assertEqual(instance.getAccessStatus(),
+                     getBaseExpectedDict(instance))  
+    self.assertEqual(False,
+      instance.setErrorStatus("TEST123 %s" % instance.getUid()))
+
+
+  def test_setBuildingStatus(self):
+    since = rfc1123_date(DateTime())
+    created_at = since
+
+    def getExpectedCacheDict(doc):
+      return json.dumps({
+          "user": "ERP5TypeTestCase",
+          'created_at': '%s' % created_at,
+          'since': '%s' % since,
+          'state': "",
+          "text": "#building TEST123 %s" % doc.getUid()
+        })
+    def getBaseExpectedDict(doc):
+      return {
+          "user": "ERP5TypeTestCase",
+          'created_at': '%s' % created_at,
+          u'since': u'%s' % since,
+          u'state': u"",
+          u"text": u"#building TEST123 %s" % doc.getUid(),
+          'no_data_since_15_minutes': 0,
+          'no_data_since_5_minutes': 0
+        }
+
+    # Check Software Installation
+    installation = self.start_requested_software_installation
+    self.assertEqual(True,
+      installation.setBuildingStatus("TEST123 %s" % installation.getUid()))
+    self.assertEqual(installation._getCachedAccessInfo(),
+                         getExpectedCacheDict(installation))
+    self.assertEqual(installation.getAccessStatus(),
+                     getBaseExpectedDict(installation))   
+    self.assertEqual(False,
+      installation.setBuildingStatus("TEST123 %s" % installation.getUid()))
 
 class TestSlapOSCloudSoftwareInstance(
     SlapOSTestCaseMixin):
@@ -149,3 +457,4 @@ class TestSlapOSCloudSoftwareInstance(
     
     self.assertEqual([(u'', u'ip_address_1')],
       self.start_requested_software_instance._getInstanceTreeIpList())
+

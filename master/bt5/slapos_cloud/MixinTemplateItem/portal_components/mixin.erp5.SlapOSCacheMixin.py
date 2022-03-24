@@ -98,13 +98,13 @@ class SlapOSCacheMixin:
     return  data_dict
 
   def setAccessStatus(self, text, state="", reindex=0):
-    self._setAccessStatus("%s %s" % (ACCESS, text), state, reindex)
+    return self._setAccessStatus("%s %s" % (ACCESS, text), state, reindex)
 
   def setErrorStatus(self, text, state="", reindex=0):
-    self._setAccessStatus("%s %s" % (ERROR, text), state, reindex)
+    return self._setAccessStatus("%s %s" % (ERROR, text), state, reindex)
 
   def setBuildingStatus(self, text, state="", reindex=0):
-    self._setAccessStatus("%s %s" % (BUILDING, text), state, reindex)
+    return self._setAccessStatus("%s %s" % (BUILDING, text), state, reindex)
 
   def _setAccessStatus(self, text, state="", reindex=0):
     user_reference = self.getPortalObject().portal_membership.getAuthenticatedMember()\

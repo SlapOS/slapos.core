@@ -47,6 +47,17 @@ class TestSlapOSCloudSlapOSCacheMixin(
     self.unpinDateTime()
     self._cleaupREQUEST()
 
+  def test_LastData(self):
+    value = "XXX"
+    self.assertEqual(None, self.compute_node.getLastData())
+    self.compute_node.setLastData(value)
+    self.assertEqual(value, self.compute_node.getLastData())
+    key = "OI"
+    value_key = "ABC"
+    self.assertEqual(None, self.compute_node.getLastData(key))
+    self.compute_node.setLastData(value_key, key=key)
+    self.assertEqual(value_key, self.compute_node.getLastData(key))
+
   def test_getAccessStatus_no_data(self):
     since = rfc1123_date(DateTime())
     created_at = since
@@ -370,3 +381,4 @@ class TestSlapOSCloudSoftwareInstance(
     
     self.assertEqual([(u'', u'ip_address_1')],
       self.start_requested_software_instance._getInstanceTreeIpList())
+

@@ -31,7 +31,11 @@ from erp5.component.test.SlapOSTestCaseMixin import SlapOSTestCaseMixin
 from DateTime import DateTime
 from App.Common import rfc1123_date
 import json
+import hashlib
+from binascii import hexlify
 
+def hashData(data):
+  return hexlify(hashlib.sha1(data).digest())
 
 class TestSlapOSCloudSlapOSCacheMixin(
     SlapOSTestCaseMixin):
@@ -457,4 +461,199 @@ class TestSlapOSCloudSoftwareInstance(
     
     self.assertEqual([(u'', u'ip_address_1')],
       self.start_requested_software_instance._getInstanceTreeIpList())
+
+class TestSlapOSCloudSlapOSComputeNodeMixin_getCacheComputeNodeInformation(
+      SlapOSTestCaseMixin):
+
+  def afterSetUp(self):
+    SlapOSTestCaseMixin.afterSetUp(self)
+
+    # Prepare compute_node
+    self.compute_node = self.portal.compute_node_module.template_compute_node\
+        .Base_createCloneDocument(batch_mode=1)
+    self.compute_node.edit(
+      title="Compute Node %s" % self.new_id,
+      reference="TESTCOMP-%s" % self.new_id
+    )
+    if getattr(self, "person", None) is not None:
+      self.compute_node.edit(
+        source_administration_value=getattr(self, "person", None),
+        )
+    self.compute_node.validate()
+
+    self._addERP5Login(self.compute_node)
+
+    self.tic()
+
+    self.compute_node_id = self.compute_node.getReference()
+    self.compute_node_user_id = self.compute_node.getUserId()
+    self.pinDateTime(DateTime())
+
+  def beforeTearDown(self):
+    self.unpinDateTime()
+    self._cleaupREQUEST()
+
+  def test_activate_getCacheComputeNodeInformation_first_access(self):
+
+    #
+    # This is a port of 
+    #    TestSlapOSSlapToolgetFullComputerInformation.test_activate_getFullComputerInformation_first_access
+    #
+
+    self._makeComplexComputeNode(with_slave=True)
+    self.portal.REQUEST['disable_isTestRun'] = True
+    self.tic()
+
+    self.login(self.compute_node_user_id)
+    user = self.getPortalObject().portal_membership.getAuthenticatedMember().getUserName()
+
+    self.compute_node.setAccessStatus(self.compute_node_id)
+    refresh_etag = self.compute_node._calculateRefreshEtag()
+    body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
+
+    self.commit()
+    first_etag = self.compute_node._calculateRefreshEtag()
+    first_body_fingerprint = hashData(
+      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
+    )
+    self.assertEqual(first_etag, etag)
+    self.assertEqual(first_body_fingerprint, hashData(body))
+    self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
+
+    # Trigger the compute_node reindexation
+    # This should trigger a new etag, but the body should be the same
+    self.compute_node.reindexObject()
+    self.commit()
+
+    # Second access
+    # Check that the result is stable, as the indexation timestamp is not changed yet
+    current_activity_count = len(self.portal.portal_activities.getMessageList())
+    self.compute_node.setAccessStatus(self.compute_node_id)
+    refresh_etag = self.compute_node._calculateRefreshEtag()
+    body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
+    self.commit()
+
+    self.assertEqual(first_etag, etag)
+    self.assertEqual(first_body_fingerprint, hashData(body))
+    self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
+
+    self.tic()
+
+    # Third access, new calculation expected
+    # The retrieved informations comes from the cache
+    # But a new cache modification activity is triggered
+    self.compute_node.setAccessStatus(self.compute_node_id)
+    refresh_etag = self.compute_node._calculateRefreshEtag()
+    body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
+    self.commit()
+    
+    second_etag = self.compute_node._calculateRefreshEtag()
+    second_body_fingerprint = hashData(
+      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
+    )
+    self.assertNotEqual(first_etag, second_etag)
+    # The indexation timestamp does not impact the response body
+    self.assertEqual(first_body_fingerprint, second_body_fingerprint)
+    self.assertEqual(first_etag, etag)
+    self.assertEqual(first_body_fingerprint, hashData(body))
+    self.assertEqual(1, len(self.portal.portal_activities.getMessageList()))
+
+    # Execute the cache modification activity
+    self.tic()
+
+    # 4th access
+    # The new etag value is now used
+    self.compute_node.setAccessStatus(self.compute_node_id)
+    refresh_etag = self.compute_node._calculateRefreshEtag()
+    body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
+    self.commit()
+
+    self.assertEqual(second_etag, etag)
+    self.assertEqual(first_body_fingerprint, hashData(body))
+    self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
+
+    # Edit the instance
+    # This should trigger a new etag and a new body
+    self.stop_requested_software_instance.edit(text_content=self.generateSafeXml())
+    self.commit()
+
+    # 5th access
+    # Check that the result is stable, as the indexation timestamp is not changed yet
+    current_activity_count = len(self.portal.portal_activities.getMessageList())
+    # Edition does not impact the etag
+    self.assertEqual(second_etag, self.compute_node._calculateRefreshEtag())
+    third_body_fingerprint = hashData(
+      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
+    )
+    # The edition impacts the response body
+    self.assertNotEqual(first_body_fingerprint, third_body_fingerprint)
+    self.compute_node.setAccessStatus(self.compute_node_id)
+    refresh_etag = self.compute_node._calculateRefreshEtag()
+    body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
+    self.commit()
+
+    self.assertEqual(second_etag, etag)
+    self.assertEqual(first_body_fingerprint, hashData(body))
+    self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
+
+    self.tic()
+
+    # 6th, the instance edition triggered an interaction workflow
+    # which updated the cache
+    self.compute_node.setAccessStatus(self.compute_node_id)
+    refresh_etag = self.compute_node._calculateRefreshEtag()
+    body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
+    self.commit()
+
+    third_etag = self.compute_node._calculateRefreshEtag()
+    self.assertNotEqual(second_etag, third_etag)
+    self.assertEqual(third_etag, etag)
+    self.assertEqual(third_body_fingerprint, hashData(body))
+    self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
+
+    # Remove the slave link to the partition
+    # Compute Node should loose permission to access the slave instance
+    self.start_requested_slave_instance.setAggregate('')
+    self.commit()
+
+    # 7th access
+    # Check that the result is stable, as the indexation timestamp is not changed yet
+    current_activity_count = len(self.portal.portal_activities.getMessageList())
+    # Edition does not impact the etag
+    self.assertEqual(third_etag, self.compute_node._calculateRefreshEtag())
+    # The edition does not impact the response body yet, as the aggregate relation
+    # is not yet unindex
+    self.assertEqual(third_body_fingerprint, hashData(
+      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
+    ))
+    self.compute_node.setAccessStatus(self.compute_node_id)
+    refresh_etag = self.compute_node._calculateRefreshEtag()
+    body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
+    self.commit()
+
+    self.assertEqual(third_etag, etag)
+    self.assertEqual(third_body_fingerprint, hashData(body))
+    self.assertEqual(current_activity_count, len(self.portal.portal_activities.getMessageList()))
+
+    self.tic()
+
+    # 8th access
+    # changing the aggregate relation trigger the partition reindexation
+    # which trigger cache modification activity
+    # So, we should get the correct cached value
+    self.compute_node.setAccessStatus(self.compute_node_id)
+    refresh_etag = self.compute_node._calculateRefreshEtag()
+    body, etag = self.compute_node._getComputeNodeInformation(user, refresh_etag)
+    self.commit()
+    fourth_etag = self.compute_node._calculateRefreshEtag()
+    fourth_body_fingerprint = hashData(
+      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
+    )
+    self.assertNotEqual(third_etag, fourth_etag)
+    # The indexation timestamp does not impact the response body
+    self.assertNotEqual(third_body_fingerprint, fourth_body_fingerprint)
+    self.assertEqual(fourth_etag, etag)
+    self.assertEqual(fourth_body_fingerprint, hashData(body))
+    self.assertEqual(0, len(self.portal.portal_activities.getMessageList()))
+
 

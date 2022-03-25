@@ -662,7 +662,7 @@ class SlapTool(BaseTool):
     compute_partition_document = self._getComputePartitionDocument(
           computer_reference, computer_partition_reference)
 
-    result = compute_partition_document._registerComputerPartition()
+    result = compute_partition_document._registerComputePartition()
 
     # Keep in cache server for 7 days
     self.REQUEST.response.setStatus(200)
@@ -822,27 +822,9 @@ class SlapTool(BaseTool):
 
     if instance.getSlapState() == 'destroy_requested':
       # remove certificate from SI
-      if instance.getSslKey() is not None or instance.getSslCertificate() is not None:
-        instance.edit(
-          ssl_key=None,
-          ssl_certificate=None,
-        )
+      instance.revokeCertificate()
       if instance.getValidationState() == 'validated':
         instance.invalidate()
-
-      # XXX Integrate with REST API
-      # Code duplication will be needed until SlapTool is removed
-      # revoke certificate
-      portal = self.getPortalObject()
-      try:
-        portal.portal_certificate_authority\
-          .revokeCertificate(instance.getDestinationReference())
-      except ValueError:
-        # Ignore already revoked certificates, as OpenSSL backend is
-        # non transactional, so it is ok to allow multiple tries to destruction
-        # even if certificate was already revoked
-        pass
-
 
   @convertToREST
   def _setComputePartitionConnectionXml(self, compute_node_id,

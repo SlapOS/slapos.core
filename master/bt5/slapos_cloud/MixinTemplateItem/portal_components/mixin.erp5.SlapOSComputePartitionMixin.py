@@ -33,7 +33,7 @@ try:
   from slapos.slap.slap import (
     ComputerPartition as SlapComputePartition,
     SoftwareRelease)
-  from slapos.util import dumps, calculate_dict_hash
+  from slapos.util import calculate_dict_hash
 except ImportError:
   # Do no prevent instance from starting
   # if libs are not installed
@@ -43,8 +43,6 @@ except ImportError:
   class SoftwareRelease:
     def __init__(self):
       raise ImportError
-  def dumps(*args):
-    raise ImportError
   def calculate_dict_hash(*args):
     raise ImportError
 
@@ -58,7 +56,7 @@ def _assertACI(document):
 
 class SlapOSComputePartitionMixin(object):
 
-  def _registerComputerPartition(self):
+  def _registerComputePartition(self):
     portal = self.getPortalObject()
     computer_reference = self.getParentValue().getReference()
     computer_partition_reference = self.getReference()
@@ -124,4 +122,4 @@ class SlapOSComputePartitionMixin(object):
             slave_instance_dict.pop("xml")))
       slap_partition._parameter_dict.update(parameter_dict)
 
-    return dumps(slap_partition)
+    return slap_partition

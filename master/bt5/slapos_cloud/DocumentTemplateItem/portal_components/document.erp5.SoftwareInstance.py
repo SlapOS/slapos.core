@@ -38,10 +38,15 @@ from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
 
 from zLOG import LOG, INFO
 try:
+  from slapos.slap.slap import \
+    SoftwareInstance as SlapSoftwareInstance
   from slapos.util import xml2dict
 except ImportError:
   def xml2dict(dictionary):
     raise ImportError
+  class SlapSoftwareInstance:
+    def __init__(self):
+      raise ImportError
 
 def _assertACI(document):
   sm = getSecurityManager()
@@ -152,6 +157,36 @@ class SoftwareInstance(Item):
       etree.XMLSchemaValidateError, etree.XMLSyntaxError): # pylint: disable=catching-non-exception
       LOG('SoftwareInstance', INFO, 'Issue during parsing xml:', error=True)
     return result_dict
+
+  def _asSoftwareInstance(self):
+    parameter_dict = self._asParameterDict()
+
+    requested_state = self.getSlapState()
+    if requested_state == "stop_requested":
+      state = 'stopped'
+    elif requested_state == "start_requested":
+      state = 'started'
+    elif requested_state == "destroy_requested":
+      state = 'destroyed'
+    else:
+      raise ValueError("Unknown slap state : %s" % requested_state)
+
+    # software instance has to define an xml parameter
+    xml = self._instanceXmlToDict(
+      parameter_dict.pop('xml'))
+    connection_xml = self._instanceXmlToDict(
+      parameter_dict.pop('connection_xml'))
+    filter_xml = self._instanceXmlToDict(
+      parameter_dict.pop('filter_xml'))
+    instance_guid = parameter_dict.pop('instance_guid')
+
+    software_instance = SlapSoftwareInstance(**parameter_dict)
+    software_instance._parameter_dict = xml
+    software_instance._connection_dict = connection_xml
+    software_instance._filter_dict = filter_xml
+    software_instance._requested_state = state
+    software_instance._instance_guid = instance_guid
+    return software_instance
 
   @UnrestrictedMethod
   def _asParameterDict(self, shared_instance_sql_list=None):

@@ -43,9 +43,7 @@ from lxml import etree
 try:
   from slapos.slap.slap import (
     Computer as ComputeNode,
-    ComputerPartition as SlapComputePartition,
-    SoftwareInstance,
-    SoftwareRelease)
+    SoftwareInstance)
   from slapos.util import dict2xml, calculate_dict_hash, loads, dumps
 except ImportError:
   # Do no prevent instance from starting
@@ -53,13 +51,7 @@ except ImportError:
   class ComputeNode:
     def __init__(self):
       raise ImportError
-  class SlapComputePartition:
-    def __init__(self):
-      raise ImportError
   class SoftwareInstance:
-    def __init__(self):
-      raise ImportError
-  class SoftwareRelease:
     def __init__(self):
       raise ImportError
   def dict2xml(dictionary):
@@ -667,71 +659,10 @@ class SlapTool(BaseTool):
     """
     # Try to get the compute partition to raise an exception if it doesn't
     # exist
-    portal = self.getPortalObject()
     compute_partition_document = self._getComputePartitionDocument(
           computer_reference, computer_partition_reference)
-    slap_partition = SlapComputePartition(computer_reference.decode("UTF-8"),
-        computer_partition_reference.decode("UTF-8"))
-    slap_partition._software_release_document = None
-    slap_partition._requested_state = 'destroyed'
-    slap_partition._need_modification = 0
-    software_instance = None
 
-    if compute_partition_document.getSlapState() == 'busy':
-      software_instance_list = portal.portal_catalog.unrestrictedSearchResults(
-          portal_type="Software Instance",
-          default_aggregate_uid=compute_partition_document.getUid(),
-          validation_state="validated",
-          limit=2,
-          )
-      software_instance_count = len(software_instance_list)
-      if software_instance_count == 1:
-        software_instance = _assertACI(software_instance_list[0].getObject())
-      elif software_instance_count > 1:
-        # XXX do not prevent the system to work if one partition is broken
-        raise NotImplementedError, "Too many instances %s linked to %s" % \
-          ([x.path for x in software_instance_list],
-           compute_partition_document.getRelativeUrl())
-
-    if software_instance is not None:
-      # trick client side, that data has been synchronised already for given
-      # document
-      slap_partition._synced = True
-      state = software_instance.getSlapState()
-      if state == "stop_requested":
-        slap_partition._requested_state = 'stopped'
-      if state == "start_requested":
-        slap_partition._requested_state = 'started'
-
-      slap_partition._software_release_document = SoftwareRelease(
-            software_release=software_instance.getUrlString().decode("UTF-8"),
-            computer_guid=computer_reference.decode("UTF-8"))
-
-      slap_partition._need_modification = 1
-
-      parameter_dict = software_instance._asParameterDict()
-                                                       
-      # software instance has to define an xml parameter
-      slap_partition._parameter_dict = software_instance._instanceXmlToDict(
-        parameter_dict.pop('xml'))
-      slap_partition._connection_dict = software_instance._instanceXmlToDict(
-        parameter_dict.pop('connection_xml'))
-      slap_partition._filter_dict = software_instance._instanceXmlToDict(
-        parameter_dict.pop('filter_xml'))
-      slap_partition._instance_guid = parameter_dict.pop('instance_guid')
-      for slave_instance_dict in parameter_dict.get("slave_instance_list", []):
-        if slave_instance_dict.has_key("connection_xml"):
-          connection_dict = software_instance._instanceXmlToDict(
-            slave_instance_dict.pop("connection_xml"))
-          slave_instance_dict.update(connection_dict)
-          slave_instance_dict['connection-parameter-hash'] = \
-            calculate_dict_hash(connection_dict)
-        if slave_instance_dict.has_key("xml"):
-          slave_instance_dict.update(software_instance._instanceXmlToDict(
-            slave_instance_dict.pop("xml")))
-      slap_partition._parameter_dict.update(parameter_dict)
-
-    result = dumps(slap_partition)
+    result = compute_partition_document._registerComputerPartition()
 
     # Keep in cache server for 7 days
     self.REQUEST.response.setStatus(200)

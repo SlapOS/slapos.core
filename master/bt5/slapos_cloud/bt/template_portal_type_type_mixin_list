@@ -1,4 +1,5 @@
 Compute Node | SlapOSCacheMixin
 Compute Node | SlapOSComputeNodeMixin
 Compute Partition | SlapOSCacheMixin
+Compute Partition | SlapOSComputePartitionMixin
 Person | SlapOSCacheMixin

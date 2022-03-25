@@ -5,6 +5,7 @@
  </portal_type>
  <portal_type id="Compute Partition">
   <item>SlapOSCacheMixin</item>
+  <item>SlapOSComputePartitionMixin</item>
  </portal_type>
  <portal_type id="Person">
   <item>SlapOSCacheMixin</item>

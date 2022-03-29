@@ -56,15 +56,21 @@ class CacheLookupCommand(ConfigCommand):
 
     def take_action(self, args):
         configp = self.fetch_config(args)
-        cache_dir = configp.get('networkcache', 'download-cache-url')
-        sys.exit(do_lookup(self.app.log, cache_dir, args.url))
+        cache_url = configp.get('networkcache', 'download-cache-url')
+        cache_dir = configp.get('networkcache', 'download-dir-url')
+        sys.exit(do_lookup(self.app.log, cache_url, cache_dir, args.url))
 
-def do_lookup(logger, cache_dir, url):
+def do_lookup(logger, cache_url, cache_dir, url):
     md5 = hashlib.md5(str2bytes(url)).hexdigest()
 
+    if 'pypi' not in url:
+      key = 'slapos-buildout-%s' % (md5,)
+    else:
+      key = 'pypi-buildout-%s' % (md5,)
     try:
+        networkcache.download_entry_list(cache_url, cache_dir, key, logger, None, url)
         cached_url = '%s/slapos-buildout-%s' % (cache_dir, md5)
-        logger.debug('Connecting to %s', url)
+        logger.debug('Connecting to %s', cached_url)
         req = requests.get(cached_url, timeout=5)
     except (requests.Timeout, requests.ConnectionError):
         logger.critical('Cannot connect to cache server at %s', cached_url)

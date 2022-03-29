@@ -42,16 +42,12 @@ from Products.ERP5Type.Cache import CachingMethod
 from lxml import etree
 try:
   from slapos.slap.slap import (
-    Computer as ComputeNode,
-    SoftwareInstance)
+    Computer as ComputeNode)
   from slapos.util import dict2xml, calculate_dict_hash, loads, dumps
 except ImportError:
   # Do no prevent instance from starting
   # if libs are not installed
   class ComputeNode:
-    def __init__(self):
-      raise ImportError
-  class SoftwareInstance:
     def __init__(self):
       raise ImportError
   def dict2xml(dictionary):
@@ -662,7 +658,7 @@ class SlapTool(BaseTool):
     compute_partition_document = self._getComputePartitionDocument(
           computer_reference, computer_partition_reference)
 
-    result = compute_partition_document._registerComputePartition()
+    slap_compute_partition = compute_partition_document._registerComputePartition()
 
     # Keep in cache server for 7 days
     self.REQUEST.response.setStatus(200)
@@ -672,7 +668,7 @@ class SlapTool(BaseTool):
                                     'REMOTE_USER')
     self.REQUEST.response.setHeader('Last-Modified', rfc1123_date(DateTime()))
     self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
-    self.REQUEST.response.setBody(result)
+    self.REQUEST.response.setBody(dumps(slap_compute_partition))
     return self.REQUEST.response
 
 
@@ -898,67 +894,50 @@ class SlapTool(BaseTool):
     sla_xml = etree.tostring(instance, pretty_print=True,
                                   xml_declaration=True, encoding='utf-8')
 
+    kw = dict(software_release=software_release,
+              software_type=software_type,
+              software_title=partition_reference,
+              instance_xml=instance_xml,
+              shared=shared,
+              sla_xml=sla_xml,
+              state=state)
+
     portal = self.getPortalObject()
     if compute_node_id and compute_partition_id:
-      # requested by Software Instance, there is already top part of tree
-      software_instance_document = self.\
+      requester = self.\
         _getSoftwareInstanceForComputePartition(compute_node_id,
         compute_partition_id)
-      instance_tree = software_instance_document.getSpecialiseValue()
+      instance_tree = requester.getSpecialiseValue()
       if instance_tree is not None and instance_tree.getSlapState() == "stop_requested":
-        state = 'stopped'
-      kw = dict(software_release=software_release,
-              software_type=software_type,
-              software_title=partition_reference,
-              instance_xml=instance_xml,
-              shared=shared,
-              sla_xml=sla_xml,
-              state=state)
-      key = '_'.join([software_instance_document.getSpecialise(), partition_reference])
-      value = dict(
-        hash='_'.join([software_instance_document.getRelativeUrl(), str(kw)]),
-        )
-      last_data = software_instance_document.getLastData(key)
-      requested_software_instance = None
-      if last_data is not None and isinstance(last_data, dict):
-        requested_software_instance = portal.restrictedTraverse(
-          last_data.get('request_instance'), None)
-      if last_data is None or not isinstance(last_data, type(value)) or \
-          last_data.get('hash') != value['hash'] or \
-          requested_software_instance is None: 
-        software_instance_document.requestInstance(**kw)
-        requested_software_instance = self.REQUEST.get('request_instance')
-        if requested_software_instance is not None:
-          value['request_instance'] = requested_software_instance\
-            .getRelativeUrl()
-          software_instance_document.setLastData(value, key=key)
+        kw['state'] = 'stopped'
+      key = '_'.join([instance_tree.getRelativeUrl(), partition_reference])
     else:
       # requested as root, so done by human
-      person = portal.portal_membership.getAuthenticatedMember().getUserValue()
-      kw = dict(software_release=software_release,
-              software_type=software_type,
-              software_title=partition_reference,
-              shared=shared,
-              instance_xml=instance_xml,
-              sla_xml=sla_xml,
-              state=state)
-      key = '_'.join([person.getRelativeUrl(), partition_reference])
-      value = dict(
-        hash=str(kw)
+      requester = portal.portal_membership.getAuthenticatedMember().getUserValue()
+      key = '_'.join([requester.getRelativeUrl(), partition_reference])
+    
+    last_data = requester.getLastData(key)
+    requested_software_instance = None
+    value = dict(
+      hash='_'.join([requester.getRelativeUrl(), str(kw)]),
       )
-      last_data = person.getLastData(key)
-      if last_data is not None and isinstance(last_data, dict):
-        requested_software_instance = portal.restrictedTraverse(
+
+    if last_data is not None and isinstance(last_data, type(value)):
+      requested_software_instance = self.restrictedTraverse(
           last_data.get('request_instance'), None)
-      if last_data is None or not isinstance(last_data, type(value)) or \
-        last_data.get('hash') != value['hash'] or \
-        requested_software_instance is None:
-        person.requestSoftwareInstance(**kw)
-        requested_software_instance = self.REQUEST.get('request_instance')
-        if requested_software_instance is not None:
-          value['request_instance'] = requested_software_instance\
-            .getRelativeUrl()
-          requested_software_instance.setLastData(value, key=key)
+    
+    if last_data is None or not isinstance(last_data, type(value)) or \
+      last_data.get('hash') != value['hash'] or \
+      requested_software_instance is None:
+      if compute_node_id and compute_partition_id:
+        requester.requestInstance(**kw)
+      else:
+        requester.requestSoftwareInstance(**kw)
+      requested_software_instance = self.REQUEST.get('request_instance')
+      if requested_software_instance is not None:
+        value['request_instance'] = requested_software_instance\
+          .getRelativeUrl()
+        requester.setLastData(value, key=key)
 
     if requested_software_instance is None:
       raise SoftwareInstanceNotReady
@@ -966,24 +945,7 @@ class SlapTool(BaseTool):
       if not requested_software_instance.getAggregate(portal_type="Compute Partition"):
         raise SoftwareInstanceNotReady
       else:
-        parameter_dict = requested_software_instance._asParameterDict()
-
-        # software instance has to define an xml parameter
-        xml = requested_software_instance._instanceXmlToDict(
-          parameter_dict.pop('xml'))
-        connection_xml = requested_software_instance._instanceXmlToDict(
-          parameter_dict.pop('connection_xml'))
-        filter_xml = requested_software_instance._instanceXmlToDict(
-          parameter_dict.pop('filter_xml'))
-        instance_guid = parameter_dict.pop('instance_guid')
-
-        software_instance = SoftwareInstance(**parameter_dict)
-        software_instance._parameter_dict = xml
-        software_instance._connection_dict = connection_xml
-        software_instance._filter_dict = filter_xml
-        software_instance._requested_state = state
-        software_instance._instance_guid = instance_guid
-        return dumps(software_instance)
+        return dumps(requested_software_instance._asSoftwareInstance())
 
   @UnrestrictedMethod
   def _updateComputePartitionRelatedInstanceList(self, compute_node_id,

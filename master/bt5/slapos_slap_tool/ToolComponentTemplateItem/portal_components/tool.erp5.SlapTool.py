@@ -941,26 +941,7 @@ class SlapTool(BaseTool):
                           _getSoftwareInstanceForComputePartition(compute_node_id,
                           compute_partition_id)
 
-    cache_reference = '%s-PREDLIST' % software_instance_document.getReference()
-    if not software_instance_document.isLastData(cache_reference, instance_reference_xml):
-      instance_reference_list = loads(instance_reference_xml)
-
-      current_successor_list = software_instance_document.getSuccessorValueList(
-                            portal_type=['Software Instance', 'Slave Instance'])
-      current_successor_title_list = [i.getTitle() for i in
-                                        current_successor_list]
-
-      # If there are items to remove
-      if list(set(current_successor_title_list).difference(instance_reference_list)) != []:
-        successor_list = [instance.getRelativeUrl() for instance in
-                            current_successor_list if instance.getTitle()
-                            in instance_reference_list]
-
-        LOG('SlapTool', INFO, '%s, %s: Updating successor list to %s' % (
-          compute_node_id, compute_partition_id, successor_list), error=False)
-        software_instance_document.edit(successor_list=successor_list,
-            comment='successor_list edited to unlink non commited instances')
-      software_instance_document.setLastData(instance_reference_xml, key=cache_reference)
+    software_instance_document._updateSucessorList(instance_reference_xml)
 
   ####################################################
   # Internals methods

@@ -40,9 +40,11 @@ from zLOG import LOG, INFO
 try:
   from slapos.slap.slap import \
     SoftwareInstance as SlapSoftwareInstance
-  from slapos.util import xml2dict
+  from slapos.util import xml2dict, loads
 except ImportError:
   def xml2dict(dictionary):
+    raise ImportError
+  def loads(*args):
     raise ImportError
   class SlapSoftwareInstance:
     def __init__(self):
@@ -289,3 +291,31 @@ class SoftwareInstance(Item):
         )
     
     return ip_address_list
+
+  def _updateSucessorList(self, instance_reference_xml):
+    """
+    Update Software Instance successor list to match the given list. If one
+    instance was not requested by this compute partition, it should be removed
+    in the successor_list of this instance.
+    Once the link is removed, this instance will be trashed by Garbage Collect!
+
+    instance_reference_xml contain list of title of sub-instances requested by
+    this instance.
+    """
+    cache_reference = '%s-PREDLIST' % self.getReference()
+    if not self.isLastData(cache_reference, instance_reference_xml):
+      instance_reference_list = loads(instance_reference_xml)
+      current_successor_list = self.getSuccessorValueList(
+                            portal_type=['Software Instance', 'Slave Instance'])
+      current_successor_title_list = [i.getTitle() for i in current_successor_list]
+      # If there are items to remove
+      if list(set(current_successor_title_list).difference(instance_reference_list)) != []:
+        successor_list = [instance.getRelativeUrl() for instance in
+                            current_successor_list if instance.getTitle()
+                            in instance_reference_list]
+
+        LOG('SoftwareInstance', INFO, '%s : Updating successor list to %s' % (
+            self.getReference(), successor_list), error=False)
+        self.edit(successor_list=successor_list,
+            comment='successor_list edited to unlink non commited instances')
+      self.setLastData(instance_reference_xml, key=cache_reference)

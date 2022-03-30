@@ -55,7 +55,6 @@ download-binary-dir-url = http://shadir.nxdcdn.com
 
 # Upload Configuration
 #signature-private-key-file = /etc/opt/slapos/shacache/signature.key
-#signature-certificate-file = /etc/opt/slapos/shacache/signature.cert
 #upload-binary-dir-url = https://www.shacache.org/shadir
 #upload-binary-cache-url = https://www.shacache.org/shacache
 #upload-cache-url = https://www.shacache.org/shacache

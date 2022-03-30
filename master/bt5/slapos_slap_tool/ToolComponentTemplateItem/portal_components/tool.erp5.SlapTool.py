@@ -615,20 +615,6 @@ class SlapTool(BaseTool):
     compute_node.ComputeNode_updateFromDict(compute_node_dict)
     return 'Content properly posted.'
 
-  security.declareProtected(Permissions.AccessContentsInformation,
-    'useComputerPartition')
-  def useComputerPartition(self, computer_id, computer_partition_id,
-    use_string):
-    """Warning : deprecated method."""
-    compute_node_document = self._getComputeNodeDocument(computer_id)
-    compute_partition_document = self._getComputePartitionDocument(
-      compute_node_document.getReference(), computer_partition_id)
-    # easy way to start to store usage messages sent by client in related Web
-    # Page text_content...
-    self._reportUsage(compute_partition_document, use_string)
-    return """Content properly posted.
-              WARNING : this method is deprecated. Please use useComputer."""
-
   @convertToREST
   def _generateComputerCertificate(self, compute_node_id):
     self._getComputeNodeDocument(compute_node_id).generateCertificate()

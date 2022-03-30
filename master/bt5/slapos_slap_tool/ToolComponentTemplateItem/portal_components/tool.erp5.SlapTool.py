@@ -101,6 +101,15 @@ def convertToREST(function):
   wrapper.__doc__ = function.__doc__
   return wrapper
 
+def castToStr(dict_kw):
+  instance = etree.Element('instance')
+  for _id, _value in dict_kw.iteritems():
+    # cast everything to string
+    etree.SubElement(instance, "parameter",
+                     attrib={'id':_id}).text = str(_value)
+  return etree.tostring(instance, pretty_print=True,
+                                  xml_declaration=True, encoding='utf-8')
+
 
 def _assertACI(document):
   sm = getSecurityManager()
@@ -876,30 +885,12 @@ class SlapTool(BaseTool):
     else:
       filter_kw = dict()
 
-    instance = etree.Element('instance')
-    for parameter_id, parameter_value in partition_parameter_kw.iteritems():
-      # cast everything to string
-      parameter_value = str(parameter_value)
-      etree.SubElement(instance, "parameter",
-                       attrib={'id':parameter_id}).text = parameter_value
-    instance_xml = etree.tostring(instance, pretty_print=True,
-                                  xml_declaration=True, encoding='utf-8')
-
-    instance = etree.Element('instance')
-    for parameter_id, parameter_value in filter_kw.iteritems():
-      # cast everything to string
-      parameter_value = str(parameter_value)
-      etree.SubElement(instance, "parameter",
-                       attrib={'id':parameter_id}).text = parameter_value
-    sla_xml = etree.tostring(instance, pretty_print=True,
-                                  xml_declaration=True, encoding='utf-8')
-
     kw = dict(software_release=software_release,
               software_type=software_type,
               software_title=partition_reference,
-              instance_xml=instance_xml,
+              instance_xml=castToStr(partition_parameter_kw),
               shared=shared,
-              sla_xml=sla_xml,
+              sla_xml=castToStr(filter_kw),
               state=state)
 
     portal = self.getPortalObject()
@@ -932,6 +923,7 @@ class SlapTool(BaseTool):
       if compute_node_id and compute_partition_id:
         requester.requestInstance(**kw)
       else:
+        # requester is a person so we use another method
         requester.requestSoftwareInstance(**kw)
       requested_software_instance = self.REQUEST.get('request_instance')
       if requested_software_instance is not None:

@@ -732,10 +732,15 @@ stderr_logfile_backups=1
       # The runpromise script uses stderr exclusively to propagate exception
       # messages. It otherwise redirects stderr to stdout so that all outputs
       # from the promises go to stdout.
+      def preexec_fn():
+        err = os.dup(2)
+        os.dup2(1, 2)
+        dropPrivileges(uid, gid, logger=self.logger)
+        os.dup2(err, 2)
       try:
         process = SlapPopen(
           command,
-          preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),
+          preexec_fn=preexec_fn,
           cwd=instance_path,
           universal_newlines=True,
           stdout=subprocess.PIPE,

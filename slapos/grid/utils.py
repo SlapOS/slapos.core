@@ -299,7 +299,7 @@ def dropPrivileges(uid, gid, logger):
   else:
     raise ValueError('%s it was possible to go back to uid = %r and gid = '
                      '%r which is fatal.' % (message_pre, current_uid, current_gid))
-  logger.debug('Succesfully dropped privileges to uid=%r gid=%r' % (uid, gid))
+  logger.debug('Successfully dropped privileges to uid=%r gid=%r' % (uid, gid))
 
 
 def bootstrapBuildout(path, logger, buildout=None,

@@ -9,6 +9,7 @@ import sys
 # Parse arguments
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--exception-pipe', type=int, required=True)
 parser.add_argument('--promise-folder', required=True)
 parser.add_argument('--legacy-promise-folder', default=None)
 parser.add_argument('--promise-timeout', type=int, default=20)
@@ -60,11 +61,6 @@ promise_checker = PromiseLauncher(config=config, logger=app.log)
 
 
 # Run promises
-# Redirect stderr to stdout (logger uses stderr)
-# to reserve stderr exclusively for error reporting
-
-err = os.dup(2)
-os.dup2(1, 2)
 
 try:
   promise_checker.run()
@@ -73,5 +69,5 @@ except Exception as e:
     error_str = unicode(str(e), 'utf-8', 'repr')
   else:
     error_str = str(e)
-  os.write(err, error_str.encode('utf-8', 'repr'))
+  os.write(args.exception_pipe, error_str.encode('utf-8', 'repr'))
   sys.exit(2 if isinstance(e, PromiseError) else 1)

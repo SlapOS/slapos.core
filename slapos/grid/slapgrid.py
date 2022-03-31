@@ -32,7 +32,7 @@ import os
 import pkg_resources
 import random
 import socket
-from io import BytesIO
+import io
 import sys
 import tempfile
 import time
@@ -59,7 +59,11 @@ from slapos import manager as slapmanager
 from slapos.slap.slap import NotFoundError
 from slapos.slap.slap import ServerError
 from slapos.slap.slap import COMPUTER_PARTITION_REQUEST_LIST_TEMPLATE_FILENAME
-from slapos.util import mkdir_p, chownDirectory, string_to_boolean, listifdir
+from slapos.util import (mkdir_p,
+                        chownDirectory,
+                        string_to_boolean,
+                        listifdir,
+                        bytes2str)
 from slapos.grid.exception import BuildoutFailedError
 from slapos.grid.SlapObject import Software, Partition
 from slapos.grid.svcbackend import (launchSupervisord,
@@ -726,34 +730,45 @@ stderr_logfile_backups=1
         else:
           command.append('--' + option)
           command.append(str(value))
-      promises = plugins + len(listifdir(legacy_promise_dir))
-      # Add a timeout margin to let the process kill the promises and cleanup
-      timeout = promises * self.promise_timeout + 10
-      # The runpromise script uses stderr exclusively to propagate exception
-      # messages. It otherwise redirects stderr to stdout so that all outputs
-      # from the promises go to stdout.
+      # Compute timeout as the sum of all promise timeouts + empiric margin.
+      promises_nb = plugins + len(listifdir(legacy_promise_dir))
+      timeout = promises_nb * self.promise_timeout + 10
+      # The promise runner uses a side pipe in addition to stdout and stderr
+      # to propagate exceptions messages, and the return code to distinguish
+      # some exception types (2 for PromiseError, 1 for general Exceptions).
+      r, w = os.pipe()
       try:
-        process = SlapPopen(
-          command,
-          preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),
-          cwd=instance_path,
-          universal_newlines=True,
-          stdout=subprocess.PIPE,
-          stderr=subprocess.PIPE,
-          logger=self.logger,
-          timeout=timeout,
-        )
-        stderr = process.stderr.read()
+        try:
+          command.append('--exception-pipe')
+          command.append(str(w))
+          process = SlapPopen(
+            command,
+            preexec_fn=lambda: dropPrivileges(uid, gid, logger=self.logger),
+            pass_fds=(w,),
+            cwd=instance_path,
+            universal_newlines=True,
+            stdout=subprocess.PIPE,
+            logger=self.logger,
+            timeout=timeout,
+          )
+        except subprocess.TimeoutExpired:
+          killProcessTree(process.pid, self.logger)
+          # If this happens, the timeout margin might be too small.
+          raise Exception('Promise runner timed out')
+        finally:
+          os.close(w)
+        side_output = bytes2str(io.open(r, 'rb', closefd=False).read())
         if process.returncode == 2:
-          raise PromiseError(stderr)
+          raise PromiseError(side_output)
         elif process.returncode:
-          raise Exception(stderr)
-        elif stderr:
-          self.logger.warn('Promise runner unexpected output:\n%s', stderr)
-      except subprocess.TimeoutExpired:
-        killProcessTree(process.pid, self.logger)
-        # The timeout margin was exceeded but this should be infrequent
-        raise Exception('Promise runner timed out')
+          raise Exception(side_output)
+        elif side_output:
+          self.logger.warn(
+            'Unexpected side-channel output from promise runner:\n%s',
+            side_output
+            )
+      finally:
+        os.close(r)
 
     else:
       return PromiseLauncher(config=promise_config, logger=self.logger).run()
@@ -1544,7 +1559,7 @@ stderr_logfile_backups=1
   def validateXML(self, to_be_validated, xsd_model):
     """Validates a given xml file"""
     #We retrieve the xsd model
-    xsd_model = BytesIO(xsd_model)
+    xsd_model = io.BytesIO(xsd_model)
     xmlschema_doc = etree.parse(xsd_model)
     xmlschema = etree.XMLSchema(xmlschema_doc)
 

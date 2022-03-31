@@ -667,6 +667,9 @@
         div = document.createElement("div"),
         div_error = document.createElement("div"),
         span_error = document.createElement("span"),
+        detail_error = document.createElement("details"),
+        detail_error_summary = document.createElement("summary"),
+        detail_error_span = document.createElement("span"),
         textarea = document.createElement("textarea"),
         fieldset = document.createElement("fieldset"),
         fieldset_list = g.element.querySelectorAll('fieldset'),
@@ -694,16 +697,23 @@
       span_error.setAttribute("class", "error");
       span_error.textContent = "Parameter form is not available, use the textarea above for edit the instance parameters.";
 
+      detail_error_summary.textContent = "More information..."
+      detail_error_span.setAttribute("class", "error_msg");
+      detail_error_span.textContent = error;
+
+      detail_error.appendChild(detail_error_summary);
+      detail_error.appendChild(detail_error_span);
       div_error.setAttribute("class", "error");
 
       div.appendChild(textarea);
       div_error.appendChild(span_error);
-      div.appendChild(textarea);
+      div_error.appendChild(detail_error);
 
       fieldset.appendChild(div);
       fieldset.appendChild(div_error);
 
-      fieldset_list[0].innerHTML = '';
+      // Do not hide the Software type, let the user edit it.
+      //fieldset_list[0].innerHTML = '';
       $(fieldset_list[1]).replaceWith(fieldset);
       fieldset_list[2].innerHTML = '';
 
@@ -907,23 +917,40 @@
           return parameter_schema_url.value;
         })
         .push(function (parameter_json_schema_url) {
-          var parameter_dict = {}, json_url_uri, prefix, parameter_entry,
+          var parameter_dict = {}, parameter_list, json_url_uri, prefix, parameter_entry,
             restricted_parameter = options.value.parameter.restricted_parameter;
 
           if (options.value.parameter.parameter_xml !== undefined) {
             if (options.serialisation === "json-in-xml") {
+              parameter_list = jQuery.parseXML(
+                  options.value.parameter.parameter_xml)
+                    .querySelectorAll("parameter")
+              if (parameter_list.length > 1) {
+                  throw new Error("The current parameter should contains only _ parameter (json-in-xml).")
+              }
               parameter_entry = jQuery.parseXML(
                 options.value.parameter.parameter_xml
               ).querySelector("parameter[id='_']");
               if (parameter_entry !== null) {
                 parameter_dict = JSON.parse(parameter_entry.textContent);
+              } else if (parameter_list.length == 1) {
+                  throw new Error(
+                    "The current parameter should contains only _ parameter (json-in-xml).")
               }
-            } else {
+            } else if (["", "xml"].indexOf(options.serialisation) >= 0) {
+              parameter_entry = jQuery.parseXML(
+                options.value.parameter.parameter_xml
+              ).querySelector("parameter[id='_']");
+              if (parameter_entry !== null) {
+                throw new Error("The current parameter values should NOT contains _ parameter (xml).");
+              }
               $(jQuery.parseXML(options.value.parameter.parameter_xml)
                 .querySelectorAll("parameter"))
                   .each(function (key, p) {
                   parameter_dict[p.id] = p.textContent;
                 });
+            } else {
+              throw new Error("Unknown serialisation: " + options.serialisation);
             }
           }
 

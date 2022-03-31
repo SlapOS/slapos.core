@@ -726,8 +726,8 @@ stderr_logfile_backups=1
         else:
           command.append('--' + option)
           command.append(str(value))
+      # Compute timeout as the sum of all promise timeouts + empirical margin.
       promises = plugins + len(listifdir(legacy_promise_dir))
-      # Add a timeout margin to let the process kill the promises and cleanup
       timeout = promises * self.promise_timeout + 10
       # The runpromise script uses stderr exclusively to propagate exception
       # messages. It otherwise redirects stderr to stdout so that all outputs
@@ -754,10 +754,10 @@ stderr_logfile_backups=1
         elif process.returncode:
           raise Exception(stderr)
         elif stderr:
-          self.logger.warn('Promise runner unexpected output:\n%s', stderr)
+          self.logger.warn('Unexpected promise runner output:\n%s', stderr)
       except subprocess.TimeoutExpired:
         killProcessTree(process.pid, self.logger)
-        # The timeout margin was exceeded but this should be infrequent
+        # If this happens, it might be that the timeout margin is too small.
         raise Exception('Promise runner timed out')
 
     else:

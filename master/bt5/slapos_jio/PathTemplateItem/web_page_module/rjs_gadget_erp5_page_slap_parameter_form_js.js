@@ -105,7 +105,7 @@
     input.size = 1;
     option.value = "";
     if (default_value === undefined) {
-      option.selected = "selected";
+      option.selected = true;
     }
     input.appendChild(option);
     for (option_index in json_field['enum']) {
@@ -114,7 +114,7 @@
         optionz.value = json_field['enum'][option_index];
         optionz.textContent = json_field['enum'][option_index];
         if (json_field['enum'][option_index] === default_value) {
-          optionz.selected = "selected";
+          optionz.selected = true;
         }
         input.appendChild(optionz);
       }
@@ -129,7 +129,7 @@
     input.size = 1;
     option.value = "";
     if (default_value === undefined) {
-      option.selected = "selected";
+      option.selected = true;
     }
     input.appendChild(option);
     json_field.oneOf.forEach(function (element, index) {
@@ -145,7 +145,7 @@
         optionz.value = value;
         optionz.textContent = element.title;
         if (value === default_value) {
-          optionz.selected = "selected";
+          optionz.selected = true;
         }
         input.appendChild(optionz);
       }
@@ -839,7 +839,7 @@
                 
                 if (option_index === lowest_option_index) {
                   option_selected = option.value;
-                  option.selected = "selected";
+                  option.selected = true;
                   option_selected_index = option_index;
                   if (json['software-type'][option_index].shared === true) {
                     parameter_shared.value = true;
@@ -860,7 +860,7 @@
                 if ((option_selected_index === undefined) &&
                   (option.value === option_selected) &&
                   (options.value.parameter.shared == json['software-type'][option_index].shared)) {
-                  option.selected = "selected";
+                  option.selected = true;
                   option_selected_index = option_index;
                   if (json['software-type'][option_index].shared === true) {
                     parameter_shared.value = true;

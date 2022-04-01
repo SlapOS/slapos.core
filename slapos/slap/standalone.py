@@ -59,10 +59,22 @@ from .interface.slap import IRequester
 from ..grid.slapgrid import SLAPGRID_PROMISE_FAIL
 
 from .slap import slap
-from ..util import dumps, rmtree
+from ..util import dumps, rmtree, getPartitionIpv6Addr, getPartitionIpv6Range
 
 from ..grid.svcbackend import getSupervisorRPC
 from ..grid.svcbackend import _getSupervisordSocketPath
+
+def _getPartitionIpv6(ipv6_address, i):
+  # returns (single_ipv6_address, ipv6_range) for a partition
+  # ipv6_address can be either a range or a single IPv6 address (with no /)
+  if '/' in ipv6_address:
+    addr,netmask = ipv6_address.split('/')
+    single_ipv6_address = getPartitionIpv6Addr({'addr':addr, 'netmask':int(netmask)}, i)['addr']
+    ipv6_range = getPartitionIpv6Range({'addr':addr, 'netmask':int(netmask)}, i)
+  else:
+    ipv6_range = None
+    single_ipv6_address = ipv6_address
+  return (single_ipv6_address, ipv6_range)
 
 
 @zope.interface.implementer(IException)
@@ -287,9 +299,7 @@ class SlapformatDefinitionWriter(ConfigWriter):
   """
   def writeConfig(self, path):
     ipv4 = self._standalone_slapos._ipv4_address
-    ipv6 = self._standalone_slapos._ipv6_address
     ipv4_cidr = ipv4 + '/255.255.255.255' if ipv4 else ''
-    ipv6_cidr = ipv6 + '/64' if ipv6 else ''
     user = pwd.getpwuid(os.getuid()).pw_name
     partition_base_name = self._standalone_slapos._partition_base_name
     with open(path, 'w') as f:
@@ -300,11 +310,15 @@ class SlapformatDefinitionWriter(ConfigWriter):
               address = {ipv4_cidr}\n
       """).format(**locals()))
       for i in range(self._standalone_slapos._partition_count):
+        print(i)
+        single_ipv6_address, ipv6_range = _getPartitionIpv6(self._standalone_slapos._ipv6_address, i)
+        ipv6_range_network= '{addr}/{netmask}'.format(**ipv6_range)
         f.write(
             textwrap.dedent(
                 """
                 [partition_{i}]
-                address = {ipv6_cidr} {ipv4_cidr}
+                address = {single_ipv6_address}/128 {ipv4_cidr}
+                ipv6_range = {ipv6_range_network}
                 pathname = {partition_base_name}{i}
                 user = {user}
                 network_interface =\n
@@ -594,8 +608,12 @@ class StandaloneSlapOS(object):
       partition_base_name="slappart"):
     """Creates `partition_count` partitions.
 
-    All partitions have the same `ipv4_address` and `ipv6_address` and
-    use the current system user.
+    All partitions have the same `ipv4_address` and use the current system
+    user.
+
+    `ipv6_address` can be a single address (in this case all partitions have
+    the same address) or a range in the form IPV6/CIDR (in this case each
+    partition has a subrange).
 
     When calling this a second time with a lower `partition_count` or with
     different `partition_base_name` will delete existing partitions.
@@ -628,6 +646,7 @@ class StandaloneSlapOS(object):
       if not (os.path.exists(partition_path)):
         os.mkdir(partition_path)
       os.chmod(partition_path, 0o750)
+      single_ipv6_address, ipv6_range = _getPartitionIpv6(ipv6_address, i)
       partition_list.append({
           'address_list': [
               {
@@ -635,10 +654,11 @@ class StandaloneSlapOS(object):
                   'netmask': '255.255.255.255'
               },
               {
-                  'addr': ipv6_address,
+                  'addr': single_ipv6_address,
                   'netmask': 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff'
               },
           ],
+          'ipv6_range' : ipv6_range,
           'path': partition_path,
           'reference': partition_reference,
           'tap': {

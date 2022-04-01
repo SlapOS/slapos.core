@@ -199,6 +199,69 @@ def ipv6FromBin(ip, suffix=''):
   return socket.inet_ntop(socket.AF_INET6,
     struct.pack('>QQ', int(ip[:64], 2), int(ip[64:], 2)))
 
+def getPartitionIpv6Addr(ipv6_range, partition_index):
+  """
+  from a IPv6 range in the form
+  {
+    'addr' : addr,
+    'natmask' : CIDR
+  }
+  returns the IPv6 addr
+  addr::(partition_index+2) (address 1 is is used by re6st)
+  """
+  addr = ipv6_range['addr']
+  netmask = ipv6_range['netmask']
+  prefix = binFromIpv6(addr)[:netmask]
+  return dict(addr = ipv6FromBin(prefix + bin(partition_index+2)[2:].zfill(128 - netmask)), netmask = netmask)
+
+def getPartitionIpv6Range(ipv6_range, partition_index):
+  """
+  from a IPv6 range in the form
+  {
+    'addr' : addr,
+    'natmask' : CIDR
+  }
+  returns the IPv6 range
+  {
+    'addr' : addr:(partition_index+1)
+    'netmask : CIDR+16
+  }
+  """
+  addr = ipv6_range['addr']
+  netmask = ipv6_range['netmask']
+  prefix = binFromIpv6(addr)[:netmask]
+  # we generate a subnetwork for the partition
+  # the subnetwork has 16 bits more than our IPv6 range
+  # make sure we have at least 2 IPs in the subnetwork
+  netmask += 16
+  if netmask >= 128:
+    raise ValueError('The IPv6 range has netmask {} which is too big for generating IPv6 range for partitions.'.format(netmask))
+  return dict(addr = ipv6FromBin(prefix + bin(partition_index+1)[2:].zfill(16) + '0' * (128 - netmask)), netmask=netmask)
+
+def getTapIpv6Range(ipv6_range, partition_index):
+  """
+  from a IPv6 range in the form
+  {
+    'addr' : addr,
+    'natmask' : CIDR
+  }
+  returns the IPv6 range
+  {
+    'addr' : addr:(2^15 + partition_index+1)
+    'netmask : CIDR+16
+  }
+  """
+  addr = ipv6_range['addr']
+  netmask = ipv6_range['netmask']
+  prefix = binFromIpv6(addr)[:netmask]
+  # we generate a subnetwork for the partition
+  # the subnetwork has 16 bits more than our IPv6 range
+  # make sure we have at least 2 IPs in the subnetwork
+  netmask += 16
+  if netmask >= 128:
+    raise ValueError('The IPv6 range has netmask {} which is too big for generating IPv6 range for partitions.'.format(netmask))
+  return dict(addr = ipv6FromBin(prefix + bin(2^15 + partition_index+1)[2:].zfill(16) + '0' * (128 - netmask)), netmask=netmask)
+
 def lenNetmaskIpv6(netmask):
   """Convert string represented netmask to its integer prefix"""
   # Since version 0.10.7 of netifaces, the netmask is something like "ffff::/16",
@@ -208,6 +271,10 @@ def lenNetmaskIpv6(netmask):
     return netaddr.IPAddress(netmask).netmask_bits()
   except ValueError:
     return netaddr.IPNetwork(netmask).prefixlen
+
+def netmaskFromLenIPv6(netmask_len):
+  """ opposite of lenNetmaskIpv6"""
+  return ipv6FromBin('1' * netmask_len)
 
 # Used for Python 2-3 compatibility
 if str is bytes:

@@ -32,6 +32,7 @@ tap_ipv6 = true
 # You can choose any other local network which does not conflict with your
 # current machine configuration
 ipv4_local_network = 10.0.0.0/16
+partition_has_ipv6_range = true
 
 # to enable, change to [firewall]
 [disabled-firewall]

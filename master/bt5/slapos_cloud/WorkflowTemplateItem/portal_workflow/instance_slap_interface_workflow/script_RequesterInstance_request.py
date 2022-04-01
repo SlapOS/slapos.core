@@ -79,15 +79,10 @@ if (request_software_instance is None):
       id_group='slap_software_instance_reference',
       id_generator='uid')
 
-    new_content_kw = {}
     if is_slave == True:
       software_instance_portal_type = "Slave Instance"
     else:
       software_instance_portal_type = "Software Instance"
-      certificate_dict = portal.portal_certificate_authority.getNewCertificate(reference)
-      new_content_kw['destination_reference'] = certificate_dict['id']
-      new_content_kw['ssl_key'] = certificate_dict['key']
-      new_content_kw['ssl_certificate'] = certificate_dict['certificate']
 
     module = portal.getDefaultModule(portal_type="Software Instance")
     request_software_instance = module.newContent(
@@ -95,9 +90,9 @@ if (request_software_instance is None):
       title=software_title,
       specialise_value=instance_tree,
       reference=reference,
-      activate_kw={'tag': tag},
-      **new_content_kw
+      activate_kw={'tag': tag}
     )
+    request_software_instance.generateCertificate()
     request_software_instance.validate()
     if software_instance_portal_type == "Software Instance":
       # Include Certificate Login so Instance become a User

@@ -59,10 +59,19 @@ from .interface.slap import IRequester
 from ..grid.slapgrid import SLAPGRID_PROMISE_FAIL
 
 from .slap import slap
-from ..util import dumps, rmtree
+from ..util import dumps, rmtree, getPartitionIpv6Addr, getPartitionIpv6Range
 
 from ..grid.svcbackend import getSupervisorRPC
 from ..grid.svcbackend import _getSupervisordSocketPath
+
+
+def _parseIPv6(ipv6):
+  try:
+    addr, prefixlen = ipv6.split('/')
+    prefixlen = int(prefixlen)
+  except ValueError:
+    addr, prefixlen = ipv6, None
+  return addr, prefixlen
 
 
 @zope.interface.implementer(IException)
@@ -205,6 +214,7 @@ class SlapOSConfigWriter(ConfigWriter):
     read_only_shared_part_list = '\n  '.join( #  pylint: disable=unused-variable; used in format()
         standalone_slapos._shared_part_list)
     partition_forward_configuration = '\n'.join(self._getPartitionForwardConfiguration())
+    has_ipv6_range = ('false', 'true')[standalone_slapos._partitions_have_ipv6_range]
     with open(path, 'w') as f:
       f.write(
           textwrap.dedent(
@@ -232,6 +242,7 @@ class SlapOSConfigWriter(ConfigWriter):
               create_tap = false
               create_tun = false
               computer_xml = {standalone_slapos._slapos_xml}
+              partition_has_ipv6_range = {has_ipv6_range}
 
               [slapproxy]
               host = {standalone_slapos._server_ip}
@@ -287,9 +298,7 @@ class SlapformatDefinitionWriter(ConfigWriter):
   """
   def writeConfig(self, path):
     ipv4 = self._standalone_slapos._ipv4_address
-    ipv6 = self._standalone_slapos._ipv6_address
     ipv4_cidr = ipv4 + '/255.255.255.255' if ipv4 else ''
-    ipv6_cidr = ipv6 + '/64' if ipv6 else ''
     user = pwd.getpwuid(os.getuid()).pw_name
     partition_base_name = self._standalone_slapos._partition_base_name
     with open(path, 'w') as f:
@@ -299,12 +308,21 @@ class SlapformatDefinitionWriter(ConfigWriter):
               [computer]
               address = {ipv4_cidr}\n
       """).format(**locals()))
+      ipv6 = self._standalone_slapos._ipv6_address
       for i in range(self._standalone_slapos._partition_count):
+        ipv6_single, ipv6_range = self._standalone_slapos._getPartitionIpv6(i)
+        ipv6_single_cidr = ipv6_single + '/128' if ipv6_single else ''
+        if ipv6_range:
+          ipv6_range_cidr = '%(addr)s/%(prefixlen)s' % ipv6_range
+          ipv6_range_config_line = 'ipv6_range = ' + ipv6_range_cidr
+        else:
+          ipv6_range_config_line = ''
         f.write(
             textwrap.dedent(
                 """
                 [partition_{i}]
-                address = {ipv6_cidr} {ipv4_cidr}
+                address = {ipv6_single_cidr} {ipv4_cidr}
+                {ipv6_range_config_line}
                 pathname = {partition_base_name}{i}
                 user = {user}
                 network_interface =\n
@@ -415,6 +433,8 @@ class StandaloneSlapOS(object):
     self._partition_base_name = 'slappart'
     self._ipv4_address = None
     self._ipv6_address = None
+    self._ipv6_range_prefixlen = None
+    self._partitions_have_ipv6_range = False
 
     self._slapos_bin = slapos_bin
 
@@ -594,8 +614,12 @@ class StandaloneSlapOS(object):
       partition_base_name="slappart"):
     """Creates `partition_count` partitions.
 
-    All partitions have the same `ipv4_address` and `ipv6_address` and
-    use the current system user.
+    All partitions have the same `ipv4_address` and use the current system
+    user.
+
+    `ipv6_address` can be a single address (in this case all partitions have
+    the same address) or a range in the form IPV6/CIDR (in this case each
+    partition has a subrange).
 
     When calling this a second time with a lower `partition_count` or with
     different `partition_base_name` will delete existing partitions.
@@ -628,6 +652,7 @@ class StandaloneSlapOS(object):
       if not (os.path.exists(partition_path)):
         os.mkdir(partition_path)
       os.chmod(partition_path, 0o750)
+      ipv6_addr, ipv6_range = self._getPartitionIpv6(i)
       partition_list.append({
           'address_list': [
               {
@@ -635,10 +660,11 @@ class StandaloneSlapOS(object):
                   'netmask': '255.255.255.255'
               },
               {
-                  'addr': ipv6_address,
+                  'addr': ipv6_addr,
                   'netmask': 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff'
-              },
+              }
           ],
+          'ipv6_range' : ipv6_range,
           'path': partition_path,
           'reference': partition_reference,
           'tap': {
@@ -694,10 +720,32 @@ class StandaloneSlapOS(object):
     self._partition_count = partition_count
     self._partition_base_name = partition_base_name
     self._ipv4_address = ipv4_address
-    self._ipv6_address = ipv6_address
+    self._ipv6_address, prefixlen = _parseIPv6(ipv6_address)
+    self._ipv6_range_prefixlen = prefixlen
+    self._partitions_have_ipv6_range = bool(prefixlen) and prefixlen < 112
     if old_partition_count != partition_count:
       SlapOSConfigWriter(self).writeConfig(self._slapos_config)
     SlapformatDefinitionWriter(self).writeConfig(self._slapformat_definition)
+
+    # remove slapos xml configuration in case of ip changes
+    try:
+      os.unlink(self._slapos_xml)
+    except OSError as e:
+      if e.errno != errno.ENOENT:
+        raise
+
+    # run slapos format --now
+    command = (
+      self._slapos_bin, 'node', 'format',
+      '--now',
+      '--cfg', self._slapos_config)
+    self._logger.debug("Running %s", command)
+    try:
+      output = subprocess.check_output(command, stderr=subprocess.STDOUT)
+      self._logger.info(output)
+    except subprocess.CalledProcessError as e:
+      self._logger.error(e.output)
+      raise
 
   def supply(self, software_url, computer_guid=None, state="available"):
     """Supply a software, see ISupply.supply
@@ -949,3 +997,17 @@ class StandaloneSlapOS(object):
         return
       time.sleep(i * .01)
     raise RuntimeError("SlapOS not started")
+
+  def _getPartitionIpv6(self, i):
+    # returns (single_ipv6_address, ipv6_range) for a partition
+    # ipv6_address can be either a range or a single IPv6 address (with no /)
+    prefixlen = self._ipv6_range_prefixlen
+    if prefixlen is None:
+      return self._ipv6_address, None
+    ipv6_range = {'addr': self._ipv6_address, 'prefixlen': prefixlen}
+    ipv6_single = getPartitionIpv6Addr(ipv6_range, i)['addr']
+    if self._partitions_have_ipv6_range:
+      ipv6_partition_range = getPartitionIpv6Range(ipv6_range, i, 16)
+      return ipv6_single, ipv6_partition_range
+    else:
+      return ipv6_single, None

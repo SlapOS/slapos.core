@@ -157,19 +157,19 @@ class TestCheckSoftwareEggVulnerability(SlapOSStandaloneTestCase):
     )
     eggs_dir = os.path.join(software_dir, 'eggs')
 
-    os.makedirs(os.path.join(eggs_dir, 'Werkzeug-1.0.1-py3.7.egg', 'EGG-INFO'))
+    os.makedirs(os.path.join(eggs_dir, 'urllib3-1.22-py3.7.egg', 'EGG-INFO'))
     with open(
         os.path.join(
             eggs_dir,
-            'Werkzeug-1.0.1-py3.7.egg',
+            'urllib3-1.22-py3.7.egg',
             'EGG-INFO',
             'PKG-INFO',
         ), 'w') as f:
       f.write(
           textwrap.dedent('''\
               Metadata-Version: 2.1
-              Name: Werkzeug
-              Version: 1.0.1
+              Name: urllib3
+              Version: 1.22
               '''))
 
     develop_eggs_dir = os.path.join(software_dir, 'develop-eggs')
@@ -206,7 +206,7 @@ class TestCheckSoftwareEggVulnerability(SlapOSStandaloneTestCase):
 
     warning, = [w for w in warning_context if 'vulnerable' in str(w.message)]
     self.assertIn(
-        'Werkzeug version 2.0.2 improves the security of the debugger cookies',
+        'urllib3 before version 1.23 does not remove the Authorization HTTP header when',
         str(warning.message),
     )
     self.assertIn(

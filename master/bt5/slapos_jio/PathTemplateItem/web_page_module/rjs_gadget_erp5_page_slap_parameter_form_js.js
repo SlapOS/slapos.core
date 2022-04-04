@@ -673,18 +673,18 @@
         textarea = document.createElement("textarea"),
         fieldset = document.createElement("fieldset"),
         fieldset_list = g.element.querySelectorAll('fieldset'),
-        button0 = g.element.querySelector("button.slapos-show-raw-parameter"),
-        button1 = g.element.querySelector("button.slapos-show-form");
+        show_raw_button = g.element.querySelector("button.slapos-show-raw-parameter"),
+        show_form_button = g.element.querySelector("button.slapos-show-form");
 
       if (g.disable_raw_edit === true) {
         return fieldset;
       }
-      if (button0 !== null) {
-        $(button0).addClass("hidden-button");
+      if (show_raw_button !== null) {
+        $(show_raw_button).addClass("hidden-button");
       }
 
-      if (button1 !== null) {
-        $(button1).addClass("hidden-button");
+      if (show_form_button !== null) {
+        $(show_form_button).addClass("hidden-button");
       }
 
       div.setAttribute("class", "field");
@@ -1069,18 +1069,20 @@
       function showParameterForm(evt) {
         var e = g.element.getElementsByTagName('select')[0],
           to_hide = g.element.querySelector("button.slapos-show-form"),
-          to_show = g.element.querySelector("button.slapos-show-raw-parameter");
+          to_show = g.element.querySelector("button.slapos-show-raw-parameter"),
+          text_content = g.element.querySelector('textarea[name=text_content]');
 
         if (e === undefined) {
           throw new Error("Select not found.");
         }
-
 
         $(to_hide).addClass("hidden-button");
         $(to_show).removeClass("hidden-button");
 
         g.options.value.parameter.softwaretype = e.value;
         g.options.value.parameter.softwaretypeindex = e.selectedOptions[0]["data-id"];
+        g.options.value.parameter.parameter_xml = text_content.value;
+        g.options.value.parameter.parameter_hash = btoa(text_content.value);
         return g.render(g.options)
           .push(function () {
             return loadEventList(g);

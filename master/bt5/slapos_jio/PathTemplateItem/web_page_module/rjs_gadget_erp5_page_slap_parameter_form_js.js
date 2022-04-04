@@ -676,9 +676,6 @@
         show_raw_button = g.element.querySelector("button.slapos-show-raw-parameter"),
         show_form_button = g.element.querySelector("button.slapos-show-form");
 
-      if (g.disable_raw_edit === true) {
-        return fieldset;
-      }
       if (show_raw_button !== null) {
         $(show_raw_button).addClass("hidden-button");
       }
@@ -751,12 +748,10 @@
       var gadget = this,
         to_hide = gadget.element.querySelector("button.slapos-show-form"),
         to_show = gadget.element.querySelector("button.slapos-show-raw-parameter"),
-        disable_raw_edit = options.value.parameter.disable_raw_edit,
         softwaretype,
         json_url = options.value.parameter.json_url;
 
       gadget.options = options;
-      gadget.disable_raw_edit = disable_raw_edit;
 
       if (options.value.parameter.parameter_hash !== undefined) {
         // A JSON where provided via gadgetfield
@@ -767,22 +762,12 @@
         throw new Error("undefined json_url");
       }
 
-      if (disable_raw_edit === true) {
-        if (to_hide !== null) {
-          $(to_hide).addClass("hidden-button");
-        }
+      if (to_hide !== null) {
+        $(to_hide).addClass("hidden-button");
+      }
 
-        if (to_show !== null) {
-          $(to_show).addClass("hidden-button");
-        }
-      } else {
-        if (to_hide !== null) {
-          $(to_hide).addClass("hidden-button");
-        }
-
-        if (to_show !== null) {
-          $(to_show).removeClass("hidden-button");
-        }
+      if (to_show !== null) {
+        $(to_show).removeClass("hidden-button");
       }
       return gadget.loadSoftwareJSON(json_url)
         .push(function (json) {

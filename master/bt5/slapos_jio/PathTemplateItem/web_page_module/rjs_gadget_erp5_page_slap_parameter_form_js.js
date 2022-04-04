@@ -791,7 +791,6 @@
             option_selected = options.value.parameter.softwaretype,
             option_selected_index = options.value.parameter.softwaretypeindex,
             restricted_softwaretype = options.value.parameter.restricted_softwaretype,
-            simplified_only = options.value.parameter.simplified_only,
             input = gadget.element.querySelector('select.slapos-software-type'),
             parameter_shared = gadget.element.querySelector('input.parameter_shared'),
             parameter_schema_url = gadget.element.querySelector('input.parameter_schema_url'),
@@ -826,9 +825,6 @@
                   option.value = option_index;
                 }
 
-                if ((simplified_only === true) && (!option_index.endsWith("-simplified"))) {
-                  continue;
-                }
                 option['data-id'] = option_index;
                 option.textContent = json['software-type'][option_index].title;
                 if (json['software-type'][option_index].index) {

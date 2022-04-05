@@ -1,0 +1,329 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal" xmlns:metal="http://xml.zope.org/namespaces/metal">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Test SlapOS JS UI Sevice JSON Serialisation </title>
+</head>
+
+<body>
+  <table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+      <tr>
+        <td rowspan="1" colspan="3">TTest SlapOS JS UI Sevice JSON Serialisation</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_init" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/set_default_available_language"/>
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_login" />
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_front_page" />
+
+      <tal:block define="menu_item python: 'Services'; header menu_item">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+      </tal:block>
+
+      <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+      </tal:block>
+
+      <tal:block define="menu_action python: 'Add'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+      </tal:block>
+
+
+      <tr>
+        <td colspan="3"><b> Request a Software </b></td>
+      </tr>
+
+      <tal:block define="software_product python: 'KVM'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/select_software_product" />
+      </tal:block>
+
+      <tal:block define="software_release python: 'KVM'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/select_software_release" />
+      </tal:block>
+
+      <tr>
+        <td colspan="3"><b> Fill Request form </b></td>
+      </tr>
+
+      <tal:block tal:define="header python: '3/3 Request Service: ${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': 'KVM'}) ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      </tal:block>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//input[@id="title"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@id="title"]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>type</td>
+        <td>//input[@id="title"]</td>
+        <td>TEST-SLAPOSJS-SERVICE-KVM-LOAD-PARAMETER 0</td>
+      </tr>
+
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//select[@name="software_type"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//input[@name="//ram-size"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@name="//ram-size"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//button[@class="slapos-show-raw-parameter"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//button[@class="slapos-show-raw-parameter"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>click</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//button[@class="slapos-show-raw-parameter"]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>verifyValue</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;&lt;instance&gt;&lt;/instance&gt;</td>
+      </tr>
+
+      <tr>
+        <td>type</td>
+        <td>//textarea[@name="text_content"]</td>
+        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;&lt;instance&gt;&lt;parameter id=&quot;ram-size&quot;&gt;1024&lt;/parameter&gt;&lt;/instance&gt;</td>
+      </tr>
+
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//button[@class="slapos-show-form"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//button[@class="slapos-show-form"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>click</td>
+        <td>//div[contains(@data-gadget-url,
+          'gadget_erp5_page_slap_parameter_form.html')]//button[@class="slapos-show-form"]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//input[@name="//ram-size"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@name="//ram-size"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>verifyValue</td>
+        <td>//input[@name="//ram-size"]</td>
+        <td>1024</td>
+      </tr>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                           'text': 'New service created.'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+      </tal:block>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
+
+      <tal:block define="menu_item python: 'Services'; header menu_item">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+      </tal:block>
+
+      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '${count} Records'};
+                             dummy python: context.REQUEST.set('mapping', {'count': '1'})">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+      </tal:block>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-SERVICE-KVM-LOAD-PARAMETER 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-SERVICE-KVM-LOAD-PARAMETER 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>click</td>
+        <td>//a[text()="TEST-SLAPOSJS-SERVICE-KVM-LOAD-PARAMETER 0"]</td>
+        <td></td>
+      </tr>
+      <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-KVM-LOAD-PARAMETER 0'})">
+        <td>waitForElementPresent</td>
+        <td tal:content="python: '//a[@data-i18n= \'%s\']' % (here.Base_translateString('Instance Tree: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-KVM-LOAD-PARAMETER 0'})">
+        <td>assertElementPresent</td>
+        <td tal:content="python: '//a[@data-i18n= \'%s\']' % (here.Base_translateString('Instance Tree: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//input[@name="//ram-size"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@name="//ram-size"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>verifyValue</td>
+        <td>//input[@name="//ram-size"]</td>
+        <td>1024</td>
+      </tr>
+
+      <tr>
+        <td>pause</td>
+        <td>1000</td>
+        <td>2000</td>
+      </tr>
+
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_save" />
+
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                           'text': 'Data updated.'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+      </tal:block>
+
+      <tal:block define="menu_item python: 'Services'; header menu_item">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+      </tal:block>
+
+      <tal:block tal:define="pagination_configuration python: {'header': '(1)', 'footer': '${count} Records'};
+                             dummy python: context.REQUEST.set('mapping', {'count': '1'})">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+      </tal:block>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-SERVICE-KVM-LOAD-PARAMETER 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//a[text()="TEST-SLAPOSJS-SERVICE-KVM-LOAD-PARAMETER 0"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>click</td>
+        <td>//a[text()="TEST-SLAPOSJS-SERVICE-KVM-LOAD-PARAMETER 0"]</td>
+        <td></td>
+      </tr>
+
+      <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-KVM-LOAD-PARAMETER 0'})">
+        <td>waitForElementPresent</td>
+        <td tal:content="python: '//a[@data-i18n= \'%s\']' % (here.Base_translateString('Instance Tree: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
+        <td></td>
+      </tr>
+      <tr tal:define="dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-KVM-LOAD-PARAMETER 0'})">
+        <td>assertElementPresent</td>
+        <td tal:content="python: '//a[@data-i18n= \'%s\']' % (here.Base_translateString('Instance Tree: ${title}', mapping=context.REQUEST.get('mapping', {}), lang=lang))"></td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//input[@name="//ram-size"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//input[@name="//ram-size"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>verifyValue</td>
+        <td>//input[@name="//ram-size"]</td>
+        <td>1024</td>
+      </tr>
+
+      <tal:block define="menu_action python: 'Destroy'">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
+      </tal:block>
+
+      <tal:block tal:define="header python: 'Destroy Instance Tree: ${title}';
+                             dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-SERVICE-KVM-LOAD-PARAMETER 0'}) ">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
+
+      <tal:block tal:define="notification_configuration python: {'class': 'success',
+                                                           'text': 'Service is Destroyed.'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_notification" />
+      </tal:block>
+
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
+
+      <tal:block define="menu_item python: 'Services'; header menu_item">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/access_menu_item" />
+      </tal:block>
+
+      <tal:block tal:define="pagination_configuration python: {'header': '(0)', 'footer': 'No records'}">
+        <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/check_listbox_pagination_text" />
+      </tal:block>
+      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_logout" />
+
+    </tbody>
+  </table>
+</body>
+
+</html>

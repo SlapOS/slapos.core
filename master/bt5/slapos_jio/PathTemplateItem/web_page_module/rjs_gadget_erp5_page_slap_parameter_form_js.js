@@ -105,7 +105,7 @@
     input.size = 1;
     option.value = "";
     if (default_value === undefined) {
-      option.selected = "selected";
+      option.selected = true;
     }
     input.appendChild(option);
     for (option_index in json_field['enum']) {
@@ -114,7 +114,7 @@
         optionz.value = json_field['enum'][option_index];
         optionz.textContent = json_field['enum'][option_index];
         if (json_field['enum'][option_index] === default_value) {
-          optionz.selected = "selected";
+          optionz.selected = true;
         }
         input.appendChild(optionz);
       }
@@ -129,7 +129,7 @@
     input.size = 1;
     option.value = "";
     if (default_value === undefined) {
-      option.selected = "selected";
+      option.selected = true;
     }
     input.appendChild(option);
     json_field.oneOf.forEach(function (element, index) {
@@ -145,7 +145,7 @@
         optionz.value = value;
         optionz.textContent = element.title;
         if (value === default_value) {
-          optionz.selected = "selected";
+          optionz.selected = true;
         }
         input.appendChild(optionz);
       }
@@ -667,21 +667,21 @@
         div = document.createElement("div"),
         div_error = document.createElement("div"),
         span_error = document.createElement("span"),
+        detail_error = document.createElement("details"),
+        detail_error_summary = document.createElement("summary"),
+        detail_error_span = document.createElement("span"),
         textarea = document.createElement("textarea"),
         fieldset = document.createElement("fieldset"),
         fieldset_list = g.element.querySelectorAll('fieldset'),
-        button0 = g.element.querySelector("button.slapos-show-raw-parameter"),
-        button1 = g.element.querySelector("button.slapos-show-form");
+        show_raw_button = g.element.querySelector("button.slapos-show-raw-parameter"),
+        show_form_button = g.element.querySelector("button.slapos-show-form");
 
-      if (g.disable_raw_edit === true) {
-        return fieldset;
-      }
-      if (button0 !== null) {
-        $(button0).addClass("hidden-button");
+      if (show_raw_button !== null) {
+        $(show_raw_button).addClass("hidden-button");
       }
 
-      if (button1 !== null) {
-        $(button1).addClass("hidden-button");
+      if (show_form_button !== null) {
+        $(show_form_button).removeClass("hidden-button");
       }
 
       div.setAttribute("class", "field");
@@ -694,16 +694,23 @@
       span_error.setAttribute("class", "error");
       span_error.textContent = "Parameter form is not available, use the textarea above for edit the instance parameters.";
 
+      detail_error_summary.textContent = "More information..."
+      detail_error_span.setAttribute("class", "error_msg");
+      detail_error_span.textContent = error;
+
+      detail_error.appendChild(detail_error_summary);
+      detail_error.appendChild(detail_error_span);
       div_error.setAttribute("class", "error");
 
       div.appendChild(textarea);
       div_error.appendChild(span_error);
-      div.appendChild(textarea);
+      div_error.appendChild(detail_error);
 
       fieldset.appendChild(div);
       fieldset.appendChild(div_error);
 
-      fieldset_list[0].innerHTML = '';
+      // Do not hide the Software type, let the user edit it.
+      //fieldset_list[0].innerHTML = '';
       $(fieldset_list[1]).replaceWith(fieldset);
       fieldset_list[2].innerHTML = '';
 
@@ -741,12 +748,10 @@
       var gadget = this,
         to_hide = gadget.element.querySelector("button.slapos-show-form"),
         to_show = gadget.element.querySelector("button.slapos-show-raw-parameter"),
-        disable_raw_edit = options.value.parameter.disable_raw_edit,
         softwaretype,
         json_url = options.value.parameter.json_url;
 
       gadget.options = options;
-      gadget.disable_raw_edit = disable_raw_edit;
 
       if (options.value.parameter.parameter_hash !== undefined) {
         // A JSON where provided via gadgetfield
@@ -757,22 +762,12 @@
         throw new Error("undefined json_url");
       }
 
-      if (disable_raw_edit === true) {
-        if (to_hide !== null) {
-          $(to_hide).addClass("hidden-button");
-        }
+      if (to_hide !== null) {
+        $(to_hide).addClass("hidden-button");
+      }
 
-        if (to_show !== null) {
-          $(to_show).addClass("hidden-button");
-        }
-      } else {
-        if (to_hide !== null) {
-          $(to_hide).addClass("hidden-button");
-        }
-
-        if (to_show !== null) {
-          $(to_show).removeClass("hidden-button");
-        }
+      if (to_show !== null) {
+        $(to_show).removeClass("hidden-button");
       }
       return gadget.loadSoftwareJSON(json_url)
         .push(function (json) {
@@ -781,7 +776,6 @@
             option_selected = options.value.parameter.softwaretype,
             option_selected_index = options.value.parameter.softwaretypeindex,
             restricted_softwaretype = options.value.parameter.restricted_softwaretype,
-            simplified_only = options.value.parameter.simplified_only,
             input = gadget.element.querySelector('select.slapos-software-type'),
             parameter_shared = gadget.element.querySelector('input.parameter_shared'),
             parameter_schema_url = gadget.element.querySelector('input.parameter_schema_url'),
@@ -816,9 +810,6 @@
                   option.value = option_index;
                 }
 
-                if ((simplified_only === true) && (!option_index.endsWith("-simplified"))) {
-                  continue;
-                }
                 option['data-id'] = option_index;
                 option.textContent = json['software-type'][option_index].title;
                 if (json['software-type'][option_index].index) {
@@ -829,7 +820,7 @@
                 
                 if (option_index === lowest_option_index) {
                   option_selected = option.value;
-                  option.selected = "selected";
+                  option.selected = true;
                   option_selected_index = option_index;
                   if (json['software-type'][option_index].shared === true) {
                     parameter_shared.value = true;
@@ -850,7 +841,7 @@
                 if ((option_selected_index === undefined) &&
                   (option.value === option_selected) &&
                   (options.value.parameter.shared == json['software-type'][option_index].shared)) {
-                  option.selected = "selected";
+                  option.selected = true;
                   option_selected_index = option_index;
                   if (json['software-type'][option_index].shared === true) {
                     parameter_shared.value = true;
@@ -907,23 +898,40 @@
           return parameter_schema_url.value;
         })
         .push(function (parameter_json_schema_url) {
-          var parameter_dict = {}, json_url_uri, prefix, parameter_entry,
+          var parameter_dict = {}, parameter_list, json_url_uri, prefix, parameter_entry,
             restricted_parameter = options.value.parameter.restricted_parameter;
 
           if (options.value.parameter.parameter_xml !== undefined) {
             if (options.serialisation === "json-in-xml") {
+              parameter_list = jQuery.parseXML(
+                  options.value.parameter.parameter_xml)
+                    .querySelectorAll("parameter")
+              if (parameter_list.length > 1) {
+                  throw new Error("The current parameter should contains only _ parameter (json-in-xml).")
+              }
               parameter_entry = jQuery.parseXML(
                 options.value.parameter.parameter_xml
               ).querySelector("parameter[id='_']");
               if (parameter_entry !== null) {
                 parameter_dict = JSON.parse(parameter_entry.textContent);
+              } else if (parameter_list.length == 1) {
+                  throw new Error(
+                    "The current parameter should contains only _ parameter (json-in-xml).")
               }
-            } else {
+            } else if (["", "xml"].indexOf(options.serialisation) >= 0) {
+              parameter_entry = jQuery.parseXML(
+                options.value.parameter.parameter_xml
+              ).querySelector("parameter[id='_']");
+              if (parameter_entry !== null) {
+                throw new Error("The current parameter values should NOT contains _ parameter (xml).");
+              }
               $(jQuery.parseXML(options.value.parameter.parameter_xml)
                 .querySelectorAll("parameter"))
                   .each(function (key, p) {
                   parameter_dict[p.id] = p.textContent;
                 });
+            } else {
+              throw new Error("Unknown serialisation: " + options.serialisation);
             }
           }
 
@@ -1046,18 +1054,20 @@
       function showParameterForm(evt) {
         var e = g.element.getElementsByTagName('select')[0],
           to_hide = g.element.querySelector("button.slapos-show-form"),
-          to_show = g.element.querySelector("button.slapos-show-raw-parameter");
+          to_show = g.element.querySelector("button.slapos-show-raw-parameter"),
+          text_content = g.element.querySelector('textarea[name=text_content]');
 
         if (e === undefined) {
           throw new Error("Select not found.");
         }
-
 
         $(to_hide).addClass("hidden-button");
         $(to_show).removeClass("hidden-button");
 
         g.options.value.parameter.softwaretype = e.value;
         g.options.value.parameter.softwaretypeindex = e.selectedOptions[0]["data-id"];
+        g.options.value.parameter.parameter_xml = text_content.value;
+        g.options.value.parameter.parameter_hash = btoa(text_content.value);
         return g.render(g.options)
           .push(function () {
             return loadEventList(g);

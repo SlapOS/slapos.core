@@ -63,6 +63,12 @@
                   </tal:block>
                   <tal:block tal:content="python: destination_section_subordination.getDefaultRegionTitle()"></tal:block>
                 </p>
+                <tal:block tal:condition="python: destination_section_subordination.getCorporateRegistrationCode() is not None">
+                  <p tal:content="python: 'Corporate Registration Code: %s' % destination_section_subordination.getCorporateRegistrationCode()"></p>
+                </tal:block>
+                <tal:block tal:condition="python: destination_section_subordination.getVatCode() is not None">
+                  <p tal:content="python: 'VAT Code: %s' % destination_section_subordination.getVatCode()"></p>
+                </tal:block>
               </tal:block>
 
               <tal:block tal:condition="python: destination_section_subordination is None">

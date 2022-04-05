@@ -681,7 +681,7 @@
       }
 
       if (show_form_button !== null) {
-        $(show_form_button).addClass("hidden-button");
+        $(show_form_button).removeClass("hidden-button");
       }
 
       div.setAttribute("class", "field");

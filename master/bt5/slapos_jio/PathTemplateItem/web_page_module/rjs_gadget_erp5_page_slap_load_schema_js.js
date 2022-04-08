@@ -1,6 +1,6 @@
 /*jslint nomen: true, maxlen: 200, indent: 2*/
 /*global window, rJS, console, RSVP, jQuery, jIO, tv4, URI, JSON, $, btoa */
-(function (window, rJS, $, RSVP, btoa) {
+(function (window, rJS, $, RSVP, btoa, URI, tv4) {
   "use strict";
 
   var gk = rJS(window);
@@ -57,12 +57,12 @@
     }
 
     if (ref.substr(0, 1) === "#") {
-      return RSVP.Queue().push(function () {
+      return new RSVP.Queue().push(function () {
         return resolveLocalReference(ref, schema);
       });
     }
 
-    return RSVP.Queue().push(function () {
+    return new RSVP.Queue().push(function () {
       if (URI(ref).protocol() === "") {
         if (base_url !== undefined) {
           ref = base_url + "/" + ref;
@@ -91,7 +91,7 @@
       expanded_json_schema.properties = {};
     }
 
-    return RSVP.Queue().push(function () {
+    return new RSVP.Queue().push(function () {
       if (json_schema.$ref) {
         return resolveReference(
           json_schema,
@@ -113,7 +113,7 @@
       return true;
     }).push(function () {
 
-      var property, queue = RSVP.Queue();
+      var property, queue = new RSVP.Queue();
 
       function wrapperResolveReference(p) {
         return resolveReference(
@@ -149,7 +149,7 @@
     })
       .push(function () {
 
-        var zqueue = RSVP.Queue();
+        var zqueue = new RSVP.Queue();
 
         function wrapperExpandSchema(p) {
           return expandSchema(
@@ -187,12 +187,18 @@
       });
   }
 
-  function getMetaJSONSchema() {
+  function getMetaJSONSchema(serialisation) {
+    if (serialisation === "xml") {
+      return getJSON("slapos_load_meta_schema_xml.json");
+    }
+    if (serialisation === "json-in-xml") {
+      return getJSON("slapos_load_meta_schema_json_in_xml.json");
+    } 
     return getJSON("slapos_load_meta_schema.json");
   }
 
-  function validateJSONSchema(json, base_url) {
-    return getMetaJSONSchema()
+  function validateJSONSchema(json, base_url, serialisation) {
+    return getMetaJSONSchema(serialisation)
       .push(function (meta_schema) {
         if (!tv4.validate(json, meta_schema)) {
           throw new Error("Non valid JSON schema " + json);
@@ -205,7 +211,6 @@
   }
 
   gk
-
     .declareMethod("getBaseUrl", function (url) {
       var base_url, url_uri = URI(url);
       base_url = url_uri.path().split("/");
@@ -213,13 +218,13 @@
       base_url = url.split(url_uri.path())[0] + base_url.join("/");
       return base_url;
     })
-    .declareMethod("loadJSONSchema", function (url) {
+    .declareMethod("loadJSONSchema", function (url, serialisation) {
       var gadget = this;
       return getJSON(url)
         .push(function (json) {
           return gadget.getBaseUrl(url)
             .push(function (base_url) {
-              return validateJSONSchema(json, base_url);
+              return validateJSONSchema(json, base_url, serialisation);
             });
         });
     })
@@ -249,4 +254,4 @@
             });
         });
     });
-}(window, rJS, $, RSVP, btoa));
+}(window, rJS, $, RSVP, btoa, URI, tv4));

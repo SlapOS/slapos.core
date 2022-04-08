@@ -125,13 +125,13 @@
       <tr>
         <td>assertValue</td>
         <td>//textarea[@name="text_content"]</td>
-        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;&lt;instance&gt;&lt;/instance&gt;</td>
+        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;<br>&lt;instance/&gt;</td>
       </tr>
 
       <tr>
         <td>type</td>
         <td>//textarea[@name="text_content"]</td>
-        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;&lt;instance&gt;&lt;parameter id=&quot;ram-size&quot;&gt;1024&lt;/parameter&gt;&lt;/instance&gt;</td>
+        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;&lt;instance&gt;&lt;parameter id=&quot;ram-size&quot;&gt;1024&lt;/parameter&gt;&lt;/instance&gt;</td>
       </tr>
 
 

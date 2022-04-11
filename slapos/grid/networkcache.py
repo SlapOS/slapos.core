@@ -76,7 +76,7 @@ def loadJsonEntry(jentry):
 
 
 def download_entry_list(cache_url, dir_url, key, logger,
-                        signature_certificate_list, software_url):
+                        signature_certificate_list):
     nc = NetworkcacheClient(cache_url, dir_url,
         signature_certificate_list=signature_certificate_list or None)
     entry_list = nc.select_generic(key, filter=False)

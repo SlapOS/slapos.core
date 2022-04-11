@@ -38,8 +38,6 @@ from slapos.grid import networkcache
 from slapos.cli.config import ConfigCommand
 from slapos.util import str2bytes
 
-FAILURE_EXIT_CODE = 10
-
 class CacheLookupCommand(ConfigCommand):
     """
     perform a query to the networkcache
@@ -50,6 +48,7 @@ class CacheLookupCommand(ConfigCommand):
     cache of the software release, and which ones are compatible
     with the OS you are currently running.
     """
+    command_group = 'cachelookup'
 
     def get_parser(self, prog_name):
         ap = super(CacheLookupCommand, self).get_parser(prog_name)
@@ -88,11 +87,11 @@ def do_lookup(logger, cache_dir, cache_url, signature_certificate_list,
         md5 = hashlib.md5(str2bytes(software_url)).hexdigest()
     try:
         entries = networkcache.download_entry_list(cache_url, cache_dir,
-            md5, logger, signature_certificate_list, software_url)
+            md5, logger, signature_certificate_list)
     except Exception:
         logger.critical('Error while looking object %s', software_url,
             exc_info=True)
-        return FAILURE_EXIT_CODE
+        return 1
 
     if not entries:
         logger.info('Object found in cache, but has no binary entries.')

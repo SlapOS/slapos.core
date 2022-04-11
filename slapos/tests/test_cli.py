@@ -53,8 +53,9 @@ import slapos.cli.computer_token
 import slapos.cli.supervisorctl
 import slapos.cli.request
 from slapos.cli.proxy_show import do_show, StringIO
-from slapos.cli.cache import do_lookup as cache_do_lookup
-from slapos.cli.cache_source import do_lookup as cache_source_do_lookup
+from slapos.cli.cache_binarysr import do_lookup as cache_binarysr_do_lookup
+from slapos.cli.cache_url import do_lookup as cache_url_do_lookup
+from slapos.cli.cache_pypi import do_lookup as cache_pypi_do_lookup
 from slapos.client import ClientConfig
 from slapos.slap import SoftwareProductCollection
 import slapos.grid.svcbackend
@@ -89,11 +90,11 @@ class CliMixin(unittest.TestCase):
     self.conf = create_autospec(ClientConfig)
     self.sign_cert_list = signature_certificate_list
 
-class TestCliCache(CliMixin):
+class TestCliCacheBinarySr(CliMixin):
 
   test_url = "https://lab.nexedi.com/nexedi/slapos/raw/1.0.102/software/slaprunner/software.cfg"
   def test_cached_binary(self):
-    self.assertEqual(0, cache_do_lookup(
+    self.assertEqual(0, cache_binarysr_do_lookup(
         self.logger,
         cache_dir="http://dir.shacache.org",
         cache_url="http://shacache.org",
@@ -112,7 +113,7 @@ class TestCliCache(CliMixin):
     self.logger.info.assert_any_call(u'---------------------------------------------------------------------')
 
   def test_uncached_binary(self):
-    self.assertEqual(10, cache_do_lookup(
+    self.assertEqual(1, cache_binarysr_do_lookup(
         self.logger,
         cache_dir="http://dir.shacache.org",
         cache_url="http://shacache.org",
@@ -123,7 +124,7 @@ class TestCliCache(CliMixin):
         'Error while looking object %s', 'this_is_uncached_url', exc_info=True)
 
   def test_bad_cache_dir(self):
-    self.assertEqual(10, cache_do_lookup(
+    self.assertEqual(1, cache_binarysr_do_lookup(
         self.logger,
         cache_dir="http://xxx.shacache.org",
         cache_url="http://shacache.org",
@@ -139,7 +140,7 @@ class TestCliCache(CliMixin):
       with mock.patch(
               'slapos.grid.networkcache.machine_info_tuple',
               return_value=('x86_64-linux-gnu', ('debian', '8.10', ''))):
-          self.assertEqual(0, cache_do_lookup(
+          self.assertEqual(0, cache_binarysr_do_lookup(
               self.logger,
               cache_dir="http://dir.shacache.org",
               cache_url="http://shacache.org",
@@ -158,61 +159,129 @@ class TestCliCache(CliMixin):
       self.logger.info.assert_any_call(u'---------------------------------------------------------------------')
 
 
-class TestCliCacheSource(CliMixin):
+class TestCliCacheUrl(CliMixin):
 
-  test_url = "https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.17.1.tar.xz"
-  def test_cached_source(self):
-    self.assertEqual(0, cache_source_do_lookup(
+  test_url = "https://ftp.gnu.org/gnu/aspell/aspell-0.60.7.tar.gz"
+  cache_dir = "http://dir.shacache.org"
+  def test_cached_url(self):
+    self.assertEqual(0, cache_url_do_lookup(
+        self.logger,
+        cache_dir=self.cache_dir,
+        cache_url="http://shacache.org",
+        url=self.test_url,
+        signature_certificate_list=""))
+
+
+    self.logger.info.assert_any_call('Software source URL: %s', self.test_url)
+    self.logger.info.assert_any_call('SHADIR URL: %s/%s\n', self.cache_dir, "file-urlmd5:f213fcd8e97aa729f685b8cb71b976a7")
+    self.logger.info.assert_any_call(u'---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------')
+    self.logger.info.assert_any_call(u'                         url                                                                                      sha512                                                              signed ')
+    self.logger.info.assert_any_call(u'---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------')
+    self.logger.info.assert_any_call(u' https://ftp.gnu.org/gnu/aspell/aspell-0.60.7.tar.gz 6f5fcd1c29164ee18f205594b66f382b51d19b17686293a931ca92c1442d3f7228627ca7d604d860551d0d367ac34dfb2ae34170a844f51e84e390fb1edc4535 False  ')
+    self.logger.info.assert_any_call(u'---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------')
+
+  def test_cached_signed_url(self):
+    self.assertEqual(0, cache_url_do_lookup(
+        self.logger,
+        cache_dir=self.cache_dir,
+        cache_url="http://shacache.org",
+        url=self.test_url,
+        signature_certificate_list=signature_certificate_list))
+
+
+    self.logger.info.assert_any_call('Software source URL: %s', self.test_url)
+    self.logger.info.assert_any_call('SHADIR URL: %s/%s\n', self.cache_dir, "file-urlmd5:f213fcd8e97aa729f685b8cb71b976a7")
+    self.logger.info.assert_any_call(u'---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------')
+    self.logger.info.assert_any_call(u'                         url                                                                                      sha512                                                              signed ')
+    self.logger.info.assert_any_call(u'---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------')
+    self.logger.info.assert_any_call(u' https://ftp.gnu.org/gnu/aspell/aspell-0.60.7.tar.gz 6f5fcd1c29164ee18f205594b66f382b51d19b17686293a931ca92c1442d3f7228627ca7d604d860551d0d367ac34dfb2ae34170a844f51e84e390fb1edc4535  True  ')
+    self.logger.info.assert_any_call(u'---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------')
+
+  def test_uncached_url(self):
+    self.assertEqual(1, cache_url_do_lookup(
         self.logger,
         cache_dir="http://dir.shacache.org",
-        url=self.test_url))
+        cache_url="http://shacache.org",
+        url="this_is_uncached_url",
+        signature_certificate_list=""))
 
-
-    self.logger.info.assert_any_call(
-      'Software source URL: %s',
-      'https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.17.1.tar.xz')
-    self.logger.info.assert_any_call(
-      'SHADIR URL: %s',
-      'http://dir.shacache.org/slapos-buildout-9183e80d808e7dd49affd0d8977edd4f')
-    self.logger.info.assert_any_call(
-      u'--------------------------------------------------------------------'\
-       '--------------------------------------------------------------------'\
-       '------------'),
-    self.logger.info.assert_any_call(
-      u'        file                                                        '\
-       '            sha512                                                  '\
-       '            '),
-    self.logger.info.assert_any_call(
-      u'--------------------------------------------------------------------'\
-       '--------------------------------------------------------------------'\
-       '------------')
-    self.logger.info.assert_any_call(
-      u' git-2.17.1.tar.xz 77c27569d40fbae1842130baa0cdda674a02e384631bd8fb1'\
-       'f2ddf67ce372dd4903b2ce6b4283a4ae506cdedd5daa55baa2afe6a6689528511e24'\
-       'e4beb864960 '),
-
-    self.logger.info.assert_any_call(
-      u'--------------------------------------------------------------------'\
-       '--------------------------------------------------------------------'\
-       '------------')
-
-  def test_uncached_binary(self):
-    self.assertEqual(10, cache_source_do_lookup(
-        self.logger,
-        cache_dir="http://dir.shacache.org",
-        url="this_is_uncached_url"))
-
-    self.logger.critical.assert_any_call('Object not in cache: %s', 'this_is_uncached_url')
+    self.logger.info.assert_any_call('Object not found in cache.')
 
   def test_bad_cache_dir(self):
-    self.assertEqual(10, cache_source_do_lookup(
+    self.assertEqual(1, cache_url_do_lookup(
         self.logger,
         cache_dir="http://xxx.shacache.org",
-        url=self.test_url))
+        cache_url="http://shacache.org",
+        url=self.test_url,
+        signature_certificate_list=""))
 
-    self.logger.critical.assert_any_call(
-      'Cannot connect to cache server at %s',
-      'http://xxx.shacache.org/slapos-buildout-9183e80d808e7dd49affd0d8977edd4f')
+    self.logger.critical.assert_any_call('Error while looking object %s', self.test_url, exc_info=True)
+
+class TestCliCachePypi(CliMixin):
+
+  egg_name = "pytz"
+  egg_version = "2016.10"
+  cache_dir = "http://dir.shacache.org"
+  def test_cached_pypi(self):
+    self.assertEqual(0, cache_pypi_do_lookup(
+        self.logger,
+        cache_dir=self.cache_dir,
+        cache_url="http://shacache.org",
+        name=self.egg_name,
+        version=self.egg_version,
+        signature_certificate_list=""))
+
+
+    self.logger.info.assert_any_call('Python egg %s version %s', self.egg_name, self.egg_version)
+    self.logger.info.assert_any_call('SHADIR URL: %s/%s\n', self.cache_dir, 'pypi:{}={}'.format(self.egg_name, self.egg_version))
+    self.logger.info.assert_any_call('----------------------------------------------------------------------------------------------------------------------------------------------------------------')
+    self.logger.info.assert_any_call('        basename                                                                     sha512                                                              signed ')
+    self.logger.info.assert_any_call('----------------------------------------------------------------------------------------------------------------------------------------------------------------')
+    self.logger.info.assert_any_call(' pytz-2016.10-py2.7.egg e072d146c42cb2efde946eef1d37ce6f8cb8eec6f6f928f6d57bb5312578bfa0031dcdbd816318015d765886bb64c02e1772adf7309142bc80324a4155b4ae8b False  ')
+    self.logger.info.assert_any_call(' pytz-2016.10-py2.7.egg e072d146c42cb2efde946eef1d37ce6f8cb8eec6f6f928f6d57bb5312578bfa0031dcdbd816318015d765886bb64c02e1772adf7309142bc80324a4155b4ae8b False  ')
+    self.logger.info.assert_any_call('----------------------------------------------------------------------------------------------------------------------------------------------------------------')
+
+
+  def test_cached_signed_url(self):
+    self.assertEqual(0, cache_pypi_do_lookup(
+        self.logger,
+        cache_dir=self.cache_dir,
+        cache_url="http://shacache.org",
+        name=self.egg_name,
+        version=self.egg_version,
+        signature_certificate_list=signature_certificate_list))
+
+
+    self.logger.info.assert_any_call('Python egg %s version %s', self.egg_name, self.egg_version)
+    self.logger.info.assert_any_call('SHADIR URL: %s/%s\n', self.cache_dir, 'pypi:{}={}'.format(self.egg_name, self.egg_version))
+    self.logger.info.assert_any_call('----------------------------------------------------------------------------------------------------------------------------------------------------------------')
+    self.logger.info.assert_any_call('        basename                                                                     sha512                                                              signed ')
+    self.logger.info.assert_any_call('----------------------------------------------------------------------------------------------------------------------------------------------------------------')
+    self.logger.info.assert_any_call(' pytz-2016.10-py2.7.egg e072d146c42cb2efde946eef1d37ce6f8cb8eec6f6f928f6d57bb5312578bfa0031dcdbd816318015d765886bb64c02e1772adf7309142bc80324a4155b4ae8b  True  ')
+    self.logger.info.assert_any_call(' pytz-2016.10-py2.7.egg e072d146c42cb2efde946eef1d37ce6f8cb8eec6f6f928f6d57bb5312578bfa0031dcdbd816318015d765886bb64c02e1772adf7309142bc80324a4155b4ae8b False  ')
+    self.logger.info.assert_any_call('----------------------------------------------------------------------------------------------------------------------------------------------------------------')
+
+  def test_uncached_url(self):
+    self.assertEqual(1, cache_pypi_do_lookup(
+        self.logger,
+        cache_dir="http://dir.shacache.org",
+        cache_url="http://shacache.org",
+        name="not-existing-egg",
+        version=self.egg_version,
+        signature_certificate_list=""))
+
+    self.logger.info.assert_any_call('Object not found in cache.')
+
+  def test_bad_cache_dir(self):
+    self.assertEqual(1, cache_pypi_do_lookup(
+        self.logger,
+        cache_dir="http://xxx.shacache.org",
+        cache_url="http://shacache.org",
+        name=self.egg_name,
+        version=self.egg_version,
+        signature_certificate_list=""))
+
+    self.logger.critical.assert_any_call('Error while looking egg %s version %s', self.egg_name, self.egg_version, exc_info=True)
 
 class TestCliProxy(CliMixin):
   def test_generateSoftwareProductListFromString(self):

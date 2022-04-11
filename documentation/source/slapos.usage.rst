@@ -407,28 +407,29 @@ Go to the SlapOS Master web page, click ``Account``, then ``Token``.
 A token is valid for a single ``configure client`` command and will expire after one day.
 
 
-cache lookup
-~~~~~~~~~~~~
+cachelookup binary-sr
+~~~~~~~~~~~~~~~~~~~~~
 
-.. program-output:: python slapos help cache lookup
+.. program-output:: python slapos help cachelookup binary-sr
 
 
 Examples
 
-* See if the wordpress Software Release is available in precompiled format for our distribution::
+* See if the KVM Software Release is available in precompiled format for our distribution::
 
-    $ slapos cache lookup http://git.erp5.org/gitweb/slapos.git/blob_plain/refs/tags/slapos-0.156:/software/kvm/software.cfg
-    Software URL: http://git.erp5.org/gitweb/slapos.git/blob_plain/refs/tags/slapos-0.156:/software/kvm/software.cfg
-    MD5:          4410088e11f370503e9d78db4cfa4ec4
-    -------------
-    Available for:
-    distribution     |   version    |       id       | compatible?
-    -----------------+--------------+----------------+-------------
-    CentOS           |          6.3 |     Final      | no
-    Fedora           |           17 | Beefy Miracle  | no
-    Ubuntu           |        12.04 |    precise     | yes
-    debian           |        6.0.6 |                | no
-    debian           |          7.0 |                | no
+    $ slapos cachelookup binary-sr https://lab.nexedi.com/nexedi/slapos/raw/1.0.232/software/kvm/software.cfg
+    Software URL: https://lab.nexedi.com/nexedi/slapos/raw/1.0.232/software/kvm/software.cfg
+    MD5:          248e006f4d007ca7060b16c9b0cb6bc8
+    --------------------------------------------------------------------
+        multiarch     distribution version   id   compatible? verified? 
+    --------------------------------------------------------------------
+     x86_64-linux-gnu    Ubuntu     18.04  bionic      no        yes    
+     x86_64-linux-gnu    Ubuntu     20.04  focal       no        yes    
+     x86_64-linux-gnu    debian      10.9              no        yes    
+     x86_64-linux-gnu    debian      11.2             yes        yes    
+     x86_64-linux-gnu    debian      8.11              no        yes    
+     x86_64-linux-gnu    debian      9.13              no        yes    
+    --------------------------------------------------------------------
 
 You can also use the corresponding hash value in place of the URL.
 

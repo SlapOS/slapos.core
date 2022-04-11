@@ -96,8 +96,9 @@ setup(name=name,
         ],
         'slapos.cli': [
           # Utilities
-          'cache lookup = slapos.cli.cache:CacheLookupCommand',
-          'cache source = slapos.cli.cache_source:CacheLookupCommand',
+          'cachelookup binary-sr = slapos.cli.cache_binarysr:CacheLookupCommand',
+          'cachelookup url = slapos.cli.cache_url:CacheLookupCommand',
+          'cachelookup pypi = slapos.cli.cache_pypi:CacheLookupCommand',
           'complete = slapos.cli.complete:CompleteCommand',
           # SlapOS Node commands
           'node bang = slapos.cli.bang:BangCommand',

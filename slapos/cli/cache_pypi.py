@@ -27,91 +27,77 @@
 #
 ##############################################################################
 
+import ast
 import hashlib
 import json
 import re
+import requests
 import sys
-
 import prettytable
+
+from six.moves.urllib.error import HTTPError
 
 from slapos.grid import networkcache
 from slapos.cli.config import ConfigCommand
+from slapos.cli.command import resetLogger
 from slapos.util import str2bytes
-
-FAILURE_EXIT_CODE = 10
 
 class CacheLookupCommand(ConfigCommand):
     """
-    perform a query to the networkcache
-    You can provide either a complete URL to the software release,
-    or a corresponding MD5 hash value.
+    perform a query to the networkcache.
 
-    The command will report which OS distribution/version have a binary
-    cache of the software release, and which ones are compatible
-    with the OS you are currently running.
+    Check if python package is available to be downloaded from cache.
     """
+    command_group = 'cachelookup'
 
     def get_parser(self, prog_name):
         ap = super(CacheLookupCommand, self).get_parser(prog_name)
-        ap.add_argument('software_url',
-                        help='Your software url or MD5 hash')
+        ap.add_argument('name',
+                        help='python package name')
+        ap.add_argument('version',
+                        help='python package version')
         return ap
 
     def take_action(self, args):
         configp = self.fetch_config(args)
-        cache_dir = configp.get('networkcache', 'download-binary-dir-url')
-        cache_url = configp.get('networkcache', 'download-binary-cache-url')
+        cache_dir = configp.get('networkcache', 'download-dir-url')
+        cache_url = configp.get('networkcache', 'download-cache-url')
         signature_certificate_list = configp.get('networkcache', 'signature-certificate-list')
 
         sys.exit(
           do_lookup(self.app.log, cache_dir, cache_url,
-                    signature_certificate_list, args.software_url,))
-
-def looks_like_md5(s):
-    """
-    Return True if the parameter looks like an hashed value.
-    Not 100% precise, but we're actually more interested in filtering out URLs and pathnames.
-    """
-    return re.match('[0-9a-f]{32}', s)
-
-
-def infotuple(entry):
-    info_dict = networkcache.loadJsonEntry(entry[0])
-    return info_dict['multiarch'], info_dict['os'], entry[1]
-
+                    signature_certificate_list, args.name, args.version))
 
 def do_lookup(logger, cache_dir, cache_url, signature_certificate_list,
-              software_url):
-    if looks_like_md5(software_url):
-        md5 = software_url
-    else:
-        md5 = hashlib.md5(str2bytes(software_url)).hexdigest()
+              name, version):
+    key = 'pypi:{}={}'.format(name, version)
     try:
         entries = networkcache.download_entry_list(cache_url, cache_dir,
-            md5, logger, signature_certificate_list, software_url)
+            key, logger, signature_certificate_list)
+        if not entries:
+            logger.info('Object found in cache, but has no entry.')
+            return 0
+
+        pt = prettytable.PrettyTable(['basename', 'sha512', 'signed'])
+        for entry in entries:
+            d = json.loads(entry[0])
+            pt.add_row([d["basename"], d["sha512"], entry[1]])
+
+        logger.info('Python egg %s version %s', name, version)
+        logger.info('SHADIR URL: %s/%s\n', cache_dir, key)
+
+        resetLogger(logger)
+        for line in pt.get_string(border=True, padding_width=0, vrules=prettytable.NONE).split('\n'):
+            logger.info(line)
+    except HTTPError as e:
+        if e.code == 404:
+            logger.info('Object not found in cache.')
+        else:
+            logger.info('Problem to connect to shacache.')
+        return 1
     except Exception:
-        logger.critical('Error while looking object %s', software_url,
+        logger.critical('Error while looking egg %s version %s', name, version,
             exc_info=True)
-        return FAILURE_EXIT_CODE
-
-    if not entries:
-        logger.info('Object found in cache, but has no binary entries.')
-        return 0
-
-    pt = prettytable.PrettyTable(['multiarch', 'distribution', 'version', 'id', 'compatible?', 'verified?'])
-    machine_info = networkcache.machine_info_tuple()
-
-    for multiarch, os, verified in sorted(map(infotuple, entries)):
-        row = [multiarch] + os
-        row.append('yes' if networkcache.is_compatible(machine_info, (multiarch, os)) else 'no')
-        row.append('yes' if verified else 'no')
-        pt.add_row(row)
-
-    meta = json.loads(entries[0][0])
-    logger.info('Software URL: %s', meta['software_url'])
-    logger.info('MD5:          %s', md5)
-
-    for line in pt.get_string(border=True, padding_width=0, vrules=prettytable.NONE).split('\n'):
-        logger.info(line)
+        return 1
 
     return 0

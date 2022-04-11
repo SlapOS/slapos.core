@@ -33,8 +33,9 @@ import json
 import re
 import requests
 import sys
-
 import prettytable
+
+from six.moves.urllib.error import HTTPError
 
 from slapos.grid import networkcache
 from slapos.cli.config import ConfigCommand
@@ -47,6 +48,7 @@ class CacheLookupCommand(ConfigCommand):
 
     Check if source URL is available to be downloaded from cache.
     """
+    command_group = 'cachelookup'
 
     def get_parser(self, prog_name):
         ap = super(CacheLookupCommand, self).get_parser(prog_name)
@@ -56,43 +58,45 @@ class CacheLookupCommand(ConfigCommand):
 
     def take_action(self, args):
         configp = self.fetch_config(args)
-        cache_dir = configp.get('networkcache', 'download-cache-url')
-        sys.exit(do_lookup(self.app.log, cache_dir, args.url))
+        cache_dir = configp.get('networkcache', 'download-dir-url')
+        cache_url = configp.get('networkcache', 'download-cache-url')
+        signature_certificate_list = configp.get('networkcache', 'signature-certificate-list')
 
-def do_lookup(logger, cache_dir, url):
-    md5 = hashlib.md5(str2bytes(url)).hexdigest()
+        sys.exit(
+          do_lookup(self.app.log, cache_dir, cache_url,
+                    signature_certificate_list, args.url))
 
+def do_lookup(logger, cache_dir, cache_url, signature_certificate_list,
+              url):
+    key = 'file-urlmd5:' + hashlib.md5(url.encode()).hexdigest()
     try:
-        cached_url = '%s/slapos-buildout-%s' % (cache_dir, md5)
-        logger.debug('Connecting to %s', url)
-        req = requests.get(cached_url, timeout=5)
-    except (requests.Timeout, requests.ConnectionError):
-        logger.critical('Cannot connect to cache server at %s', cached_url)
-        return 10
+        entries = networkcache.download_entry_list(cache_url, cache_dir,
+            key, logger, signature_certificate_list)
+        if not entries:
+            logger.info('Object found in cache, but has no entry.')
+            return 0
 
-    if not req.ok:
-        if req.status_code == 404:
-            logger.critical('Object not in cache: %s', url)
+        pt = prettytable.PrettyTable(['url', 'sha512', 'signed'])
+        for entry in entries:
+            d = json.loads(entry[0])
+            pt.add_row([d["url"], d["sha512"], entry[1]])
+
+        logger.info('Software source URL: %s', url)
+        logger.info('SHADIR URL: %s/%s\n', cache_dir, key)
+
+        resetLogger(logger)
+        for line in pt.get_string(border=True, padding_width=0, vrules=prettytable.NONE).split('\n'):
+            logger.info(line)
+    except HTTPError as e:
+        if e.code == 404:
+            logger.info('Object not found in cache.')
         else:
-            logger.critical('Error while looking object %s: %s', url, req.reason)
-        return 10
+            logger.info('Problem to connect to shacache.')
+        return 1
+    except Exception:
+        logger.critical('Error while looking object %s', url,
+            exc_info=True)
+        return 1
 
-    entries = req.json()
 
-    if not entries:
-        logger.info('Object found in cache, but has no entries.')
-        return 0
-
-    pt = prettytable.PrettyTable(['file', 'sha512'])
-    entry_list = sorted(json.loads(entry[0]) for entry in entries)
-    for entry in entry_list:
-        pt.add_row([entry["file"], entry["sha512"]])
-
-    meta = json.loads(entries[0][0])
-    logger.info('Software source URL: %s', url)
-    logger.info('SHADIR URL: %s', cached_url)
-
-    resetLogger(logger)
-    for line in pt.get_string(border=True, padding_width=0, vrules=prettytable.NONE).split('\n'):
-        logger.info(line)
     return 0

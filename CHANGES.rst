@@ -1,6 +1,11 @@
 Changes
 =======
 
+1.7.6 (unreleased yet)
+------------------
+ * cachelookup: introduce slapos cachelookup {url, binary-sr, pypi} commands
+ * cache: remove "slapos cache {lookup, source}" commands
+
 1.7.5 (2022-03-21)
 ------------------
  * slapgrid: fix invocation of bootstrapBuildout

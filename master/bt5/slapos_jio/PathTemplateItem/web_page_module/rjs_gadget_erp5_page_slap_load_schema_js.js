@@ -210,6 +210,16 @@
       });
   }
 
+  function validateSoftwareJSONSchema(json) {
+    return getJSON("slapos_load_software_schema.json")
+      .push(function (schema) {
+        if (!tv4.validate(json, schema)) {
+          throw new Error("Non valid JSON for software.cfg.json:" + json);
+        }
+        return JSON.parse(json);
+      });
+  }
+
   gk
     .declareMethod("getBaseUrl", function (url) {
       var base_url, url_uri = URI(url);
@@ -232,7 +242,7 @@
     .declareMethod("loadSoftwareJSON", function (url) {
       return getJSON(url)
         .push(function (json) {
-          return JSON.parse(json);
+          return validateSoftwareJSONSchema(json);
         });
     })
 

@@ -196,7 +196,7 @@ url_list = [
   "gadget_slapos_network_status.js",
   "gadget_slapos_panel.html",
   "gadget_slapos_panel.js",
-  "gadget_slapos_panel.png?format=",
+  "gadget_slapos_panel.png?format=png",
   "gadget_slapos_invoice_logo.png?format=",
   "gadget_slapos_payment_result.js",
   "gadget_slapos_project_status.html",
@@ -210,6 +210,11 @@ url_list = [
   "leaflet.js",
   "tv4.min.js",
   "vkbeautify.js",
+  "jquery.js",
+  "URI.js",
+  "slapos_load_software_schema.json",
+  "slapos_load_meta_schema_xml.json",
+  "slapos_load_meta_schema_json_in_xml.json",
   "gadget_erp5_page_slap_language_view.js",
   "gadget_erp5_page_slap_language_view.html"
 ]

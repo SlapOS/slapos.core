@@ -1138,3 +1138,71 @@ class TestSlapOSCoreInstanceSlapInterfaceWorkflowTransfer(SlapOSTestCaseMixin):
       len(self.instance_tree.getAggregateRelatedList(portal_type="Internal Packing List Line"))
     )
 
+  def test_generateCertificate(self):
+    self.login()
+    self.software_instance.setDestinationReference(None)
+    self.software_instance.getSslKey(None)
+    self.software_instance.getSslCertificate(None)
+
+    self.software_instance.generateCertificate()
+    self.assertNotEqual(self.software_instance.getDestinationReference(), None)
+    self.assertNotEqual(self.software_instance.getSslKey(), None)
+    self.assertNotEqual(self.software_instance.getSslCertificate(), None)
+
+    self.assertRaises(ValueError, self.software_instance.generateCertificate)
+
+  def test_revokeCertificate(self):
+    self.login()
+    self.assertNotEqual(self.software_instance.getDestinationReference(), None)
+    self.assertNotEqual(self.software_instance.getSslKey(), None)
+    self.assertNotEqual(self.software_instance.getSslCertificate(), None)
+
+    self.software_instance.revokeCertificate()
+    self.assertEqual(self.software_instance.getDestinationReference(), None)
+    self.assertEqual(self.software_instance.getSslKey(), None)
+    self.assertEqual(self.software_instance.getSslCertificate(), None)
+
+    self.assertRaises(ValueError, self.software_instance.revokeCertificate)
+
+  def test_renewCertificate(self):
+    self.login()
+
+    destination_reference = self.software_instance.getDestinationReference()
+    ssl_key = self.software_instance.getSslKey()
+    ssl_certificate = self.software_instance.getSslCertificate()
+
+    self.assertNotEqual(self.software_instance.getDestinationReference(), None)
+    self.assertNotEqual(self.software_instance.getSslKey(), None)
+    self.assertNotEqual(self.software_instance.getSslCertificate(), None)
+
+    self.software_instance.renewCertificate()
+    self.assertNotEqual(self.software_instance.getDestinationReference(), None)
+    self.assertNotEqual(self.software_instance.getSslKey(), None)
+    self.assertNotEqual(self.software_instance.getSslCertificate(), None)
+
+    self.assertNotEqual(self.software_instance.getDestinationReference(),
+      destination_reference)
+    self.assertNotEqual(self.software_instance.getSslKey(),
+      ssl_key)
+    self.assertNotEqual(self.software_instance.getSslCertificate(),
+      ssl_certificate)
+
+    destination_reference = self.software_instance.getDestinationReference()
+    ssl_key = self.software_instance.getSslKey()
+    ssl_certificate = self.software_instance.getSslCertificate()
+
+    self.software_instance.renewCertificate()
+    self.assertNotEqual(self.software_instance.getDestinationReference(), None)
+    self.assertNotEqual(self.software_instance.getSslKey(), None)
+    self.assertNotEqual(self.software_instance.getSslCertificate(), None)
+
+    self.assertNotEqual(self.software_instance.getDestinationReference(),
+      destination_reference)
+    self.assertNotEqual(self.software_instance.getSslKey(),
+      ssl_key)
+    self.assertNotEqual(self.software_instance.getSslCertificate(),
+      ssl_certificate)
+
+    self.software_instance.revokeCertificate()
+    self.assertRaises(ValueError, self.software_instance.renewCertificate)
+

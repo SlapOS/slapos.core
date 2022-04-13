@@ -53,9 +53,11 @@ for software_installation in software_installation_list:
               support_request_description=description,
               aggregate=software_installation.getRelativeUrl())
 
-    support_request = context.REQUEST.get("support_request_relative_url")
-    if support_request is None:
+    support_request_relative_url = context.REQUEST.get("support_request_relative_url")
+    if support_request_relative_url is None:
       return
+
+    support_request = portal.restrictedTraverse(support_request_relative_url)
 
     # Send Notification message
     notification_reference = 'slapos-crm-compute_node_software_installation_state.notification'

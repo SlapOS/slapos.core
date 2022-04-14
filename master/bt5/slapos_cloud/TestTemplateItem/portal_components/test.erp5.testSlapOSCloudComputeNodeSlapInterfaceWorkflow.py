@@ -293,6 +293,73 @@ class TestSlapOSCoreComputeNodeSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertEqual(None, self.portal.REQUEST.get('compute_node_certificate'))
     self.assertEqual(None, self.compute_node.getDestinationReference())
 
+  def test_renewCertificate(self):
+    self.login(self.compute_node.getUserId())
+    self.compute_node.generateCertificate()
+    compute_node_key = self.portal.REQUEST.get('compute_node_key')
+    compute_node_certificate = self.portal.REQUEST.get('compute_node_certificate')
+    destination_reference = self.compute_node.getDestinationReference()
+
+    self.assertNotEqual(None, compute_node_key)
+    self.assertNotEqual(None, compute_node_certificate)
+    self.assertNotEqual(None, destination_reference)
+    serial = '0x%x' % int(self.compute_node.getDestinationReference(), 16)
+    self.assertTrue(serial in compute_node_certificate)
+    self.assertTrue(self.compute_node.getReference() in compute_node_certificate.decode('string_escape'))
+
+    self.compute_node.renewCertificate()
+    self.assertNotEqual(None, self.portal.REQUEST.get('compute_node_key'))
+    self.assertNotEqual(None, self.portal.REQUEST.get('compute_node_certificate'))
+    self.assertNotEqual(None, self.compute_node.getDestinationReference())
+
+    self.assertNotEqual(compute_node_key, self.portal.REQUEST.get('compute_node_key'))
+    self.assertNotEqual(compute_node_certificate, self.portal.REQUEST.get('compute_node_certificate'))
+    self.assertNotEqual(destination_reference, self.compute_node.getDestinationReference())
+
+  
+  def test_renewCertificateNoCertificate(self):
+    self.login(self.compute_node.getUserId())
+    self.assertRaises(ValueError, self.compute_node.renewCertificate)
+    self.assertEqual(None, self.portal.REQUEST.get('compute_node_key'))
+    self.assertEqual(None, self.portal.REQUEST.get('compute_node_certificate'))
+    self.assertEqual(None, self.compute_node.getDestinationReference())
+
+  def test_renewCertificate_twice(self):
+    self.login(self.compute_node.getUserId())
+    self.compute_node.generateCertificate()
+    compute_node_key = self.portal.REQUEST.get('compute_node_key')
+    compute_node_certificate = self.portal.REQUEST.get('compute_node_certificate')
+    destination_reference = self.compute_node.getDestinationReference()
+
+    self.assertNotEqual(None, compute_node_key)
+    self.assertNotEqual(None, compute_node_certificate)
+    self.assertNotEqual(None, self.compute_node.getDestinationReference())
+    serial = '0x%x' % int(self.compute_node.getDestinationReference(), 16)
+    self.assertTrue(serial in compute_node_certificate)
+    self.assertTrue(self.compute_node.getReference() in compute_node_certificate.decode('string_escape'))
+
+    self.compute_node.renewCertificate()
+    self.assertNotEqual(None, self.portal.REQUEST.get('compute_node_key'))
+    self.assertNotEqual(None, self.portal.REQUEST.get('compute_node_certificate'))
+    self.assertNotEqual(None, self.compute_node.getDestinationReference())
+
+    self.assertNotEqual(compute_node_key, self.portal.REQUEST.get('compute_node_key'))
+    self.assertNotEqual(compute_node_certificate, self.portal.REQUEST.get('compute_node_certificate'))
+    self.assertNotEqual(destination_reference, self.compute_node.getDestinationReference())
+
+    compute_node_key = self.portal.REQUEST.get('compute_node_key')
+    compute_node_certificate = self.portal.REQUEST.get('compute_node_certificate')
+    destination_reference = self.compute_node.getDestinationReference()
+
+    self.compute_node.renewCertificate()
+    self.assertNotEqual(None, self.portal.REQUEST.get('compute_node_key'))
+    self.assertNotEqual(None, self.portal.REQUEST.get('compute_node_certificate'))
+    self.assertNotEqual(None, self.compute_node.getDestinationReference())
+
+    self.assertNotEqual(compute_node_key, self.portal.REQUEST.get('compute_node_key'))
+    self.assertNotEqual(compute_node_certificate, self.portal.REQUEST.get('compute_node_certificate'))
+    self.assertNotEqual(destination_reference, self.compute_node.getDestinationReference())
+
 class TestSlapOSCoreComputeNodeSlapInterfaceWorkflowSupply(SlapOSTestCaseMixin):
 
   def afterSetUp(self):

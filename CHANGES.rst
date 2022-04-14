@@ -1,8 +1,13 @@
 Changes
 =======
 
-1.7.6 (unreleased yet)
+1.7.6 (2022-04-14)
 ------------------
+ * slapgrid: use distro.linux_distribution() to support python >= 3.8
+ * slapproxy: add missing instance parameters
+ * tests: several improvements
+ * standalone: strip ansi codes in logs
+ * slapgrid: fix promise logging with instance python
  * cachelookup: introduce slapos cachelookup {url, binary-sr, pypi} commands
  * cache: remove "slapos cache {lookup, source}" commands
 

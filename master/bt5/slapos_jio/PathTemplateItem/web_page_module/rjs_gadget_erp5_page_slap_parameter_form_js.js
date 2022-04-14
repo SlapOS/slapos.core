@@ -553,10 +553,10 @@
     return "";
   }
 
-  gk.declareMethod("loadJSONSchema", function (url) {
+  gk.declareMethod("loadJSONSchema", function (url, serialisation) {
       return this.getDeclaredGadget('loadschema')
         .push(function (gadget) {
-          return gadget.loadJSONSchema(url);
+          return gadget.loadJSONSchema(url, serialisation);
         });
     })
 
@@ -648,10 +648,10 @@
         });
     })
 
-    .declareMethod('renderParameterForm', function (json_url, default_dict, restricted_parameter) {
+    .declareMethod('renderParameterForm', function (json_url, default_dict, restricted_parameter, serialisation) {
 
       var g = this;
-      return g.loadJSONSchema(json_url)
+      return g.loadJSONSchema(json_url, serialisation)
         .push(function (json) {
           var fieldset_list = g.element.querySelectorAll('fieldset'),
             fieldset = document.createElement("fieldset");
@@ -944,7 +944,8 @@
             parameter_json_schema_url = prefix + "/" + parameter_json_schema_url;
           }
           return gadget.renderParameterForm(parameter_json_schema_url,
-                                            parameter_dict, restricted_parameter);
+                                            parameter_dict, restricted_parameter,
+                                            options.serialisation);
         })
         .push(function () {
           var i, div_list = gadget.element.querySelectorAll('.slapos-parameter-dict-key > div'),

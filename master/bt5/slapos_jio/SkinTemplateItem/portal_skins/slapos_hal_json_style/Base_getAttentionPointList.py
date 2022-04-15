@@ -47,11 +47,14 @@ if portal_type in ["Instance Tree Module", "Instance Tree", "Person"] and \
   portal.portal_preferences.getPreferredCloudContractEnabled():
 
   person = portal.portal_membership.getAuthenticatedMember().getUserValue()
-  contract = portal.portal_catalog.getResultValue(
-    portal_type="Cloud Contract",
-    default_destination_section_uid=person.getUid(),
-    validation_state=['validated'],
-  )
+  if person is None:
+    contract = None
+  else:
+    contract = portal.portal_catalog.getResultValue(
+      portal_type="Cloud Contract",
+      default_destination_section_uid=person.getUid(),
+      validation_state=['validated'],
+    )
 
   if contract is None:
     msg = context.Base_translateString(

@@ -42,7 +42,7 @@
         </item>
         <item>
             <key> <string>script_id</string> </key>
-            <value> <string>PreferenceTool_checkSystemPreferenceConsistency</string> </value>
+            <value> <string>SystemPreference_checkSystemPreferenceConsistency</string> </value>
         </item>
       </dictionary>
     </pickle>

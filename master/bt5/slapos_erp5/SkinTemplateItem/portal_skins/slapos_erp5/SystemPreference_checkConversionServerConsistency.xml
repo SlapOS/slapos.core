@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>PreferenceTool_checkConversionServerConsistency</string> </value>
+            <value> <string>SystemPreference_checkConversionServerConsistency</string> </value>
         </item>
       </dictionary>
     </pickle>

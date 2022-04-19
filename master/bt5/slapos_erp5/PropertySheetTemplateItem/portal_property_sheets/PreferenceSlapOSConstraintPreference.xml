@@ -32,7 +32,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>PreferenceToolSlapOSConstraintPreference</string> </value>
+            <value> <string>PreferenceSlapOSConstraintPreference</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>

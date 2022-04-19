@@ -6,16 +6,23 @@
 if context.getPortalType() not in ["System Preference"]:
   return []
 
+error_list = []
+
+if context.getId() == "slapos_default_system_preference" and context.getPreferenceState() != "global":
+  error_list.append(
+    "The Default System preference globally enabled shouldn't be slapos_default_system_preference" % context.getId())
+  if fixit:
+    context.globalEnable(comment="Enabled by PreferenceTool_checkSystemPreferenceConsistency")
+
 if context.getPreferenceState() != "global":
   return []
-
-error_list = []
 
 if context.getId() != "slapos_default_system_preference":
   error_list.append(
     "The Default System preference globally enabled shouldn't be %s but slapos_default_system_preference" % context.getId())
   if fixit:
     context.disable(comment="Disabled by PreferenceTool_checkSystemPreferenceConsistency")
+
 
 preference_method_list = [
   "getPreferredHateoasUrl",

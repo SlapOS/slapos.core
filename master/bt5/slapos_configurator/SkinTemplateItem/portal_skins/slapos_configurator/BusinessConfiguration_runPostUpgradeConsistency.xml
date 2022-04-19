@@ -54,7 +54,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>BusinessConfiguration_invokeSlapOSMasterPromiseAlarmList</string> </value>
+            <value> <string>BusinessConfiguration_runPostUpgradeConsistency</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -3,13 +3,19 @@
   ensure the site configuration is set.
 """
 
-if context.getPortalType() not in [ "System Preference"]:
+if context.getPortalType() not in ["System Preference"]:
   return []
 
 if context.getPreferenceState() != "global":
   return []
 
 error_list = []
+
+if context.getId() != "slapos_default_system_preference":
+  error_list.append(
+    "The Default System preference globally enabled shouldn't be %s but slapos_default_system_preference" % context.getId())
+  if fixit:
+    context.disable(comment="Disabled by PreferenceTool_checkSystemPreferenceConsistency")
 
 preference_method_list = [
   "getPreferredHateoasUrl",
@@ -20,7 +26,6 @@ preference_method_list = [
   ]
 
 for method_id in preference_method_list:
-
   result =  getattr(context.portal_preferences, method_id)()
   if result in [None, ""]:
     error_list.append(

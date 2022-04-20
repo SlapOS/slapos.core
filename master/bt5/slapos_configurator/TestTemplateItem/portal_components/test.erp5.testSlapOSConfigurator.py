@@ -30,7 +30,7 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
   maxDiff = None
   def bootstrapSite(self):
     SlapOSTestCaseMixin.bootstrapSite(self)
-    self.getBusinessConfiguration().BusinessConfiguration_invokeSlapOSMasterPromiseAlarmList()
+    self.getBusinessConfiguration().BusinessConfiguration_runPostUpgradeConsistency()
     self.tic()
 
   def testConfiguredModuleGeneratorIDViaConstraint(self):

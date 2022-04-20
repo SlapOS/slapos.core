@@ -223,7 +223,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
     # Set post upgrade configurations for the tests
     preference_tool = self.portal.portal_preferences.portal_preferences
     preference_tool.slapos_default_system_preference.setPreferredHateoasUrl("http://dummy/")
-    preference_tool.slapos_default_system_preference..setPreferredAuthenticationPolicyEnabled(True)
+    preference_tool.slapos_default_system_preference.setPreferredAuthenticationPolicyEnabled(True)
 
     self.tic()
     self.clearAllCache()

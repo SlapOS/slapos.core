@@ -28,11 +28,6 @@ import os
 class TestSlapOSConfigurator(SlapOSTestCaseMixin):
 
   maxDiff = None
-  def bootstrapSite(self):
-    SlapOSTestCaseMixin.bootstrapSite(self)
-    self.getBusinessConfiguration().BusinessConfiguration_invokeSlapOSMasterPromiseAlarmList()
-    self.tic()
-
   def testConfiguredModuleGeneratorIDViaConstraint(self):
     """ Make sure Generator ID is well configured, in this
         case we trust on promise outcome."""

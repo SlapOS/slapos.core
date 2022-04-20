@@ -160,17 +160,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
     self.commit()
     self.launchConfigurator()
 
-  def afterSetUp(self):
-    self.login()
-    self.createAlarmStep()
-
-    if self.isLiveTest():
-      self.setUpPersistentDummyMailHost()
-      return
-    self.portal.portal_caches.erp5_site_global_id = '%s' % random.random()
-    self.portal.portal_caches._p_changed = 1
-    self.createCertificateAuthorityFile() 
-    self.commit()
+  def updateInitSite(self):
     self.portal.portal_caches.updateCache()
 
     try:
@@ -182,13 +172,20 @@ class testSlapOSMixin(ERP5TypeTestCase):
       initsite["cloudooo_url"] = "https://cloudooo.erp5.net" 
 
     config.product_config["initsite"] = initsite
+    self.commit()
 
+  def afterSetUp(self):
+    self.login()
+    self.createAlarmStep()
+
+    if self.isLiveTest():
+      self.setUpPersistentDummyMailHost()
+      return
+    self.portal.portal_caches.erp5_site_global_id = '%s' % random.random()
+    self.portal.portal_caches._p_changed = 1
     self.createCertificateAuthorityFile() 
-    if not getattr(self.portal, 'is_site_bootstrapped', 0):
-      self.portal.is_site_bootstrapped = 1
-      self.bootstrapSite()
-      self.portal._p_changed = 1
-      self.commit()
+    self.commit()
+    self.updateInitSite()
 
   def deSetUpPersistentDummyMailHost(self):
     if 'MailHost' in self.portal.objectIds():
@@ -209,8 +206,9 @@ class testSlapOSMixin(ERP5TypeTestCase):
                           "slapos_master_configuration_workflow"]
 
   def launchConfigurator(self):
-    self.logMessage('SlapOS launchConfigurator')
+    self.logMessage('SlapOS launchConfigurator ...\n')
     self.login()
+    self.updateInitSite()
     # Create new Configuration 
     business_configuration  = self.getBusinessConfiguration()
 
@@ -226,13 +224,13 @@ class testSlapOSMixin(ERP5TypeTestCase):
     self.portal.portal_types.resetDynamicDocumentsOnceAtTransactionBoundary()
     self.tic(verbose=True, delay=3600)
 
-  def bootstrapSite(self):
-    self.logMessage('SlapOS bootstrapSite')
-    self.getDefaultSystemPreference().setPreferredHateoasUrl("http://dummy/")
-    self.getDefaultSystemPreference().setPreferredAuthenticationPolicyEnabled(True)
+    # Set post upgrade configurations for the tests
+    preference_tool = self.portal.portal_preferences.portal_preferences
+    preference_tool.slapos_default_system_preference.setPreferredHateoasUrl("http://dummy/")
+    preference_tool.slapos_default_system_preference.setPreferredAuthenticationPolicyEnabled(True)
 
-    self.clearCache()
     self.tic()
+    self.clearCache()
 
   def getExpectedBusinessTemplateInstalledAfterConfiguration(self):
     return [ 'erp5_core',

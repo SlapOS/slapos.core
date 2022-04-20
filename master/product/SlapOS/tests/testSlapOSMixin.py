@@ -182,13 +182,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
       initsite["cloudooo_url"] = "https://cloudooo.erp5.net" 
 
     config.product_config["initsite"] = initsite
-
-    self.createCertificateAuthorityFile() 
-    if not getattr(self.portal, 'is_site_bootstrapped', 0):
-      self.portal.is_site_bootstrapped = 1
-      self.bootstrapSite()
-      self.portal._p_changed = 1
-      self.commit()
+    self.commit()
 
   def deSetUpPersistentDummyMailHost(self):
     if 'MailHost' in self.portal.objectIds():
@@ -226,13 +220,13 @@ class testSlapOSMixin(ERP5TypeTestCase):
     self.portal.portal_types.resetDynamicDocumentsOnceAtTransactionBoundary()
     self.tic(verbose=True, delay=3600)
 
-  def bootstrapSite(self):
-    self.logMessage('SlapOS bootstrapSite')
-    self.getDefaultSystemPreference().setPreferredHateoasUrl("http://dummy/")
-    self.getDefaultSystemPreference().setPreferredAuthenticationPolicyEnabled(True)
+    # Set post upgrade configurations for the tests
+    preference_tool = self.portal.portal_preferences.portal_preferences
+    preference_tool.slapos_default_system_preference.setPreferredHateoasUrl("http://dummy/")
+    preference_tool.slapos_default_system_preference..setPreferredAuthenticationPolicyEnabled(True)
 
-    self.clearCache()
     self.tic()
+    self.clearAllCache()
 
   def getExpectedBusinessTemplateInstalledAfterConfiguration(self):
     return [ 'erp5_core',

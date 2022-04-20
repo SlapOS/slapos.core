@@ -1,3 +1,5 @@
+from lxml import etree
+
 from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
 from AccessControl.SecurityManagement import getSecurityManager, \
     setSecurityManager, newSecurityManager
@@ -54,3 +56,12 @@ def reindexPartition(item):
 def Instance_reindexComputePartition(state_change):
   item = state_change['object']
   reindexPartition(item)
+
+def castDictToXMLString(dict_kw):
+  instance = etree.Element('instance')
+  for _id, _value in dict_kw.iteritems():
+    # cast everything to string
+    etree.SubElement(instance, "parameter",
+                     attrib={'id':_id}).text = str(_value)
+  return etree.tostring(instance, pretty_print=True,
+                                  xml_declaration=True, encoding='utf-8')

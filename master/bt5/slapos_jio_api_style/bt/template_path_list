@@ -1,2 +1,3 @@
 portal_callables/jIOWebSection_createComputeNodeFromJSON
 portal_callables/jIOWebSection_createSoftwareInstallationFromJSON
+portal_callables/jIOWebSection_requestComputerPartitionFromJSON

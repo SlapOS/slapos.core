@@ -42,7 +42,7 @@
         </item>
         <item>
             <key> <string>script_id</string> </key>
-            <value> <string>Preference_checkConversionServerConsistency</string> </value>
+            <value> <string>SystemPreference_checkConversionServerConsistency</string> </value>
         </item>
       </dictionary>
     </pickle>

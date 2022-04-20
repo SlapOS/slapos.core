@@ -29,6 +29,7 @@ from AccessControl import ClassSecurityInfo
 from Products.ERP5Type import Permissions
 from erp5.component.document.Item import Item
 from erp5.component.document.JSONType import JSONType
+import json
 from lxml import etree
 import collections
 
@@ -183,7 +184,7 @@ class SoftwareInstance(Item, JSONType):
     portal = self.getPortalObject()
     compute_partition = self.getAggregateValue(portal_type="Compute Partition")
     if compute_partition is None:
-      raise ValueError("Instance isn't allocated to call _asParamterDict")
+      raise ValueError("Instance isn't allocated to call _asParameterDict")
     timestamp = int(compute_partition.getModificationDate())
 
     newtimestamp = int(self.getBangTimestamp(int(self.getModificationDate())))
@@ -311,7 +312,35 @@ class SoftwareInstance(Item, JSONType):
   security.declareProtected(Permissions.AccessContentsInformation,
     'asJSONText')
   def asJSONText(self):
-    return self.getJsonContent()
+    try:
+      parameter_dict = self._asParameterDict()
+    except ValueError:
+      parameter_dict = {}
+
+    requested_state = self.getSlapState()
+    if requested_state == "stop_requested":
+      state = 'stopped'
+    elif requested_state == "start_requested":
+      state = 'started'
+    elif requested_state == "destroy_requested":
+      state = 'destroyed'
+    else:
+      raise ValueError("Unknown slap state : %s" % requested_state)
+
+    # software instance has to define an xml parameter
+    result = {
+      "$schema": self.getPortalObject().portal_types.restrictedTraverse(self.getPortalType()).absolute_url()
+        + "/getTextContent",
+      "reference": self.getReference().decode("UTF-8"),
+      "title": self.getTitle().decode("UTF-8"),
+      "connection_parameters": self.getConnectionXmlAsDict(),
+      "parameters": self.getInstanceXmlAsDict(),
+      "node": self.getSlaXmlAsDict(),
+      "state": state,
+      "id": self.getRelativeUrl(),
+    }
+    result.update(parameter_dict)
+    return json.dumps(result, indent=2)
 
   security.declareProtected(Permissions.ModifyPortalContent, 'fromJSONText')
   def fromJSONText(self, json_content):

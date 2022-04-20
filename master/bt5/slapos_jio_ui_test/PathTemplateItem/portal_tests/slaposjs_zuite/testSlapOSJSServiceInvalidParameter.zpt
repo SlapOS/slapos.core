@@ -122,15 +122,15 @@
       </tr>
 
       <tr>
-        <td>verifyValue</td>
+        <td>assertValue</td>
         <td>//textarea[@name="text_content"]</td>
-        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;&lt;instance&gt;&lt;/instance&gt;</td>
+        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;<br>&lt;instance/&gt;</td>
       </tr>
 
       <tr>
         <td>type</td>
         <td>//textarea[@name="text_content"]</td>
-        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;&lt;instance&gt;&lt;parameter id=&quot;ram-size&quot;&gt;1024&lt;/parameter&gt;&lt;/instance&gt;</td>
+        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;&lt;instance&gt;&lt;parameter id=&quot;ram-size&quot;&gt;1024&lt;/parameter&gt;&lt;/instance&gt;</td>
       </tr>
 
       <tr>
@@ -163,7 +163,7 @@
         <td></td>
       </tr>
       <tr>
-        <td>verifyValue</td>
+        <td>assertValue</td>
         <td>//input[@name="//ram-size"]</td>
         <td>1024</td>
       </tr>
@@ -200,9 +200,9 @@
       </tr>
 
       <tr>
-        <td>verifyValue</td>
+        <td>assertValue</td>
         <td>//textarea[@name="text_content"]</td>
-        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;&lt;instance&gt;&lt;parameter id=&quot;ram-size&quot;&gt;1024&lt;/parameter&gt;&lt;/instance&gt;</td>
+        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;&lt;instance&gt;&lt;parameter id=&quot;ram-size&quot;&gt;1024&lt;/parameter&gt;&lt;/instance&gt;</td>
       </tr>
 
       <tr>
@@ -221,7 +221,7 @@
       <tr>
         <td>type</td>
         <td>//textarea[@name="text_content"]</td>
-        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&lt;instance&gt;&lt;parameter id=&quot;_&quot;&gt;{&quot;kvm-partition-dict&quot;: {&quot;T&quot;: {&quot;ram-size&quot;: 2048}}}&lt;/parameter&gt;&lt;/instance&gt;</td>
+        <td>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;instance&gt;&lt;parameter id=&quot;_&quot;&gt;{&quot;kvm-partition-dict&quot;: {&quot;T&quot;: {&quot;ram-size&quot;: 2048}}}&lt;/parameter&gt;&lt;/instance&gt;</td>
       </tr>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
@@ -279,7 +279,7 @@
         <td></td>
       </tr>
       <tr>
-        <td>verifyValue</td>
+        <td>assertValue</td>
         <td>//input[@name="//kvm-partition-dict/T/ram-size"]</td>
         <td>2048</td>
       </tr>

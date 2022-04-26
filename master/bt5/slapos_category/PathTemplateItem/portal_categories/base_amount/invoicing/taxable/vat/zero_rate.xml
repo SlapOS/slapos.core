@@ -55,19 +55,21 @@
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value> <string>Discounts granted or received</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>discount_service</string> </value>
+            <value> <string>zero_rate</string> </value>
         </item>
         <item>
-            <key> <string>portal_type</string> </key>
-            <value> <string>Category</string> </value>
+            <key> <string>short_title</string> </key>
+            <value> <string>Invoice Zero Rate</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Discount Service</string> </value>
+            <value> <string>Invoice Zero Rate VAT</string> </value>
         </item>
       </dictionary>
     </pickle>

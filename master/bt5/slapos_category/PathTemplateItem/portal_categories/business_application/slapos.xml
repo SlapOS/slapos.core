@@ -54,12 +54,34 @@
             </value>
         </item>
         <item>
+            <key> <string>categories</string> </key>
+            <value>
+              <tuple>
+                <string>business_application/base</string>
+              </tuple>
+            </value>
+        </item>
+        <item>
+            <key> <string>codification</string> </key>
+            <value> <string>BA-SLAPOS</string> </value>
+        </item>
+        <item>
+            <key> <string>default_reference</string> </key>
+            <value> <string>SLAPOS</string> </value>
+        </item>
+        <item>
             <key> <string>description</string> </key>
-            <value> <string>Discounts granted or received</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>discount_service</string> </value>
+            <value> <string>slapos</string> </value>
+        </item>
+        <item>
+            <key> <string>int_index</string> </key>
+            <value> <int>8</int> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -67,7 +89,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Discount Service</string> </value>
+            <value> <string>SlapOS</string> </value>
         </item>
       </dictionary>
     </pickle>

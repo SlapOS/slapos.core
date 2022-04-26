@@ -31,12 +31,12 @@ have the correct "me" setting, so we just let the getSettingMe
 function redirect us to the login page -->
       <tr>
         <td>waitForElementPresent</td>
-        <td tal:content="python: '//label[contains(text(), \'%s\')]' % (here.Base_translateString('Login', lang=lang))"></td>
+        <td tal:content="python: '//label[contains(text(), \'%s\')]' % (here.Base_translateString('Username', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>
         <td>assertElementPresent</td>
-        <td tal:content="python: '//label[contains(text(), \'%s\')]' % (here.Base_translateString('Login', lang=lang))"></td>
+        <td tal:content="python: '//label[contains(text(), \'%s\')]' % (here.Base_translateString('Username', lang=lang))"></td>
         <td></td>
       </tr>
       <tr>

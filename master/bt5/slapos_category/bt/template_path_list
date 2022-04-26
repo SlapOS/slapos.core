@@ -47,6 +47,7 @@ portal_categories/group/rackspace
 portal_categories/group/vifib
 portal_categories/group/vmware
 portal_categories/incoterm/**
+portal_categories/ledger/**
 portal_categories/local_area_network_type/**
 portal_categories/marital_status/**
 portal_categories/market_segment/**
@@ -73,6 +74,7 @@ portal_categories/storage_capacity/**
 portal_categories/storage_interface/**
 portal_categories/storage_redundancy/**
 portal_categories/storage_technology/**
+portal_categories/trade_condition_type/**
 portal_categories/use/calendar
 portal_categories/use/calendar/**
 portal_categories/use/crm

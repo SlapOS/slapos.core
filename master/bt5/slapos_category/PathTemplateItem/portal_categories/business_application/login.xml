@@ -54,18 +54,34 @@
             </value>
         </item>
         <item>
-            <key> <string>description</string> </key>
-            <value> <string>Allocate services to anyone</string> </value>
+            <key> <string>categories</string> </key>
+            <value>
+              <tuple>
+                <string>business_application/base</string>
+              </tuple>
+            </value>
         </item>
         <item>
-            <key> <string>effective_date</string> </key>
+            <key> <string>codification</string> </key>
+            <value> <string>BA-LOGIN</string> </value>
+        </item>
+        <item>
+            <key> <string>default_reference</string> </key>
+            <value> <string>LOGIN</string> </value>
+        </item>
+        <item>
+            <key> <string>description</string> </key>
             <value>
               <none/>
             </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>public</string> </value>
+            <value> <string>login</string> </value>
+        </item>
+        <item>
+            <key> <string>int_index</string> </key>
+            <value> <int>7</int> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -73,7 +89,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Public</string> </value>
+            <value> <string>Login</string> </value>
         </item>
       </dictionary>
     </pickle>

@@ -150,17 +150,17 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Username', lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Username', lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
       <td>clickAndWait</td>
-      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Username', lang=lang))"></td>
       <td></td>
     </tr>
     <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_app_loaded" />
@@ -202,17 +202,17 @@
     </tr>
     <tr>
       <td>waitForElementPresent</td>
-      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Username', lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Username', lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
       <td>clickAndWait</td>
-      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Username', lang=lang))"></td>
       <td></td>
     </tr>
     <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_app_loaded" />
@@ -332,12 +332,12 @@
 
     <tr>
       <td>waitForElementPresent</td>
-      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Username', lang=lang))"></td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Login', lang=lang))"></td>
+      <td tal:content="python: '//input[@value=\'%s\']' % (here.Base_translateString('Username', lang=lang))"></td>
       <td></td>
     </tr>
   </tal:block>

@@ -226,7 +226,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
     preference_tool.slapos_default_system_preference.setPreferredAuthenticationPolicyEnabled(True)
 
     self.tic()
-    self.clearAllCache()
+    self.clearCache()
 
   def getExpectedBusinessTemplateInstalledAfterConfiguration(self):
     return [ 'erp5_core',

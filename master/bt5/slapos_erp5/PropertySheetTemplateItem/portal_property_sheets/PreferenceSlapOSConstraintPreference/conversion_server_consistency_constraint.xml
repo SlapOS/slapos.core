@@ -34,7 +34,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>system_preference_consistency_constraint</string> </value>
+            <value> <string>conversion_server_consistency_constraint</string> </value>
         </item>
         <item>
             <key> <string>portal_type</string> </key>
@@ -42,7 +42,7 @@
         </item>
         <item>
             <key> <string>script_id</string> </key>
-            <value> <string>PreferenceTool_checkSystemPreferenceConsistency</string> </value>
+            <value> <string>SystemPreference_checkConversionServerConsistency</string> </value>
         </item>
       </dictionary>
     </pickle>

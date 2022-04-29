@@ -160,17 +160,7 @@ class testSlapOSMixin(ERP5TypeTestCase):
     self.commit()
     self.launchConfigurator()
 
-  def afterSetUp(self):
-    self.login()
-    self.createAlarmStep()
-
-    if self.isLiveTest():
-      self.setUpPersistentDummyMailHost()
-      return
-    self.portal.portal_caches.erp5_site_global_id = '%s' % random.random()
-    self.portal.portal_caches._p_changed = 1
-    self.createCertificateAuthorityFile() 
-    self.commit()
+  def updateInitSite(self):
     self.portal.portal_caches.updateCache()
 
     try:
@@ -183,6 +173,19 @@ class testSlapOSMixin(ERP5TypeTestCase):
 
     config.product_config["initsite"] = initsite
     self.commit()
+
+  def afterSetUp(self):
+    self.login()
+    self.createAlarmStep()
+
+    if self.isLiveTest():
+      self.setUpPersistentDummyMailHost()
+      return
+    self.portal.portal_caches.erp5_site_global_id = '%s' % random.random()
+    self.portal.portal_caches._p_changed = 1
+    self.createCertificateAuthorityFile() 
+    self.commit()
+    self.updateInitSite()
 
   def deSetUpPersistentDummyMailHost(self):
     if 'MailHost' in self.portal.objectIds():
@@ -203,8 +206,9 @@ class testSlapOSMixin(ERP5TypeTestCase):
                           "slapos_master_configuration_workflow"]
 
   def launchConfigurator(self):
-    self.logMessage('SlapOS launchConfigurator')
+    self.logMessage('SlapOS launchConfigurator ...\n')
     self.login()
+    self.updateInitSite()
     # Create new Configuration 
     business_configuration  = self.getBusinessConfiguration()
 

@@ -213,3 +213,64 @@ class TestCheckSoftwareEggVulnerability(SlapOSStandaloneTestCase):
         'Lxml 4.6.5 includes a fix for CVE-2021-43818',
         str(warning.message),
     )
+
+
+class TestCheckSoftwareShebang(SlapOSStandaloneTestCase):
+
+  def _make_script(self, path, shebang):
+    """Install a dummy executable script at `path` using `shebang` line.
+    """
+    with open(path, 'w') as f:
+      f.write("#!%s\n" % shebang)
+    os.chmod(path, 0o700)
+
+  def _install_software(self):
+    """install a fake software with scripts.
+    """
+    software_url = '/fake/path/software.cfg'
+    software_hash = md5digest(software_url)
+    self.standalone.supply(software_url)
+
+    software_dir = os.path.join(
+      self.standalone.software_directory,
+      software_hash,
+    )
+    program_bin_dir = os.path.join(software_dir, 'parts', 'program', 'bin')
+    os.makedirs(program_bin_dir)
+    program_sbin_dir = os.path.join(software_dir, 'parts', 'program', 'sbin')
+    os.makedirs(program_sbin_dir)
+    program_ignored_dir = os.path.join(
+      software_dir, 'parts', 'program', 'ignored')
+    os.makedirs(program_ignored_dir)
+
+    # ok scripts
+    self._make_script(os.path.join(program_bin_dir, 'ok-using-sh'), '/bin/sh')
+    self._make_script(
+      os.path.join(program_bin_dir, 'ok-using-another-program'),
+      program_bin_dir + '/ok')
+    self._make_script(
+      os.path.join(program_ignored_dir, 'ok-not-in-bin'), '/not/allowed')
+
+    # error scripts
+    self._make_script(
+      os.path.join(program_bin_dir, 'error-not-allowed'), '/not/allowed')
+    self._make_script(
+      os.path.join(program_sbin_dir, 'error-not-allowed-sbin'), '/not/allowed')
+
+    with open(os.path.join(software_dir, '.completed'), 'w') as f:
+      f.write('Thu Dec  2 01:35:02 2021')
+    with open(os.path.join(software_dir, '.installed.cfg'), 'w') as f:
+      f.write('[buildout]')
+    return software_url
+
+  def test_shebang(self):
+    software_url = self._install_software()
+    with self.assertRaises(RuntimeError) as e:
+      checkSoftware(self.standalone, software_url)
+    errors = sorted(e.exception.args[0].splitlines())
+    self.assertIn(
+      'parts/program/bin/error-not-allowed uses #!/not/allowed', errors[0])
+    self.assertIn(
+      'parts/program/sbin/error-not-allowed-sbin uses #!/not/allowed',
+      errors[1])
+    self.assertEqual(len(errors), 2, errors)

@@ -28,6 +28,7 @@
 
 import fnmatch
 import glob
+import io
 import os
 import re
 import warnings
@@ -86,6 +87,12 @@ def checkSoftware(slap, software_url):
       'liblibgolang',
   ))
 
+  # Programs allowed in #! "shebang" lines for scripts executables
+  system_programs_allowed_list = set((
+    '/bin/bash',
+    '/bin/sh',
+  ))
+
   # we also ignore a few patterns for part that are known to be binary distributions,
   # for which we generate LD_LIBRARY_PATH wrappers or we don't use directly.
   ignored_file_patterns = set((
@@ -106,14 +113,36 @@ def checkSoftware(slap, software_url):
       '*/node_modules/phantomjs*/*',
       '*/grafana/tools/phantomjs/*',
       '*/node_modules/puppeteer/*',
+      # scripts in node packages all have #!/usr/bin/env node, but we never use
+      # them directly and generate wrappers.
+      '*/node_modules/bin/*',
+
       # left over of compilation failures
-      '*/*__compile__/*',
+      '*/*__compil__/*',
       # build dir for packages built in-place
       '*/parts/wendelin.core/build/*',
+
+      # git checkouts containing scripts that we don't use
+      '*/parts/erp5/product/ERP5/bin/*',
+
+      # plain downloads containing scripts that we don't use
+      '*/parts/wxPython-download/bin/make-new-etg-file.py',
+      '*/parts/wxPython-download/bin/make-new-unittest-file.py',
+      '*/ant/*/bin/antRun.pl',
+      '*/ant/*/bin/complete-ant-cmd.pl',
+      '*/ant/*/bin/runant.pl',
+      '*/ant/*/bin/runant.py',
+      '*/nextcloud-app-news/*/vendor/bin/feedio',
+      '*/nextcloud-app-news/*/vendor/debril/feed-io/bin/feedio',
+
       # the depot_tools package used to build Chromium installs some
       # Python libraries lacking an rpath; these are not actually used
       # by Chromium itself
       '*/.vpython-root/*',
+      # depots tools also contain several scripts with wrong shebang that are not used
+      # neither during build or runtime
+      '*/parts/depot_tools/bootstrap-2@3.8.10.chromium.23_bin/*/bin/*',
+
   ))
 
   software_hash = md5digest(software_url)
@@ -176,26 +205,34 @@ def checkSoftware(slap, software_url):
               **locals()))
     return libraries
 
-  def checkExecutableLink(paths_to_check, valid_paths_for_libs):
+  def checkExecutables(paths_to_check, valid_paths):
     # type: (Iterable[str], Iterable[str]) -> List[str]
-    """Check shared libraries linked with executables in `paths_to_check`.
-    Only libraries from `valid_paths_for_libs` are accepted.
+    """Check executables in `paths_to_check`.
+
+    When executables are ELF binaries, we check that there are only linked
+    with libraries from `valid_paths`.
+
+    When executables are scripts, we look at their #!/ "shebang" lines and
+    check they are using executables from `valid_path_for_programs`.
+
     Returns a list of error messages.
     """
-    valid_paths_for_libs = [os.path.realpath(x) for x in valid_paths_for_libs]
-    executable_link_error_list = []
+    valid_paths = [os.path.realpath(x) for x in valid_paths]
+    executable_error_list = []
     for path in paths_to_check:
       for root, dirs, files in os.walk(path):
+        is_bin_dir = root.split(os.sep)[-1] in ('bin', 'sbin')
         for f in files:
           f = os.path.join(root, f)
           if any(fnmatch.fnmatch(f, ignored_pattern)
                  for ignored_pattern in ignored_file_patterns):
             continue
-          if os.access(f, os.X_OK) or fnmatch.fnmatch(f, '*.so'):
+          executable = os.access(f, os.X_OK)
+          if executable or fnmatch.fnmatch(f, '*.so'):
             try:
               libs = getLddOutput(f)
             except DynamicLibraryNotFound as e:
-              executable_link_error_list.append(str(e))
+              executable_error_list.append(str(e))
             else:
               for lib, lib_path in libs.items():
                 if lib.split('.')[0] in system_lib_allowed_list:
@@ -204,15 +241,30 @@ def checkSoftware(slap, software_url):
                 # dynamically linked programs can only be linked with libraries
                 # present in software or in shared parts repository.
                 if any(lib_path.startswith(valid_path)
-                       for valid_path in valid_paths_for_libs):
+                       for valid_path in valid_paths):
                   continue
-                executable_link_error_list.append(
+                executable_error_list.append(
                     '{f} uses system library {lib_path} for {lib}'.format(
                         **locals()))
-    return executable_link_error_list
+          if executable and is_bin_dir:
+            with (io.open if six.PY2 else open)(f, 'r', encoding='utf-8', errors='ignore') as ft:
+              shebang_line = ft.readline().strip()
+            if shebang_line[:3] == '#!/':
+              program = shebang_line[2:].split()[0].strip()
+              if not (
+                  any(program.startswith(p) for p in valid_paths)
+                  or program in system_programs_allowed_list):
+                executable_error_list.append(
+                    '{f} uses {shebang_line}'.format(**locals()))
+
+    return executable_error_list
 
   software_directory = os.path.join(slap.software_directory, software_hash)
   paths_to_check = set((software_directory, ))
+
+  # bin/buildout is an exception for the #! check, it might be using
+  # slapos.core python.
+  ignored_file_patterns.add(os.path.join(software_directory, 'bin', 'buildout'))
 
   # Compute the paths to check by inspecting buildout installed database
   # for this software. We are looking for shared parts installed by recipes.
@@ -226,7 +278,7 @@ def checkSoftware(slap, software_url):
             paths_to_check.add(section_path)
 
   error_list.extend(
-      checkExecutableLink(
+      checkExecutables(
           paths_to_check,
           tuple(paths_to_check) + tuple(slap._shared_part_list),
       ))

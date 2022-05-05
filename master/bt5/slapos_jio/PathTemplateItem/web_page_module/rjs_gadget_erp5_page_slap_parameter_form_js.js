@@ -434,7 +434,6 @@
     return "";
   }
 
-/*
   function getSchemaUrlFromForm(element) {
     var input = element.querySelector(".parameter_schema_url");
 
@@ -443,7 +442,6 @@
     }
     return "";
   }
-*/
 
   function showParameterForm(g) {
     var e = g.element.getElementsByTagName('select')[0],
@@ -502,7 +500,7 @@
     var json_url = g.state.json_url,
       software_type = getSoftwareTypeFromForm(g.element),
       json_dict = getFormValuesAsJSONDict(g.element),
-      // schema_url = getSchemaUrlFromForm(g.element),
+      schema_url = getSchemaUrlFromForm(g.element),
       serialisation_type = getSerialisationTypeFromForm(g.element);
 
     if (software_type === "") {
@@ -514,7 +512,7 @@
 
     return g.getBaseUrl(json_url)
       .push(function (base_url) {
-        return g.validateJSON(base_url, json_url, json_dict);
+        return g.validateJSON(base_url, schema_url, json_dict);
       })
       .push(function (validation) {
         var error_index,

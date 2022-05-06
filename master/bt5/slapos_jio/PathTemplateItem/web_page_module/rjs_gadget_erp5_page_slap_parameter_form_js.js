@@ -45,19 +45,30 @@
       value: "",
       selected: (default_value === undefined)
     })],
-      option_index;
+      option_index,
+      data_format = "string";
 
+    if (json_field.type === "integer") {
+      data_format = "integer";
+    } else if (json_field.type === "number") {
+      data_format = "integer";
+    }
+    
     for (option_index in json_field['enum']) {
       if (json_field['enum'].hasOwnProperty(option_index)) {
         option_list.push(domsugar('option', {
           value: json_field['enum'][option_index],
           text: json_field['enum'][option_index],
-          selected: (json_field['enum'][option_index] === default_value)
+          "data-format": data_format,
+          selected: (
+            json_field['enum'][option_index].toString() === default_value
+          )
         }));
       }
     }
     return domsugar('select', {
-      size: 1
+      size: 1,
+      "data-format": data_format
     }, option_list);
   }
 
@@ -335,10 +346,20 @@
         } else if (input.value === "false") {
           json_dict[input.name] = false;
         } else if (input.tagName === "TEXTAREA") {
-          if (input["data-format"] === "string") {
+          if (input.getAttribute("data-format") === "string") {
             json_dict[input.name] = input.value;
           } else {
             json_dict[input.name] = input.value.split('\n');
+          }
+        } else if (input.tagName === "SELECT") {
+          if (input.getAttribute("data-format") === "number") {
+            json_dict[input.name] = parseFloat(input.value);
+          } else if (input.getAttribute("data-format") === "integer") {
+            // Don't use parseInt since it will round the value, modifing the
+            // use input. So we keep it the value.
+            json_dict[input.name] = parseFloat(input.value);
+          } else {
+            json_dict[input.name] = input.value;
           }
         } else {
           json_dict[input.name] = input.value;

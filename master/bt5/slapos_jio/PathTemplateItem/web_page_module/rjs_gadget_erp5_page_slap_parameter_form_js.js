@@ -48,9 +48,7 @@
       option_index,
       data_format = "string";
 
-    if (json_field.type === "integer") {
-      data_format = "integer";
-    } else if (json_field.type === "number") {
+    if (json_field.type === "integer" || json_field.type === "number") {
       data_format = "integer";
     }
     

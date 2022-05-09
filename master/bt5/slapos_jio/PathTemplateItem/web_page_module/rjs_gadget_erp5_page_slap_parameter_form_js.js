@@ -49,7 +49,7 @@
       data_format = "string";
 
     if (json_field.type === "integer" || json_field.type === "number") {
-      data_format = "integer";
+      data_format = "number";
     }
     
     for (option_index in json_field['enum']) {

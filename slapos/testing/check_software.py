@@ -243,7 +243,7 @@ def checkSoftware(slap, software_url):
       signature_content = f.read()
     if software_hash in signature_content:
       error_list.append(
-          "Software hash present in signature {}\n{}\n".format(
+          "Shared part is referencing non shared part or software {}\n{}\n".format(
               signature_file, signature_content))
 
   def checkEggsVersionsKnownVulnerabilities(

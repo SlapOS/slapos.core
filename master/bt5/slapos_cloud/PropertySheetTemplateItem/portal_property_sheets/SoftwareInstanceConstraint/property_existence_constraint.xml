@@ -22,7 +22,6 @@
             <key> <string>constraint_property</string> </key>
             <value>
               <tuple>
-                <string>destination_reference</string>
                 <string>reference</string>
               </tuple>
             </value>

@@ -45,19 +45,28 @@
       value: "",
       selected: (default_value === undefined)
     })],
-      option_index;
+      option_index,
+      data_format = "string";
 
+    if (json_field.type === "integer" || json_field.type === "number") {
+      data_format = "number";
+    }
+    
     for (option_index in json_field['enum']) {
       if (json_field['enum'].hasOwnProperty(option_index)) {
         option_list.push(domsugar('option', {
           value: json_field['enum'][option_index],
           text: json_field['enum'][option_index],
-          selected: (json_field['enum'][option_index] === default_value)
+          "data-format": data_format,
+          selected: (
+            json_field['enum'][option_index].toString() === default_value
+          )
         }));
       }
     }
     return domsugar('select', {
-      size: 1
+      size: 1,
+      "data-format": data_format
     }, option_list);
   }
 
@@ -105,7 +114,6 @@
   }
 
   function render_field(json_field, default_value) {
-
     if (json_field['enum'] !== undefined) {
       return render_selection(json_field, default_value);
     }
@@ -133,27 +141,24 @@
       return render_textarea(json_field, default_value, "string");
     }
 
-    var value,
-      type;
+    var domsugar_input_dict = {};
 
     if (default_value !== undefined) {
-      value = default_value;
+      domsugar_input_dict.value = default_value;
     }
 
     if (json_field.type === "integer") {
-      type = "number";
+      domsugar_input_dict.type = "number";
     } else if (json_field.type === "number") {
-      type = "number";
+      domsugar_input_dict.type = "number";
+      domsugar_input_dict.step = "any";
     } else if (json_field.type === "hidden") {
-      type = "hidden";
+      domsugar_input_dict.type = "hidden";
     } else {
-      type = "text";
+      domsugar_input_dict.type = "text";
     }
 
-    return domsugar('input', {
-      value: value,
-      type: type
-    });
+    return domsugar('input', domsugar_input_dict);
   }
 
   function render_subform(json_field, default_dict, root, path, restricted) {
@@ -333,16 +338,26 @@
     $(element.querySelectorAll(".slapos-parameter")).each(function (key, input) {
       if (input.value !== "") {
         if (input.type === 'number') {
-          json_dict[input.name] = parseInt(input.value, 10);
+          json_dict[input.name] = parseFloat(input.value);
         } else if (input.value === "true") {
           json_dict[input.name] = true;
         } else if (input.value === "false") {
           json_dict[input.name] = false;
         } else if (input.tagName === "TEXTAREA") {
-          if (input["data-format"] === "string") {
+          if (input.getAttribute("data-format") === "string") {
             json_dict[input.name] = input.value;
           } else {
             json_dict[input.name] = input.value.split('\n');
+          }
+        } else if (input.tagName === "SELECT") {
+          if (input.getAttribute("data-format") === "number") {
+            json_dict[input.name] = parseFloat(input.value);
+          } else if (input.getAttribute("data-format") === "integer") {
+            // Don't use parseInt since it will round the value, modifing the
+            // use input. So we keep it the value.
+            json_dict[input.name] = parseFloat(input.value);
+          } else {
+            json_dict[input.name] = input.value;
           }
         } else {
           json_dict[input.name] = input.value;

@@ -16,7 +16,6 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
@@ -40,17 +39,6 @@
             </value>
         </item>
         <item>
-            <key> <string>_Copy_or_Move_Permission</string> </key>
-            <value>
-              <list>
-                <string>Manager</string>
-                <string>Authenticated</string>
-                <string>Developer</string>
-                <string>Owner</string>
-              </list>
-            </value>
-        </item>
-        <item>
             <key> <string>_Modify_portal_content_Permission</string> </key>
             <value>
               <tuple>
@@ -70,14 +58,15 @@
                 <string>Associate</string>
                 <string>Auditor</string>
                 <string>Manager</string>
-                <string>Owner</string>
               </tuple>
             </value>
         </item>
         <item>
             <key> <string>categories</string> </key>
             <value>
-              <tuple/>
+              <tuple>
+                <string>contributor/person_module/1</string>
+              </tuple>
             </value>
         </item>
         <item>
@@ -90,13 +79,13 @@
             <key> <string>creators</string> </key>
             <value>
               <tuple>
-                <string>zope</string>
+                <string>cedric.le.ninivin</string>
               </tuple>
             </value>
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_erp5_page_slap_parameter_form.js</string> </value>
+            <value> <string>gadget_erp5_page_slap_test_parameter_form.js</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -106,11 +95,13 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_erp5_page_slap_parameter_form_js</string> </value>
+            <value> <string>rjs_gadget_erp5_page_slap_test_parameter_form_js</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
-            <value> <string>en</string> </value>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>modification_date</string> </key>
@@ -124,7 +115,7 @@
                 </tuple>
                 <state>
                   <tuple>
-                    <float>1523884648.42</float>
+                    <float>1455284351.49</float>
                     <string>UTC</string>
                   </tuple>
                 </state>
@@ -143,7 +134,13 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>gadget_erp5_page_slap_parameter_form.js</string> </value>
+            <value> <string>SlapOS Test Parameter Form JS</string> </value>
+        </item>
+        <item>
+            <key> <string>url_string</string> </key>
+            <value>
+              <none/>
+            </value>
         </item>
         <item>
             <key> <string>version</string> </key>
@@ -231,7 +228,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1509639058.46</float>
+                              <float>1651720603.43</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -280,7 +277,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1000.3907.45649.58794</string> </value>
+                      <value> <string>1000.3591.30719.64324</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -298,7 +295,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1651866969.39</float>
+                              <float>1651847543.75</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -359,7 +356,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1509639044.06</float>
+                              <float>1651705914.51</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

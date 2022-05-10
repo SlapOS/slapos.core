@@ -9,6 +9,7 @@ url_list = [
   "gadget_erp5_page_map.css",
   "gadget_erp5_page_map.html",
   "gadget_erp5_page_map.js",
+  "gadget_slapos_login_page.css",
   "gadget_erp5_page_slap_accept_upgrade_decision.html",
   "gadget_erp5_page_slap_accept_upgrade_decision.js",
   "gadget_erp5_page_slap_add_compute_node.html",
@@ -216,7 +217,9 @@ url_list = [
   "slapos_load_meta_schema_xml.json",
   "slapos_load_meta_schema_json_in_xml.json",
   "gadget_erp5_page_slap_language_view.js",
-  "gadget_erp5_page_slap_language_view.html"
+  "gadget_erp5_page_slap_language_view.html",
+  "gadget_erp5_page_slap_test_parameter_form.js",
+  "gadget_erp5_page_slap_test_parameter_form.html"
 ]
 
 return url_list

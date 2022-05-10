@@ -76,8 +76,9 @@
       return new RSVP.Queue()
         .push(function () {
           return RSVP.all([
-            gadget.getDeclaredGadget('form_view')
-            ]);
+            gadget.getDeclaredGadget('form_view'),
+            gadget.getSetting("hateoas_url")
+          ]);
         })
         .push(function (result) {
           var parameter_hash,
@@ -85,9 +86,9 @@
             default_url;
 
           if (options.url_string === "") {
-            default_url = "https://lab.nexedi.com/rafael/testing-slapos-schemas/raw/master/software/simpledemo/software.cfg"
+            default_url = result[1] + "sample-software-schema/simpledemo/software.cfg";
           } else {
-            default_url = options.url_string
+            default_url = options.url_string;
           }
           if (options.parameter_output === undefined) {
             parameter_hash = btoa('<?xml version="1.0" encoding="utf-8" ?><instance></instance>');

@@ -116,6 +116,7 @@
   }
 
   function render_field(json_field, default_value) {
+    var data_format, domsugar_input_dict = {};
     if (json_field['enum'] !== undefined) {
       return render_selection(json_field, default_value);
     }
@@ -136,14 +137,18 @@
     }
 
     if (json_field.type === "array") {
-      return render_textarea(json_field, default_value, "array");
+      data_format = json_field.type;
+      if (json_field.items !== undefined) {
+        if (json_field.items.type === "number" || json_field.items.type === "integer") {
+          data_format = "array-number";
+        }
+      }
+      return render_textarea(json_field, default_value, data_format);
     }
 
     if (json_field.type === "string" && json_field.textarea === true) {
       return render_textarea(json_field, default_value, "string");
     }
-
-    var domsugar_input_dict = {};
 
     if (default_value !== undefined) {
       domsugar_input_dict.value = default_value;
@@ -336,8 +341,10 @@
   function getFormValuesAsJSONDict(element) {
     var json_dict = {},
       entry,
+      entry_list,
       multi_level_dict = {};
     $(element.querySelectorAll(".slapos-parameter")).each(function (key, input) {
+      var index_e;
       if (input.value !== "") {
         if (input.type === 'number') {
           json_dict[input.name] = parseFloat(input.value);
@@ -348,6 +355,20 @@
         } else if (input.tagName === "TEXTAREA") {
           if (input.getAttribute("data-format") === "string") {
             json_dict[input.name] = input.value;
+          } else if (input.getAttribute("data-format") === "array") {
+            json_dict[input.name] = input.value.split('\n');
+          } else if (input.getAttribute("data-format") === "array-number") {
+            json_dict[input.name] = [];
+            entry_list = input.value.split("\n");
+            for (index_e in entry_list) {
+              if (entry_list.hasOwnProperty(index_e)) {
+                if (isNaN(parseFloat(entry_list[index_e]))) {
+                  json_dict[input.name].push(entry_list[index_e]);
+                } else {
+                  json_dict[input.name].push(parseFloat(entry_list[index_e]));
+                }
+              }
+            }
           } else {
             json_dict[input.name] = input.value.split('\n');
           }
@@ -539,7 +560,8 @@
           divm,
           missing_index,
           missing_field_name,
-          xml_output;
+          xml_output,
+          input_field;
 
         $(g.element.querySelectorAll("span.error")).each(function (i, span) {
           span.textContent = "";
@@ -563,7 +585,12 @@
         for (error_index in validation.errors) {
           if (validation.errors.hasOwnProperty(error_index)) {
             field_name = validation.errors[error_index].dataPath;
-            div = $(".slapos-parameter[name='/" + field_name  + "']")[0].parentNode;
+            input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']")
+            if (input_field === null) {
+              field_name = field_name.split("/").slice(0, -1).join("/")
+              input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']")
+            }
+            div = input_field.parentNode;
             div.setAttribute("class", "slapos-parameter error-input");
             div.querySelector("span.error").textContent = validation.errors[error_index].message;
           }
@@ -572,7 +599,12 @@
         for (missing_index in validation.missing) {
           if (validation.missing.hasOwnProperty(missing_index)) {
             missing_field_name = validation.missing[missing_index].dataPath;
-            divm = $('.slapos-parameter[name=/' + missing_field_name  + "']")[0].parentNode;
+            input_field = g.element.querySelector(".slapos-parameter[name='/" + missing_field_name  + "']")
+            if (input_field === null) {
+              missing_field_name = field_name.split("/").slice(0, -1).join("/")
+              input_field = g.element.querySelector(".slapos-parameter[name='/" + missing_field_name  + "']")
+            }
+            divm = input_field.parentNode;
             divm.setAttribute("class", "error-input");
             divm.querySelector("span.error").textContent = validation.missing[missing_index].message;
           }

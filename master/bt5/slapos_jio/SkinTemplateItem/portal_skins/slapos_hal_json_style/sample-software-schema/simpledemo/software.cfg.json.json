@@ -5,7 +5,7 @@
   "software-type": {
     "default": {
       "title": "Default",
-      "description": "Default",
+      "description": "Default reference parameters",
       "request": "instance-input-schema.json",
       "response": "instance-output-schema.json",
       "index": 0
@@ -13,8 +13,8 @@
     "jsondefault": {
       "title": "JSON in XML",
       "serialisation": "json-in-xml",
-      "description": "Default",
-      "request": "instance-input-schema.json",
+      "description": "Default reference parameters under json-in-xml",
+      "request": "instance-input-json-in-xml-schema.json",
       "response": "instance-output-schema.json",
       "index": 1
     }

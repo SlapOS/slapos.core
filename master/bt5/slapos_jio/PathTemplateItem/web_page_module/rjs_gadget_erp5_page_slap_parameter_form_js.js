@@ -51,7 +51,9 @@
     if (json_field.type === "integer" || json_field.type === "number") {
       data_format = "number";
     }
-    
+    if (default_value === undefined) {
+      default_value = ""
+    }
     for (option_index in json_field['enum']) {
       if (json_field['enum'].hasOwnProperty(option_index)) {
         option_list.push(domsugar('option', {
@@ -59,7 +61,7 @@
           text: json_field['enum'][option_index],
           "data-format": data_format,
           selected: (
-            json_field['enum'][option_index].toString() === default_value
+            json_field['enum'][option_index].toString() === default_value.toString()
           )
         }));
       }

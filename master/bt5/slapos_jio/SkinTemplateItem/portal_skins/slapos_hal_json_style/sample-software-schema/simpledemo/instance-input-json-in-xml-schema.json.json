@@ -20,6 +20,12 @@
           "description": "Example of Array of Interger",
           "type": "array",
           "items": {"type": "integer"}
+        },
+        "simple-array-of-number": {
+          "title": "Example of Simple array of Numbers",
+          "description": "Example of Array of Numbers",
+          "type": "array",
+          "items": {"type": "number"}
         }
       }
     }

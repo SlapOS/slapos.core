@@ -26,6 +26,62 @@
           "description": "Example of Array of Numbers",
           "type": "array",
           "items": {"type": "number"}
+        },
+        "simple-object": {
+          "title": "Example of Single Object",
+          "description": "Example of Single Object",
+          "type": "object",
+          "properties": {
+            "sample-object-string": {
+              "title": "Example of Simple String on an object",
+              "description": "Example of Simple String",
+              "type": "string",
+              "default": "Simple string "
+            },
+            "simple-object-with-integer": {
+             "title": "Example of Simple Integer",
+             "description": "Example of Simple Integer",
+             "type": "integer",
+             "default": 1
+            },
+            "simple-object-with-integer-with-enum": {
+             "title": "Example of Simple Integer with enum",
+             "description": "Example of Simple Integer with enum",
+             "type": "integer",
+             "default": 1,
+             "enum": [
+               1,
+               2
+             ]
+            }
+          }
+        },
+        "simple-object-dict": {
+          "title": "Example of multi objects as a Dict",
+          "description": "Example of multi objects as a Dict",
+          "type": "object",
+          "patternProperties": {
+            ".*": {
+              "properties": {
+                "simple-object-dict-string-example": {
+                  "title": "Example of the String as part of Object",
+                  "description": "Example of the String as part of Object",
+                  "type": "string",
+                  "default": ""
+                },
+                "simple-object-dict-string-with-enum": {
+                  "title": "Example of the String as part of Object with Enum",
+                  "description": "Example of the String as part of Object with Enum",
+                  "type": "string",
+                  "default": "String Sample A",
+                  "enum": [
+                    "String Sample A",
+                    "String Sample B"
+                  ]
+                }
+              }
+            }
+          }
         }
       }
     }

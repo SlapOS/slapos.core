@@ -21,6 +21,13 @@
         ],
       "default": "simple string A"
     },
+    "simple-string-with-text-area": {
+      "title": "Example of Simple String with textarea",
+      "description": "Example of Simple String with text area",
+      "type": "string",
+      "default": "Simple string",
+      "textarea": true
+    },
      "simple-integer": {
       "title": "Example of Simple Integer",
       "description": "Example of Simple Integer",

@@ -124,7 +124,7 @@ class TestCheckSoftwareLDD(SlapOSStandaloneTestCase):
     software_url = self._install_software(environment=environment)
     with self.assertRaisesRegex(
         RuntimeError,
-        'Software hash present in signature',
+        'Shared part is referencing non shared part or software',
     ):
       checkSoftware(self.standalone, software_url)
 

@@ -609,7 +609,7 @@
             divm.querySelector("span.error").textContent = validation.missing[missing_index].message;
           }
         }
-        return "ERROR";
+        return xml_output;
       });
   }
 
@@ -1058,6 +1058,11 @@
             content_dict.shared = 1;
           }
           if (text_content !== null) {
+            // Don't provide blank string since the parameter will not able to load
+            // itself. If the user removed the values, provide an empty parameter default.
+            if (text_content.value === "") {
+              return '<?xml version="1.0" encoding="utf-8" ?><instance></instance>';
+            }
             return text_content.value;
           }
           return checkValidity(gadget);

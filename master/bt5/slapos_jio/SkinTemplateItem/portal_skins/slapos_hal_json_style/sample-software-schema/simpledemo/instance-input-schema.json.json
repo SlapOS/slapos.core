@@ -21,6 +21,12 @@
         ],
       "default": "simple string A"
     },
+    "simple-boolean": {
+      "title": "Example of Simple String",
+      "description": "Example of Simple String",
+      "type": "boolean",
+      "default": true
+    },
     "simple-string-with-text-area": {
       "title": "Example of Simple String with textarea",
       "description": "Example of Simple String with text area",

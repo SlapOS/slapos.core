@@ -585,10 +585,10 @@
         for (error_index in validation.errors) {
           if (validation.errors.hasOwnProperty(error_index)) {
             field_name = validation.errors[error_index].dataPath;
-            input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']")
+            input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']");
             if (input_field === null) {
-              field_name = field_name.split("/").slice(0, -1).join("/")
-              input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']")
+              field_name = field_name.split("/").slice(0, -1).join("/");
+              input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']");
             }
             div = input_field.parentNode;
             div.setAttribute("class", "slapos-parameter error-input");
@@ -599,10 +599,10 @@
         for (missing_index in validation.missing) {
           if (validation.missing.hasOwnProperty(missing_index)) {
             missing_field_name = validation.missing[missing_index].dataPath;
-            input_field = g.element.querySelector(".slapos-parameter[name='/" + missing_field_name  + "']")
+            input_field = g.element.querySelector(".slapos-parameter[name='/" + missing_field_name  + "']");
             if (input_field === null) {
-              missing_field_name = field_name.split("/").slice(0, -1).join("/")
-              input_field = g.element.querySelector(".slapos-parameter[name='/" + missing_field_name  + "']")
+              missing_field_name = field_name.split("/").slice(0, -1).join("/");
+              input_field = g.element.querySelector(".slapos-parameter[name='/" + missing_field_name  + "']");
             }
             divm = input_field.parentNode;
             divm.setAttribute("class", "error-input");

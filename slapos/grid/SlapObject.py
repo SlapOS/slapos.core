@@ -372,6 +372,7 @@ class Software(object):
           self.upload_binary_dir_url,
           tarpath, self.logger,
           self.signature_private_key_file,
+          self.signature_certificate_list,
           self.shacache_ca_file,
           self.shacache_cert_file,
           self.shacache_key_file,

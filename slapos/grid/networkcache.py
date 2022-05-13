@@ -138,8 +138,8 @@ def download_network_cached(cache_url, dir_url, software_url, software_root,
 @fallback_call
 def upload_network_cached(software_root, software_url, cached_key,
     cache_url, dir_url, path, logger, signature_private_key_file,
-    shacache_ca_file, shacache_cert_file, shacache_key_file,
-    shadir_ca_file, shadir_cert_file, shadir_key_file):
+    signature_certificate_list, shacache_ca_file, shacache_cert_file,
+    shacache_key_file, shadir_ca_file, shadir_cert_file, shadir_key_file):
     """Upload file to a network cache server"""
     if not LIBNETWORKCACHE_ENABLED:
         return False
@@ -179,6 +179,7 @@ def upload_network_cached(software_root, software_url, cached_key,
     try:
         nc = NetworkcacheClient(cache_url, dir_url,
             signature_private_key_file=signature_private_key_file,
+            signature_certificate_list=signature_certificate_list,
             shacache_ca_file=shacache_ca_file,
             shacache_cert_file=shacache_cert_file,
             shacache_key_file=shacache_key_file,

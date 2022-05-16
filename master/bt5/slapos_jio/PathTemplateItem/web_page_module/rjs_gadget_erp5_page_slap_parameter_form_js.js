@@ -11,7 +11,7 @@
 
   function jsonDictToParameterXML(json) {
     var parameter_id,
-      xml_output = $($.parseXML('<?xml version="1.0" encoding="UTF-8" ?>\n<instance />'));
+      xml_output = $($.parseXML('<?xml version="1.0" encoding="UTF-8" ?><instance />'));
     // Used by serialisation XML
     for (parameter_id in json) {
       if (json.hasOwnProperty(parameter_id)) {
@@ -28,7 +28,7 @@
   }
 
   function jsonDictToParameterJSONInXML(json) {
-    var xml_output = $($.parseXML('<?xml version="1.0" encoding="UTF-8" ?>\n<instance />'));
+    var xml_output = $($.parseXML('<?xml version="1.0" encoding="UTF-8" ?><instance />'));
       // Used by serialisation XML
     $('instance', xml_output).append(
       $('<parameter />', xml_output)
@@ -46,7 +46,7 @@
       selected: (default_value === undefined)
     })],
       option_index,
-      selected, 
+      selected,
       is_selected = (default_value === undefined),
       data_format = "string";
 
@@ -66,7 +66,7 @@
           value: json_field['enum'][option_index],
           text: json_field['enum'][option_index],
           "data-format": data_format,
-          selected: true
+          selected: selected
         }));
       }
     }

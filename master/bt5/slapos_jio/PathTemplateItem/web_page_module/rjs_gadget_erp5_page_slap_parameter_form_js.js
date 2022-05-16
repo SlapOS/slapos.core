@@ -46,25 +46,39 @@
       selected: (default_value === undefined)
     })],
       option_index,
+      selected, 
+      is_selected = (default_value === undefined),
       data_format = "string";
 
     if (json_field.type === "integer" || json_field.type === "number") {
       data_format = "number";
+    } else if (json_field.type === "boolean") {
+      data_format = "boolean";
     }
     if (default_value === undefined) {
-      default_value = ""
+      default_value = "";
     }
     for (option_index in json_field['enum']) {
       if (json_field['enum'].hasOwnProperty(option_index)) {
+        selected = (json_field['enum'][option_index].toString() === default_value.toString());
+        is_selected = (is_selected || selected);
         option_list.push(domsugar('option', {
           value: json_field['enum'][option_index],
           text: json_field['enum'][option_index],
           "data-format": data_format,
-          selected: (
-            json_field['enum'][option_index].toString() === default_value.toString()
-          )
+          selected: true
         }));
       }
+    }
+    if (!is_selected) {
+      // The default value should be included even if it is
+      // outside the enum.
+      option_list.push(domsugar('option', {
+        value: default_value,
+        text: default_value,
+        "data-format": data_format,
+        selected: selected
+      }));
     }
     return domsugar('select', {
       size: 1,
@@ -344,20 +358,16 @@
       entry_list,
       multi_level_dict = {};
     $(element.querySelectorAll(".slapos-parameter")).each(function (key, input) {
-      var index_e;
+      var index_e, data_format = input.getAttribute("data-format");
       if (input.value !== "") {
         if (input.type === 'number') {
           json_dict[input.name] = parseFloat(input.value);
-        } else if (input.value === "true") {
-          json_dict[input.name] = true;
-        } else if (input.value === "false") {
-          json_dict[input.name] = false;
         } else if (input.tagName === "TEXTAREA") {
-          if (input.getAttribute("data-format") === "string") {
+          if (data_format === "string") {
             json_dict[input.name] = input.value;
-          } else if (input.getAttribute("data-format") === "array") {
+          } else if (data_format === "array") {
             json_dict[input.name] = input.value.split('\n');
-          } else if (input.getAttribute("data-format") === "array-number") {
+          } else if (data_format === "array-number") {
             json_dict[input.name] = [];
             entry_list = input.value.split("\n");
             for (index_e in entry_list) {
@@ -373,12 +383,20 @@
             json_dict[input.name] = input.value.split('\n');
           }
         } else if (input.tagName === "SELECT") {
-          if (input.getAttribute("data-format") === "number") {
-            json_dict[input.name] = parseFloat(input.value);
-          } else if (input.getAttribute("data-format") === "integer") {
-            // Don't use parseInt since it will round the value, modifing the
-            // use input. So we keep it the value.
-            json_dict[input.name] = parseFloat(input.value);
+          if (data_format === "number" || data_format === "integer") {
+            // Integer must use parseFloat, otherwise the value is rounded
+            // loosing user's input.
+            if (isNaN(parseFloat(input.value))) {
+              json_dict[input.name] = input.value;
+            } else {
+              json_dict[input.name] = parseFloat(input.value);
+            }
+          } else if (input.getAttribute("data-format") === "boolean") {
+            if (input.value === "true" || input.value === "false") {
+              json_dict[input.name] = Boolean(input.value);
+            } else {
+              json_dict[input.name] = input.value;
+            }
           } else {
             json_dict[input.name] = input.value;
           }
@@ -585,10 +603,10 @@
         for (error_index in validation.errors) {
           if (validation.errors.hasOwnProperty(error_index)) {
             field_name = validation.errors[error_index].dataPath;
-            input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']")
+            input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']");
             if (input_field === null) {
-              field_name = field_name.split("/").slice(0, -1).join("/")
-              input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']")
+              field_name = field_name.split("/").slice(0, -1).join("/");
+              input_field = g.element.querySelector(".slapos-parameter[name='/" + field_name  + "']");
             }
             div = input_field.parentNode;
             div.setAttribute("class", "slapos-parameter error-input");
@@ -599,17 +617,17 @@
         for (missing_index in validation.missing) {
           if (validation.missing.hasOwnProperty(missing_index)) {
             missing_field_name = validation.missing[missing_index].dataPath;
-            input_field = g.element.querySelector(".slapos-parameter[name='/" + missing_field_name  + "']")
+            input_field = g.element.querySelector(".slapos-parameter[name='/" + missing_field_name  + "']");
             if (input_field === null) {
-              missing_field_name = field_name.split("/").slice(0, -1).join("/")
-              input_field = g.element.querySelector(".slapos-parameter[name='/" + missing_field_name  + "']")
+              missing_field_name = field_name.split("/").slice(0, -1).join("/");
+              input_field = g.element.querySelector(".slapos-parameter[name='/" + missing_field_name  + "']");
             }
             divm = input_field.parentNode;
             divm.setAttribute("class", "error-input");
             divm.querySelector("span.error").textContent = validation.missing[missing_index].message;
           }
         }
-        return "ERROR";
+        return xml_output;
       });
   }
 
@@ -1058,6 +1076,11 @@
             content_dict.shared = 1;
           }
           if (text_content !== null) {
+            // Don't provide blank string since the parameter will not able to load
+            // itself. If the user removed the values, provide an empty parameter default.
+            if (text_content.value === "") {
+              return '<?xml version="1.0" encoding="utf-8" ?><instance></instance>';
+            }
             return text_content.value;
           }
           return checkValidity(gadget);

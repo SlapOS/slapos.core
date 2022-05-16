@@ -182,7 +182,7 @@
     return domsugar('input', domsugar_input_dict);
   }
 
-  function render_subform(json_field, default_dict, root, path, restricted) {
+  function render_subform(json_field, default_dict, root, path) {
     var div_input,
       key,
       div,
@@ -210,26 +210,24 @@
           title: json_field.description
         });
 
-        if (restricted !== true) {
-          div_input = domsugar("div", {
-            "class": "input"
-          }, [
-            domsugar('input', {
-              type: "text",
-              // Name is only meaningfull to automate tests
-              name: "ADD" + path
-            }),
-            domsugar('button', {
-              value: btoa(JSON.stringify(json_field.patternProperties['.*'])),
-              "class": "add-sub-form",
-              type: "button",
-              name: path,
-              text: "+"
-            })
-          ]);
 
-          div.appendChild(div_input);
-        }
+        div_input = domsugar("div", {
+          "class": "input"
+        }, [
+          domsugar('input', {
+            type: "text",
+            // Name is only meaningfull to automate tests
+            name: "ADD" + path
+          }),
+          domsugar('button', {
+            value: btoa(JSON.stringify(json_field.patternProperties['.*'])),
+            "class": "add-sub-form",
+            type: "button",
+            name: path,
+            text: "+"
+          })
+        ]);
+        div.appendChild(div_input);
 
         for (default_value in default_dict) {
           if (default_dict.hasOwnProperty(default_value)) {
@@ -252,8 +250,7 @@
               json_field.patternProperties['.*'],
               default_dict[default_value],
               default_div,
-              path + "/" + default_value,
-              restricted
+              path + "/" + default_value
             ));
           }
         }
@@ -279,8 +276,7 @@
           div_input = render_subform(json_field.properties[key],
             default_dict[key],
             div_input,
-            path + "/" + key,
-            restricted);
+            path + "/" + key);
         } else {
           input = render_field(json_field.properties[key], default_dict[key]);
           input.name = path + "/" + key;
@@ -313,16 +309,7 @@
             div_input = render_subform({},
               default_dict[key],
               div_input,
-              path + "/" + key,
-              restricted);
-          } else if (restricted === true) {
-            div_input = document.createElement("div");
-            div_input.setAttribute("class", "input");
-            input = render_field({"type": "hidden"}, default_dict[key]);
-            input.name = path + "/" + key;
-            input.setAttribute("class", "slapos-parameter");
-            input.setAttribute("placeholder", " ");
-            div_input.appendChild(input);
+              path + "/" + key);
           } else {
             div.setAttribute("class", "subfield");
             label = document.createElement("label");
@@ -698,7 +685,6 @@
       json_url = gadget.state.json_url,
       parameter_xml = gadget.state.parameter_xml,
       restricted_softwaretype = gadget.state.restricted_softwaretype,
-      restricted_parameter = gadget.state.restricted_parameter,
       shared = gadget.state.shared,
       softwaretype = gadget.state.softwaretype,
       softwareindex = gadget.state.softwareindex,
@@ -896,7 +882,7 @@
             var fieldset_list = gadget.element.querySelectorAll('fieldset'),
               fieldset = document.createElement("fieldset");
 
-            fieldset = render_subform(json, parameter_dict, fieldset, undefined, restricted_parameter);
+            fieldset = render_subform(json, parameter_dict, fieldset, undefined);
             $(fieldset_list[1]).replaceWith(fieldset);
             return fieldset_list;
           });
@@ -976,7 +962,6 @@
         json_url: options.value.parameter.json_url,
         parameter_xml: parameter_xml,
         restricted_softwaretype: options.value.parameter.restricted_softwaretype,
-        restricted_parameter: options.value.parameter.restricted_parameter,
         shared: options.value.parameter.shared,
         softwaretype: options.value.parameter.softwaretype,
         softwareindex: options.value.parameter.softwareindex,

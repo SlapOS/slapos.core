@@ -11,7 +11,7 @@
 
   function jsonDictToParameterXML(json) {
     var parameter_id,
-      xml_output = $($.parseXML('<?xml version="1.0" encoding="UTF-8" ?><instance />'));
+      xml_output = $($.parseXML('<?xml version="1.0" encoding="UTF-8" ?>\n<instance />'));
     // Used by serialisation XML
     for (parameter_id in json) {
       if (json.hasOwnProperty(parameter_id)) {
@@ -28,7 +28,7 @@
   }
 
   function jsonDictToParameterJSONInXML(json) {
-    var xml_output = $($.parseXML('<?xml version="1.0" encoding="UTF-8" ?><instance />'));
+    var xml_output = $($.parseXML('<?xml version="1.0" encoding="UTF-8" ?>\n<instance />'));
       // Used by serialisation XML
     $('instance', xml_output).append(
       $('<parameter />', xml_output)
@@ -129,6 +129,23 @@
     });
   }
 
+  function render_field_readonly(json_field, default_value) {
+    var domsugar_input_dict = {
+      text: default_value
+    };
+
+    if (json_field.type === "array") {
+      domsugar('pre', domsugar_input_dict);
+    }
+
+    if (json_field.type === "string" && json_field.textarea === true) {
+      return domsugar('pre', domsugar_input_dict);
+    }
+
+    return domsugar('span', domsugar_input_dict);
+  }
+
+
   function render_field(json_field, default_value) {
     var data_format, domsugar_input_dict = {};
     if (json_field['enum'] !== undefined) {
@@ -182,7 +199,7 @@
     return domsugar('input', domsugar_input_dict);
   }
 
-  function render_subform(json_field, default_dict, root, path) {
+  function render_subform(json_field, default_dict, root, path, editable) {
     var div_input,
       key,
       div,
@@ -202,14 +219,13 @@
       path = "/";
     }
 
-    if (json_field.patternProperties !== undefined) {
+    if (editable && json_field.patternProperties !== undefined) {
       if (json_field.patternProperties['.*'] !== undefined) {
 
         div = domsugar("div", {
           "class": "subfield",
           title: json_field.description
         });
-
 
         div_input = domsugar("div", {
           "class": "input"
@@ -250,7 +266,8 @@
               json_field.patternProperties['.*'],
               default_dict[default_value],
               default_div,
-              path + "/" + default_value
+              path + "/" + default_value,
+              editable
             ));
           }
         }
@@ -262,72 +279,85 @@
 
     for (key in json_field.properties) {
       if (json_field.properties.hasOwnProperty(key)) {
-        div = document.createElement("div");
-        div.setAttribute("class", "subfield");
-        div.title = json_field.properties[key].description;
-        /* console.log(key); */
-        label = document.createElement("label");
-        label.textContent = json_field.properties[key].title;
-        div.appendChild(label);
-        div_input = document.createElement("div");
-        div_input.setAttribute("class", "input");
-        if (json_field.properties[key].type === 'object') {
-          label.setAttribute("class", "slapos-parameter-dict-key");
-          div_input = render_subform(json_field.properties[key],
-            default_dict[key],
-            div_input,
-            path + "/" + key);
-        } else {
-          input = render_field(json_field.properties[key], default_dict[key]);
-          input.name = path + "/" + key;
-          input.setAttribute("class", "slapos-parameter");
-          input.setAttribute("placeholder", " ");
-          div_input.appendChild(input);
+        if (editable || default_dict[key] !== undefined) {
+          div = domsugar("div", {
+            'class': 'subfield',
+            "title": json_field.properties[key].description
+          });
+
+          /* console.log(key); */
+          label = domsugar("label", {
+            text: json_field.properties[key].title
+          })
+          div.appendChild(label);
+          div_input = domsugar("div", {'class': 'input'});
+          if (json_field.properties[key].type === 'object') {
+            label.setAttribute("class", "slapos-parameter-dict-key");
+            div_input = render_subform(json_field.properties[key],
+              default_dict[key],
+              div_input,
+              path + "/" + key,
+              editable);
+          } else {
+            if (!editable) {
+              input = render_field_readonly(json_field.properties[key], default_dict[key]);
+            } else {
+              input = render_field(json_field.properties[key], default_dict[key]);
+            }
+            input.name = path + "/" + key;
+            input.setAttribute("class", "slapos-parameter");
+            input.setAttribute("placeholder", " ");
+            div_input.appendChild(input);
+          }
+          default_used_list.push(key);
+          if (editable && (json_field.properties[key]['default'] !== undefined)) {
+            span_info = domsugar('span', {
+              text: '(default = ' + json_field.properties[key]['default'] + ')'
+            });
+            div_input.appendChild(span_info);
+          }
+          div_input.appendChild(domsugar("span", {
+            class: "error"
+          }));
+          div.appendChild(div_input);
+          root.appendChild(div);
         }
-        default_used_list.push(key);
-        if (json_field.properties[key]['default'] !== undefined) {
-          span_info = document.createElement("span");
-          span_info.textContent = '(default = ' + json_field.properties[key]['default'] + ')';
-          div_input.appendChild(span_info);
-        }
-        span_error = document.createElement("span");
-        span_error.setAttribute("class", "error");
-        div_input.appendChild(span_error);
-        div.appendChild(div_input);
-        root.appendChild(div);
       }
     }
     for (key in default_dict) {
       if (default_dict.hasOwnProperty(key)) {
         if (default_used_list.indexOf(key) < 0) {
-          div = document.createElement("div");
-          div.title = key;
+          div = domsugar("div", {title: key});
           if (typeof default_dict[key] === 'object') {
-            div_input = document.createElement("div");
-            div_input.setAttribute("class", "input");
+            div_input = domsugar("div", {'class': 'input'});
             label.setAttribute("class", "slapos-parameter-dict-key");
             div_input = render_subform({},
               default_dict[key],
               div_input,
-              path + "/" + key);
+              path + "/" + key,
+              editable);
           } else {
+            if (!editable) {
+              input = render_field_readonly({"type": "string", "textarea": true}, default_dict[key]);
+            } else {
+              input = render_field({"type": "string", "textarea": true}, default_dict[key]);
+              input.name = path + "/" + key;
+              input.setAttribute("class", "slapos-parameter");
+              input.setAttribute("placeholder", " ");
+            }
             div.setAttribute("class", "subfield");
-            label = document.createElement("label");
-            label.textContent = key;
-            div.appendChild(label);
-            div_input = document.createElement("div");
-            div_input.setAttribute("class", "input");
-            input = render_field({"type": "string", "textarea": true}, default_dict[key]);
-            input.name = path + "/" + key;
-            input.setAttribute("class", "slapos-parameter");
-            input.setAttribute("placeholder", " ");
-            div_input.appendChild(input);
-            span_info = document.createElement("span");
-            span_info.textContent = '(Not part of the schema)';
-            div_input.appendChild(span_info);
-            span_error = document.createElement("span");
-            span_error.setAttribute("class", "error");
-            div_input.appendChild(span_error);
+            div.appendChild(domsugar("label", {text: key}));
+            div_input = domsugar("div",
+              {"class": "input"},
+              [
+                input,
+                domsugar("span", {
+                  text: '(Not part of the schema)'
+                }),
+                domsugar("span", {
+                  class: "error"
+                })
+              ]);
           }
           default_used_list.push(key);
           div.appendChild(div_input);
@@ -451,7 +481,11 @@
       text: input_text.value
     })]);
 
-    div = render_subform(subform_json, {}, div, element.name + "/" + input_text.value);
+    div = render_subform(subform_json,
+      {},
+      div,
+      element.name + "/" + input_text.value,
+      gadget.state.editable);
 
     element.parentNode.parentNode.insertBefore(div, element.parentNode.parentNode.children[1]);
     // element.parentNode.parentNode.appendChild(div);
@@ -625,6 +659,7 @@
     var fieldset,
       fieldset_list = g.element.querySelectorAll('fieldset'),
       div_error,
+      raw_parameter_input,
       show_raw_button = g.element.querySelector("button.slapos-show-raw-parameter"),
       show_form_button = g.element.querySelector("button.slapos-show-form");
 
@@ -657,16 +692,24 @@
     } else {
       div_error = domsugar('div');
     }
+    if (!g.state.editable) {
+      raw_parameter_input = domsugar('pre', {
+        name: "text_content",
+        text: g.state.parameter_xml
+      });
+    } else {
+      raw_parameter_input = domsugar('textarea', {
+        rows: "10",
+        cols: "80",
+        name: "text_content",
+        text: g.state.parameter_xml
+      });
+    }
     fieldset = domsugar('fieldset', [
       domsugar('div', {
         'class': 'field'
-      }, [
-        domsugar('textarea', {
-          rows: "10",
-          cols: "80",
-          name: "text_content",
-          text: g.state.parameter_xml
-        })
+      }, [ 
+        raw_parameter_input
       ]),
       // div error
       div_error
@@ -688,6 +731,7 @@
       shared = gadget.state.shared,
       softwaretype = gadget.state.softwaretype,
       softwareindex = gadget.state.softwareindex,
+      editable = gadget.state.editable,
       to_hide = gadget.element.querySelector("button.slapos-show-form"),
       to_show = gadget.element.querySelector("button.slapos-show-raw-parameter");
 
@@ -882,7 +926,7 @@
             var fieldset_list = gadget.element.querySelectorAll('fieldset'),
               fieldset = document.createElement("fieldset");
 
-            fieldset = render_subform(json, parameter_dict, fieldset, undefined);
+            fieldset = render_subform(json, parameter_dict, fieldset, undefined, editable);
             $(fieldset_list[1]).replaceWith(fieldset);
             return fieldset_list;
           });
@@ -955,7 +999,6 @@
 
       return this.changeState({
         // Not used parameters
-        // editable: options.editable,
         // hidden: options.hidden,
         // key: options.key,
         serialisation: options.serialisation,
@@ -965,6 +1008,7 @@
         shared: options.value.parameter.shared,
         softwaretype: options.value.parameter.softwaretype,
         softwareindex: options.value.parameter.softwareindex,
+        editable: options.editable,
         // Force refresh in any case
         render_timestamp: new Date().getTime()
       });
@@ -1059,6 +1103,9 @@
           if ((shared  !== null) && (shared.value === "true")) {
             gadget.state.shared = 1;
             content_dict.shared = 1;
+          }
+          if (!gadget.state.editable) {
+            return gadget.state.parameter_xml;
           }
           if (text_content !== null) {
             // Don't provide blank string since the parameter will not able to load

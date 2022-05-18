@@ -73,6 +73,24 @@
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/assert_page_header" />
       </tal:block>
 
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//textarea[@id="description"]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//textarea[@id="description"]</td>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td>assertValue</td>
+        <td>//textarea[@id="description"]</td>
+        <td>TEST-SLAPOSJS-PROJECT DESCRIPTION</td>
+      </tr>
+
       <tal:block tal:define="delete_configuration python: {'header_title': 'Delete Project: ${title}',
                                                          'notification_text': 'Project is Deleted.'};
                              dummy python: context.REQUEST.set('mapping', {'title': 'TEST-SLAPOSJS-PROJECT 0'})">

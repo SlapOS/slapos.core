@@ -191,7 +191,7 @@
                 "my_description": {
                   "description": result[2][2],
                   "title": result[2][3],
-                  "default": "",
+                  "default": gadget.state.doc.description,
                   "css_class": "",
                   "required": 1,
                   "editable": 1,

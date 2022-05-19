@@ -1,1 +1,0 @@
-return context.compute_node_module.Base_getComputeNodeToken()

@@ -27,6 +27,8 @@
 #
 ##############################################################################
 
+import json
+
 from slapos.cli.config import ClientConfigCommand
 from slapos.client import init, ClientConfig, _getSoftwareReleaseFromSoftwareString
 
@@ -63,10 +65,21 @@ def do_supply(logger, software_release, computer_id, local):
 
     software_release = _getSoftwareReleaseFromSoftwareString(
         logger, software_release, local['product'])
-
-    local['supply'](
-        software_release=software_release,
-        computer_guid=computer_id,
-        state='available'
-    )
+    if local['slap'].jio_api_connector:
+      software_installation = local['slap'].jio_api_connector.post({
+        "portal_type": "Software Installation",
+        "software_release_uri": software_release,
+        "compute_node_id": computer_id,
+        "state": 'available'
+      })
+      if "$schema" in software_installation and "error-response-schema.json" in software_installation["$schema"]:
+        logger.warning('Issue during the request. Server Response: %s' % json.dumps(software_installation, indent=2))
+        logger.warning('Message: %s' % software_installation.get("message", ""))
+        exit(2)
+    else:
+      local['supply'](
+          software_release=software_release,
+          computer_guid=computer_id,
+          state='available'
+      )
     logger.info('Done.')

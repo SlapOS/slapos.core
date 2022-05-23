@@ -163,18 +163,45 @@ def do_request(logger, conf, local):
     if conf.parameters_file:
         parameters = getParametersFromFile(conf.parameters_file, software_schema_serialisation)
     try:
-        partition = local['slap'].registerOpenOrder().request(
-            software_release=conf.software_url,
-            partition_reference=conf.reference,
-            partition_parameter_kw=parameters,
-            software_type=conf.type,
-            filter_kw=conf.node,
-            state=conf.state,
-            shared=conf.slave
-        )
-        logger.info('Instance requested.\nState is : %s.', partition.getState())
+        if local['slap'].jio_api_connector:
+          request_dict = {
+            "title": conf.reference,
+            "portal_type": "Software Instance",
+            "software_release_uri": conf.software_url,
+          }
+          if conf.state:
+            request_dict['state'] = conf.state
+          if conf.slave:
+            request_dict["shared"] = True
+          if conf.node:
+            request_dict["sla_parameters"] = conf.node
+          if conf.parameters:
+            request_dict["parameters"] = json.dumps(conf.parameters)
+          if conf.type:
+            request_dict["software_type"] = conf.type
+          partition_dict = local['slap'].jio_api_connector.post(request_dict)
+          if "$schema" in partition_dict and "error-response-schema.json" in partition_dict["$schema"]:
+            logger.warning('Server Response: %s' % json.dumps(partition_dict, indent=2))
+            logger.warning('Instance requested. Master is provisioning it. Please rerun in a '
+                          'couple of minutes to get connection information.')
+            exit(2)
+          instance_state = partition_dict["state"]
+          connection_parameter_dict = partition_dict["connection_parameters"]
+        else:
+          partition = local['slap'].registerOpenOrder().request(
+              software_release=conf.software_url,
+              partition_reference=conf.reference,
+              partition_parameter_kw=parameters,
+              software_type=conf.type,
+              filter_kw=conf.node,
+              state=conf.state,
+              shared=conf.slave
+          )
+          instance_state = partition.getState()
+          connection_parameter_dict = partition.getConnectionParameterDict()
+
+        logger.info('Instance requested.\nState is : %s.', instance_state)
         logger.info('Connection parameters of instance are:')
-        connection_parameter_dict = partition.getConnectionParameterDict()
         if software_schema_serialisation == SoftwareReleaseSerialisation.JsonInXml:
             if '_' in connection_parameter_dict:
                 connection_parameter_dict = json.loads(connection_parameter_dict['_'])

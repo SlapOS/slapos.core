@@ -86,7 +86,8 @@ class ConnectionHelper:
     self.session = CacheControl(self.uncached_session,
       cache=FileCache(os.path.expanduser("~/.slapos_cached_get")))
 
-  def do_request(self, method, path, params=None, data=None, headers=None):
+  def do_request(self, method, path, params=None, data=None, headers=None,
+                 expect_json_error=False):
     url = parse.urljoin(self.slapgrid_uri, path)
     if headers is None:
       headers = {}
@@ -106,7 +107,7 @@ class ConnectionHelper:
       # Old behavior was to pass empty parameters as "None" value.
       # Behavior kept for compatibility with old slapproxies (< v1.3.3).
       # Can be removed when old slapproxies are no longer in use.
-      if data:
+      if data and isinstance(data, dict):
         for k, v in six.iteritems(data):
           if v is None:
             data[k] = 'None'
@@ -131,6 +132,8 @@ class ConnectionHelper:
                             "enabled on your machine and that the server is available. The "
                             "original error was:\n%s" % exc)
     except requests.HTTPError as exc:
+      if expect_json_error and not int(exc.response.status_code) >= 500:
+        return req
       if exc.response.status_code == requests.status_codes.codes.not_found:
         msg = url
         if params:

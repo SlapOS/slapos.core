@@ -27,6 +27,7 @@
 #
 ##############################################################################
 
+import json
 import pprint
 
 from slapos.cli.config import ClientConfigCommand
@@ -105,19 +106,39 @@ def do_request(logger, conf, local):
     if conf.software_url in local:
         conf.software_url = local[conf.software_url]
     try:
-        partition = local['slap'].registerOpenOrder().request(
-            software_release=conf.software_url,
-            partition_reference=conf.reference,
-            partition_parameter_kw=conf.parameters,
-            software_type=conf.type,
-            filter_kw=conf.node,
-            state=conf.state,
-            shared=conf.slave
-        )
-        logger.info('Instance requested.\nState is : %s.', partition.getState())
-        logger.info('Connection parameters of instance are:')
-        logger.info(pprint.pformat(partition.getConnectionParameterDict()))
-        logger.info('You can rerun the command to get up-to-date information.')
+        if local['slap'].jio_api_connector:
+          request_dict = {
+            "title": conf.reference,
+            "portal_type": "Software Instance",
+            "software_release_uri": conf.software_url,
+          }
+          if conf.state:
+            request_dict['state'] = conf.state
+          if conf.slave:
+            request_dict["shared"] = True
+          if conf.node:
+            request_dict["sla_parameters"] = conf.node
+          if conf.parameters:
+            request_dict["parameters"] = json.dumps(conf.parameters)
+          partition_dict = local['slap']._jio_api_connector.post(request_dict)
+          logger.info('Instance requested.\nState is : %s.', partition_dict["state"])
+          logger.info('Connection parameters of instance are:')
+          logger.info(pprint.pformat(partition_dict["connection_parameters"]))
+          logger.info('You can rerun the command to get up-to-date information.')
+        else:
+          partition = local['slap'].registerOpenOrder().request(
+              software_release=conf.software_url,
+              partition_reference=conf.reference,
+              partition_parameter_kw=conf.parameters,
+              software_type=conf.type,
+              filter_kw=conf.node,
+              state=conf.state,
+              shared=conf.slave
+          )
+          logger.info('Instance requested.\nState is : %s.', partition.getState())
+          logger.info('Connection parameters of instance are:')
+          logger.info(pprint.pformat(partition.getConnectionParameterDict()))
+          logger.info('You can rerun the command to get up-to-date information.')
     except ResourceNotReady:
         logger.warning('Instance requested. Master is provisioning it. Please rerun in a '
                        'couple of minutes to get connection information.')

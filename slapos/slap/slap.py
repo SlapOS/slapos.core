@@ -719,7 +719,33 @@ class SlapConnectionHelper(ConnectionHelper):
 
     return loads(xml)
 
+class JioAPIConnectionHelper(ConnectionHelper):
+
+  def apiCall(self, path, data):
+    req = self.do_request(requests.post,
+                          path=path,
+                          data=json.dumps(data),
+                          headers={'Content-type': 'application/json'})
+    return req.json()
+
+  def get(self, data):
+    return self.apiCall(path="get/",
+                        data=data)
+
+  def post(self, data):
+    return self.apiCall(path="post/",
+                        data=data)
+
+  def put(self, data):
+    return self.apiCall(path="put/",
+                        data=data)
+
+  def allDocs(self, data):
+    return self.apiCall(path="allDocs/",
+                        data=data)
+
 getHateoasUrl_cache = {}
+getjIOAPI_cache = {}
 @implementer(interface.slap)
 class slap:
 
@@ -727,7 +753,8 @@ class slap:
                            key_file=None, cert_file=None,
                            master_ca_file=None,
                            timeout=60,
-                           slapgrid_rest_uri=None):
+                           slapgrid_rest_uri=None,
+                           slapgrip_jio_uri=None):
     if master_ca_file:
       raise NotImplementedError('Master certificate not verified in this version: %s' % master_ca_file)
 
@@ -754,6 +781,27 @@ class slap:
       )
     else:
       self._hateoas_navigator = None
+
+    if not slapgrip_jio_uri:
+      getjIOAPI_cache_key = (slapgrid_uri, key_file, cert_file, master_ca_file, timeout)
+      try:
+        slapgrip_jio_uri = getjIOAPI_cache[getjIOAPI_cache_key]
+      except KeyError:
+        pass
+    if not slapgrip_jio_uri:
+      try:
+        slapgrip_jio_uri = getjIOAPI_cache[getjIOAPI_cache_key] = \
+          bytes2str(self._connection_helper.GET('getJIOAPIUrl'))
+      except:
+        pass
+    if slapgrip_jio_uri:
+      self.jio_api_connector = JioAPIConnectionHelper(
+        slapgrip_jio_uri,
+        key_file, cert_file,
+        master_ca_file, timeout
+      )
+    else:
+      self.jio_api_connector = None
 
   # XXX-Cedric: this method is never used and thus should be removed.
   def registerSoftwareRelease(self, software_release):

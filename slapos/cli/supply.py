@@ -63,10 +63,17 @@ def do_supply(logger, software_release, computer_id, local):
 
     software_release = _getSoftwareReleaseFromSoftwareString(
         logger, software_release, local['product'])
-
-    local['supply'](
-        software_release=software_release,
-        computer_guid=computer_id,
-        state='available'
-    )
+    if local['slap'].jio_api_connector:
+      local['slap'].jio_api_connector.post({
+        "portal_type": "Software Installation",
+        "software_release_uri": software_release,
+        "compute_node_id": computer_id,
+        "state": 'available'
+      })
+    else:
+      local['supply'](
+          software_release=software_release,
+          computer_guid=computer_id,
+          state='available'
+      )
     logger.info('Done.')

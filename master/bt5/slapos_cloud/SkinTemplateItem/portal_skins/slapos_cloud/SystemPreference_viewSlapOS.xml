@@ -106,6 +106,7 @@
                         <string>my_preferred_default_pre_payment_template</string>
                         <string>my_preferred_instance_delivery_template</string>
                         <string>my_preferred_hateoas_url</string>
+                        <string>my_preferred_jio_api_url</string>
                         <string>my_preferred_slapos_web_site_url</string>
                         <string>my_preferred_shacache_website_expected_state</string>
                         <string>my_preferred_cloud_contract_enabled</string>

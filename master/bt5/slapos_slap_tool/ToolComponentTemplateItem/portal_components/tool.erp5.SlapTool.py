@@ -373,7 +373,7 @@ class SlapTool(BaseTool):
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'getSoftwareReleaseListFromSoftwareProduct')
-  def getSoftwareReleaseListFromSoftwareProduct(self,
+  def getSoftwareReleaseListFromSoftwareProduct(self, project_reference,
       software_product_reference=None, software_release_url=None):
     """
     Get the list of all published Software Releases related to one of either:
@@ -384,12 +384,23 @@ class SlapTool(BaseTool):
     If referenced Software Product does not exist, return empty list.
     If referenced Software Release does not exist, raise.
     """
+    project_list = self.getPortalObject().portal_catalog.portal_catalog(
+      portal_type='Project',
+      reference=project_reference,
+      validation_state='validated',
+      limit=2
+    )
+    if len(project_list) != 1:
+      raise NotImplementedError("%i projects '%s'" % (len(project_list), project_reference))
+    project = project_list[0]
+
     if software_product_reference is None:
       assert(software_release_url is not None)
       software_product_reference = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
-        portal_type='Software Release',
+        portal_type='Software Product Release Variation',
+        parent__follow_up__uid=project.getUid(),
         url_string=software_release_url
-      )[0].getObject().getAggregateValue().getReference()
+      )[0].getObject().getParentValue().getReference()
     else:
       # Don't accept both parameters
       assert(software_release_url is None)
@@ -397,13 +408,14 @@ class SlapTool(BaseTool):
     software_product_list = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
       portal_type='Software Product',
       reference=software_product_reference,
+      follow_up__uid=project.getUid(),
       validation_state='published')
     if len(software_product_list) is 0:
       return dumps([])
     if len(software_product_list) > 1:
       raise NotImplementedError('Several Software Product with the same title.')
     software_release_list = \
-        software_product_list[0].getObject().getAggregateRelatedValueList()
+        software_product_list[0].getObject().contentValues(portal_type='Software Product Release Variation')
     
     def sortkey(software_release):
       publication_date = software_release.getEffectiveDate()
@@ -420,9 +432,7 @@ class SlapTool(BaseTool):
     )
     return dumps(
       [software_release.getUrlString()
-        for software_release in software_release_list
-          if software_release.getValidationState() in \
-                  ['published', 'published_alive']])
+        for software_release in software_release_list])
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'getHateoasUrl')
@@ -508,20 +518,20 @@ class SlapTool(BaseTool):
     return self._supplySupply(url, computer_id, state)
 
   @convertToREST
-  def _requestComputeNode(self, compute_node_title):
+  def _requestComputeNode(self, compute_node_title, project_reference):
     portal = self.getPortalObject()
     person = portal.portal_membership.getAuthenticatedMember().getUserValue()
-    person.requestComputeNode(compute_node_title=compute_node_title)
+    person.requestComputeNode(compute_node_title=compute_node_title, project_reference=project_reference)
     compute_node = ComputeNode(self.REQUEST.get('compute_node_reference').decode("UTF-8"))
     return dumps(compute_node)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'requestComputer')
-  def requestComputer(self, computer_title):
+  def requestComputer(self, computer_title, project_reference):
     """
     Request Compute Node
     """
-    return self._requestComputeNode(computer_title)
+    return self._requestComputeNode(computer_title, project_reference)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'buildingSoftwareRelease')
@@ -615,7 +625,7 @@ class SlapTool(BaseTool):
   def requestComputerPartition(self, computer_id=None,
       computer_partition_id=None, software_release=None, software_type=None,
       partition_reference=None, partition_parameter_xml=None,
-      filter_xml=None, state=None, shared_xml=_MARKER):
+      filter_xml=None, state=None, shared_xml=_MARKER, project_reference=None):
     """
     Asynchronously requests creation of compute partition for assigned
     parameters
@@ -629,7 +639,8 @@ class SlapTool(BaseTool):
     """
     return self._requestComputePartition(computer_id, computer_partition_id,
         software_release, software_type, partition_reference,
-        shared_xml, partition_parameter_xml, filter_xml, state)
+        shared_xml, partition_parameter_xml, filter_xml, state,
+        project_reference)
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'useComputer')
@@ -926,7 +937,8 @@ class SlapTool(BaseTool):
   @convertToREST
   def _requestComputePartition(self, compute_node_id, compute_partition_id,
         software_release, software_type, partition_reference,
-        shared_xml, partition_parameter_xml, filter_xml, state):
+        shared_xml, partition_parameter_xml, filter_xml, state,
+        project_reference):
     """
     Asynchronously requests creation of compute partition for assigned
     parameters
@@ -964,7 +976,8 @@ class SlapTool(BaseTool):
               instance_xml=castToStr(partition_parameter_kw),
               shared=shared,
               sla_xml=castToStr(filter_kw),
-              state=state)
+              state=state,
+              project_reference=project_reference)
 
     portal = self.getPortalObject()
     if compute_node_id and compute_partition_id:

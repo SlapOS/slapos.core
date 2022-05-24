@@ -417,6 +417,33 @@ class SlapTool(BaseTool):
                   ['published', 'published_alive']])
 
   security.declareProtected(Permissions.AccessContentsInformation,
+    'getJIOAPIUrl')
+  def getJIOAPIUrl(self):
+    """
+    Return preferred jIO API URL.
+    """
+    preference_tool = self.getPortalObject().portal_preferences
+    try:
+      url = CachingMethod(preference_tool.getPreferredJioApiUrl,
+        id='getJIOAPIUrl',
+        cache_factory='slap_cache_factory')()
+    except AttributeError:
+      raise NotFound
+    if not url:
+      raise NotFound
+    # Keep in cache server for 1 hour
+    self.REQUEST.response.setStatus(200)
+    self.REQUEST.response.setHeader('Cache-Control',
+                                    'public, max-age=3600, stale-if-error=604800')
+    self.REQUEST.response.setHeader('Vary',
+                                    'REMOTE_USER')
+    self.REQUEST.response.setHeader('content-type', 'text; charset=utf-8')
+    self.REQUEST.response.setHeader('Etag',
+      calculate_dict_hash({"etag": url}))
+    self.REQUEST.response.setBody(url)
+    return self.REQUEST.response
+
+  security.declareProtected(Permissions.AccessContentsInformation,
     'getHateoasUrl')
   def getHateoasUrl(self):
     """

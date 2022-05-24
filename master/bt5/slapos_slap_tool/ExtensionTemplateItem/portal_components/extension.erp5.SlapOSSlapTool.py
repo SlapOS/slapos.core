@@ -16,7 +16,9 @@ def getComputeNodeReferenceAndUserId(item):
     if partition is not None:
       compute_node = partition.getParentValue()
 
-  if compute_node is not None and compute_node.getValidationState() == 'validated':
+  if (compute_node is not None) and \
+    (compute_node.getPortalType() == 'Compute Node') and \
+    (compute_node.getValidationState() == 'validated'):
     return compute_node, compute_node.getReference(), compute_node.getUserId()
   return None, None, None
 

@@ -5,8 +5,8 @@ class TestSlapOSCoreComputeNodeUpdateFromDict(SlapOSTestCaseMixinWithAbort):
 
   def afterSetUp(self):
     SlapOSTestCaseMixinWithAbort.afterSetUp(self)
-    self.compute_node = self.portal.compute_node_module.template_compute_node\
-        .Base_createCloneDocument(batch_mode=1)
+    self.compute_node = self.portal.compute_node_module\
+        .newContent(portal_type="Compute Node")
     self.compute_node.edit(
       reference='TESTC-%s' % self.generateNewId(),
     )

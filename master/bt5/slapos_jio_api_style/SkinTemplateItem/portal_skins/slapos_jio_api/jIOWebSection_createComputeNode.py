@@ -49,4 +49,4 @@ return json.dumps({
   "modification_date": compute_node.getModificationDate().HTML4(),
   # Kept for backward compatibility
   "command_line": compute_node_install_command_line,
-})
+}, indent=2)

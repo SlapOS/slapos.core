@@ -60,8 +60,8 @@
     },\n
     "parameters": {\n
       "title": "Instance Parameters",\n
-      "type": "object",\n
-      "additionalProperties": { "type": "string" }\n
+      "type": "string",\n
+      "description": "Instance parameters in JSON Format."\n
     },\n
     "shared": {\n
       "title": "Shared Instance",\n

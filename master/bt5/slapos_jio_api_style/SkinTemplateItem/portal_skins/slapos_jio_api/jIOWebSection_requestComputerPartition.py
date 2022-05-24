@@ -88,8 +88,8 @@ def getSoftwareInstanceForComputePartition(compute_node_id,
 
 
 # Loads partition parameter
-partition_parameter = data_dict.get("parameters", {})
-if isinstance(partition_parameter, str):
+partition_parameter = data_dict.get("parameters", None)
+if partition_parameter:
   import json
   try:
     partition_parameter = json.loads(partition_parameter)
@@ -99,11 +99,13 @@ if isinstance(partition_parameter, str):
       error_name="CANNOT-DECODE-COMPUTER-PARTITION-JSON-PARAMETER",
     )
 
-if not isinstance(partition_parameter, dict):
-  return logError(
-    "Parameters should be a key value object.",
-    error_name="INCORRECT-COMPUTER-PARTITION-JSON-PARAMETER",
-  )
+  if not isinstance(partition_parameter, dict):
+    return logError(
+      "Parameters should be a key value object.",
+      error_name="INCORRECT-COMPUTER-PARTITION-JSON-PARAMETER",
+    )
+else:
+  partition_parameter = {}
 
 try:
   # filter dict

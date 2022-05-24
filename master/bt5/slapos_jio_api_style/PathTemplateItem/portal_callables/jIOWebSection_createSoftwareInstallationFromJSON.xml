@@ -30,7 +30,6 @@
             <key> <string>text_content</string> </key>
             <value> <string>{\n
   "$schema": "http://json-schema.org/draft-07/schema#",\n
-  "$id": "software-instance-base-schema.json",\n
   "title": "Software Installation",\n
   "description": "Software Installation",\n
   "type": "object",\n

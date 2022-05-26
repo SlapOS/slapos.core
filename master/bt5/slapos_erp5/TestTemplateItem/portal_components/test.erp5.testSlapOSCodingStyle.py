@@ -42,6 +42,13 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
         'InstanceTree_viewConsumptionReport',
         'Person_viewResourceConsumptionReport'})
 
+      CodingStyleTestCase.rebuild_business_template_ignored_path += """
+
+      # Those preferences are changed after the installation, so we skip
+      # to check re-export.
+      slapos_cloud/PreferenceTemplateItem/portal_preferences/slapos_default_system_preference.xml
+      slapos_cloud/PreferenceTemplateItem/portal_preferences/slapos_default_site_preference.xml
+      """
       SlapOSTestCaseMixin.afterSetUp(self)
 
     def getBusinessTemplateList(self):

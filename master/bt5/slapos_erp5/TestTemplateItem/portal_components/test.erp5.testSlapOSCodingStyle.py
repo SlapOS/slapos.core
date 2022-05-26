@@ -48,6 +48,12 @@ def makeTestSlapOSCodingStyleTestCase(tested_business_template):
       # to check re-export.
       slapos_cloud/PreferenceTemplateItem/portal_preferences/slapos_default_system_preference.xml
       slapos_cloud/PreferenceTemplateItem/portal_preferences/slapos_default_site_preference.xml
+
+      # WebSite is updated after the installation to re-generate the translation data.
+      # This list should be reconsider later so we can keep information accurated.
+      slapos_jio/PathTemplateItem/web_site_module/hostingjs.xml
+      slapos_jio/PathTemplateItem/web_page_module/rjs_gadget_slapos_translation_data_js.js
+      slapos_jio/PathTemplateItem/web_page_module/rjs_gadget_slapos_translation_data_js.xml
       """
       SlapOSTestCaseMixin.afterSetUp(self)
 

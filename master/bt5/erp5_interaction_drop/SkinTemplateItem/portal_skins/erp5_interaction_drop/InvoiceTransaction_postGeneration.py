@@ -40,7 +40,6 @@ if not invoice.hasTitle() and related_packing_list is not None and \
 # initialize accounting_workflow to confirmed state
 if invoice.getSimulationState() == 'draft':
   invoice.activate(after_path_and_method_id=(related_simulation_movement_path_list,
-  ('immediateReindexObject','recursiveImmediateReindexObject')),
-  tag=confirm_tag).Delivery_confirm()
+  ('immediateReindexObject','recursiveImmediateReindexObject'))).Delivery_confirm()
 
 invoice.startBuilding()

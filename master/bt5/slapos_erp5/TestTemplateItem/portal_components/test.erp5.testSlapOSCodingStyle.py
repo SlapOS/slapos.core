@@ -83,7 +83,7 @@ def test_suite():
   dependency_list = set(bt5.getTestDependencyList() + bt5.getDependencyList())
 
   for _, bt in portal_templates.resolveBusinessTemplateListDependency(dependency_list):
-    if bt.startswith('slapos_'):
+    if not bt.startswith('erp5_') or bt.startswith("erp5_interaction_drop"):
       suite.addTest(unittest.makeSuite(makeTestSlapOSCodingStyleTestCase(bt)))
 
   suite.addTest(unittest.makeSuite(makeTestSlapOSCodingStyleTestCase('slapos_erp5')))

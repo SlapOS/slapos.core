@@ -28,46 +28,22 @@
 
 from Products.ERP5Type.Cache import DEFAULT_CACHE_SCOPE
 from AccessControl import Unauthorized
-from AccessControl.Permissions import access_contents_information
-from AccessControl import getSecurityManager
 from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
 from Products.ERP5Type.tests.utils import DummyMailHostMixin
 from OFS.Traversable import NotFound
+from erp5.component.module.SlapOSCloud import _assertACI
 
 import time
 from lxml import etree
 from zLOG import LOG, INFO
 
 try:
-  from slapos.slap.slap import (
-    Computer as ComputeNode,
-    ComputerPartition as SlapComputePartition,
-    SoftwareRelease)
-  from slapos.util import xml2dict, dumps
+  from slapos.util import xml2dict
 except ImportError:
   # Do no prevent instance from starting
   # if libs are not installed
-  class ComputeNode:
-    def __init__(self):
-      raise ImportError
-  class SlapComputePartition:
-    def __init__(self):
-      raise ImportError
-  class SoftwareRelease:
-    def __init__(self):
-      raise ImportError
   def xml2dict(dictionary):
     raise ImportError
-  def dumps(*args):
-    raise ImportError
-
-
-def _assertACI(document):
-  sm = getSecurityManager()
-  if sm.checkPermission(access_contents_information,
-      document):
-    return document
-  raise Unauthorized('User %r has no access to %r' % (sm.getUser(), document))
 
 class SlapOSComputeNodeMixin(object):
 
@@ -87,42 +63,42 @@ class SlapOSComputeNodeMixin(object):
       validation_state='validated',
       ):
       software_installation = _assertACI(software_installation.getObject())
-      software_release_response = SoftwareRelease(
-          software_release=software_installation.getUrlString().decode('UTF-8'),
-          computer_guid=self.getReference().decode('UTF-8'))
+      software_release_dict = {
+        "software_release": software_installation.getUrlString().decode('UTF-8'),
+        "computer_guid": self.getReference().decode('UTF-8')
+      }
       if software_installation.getSlapState() == 'destroy_requested':
-        software_release_response._requested_state = 'destroyed'
+        software_release_dict["_requested_state"] = 'destroyed'
       else:
-        software_release_response._requested_state = 'available'
+        software_release_dict["_requested_state"] = 'available'
 
       known_state = software_installation.getTextAccessStatus()
       if known_state.startswith("#access"):
-        software_release_response._known_state = 'available'
+        software_release_dict["_known_state"] = 'available'
       elif known_state.startswith("#building"):
-        software_release_response._known_state = 'building'
+        software_release_dict["_known_state"] = 'building'
       else:
-        software_release_response._known_state = 'error'
+        software_release_dict["_known_state"] = 'error'
 
-      software_release_list.append(software_release_response)
+      software_release_list.append(software_release_dict)
     return software_release_list
 
   def _getCacheComputeNodeInformation(self, user):
-    self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
-    slap_compute_node = ComputeNode(self.getReference().decode("UTF-8"))
-
-    slap_compute_node._computer_partition_list = []
-    slap_compute_node._software_release_list = self._getSoftwareReleaseValueList()
+    compute_node_dict = {
+      "_computer_id": self.getReference().decode("UTF-8"),
+      "_computer_partition_list": [],
+      "_software_release_list": self._getSoftwareReleaseValueList()
+    }
 
     unrestrictedSearchResults = self.getPortalObject().portal_catalog.unrestrictedSearchResults
-
     compute_partition_list = unrestrictedSearchResults(
       parent_uid=self.getUid(),
       validation_state="validated",
       portal_type="Compute Partition"
     )
-    self._calculateSlapComputeNodeInformation(slap_compute_node, compute_partition_list)
+    self._calculateSlapComputeNodeInformation(compute_node_dict, compute_partition_list)
 
-    return dumps(slap_compute_node)
+    return compute_node_dict
 
   def _activateFillComputeNodeInformationCache(self, user):
     tag = 'compute_node_information_cache_fill_%s_%s' % (self.getReference(), user)
@@ -180,9 +156,6 @@ class SlapOSComputeNodeMixin(object):
     user_type = user_document.getPortalType()
     self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
 
-    slap_compute_node = ComputeNode(self.getReference().decode("UTF-8"))
-
-    slap_compute_node._computer_partition_list = []
     if user_type in ('Compute Node', 'Person'):
       if not self._isTestRun():
         cache_plugin = self._getCachePlugin()
@@ -207,7 +180,11 @@ class SlapOSComputeNodeMixin(object):
       else:
         return self._getCacheComputeNodeInformation(user), None
     else:
-      slap_compute_node._software_release_list = []
+      compute_node_dict = {
+        "_computer_id": self.getReference().decode("UTF-8"),
+        "_computer_partition_list": [],
+        "_software_release_list": []
+        }
 
     if user_type == 'Software Instance':
       compute_partition_list = self.contentValues(
@@ -219,10 +196,10 @@ class SlapOSComputeNodeMixin(object):
                     validation_state="validated",
                     portal_type="Compute Partition")
 
-    self._calculateSlapComputeNodeInformation(slap_compute_node, compute_partition_list)
-    return dumps(slap_compute_node), None
+    self._calculateSlapComputeNodeInformation(compute_node_dict, compute_partition_list)
+    return compute_node_dict, None
 
-  def _calculateSlapComputeNodeInformation(self, slap_compute_node, compute_partition_list):
+  def _calculateSlapComputeNodeInformation(self, compute_node_dict, compute_partition_list):
     if len(compute_partition_list) == 0:
       return
 
@@ -248,7 +225,7 @@ class SlapOSComputeNodeMixin(object):
       software_instance_list = [x for x in grouped_software_instance_list if (x.default_aggregate_uid == compute_partition.getUid())]
       if (len(software_instance_list) == 1) and (software_instance_list[0]['count(*)'] > 1):
         software_instance_list = software_instance_list + software_instance_list
-      slap_compute_node._computer_partition_list.append(
+      compute_node_dict['_computer_partition_list'].append(
         self._getSlapPartitionByPackingList(
           _assertACI(compute_partition.getObject()),
           software_instance_list,
@@ -273,12 +250,13 @@ class SlapOSComputeNodeMixin(object):
     while compute_node.getPortalType() != 'Compute Node':
       compute_node = compute_node.getParentValue()
     compute_node_id = compute_node.getReference().decode("UTF-8")
-    slap_partition = SlapComputePartition(compute_node_id,
-      compute_partition_document.getReference().decode("UTF-8"))
-
-    slap_partition._software_release_document = None
-    slap_partition._requested_state = 'destroyed'
-    slap_partition._need_modification = 0
+    partition_dict = {
+      "compute_node_id": compute_node_id,
+      "partition_id": compute_partition_document.getReference().decode("UTF-8"),
+      "_software_release_document": None,
+      "_requested_state": 'destroyed',
+      "_need_modification": 0
+    }
 
     software_instance = None
 
@@ -294,28 +272,29 @@ class SlapOSComputeNodeMixin(object):
     if software_instance is not None:
       state = software_instance.getSlapState()
       if state == "stop_requested":
-        slap_partition._requested_state = 'stopped'
+        partition_dict['_requested_state'] = 'stopped'
       if state == "start_requested":
-        slap_partition._requested_state = 'started'
-      slap_partition._access_status = software_instance.getTextAccessStatus()
+        partition_dict['_requested_state'] = 'started'
+      partition_dict['_access_status'] = software_instance.getTextAccessStatus()
 
-      slap_partition._software_release_document = SoftwareRelease(
-            software_release=software_instance.getUrlString().decode("UTF-8"),
-            computer_guid=compute_node_id)
+      partition_dict['_software_release_document'] = {
+            "software_release": software_instance.getUrlString().decode("UTF-8"),
+            "computer_guid": compute_node_id
+      }
 
-      slap_partition._need_modification = 1
+      partition_dict["_need_modification"] = 1
 
       parameter_dict = software_instance._asParameterDict(
         shared_instance_sql_list=shared_instance_sql_list
       )
       # software instance has to define an xml parameter
-      slap_partition._parameter_dict = self._instanceXmlToDict(
+      partition_dict["_parameter_dict"] = self._instanceXmlToDict(
         parameter_dict.pop('xml'))
-      slap_partition._connection_dict = self._instanceXmlToDict(
+      partition_dict['_connection_dict'] = self._instanceXmlToDict(
         parameter_dict.pop('connection_xml'))
-      slap_partition._filter_dict = self._instanceXmlToDict(
+      partition_dict['_filter_dict'] = self._instanceXmlToDict(
         parameter_dict.pop('filter_xml'))
-      slap_partition._instance_guid = parameter_dict.pop('instance_guid')
+      partition_dict['_instance_guid'] = parameter_dict.pop('instance_guid')
       for slave_instance_dict in parameter_dict.get("slave_instance_list", []):
         if slave_instance_dict.has_key("connection_xml"):
           slave_instance_dict.update(self._instanceXmlToDict(
@@ -323,9 +302,9 @@ class SlapOSComputeNodeMixin(object):
         if slave_instance_dict.has_key("xml"):
           slave_instance_dict.update(self._instanceXmlToDict(
             slave_instance_dict.pop("xml")))
-      slap_partition._parameter_dict.update(parameter_dict)
+      partition_dict['_parameter_dict'].update(parameter_dict)
 
-    return slap_partition
+    return partition_dict
 
   def _getSoftwareInstallationFromUrl(self, url):
     software_installation_list = self.getPortalObject().portal_catalog.unrestrictedSearchResults(

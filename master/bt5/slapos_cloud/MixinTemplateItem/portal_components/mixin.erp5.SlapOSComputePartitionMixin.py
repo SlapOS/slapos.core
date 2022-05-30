@@ -25,14 +25,11 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
-from AccessControl.Permissions import access_contents_information
-from AccessControl import getSecurityManager
-from AccessControl import Unauthorized
+from erp5.component.module.SlapOSCloud import _assertACI
+from zLOG import LOG, INFO
+from OFS.Traversable import NotFound
 
 try:
-  from slapos.slap.slap import (
-    ComputerPartition as SlapComputePartition,
-    SoftwareRelease)
   from slapos.util import calculate_dict_hash
 except ImportError:
   # Do no prevent instance from starting
@@ -46,27 +43,48 @@ except ImportError:
   def calculate_dict_hash(*args):
     raise ImportError
 
-def _assertACI(document):
-  sm = getSecurityManager()
-  if sm.checkPermission(access_contents_information,
-      document):
-    return document
-  raise Unauthorized('User %r has no access to %r' % (sm.getUser(), document))
-
-
 class SlapOSComputePartitionMixin(object):
+
+  def _getSoftwareInstance(self, slave_reference=None):
+    if self.getSlapState() != 'busy':
+      LOG('SlapOSComputePartitionMixin::_getSoftwareInstance', INFO,
+          'Compute partition %s shall be busy, is free' %
+          self.getRelativeUrl())
+      raise NotFound("No software instance found for: %s - %s" % (
+        self.getParentValue().getTitle(), self.getTitle()))
+    else:
+      query_kw = {
+        'validation_state': 'validated',
+        'portal_type': 'Slave Instance',
+        'default_aggregate_uid': self.getUid(),
+      }
+      if slave_reference is None:
+        query_kw['portal_type'] = "Software Instance"
+      else:
+        query_kw['reference'] = slave_reference
+
+      software_instance = _assertACI(
+        self.getPortalObject().portal_catalog.unrestrictedGetResultValue(**query_kw))
+      if software_instance is None:
+        raise NotFound("No software instance found for: %s - %s" % (
+          self.getParentValue().getTitle(), self.getTitle()))
+      else:
+        return software_instance
 
   def _registerComputePartition(self):
     portal = self.getPortalObject()
-    computer_reference = self.getParentValue().getReference()
-    computer_partition_reference = self.getReference()
+    compute_node = self
+    while compute_node.getPortalType() != 'Compute Node':
+      compute_node = compute_node.getParentValue()
+    compute_node_id = compute_node.getReference().decode("UTF-8")
 
-    slap_partition = SlapComputePartition(computer_reference.decode("UTF-8"),
-        computer_partition_reference.decode("UTF-8"))
-    slap_partition._software_release_document = None
-    slap_partition._requested_state = 'destroyed'
-    slap_partition._need_modification = 0
-    software_instance = None
+    partition_dict = {
+      "compute_node_id": compute_node_id,
+      "partition_id": self.getReference().decode("UTF-8"),
+      "_software_release_document": None,
+      "_requested_state": 'destroyed',
+      "_need_modification": 0
+    }
 
     if self.getSlapState() == 'busy':
       software_instance_list = portal.portal_catalog.unrestrictedSearchResults(
@@ -85,31 +103,31 @@ class SlapOSComputePartitionMixin(object):
            self.getRelativeUrl())
 
     if software_instance is not None:
-      # trick client side, that data has been synchronised already for given
-      # document
-      slap_partition._synced = True
       state = software_instance.getSlapState()
       if state == "stop_requested":
-        slap_partition._requested_state = 'stopped'
+        partition_dict['_requested_state'] = 'stopped'
       if state == "start_requested":
-        slap_partition._requested_state = 'started'
+        partition_dict['_requested_state'] = 'started'
 
-      slap_partition._software_release_document = SoftwareRelease(
-            software_release=software_instance.getUrlString().decode("UTF-8"),
-            computer_guid=computer_reference.decode("UTF-8"))
-
-      slap_partition._need_modification = 1
+      partition_dict['_software_release_document'] = {
+            "software_release": software_instance.getUrlString().decode("UTF-8"),
+            "computer_guid": compute_node_id
+      }
+      partition_dict['_access_status'] = software_instance.getTextAccessStatus()
+      partition_dict["_need_modification"] = 1
+      # trick client side, that data has been synchronised already for given
+      # document
+      partition_dict["_synced"] = True
 
       parameter_dict = software_instance._asParameterDict()
-                                                       
       # software instance has to define an xml parameter
-      slap_partition._parameter_dict = software_instance._instanceXmlToDict(
+      partition_dict["_parameter_dict"] = software_instance._instanceXmlToDict(
         parameter_dict.pop('xml'))
-      slap_partition._connection_dict = software_instance._instanceXmlToDict(
+      partition_dict['_connection_dict'] = software_instance._instanceXmlToDict(
         parameter_dict.pop('connection_xml'))
-      slap_partition._filter_dict = software_instance._instanceXmlToDict(
+      partition_dict['_filter_dict'] = software_instance._instanceXmlToDict(
         parameter_dict.pop('filter_xml'))
-      slap_partition._instance_guid = parameter_dict.pop('instance_guid')
+      partition_dict['_instance_guid'] = parameter_dict.pop('instance_guid')
       for slave_instance_dict in parameter_dict.get("slave_instance_list", []):
         if slave_instance_dict.has_key("connection_xml"):
           connection_dict = software_instance._instanceXmlToDict(
@@ -120,6 +138,6 @@ class SlapOSComputePartitionMixin(object):
         if slave_instance_dict.has_key("xml"):
           slave_instance_dict.update(software_instance._instanceXmlToDict(
             slave_instance_dict.pop("xml")))
-      slap_partition._parameter_dict.update(parameter_dict)
+      partition_dict['_parameter_dict'].update(parameter_dict)
 
-    return slap_partition
+    return partition_dict

@@ -28,10 +28,9 @@
 #
 ##############################################################################
 
+
 from AccessControl import ClassSecurityInfo
 from AccessControl import Unauthorized
-from AccessControl.Permissions import access_contents_information
-from AccessControl import getSecurityManager
 from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
 from OFS.Traversable import NotFound
 from Products.DCWorkflow.DCWorkflow import ValidationFailed
@@ -39,15 +38,25 @@ from Products.ERP5Type.Globals import InitializeClass
 from Products.ERP5Type.Tool.BaseTool import BaseTool
 from Products.ERP5Type import Permissions
 from Products.ERP5Type.Cache import CachingMethod
+from erp5.component.module.SlapOSCloud import _assertACI
 from lxml import etree
 try:
   from slapos.slap.slap import (
-    Computer as ComputeNode)
+    Computer as ComputeNode,
+    ComputerPartition as SlapComputePartition,
+    SoftwareInstance as SlapSoftwareInstance,
+    SoftwareRelease)
   from slapos.util import dict2xml, calculate_dict_hash, loads, dumps
 except ImportError:
   # Do no prevent instance from starting
   # if libs are not installed
   class ComputeNode:
+    def __init__(self):
+      raise ImportError
+  class SlapComputePartition:
+    def __init__(self):
+      raise ImportError
+  class SoftwareRelease:
     def __init__(self):
       raise ImportError
   def dict2xml(dictionary):
@@ -58,6 +67,10 @@ except ImportError:
     raise ImportError
   def dumps(*args):
     raise ImportError
+  class SlapSoftwareInstance:
+    def __init__(self):
+      raise ImportError
+
 
 from zLOG import LOG, INFO
 import StringIO
@@ -110,13 +123,6 @@ def castToStr(dict_kw):
   return etree.tostring(instance, pretty_print=True,
                                   xml_declaration=True, encoding='utf-8')
 
-
-def _assertACI(document):
-  sm = getSecurityManager()
-  if sm.checkPermission(access_contents_information,
-      document):
-    return document
-  raise Unauthorized('User %r has no access to %r' % (sm.getUser(), document))
 
 
 _MARKER = object()
@@ -175,7 +181,47 @@ class SlapTool(BaseTool):
         validation_state="validated")[0].getObject()
 
     refresh_etag = compute_node._calculateRefreshEtag()
-    body, etag = compute_node._getComputeNodeInformation(user, refresh_etag)
+    computer_dict, etag = compute_node._getComputeNodeInformation(user, refresh_etag)
+
+    ## Horrible code starts
+    # Convert computer node into SlapComputer
+    slap_compute_node = ComputeNode(computer_dict["_computer_id"])
+    slap_compute_node._computer_partition_list = []
+    slap_compute_node._software_release_list = []
+
+    for partition_dict in computer_dict["_computer_partition_list"]:
+      slap_compute_partition = SlapComputePartition(
+          partition_id=partition_dict["partition_id"],
+          computer_id=partition_dict['compute_node_id']
+        )
+      slap_compute_partition._requested_state = partition_dict["_requested_state"]
+      slap_compute_partition._need_modification = partition_dict["_need_modification"]
+      if partition_dict["_software_release_document"] is not None:
+        slap_compute_partition._access_status = partition_dict["_access_status"]
+        slap_compute_partition._parameter_dict = partition_dict["_parameter_dict"]
+        slap_compute_partition._connection_dict = partition_dict["_connection_dict"]
+        slap_compute_partition._filter_dict = partition_dict["_filter_dict"]
+        slap_compute_partition._instance_guid = partition_dict["_instance_guid"]
+        slap_compute_partition._software_release_document = SoftwareRelease(
+            software_release=partition_dict["_software_release_document"]["software_release"],
+            computer_guid=partition_dict["_software_release_document"]["computer_guid"])
+      else:
+        slap_compute_partition._software_release_document = None
+      
+      slap_compute_node._computer_partition_list.append(
+        slap_compute_partition
+      )
+
+    for software_release_dict in computer_dict['_software_release_list']:
+      slap_software_release = SoftwareRelease(
+        software_release=software_release_dict["software_release"],
+        computer_guid=software_release_dict['computer_guid'])
+      slap_software_release._requested_state = software_release_dict['_requested_state']
+      slap_software_release._known_state = software_release_dict['_known_state']
+      slap_compute_node._software_release_list.append(slap_software_release)
+
+    body = dumps(slap_compute_node)
+    ## Horrible code ends
 
     if self.REQUEST.response.getStatus() == 200:
       # Keep in cache server for 7 days
@@ -653,7 +699,25 @@ class SlapTool(BaseTool):
     compute_partition_document = self._getComputePartitionDocument(
           computer_reference, computer_partition_reference)
 
-    slap_compute_partition = compute_partition_document._registerComputePartition()
+    partition_dict = compute_partition_document._registerComputePartition()
+    slap_compute_partition = SlapComputePartition(
+        partition_id=partition_dict["partition_id"],
+        computer_id=partition_dict['compute_node_id']
+      )
+    slap_compute_partition._requested_state = partition_dict["_requested_state"]
+    slap_compute_partition._need_modification = partition_dict["_need_modification"]
+    if partition_dict["_software_release_document"] is not None:
+      slap_compute_partition._parameter_dict = partition_dict["_parameter_dict"]
+      slap_compute_partition._connection_dict = partition_dict["_connection_dict"]
+      slap_compute_partition._filter_dict = partition_dict["_filter_dict"]
+      slap_compute_partition._instance_guid = partition_dict["_instance_guid"]
+      slap_compute_partition._software_release_document = SoftwareRelease(
+          software_release=partition_dict["_software_release_document"]["software_release"],
+          computer_guid=partition_dict["_software_release_document"]["computer_guid"])
+      slap_compute_partition._synced = partition_dict["_synced"]
+
+    else:
+      slap_compute_partition._software_release_document = None
 
     # Keep in cache server for 7 days
     self.REQUEST.response.setStatus(200)
@@ -923,7 +987,8 @@ class SlapTool(BaseTool):
       if not requested_software_instance.getAggregate(portal_type="Compute Partition"):
         raise SoftwareInstanceNotReady
       else:
-        return dumps(requested_software_instance._asSoftwareInstance())
+        return dumps(SlapSoftwareInstance(
+          **requested_software_instance._asSoftwareInstanceDict()))
 
   @UnrestrictedMethod
   def _updateComputePartitionRelatedInstanceList(self, compute_node_id,
@@ -1003,29 +1068,7 @@ class SlapTool(BaseTool):
       compute_partition_id, slave_reference=None):
     compute_partition_document = self._getComputePartitionDocument(
       compute_node_id, compute_partition_id)
-    if compute_partition_document.getSlapState() != 'busy':
-      LOG('SlapTool::_getSoftwareInstanceForComputePartition', INFO,
-          'Compute partition %s shall be busy, is free' %
-          compute_partition_document.getRelativeUrl())
-      raise NotFound, "No software instance found for: %s - %s" % (compute_node_id,
-          compute_partition_id)
-    else:
-      query_kw = {
-        'validation_state': 'validated',
-        'portal_type': 'Slave Instance',
-        'default_aggregate_uid': compute_partition_document.getUid(),
-      }
-      if slave_reference is None:
-        query_kw['portal_type'] = "Software Instance"
-      else:
-        query_kw['reference'] = slave_reference
-
-      software_instance = _assertACI(self.getPortalObject().portal_catalog.unrestrictedGetResultValue(**query_kw))
-      if software_instance is None:
-        raise NotFound, "No software instance found for: %s - %s" % (
-          compute_node_id, compute_partition_id)
-      else:
-        return software_instance
+    return compute_partition_document._getSoftwareInstance(slave_reference)
 
   @convertToREST
   def _softwareReleaseError(self, url, compute_node_id, error_log):

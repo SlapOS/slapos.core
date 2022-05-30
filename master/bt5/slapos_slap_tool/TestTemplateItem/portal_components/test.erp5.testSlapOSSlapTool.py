@@ -15,12 +15,13 @@ import xml.dom.ext
 import StringIO
 import difflib
 import hashlib
+import json
 from binascii import hexlify
 from OFS.Traversable import NotFound
 
 
 def hashData(data):
-  return hexlify(hashlib.sha1(data).digest())
+  return hexlify(hashlib.sha1(json.dumps(data, sort_keys=True)).digest())
 
 
 class Simulator:

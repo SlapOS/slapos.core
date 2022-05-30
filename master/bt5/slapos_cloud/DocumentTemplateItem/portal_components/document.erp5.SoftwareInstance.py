@@ -31,31 +31,18 @@ from erp5.component.document.Item import Item
 from lxml import etree
 import collections
 
-from AccessControl import Unauthorized
-from AccessControl.Permissions import access_contents_information
-from AccessControl import getSecurityManager
 from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
+from erp5.component.module.SlapOSCloud import _assertACI
+
 
 from zLOG import LOG, INFO
 try:
-  from slapos.slap.slap import \
-    SoftwareInstance as SlapSoftwareInstance
   from slapos.util import xml2dict, loads
 except ImportError:
   def xml2dict(dictionary):
     raise ImportError
   def loads(*args):
     raise ImportError
-  class SlapSoftwareInstance:
-    def __init__(self):
-      raise ImportError
-
-def _assertACI(document):
-  sm = getSecurityManager()
-  if sm.checkPermission(access_contents_information,
-      document):
-    return document
-  raise Unauthorized('User %r has no access to %r' % (sm.getUser(), document))
 
 class DisconnectedSoftwareTree(Exception):
   pass
@@ -160,7 +147,7 @@ class SoftwareInstance(Item):
       LOG('SoftwareInstance', INFO, 'Issue during parsing xml:', error=True)
     return result_dict
 
-  def _asSoftwareInstance(self):
+  def _asSoftwareInstanceDict(self):
     parameter_dict = self._asParameterDict()
 
     requested_state = self.getSlapState()
@@ -182,13 +169,13 @@ class SoftwareInstance(Item):
       parameter_dict.pop('filter_xml'))
     instance_guid = parameter_dict.pop('instance_guid')
 
-    software_instance = SlapSoftwareInstance(**parameter_dict)
-    software_instance._parameter_dict = xml
-    software_instance._connection_dict = connection_xml
-    software_instance._filter_dict = filter_xml
-    software_instance._requested_state = state
-    software_instance._instance_guid = instance_guid
-    return software_instance
+    software_instance_dict = parameter_dict
+    software_instance_dict['_parameter_dict'] = xml
+    software_instance_dict['_connection_dict'] = connection_xml
+    software_instance_dict['_filter_dict'] = filter_xml
+    software_instance_dict['_requested_state'] = state
+    software_instance_dict['_instance_guid'] = instance_guid
+    return software_instance_dict
 
   @UnrestrictedMethod
   def _asParameterDict(self, shared_instance_sql_list=None):

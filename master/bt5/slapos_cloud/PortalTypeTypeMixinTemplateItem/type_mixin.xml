@@ -1,4 +1,7 @@
 <type_mixin>
+ <portal_type id="Catalog Tool">
+  <item>SlapOSCatalogToolCacheMixin</item>
+ </portal_type>
  <portal_type id="Compute Node">
   <item>SlapOSCacheMixin</item>
   <item>SlapOSComputeNodeMixin</item>

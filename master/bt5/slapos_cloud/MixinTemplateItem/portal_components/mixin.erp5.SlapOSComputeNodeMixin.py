@@ -309,6 +309,12 @@ class SlapOSComputeNodeMixin(object):
 
     return partition_dict
 
+  def getSoftwareInstallationFromUrl(self, url):
+    try:
+      return self._getSoftwareInstallationFromUrl(url)
+    except NotFound:
+      return None
+
   def _getSoftwareInstallationFromUrl(self, url):
     software_installation_list = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
       portal_type='Software Installation',

@@ -321,7 +321,7 @@ class SlapTool(BaseTool):
     """
     Get the connection status of the partition
     """
-    compute_node = self._getComputeNodeDocument(computer_id)
+    compute_node = self.portal_catalog.getComputeNodeObject(computer_id)
     data_dict = compute_node.getAccessStatus()
 
     # Keep in cache server for 7 days
@@ -341,7 +341,7 @@ class SlapTool(BaseTool):
     """
     Get the connection status of the software installation
     """
-    compute_node = self._getComputeNodeDocument(computer_id)
+    compute_node = self.portal_catalog.getComputeNodeObject(computer_id)
     # Be sure to prevent accessing information to disallowed users
     compute_node = _assertACI(compute_node)
     try:
@@ -620,7 +620,7 @@ class SlapTool(BaseTool):
         'doc/computer_consumption.xsd')
 
     if self._validateXML(use_string, compute_node_consumption_model):
-      compute_node = self._getComputeNodeDocument(computer_id)
+      compute_node = self.portal_catalog.getComputeNodeObject(computer_id)
       tree = etree.fromstring(use_string)
       source_reference = \
           tree.find('transaction').find('reference').text or ""
@@ -641,7 +641,7 @@ class SlapTool(BaseTool):
     """
     Fire up bung on Compute Node
     """
-    compute_node = self._getComputeNodeDocument(compute_node_id) 
+    compute_node = self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_id) 
     return compute_node.reportComputeNodeBang(comment=message)
 
   security.declareProtected(Permissions.AccessContentsInformation,
@@ -657,13 +657,13 @@ class SlapTool(BaseTool):
   def loadComputerConfigurationFromXML(self, xml):
     "Load the given xml as configuration for the compute_node object"
     compute_node_dict = loads(xml)
-    compute_node = self._getComputeNodeDocument(compute_node_dict['reference'])
+    compute_node = self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_dict['reference'])
     compute_node.ComputeNode_updateFromDict(compute_node_dict)
     return 'Content properly posted.'
 
   @convertToREST
   def _generateComputerCertificate(self, compute_node_id):
-    self._getComputeNodeDocument(compute_node_id).generateCertificate()
+    self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_id).generateCertificate()
     result = {
      'certificate': self.REQUEST.get('compute_node_certificate').decode("UTF-8"),
      'key': self.REQUEST.get('compute_node_key').decode("UTF-8")
@@ -678,7 +678,7 @@ class SlapTool(BaseTool):
 
   @convertToREST
   def _revokeComputerCertificate(self, compute_node_id):
-    self._getComputeNodeDocument(compute_node_id).revokeCertificate()
+    self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_id).revokeCertificate()
 
   security.declareProtected(Permissions.AccessContentsInformation,
     'revokeComputerCertificate')
@@ -696,7 +696,7 @@ class SlapTool(BaseTool):
     """
     # Try to get the compute partition to raise an exception if it doesn't
     # exist
-    compute_partition_document = self._getComputePartitionDocument(
+    compute_partition_document = self.getPortalObject().portal_catalog.getComputePartitionObject(
           computer_reference, computer_partition_reference)
 
     partition_dict = compute_partition_document._registerComputePartition()
@@ -762,7 +762,7 @@ class SlapTool(BaseTool):
     """
     Request Software Release installation
     """
-    compute_node_document = self._getComputeNodeDocument(compute_node_id)
+    compute_node_document = self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_id)
     compute_node_document.requestSoftwareRelease(software_release_url=url, state=state)
 
   @convertToREST
@@ -770,7 +770,7 @@ class SlapTool(BaseTool):
     """
     Log the software release status
     """
-    compute_node = self._getComputeNodeDocument(compute_node_id)
+    compute_node = self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_id)
     software_installation = compute_node._getSoftwareInstallationFromUrl(url)
     software_installation.setBuildingStatus(
       'software release %s' % url, "building")
@@ -780,7 +780,7 @@ class SlapTool(BaseTool):
     """
     Log the software release status
     """
-    compute_node = self._getComputeNodeDocument(compute_node_id)
+    compute_node = self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_id)
     software_installation = compute_node._getSoftwareInstallationFromUrl(url)
     software_installation.setAccessStatus(
       'software release %s available' % url, "available")
@@ -790,7 +790,7 @@ class SlapTool(BaseTool):
     """
     Reports that Software Release is destroyed
     """
-    compute_node = self._getComputeNodeDocument(compute_node_id)
+    compute_node = self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_id)
     software_installation = compute_node._getSoftwareInstallationFromUrl(url)
     if software_installation.getSlapState() != 'destroy_requested':
       raise NotFound
@@ -1012,61 +1012,9 @@ class SlapTool(BaseTool):
   # Internals methods
   ####################################################
 
-  def _getDocument(self, **kwargs):
-    # No need to get all results if an error is raised when at least 2 objects
-    # are found
-    l = self.getPortalObject().portal_catalog.unrestrictedSearchResults(limit=2, **kwargs)
-    if len(l) != 1:
-      raise NotFound, "No document found with parameters: %s" % kwargs
-    else:
-      return _assertACI(l[0].getObject())
-
-  def _getNonCachedComputeNodeDocument(self, compute_node_reference):
-    return self._getDocument(
-        portal_type='Compute Node',
-        # XXX Hardcoded validation state
-        validation_state="validated",
-        reference=compute_node_reference).getRelativeUrl()
-
-  def _getComputeNodeDocument(self, compute_node_reference):
-    """
-    Get the validated compute_node with this reference.
-    """
-    result = CachingMethod(self._getNonCachedComputeNodeDocument,
-        id='_getComputeNodeDocument',
-        cache_factory='slap_cache_factory')(compute_node_reference)
-    return self.getPortalObject().restrictedTraverse(result)
-
-  @UnrestrictedMethod
-  def _getComputeNodeUidByReference(self, compute_node_reference):
-    """
-    Get the validated compute_node with this reference.
-    """
-    result = CachingMethod(self._getNonCachedComputeNodeUidByReference,
-        id='_getNonCachedComputeNodeUidByReference',
-        cache_factory='slap_cache_factory')(compute_node_reference)
-    return result
-
-  @UnrestrictedMethod
-  def _getNonCachedComputeNodeUidByReference(self, compute_node_reference):
-    return self.getPortalObject().portal_catalog.unrestrictedSearchResults(
-      portal_type='Compute Node', reference=compute_node_reference,
-      validation_state="validated")[0].UID
-
-  def _getComputePartitionDocument(self, compute_node_reference,
-                                    compute_partition_reference):
-    """
-    Get the compute partition defined in an available compute_node
-    """
-    # Related key might be nice
-    return self._getDocument(portal_type='Compute Partition',
-                             reference=compute_partition_reference,
-                             parent_uid=self._getComputeNodeUidByReference(
-                                compute_node_reference))
-
   def _getSoftwareInstanceForComputePartition(self, compute_node_id,
       compute_partition_id, slave_reference=None):
-    compute_partition_document = self._getComputePartitionDocument(
+    compute_partition_document = self.getPortalObject().portal_catalog.getComputePartitionObject(
       compute_node_id, compute_partition_id)
     return compute_partition_document._getSoftwareInstance(slave_reference)
 
@@ -1075,7 +1023,7 @@ class SlapTool(BaseTool):
     """
     Log the compute_node status
     """
-    compute_node = self._getComputeNodeDocument(compute_node_id)
+    compute_node = self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_id)
     software_installation = compute_node._getSoftwareInstallationFromUrl(url)
     software_installation.setErrorStatus('while installing %s' % url)
 

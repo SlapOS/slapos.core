@@ -344,7 +344,7 @@ class SlapTool(BaseTool):
     # Be sure to prevent accessing information to disallowed users
     compute_node = _assertACI(compute_node)
     try:
-      software_installation = compute_node._getSoftwareInstallationFromUrl(url)
+      software_installation = compute_node.getSoftwareInstallationFromUrl(url)
     except NotFound:
       data_dict = self._getAccessStatus(None)
     else:
@@ -812,7 +812,7 @@ class SlapTool(BaseTool):
     Log the software release status
     """
     compute_node = self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_id)
-    software_installation = compute_node._getSoftwareInstallationFromUrl(url)
+    software_installation = compute_node.getSoftwareInstallationFromUrl(url)
     software_installation.setBuildingStatus(
       'software release %s' % url, "building")
 
@@ -822,7 +822,7 @@ class SlapTool(BaseTool):
     Log the software release status
     """
     compute_node = self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_id)
-    software_installation = compute_node._getSoftwareInstallationFromUrl(url)
+    software_installation = compute_node.getSoftwareInstallationFromUrl(url)
     software_installation.setAccessStatus(
       'software release %s available' % url, "available")
 
@@ -832,7 +832,7 @@ class SlapTool(BaseTool):
     Reports that Software Release is destroyed
     """
     compute_node = self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_id)
-    software_installation = compute_node._getSoftwareInstallationFromUrl(url)
+    software_installation = compute_node.getSoftwareInstallationFromUrl(url)
     if software_installation.getSlapState() != 'destroy_requested':
       raise NotFound
     if self.getPortalObject().portal_workflow.isTransitionPossible(software_installation,
@@ -1103,7 +1103,7 @@ class SlapTool(BaseTool):
     Log the compute_node status
     """
     compute_node = self.getPortalObject().portal_catalog.getComputeNodeObject(compute_node_id)
-    software_installation = compute_node._getSoftwareInstallationFromUrl(url)
+    software_installation = compute_node.getSoftwareInstallationFromUrl(url)
     software_installation.setErrorStatus('while installing %s' % url)
 
 InitializeClass(SlapTool)

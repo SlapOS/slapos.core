@@ -4,12 +4,6 @@ compute_partition_id = data_dict.get("compute_partition_id", None)
 class SoftwareInstanceNotReady(Exception):
   pass
 
-class NotFound(Exception):
-  pass
-
-class Unauthorized(Exception):
-  pass
-
 castToStr = context.Base_castDictToXMLString
 
 def logError(e, error_name="", error_code=400, detail_list=None):
@@ -20,72 +14,7 @@ def logError(e, error_name="", error_code=400, detail_list=None):
     detail_list=detail_list,
   )
 
-LOG = context.log
-
 portal = context.getPortalObject()
-
-def _assertACI(document):
-  if context.Base_checkPermission(document.relative_url, 'View'):
-    return document.getObject()
-  raise Unauthorized('User has no access to %r' % (document.relative_url))
-
-
-def getDocument(**kwargs):
-  # No need to get all results if an error is raised when at least 2 objects
-  # are found
-  l = portal.portal_catalog.unrestrictedSearchResults(limit=2, select_list=("relative_url", "uid"), **kwargs)
-  if len(l) != 1:
-    raise NotFound, "No document found with parameters: %s" % kwargs
-  else:
-    return _assertACI(l[0])
-
-def getNonCachedComputeNodeUidByReference(compute_node_reference):
-  return portal.portal_catalog.unrestrictedSearchResults(
-    portal_type='Compute Node', reference=compute_node_reference,
-    validation_state="validated")[0].UID
-
-
-def getComputePartitionDocument(compute_node_reference,
-                                  compute_partition_reference):
-  """
-  Get the compute partition defined in an available compute_node
-  """
-  # Related key might be nice
-  return getDocument(portal_type='Compute Partition',
-                     reference=compute_partition_reference,
-                     parent_uid=getNonCachedComputeNodeUidByReference(
-                        compute_node_reference))
-
-
-def getSoftwareInstanceForComputePartition(compute_node_id,
-    compute_partition_id, slave_reference=None):
-  compute_partition_document = getComputePartitionDocument(
-    compute_node_id, compute_partition_id)
-  if compute_partition_document.getSlapState() != 'busy':
-    LOG('SlapTool::_getSoftwareInstanceForComputePartition'
-        + 'Compute partition %s shall be busy, is free' %
-        compute_partition_document.getRelativeUrl())
-    raise NotFound, "No software instance found for: %s - %s" % (compute_node_id,
-        compute_partition_id)
-  else:
-    query_kw = {
-      'validation_state': 'validated',
-      'portal_type': 'Slave Instance',
-      'default_aggregate_uid': compute_partition_document.getUid(),
-    }
-    if slave_reference is None:
-      query_kw['portal_type'] = "Software Instance"
-    else:
-      query_kw['reference'] = slave_reference
-
-    software_instance = _assertACI(portal.portal_catalog.unrestrictedGetResultValue(**query_kw))
-    if software_instance is None:
-      raise NotFound, "No software instance found for: %s - %s" % (
-        compute_node_id, compute_partition_id)
-    else:
-      return software_instance
-
-
 
 # Loads partition parameter
 partition_parameter = data_dict.get("parameters", None)
@@ -120,12 +49,13 @@ try:
             shared=data_dict.get("shared", False),
             sla_xml=castToStr(filter_kw),
             state=data_dict.get("state", "started"))
-  #raise ValueError("%s" % kw)
 
   if compute_node_id and compute_partition_id:
-    requester = getSoftwareInstanceForComputePartition(
+    compute_partition = portal.portal_catalog.getComputePartitionObject(
       compute_node_id,
-      compute_partition_id)
+      compute_partition_id,
+    )
+    requester = compute_partition.getSoftwareInstance()
     instance_tree = requester.getSpecialiseValue()
     if instance_tree is not None and instance_tree.getSlapState() == "stop_requested":
       kw['state'] = 'stopped'
@@ -171,14 +101,4 @@ except SoftwareInstanceNotReady:
     "Software Instance Not Ready",
     error_name="SoftwareInstanceNotReady",
     error_code=102
-  )
-except Unauthorized, log:
-  return logError(
-    log,
-    error_code=401
-  )
-except NotFound, log:
-  return logError(
-    log,
-    error_code=404
   )

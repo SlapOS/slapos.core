@@ -45,22 +45,45 @@
   "title": "Software Installation",\n
   "description": "Software Installation",\n
   "type": "object",\n
+  "oneOf": [\n
+    {\n
+      "properties": {\n
+        "software_release_uri": {\n
+          "title": "Software Release URI",\n
+          "type": "string",\n
+          "format": "uri-reference"\n
+        },\n
+        "compute_node_id": {\n
+          "title": "Compute Node ID",\n
+          "type": "string",\n
+          "description": "The Id of the compute node, example: COMP-1234"\n
+        },\n
+        "portal_type": {\n
+          "title": "Portal Type",\n
+          "default": "Software Installation",\n
+          "type": "string"\n
+        }\n
+      },\n
+      "required": [\n
+        "software_release_uri",\n
+        "compute_node_id",\n
+        "portal_type"\n
+      ]\n
+    },\n
+    {\n
+      "properties": {\n
+        "id": {\n
+          "title": "ID",\n
+          "type": "string",\n
+          "description": "Unique Id of the object. This ID is defined by KD Portal. It is not editable."\n
+        }\n
+      },\n
+      "required": [\n
+        "id"\n
+      ]\n
+    }\n
+  ],\n
   "properties": {\n
-    "software_release_uri": {\n
-      "title": "Software Release URI",\n
-      "type": "string",\n
-      "format": "uri-reference"\n
-    },\n
-    "compute_node_id": {\n
-      "title": "Compute Node ID",\n
-      "type": "string",\n
-      "description": "The Id of the compute node, example: COMP-1234"\n
-    },\n
-    "id": {\n
-      "title": "ID",\n
-      "type": "string",\n
-      "description": "Unique Id of the object. This ID is defined by KD Portal. It is not editable."\n
-    },\n
     "state": {\n
       "title": "Requested State",\n
       "type": "string",\n
@@ -78,14 +101,8 @@
       "title": "Error Status",\n
       "description": "Used to inform master of an Error in the local processing of the Software Installation",\n
       "type": "string"\n
-    },\n
-    "portal_type": {\n
-      "title": "Portal Type",\n
-      "const": "Software Installation",\n
-      "type": "string"\n
     }\n
-  },\n
-  "required": ["portal_type", "software_release_uri", "compute_node_id"]\n
+  }\n
 }\n
 </string> </value>
         </item>

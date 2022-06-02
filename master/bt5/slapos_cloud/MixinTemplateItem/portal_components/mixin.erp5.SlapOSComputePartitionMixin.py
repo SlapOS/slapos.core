@@ -45,7 +45,7 @@ except ImportError:
 
 class SlapOSComputePartitionMixin(object):
 
-  def _getSoftwareInstance(self, slave_reference=None):
+  def getSoftwareInstance(self, slave_reference=None):
     if self.getSlapState() != 'busy':
       LOG('SlapOSComputePartitionMixin::_getSoftwareInstance', INFO,
           'Compute partition %s shall be busy, is free' %

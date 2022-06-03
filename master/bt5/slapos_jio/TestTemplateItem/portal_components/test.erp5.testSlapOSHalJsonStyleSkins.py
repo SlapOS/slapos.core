@@ -306,7 +306,6 @@ class TestSoftwareInstance_getNewsDict(TestSlapOSHalJsonStyleMixin):
     self.assertEqual(news_dict, expected_news_dict)
     # Ensure it don't raise error when converting to JSON
     json.dumps(news_dict)
-
 class TestSoftwareInstallation_getNewsDict(TestSlapOSHalJsonStyleMixin):
 
   def test(self):
@@ -1200,3 +1199,52 @@ class TestInstanceTree_edit(TestSlapOSHalJsonStyleMixin):
 
     self.assertEqual(new_parameter,
       self.instance_tree.getTextContent())
+
+class TestSoftwareInstance_getConnectionParameterList(TestSlapOSHalJsonStyleMixin):
+  
+  def testSoftwareInstance_getConnectionParameterList(self):
+    instance = self._makeInstance()
+    xml_sample = """<?xml version="1.0" encoding="utf-8"?>
+<instance>
+<parameter id="p0">ABC</parameter>
+<parameter id="p1">DEF</parameter>
+</instance>"""
+    instance.edit(connection_xml=xml_sample)
+
+    # Place instances on the project
+    self.logout()
+    self.login()
+
+    self.changeSkin("Hal")
+    self.assertEqual(
+      len(instance.SoftwareInstance_getConnectionParameterList()),
+      2)
+    self.assertEqual(
+      instance.SoftwareInstance_getConnectionParameterList(raw=True),
+      [{"connection_key": "p0", "connection_value": "ABC"},
+       {"connection_key": "p1", "connection_value": "DEF"}]
+      )
+
+    xml_sample = """<?xml version="1.0" encoding="utf-8"?>
+<instance>
+<parameter id="_">{"p0": "ABC", "p1": "DEF"}</parameter>
+</instance>"""
+    instance.edit(connection_xml=xml_sample)
+
+    # Place instances on the project
+    self.logout()
+    self.login()
+
+    self.changeSkin("Hal")
+    self.assertEqual(
+      len(instance.SoftwareInstance_getConnectionParameterList()),
+      2)
+    self.assertEqual(
+      instance.SoftwareInstance_getConnectionParameterList(raw=True),
+      [{"connection_key": "p0", "connection_value": "ABC"},
+       {"connection_key": "p1", "connection_value": "DEF"}]
+      )
+
+    
+
+    

@@ -1,4 +1,5 @@
 from Products.ERP5Type.Document import newTempBase
+import json
 
 return_list = []
 try:
@@ -8,6 +9,11 @@ except Exception:
 
 if connection_dict is None:
   return return_list
+
+if connection_dict.keys() == ["_"]:
+  json_connection_dict = json.loads(connection_dict["_"])
+  if isinstance(json_connection_dict, dict): 
+    connection_dict = json_connection_dict
 
 portal = context.getPortalObject()
 if relative_url == None:

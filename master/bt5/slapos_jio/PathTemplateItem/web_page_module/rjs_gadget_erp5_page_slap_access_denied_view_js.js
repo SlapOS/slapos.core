@@ -1,9 +1,8 @@
-/*global window, rJS, RSVP, Handlebars, UriTemplate */
+/*global window, rJS, RSVP, UriTemplate */
 /*jslint nomen: true, indent: 2, maxerr: 3 */
 (function (window, rJS, RSVP, UriTemplate) {
   "use strict";
-  var gadget_klass = rJS(window);
-  gadget_klass
+  rJS(window)
     .declareAcquiredMethod("getUrlForList", "getUrlForList")
     .declareAcquiredMethod("updateHeader", "updateHeader")
     .declareAcquiredMethod("updatePanel", "updatePanel")
@@ -66,15 +65,10 @@
           ]);
         })
         .push(function () {
+          gadget.element.querySelector('input').value = logout_translation;
           return gadget.updatePanel({
             jio_key: false
           });
-        })
-        .push(function () {
-//          return gadget.translate('Logout');
-//        })
-//        .push(function (translated_text) {
-          gadget.element.querySelector('input').value = logout_translation;
         });
     })
       .onEvent('submit', function () {

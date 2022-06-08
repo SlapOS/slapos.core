@@ -8,30 +8,9 @@
 
     <script src="rsvp.js"></script>
     <script src="renderjs.js"></script>
-    <script src="handlebars.js"></script>
+    <script src="domsugar.js"></script>
     <script src="gadget_slapos_event_discussion_entry.js"></script>
     <link href="gadget_slapos_event_discussion_entry.css" rel="stylesheet" type="text/css"/>
-
-    <script id="inline-event-template" type="text/x-handlebars-template">
-
-      <div class="slapos-event-discussion-message-header">
-        <p>By <strong>{{author}} </strong> on {{modification_date}}: </p>
-      </div>
-
-      <div class="slapos-event-discussion-message-body">
-        <pre>{{message}}</pre>
-      </div>
-    </script>
-
-    <script id="inline-html-event-template" type="text/x-handlebars-template">
-
-      <div class="slapos-event-discussion-message-header">
-        <p>By <strong>{{author}} </strong> on {{modification_date}}: </p>
-      </div>
-
-      <div class="slapos-event-discussion-message-body">{{{message}}}</div>
-    </script>
-
   </head>
 
   <body>

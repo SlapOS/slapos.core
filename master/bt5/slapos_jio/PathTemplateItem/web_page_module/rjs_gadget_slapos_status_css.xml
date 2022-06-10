@@ -2,7 +2,7 @@
 <ZopeData>
   <record id="1" aka="AAAAAAAAAAE=">
     <pickle>
-      <global name="Web Page" module="erp5.portal_type"/>
+      <global name="Web Style" module="erp5.portal_type"/>
     </pickle>
     <pickle>
       <dictionary>
@@ -40,17 +40,6 @@
             </value>
         </item>
         <item>
-            <key> <string>_Copy_or_Move_Permission</string> </key>
-            <value>
-              <list>
-                <string>Manager</string>
-                <string>Authenticated</string>
-                <string>Developer</string>
-                <string>Owner</string>
-              </list>
-            </value>
-        </item>
-        <item>
             <key> <string>_Modify_portal_content_Permission</string> </key>
             <value>
               <tuple>
@@ -82,19 +71,13 @@
         </item>
         <item>
             <key> <string>content_type</string> </key>
-            <value> <string>text/html</string> </value>
-        </item>
-        <item>
-            <key> <string>creators</string> </key>
             <value>
-              <tuple>
-                <string>zope</string>
-              </tuple>
+              <none/>
             </value>
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_slapos_project_status.html</string> </value>
+            <value> <string>gadget_slapos_status.css</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -104,34 +87,15 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_slapos_project_status_html</string> </value>
+            <value> <string>rjs_gadget_slapos_status_css</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
             <value> <string>en</string> </value>
         </item>
         <item>
-            <key> <string>modification_date</string> </key>
-            <value>
-              <object>
-                <klass>
-                  <global name="DateTime" module="DateTime.DateTime"/>
-                </klass>
-                <tuple>
-                  <none/>
-                </tuple>
-                <state>
-                  <tuple>
-                    <float>1523884657.52</float>
-                    <string>UTC</string>
-                  </tuple>
-                </state>
-              </object>
-            </value>
-        </item>
-        <item>
             <key> <string>portal_type</string> </key>
-            <value> <string>Web Page</string> </value>
+            <value> <string>Web Style</string> </value>
         </item>
         <item>
             <key> <string>short_title</string> </key>
@@ -141,7 +105,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget SlapOS Project Status</string> </value>
+            <value> <string>Gadget SlapOS Status</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
@@ -229,7 +193,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1513177217.87</float>
+                              <float>1504866593.45</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -278,7 +242,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>966.58781.43824.3635</string> </value>
+                      <value> <string>1000.54026.12481.29013</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -296,7 +260,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1530120154.6</float>
+                              <float>1654873584.88</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -323,7 +287,9 @@
                 <dictionary>
                   <item>
                       <key> <string>action</string> </key>
-                      <value> <string>detect_converted_file</string> </value>
+                      <value>
+                        <none/>
+                      </value>
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
@@ -339,7 +305,7 @@
                   </item>
                   <item>
                       <key> <string>external_processing_state</string> </key>
-                      <value> <string>converted</string> </value>
+                      <value> <string>empty</string> </value>
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
@@ -357,7 +323,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1513176618.65</float>
+                              <float>1504866427.12</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

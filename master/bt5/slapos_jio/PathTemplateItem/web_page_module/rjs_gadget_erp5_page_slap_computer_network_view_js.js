@@ -36,9 +36,9 @@
                   css_class: "",
                   description: "The Status",
                   hidden: 0,
-                  "default": {jio_key: value, result: value},
+                  "default": {jio_key: value, result: value, portal_type: "Compute Node"},
                   key: "status",
-                  url: "gadget_slapos_compute_node_status.html",
+                  url: "gadget_slapos_status.html",
                   title: gadget.title_translation,
                   type: "GadgetField"
                 }
@@ -141,7 +141,6 @@
                   "hidden": 0,
                   "type": "StringField"
                 },
-
                 "my_monitoring_status": {
                   "description": "",
                   "title": result[1][5],
@@ -150,7 +149,7 @@
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
-                  "url": "gadget_slapos_network_status.html",
+                  "url": "gadget_slapos_status.html",
                   "sandbox": "",
                   "key": "monitoring_status",
                   "hidden": 0,

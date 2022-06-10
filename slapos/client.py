@@ -93,6 +93,7 @@ def init(conf, logger):
       key_file=conf.key_file, cert_file=conf.cert_file,
       slapgrid_rest_uri=conf.master_rest_url)
   local = globals().copy()
+  local.pop('__file__', None)
   local['slap'] = slap
   # Create global shortcut functions to request instance and software
   def shorthandRequest(*args, **kwargs):

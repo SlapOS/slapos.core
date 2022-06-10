@@ -718,7 +718,7 @@ class TestCliSupervisorctl(CliMixin):
 
 class TestCliConsole(unittest.TestCase):
 
-  script = """\
+  default_script = """\
 print(request('software_release', 'instance').getInstanceParameterDict()['parameter_name'])
 """
 
@@ -732,22 +732,55 @@ print(request('software_release', 'instance').getInstanceParameterDict()['parame
          tempfile.NamedTemporaryFile() as config_file:
       config_file.write(b'[slapos]\nmaster_url=null\n')
       config_file.flush()
-      yield slapos.cli.entry.SlapOSApp(), config_file.name
-      mock_request.assert_called_once_with(
-          'software_release', 'instance')
-      self.assertIn('parameter_value', app_stdout.getvalue())
+      yield slapos.cli.entry.SlapOSApp(), \
+          config_file.name, \
+          mock_request, \
+          app_stdout
+
 
   def test_console_interactive(self):
-    with self._test_console() as (app, config_file), \
-         patch.object(sys, 'stdin', StringIO(self.script)):
+    with self._test_console() as (app, config_file, mock_request, stdout), \
+         patch.object(sys, 'stdin', StringIO(self.default_script)):
       app.run(('console', '--cfg', config_file))
+      self.assertIn('parameter_value', stdout.getvalue())
+      mock_request.assert_called_once_with(
+          'software_release', 'instance')
+
+  def test_console_interactive_no__file__(self):
+    script = '''if 1:
+      try:
+        print('FAIL __file__ is set to', __file__)
+      except NameError:
+        print('OK __file__ is not set')
+
+      '''
+    with self._test_console() as (app, config_file, _, stdout), \
+         patch.object(sys, 'stdin', StringIO(script)):
+      app.run(('console', '--cfg', config_file))
+      self.assertIn('OK __file__ is not set', stdout.getvalue())
 
   def test_console_script(self):
-    with self._test_console() as (app, config_file), \
+    with self._test_console() as (app, config_file, mock_request, stdout), \
          tempfile.NamedTemporaryFile('w') as script:
-      script.write(self.script)
+      script.write(self.default_script)
       script.flush()
       app.run(('console', '--cfg', config_file, script.name))
+      self.assertIn('parameter_value', stdout.getvalue())
+      mock_request.assert_called_once_with(
+          'software_release', 'instance')
+
+  def test_console_script__file__(self):
+    with self._test_console() as (app, config_file, _, stdout),\
+      tempfile.NamedTemporaryFile('w') as script:
+      script.write('''if 1:
+        if __file__ == %r:
+          print('OK __file__ is set to script')
+        else:
+          print('FAIL __file__ is set to', __file__)
+      ''' % script.name)
+      script.flush()
+      app.run(('console', '--cfg', config_file, script.name))
+      self.assertIn('OK __file__ is set to script', stdout.getvalue())
 
 
 class TestCliComplete(CliMixin):

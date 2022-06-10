@@ -94,7 +94,7 @@
         </item>
         <item>
             <key> <string>default_reference</string> </key>
-            <value> <string>gadget_slapos_instance_tree_status.html</string> </value>
+            <value> <string>gadget_slapos_status.html</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
@@ -104,7 +104,7 @@
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>rjs_gadget_slapos_instance_tree_status_html</string> </value>
+            <value> <string>rjs_gadget_slapos_status_html</string> </value>
         </item>
         <item>
             <key> <string>language</string> </key>
@@ -122,7 +122,7 @@
                 </tuple>
                 <state>
                   <tuple>
-                    <float>1523884656.83</float>
+                    <float>1523884657.62</float>
                     <string>UTC</string>
                   </tuple>
                 </state>
@@ -141,7 +141,7 @@
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Gadget SlapOS Instance Tree Status</string> </value>
+            <value> <string>Gadget SlapOS Status</string> </value>
         </item>
         <item>
             <key> <string>version</string> </key>
@@ -229,7 +229,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1510067718.74</float>
+                              <float>1513176680.43</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -264,7 +264,7 @@
                   </item>
                   <item>
                       <key> <string>actor</string> </key>
-                      <value> <string>superrafael</string> </value>
+                      <value> <string>zope</string> </value>
                   </item>
                   <item>
                       <key> <string>comment</string> </key>
@@ -278,7 +278,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>970.21496.17710.36488</string> </value>
+                      <value> <string>1000.54034.1029.62310</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -296,7 +296,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1554255222.31</float>
+                              <float>1656702663.09</float>
                               <string>UTC</string>
                             </tuple>
                           </state>
@@ -357,7 +357,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1510067690.86</float>
+                              <float>1513176624.03</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

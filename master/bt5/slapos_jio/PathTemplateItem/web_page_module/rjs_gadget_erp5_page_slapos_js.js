@@ -49,7 +49,7 @@
                   hidden: 0,
                   "default": {jio_key: value_jio_key, result: value},
                   key: "status",
-                  url: "gadget_slapos_site_status.html",
+                  url: "gadget_slapos_status.html",
                   title: "Status",
                   type: "GadgetField"
                 }

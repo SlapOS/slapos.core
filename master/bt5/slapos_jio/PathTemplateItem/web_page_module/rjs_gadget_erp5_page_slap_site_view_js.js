@@ -38,9 +38,9 @@
                   css_class: "",
                   description: gadget.description_translation,
                   hidden: 0,
-                  "default": {jio_key: value_jio_key, result: value},
+                  "default": {jio_key: value_jio_key, result: value, portal_type: "Compute Node"},
                   key: "status",
-                  url: "gadget_slapos_compute_node_status.html",
+                  url: "gadget_slapos_status.html",
                   title: gadget.title_translation,
                   type: "GadgetField"
                 }
@@ -174,7 +174,7 @@
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
-                  "url": "gadget_slapos_site_status.html",
+                  "url": "gadget_slapos_status.html",
                   "sandbox": "",
                   "key": "monitoring_status",
                   "hidden": 0,

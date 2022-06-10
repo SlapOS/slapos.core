@@ -157,7 +157,7 @@
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
-                  "url": "gadget_slapos_installation_status.html",
+                  "url": "gadget_slapos_status.html",
                   "sandbox": "",
                   "key": "monitoring_status",
                   "hidden": 0,

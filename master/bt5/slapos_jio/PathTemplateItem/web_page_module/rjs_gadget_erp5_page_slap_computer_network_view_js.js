@@ -27,18 +27,23 @@
       var gadget = this;
       return gadget.jio_allDocs(param_list[0])
         .push(function (result) {
-          var i, value, len = result.data.total_rows;
+          var i, value, news, len = result.data.total_rows;
           for (i = 0; i < len; i += 1) {
             if (1 || (result.data.rows[i].value.hasOwnProperty("ComputeNode_getNewsDict"))) {
-              value = result.data.rows[i].value.ComputeNode_getNewsDict;
+              value = result.data.rows[i].id;
+              news = result.data.rows[i].value.ComputeNode_getNewsDict;
               result.data.rows[i].value.ComputeNode_getNewsDict = {
                 field_gadget_param : {
                   css_class: "",
                   description: "The Status",
                   hidden: 0,
-                  "default": {jio_key: value, result: value},
+                  "default": {
+                    jio_key: value,
+                    result: news,
+                    portal_type: "Compute Node"
+                  },
                   key: "status",
-                  url: "gadget_slapos_compute_node_status.html",
+                  url: "gadget_slapos_status.html",
                   title: gadget.title_translation,
                   type: "GadgetField"
                 }
@@ -141,7 +146,6 @@
                   "hidden": 0,
                   "type": "StringField"
                 },
-
                 "my_monitoring_status": {
                   "description": "",
                   "title": result[1][5],
@@ -150,7 +154,7 @@
                   "css_class": "",
                   "required": 1,
                   "editable": 0,
-                  "url": "gadget_slapos_network_status.html",
+                  "url": "gadget_slapos_status.html",
                   "sandbox": "",
                   "key": "monitoring_status",
                   "hidden": 0,

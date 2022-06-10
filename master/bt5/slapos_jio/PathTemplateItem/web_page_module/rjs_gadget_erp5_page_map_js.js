@@ -214,7 +214,7 @@
                 tmp.style['min-width'] = '210px';
                 container.appendChild(tmp);
                 e.target._queue.push(function () {
-                  return gadget.declareGadget('gadget_slapos_site_status.html', {
+                  return gadget.declareGadget('gadget_slapos_status.html', {
                     element: tmp
                   });
                 })

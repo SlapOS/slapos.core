@@ -30,9 +30,10 @@
                   description: "The Status",
                   hidden: 0,
                   "default": {jio_key: value,
-                              result: news},
+                              result: news,
+                              portal_type: "Compute Node"},
                   key: "status",
-                  url: "gadget_slapos_compute_node_status.html",
+                  url: "gadget_slapos_status.html",
                   title: "Status",
                   type: "GadgetField"
                 }

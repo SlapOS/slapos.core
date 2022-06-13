@@ -24,6 +24,10 @@
   color: white !important;
 }
 
+.ui-btn-hide {
+  display: none;
+}
+
 .ui-bar {
 	position: relative;
 	padding: .4em 1em;

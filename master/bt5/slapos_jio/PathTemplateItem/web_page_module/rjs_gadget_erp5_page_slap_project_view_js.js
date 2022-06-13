@@ -63,7 +63,7 @@
                     hidden: 0,
                     "default": {jio_key: value_jio_key, result: value},
                     key: "status",
-                    url: "gadget_slapos_instance_tree_status.html",
+                    url: "gadget_slapos_status.html",
                     title: gadget.title_translation,
                     type: "GadgetField"
                   }

@@ -5,6 +5,55 @@
   "use strict";
   var gadget_klass = rJS(window);
 
+  function getInstanceStatus(options) {
+    if ((!options) || (options && !options.text)) {
+      return 'ui-btn-no-data';
+    }
+    if (options.text.startsWith("#access")) {
+      return 'ui-btn-ok';
+    }
+    if (options.no_data) {
+      return 'ui-btn-no-data';
+    }
+    if (options.is_slave) {
+      return 'ui-btn-is-slave';
+    }
+    if (options.is_stopped) {
+      return 'ui-btn-is-stopped';
+    }
+    if (options.is_destroyed) {
+      return 'ui-btn-is-destroyed';
+    }
+    return 'ui-btn-error';
+  }
+
+  function getInstanceTreeStatus(options) {
+    var instance;
+
+    if ((!options) || (options && !options.instance)) {
+      return 'ui-btn-no-data';
+    }
+
+    if (options.is_slave) {
+      return 'ui-btn-is-slave';
+    }
+    if (options.is_stopped) {
+      return 'ui-btn-is-stopped';
+    }
+    if (options.is_destroyed) {
+      return 'ui-btn-is-destroyed';
+    }
+
+    for (instance in options.instance) {
+      if (options.instance.hasOwnProperty(instance)) {
+        if (options.instance[instance].text.startsWith("#error")) {
+          return 'ui-btn-error';
+        }
+      }
+    }
+    return 'ui-btn-ok';
+  }
+
   function getComputeNodeStatus(options) {
     if (!options || !options.text) {
       return 'ui-btn-no-data';
@@ -60,24 +109,45 @@
     return partition_class;
   }
 
+  function getSoftwareInstallationStatus(options) {
+    if ((!options) || (options && !options.text)) {
+      return 'ui-btn-no-data';
+    }
+    if (options.text.startsWith("#access")) {
+      return 'ui-btn-ok';
+    }
+    if (options.text.startsWith("#building")) {
+      return 'ui-btn-is-building';
+    }
+    if (options.no_data) {
+      return 'ui-btn-no-data';
+    }
+    return 'ui-btn-error';
+  }
+
+
   function getComputeNodeStatusList(options) {
     var previous_status = "START",
       status = 'ui-btn-no-data',
       i;
-    if (!options || !options.news || !options.news.compute_node) {
+    if (!options || !options.compute_node) {
       return status;
     }
-    for (i in options.news.compute_node) {
-      if (options.news.compute_node.hasOwnProperty(i)) {
-        status = getComputeNodeStatus(options.news.compute_node[i]);
+    for (i in options.compute_node) {
+      if (options.compute_node.hasOwnProperty(i)) {
+        status = getComputeNodeStatus(options.compute_node[i]);
         if (previous_status === "START") {
           previous_status = status;
         }
         if (previous_status !== status) {
-          if ((previous_status === 'ui-btn-error') && (status === 'ui-btn-ok')) {
+          if ((previous_status === 'ui-btn-error') &&
+              (status === 'ui-btn-ok')) {
+            // XXX drop warning
             return 'ui-btn-warning';
           }
-          if ((status === 'ui-btn-error') && (previous_status === 'ui-btn-ok')) {
+          if ((status === 'ui-btn-error') &&
+              (previous_status === 'ui-btn-ok')) {
+            // XXX drop warning
             return 'ui-btn-warning';
           }
           if (status === 'ui-btn-no-data') {
@@ -93,22 +163,25 @@
     var compute_node_reference,
       status = 'ui-btn-no-data',
       previous_status = "START";
-    for (compute_node_reference in options.news.partition) {
-      if (options.news.partition.hasOwnProperty(compute_node_reference)) {
+    for (compute_node_reference in options.partition) {
+      if (options.partition.hasOwnProperty(compute_node_reference)) {
         status = getComputePartitionStatus(
-          options.news.partition[compute_node_reference]);
+          options.partition[compute_node_reference]
+        );
         if (previous_status === "START") {
           previous_status = status;
         }
         if (status === 'ui-btn-warning') {
-          // If status is warning, nothing after will change it.
+          // XXX Drop warning
           return status;
         }
         if (previous_status !== status) {
-          if ((previous_status === 'ui-btn-error') && (status === 'ui-btn-ok')) {
+          if ((previous_status === 'ui-btn-error') &&
+              (status === 'ui-btn-ok')) {
             return 'ui-btn-warning';
           }
-          if ((status === 'ui-btn-error') && (previous_status === 'ui-btn-ok')) {
+          if ((status === 'ui-btn-error') &&
+              (previous_status === 'ui-btn-ok')) {
             return 'ui-btn-warning';
           }
           if (status === 'ui-btn-no-data') {
@@ -121,19 +194,32 @@
   }
 
   function getStatus(gadget, result) {
-    var status_class = 'ui-btn-no-data',
+    var i, status_class = 'ui-btn-no-data',
       right_class = 'ui-btn-no-data',
-      computer_node_div = gadget.element.querySelector("compute-node-status"),
-      compute_partition_div = gadget.element.querySelector("compute-node-status"),
-      monitor_url = '';
+      main_status_div = gadget.element.querySelector("main-status"),
+      sub_status_div = gadget.element.querySelector("sub-status"),
+      monitor_url = '',
+      main_link_configuration_dict = {
+        class: "ui-btn ui-btn-icon-left ui-icon-desktop"
+      },
+      sub_link_configuration_dict = {
+        class: "ui-btn ui-btn-icon-left ui-icon-desktop"
+      };
 
     if (result && result.portal_type && result.portal_type === "Compute Node") {
       monitor_url = 'https://monitor.app.officejs.com/#/' +
         '?page=ojsm_dispatch&query=portal_type%3A%22Software%20Instance%22%20' +
         'AND%20aggregate_reference%3A%22' + result.reference + '%22';
 
+      main_link_configuration_dict.href = monitor_url;
+      main_link_configuration_dict.target = "_target";
+      main_link_configuration_dict.text = 'Compute Node';
+      sub_link_configuration_dict.href = monitor_url;
+      sub_link_configuration_dict.target = "_target";
+      sub_link_configuration_dict.text = 'Partitions';
+
       if (result && result.news && result.news.compute_node) {
-        status_class = getComputeNodeStatus({news: result.news.compute_node});
+        status_class = getComputeNodeStatus(result.news.compute_node);
       }
       if ((status_class === 'ui-btn-error') ||
             (status_class === 'ui-btn-no-data')) {
@@ -145,42 +231,111 @@
           );
         }
       }
+    } else if (result && result.portal_type &&
+               result.portal_type === "Software Installation") {
+      if (result && result.news) {
+        status_class = getSoftwareInstallationStatus(result.news);
+      }
+      main_link_configuration_dict.text = "Installation";
+      right_class = "ui-btn-hide";
+      if (status_class === "ui-btn-is-building") {
+        main_link_configuration_dict.text = "Building";
+        status_class = "ui-btn-no-data";
+      } else if (status_class === "ui-btn-ok") {
+        main_link_configuration_dict.text = "Available";
+      } else if (status_class === "ui-btn-error") {
+        main_link_configuration_dict.text = "Error";
+      }
+    } else if (result && result.portal_type && (
+        result.portal_type === "Software Instance" ||
+        result.portal_type === "Slave Instance"
+      )) {
+      monitor_url = 'https://monitor.app.officejs.com/#/' +
+        '?page=ojsm_dispatch&query=' +
+        'portal_type%3A%22Software%20Instance%22%20AND%20reference%3A%22' +
+        result.reference + '%22';
+      if (result && result.news) {
+        status_class = getInstanceStatus(result.news);
+      }
+      right_class = "ui-btn-hide";
+      if (status_class === 'ui-btn-is-slave') {
+        status_class = 'ui-btn-no-data ui-btn-color-white';
+        main_link_configuration_dict.text = 'Slave';
+      } else if (status_class === 'ui-btn-is-stopped') {
+        status_class = 'ui-btn-no-data ui-btn-color-white';
+        main_link_configuration_dict.text = 'Stopped';
+      } else if (status_class === 'ui-btn-is-destroyed') {
+        status_class = 'ui-btn-no-data ui-btn-color-white';
+        main_link_configuration_dict.text = 'Destroyed';
+      } else {
+        main_link_configuration_dict.href = monitor_url;
+        main_link_configuration_dict.target = "_target";
+        main_link_configuration_dict.text = 'Instance';
+      }
+    } else if (result && result.portal_type &&
+              result.portal_type === "Instance Tree") {
+      if (result && result.news) {
+        status_class = getInstanceTreeStatus(result.news);
+      }
+      // it should verify if the monitor-base-url is ready.
+      for (i in result.connection_parameter_list) {
+        if (result.connection_parameter_list.hasOwnProperty(i)) {
+          if (result.connection_parameter_list[i].connection_key ===
+                                                   "monitor-setup-url") {
+            monitor_url = result.connection_parameter_list[i].connection_value;
+          }
+        }
+      }
+      if (monitor_url === "") {
+        monitor_url = 'https://monitor.app.officejs.com/#/' +
+          '?page=ojsm_dispatch&query=portal_type' +
+          '%3A%22Instance%20Tree%22%20AND%20title%3A' + result.title;
+      }
+      right_class = "ui-btn-hide";
+      if (status_class === 'ui-btn-is-slave') {
+        status_class = 'ui-btn-no-data ui-btn-color-white';
+        main_link_configuration_dict.text = 'Slave Only';
+      } else if (status_class === 'ui-btn-is-stopped') {
+        status_class = 'ui-btn-no-data ui-btn-color-white';
+        main_link_configuration_dict.text = 'Stopped';
+      } else if (status_class === 'ui-btn-is-destroyed') {
+        status_class = 'ui-btn-no-data ui-btn-color-white';
+        main_link_configuration_dict.text = 'Destroyed';
+      } else {
+        main_link_configuration_dict.href = monitor_url;
+        main_link_configuration_dict.target = "_target";
+        main_link_configuration_dict.text = 'Instance';
+      }
     } else {
       monitor_url = gadget.options.value.jio_key + '/Base_redirectToMonitor';
-      status_class = getComputeNodeStatusList(result);
+
+      main_link_configuration_dict.href = monitor_url;
+      main_link_configuration_dict.target = "_target";
+      main_link_configuration_dict.text = 'Compute Node';
+      sub_link_configuration_dict.href = monitor_url;
+      sub_link_configuration_dict.target = "_target";
+      sub_link_configuration_dict.text = 'Partitions';
+
+      status_class = getComputeNodeStatusList(result.news);
       if ((status_class === 'ui-btn-error') ||
           (status_class === 'ui-btn-no-data')) {
         right_class = status_class;
       } else {
-        right_class = getComputePartitionStatusList(result);
+        right_class = getComputePartitionStatusList(result.news);
       }
     }
 
-    domsugar(computer_node_div.firstChild,
+    domsugar(main_status_div.firstChild,
       {
         class: "ui-bar ui-corner-all first-child " + status_class
-      }, [ 
-        domsugar("a",
-          {
-            class: "ui-btn ui-btn-icon-left ui-icon-desktop",
-            href: monitor_url,
-            target: "_blank",
-            // missing translation
-            text: 'Compute Node'
-          })
+      }, [
+        domsugar("a", main_link_configuration_dict)
       ]);
-    domsugar(compute_partition_div.firstChild,
+    domsugar(sub_status_div.firstChild,
       {
         class: "ui-bar ui-corner-all last-child " + right_class
       }, [
-        domsugar("a",
-          {
-            class: "ui-btn ui-btn-icon-left ui-icon-desktop",
-            href: monitor_url,
-            target: "_blank",
-              // missing translation
-            text: 'Partitions'
-          })
+        domsugar("a", sub_link_configuration_dict)
       ]);
     return gadget;
   }

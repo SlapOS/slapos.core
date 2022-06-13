@@ -38,7 +38,7 @@
                   hidden: 0,
                   "default": {jio_key: value, result: value},
                   key: "status",
-                  url: "gadget_slapos_installation_status.html",
+                  url: "gadget_slapos_status.html",
                   title: "Status",
                   type: "GadgetField"
                 }

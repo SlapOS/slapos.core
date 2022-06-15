@@ -4,16 +4,16 @@ if REQUEST is not None:
 
 ticket = context
 state = ticket.getSimulationState()
-person = ticket.getSourceProjectValue(portal_type="Person")
+person = ticket.getDestinationDecisionValue(portal_type="Person")
 if (state == 'suspended') and \
    (person is not None) and \
    (ticket.getResource() == 'service_module/slapos_crm_delete_acknowledgement'):
-   
+
   portal = context.getPortalObject()
   portal.portal_catalog.searchAndActivate(
     portal_type="Instance Tree",
     validation_state=["validated"],
-    default_destination_section_uid=person.getUid(),
+    destination_section__uid=person.getUid(),
     method_id='InstanceTree_deleteFromRegularisationRequest',
     method_args=(person.getRelativeUrl(),),
     activate_kw={'tag': tag}

@@ -1,9 +1,9 @@
 portal = context.getPortalObject()
 sub_tag = "RegularisationRequest_stopInstanceTreeList"
 portal.portal_catalog.searchAndActivate(
-      portal_type="Regularisation Request", 
+      portal_type="Regularisation Request",
       simulation_state=["suspended"],
-      default_resource_uid=[
+      resource__uid=[
         portal.service_module.slapos_crm_stop_acknowledgement.getUid(),
         portal.service_module.slapos_crm_delete_reminder.getUid(),
         portal.service_module.slapos_crm_delete_acknowledgement.getUid(),

@@ -15,7 +15,8 @@ if (slap_state == 'start_requested'):
     software_type=instance_tree.getSourceReference(),
     instance_xml=instance_tree.getTextContent(),
     sla_xml=instance_tree.getSlaXml(),
-    shared=instance_tree.isRootSlave()
+    shared=instance_tree.isRootSlave(),
+    project_reference=instance_tree.getFollowUpReference()
   )
   return True
 return False

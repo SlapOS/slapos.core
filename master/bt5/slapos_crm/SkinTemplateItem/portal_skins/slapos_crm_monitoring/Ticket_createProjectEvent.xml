@@ -50,11 +50,11 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>**kw</string> </value>
+            <value> <string>title, direction, portal_type, resource, text_content, content_type, notification_message=None, substitution_method_parameter_dict=None, keep_draft=False, source=None, destination=None, language=None, comment=None, **kw</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
-            <value> <string>Person_getSlapOSPendingTicket</string> </value>
+            <value> <string>Ticket_createProjectEvent</string> </value>
         </item>
       </dictionary>
     </pickle>

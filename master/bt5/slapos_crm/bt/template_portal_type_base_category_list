@@ -1,10 +1,8 @@
 Compute Node | monitor_scope
-Compute Node | upgrade_scope
 Incident Response Module | business_application
 Incident Response | aggregate
 Incident Response | specialise
 Instance Tree | monitor_scope
-Instance Tree | upgrade_scope
 Regularisation Request Module | business_application
 Regularisation Request | specialise
 Support Request | aggregate

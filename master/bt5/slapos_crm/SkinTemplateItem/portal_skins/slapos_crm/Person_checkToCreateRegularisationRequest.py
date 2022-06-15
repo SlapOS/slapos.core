@@ -16,27 +16,15 @@ ticket_portal_type = "Regularisation Request"
 
 ticket = portal.portal_catalog.getResultValue(
   portal_type=ticket_portal_type,
-  default_source_project_uid=person.getUid(),
+  destination__uid=person.getUid(),
   simulation_state=['suspended', 'validated'],
 )
 
 if ticket is not None:
   return ticket, None
 
-outstanding_amount = person.Entity_statSlapOSOutstandingAmount()
-
-# Amount to be ignored, as it comes from the first invoice generated
-# after the subscription. We do not take it into account as no service
-# was provided yet.
-unpaid_invoice_amount = 0
-for invoice in person.Person_getSubscriptionRequestFirstUnpaidInvoiceList():
-  unpaid_invoice_amount += invoice.getTotalPrice()
-
-# It can't be smaller, we are considernig all open invoices are from unpaid_payment_amount
-if round(float(outstanding_amount), 2) == round(float(unpaid_invoice_amount), 2):
-  return ticket, None
-
-if int(outstanding_amount) > 0:
+mail_message = None
+if person.Entity_hasOutstandingAmount():
   tag = "%s_addRegularisationRequest_inProgress" % person.getUid()
   if (portal.portal_activities.countMessageWithTag(tag) > 0):
     # The regularisation request is already under creation but can not be fetched from catalog
@@ -47,59 +35,39 @@ if int(outstanding_amount) > 0:
   person.serialize()
 
   # Time to create the ticket
-  regularisation_request_template = portal.restrictedTraverse(
-    portal.portal_preferences.getPreferredRegularisationRequestTemplate())
-  ticket = regularisation_request_template.Base_createCloneDocument(batch_mode=1)
-  ticket.edit(
-    source_project_value=context,
-    title='Account regularisation expected for "%s"' % context.getTitle(),
-    destination_decision_value=context,
-    destination_value=context,
-    start_date=DateTime(),
-    resource=portal.portal_preferences.getPreferredRegularisationRequestResource(),
+  comment = 'New automatic ticket for %s' % context.getTitle()
+  ticket = context.Entity_createTicketFromTradeCondition(
+    portal.service_module.slapos_crm_monitoring.getRelativeUrl(),
+    'Account regularisation expected for "%s"' % context.getTitle(),
+    '',
+    portal_type='Regularisation Request',
+    comment=comment
   )
-  ticket.validate(comment='New automatic ticket for %s' % context.getTitle())
-  ticket.suspend(comment='New automatic ticket for %s' % context.getTitle())
+  ticket.validate(comment=comment)
+  ticket.suspend(comment=comment)
 
   ticket.reindexObject(activate_kw={'tag': tag})
 
-  # Notify using user's language
-  language = context.getLanguage("en")
+  subject = 'Invoice payment requested'
+  body = """Dear %s,
 
-  notification_message = context.getPortalObject().portal_notifications.getDocumentValue(
-    reference="slapos-crm.create.regularisation.request",
-    language=language)
-  if notification_message is None:
-    subject = 'Invoice payment requested'
-    body = """Dear %s,
-
-A new invoice has been generated. 
+A new invoice has been generated.
 You can access it in your invoice section at %s.
 
 Regards,
 The slapos team
 """ % (context.getTitle(), portal.portal_preferences.getPreferredSlaposWebSiteUrl())
-
-  else:
-    notification_mapping_dict = {
-     'user_name': context.getTitle()}
-
-    subject = notification_message.getTitle()
-
-    # Preserve HTML else convert to text
-    if notification_message.getContentType() == "text/html":
-      body = notification_message.asEntireHTML(
-        substitution_method_parameter_dict={'mapping_dict':notification_mapping_dict})
-    else:
-      body = notification_message.asText(
-        substitution_method_parameter_dict={'mapping_dict':notification_mapping_dict})
+  notification_message_reference = "slapos-crm.create.regularisation.request"
 
   mail_message = ticket.RegularisationRequest_checkToSendUniqEvent(
     portal.portal_preferences.getPreferredRegularisationRequestResource(),
     subject,
     body,
-    'Requested manual payment.')
+    'Requested manual payment.',
+    notification_message=notification_message_reference,
+    substitution_method_parameter_dict={
+      'user_name': context.getTitle()
+    },
+  )
 
-  return ticket, mail_message
-
-return ticket, None
+return ticket, mail_message

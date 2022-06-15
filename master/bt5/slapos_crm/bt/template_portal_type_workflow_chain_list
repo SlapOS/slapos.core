@@ -1,8 +1,11 @@
+Compute Node | slapos_crm_interaction_workflow
 Incident Response | edit_workflow
 Incident Response | ticket_workflow
+Instance Tree | slapos_crm_interaction_workflow
 Regularisation Request | edit_workflow
 Regularisation Request | pricing_interaction_workflow
+Regularisation Request | slapos_crm_interaction_workflow
 Regularisation Request | ticket_interaction_workflow
-Regularisation Request | ticket_slap_interface_workflow
 Regularisation Request | ticket_workflow
-Support Request | ticket_slap_interface_workflow
+Sale Invoice Transaction Line | slapos_crm_interaction_workflow
+Sale Invoice Transaction | slapos_crm_interaction_workflow

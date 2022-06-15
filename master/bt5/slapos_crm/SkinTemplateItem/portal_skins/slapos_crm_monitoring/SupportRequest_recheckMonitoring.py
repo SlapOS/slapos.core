@@ -109,6 +109,11 @@ if aggregate_portal_type == "Instance Tree":
         message_list.append("%s has error (%s, %s at %s scope %s)" % (instance.getReference(), instance.getTitle(),
                                                                       instance.getUrlString(), compute_node.getReference(),
                                                                       compute_node.getAllocationScope()))
+      if instance.getPortalType() == "Software Instance" and \
+          compute_node.getAllocationScope() in ["closed/outdated"] and \
+          instance.getSlapState() == "start_requested" and \
+          instance.SoftwareInstance_hasReportedError():
+        message_list.append("%s on a %s compute_node" % (instance.getReference(), compute_node.getAllocationScope()) )
     else:
       message_list.append("%s is not allocated" % instance.getReference())
   return ",".join(message_list)

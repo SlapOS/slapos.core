@@ -1,14 +1,26 @@
 <workflow_chain>
  <chain>
+  <type>Compute Node</type>
+  <workflow>slapos_crm_interaction_workflow</workflow>
+ </chain>
+ <chain>
   <type>Incident Response</type>
   <workflow>edit_workflow, ticket_workflow</workflow>
  </chain>
  <chain>
-  <type>Regularisation Request</type>
-  <workflow>edit_workflow, pricing_interaction_workflow, ticket_interaction_workflow, ticket_slap_interface_workflow, ticket_workflow</workflow>
+  <type>Instance Tree</type>
+  <workflow>slapos_crm_interaction_workflow</workflow>
  </chain>
  <chain>
-  <type>Support Request</type>
-  <workflow>ticket_slap_interface_workflow</workflow>
+  <type>Regularisation Request</type>
+  <workflow>edit_workflow, pricing_interaction_workflow, slapos_crm_interaction_workflow, ticket_interaction_workflow, ticket_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Sale Invoice Transaction</type>
+  <workflow>slapos_crm_interaction_workflow</workflow>
+ </chain>
+ <chain>
+  <type>Sale Invoice Transaction Line</type>
+  <workflow>slapos_crm_interaction_workflow</workflow>
  </chain>
 </workflow_chain>

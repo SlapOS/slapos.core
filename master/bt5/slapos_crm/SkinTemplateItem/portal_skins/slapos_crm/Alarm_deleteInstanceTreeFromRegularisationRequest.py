@@ -1,9 +1,9 @@
 portal = context.getPortalObject()
 sub_tag = "RegularisationRequest_deleteInstanceTreeList"
 portal.portal_catalog.searchAndActivate(
-      portal_type="Regularisation Request", 
+      portal_type="Regularisation Request",
       simulation_state=["suspended"],
-      default_resource_uid=portal.service_module.slapos_crm_delete_acknowledgement.getUid(),
+      resource__uid=portal.service_module.slapos_crm_delete_acknowledgement.getUid(),
       method_id='RegularisationRequest_deleteInstanceTreeList',
       method_args=(sub_tag,),
       # Limit activity number, as method_id also calls searchAndActivate

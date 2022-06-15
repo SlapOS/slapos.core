@@ -2,19 +2,20 @@ from Products.ERP5Type.Cache import CachingMethod
 portal = context.getPortalObject()
 
 def isSupportRequestCreationClosed(destination_decision=None):
-  limit = portal.portal_preferences.getPreferredSupportRequestCreationLimit(5)
+  limit = int(portal.portal_preferences.getPreferredSupportRequestCreationLimit(5))
 
-  kw = {}
-  kw['limit'] = limit
-  kw['portal_type'] = 'Support Request'
-  kw['simulation_state'] = ["validated","submitted"]
-  kw['default_resource_uid'] = portal.service_module.slapos_crm_monitoring.getUid()
+  kw = {
+    'limit': limit,
+    'portal_type': 'Support Request',
+    'simulation_state': ["validated", "submitted"],
+    'resource__uid': portal.service_module.slapos_crm_monitoring.getUid()
+  }
   if destination_decision:
-    kw['default_destination_decision_uid'] = context.restrictedTraverse(
+    kw['destination_decision__uid'] = context.restrictedTraverse(
                             destination_decision).getUid()
 
-  support_request_amount = context.portal_catalog.countResults(**kw)[0][0]
-  return support_request_amount >= int(limit)
+  support_request_amount_list = context.portal_catalog(**kw)
+  return limit <= len(support_request_amount_list)
 
 
 return CachingMethod(isSupportRequestCreationClosed,

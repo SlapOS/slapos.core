@@ -8,9 +8,6 @@
  <portal_type id="Site Message">
   <item>SlapOSEventConstraint</item>
  </portal_type>
- <portal_type id="Support Request">
-  <item>SlapOSSupportRequestConstraint</item>
- </portal_type>
  <portal_type id="Web Message">
   <item>SlapOSEventConstraint</item>
  </portal_type>

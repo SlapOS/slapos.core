@@ -50,7 +50,7 @@
         </item>
         <item>
             <key> <string>_params</string> </key>
-            <value> <string>delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None</string> </value>
+            <value> <string>delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, notification_message=None, substitution_method_parameter_dict=None, REQUEST=None</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>

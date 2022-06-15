@@ -26,246 +26,15 @@ from erp5.component.test.SlapOSTestCaseMixin import \
   SlapOSTestCaseMixin,SlapOSTestCaseMixinWithAbort, simulate
 from zExceptions import Unauthorized
 from DateTime import DateTime
-import difflib
 
-class TestSlapOSPerson_checkToCreateRegularisationRequest(SlapOSTestCaseMixinWithAbort):
-
-  @simulate('NotificationTool_getDocumentValue',
-            'reference=None, language="en"',
-  'assert reference == "slapos-crm.create.regularisation.request"\n' \
-  'return')
-  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "1"')
-  def test_addRegularisationRequest_payment_requested(self):
-    for preference in \
-      self.portal.portal_catalog(portal_type="System Preference"):
-      preference = preference.getObject()
-      if preference.getPreferenceState() == 'global':
-        preference.setPreferredSlaposWebSiteUrl('http://foobar.org/')
-
-    person = self.makePerson(index=0, user=0)
-    before_date = DateTime()
-    ticket, event = person.Person_checkToCreateRegularisationRequest()
-    after_date = DateTime()
-    self.assertEqual(ticket.getPortalType(), 'Regularisation Request')
-    self.assertEqual(ticket.getSimulationState(), 'suspended')
-    self.assertEqual(ticket.getSourceProject(), person.getRelativeUrl())
-    self.assertEqual(ticket.getResource(),
-                      'service_module/slapos_crm_acknowledgement')
-    self.assertEqual(ticket.getTitle(),
-           'Account regularisation expected for "%s"' % person.getTitle())
-    self.assertEqual(ticket.getDestination(),
-                      person.getRelativeUrl())
-    self.assertEqual(ticket.getDestinationDecision(),
-                      person.getRelativeUrl())
-    self.assertEqual(event.getPortalType(), 'Mail Message')
-    self.assertEqual(event.getResource(),
-                      'service_module/slapos_crm_acknowledgement')
-    self.assertTrue(event.getStartDate() >= before_date)
-    self.assertTrue(event.getStopDate() <= after_date)
-    self.assertEqual(event.getTitle(), "Invoice payment requested")
-    self.assertEqual(event.getDestination(),
-                      person.getRelativeUrl())
-    self.assertEqual(event.getSource(),
-                      ticket.getSource())
-    expected_text_content = """Dear Member Template,
-
-A new invoice has been generated. 
-You can access it in your invoice section at http://foobar.org/.
-
-Regards,
-The slapos team
-"""
-    self.assertEqual(event.getTextContent(), expected_text_content,
-                      '\n'.join([x for x in difflib.unified_diff(
-                                           event.getTextContent().splitlines(),
-                                           expected_text_content.splitlines())]))
-    self.assertEqual(event.getSimulationState(), 'delivered')
-
-  @simulate('NotificationTool_getDocumentValue',
-            'reference=None, language="en"',
-  'assert reference == "slapos-crm.create.regularisation.request"\n' \
-  'return context.restrictedTraverse(' \
-  'context.REQUEST["test_addRegularisationRequest_notification_message"])')
-  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "1"')
-  def test_addRegularisationRequest_notification_message(self):
-    for preference in \
-      self.portal.portal_catalog(portal_type="System Preference"):
-      preference = preference.getObject()
-      if preference.getPreferenceState() == 'global':
-        preference.setPreferredSlaposWebSiteUrl('http://foobar.org/')
-
-    person = self.makePerson(index=0, user=0)
-    new_id = self.generateNewId()
-    notification_message = self.portal.notification_message_module.newContent(
-      portal_type="Notification Message",
-      title='Test NM title %s' % new_id,
-      text_content='Test NM content\n%s\n' % new_id,
-      content_type='text/plain',
-      )
-    self.portal.REQUEST\
-        ['test_addRegularisationRequest_notification_message'] = \
-        notification_message.getRelativeUrl()
-
-    before_date = DateTime()
-    ticket, event = person.Person_checkToCreateRegularisationRequest()
-    after_date = DateTime()
-    self.assertEqual(ticket.getPortalType(), 'Regularisation Request')
-    self.assertEqual(ticket.getSimulationState(), 'suspended')
-    self.assertEqual(ticket.getSourceProject(), person.getRelativeUrl())
-    self.assertEqual(ticket.getResource(),
-                      'service_module/slapos_crm_acknowledgement')
-    self.assertEqual(ticket.getTitle(),
-           'Account regularisation expected for "%s"' % person.getTitle())
-    self.assertEqual(ticket.getDestination(),
-                      person.getRelativeUrl())
-    self.assertEqual(ticket.getDestinationDecision(),
-                      person.getRelativeUrl())
-    self.assertEqual(event.getPortalType(), 'Mail Message')
-    self.assertEqual(event.getResource(),
-                      'service_module/slapos_crm_acknowledgement')
-    self.assertTrue(event.getStartDate() >= before_date)
-    self.assertTrue(event.getStopDate() <= after_date)
-    self.assertEqual(event.getTitle(),
-           'Test NM title %s' % new_id)
-    self.assertEqual(event.getDestination(),
-                      person.getRelativeUrl())
-    self.assertEqual(event.getSource(),
-                      ticket.getSource())
-    expected_text_content = 'Test NM content\n%s\n' % new_id
-    self.assertEqual(event.getTextContent(), expected_text_content,
-                      '\n'.join([x for x in difflib.unified_diff(
-                                           event.getTextContent().splitlines(),
-                                           expected_text_content.splitlines())]))
-    self.assertEqual(event.getSimulationState(), 'delivered')
-
-
-#   def test_addRegularisationRequest_do_not_duplicate_ticket(self):
-#     person = self.createPerson()
-#     ticket = person.Person_checkToCreateRegularisationRequest()
-#     ticket2 = person.Person_checkToCreateRegularisationRequest()
-#     self.assertEqual(ticket.getRelativeUrl(), ticket2.getRelativeUrl())
-
-  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "1"')
-  def test_addRegularisationRequest_do_not_duplicate_ticket_if_not_reindexed(self):
-    person = self.makePerson(index=0, user=0)
-    ticket, event = person.Person_checkToCreateRegularisationRequest()
-    transaction.commit()
-    ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
-    self.assertNotEqual(ticket, None)
-    self.assertNotEqual(event, None)
-    self.assertEqual(ticket2, None)
-    self.assertEqual(event2, None)
-
-  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "0"')
-  @simulate('RegularisationRequest_checkToSendUniqEvent',
-            '*args, **kwargs',
-            'raise NotImplementedError, "Should not have been called"')
-  def test_addRegularisationRequest_balance_ok(self):
-    person = self.makePerson(index=0, user=0)
-    ticket, event = person.Person_checkToCreateRegularisationRequest()
-    self.assertEqual(ticket, None)
-    self.assertEqual(event, None)
-
-  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "1"')
-  def test_addRegularisationRequest_existing_suspended_ticket(self):
-    person = self.makePerson(index=0, user=0)
-    ticket, event = person.Person_checkToCreateRegularisationRequest()
-    transaction.commit()
-    self.tic()
-    ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
-    self.assertNotEqual(ticket, None)
-    self.assertNotEqual(event, None)
-    self.assertEqual(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
-    self.assertEqual(event2, None)
-
-  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "1"')
-  def test_addRegularisationRequest_existing_validated_ticket(self):
-    person = self.makePerson(index=0, user=0)
-    ticket, event = person.Person_checkToCreateRegularisationRequest()
-    ticket.validate()
-    transaction.commit()
-    self.tic()
-    ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
-    self.assertNotEqual(ticket, None)
-    self.assertNotEqual(event, None)
-    self.assertEqual(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
-    self.assertEqual(event2, None)
-
-  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "1"')
-  def test_addRegularisationRequest_existing_invalidated_ticket(self):
-    person = self.makePerson(index=0, user=0)
-    ticket = person.Person_checkToCreateRegularisationRequest()[0]
-    ticket.invalidate()
-    transaction.commit()
-    self.tic()
-    ticket2, event2 = person.Person_checkToCreateRegularisationRequest()
-    self.assertNotEqual(ticket2.getRelativeUrl(), ticket.getRelativeUrl())
-    self.assertNotEqual(event2, None)
-
-  def test_addRegularisationRequest_REQUEST_disallowed(self):
-    person = self.makePerson(index=0, user=0)
-    self.assertRaises(
-      Unauthorized,
-      person.Person_checkToCreateRegularisationRequest,
-      REQUEST={})
-
-
-class TestSlapOSRegularisationRequest_invalidateIfPersonBalanceIsOk(
-                                                         SlapOSTestCaseMixinWithAbort):
-
-  def createRegularisationRequest(self):
-    new_id = self.generateNewId()
-    return self.portal.regularisation_request_module.newContent(
-      portal_type='Regularisation Request',
-      title="Test Reg. Req.%s" % new_id,
-      reference="TESTREGREQ-%s" % new_id,
-      )
-
-  def test_invalidateIfPersonBalanceIsOk_REQUEST_disallowed(self):
-    ticket = self.createRegularisationRequest()
-    self.assertRaises(
-      Unauthorized,
-      ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk,
-      REQUEST={})
-
-  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "0"')
-  def test_invalidateIfPersonBalanceIsOk_matching_case(self):
-    person = self.makePerson(index=0, user=0)
-    ticket = self.createRegularisationRequest()
-    ticket.edit(source_project_value=person)
-    ticket.validate()
-    ticket.suspend()
-    ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk()
-    self.assertEqual(ticket.getSimulationState(), 'invalidated')
-
-  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "0"')
-  def test_invalidateIfPersonBalanceIsOk_validated(self):
-    person = self.makePerson(index=0, user=0)
-    ticket = self.createRegularisationRequest()
-    ticket.edit(source_project_value=person)
-    ticket.validate()
-    ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk()
-    self.assertEqual(ticket.getSimulationState(), 'invalidated')
-
-  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "0"')
-  def test_invalidateIfPersonBalanceIsOk_no_person(self):
-    ticket = self.createRegularisationRequest()
-    ticket.validate()
-    ticket.suspend()
-    ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk()
-    self.assertEqual(ticket.getSimulationState(), 'suspended')
-
-  @simulate('Entity_statOutstandingAmount', '*args, **kwargs', 'return "1"')
-  def test_invalidateIfPersonBalanceIsOk_wrong_balance(self):
-    person = self.makePerson(index=0, user=0)
-    ticket = self.createRegularisationRequest()
-    ticket.edit(source_project_value=person)
-    ticket.validate()
-    ticket.suspend()
-    ticket.RegularisationRequest_invalidateIfPersonBalanceIsOk()
-    self.assertEqual(ticket.getSimulationState(), 'suspended')
 
 class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
+  def afterSetUp(self):
+    SlapOSTestCaseMixin.afterSetUp(self)
+    expected_slapos_organisation = self.portal.organisation_module.newContent(
+      default_email_coordinate_text="foo@example.org"
+    )
+    self.expected_slapos_organisation = expected_slapos_organisation.getRelativeUrl()
 
   def createRegularisationRequest(self):
     new_id = self.generateNewId()
@@ -276,8 +45,9 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
       resource='foo/bar',
       )
 
-  def test_checkToSendUniqEvent_no_event(self):
-    person = self.makePerson(index=0, user=0)
+  def test_checkToSendUniqEvent_noEvent(self):
+    project = self.addProject()
+    person = self.makePerson(project, index=0, user=0)
     ticket = self.createRegularisationRequest()
     ticket.edit(
       source=self.expected_slapos_organisation,
@@ -303,8 +73,56 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
     self.assertEqual(event.getSource(), self.expected_slapos_organisation)
     self.assertEqual(event.getDestination(), person.getRelativeUrl())
     self.assertEqual(event.getTextContent(), 'foo content')
+    self.assertEqual(event.getContentType(), 'text/plain')
 
-  def test_checkToSendUniqEvent_service_required(self):
+  def test_checkToSendUniqEvent_notificationMessage(self):
+    project = self.addProject()
+    person = self.makePerson(project, index=0, user=0)
+    ticket = self.createRegularisationRequest()
+    ticket.edit(
+      source=self.expected_slapos_organisation,
+      destination_value=person,
+      source_project_value=person)
+    ticket.validate()
+    ticket.suspend()
+    before_date = DateTime()
+
+    notification_message_reference = 'test_checkToSendUniqEvent_notificationMessage%s' % self.generateNewId()
+    notification_message = self.portal.notification_message_module.newContent(
+      portal_type="Notification Message",
+      reference=notification_message_reference,
+      title='notification title ${foo}',
+      text_content_substitution_mapping_method_id='NotificationMessage_getSubstitutionMappingDictFromEvent',
+      text_content='notification content ${foo}',
+      content_type='text/html',
+      )
+    notification_message.validate()
+    self.tic()
+
+    event = ticket.RegularisationRequest_checkToSendUniqEvent(
+      'service_module/slapos_crm_spam', 'foo title', 'foo content',
+      'foo comment',
+      notification_message=notification_message_reference,
+      substitution_method_parameter_dict={'foo': 'bar'}
+    )
+    after_date = DateTime()
+
+    self.assertEqual(ticket.getSimulationState(), 'suspended')
+    self.assertEqual(ticket.getResource(), 'service_module/slapos_crm_spam')
+
+    self.assertEqual(event.getPortalType(), 'Mail Message')
+    self.assertEqual(event.getSimulationState(), 'delivered')
+    self.assertTrue(event.getStartDate() >= before_date)
+    self.assertTrue(event.getStopDate() <= after_date)
+    self.assertEqual(event.getTitle(), "notification title bar")
+    self.assertEqual(event.getResource(), 'service_module/slapos_crm_spam')
+    self.assertEqual(event.getFollowUp(), ticket.getRelativeUrl())
+    self.assertEqual(event.getSource(), self.expected_slapos_organisation)
+    self.assertEqual(event.getDestination(), person.getRelativeUrl())
+    self.assertEqual(event.getTextContent(), 'notification content bar')
+    self.assertEqual(event.getContentType(), 'text/html')
+
+  def test_checkToSendUniqEvent_serviceRequired(self):
     ticket = self.createRegularisationRequest()
     self.assertRaises(
       AssertionError,
@@ -312,8 +130,9 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
       ticket.getRelativeUrl(), '', '', ''
       )
 
-  def test_checkToSendUniqEvent_call_twice_with_tic(self):
-    person = self.makePerson(index=0, user=0)
+  def test_checkToSendUniqEvent_callTwiceWithTic(self):
+    project = self.addProject()
+    person = self.makePerson(project, index=0, user=0)
     ticket = self.createRegularisationRequest()
     ticket.edit(
       source=self.expected_slapos_organisation,
@@ -331,8 +150,9 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
     self.assertEqual(event.getTextContent(), 'foo content')
     self.assertEqual(event.getRelativeUrl(), event2.getRelativeUrl())
 
-  def test_checkToSendUniqEvent_manual_event(self):
-    person = self.makePerson(index=0, user=0)
+  def test_checkToSendUniqEvent_manualEvent(self):
+    project = self.addProject()
+    person = self.makePerson(project, index=0, user=0)
     ticket = self.createRegularisationRequest()
     ticket.edit(
       source=self.expected_slapos_organisation,
@@ -356,8 +176,9 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
     self.assertEqual(event.getSimulationState(), 'draft')
     self.assertEqual(event.getRelativeUrl(), event2.getRelativeUrl())
 
-  def test_checkToSendUniqEvent_not_suspended(self):
-    person = self.makePerson(index=0, user=0)
+  def test_checkToSendUniqEvent_notSuspended(self):
+    project = self.addProject()
+    person = self.makePerson(project, index=0, user=0)
     ticket = self.createRegularisationRequest()
     ticket.edit(
       source=self.expected_slapos_organisation,
@@ -369,8 +190,9 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
       'service_module/slapos_crm_spam', 'foo2 title', 'foo2 content', 'foo2 comment')
     self.assertEqual(event, None)
 
-  def test_checkToSendUniqEvent_event_not_reindexed(self):
-    person = self.makePerson(index=0, user=0)
+  def test_checkToSendUniqEvent_eventNotReindexed(self):
+    project = self.addProject()
+    person = self.makePerson(project, index=0, user=0)
     ticket = self.createRegularisationRequest()
     ticket.edit(
       source=self.expected_slapos_organisation,
@@ -386,13 +208,14 @@ class TestSlapOSRegularisationRequest_checkToSendUniqEvent(SlapOSTestCaseMixin):
     self.assertNotEqual(event, event2)
     self.assertEqual(event2, None)
 
-  def test_checkToSendUniqEvent_REQUEST_disallowed(self):
+  def test_checkToSendUniqEvent_REQUESTdisallowed(self):
     ticket = self.createRegularisationRequest()
     self.assertRaises(
       Unauthorized,
       ticket.RegularisationRequest_checkToSendUniqEvent,
       '', '', '', '',
       REQUEST={})
+
 
 class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
                                                           SlapOSTestCaseMixinWithAbort):
@@ -414,18 +237,16 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
       0, ticket.getRelativeUrl(), '', '', '', ''
       )
 
-  @simulate('NotificationTool_getDocumentValue',
-            'reference=None, language="en"',
-  'assert reference == "slapos-crm.acknowledgment.escalation", reference\n' \
-  'return')
   @simulate('RegularisationRequest_checkToSendUniqEvent',
-            'service_relative_url, title, text_content, comment, REQUEST=None',
+            'service_relative_url, title, text_content, comment, ' \
+            'notification_message=None, substitution_method_parameter_dict=None, ' \
+            'REQUEST=None',
   'context.portal_workflow.doActionFor(' \
   'context, action="edit_action", ' \
   'comment="Visited by RegularisationRequest_checkToSendUniqEvent ' \
-  '%s %s %s %s" % (service_relative_url, title, text_content, comment))\n' \
+  '%s %s %s %s %s %s" % (service_relative_url, title, text_content, comment, notification_message, substitution_method_parameter_dict))\n' \
   'return "fooevent"')
-  def test_checkToTriggerNextEscalationStep_matching_event(self):
+  def test_checkToTriggerNextEscalationStep_matchingEvent(self):
     ticket = self.createRegularisationRequest()
     ticket.edit(resource='service_module/slapos_crm_acknowledgement')
     ticket.validate()
@@ -442,19 +263,21 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
     event2 = ticket.RegularisationRequest_checkToTriggerNextEscalationStep(
         7, 'service_module/slapos_crm_acknowledgement',
         'service_module/slapos_crm_spam',
-        'foo2 title', 'foo2 content', 'foo2 comment')
+        'foo2 title', 'foo2 content', 'foo2 comment',
+        notification_message='slapos-crm.acknowledgment.escalation',
+        substitution_method_parameter_dict={'foo': 'bar'})
 
     self.assertEqual(event2, event.getRelativeUrl())
     self.assertEqual(
-      'Visited by RegularisationRequest_checkToSendUniqEvent %s %s %s %s' % \
+      'Visited by RegularisationRequest_checkToSendUniqEvent %s %s %s %s %s %s' % \
       ('service_module/slapos_crm_spam', 'foo2 title', 'foo2 content',
-       'foo2 comment'),
+       'foo2 comment', 'slapos-crm.acknowledgment.escalation', {'foo': 'bar'}),
       ticket.workflow_history['edit_workflow'][-1]['comment'])
 
   @simulate('RegularisationRequest_checkToSendUniqEvent',
             '*args, **kwargs',
             'raise NotImplementedError, "Should not have been called"')
-  def test_checkToTriggerNextEscalationStep_recent_event(self):
+  def test_checkToTriggerNextEscalationStep_recentEvent(self):
     ticket = self.createRegularisationRequest()
     ticket.edit(resource='service_module/slapos_crm_acknowledgement')
     ticket.validate()
@@ -478,7 +301,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
   @simulate('RegularisationRequest_checkToSendUniqEvent',
             '*args, **kwargs',
             'raise NotImplementedError, "Should not have been called"')
-  def test_checkToTriggerNextEscalationStep_other_ticket_event(self):
+  def test_checkToTriggerNextEscalationStep_other_ticketEvent(self):
     ticket = self.createRegularisationRequest()
     ticket.edit(resource='service_module/slapos_crm_acknowledgement')
     ticket.validate()
@@ -501,7 +324,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
   @simulate('RegularisationRequest_checkToSendUniqEvent',
             '*args, **kwargs',
             'raise NotImplementedError, "Should not have been called"')
-  def test_checkToTriggerNextEscalationStep_other_resource_event(self):
+  def test_checkToTriggerNextEscalationStep_otherResourceEvent(self):
     ticket = self.createRegularisationRequest()
     ticket.edit(resource='service_module/slapos_crm_acknowledgement')
     ticket.validate()
@@ -525,7 +348,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
   @simulate('RegularisationRequest_checkToSendUniqEvent',
             '*args, **kwargs',
             'raise NotImplementedError, "Should not have been called"')
-  def test_checkToTriggerNextEscalationStep_no_current_event(self):
+  def test_checkToTriggerNextEscalationStep_noCurrentEvent(self):
     ticket = self.createRegularisationRequest()
     ticket.edit(resource='service_module/slapos_crm_acknowledgement')
     ticket.validate()
@@ -542,7 +365,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
   @simulate('RegularisationRequest_checkToSendUniqEvent',
             '*args, **kwargs',
             'raise NotImplementedError, "Should not have been called"')
-  def test_checkToTriggerNextEscalationStep_no_ticket_resource(self):
+  def test_checkToTriggerNextEscalationStep_noTicketResource(self):
     ticket = self.createRegularisationRequest()
     ticket.validate()
     ticket.suspend()
@@ -565,7 +388,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
   @simulate('RegularisationRequest_checkToSendUniqEvent',
             '*args, **kwargs',
             'raise NotImplementedError, "Should not have been called"')
-  def test_checkToTriggerNextEscalationStep_not_suspended(self):
+  def test_checkToTriggerNextEscalationStep_notSuspended(self):
     ticket = self.createRegularisationRequest()
     ticket.edit(resource='service_module/slapos_crm_acknowledgement')
     ticket.validate()
@@ -585,7 +408,7 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
 
     self.assertEqual(event2, None)
 
-  def test_checkToTriggerNextEscalationStep_REQUEST_disallowed(self):
+  def test_checkToTriggerNextEscalationStep_REQUESTdisallowed(self):
     ticket = self.createRegularisationRequest()
     self.assertRaises(
       Unauthorized,
@@ -593,510 +416,40 @@ class TestSlapOSRegularisationRequest_checkToTriggerNextEscalationStep(
       '', '', '', '', '', '',
       REQUEST={})
 
-class TestSlapOSRegularisationRequest_triggerAcknowledgmentEscalation(
-                                                          SlapOSTestCaseMixinWithAbort):
-
-  def test_triggerAcknowledgmentEscalation_REQUEST_disallowed(self):
-    ticket = self.createRegularisationRequest()
-    self.assertRaises(
-      Unauthorized,
-      ticket.RegularisationRequest_triggerAcknowledgmentEscalation,
-      REQUEST={})
-
-  @simulate('NotificationTool_getDocumentValue',
-            'reference=None, language="en"',
-  'assert reference == "slapos-crm.acknowledgment.escalation", reference\n' \
-  'return')
-  @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
-            'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
-  'context.portal_workflow.doActionFor(' \
-  'context, action="edit_action", ' \
-  'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment))')
-  def test_checkToTriggerNextEscalationStep_matching_event(self):
-    ticket = self.createRegularisationRequest()
-    ticket.RegularisationRequest_triggerAcknowledgmentEscalation()
-    self.assertEqual(
-      'Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-      '%s %s %s %s %s %s' % \
-      (15,
-       'service_module/slapos_crm_acknowledgement',
-       'service_module/slapos_crm_stop_reminder',
-       'Reminder: invoice payment requested',
-"""Dear user,
-
-We would like to remind you the unpaid invoice you have on %s.
-If no payment is done during the coming days, we will stop all your current instances to free some hardware resources.
-
-Regards,
-The slapos team
-""" % self.portal.portal_preferences.getPreferredSlaposWebSiteUrl(),
-       'Stopping reminder.'),
-      ticket.workflow_history['edit_workflow'][-1]['comment'])
-
-  @simulate('NotificationTool_getDocumentValue',
-            'reference=None, language="en"',
-  'assert reference == "slapos-crm.acknowledgment.escalation"\n' \
-  'return context.restrictedTraverse(' \
-  'context.REQUEST["test_checkToTriggerNextEscalationStep_notification_message"])')
-  @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
-            'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
-  'context.portal_workflow.doActionFor(' \
-  'context, action="edit_action", ' \
-  'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment))')
-  def test_checkToTriggerNextEscalationStep_notification_message(self):
-    ticket = self.createRegularisationRequest()
-    new_id = self.generateNewId()
-    notification_message = self.portal.notification_message_module.newContent(
-      portal_type="Notification Message",
-      title='Test NM title %s' % new_id,
-      text_content='Test NM content\n%s\n' % new_id,
-      content_type='text/plain',
-      )
-    self.portal.REQUEST\
-        ['test_checkToTriggerNextEscalationStep_notification_message'] = \
-        notification_message.getRelativeUrl()
-    ticket.RegularisationRequest_triggerAcknowledgmentEscalation()
-    self.assertEqual(
-      'Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-      '%s %s %s %s %s %s' % \
-      (15,
-       'service_module/slapos_crm_acknowledgement',
-       'service_module/slapos_crm_stop_reminder',
-       'Test NM title %s' % new_id,
-       'Test NM content\n%s\n' % new_id,
-       'Stopping reminder.'),
-      ticket.workflow_history['edit_workflow'][-1]['comment'])
-
-class TestSlapOSRegularisationRequest_triggerStopReminderEscalation(
-                                                          SlapOSTestCaseMixinWithAbort):
-
-  def test_triggerStopReminderEscalation_REQUEST_disallowed(self):
-    ticket = self.createRegularisationRequest()
-    self.assertRaises(
-      Unauthorized,
-      ticket.RegularisationRequest_triggerStopReminderEscalation,
-      REQUEST={})
-
-  @simulate('NotificationTool_getDocumentValue',
-            'reference=None, language="en"',
-  'assert reference == "slapos-crm.stop.reminder.escalation", reference\n' \
-  'return')
-  @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
-            'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
-  'context.portal_workflow.doActionFor(' \
-  'context, action="edit_action", ' \
-  'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment))')
-  def test_checkToTriggerNextEscalationStep_matching_event(self):
-    ticket = self.createRegularisationRequest()
-    ticket.RegularisationRequest_triggerStopReminderEscalation()
-    self.assertEqual(
-      'Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-      '%s %s %s %s %s %s' % \
-      (7,
-       'service_module/slapos_crm_stop_reminder',
-       'service_module/slapos_crm_stop_acknowledgement',
-       'Acknowledgment: instances stopped',
-"""Dear user,
-
-Despite our last reminder, you still have an unpaid invoice on %s.
-We will now stop all your current instances to free some hardware resources.
-
-Regards,
-The slapos team
-""" % self.portal.portal_preferences.getPreferredSlaposWebSiteUrl(),
-       'Stopping acknowledgment.'),
-      ticket.workflow_history['edit_workflow'][-1]['comment'])
-
-  @simulate('NotificationTool_getDocumentValue',
-            'reference=None, language="en"',
-  'assert reference == "slapos-crm.stop.reminder.escalation"\n' \
-  'return context.restrictedTraverse(' \
-  'context.REQUEST["test_checkToTriggerNextEscalationStep_notification_message"])')
-  @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
-            'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
-  'context.portal_workflow.doActionFor(' \
-  'context, action="edit_action", ' \
-  'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment))')
-  def test_checkToTriggerNextEscalationStep_notification_message(self):
-    ticket = self.createRegularisationRequest()
-    new_id = self.generateNewId()
-    notification_message = self.portal.notification_message_module.newContent(
-      portal_type="Notification Message",
-      title='Test NM title %s' % new_id,
-      text_content='Test NM content\n%s\n' % new_id,
-      content_type='text/plain',
-      )
-    self.portal.REQUEST\
-        ['test_checkToTriggerNextEscalationStep_notification_message'] = \
-        notification_message.getRelativeUrl()
-    ticket.RegularisationRequest_triggerStopReminderEscalation()
-    self.assertEqual(
-      'Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-      '%s %s %s %s %s %s' % \
-      (7,
-       'service_module/slapos_crm_stop_reminder',
-       'service_module/slapos_crm_stop_acknowledgement',
-       'Test NM title %s' % new_id,
-       'Test NM content\n%s\n' % new_id,
-       'Stopping acknowledgment.'),
-      ticket.workflow_history['edit_workflow'][-1]['comment'])
-
-class TestSlapOSRegularisationRequest_triggerStopAcknowledgmentEscalation(
-                                                          SlapOSTestCaseMixinWithAbort):
-
-  def test_triggerStopAcknowledgmentEscalation_REQUEST_disallowed(self):
-    ticket = self.createRegularisationRequest()
-    self.assertRaises(
-      Unauthorized,
-      ticket.RegularisationRequest_triggerStopAcknowledgmentEscalation,
-      REQUEST={})
-
-  @simulate('NotificationTool_getDocumentValue',
-            'reference=None, language="en"',
-  'assert reference == "slapos-crm.stop.acknowledgment.escalation", reference\n' \
-  'return')
-  @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
-            'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
-  'context.portal_workflow.doActionFor(' \
-  'context, action="edit_action", ' \
-  'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment))')
-  def test_checkToTriggerNextEscalationStep_matching_event(self):
-    ticket = self.createRegularisationRequest()
-    ticket.RegularisationRequest_triggerStopAcknowledgmentEscalation()
-    self.assertEqual(
-      'Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-      '%s %s %s %s %s %s' % \
-      (7,
-       'service_module/slapos_crm_stop_acknowledgement',
-       'service_module/slapos_crm_delete_reminder',
-       'Last reminder: invoice payment requested',
-"""Dear user,
-
-We would like to remind you the unpaid invoice you have on %s.
-If no payment is done during the coming days, we will delete all your instances.
-
-Regards,
-The slapos team
-""" % self.portal.portal_preferences.getPreferredSlaposWebSiteUrl(),
-       'Deleting reminder.'),
-      ticket.workflow_history['edit_workflow'][-1]['comment'])
-
-  @simulate('NotificationTool_getDocumentValue',
-            'reference=None, language="en"',
-  'assert reference == "slapos-crm.stop.acknowledgment.escalation"\n' \
-  'return context.restrictedTraverse(' \
-  'context.REQUEST["test_checkToTriggerNextEscalationStep_notification_message"])')
-  @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
-            'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
-  'context.portal_workflow.doActionFor(' \
-  'context, action="edit_action", ' \
-  'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment))')
-  def test_checkToTriggerNextEscalationStep_notification_message(self):
-    ticket = self.createRegularisationRequest()
-    new_id = self.generateNewId()
-    notification_message = self.portal.notification_message_module.newContent(
-      portal_type="Notification Message",
-      title='Test NM title %s' % new_id,
-      text_content='Test NM content\n%s\n' % new_id,
-      content_type='text/plain',
-      )
-    self.portal.REQUEST\
-        ['test_checkToTriggerNextEscalationStep_notification_message'] = \
-        notification_message.getRelativeUrl()
-    ticket.RegularisationRequest_triggerStopAcknowledgmentEscalation()
-    self.assertEqual(
-      'Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-      '%s %s %s %s %s %s' % \
-      (7,
-       'service_module/slapos_crm_stop_acknowledgement',
-       'service_module/slapos_crm_delete_reminder',
-       'Test NM title %s' % new_id,
-       'Test NM content\n%s\n' % new_id,
-       'Deleting reminder.'),
-      ticket.workflow_history['edit_workflow'][-1]['comment'])
-
-class TestSlapOSRegularisationRequest_triggerDeleteReminderEscalation(
-                                                          SlapOSTestCaseMixinWithAbort):
-
-  def test_triggerDeleteReminderEscalation_REQUEST_disallowed(self):
-    ticket = self.createRegularisationRequest()
-    self.assertRaises(
-      Unauthorized,
-      ticket.RegularisationRequest_triggerDeleteReminderEscalation,
-      REQUEST={})
-
-  @simulate('NotificationTool_getDocumentValue',
-            'reference=None, language="en"',
-  'assert reference == "slapos-crm.delete.reminder.escalation", reference\n' \
-  'return')
-  @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
-            'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
-  'context.portal_workflow.doActionFor(' \
-  'context, action="edit_action", ' \
-  'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment))')
-  def test_checkToTriggerNextEscalationStep_matching_event(self):
-    ticket = self.createRegularisationRequest()
-    ticket.RegularisationRequest_triggerDeleteReminderEscalation()
-    self.assertEqual(
-      'Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-      '%s %s %s %s %s %s' % \
-      (10,
-       'service_module/slapos_crm_delete_reminder',
-       'service_module/slapos_crm_delete_acknowledgement',
-       'Acknowledgment: instances deleted',
-"""Dear user,
-
-Despite our last reminder, you still have an unpaid invoice on %s.
-We will now delete all your instances.
-
-Regards,
-The slapos team
-""" % self.portal.portal_preferences.getPreferredSlaposWebSiteUrl(),
-       'Deleting acknowledgment.'),
-      ticket.workflow_history['edit_workflow'][-1]['comment'])
-
-  @simulate('NotificationTool_getDocumentValue',
-            'reference=None, language="en"',
-  'assert reference == "slapos-crm.delete.reminder.escalation"\n' \
-  'return context.restrictedTraverse(' \
-  'context.REQUEST["test_checkToTriggerNextEscalationStep_notification_message"])')
-  @simulate('RegularisationRequest_checkToTriggerNextEscalationStep',
-            'delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment, REQUEST=None',
-  'context.portal_workflow.doActionFor(' \
-  'context, action="edit_action", ' \
-  'comment="Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-  '%s %s %s %s %s %s" % (delay_period_in_days, current_service_relative_url, next_service_relative_url, title, text_content, comment))')
-  def test_checkToTriggerNextEscalationStep_notification_message(self):
-    ticket = self.createRegularisationRequest()
-    new_id = self.generateNewId()
-    notification_message = self.portal.notification_message_module.newContent(
-      portal_type="Notification Message",
-      title='Test NM title %s' % new_id,
-      text_content='Test NM content\n%s\n' % new_id,
-      content_type='text/plain',
-      )
-    self.portal.REQUEST\
-        ['test_checkToTriggerNextEscalationStep_notification_message'] = \
-        notification_message.getRelativeUrl()
-    ticket.RegularisationRequest_triggerDeleteReminderEscalation()
-    self.assertEqual(
-      'Visited by RegularisationRequest_checkToTriggerNextEscalationStep ' \
-      '%s %s %s %s %s %s' % \
-      (10,
-       'service_module/slapos_crm_delete_reminder',
-       'service_module/slapos_crm_delete_acknowledgement',
-       'Test NM title %s' % new_id,
-       'Test NM content\n%s\n' % new_id,
-       'Deleting acknowledgment.'),
-      ticket.workflow_history['edit_workflow'][-1]['comment'])
-
-class TestSlapOSRegularisationRequest_stopInstanceTreeList(
-                                                          SlapOSTestCaseMixinWithAbort):
-
-  def createInstanceTree(self):
-    new_id = self.generateNewId()
-    instance_tree = self.portal.instance_tree_module\
-        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
-    instance_tree.edit(
-      reference="TESTHS-%s" % new_id,
-    )
-    instance_tree.validate()
-    self.portal.portal_workflow._jumpToStateFor(
-        instance_tree, 'start_requested')
-    return instance_tree
-
-  def test_stopInstanceTreeList_REQUEST_disallowed(self):
-    ticket = self.createRegularisationRequest()
-    self.assertRaises(
-      Unauthorized,
-      ticket.RegularisationRequest_stopInstanceTreeList,
-      'footag',
-      REQUEST={})
-
-  @simulate('InstanceTree_stopFromRegularisationRequest',
-            'person, REQUEST=None',
-  'context.portal_workflow.doActionFor(' \
-  'context, action="edit_action", ' \
-  'comment="Visited by InstanceTree_stopFromRegularisationRequest ' \
-  '%s" % (person))')
-  def test_stopInstanceTreeList_matching_subscription(self):
-    person = self.makePerson(index=0, user=0)
-    ticket = self.createRegularisationRequest()
-    instance_tree = self.createInstanceTree()
-
-    ticket.edit(
-      source_project_value=person,
-      resource='service_module/slapos_crm_stop_acknowledgement',
-    )
-    ticket.validate()
-    ticket.suspend()
-    instance_tree.edit(
-      destination_section=person.getRelativeUrl(),
-    )
-    self.tic()
-
-    result = ticket.\
-        RegularisationRequest_stopInstanceTreeList('footag')
-    self.assertTrue(result)
-
-    self.tic()
-    self.assertEqual(
-      'Visited by InstanceTree_stopFromRegularisationRequest ' \
-      '%s' % person.getRelativeUrl(),
-      instance_tree.workflow_history['edit_workflow'][-1]['comment'])
-
-  @simulate('InstanceTree_stopFromRegularisationRequest',
-            'person, REQUEST=None',
-  'context.portal_workflow.doActionFor(' \
-  'context, action="edit_action", ' \
-  'comment="Visited by InstanceTree_stopFromRegularisationRequest ' \
-  '%s" % (person))')
-  def test_stopInstanceTreeList_matching_subscription_2(self):
-    person = self.makePerson(index=0, user=0)
-    ticket = self.createRegularisationRequest()
-    instance_tree = self.createInstanceTree()
-
-    ticket.edit(
-      source_project_value=person,
-      resource='service_module/slapos_crm_delete_reminder',
-    )
-    ticket.validate()
-    ticket.suspend()
-    instance_tree.edit(
-      destination_section=person.getRelativeUrl(),
-    )
-    self.tic()
-
-    result = ticket.\
-        RegularisationRequest_stopInstanceTreeList('footag')
-    self.assertTrue(result)
-
-    self.tic()
-    self.assertEqual(
-      'Visited by InstanceTree_stopFromRegularisationRequest ' \
-      '%s' % person.getRelativeUrl(),
-      instance_tree.workflow_history['edit_workflow'][-1]['comment'])
-
-  @simulate('InstanceTree_stopFromRegularisationRequest',
-            '*args, **kwargs',
-            'raise NotImplementedError, "Should not have been called"')
-  def test_stopInstanceTreeList_other_subscription(self):
-    person = self.makePerson(index=0, user=0)
-    ticket = self.createRegularisationRequest()
-    self.createInstanceTree()
-
-    ticket.edit(
-      source_project_value=person,
-      resource='service_module/slapos_crm_stop_acknowledgement',
-    )
-    ticket.validate()
-    ticket.suspend()
-
-    self.tic()
-
-    result = ticket.\
-        RegularisationRequest_stopInstanceTreeList('footag')
-    self.assertTrue(result)
-
-    self.tic()
-
-  @simulate('InstanceTree_stopFromRegularisationRequest',
-            '*args, **kwargs',
-            'raise NotImplementedError, "Should not have been called"')
-  def test_stopInstanceTreeList_no_person(self):
-    ticket = self.createRegularisationRequest()
-
-    ticket.edit(
-      resource='service_module/slapos_crm_stop_acknowledgement',
-    )
-    ticket.validate()
-    ticket.suspend()
-
-    self.tic()
-
-    result = ticket.\
-        RegularisationRequest_stopInstanceTreeList('footag')
-    self.assertFalse(result)
-
-    self.tic()
-
-  @simulate('InstanceTree_stopFromRegularisationRequest',
-            '*args, **kwargs',
-            'raise NotImplementedError, "Should not have been called"')
-  def test_stopInstanceTreeList_not_suspended(self):
-    person = self.makePerson(index=0, user=0)
-    ticket = self.createRegularisationRequest()
-    self.createInstanceTree()
-
-    ticket.edit(
-      source_project_value=person,
-      resource='service_module/slapos_crm_stop_acknowledgement',
-    )
-    ticket.validate()
-
-    self.tic()
-
-    result = ticket.\
-        RegularisationRequest_stopInstanceTreeList('footag')
-    self.assertFalse(result)
-
-    self.tic()
-
-  @simulate('InstanceTree_stopFromRegularisationRequest',
-            '*args, **kwargs',
-            'raise NotImplementedError, "Should not have been called"')
-  def test_stopInstanceTreeList_other_resource(self):
-    person = self.makePerson(index=0, user=0)
-    ticket = self.createRegularisationRequest()
-    self.createInstanceTree()
-
-    ticket.edit(
-      source_project_value=person,
-      resource='service_module/slapos_crm_acknowledgement',
-    )
-    ticket.validate()
-    ticket.suspend()
-
-    self.tic()
-
-    result = ticket.\
-        RegularisationRequest_stopInstanceTreeList('footag')
-    self.assertFalse(result)
-
-    self.tic()
 
 class TestSlapOSInstanceTree_stopFromRegularisationRequest(
                                                           SlapOSTestCaseMixinWithAbort):
 
-  def createInstanceTree(self):
+  def createInstanceTree(self, project):
     new_id = self.generateNewId()
     instance_tree = self.portal.instance_tree_module\
-        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Instance Tree")
     instance_tree.edit(
       reference="TESTHS-%s" % new_id,
+      follow_up_value=project,
+      url_string=self.generateNewSoftwareReleaseUrl(),
+      title=self.generateNewSoftwareTitle(),
+      source_reference=self.generateNewSoftwareType(),
+      text_content=self.generateSafeXml(),
+      sla_xml=self.generateSafeXml(),
+      root_slave=False
     )
     instance_tree.validate()
     self.portal.portal_workflow._jumpToStateFor(
         instance_tree, 'start_requested')
     return instance_tree
 
-  def test_stopFromRegularisationRequest_REQUEST_disallowed(self):
+  def test_stopFromRegularisationRequest_REQUESTdisallowed(self):
     self.assertRaises(
       Unauthorized,
       self.portal.InstanceTree_stopFromRegularisationRequest,
       '',
       REQUEST={})
 
-  def test_stopFromRegularisationRequest_matching_subscription(self):
-    person = self.makePerson(index=0, user=0)
-    instance_tree = self.createInstanceTree()
+  def test_stopFromRegularisationRequest_matchingSubscription(self):
+    project = self.addProject()
+    person = self.makePerson(project, index=0, user=0)
+    instance_tree = self.createInstanceTree(project)
     instance_tree.edit(
       destination_section=person.getRelativeUrl(),
     )
@@ -1122,9 +475,10 @@ class TestSlapOSInstanceTree_stopFromRegularisationRequest(
     self.assertEqual(instance_tree.isRootSlave(), shared)
     self.assertEqual(instance_tree.getSlapState(), "stop_requested")
 
-  def test_stopFromRegularisationRequest_stopped_subscription(self):
-    person = self.makePerson(index=0, user=0)
-    instance_tree = self.createInstanceTree()
+  def test_stopFromRegularisationRequest_stoppedSubscription(self):
+    project = self.addProject()
+    person = self.makePerson(project, index=0, user=0)
+    instance_tree = self.createInstanceTree(project)
     instance_tree.edit(
       destination_section=person.getRelativeUrl(),
     )
@@ -1136,38 +490,48 @@ class TestSlapOSInstanceTree_stopFromRegularisationRequest(
 
     self.assertEqual(result, False)
 
-  def test_stopFromRegularisationRequest_non_matching_person(self):
-    instance_tree = self.createInstanceTree()
+  def test_stopFromRegularisationRequest_nonMatchingPerson(self):
+    project = self.addProject()
+    instance_tree = self.createInstanceTree(project)
     self.assertRaises(
       AssertionError,
       instance_tree.InstanceTree_stopFromRegularisationRequest,
       'foobar')
 
+
 class TestSlapOSInstanceTree_deleteFromRegularisationRequest(
                                                           SlapOSTestCaseMixinWithAbort):
 
-  def createInstanceTree(self):
+  def createInstanceTree(self, project):
     new_id = self.generateNewId()
     instance_tree = self.portal.instance_tree_module\
-        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
+        .newContent(portal_type="Instance Tree")
     instance_tree.edit(
       reference="TESTHS-%s" % new_id,
+      follow_up_value=project,
+      url_string=self.generateNewSoftwareReleaseUrl(),
+      title=self.generateNewSoftwareTitle(),
+      source_reference=self.generateNewSoftwareType(),
+      text_content=self.generateSafeXml(),
+      sla_xml=self.generateSafeXml(),
+      root_slave=False
     )
     instance_tree.validate()
     self.portal.portal_workflow._jumpToStateFor(
         instance_tree, 'start_requested')
     return instance_tree
 
-  def test_deleteFromRegularisationRequest_REQUEST_disallowed(self):
+  def test_deleteFromRegularisationRequest_REQUESTdisallowed(self):
     self.assertRaises(
       Unauthorized,
       self.portal.InstanceTree_deleteFromRegularisationRequest,
       '',
       REQUEST={})
 
-  def test_deleteFromRegularisationRequest_started_subscription(self):
-    person = self.makePerson(index=0, user=0)
-    instance_tree = self.createInstanceTree()
+  def test_deleteFromRegularisationRequest_startedSubscription(self):
+    project = self.addProject()
+    person = self.makePerson(project, index=0, user=0)
+    instance_tree = self.createInstanceTree(project)
     instance_tree.edit(
       destination_section=person.getRelativeUrl(),
     )
@@ -1180,6 +544,7 @@ class TestSlapOSInstanceTree_deleteFromRegularisationRequest(
     sla_xml = instance_tree.getSlaXml()
     shared = instance_tree.isRootSlave()
     self.assertEqual(instance_tree.getSlapState(), "start_requested")
+    self.assertEqual(shared, False)
 
     result = instance_tree.\
         InstanceTree_deleteFromRegularisationRequest(person.getRelativeUrl())
@@ -1193,9 +558,10 @@ class TestSlapOSInstanceTree_deleteFromRegularisationRequest(
     self.assertEqual(instance_tree.isRootSlave(), shared)
     self.assertEqual(instance_tree.getSlapState(), "destroy_requested")
 
-  def test_deleteFromRegularisationRequest_stopped_subscription(self):
-    person = self.makePerson(index=0, user=0)
-    instance_tree = self.createInstanceTree()
+  def test_deleteFromRegularisationRequest_stoppedSubscription(self):
+    project = self.addProject()
+    person = self.makePerson(project, index=0, user=0)
+    instance_tree = self.createInstanceTree(project)
     instance_tree.edit(
       destination_section=person.getRelativeUrl(),
     )
@@ -1223,9 +589,10 @@ class TestSlapOSInstanceTree_deleteFromRegularisationRequest(
     self.assertEqual(instance_tree.isRootSlave(), shared)
     self.assertEqual(instance_tree.getSlapState(), "destroy_requested")
 
-  def test_deleteFromRegularisationRequest_destroyed_subscription(self):
-    person = self.makePerson(index=0, user=0)
-    instance_tree = self.createInstanceTree()
+  def test_deleteFromRegularisationRequest_destroyedSubscription(self):
+    project = self.addProject()
+    person = self.makePerson(project, index=0, user=0)
+    instance_tree = self.createInstanceTree(project)
     instance_tree.edit(
       destination_section=person.getRelativeUrl(),
     )
@@ -1237,161 +604,11 @@ class TestSlapOSInstanceTree_deleteFromRegularisationRequest(
 
     self.assertEqual(result, False)
 
-  def test_deleteFromRegularisationRequest_non_matching_person(self):
-    instance_tree = self.createInstanceTree()
+  def test_deleteFromRegularisationRequest_nonMatchingPerson(self):
+    project = self.addProject()
+    instance_tree = self.createInstanceTree(project)
     self.assertRaises(
       AssertionError,
       instance_tree.InstanceTree_deleteFromRegularisationRequest,
       'foobar')
 
-class TestSlapOSRegularisationRequest_deleteInstanceTreeList(
-                                                          SlapOSTestCaseMixinWithAbort):
-
-  def createRegularisationRequest(self):
-    new_id = self.generateNewId()
-    return self.portal.regularisation_request_module.newContent(
-      portal_type='Regularisation Request',
-      title="Test Reg. Req.%s" % new_id,
-      reference="TESTREGREQ-%s" % new_id,
-      resource='foo/bar',
-      )
-
-  def createInstanceTree(self):
-    new_id = self.generateNewId()
-    instance_tree = self.portal.instance_tree_module\
-        .template_instance_tree.Base_createCloneDocument(batch_mode=1)
-    instance_tree.edit(
-      reference="TESTHS-%s" % new_id,
-    )
-    instance_tree.validate()
-    self.portal.portal_workflow._jumpToStateFor(
-        instance_tree, 'start_requested')
-    return instance_tree
-
-  def test_deleteInstanceTreeList_REQUEST_disallowed(self):
-    ticket = self.createRegularisationRequest()
-    self.assertRaises(
-      Unauthorized,
-      ticket.RegularisationRequest_deleteInstanceTreeList,
-      'footag',
-      REQUEST={})
-
-  @simulate('InstanceTree_deleteFromRegularisationRequest',
-            'person, REQUEST=None',
-  'context.portal_workflow.doActionFor(' \
-  'context, action="edit_action", ' \
-  'comment="Visited by InstanceTree_deleteFromRegularisationRequest ' \
-  '%s" % (person))')
-  def test_deleteInstanceTreeList_matching_subscription(self):
-    person = self.makePerson(index=0, user=0)
-    ticket = self.createRegularisationRequest()
-    instance_tree = self.createInstanceTree()
-
-    ticket.edit(
-      source_project_value=person,
-      resource='service_module/slapos_crm_delete_acknowledgement',
-    )
-    ticket.validate()
-    ticket.suspend()
-    instance_tree.edit(
-      destination_section=person.getRelativeUrl(),
-    )
-    self.tic()
-
-    result = ticket.\
-        RegularisationRequest_deleteInstanceTreeList('footag')
-    self.assertTrue(result)
-
-    self.tic()
-    self.assertEqual(
-      'Visited by InstanceTree_deleteFromRegularisationRequest ' \
-      '%s' % person.getRelativeUrl(),
-      instance_tree.workflow_history['edit_workflow'][-1]['comment'])
-
-  @simulate('InstanceTree_deleteFromRegularisationRequest',
-            '*args, **kwargs',
-            'raise NotImplementedError, "Should not have been called"')
-  def test_deleteInstanceTreeList_other_subscription(self):
-    person = self.makePerson(index=0, user=0)
-    ticket = self.createRegularisationRequest()
-    self.createInstanceTree()
-
-    ticket.edit(
-      source_project_value=person,
-      resource='service_module/slapos_crm_delete_acknowledgement',
-    )
-    ticket.validate()
-    ticket.suspend()
-
-    self.tic()
-
-    result = ticket.\
-        RegularisationRequest_deleteInstanceTreeList('footag')
-    self.assertTrue(result)
-
-    self.tic()
-
-  @simulate('InstanceTree_deleteFromRegularisationRequest',
-            '*args, **kwargs',
-            'raise NotImplementedError, "Should not have been called"')
-  def test_deleteInstanceTreeList_no_person(self):
-    ticket = self.createRegularisationRequest()
-
-    ticket.edit(
-      resource='service_module/slapos_crm_delete_acknowledgement',
-    )
-    ticket.validate()
-    ticket.suspend()
-
-    self.tic()
-
-    result = ticket.\
-        RegularisationRequest_deleteInstanceTreeList('footag')
-    self.assertFalse(result)
-
-    self.tic()
-
-  @simulate('InstanceTree_deleteFromRegularisationRequest',
-            '*args, **kwargs',
-            'raise NotImplementedError, "Should not have been called"')
-  def test_deleteInstanceTreeList_not_suspended(self):
-    person = self.makePerson(index=0, user=0)
-    ticket = self.createRegularisationRequest()
-    self.createInstanceTree()
-
-    ticket.edit(
-      source_project_value=person,
-      resource='service_module/slapos_crm_delete_acknowledgement',
-    )
-    ticket.validate()
-
-    self.tic()
-
-    result = ticket.\
-        RegularisationRequest_deleteInstanceTreeList('footag')
-    self.assertFalse(result)
-
-    self.tic()
-
-  @simulate('InstanceTree_deleteFromRegularisationRequest',
-            '*args, **kwargs',
-            'raise NotImplementedError, "Should not have been called"')
-  def test_deleteInstanceTreeList_other_resource(self):
-    person = self.makePerson(index=0, user=0)
-    ticket = self.createRegularisationRequest()
-    self.createInstanceTree()
-
-    ticket.edit(
-      source_project_value=person,
-      resource='service_module/slapos_crm_delete_reminder',
-    )
-    ticket.validate()
-    ticket.suspend()
-
-    self.tic()
-
-    result = ticket.\
-        RegularisationRequest_deleteInstanceTreeList('footag')
-    self.assertFalse(result)
-
-    self.tic()

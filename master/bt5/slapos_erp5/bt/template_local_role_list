@@ -45,7 +45,6 @@ incident_response_module
 instance_tree_module
 inventory_module
 invitation_token_module
-knowledge_pad_module
 meeting_module
 notification_message_module
 open_sale_order_module
@@ -54,7 +53,6 @@ organisation_module/slapos
 organisation_module/slapos/bank_account
 person_module
 portal_contributions
-portal_gadgets
 portal_integrations
 portal_integrations/slapos_payzen_test_integration
 portal_integrations/slapos_wechat_test_integration

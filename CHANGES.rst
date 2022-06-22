@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.7.7 (2022-06-22)
+------------------
+ * slapgrid: fix upload command after libnetworkcache version 0.24
+ * console: set __file__ like python interpreter would do
+ * testing: make the error message more comprehensible
+
 1.7.6 (2022-04-14)
 ------------------
  * slapgrid: use distro.linux_distribution() to support python >= 3.8

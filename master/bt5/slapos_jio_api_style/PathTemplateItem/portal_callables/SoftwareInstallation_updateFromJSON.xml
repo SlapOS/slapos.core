@@ -60,7 +60,7 @@
         },\n
         "portal_type": {\n
           "title": "Portal Type",\n
-          "default": "Software Installation",\n
+          "const": "Software Installation",\n
           "type": "string"\n
         }\n
       },\n

@@ -1,6 +1,16 @@
 Changes
 =======
 
+2.0.0 (2022-06-23)
+------------------
+ * EMPTY RELEASE
+  
+   This release is just increasing the major version of slapos.core so that
+   users of slapos-node package can know they are using slapos.core with a
+   python3 interpreter. This is strictly equivalent to use version 2.0.0 or
+   version 1.7.7, it will be a convention that starting from 2.0.0 branch,
+   slapos.core is used with python3.
+
 1.7.7 (2022-06-22)
 ------------------
  * slapgrid: fix upload command after libnetworkcache version 0.24

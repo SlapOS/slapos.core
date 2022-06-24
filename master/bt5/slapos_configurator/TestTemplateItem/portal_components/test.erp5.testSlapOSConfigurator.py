@@ -402,7 +402,6 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
       'slapos_web',
       'slapos_web_deploy',
       'slapos_erp5',
-      'slapos_metadata_transform_agent',
       'erp5_big_file',
       'erp5_json_type',
       'erp5_wendelin',

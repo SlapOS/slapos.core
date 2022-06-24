@@ -32,6 +32,7 @@ import codecs
 import collections
 import locale
 import logging
+import platform
 import sys
 
 import os
@@ -138,7 +139,7 @@ class SlapOSApp(App):
     def __init__(self):
         super(SlapOSApp, self).__init__(
             description='SlapOS client %s' % slapos.version.version,
-            version=slapos.version.version,
+            version='%s (Python %s)' % (slapos.version.version, platform.python_version()),
             command_manager=SlapOSCommandManager('slapos.cli'),
         )
         # replace default complete command

@@ -95,6 +95,7 @@ erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_big_file
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -110,6 +111,7 @@ erp5_credential_oauth2
 erp5_crm
 erp5_data_set
 erp5_deferred_style_core
+erp5_development
 erp5_dhtml_style
 erp5_diff
 erp5_dms
@@ -124,6 +126,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -155,6 +158,8 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
+erp5_wendelin
+erp5_wendelin_notebook
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
@@ -204,6 +209,7 @@ erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_big_file
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -220,6 +226,7 @@ erp5_crm
 erp5_data_set
 erp5_deferred_style
 erp5_deferred_style_core
+erp5_development
 erp5_dhtml_style
 erp5_diff
 erp5_dms
@@ -234,6 +241,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -265,6 +273,8 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
+erp5_wendelin
+erp5_wendelin_notebook
 external_method
 slapos_disaster_recovery
 """
@@ -315,6 +325,7 @@ erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_big_file
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -330,6 +341,7 @@ erp5_credential_oauth2
 erp5_crm
 erp5_data_set
 erp5_deferred_style_core
+erp5_development
 erp5_dhtml_style
 erp5_diff
 erp5_dms
@@ -344,6 +356,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -375,6 +388,8 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
+erp5_wendelin
+erp5_wendelin_notebook
 external_method
 slapos_disaster_recovery
 """
@@ -424,6 +439,7 @@ erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_big_file
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -439,6 +455,7 @@ erp5_credential_oauth2
 erp5_crm
 erp5_data_set
 erp5_deferred_style_core
+erp5_development
 erp5_dhtml_style
 erp5_diff
 erp5_dms
@@ -455,6 +472,7 @@ erp5_integration
 erp5_invoicing
 erp5_jquery
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -486,6 +504,8 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
+erp5_wendelin
+erp5_wendelin_notebook
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
@@ -536,6 +556,7 @@ erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_big_file
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -551,6 +572,7 @@ erp5_credential_oauth2
 erp5_crm
 erp5_data_set
 erp5_deferred_style_core
+erp5_development
 erp5_dhtml_style
 erp5_diff
 erp5_dms
@@ -566,6 +588,7 @@ erp5_integration
 erp5_invoicing
 erp5_jquery
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_km_widget_library
 erp5_monaco_editor
 erp5_oauth
@@ -598,6 +621,8 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
+erp5_wendelin
+erp5_wendelin_notebook
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
@@ -648,6 +673,7 @@ erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_big_file
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -663,6 +689,7 @@ erp5_credential_oauth2
 erp5_crm
 erp5_data_set
 erp5_deferred_style_core
+erp5_development
 erp5_dhtml_style
 erp5_diff
 erp5_dms
@@ -677,6 +704,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -708,6 +736,8 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
+erp5_wendelin
+erp5_wendelin_notebook
 external_method
 slapos_disaster_recovery
 """
@@ -757,6 +787,7 @@ erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_big_file
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -772,6 +803,7 @@ erp5_credential_oauth2
 erp5_crm
 erp5_data_set
 erp5_deferred_style_core
+erp5_development
 erp5_dhtml_style
 erp5_diff
 erp5_dms
@@ -786,6 +818,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -817,6 +850,8 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
+erp5_wendelin
+erp5_wendelin_notebook
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
@@ -867,6 +902,7 @@ erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_big_file
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -882,6 +918,7 @@ erp5_credential_oauth2
 erp5_crm
 erp5_data_set
 erp5_deferred_style_core
+erp5_development
 erp5_dhtml_style
 erp5_diff
 erp5_dms
@@ -896,6 +933,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -927,6 +965,8 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
+erp5_wendelin
+erp5_wendelin_notebook
 external_method
 slapos_disaster_recovery
 """
@@ -976,6 +1016,7 @@ erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_big_file
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -991,6 +1032,7 @@ erp5_credential_oauth2
 erp5_crm
 erp5_data_set
 erp5_deferred_style_core
+erp5_development
 erp5_dhtml_style
 erp5_diff
 erp5_dms
@@ -1005,6 +1047,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -1036,6 +1079,8 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
+erp5_wendelin
+erp5_wendelin_notebook
 external_method
 slapos_disaster_recovery
 """
@@ -1086,6 +1131,7 @@ erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_big_file
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -1101,6 +1147,7 @@ erp5_credential_oauth2
 erp5_crm
 erp5_data_set
 erp5_deferred_style_core
+erp5_development
 erp5_dhtml_style
 erp5_diff
 erp5_dms
@@ -1115,6 +1162,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -1146,6 +1194,8 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
+erp5_wendelin
+erp5_wendelin_notebook
 external_method
 slapos_disaster_recovery
 """
@@ -1196,6 +1246,7 @@ erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_big_file
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -1211,6 +1262,7 @@ erp5_credential_oauth2
 erp5_crm
 erp5_data_set
 erp5_deferred_style_core
+erp5_development
 erp5_dhtml_style
 erp5_diff
 erp5_dms
@@ -1225,6 +1277,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -1256,6 +1309,8 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
+erp5_wendelin
+erp5_wendelin_notebook
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
@@ -1307,6 +1362,7 @@ erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_big_file
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -1322,6 +1378,7 @@ erp5_credential_oauth2
 erp5_crm
 erp5_data_set
 erp5_deferred_style_core
+erp5_development
 erp5_dhtml_style
 erp5_diff
 erp5_dms
@@ -1336,6 +1393,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -1367,6 +1425,8 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
+erp5_wendelin
+erp5_wendelin_notebook
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery
@@ -1418,6 +1478,7 @@ erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_big_file
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -1433,6 +1494,7 @@ erp5_credential_oauth2
 erp5_crm
 erp5_data_set
 erp5_deferred_style_core
+erp5_development
 erp5_dhtml_style
 erp5_diff
 erp5_dms
@@ -1447,6 +1509,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -1478,6 +1541,8 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
+erp5_wendelin
+erp5_wendelin_notebook
 external_method
 slapos_disaster_recovery
 """
@@ -1529,6 +1594,7 @@ erp5_authentication_policy
 erp5_auto_logout
 erp5_base
 erp5_bearer_token
+erp5_big_file
 erp5_ckeditor
 erp5_code_mirror
 erp5_commerce
@@ -1544,6 +1610,7 @@ erp5_credential_oauth2
 erp5_crm
 erp5_data_set
 erp5_deferred_style_core
+erp5_development
 erp5_dhtml_style
 erp5_diff
 erp5_dms
@@ -1558,6 +1625,7 @@ erp5_ingestion
 erp5_integration
 erp5_invoicing
 erp5_jquery_sheet_editor
+erp5_json_type
 erp5_monaco_editor
 erp5_oauth
 erp5_oauth_facebook_login
@@ -1589,6 +1657,8 @@ erp5_web_renderjs
 erp5_web_service
 erp5_web_widget_library
 erp5_wechat_secure_payment
+erp5_wendelin
+erp5_wendelin_notebook
 erp5_xhtml_style
 external_method
 slapos_disaster_recovery

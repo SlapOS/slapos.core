@@ -220,7 +220,7 @@ tail.0:2021-10-15 15:11:02.230745474 +0200 CEST[fluentbit_end]\n'
       tmp_data_array.convertFile()
     self.tic()
 
-    ## Call DataArray_generateDiffND
+    ## Call DataArray_generateDiff
     self.portal.portal_alarms.slapos_check_node_status.activeSense()
     self.tic()
 

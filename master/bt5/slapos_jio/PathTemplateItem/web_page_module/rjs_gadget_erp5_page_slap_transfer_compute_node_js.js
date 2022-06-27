@@ -101,7 +101,8 @@
             gadget.jio_allDocs({
               query: 'portal_type:"Project" AND validation_state:"validated"',
               sort_on: [['reference', 'ascending']],
-              select_list: ['reference', 'title']
+              select_list: ['reference', 'title'],
+              limit: 50
             }),
             gadget.jio_allDocs({
               query: 'portal_type:"Organisation" AND role_title: "Client" AND relative_url:(' + destination_list + ')',

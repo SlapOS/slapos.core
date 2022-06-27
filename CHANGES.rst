@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.7.8 (2022-06-27)
+------------------
+ * cli: `slapos --version` now shows Python version too
+
 1.7.7 (2022-06-22)
 ------------------
  * slapgrid: fix upload command after libnetworkcache version 0.24

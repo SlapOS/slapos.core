@@ -45,7 +45,6 @@ incident_response_module
 instance_tree_module
 inventory_module
 invitation_token_module
-meeting_module
 notification_message_module
 open_sale_order_module
 organisation_module

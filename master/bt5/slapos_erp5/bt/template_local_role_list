@@ -42,7 +42,6 @@ event_module/slapos_crm_web_message_template
 image_module
 incident_response_module
 instance_tree_module
-inventory_module
 invitation_token_module
 notification_message_module
 open_sale_order_module

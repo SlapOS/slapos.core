@@ -25,7 +25,6 @@ business_process_module/slapos_consumption_business_process
 business_process_module/slapos_subscription_business_process
 campaign_module
 cloud_contract_module
-component_module
 compute_node_module
 computer_model_module
 computer_module

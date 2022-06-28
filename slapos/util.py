@@ -396,7 +396,9 @@ class SoftwareReleaseSchema(object):
     # type: () -> Optional[SoftwareReleaseSerialisation]
     """Returns the serialisation method used for parameters.
     """
-    software_schema = self.getSoftwareSchema()
+    software_schema = self.getSoftwareTypeSchema()
+    if software_schema is None or 'serialisation' not in software_schema:
+      software_schema = self.getSoftwareSchema()
     if software_schema is None:
       return None
     return SoftwareReleaseSerialisation(software_schema['serialisation'])

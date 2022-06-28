@@ -246,10 +246,12 @@ class TestUtil(unittest.TestCase):
 
 class SoftwareReleaseSchemaTestXmlSerialisationMixin:
   serialisation = SoftwareReleaseSerialisation.Xml
+  serialisation_alt = SoftwareReleaseSerialisation.JsonInXml
 
 
 class SoftwareReleaseSchemaTestJsonInXmlSerialisationMixin:
   serialisation = SoftwareReleaseSerialisation.JsonInXml
+  serialisation_alt = SoftwareReleaseSerialisation.Xml
 
 
 class SoftwareReleaseSchemaTestMixin(object):
@@ -257,6 +259,7 @@ class SoftwareReleaseSchemaTestMixin(object):
   """
   software_url = None # type: str
   serialisation = None # type: SoftwareReleaseSerialisation
+  serialisation_alt = None # type: SoftwareReleaseSerialisation
 
 
   def test_software_schema(self):
@@ -268,6 +271,10 @@ class SoftwareReleaseSchemaTestMixin(object):
   def test_serialisation(self):
     schema = SoftwareReleaseSchema(self.software_url, None)
     self.assertEqual(schema.getSerialisation(), self.serialisation)
+
+  def test_serialisation_alternate_software_type(self):
+    schema = SoftwareReleaseSchema(self.software_url, 'alternate')
+    self.assertEqual(schema.getSerialisation(), self.serialisation_alt)
 
   def test_instance_request_parameter_schema_default_software_type(self):
     schema = SoftwareReleaseSchema(self.software_url, None)
@@ -307,7 +314,7 @@ class SoftwareReleaseSchemaTestMixin(object):
     instance_ok = {'key': 'value', 'type': 'alternate'}
     schema.validateInstanceParameterDict(instance_ok)
 
-    if self.serialisation == SoftwareReleaseSerialisation.JsonInXml:
+    if self.serialisation_alt == SoftwareReleaseSerialisation.JsonInXml:
       # already serialized values are also tolerated
       schema.validateInstanceParameterDict({'_': json.dumps(instance_ok)})
 
@@ -357,6 +364,7 @@ class SoftwareReleaseSchemaTestFileSoftwareReleaseMixin(SoftwareReleaseSchemaTes
                   "alternate": {
                       "title": "Alternate",
                       "description": "Alternate type",
+                      "serialisation": self.serialisation_alt,
                       "request": "instance-alternate-input-schema.json",
                       "response": "instance-alternate-output-schema.json",
                       "index": 0

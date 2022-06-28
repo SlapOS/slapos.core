@@ -88,7 +88,9 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     self.commit()
     first_etag = self.compute_node._calculateRefreshEtag()
     first_body_fingerprint = hashData(
-      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
+      self.portal_slap._getSlapComputeNodeXMLFromDict(
+        self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
+      )
     )
     self.assertEqual(200, response.status)
     self.assertTrue('last-modified' not in response.headers)
@@ -123,7 +125,9 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     self.assertTrue('last-modified' not in response.headers)
     second_etag = self.compute_node._calculateRefreshEtag()
     second_body_fingerprint = hashData(
-      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
+      self.portal_slap._getSlapComputeNodeXMLFromDict(
+        self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
+      )
     )
     self.assertNotEqual(first_etag, second_etag)
     # The indexation timestamp does not impact the response body
@@ -156,7 +160,9 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     # Edition does not impact the etag
     self.assertEqual(second_etag, self.compute_node._calculateRefreshEtag())
     third_body_fingerprint = hashData(
-      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
+      self.portal_slap._getSlapComputeNodeXMLFromDict(
+        self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
+      )
     )
     # The edition impacts the response body
     self.assertNotEqual(first_body_fingerprint, third_body_fingerprint)
@@ -195,7 +201,9 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     # The edition does not impact the response body yet, as the aggregate relation
     # is not yet unindex
     self.assertEqual(third_body_fingerprint, hashData(
-      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
+      self.portal_slap._getSlapComputeNodeXMLFromDict(
+        self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
+      )
     ))
     response = self.portal_slap.getFullComputerInformation(self.compute_node_id)
     self.commit()
@@ -217,7 +225,9 @@ class TestSlapOSSlapToolgetFullComputerInformation(TestSlapOSSlapToolMixin):
     self.assertTrue('last-modified' not in response.headers)
     fourth_etag = self.compute_node._calculateRefreshEtag()
     fourth_body_fingerprint = hashData(
-      self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
+      self.portal_slap._getSlapComputeNodeXMLFromDict(
+        self.compute_node._getCacheComputeNodeInformation(self.compute_node_id)
+      )
     )
     self.assertNotEqual(third_etag, fourth_etag)
     # The indexation timestamp does not impact the response body

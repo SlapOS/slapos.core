@@ -109,11 +109,14 @@ class SlapOSComputeNodeMixin(object):
   def _fillComputeNodeInformationCache(self, user):
     key = '%s_%s' % (self.getReference(), user)
     try:
+      computer_dict = self._getCacheComputeNodeInformation(user)
       self._getCachePlugin().set(key, DEFAULT_CACHE_SCOPE,
         dict (
           time=time.time(),
           refresh_etag=self._calculateRefreshEtag(),
-          data=self._getCacheComputeNodeInformation(user),
+          data=computer_dict,
+          # Store the XML while SlapTool Still used
+          data_xml=self.getPortalObject().portal_slap._getSlapComputeNodeXMLFromDict(computer_dict)
         ),
         cache_duration=self.getPortalObject().portal_caches\
             .getRamCacheRoot().get('compute_node_information_cache_factory'\
@@ -154,7 +157,6 @@ class SlapOSComputeNodeMixin(object):
     user_document = _assertACI(portal.portal_catalog.unrestrictedGetResultValue(
       reference=user, portal_type=['Person', 'Compute Node', 'Software Instance']))
     user_type = user_document.getPortalType()
-    self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
 
     if user_type in ('Compute Node', 'Person'):
       if not self._isTestRun():
@@ -191,7 +193,8 @@ class SlapOSComputeNodeMixin(object):
         portal_type="Compute Partition",
         checked_permission="View")
     else:
-      compute_partition_list = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
+      unrestrictedSearchResults = self.getPortalObject().portal_catalog.unrestrictedSearchResults
+      compute_partition_list = unrestrictedSearchResults(
                     parent_uid=self.getUid(),
                     validation_state="validated",
                     portal_type="Compute Partition")

@@ -39,6 +39,8 @@ from Products.ERP5Type.Tool.BaseTool import BaseTool
 from Products.ERP5Type import Permissions
 from Products.ERP5Type.Cache import CachingMethod
 from erp5.component.module.SlapOSCloud import _assertACI
+from Products.ERP5Type.Cache import DEFAULT_CACHE_SCOPE
+
 from lxml import etree
 try:
   from slapos.slap.slap import (
@@ -169,60 +171,56 @@ class SlapTool(BaseTool):
 
     Reuses slap library for easy marshalling.
     """
-    user = self.getPortalObject().portal_membership.getAuthenticatedMember().getUserName()
+    portal = self.getPortalObject()
+    user = portal.portal_membership.getAuthenticatedMember().getUserName()
     if str(user) == computer_id:
-      compute_node = self.getPortalObject().portal_membership.getAuthenticatedMember().getUserValue()
+      compute_node = portal.portal_membership.getAuthenticatedMember().getUserValue()
       compute_node.setAccessStatus(computer_id)
     else:
       # Don't use getDocument because we don't want use _assertACI here, but
       # just call the API on computer.
-      compute_node = self.getPortalObject().portal_catalog.unrestrictedSearchResults(
+      compute_node = portal.portal_catalog.unrestrictedSearchResults(
         portal_type='Compute Node', reference=computer_id,
         validation_state="validated")[0].getObject()
 
     refresh_etag = compute_node._calculateRefreshEtag()
-    computer_dict, etag = compute_node._getComputeNodeInformation(user, refresh_etag)
 
-    ## Horrible code starts
-    # Convert computer node into SlapComputer
-    slap_compute_node = ComputeNode(computer_dict["_computer_id"])
-    slap_compute_node._computer_partition_list = []
-    slap_compute_node._software_release_list = []
+    # Keep compatibility with older clients that relies on marshalling.
+    # This code is an adaptation of SlapOSComputeNodeMixin._getComputeNodeInformation
+    # To comply with cache capability.
+    user_document = _assertACI(portal.portal_catalog.unrestrictedGetResultValue(
+      reference=user, portal_type=['Person', 'Compute Node', 'Software Instance']))
+    user_type = user_document.getPortalType()
+    if user_type in ('Compute Node', 'Person'):
+      if not compute_node._isTestRun():
+        cache_plugin = compute_node._getCachePlugin()
+        key = '%s_%s' % (compute_node.getReference(), user)
+        try:
+          entry = cache_plugin.get(key, DEFAULT_CACHE_SCOPE)
+        except KeyError:
+          entry = None
 
-    for partition_dict in computer_dict["_computer_partition_list"]:
-      slap_compute_partition = SlapComputePartition(
-          partition_id=partition_dict["partition_id"],
-          computer_id=partition_dict['compute_node_id']
-        )
-      slap_compute_partition._requested_state = partition_dict["_requested_state"]
-      slap_compute_partition._need_modification = partition_dict["_need_modification"]
-      if partition_dict["_software_release_document"] is not None:
-        slap_compute_partition._access_status = partition_dict["_access_status"]
-        slap_compute_partition._parameter_dict = partition_dict["_parameter_dict"]
-        slap_compute_partition._connection_dict = partition_dict["_connection_dict"]
-        slap_compute_partition._filter_dict = partition_dict["_filter_dict"]
-        slap_compute_partition._instance_guid = partition_dict["_instance_guid"]
-        slap_compute_partition._software_release_document = SoftwareRelease(
-            software_release=partition_dict["_software_release_document"]["software_release"],
-            computer_guid=partition_dict["_software_release_document"]["computer_guid"])
+        if entry is not None and isinstance(entry.getValue(), dict):
+          cached_dict = entry.getValue()
+          cached_etag = cached_dict.get('refresh_etag', None)
+          if (refresh_etag != cached_etag):
+            # Do not recalculate the compute_node information
+            # if nothing changed
+            compute_node._activateFillComputeNodeInformationCache(user)
+          etag = cached_etag
+          body = cached_dict['data_xml']
+        else:
+          compute_node._activateFillComputeNodeInformationCache(user)
+          self.REQUEST.response.setStatus(503)
+          return self.REQUEST.response
       else:
-        slap_compute_partition._software_release_document = None
-      
-      slap_compute_node._computer_partition_list.append(
-        slap_compute_partition
-      )
+        computer_dict, etag = compute_node._getComputeNodeInformation(user, refresh_etag)
+        body = self._getSlapComputeNodeXMLFromDict(computer_dict)
+    else:
+      computer_dict, etag = compute_node._getComputeNodeInformation(user, refresh_etag)
+      body = self._getSlapComputeNodeXMLFromDict(computer_dict)
 
-    for software_release_dict in computer_dict['_software_release_list']:
-      slap_software_release = SoftwareRelease(
-        software_release=software_release_dict["software_release"],
-        computer_guid=software_release_dict['computer_guid'])
-      slap_software_release._requested_state = software_release_dict['_requested_state']
-      slap_software_release._known_state = software_release_dict['_known_state']
-      slap_compute_node._software_release_list.append(slap_software_release)
-
-    body = dumps(slap_compute_node)
-    ## Horrible code ends
-
+    self.REQUEST.response.setHeader('Content-Type', 'text/xml; charset=utf-8')
     if self.REQUEST.response.getStatus() == 200:
       # Keep in cache server for 7 days
       self.REQUEST.response.setHeader('Cache-Control',
@@ -734,7 +732,6 @@ class SlapTool(BaseTool):
   ####################################################
   # Internal methods
   ####################################################
-
   def _validateXML(self, to_be_validated, xsd_model):
     """Will validate the xml file"""
     #We parse the XSD model
@@ -1011,6 +1008,44 @@ class SlapTool(BaseTool):
   ####################################################
   # Internals methods
   ####################################################
+
+  def _getSlapComputeNodeXMLFromDict(self, computer_dict):
+    slap_compute_node = ComputeNode(computer_dict["_computer_id"])
+    slap_compute_node._computer_partition_list = []
+    slap_compute_node._software_release_list = []
+
+    for partition_dict in computer_dict["_computer_partition_list"]:
+      slap_compute_partition = SlapComputePartition(
+          partition_id=partition_dict["partition_id"],
+          computer_id=partition_dict['compute_node_id']
+        )
+      slap_compute_partition._requested_state = partition_dict["_requested_state"]
+      slap_compute_partition._need_modification = partition_dict["_need_modification"]
+      if partition_dict["_software_release_document"] is not None:
+        slap_compute_partition._access_status = partition_dict["_access_status"]
+        slap_compute_partition._parameter_dict = partition_dict["_parameter_dict"]
+        slap_compute_partition._connection_dict = partition_dict["_connection_dict"]
+        slap_compute_partition._filter_dict = partition_dict["_filter_dict"]
+        slap_compute_partition._instance_guid = partition_dict["_instance_guid"]
+        slap_compute_partition._software_release_document = SoftwareRelease(
+            software_release=partition_dict["_software_release_document"]["software_release"],
+            computer_guid=partition_dict["_software_release_document"]["computer_guid"])
+      else:
+        slap_compute_partition._software_release_document = None
+      
+      slap_compute_node._computer_partition_list.append(
+        slap_compute_partition
+      )
+
+    for software_release_dict in computer_dict['_software_release_list']:
+      slap_software_release = SoftwareRelease(
+        software_release=software_release_dict["software_release"],
+        computer_guid=software_release_dict['computer_guid'])
+      slap_software_release._requested_state = software_release_dict['_requested_state']
+      slap_software_release._known_state = software_release_dict['_known_state']
+      slap_compute_node._software_release_list.append(slap_software_release)
+
+    return dumps(slap_compute_node)
 
   def _getSoftwareInstanceForComputePartition(self, compute_node_id,
       compute_partition_id, slave_reference=None):

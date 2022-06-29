@@ -1,3 +1,4 @@
+function | function_security_uid
 group | group_security_uid
 shadow | shadow_security_uid
 computer | computer_security_uid

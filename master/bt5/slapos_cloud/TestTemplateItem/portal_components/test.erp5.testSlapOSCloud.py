@@ -35,7 +35,7 @@ import hashlib
 from binascii import hexlify
 
 def hashData(data):
-  return hexlify(hashlib.sha1(data).digest())
+  return hexlify(hashlib.sha1(json.dumps(data, sort_keys=True)).digest())
 
 class TestSlapOSCloudSlapOSCacheMixin(
     SlapOSTestCaseMixin):

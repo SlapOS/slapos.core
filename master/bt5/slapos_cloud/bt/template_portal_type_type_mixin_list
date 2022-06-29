@@ -1,3 +1,4 @@
+Catalog Tool | SlapOSCatalogToolCacheMixin
 Compute Node | SlapOSCacheMixin
 Compute Node | SlapOSComputeNodeMixin
 Compute Partition | SlapOSCacheMixin

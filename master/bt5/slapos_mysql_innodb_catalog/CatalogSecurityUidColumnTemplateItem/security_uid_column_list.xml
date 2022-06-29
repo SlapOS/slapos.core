@@ -1,5 +1,6 @@
 <key_list>
  <key>computer | computer_security_uid</key>
+ <key>function | function_security_uid</key>
  <key>group | group_security_uid</key>
  <key>organisation | organisation_security_uid</key>
  <key>project | project_security_uid</key>

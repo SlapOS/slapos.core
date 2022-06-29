@@ -5,6 +5,7 @@
 CREATE TABLE `catalog` (
   `uid` BIGINT UNSIGNED NOT NULL,
   `security_uid` INT UNSIGNED,
+  `function_security_uid` INT UNSIGNED,
   `group_security_uid` INT UNSIGNED,
   `shadow_security_uid` INT UNSIGNED,
   `computer_security_uid` INT UNSIGNED,

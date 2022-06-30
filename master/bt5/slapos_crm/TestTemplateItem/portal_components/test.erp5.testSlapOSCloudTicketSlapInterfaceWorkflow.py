@@ -97,6 +97,8 @@ class TestSlapOSCoreTicketSlapInterfaceWorkflow(SlapOSTestCaseMixin):
     self.assertRaises(TypeError, self.support_request.requestEvent)
     self.assertRaises(TypeError, self.support_request.requestEvent, event_title="A")
     self.assertRaises(TypeError, self.support_request.requestEvent, event_content="A")
+    self.assertRaises(TypeError, self.support_request.requestEvent, event_source="A")
+
 
   def test_SupportRequest_requestEvent(self):
     person = self.portal.portal_membership.getAuthenticatedMember().getUserValue()
@@ -109,8 +111,8 @@ class TestSlapOSCoreTicketSlapInterfaceWorkflow(SlapOSTestCaseMixin):
 
     self.support_request.requestEvent(
       event_title="A",
-      event_content="B"
-    )
+      event_content="B",
+      event_source=person.getRelativeUrl())
     self.tic()
 
     event_relative_url = self.support_request.REQUEST.get("event_relative_url")

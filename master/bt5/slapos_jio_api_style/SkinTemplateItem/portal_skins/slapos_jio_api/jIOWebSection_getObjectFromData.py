@@ -11,7 +11,10 @@ if portal_type == "Software Installation":
 
 elif portal_type == "Software Instance":
   if "reference" in data_dict:
-    software_instance = portal.portal_catalog.getSoftwareInstanceObject(data_dict["reference"])
+    software_instance = portal.portal_catalog.getSoftwareInstanceObject(
+      data_dict["reference"],
+      include_shared=True
+    )
     if software_instance:
       return software_instance
 

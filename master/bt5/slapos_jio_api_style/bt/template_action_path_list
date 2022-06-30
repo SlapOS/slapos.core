@@ -1,3 +1,4 @@
+Slave Instance | slapos_jio_api_get_software_instance
 Software Installation | slapos_jio_api_put_software_installation
 Software Instance | slapos_jio_api_get_software_instance
 jIO Web Section | slapos_jio_api_create_compute_node

@@ -73,32 +73,62 @@
   "$schema": "http://json-schema.org/draft-07/schema#",\n
   "$id": "software-instance-base-schema.json",\n
   "title": "Software Instance",\n
-  "description": "Software Instance",\n
+  "description": "Software Instance Search",\n
   "type": "object",\n
-  "properties": {\n
-    "title": {\n
-      "title": "Title",\n
-      "type": "string",\n
-      "description": "Unique Name of the Software Instance",\n
-      "maxLength": 200\n
+  "oneOf": [\n
+    {\n
+      "properties": {\n
+        "title": {\n
+          "title": "Title",\n
+          "type": "string",\n
+          "description": "Unique Name of the Software Instance",\n
+          "maxLength": 200\n
+        },\n
+        "compute_node_id": {\n
+          "title": "Compute Node ID",\n
+          "type": "string",\n
+          "description": "The Id of the compute node hosting the instance, example: COMP-1234"\n
+        },\n
+        "root_instante_title": {\n
+          "title": "Root Instance Title",\n
+          "type": "string",\n
+          "description": "Title of the Instance at the root of the instance tree. This is the title of the instance that has been requested by the user."\n
+        },\n
+        "portal_type": {\n
+          "title": "Portal Type",\n
+          "const": "Software Instance",\n
+          "type": "string"\n
+        }\n
+      },\n
+      "required": ["portal_type"]\n
     },\n
-    "compute_node_id": {\n
-      "title": "Compute Node ID",\n
-      "type": "string",\n
-      "description": "The Id of the compute node hosting the instance, example: COMP-1234"\n
-    },\n
-    "root_instante_title": {\n
-      "title": "Root Instance Title",\n
-      "type": "string",\n
-      "description": "Title of the Instance at the root of the instance tree. This is the title of the instance that has been requested by the user."\n
-    },\n
-    "portal_type": {\n
-      "title": "Portal Type",\n
-      "const": "Software Instance",\n
-      "type": "string"\n
+    {\n
+      "properties": {\n
+        "title": {\n
+          "title": "Title",\n
+          "type": "string",\n
+          "description": "Unique Name of the Software Instance",\n
+          "maxLength": 200\n
+        },\n
+        "host_instance_reference": {\n
+          "title": "Host Instance Reference",\n
+          "type": "string",\n
+          "description": "Reference of the Instance where this is instance is hosted, usefull for shared instances"\n
+        },\n
+        "root_instante_title": {\n
+          "title": "Root Instance Title",\n
+          "type": "string",\n
+          "description": "Title of the Instance at the root of the instance tree. This is the title of the instance that has been requested by the user."\n
+        },\n
+        "portal_type": {\n
+          "title": "Portal Type",\n
+          "const": "Shared Instance",\n
+          "type": "string"\n
+        }\n
+      },\n
+      "required": ["portal_type"]\n
     }\n
-  },\n
-  "required": ["portal_type"]\n
+  ]\n
 }\n
 </string> </value>
         </item>

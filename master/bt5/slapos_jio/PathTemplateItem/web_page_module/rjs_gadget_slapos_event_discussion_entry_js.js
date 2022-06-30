@@ -11,8 +11,8 @@
     })
     .onStateChange(function () {
       var gadget = this,
-        header_text = "By " + gadget.state.author +
-           " on " + gadget.state.modification_date + ":",
+        header_text = "By <strong>" + gadget.state.author +
+           "</strong> on " + gadget.state.modification_date + ":",
         header = domsugar("div", {
           class: "slapos-event-discussion-message-header"
         }, [

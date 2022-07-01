@@ -47,7 +47,6 @@ organisation_module
 organisation_module/slapos
 organisation_module/slapos/bank_account
 person_module
-portal_contributions
 portal_integrations
 portal_integrations/slapos_payzen_test_integration
 portal_integrations/slapos_wechat_test_integration

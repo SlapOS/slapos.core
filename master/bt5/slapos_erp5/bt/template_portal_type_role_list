@@ -35,16 +35,11 @@ Currency Module
 Data Set
 Data Set Module
 Document Ingestion Module
-Document Module
-Drawing
 ERP5 Login
 Event Module
 Facebook Login
 Fax Message
-File
 Google Login
-Image
-Image Module
 Incident Response
 Incident Response Module
 Instance Tree
@@ -62,13 +57,11 @@ Open Sale Order
 Open Sale Order Module
 Organisation
 Organisation Module
-PDF
 Payment Transaction
 Payzen Event
 Person
 Person Module
 Phone Call
-Presentation
 Product
 Product Module
 Project
@@ -95,7 +88,6 @@ Software Product
 Software Product Module
 Software Release
 Software Release Module
-Spreadsheet
 Subscription Condition
 Subscription Condition Module
 Subscription Request
@@ -103,7 +95,6 @@ Subscription Request Module
 Support Request
 Support Request Module
 System Event Module
-Text
 Upgrade Decision
 Upgrade Decision Module
 User Consumption HTML File

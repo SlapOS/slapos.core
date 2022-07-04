@@ -379,8 +379,10 @@
               json_dict[input.name] = parseFloat(input.value);
             }
           } else if (input.getAttribute("data-format") === "boolean") {
-            if (input.value === "true" || input.value === "false") {
+            if (input.value === "true") {
               json_dict[input.name] = Boolean(input.value);
+            } else if (input.value === "false") {
+              json_dict[input.name] = false;
             } else {
               json_dict[input.name] = input.value;
             }

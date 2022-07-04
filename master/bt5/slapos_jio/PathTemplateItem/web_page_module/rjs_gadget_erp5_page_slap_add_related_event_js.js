@@ -16,6 +16,8 @@
     .declareAcquiredMethod("jio_putAttachment", "jio_putAttachment")
     .declareAcquiredMethod("jio_get", "jio_get")
     .declareAcquiredMethod("getTranslationList", "getTranslationList")
+    .declareAcquiredMethod("notifySubmitting", "notifySubmitting")
+    .declareAcquiredMethod("notifySubmitted", "notifySubmitted")
 
     /////////////////////////////////////////////////////////////////
     // declared methods
@@ -26,17 +28,35 @@
 
     .onEvent('submit', function () {
       var gadget = this;
-      return gadget.getDeclaredGadget('form_view')
-        .push(function (form_gadget) {
-          return form_gadget.getContent();
-        })
-        .push(function (doc) {
-          return gadget.jio_post(doc);
-        })
+      return gadget.notifySubmitting()
         .push(function () {
-          return gadget.redirect({"command": "change",
-                                  "options": {"jio_key": gadget.state.jio_key,
-                                              "page": "slap_controller"}});
+          return gadget.getDeclaredGadget('form_view');
+        })
+        .push(function (form_gadget) {
+          return RSVP.all([form_gadget.getContent(),
+                          gadget.getSetting('hateoas_url')]);
+        })
+        .push(function (result) {
+          var doc = result[0],
+            url = result[1];
+          return gadget.jio_putAttachment(gadget.state.jio_key,
+                url + gadget.state.jio_key + "/Ticket_requestEvent",
+                {title: doc.title,
+                 text_content: doc.text_content});
+        })
+        /*.push(function (attachment) {
+          return jIO.util.readBlobAsText(attachment.target.response);
+        })
+        .push(function (response) {
+          return JSON.parse(response.target.result);
+        })*/
+        .push(function () {
+          return gadget.notifySubmitted({message: gadget.message_translation, status: 'success'})
+            .push(function () {
+              // Workaround, find a way to open document without break gadget.
+              return gadget.redirect({"command": "change",
+                                    "options": {"jio_key": gadget.state.jio_key, "page": "slap_controller"}});
+            });
         });
     })
 
@@ -52,12 +72,8 @@
           "Title",
           "Include your message",
           "Your Message",
-          "Source",
-          "Follow up",
-          "Portal Type",
-          "Web Message",
-          "Parent Relative Url",
-          "New Message"
+          "New Message",
+          "New Message created."
         ];
       gadget.state.jio_key = options.jio_key;
 
@@ -71,7 +87,8 @@
           ]);
         })
         .push(function (result) {
-          page_title_translation = result[3][9];
+          page_title_translation = result[3][4];
+          gadget.message_translation = result[3][5];
           return result[0].render({
             erp5_document: {
               "_embedded": {"_view": {
@@ -96,50 +113,6 @@
                   "key": "text_content",
                   "hidden": 0,
                   "type": "TextAreaField"
-                },
-                "my_source": {
-                  "description": "",
-                  "title": result[3][4],
-                  "default": result[1],
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "source",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_follow_up": {
-                  "description": "",
-                  "title": result[3][5],
-                  "default": gadget.state.jio_key,
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "follow_up",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_portal_type": {
-                  "description": result[3][0],
-                  "title": result[3][6],
-                  "default": "Web Message",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "portal_type",
-                  "hidden": 1,
-                  "type": "StringField"
-                },
-                "my_parent_relative_url": {
-                  "description": "",
-                  "title": result[3][8],
-                  "default": "event_module",
-                  "css_class": "",
-                  "required": 1,
-                  "editable": 1,
-                  "key": "parent_relative_url",
-                  "hidden": 1,
-                  "type": "StringField"
                 }
               }},
               "_links": {
@@ -152,16 +125,9 @@
             form_definition: {
               group_list: [[
                 "center",
-                [["my_title"], ["my_text_content"], ["my_follow_up"],
-                  ["my_portal_type"], ["my_parent_relative_url"],
-                  ["my_follow_up"], ["my_source"]]
+                [["my_title"], ["my_text_content"]]
               ]]
             }
-          });
-        })
-        .push(function () {
-          return gadget.updatePanel({
-            jio_key: "support_request_module"
           });
         })
         .push(function () {

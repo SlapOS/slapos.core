@@ -36,7 +36,8 @@ ticket.setStartDate(DateTime())
 
 ticket.requestEvent(
   event_title=ticket.getTitle(),
-  event_content=ticket.getDescription()
+  event_content=ticket.getDescription(),
+  event_source=ticket.getDestinationDecision()
 )
 
 event_relative_url = context.REQUEST.get("event_relative_url")

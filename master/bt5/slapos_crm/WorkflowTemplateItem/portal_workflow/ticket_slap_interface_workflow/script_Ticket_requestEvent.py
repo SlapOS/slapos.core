@@ -9,14 +9,15 @@ kwargs = state_change.kwargs
 try:
   title = kwargs['event_title']
   text_content = kwargs['event_content']
+  source = kwargs['event_source']
 except KeyError:
-  raise TypeError, "Ticket_requestEvent takes exactly 2 argument"
+  raise TypeError, "Ticket_requestEvent takes at exactly 3 argument"
 
 web_message = portal.event_module.newContent(
   portal_type="Web Message",
   title=title,
   text_content=text_content,
-  source=ticket.getDestinationDecision(),
+  source=source,
   content_type="text/plain",
   destination=ticket.getSource(),
   resource=ticket.getResource(),

@@ -90,6 +90,12 @@
         <td></td>
       </tr>
 
+      <tr>
+        <td>verifyTextPresent</td>
+        <td tal:content="python: here.Base_translateString('User Assigned', lang=lang)"></td>
+        <td></td>
+      </tr>
+
       <tal:block tal:define="menu_action python: 'Add'">
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_submenu_action" />
       </tal:block>
@@ -173,6 +179,13 @@
         <td>TEST-SLAPOSJS-SUPPORT-REQUEST NEW MESSAGE</td>
         <td></td>
       </tr>
+
+      <tr>
+        <td>verifyTextPresent</td>
+        <td tal:content="python: here.Base_translateString('Operator Assigned', lang=lang)"></td>
+        <td></td>
+      </tr>
+
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_logout" />
 
     </tbody>

@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "description": "Sample paremeters for a Simple Demo with required",
+  "required": [
+    "simple-string",
+    "simple-string-with-enum",
+    "simple-boolean",
+    "simple-string-with-text-area",
+    "simple-integer",
+    "simple-integer-with-enum",
+    "simple-numeric-integer",
+    "simple-numeric-integer-enum",
+    "simple-numeric-float",
+    "simple-numeric-float-enum"
+  ],
+  "properties": {
+    "simple-string": {
+      "title": "Example of Simple String",
+      "description": "Example of Simple String",
+      "type": "string",
+      "default": "Simple string "
+    },
+    "simple-string-with-enum": {
+      "title": "Example of Simple String with enum",
+      "description": "Example of Simple String with enum",
+      "type": "string",
+      "enum" : [
+        "simple string A",
+        "simple string B",
+        "simple string C"
+        ],
+      "default": "simple string A"
+    },
+    "simple-boolean": {
+      "title": "Example of Boolean",
+      "description": "Example of Boolean",
+      "type": "boolean",
+      "default": true
+    },
+    "simple-string-with-text-area": {
+      "title": "Example of Simple String with textarea",
+      "description": "Example of Simple String with text area",
+      "type": "string",
+      "default": "Simple string",
+      "textarea": true
+    },
+     "simple-integer": {
+      "title": "Example of Simple Integer",
+      "description": "Example of Simple Integer",
+      "type": "integer",
+      "default": 1
+    },
+     "simple-integer-with-enum": {
+      "title": "Example of Simple Integer with enum",
+      "description": "Example of Simple Integer with enum",
+      "type": "integer",
+      "default": 1,
+      "enum": [
+        1,
+        2,
+        3,
+        5,
+        7,
+        11,
+        13,
+        17
+      ]
+    },
+     "simple-numeric-integer": {
+      "title": "Example of Simple Numeric as integer",
+      "description": "Example of Simple Numeric as Interger",
+      "type": "number",
+      "default": 1.0
+    },
+     "simple-numeric-integer-enum": {
+      "title": "Example of Simple Numeric as integer with enum",
+      "description": "Example of Simple Numeric as Interger",
+      "type": "number",
+      "default": 1.0,
+      "enum": [
+        1.0,
+        2.0,
+        3.0,
+        5.0,
+        7.0,
+        11.0,
+        13.0,
+        17.0
+      ]
+    },
+     "simple-numeric-float": {
+      "title": "Example of Simple Numeric as float",
+      "description": "Example of Simple Numeric as float",
+      "type": "number",
+      "default": 1.5
+    },
+     "simple-numeric-float-enum": {
+      "title": "Example of Simple Numeric as float with enum",
+      "description": "Example of Simple Numeric as float",
+      "type": "number",
+      "default": 1.5,
+      "enum": [
+        0.25,
+        0.75,
+        1.25,
+        1.5
+      ]
+    }
+  }
+}
+

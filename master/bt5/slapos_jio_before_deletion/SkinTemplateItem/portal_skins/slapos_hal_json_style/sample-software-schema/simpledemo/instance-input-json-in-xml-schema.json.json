@@ -1,0 +1,164 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "description": "Extend simple parameter extension with extra only supported on json-in-xml",
+  "required": ["simple-object-is-required"],
+  "allOf": [
+    {
+      "$ref": "instance-input-schema.json#"
+    },
+    {
+      "properties": {
+        "simple-array-of-string": {
+          "title": "Example of Simple array of String",
+          "description": "Example of Array of String",
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "simple-array-of-integer": {
+          "title": "Example of Simple array of Integer",
+          "description": "Example of Array of Interger",
+          "type": "array",
+          "items": {"type": "integer"}
+        },
+        "simple-array-of-number": {
+          "title": "Example of Simple array of Numbers",
+          "description": "Example of Array of Numbers",
+          "type": "array",
+          "items": {"type": "number"}
+        },
+        "simple-object": {
+          "title": "Example of Single Object",
+          "description": "Example of Single Object",
+          "type": "object",
+          "properties": {
+            "sample-object-string": {
+              "title": "Example of Simple String on an object",
+              "description": "Example of Simple String",
+              "type": "string",
+              "default": "Simple string "
+            },
+            "simple-object-with-integer": {
+             "title": "Example of Simple Integer",
+             "description": "Example of Simple Integer",
+             "type": "integer",
+             "default": 1
+            },
+            "simple-object-with-integer-with-enum": {
+             "title": "Example of Simple Integer with enum",
+             "description": "Example of Simple Integer with enum",
+             "type": "integer",
+             "default": 1,
+             "enum": [
+               1,
+               2
+             ]
+            }
+          }
+        },
+        "simple-object-with-required": {
+          "title": "Example of Single Object",
+          "description": "Example of Single Object",
+          "type": "object",
+          "required": ["sample-object-string"],
+          "properties": {
+            "sample-object-string": {
+              "title": "Example of Simple String on an object",
+              "description": "Example of Simple String",
+              "type": "string",
+              "default": "Simple string"
+            }
+          }
+        },
+        "simple-object-is-required": {
+          "title": "Example of Single Object",
+          "description": "Example of Single Object",
+          "type": "object",
+          "properties": {
+            "sample-object-string": {
+              "title": "Example of Simple String on an object",
+              "description": "Example of Simple String",
+              "type": "string",
+              "default": "Simple string "
+            }
+          }
+        },
+        "simple-object-with-additionalProperties-string": {
+          "title": "Sample Object with additionalProperties as string",
+          "description": "Sample Object with additionalProperties as string",
+          "default": {},
+          "additionalProperties": {
+            "description": "Sample String",
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "simple-object-string": {
+          "title": "Example of multi strings as a Dict",
+          "description": "Example of multi strings as a Dict",
+          "patternProperties": {
+            ".*": {
+              "description": "Sample String",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "simple-object-with-additionalProperties-array-string": {
+          "title": "Sample Object with additionalProperties as array of string",
+          "description": "Sample Object with additionalProperties as array of string",
+          "default": {},
+          "additionalProperties": {
+            "description": "Sample array of String",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "type": "object"
+        },
+        "simple-object-array-string": {
+          "title": "Example of multi arrays of strings as a Dict",
+          "description": "Example of multi strings as a Dict",
+          "patternProperties": {
+            ".*": {
+              "description": "Sample array of strings",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
+        "simple-object-dict": {
+          "title": "Example of multi objects as a Dict",
+          "description": "Example of multi objects as a Dict",
+          "type": "object",
+          "patternProperties": {
+            ".*": {
+              "properties": {
+                "simple-object-dict-string-example": {
+                  "title": "Example of the String as part of Object",
+                  "description": "Example of the String as part of Object",
+                  "type": "string",
+                  "default": ""
+                },
+                "simple-object-dict-string-with-enum": {
+                  "title": "Example of the String as part of Object with Enum",
+                  "description": "Example of the String as part of Object with Enum",
+                  "type": "string",
+                  "default": "String Sample A",
+                  "enum": [
+                    "String Sample A",
+                    "String Sample B"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

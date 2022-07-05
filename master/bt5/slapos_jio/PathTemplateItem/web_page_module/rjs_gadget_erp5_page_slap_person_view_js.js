@@ -318,7 +318,6 @@
             gadget.getUrlFor({command: "change", options: {jio_key: setting_list[0], page: "slap_person_request_certificate"}}),
             gadget.getUrlFor({command: "change", options: {jio_key: setting_list[0], page: "slap_person_get_token"}}),
             gadget.getUrlFor({command: "change", options: {jio_key: setting_list[0], page: "slap_person_add_erp5_login"}}),
-            gadget.getUrlFor({command: "change", options: {jio_key: setting_list[0], page: "slap_person_add_organisation"}}),
             gadget.getUrlFor({command: "change", options: {page: setting_list[1]}}),
             gadget.getUrlFor({command: "change", options: {jio_key: gadget.state.doc.contract_relative_url, page: "slap_controller"}}),
             gadget.updatePanel({jio_key: "person_module"})

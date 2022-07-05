@@ -9,7 +9,7 @@ if not aggregated_reference:
 item_dict = []
 for line in portal.portal_catalog(portal_type='Sale Packing List Line',
                                    grouping_reference=aggregated_reference,
-                                   default_resource_uid=portal.service_module.slapos_instance_subscription.getUid(),
+                                   default_resource_uid=-1,#portal.service_module.slapos_instance_subscription.getUid(),
                                    sort_on=[('default_aggregate_uid', 'ASC'), ('movement.start_date', 'ASC')]):
 
   item_relative_url = line.getAggregate(portal_type='Instance Tree')

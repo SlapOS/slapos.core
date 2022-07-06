@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.7.9 (2022-07-06)
+------------------
+ * util: fix getSerialisation
+
 1.7.8 (2022-06-27)
 ------------------
  * cli: `slapos --version` now shows Python version too

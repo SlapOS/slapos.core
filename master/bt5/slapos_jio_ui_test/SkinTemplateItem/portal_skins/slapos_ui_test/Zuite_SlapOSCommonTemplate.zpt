@@ -1172,12 +1172,12 @@
   <tal:block metal:define-macro="check_contextual_help">
     <tr>
       <td>waitForElementPresent</td>
-      <td>//div[@class="ui-content"]</td>
+      <td>//div[@class="slapos_panel_extra_menu"]</td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td>//div[@class="ui-content"]</td>
+      <td>//div[@class="slapos_panel_extra_menu"]</td>
       <td></td>
     </tr>
   </tal:block>

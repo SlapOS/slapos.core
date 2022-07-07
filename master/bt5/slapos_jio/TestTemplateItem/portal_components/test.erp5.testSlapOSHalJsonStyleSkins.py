@@ -1245,6 +1245,248 @@ class TestSoftwareInstance_getConnectionParameterList(TestSlapOSHalJsonStyleMixi
        {"connection_key": "p1", "connection_value": "DEF"}]
       )
 
-    
+class TestBase_getAttentionPointList(TestSlapOSHalJsonStyleMixin):
 
-    
+  def afterSetUp(self):
+    preference =  self.portal.portal_preferences.getActiveSystemPreference()
+    preference.setPreferredCloudContractEnabled(True)
+    self.tic()
+    TestSlapOSHalJsonStyleMixin.afterSetUp(self)
+
+  def test_Base_getAttentionPointList_no_cloud_contract(self):
+    self.login()
+    expected_list = [{"text": "Your Contract is Deactivated",
+      'page': "slap_request_contract_activation"}]
+    self.assertEqual(expected_list,
+      json.loads(
+        self.portal.instance_tree_module.Base_getAttentionPointList()))
+
+    person = self._makePerson(user=1)
+    self.tic()
+
+    self.login(person.getUserId())
+    expected_list = [{"text": "Your Contract is Deactivated",
+      'page': "slap_request_contract_activation"}]
+    self.assertEqual(expected_list,
+      json.loads(person.Base_getAttentionPointList()))
+
+    self.login()
+    instance_tree = self._makeInstanceTree()
+    self.tic()
+    expected_list = [{"text": "Your Contract is Deactivated",
+      'page': "slap_request_contract_activation"}]
+    self.assertEqual(expected_list,
+      json.loads(instance_tree.Base_getAttentionPointList()))
+
+  def test_Base_getAttentionPointList_support_request_related_to_compute_node(self):
+    document = self._makeComputeNode()
+    self.login()
+    ticket = self.portal.support_request_module.newContent(\
+                        title="Test Support Request %s" % self.new_id)
+    ticket.setAggregateValue(document)
+    ticket.submit()
+
+    self.tic()
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(document.Base_getAttentionPointList())
+    self.assertEqual(attention_point_list, [])
+
+    ticket.validate()
+    self.tic()
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(document.Base_getAttentionPointList())
+    self.assertEqual(attention_point_list, [])
+
+    ticket.suspend()
+    self.tic()
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(document.Base_getAttentionPointList())
+    self.assertEqual(len(attention_point_list), 1)
+    self.assertIn({"text": "Ticket waiting your response", 
+                   "link": ticket.getRelativeUrl()},
+                   attention_point_list)
+
+    ticket.invalidate()
+    self.tic()
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(document.Base_getAttentionPointList())
+    self.assertEqual(attention_point_list, [])
+
+  def test_Base_getAttentionPointList_support_request_related_to_instance_tree(self):
+    self.login()
+    document = self._makeInstanceTree()
+    ticket = self.portal.support_request_module.newContent(\
+                        title="Test Support Request %s" % self.new_id)
+    ticket.setAggregateValue(document)
+    ticket.submit()
+
+    self.tic()
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(document.Base_getAttentionPointList())
+    # 1 is due cloud contract
+    self.assertEqual(len(attention_point_list), 1)
+
+    ticket.validate()
+    self.tic()
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(document.Base_getAttentionPointList())
+    self.assertEqual(len(attention_point_list), 1)
+
+    ticket.suspend()
+    self.tic()
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(document.Base_getAttentionPointList())
+    self.assertEqual(len(attention_point_list), 2)
+    self.assertIn({"text": "Ticket waiting your response", 
+                   "link": ticket.getRelativeUrl()},
+                   attention_point_list)
+
+    ticket.invalidate()
+    self.tic()
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(document.Base_getAttentionPointList())
+    self.assertEqual(len(attention_point_list), 1)
+
+  def test_Base_getAttentionPointList_regularisation_request(self):
+    support_request_module = self.portal.support_request_module
+    self.login()
+    ticket = self.portal.regularisation_request_module.newContent(\
+                        title="Test Regularisation Request %s" % self.new_id)
+    person = self._makePerson(user=1)
+    ticket.setDestinationDecision(person.getRelativeUrl())                    
+    ticket.submit()
+
+    self.tic()
+    self.login(person.getUserId())
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(
+      support_request_module.Base_getAttentionPointList())
+    self.assertEqual(attention_point_list, [])
+
+    self.login()
+    ticket.validate()
+    self.login(person.getUserId())
+
+    self.tic()
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(
+      support_request_module.Base_getAttentionPointList())
+    self.assertEqual(attention_point_list, [])
+
+    self.login()
+    ticket.suspend()
+    self.login(person.getUserId())
+
+    self.tic()
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(
+      support_request_module.Base_getAttentionPointList())
+    self.assertEqual(len(attention_point_list), 1)
+    self.assertEqual(
+      attention_point_list[0]["text"],
+      "Regularisation waiting your response")
+    self.assertEqual(
+      attention_point_list[0]["link"],
+      ticket.getRelativeUrl())
+
+    self.login()
+    ticket.invalidate()
+    self.login(person.getUserId())
+
+    self.tic()
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(
+      support_request_module.Base_getAttentionPointList())
+    self.assertEqual(attention_point_list, [])
+
+  def test_Base_getAttentionPointList_support_request(self):
+    support_request_module = self.portal.support_request_module
+    self.login()
+    ticket = self.portal.support_request_module.newContent(\
+                        title="Test Support Request %s" % self.new_id)
+    person = self._makePerson(user=1)
+    ticket.setDestinationDecision(person.getRelativeUrl())                    
+    ticket.submit()
+
+    self.tic()
+    self.login(person.getUserId())
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(
+      support_request_module.Base_getAttentionPointList())
+    self.assertEqual(attention_point_list, [])
+
+    self.login()
+    ticket.validate()
+    self.login(person.getUserId())
+    self.tic()
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(
+      support_request_module.Base_getAttentionPointList())
+    self.assertEqual(attention_point_list, [])
+
+    self.login()
+    ticket.suspend()
+    self.tic()
+    self.login(person.getUserId())
+
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(
+      support_request_module.Base_getAttentionPointList())
+    self.assertEqual(len(attention_point_list), 1)
+    self.assertEqual(
+      attention_point_list[0]["text"],
+      "Ticket waiting your response")
+    self.assertEqual(
+      attention_point_list[0]["link"],
+      ticket.getRelativeUrl())
+
+    self.login()
+    ticket.invalidate()
+    self.login(person.getUserId())
+
+    self.tic()
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(
+      support_request_module.Base_getAttentionPointList())
+    self.assertEqual(attention_point_list, [])
+
+  def test_Base_getAttentionPointList_upgrade_decision(self):
+    support_request_module = self.portal.support_request_module
+    self.login()
+    ticket = self.portal.upgrade_decision_module.newContent(\
+                        title="Test Upgrade Decision %s" % self.new_id)
+    person = self._makePerson(user=1)
+    ticket.setDestinationDecision(person.getRelativeUrl())                    
+
+    self.tic()
+    self.login(person.getUserId())
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(
+      support_request_module.Base_getAttentionPointList())
+    self.assertEqual(attention_point_list, [])
+
+    self.login()
+    ticket.confirm()
+    self.tic()
+    self.login(person.getUserId())
+
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(
+      support_request_module.Base_getAttentionPointList())
+    self.assertEqual(len(attention_point_list), 1)
+    self.assertEqual(
+      attention_point_list[0]["text"],
+      "Please Upgrade this service")
+    self.assertEqual(
+      attention_point_list[0]["link"],
+      ticket.getRelativeUrl())
+
+    self.login()
+    ticket.start()
+    self.login(person.getUserId())
+
+    self.tic()
+    self.changeSkin("Hal")
+    attention_point_list = json.loads(
+      support_request_module.Base_getAttentionPointList())
+    self.assertEqual(attention_point_list, [])

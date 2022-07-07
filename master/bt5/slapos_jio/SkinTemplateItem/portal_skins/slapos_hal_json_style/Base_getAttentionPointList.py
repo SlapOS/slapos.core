@@ -1,5 +1,4 @@
 from json import dumps
-
 attention_point_list = []
 portal = context.getPortalObject()
 portal_type = context.getPortalType()

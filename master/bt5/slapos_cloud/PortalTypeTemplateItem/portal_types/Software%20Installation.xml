@@ -72,13 +72,23 @@
       "description": "State of the requested software",\n
       "default": "available"\n
     },\n
+    "reported_state": {\n
+      "title": "Reported State",\n
+      "type": "string",\n
+      "enum": ["available", "destroyed", "building", ""],\n
+      "description": "State reported by the node installing the Software Installation"\n
+    },\n
+    "status_message": {\n
+      "title": "Status Message",\n
+      "description": "Last Message received for the Software Installation",\n
+      "type": "string"\n
+    },\n
     "portal_type": {\n
       "title": "Portal Type",\n
       "const": "Software Installation",\n
       "type": "string"\n
     }\n
-  },\n
-  "required": ["portal_type", "software_release_uri", "compute_node_id"]\n
+  }\n
 }\n
 </string> </value>
         </item>

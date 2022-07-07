@@ -31,6 +31,8 @@ from Products.ERP5Type import Permissions, PropertySheet
 from erp5.component.document.Item import Item
 from erp5.component.document.JSONType import JSONType
 
+import json
+
 class SoftwareInstallation(Item, JSONType):
   """
   This class represents a computer like personal computer, printer, router.
@@ -47,3 +49,30 @@ class SoftwareInstallation(Item, JSONType):
   property_sheets = ( PropertySheet.TextDocument
                       , PropertySheet.JSONTypeConstraint
                       )
+
+  security.declareProtected(Permissions.AccessContentsInformation,
+    'asJSONText')
+  def asJSONText(self):
+    requested_state = self.getSlapState()
+    if requested_state == "stop_requested":
+      state = 'stopped'
+    elif requested_state in ("start_requested", "started"):
+      state = 'available'
+    elif requested_state == "destroy_requested":
+      state = 'destroyed'
+    else:
+      raise ValueError("Unknown slap state : %s" % requested_state)
+    # software instance has to define an xml parameter
+    status_dict = self.getAccessStatus()
+    result = {
+      "$schema": self.getPortalObject().portal_types.restrictedTraverse(self.getPortalType()).absolute_url()
+        + "/getTextContent",
+      "reference": self.getReference().decode("UTF-8"),
+      "software_release_uri": self.getUrlString(),
+      "compute_node_id": self.getAggregateReference(),
+      "state": state,
+      "reported_state": status_dict.get("state"),
+      "status_message": status_dict.get("text"),
+    }
+    result.update()
+    return json.dumps(result, indent=2)

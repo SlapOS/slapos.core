@@ -326,7 +326,6 @@ class SoftwareInstance(Item, JSONType):
       state = 'destroyed'
     else:
       raise ValueError("Unknown slap state : %s" % requested_state)
-
     # software instance has to define an xml parameter
     result = {
       "$schema": self.getPortalObject().portal_types.restrictedTraverse(self.getPortalType()).absolute_url()
@@ -338,6 +337,10 @@ class SoftwareInstance(Item, JSONType):
       "node": self.getSlaXmlAsDict(),
       "state": state,
       "id": self.getRelativeUrl(),
+      "software_release_uri": self.getUrlString(),
+      "software_type": self.getSourceReference().decode("UTF-8"),
+      "compute_node_id": parameter_dict.get("slap_computer_id"),
+      "compute_partition_id": parameter_dict.get("slap_computer_partition_id"),
     }
     result.update(parameter_dict)
     return json.dumps(result, indent=2)

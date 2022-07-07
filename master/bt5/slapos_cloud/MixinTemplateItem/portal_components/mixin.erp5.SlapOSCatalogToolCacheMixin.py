@@ -30,7 +30,6 @@ from OFS.Traversable import NotFound
 from Products.ERP5Type.Cache import CachingMethod
 from Products.ERP5Type.UnrestrictedMethod import UnrestrictedMethod
 
-
 class SlapOSCatalogToolCacheMixin(object):
   """ Quering Caching Extension for Catalog for handle specific queries
   relying on caching.
@@ -92,3 +91,28 @@ class SlapOSCatalogToolCacheMixin(object):
         (compute_node_reference, compute_partition_reference)
     else:
       return _assertACI(compute_partition_list[0].getObject())
+
+  def _getNonCachedSoftwareInstance(self, reference, include_shared=False):
+    # No need to get all results if an error is raised when at least 2 objects
+    # are found
+    if not include_shared:
+      portal_type = "Software Instance"
+    else:
+      portal_type = ("Software Instance", "Slave Instance")
+    software_instance_list = self.unrestrictedSearchResults(limit=2,
+        portal_type=portal_type,
+        validation_state="validated",
+        reference=reference)
+    if len(software_instance_list) != 1:
+      raise NotFound, "No document found with parameters: %s" % reference
+    else:
+      return _assertACI(software_instance_list[0].getObject()).getRelativeUrl()
+
+  def getSoftwareInstanceObject(self, reference, include_shared=False):
+    """
+    Get the validated compute_node with this reference.
+    """
+    result = CachingMethod(self._getNonCachedSoftwareInstance,
+        id='_getSoftwareInstanceObject',
+        cache_factory='slap_cache_factory')(reference, include_shared=include_shared)
+    return self.getPortalObject().restrictedTraverse(result)

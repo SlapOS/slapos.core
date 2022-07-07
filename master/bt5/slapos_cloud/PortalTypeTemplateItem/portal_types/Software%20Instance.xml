@@ -87,33 +87,52 @@
     },\n
     "software_release_uri": {\n
       "title": "Software Release URI",\n
-      "type": "string"\n
+      "type": "string",\n
+      "description": "URL of the software release used by the software instance"\n
     },\n
     "software_type": {\n
       "title": "Software Type",\n
       "type": "string",\n
-      "description": "Software type to be requested"\n
+      "description": "Software type of the instance, it define the type of the instance according to the software release"\n
     },\n
     "state": {\n
       "title": "Requested State",\n
       "type": "string",\n
       "enum": ["started", "stopped", "destroyed"],\n
-      "description": "State of the requested instance"\n
+      "description": "State of the requested instance. It is functionnal when started. In stopped state, all services are stopped. If destroyed, it will remove the instance."\n
     },\n
     "connection_parameters": {\n
       "title": "Connections Parameters",\n
       "type": "object",\n
+      "description": "List of parameters provided by the instance to access it.",\n
       "additionalProperties": { "type": "string" }\n
     },\n
     "parameters": {\n
       "title": "Instance Parameters",\n
       "type": "object",\n
+      "description": "Parameters provided to the instance when requested to configure it.",\n
       "additionalProperties": { "type": "string" }\n
     },\n
     "shared": {\n
       "title": "Shared Instance",\n
       "type": "boolean",\n
-      "description": "Ask for a Shared Instance"\n
+      "description": "This instance is Shared Instance hosted on another instance. It doesn\'t use a computer partition."\n
+    },\n
+    "root_instante_title": {\n
+      "title": "Root Instance Title",\n
+      "type": "string",\n
+      "description": "Title of the Instance at the root of the instance tree. This is the title of the instance that has been requested by the user."\n
+    },\n
+    "ip_list": {\n
+      "title": "IP List",\n
+      "type": "array",\n
+      "descritpion": "List of IPs usable by the Software Instance on the partition",\n
+      "items": {\n
+          "type": "array",\n
+          "items": {\n
+            "type": "string"\n
+          }\n
+      }\n
     },\n
     "sla_parameters": {\n
       "title": "Target Node Selection Parameters",\n

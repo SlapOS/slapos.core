@@ -343,7 +343,16 @@
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_proceed" />
 
-      <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/wait_for_content_loaded" />
+      <tr>
+        <td>waitForElementPresent</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_slapos_event_discussion_entry.html')]//div[@class="slapos-event-discussion-message-header"]</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>assertElementPresent</td>
+        <td>//div[contains(@data-gadget-url, 'gadget_slapos_event_discussion_entry.html')]//div[@class="slapos-event-discussion-message-header"]</td>
+        <td></td>
+      </tr>
 
       <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/slapos_wait_for_activities_and_front_page" />
 

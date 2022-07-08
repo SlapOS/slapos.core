@@ -1172,14 +1172,25 @@
   <tal:block metal:define-macro="check_contextual_help">
     <tr>
       <td>waitForElementPresent</td>
-      <td>//div[@class="slapos_panel_extra_menu"]</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//div[@class="slapos_panel_extra_menu"]</td>
       <td></td>
     </tr>
     <tr>
       <td>assertElementPresent</td>
-      <td>//div[@class="slapos_panel_extra_menu"]</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//div[@class="slapos_panel_extra_menu"]</td>
       <td></td>
     </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//dl[@class="dl-contextual-help"]</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertElementPresent</td>
+      <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//dl[@class="dl-contextual-help"]</td>
+      <td></td>
+    </tr>
+
   </tal:block>
 
   <tal:block metal:define-macro="suspend_user_tickets">

@@ -1182,6 +1182,19 @@
     </tr>
   </tal:block>
 
+  <tal:block metal:define-macro="suspend_user_tickets">
+    <tr>
+      <td>openAndWait</td>
+      <td>${base_url}/ERP5Site_suspendUserSupportRequest</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>assertTextPresent</td>
+      <td>Done.</td>
+      <td></td>
+    </tr>
+  </tal:block>
+
   <!-- the macro to set the language globally -->
   <tal:block metal:define-macro="set_default_available_language"
             tal:define="global lang python: here.web_site_module[web_site_id].getDefaultAvailableLanguage()">

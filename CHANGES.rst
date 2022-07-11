@@ -1,6 +1,10 @@
 Changes
 =======
 
+1.7.10 (2022-07-11)
+-------------------
+ * format: fix for python3
+
 1.7.9 (2022-07-06)
 ------------------
  * util: fix getSerialisation

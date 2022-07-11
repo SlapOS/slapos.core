@@ -950,5 +950,9 @@ class TestFormatConfig(SlapformatMixin):
 
   # TODO add more tests with config file
 
-if __name__ == '__main__':
-  unittest.main()
+
+class TestCallAndRead(unittest.TestCase):
+  def test_callAndRead(self):
+    self.assertEqual(
+      slapos.format.callAndRead(['echo', 'hello']),
+      (0, 'hello\n'))

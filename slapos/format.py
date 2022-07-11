@@ -150,9 +150,12 @@ def getPublicIPv4Address():
       return ipv4
 
 def callAndRead(argument_list, raise_on_error=True):
-  popen = subprocess.Popen(argument_list,
-                           stdout=subprocess.PIPE,
-                           stderr=subprocess.STDOUT)
+  popen = subprocess.Popen(
+    argument_list,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.STDOUT,
+    universal_newlines=True,
+  )
   result = popen.communicate()[0]
   if raise_on_error and popen.returncode != 0:
     raise ValueError('Issue while invoking %r, result was:\n%s' % (

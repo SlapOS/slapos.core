@@ -10,7 +10,10 @@ if upgrade_decision.getSimulationState() == "cancelled":
   return
 
 if software_release.getValidationState() == "archived":
-  upgrade_decision.cancel(comment="Software Release is archived.")
+  software_product = software_release.getAggregateValue()
+  if software_product is not None and \
+    software_product.getValidationState() == "invalidated":
+    upgrade_decision.cancel(comment="Software Product is invalidated.")
   return
 
 if instance_tree is not None:

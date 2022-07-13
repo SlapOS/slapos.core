@@ -154,6 +154,26 @@
                       <value> <string>string</string> </value>
                   </item>
                 </dictionary>
+                <dictionary>
+                  <item>
+                      <key> <string>id</string> </key>
+                      <value> <string>redirect_domain</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>type</string> </key>
+                      <value> <string>string</string> </value>
+                  </item>
+                </dictionary>
+                <dictionary>
+                  <item>
+                      <key> <string>id</string> </key>
+                      <value> <string>use_moved_temporarily</string> </value>
+                  </item>
+                  <item>
+                      <key> <string>type</string> </key>
+                      <value> <string>int</string> </value>
+                  </item>
+                </dictionary>
               </tuple>
             </value>
         </item>
@@ -166,9 +186,7 @@
         <item>
             <key> <string>categories</string> </key>
             <value>
-              <tuple>
-                <string>aggregate/web_page_module/rjs_gadget_erp5_launcher_html</string>
-              </tuple>
+              <tuple/>
             </value>
         </item>
         <item>
@@ -184,14 +202,20 @@
             <value> <string>SAMEORIGIN</string> </value>
         </item>
         <item>
+            <key> <string>container_layout</string> </key>
+            <value> <string>StaticWebSite_getRedirectSourceUrl</string> </value>
+        </item>
+        <item>
+            <key> <string>content_layout</string> </key>
+            <value> <string>StaticWebSite_getRedirectSourceUrl</string> </value>
+        </item>
+        <item>
             <key> <string>custom_render_method_id</string> </key>
-            <value> <string>WebSection_renderDefaultPageAsGadget</string> </value>
+            <value> <string>StaticWebSite_getRedirectSourceUrl</string> </value>
         </item>
         <item>
             <key> <string>description</string> </key>
-            <value>
-              <none/>
-            </value>
+            <value> <string>The trial implementation was removed, keep this section due legacy purpose.</string> </value>
         </item>
         <item>
             <key> <string>id</string> </key>
@@ -204,8 +228,16 @@
             </value>
         </item>
         <item>
+            <key> <string>layout_configuration_form_id</string> </key>
+            <value> <string>StaticWebSite_viewRedirectAssistConfiguration</string> </value>
+        </item>
+        <item>
             <key> <string>portal_type</string> </key>
             <value> <string>Web Section</string> </value>
+        </item>
+        <item>
+            <key> <string>redirect_domain</string> </key>
+            <value> <string>https://panel.rapid.space</string> </value>
         </item>
         <item>
             <key> <string>short_title</string> </key>
@@ -215,11 +247,15 @@
         </item>
         <item>
             <key> <string>skin_selection_name</string> </key>
-            <value> <string>RJS</string> </value>
+            <value> <string>RedirectAssist</string> </value>
         </item>
         <item>
             <key> <string>title</string> </key>
-            <value> <string>Welcome to our Free Trial Program</string> </value>
+            <value> <string>Redirect to panel.rapid.space</string> </value>
+        </item>
+        <item>
+            <key> <string>use_moved_temporarily</string> </key>
+            <value> <int>1</int> </value>
         </item>
         <item>
             <key> <string>visible</string> </key>
@@ -390,7 +426,7 @@
                   </item>
                   <item>
                       <key> <string>serial</string> </key>
-                      <value> <string>1000.2322.46712.16657</string> </value>
+                      <value> <string>1001.36704.32789.58760</string> </value>
                   </item>
                   <item>
                       <key> <string>state</string> </key>
@@ -408,7 +444,7 @@
                           </tuple>
                           <state>
                             <tuple>
-                              <float>1652448693.64</float>
+                              <float>1657680177.0</float>
                               <string>UTC</string>
                             </tuple>
                           </state>

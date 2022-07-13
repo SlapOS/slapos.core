@@ -259,8 +259,6 @@ class TestSlapOSConfigurator(SlapOSTestCaseMixin):
        'task_report_module',
        'test_page_module',
        'transformation_module',
-       'trial_condition_module',
-       'trial_request_module',
        'upgrade_decision_module',
        'web_page_module',
        'web_site_module',

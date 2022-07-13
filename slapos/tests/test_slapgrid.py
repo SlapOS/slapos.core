@@ -181,6 +181,9 @@ class BasicMixin(object):
                                                        'supervisord')
     self.usage_report_periodicity = 1
     self.buildout = None
+    self.certificate_repository_path = os.path.join(self._tempdir, 'partition_pki');
+    if not os.path.isdir(self.certificate_repository_path):
+      os.mkdir(self.certificate_repository_path)
     self.grid = slapgrid.Slapgrid(self.software_root,
                                   self.instance_root,
                                   self.master_url,
@@ -189,7 +192,8 @@ class BasicMixin(object):
                                   develop=develop,
                                   logger=logging.getLogger(),
                                   shared_part_list=self.shared_parts_root,
-                                  force_stop=force_stop)
+                                  force_stop=force_stop,
+                                  certificate_repository_path=self.certificate_repository_path)
     self.grid._manager_list = self.manager_list
     # monkey patch buildout bootstrap
 
@@ -429,6 +433,11 @@ class ComputerForTest(object):
       return {
               'status_code': 200,
               'content': dumps(ip_address_list)
+              }
+    elif url.path == '/getComputerPartitionCertificate':
+      return {
+              'status_code': 200,
+              'content': dumps({'certificate': 'SLAPOS_cert', 'key': 'SLAPOS_key'})
               }
     if req.method == 'POST' and 'computer_partition_id' in qs:
       instance = self.instance_list[int(qs['computer_partition_id'][0])]
@@ -727,7 +736,10 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition'])
+      self.assertEqual(open(os.path.join(self.certificate_repository_path, '0.crt')).read(), 'SLAPOS_cert')
+      self.assertEqual(open(os.path.join(self.certificate_repository_path, '0.key')).read(), 'SLAPOS_key')
 
   def test_one_partition_instance_cfg(self):
     """
@@ -745,6 +757,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition'])
 
   def test_one_free_partition(self):
@@ -779,6 +792,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       six.assertCountEqual(self, os.listdir(self.software_root), [partition.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
                         '/startedComputerPartition'])
       self.assertEqual(partition.state, 'started')
 
@@ -798,6 +812,7 @@ class TestSlapgridCPWithMaster(MasterMixin, unittest.TestCase):
       six.assertCountEqual(self, os.listdir(self.software_root), [partition.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
                         '/startedComputerPartition'])
       self.assertEqual(partition.state, 'started')
 
@@ -813,8 +828,12 @@ exit 1
                              '.slapos-retention-lock-delay', '.slapgrid-0-error.log'])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation',
-                        '/startedComputerPartition', '/getHateoasUrl',
-                        '/getFullComputerInformation', '/softwareInstanceError'])
+                        '/getComputerPartitionCertificate',
+                        '/startedComputerPartition',
+                        '/getHateoasUrl',
+                        '/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
+                        '/softwareInstanceError'])
       self.assertEqual(instance.state, 'started')
 
   def test_one_partition_started_stopped(self):
@@ -853,6 +872,7 @@ chmod 755 etc/run/wrapper
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
                         '/startedComputerPartition'])
       self.assertEqual(instance.state, 'started')
 
@@ -865,7 +885,9 @@ chmod 755 etc/run/wrapper
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       self.assertLogContent(wrapper_log, 'Signal handler called with signal 15')
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl', '/getFullComputerInformation',
+                       ['/getHateoasUrl',
+                        '/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition'])
       self.assertEqual(instance.state, 'stopped')
 
@@ -911,6 +933,7 @@ chmod 755 etc/run/wrapper
                             [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
                         '/startedComputerPartition'])
       self.assertEqual(instance.state, 'started')
 
@@ -927,7 +950,9 @@ exit 1
                              '.slapos-retention-lock-delay', '.slapgrid-0-error.log'])
       self.assertLogContent(wrapper_log, 'Signal handler called with signal 15')
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl', '/getFullComputerInformation',
+                       ['/getHateoasUrl',
+                        '/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
                         '/softwareInstanceError'])
       self.assertEqual(instance.state, 'started')
 
@@ -947,6 +972,7 @@ exit 1
                             [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition'])
       self.assertEqual('stopped', instance.state)
 
@@ -963,7 +989,9 @@ exit 1
       wrapper_log = os.path.join(instance.partition_path, '.0_wrapper.log')
       self.assertLogContent(wrapper_log, 'Working')
       self.assertEqual(computer.sequence,
-                       ['/getHateoasUrl', '/getFullComputerInformation',
+                       ['/getHateoasUrl',
+                        '/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
                         '/startedComputerPartition'])
       self.assertEqual('started', instance.state)
 
@@ -989,6 +1017,7 @@ exit 1
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition'])
       self.assertEqual('stopped', instance.state)
 
@@ -1442,9 +1471,12 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertEqual(computer.sequence,
                        ['/getHateoasUrl',
                         '/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition',
-                        '/getHateoasUrl', '/getFullComputerInformation',
-                         '/stoppedComputerPartition',
+                        '/getHateoasUrl',
+                        '/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
+                        '/stoppedComputerPartition',
                         '/getHateoasUrl',
                         '/getFullComputerInformation'])
 
@@ -1467,9 +1499,12 @@ class TestSlapgridCPPartitionProcessing(MasterMixin, unittest.TestCase):
       self.assertEqual(computer.sequence,
                        ['/getHateoasUrl',
                         '/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition',
-                        '/getHateoasUrl', '/getFullComputerInformation',
-                         '/stoppedComputerPartition'])
+                        '/getHateoasUrl',
+                        '/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
+                        '/stoppedComputerPartition'])
 
   def test_partition_periodicity_remove_timestamp(self):
     """
@@ -1868,7 +1903,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation',
-
+                        '/getComputerPartitionCertificate',
                         '/startedComputerPartition'])
       self.assertEqual(instance.state, 'started')
 
@@ -1887,6 +1922,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
 
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
                         '/stoppedComputerPartition',
                         '/destroyedComputerPartition'])
       self.assertEqual(instance.state, 'destroyed')
@@ -1918,7 +1954,10 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
 
       self.assertEqual(
           computer.sequence,
-          ['/getFullComputerInformation', '/stoppedComputerPartition', '/destroyedComputerPartition'])
+          ['/getFullComputerInformation',
+           '/getComputerPartitionCertificate',
+           '/stoppedComputerPartition',
+           '/destroyedComputerPartition'])
 
   def test_slapgrid_not_destroy_bad_instance(self):
     """
@@ -1939,7 +1978,7 @@ class TestSlapgridUsageReport(MasterMixin, unittest.TestCase):
       six.assertCountEqual(self, os.listdir(self.software_root), [instance.software.software_hash])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation',
-
+                        '/getComputerPartitionCertificate',
                         '/startedComputerPartition'])
       self.assertEqual('started', instance.state)
 
@@ -2812,6 +2851,7 @@ exit 0
                              'etc', 'software_release', 'worked', '.slapos-retention-lock-delay'])
       self.assertEqual(computer.sequence,
                        ['/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
                         '/startedComputerPartition'])
       self.assertEqual(partition.state, 'started')
       manager_list = slapmanager.from_config({'manager_list': 'prerm'})
@@ -3059,6 +3099,7 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
 
     self.assertEqual(self.computer.sequence,
                      ['/getFullComputerInformation',
+                      '/getComputerPartitionCertificate',
                       '/startedComputerPartition'])
     self.assertEqual(self.partition.state, 'started')
 
@@ -3134,7 +3175,10 @@ class TestSlapgridWithPortRedirection(MasterMixin, unittest.TestCase):
 
       self.assertEqual(self.computer.sequence,
                        ['/getFullComputerInformation',
-                        '/startedComputerPartition', '/startedComputerPartition'])
+                        '/getComputerPartitionCertificate',
+                        '/startedComputerPartition',
+                        '/getComputerPartitionCertificate',
+                        '/startedComputerPartition'])
       self.assertEqual(self.partition.state, 'started')
 
       # Check the socat command
@@ -3721,6 +3765,7 @@ class TestSlapgridManagerLifecycle(MasterMixin, unittest.TestCase):
 
       self.assertEqual(self.computer.sequence,
                        ['/getFullComputerInformation',
+                        '/getComputerPartitionCertificate',
                         '/startedComputerPartition'])
       self.assertEqual(partition.state, 'started')
 

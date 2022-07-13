@@ -209,6 +209,7 @@
                       domsugar("a", {
                         "class": "help",
                         "target": "_blank",
+                        "data-i18n": contextual_help_list[i]["data-i18n"],
                         "href": contextual_help_list[i].href,
                         "text": contextual_help_list[i].title
                       })])

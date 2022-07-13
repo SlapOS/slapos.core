@@ -1336,16 +1336,22 @@ ${new_software_release_url}""",
 
   def testUpgradeDecisionLine_cancel_archived_software_release(self):
     software_release = self._makeSoftwareRelease()
+    software_product = self._makeSoftwareProduct()
     upgrade_decision = self._makeUpgradeDecision()
     upgrade_decision_line = self._makeUpgradeDecisionLine(upgrade_decision)
     upgrade_decision_line.setAggregateValueList([software_release])
+    software_release.setAggregateValue(software_product)
     self.tic()
 
     software_release.archive()
     upgrade_decision_line.UpgradeDecisionLine_cancel()
+    self.assertEqual('draft', upgrade_decision.getSimulationState())
+    software_product.invalidate()
+
+    upgrade_decision_line.UpgradeDecisionLine_cancel()
     self.assertEqual('cancelled', upgrade_decision.getSimulationState())
     workflow_history_list = upgrade_decision.Base_getWorkflowHistoryItemList('upgrade_decision_workflow', display=0)
-    self.assertEqual("Software Release is archived.", workflow_history_list[-1].comment)
+    self.assertEqual("Software Product is invalidated.", workflow_history_list[-1].comment)
 
   @simulate('NotificationTool_getDocumentValue',
             'reference=None',
@@ -1445,6 +1451,8 @@ ${new_software_release_url}""",
   'context.REQUEST["testUpgradeDecisionLine_cancel_destroyed_hs_archived_sr"])')
   def testUpgradeDecisionLine_cancel_destroyed_hs_archived_sr(self):
     software_release = self._makeSoftwareRelease()
+    software_product = self._makeSoftwareProduct()
+    software_release.setAggregateValue(software_product)
     instance_tree = self._makeFullInstanceTree(software_release.getUrlString())
     upgrade_decision = self._makeUpgradeDecision()
 
@@ -1478,9 +1486,10 @@ ${new_software_release_url}""",
     )
     instance_tree.requestDestroy(**kw)
     software_release.archive()
+    software_product.invalidate()
     self.tic()
     upgrade_decision_line.UpgradeDecisionLine_cancel()
     self.assertEqual('cancelled', upgrade_decision.getSimulationState())
     workflow_history_list = upgrade_decision.Base_getWorkflowHistoryItemList('upgrade_decision_workflow', display=0)
-    self.assertEqual("Software Release is archived.", workflow_history_list[-1].comment)
+    self.assertEqual("Software Product is invalidated.", workflow_history_list[-1].comment)
 

@@ -14,11 +14,11 @@ if software_product_reference is None:
     )
   if not software_release:
     return []
-  
+
   software_product_reference = software_release.getAggregateReference()
   if not software_product_reference:
     return []
-    
+
 else:
   # Don't accept both parameters
   assert(software_release_url is None)
@@ -26,12 +26,12 @@ else:
 product_list = portal.portal_catalog(
            portal_type='Software Product',
            reference=software_product_reference,
-           validation_state='published', 
+           validation_state=['published', 'validated'],
            limit=2)
 
 if not product_list:
   return []
-  
+
 if len(product_list) > 1:
   raise ValueError('Several Software Product with the same reference.')
 
@@ -39,18 +39,22 @@ software_release_list = product_list[0].getAggregateRelatedValueList()
 
 def sortkey(software_release):
   publication_date = software_release.getEffectiveDate()
+  delta = 0
+  if software_release.getValidationState() == "archived":
+    # Decrease 80 years, to be sure it goes last but still on the list
+    delta = 365*80
   if publication_date:
     if (publication_date - DateTime()) > 0:
-      return DateTime('1900/05/02')
-    return publication_date
-  return software_release.getCreationDate()
+      # Decrease 100 years, to be sure it goes at the end of the queue
+      delta = 365*100
+    return publication_date - delta
+  return software_release.getCreationDate() - delta
 
 software_release_list = sorted(
          software_release_list,
          key=sortkey, reverse=True,
      )
-     
+
 return [software_release for software_release in software_release_list
           if software_release.getValidationState() in
-            ["published", "published_alive"]
-        ]
+            ["published", "published_alive", "archived"]]

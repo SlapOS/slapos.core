@@ -14,7 +14,7 @@ for decision_line in decision_line_in_progress_list:
   release_list = decision_line.getAggregateValueList(portal_type="Software Release")
   if len(release_list) > 1:
     continue
-  if not release_list[0]:
+  if not release_list:
     continue
   # If the current sr in rejected we must prevent creation of new upgrade decision for this sr
   if simulation_state == 'rejected' and \

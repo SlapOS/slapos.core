@@ -98,12 +98,12 @@
         <!-- Ensure contextual help displays fine on the panel-->
         <tr>
           <td>waitForElementPresent</td>
-          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and text()="Add Tickets"]</td>
+          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and @data-i18n="Add Tickets"]</td>
           <td></td>
         </tr>
         <tr>
           <td>assertElementPresent</td>
-          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and text()="Add Tickets"]</td>
+          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and @data-i18n="Add Tickets"]</td>
           <td></td>
         </tr>
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
@@ -116,12 +116,12 @@
         <!-- Ensure contextual help displays fine on the panel-->
         <tr>
           <td>waitForElementPresent</td>
-          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and text()="Classify Nodes"]</td>
+          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and @data-i18n="Classify Nodes"]</td>
           <td></td>
         </tr>
         <tr>
           <td>assertElementPresent</td>
-          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and text()="Classify Nodes"]</td>
+          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and @data-i18n="Classify Nodes"]</td>
           <td></td>
         </tr>
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
@@ -134,12 +134,12 @@
         <!-- Ensure contextual help displays fine on the panel-->
         <tr>
           <td>waitForElementPresent</td>
-          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and text()="Add Projects"]</td>
+          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and @data-i18n="Add Projects"]</td>
           <td></td>
         </tr>
         <tr>
           <td>assertElementPresent</td>
-          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and text()="Add Projects"]</td>
+          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and @data-i18n="Add Projects"]</td>
           <td></td>
         </tr>
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
@@ -152,12 +152,12 @@
         <!-- Ensure contextual help displays fine on the panel-->
         <tr>
           <td>waitForElementPresent</td>
-          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and text()="Payment Options"]</td>
+          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and @data-i18n="Payment Options"]</td>
           <td></td>
         </tr>
         <tr>
           <td>assertElementPresent</td>
-          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and text()="Payment Options"]</td>
+          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and @data-i18n="Payment Options"]</td>
           <td></td>
         </tr>
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
@@ -170,12 +170,12 @@
         <!-- Ensure contextual help displays fine on the panel-->
         <tr>
           <td>waitForElementPresent</td>
-          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and text()="Use Panel"]</td>
+          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and @data-i18n="Use Panel"]</td>
           <td></td>
         </tr>
         <tr>
           <td>assertElementPresent</td>
-          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and text()="Use Panel"]</td>
+          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and @data-i18n="Use Panel"]</td>
           <td></td>
         </tr>
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
@@ -188,12 +188,12 @@
         <!-- Ensure contextual help displays fine on the panel-->
         <tr>
           <td>waitForElementPresent</td>
-          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and text()="Associate Compute Nodes"]</td>
+          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and @data-i18n="Associate Compute Nodes"]</td>
           <td></td>
         </tr>
         <tr>
           <td>assertElementPresent</td>
-          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and text()="Associate Compute Nodes"]</td>
+          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and @data-i18n="Associate Compute Nodes"]</td>
           <td></td>
         </tr>
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />
@@ -206,12 +206,12 @@
         <!-- Ensure contextual help displays fine on the panel-->
         <tr>
           <td>waitForElementPresent</td>
-          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and text()="Add Networks"]</td>
+          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and @data-i18n="Add Networks"]</td>
           <td></td>
         </tr>
         <tr>
           <td>assertElementPresent</td>
-          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and text()="Add Networks"]</td>
+          <td>//div[contains(@data-gadget-url, 'gadget_slapos_panel.html')]//a[@class="help" and @data-i18n="Add Networks"]</td>
           <td></td>
         </tr>
         <tal:block metal:use-macro="here/Zuite_SlapOSCommonTemplate/macros/click_page_header" />

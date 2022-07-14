@@ -1,4 +1,9 @@
 news_dict = {"instance" : []}
+news_dict = {
+  "portal_type": context.getPortalType(),
+  "reference": context.getReference(),
+  "title": context.getTitle(),
+  "instance" : []}
 
 if context.getSlapState() == 'stop_requested':
   news_dict["is_stopped"] = 1

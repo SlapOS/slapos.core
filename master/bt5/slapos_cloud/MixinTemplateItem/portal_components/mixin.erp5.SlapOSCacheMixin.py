@@ -78,7 +78,9 @@ class SlapOSCacheMixin:
           'since': '%s' % last_modified,
           'state': "",
           "text": "#error no data found for %s" % self.getReference(),
-          "no_data": 1
+          "no_data": 1,
+          'reference': self.getReference(),
+          'portal_type': self.getPortalType()
         }
       # Prepare for xml marshalling
       #data_dict["text"] = data_dict["text"].decode("UTF-8")
@@ -128,7 +130,9 @@ class SlapOSCacheMixin:
       'created_at': '%s' % created_at,
       'text': '%s' % text,
       'since': '%s' % since,
-      'state': state
+      'state': state,
+      'reference': self.getReference(),
+      'portal_type': self.getPortalType()
     })
 
     cache_duration = self._getAccessStatusCacheFactory().cache_duration

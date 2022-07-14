@@ -651,6 +651,10 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>no_data</string>
     <int>1</int>
+    <string>portal_type</string>
+    <string>Compute Node</string>
+    <string>reference</string>
+    <string>%(compute_node_id)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -703,6 +707,10 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     <int>0</int>
     <string>no_data_since_5_minutes</string>
     <int>0</int>
+    <string>portal_type</string>
+    <string>Compute Node</string>
+    <string>reference</string>
+    <string>%(compute_node_id)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -815,6 +823,10 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>no_data</string>
     <int>1</int>
+    <string>portal_type</string>
+    <string>Software Installation</string>
+    <string>reference</string>
+    <string>%(reference)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -887,6 +899,10 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     <int>0</int>
     <string>no_data_since_5_minutes</string>
     <int>0</int>
+    <string>portal_type</string>
+    <string>Software Installation</string>
+    <string>reference</string>
+    <string>%(reference)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -902,6 +918,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     since=since,
     url_string=url_string,
     compute_node_id=self.compute_node_id,
+    reference=software_installation.getReference()
   )
     self.assertEqual(expected_xml, got_xml,
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
@@ -936,6 +953,10 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     <int>0</int>
     <string>no_data_since_5_minutes</string>
     <int>0</int>
+    <string>portal_type</string>
+    <string>Software Installation</string>
+    <string>reference</string>
+    <string>%(reference)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -951,6 +972,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     since=since,
     url_string=url_string,
     compute_node_id=self.compute_node_id,
+    reference=software_installation.getReference()
   )
     self.assertEqual(expected_xml, got_xml,
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
@@ -985,6 +1007,10 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     <int>0</int>
     <string>no_data_since_5_minutes</string>
     <int>0</int>
+    <string>portal_type</string>
+    <string>Software Installation</string>
+    <string>reference</string>
+    <string>%(reference)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -1000,6 +1026,7 @@ class TestSlapOSSlapToolComputeNodeAccess(TestSlapOSSlapToolMixin):
     since=since,
     url_string=url_string,
     compute_node_id=self.compute_node_id,
+    reference=software_installation.getReference()
   )
     self.assertEqual(expected_xml, got_xml,
         '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))
@@ -1324,6 +1351,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>no_data</string>
     <int>1</int>
+    <string>portal_type</string>
+    <string>Software Instance</string>
+    <string>reference</string>
+    <string>%(instance_guid)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -1375,6 +1406,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>no_data</string>
     <int>1</int>
+    <string>portal_type</string>
+    <string>Software Instance</string>
+    <string>reference</string>
+    <string>%(instance_guid)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -1749,6 +1784,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <int>0</int>
     <string>no_data_since_5_minutes</string>
     <int>0</int>
+    <string>portal_type</string>
+    <string>Software Instance</string>
+    <string>reference</string>
+    <string>%(instance_guid)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -1797,6 +1836,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <int>0</int>
     <string>no_data_since_5_minutes</string>
     <int>0</int>
+    <string>portal_type</string>
+    <string>Software Instance</string>
+    <string>reference</string>
+    <string>%(instance_guid)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -1847,6 +1890,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <int>0</int>
     <string>no_data_since_5_minutes</string>
     <int>0</int>
+    <string>portal_type</string>
+    <string>Software Instance</string>
+    <string>reference</string>
+    <string>%(instance_guid)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -1907,6 +1954,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <int>0</int>
     <string>no_data_since_5_minutes</string>
     <int>0</int>
+    <string>portal_type</string>
+    <string>Software Instance</string>
+    <string>reference</string>
+    <string>%(instance_guid)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -2227,6 +2278,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <int>0</int>
     <string>no_data_since_5_minutes</string>
     <int>0</int>
+    <string>portal_type</string>
+    <string>Software Instance</string>
+    <string>reference</string>
+    <string>%(instance_guid)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -2274,6 +2329,10 @@ class TestSlapOSSlapToolInstanceAccess(TestSlapOSSlapToolMixin):
     <int>0</int>
     <string>no_data_since_5_minutes</string>
     <int>0</int>
+    <string>portal_type</string>
+    <string>Software Instance</string>
+    <string>reference</string>
+    <string>%(instance_guid)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -2520,6 +2579,10 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>no_data</string>
     <int>1</int>
+    <string>portal_type</string>
+    <string>Compute Node</string>
+    <string>reference</string>
+    <string>%(compute_node_id)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -2572,6 +2635,10 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     <int>0</int>
     <string>no_data_since_5_minutes</string>
     <int>0</int>
+    <string>portal_type</string>
+    <string>Compute Node</string>
+    <string>reference</string>
+    <string>%(compute_node_id)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -2649,6 +2716,10 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>no_data</string>
     <int>1</int>
+    <string>portal_type</string>
+    <string>Software Instance</string>
+    <string>reference</string>
+    <string>%(instance_guid)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -2702,6 +2773,10 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     <string>%(created_at)s</string>
     <string>no_data</string>
     <int>1</int>
+    <string>portal_type</string>
+    <string>Software Instance</string>
+    <string>reference</string>
+    <string>%(instance_guid)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -3013,6 +3088,10 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     <int>0</int>
     <string>no_data_since_5_minutes</string>
     <int>0</int>
+    <string>portal_type</string>
+    <string>Software Instance</string>
+    <string>reference</string>
+    <string>%(instance_guid)s</string>
     <string>since</string>
     <string>%(since)s</string>
     <string>state</string>
@@ -3027,6 +3106,7 @@ class TestSlapOSSlapToolPersonAccess(TestSlapOSSlapToolMixin):
     created_at=created_at,
     since=since,
     person_reference=self.person_reference,
+    instance_guid=self.start_requested_software_instance.getReference()
   )
       self.assertEqual(expected_xml, got_xml,
           '\n'.join([q for q in difflib.unified_diff(expected_xml.split('\n'), got_xml.split('\n'))]))

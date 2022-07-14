@@ -11,7 +11,9 @@ def get_compute_partition_dict(reference):
       compute_partition_dict[compute_partition.getTitle()] = software_instance.getAccessStatus()
 
   return {"compute_node": compute_node_dict,
-          "partition": compute_partition_dict}
+          "partition": compute_partition_dict,
+          "portal_type": compute_node_dict['portal_type'],
+          "reference": compute_node_dict['reference']}
 
 # Use Cache here, at least transactional one.
 return get_compute_partition_dict(context.getReference())

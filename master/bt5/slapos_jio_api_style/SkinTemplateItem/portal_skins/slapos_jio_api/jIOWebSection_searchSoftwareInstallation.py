@@ -12,7 +12,7 @@ if "compute_node_id" in data_dict:
 result_list = [{
   "software_release_uri": x.url_string,
   "compute_node_id": x.aggregate_reference,
-  "state": x.slap_state,
+  "state": "available" if x.slap_state == "start_requested" else "destroyed",
   "portal_type": x.portal_type,
 } for x in context.getPortalObject().portal_catalog(**search_kw)]
 

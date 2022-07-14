@@ -6,5 +6,6 @@ Software Instance | slapos_jio_api_get_software_instance
 jIO Web Section | slapos_jio_api_create_compute_node
 jIO Web Section | slapos_jio_api_create_software_installation
 jIO Web Section | slapos_jio_api_request_software_instance
+jIO Web Section | slapos_jio_api_search_compute_node
 jIO Web Section | slapos_jio_api_search_instance
 jIO Web Section | slapos_jio_api_search_software_installation
